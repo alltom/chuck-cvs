@@ -10,10 +10,10 @@ class Obj {
 } 
 
 Obj o;
-o.set( 1 , 2 );
+o.set( 1, 2 );
 Obj p;
-p.set( 1, 2 );
+p.set( 3, 4 );
 
-if ( o.x != p.x ) while( true );
+if ( o.x == p.x ) 10::second => now;
 
 

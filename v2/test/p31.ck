@@ -10,6 +10,11 @@ class Obj {
 } 
 
 Obj o;
+5 => o.x;
 o.clear();
+
+if ( o.x != 0 ) { 
+	5::second => now;
+}
 
 

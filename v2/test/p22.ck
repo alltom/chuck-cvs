@@ -11,4 +11,6 @@ fun int factorial ( int arg ) {
 
 factorial ( 4 ) => int x;
 
-if ( x != 24 ) while( true ):
+if ( x != 24 ) { 
+	10::second => now; 
+}
