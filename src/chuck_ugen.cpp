@@ -288,7 +288,7 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
         m_current *= m_gain;
         return m_valid;
     }
-    else( m_op < 0 ) // UGEN_OP_PASS
+    else if( m_op < 0 ) // UGEN_OP_PASS
     {
         // pass through
         m_current = m_sum * m_gain;
