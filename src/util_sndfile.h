@@ -33,7 +33,7 @@
 #define CPU_IS_LITTLE_ENDIAN 1
 #define HAVE_PREAD 1
 #define HAVE_PWRITE 1
-#define OS_IS_MACOSX 1
+#define OS_IS_MACOSX 0
 #define OS_IS_WIN32 0
 #define SIZEOF_OFF64_T 0
 #define SIZEOF_LOFF_T 8
