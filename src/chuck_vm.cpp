@@ -31,6 +31,7 @@
 // date: Autumn 2002
 //-----------------------------------------------------------------------------
 #include <vector>
+#include <pthread.h>
 using namespace std;
 
 #include "chuck_vm.h"
@@ -180,6 +181,22 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt,
     if( m_audio )
     {
         // init bbq
+	struct sched_param param;
+	pthread_t tid = pthread_self();
+	int policy;
+	if ( pthread_getschedparam( tid, &policy, &param) ) 
+	{
+            m_last_error = "could not get current scheduling parameters";
+            return FALSE;
+	}
+
+	param.sched_priority = 90;
+	if( pthread_setschedparam( tid, policy, &param ) )
+	{
+            m_last_error = "could not get set new scheduling parameters";
+            return FALSE;
+	}
+    	    
         if( !m_bbq->initialize( 2, SAMPLING_RATE_DEFAULT, 16, buffer_size, num_buffers, dac, adc ) )
         {
             m_last_error = "cannot initialize audio device (try using --silent/-s)";
