@@ -95,6 +95,9 @@ UGEN_PMSG Chorus_pmsg( t_CKTIME now, void * data, const char * msg, void * value
 UGEN_CTRL Chorus_ctrl_modDepth( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Chorus_ctrl_modFreq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Chorus_ctrl_mix( t_CKTIME now, void * data, void * value );
+UGEN_CGET Chorus_cget_modDepth( t_CKTIME now, void * data, void * value );
+UGEN_CGET Chorus_cget_modFreq( t_CKTIME now, void * data, void * value );
+UGEN_CGET Chorus_cget_mix( t_CKTIME now, void * data, void * value );
 
 // Delay
 UGEN_CTOR Delay_ctor( t_CKTIME now );
@@ -151,6 +154,10 @@ UGEN_CTRL Envelope_ctrl_value( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_cget_value( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_ctrl_keyOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_ctrl_keyOff( t_CKTIME now, void * data, void * value );
+UGEN_CGET Envelope_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET Envelope_cget_target( t_CKTIME now, void * data, void * value );
+UGEN_CGET Envelope_cget_time( t_CKTIME now, void * data, void * value );
+UGEN_CGET Envelope_cget_value( t_CKTIME now, void * data, void * value );
 
 // Filter
 UGEN_CTOR Filter_ctor( t_CKTIME now );
@@ -158,6 +165,7 @@ UGEN_DTOR Filter_dtor( t_CKTIME now, void * data );
 UGEN_TICK Filter_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Filter_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Filter_ctrl_coefs( t_CKTIME now, void * data, void * value );
+UGEN_CGET Filter_cget_coefs( t_CKTIME now, void * data, void * value );
 
 // OnePole
 UGEN_CTOR OnePole_ctor( t_CKTIME now );
@@ -167,6 +175,9 @@ UGEN_PMSG OnePole_pmsg( t_CKTIME now, void * data, const char * msg, void * valu
 UGEN_CTRL OnePole_ctrl_a1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OnePole_ctrl_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OnePole_ctrl_pole( t_CKTIME now, void * data, void * value );
+UGEN_CGET OnePole_cget_a1( t_CKTIME now, void * data, void * value );
+UGEN_CGET OnePole_cget_b0( t_CKTIME now, void * data, void * value );
+UGEN_CGET OnePole_cget_pole( t_CKTIME now, void * data, void * value );
 
 // TwoPole
 UGEN_CTOR TwoPole_ctor( t_CKTIME now );
@@ -179,6 +190,12 @@ UGEN_CTRL TwoPole_ctrl_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoPole_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoPole_ctrl_radius( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoPole_ctrl_norm( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoPole_cget_a1( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoPole_cget_a2( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoPole_cget_b0( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoPole_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoPole_cget_radius( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoPole_cget_norm( t_CKTIME now, void * data, void * value );
 
 
 // OneZero
@@ -189,6 +206,9 @@ UGEN_PMSG OneZero_pmsg( t_CKTIME now, void * data, const char * msg, void * valu
 UGEN_CTRL OneZero_ctrl_zero( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OneZero_ctrl_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OneZero_ctrl_b1( t_CKTIME now, void * data, void * value );
+UGEN_CGET OneZero_cget_zero( t_CKTIME now, void * data, void * value );
+UGEN_CGET OneZero_cget_b0( t_CKTIME now, void * data, void * value );
+UGEN_CGET OneZero_cget_b1( t_CKTIME now, void * data, void * value );
 
 // TwoZero
 UGEN_CTOR TwoZero_ctor( t_CKTIME now);
@@ -200,6 +220,11 @@ UGEN_CTRL TwoZero_ctrl_b1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoZero_ctrl_b2( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoZero_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoZero_ctrl_radius( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoZero_cget_b0( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoZero_cget_b1( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoZero_cget_b2( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoZero_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET TwoZero_cget_radius( t_CKTIME now, void * data, void * value );
 
 // PoleZero
 UGEN_CTOR PoleZero_ctor( t_CKTIME now );
@@ -211,6 +236,11 @@ UGEN_CTRL PoleZero_ctrl_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL PoleZero_ctrl_b1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL PoleZero_ctrl_blockZero( t_CKTIME now, void * data, void * value );
 UGEN_CTRL PoleZero_ctrl_allpass( t_CKTIME now, void * data, void * value );
+UGEN_CGET PoleZero_cget_a1( t_CKTIME now, void * data, void * value );
+UGEN_CGET PoleZero_cget_b0( t_CKTIME now, void * data, void * value );
+UGEN_CGET PoleZero_cget_b1( t_CKTIME now, void * data, void * value );
+UGEN_CGET PoleZero_cget_blockZero( t_CKTIME now, void * data, void * value );
+UGEN_CGET PoleZero_cget_allpass( t_CKTIME now, void * data, void * value );
 
 // Noise
 UGEN_CTOR Noise_ctor( t_CKTIME now );
@@ -218,6 +248,7 @@ UGEN_DTOR Noise_dtor( t_CKTIME now, void * data );
 UGEN_TICK Noise_tick( t_CKTIME now, void * data, SAMPLE * in, SAMPLE * out );
 UGEN_PMSG Noise_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Noise_ctrl_seed( t_CKTIME now, void * data, void * value );
+UGEN_CGET Noise_cget_seed( t_CKTIME now, void * data, void * value );
 
 // SubNoise
 UGEN_CTOR SubNoise_ctor( t_CKTIME now );
@@ -225,7 +256,7 @@ UGEN_DTOR SubNoise_dtor( t_CKTIME now, void * data );
 UGEN_TICK SubNoise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG SubNoise_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL SubNoise_ctrl_rate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL SubNoise_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET SubNoise_cget_rate( t_CKTIME now, void * data, void * value );
 
 // JCRev 
 UGEN_CTOR JCRev_ctor( t_CKTIME now );
@@ -233,6 +264,7 @@ UGEN_DTOR JCRev_dtor( t_CKTIME now, void * data );
 UGEN_TICK JCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG JCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL JCRev_ctrl_mix( t_CKTIME now, void * data, void * value );
+UGEN_CGET JCRev_cget_mix( t_CKTIME now, void * data, void * value );
 
 // NRev
 UGEN_CTOR NRev_ctor( t_CKTIME now );
@@ -240,6 +272,7 @@ UGEN_DTOR NRev_dtor( t_CKTIME now, void * data );
 UGEN_TICK NRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG NRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL NRev_ctrl_mix( t_CKTIME now, void * data, void * value );
+UGEN_CGET NRev_cget_mix( t_CKTIME now, void * data, void * value );
 
 // PRCRev
 UGEN_CTOR PRCRev_ctor( t_CKTIME now );
@@ -247,6 +280,7 @@ UGEN_DTOR PRCRev_dtor( t_CKTIME now, void * data );
 UGEN_TICK PRCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG PRCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL PRCRev_ctrl_mix( t_CKTIME now, void * data, void * value );
+UGEN_CGET PRCRev_cget_mix( t_CKTIME now, void * data, void * value );
 
 // WaveLoop
 UGEN_CTOR WaveLoop_ctor( t_CKTIME now );
@@ -258,6 +292,11 @@ UGEN_CTRL WaveLoop_ctrl_rate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WaveLoop_ctrl_phase( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WaveLoop_ctrl_phaseOffset( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WaveLoop_ctrl_path( t_CKTIME now, void * data, void * value );
+UGEN_CGET WaveLoop_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET WaveLoop_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET WaveLoop_cget_phase( t_CKTIME now, void * data, void * value );
+UGEN_CGET WaveLoop_cget_phaseOffset( t_CKTIME now, void * data, void * value );
+UGEN_CGET WaveLoop_cget_path( t_CKTIME now, void * data, void * value );
 
 // WvIn
 UGEN_CTOR WvIn_ctor( t_CKTIME now);
@@ -266,17 +305,23 @@ UGEN_TICK WvIn_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG WvIn_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL WvIn_ctrl_rate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvIn_ctrl_path( t_CKTIME now, void * data, void * value );
+UGEN_CGET WvIn_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET WvIn_cget_path( t_CKTIME now, void * data, void * value );
 
 // WvOut
 UGEN_CTOR WvOut_ctor( t_CKTIME now );
 UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data );
 UGEN_TICK WvOut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG WvOut_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL WvOut_ctrl_filename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value );
+UGEN_CTRL WvOut_ctrl_closeFile( t_CKTIME now, void * data, void * value );
+UGEN_CGET WvOut_cget_filename( t_CKTIME now, void * data, void * value );
+
 // FM
 UGEN_CTOR FM_ctor( t_CKTIME now );
 UGEN_DTOR FM_dtor( t_CKTIME now, void * data );
@@ -289,8 +334,13 @@ UGEN_CTRL FM_ctrl_modDepth( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FM_ctrl_modSpeed( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FM_ctrl_control1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FM_ctrl_control2( t_CKTIME now, void * data, void * value );
-
 UGEN_CTRL FM_ctrl_afterTouch( t_CKTIME now, void * data, void * value );
+UGEN_CGET FM_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET FM_cget_modDepth( t_CKTIME now, void * data, void * value );
+UGEN_CGET FM_cget_modSpeed( t_CKTIME now, void * data, void * value );
+UGEN_CGET FM_cget_control1( t_CKTIME now, void * data, void * value );
+UGEN_CGET FM_cget_control2( t_CKTIME now, void * data, void * value );
+UGEN_CGET FM_cget_afterTouch( t_CKTIME now, void * data, void * value );
 
 // FormSwep
 UGEN_CTOR FormSwep_ctor( t_CKTIME now);
@@ -299,6 +349,8 @@ UGEN_TICK FormSwep_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG FormSwep_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL FormSwep_ctrl_sweepRate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FormSwep_ctrl_sweepTime( t_CKTIME now, void * data, void * value );
+UGEN_CGET FormSwep_cget_sweepRate( t_CKTIME now, void * data, void * value );
+UGEN_CGET FormSwep_cget_sweepTime( t_CKTIME now, void * data, void * value );
 
 // Modulate
 UGEN_CTOR Modulate_ctor( t_CKTIME now );
@@ -308,6 +360,9 @@ UGEN_PMSG Modulate_pmsg( t_CKTIME now, void * data, const char * msg, void * val
 UGEN_CTRL Modulate_ctrl_vibratoGain( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Modulate_ctrl_vibratoRate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Modulate_ctrl_randomGain( t_CKTIME now, void * data, void * value );
+UGEN_CGET Modulate_cget_vibratoGain( t_CKTIME now, void * data, void * value );
+UGEN_CGET Modulate_cget_vibratoRate( t_CKTIME now, void * data, void * value );
+UGEN_CGET Modulate_cget_randomGain( t_CKTIME now, void * data, void * value );
 
 // PitShift
 UGEN_CTOR PitShift_ctor( t_CKTIME now );
@@ -316,6 +371,8 @@ UGEN_TICK PitShift_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG PitShift_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL PitShift_ctrl_shift( t_CKTIME now, void * data, void * value );
 UGEN_CTRL PitShift_ctrl_effectMix( t_CKTIME now, void * data, void * value );
+UGEN_CGET PitShift_cget_shift( t_CKTIME now, void * data, void * value );
+UGEN_CGET PitShift_cget_effectMix( t_CKTIME now, void * data, void * value );
 
 // Sampler
 UGEN_CTOR Sampler_ctor( t_CKTIME now );
@@ -337,6 +394,21 @@ UGEN_PMSG BandedWG_pmsg( t_CKTIME now, void * data, const char * msg, void * val
 UGEN_CTRL BandedWG_ctrl_strikePosition( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_preset( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_bowRate( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_startBowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_stopBowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_pluck( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_bowPressure( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_aftertouch( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_bowTarget( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_modWheel( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_modFreq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_sustain( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_trackVelocity( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_portamento( t_CKTIME now, void * data, void * value );
+
 
 // BeeThree
 UGEN_CTOR BeeThree_ctor( t_CKTIME now );
@@ -351,6 +423,7 @@ UGEN_DTOR BlowBotl_dtor( t_CKTIME now, void * data );
 UGEN_TICK BlowBotl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG BlowBotl_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL BlowBotl_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET BlowBotl_cget_freq( t_CKTIME now, void * data, void * value );
 
 // BlowHole
 UGEN_CTOR BlowHole_ctor( t_CKTIME now );
@@ -418,6 +491,7 @@ UGEN_CTRL FMVoices_ctrl_spectralTilt( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FMVoices_ctrl_lfoSpeed( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FMVoices_ctrl_lfoDepth( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FMVoices_ctrl_adsrTarget( t_CKTIME now, void * data, void * value );
+UGEN_CGET FMVoices_cget_freq( t_CKTIME now, void * data, void * value );
 
 // HevyMetl
 UGEN_CTOR HevyMetl_ctor( t_CKTIME now );
@@ -444,6 +518,13 @@ UGEN_CTRL Mandolin_ctrl_bodySize( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Mandolin_ctrl_stringDamping( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Mandolin_ctrl_stringDetune( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Mandolin_ctrl_afterTouch( t_CKTIME now, void * data, void * value );
+
+UGEN_CGET Mandolin_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET Mandolin_cget_pluckPos( t_CKTIME now, void * data, void * value );
+UGEN_CGET Mandolin_cget_bodySize( t_CKTIME now, void * data, void * value );
+UGEN_CGET Mandolin_cget_stringDamping( t_CKTIME now, void * data, void * value );
+UGEN_CGET Mandolin_cget_stringDetune( t_CKTIME now, void * data, void * value );
+
 
 
 // Modal
@@ -496,6 +577,13 @@ UGEN_CTRL Moog_ctrl_filterQ( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Moog_ctrl_filterSweepRate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Moog_ctrl_afterTouch( t_CKTIME now, void * data, void * value );
 
+UGEN_CGET Moog_cget_freq( t_CKTIME now, void * data, void *value );
+UGEN_CGET Moog_cget_modSpeed( t_CKTIME now, void * data, void * value );
+UGEN_CGET Moog_cget_modDepth( t_CKTIME now, void * data, void * value );
+UGEN_CGET Moog_cget_filterQ( t_CKTIME now, void * data, void * value );
+UGEN_CGET Moog_cget_filterSweepRate( t_CKTIME now, void * data, void * value );
+
+
 // PercFlut
 UGEN_CTOR PercFlut_ctor( t_CKTIME now );
 UGEN_DTOR PercFlut_dtor( t_CKTIME now, void * data );
@@ -503,6 +591,7 @@ UGEN_TICK PercFlut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG PercFlut_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL PercFlut_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL PercFlut_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET PercFlut_cget_freq( t_CKTIME now, void * data, void * value );
 
 // Plucked
 UGEN_CTOR Plucked_ctor( t_CKTIME now );
@@ -549,6 +638,7 @@ UGEN_PMSG Rhodey_pmsg( t_CKTIME now, void * data, const char * msg, void * value
 UGEN_CTRL Rhodey_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Rhodey_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Rhodey_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Rhodey_cget_freq( t_CKTIME now, void * data, void * value );
 
 // Saxofony
 UGEN_CTOR Saxofony_ctor( t_CKTIME now );
@@ -572,6 +662,9 @@ UGEN_CTRL Shakers_ctrl_which( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Shakers_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Shakers_ctrl_noteOff( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Shakers_ctrl_freq( t_CKTIME now, void * data, void * value );
+
+UGEN_CGET Shakers_cget_which( t_CKTIME now, void * data, void * value );
+UGEN_CGET Shakers_cget_freq( t_CKTIME now, void * data, void * value );
 
 // Simple
 UGEN_CTOR Simple_ctor( t_CKTIME now );
@@ -627,6 +720,7 @@ UGEN_TICK TubeBell_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG TubeBell_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL TubeBell_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TubeBell_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET TubeBell_cget_freq( t_CKTIME now, void * data, void * value );
 
 // Voicer
 UGEN_CTOR Voicer_ctor( t_CKTIME now );
@@ -654,6 +748,17 @@ UGEN_CTRL VoicForm_ctrl_vibratoFreq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL VoicForm_ctrl_vibratoGain( t_CKTIME now, void * data, void * value );
 UGEN_CTRL VoicForm_ctrl_loudness( t_CKTIME now, void * data, void * value );
 
+UGEN_CGET VoicForm_cget_phoneme( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_voiced( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_unVoiced( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_pitchSweepRate( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_voiceMix( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_selPhoneme( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_vibratoFreq( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_vibratoGain( t_CKTIME now, void * data, void * value );
+UGEN_CGET VoicForm_cget_loudness( t_CKTIME now, void * data, void * value );
+
 
 
 // Whistle
@@ -675,7 +780,7 @@ UGEN_PMSG Wurley_pmsg( t_CKTIME now, void * data, const char * msg, void * value
 UGEN_CTRL Wurley_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Wurley_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Wurley_ctrl_noteOff( t_CKTIME now, void * data, void * value );
-
+UGEN_CGET Wurley_cget_freq( t_CKTIME now, void * data, void * value );
 
 
 
