@@ -115,6 +115,10 @@ SOURCE=.\chuck_instr.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_main.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_oo.cpp
 # End Source File
 # Begin Source File
@@ -160,10 +164,6 @@ SOURCE=.\midiio_win32.cpp
 # Begin Source File
 
 SOURCE=.\rtaudio.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\test_main.cpp
 # End Source File
 # Begin Source File
 
