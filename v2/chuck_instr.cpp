@@ -1665,6 +1665,8 @@ void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // add reference
     if( *obj ) (*obj)->add_ref();
 
+    // copy
+    // memcpy( (void *)*(reg_sp+1), *obj, sizeof(t_CKUINT) );
     // push the reference value to reg stack
     push_( reg_sp, (t_CKUINT)*obj );
 }
@@ -1746,7 +1748,6 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         for( t_CKUINT i = 0; i < stack_depth; i++ )
             *mem_sp2++ = *reg_sp2++;
 
-        t_CKUINT x = *mem_sp;
         // memcpy( mem_sp2, reg_sp2, stack_depth << 2 );
     }
 }
@@ -2383,6 +2384,8 @@ void Chuck_Instr_Dot_Member_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
         else assert( FALSE );
     }
 
+    return;
+
 error:
     // we have a problem
     fprintf( stderr, 
@@ -2418,6 +2421,8 @@ void Chuck_Instr_Dot_Member_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     
     // push the address
     push_( sp, data );
+
+    return;
 
 error:
     // we have a problem

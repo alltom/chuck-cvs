@@ -316,7 +316,7 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop 
                 assert( stmt->stmt_exp->cast_to == NULL );
 
                 // HACK!
-                if( stmt->stmt_exp->type->size == 4 )
+                if( stmt->stmt_exp->type->size == 4 || stmt->stmt_exp->s_type == ae_exp_decl )
                     emit->append( new Chuck_Instr_Reg_Pop_Word );
                 else if( stmt->stmt_exp->type->size == 8 )
                     emit->append( new Chuck_Instr_Reg_Pop_Word2 );
