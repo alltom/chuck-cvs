@@ -271,7 +271,8 @@ int ck_send( ck_socket sock, const char * buffer, int len )
 int ck_sendto( ck_socket sock, const char * buffer, int len,
                const struct sockaddr * to, int tolen ) 
 {
-    return sendto( sock->sock, buffer, len, 0, to, tolen );
+    if( sock->prot == SOCK_STREAM ) return 0;
+    else return sendto( sock->sock, buffer, len, 0, to, tolen );
 }
 
 
@@ -284,7 +285,12 @@ int ck_sendto( ck_socket sock, const char * buffer, int len,
 int ck_recvfrom( ck_socket sock, char * buffer, int len,
                  struct sockaddr * from, int * fromlen ) 
 {
-    return recvfrom( sock->sock, buffer, len, 0, from, fromlen );
+    if( sock->prot == SOCK_STREAM )
+    {
+        memset( buffer, 0, len );
+        return 0;
+    }
+    else return recvfrom( sock->sock, buffer, len, 0, from, fromlen );
 }
 
 
@@ -296,7 +302,20 @@ int ck_recvfrom( ck_socket sock, char * buffer, int len,
 //-----------------------------------------------------------------------------
 int ck_recv( ck_socket sock, char * buffer, int len ) 
 {
-    return recv( sock->sock, buffer, len, 0);
+    if( sock->prot == SOCK_STREAM )
+    {
+        int ret;
+        int togo = len;
+        char * p = buffer;
+        while( togo > 0 )
+        {
+            ret = recv( sock->sock, p, togo, 0 );
+            if( ret < 0 ) return 0;
+            togo -= ret;
+            p += ret;
+        }
+    }
+    else return recv( sock->sock, buffer, len, 0);
 }
 
 
