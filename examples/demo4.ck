@@ -1,3 +1,6 @@
+// sweep midi keyboards
+// some hand - assembled midi instructions here
+// -gewang
 
 0xb04444 => int prog;
 0x90007f => int msg;
