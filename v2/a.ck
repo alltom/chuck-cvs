@@ -1,7 +1,6 @@
 
-// adc => sndbuf => dac;
 
-1 => int i;
+a => int i;
 
 1 + 1 => i;
 
@@ -23,3 +22,6 @@ class Foo
         return 0;
     }
 }
+
+Foo foo;
+
