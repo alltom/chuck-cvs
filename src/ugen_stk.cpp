@@ -16364,9 +16364,9 @@ void VoicForm :: setFrequency(MY_FLOAT frequency)
 bool VoicForm :: setPhoneme(const char *phoneme )
 {
 	bool found = false;
-  unsigned int i = 0;
+    unsigned int i = 0;
 	while( i < 32 && !found ) {
-		if ( !strcmp( Phonemes::name(i), phoneme ) ) {
+		if( !strcmp( Phonemes::name(i), phoneme ) ) {
 			found = true;
       filters[0]->setTargets( Phonemes::formantFrequency(i, 0), Phonemes::formantRadius(i, 0), pow(10.0, Phonemes::formantGain(i, 0 ) / 20.0) );
       filters[1]->setTargets( Phonemes::formantFrequency(i, 1), Phonemes::formantRadius(i, 1), pow(10.0, Phonemes::formantGain(i, 1 ) / 20.0) );
@@ -16375,14 +16375,14 @@ bool VoicForm :: setPhoneme(const char *phoneme )
       setVoiced( Phonemes::voiceGain( i ) );
       setUnVoiced( Phonemes::noiseGain( i ) );
 #if defined(_STK_DEBUG_)
-			cout << "VoicForm: found formant " << phoneme << " (number " << i << ")" << std::endl;
+      std::cerr << "[chuck](via STK): VoicForm: found formant " << phoneme << " (number " << i << ")" << std::endl;
 #endif
 		}
 		i++;
 	}
 
-	if ( !found )
-    std::cerr << "[chuck](via STK): VoicForm: phoneme " << phoneme << " not found!" << std::endl;
+	if( !found )
+        std::cerr << "[chuck](via STK): VoicForm: phoneme " << phoneme << " not found!" << std::endl;
 
 	return found;
 }

@@ -32,6 +32,8 @@
 //-----------------------------------------------------------------------------
 #include "ulib_net.h"
 #include "util_network.h"
+#include <iostream>
+using namespace std;
 
 
 
@@ -100,6 +102,7 @@ struct GigaMsg
             delete [] payload;
 	        payload = NULL;
         }
+        
         type = 0;
         len = 0;
         seq_num = 0;
@@ -121,11 +124,10 @@ public:
 
     t_CKBOOL connect( const char * hostname, int port, t_CKUINT buffer_size );
     t_CKBOOL disconnect( );
-
+    void tick( SAMPLE sample );
+    t_CKBOOL send( const t_CKBYTE * buffer );
     void set_redundancy( t_CKUINT n );
     t_CKUINT get_redundancy( );
-
-    t_CKBOOL send( const t_CKBYTE * buffer );
 
 protected:
     ck_socket m_sock;
@@ -150,8 +152,8 @@ public:
     ~GigaRecv( );
 
     t_CKBOOL listen( int port, t_CKUINT buffer_size );
-
     t_CKBOOL recv( t_CKBYTE * buffer );
+    t_CKBOOL tick( SAMPLE * sample );
     t_CKBOOL expire();
 
 protected:
@@ -161,6 +163,222 @@ protected:
     t_CKUINT m_len;
     t_CKBYTE m_buffer[0x8000];
 };
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: GigaSend()
+// desc: ...
+//-----------------------------------------------------------------------------
+GigaSend::GigaSend( )
+{
+    m_sock = NULL;
+    m_red = 1;
+    m_buffer_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~GigaSend()
+// desc: ...
+//-----------------------------------------------------------------------------
+GigaSend::~GigaSend( )
+{
+    this->disconnect();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: connect()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaSend::connect( const char * hostname, int port, t_CKUINT buffer_size )
+{
+    if( m_sock )
+        return FALSE;
+
+    m_sock = ck_udp_create( );
+    if( !ck_connect( m_sock, hostname, port ) )
+    {
+        cerr << "[chuck](via netout): error: cannot connect to '" << hostname << ":" 
+	         << port << "'" << endl;
+        return FALSE;
+    }
+
+    m_buffer_size = buffer_size;
+    m_len = sizeof(GigaMsg) + buffer_size - sizeof( m_msg.payload );
+    m_msg.type = 0;
+    m_msg.len = m_len;
+    m_msg.seq_num = 0;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: disconnect()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaSend::disconnect( )
+{
+    if( !m_sock )
+        return FALSE;
+
+    ck_close( m_sock );
+    m_sock = NULL;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_redundancy()
+// desc: ...
+//-----------------------------------------------------------------------------
+void GigaSend::set_redundancy( t_CKUINT n )
+{
+    m_red = n;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get_redundancy()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKUINT GigaSend::get_redundancy( )
+{
+    return m_red;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: send()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaSend::send( const t_CKBYTE * buffer )
+{
+    m_msg.seq_num++;
+
+    memcpy( m_buffer, &m_msg, sizeof( unsigned int ) * 3 );
+    memcpy( m_buffer + sizeof( unsigned int ) * 3, buffer, m_buffer_size );
+
+    for( int i = 0; i < m_red; i++ )
+        ck_send( m_sock, (const char * )m_buffer, m_len );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: GigaRecv()
+// desc: ...
+//-----------------------------------------------------------------------------
+GigaRecv::GigaRecv( )
+{
+    m_sock = NULL;
+    m_buffer_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~GigaRecv()
+// desc: ...
+//-----------------------------------------------------------------------------
+GigaRecv::~GigaRecv( )
+{
+    if( m_sock )
+    {
+        ck_close( m_sock );
+        m_sock = NULL;
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: listen()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaRecv::listen( int port, t_CKUINT buffer_size )
+{
+    if( m_sock )
+        return FALSE;
+
+    m_sock = ck_udp_create();
+
+    // bind
+    if( !ck_bind( m_sock, port ) )
+    {
+        cerr << "[chuck](via netin): error: cannot bind to port '" << port << "'" << endl;
+        return FALSE;
+    }
+
+    m_buffer_size = buffer_size;
+    m_len = sizeof(GigaMsg) + buffer_size - sizeof( m_msg.payload );
+    m_msg.type = 0;
+    m_msg.len = m_len;
+    m_msg.seq_num = 1;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: recv()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaRecv::recv( t_CKBYTE * buffer )
+{
+    GigaMsg * msg = (GigaMsg *)m_buffer;
+
+    if( !m_sock )
+        return FALSE;
+
+    do{ ck_recv( m_sock, (char *)m_buffer, m_len ); }
+    while( msg->seq_num < m_msg.seq_num );
+
+    if( msg->seq_num > (m_msg.seq_num + 1) )
+        cerr << "[chuck](via netin): dropped packet, expect: " << m_msg.seq_num + 1
+             << " got: " << msg->seq_num << endl;
+
+    m_msg.seq_num = msg->seq_num;
+
+    memcpy( buffer, m_buffer + sizeof( unsigned int ) * 3, m_buffer_size );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: expire()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaRecv::expire()
+{
+    m_msg.seq_num++;
+}
 
 
 
