@@ -4,6 +4,8 @@
 //
 // authors: Perry Cook (prc@cs.princeton.edu)
 //          Ge Wang (gewang@cs.princeton.edu)
+// --------------------|
+// add one by one into VM (in pretty much any order):
 //
 // terminal-1%> chuck --loop
 // ---

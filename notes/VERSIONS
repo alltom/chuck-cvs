@@ -8,6 +8,8 @@
   - endian observed (mac <-> win32/linux)
   - more sensible VM output for on-the-fly commands
   - many on-the-fly bug fixes
+  - --replace: new shred inherits the replaced shred id
+    (useful to keep track of shreds in VM)
   - sndbuf automatically set .rate to 1.0 (instead of 0.0)
     (0.0 => buf.rate if no play on next time advance)
   - new on-the-fly examples
@@ -15,6 +17,8 @@
 new examples:
 
   - otf_*.ck - illustrates precise on-the-fly timing
+    (adapted from Perry's ChucK drumming + Ge's sine poops)
+
     chuck them one by one into the VM:
 
       terminal 1%> chuck --loop

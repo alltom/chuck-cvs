@@ -4,7 +4,9 @@
 //
 // authors: Perry Cook (prc@cs.princeton.edu)
 //          Ge Wang (gewang@cs.princeton.edu)
-//
+// --------------------|          
+// add one by one into VM (in pretty much any order):
+// 
 // terminal-1%> chuck --loop
 // ---
 // terminal-2%> chuck + otf_01.ck
@@ -52,10 +54,6 @@ while( true )
     }
     else
     {
-//        std.rand2( 1, 3 ) => int n;
-
-//        while( n > 0 )
-        { 
             .9 => buf.gain;
             where => buf.pos;
             .25::T => now;
@@ -82,6 +80,5 @@ while( true )
             .3 => buf.gain;
             where => buf.pos;
             .25::T => now;
-        }
     }
 }
