@@ -28,6 +28,6 @@ while( true )
     if( freq == 6 ) 7 => freq;
     if( freq == 8 ) 9 => freq;
 
-    std.mtof( 21.0 + (float)(std.rand2(0,3)*12 + freq) ) => s.freq;
+    std.mtof( 21.0 + (float)(std.rand2(0,3)*12 + freq) ) => s.sfreq;
     .25::T => now;
 }
