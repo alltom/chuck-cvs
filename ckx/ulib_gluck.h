@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Philip L. Davidson (philipd@alumni.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #ifndef __ULIB_GLUCK_H__
