@@ -8,9 +8,9 @@ fun float squared( float arg )
 squared(1.0) => float x;
 
 if ( x != 1.0 ) { 
-	while ( true );
+	2::second => now;
 }
 
 if ( x == 1.0 ) { 
-	while ( true );
+	5::second => now;
 }

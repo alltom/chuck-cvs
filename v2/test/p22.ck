@@ -12,5 +12,5 @@ fun int factorial ( int arg ) {
 factorial ( 4 ) => int x;
 
 if ( x != 24 ) { 
-	while ( true );
+	5::second => now;
 }

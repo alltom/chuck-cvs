@@ -10,3 +10,4 @@ squared(1.0) => float x;
 if ( x != 1.0 ) { 
 	while ( true );
 }
+
