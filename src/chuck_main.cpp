@@ -427,7 +427,6 @@ void * cb( void * p )
         }
         ck_send( client, (char *)&msg, sizeof(msg) );
         ck_close( client );
-        fprintf( stderr, "ready\n" );
     }
     
     return NULL;
@@ -577,7 +576,8 @@ int send_cmd( int argc, char ** argv, int  & i )
     {
         fprintf( stderr, "[chuck]: remote operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
         if( !msg.param )
-            fprintf( stderr, "    (reason from server): %s\n", (char *)msg.buffer );
+            fprintf( stderr, "(reason from server): %s\n", 
+                ( strstr( (char *)msg.buffer, "]:line(" ) ? strstr( (char *)msg.buffer, "]:line(" ) - 2 : (char *)msg.buffer ) ) ;
     }
     // close the sock
     ck_close( g_sock );

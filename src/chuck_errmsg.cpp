@@ -115,14 +115,12 @@ void EM_error2( int line, char *message, ... )
 void EM_reset( c_str fname )
 {
     anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
-    linePos=intList(0, NULL);
+    linePos = intList(0, NULL);
 
+    if( yyin ) fclose( yyin );
     yyin = fopen(fname, "r");
-    if (!yyin) 
-    {
-        EM_error( 0, "no such file or directory" );
-        exit(1);
-    }
+    if (!yyin)
+        EM_error2( 0, "no such file or directory" );
 }
 
 
