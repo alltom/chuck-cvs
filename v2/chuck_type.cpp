@@ -1100,12 +1100,18 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
                 }
                 else
                 {
-                    EM_error2( exp->linepos,
-                        "undefined member '%s' in class/namespace '%s'...",
-                        S_name(exp->var), env->class_def->name.c_str() );
+                    // see if in parent
+                    v = type_engine_find_value( env->class_def->parent, exp->var );
+                    if( !v )
+                    {
+                        EM_error2( exp->linepos,
+                            "undefined member '%s' in class/namespace '%s'...",
+                            S_name(exp->var), env->class_def->name.c_str() );
+                    }
                 }
-                return NULL;
             }
+            
+            if( !v ) return NULL;
             t = v->type;
         break;
         
@@ -1391,6 +1397,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             value = new Chuck_Value( t, S_name(var_decl->id), NULL ) );
         // assign the offset
         value->offset = env->curr->offset;
+        // remember the owner
+        value->owner = env->curr;
+        value->owner_class = env->class_def;
         // move the offset (TODO: check the size)
         env->curr->offset += t->size;
 
@@ -1798,9 +1807,13 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             goto error;
         }
 
-        // enter into value table
+        // make new value
         value = new Chuck_Value( 
             arg_list->type, S_name(arg_list->var_decl->id), NULL, FALSE, 0, NULL );
+        // remember the owner
+        value->owner = env->curr;
+        value->owner_class = env->class_def;
+        // add as value
         env->curr->value.add( arg_list->var_decl->id, value );
 
         // stack
@@ -1827,8 +1840,12 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     type->parent = &t_function;
     type->size = sizeof(void *);
     type->func = func;
-    // enter the name into the value table
+    // make new value
     value = new Chuck_Value( type, S_name(f->name), NULL, TRUE, 0, NULL );
+    // remember the owner
+    value->owner = env->curr;
+    value->owner_class = env->class_def;
+    // add as value
     env->curr->value.add( f->name, value );
     // enter the name into the function table
     env->curr->func.add( f->name, func );
