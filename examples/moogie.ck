@@ -17,7 +17,7 @@ fun void atouch( float imp) {
 	imp => float atouch;
 	while ( atouch >= 0.0 ) { 
 		atouch => mog.afterTouch;
-		atouch - 0.008 => atouch;
+		atouch - 0.05 => atouch;
 		10::ms => now;
 	}
 }
@@ -28,9 +28,8 @@ while ( true ) {
 
 //	std.rand2f ( 440.0, 880.0 ) => mog.freq;
 	278.43 => mog.freq;
-//	std.rand2f(0.2, 0.4) => vel;
-	0.3 => vel;
-	vel => mog.noteOn;
+	std.rand2f(0.5, 0.8) => vel;
+	vel  => mog.noteOn;
 	spork ~ atouch(vel);
 	if ( std.randf() >  0.3 ) { 1::second => now; }
 	else { 0.5::second => now; }
