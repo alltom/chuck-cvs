@@ -309,6 +309,7 @@ Chuck_DL_Query::Chuck_DL_Query( )
   srate = 0; bufsize = 0;
 #endif
 
+  ugen_exports.resize( 128 );
   linepos = 0;
 }
 

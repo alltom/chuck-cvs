@@ -313,7 +313,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_freq, Bowed_cget_freq, "float", "freq" ); //!
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_rate, Bowed_cget_rate, "float", "rate" ); //!
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_vibrato, Bowed_cget_vibrato, "float", "vibrato" ); //!    
-	
+
 	// add Brass
     QUERY->ugen_add( QUERY, "Brass", NULL );
     QUERY->ugen_func( QUERY, Brass_ctor, Brass_dtor, Brass_tick, Brass_pmsg );
@@ -362,7 +362,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDamping, Mandolin_cget_stringDamping, "float", "stringDamping" ); //! control string damping
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, Mandolin_cget_stringDetune, "float", "stringDetune" ); //! control detuning of string pair
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" ); //!aftertouch
-    
 
     // add ModalBar
     //! see \example modalbot.ck

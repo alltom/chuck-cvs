@@ -136,7 +136,7 @@ struct Chuck_UGen_Info
     }
 
     // constructor
-    Chuck_UGen_Info( const std::string & n, t_CKUINT min = 0, t_CKUINT max = 0xffffffff )
+    Chuck_UGen_Info( const std::string & n = "[invalid]", t_CKUINT min = 0, t_CKUINT max = 0xffffffff )
     {
         name = n;
         parent = "";
