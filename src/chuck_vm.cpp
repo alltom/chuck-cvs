@@ -1101,7 +1101,7 @@ void Chuck_VM_Shreduler::advance( )
     // tick the dac
     SAMPLE l, r;
     BBQ * audio = this->bbq;
-    
+
     // tick in
     if( audio )
     {
@@ -1109,14 +1109,14 @@ void Chuck_VM_Shreduler::advance( )
         m_adc[0].m_current = .5f * ( l + r ) * m_adc[0].m_gain;
         // m_adc[1].m_current = r * m_adc[1].m_gain;
     }
-    
+
     // dac
     m_dac[0].system_tick( this->now_system );
     //m_dac[1].system_tick( this->now_system );
     l = m_dac[0].m_current;
     //r = m_dac[1].m_current;
     l *= .5f;
-    
+
     // suck samples
     m_bunghole->system_tick( this->now_system );
 
