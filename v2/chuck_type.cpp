@@ -154,7 +154,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 
 	// dur value
     t_CKDUR samp = 1.0;
-    t_CKDUR second = vm->srate() * samp;
+    // TODO:
+    // t_CKDUR second = vm->srate() * samp;
+    t_CKDUR second = 44100 * samp;
     t_CKDUR ms = second / 1000.0;
     t_CKDUR minute = second * 60.0;
     t_CKDUR hour = minute * 60.0;
