@@ -18,7 +18,7 @@ while( true )
     { 1000::ms => now; }
     else if( std.randf() > .7 )
     { 500::ms => now; }
-    else if( std.randf() > -0.5 )
+    else if( std.randf() > 0.2 )
     { .250::second => now; }
     else
     {
@@ -37,7 +37,7 @@ while( true )
         }
     }
 
-    if ( std.randf() > 0.6 ) { 
+    if ( std.randf() > 0.2 ) { 
         1::second => now;
         0.001 => band.stopBowing;
         0.5::second * (float) std.rand2(1,3) => now;
