@@ -16,7 +16,7 @@
 //--------------------------------------|
 
 // this synchronizes to period
-500::ms => dur T;
+.5::second => dur T;
 T - (now % T) => now;
 
 // construct the patch

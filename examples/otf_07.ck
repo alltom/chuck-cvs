@@ -16,7 +16,7 @@
 //--------------------------------------|
 
 // this synchronizes to period
-500::ms => dur T;
+.5::second => dur T;
 T - (now % T) => now;
 
 // construct the patch
@@ -54,10 +54,6 @@ while( true )
     }
     else
     {
-//        std.rand2( 1, 3 ) => int n;
-
-//        while( n > 0 )
-        { 
             .9 => buf.gain;
             where => buf.pos;
             .25::T => now;
@@ -84,6 +80,5 @@ while( true )
             .3 => buf.gain;
             where => buf.pos;
             .25::T => now;
-        }
     }
 }
