@@ -250,7 +250,7 @@ int comment()
 
     while ((c = input()) != '\n' && c != '\r' && c != 0);
 
-    if (c != 0) { adjust(); EM_newline(); }
+    if (c != 0) { adjust(); /*EM_newline();*/ }
     
     return 0;
 }

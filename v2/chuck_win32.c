@@ -598,18 +598,18 @@ static const unsigned short yyrline[] =
        0,   166,   166,   167,   171,   172,   173,   177,   179,   181,
      183,   188,   189,   190,   191,   195,   196,   200,   201,   205,
      209,   210,   214,   215,   219,   221,   226,   227,   228,   229,
-     234,   235,   239,   243,   244,   248,   249,   253,   254,   258,
-     259,   260,   261,   263,   267,   268,   272,   274,   279,   281,
-     283,   285,   287,   289,   294,   295,   299,   300,   304,   305,
-     309,   310,   315,   316,   321,   322,   326,   327,   328,   332,
-     333,   337,   338,   339,   343,   344,   345,   346,   347,   348,
-     349,   350,   351,   352,   360,   361,   366,   367,   372,   373,
-     378,   379,   384,   385,   390,   391,   396,   397,   399,   404,
-     405,   407,   409,   411,   416,   417,   419,   424,   425,   427,
-     432,   433,   435,   437,   442,   443,   448,   449,   454,   455,
-     457,   459,   461,   463,   472,   473,   474,   475,   476,   477,
-     482,   483,   485,   487,   489,   491,   493,   495,   500,   501,
-     502,   503,   504,   505,   506
+     233,   234,   238,   242,   243,   247,   248,   252,   253,   257,
+     258,   259,   260,   262,   266,   267,   271,   273,   278,   280,
+     282,   284,   286,   288,   293,   294,   298,   299,   303,   304,
+     308,   309,   314,   315,   320,   321,   325,   326,   327,   331,
+     332,   336,   337,   338,   342,   343,   344,   345,   346,   347,
+     348,   349,   350,   351,   359,   360,   365,   366,   371,   372,
+     377,   378,   383,   384,   389,   390,   395,   396,   398,   403,
+     404,   406,   408,   410,   415,   416,   418,   423,   424,   426,
+     431,   432,   434,   436,   441,   442,   447,   448,   453,   454,
+     456,   458,   460,   462,   471,   472,   473,   474,   475,   476,
+     481,   482,   484,   486,   488,   490,   492,   494,   499,   500,
+     501,   502,   503,   504,   505
 };
 #endif
 
@@ -1748,577 +1748,577 @@ yyreduce:
     break;
 
   case 30:
-#line 234 "chuck.y"
+#line 233 "chuck.y"
     { yyval.ival = ae_key_static; ;}
     break;
 
   case 31:
-#line 235 "chuck.y"
+#line 234 "chuck.y"
     { yyval.ival = 0; ;}
     break;
 
   case 32:
-#line 239 "chuck.y"
+#line 238 "chuck.y"
     { yyval.type_decl = new_type_decl( yyvsp[0].id_list, EM_lineNum ); ;}
     break;
 
   case 33:
-#line 243 "chuck.y"
+#line 242 "chuck.y"
     { yyval.type_decl = yyvsp[0].type_decl; ;}
     break;
 
   case 34:
-#line 244 "chuck.y"
+#line 243 "chuck.y"
     { yyval.type_decl = add_type_decl_array( yyvsp[-1].type_decl, yyvsp[0].array_sub, EM_lineNum ); ;}
     break;
 
   case 35:
-#line 248 "chuck.y"
+#line 247 "chuck.y"
     { yyval.arg_list = new_arg_list( yyvsp[-1].type_decl, yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 36:
-#line 249 "chuck.y"
+#line 248 "chuck.y"
     { yyval.arg_list = prepend_arg_list( yyvsp[-3].type_decl, yyvsp[-2].sval, yyvsp[0].arg_list, EM_lineNum ); ;}
     break;
 
   case 37:
-#line 253 "chuck.y"
+#line 252 "chuck.y"
     { yyval.stmt_list = new_stmt_list( yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 38:
-#line 254 "chuck.y"
+#line 253 "chuck.y"
     { yyval.stmt_list = prepend_stmt_list( yyvsp[-1].stmt, yyvsp[0].stmt_list, EM_lineNum ); ;}
     break;
 
   case 39:
-#line 258 "chuck.y"
+#line 257 "chuck.y"
     { yyval.stmt = yyvsp[0].stmt; ;}
     break;
 
   case 40:
-#line 259 "chuck.y"
+#line 258 "chuck.y"
     { yyval.stmt = yyvsp[0].stmt; ;}
     break;
 
   case 41:
-#line 260 "chuck.y"
+#line 259 "chuck.y"
     { yyval.stmt = yyvsp[0].stmt; ;}
     break;
 
   case 42:
-#line 261 "chuck.y"
+#line 260 "chuck.y"
     { yyval.stmt = yyvsp[0].stmt; ;}
     break;
 
   case 43:
-#line 263 "chuck.y"
+#line 262 "chuck.y"
     { yyval.stmt = yyvsp[0].stmt; ;}
     break;
 
   case 44:
-#line 267 "chuck.y"
+#line 266 "chuck.y"
     { yyval.stmt = new_stmt_from_return( NULL, EM_lineNum ); ;}
     break;
 
   case 45:
-#line 268 "chuck.y"
+#line 267 "chuck.y"
     { yyval.stmt = new_stmt_from_return( yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 46:
-#line 273 "chuck.y"
+#line 272 "chuck.y"
     { yyval.stmt = new_stmt_from_if( yyvsp[-2].exp, yyvsp[0].stmt, NULL, EM_lineNum ); ;}
     break;
 
   case 47:
-#line 275 "chuck.y"
+#line 274 "chuck.y"
     { yyval.stmt = new_stmt_from_if( yyvsp[-4].exp, yyvsp[-2].stmt, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 48:
-#line 280 "chuck.y"
+#line 279 "chuck.y"
     { yyval.stmt = new_stmt_from_while( yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 49:
-#line 282 "chuck.y"
+#line 281 "chuck.y"
     { yyval.stmt = new_stmt_from_do_while( yyvsp[-2].exp, yyvsp[-5].stmt, EM_lineNum ); ;}
     break;
 
   case 50:
-#line 284 "chuck.y"
+#line 283 "chuck.y"
     { yyval.stmt = new_stmt_from_for( yyvsp[-3].stmt, yyvsp[-2].stmt, NULL, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 51:
-#line 286 "chuck.y"
+#line 285 "chuck.y"
     { yyval.stmt = new_stmt_from_for( yyvsp[-4].stmt, yyvsp[-3].stmt, yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 52:
-#line 288 "chuck.y"
+#line 287 "chuck.y"
     { yyval.stmt = new_stmt_from_until( yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 53:
-#line 290 "chuck.y"
+#line 289 "chuck.y"
     { yyval.stmt = new_stmt_from_do_until( yyvsp[-2].exp, yyvsp[-5].stmt, EM_lineNum ); ;}
     break;
 
   case 54:
-#line 294 "chuck.y"
+#line 293 "chuck.y"
     { yyval.stmt = NULL; ;}
     break;
 
   case 55:
-#line 295 "chuck.y"
+#line 294 "chuck.y"
     { yyval.stmt = new_stmt_from_code( yyvsp[-1].stmt_list, EM_lineNum ); ;}
     break;
 
   case 56:
-#line 299 "chuck.y"
+#line 298 "chuck.y"
     { yyval.stmt = NULL; ;}
     break;
 
   case 57:
-#line 300 "chuck.y"
+#line 299 "chuck.y"
     { yyval.stmt = new_stmt_from_expression( yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 58:
-#line 304 "chuck.y"
+#line 303 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 59:
-#line 305 "chuck.y"
+#line 304 "chuck.y"
     { yyval.exp = prepend_expression( yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 60:
-#line 309 "chuck.y"
+#line 308 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 61:
-#line 311 "chuck.y"
+#line 310 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, yyvsp[-1].ival, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 62:
-#line 315 "chuck.y"
+#line 314 "chuck.y"
     { yyval.array_sub = new_array_sub( yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 63:
-#line 317 "chuck.y"
+#line 316 "chuck.y"
     { yyval.array_sub = prepend_array_sub( yyvsp[-3].array_sub, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 64:
-#line 321 "chuck.y"
+#line 320 "chuck.y"
     { yyval.array_sub = new_array_sub( NULL, EM_lineNum ); ;}
     break;
 
   case 65:
-#line 322 "chuck.y"
+#line 321 "chuck.y"
     { yyval.array_sub = prepend_array_sub( yyvsp[-2].array_sub, NULL, EM_lineNum ); ;}
     break;
 
   case 66:
-#line 326 "chuck.y"
+#line 325 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 67:
-#line 327 "chuck.y"
+#line 326 "chuck.y"
     { yyval.exp = new_exp_decl( NULL, yyvsp[0].var_decl_list, EM_lineNum ); ;}
     break;
 
   case 68:
-#line 328 "chuck.y"
+#line 327 "chuck.y"
     { yyval.exp = new_exp_decl( yyvsp[-1].type_decl, yyvsp[0].var_decl_list, EM_lineNum ); ;}
     break;
 
   case 69:
-#line 332 "chuck.y"
+#line 331 "chuck.y"
     { yyval.var_decl_list = new_var_decl_list( yyvsp[0].var_decl, EM_lineNum ); ;}
     break;
 
   case 70:
-#line 333 "chuck.y"
+#line 332 "chuck.y"
     { yyval.var_decl_list = prepend_var_decl_list( yyvsp[-2].var_decl, yyvsp[0].var_decl_list, EM_lineNum ); ;}
     break;
 
   case 71:
-#line 337 "chuck.y"
+#line 336 "chuck.y"
     { yyval.var_decl = new_var_decl( yyvsp[0].sval, NULL, EM_lineNum ); ;}
     break;
 
   case 72:
-#line 338 "chuck.y"
+#line 337 "chuck.y"
     { yyval.var_decl = new_var_decl( yyvsp[-1].sval, yyvsp[0].array_sub, EM_lineNum ); ;}
     break;
 
   case 73:
-#line 339 "chuck.y"
+#line 338 "chuck.y"
     { yyval.var_decl = new_var_decl( yyvsp[-1].sval, yyvsp[0].array_sub, EM_lineNum ); ;}
     break;
 
   case 74:
-#line 343 "chuck.y"
+#line 342 "chuck.y"
     { yyval.ival = ae_op_chuck; ;}
     break;
 
   case 75:
-#line 344 "chuck.y"
+#line 343 "chuck.y"
     { yyval.ival = ae_op_at_chuck; ;}
     break;
 
   case 76:
-#line 345 "chuck.y"
+#line 344 "chuck.y"
     { yyval.ival = ae_op_plus_chuck; ;}
     break;
 
   case 77:
-#line 346 "chuck.y"
+#line 345 "chuck.y"
     { yyval.ival = ae_op_minus_chuck; ;}
     break;
 
   case 78:
-#line 347 "chuck.y"
+#line 346 "chuck.y"
     { yyval.ival = ae_op_times_chuck; ;}
     break;
 
   case 79:
-#line 348 "chuck.y"
+#line 347 "chuck.y"
     { yyval.ival = ae_op_divide_chuck; ;}
     break;
 
   case 80:
-#line 349 "chuck.y"
+#line 348 "chuck.y"
     { yyval.ival = ae_op_shift_right_chuck; ;}
     break;
 
   case 81:
-#line 350 "chuck.y"
+#line 349 "chuck.y"
     { yyval.ival = ae_op_shift_left_chuck; ;}
     break;
 
   case 82:
-#line 351 "chuck.y"
+#line 350 "chuck.y"
     { yyval.ival = ae_op_percent_chuck; ;}
     break;
 
   case 83:
-#line 352 "chuck.y"
+#line 351 "chuck.y"
     { yyval.ival = ae_op_unchuck; ;}
     break;
 
   case 84:
-#line 360 "chuck.y"
+#line 359 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 85:
-#line 362 "chuck.y"
+#line 361 "chuck.y"
     { yyval.exp = new_exp_from_if( yyvsp[-4].exp, yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 86:
-#line 366 "chuck.y"
+#line 365 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 87:
-#line 368 "chuck.y"
+#line 367 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_or, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 88:
-#line 372 "chuck.y"
+#line 371 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 89:
-#line 374 "chuck.y"
+#line 373 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_and, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 90:
-#line 378 "chuck.y"
+#line 377 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 91:
-#line 380 "chuck.y"
+#line 379 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_or, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 92:
-#line 384 "chuck.y"
+#line 383 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 93:
-#line 386 "chuck.y"
+#line 385 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_xor, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 94:
-#line 390 "chuck.y"
+#line 389 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 95:
-#line 392 "chuck.y"
+#line 391 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_and, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 96:
-#line 396 "chuck.y"
+#line 395 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 97:
-#line 398 "chuck.y"
+#line 397 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_eq, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 98:
-#line 400 "chuck.y"
+#line 399 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_neq, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 99:
-#line 404 "chuck.y"
+#line 403 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 100:
-#line 406 "chuck.y"
+#line 405 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_lt, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 101:
-#line 408 "chuck.y"
+#line 407 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_gt, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 102:
-#line 410 "chuck.y"
+#line 409 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_le, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 103:
-#line 412 "chuck.y"
+#line 411 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_ge, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 104:
-#line 416 "chuck.y"
+#line 415 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 105:
-#line 418 "chuck.y"
+#line 417 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_shift_left, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 106:
-#line 420 "chuck.y"
+#line 419 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_shift_right, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 107:
-#line 424 "chuck.y"
+#line 423 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 108:
-#line 426 "chuck.y"
+#line 425 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_plus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 109:
-#line 428 "chuck.y"
+#line 427 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_minus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 110:
-#line 432 "chuck.y"
+#line 431 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 111:
-#line 434 "chuck.y"
+#line 433 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_times, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 112:
-#line 436 "chuck.y"
+#line 435 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_divide, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 113:
-#line 438 "chuck.y"
+#line 437 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_percent, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 114:
-#line 442 "chuck.y"
+#line 441 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 115:
-#line 444 "chuck.y"
+#line 443 "chuck.y"
     { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_tilda, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 116:
-#line 448 "chuck.y"
+#line 447 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 117:
-#line 450 "chuck.y"
+#line 449 "chuck.y"
     { yyval.exp = new_exp_from_cast( NULL, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 118:
-#line 454 "chuck.y"
+#line 453 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 119:
-#line 456 "chuck.y"
+#line 455 "chuck.y"
     { yyval.exp = new_exp_from_unary( ae_op_plusplus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 120:
-#line 458 "chuck.y"
+#line 457 "chuck.y"
     { yyval.exp = new_exp_from_unary( ae_op_minusminus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 121:
-#line 460 "chuck.y"
+#line 459 "chuck.y"
     { yyval.exp = new_exp_from_unary( yyvsp[-1].ival, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 122:
-#line 462 "chuck.y"
+#line 461 "chuck.y"
     { yyval.exp = new_exp_from_unary( ae_op_typeof, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 123:
-#line 464 "chuck.y"
+#line 463 "chuck.y"
     { yyval.exp = new_exp_from_unary( ae_op_sizeof, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 124:
-#line 472 "chuck.y"
+#line 471 "chuck.y"
     { yyval.ival = ae_op_plus; ;}
     break;
 
   case 125:
-#line 473 "chuck.y"
+#line 472 "chuck.y"
     { yyval.ival = ae_op_minus; ;}
     break;
 
   case 126:
-#line 474 "chuck.y"
+#line 473 "chuck.y"
     { yyval.ival = ae_op_tilda; ;}
     break;
 
   case 127:
-#line 475 "chuck.y"
+#line 474 "chuck.y"
     { yyval.ival = ae_op_exclamation; ;}
     break;
 
   case 128:
-#line 476 "chuck.y"
+#line 475 "chuck.y"
     { yyval.ival = ae_op_times; ;}
     break;
 
   case 129:
-#line 477 "chuck.y"
+#line 476 "chuck.y"
     { yyval.ival = ae_op_spork; ;}
     break;
 
   case 130:
-#line 482 "chuck.y"
+#line 481 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 131:
-#line 484 "chuck.y"
+#line 483 "chuck.y"
     { yyval.exp = new_exp_from_array( yyvsp[-1].exp, yyvsp[0].array_sub, EM_lineNum ); ;}
     break;
 
   case 132:
-#line 486 "chuck.y"
+#line 485 "chuck.y"
     { yyval.exp = new_exp_from_func_call( yyvsp[-2].exp, NULL, EM_lineNum ); ;}
     break;
 
   case 133:
-#line 488 "chuck.y"
+#line 487 "chuck.y"
     { yyval.exp = new_exp_from_func_call( yyvsp[-3].exp, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 134:
-#line 490 "chuck.y"
+#line 489 "chuck.y"
     { yyval.exp = new_exp_from_member_dot( yyvsp[-2].exp, yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 135:
-#line 492 "chuck.y"
+#line 491 "chuck.y"
     { yyval.exp = new_exp_from_postfix( yyvsp[-1].exp, ae_op_plusplus, EM_lineNum ); ;}
     break;
 
   case 136:
-#line 494 "chuck.y"
+#line 493 "chuck.y"
     { yyval.exp = new_exp_from_postfix( yyvsp[-1].exp, ae_op_minusminus, EM_lineNum ); ;}
     break;
 
   case 137:
-#line 496 "chuck.y"
+#line 495 "chuck.y"
     { yyval.exp = new_exp_from_dur( yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 138:
-#line 500 "chuck.y"
+#line 499 "chuck.y"
     { yyval.exp = new_exp_from_id( yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 139:
-#line 501 "chuck.y"
+#line 500 "chuck.y"
     { yyval.exp = new_exp_from_int( yyvsp[0].ival, EM_lineNum ); ;}
     break;
 
   case 140:
-#line 502 "chuck.y"
+#line 501 "chuck.y"
     { yyval.exp = new_exp_from_float( yyvsp[0].fval, EM_lineNum ); ;}
     break;
 
   case 141:
-#line 503 "chuck.y"
+#line 502 "chuck.y"
     { yyval.exp = new_exp_from_str( yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 142:
-#line 504 "chuck.y"
+#line 503 "chuck.y"
     { yyval.exp = new_exp_from_namespace( "", EM_lineNum ); ;}
     break;
 
   case 143:
-#line 505 "chuck.y"
+#line 504 "chuck.y"
     { yyval.exp = new_exp_from_namespace( yyvsp[-1].sval, EM_lineNum ); ;}
     break;
 
   case 144:
-#line 506 "chuck.y"
+#line 505 "chuck.y"
     { yyval.exp = yyvsp[-1].exp; ;}
     break;
 
@@ -2537,7 +2537,7 @@ yyreturn:
 /* A lexical scanner generated by flex */
 
 /* Scanner skeleton version:
- * $Header: /cvs/chuck_dev/v2/chuck_win32.c,v 1.3 2004/12/20 04:27:36 gw-chuck Exp $
+ * $Header: /cvs/chuck_dev/v2/chuck_win32.c,v 1.4 2004/12/20 21:48:19 gw-chuck Exp $
  */
 
 #define FLEX_SCANNER
@@ -4846,7 +4846,7 @@ int comment()
 
     while ((c = input()) != '\n' && c != '\r' && c != 0);
 
-    if (c != 0) { adjust(); EM_newline(); }
+    if (c != 0) { adjust(); /*EM_newline();*/ }
     
     return 0;
 }
