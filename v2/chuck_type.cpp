@@ -1290,7 +1290,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     if( !f ) return NULL;
 
     // void type for args
-    t_Type a = &t_void;
+    t_CKTYPE a = &t_void;
 
     // make sure we have a function
     if( isa( f, &t_function ) )
@@ -1299,52 +1299,10 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
         return NULL;
     }
 
-    // get the function
-    func = 
-    Chuck_Func * func = func_call->func->owner->lookup_func( 
-    
-    if( func_call->func->s_type == ae_exp_primary )
-    {
-        if( func_call->func->primary.s_type == ae_primary_var )
-        {
-            // find func
-            func = env->curr->lookup_func( func_call->func->primary.var, TRUE );
-            if( !func )
-            {
-                EM_error2( func_call->linepos,
-                    "no function named '%s' defined", S_name(func_call->func->primary.var) );
-                return NULL;
-            }
-        }
-        else
-        {
-            EM_error2( func_call->linepos, "function call using illegal f-value" );
-            return NULL;
-        }
-    }
-    else  // namespace or class
-    {
-        t_Env e = env->child;
-        S_Symbol s = env->nspc_name;
-        
-        // make sure both there
-        if( !e || !s )
-        {
-            EM_error2( func_call->linepos, "type checker: missing env/symbol in func call" );
-            return NULL;
-        }
-        
-        // find func
-        func = lookup_func( e, s );
-        if( !func )
-        {
-            EM_error2( func_call->linepos,
-                "no function named '%s' defined in namespace/class '%s'",
-                S_name(s), S_name(e->name) );
-            return NULL;
-        }
-    }
+    // get the function and set it in the func_call
+    func_call->ck_func = func = env->func;
 
+    // check the arguments
     if( func_call->args )
     {
         a = type_engine_check_exp( env, func_call->args );
@@ -1352,25 +1310,26 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     }
 
     a_Exp e = func_call->args;
-    a_Arg_List e1 = func->arg_list;
+    a_Arg_List e1 = func->def->arg_list;
     unsigned int count = 1;
 
-    // check arguments
+    // check arguments against the definition
     while( e )
     {
         if( e1 == NULL )
         {
             EM_error2( func_call->linepos,
                 "extra argument(s) in function call '%s' %i %s",
-                S_name(func_call->func->primary.var), e->s_type, e->type->name );
+                func->name.c_str(), e->type->name.c_str() );
             return NULL;
         }
 
-        if( e->type->type != e1->type->type )
+        // no match
+        if( !isa( e->type, e1->type ) )
         {
             EM_error2( func_call->linepos,
                 "argument '%i' of function call '%s' has type '%s' -- expecting type '%s'",
-                count, S_name(func_call->func->primary.var), e->type->name, e1->type->name );
+                count, func->name.c_str(), e->type->name.c_str(), e1->type->name.c_str() );
             return NULL;
         }
 
@@ -1379,18 +1338,29 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
         count++;
     }
 
+    // anything left
     if( e1 != NULL )
     {
         EM_error2( func_call->linepos,
-            "missing argument(s) in function call '%s', next arg: '%s %s'",
-            S_name(func_call->func->primary.var), e1->type->name, S_name(e1->id) );
+            "missing argument(s) in function call '%s', next arg type: '%s'",
+            func->name.c_str(), e1->type->name.c_str() );
         return NULL;
     }
 
-    return func->ret_type;
+    return func->def->ret_type;
 }
 
-t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_dot_member()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
+{
+}
+
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );

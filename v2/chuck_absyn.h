@@ -113,6 +113,7 @@ typedef struct a_Class_Body_ * a_Class_Body;
 
 // forward reference for type
 typedef struct Chuck_Type * t_CKTYPE;
+typedef struct Chuck_Func * t_CKFUNC;
 typedef struct Chuck_Namespace * t_CKNSPC;
 
 
@@ -189,7 +190,8 @@ struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; int linepos; a_Exp self; };
 struct a_Exp_Postfix_ { a_Exp exp; ae_Operator op; int linepos; a_Exp self; };
 struct a_Exp_Dur_ { a_Exp base; a_Exp unit; int linepos; a_Exp self; };
 struct a_Exp_Array_ { a_Exp base; a_Exp index; int linepos; a_Exp self; };
-struct a_Exp_Func_Call_ { a_Exp func; a_Exp args; t_CKTYPE ret_type; int linepos; a_Exp self; };
+struct a_Exp_Func_Call_ { a_Exp func; a_Exp args; t_CKTYPE ret_type;
+                          t_CKFUNC ck_func; int linepos; a_Exp self; };
 struct a_Exp_Dot_Member_ { a_Exp base; S_Symbol id; unsigned long data;
                            unsigned long data2; unsigned int flag; int linepos; a_Exp self; };
 struct a_Exp_If_ { a_Exp cond; a_Exp if_exp; a_Exp else_exp; int linepos; a_Exp self; };
