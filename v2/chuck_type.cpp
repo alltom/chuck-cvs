@@ -2158,7 +2158,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->info->obj_v_table = t_parent->info->obj_v_table;
     the_class->func = NULL;
     the_class->def = class_def;
-
+    // add to env
+    env->curr->type.add( the_class->name, the_class );
 
     // set the new type as current
     env->stack.push_back( env->curr );
@@ -2206,8 +2207,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         Chuck_Value * value = NULL;
         Chuck_Type * type = NULL;
 
-        // add to env
-        env->curr->type.add( the_class->name, the_class );
+
         // allocate value
         type = t_class.copy( env );
         type->actual_type = the_class;
