@@ -773,7 +773,8 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
         break;
         
         default:
-            EM_error2( curr->linepos, "internal compiler error - no expression '%i'",
+            EM_error2( curr->linepos,
+                "internal compiler error - no expression type '%i'...",
                 curr->s_type );
             return NULL;
         }

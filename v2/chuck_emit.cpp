@@ -930,7 +930,7 @@ t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont )
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_return()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt )
@@ -959,19 +959,118 @@ t_CKBOOL emit_engine_emit_switch( Chuck_Emitter * emit, a_Stmt_Switch stmt );
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
+t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp )
+{
+    // for now...
+    assert( exp->next == NULL );
+
+    // loop over 
+    while( exp )
+    {
+        switch( exp->s_type )
+        {
+        case ae_exp_binary:
+            if( !emit_engine_emit_exp_binary( emit, &exp->binary ) )
+                return FALSE;
+            break;
+
+        case ae_exp_unary:
+            if( !emit_engine_emit_exp_unary( emit, &exp->unary ) )
+                return FALSE;
+            break;
+
+        case ae_exp_cast:
+            if( !emit_engine_emit_exp_cast( emit, &exp->cast ) )
+                return FALSE;
+            break;
+
+        case ae_exp_postfix:
+            if( !emit_engine_emit_exp_postfix( emit, &exp->postfix ) )
+                return FALSE;
+            break;
+
+        case ae_exp_dur:
+            if( !emit_engine_emit_exp_dur( emit, &exp->dur ) )
+                return FALSE;
+            break;
+
+        case ae_exp_primary:
+            if( !emit_engine_emit_exp_primary( emit, &exp->primary ) )
+                return FALSE;
+            break;
+
+        case ae_exp_array:
+            if( !emit_engine_emit_exp_array( emit, &exp->array ) )
+                return FALSE;
+            break;
+
+        case ae_exp_func_call:
+            if( !emit_engine_emit_exp_func_call( emit, &exp->func_call ) )
+                return FALSE;
+            break;
+
+        case ae_exp_dot_member:
+            if( !emit_engine_emit_exp_dot_member( emit, &exp->dot_member ) )
+                return FALSE;
+            break;
+
+        case ae_exp_if:
+            if( !emit_engine_emit_exp_if( emit, &exp->exp_if ) )
+                return FALSE;
+            break;
+
+        case ae_exp_decl:
+            if( !emit_engine_emit_exp_decl( emit, &exp->decl ) )
+                return FALSE;
+            break;
+
+        //case ae_exp_namespace:
+        //    if( !emit_engine_emit_exp_namespace( emit, &exp->name_space ) )
+        //        return FALSE;
+        //    break;
+
+        default:
+            EM_error2( exp->linepos, 
+                 "(emit): internal error: unhandled expression type '%i'...",
+                 exp->s_type );
+            return FALSE;
+        }
+
+        exp = exp->next;
+    }
+
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_binary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary );
+t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary )
+{
+    t_CKBOOL left = FALSE;
+    t_CKBOOL right = FALSE;
+
+    // emit
+    left = emit_engine_emit_exp( emit, exp->lhs );
+    right = emit_engine_emit_exp( emit, exp->rhs );
+
+    // check
+    if( !left || !right )
+        return FALSE;
+
+    // emit the op
+    if( !emit_engine_emit_op( emit, exp->op, exp->lhs, exp->rhs ) )
+        return FALSE;
+
+    return TRUE;
+}
 
 
 
