@@ -1,7 +1,7 @@
 // chuck this with other shreds to record to file
-// example> chuck foo.ck bar.ck rec2
+// example> chuck foo.ck bar.ck re2.ck
 // 
-// this is just like rec.ck, except "special:auto"
+// this is just like re.ck, except "special:auto"
 // generates a different file name every time
 
 // pull samples from the dac
