@@ -56,13 +56,13 @@ UGEN_CTRL ADSR_ctrl_target( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_ctrl_value( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_ctrl_keyOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_ctrl_keyOff( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_attackRate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_decayRate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_sustainLevel( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_releaseRate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_target( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_value( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_state( t_CKTIME now, void * data, void * value );
+UGEN_CGET ADSR_cget_attackRate( t_CKTIME now, void * data, void * value );
+UGEN_CGET ADSR_cget_decayRate( t_CKTIME now, void * data, void * value );
+UGEN_CGET ADSR_cget_sustainLevel( t_CKTIME now, void * data, void * value );
+UGEN_CGET ADSR_cget_releaseRate( t_CKTIME now, void * data, void * value );
+UGEN_CGET ADSR_cget_target( t_CKTIME now, void * data, void * value );
+UGEN_CGET ADSR_cget_value( t_CKTIME now, void * data, void * value );
+UGEN_CGET ADSR_cget_state( t_CKTIME now, void * data, void * value );
 
 // BiQuad
 UGEN_CTOR BiQuad_ctor( t_CKTIME now );
@@ -80,6 +80,12 @@ UGEN_CTRL BiQuad_ctrl_zfreq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BiQuad_ctrl_zrad( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BiQuad_ctrl_norm( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BiQuad_ctrl_eqzs( t_CKTIME now, void * data, void * value );
+UGEN_CGET BiQuad_cget_b2( t_CKTIME now, void * data, void * value );
+UGEN_CGET BiQuad_cget_b1( t_CKTIME now, void * data, void * value );
+UGEN_CGET BiQuad_cget_b0( t_CKTIME now, void * data, void * value );
+UGEN_CGET BiQuad_cget_a2( t_CKTIME now, void * data, void * value );
+UGEN_CGET BiQuad_cget_a1( t_CKTIME now, void * data, void * value );
+UGEN_CGET BiQuad_cget_a0( t_CKTIME now, void * data, void * value );
 
 // Chorus
 UGEN_CTOR Chorus_ctor( t_CKTIME now );

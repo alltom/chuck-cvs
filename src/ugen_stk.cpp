@@ -250,9 +250,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     // add ADSR
     QUERY->ugen_add( QUERY, "ADSR", NULL );
-    // set funcs
     QUERY->ugen_func( QUERY, ADSR_ctor, ADSR_dtor, ADSR_tick, ADSR_pmsg );
-    // set ctrl
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, NULL, "float", "attackTime" );
@@ -266,11 +264,25 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_value, ADSR_cget_value, "float", "value" );
     QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" );
 
+    // add BiQuad
+    QUERY->ugen_add( QUERY, "BiQuad", NULL );
+    QUERY->ugen_func( QUERY, BiQuad_ctor, BiQuad_dtor, BiQuad_tick, BiQuad_pmsg );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b2, BiQuad_cget_b2, "float", "b2" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b1, BiQuad_cget_b1, "float", "b1" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b0, BiQuad_cget_b0, "float", "b0" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_a2, BiQuad_cget_a2, "float", "a2" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_a1, BiQuad_cget_a1, "float", "a1" );
+    QUERY->ugen_ctrl( QUERY, NULL, BiQuad_cget_a0, "float", "a0" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_pfreq, NULL, "float", "pfreq" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_prad, NULL, "float", "prad" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_zfreq, NULL, "float", "zfreq" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_zrad, NULL, "float", "zrad" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_norm, NULL, "float", "norm" );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_eqzs, NULL, "float", "eqzs" );
+
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
-    // set funcs
     QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );
-    // set ctrl
     QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_rate, NULL, "float", "rate" );
     QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phase, NULL, "float", "addPhase" );
@@ -623,7 +635,7 @@ public:
   //! Input \e vectorSize samples to the filter and return an equal number of outputs in \e vector.
   virtual MY_FLOAT *tick(MY_FLOAT *vector, unsigned int vectorSize);
 
-protected:
+public:
   MY_FLOAT gain;
   int     nB;
   int     nA;
@@ -881,7 +893,7 @@ protected:
 #define __BIQUAD_H
 
 
-class BiQuad : protected Filter
+class BiQuad : public Filter
 {
 public:
 
@@ -18839,6 +18851,153 @@ UGEN_CTRL ADSR_cget_state( t_CKTIME now, void * data, void * value )
 {
     ADSR * d = (ADSR *)data;
     SET_NEXT_INT( value, d->state );
+}
+
+// BiQuad
+struct BiQuad_
+{
+    BiQuad biquad;
+    t_CKFLOAT pfreq;
+    t_CKFLOAT prad;
+    t_CKFLOAT zfreq;
+    t_CKFLOAT zrad;
+    t_CKBOOL norm;
+};
+
+UGEN_CTOR BiQuad_ctor( t_CKTIME now )
+{
+    BiQuad_ * d = new BiQuad_;
+    d->pfreq = 0.0;
+    d->prad = 0.0;
+    d->zfreq = 0.0;
+    d->zrad = 0.0;
+    d->norm = FALSE;
+
+    return d;
+}
+
+UGEN_DTOR BiQuad_dtor( t_CKTIME now, void * data )
+{
+    delete (BiQuad_ *)data;
+}
+
+UGEN_TICK BiQuad_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    *out = (SAMPLE)f->biquad.tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG BiQuad_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+UGEN_CTRL BiQuad_ctrl_b2( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->biquad.setB2( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL BiQuad_ctrl_b1( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->biquad.setB1( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL BiQuad_ctrl_b0( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->biquad.setB0( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL BiQuad_ctrl_a2( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->biquad.setA2( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL BiQuad_ctrl_a1( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->biquad.setA1( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL BiQuad_ctrl_pfreq( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->pfreq = GET_NEXT_FLOAT(value);
+    f->biquad.setResonance( f->pfreq, f->prad, f->norm );
+}
+
+UGEN_CTRL BiQuad_ctrl_prad( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->prad = GET_NEXT_FLOAT(value);
+    f->biquad.setResonance( f->pfreq, f->prad, f->norm );
+}
+
+UGEN_CTRL BiQuad_ctrl_zfreq( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->zfreq = GET_NEXT_FLOAT(value);
+    f->biquad.setNotch( f->zfreq, f->zrad );
+}
+
+UGEN_CTRL BiQuad_ctrl_zrad( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->zrad = GET_NEXT_FLOAT(value);
+    f->biquad.setNotch( f->zfreq, f->zrad );
+}
+
+UGEN_CTRL BiQuad_ctrl_norm( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->norm = GET_NEXT_UINT(value) != 0;
+    f->biquad.setResonance( f->pfreq, f->prad, f->norm );
+}
+
+UGEN_CTRL BiQuad_ctrl_eqzs( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    f->biquad.setEqualGainZeroes();
+}
+
+UGEN_CGET BiQuad_cget_b2( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    SET_NEXT_FLOAT( value, f->biquad.b[2] );
+}
+
+UGEN_CGET BiQuad_cget_b1( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    SET_NEXT_FLOAT( value, f->biquad.b[1] );
+}
+
+UGEN_CGET BiQuad_cget_b0( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    SET_NEXT_FLOAT( value, f->biquad.b[0] );
+}
+
+UGEN_CGET BiQuad_cget_a2( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    SET_NEXT_FLOAT( value, f->biquad.a[2] );
+}
+
+UGEN_CGET BiQuad_cget_a1( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    SET_NEXT_FLOAT( value, f->biquad.a[1] );
+}
+
+UGEN_CGET BiQuad_cget_a0( t_CKTIME now, void * data, void * value )
+{
+    BiQuad_ * f = (BiQuad_ *)data;
+    SET_NEXT_FLOAT( value, f->biquad.a[0] );
 }
 
 
