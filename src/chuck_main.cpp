@@ -110,7 +110,7 @@ void signal_int( int sig_num )
         usleep( 100000 );
         vm->shutdown();
 #ifndef __WINDOWS_DS__
-        pthread_kill( g_tid, 2 );
+        pthread_kill( g_tid, 4 );
 #else
         CloseHandle( g_tid );
 #endif
