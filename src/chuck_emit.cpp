@@ -591,13 +591,13 @@ t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emmission * emit, a_Stmt_List list )
 {
     t_CKBOOL ret = TRUE;
 
-    //emit->push();
+    // emit->push();
     while( list && ret )
     {
         ret = emit_engine_emit_stmt( emit, list->stmt );
         list = list->next;
     }
-    //emit->pop();
+    // emit->pop();
 
     return ret;
 }
