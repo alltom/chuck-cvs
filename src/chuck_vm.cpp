@@ -1178,7 +1178,7 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::get( )
         return NULL;
 
     // TODO: should this be <=?
-    if( shred->wake_time <= this->now_system )
+    if( shred->wake_time <= ( this->now_system + .5 ) )
     {
         // if( shred->wake_time < this->now_system )
         //    assert( false );
