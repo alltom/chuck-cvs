@@ -18,10 +18,10 @@ fc => carrier.sfreq;
 0.5 => carrier.gain;
 
 fun void fmloop() {
-	while ( true ) { 
-		fc + ampM * modulation.last => carrier.sfreq;
-		1::samp => now;
-	}
+    while ( true ) { 
+        fc + ampM * modulation.last => carrier.sfreq;
+        1::samp => now;
+    }
 }
 
 spork ~fmloop();
