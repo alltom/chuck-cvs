@@ -34,35 +34,15 @@
 #define __ULIB_MACHINE_H__
 
 #include "chuck_dl.h"
-
-
-//-----------------------------------------------------------------------------
-// name: struct Net_Msg()
-// desc: ...
-//-----------------------------------------------------------------------------
-struct Net_Msg
-{
-    t_CKUINT header;
-    t_CKUINT type;
-    t_CKUINT param;
-    t_CKUINT param2;
-    t_CKUINT param3;
-    t_CKUINT length;
-    char buffer[512];
-    
-    Net_Msg() { this->clear(); }
-    void clear() { header = type = param = param2 = param3 = length = 0;
-                   memset( buffer, 0, sizeof(buffer) ); }
-};
+#include "chuck_otf.h"
 
 class Chuck_VM;
+
 
 // query
 DLL_QUERY machine_query( Chuck_DL_Query * QUERY );
 typedef t_CKUINT (* proc_msg_func)( Net_Msg *, t_CKBOOL );
 t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func func );
-
-
 
 
 // exports
