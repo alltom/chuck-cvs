@@ -108,7 +108,6 @@ void signal_int( int sig_num )
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
         stk_detach( 0, NULL );
-        ck_close( g_sock );
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
         if( g_tid ) pthread_cancel( g_tid );
@@ -117,6 +116,7 @@ void signal_int( int sig_num )
 #else
         CloseHandle( g_tid );
 #endif
+        ck_close( g_sock );
     }
 
 #ifndef __PLATFORM_WIN32__
@@ -420,9 +420,9 @@ void * cb( void * p )
         {
             // fprintf( stderr, "[chuck]: socket error during accept()...\n" );
 #ifndef __PLATFORM_WIN32__
-            usleep( 50000 );
+            usleep( 40000 );
 #else
-            Sleep( 50 );
+            Sleep( 40 );
 #endif
             continue;
         }

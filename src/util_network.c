@@ -121,6 +121,14 @@ ck_socket ck_tcp_create( )
     sock->sock = socket( AF_INET, SOCK_STREAM, 0 );
     sock->prot = SOCK_STREAM;
 
+    if( sock->prot == SOCK_STREAM )
+    {
+        int nd = 1; int ru = 1;
+        setsockopt( sock->sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&ru, sizeof(ru) );
+        setsockopt( sock->sock, SOL_SOCKET, SO_REUSEPORT, (const char *)&ru, sizeof(ru) );
+        setsockopt( sock->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
+    }
+
     return sock;
 }
 
@@ -174,13 +182,6 @@ t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port )
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #endif
 	}
-    
-    if( sock->prot == SOCK_STREAM )
-    {
-        int nd = 1; int ru = 1;
-        setsockopt( sock->sock, SOL_SOCKET, SO_REUSEPORT, (const char *)&ru, sizeof(ru) );
-        setsockopt( sock->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
-    }
 
     ret = ck_connect2( sock, (struct sockaddr *)&sock->sock_in, 
         sizeof( struct sockaddr_in ) );
