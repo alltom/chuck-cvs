@@ -140,6 +140,26 @@ void signal_pipe( int sig_num )
 
 
 
+
+//-----------------------------------------------------------------------------
+// name: open_cat()
+// desc: ...
+//-----------------------------------------------------------------------------
+FILE * open_cat( c_str fname )
+{
+    FILE * fd = NULL;
+    if( !(fd = fopen( fname, "r" )) )
+        if( !strstr( fname, ".ck" ) && !strstr( fname, ".CK" ) )
+        {
+            strcat( fname, ".ck" );
+            fd = fopen( fname, "r" );
+        }
+    return fd;
+}
+
+
+
+
 char filename[1024] = "";
 //-----------------------------------------------------------------------------
 // name: parse()
@@ -151,14 +171,9 @@ t_CKBOOL parse( c_str fname, FILE * fd = NULL )
     strcpy( filename, fname );
 
     // test it
+    fd = open_cat( filename );
     if( !fd )
-        if( !(fd = fopen( filename, "r" )) )
-            if( !strstr( filename, ".ck" ) && !strstr( filename, ".CK" ) )
-            {
-                strcat( filename, ".ck" );
-                if( !(fd = fopen( filename, "r" )) )
-                    strcpy( filename, fname );
-            }
+        strcpy( filename, fname );
 
     // parse
     ret = EM_reset( filename, fd );
@@ -418,7 +433,7 @@ void * cb( void * p )
         client = ck_accept( g_sock );
         if( !client )
         {
-            // fprintf( stderr, "[chuck]: socket error during accept()...\n" );
+            if( g_vm ) fprintf( stderr, "[chuck]: socket error during accept()...\n" );
 #ifndef __PLATFORM_WIN32__
             usleep( 40000 );
 #else
@@ -482,16 +497,16 @@ int send_cmd( int argc, char ** argv, int  & i )
 
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
-        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i\n", g_host, g_port );
+        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
         return 1;
     }
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
-        FILE * f;
+        FILE * fd;
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [add]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
             return 1;
         }
 
@@ -505,19 +520,15 @@ int send_cmd( int argc, char ** argv, int  & i )
             strcat( msg.buffer, argv[i] );
 
             // test it
-            if( !(f = fopen( (char *)msg.buffer, "r" )) )
-                if( !strstr( (char *)msg.buffer, ".ck" ) && !strstr( (char *)msg.buffer, ".CK" ) )
-                {
-                    strcat( (char *)msg.buffer, ".ck" );
-                    if( !(f = fopen( (char *)msg.buffer, "r" )) )
-                    {
-                        fprintf( stderr, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
-                        return 1;
-                    }
-                }
+            fd = open_cat( (char *)msg.buffer );
+            if( !fd )
+            {
+                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
+                return 1;
+            }
 
             // close it
-            if( f ) fclose( f );
+            if( fd ) fclose( fd );
 
             msg.type = MSG_ADD;
             ck_send( g_sock, (char *)&msg, sizeof(msg) );
@@ -527,7 +538,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     {
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [remove]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [remove]...\n" );
             return 1;
         }
 
@@ -545,9 +556,10 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
     {
+        FILE * fd;
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [replace]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
             return 1;
         }
         
@@ -558,21 +570,26 @@ int send_cmd( int argc, char ** argv, int  & i )
 
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [replace]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
             return 1;
         }
 
-        ifstream fin;
-        fin.open( argv[i] );
-        if( !fin.good() )
+        strcpy( msg.buffer, "" );
+        if( argv[i][0] != '/' )
+        { 
+            strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
+            strcat( msg.buffer, getenv("PWD") ? "/" : "" );
+        }
+        strcat( msg.buffer, argv[i] );
+        
+        fd = open_cat( (char *)msg.buffer );
+        if( !fd )
         {
-            fprintf( stderr, "[chuck]: cannot open file '%s' for [replace]\n", argv[i] );
+            fprintf( stderr, "[chuck]: cannot open file '%s' for [replace]...\n", argv[i] );
             return 1;
         }
-        fin.close();
-        
+
         msg.type = MSG_REPLACE;
-        strcpy( msg.buffer, argv[i] );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
@@ -608,7 +625,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     // timer
     CHUCK_THREAD tid;
 #ifndef __PLATFORM_WIN32__
-    pthread_create( &tid, NULL, timer, new t_CKUINT(1000000) );
+    pthread_create( &tid, NULL, timer, new t_CKUINT(2000000) );
 #else
     tid = (CHUCK_THREAD)CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)timer, NULL, 0, 0 );
 #endif

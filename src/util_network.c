@@ -111,6 +111,7 @@ ck_socket ck_udp_create( )
 ck_socket ck_tcp_create( int flags )
 {
     ck_socket sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
+    int nd = 1; int ru = 1;
 
 #ifdef __PLATFORM_WIN32__
     // winsock init
@@ -129,13 +130,10 @@ ck_socket ck_tcp_create( int flags )
     sock->sock = socket( AF_INET, SOCK_STREAM, 0 );
     sock->prot = SOCK_STREAM;
 
-    if( sock->prot == SOCK_STREAM && flags )
-    {
-        int nd = 1; int ru = 1;
+    if( flags )
         setsockopt( sock->sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&ru, sizeof(ru) );
-        // setsockopt( sock->sock, SOL_SOCKET, SO_REUSEPORT, (const char *)&ru, sizeof(ru) );
-        setsockopt( sock->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
-    }
+    // setsockopt( sock->sock, SOL_SOCKET, SO_REUSEPORT, (const char *)&ru, sizeof(ru) );
+    setsockopt( sock->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
 
     return sock;
 }
@@ -251,6 +249,7 @@ t_CKBOOL ck_listen( ck_socket sock, int backlog )
 ck_socket ck_accept( ck_socket sock )
 {
     ck_socket client;
+    int nd = 1;
     
     if( sock->prot != SOCK_STREAM ) return NULL;
     client = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
@@ -259,6 +258,7 @@ ck_socket ck_accept( ck_socket sock )
         &client->len );
     if( client->sock <= 0 ) goto error;
     client->prot = SOCK_STREAM;
+    setsockopt( client->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
     
     return client;
 

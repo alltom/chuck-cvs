@@ -452,7 +452,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         // set the current time
         shred->start = m_shreduler->now_system;
         // set the id
-        shred->id = next_id();
+        shred->id = msg->param;
 
         // replace
         if( m_shreduler->replace( out, shred ) )
