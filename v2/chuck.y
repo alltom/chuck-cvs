@@ -220,6 +220,10 @@ function_definition
             { $$ = new_func_def( $1, $2, $3, $4, $6, $8, EM_lineNum ); }
         | function_decl static_decl type_decl2 ID LPAREN RPAREN code_segment
             { $$ = new_func_def( $1, $2, $3, $4, NULL, $7, EM_lineNum ); }
+        | function_decl static_decl type_decl2 ID LPAREN arg_list RPAREN SEMICOLON
+            { $$ = new_func_def( $1, $2, $3, $4, $6, NULL, EM_lineNum ); }
+        | function_decl static_decl type_decl2 ID LPAREN RPAREN SEMICOLON
+            { $$ = new_func_def( $1, $2, $3, $4, NULL, NULL, EM_lineNum ); }
         ;
 
 function_decl
