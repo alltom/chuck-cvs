@@ -108,10 +108,11 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     struct hostent * host;
 
 #ifdef __PLATFORM_WIN32__
-    memset( &sock->sock_in, 0,  sizeof(struct sockaddr_in) );
+    memset( &sock->sock_in, 0, sizeof(struct sockaddr_in) );
 #else
     bzero( &sock->sock_in, sizeof(struct sockaddr_in) );
 #endif
+
     sock->sock_in.sin_family = AF_INET;
     sock->sock_in.sin_port = htons( (unsigned short)port );
     // lookup name
@@ -125,7 +126,7 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     else
     {
 #ifdef __PLATFORM_WIN32__
-	    memcpy( (char *)&sock->sock_in.sin_addr, host->h_addr, host->h_length );
+        memcpy( (char *)&sock->sock_in.sin_addr, host->h_addr, host->h_length );
 #else
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #endif
@@ -147,11 +148,13 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 __BOOL ck_bind( ck_socket sock, int port ) 
 {
     int ret;
+
 #ifdef __PLATFORM_WIN32__
     memset( &sock->sock_in, 0,  sizeof(struct sockaddr_in) );
 #else
-    bzero( &sock->sock_in, 0, sizeof(struct sockaddr_in) );
+    bzero( &sock->sock_in, sizeof(struct sockaddr_in) );
 #endif
+
     sock->sock_in.sin_family = AF_INET;
     sock->sock_in.sin_port = htons( (unsigned short)port );
     sock->sock_in.sin_addr.s_addr = htonl( INADDR_ANY );
