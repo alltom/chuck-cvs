@@ -130,6 +130,7 @@ struct t_Type_ t_midiout = { te_midiout, "midiout", &t_object, sizeof(void *) };
 struct t_Type_ t_midiin = { te_midiin, "midiin", &t_object, sizeof(void *) };
 struct t_Type_ t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
 struct t_Type_ t_dac = { te_dac, "dac", &t_ugen, t_ugen.size };
+struct t_Type_ t_bunghole = { te_bunghole, "bunghole", &t_ugen, t_ugen.size };
 
 
 // system types (internal - cannot instantiate)
@@ -315,6 +316,7 @@ t_Env type_engine_init( Chuck_VM * vm )
     S_enter( e->value, insert_symbol( "midiin" ), &t_midiin );
     S_enter( e->value, insert_symbol( "adc" ), &t_adc );
     S_enter( e->value, insert_symbol( "dac" ), &t_dac );
+    S_enter( e->value, insert_symbol( "bunghole" ), &t_bunghole );
     
     S_enter( e->value, insert_symbol( "true" ), &t_int );
     S_enter( e->value, insert_symbol( "false" ), &t_int );

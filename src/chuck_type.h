@@ -50,7 +50,7 @@ typedef enum {
     te_int, te_uint, te_single, te_float, te_double, te_string, te_thread, 
     te_shred, te_time, te_dur, te_array, te_function, te_ugen, te_pattern,
     te_transport, te_host, te_class, te_unit, te_object, te_null, te_code,
-    te_tuple, te_midiin, te_midiout, te_adc, te_dac,
+    te_tuple, te_midiin, te_midiout, te_adc, te_dac, te_bunghole,
 
     // system types (internal - cannot instantiate)
     te_void, __te_system_out__, __te_system_err__, __te_system_time__,

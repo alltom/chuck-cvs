@@ -2121,6 +2121,19 @@ void Chuck_Instr_DAC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Bunghole::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    uint *& reg_sp = (uint *&)shred->reg->sp;
+    push_( reg_sp, 0 );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_Link::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     Chuck_UGen **& sp = (Chuck_UGen **&)shred->reg->sp;
