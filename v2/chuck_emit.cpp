@@ -2386,9 +2386,9 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             if( type->array_depth )
             {
                 // TODO:
-                EM_error2( decl->linepos,
-                    "(emit): internal error: array not impl" );
-                    return FALSE;
+                //EM_error2( decl->linepos,
+                //    "(emit): internal error: array not impl" );
+                //    return FALSE;
 
                 // emit array allocation
                 emit->append( new Chuck_Instr_Array_Alloc( type->array_depth, type ) );
