@@ -1,4 +1,4 @@
-// for the indecisive programmer
+// for the indecisive programmer...
 
 while( true )
 {

@@ -1331,6 +1331,10 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
         {
             emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
         }
+        else if( exp->var == insert_symbol("maybe") )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Maybe() );
+        }
         else if( exp->var == insert_symbol( "pi" ) )
         {
             double pi = 3.14159265358979323846;
@@ -2684,6 +2688,12 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
             {
                 EM_error2( primary->linepos,
                            "cannot assign value to 'false'" );
+                return FALSE;
+            }
+            else if( !strcmp( S_name(primary->var), "maybe" ) )
+            {
+                EM_error2( primary->linepos,
+                           "cannot assign value to 'maybe'" );
                 return FALSE;
             }
             else if( !strcmp( S_name(primary->var), "pi" ) )

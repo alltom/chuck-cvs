@@ -1439,6 +1439,19 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Reg_Push_Maybe
+// desc: push immediate to reg stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Reg_Push_Maybe : public Chuck_Instr_Unary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Mem
 // desc: push a variable from mem stack to reg stack
 //-----------------------------------------------------------------------------
