@@ -961,8 +961,8 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
             // error
             EM_error2( lhs->linepos,
-                "no suitable resolution for binary operator '=>' on types '%s' => '%s'...\n"
-                "    (right-side operand is not mutable)",
+                "cannot chuck/assign '=>' on types '%s' => '%s'...\n"
+                "...reason: right-side operand is not mutable)",
                 left->c_name(), right->c_name() );
             return NULL;
         }
@@ -1664,6 +1664,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     t_class->info->name = t_class->name;
     t_class->info->parent = env->curr;
     t_class->func = NULL;
+    t_class->def = class_def;
 
     // set the new type as current
     env->stack.push_back( env->curr );
@@ -1756,6 +1757,13 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         return FALSE;
     }
 
+    // look up value in parent
+    if( env->class_def && ( value =
+        type_engine_find_value( env->class_def->parent, f->name ) ) )
+    {
+        // TODO: make sure the function signatures match
+    }
+
     // make sure a code segment is in stmt - else we should push scope
     assert( !f->code || f->code->s_type == ae_stmt_code );
 
@@ -1835,6 +1843,41 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 
         // next arg
         arg_list = arg_list->next;
+    }
+
+    // only class functions can be pure
+    if( !env->class_def && f->static_decl == ae_key_abstract )
+    {
+        EM_error2( f->linepos,
+            "non-class function cannot be declared as 'pure'..." );
+        EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
+        return FALSE;
+    }
+    // if interface, then cannot have code
+    if( env->class_def && env->class_def->def->iface && f->code )
+    {
+        EM_error2( f->linepos,
+            "interface function signatures cannot contain code..." );
+        EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
+        return FALSE;
+    }
+    // if pure, then cannot have code
+    if( f->static_decl == ae_key_abstract && f->code )
+    {
+        EM_error2( f->linepos,
+            "'pure' function signatures cannot contain code..." );
+        EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
+        return FALSE;
+    }
+    // yeah
+    if( f->static_decl != ae_key_abstract && !f->code )
+    {
+        EM_error2( f->linepos,
+            "function must have associated code..." );
+        EM_error2( f->linepos,
+            "...(unless it is part of interface, or is declared 'pure')" );
+        EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
+        return FALSE;
     }
 
     // type check the code

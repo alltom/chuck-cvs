@@ -40,9 +40,7 @@ class A
 
 interface laugh
 {
-    public int foo()
-	{
-	}
+    public pure int foo();
 }
 
 class Foo implements laugh
