@@ -42,6 +42,7 @@
 
 // forward references
 class Chuck_Instr;
+class Chuck_Instr_Goto;
 class Chuck_VM_Code;
 class Chuck_VM_Shred;
 
@@ -101,7 +102,11 @@ struct Chuck_Emitter : public Chuck_VM_Object
 
     // code stack
     vector<Chuck_Code *> stack;
-    
+    // continue stack
+    vector<Chuck_Instr_Goto *> stack_cont;
+    // break stack
+    vector<Chuck_Instr_Goto *> stack_break;
+
     // constructor
     Chuck_Emitter()
     { env = NULL; vm = NULL; code = NULL; context = NULL; 

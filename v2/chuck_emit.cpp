@@ -44,7 +44,7 @@
 // function prototypes
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emitter * emit, a_Stmt_List list );
-t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt );
+t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop = TRUE );
 t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt );
 t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt );
 t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt );
@@ -143,6 +143,12 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     emit->class_def = NULL;
     // reset the func
     emit->func = NULL;
+    // clear the code stack
+    emit->stack.clear();
+    // clear the stack of continue
+    emit->stack_cont.clear();
+    // clear the stack of break
+    emit->stack_break.clear();
 
     // loop over the program sections
     while( prog && ret )
@@ -177,6 +183,10 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
         // converted to virtual machine code
         emit->context->nspc.code = emit_to_code( emit );
     }
+
+    // clear the code
+    delete emit->code;
+    emit->code = NULL;
 
     // return the code
     return emit->context->nspc.code;
@@ -270,7 +280,7 @@ t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emitter * emit, a_Stmt_List list )
 // name: emit_engine_emit_stmt()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt )
+t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop )
 {
     // empty stmt list
     if( !stmt )
@@ -286,7 +296,7 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt )
             // emit it
             ret = emit_engine_emit_exp( emit, stmt->stmt_exp );
             // need to pop the final value from stack
-            if( ret && stmt->stmt_exp->type->size > 0 )
+            if( ret && pop && stmt->stmt_exp->type->size > 0 )
             {
                 // HACK!
                 if( stmt->stmt_exp->type->size == 4 )
@@ -379,8 +389,10 @@ t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
 {
     t_CKBOOL ret = TRUE;
     Chuck_Instr_Branch_Op * op = NULL, * op2 = NULL;
-    t_CKUINT start_index = emit->next_index();
-    
+
+    // push the stack, allowing for new local variables
+    emit->push_scope();
+
     // emit the condition
     ret = emit_engine_emit_exp( emit, stmt->cond );
     if( !ret )
@@ -407,8 +419,7 @@ t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
         EM_error2( stmt->cond->linepos,
             "(emit): internal error: unhandled type '%s' in if condition",
             stmt->cond->type->name.c_str() );
-        ret = FALSE;
-        break;
+        return FALSE;
     }
 
     if( !ret ) return FALSE;
@@ -432,6 +443,9 @@ t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
     if( !ret )
         return FALSE;
 
+    // pop stack
+    emit->pop_scope();
+
     // set the op2's target
     op2->set( emit->next_index() );
 
@@ -442,10 +456,109 @@ t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_for()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt );
+t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push the stack
+    emit->push_scope();
+
+    // emit the cond
+    ret = emit_engine_emit_stmt( emit, stmt->c1 );
+    if( !ret )
+        return FALSE;
+
+    // the start index
+    t_CKUINT start_index = emit->next_index();
+    // mark the stack of continue
+    emit->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->stack_break.push_back( NULL );
+
+    // emit the cond - keep the result on the stack
+    emit_engine_emit_stmt( emit, stmt->c2, FALSE );
+
+    // could be NULL
+    if( stmt->c2 )
+    {
+        switch( stmt->c2->stmt_exp->type->id )
+        {
+        case te_int:
+        case te_uint:
+            // push 0
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+            op = new Chuck_Instr_Branch_Eq_uint( 0 );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            // push 0
+            emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+            op = new Chuck_Instr_Branch_Eq_double( 0 );
+            break;
+        
+        default:
+            EM_error2( stmt->c2->stmt_exp->linepos,
+                 "(emit): internal error: unhandled type '%s' in for conditional",
+                 stmt->c2->stmt_exp->type->name );
+            return FALSE;
+        }
+        // append the op
+        emit->append( op );
+    }
+
+    // emit the body
+    emit_engine_emit_stmt( emit, stmt->body );
+    
+    // emit the action
+    emit_engine_emit_exp( emit, stmt->c3 );
+    if( stmt->c3 )
+    {
+        // HACK!
+        if( stmt->c3->type->size == 8 )
+            emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+        else if( stmt->c3->type->size == 4 )
+            emit->append( new Chuck_Instr_Reg_Pop_Word );
+        else if( stmt->c3->type->size != 0 )
+        {
+            EM_error2( stmt->c3->linepos,
+                "(emit): internal error: non-void type size %i unhandled...",
+                stmt->c3->type->size );
+            return FALSE;
+        }
+    }
+
+    // go back to do check the condition
+    emit->append( new Chuck_Instr_Goto( start_index ) );
+
+    // could be NULL
+    if( stmt->c2 )
+        // set the op's target
+        op->set( emit->next_index() );
+
+    // stack of continue
+    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    {
+        emit->stack_cont.back()->set( start_index );
+        emit->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->stack_break.size() && emit->stack_break.back() )
+    {
+        emit->stack_break.back()->set( emit->next_index() );
+        emit->stack_cont.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+
+    return ret;    
+}
 
 
 
