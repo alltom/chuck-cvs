@@ -65,6 +65,14 @@ typedef const char *                c_constr;
 #define SAFE_DELETE_ARRAY(x)        { if(x){ delete [] x; x = NULL; } }
 #endif
 
+#ifdef __MACOSX_CORE__
+#define __PLATFORM_MACOSX__
+#endif
+
+#if defined(__LINUX_ALSA__) || defined(__LINUX_JACK__) || defined(__LINUX_OSS__) 
+#define __PLATFORM_LINUX__
+#endif
+
 #ifdef __PLATFORM_WIN32__
 #define usleep(x) Sleep( x / 1000 )
 #pragma warning (disable : 4996)  //stdio deprecation
