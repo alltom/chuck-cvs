@@ -1,25 +1,25 @@
 /*----------------------------------------------------------------------------
-    ChucK Concurrent, On-the-fly Audio Programming Language
-      Compiler and Virtual Machine
+ChucK Concurrent, On-the-fly Audio Programming Language
+Compiler and Virtual Machine
 
-    Copyright (c) 2004 Ge Wang and Perry R. Cook.  All rights reserved.
-      http://chuck.cs.princeton.edu/
-      http://soundlab.cs.princeton.edu/
+Copyright (c) 2004 Ge Wang and Perry R. Cook.  All rights reserved.
+http://chuck.cs.princeton.edu/
+http://soundlab.cs.princeton.edu/
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-    U.S.A.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+U.S.A.
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
@@ -49,16 +49,16 @@ t_CKUINT g_srate;
 DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 {
     g_srate = QUERY->srate;
-
+    
     //! \section audio output
-
+    
     // add dac
     //! digital/analog converter
     //! abstraction for underlying audio output device
     QUERY->ugen_add( QUERY, "dac", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
-
+    
     // add adc
     //! analog/digital converter
     //! abstraction for underlying audio input device
@@ -73,14 +73,14 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "blackhole", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
-
+    
     // add bunghole
     //! sample rate sample sucker
     //! ( like dac, ticks ugens, but no more )
     QUERY->ugen_add( QUERY, "bunghole", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );    
-
+    
     // add gain
     //! gain control
     //! (NOTE - all unit generators can themselves change their gain)
@@ -92,14 +92,14 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // ctrl func
     QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" ); //! set gain ( all ugen's have this ) 
     /*! \example
-      noise n => gain g => dac;
-      sinosc s => g;
-      .3 => g.gain;
-      while( true ) { 100::ms => now; }
+        noise n => gain g => dac;
+    sinosc s => g;
+    .3 => g.gain;
+    while( true ) { 100::ms => now; }
     */
-
+    
     //! \section wave forms
-
+    
     // add noise
     //! white noise generator 
     //! see \example noise.ck \example powerup.ck
@@ -117,12 +117,12 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "value" );
     QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "next" ); //! set value of next sample
     /*! \example
-      impulse i => dac;
-
-      while( true ) {
-         1.0 => i.next;
-         100::ms => now;
-      }
+        impulse i => dac;
+    
+    while( true ) {
+        1.0 => i.next;
+        100::ms => now;
+    }
     */
     
     // add step
@@ -136,31 +136,31 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "value" );
     QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "next" ); //! set the step value 
     /*! \example
-      step s => dac;
-      -1.0 => float amp;
-
-      // square wave using step
-      while( true ) {
-          -amp => amp => s.next;
-          800::samp => now;
-      }
+        step s => dac;
+    -1.0 => float amp;
+    
+    // square wave using step
+    while( true ) {
+        -amp => amp => s.next;
+        800::samp => now;
+    }
     */
-
+    
     //! \section filters
-
+    
     // add halfrect
     //! half wave rectifier
     //! for half-wave rectification. 
     QUERY->ugen_add( QUERY, "halfrect", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, halfrect_tick, NULL );
-
+    
     // add fullrect
     //! full wave rectifier
     QUERY->ugen_add( QUERY, "fullrect", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, fullrect_tick, NULL );
-
+    
     // add zerox
     //! zero crossing detector
     //! emits a single pulse at the the zero crossing in the direction of the zero crossing.  
@@ -168,19 +168,23 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "zerox", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, zerox_ctor, zerox_dtor, zerox_tick, NULL );
+    
+    //! \section delay lines
+    
+    //! delay with varying write position ( instead of read position ) 
+    //! change to delay length will not affect the delay of samples already in
+    //! the buffer.
+    //! see \example delayp.ck
 
-    //! \section delays
-
-      //! varible write delay.  
     QUERY->ugen_add( QUERY, "delayp" , NULL);
     QUERY->ugen_func ( QUERY, delayp_ctor, delayp_dtor, delayp_tick, delayp_pmsg);
     QUERY->ugen_ctrl( QUERY, delayp_ctrl_delay, delayp_cget_delay , "dur", "delay" ); //! delay before subsequent values emerge
     QUERY->ugen_ctrl( QUERY, delayp_ctrl_window, delayp_cget_window , "dur", "window" ); //! time for 'write head' to move
     QUERY->ugen_ctrl( QUERY, delayp_ctrl_max, delayp_cget_max , "dur", "max" ); //! max delay possible.  trashes buffer, so do it first! 
- 
-
+    
+    
     //! \section sound files
-
+    
     // add sndbuf
     //! sound buffer ( now interpolating ) 
     //! reads from a variety of file formats
@@ -192,8 +196,8 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, NULL, "string", "read" ); //! loads file for reading
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, NULL, "string", "write" ); //! loads a file for writing ( or not ) 
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, sndbuf_cget_pos, "int", "pos" ); //! set position ( 0 < p < .samples ) 
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_loop, sndbuf_cget_loop, "int", "loop" );//! toggle looping 
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_interp, sndbuf_cget_interp, "int", "interp" );//! set interpolation ( 0=drop, 1=linear, 2=sinc )
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_loop, sndbuf_cget_loop, "int", "loop" ); //! toggle looping 
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_interp, sndbuf_cget_interp, "int", "interp" ); //! set interpolation ( 0=drop, 1=linear, 2=sinc )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_rate, "float", "rate" ); //! playback rate ( relative to file's natural speed ) 
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_rate, "float", "play" ); //! play (same as rate) 
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_freq, "float", "freq" ); //! playback rate ( file loops / second ) 
@@ -203,9 +207,9 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_samples, "int", "samples" ); //! fetch number of samples
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" ); //! fetch length in seconds
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_channels, "int", "channels" ); //! fetch number of channels
-
-
-     return TRUE;
+    
+    
+    return TRUE;
 }
 
 
@@ -276,7 +280,7 @@ UGEN_TICK impulse_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     }
     else
         *out = 0.0f;
-
+    
     return TRUE;
 }
 
@@ -393,7 +397,7 @@ UGEN_TICK gain_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     SAMPLE * d = (SAMPLE *)data;
     *out = in * (*d);
-
+    
     return TRUE;
 }
 
@@ -507,57 +511,57 @@ UGEN_TICK bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
 struct delayp_data 
 { 
-   SAMPLE * buffer;
-   int bufsize;
-   
-   double now;
-   double readpos;
-   
-   double writepos; // relative to readpos
-   
-   double writeoff;
-   
-   double writeoff_start; 
-   double writeoff_target;
-   double writeoff_target_time; //target time
-   double writeoff_window_time; //time we started shift
-   
-   SAMPLE sample_last;
-   double writeoff_last;
-   
-   double acoeff[2];
-   double bcoeff[2];
-   SAMPLE outputs[3];
-   SAMPLE inputs[3];
-
-   delayp_data() 
-   { 
-      bufsize  = 2 * g_srate;
-      buffer   = ( SAMPLE * ) realloc ( NULL, sizeof ( SAMPLE ) * bufsize );
-      int i;
-      
-      for ( i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
-      for ( i = 0 ; i < 3 ; i++ ) { acoeff[i] = 0; bcoeff[i] = 0; }
-      acoeff[0] = 1.0;
-      acoeff[1] = -.99;
-      bcoeff[0] = 1.0;
-      bcoeff[1] = -1.0;
-      readpos  = 0.0;
-
-      writeoff  = 1000.0; 
-      writeoff_last = 1000.0;
-      writeoff_start = 1000.0;
-      writeoff_target = 1000.0;
-      sample_last = 0;
-      writeoff_window_time = 1.0;
-      writeoff_target_time = 0.0;
-   }
+    SAMPLE * buffer;
+    int bufsize;
+    
+    double now;
+    double readpos;
+    
+    double writepos; // relative to readpos
+    
+    double writeoff;
+    
+    double writeoff_start; 
+    double writeoff_target;
+    double writeoff_target_time; //target time
+    double writeoff_window_time; //time we started shift
+    
+    SAMPLE sample_last;
+    double writeoff_last;
+    
+    double acoeff[2];
+    double bcoeff[2];
+    SAMPLE outputs[3];
+    SAMPLE inputs[3];
+    
+    delayp_data() 
+    { 
+        bufsize  = 2 * g_srate;
+        buffer   = ( SAMPLE * ) realloc ( NULL, sizeof ( SAMPLE ) * bufsize );
+        int i;
+        
+        for ( i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
+        for ( i = 0 ; i < 3 ; i++ ) { acoeff[i] = 0; bcoeff[i] = 0; }
+        acoeff[0] = 1.0;
+        acoeff[1] = -.99;
+        bcoeff[0] = 1.0;
+        bcoeff[1] = -1.0;
+        readpos  = 0.0;
+        
+        writeoff  = 1000.0; 
+        writeoff_last = 1000.0;
+        writeoff_start = 1000.0;
+        writeoff_target = 1000.0;
+        sample_last = 0;
+        writeoff_window_time = 1.0;
+        writeoff_target_time = 0.0;
+    }
 };
 
 UGEN_CTOR delayp_ctor( t_CKTIME now )
 {
-
-   return new delayp_data;
+    
+    return new delayp_data;
 }
 
 UGEN_DTOR delayp_dtor( t_CKTIME now, void * data )
@@ -571,79 +575,79 @@ UGEN_PMSG delayp_pmsg( t_CKTIME now, void * data, const char * msg, void * value
     return TRUE;
 }
 UGEN_TICK delayp_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
-
-   
-   delayp_data * d = (delayp_data *)data;
-   if ( !d->buffer ) return FALSE;
-   
-   //calculate new write-offset position
-   if ( now >= d->writeoff_target_time || d->writeoff_window_time == 0 ) d->writeoff = d->writeoff_target;
-   else  { 
-      double dt = ( now - d->writeoff_target_time ) / ( d->writeoff_window_time ); 
-      d->writeoff = d->writeoff_target + dt * ( d->writeoff_target - d->writeoff_start );
-      //      fprintf (stderr, "dt %f, off %f , start %f target %f\n", dt, d->writeoff,  d->writeoff_start, d->writeoff_target );
-   }
-
-   //find locations in buffer...
-   double lastpos = d->writeoff_last + d->readpos - 1.0 ;
-   double nowpos  = d->writeoff + d->readpos;
-
-   //linear interpolation.  will introduce some lowpass/aliasing.
-
-   double diff= nowpos - lastpos;
-   double d_samp = in - d->sample_last;
-   int i, smin, smax;
-   SAMPLE sampi;
-   if ( diff >= 0 ) { //forward.
-      smin = (int)ceil( lastpos );
-      smax = (int)floor( nowpos );
-      for ( i = smin ; i <= smax ; i++ ) { 
-         sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
-	   //	   fprintf( stderr, "new sample %d %f %f %f \n", i,  in, sampi, d->sample_last );
-         d->buffer[i%d->bufsize] += sampi;
-      }
-   }
-   else { //moving in reverse
-      smin = (int)ceil( nowpos );
-      smax = (int)floor( lastpos );
-      for ( i = smin ; i <= smax ; i++ ) 
-         sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
-         d->buffer[i%d->bufsize] += sampi ;   
-   }
-
-   d->writeoff_last = d->writeoff;
-   d->sample_last = in;
-
-
-   //output should go through a dc blocking filter, for cases where 
-   //we are zipping around in the buffer leaving a fairly constant
-   //trail of samples
-
-   //output last sample
-   int rpos = ( (int) d->readpos ) % d->bufsize ; 
-
-//   *out = d->buffer[rpos];
-   
-   d->outputs[0] =  0.0;
-   d->inputs [0] =  d->buffer[rpos];
-   
-   d->outputs[0] += d->bcoeff[1] * d->inputs[1];
-   d->inputs [1] =  d->inputs[0];
-   
-   d->outputs[0] += d->bcoeff[0] * d->inputs[0];
-
-   d->outputs[0] += -d->acoeff[1] * d->outputs[1];
-   d->outputs[1] =  d->outputs[0];
-   
-   *out = d->outputs[0];
-
-   
-   d->buffer[rpos] = 0; //clear once it's been read
-   d->readpos++;
-
-   while ( d->readpos > d->bufsize ) d->readpos -= d->bufsize; 
-   return TRUE;
-   
+    
+    
+    delayp_data * d = (delayp_data *)data;
+    if ( !d->buffer ) return FALSE;
+    
+    //calculate new write-offset position
+    if ( now >= d->writeoff_target_time || d->writeoff_window_time == 0 ) d->writeoff = d->writeoff_target;
+    else  { 
+        double dt = ( now - d->writeoff_target_time ) / ( d->writeoff_window_time ); 
+        d->writeoff = d->writeoff_target + dt * ( d->writeoff_target - d->writeoff_start );
+        //      fprintf (stderr, "dt %f, off %f , start %f target %f\n", dt, d->writeoff,  d->writeoff_start, d->writeoff_target );
+    }
+    
+    //find locations in buffer...
+    double lastpos = d->writeoff_last + d->readpos - 1.0 ;
+    double nowpos  = d->writeoff + d->readpos;
+    
+    //linear interpolation.  will introduce some lowpass/aliasing.
+    
+    double diff= nowpos - lastpos;
+    double d_samp = in - d->sample_last;
+    int i, smin, smax;
+    SAMPLE sampi;
+    if ( diff >= 0 ) { //forward.
+        smin = (int)ceil( lastpos );
+        smax = (int)floor( nowpos );
+        for ( i = smin ; i <= smax ; i++ ) { 
+            sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
+            //	   fprintf( stderr, "new sample %d %f %f %f \n", i,  in, sampi, d->sample_last );
+            d->buffer[i%d->bufsize] += sampi;
+        }
+    }
+    else { //moving in reverse
+        smin = (int)ceil( nowpos );
+        smax = (int)floor( lastpos );
+        for ( i = smin ; i <= smax ; i++ ) 
+            sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
+        d->buffer[i%d->bufsize] += sampi ;   
+    }
+    
+    d->writeoff_last = d->writeoff;
+    d->sample_last = in;
+    
+    
+    //output should go through a dc blocking filter, for cases where 
+    //we are zipping around in the buffer leaving a fairly constant
+    //trail of samples
+    
+    //output last sample
+    int rpos = ( (int) d->readpos ) % d->bufsize ; 
+    
+    //   *out = d->buffer[rpos];
+    
+    d->outputs[0] =  0.0;
+    d->inputs [0] =  d->buffer[rpos];
+    
+    d->outputs[0] += d->bcoeff[1] * d->inputs[1];
+    d->inputs [1] =  d->inputs[0];
+    
+    d->outputs[0] += d->bcoeff[0] * d->inputs[0];
+    
+    d->outputs[0] += -d->acoeff[1] * d->outputs[1];
+    d->outputs[1] =  d->outputs[0];
+    
+    *out = d->outputs[0];
+    
+    
+    d->buffer[rpos] = 0; //clear once it's been read
+    d->readpos++;
+    
+    while ( d->readpos > d->bufsize ) d->readpos -= d->bufsize; 
+    return TRUE;
+    
 }
 
 UGEN_CTRL delayp_ctrl_delay( t_CKTIME now, void * data, void * value )
@@ -651,13 +655,13 @@ UGEN_CTRL delayp_ctrl_delay( t_CKTIME now, void * data, void * value )
     delayp_data * d = ( delayp_data * ) data;
     t_CKDUR target = * (t_CKDUR *) value; // rate     
     if ( target != d->writeoff_target ) {
-       if ( target > d->bufsize ) { 
-          fprintf( stderr, "[chuck](via delayp): delay time %f over max!  set max first!\n", target);
-          return;
-       }
-       d->writeoff_target = target;
-       d->writeoff_start = d->writeoff_last;
-       d->writeoff_target_time = now + d->writeoff_window_time; 
+        if ( target > d->bufsize ) { 
+            fprintf( stderr, "[chuck](via delayp): delay time %f over max!  set max first!\n", target);
+            return;
+        }
+        d->writeoff_target = target;
+        d->writeoff_start = d->writeoff_last;
+        d->writeoff_target_time = now + d->writeoff_window_time; 
     }
 }
 
@@ -672,8 +676,8 @@ UGEN_CTRL delayp_ctrl_window( t_CKTIME now, void * data, void * value )
     delayp_data * d = ( delayp_data * ) data;
     t_CKDUR window = * (t_CKDUR *) value; // rate     
     if ( window >= 0 ) {
-       d->writeoff_window_time = window;
-       //fprintf ( stderr, "set window time %f , %f , %d \n", d->writeoff_window_time, d->writeoff, d->bufsize );
+        d->writeoff_window_time = window;
+        //fprintf ( stderr, "set window time %f , %f , %d \n", d->writeoff_window_time, d->writeoff, d->bufsize );
     }
 }
 
@@ -689,11 +693,11 @@ UGEN_CTRL delayp_ctrl_max( t_CKTIME now, void * data, void * value )
     delayp_data * d = ( delayp_data * ) data;
     t_CKDUR nmax = * (t_CKDUR *) value; // rate 
     if ( d->bufsize != (int)nmax && nmax > 1.0 ) { 
-      d->bufsize = (int)(nmax+.5); 
-      d->buffer = ( SAMPLE * ) realloc ( d->buffer, sizeof ( SAMPLE ) * d->bufsize );
-      for ( int i = 0; i < d->bufsize; i++ ) d->buffer[i] = 0;
+        d->bufsize = (int)(nmax+.5); 
+        d->buffer = ( SAMPLE * ) realloc ( d->buffer, sizeof ( SAMPLE ) * d->bufsize );
+        for ( int i = 0; i < d->bufsize; i++ ) d->buffer[i] = 0;
     }
-
+    
 }
 
 UGEN_CGET delayp_cget_max( t_CKTIME now, void * data, void * out )
@@ -710,20 +714,20 @@ enum { SNDBUF_DROP = 0, SNDBUF_INTERP, SNDBUF_SINC};
 
 
 #define WIDTH 16                /* this controls the number of neighboring samples
-				   which are used to interpolate the new samples.  The
-				   processing time is linearly related to this width */
+which are used to interpolate the new samples.  The
+processing time is linearly related to this width */
 #define DELAY_SIZE 140
 
 #define USE_TABLE TRUE          /* this controls whether a linearly interpolated lookup
-				   table is used for sinc function calculation, or the
-				   sinc is calculated by floating point trig function calls.  */
+table is used for sinc function calculation, or the
+sinc is calculated by floating point trig function calls.  */
 
 #define USE_INTERP TRUE        /*  this controls whether the table is linear
-				interpolated or not.  If you re not using the
-				table, this has no effect         */
+interpolated or not.  If you re not using the
+table, this has no effect         */
 
 #define SAMPLES_PER_ZERO_CROSSING 32    /* this defines how finely the sinc function 
-					   is sampled for storage in the table  */
+is sampled for storage in the table  */
 
 struct sndbuf_data
 {
@@ -754,24 +758,24 @@ struct sndbuf_data
         num_channels = 0;
         num_frames = 0;
         num_samples = 0;
-
+        
         samplerate = 0;
-
+        
         sampleratio = 1.0;
         chan = 0;
         curf = 0.0;
         rate = 0.0;
-
+        
         eob = NULL;
         curr = NULL;
-
+        
         sinc_table_built = false;
 	    sinc_use_table = USE_TABLE;
 	    sinc_use_interp = USE_INTERP;
 	    sinc_width = WIDTH;
 	    sinc_samples_per_zero_crossing = SAMPLES_PER_ZERO_CROSSING;
 	    sinc_table = NULL;
-
+        
         loop = FALSE;
     }
 };
@@ -797,11 +801,11 @@ UGEN_DTOR sndbuf_dtor( t_CKTIME now, void * data )
 inline void sndbuf_setpos(sndbuf_data *d, double pos)
 {
     if( !d->buffer ) return;
-  
+    
     d->curf = pos;
-
+    
     //set curf within bounds
-
+    
     if( d->loop )
     {
         while ( d->curf >= d->num_frames ) d->curf -= d->num_frames;
@@ -817,20 +821,20 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos)
 }
 
 inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, int pos ) { 
-  //boundary cases
-
-  int nf = d->num_frames;
-  if ( d->loop ) { 
-    while ( pos >= nf ) pos -= nf;
-    while ( pos <  0  ) pos += nf;
-  }
-  else { 
-    if ( pos >= nf ) pos = nf-1;
-    if ( pos < 0   ) pos = 0;
-  }
-
-  return d->buffer[d->chan + (long) d->curf * d->num_channels];
-
+    //boundary cases
+    
+    int nf = d->num_frames;
+    if ( d->loop ) { 
+        while ( pos >= nf ) pos -= nf;
+        while ( pos <  0  ) pos += nf;
+    }
+    else { 
+        if ( pos >= nf ) pos = nf-1;
+        if ( pos < 0   ) pos = 0;
+    }
+    
+    return d->buffer[d->chan + (long) d->curf * d->num_channels];
+    
 }
 
 inline double sndbuf_getpos(sndbuf_data *d)
@@ -875,9 +879,9 @@ void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
 	double int_time = 0;
 	double last_time = 0;
 	double temp1 = 0.0;
-
+    
 	long time_i = (long)time_now;
-
+    
 	//bounds checking now in sampleAt function...
 	if (factor<1.0) {
 		for (j= -d->sinc_width + 1 ; j < d->sinc_width; j++)
@@ -902,7 +906,7 @@ void sndbuf_make_sinc( sndbuf_data * d)
     double temp,win_freq,win;
     win_freq = PI / d->sinc_width / d->sinc_samples_per_zero_crossing;
     int tabsize = d->sinc_width * d->sinc_samples_per_zero_crossing;
-
+    
     d->sinc_table = (double *) realloc ( d->sinc_table, tabsize * sizeof(double) );
     d->sinc_table[0] = 1.0;
     for (i=1;i< tabsize ;i++)   {
@@ -941,7 +945,7 @@ double sndbuf_t_sinc(sndbuf_data *d, double x)
 double sndbuf_sinc(sndbuf_data * d, double x)
 {
     double temp;
-
+    
     if(d->sinc_use_table) return sndbuf_t_sinc(d,x);
     else        {
 		if (x==0.0) return 1.0;
@@ -962,9 +966,9 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     //curf in samples;
     
     if ( !d->loop && d->curr >= d->eob ) return FALSE;
-
+    
     //calculate frame
-
+    
     if( d->interp == SNDBUF_DROP )
     { 
         *out = (SAMPLE)( (*(d->curr)) ) ;
@@ -979,23 +983,23 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
         //do that fancy sinc function!
         sndbuf_sinc_interpolate(d, out);
     }
-
+    
     //advance
     d->curf += d->rate;
     sndbuf_setpos(d, d->curf);
     return TRUE;
-
+    
 }
 
-#if defined(__CK_USE_NATIVE_SNDFILE__)
-  #include <sndfile.h>
+#if defined(__CK_SNDFILE_NATIVE__)
+#include <sndfile.h>
 #else
-  #include "util_sndfile.h"
+#include "util_sndfile.h"
 #endif
 
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
-
+    
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
 	
@@ -1004,22 +1008,22 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         delete [] d->buffer;
         d->buffer = NULL;
     }
-
+    
     struct stat s;
     if( stat( filename, &s ) )
     {
         fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
         return;
     }
-
+    
     SF_INFO info;
     info.format = 0;
     char * format = strrchr ( filename, '.');
     if ( format && strcmp ( format, ".raw" ) == 0 ) { 
-      fprintf(stderr, "%s :: type is '.raw'.  assuming 16 bit signed mono (PCM)\n", filename);
-      info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
-      info.channels = 1;
-      info.samplerate = 44100;
+        fprintf(stderr, "%s :: type is '.raw'.  assuming 16 bit signed mono (PCM)\n", filename);
+        info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
+        info.channels = 1;
+        info.samplerate = 44100;
     }
     SNDFILE* file = sf_open(filename, SFM_READ, &info);
     int er = sf_error(file);
@@ -1032,10 +1036,10 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     d->num_samples = sf_read_float(file, d->buffer, size) ;
     //fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
     d->samplerate = info.samplerate;
-
+    
     d->sampleratio = (double)d->samplerate / (double)g_srate;
     d->interp     = SNDBUF_INTERP;
-
+    
     if( d->num_samples != size )
     {
         fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
@@ -1051,20 +1055,20 @@ UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value )
 {
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
-
+    
     if( d->buffer )
     {
         delete [] d->buffer;
         d->buffer = NULL;
     }
-
+    
     struct stat s;
     if( stat( filename, &s ) )
     {
         fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
         return;
     }
-
+    
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
 }
@@ -1088,7 +1092,7 @@ UGEN_CTRL sndbuf_ctrl_freq( t_CKTIME now, void * data, void * value )
 { 
     sndbuf_data * d = ( sndbuf_data * ) data;
     t_CKFLOAT freq = * (t_CKFLOAT *) value;  //hz
- 
+    
     d->rate = ( freq * (double) d->num_frames / (double) g_srate );
 }
 
@@ -1116,7 +1120,7 @@ UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value ) {
     sndbuf_data * d = ( sndbuf_data * ) data;
     unsigned int chan = * (int *) value;
     if ( chan >= 0 && chan < d->num_channels ) { 
-      d->chan = chan;
+        d->chan = chan;
     }
 }
 

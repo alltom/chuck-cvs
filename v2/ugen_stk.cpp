@@ -258,14 +258,14 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, BandedWG_ctor, BandedWG_dtor, BandedWG_tick, BandedWG_pmsg );
     QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_noteOn, NULL, "float", "noteOn" ); //! noteOn
     QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_noteOff, NULL, "float", "noteOff" ); //! noteOff
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_pluck, NULL, "float", "pluck" ); //! pluck waveguide
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_startBowing, NULL, "float", "startBowing" ); //! pluck waveguide
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! pluck waveguide
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_freq, BandedWG_cget_freq, "float", "freq" ); //! strike Position
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowRate, BandedWG_cget_bowRate, "float", "bowRate" ); //! strike Position
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowPressure, BandedWG_cget_bowPressure, "float", "bowPressure" ); //! strike Position
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_preset, BandedWG_cget_preset, "int", "preset" ); //! strike Position
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_strikePosition, BandedWG_cget_strikePosition, "float", "strikePosition" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_pluck, NULL, "float", "pluck" ); //! strike/pluck waveguide with amplitude
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_startBowing, NULL, "float", "startBowing" ); //! start bow excitation of waveguide ( amplitude ) 
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! stop bowing excitation ( at rate f ) 
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_freq, BandedWG_cget_freq, "float", "freq" ); //! set frequency ( will reset model ) 
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowRate, BandedWG_cget_bowRate, "float", "bowRate" ); //! set rate of bow 
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowPressure, BandedWG_cget_bowPressure, "float", "bowPressure" ); //! change bow pressure
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_preset, BandedWG_cget_preset, "int", "preset" ); //! select preset ( see comments above ) 
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_strikePosition, BandedWG_cget_strikePosition, "float", "strikePosition" ); //! strike/bow position
     
 
     // add BiQuad
@@ -288,24 +288,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! STK blown bottle class
     QUERY->ugen_add( QUERY, "BlowBotl", NULL );
     QUERY->ugen_func( QUERY, BlowBotl_ctor, BlowBotl_dtor, BlowBotl_tick, BlowBotl_pmsg );
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_freq, BlowBotl_cget_freq, "float", "freq" ); //! frequency
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_rate, BlowBotl_cget_rate, "float", "rate" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOn, NULL, "float", "noteOn" ); //! blow note
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOff, NULL, "float", "noteOff" ); //! 
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! begin blowing
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! end blowing
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_freq, BlowBotl_cget_freq, "float", "freq" ); //! bottle freq
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_rate, BlowBotl_cget_rate, "float", "rate" ); //! rate used for startBlowing
 
         // add BlowHole
     //! STK blow hole class
     QUERY->ugen_add( QUERY, "BlowHole", NULL );
     QUERY->ugen_func( QUERY, BlowHole_ctor, BlowHole_dtor, BlowHole_tick, BlowHole_pmsg );
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_freq, BlowHole_cget_freq, "float", "freq" ); //! frequency
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_vent, BlowHole_cget_vent, "float", "vent" ); //! vent frequency
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_tonehole, BlowHole_cget_tonehole, "float", "tonehole" ); //! tonehole size
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOn, NULL, "float", "noteOn" ); //! 
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOff, NULL, "float", "noteOff" ); //! 
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! start breath excitation ( amplitude ) 
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! end breath excitation ( rate )
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_freq, BlowHole_cget_freq, "float", "freq" ); //! frequency parameter
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_vent, BlowHole_cget_vent, "float", "vent" ); //! register hole state
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_tonehole, BlowHole_cget_tonehole, "float", "tonehole" ); //! tonehole size ( closed - open )
     QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_reed, BlowHole_cget_reed, "float", "reed" ); //! reed stiffness
     QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_rate, BlowHole_cget_rate, "float", "rate" ); //! rate of change
 
@@ -316,7 +316,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_noteOff, NULL, "float", "noteOff" ); //! note off
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_startBowing, NULL, "float", "startBowing" ); //! begin bowing instrument
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! stop bowing
-    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_freq, Bowed_cget_freq, "float", "freq" ); //!
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_freq, Bowed_cget_freq, "float", "freq" ); //! set string frequency
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_rate, Bowed_cget_rate, "float", "rate" ); //!
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_vibrato, Bowed_cget_vibrato, "float", "vibrato" ); //!
 
@@ -338,10 +338,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "Clarinet", NULL );
     QUERY->ugen_func( QUERY, Clarinet_ctor, Clarinet_dtor, Clarinet_tick, Clarinet_pmsg );
     QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_clear, NULL, "float", "clear" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOff, NULL, "float", "noteOff" ); //! note off
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_clear, NULL, "float", "clear" ); //! clear the instrument 
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! breath excitation ( amp ) 
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! breath falloff ( rate ) 
     QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_freq, Clarinet_cget_freq, "float", "freq" ); //! frequency
     QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_rate, Clarinet_cget_rate, "float", "rate" ); //! rate of change
 
@@ -349,15 +349,16 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! STK Flute class
     QUERY->ugen_add( QUERY, "Flute", NULL );
     QUERY->ugen_func( QUERY, Flute_ctor, Flute_dtor, Flute_tick, Flute_pmsg );
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note ( required to start sound ? )
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOff, NULL, "float", "noteOff" ); //! 
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_clear, NULL, "float", "clear" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! breath excitation ( amp ) 
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! breath falloff ( rate ) 
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_freq, Flute_cget_freq, "float", "freq" ); //! frequency
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetReflection, Flute_cget_jetReflection, "float", "jetReflection" ); //! rate of change
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetDelay, Flute_cget_jetDelay, "float", "jetDelay" ); //! rate of change
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_endReflection, Flute_cget_endReflection, "float", "endReflection" ); //! rate of change
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_rate, Flute_cget_rate, "float", "rate" ); //! rate for excitation 
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetReflection, Flute_cget_jetReflection, "float", "jetReflection" ); //! reflection coefficient for jet
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetDelay, Flute_cget_jetDelay, "float", "jetDelay" ); //! set ration of jet delay vs air column delay
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_endReflection, Flute_cget_endReflection, "float", "endReflection" ); //! reflection coefficient for air column
 
     // add Chorus
     QUERY->ugen_add( QUERY, "Chorus", NULL );
@@ -591,17 +592,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop note
     QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_clear, NULL, "float", "clear" ); //! reset
 
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_preset, ModalBar_cget_preset, "int", "preset" ); //! choose preset
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_freq, ModalBar_cget_freq, "float", "freq" ); //! set frequency
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strikePosition, ModalBar_cget_strikePosition, "float", "strikePosition" ); //! set frequency
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_stickHardness, ModalBar_cget_stickHardness, "float", "stickHardness" ); //! set frequency
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_masterGain, ModalBar_cget_masterGain, "float", "masterGain" ); //! set frequency
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_directGain, ModalBar_cget_directGain, "float", "directGain" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_preset, ModalBar_cget_preset, "int", "preset" ); //! choose preset (see STK notes above)
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_freq, ModalBar_cget_freq, "float", "freq" ); //! set frequency for bar
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strikePosition, ModalBar_cget_strikePosition, "float", "strikePosition" ); //! set strike location on bar
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_stickHardness, ModalBar_cget_stickHardness, "float", "stickHardness" ); //! hardness of strike implement
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_masterGain, ModalBar_cget_masterGain, "float", "masterGain" ); //! 
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_directGain, ModalBar_cget_directGain, "float", "directGain" ); //!
 
     QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_mode, ModalBar_cget_mode, "int", "mode" ); //! choose mode
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRatio, ModalBar_cget_modeRatio, "float", "modeRatio" ); //! mode edit
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRadius, ModalBar_cget_modeRadius, "float", "modeRadius" ); //! mode dit
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeGain, ModalBar_cget_modeGain, "float", "modeGain" ); //! mode edit
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRatio, ModalBar_cget_modeRatio, "float", "modeRatio" ); //! mode filter ratio
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRadius, ModalBar_cget_modeRadius, "float", "modeRadius" ); //! mode filter radius
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeGain, ModalBar_cget_modeGain, "float", "modeGain" ); //! mode filter gain
 
 
 
@@ -638,20 +639,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! STK Saxofony class
     QUERY->ugen_add( QUERY, "Saxofony", NULL );
     QUERY->ugen_func( QUERY, Saxofony_ctor, Saxofony_dtor, Saxofony_tick, Saxofony_pmsg );
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOn, NULL, "float", "noteOn" ); //! 
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOff, NULL, "float", "noteOff" ); //!
     QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_clear, NULL, "float", "clear" ); //! clear instrument
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_freq, Saxofony_cget_freq, "float", "freq" ); //! frequency
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_rate, Saxofony_cget_rate, "float", "rate" ); //! frequency
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_blowPosition, Saxofony_cget_blowPosition, "float", "lip" ); //! lip stiffness
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! breath excitation ( amp ) 
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! breath falloff ( rate )
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_freq, Saxofony_cget_freq, "float", "freq" ); //! freq
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_rate, Saxofony_cget_rate, "float", "rate" ); //! excitation rate
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_blowPosition, Saxofony_cget_blowPosition, "float", "blowPosition" ); //! lip position
 
 // add Sitar
     //! STK Sitar class
     QUERY->ugen_add( QUERY, "Sitar", NULL );
     QUERY->ugen_func( QUERY, Sitar_ctor, Sitar_dtor, Sitar_tick, Sitar_pmsg );
-    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_pluck, NULL, "float", "pluck" ); //! 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_pluck, NULL, "float", "pluck" );
     QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOn, NULL, "float", "noteOn" ); 
     QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOff, NULL, "float", "noteOff" ); 
     QUERY->ugen_ctrl( QUERY, Sitar_ctrl_clear, NULL, "float", "clear" ); 
@@ -664,10 +665,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pluck, NULL, "float", "pluck" ); //! 
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOn, NULL, "float", "noteOn" ); 
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOff, NULL, "float", "noteOff" ); 
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_clear, NULL, "float", "clear" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_clear, NULL, "float", "clear" ); //! clear instrument
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_freq, StifKarp_cget_freq, "float", "freq" ); 
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pickupPosition, StifKarp_cget_pickupPosition, "float", "pickupPosition" ); 
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_stretch, StifKarp_cget_stretch, "float", "stretch" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pickupPosition, StifKarp_cget_pickupPosition, "float", "pickupPosition" );  //! string excitation position ( 0.0 - 1.0 )
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_stretch, StifKarp_cget_stretch, "float", "stretch" );  // stretch of string ( 0 - 1.0  )
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_baseLoopGain, StifKarp_cget_baseLoopGain, "float", "baseLoopGain" ); 
     
     // add Shakers
@@ -10102,6 +10103,7 @@ void Flute :: setFrequency(MY_FLOAT frequency)
 
 void Flute :: startBlowing(MY_FLOAT amplitude, MY_FLOAT rate)
 {
+	fprintf (stderr,"flute::startblowing %f %f \n", amplitude, rate);
   adsr->setAttackRate(rate);
   maxPressure = amplitude / (MY_FLOAT) 0.8;
   adsr->keyOn();
@@ -20181,13 +20183,13 @@ UGEN_CGET Brass_cget_lip ( t_CKTIME now, void * data, void * value )
 struct Clarinet_ { 
    Clarinet * imp;
    double m_frequency;
-   double m_lip;
    double m_rate;
+   double m_reed;
    Clarinet_ ( double d ) { 
       imp = new Clarinet(d);
       m_frequency = 100.0;
-      m_lip = 200.0;
       m_rate = 0.5;
+      m_reed = 0.5;
    }
 };
 
