@@ -1,15 +1,15 @@
 -      - StkError
 - virt - Stk
--      - Envelope : public Stk
+- DONE - Envelope : public Stk
 - DONE - ADSR : public Envelope
 - virt - Instrmnt : public Stk
--      - Filter : public Stk
+- STAR - Filter : public Stk
 - DONE - Delay : public Filter
 - DONE - DelayL : public Delay
 -      - BowTabl : public Stk
 - DONE - BiQuad : public Filter
 -      - BandedWG : public Instrmnt
--      - WvIn : public Stk
+- DONE - WvIn : public Stk
 - DONE - WaveLoop : public WvIn
 - DONE - TwoZero : protected Filter
 - virt - FM : public Instrmnt
@@ -25,7 +25,7 @@
 -      - Bowed : public Instrmnt
 - DONE - DelayA : public Delay
 -      - Brass: public Instrmnt
--      - Chorus : public Stk
+- DONE - Chorus : public Stk
 -      - Clarinet : public Instrmnt
 -      - Drummer : public Instrmnt
 - DONE - Echo : public Stk
@@ -33,19 +33,19 @@
 -      - Flute : public Instrmnt
 -      - FormSwep : public BiQuad
 - DONE - HevyMetl : public FM
--      - Reverb : public Stk
+- DONE - Reverb : public Stk
 - DONE - JCRev : public Reverb
 - virt - PluckTwo : public Instrmnt
 - DONE - Mandolin : public PluckTwo
 -      - Mesh2D : public Instrmnt
 - virt - Modal : public Instrmnt
 -      - ModalBar : public Modal
--      - SubNoise : public Noise
+- DONE - SubNoise : public Noise
 -      - Modulate : public Stk
 -      - Sampler : public Instrmnt
 - DONE - Moog : public Sampler
--      - NRev : public Reverb
--      - PRCRev : public Reverb
+- DONE - NRev : public Reverb
+- DONE - PRCRev : public Reverb
 - DONE - PercFlut : public FM
 -      - Phonemes
 - DONE - PitShift : public Stk
@@ -61,7 +61,7 @@
 -      - Socket : public Stk
 -      - StifKarp : public Instrmnt
 -      - Table : public Stk
--      - WvOut : public Stk
+- DONE - WvOut : public Stk
 - DONE - TubeBell : public FM
 - DONE - TwoPole : protected Filter
 - DONE - VoicForm : public Instrmnt
