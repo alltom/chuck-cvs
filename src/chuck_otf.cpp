@@ -67,3 +67,4 @@ void otf_ntoh( Net_Msg * msg )
     msg->param3 = ntohl( msg->param3 );
     msg->length = ntohl( msg->length );
 }
+

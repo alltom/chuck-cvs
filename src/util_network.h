@@ -39,7 +39,7 @@
 #ifndef __PLATFORM_WIN32__
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <netinit/in.h>
+#include <netinet/in.h>
 #else
 #include <windows.h>
 #endif
