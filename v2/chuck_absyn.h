@@ -54,7 +54,7 @@ typedef enum {
     ae_op_shift_left_chuck, ae_op_percent_chuck, ae_op_s_chuck,
     ae_op_plusplus, ae_op_minusminus, ae_op_tilda, ae_op_exclamation,
     ae_op_at_chuck, ae_op_unchuck, ae_op_spork, ae_op_typeof,
-    ae_op_sizeof
+    ae_op_sizeof, ae_op_new
 } ae_Operator;
 
 const char * op2str( ae_Operator op );
@@ -148,6 +148,7 @@ a_Stmt new_stmt_from_case( a_Exp exp, int pos );
 a_Exp prepend_expression( a_Exp exp, a_Exp list, int pos );
 a_Exp new_exp_from_binary( a_Exp lhs, ae_Operator oper, a_Exp rhs, int pos );
 a_Exp new_exp_from_unary( ae_Operator oper, a_Exp exp, int pos );
+a_Exp new_exp_from_unary2( ae_Operator oper, a_Type_Decl type, int pos );
 a_Exp new_exp_from_cast( a_Type_Decl type, a_Exp exp, int pos );
 a_Exp new_exp_from_array( a_Exp base, a_Array_Sub indices, int pos );
 a_Exp new_exp_from_func_call( a_Exp base, a_Exp args, int pos );
@@ -160,7 +161,7 @@ a_Exp new_exp_from_uint( unsigned long num, int pos );
 a_Exp new_exp_from_float( double num, int pos );
 a_Exp new_exp_from_str( c_str str, int pos );
 a_Exp new_exp_from_if( a_Exp cond, a_Exp lhs, a_Exp rhs, int pos );
-a_Exp new_exp_decl( a_Type_Decl type_decl, a_Var_Decl_List var_decl_list, int pos );
+a_Exp new_exp_decl( a_Type_Decl type_decl, a_Var_Decl_List var_decl_list, int ref, int pos );
 a_Exp new_exp_from_namespace( c_str name, int pos );
 a_Var_Decl_List new_var_decl_list( a_Var_Decl var_decl, int pos );
 a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list, int pos );
@@ -191,7 +192,7 @@ a_Func_Def new_func_def( ae_Keyword func_decl, ae_Keyword static_decl,
 //------------------------------------------------------------------------------
 struct a_Exp_Binary_ { a_Exp lhs; ae_Operator op; a_Exp rhs; int linepos; a_Exp self; };
 struct a_Exp_Cast_ { a_Type_Decl type; a_Exp exp; int linepos; a_Exp self; };
-struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; int linepos; a_Exp self; };
+struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; a_Type_Decl type; int linepos; a_Exp self; };
 struct a_Exp_Postfix_ { a_Exp exp; ae_Operator op; int linepos; a_Exp self; };
 struct a_Exp_Dur_ { a_Exp base; a_Exp unit; int linepos; a_Exp self; };
 struct a_Exp_Array_ { a_Exp base; a_Array_Sub indices; int linepos; a_Exp self; };
@@ -200,7 +201,7 @@ struct a_Exp_Func_Call_ { a_Exp func; a_Exp args; t_CKTYPE ret_type;
 struct a_Exp_Dot_Member_ { a_Exp base; t_CKTYPE t_base; S_Symbol id; unsigned long data;
                            unsigned long data2; unsigned int flag; int linepos; a_Exp self; };
 struct a_Exp_If_ { a_Exp cond; a_Exp if_exp; a_Exp else_exp; int linepos; a_Exp self; };
-struct a_Exp_Decl_ { a_Type_Decl type; a_Var_Decl_List var_decl_list; int linepos; a_Exp self; };
+struct a_Exp_Decl_ { a_Type_Decl type; a_Var_Decl_List var_decl_list; int ref; int linepos; a_Exp self; };
 struct a_Exp_Namespace_ { S_Symbol name; int linepos; a_Exp self; };
 struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos; a_Exp self; };
 struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; a_Array_Sub array; int linepos; a_Exp self; };

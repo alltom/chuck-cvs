@@ -328,8 +328,10 @@ array_empty
 
 decl_expression
         : conditional_expression            { $$ = $1; }
-        | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
-        | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, EM_lineNum ); }
+        | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, 0, EM_lineNum ); }
+        | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, 0, EM_lineNum ); }
+        | SAME AT var_decl_list             { $$ = new_exp_decl( NULL, $3, 1, EM_lineNum ); }
+        | type_decl AT var_decl_list        { $$ = new_exp_decl( $1, $3, 1, EM_lineNum ); }
         ;
 
 var_decl_list
@@ -466,10 +468,10 @@ unary_expression
             { $$ = new_exp_from_unary( ae_op_typeof, $3, EM_lineNum ); }
         | SIZEOF LT unary_expression GT
             { $$ = new_exp_from_unary( ae_op_sizeof, $3, EM_lineNum ); }
-        // | NEW type_decl
-        //    { }
-        // | NEW LT type_decl GT
-        //    { }
+        | NEW type_decl
+            { $$ = new_exp_from_unary2( ae_op_new, $2, EM_lineNum ); }
+        | NEW LT type_decl GT
+            { $$ = new_exp_from_unary2( ae_op_new, $3, EM_lineNum ); }
         ;
 
 unary_operator
