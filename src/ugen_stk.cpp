@@ -423,13 +423,50 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, FM_ctrl_control1, NULL, "float", "control1" );
     QUERY->ugen_ctrl( QUERY, FM_ctrl_control2, NULL, "float", "control2" );
 
+    // add BeeThree
+    QUERY->ugen_add( QUERY, "BeeThree", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
+    QUERY->ugen_func( QUERY, BeeThree_ctor, BeeThree_dtor, BeeThree_tick, BeeThree_pmsg );
+    QUERY->ugen_ctrl( QUERY, BeeThree_ctrl_noteOn, NULL, "float", "noteOn" );
+
+    // add FMVoices
+    QUERY->ugen_add( QUERY, "FMVoices", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
+    QUERY->ugen_func( QUERY, FMVoices_ctor, FMVoices_dtor, FMVoices_tick, FMVoices_pmsg );
+    QUERY->ugen_ctrl( QUERY, FMVoices_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, FMVoices_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, FMVoices_ctrl_vowel, NULL, "float", "vowel" );
+    QUERY->ugen_ctrl( QUERY, FMVoices_ctrl_spectralTilt, NULL, "float", "spectralTilt" );
+    QUERY->ugen_ctrl( QUERY, FMVoices_ctrl_lfoSpeed, NULL, "float", "lfoSpeed" );
+    QUERY->ugen_ctrl( QUERY, FMVoices_ctrl_lfoDepth, NULL, "float", "lfoDepth" );
+    QUERY->ugen_ctrl( QUERY, FMVoices_ctrl_adsrTarget, NULL, "float", "adsrTarget" );
+
+    // add HevyMetl
+    QUERY->ugen_add( QUERY, "HevyMetl", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
+    QUERY->ugen_func( QUERY, HevyMetl_ctor, HevyMetl_dtor, HevyMetl_tick, HevyMetl_pmsg );
+    QUERY->ugen_ctrl( QUERY, HevyMetl_ctrl_noteOn, NULL, "float", "noteOn" );
+
+    // add PercFlut
+    QUERY->ugen_add( QUERY, "PercFlut", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
+    QUERY->ugen_func( QUERY, PercFlut_ctor, PercFlut_dtor, PercFlut_tick, PercFlut_pmsg );
+    QUERY->ugen_ctrl( QUERY, PercFlut_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, PercFlut_ctrl_noteOn, NULL, "float", "noteOn" );
+
+    // add TubeBell
+    QUERY->ugen_add( QUERY, "TubeBell", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
+    QUERY->ugen_func( QUERY, TubeBell_ctor, TubeBell_dtor, TubeBell_tick, TubeBell_pmsg );
+    QUERY->ugen_ctrl( QUERY, TubeBell_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, TubeBell_ctrl_noteOn, NULL, "float", "noteOn" );
+
     // add Wurley
     QUERY->ugen_add( QUERY, "Wurley", NULL );
     QUERY->ugen_extends (QUERY, "FM");
     QUERY->ugen_func( QUERY, Wurley_ctor, Wurley_dtor, Wurley_tick, Wurley_pmsg );
     QUERY->ugen_ctrl( QUERY, Wurley_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, Wurley_ctrl_noteOn, NULL, "float", "noteOn" );
-    QUERY->ugen_ctrl( QUERY, Wurley_ctrl_noteOff, NULL, "float", "noteOff" );
 
     // add Rhodey
     QUERY->ugen_add( QUERY, "Rhodey", NULL );
@@ -437,7 +474,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, Rhodey_ctor, Rhodey_dtor, Rhodey_tick, Rhodey_pmsg );
     QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_noteOn, NULL, "float", "noteOn" );
-    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_noteOff, NULL, "float", "noteOff" );
   
     return TRUE;
 }
@@ -1749,7 +1785,7 @@ class BeeThree : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
-
+  void noteOn( MY_FLOAT amplitude) { noteOn( baseFrequency, amplitude ); }
   //! Compute one output sample.
   MY_FLOAT tick();
 };
@@ -2899,6 +2935,7 @@ class FMVoices : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  void noteOn( MY_FLOAT amplitude) { noteOn(baseFrequency, amplitude); }
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -3154,6 +3191,7 @@ class HevyMetl : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  void noteOn( MY_FLOAT amplitude) { noteOn(baseFrequency, amplitude); }
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -4071,6 +4109,7 @@ class PercFlut : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  void noteOn( MY_FLOAT amplitude) { noteOn(baseFrequency, amplitude); }
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -4387,7 +4426,7 @@ class Rhodey : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
-  void noteOn(MY_FLOAT amplitude);
+  void noteOn(MY_FLOAT amplitude) { noteOn(baseFrequency, amplitude ); } 
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -5575,6 +5614,7 @@ class TubeBell : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  void noteOn( MY_FLOAT amplitude) { noteOn(baseFrequency, amplitude); }
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -6050,7 +6090,7 @@ class Wurley : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
-  void noteOn(MY_FLOAT amplitude);
+  void noteOn(MY_FLOAT amplitude) { noteOn ( baseFrequency, amplitude ); }
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -13109,10 +13149,6 @@ void Rhodey :: setFrequency(MY_FLOAT frequency)
     waves[i]->setFrequency( baseFrequency * ratios[i] );
 }
 
-void Rhodey :: noteOn(MY_FLOAT amplitude)
-{ 
-  noteOn ( baseFrequency, amplitude ) ;
-}
 
 void Rhodey :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
@@ -17228,10 +17264,6 @@ void Wurley :: setFrequency(MY_FLOAT frequency)
   waves[3]->setFrequency(ratios[3]);
 }
 
-void Wurley :: noteOn( MY_FLOAT amplitude ) { 
-  noteOn(baseFrequency, amplitude );
-}
-
 void Wurley :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
   gains[0] = amplitude * __FM_gains[99];
@@ -20214,6 +20246,89 @@ UGEN_CTRL PoleZero_ctrl_blockZero( t_CKTIME now, void * data, void * value )
     filter->setBlockZero( f );
 }
 
+//FM functions
+
+UGEN_CTOR FM_ctor ( t_CKTIME now ) 
+{
+  //  return new FM(4);
+  fprintf(stderr,"error : FM is virtual - not for use! \n");
+  return 0;
+}
+
+UGEN_DTOR FM_dtor ( t_CKTIME now, void * data ) 
+{ 
+  //  delete (FM *)data;
+    fprintf(stderr,"error : FM is virtual!\n");
+}
+
+UGEN_TICK FM_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    FM * m = (FM *)data;
+    //    *out = m->tick();
+    fprintf(stderr,"error : FM tick is virtual\n");
+    return TRUE;
+}
+
+UGEN_PMSG FM_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL FM_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setFrequency( f );
+}
+
+UGEN_CTRL FM_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->keyOn();
+}
+
+UGEN_CTRL FM_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->noteOff( f );
+}
+
+UGEN_CTRL FM_ctrl_modDepth( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setModulationDepth( f );
+}
+
+UGEN_CTRL FM_ctrl_modSpeed( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setModulationSpeed( f );
+}
+
+UGEN_CTRL FM_ctrl_control1( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setControl1( f );
+}
+
+UGEN_CTRL FM_ctrl_control2( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setControl2( f );
+}
+
+UGEN_CTRL FM_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+}
 
 //Wurley functions
 
@@ -20307,88 +20422,222 @@ UGEN_CTRL Rhodey_ctrl_noteOff( t_CKTIME now, void * data, void * value )
 }
 
 
+//BeeThree functions
 
-//FM functions
-
-UGEN_CTOR FM_ctor ( t_CKTIME now ) 
+UGEN_CTOR BeeThree_ctor ( t_CKTIME now ) 
 {
-  //  return new FM(4);
-  fprintf(stderr,"error : FM is virtual - not for use! \n");
-  return 0;
+  return new BeeThree();
 }
 
-UGEN_DTOR FM_dtor ( t_CKTIME now, void * data ) 
+UGEN_DTOR BeeThree_dtor ( t_CKTIME now, void * data ) 
 { 
-  //  delete (FM *)data;
-    fprintf(stderr,"error : FM is virtual!\n");
+  delete (BeeThree *)data;
 }
 
-UGEN_TICK FM_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+UGEN_TICK BeeThree_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
-    FM * m = (FM *)data;
-    //    *out = m->tick();
-    fprintf(stderr,"error : FM tick is virtual\n");
+    BeeThree * m = (BeeThree *)data;
+    *out = m->tick();
     return TRUE;
 }
 
-UGEN_PMSG FM_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+UGEN_PMSG BeeThree_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
 {
     return TRUE;
 }
 
-UGEN_CTRL FM_ctrl_freq( t_CKTIME now, void * data, void * value )
+UGEN_CTRL BeeThree_ctrl_noteOn( t_CKTIME now, void * data, void * value )
 {
-    FM * fm= (FM *)data;
+    BeeThree * bee= (BeeThree *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->setFrequency( f );
+    bee->noteOn( f );
 }
 
-UGEN_CTRL FM_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+
+//PercFlut functions
+
+UGEN_CTOR PercFlut_ctor ( t_CKTIME now ) 
 {
-    FM * fm= (FM *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->keyOn();
+  return new PercFlut();
 }
 
-UGEN_CTRL FM_ctrl_noteOff( t_CKTIME now, void * data, void * value )
-{
-    FM * fm= (FM *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->noteOff( f );
+UGEN_DTOR PercFlut_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (PercFlut *)data;
 }
 
-UGEN_CTRL FM_ctrl_modDepth( t_CKTIME now, void * data, void * value )
+UGEN_TICK PercFlut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
-    FM * fm= (FM *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->setModulationDepth( f );
+    PercFlut * m = (PercFlut *)data;
+    *out = m->tick();
+    return TRUE;
 }
 
-UGEN_CTRL FM_ctrl_modSpeed( t_CKTIME now, void * data, void * value )
+UGEN_PMSG PercFlut_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
 {
-    FM * fm= (FM *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->setModulationSpeed( f );
+    return TRUE;
 }
 
-UGEN_CTRL FM_ctrl_control1( t_CKTIME now, void * data, void * value )
+UGEN_CTRL PercFlut_ctrl_noteOn( t_CKTIME now, void * data, void * value )
 {
-    FM * fm= (FM *)data;
+    PercFlut * perc= (PercFlut *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->setControl1( f );
+    perc->noteOn( f );
 }
 
-UGEN_CTRL FM_ctrl_control2( t_CKTIME now, void * data, void * value )
+UGEN_CTRL PercFlut_ctrl_freq( t_CKTIME now, void * data, void * value )
 {
-    FM * fm= (FM *)data;
+    PercFlut * perc= (PercFlut *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->setControl2( f );
+    perc->setFrequency( f );
 }
 
-UGEN_CTRL FM_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
+
+//HevyMetl functions
+
+UGEN_CTOR HevyMetl_ctor ( t_CKTIME now ) 
 {
-    FM * fm= (FM *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    fm->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+  return new HevyMetl();
 }
+
+UGEN_DTOR HevyMetl_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (HevyMetl *)data;
+}
+
+UGEN_TICK HevyMetl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    HevyMetl * m = (HevyMetl *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG HevyMetl_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL HevyMetl_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    HevyMetl * hevy= (HevyMetl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    hevy->noteOn( f );
+}
+
+
+//TubeBell functions
+
+UGEN_CTOR TubeBell_ctor ( t_CKTIME now ) 
+{
+  return new TubeBell();
+}
+
+UGEN_DTOR TubeBell_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (TubeBell *)data;
+}
+
+UGEN_TICK TubeBell_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    TubeBell * m = (TubeBell *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG TubeBell_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL TubeBell_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    TubeBell * tube = (TubeBell *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    tube->noteOn( f );
+}
+
+UGEN_CTRL TubeBell_ctrl_freq( t_CKTIME now, void * data, void * value )
+{ 
+    TubeBell * tube= (TubeBell *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    tube->setFrequency( f );
+}
+
+
+
+//FMVoices functions
+
+UGEN_CTOR FMVoices_ctor ( t_CKTIME now ) 
+{
+  return new FMVoices();
+}
+
+UGEN_DTOR FMVoices_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (FMVoices *)data;
+}
+
+UGEN_TICK FMVoices_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    FMVoices * m = (FMVoices *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG FMVoices_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL FMVoices_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    FMVoices * voc = (FMVoices *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    voc->noteOn( f );
+}
+
+UGEN_CTRL FMVoices_ctrl_freq( t_CKTIME now, void * data, void * value )
+{ 
+    FMVoices * voc = (FMVoices *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    voc->setFrequency( f );
+}
+
+
+UGEN_CTRL FMVoices_ctrl_vowel( t_CKTIME now, void * data, void * value )
+{
+    FMVoices * voc= (FMVoices *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    voc->controlChange( __SK_Breath_, f * 128.0 );
+}
+
+UGEN_CTRL FMVoices_ctrl_spectralTilt( t_CKTIME now, void * data, void * value )
+{
+    FMVoices * voc= (FMVoices *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    voc->controlChange( __SK_FootControl_, f * 128.0);
+}
+
+UGEN_CTRL FMVoices_ctrl_lfoSpeed( t_CKTIME now, void * data, void * value )
+{
+    FMVoices * voc= (FMVoices *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    voc->controlChange( __SK_ModFrequency_, f * 128.0);
+}
+
+UGEN_CTRL FMVoices_ctrl_lfoDepth( t_CKTIME now, void * data, void * value )
+{
+    FMVoices * voc= (FMVoices *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    voc->controlChange( __SK_ModWheel_, f * 128.0);
+}
+
+UGEN_CTRL FMVoices_ctrl_adsrTarget( t_CKTIME now, void * data, void * value )
+{
+    FMVoices * voc= (FMVoices *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    voc->controlChange( __SK_AfterTouch_Cont_, f * 128.0);
+}
+
+
 

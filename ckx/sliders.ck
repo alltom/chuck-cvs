@@ -122,7 +122,7 @@ function void drawSlider (float val, float x, float y, int selected, string titl
 	gl.Translatef ( -(width+border), 0.0 , 0.02);
 	gl.Scalef (0.0007, 0.0008, 0.0007);
 	gl.Color3f ( 0.0, 0.0, 0.0 );
-	gluck.StrokeString ( 0, title );
+	//gluck.StrokeString ( 0, title );
 	gl.PopMatrix();
 	gl.PopMatrix();
 
@@ -372,10 +372,11 @@ function void ricochet( float loud, float mfreq) {
 
 }
 
+
 function void audioshred( ) { 
 
 	while ( true ) { 
-		//mmm. audio looump.
+
 		1::samp => now;
 	}
  

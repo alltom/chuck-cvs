@@ -342,6 +342,7 @@ UGEN_CTOR BeeThree_ctor( t_CKTIME now );
 UGEN_DTOR BeeThree_dtor( t_CKTIME now, void * data );
 UGEN_TICK BeeThree_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG BeeThree_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL BeeThree_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 
 // BlowBotl
 UGEN_CTOR BlowBotl_ctor( t_CKTIME now );
@@ -410,12 +411,19 @@ UGEN_DTOR FMVoices_dtor( t_CKTIME now, void * data );
 UGEN_TICK FMVoices_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG FMVoices_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL FMVoices_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FMVoices_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FMVoices_ctrl_vowel( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FMVoices_ctrl_spectralTilt( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FMVoices_ctrl_lfoSpeed( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FMVoices_ctrl_lfoDepth( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FMVoices_ctrl_adsrTarget( t_CKTIME now, void * data, void * value );
 
 // HevyMetl
 UGEN_CTOR HevyMetl_ctor( t_CKTIME now );
 UGEN_DTOR HevyMetl_dtor( t_CKTIME now, void * data );
 UGEN_TICK HevyMetl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG HevyMetl_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL HevyMetl_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 
 // JetTabl
 UGEN_CTOR JetTabl_ctor( t_CKTIME now );
@@ -492,6 +500,7 @@ UGEN_CTOR PercFlut_ctor( t_CKTIME now );
 UGEN_DTOR PercFlut_dtor( t_CKTIME now, void * data );
 UGEN_TICK PercFlut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG PercFlut_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL PercFlut_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL PercFlut_ctrl_freq( t_CKTIME now, void * data, void * value );
 
 // Plucked
@@ -615,6 +624,8 @@ UGEN_CTOR TubeBell_ctor( t_CKTIME now );
 UGEN_DTOR TubeBell_dtor( t_CKTIME now, void * data );
 UGEN_TICK TubeBell_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG TubeBell_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL TubeBell_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL TubeBell_ctrl_freq( t_CKTIME now, void * data, void * value );
 
 // Voicer
 UGEN_CTOR Voicer_ctor( t_CKTIME now );
