@@ -130,7 +130,7 @@ struct Chuck_Emmission
     // namespace
     t_Env nspc;
     a_Func_Def nspc_func;
-    vector<Chuck_Instr_Unary_Op *>ops;
+    vector<Chuck_Instr_Unary_Op *> ops;
 
     Chuck_Emmission( t_Env e )
     {
@@ -150,7 +150,9 @@ struct Chuck_Emmission
     }
     
     void push_op( Chuck_Instr_Unary_Op * a )
-    {   ops.push_back( a ); }
+    {
+        ops.push_back( a );
+    }
     
     Chuck_Instr_Unary_Op * get_op()
     {
@@ -174,7 +176,8 @@ struct Chuck_Emmission
     
     void pop_the_ops()
     {
-        while( get_op() ) pop_op();
+        ops.clear();
+        // while( get_op() ) pop_op();
     }
 
     uint append( Chuck_Instr * instr )
@@ -1227,7 +1230,11 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
             }
 
             emit->append( op = new Chuck_Instr_Midi_Out(0) );
+            emit->append( op2 = new Chuck_Instr_Midi_Out_Go(0) );
+            emit->push_op( op2 );
             emit->push_op( op );
+            // emit->append( op = new Chuck_Instr_Midi_Out(0) );
+            // emit->push_op( op );
         }
         else if( exp->var == insert_symbol( "dac" ) )
         {
@@ -2425,7 +2432,7 @@ t_CKBOOL emit_engine_emit_code_segment( Chuck_Emmission * emit, a_Stmt_Code stmt
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
 {
-    if( lhs->type->type == te_midiout || lhs->type->type == te_midiin )
+    if( rhs->type->type == te_midiout || lhs->type->type == te_midiin )
         emit->pop_the_ops();
 
     if( lhs->type->parent && rhs->type->parent &&
