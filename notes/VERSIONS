@@ -1,6 +1,7 @@
 
 ---
 1.1.4.4 - 2004.8.2
+  - added sndfile patch for jack/sndfile (Martin Rumori)
   - added special raw wav for WaveLoop (philipd, gewang)
 
     (see examples/dope.ck)
@@ -27,7 +28,7 @@
 
   - fixed shred shreduling ID bug for on-the-fly added shreds (gewang)
   - fixed function resolution for on-the-fly added shreds (gewang)
-  - added math.npow2( int n ) (Niklas Werner, gewang)
+  - added math.nextpow2( int n ) (Niklas Werner, gewang)
 
 new STK ugens:
   - Mandolin (see examples/mandolin.ck examples/mand-o-matic.ck)
@@ -38,6 +39,7 @@ new examples:
   - mand-o-matic (fire it up!)
   - dope.ck (Homer's WaveLoop using internal STK sound)
   - print_last.ck (prints last ugen output)
+  - wind2.ck (2 shreds control parameters)
 
 
 ---
