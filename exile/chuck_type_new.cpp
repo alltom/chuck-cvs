@@ -483,10 +483,15 @@ t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
 
 t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 {
+    // TODO: implement this
+    EM_error2( stmt->linepos, "switch not implemented" );
+
+    return FALSE;
 }
 
 t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
 {
+    
 }
 
 t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
