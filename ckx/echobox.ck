@@ -2,6 +2,9 @@
 "glu.ckx" => (:glu:);
 "gluck.ckx" => (:gluck:);
 
+
+30::samp => dur refreshrate; 
+
 // walls
 -1.0 => float l;
 1.0 => float r;
@@ -516,7 +519,7 @@ fun void fiddlebox () {
 		refreshenv();
 		srcfreq => sc.sfreq;
 		recvfreq => rc.sfreq;
-		10::samp => now;
+		refreshrate => now;
 		
 	}
 }
