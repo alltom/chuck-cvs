@@ -1,5 +1,28 @@
 
 ---
+1.1.4.8 - 2004.9.8
+  - added win32 visual studio support (chuck_win32.*)
+  - new oscillators (see below, thanks to Phil)
+  - corrected more issues on some 64-bit systems
+  - new examples (see below)
+  - chucking to oscillators now able to control phase
+    (alternative to doing FM by hand (1::samp at a time),
+     see pwm.ck and sixty.ck)
+
+new ugens:
+  triosc - triangle wave
+  pulseosc - pulse wave oscillator w/ controllable pulse width
+  sqrosc - square wave
+  sawosc - saw tooth
+  phasor - 0 to 1 ramp
+
+new examples:
+  sixty.ck - shows osc's
+  pwm.ck - basic pulse width modulation
+  (you can still do FM "by hand" - see fmsynth.ck)
+
+
+---
 1.1.4.7 - 2004.9.4
   - improved performance (reduce cpu overhead)
   - fixed bug that caused crash on ctrl-c
