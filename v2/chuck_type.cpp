@@ -993,14 +993,15 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
 {
     t_CKTYPE t = NULL;
+    Chuck_Value * v = NULL;
     
     // check syntax
     switch( exp->s_type )
     {
         // variable
         case ae_primary_var:
-            t = env->curr->lookup_value( exp->var, env->dots == 0 );
-            if( !t )
+            v = env->curr->lookup_value( exp->var, env->dots == 0 );
+            if( !v )
             {
                 // error
                 if( !env->dots )
@@ -1017,6 +1018,7 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
                 }
                 return NULL;
             }
+            t = v->type;
         break;
         
         // int
@@ -1236,8 +1238,8 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl var_decl = decl->var_decl_list->var_decl;
     
-    t_CKTYPE t = NULL, t2 = NULL;
-    
+    t_CKTYPE t = NULL;
+
     // look up the type
     t = env->curr->lookup_type( decl->type, TRUE );
     if( !t )
@@ -1248,24 +1250,27 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         return NULL;
     }
 
+    // check if locally defined
+    if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
+    {
+        EM_error2( decl->linepos,
+            "(type-checker): '%s' has already been defined in the same scope...",
+            S_name(var_decl->id) );
+        return NULL;
+    }
+
     // check if array
     if( var_decl->isarray )
     {
+        // make a copy of the type
+        t = t->copy();
+        // set the array depth
+        t->array_depth = var_decl->isarray;
     }
-    else
-    {
-        // check if locally defined
-        if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
-        {
-            EM_error2( decl->linepos,
-                "(type-checker): '%s' has already been defined in the same scope...",
-                S_name(var_decl->id) );
-            return NULL;
-        }
-        
-        // enter into value binding
-        env->context->nspc.value.add( var_decl->id, t );
-    }
+    
+    // enter into value binding
+    env->context->nspc.value.add( var_decl->id, 
+        new Chuck_Value( t, S_name(var_decl->id), NULL ) );
 
     return t;
 }
@@ -1316,10 +1321,40 @@ Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb
 
 
 //-----------------------------------------------------------------------------
+// name: lookup_value()
+// desc: lookup value in the env
+//-----------------------------------------------------------------------------
+Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
+{
+    Chuck_Value * v = value.lookup( name );
+    if( climb && !v && parent )
+        return parent->lookup_value( name, climb );
+    return v;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: lookup_func()
 // desc: lookup func in the env
 //-----------------------------------------------------------------------------
 Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
+{
+    Chuck_Func * f = func.lookup( name );
+    if( climb && !f && parent )
+        return parent->lookup_func( name, climb );
+    return f;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_func()
+// desc: lookup func in the env
+//-----------------------------------------------------------------------------
+Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_Func * f = func.lookup( name );
     if( climb && !f && parent )
@@ -1346,10 +1381,40 @@ Chuck_Namespace * Chuck_Namespace::lookup_class( const string & name, t_CKBOOL c
 
 
 //-----------------------------------------------------------------------------
+// name: lookup_class()
+// desc: lookup class in the namespace
+//-----------------------------------------------------------------------------
+Chuck_Namespace * Chuck_Namespace::lookup_class( S_Symbol name, t_CKBOOL climb )
+{
+    Chuck_Namespace * e = class_defs.lookup( name );
+    if( climb && !e && parent )
+        return parent->lookup_class( name, climb );
+    return e;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: lookup_addr()
 // desc: lookup addr in the env
 //-----------------------------------------------------------------------------
 void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
+{
+    void * a = addr.lookup( name );
+    if( climb && !a && parent )
+        return parent->lookup_addr( name, climb );
+    return a;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_addr()
+// desc: lookup addr in the env
+//-----------------------------------------------------------------------------
+void * Chuck_Namespace::lookup_addr( S_Symbol name, t_CKBOOL climb )
 {
     void * a = addr.lookup( name );
     if( climb && !a && parent )

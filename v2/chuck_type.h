@@ -149,14 +149,19 @@ struct Chuck_Namespace
     
     // look up type
     Chuck_Type * lookup_type( const string & name, t_CKBOOL climb = TRUE );
+    Chuck_Type * lookup_type( S_Symbol name, t_CKBOOL climb = TRUE );
     // look up value
     Chuck_Value * lookup_value( const string & name, t_CKBOOL climb = TRUE );
+    Chuck_Value * lookup_value( S_Symbol name, t_CKBOOL climb = TRUE );
     // look up func
     Chuck_Func * lookup_func( const string & name, t_CKBOOL climb = TRUE );
+    Chuck_Func * lookup_func( S_Symbol name, t_CKBOOL climb = TRUE );
     // look up class
     Chuck_Namespace * lookup_class( const string & name, t_CKBOOL climb = TRUE );
+    Chuck_Namespace * lookup_class( S_Symbol name, t_CKBOOL climb = TRUE );
     // look up addr
     void * lookup_addr( const string & name, t_CKBOOL climb = TRUE );
+    void * lookup_addr( S_Symbol name, t_CKBOOL climb = TRUE );
 };
 
 
@@ -255,14 +260,14 @@ struct Chuck_Type
     Chuck_Type * parent;
     // size (in bytes)
     t_CKUINT size;
-    // self size (size in memory)
-    t_CKUINT self_size;
-    // array size (equals 0 means not array, else dimension of array)
-    t_CKUINT array_depth;
-    // type info
-    Chuck_Namespace * info;
 	// owner of the type
 	Chuck_Namespace * owner;
+    // array size (equals 0 means not array, else dimension of array)
+    t_CKUINT array_depth;
+    // self size (size in memory)
+    t_CKUINT self_size;
+    // type info
+    Chuck_Namespace * info;
 
 public:
     // copy
