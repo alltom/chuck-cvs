@@ -69,10 +69,11 @@ extern int yyparse( void );
 #include "ugen_stk.h"
 #include "ulib_machine.h"
 #include "ulib_math.h"
+#include "ulib_net.h"
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.4.5"
+#define CK_VERSION "1.1.4.6"
 
 
 extern a_Program g_program;
@@ -359,6 +360,7 @@ t_CKBOOL load_internal_modules( t_Env env )
     machine_init( g_vm, process_msg );
     load_module( env, libstd_query, "std", "std" );
     load_module( env, libmath_query, "math", "math" );
+    load_module( env, net_query, "net", "net" );
     
     return TRUE;
 }

@@ -368,6 +368,7 @@ GigaRecv::GigaRecv( )
     m_sock = NULL;
     m_buffer_size = 0;
     m_msg.seq_num = 1;
+    m_port = 8890;
     m_ptr_r = NULL;
     m_ptr_end = NULL;
 }
@@ -521,6 +522,7 @@ UGEN_CTOR netout_ctor( t_CKTIME now )
 {
      GigaSend * out = new GigaSend;
      out->set_bufsize( 512 );
+
      return out;
 }
 
@@ -622,6 +624,8 @@ UGEN_CGET netout_cget_name( t_CKTIME now, void * data, void * out )
 UGEN_CTOR netin_ctor( t_CKTIME now )
 {
     GigaRecv * x = new GigaRecv;
+    x->listen( x->m_port );
+    
     return x;
 }
 
