@@ -285,7 +285,8 @@ void usage()
 {
     fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
-    fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>\n" );
+    fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
+    fprintf( stderr, "               remote<hostname>|port<N>\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
     fprintf( stderr, "chuck version: %s\n", CK_VERSION );
@@ -795,6 +796,14 @@ int main( int argc, char ** argv )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--level", 7) )
                 g_priority = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : 0xffffffff;
+            else if( !strncmp(argv[i], "--remote", 8) )
+                strcpy( g_host, argv[i]+8 );
+            else if( !strncmp(argv[i], "-m", 2) )
+                strcpy( g_host, argv[i]+2 );
+            else if( !strncmp(argv[i], "--port", 6) )
+                g_port = atoi( argv[i]+6 );
+            else if( !strncmp(argv[i], "-p", 2) )
+                g_port = atoi( argv[i]+2 );
             else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
                  || !strcmp(argv[i], "--about") )
             {
