@@ -139,7 +139,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
-    DWORD__ n = 200;
+    DWORD__ n = 50;
     DWORD__ start = 100;
 
     // copy input to local buffer
@@ -149,7 +149,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // copy output into local buffer
     if( m_go >= start )
     {
-        n = 50; while( !m_out_ready && n-- ) usleep( 20 );
+        while( !m_out_ready && n-- ) usleep( 20 );
         // copy local buffer to be rendered
         if( m_out_ready ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
