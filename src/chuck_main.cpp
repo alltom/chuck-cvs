@@ -612,6 +612,36 @@ void * cb( void * p )
 
 
 //-----------------------------------------------------------------------------
+// name: send_connect()
+// desc: ...
+//-----------------------------------------------------------------------------
+int send_connect()
+{
+    g_sock = ck_tcp_create( 0 );
+    if( !g_sock )
+    {
+        fprintf( stderr, "[chuck]: cannot open socket to send command...\n" );
+        return FALSE;
+    }
+
+    if( strcmp( g_host, "127.0.0.1" ) )
+        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
+    
+    if( !ck_connect( g_sock, g_host, g_port ) )
+    {
+        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
+        return FALSE;
+    }
+    
+    ck_send_timeout( g_sock, 0, 2000000 );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: send_cmd()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -622,24 +652,6 @@ int send_cmd( int argc, char ** argv, int  & i )
     int ret = 0;
     int tasks_total = 0, tasks_done = 0;
 	
-    g_sock = ck_tcp_create( 0 );
-    if( !g_sock )
-    {
-        fprintf( stderr, "[chuck]: cannot open socket to send command...\n" );
-        return 1;
-    }
-
-    if( strcmp( g_host, "127.0.0.1" ) )
-        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
-    
-    if( !ck_connect( g_sock, g_host, g_port ) )
-    {
-        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
-        goto error;
-    }
-    
-    ck_send_timeout( g_sock, 0, 2000000 );
-
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
         if( ++i >= argc )
@@ -648,6 +660,7 @@ int send_cmd( int argc, char ** argv, int  & i )
             goto error;
         }
 
+        if( !send_connect() ) return 0;
         do {
             msg.type = MSG_ADD;
             msg.param = 1;
@@ -666,6 +679,7 @@ int send_cmd( int argc, char ** argv, int  & i )
             goto error;
         }
 
+        if( !send_connect() ) return 0;
         do {
             msg.param = atoi( argv[i] );
             msg.type = MSG_REMOVE;
@@ -675,6 +689,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else if( !strcmp( argv[i], "--" ) )
     {
+        if( !send_connect() ) return 0;
         msg.param = 0xffffffff;
         msg.type = MSG_REMOVE;
         otf_hton( &msg );
@@ -687,7 +702,7 @@ int send_cmd( int argc, char ** argv, int  & i )
             fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
             goto error;
         }
-        
+
         if( i <= 0 )
             msg.param = 0xffffffff;
         else
@@ -699,11 +714,13 @@ int send_cmd( int argc, char ** argv, int  & i )
             goto error;
         }
 
+        if( !send_connect() ) return 0;
         msg.type = MSG_REPLACE;
         send_file( argv[i], msg, "replace" );
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
     {
+        if( !send_connect() ) return 0;
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
         otf_hton( &msg );
@@ -711,6 +728,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else if( !strcmp( argv[i], "--kill" ) )
     {
+        if( !send_connect() ) return 0;
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
         otf_hton( &msg );
@@ -722,6 +740,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else if( !strcmp( argv[i], "--time" ) )
     {
+        if( !send_connect() ) return 0;
         msg.type = MSG_TIME;
         msg.param = 0;
         otf_hton( &msg );
@@ -729,16 +748,14 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
     {
+        if( !send_connect() ) return 0;
         msg.type = MSG_STATUS;
         msg.param = 0;
         otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else
-    {
-        ret = 1;
-        goto error;
-    }
+        return 0;
         
     // send
     msg.type = MSG_DONE;
@@ -774,7 +791,7 @@ error:
     ck_send( g_sock, (char *)&msg, sizeof(msg) );
     ck_close( g_sock );
     
-    if( !ret ) exit( 1 );
+    exit( 1 );
 
     return 0;
 }
@@ -870,7 +887,8 @@ int main( int argc, char ** argv )
                 exit( 0 );
 			else
             {
-                fprintf( stderr, "[chuck]: invalid flag '%s' (try --help)\n", argv[i] );
+                fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
+                usage();
                 exit( 1 );
             }
         }
