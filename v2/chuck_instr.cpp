@@ -1898,17 +1898,14 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // get index
         i = (t_CKINT)(*reg_sp+1);
         // check if writing
-        if( m_is_var )
-        {
+        if( m_is_var ) {
             // get the addr
             val = arr->addr( i );
             // exception
             if( !val ) goto error;
             // push the addr
             push_( reg_sp, val );
-        }
-        else
-        {
+        } else {
             // get the value
             if( !arr->get( i, &val ) )
                 goto error;
@@ -1923,17 +1920,14 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // get index
         i = (t_CKINT)(*reg_sp+1);
         // check if writing
-        if( m_is_var )
-        {
+        if( m_is_var ) {
             // get the addr
             val = arr->addr( i );
             // exception
             if( !val ) goto error;
             // push the addr
             push_( reg_sp, val );
-        }
-        else
-        {
+        } else {
             // get the value
             if( !arr->get( i, &fval ) )
                 goto error;
@@ -1947,7 +1941,8 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds Exception: index='%d'\n", i );
+             "[chuck](VM): ArrayOutofBounds Exception in shred '%s': index='%d'\n", 
+             shred->name.c_str(), i );
     // do something!
     shred->is_running = FALSE;
 }
