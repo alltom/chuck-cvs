@@ -36,7 +36,6 @@
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
 #include "chuck_instr.h"
-#include "chuck_bbq.h"
 
 
 
@@ -151,7 +150,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 
 	// dur value
     t_CKDUR samp = 1.0;
-    t_CKDUR second = Digitalio::sampling_rate() * samp;
+    t_CKDUR second = vm->srate() * samp;
     t_CKDUR ms = second / 1000.0;
     t_CKDUR minute = second * 60.0;
     t_CKDUR hour = minute * 60.0;
@@ -161,7 +160,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 	// default global values
 	env->global.value.add( "null", new Chuck_Value( &t_null, "null" ) );
 	env->global.value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system) ) );
-	env->global.value.add( "zero", new Chuck_Value( &t_time, "zero" ) );
+	env->global.value.add( "tzero", new Chuck_Value( &t_time, "tzero" ) );
+    env->global.value.add( "dzero", new Chuck_Value( &t_dur, "dzero" ) );
 	env->global.value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp) ) );
 	env->global.value.add( "ms", new Chuck_Value( &t_dur, "ms", new t_CKDUR(ms) ) );
 	env->global.value.add( "second", new Chuck_Value( &t_dur, "second", new t_CKDUR(second) ) );
@@ -733,10 +733,10 @@ t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) == (*rhs);
 
 
 //-----------------------------------------------------------------------------
-// name: operator >>
+// name: operator <=
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL operator >>( const Chuck_Type & lhs, const Chuck_Type & rhs )
+t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs )
 {
     // check to see if type L == type R
     if( lhs == rhs ) return TRUE;
@@ -759,4 +759,4 @@ t_CKBOOL operator >>( const Chuck_Type & lhs, const Chuck_Type & rhs )
 // name: isa()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) >> (*rhs); }
+t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) <= (*rhs); }
