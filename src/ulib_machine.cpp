@@ -45,23 +45,32 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
     QUERY->set_name( QUERY, "machine" );
     
     // add add
+    //! compile and spork a new shred from file at 'path' into the VM now
+    //! returns the shred ID
+    //! (see example/machine.ck)
     QUERY->add_export( QUERY, "int", "add", machine_add_impl, TRUE );
     QUERY->add_param( QUERY, "string", "path" );
     
     // add spork
+    //! same as add
     QUERY->add_export( QUERY, "int", "spork", machine_add_impl, TRUE );
     QUERY->add_param( QUERY, "string", "path" );
     
     // add remove
+    //! remove shred from VM by shred ID (returned by add/spork)
     QUERY->add_export( QUERY, "int", "remove", machine_remove_impl, TRUE );
     QUERY->add_param( QUERY, "int", "id" );
 
     // add replace
+    //! replace shred with new shred from file
+    //! returns shred ID , or 0 on error 
     QUERY->add_export( QUERY, "int", "replace", machine_replace_impl, TRUE );
     QUERY->add_param( QUERY, "int", "id" );
     QUERY->add_param( QUERY, "string", "path" );
 
     // add status
+    //! display current status of VM
+    //! (see example/status.ck)
     QUERY->add_export( QUERY, "int", "status", machine_status_impl, TRUE );
 
     return TRUE;

@@ -45,22 +45,24 @@ using namespace std;
 DLL_QUERY net_query( Chuck_DL_Query * QUERY )
 {
     // add netout
+    //! UDP-based network audio transmitter
     QUERY->ugen_add( QUERY, "netout", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, netout_ctor, netout_dtor, netout_tick, NULL );
     // ctrl funcs
-    QUERY->ugen_ctrl( QUERY, netout_ctrl_addr, netout_cget_addr, "string", "addr" );
-    QUERY->ugen_ctrl( QUERY, netout_ctrl_port, netout_cget_port, "int", "port" );
-    QUERY->ugen_ctrl( QUERY, netout_ctrl_size, netout_cget_size, "int", "size" );
-    QUERY->ugen_ctrl( QUERY, netout_ctrl_name, netout_cget_name, "string", "name" );
+    QUERY->ugen_ctrl( QUERY, netout_ctrl_addr, netout_cget_addr, "string", "addr" ); //! target address
+    QUERY->ugen_ctrl( QUERY, netout_ctrl_port, netout_cget_port, "int", "port" ); //! target port
+    QUERY->ugen_ctrl( QUERY, netout_ctrl_size, netout_cget_size, "int", "size" ); //! packet size
+    QUERY->ugen_ctrl( QUERY, netout_ctrl_name, netout_cget_name, "string", "name" ); //! name?
     
     // add netin
+    //! UDP-based network audio receiver
     QUERY->ugen_add( QUERY, "netin", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, netin_ctor, netin_dtor, netin_tick, NULL );
     // ctrl funcs
-    QUERY->ugen_ctrl( QUERY, netin_ctrl_port, netin_cget_port, "int", "port" );
-    QUERY->ugen_ctrl( QUERY, netin_ctrl_name, netin_cget_name, "string", "name" );
+    QUERY->ugen_ctrl( QUERY, netin_ctrl_port, netin_cget_port, "int", "port" ); //! set port to receive
+    QUERY->ugen_ctrl( QUERY, netin_ctrl_name, netin_cget_name, "string", "name" ); //! name?
 
     return TRUE;
 }

@@ -49,16 +49,17 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // srate
     g_srate = QUERY->srate;
 
-    // add sinosc
+    //! sine oscillator
+    //! (examples/osc.ck)
     QUERY->ugen_add( QUERY, "sinosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, sinosc_ctor, sinosc_dtor, sinosc_tick, sinosc_pmsg );
     // add ctrl
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_freq, sinosc_cget_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sfreq, sinosc_cget_freq, "float", "sfreq" );
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase_offset, sinosc_cget_phase_offset, "float", "phase_offset" );
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase, sinosc_cget_phase, "float", "phase" );
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sync, sinosc_cget_sync, "int", "sync" );
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_freq, sinosc_cget_freq, "float", "freq" );  //! oscillator frequency ( Hz ) 
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sfreq, sinosc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase_offset, sinosc_cget_phase_offset, "float", "phase_offset" ); //! phase offset 
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase, sinosc_cget_phase, "float", "phase" ); //! current phase
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sync, sinosc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
 
     return TRUE;
 }

@@ -51,86 +51,112 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     g_srate = QUERY->srate;
 
     // add noise
+    //! white noise generator
+    
     QUERY->ugen_add( QUERY, "noise", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, noise_tick, NULL );
     
     // add impulse
+    //! pulse generator - can set the value of the current sample
+    //! default for each sample is 0 if not set
     QUERY->ugen_add( QUERY, "impulse", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, impulse_ctor, impulse_dtor, impulse_tick, NULL );
     // ctrl func
     QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "value" );
-    QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "next" );
+    QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "next" ); //! set value of next sample
     
     // add step
+    //! step generator - like impulse, but once a value is set, 
+    //! it is held for all following samples, until value is set again
     QUERY->ugen_add( QUERY, "step", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, step_ctor, step_dtor, step_tick, NULL );
     // ctrl func
     QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "value" );
-    QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "next" );
+    QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "next" ); //! set the step value 
 
     // add gain
+    //! gain control
+    //! (NOTE - all unit generators can themselves change their gain)
+    //! (this is a way to add N outputs together and scale them) 
     QUERY->ugen_add( QUERY, "gain", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, gain_ctor, gain_dtor, gain_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" );
+    QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" ); //! set gain ( all ugen's have this ) 
 
     // add halfrect
+    //! half wave rectifier
+    //! for half-wave rectification. 
     QUERY->ugen_add( QUERY, "halfrect", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, halfrect_tick, NULL );
 
     // add fullrect
+    //! full wave rectifier
     QUERY->ugen_add( QUERY, "fullrect", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, fullrect_tick, NULL );
 
     // add zerox
+    //! zero crossing detector
+    //! emits a single pulse at the the zero crossing in the direction of the zero crossing.  
+    //! (see examples/zerox)
     QUERY->ugen_add( QUERY, "zerox", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, zerox_ctor, zerox_dtor, zerox_tick, NULL );
 
     // add dac
+    //! digital/analog converter
+    //! abstraction for underlying audio output device
     QUERY->ugen_add( QUERY, "dac", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
 
     // add adc
+    //! analog/digital converter
+    //! abstraction for underlying audio input device
     QUERY->ugen_add( QUERY, "adc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
     
     // add bunghole
+    //! sample rate sample sucker
+    //! ( like dac, ticks ugens, but no more )
     QUERY->ugen_add( QUERY, "bunghole", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
     
     // add blackhole
+    //! sample rate sample sucker
+    //! ( like dac, ticks ugens, but no more )
     QUERY->ugen_add( QUERY, "blackhole", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
 
     // add sndbuf
+    //! sound buffer ( now interpolating ) 
+    //! reads from a variety of file formats
+
     QUERY->ugen_add( QUERY, "sndbuf", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, sndbuf_ctor, sndbuf_dtor, sndbuf_tick, NULL );
     // set ctrl
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, NULL, "string", "read" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, NULL, "string", "write" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, sndbuf_cget_pos, "int", "pos" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_loop, sndbuf_cget_loop, "int", "loop" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_interp, sndbuf_cget_interp, "int", "interp" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_rate, "float", "rate" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase, sndbuf_cget_phase, "float", "phase" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_channel, sndbuf_cget_channel, "int", "channel" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, sndbuf_cget_phase, "float", "phase_offset" );
-    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_samples, "int", "samples" );
-    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" );
-    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_channels, "int", "channels" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, NULL, "string", "read" ); //! loads file for reading
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, NULL, "string", "write" ); //! loads a file for writing ( or not ) 
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, sndbuf_cget_pos, "int", "pos" ); //! set position ( 0 < p < .samples ) 
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_loop, sndbuf_cget_loop, "int", "loop" );//! toggle looping 
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_interp, sndbuf_cget_interp, "int", "interp" );//! set interpolation ( 0=drop, 1=linear, 2=sinc )
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_rate, "float", "rate" ); //! playback rate ( relative to file's natural speed ) 
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_freq, "float", "freq" ); //! playback rate ( file loops / second ) 
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase, sndbuf_cget_phase, "float", "phase" ); //! set phase position ( 0-1 )
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_channel, sndbuf_cget_channel, "int", "channel" ); //! select channel ( 0 < p < .channels )
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, sndbuf_cget_phase, "float", "phase_offset" ); //! set a phase offset
+    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_samples, "int", "samples" ); //! fetch number of samples
+    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" ); //! fetch length in seconds
+    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_channels, "int", "channels" ); //! fetch number of channels
 
     return TRUE;
 }
