@@ -41,6 +41,7 @@ foreach ( @ARGV ) {
 
     $file = $_;
 
+
     open ( SOURCE , $file ) || printf " cannot open file \n";
     while ( <SOURCE> ) { 
 
@@ -54,8 +55,6 @@ foreach ( @ARGV ) {
 	elsif ( $doc_info_open ) { 
 	    if ( /(.*)\*\// ) { 
 		$doc_data{$doc_class_name} .= $1;
-		#print "dox brief $doc_class_name - ".$doc_brief{$doc_class_name}."\n";
-		#print "dox data $doc_class_name - ".$doc_data{$doc_class_name}."\n";
 		$doc_info_open = 0;
 		$doc_class_name = "";
 	    }
@@ -69,11 +68,25 @@ foreach ( @ARGV ) {
 	}
     }
     close ( SOURCE );
+
+    $outfile = substr ( $file, rindex($file, "/" ) + 1 );
+    $outfile =~ s/(\.cpp|\.c)/.html/;
+    print "THE OUTFILE IS $outfile\n";
+    open ( HTML , ">" , "$outfile" ) || die "outfile could not be opened";
+    print HTML "
+<html>
+<head>
+<title>chuck documentation</title>
+<link rel=\"stylesheet\" type=\"text/css\" href=\"ckdoc.css\">
+</head>
+<body>
+";
+
     open ( SOURCE , $file ) || printf " cannot open file \n";
     while ( <SOURCE> ) { 
 
 	if ( /\/\/\!(.*)$/ ) { 
-#	    print "comment - $1\n";
+#	    print HTML "comment - $1\n";
 	    push @comments, $1;
 	}
 
@@ -113,6 +126,9 @@ foreach ( @ARGV ) {
     }
     cleanup();
     close ( SOURCE );
+    print HTML "\n</body></html>";
+    close ( HTML );
+
 }
 
 
@@ -127,25 +143,22 @@ sub open_ugen {
     if ( $brief ne "" ) { @comments = ( $brief, @comments ); }
 
 
-    print "
-<br>
+    print HTML "
+<div class=\"ugen\">
 <a name=\"$ugen_name\"> </a>
-<table width=100% border=0 bgcolor=d9d9d9 cellpadding=1 cellspacing=0>
-<tr><td><table width=100% border=0 bgcolor=fdfdfd cellpadding=1 cellspacing=2>
-<tr><td align=left><font face=verdana size=2>
-<font color=#339933>[ugen]</font>: <b>$ugen_name</b> $lib_note<br>
+<h3><span class=\"heading\">[ugen]</span>: <span class=\"name\">$ugen_name</span> $lib_note</h3>
+<div class=\"comments\"><ul>
 ";
-    foreach ( @comments ) { print "- $_<br />\n"; } 
-    if ( $data ne "" ) { print "<pre>$data</pre>"; }
+    foreach ( @comments ) { print HTML "<li> $_</li>\n"; } 
+    print HTML "</ul></div>\n";
+    if ( $data ne "" ) { print HTML "<pre class=\"data\">$data</pre>"; }
     $ugen_open = 1;
 }
 
 sub close_ugen { 
     if ( $flist_open ) { close_flist(); }
 
-    print "</td></tr></table></td></tr></table>\n\n";
-
-#    printf "-end $ugen_name\n";
+    print HTML "</div>\n";
 
     $ugen_name = "";
     $ugen_open = 0;
@@ -153,7 +166,7 @@ sub close_ugen {
 
 sub print_extends { 
     my ( $query, $parent ) = @_;
-    print "extends <b><a href=\"#$parent\">$parent</a></b><br />";
+    print HTML "<h4>extends <b><a href=\"#$parent\">$parent</a></b></h4>";
 }
 
 
@@ -164,15 +177,15 @@ sub cleanup {
 
 sub open_flist { 
 
-    print "<br>
-[ctrl param]: 
-<ul>\n\n";
+    print HTML "
+<div class=\"members\">
+[ctrl param]:
+<ul>";
     $flist_open = 1;
 }
 
 sub close_flist { 
-
-    print "\n</ul>\n";
+    print HTML "</ul></div>\n";
     $flist_open = 0;
 }
 
@@ -186,8 +199,8 @@ sub print_function {
     if ( $ctor ne "NULL" && $cget ne "NULL" ) { $access = "READ/WRITE"; }
     elsif ( $ctor ne "NULL" ) { $access = "WRITE only" }
     elsif ( $cget ne "NULL" ) { $access = "READ only" }
-    print "<b>.$name</b> - ( $type , $access ) - $comm<br/>\n";
-#    print "---member $type $name $ctor $cget -- $comm\n";
+    print HTML "<li><b>.$name</b> - ( $type , $access ) - <span class=\"comment\">$comm</span></li>\n";
+#    print HTML "---member $type $name $ctor $cget -- $comm\n";
 
 
 }
@@ -207,15 +220,15 @@ sub open_export {
     cleanup();
     @export_comments=@comments;
     
-    print "[function]: $type <b>$name</b>( ";
+    print HTML "[function]: $type <b>$name</b>( ";
     $export_param_num = 0;
     $export_open = 1;
 }
 
 sub close_export { 
 
-    print " );<br/>\n";
-    foreach ( @export_comments ) { print "- $_<br />\n"; } 
+    print HTML " );<br/>\n";
+    foreach ( @export_comments ) { print HTML "- $_<br />\n"; } 
     $export_open = 0;
 }
 
@@ -224,6 +237,6 @@ sub add_param {
     push ( @export_comments, @comments );
     $sep = "";
     if ( $export_param_num ) { $sep = ", "; }
-    print "$sep$type $name";
+    print HTML "$sep$type $name";
     $export_param_num ++;
 }

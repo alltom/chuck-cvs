@@ -1,0 +1,79 @@
+body { 
+	font-size: 10pt;
+	font-family: sans-serif;
+}
+
+.a { 
+	text-decoration: none;
+}
+
+.ugen { 
+	border: 1px solid #d9d9d9;
+	background: #fdfdfd;
+	margin : 10px;
+	margin-bottom: 30px;
+}
+
+.ugen h3 { 
+	font-size: 120%;
+	font-weight: 400;
+	margin : 0.5em;
+}
+
+
+.ugen h3 .name { 
+	font-size: 110%;
+	font-weight: 800;
+}	
+
+.ugen h3 .heading { 
+	color: #40a040;
+}	
+
+.ugen h4 { 
+	background: #ffe0e0;
+	margin : 0px;
+	font-size : 110%;
+}
+
+.data { 
+	margin: 0em;
+	font-size: 90%;
+	background : #f8f8f8;
+}
+
+.comments { 
+	margin : 0px;
+	padding : 0.5em;
+	background : #e0e0e0;
+
+}
+
+.comments ul { 
+	margin : 0px; 
+	margin-left : 2em;
+	padding : 0px;
+}
+.comment, .comments li { 
+	margin-left: 0;
+	font-style: italic;
+}
+
+.members { 
+	margin: 0px;
+	padding: 0.5em;
+	background : #fff0f0;
+}
+
+.members ul { 
+	margin : 1em;
+	margin-left : 2em;
+}
+li.members { 
+	left : 10px;
+}
+
+li.members b { 
+	font-weight : 800;
+}
+
