@@ -33,4 +33,4 @@ class Bar extends Foo
 }
 
 Foo fooo;
-
+fooo.f;
