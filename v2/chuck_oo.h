@@ -35,6 +35,7 @@
 
 #include "chuck_def.h"
 #include <assert.h>
+#include <vector>
 
 
 
@@ -51,7 +52,7 @@ public:
     virtual ~Chuck_VM_Object() { }
     virtual void init() { this->init_ref(); }
     virtual void done() { }
-    
+
 public:
     void init_ref() { m_ref_count = 0; }
     void add_ref()  { m_ref_count++; }
@@ -73,6 +74,51 @@ public:
 //-----------------------------------------------------------------------------
 struct Chuck_Object : Chuck_VM_Object
 { };
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Array
+// desc: native ChucK arrays
+//-----------------------------------------------------------------------------
+template<class T>
+struct Chuck_Array : Chuck_Object
+{
+public:
+    Chuck_Array( t_CKINT size = 1 );
+    ~Chuck_Array();
+
+public:
+    T operator[]( t_CKINT i );
+
+public:
+    t_CKINT push_back( T val );
+    t_CKINT pop_back( );
+    T back( );
+
+public:
+    std::vector<T> m_vector;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_Event
+// desc: base Chuck Event class
+//-----------------------------------------------------------------------------
+struct Chuck_Event : Chuck_Object
+{
+public:
+    Chuck_Event();
+    ~Chuck_Event();
+
+public:
+    t_CKUINT signal();
+    t_CKUINT broadcast();
+    t_CKUINT wait();
+};
 
 
 
