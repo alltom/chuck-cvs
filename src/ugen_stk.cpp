@@ -330,6 +330,18 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, NULL, "float", "stringDetune" );
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" );
 
+    // add Moog
+    QUERY->ugen_add( QUERY, "Moog", NULL );
+    QUERY->ugen_func( QUERY, Moog_ctor, Moog_dtor, Moog_tick, Moog_pmsg );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modSpeed, NULL, "float", "modSpeed" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modDepth, NULL, "float", "modDepth" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterQ, NULL, "float", "filterQ" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterSweepRate, NULL, "float", "filterSweepRate" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_afterTouch, NULL, "float", "afterTouch" );
+
+
     // add Shakers
     QUERY->ugen_add( QUERY, "Shakers", NULL );
     QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
@@ -3791,6 +3803,7 @@ class Moog : public Sampler
 
   //! Start a note with the given frequency and amplitude.
   virtual void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  virtual void noteOn(MY_FLOAT amplitude ); //CHUCK!  note start note with current frequency
 
   //! Set the modulation (vibrato) speed in Hz.
   void setModulationSpeed(MY_FLOAT mSpeed);
@@ -6808,7 +6821,7 @@ BeeThree :: BeeThree()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
+  waves[3] = new WaveLoop( "special:fwavblnk", TRUE );
 
   this->setRatio(0, 0.999);
   this->setRatio(1, 1.997);
@@ -7017,7 +7030,7 @@ BlowBotl :: BlowBotl()
   dcBlock->setBlockZero();
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency( 5.925 );
   vibratoGain = 0.0;
 
@@ -7224,7 +7237,7 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
   vent->setGain(0.0);
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency((MY_FLOAT) 5.735);
   outputGain = (MY_FLOAT) 1.0;
   noiseGain = (MY_FLOAT) 0.2;
@@ -7494,7 +7507,7 @@ Bowed :: Bowed(MY_FLOAT lowestFrequency)
   bowTable->setSlope((MY_FLOAT) 3.0);
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency((MY_FLOAT) 6.12723);
   vibratoGain = (MY_FLOAT) 0.0;
 
@@ -7683,7 +7696,7 @@ Brass :: Brass(MY_FLOAT lowestFrequency)
   adsr->setAllTimes( 0.005, 0.001, 1.0, 0.010);
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency( 6.137 );
   vibratoGain = 0.0;
 
@@ -7838,8 +7851,8 @@ Chorus :: Chorus(MY_FLOAT baseDelay)
   baseLength = baseDelay;
 
   // Concatenate the STK rawwave path to the rawwave file
-  mods[0] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  mods[1] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  mods[0] = new WaveLoop( "special:sinewave", TRUE );
+  mods[1] = new WaveLoop( "special:sinewave", TRUE );
   mods[0]->setFrequency(0.2);
   mods[1]->setFrequency(0.222222);
   modDepth = 0.05;
@@ -7957,7 +7970,7 @@ Clarinet :: Clarinet(MY_FLOAT lowestFrequency)
   noise = new Noise;
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency((MY_FLOAT) 5.735);
   outputGain = (MY_FLOAT) 1.0;
   noiseGain = (MY_FLOAT) 0.2;
@@ -8941,7 +8954,7 @@ FM :: FM(int operators)
   twozero->setGain( 0.0 );
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency(6.0);
 
   int i;
@@ -9154,8 +9167,8 @@ FMVoices :: FMVoices()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
+    waves[i] = new WaveLoop( "special:sinewave", TRUE );
+  waves[3] = new WaveLoop( "special:fwavblnk", TRUE );
 
   this->setRatio(0, 2.00);
   this->setRatio(1, 4.00);
@@ -9578,7 +9591,7 @@ Flute :: Flute(MY_FLOAT lowestFrequency)
   adsr = new ADSR();
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency( 5.925 );
 
   this->clear();
@@ -9888,8 +9901,8 @@ HevyMetl :: HevyMetl()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
+    waves[i] = new WaveLoop( "special:sinewave", TRUE );
+  waves[3] = new WaveLoop( "special:fwavblnk", TRUE );
 
   this->setRatio(0, 1.0 * 1.000);
   this->setRatio(1, 4.0 * 0.999);
@@ -10213,18 +10226,18 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
   : PluckTwo(lowestFrequency)
 {
   // Concatenate the STK rawwave path to the rawwave files
-  soundfile[0] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[1] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[2] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[3] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[4] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[5] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[6] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[7] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[8] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[9] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[10] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
-  soundfile[11] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[0] = new WvIn( "special:mand1", TRUE );
+  soundfile[1] = new WvIn( "special:mand1", TRUE );
+  soundfile[2] = new WvIn( "special:mand1", TRUE );
+  soundfile[3] = new WvIn( "special:mand1", TRUE );
+  soundfile[4] = new WvIn( "special:mand1", TRUE );
+  soundfile[5] = new WvIn( "special:mand1", TRUE );
+  soundfile[6] = new WvIn( "special:mand1", TRUE );
+  soundfile[7] = new WvIn( "special:mand1", TRUE );
+  soundfile[8] = new WvIn( "special:mand1", TRUE );
+  soundfile[9] = new WvIn( "special:mand1", TRUE );
+  soundfile[10] = new WvIn( "special:mand1", TRUE );
+  soundfile[11] = new WvIn( "special:mand1", TRUE );
 
   directBody = 1.0;
   mic = 0;
@@ -10779,7 +10792,7 @@ Modal :: Modal(int modes)
   onepole = new OnePole;
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
 
   // Set some default values.
   vibrato->setFrequency( 6.0 );
@@ -10997,7 +11010,7 @@ ModalBar :: ModalBar()
   : Modal()
 {
   // Concatenate the STK rawwave path to the rawwave file
-  wave = new WvIn( (Stk::rawwavePath() + "special:marmstk1").c_str(), TRUE );
+  wave = new WvIn( "special:marmstk1", TRUE );
   wave->setRate((MY_FLOAT) 0.5 * 22050.0 / Stk::sampleRate() );
 
   // Set the resonances for preset 0 (marimba).
@@ -11162,7 +11175,7 @@ void ModalBar :: controlChange(int number, MY_FLOAT value)
 Modulate :: Modulate()
 {
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency( 6.0 );
   vibratoGain = 0.04;
 
@@ -11245,9 +11258,9 @@ MY_FLOAT Modulate :: lastOut() const
 Moog :: Moog()
 {
   // Concatenate the STK rawwave path to the rawwave file
-  attacks[0] = new WvIn( (Stk::rawwavePath() + "special:mandpluk").c_str(), TRUE );
-  loops[0] = new WaveLoop( (Stk::rawwavePath() + "special:impuls20").c_str(), TRUE );
-  loops[1] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE ); // vibrato
+  attacks[0] = new WvIn( "special:mandpluk", TRUE );
+  loops[0] = new WaveLoop( "special:impuls20", TRUE );
+  loops[1] = new WaveLoop( "special:sinewave", TRUE ); // vibrato
   loops[1]->setFrequency((MY_FLOAT) 6.122);
 
   filters[0] = new FormSwep();
@@ -11282,6 +11295,11 @@ void Moog :: setFrequency(MY_FLOAT frequency)
   MY_FLOAT rate = attacks[0]->getSize() * 0.01 * baseFrequency / sampleRate();
   attacks[0]->setRate( rate );
   loops[0]->setFrequency(baseFrequency);
+}
+
+//CHUCK wrapper
+void Moog :: noteOn(MY_FLOAT amplitude ) { 
+  noteOn ( baseFrequency, amplitude );
 }
 
 void Moog :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
@@ -11857,8 +11875,8 @@ PercFlut :: PercFlut()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
+    waves[i] = new WaveLoop( "special:sinewave", TRUE );
+  waves[3] = new WaveLoop( "special:fwavblnk", TRUE );
 
   this->setRatio(0, 1.50 * 1.000);
   this->setRatio(1, 3.00 * 0.995);
@@ -12954,8 +12972,8 @@ Rhodey :: Rhodey()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
+    waves[i] = new WaveLoop( "special:sinewave", TRUE );
+  waves[3] = new WaveLoop( "special:fwavblnk", TRUE );
 
   this->setRatio(0, 1.0);
   this->setRatio(1, 0.5);
@@ -13484,7 +13502,7 @@ Saxofony :: Saxofony(MY_FLOAT lowestFrequency)
   noise = new Noise;
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  vibrato = new WaveLoop( "special:sinewave", TRUE );
   vibrato->setFrequency((MY_FLOAT) 5.735);
 
   outputGain = (MY_FLOAT) 0.3;
@@ -14777,7 +14795,7 @@ Simple :: Simple()
   baseFrequency = (MY_FLOAT) 440.0;
 
   // Concatenate the STK rawwave path to the rawwave file
-  loop = new WaveLoop( (Stk::rawwavePath() + "special:impuls10").c_str(), TRUE );
+  loop = new WaveLoop( "special:impuls10", TRUE );
 
   filter = new OnePole(0.5);
   noise = new Noise;
@@ -15785,8 +15803,8 @@ TubeBell :: TubeBell()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
+    waves[i] = new WaveLoop( "special:sinewave", TRUE );
+  waves[3] = new WaveLoop( "special:fwavblnk", TRUE );
 
   this->setRatio(0, 1.0   * 0.995);
   this->setRatio(1, 1.414 * 0.995);
@@ -16137,7 +16155,7 @@ void Vector3D :: setZ(double aval)
 VoicForm :: VoicForm() : Instrmnt()
 {
   // Concatenate the STK rawwave path to the rawwave file
-	voiced = new SingWave( (Stk::rawwavePath() + "special:impuls20").c_str(), TRUE );
+	voiced = new SingWave( "special:impuls20", TRUE );
 	voiced->setGainRate( 0.001 );
 	voiced->setGainTarget( 0.0 );
 
@@ -16806,7 +16824,7 @@ Whistle :: Whistle()
   bumper = new Sphere(BUMP_RADIUS);
 
   // Concatenate the STK rawwave path to the rawwave file
-  sine = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  sine = new WaveLoop( "special:sinewave", TRUE );
   sine->setFrequency(2800.0);
 
   can->setPosition(0, 0, 0); // set can location
@@ -17055,8 +17073,8 @@ Wurley :: Wurley()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
+  waves[i] = new WaveLoop( "special:sinewave", TRUE );
+  waves[3] = new WaveLoop( "special:fwavblnk", TRUE );
 
   this->setRatio(0, 1.0);
   this->setRatio(1, 4.0);
@@ -19595,3 +19613,79 @@ UGEN_CTRL Mandolin_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
     //not sure what this does in stk version so we'll just call controlChange
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
+
+
+UGEN_CTOR Moog_ctor ( t_CKTIME now ) 
+{
+  return new Moog();
+}
+
+UGEN_DTOR Moog_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Moog *)data;
+}
+
+UGEN_TICK Moog_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Moog * m = (Moog *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Moog_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+
+UGEN_CTRL Moog_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->noteOn( f * 127.0 );
+}
+
+
+UGEN_CTRL Moog_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->setFrequency ( f );
+}
+
+UGEN_CTRL Moog_ctrl_modSpeed( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->setModulationSpeed(f);
+} 
+
+UGEN_CTRL Moog_ctrl_modDepth( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->setModulationDepth(f);
+}
+
+UGEN_CTRL Moog_ctrl_filterQ( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->controlChange( __SK_FilterQ_, f * 128.0 );
+}
+
+UGEN_CTRL Moog_ctrl_filterSweepRate( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->controlChange( __SK_FilterSweepRate_, f * 128.0 );
+
+}
+
+UGEN_CTRL Moog_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+}
+

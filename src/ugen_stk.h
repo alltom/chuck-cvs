@@ -470,9 +470,13 @@ UGEN_CTOR Moog_ctor( t_CKTIME now );
 UGEN_DTOR Moog_dtor( t_CKTIME now, void *data );
 UGEN_TICK Moog_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Moog_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
-UGEN_CTRL Moog_ctrl_modDepth( t_CKTIME now, void * data, void *value );
 UGEN_CTRL Moog_ctrl_freq( t_CKTIME now, void * data, void *value );
+UGEN_CTRL Moog_ctrl_noteOn( t_CKTIME now, void * data, void *value );
 UGEN_CTRL Moog_ctrl_modSpeed( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Moog_ctrl_modDepth( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Moog_ctrl_filterQ( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Moog_ctrl_filterSweepRate( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Moog_ctrl_afterTouch( t_CKTIME now, void * data, void * value );
 
 // PercFlut
 UGEN_CTOR PercFlut_ctor( t_CKTIME now );
