@@ -169,6 +169,15 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, zerox_ctor, zerox_dtor, zerox_tick, NULL );
 
+    //! \section delays
+
+      //! varible write delay.  
+    QUERY->ugen_add( QUERY, "delayph" , NULL);
+    QUERY->ugen_func ( QUERY, delayph_ctor, delayph_dtor, delayph_tick, NULL );
+    QUERY->ugen_ctrl( QUERY, delayph_ctrl_delay, delayph_cget_delay , "dur", "delay" ); //! delay before subsequent values emerge
+    QUERY->ugen_ctrl( QUERY, delayph_ctrl_window, delayph_cget_window , "dur", "window" ); //! time for 'write head' to move
+    QUERY->ugen_ctrl( QUERY, delayph_ctrl_delay, delayph_cget_delay , "dur", "max" ); //! max delay possible.  trashes buffer, so do it first! 
+ 
 
     //! \section sound files
 
@@ -195,7 +204,8 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" ); //! fetch length in seconds
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_channels, "int", "channels" ); //! fetch number of channels
 
-    return TRUE;
+
+     return TRUE;
 }
 
 
@@ -492,6 +502,170 @@ UGEN_TICK bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     *out = 0.0f;
     return 0;
+}
+
+
+struct delayph_data 
+{ 
+   SAMPLE * buffer;
+   int bufsize;
+   
+   double now;
+   double readpos;
+   
+   double writepos; // relative to readpos
+   
+   double writeoff;
+   
+   double writeoff_start; 
+   double writeoff_target;
+   double writeoff_target_time; //target time
+   double writeoff_window_time; //time we started shift
+   
+   SAMPLE sample_last;
+   double writeoff_last;
+   
+   delayph_data() 
+   { 
+      bufsize  = 2 * g_srate;
+      fprintf ( stderr, "delayph-allocate %d\n", bufsize );
+      buffer   = ( SAMPLE * ) realloc ( buffer, sizeof ( SAMPLE ) * bufsize );
+      for ( int i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
+      readpos  = 0.0;
+      writeoff  = 1.0; 
+      writeoff_last = 1.0;
+      sample_last = 0;
+      writeoff_window_time = 1.0;
+      writeoff_target_time = 0.0;
+      writeoff_start = 0.0;
+   }
+};
+
+UGEN_CTOR delayph_ctor( t_CKTIME now )
+{
+   fprintf ( stderr, "delayph- ctor\n" );
+   return new delayph_data;
+}
+
+UGEN_DTOR delayph_dtor( t_CKTIME now, void * data )
+{
+    delayph_data * d = (delayph_data *)data;
+    if( d->buffer ) delete [] d->buffer;
+    delete d;
+}
+
+UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
+   fprintf ( stderr, "delayph- tick\n" );
+   
+   delayph_data * d = (delayph_data *)data;
+   
+
+   //calculate new write-offset position
+   if ( now < d->writeoff_target_time ) d->writeoff = d->writeoff_target;
+   else  { 
+      double dt = ( now - d->writeoff_target_time ) / ( d->writeoff_window_time ); 
+      d->writeoff = d->writeoff_target + dt * ( d->writeoff_target - d->writeoff_start );
+   }
+
+   //writeoff __must__ be positive!
+
+   //find locations in buffer...
+   double lastpos = d->writeoff_last + d->readpos - 1.0 ;
+   double nowpos  = d->writeoff + d->readpos;
+
+
+   //linear interpolation.  will introduce some lowpass/aliasing.
+
+   double diff= nowpos - lastpos;
+   double d_samp = in - lastpos;
+   int i, smin, smax;
+
+   if ( diff >= 0 ) { //forward.
+      smin = ceil ( lastpos );
+      smax = floor ( nowpos );
+      for ( i = smin ; i <= smax ; i++ )
+         d->buffer[i%d->bufsize] += d->sample_last + d_samp * ( (double) i - lastpos ) / diff;
+   }
+   else { //moving in reverse
+      smin = ceil ( nowpos );
+      smax = floor ( lastpos );
+      for ( i = smin ; i <= smax ; i++ ) 
+         d->buffer[i%d->bufsize] += d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;   
+   }
+
+   d->writeoff_last = d->writeoff;
+   d->sample_last = in;
+
+   //output last sample
+   int rpos = ( (int) d->readpos ) % d->bufsize ; 
+
+   //output should go through a dc blocking filter, for cases where 
+   //we are zipping around in the buffer leaving a fairly constant
+   //trail of samples
+   *out = d->buffer[rpos];
+   d->buffer[rpos] = 0; //clear once it's been read
+   d->readpos++;
+
+   while ( d->readpos > d->bufsize ) d->readpos -= d->bufsize; 
+   return TRUE;
+   
+}
+
+UGEN_CTRL delayph_ctrl_delay( t_CKTIME now, void * data, void * value )
+{
+    delayph_data * d = ( delayph_data * ) data;
+    t_CKDUR target = * (t_CKDUR *) value; // rate     
+    if ( target != d->writeoff_target ) {
+       if ( target > d->bufsize ) { 
+          fprintf( stderr, "[chuck](via delayph): delay time %f over max!  set max first!\n", target);
+          return;
+       }
+       d->writeoff_target = target;
+       d->writeoff_start = d->writeoff_last;
+       d->writeoff_target_time = now + d->writeoff_window_time; 
+    }
+}
+
+UGEN_CGET delayph_cget_delay( t_CKTIME now, void * data, void * out )
+{
+    delayph_data * d = ( delayph_data * ) data;
+    SET_NEXT_DUR( out, d->writeoff_last );
+}
+
+UGEN_CTRL delayph_ctrl_window( t_CKTIME now, void * data, void * value )
+{
+    delayph_data * d = ( delayph_data * ) data;
+    t_CKDUR window = * (t_CKDUR *) value; // rate     
+    if ( window >= 0 ) {
+       d->writeoff_window_time = window; 
+    }
+}
+
+UGEN_CGET delayph_cget_window( t_CKTIME now, void * data, void * out )
+{
+    delayph_data * d = ( delayph_data * ) data;
+    SET_NEXT_DUR( out, d->writeoff_last );
+}
+
+
+UGEN_CTRL delayph_ctrl_max( t_CKTIME now, void * data, void * value )
+{   
+    fprintf ( stderr, "delayph- max\n" );
+    delayph_data * d = ( delayph_data * ) data;
+    t_CKDUR nmax = * (t_CKDUR *) value; // rate 
+    fprintf ( stderr, "delayph- max to %f \n", nmax  );
+    if ( d->bufsize != (int)nmax && nmax > 1.0 ) { 
+      d->bufsize = nmax; 
+      d->buffer = ( SAMPLE * ) realloc ( d->buffer, sizeof ( SAMPLE ) * d->bufsize );
+      for ( int i = 0; i < d->bufsize; i++ ) d->buffer[i] = 0;
+    }
+
+
+}
+UGEN_CGET delayph_cget_max( t_CKTIME now, void * data, void * out )
+{
+    delayph_data * d = ( delayph_data * ) data;
+    SET_NEXT_DUR( out, (t_CKDUR) d->bufsize );
 }
 
 //-----------------------------------------------------------------------------
