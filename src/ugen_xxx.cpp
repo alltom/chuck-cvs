@@ -624,7 +624,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     return TRUE;
 
 }
-/*
+
 #include "util_sndfile.h"
 
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
@@ -799,5 +799,5 @@ UGEN_CGET sndbuf_cget_channels( t_CKTIME now, void * data, void * out )
     SET_NEXT_INT( out, d->num_channels );
 }
 
-*/
+
 

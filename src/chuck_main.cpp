@@ -42,20 +42,20 @@ extern "C"
 #include "chuck_errormsg.h"
 
 #ifndef __WINDOWS_DS__
-#define THREAD pthread_t;
+#define CHUCK_THREAD pthread_t
 #include <pthread.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #else 
-#define THREAD HANDLE
+#define CHUCK_THREAD HANDLE
 #define usleep(x) Sleep(x/1000);
 #endif
 
+#include "chuck_socket.h"
 extern int yyparse( void );
 }
 
-#include "chuck_socket.h"
 #include "chuck_type.h"
 #include "chuck_emit.h"
 #include "chuck_instr.h"
@@ -82,7 +82,7 @@ ck_socket g_sock;
 Chuck_VM * g_vm = NULL;
 t_Env g_env = NULL;
 t_CKBOOL g_error = FALSE;
-THREAD g_tid = 0;
+CHUCK_THREAD g_tid = 0;
 char g_host[256] = "127.0.0.1";
 int g_port = 8888;
 #if defined(__MACOSX_CORE__)
