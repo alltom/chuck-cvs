@@ -44,14 +44,14 @@ using namespace std;
 //-----------------------------------------------------------------------------
 DLL_QUERY net_query( Chuck_DL_Query * QUERY )
 {
-/*    // add netout
+    // add netout
     QUERY->ugen_add( QUERY, "netout", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, netout_ctor, netout_dtor, netout_tick, NULL );
     // ctrl funcs
     QUERY->ugen_ctrl( QUERY, netout_ctrl_addr, netout_cget_addr, "string", "addr" );
     QUERY->ugen_ctrl( QUERY, netout_ctrl_port, netout_cget_port, "int", "port" );
-    QUERY->ugen_ctrl( QUERY, netout_ctrl_size, netout_cget_size, "dur", "size" );
+    QUERY->ugen_ctrl( QUERY, netout_ctrl_size, netout_cget_size, "int", "size" );
     QUERY->ugen_ctrl( QUERY, netout_ctrl_name, netout_cget_name, "string", "name" );
     
     // add netin
@@ -61,7 +61,7 @@ DLL_QUERY net_query( Chuck_DL_Query * QUERY )
     // ctrl funcs
     QUERY->ugen_ctrl( QUERY, netin_ctrl_port, netin_cget_port, "int", "port" );
     QUERY->ugen_ctrl( QUERY, netin_ctrl_name, netin_cget_name, "string", "name" );
-*/    
+
     return TRUE;
 }
 
