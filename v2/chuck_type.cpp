@@ -2175,7 +2175,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     arg_list = f->arg_list;
     count = 1;
     // make room (this)
-    f->stack_depth = sizeof(void *);
+    f->stack_depth = func->is_member ? sizeof(void *) : 0;
     while( arg_list )
     {
         // look up in type table

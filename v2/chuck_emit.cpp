@@ -2162,6 +2162,12 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
                                          a_Exp_Func_Call func_call,
                                          t_CKBOOL spork )
 {
+    // chuck function
+    Chuck_Func * func = func_call->ck_func;
+    // is a member?
+    t_CKBOOL is_member = func->is_member;
+
+    // make sure there are args
     if( func_call->args )
     {
         // emit the args
@@ -2218,8 +2224,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     }
     else
     {
-        Chuck_Instr * op = new Chuck_Instr_Func_Call;
-        emit->append( op );
+        emit->append( new Chuck_Instr_Func_Call );
     }
 
     // spork

@@ -1564,10 +1564,15 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     // pop word
     pop_( reg_sp, 2 );
+    // get the function to be called as code
     Chuck_VM_Code * func = (Chuck_VM_Code *)*reg_sp;
+    // get the local stack depth - caller local variables
     t_CKUINT local_depth = *(reg_sp+1);
+    // convert to number of 4-byte words, extra partial word counts as additional word
     local_depth = ( local_depth >> 2 ) + ( local_depth & 0x3 ? 1 : 0 );
+    // get the stack depth of the callee function args
     t_CKUINT stack_depth = ( func->stack_depth >> 2 ) + ( func->stack_depth & 0x3 ? 1 : 0 );
+    // get the previous stack depth - caller function args
     t_CKUINT prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
 
     // jump the sp
@@ -1584,17 +1589,23 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     shred->next_pc = 0;
     // set the code
     shred->code = func;
+    // set the instruction to the function instruction
     shred->instr = func->instr;
 
+    // if there are arguments to be passed
     if( stack_depth )
     {
-        t_CKBYTE *& mem_sp2 = (t_CKBYTE *&)mem_sp;
-        t_CKBYTE *& reg_sp2 = (t_CKBYTE *&)reg_sp;
+        // pop the arguments, by number of bytes
+        pop_( reg_sp, func->stack_depth );
 
-        // pop the arguments
-        pop_( reg_sp2, stack_depth << 2 );
+        // make copies
+        t_CKUINT * mem_sp2 = (t_CKUINT *)mem_sp;
+        t_CKUINT * reg_sp2 = (t_CKUINT *)reg_sp;
+
         // push the arguments
-        memcpy( mem_sp2, reg_sp2, stack_depth << 2 );
+        for( t_CKUINT i = 0; i < stack_depth; i++ )
+            *mem_sp2++ = *reg_sp2++;
+        // memcpy( mem_sp2, reg_sp2, stack_depth << 2 );
     }
 }
 
@@ -1611,13 +1622,21 @@ void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_DL_Return retval;
 
+    // pop the register stack
     pop_( reg_sp, 3 );
+    // get the function to be called
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
+    // stack size - calle function arguments
     t_CKUINT stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
+    // local stack size - variables and caller function arguments
     t_CKUINT local_depth = *(reg_sp+2) + *(mem_sp-1);
+    // the amount to push in 4-byte words
     t_CKUINT push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
+    // pop the arguments for pass to callee function
     reg_sp -= stack_size;
+    // push the mem stack passed the current function variables and arguments
     mem_sp += push;
+    // make copies
     t_CKUINT * sp = reg_sp;
     t_CKUINT * mem = mem_sp;
     // copy to args
