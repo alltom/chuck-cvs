@@ -1334,11 +1334,20 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // get the decl
         var_decl = list->var_decl;
 
+        // check if reserved
+        if( type_engine_check_reserved( env, var_decl->id, var_decl->linepos ) )
+        {
+            EM_error2( var_decl->linepos,
+                "...in variable declaration",
+                S_name(var_decl->id) );
+            return FALSE;
+        }
+
         // check if locally defined
         // if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
         if( env->curr->lookup_value( var_decl->id, TRUE ) )
         {
-            EM_error2( decl->linepos,
+            EM_error2( var_decl->linepos,
                 "'%s' has already been defined in the same scope...",
                 S_name(var_decl->id) );
             return NULL;
@@ -1581,6 +1590,15 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         return FALSE;
     }
 
+    // check if reserved
+    if( type_engine_check_reserved( env, class_def->name->id, class_def->name->linepos ) )
+    {
+        EM_error2( class_def->name->linepos,
+            "...in class definition '%s'",
+            S_name(class_def->name->id) );
+        return FALSE;
+    }
+
     // make sure inheritance
     if( class_def->ext )
     {
@@ -1681,6 +1699,15 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         return FALSE;
     }
 
+    // check if reserved
+    if( type_engine_check_reserved( env, f->name, f->linepos ) )
+    {
+        EM_error2( f->linepos,
+            "...in function definition '%s'",
+            S_name(f->name) );
+        return FALSE;
+    }
+
     // look up the value
     if( env->curr->lookup_value( f->name, TRUE ) )
     {
@@ -1735,6 +1762,13 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, "argument %i '%s' has undefined type '%s'", 
                 count, S_name(arg_list->id), S_name(arg_list->type_decl->id->id) );
+            goto error;
+        }
+
+        // check if reserved
+        if( type_engine_check_reserved( env, arg_list->id, arg_list->linepos ) )
+        {
+            EM_error2( arg_list->linepos, "in function '%s'", S_name(f->name) );
             goto error;
         }
 
@@ -1847,6 +1881,15 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
             ugen->name.c_str(), env->curr->name.c_str() );
         return FALSE;
     }
+
+    // check if reserved
+    if( type_engine_check_reserved( env, ugen->name, ugen->linepos ) )
+    {
+        EM_error2( ugen->linepos,
+            "...in imported ugen '%s.%s'",
+            env->curr->name.c_str(), ugen->name.c_str() );
+        return FALSE;
+    }
     
     // no return type
     if( !ugen->tick )
@@ -1869,7 +1912,7 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
                 ugen->parent.c_str() );
             return FALSE;
         }
-        
+
         // make sure we are extending from ugen
         if( !isa( type, &t_ugen ) )
         {
@@ -1906,6 +1949,14 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
                 "imported ugen '%s.%s': unrecognized type '%s' for control parameter '%s'",
                 env->curr->name.c_str(), ugen->name.c_str(), 
                 param->type.c_str(), param->name.c_str() );
+            return FALSE;
+        }
+
+        // check if reserved
+        if( type_engine_check_reserved( env, param->name, 0 ) )
+        {
+            EM_error2( 0, "...in imported ugen '%s.%s'",
+                env->curr->name.c_str(), ugen->name.c_str() );
             return FALSE;
         }
 
@@ -2340,7 +2391,7 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
     if( env->key_words[id] )
     {
         EM_error2( pos, "illegal use of keyword '%s'.", id.c_str() );
-        return FALSE;
+        return TRUE;
     }
 
     // key value?
@@ -2348,7 +2399,7 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
     {
         EM_error2( pos, "illegal re-declaration of reserved value '%s'.",
             id.c_str() );
-        return FALSE;
+        return TRUE;
     }
 
     // key type?
@@ -2356,10 +2407,10 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
     {
         EM_error2( pos, "illegal use of reserved type id '%s'.",
             id.c_str() );
-        return FALSE;
+        return TRUE;
     }
 
-    return TRUE;
+    return FALSE;
 }
 
 

@@ -7,9 +7,8 @@
 
 int a[10][23];
 
-a[i] => i;
 
-class Foo
+class samp
 {
     int f;
     int a1;
