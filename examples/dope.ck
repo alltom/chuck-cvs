@@ -32,8 +32,8 @@ WaveLoop wav => dac;
 while( true )
 {
     // 1 == normal, > 1 faster, < 0 backward
-    0.1 + math.sin( t ) => wav.rate;
-    t + .01 => t;
+    0.5 + 0.1 * math.sin( t ) => wav.rate;
+    t + .1 => t;
     // advance time
     50::ms => now;
 }
