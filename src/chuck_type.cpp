@@ -1846,7 +1846,7 @@ t_CKBOOL type_engine_check_return( t_Env env, a_Stmt_Return stmt )
     else
         ret_type = &t_void;
 
-    if( ret_type != env->func_def->ret_type )
+    if( ret_type && ret_type != env->func_def->ret_type )
     {
         EM_error2( stmt->linepos,
             "function '%s' was defined with return type '%s' -- but returning type '%s'",
@@ -1854,7 +1854,7 @@ t_CKBOOL type_engine_check_return( t_Env env, a_Stmt_Return stmt )
         return FALSE;
     }
 
-    return TRUE;
+    return ret_type != NULL;
 }
 
 

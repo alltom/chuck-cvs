@@ -182,7 +182,7 @@ function int hitGroove ( float x, float y ) {
 
 //value adjustment for slider ( click vs motion ) 
 function float positionAdjustSlider ( float x, float y ) { 
-	return math.min ( math.max ( ( my - y ) / groovelength, 0 ), 1.0 );
+	return math.min ( math.max ( ( my - y ) / groovelength, 0.0 ), 1.0 );
 }
 
 function float motionAdjustSlider ( float x, float y, float val ) { 
