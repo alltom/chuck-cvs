@@ -17,7 +17,7 @@ fun void wind_gain( )
     // time loop to ramp up the gain / oscillate
     while( true )
     {
-        0.1 * std.abs( math.sin( g ) ) => n.gain;
+        std.abs( math.sin( g ) ) => n.gain;
         g + .001 => g;
         10::ms => now;
     }

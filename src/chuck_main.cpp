@@ -163,6 +163,7 @@ t_CKBOOL type_check( t_Env env, a_Program prog )
 {
     t_CKBOOL ret = FALSE;
 
+    type_engine_begin( env );
     ret = type_engine_check_prog( env, g_program );
 
     return ret;
@@ -175,11 +176,12 @@ t_CKBOOL type_check( t_Env env, a_Program prog )
 // name: emit()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_code( Chuck_Emmission * emit, a_Program prog )
+t_CKBOOL emit_code( Chuck_Emmission * emit, t_Env env, a_Program prog )
 {
     t_CKBOOL ret = FALSE;
 
     ret = emit_engine_emit_prog( emit, g_program );
+    type_engine_end( env );
 
     return ret;
 }
@@ -296,7 +298,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
 
         // emit
         Chuck_Emmission * emit = emit_engine_init( g_env );
-        if( !emit_code( emit, g_program ) )
+        if( !emit_code( emit, g_env, g_program ) )
             return 0;
 
         // transform the code
@@ -646,7 +648,7 @@ int main( int argc, char ** argv )
 
         // emit
         Chuck_Emmission * emit = emit_engine_init( g_env );
-        if( !emit_code( emit, g_program ) )
+        if( !emit_code( emit, g_env, g_program ) )
             return 1;
 
         // transform the code
@@ -661,13 +663,16 @@ int main( int argc, char ** argv )
         
         // mem map it
         emit_engine_addr_map( emit, shred );
+
+        // link local
+        emit_engine_resolve( );
     
         // cleanup the emitter
         emit_engine_shutdown( emit );
     }
 
     // link
-    emit_engine_resolve();
+    // emit_engine_resolve_globals();
     
     // start udp server
     g_sock = ck_udp_create();

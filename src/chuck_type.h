@@ -131,6 +131,8 @@ class  Chuck_VM;
 // api
 t_Env type_engine_init( Chuck_VM * vm );
 t_CKBOOL type_engine_shutdown( t_Env env );
+void type_engine_begin( t_Env env );
+void type_engine_end( t_Env env );
 t_CKBOOL type_engine_check_prog( t_Env env, a_Program prog );
 t_Type type_engine_check_exp( t_Env env, a_Exp exp );
 t_CKBOOL type_engine_check_stmt( t_Env env, a_Stmt stmt );

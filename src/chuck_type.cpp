@@ -63,6 +63,9 @@ struct t_Env_
     S_table name_space;
     S_table class_defs;
     S_table addr;
+    
+    // scope maps
+    vector<map<S_Symbol, S_Symbol> *> scope;
 
     // data
     S_Symbol name;
@@ -77,6 +80,18 @@ struct t_Env_
     S_Symbol nspc_name;
     t_CKBOOL is_nspc;
     t_Env child;
+    
+    t_Env_() { this->scope_push(); }
+    ~t_Env_() { this->scope_pop(); }
+    // functions
+    void scope_push()
+    { scope.push_back( new map<S_Symbol, S_Symbol> ); }
+    void scope_pop()
+    { if( scope.size() ) { delete scope.back(); scope.pop_back(); } }
+    void scope_add( S_Symbol id )
+    { assert( scope.size() ); (*scope.back())[id] = id; }
+    t_CKBOOL scope_lookup( S_Symbol id )
+    { assert( scope.size() ); return (*scope.back())[id] != NULL; }
 };
 
 
@@ -385,6 +400,7 @@ t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
     {
         info = new_namespace( nspc, env, 211 );
         S_enter( env->value, insert_symbol(nspc), &t_system_namespace );
+        env->scope_add( insert_symbol(nspc) );
         S_enter( env->name_space, insert_symbol(nspc), info );
     }
 
@@ -515,6 +531,18 @@ t_CKBOOL type_engine_check_prog( t_Env env, a_Program prog )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_begin() type_engine_end()
+// desc: ...
+//-----------------------------------------------------------------------------
+void type_engine_begin( t_Env env )
+{ S_beginScope( env->value ); env->scope_push(); }
+void type_engine_end( t_Env env )
+{ S_endScope( env->value ); env->scope_pop(); }
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_check_func_def()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -530,6 +558,7 @@ t_CKBOOL type_engine_check_func_def( t_Env env, a_Func_Def f )
 
     // enter the name into the value table
     S_enter( env->value, f->name, &t_function );
+    env->scope_add( f->name );
     // enter the name into the function table
     S_enter( env->function, f->name, f );
     // user
@@ -537,6 +566,7 @@ t_CKBOOL type_engine_check_func_def( t_Env env, a_Func_Def f )
 
     // push the scope
     S_beginScope( env->value );
+    env->scope_push( );
     // set global
     env->is_global = FALSE;
     // set the func def
@@ -572,9 +602,19 @@ t_CKBOOL type_engine_check_func_def( t_Env env, a_Func_Def f )
                 count, S_name(arg_list->id), S_name(arg_list->type_decl->id) );
             return FALSE;
         }
+        
+        // look up in scope
+        if( env->scope_lookup( arg_list->id ) )
+        {
+            EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
+            EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
+                count, S_name(arg_list->id) );
+            return FALSE;
+        }
 
         // enter into value table
         S_enter( env->value, arg_list->id, arg_list->type );
+        env->scope_add( arg_list->id );        
 
         // stack
         f->stack_depth += arg_list->type->size;
@@ -790,6 +830,10 @@ t_CKBOOL type_engine_check_value_import( t_Env info, S_Symbol name,
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_stmt_list( t_Env env, a_Stmt_List list )
 {
+    // push the scope
+    env->scope_push();
+    
+    // type check the stmt_list
     while( list )
     {
         if( !type_engine_check_stmt( env, list->stmt ) )
@@ -801,6 +845,9 @@ t_CKBOOL type_engine_check_stmt_list( t_Env env, a_Stmt_List list )
         
         list = list->next;
     }
+    
+    // pop the scope
+    env->scope_pop();
 
     return TRUE;
 }
@@ -1739,9 +1786,9 @@ t_Type type_engine_check_exp_decl( t_Env env, a_Exp_Decl decl )
             return NULL;
         }
         
-/*        // check to see if value is there
+        // check to see if value is there
         t2 = lookup_value( env, var_decl->id, FALSE );
-        if( t2 != NULL )
+        if( env->scope_lookup( var_decl->id ) )
         {
             // error - already defined in local scope
             EM_error2( decl->linepos, 
@@ -1749,9 +1796,10 @@ t_Type type_engine_check_exp_decl( t_Env env, a_Exp_Decl decl )
                 S_name(var_decl->id) );
             return NULL;
         }
-*/
+
         // enter the type into the var->type value binding
         S_enter( env->value, var_decl->id, t );
+        env->scope_add( var_decl->id );
     }
 
     return t;
