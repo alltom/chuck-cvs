@@ -13,13 +13,13 @@ noise n => biquad f => dac;
 fun void wind_gain( )
 {
     // our gain
-    0.000 => float gain => dac.gain;
+    0.000 => float gain => n.gain;
     now + 5::second => time later;
 
     // ramp up the gain in the 3 seconds
     while( now < later )
     {
-        gain + .001 => gain => dac.gain;
+        gain + .001 => gain => n.gain;
         10::ms => now;
     }
 }
