@@ -428,6 +428,20 @@ t_CKBOOL Chuck_VM::queue_msg( Chuck_Msg * msg, int count )
 
 
 //-----------------------------------------------------------------------------
+// name: get_reply()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Msg * Chuck_VM::get_reply( )
+{
+    Chuck_Msg * msg = NULL;
+    m_reply_buffer->get( &msg, 1 );
+    return msg;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: process_msg()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -572,7 +586,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
 
 done:
-    
+
     if( msg->reply )
     {
         msg->replyA = retval;

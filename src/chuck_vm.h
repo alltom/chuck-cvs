@@ -275,8 +275,6 @@ public: // garbage collection
 public: // msg
     t_CKBOOL queue_msg( Chuck_Msg * msg, int num_msg );
     t_CKUINT process_msg( Chuck_Msg * msg );
-    t_CKBOOL peek_reply( );
-    t_CKBOOL queue_reply( );
     Chuck_Msg * get_reply( );
 
 public: // static/dynamic function table
