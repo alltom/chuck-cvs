@@ -35,6 +35,10 @@
 #include "chuck_def.h"
 
 
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
+
 // begin the abuse of memory
 extern SAMPLE ahh_data[];
 extern SAMPLE britestk_data[];
@@ -77,6 +81,10 @@ extern t_CKUINT sineblnk_size;
 extern t_CKUINT sinewave_size;
 extern t_CKUINT snglpeak_size;
 extern t_CKUINT twopeaks_size;
+
+#if defined(_cplusplus) || defined(__cplusplus)
+}
+#endif
 
 
 #endif

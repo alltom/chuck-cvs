@@ -120,8 +120,8 @@ util_math.o: util_math.h util_math.c
 util_network.o: util_network.h util_network.c
 	$(CC) $(FLAGS) util_network.c
 
-util_raw.o: util_raw.h util_raw.cpp
-	$(CC) $(FLAGS) util_raw.cpp
+util_raw.o: util_raw.h util_raw.c
+	$(CC) $(FLAGS) util_raw.c
 
 util_sndfile.o: util_sndfile.h util_sndfile.c
 	$(CC) $(FLAGS) util_sndfile.c
