@@ -129,7 +129,7 @@ Chuck_VM::Chuck_VM()
 //-----------------------------------------------------------------------------
 Chuck_VM::~Chuck_VM()
 {
-    //if( m_init ) shutdown();
+    if( m_init ) shutdown();
 }
 
 

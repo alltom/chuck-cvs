@@ -69,8 +69,10 @@ BBQ::~BBQ()
 {
     SAFE_DELETE( m_digi_out );
     SAFE_DELETE( m_digi_in );
-    SAFE_DELETE( m_midi_out );
-    SAFE_DELETE( m_midi_in );
+    SAFE_DELETE_ARRAY( m_midi_out );
+    SAFE_DELETE_ARRAY( m_midi_in );
+    SAFE_DELETE_ARRAY( m_in_count );
+    SAFE_DELETE_ARRAY( m_out_count );
 }
 
 
