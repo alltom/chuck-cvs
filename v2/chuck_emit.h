@@ -133,6 +133,9 @@ struct Chuck_Emitter : public Chuck_VM_Object
     { assert( code != NULL ); return code->frame->alloc_local( size, name, is_ref ); }
     // pop scope
     void pop_scope( );
+
+    // default durations
+    t_CKBOOL find_dur( const string & name, t_CKDUR * out );
 };
 
 

@@ -1837,7 +1837,7 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
             double pi = 3.14159265358979323846;
             emit->append( new Chuck_Instr_Reg_Push_Imm2( pi ) );
         }
-        else if( emit->find_dur( exp->var, &dur ) )
+        else if( emit->find_dur( S_name(exp->var), &dur ) )
         {
             emit->append( new Chuck_Instr_Reg_Push_Imm2( dur ) );
         }
@@ -2016,4 +2016,29 @@ void Chuck_Emitter::pop_scope( )
     code->frame->pop_scope( locals );
 
     // TODO: free locals
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: find_dur()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Emitter::find_dur( const string & name, t_CKDUR * out )
+{
+    // sanity
+    assert( env != NULL );
+    assert( out != NULL );
+
+    // zero
+    *out = 0.0;
+    // get value from env
+    Chuck_Value * value = env->global.lookup_value( name, FALSE );
+    if( !value || !equals( value->type, &t_dur ) )
+        return FALSE;
+    // copy
+    *out = *( (t_CKDUR *)value->addr );
+    
+    return TRUE;
 }
