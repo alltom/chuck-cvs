@@ -134,7 +134,7 @@ int main( int argc, char ** argv )
     }
 
     // allocate the type checker
-    env = new Chuck_Env;
+    env = type_engine_init( NULL );
 
     // test the type checker
     if( !test_type( env, g_program ) )
