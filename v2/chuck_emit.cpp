@@ -225,15 +225,11 @@ Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump )
     {
         // name of what we are dumping
         EM_error2( 0, "dumping %s...", emit->code->name.c_str() );
-        EM_error2( 0, "\n" );
 
         // uh
         for( t_CKUINT i = 0; i < code->num_instr; i++ )
-            EM_error2( 0, "'%i' %s( %s )", i, 
+            EM_error2( 0, "[%i] %s( %s )", i, 
                code->instr[i]->name(), code->instr[i]->params() );
-
-        EM_error2( 0, "\n" );
-        EM_error2( 0, "\n" );
     }
 
     return code;
