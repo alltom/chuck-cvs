@@ -440,6 +440,10 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             shred->initialize( msg->code );
             shred->name = msg->code->name;
         }
+        // set the current time
+        shred->start = m_shreduler->now_system;
+        // set the id
+        shred->id = next_id();
 
         // replace
         if( m_shreduler->replace( out, shred ) )
@@ -1170,8 +1174,6 @@ t_CKBOOL Chuck_VM_Shreduler::replace( Chuck_VM_Shred * out, Chuck_VM_Shred * in 
     in->wake_time = out->wake_time;
     in->start = in->wake_time;
     
-    in->id = out->id;
-
     return TRUE;
 }
 
