@@ -881,20 +881,15 @@ void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
 	//bounds checking now in sampleAt function...
 	if (factor<1.0) {
 		for (j= -d->sinc_width + 1 ; j < d->sinc_width; j++)
-		  {
-
-			temp1 += sndbuf_sampleAt(d,time_i+j) * sndbuf_sinc(d,(double)j );
-		  }
+        {
+            temp1 += sndbuf_sampleAt(d,time_i+j) * sndbuf_sinc(d,(double)j );
+        }
 		*out = (SAMPLE) temp1;
 	}
-	
 	else {
-
 	    one_over_factor = 1.0 / factor;
 		for (j= -d->sinc_width + 1; j< d->sinc_width; j++) {
-
-
-				    temp1 += sndbuf_sampleAt(d,time_i+j) * one_over_factor * sndbuf_sinc(d,one_over_factor * (double) j );
+            temp1 += sndbuf_sampleAt(d,time_i+j) * one_over_factor * sndbuf_sinc(d,one_over_factor * (double) j );
 		} 
 		*out = (SAMPLE) temp1;
 	}
@@ -992,7 +987,11 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
 }
 
-#include "util_sndfile.h"
+#if defined(__CK_USE_NATIVE_SNDFILE__)
+  #include <sndfile.h>
+#else
+  #include "util_sndfile.h"
+#endif
 
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
