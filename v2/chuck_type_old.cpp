@@ -1537,6 +1537,7 @@ t_Type type_engine_check_exp_func_call( t_Env env, a_Exp_Func_Call func_call )
         return NULL;
     }
 
+    c_str name = "()";
     if( func_call->func->s_type == ae_exp_primary )
     {
         if( func_call->func->primary.s_type == ae_primary_var )
@@ -1555,6 +1556,8 @@ t_Type type_engine_check_exp_func_call( t_Env env, a_Exp_Func_Call func_call )
             EM_error2( func_call->linepos, "function call using illegal f-value" );
             return NULL;
         }
+
+        name = S_name( func_call->func->primary.var );
     }
     else  // namespace or class
     {
@@ -1577,6 +1580,8 @@ t_Type type_engine_check_exp_func_call( t_Env env, a_Exp_Func_Call func_call )
                 S_name(s), S_name(e->name) );
             return NULL;
         }
+
+        name = S_name( func->name );
     }
 
     if( func_call->args )
@@ -1596,7 +1601,7 @@ t_Type type_engine_check_exp_func_call( t_Env env, a_Exp_Func_Call func_call )
         {
             EM_error2( func_call->linepos,
                 "extra argument(s) in function call '%s' %i %s",
-                S_name(func_call->func->primary.var), e->s_type, e->type->name );
+                name, e->s_type, e->type->name );
             return NULL;
         }
 
@@ -1604,7 +1609,7 @@ t_Type type_engine_check_exp_func_call( t_Env env, a_Exp_Func_Call func_call )
         {
             EM_error2( func_call->linepos,
                 "argument '%i' of function call '%s' has type '%s' -- expecting type '%s'",
-                count, S_name(func_call->func->primary.var), e->type->name, e1->type->name );
+                count, name, e->type->name, e1->type->name );
             return NULL;
         }
 
