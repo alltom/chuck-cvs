@@ -2,6 +2,7 @@
 TODO:
 ---
 Add support for classes
+Add support for arrays
 Add more unit generators
   - STK
   - import more filters

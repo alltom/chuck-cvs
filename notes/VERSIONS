@@ -10,10 +10,23 @@
   - add .last for last sample computed for all ugen's
   - add constants in lib import
   - add math.pi math.twopi math.e
+  - add --srate(N) in command line (chuck --help)
   - typing .ck extension optional on command line
   - fixed spork bug involved local variables
   - fixed nested function calls
   - fixed math.min/max bug (Phil Davidson)
+  - fixed audio stability OS X (Ari Lazier)
+  - fixed MidiOut issue (thanks to n++k)
+
+new Unit Generators
+(from STK)
+  ADSR (updated)
+  BiQuad
+  Delay
+  DelayA
+  DelayL
+  Echo
+  WaveLoop (updated)
 
 
 ---
