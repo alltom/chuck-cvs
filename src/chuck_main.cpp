@@ -108,6 +108,7 @@ void signal_int( int sig_num )
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
         stk_detach( 0, NULL );
+        ck_close( g_sock );
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
         if( g_tid ) pthread_cancel( g_tid );
@@ -116,7 +117,6 @@ void signal_int( int sig_num )
 #else
         CloseHandle( g_tid );
 #endif
-        ck_close( g_sock );
     }
 
 #ifndef __PLATFORM_WIN32__
@@ -135,7 +135,7 @@ void signal_int( int sig_num )
 //-----------------------------------------------------------------------------
 void signal_pipe( int sig_num )
 {
-    fprintf( stderr, "[chuck]: sigpipe handled from broken pipe (phew)...\n" );
+    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (lost connection)...\n" );
 }
 
 
