@@ -6,7 +6,7 @@
       http://chuck.cs.princeton.edu/
       http://soundlab.cs.princeton.edu/
 
-    This program is free software; you can redistribute it and/or modify
+    This program is free software; you can redistribute it and/or modify"special:sinewave"
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
@@ -6794,7 +6794,7 @@ BeeThree :: BeeThree()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
 
   this->setRatio(0, 0.999);
@@ -7004,7 +7004,7 @@ BlowBotl :: BlowBotl()
   dcBlock->setBlockZero();
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency( 5.925 );
   vibratoGain = 0.0;
 
@@ -7211,7 +7211,7 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
   vent->setGain(0.0);
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency((MY_FLOAT) 5.735);
   outputGain = (MY_FLOAT) 1.0;
   noiseGain = (MY_FLOAT) 0.2;
@@ -7481,7 +7481,7 @@ Bowed :: Bowed(MY_FLOAT lowestFrequency)
   bowTable->setSlope((MY_FLOAT) 3.0);
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency((MY_FLOAT) 6.12723);
   vibratoGain = (MY_FLOAT) 0.0;
 
@@ -7670,7 +7670,7 @@ Brass :: Brass(MY_FLOAT lowestFrequency)
   adsr->setAllTimes( 0.005, 0.001, 1.0, 0.010);
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency( 6.137 );
   vibratoGain = 0.0;
 
@@ -7825,8 +7825,8 @@ Chorus :: Chorus(MY_FLOAT baseDelay)
   baseLength = baseDelay;
 
   // Concatenate the STK rawwave path to the rawwave file
-  mods[0] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
-  mods[1] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  mods[0] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
+  mods[1] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   mods[0]->setFrequency(0.2);
   mods[1]->setFrequency(0.222222);
   modDepth = 0.05;
@@ -7944,7 +7944,7 @@ Clarinet :: Clarinet(MY_FLOAT lowestFrequency)
   noise = new Noise;
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency((MY_FLOAT) 5.735);
   outputGain = (MY_FLOAT) 1.0;
   noiseGain = (MY_FLOAT) 0.2;
@@ -8926,7 +8926,7 @@ FM :: FM(int operators)
   twozero->setGain( 0.0 );
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency(6.0);
 
   int i;
@@ -9139,7 +9139,7 @@ FMVoices :: FMVoices()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
 
   this->setRatio(0, 2.00);
@@ -9563,7 +9563,7 @@ Flute :: Flute(MY_FLOAT lowestFrequency)
   adsr = new ADSR();
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency( 5.925 );
 
   this->clear();
@@ -9873,7 +9873,7 @@ HevyMetl :: HevyMetl()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
 
   this->setRatio(0, 1.0 * 1.000);
@@ -10764,7 +10764,7 @@ Modal :: Modal(int modes)
   onepole = new OnePole;
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
 
   // Set some default values.
   vibrato->setFrequency( 6.0 );
@@ -11147,7 +11147,7 @@ void ModalBar :: controlChange(int number, MY_FLOAT value)
 Modulate :: Modulate()
 {
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency( 6.0 );
   vibratoGain = 0.04;
 
@@ -11232,7 +11232,7 @@ Moog :: Moog()
   // Concatenate the STK rawwave path to the rawwave file
   attacks[0] = new WvIn( (Stk::rawwavePath() + "mandpluk.raw").c_str(), TRUE );
   loops[0] = new WaveLoop( (Stk::rawwavePath() + "impuls20.raw").c_str(), TRUE );
-  loops[1] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE ); // vibrato
+  loops[1] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE ); // vibrato
   loops[1]->setFrequency((MY_FLOAT) 6.122);
 
   filters[0] = new FormSwep();
@@ -11842,7 +11842,7 @@ PercFlut :: PercFlut()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
 
   this->setRatio(0, 1.50 * 1.000);
@@ -12939,7 +12939,7 @@ Rhodey :: Rhodey()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
 
   this->setRatio(0, 1.0);
@@ -13469,7 +13469,7 @@ Saxofony :: Saxofony(MY_FLOAT lowestFrequency)
   noise = new Noise;
 
   // Concatenate the STK rawwave path to the rawwave file
-  vibrato = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  vibrato = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   vibrato->setFrequency((MY_FLOAT) 5.735);
 
   outputGain = (MY_FLOAT) 0.3;
@@ -15770,7 +15770,7 @@ TubeBell :: TubeBell()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
 
   this->setRatio(0, 1.0   * 0.995);
@@ -16791,7 +16791,7 @@ Whistle :: Whistle()
   bumper = new Sphere(BUMP_RADIUS);
 
   // Concatenate the STK rawwave path to the rawwave file
-  sine = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+  sine = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   sine->setFrequency(2800.0);
 
   can->setPosition(0, 0, 0); // set can location
@@ -17040,7 +17040,7 @@ Wurley :: Wurley()
 {
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
-    waves[i] = new WaveLoop( (Stk::rawwavePath() + "sinewave.raw").c_str(), TRUE );
+    waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
   waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
 
   this->setRatio(0, 1.0);
@@ -17203,7 +17203,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
 {
     unsigned long lastChannels = channels;
     unsigned long samples, lastSamples = (bufferSize+1)*channels;
-    if(!generate || !strstr(fileName, "sinewave.raw"))
+    if(!generate || !strstr(fileName, "special:sinewave"))
     {
         closeFile();
 
@@ -17253,7 +17253,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     }
     else
     {
-        bufferSize = 512;
+        bufferSize = 256;
         channels = 1;
     }
 
@@ -17272,70 +17272,28 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     chunkPointer = 0;
 
     reset();
-    if(generate && strstr(fileName, "sinewave.raw"))
+    if(generate && strstr(fileName, "special:sinewave"))
     {
   	    fileSize = 256;  // length in 2-byte samples
 	    bufferSize = fileSize;
-
-	    // STK rawwave files have no header and are assumed to contain a
-	    // monophonic stream of 16-bit signed integers in big-endian byte
-	    // order with a sample rate of 22050 Hz.
 	    channels = 1;
 	    dataOffset = 0;
-	    rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
+        // STK rawwave files have no header and are assumed to contain a
+        // monophonic stream of 16-bit signed integers in big-endian byte
+        // order with a sample rate of 22050 Hz.
+        rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
 	    fileRate = 22050.0;
 	    interpolate = true;
         chunking = false;
 	    dataType = STK_SINT16;
 	    byteswap = false;
-	    #ifdef __LITTLE_ENDIAN__
-	    byteswap = true;
-	    #endif
-	
-	    unsigned long indexHACKED = 0;
-	    while (indexHACKED < (unsigned long)chunkPointer) {
-            // Negative rate.
-		    chunkPointer -= CHUNK_SIZE;
-		    bufferSize = CHUNK_SIZE;
-		    if (chunkPointer < 0) {
-			    bufferSize += chunkPointer;
-			    chunkPointer = 0;
-		    }
-	    }
-	    while (indexHACKED >= chunkPointer+bufferSize) {
-		    // Positive rate.
-		    chunkPointer += CHUNK_SIZE;
-		    bufferSize = CHUNK_SIZE;
-		    if ( (unsigned long)chunkPointer+CHUNK_SIZE >= fileSize) {
-			    bufferSize = fileSize - chunkPointer;
-		    }
-	    }
 
-	    long i, length = bufferSize;
- 	    bool endfile = (chunkPointer+bufferSize == fileSize);
-	    if ( !endfile ) length += 1;
-	
-	    // Read samples into data[].  Use MY_FLOAT data structure
-	    // to store samples.
-//	    SINT16 *buf = (SINT16 *)data;
-	    for (unsigned int j=0; j<length; j++)
-	    {
+	    for (unsigned int j=0; j<bufferSize; j++)
 		    data[j] = (SHRT_MAX) * sin(2*PI*j/256);
-	    }	    
-	    //if ( byteswap ) {
-		//    SINT16 *ptr = buf;
-		//    for (i=length*channels-1; i>=0; i--)
-		//	    swap16((unsigned char *)(ptr++));
-	    //}
-	    //for (i=length*channels-1; i>=0; i--)
-	    //    data[i] = buf[i];
-	    // If at end of file, repeat last sample frame for interpolation.
-	    if ( endfile ) {
-		    for (unsigned int j=0; j<channels; j++)
-		    data[bufferSize*channels+j] = data[(bufferSize-1)*channels+j];
-	    }
+        data[bufferSize] = data[0];
     }
     else readData( 0 );  // Load file data.
+
     if ( doNormalize ) normalize();
     finished = false;
     return;
