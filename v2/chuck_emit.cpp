@@ -504,7 +504,7 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
         default:
             EM_error2( stmt->c2->stmt_exp->linepos,
                  "(emit): internal error: unhandled type '%s' in for conditional",
-                 stmt->c2->stmt_exp->type->name );
+                 stmt->c2->stmt_exp->type->name.c_str() );
             return FALSE;
         }
         // append the op
@@ -512,12 +512,17 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
     }
 
     // emit the body
-    emit_engine_emit_stmt( emit, stmt->body );
-    
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+
     // emit the action
-    emit_engine_emit_exp( emit, stmt->c3 );
     if( stmt->c3 )
     {
+        ret = emit_engine_emit_exp( emit, stmt->c3 );
+        if( !ret )
+            return FALSE;
+
         // HACK!
         if( stmt->c3->type->size == 8 )
             emit->append( new Chuck_Instr_Reg_Pop_Word2 );
@@ -557,44 +562,339 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
     // pop stack
     emit->pop_scope();
 
-    return ret;    
+    return ret;
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_while()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt );
+t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push stack
+    emit->push_scope();
+
+    // get the index
+    uint start_index = emit->next_index();
+    // mark the stack of continue
+    emit->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->stack_break.push_back( NULL );
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+    
+    // the condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+    case te_uint:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_uint( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+            "(emit): internal error: unhandled type '%s' in while conditional",
+            stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+    
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+    
+    // go back to do check the condition
+    emit->append( new Chuck_Instr_Goto( start_index ) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // stack of continue
+    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    {
+        emit->stack_cont.back()->set( start_index );
+        emit->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->stack_break.size() && emit->stack_break.back() )
+    {
+        emit->stack_break.back()->set( emit->next_index() );
+        emit->stack_cont.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+
+    return ret;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_do_while()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt );
+t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+    uint start_index = emit->next_index();
+    
+    // push stack
+    emit->push_scope();
+
+    // mark the stack of continue
+    emit->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->stack_break.push_back( NULL );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+    
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+    
+    // the condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+    case te_uint:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Neq_uint( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Neq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+                   "(emit): internal error: unhandled type '%s' in do/while conditional",
+                   stmt->cond->type->name );
+        return FALSE;
+    }
+    
+    // append the op
+    emit->append( op );
+
+    // set the op's target
+    op->set( start_index );
+
+    // stack of continue
+    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    {
+        emit->stack_cont.back()->set( start_index );
+        emit->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->stack_break.size() && emit->stack_break.back() )
+    {
+        emit->stack_break.back()->set( emit->next_index() );
+        emit->stack_cont.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    
+    return ret;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_until()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt );
+t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push stack
+    emit->push_scope();
+
+    // get index
+    uint start_index = emit->next_index();
+    // mark the stack of continue
+    emit->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->stack_break.push_back( NULL );
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+
+    // condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+    case te_uint:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Neq_uint( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Neq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+             "(emit): internal error: unhandled type '%s' in until conditional",
+             stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+    
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    emit_engine_emit_stmt( emit, stmt->body );
+    
+    // go back to do check the condition
+    emit->append( new Chuck_Instr_Goto( start_index ) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // stack of continue
+    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    {
+        emit->stack_cont.back()->set( start_index );
+        emit->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->stack_break.size() && emit->stack_break.back() )
+    {
+        emit->stack_break.back()->set( emit->next_index() );
+        emit->stack_cont.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    
+    return ret;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_do_until()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt );
+t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push stack
+    emit->push_scope();
+
+    // the index
+    uint start_index = emit->next_index();
+    // mark the stack of continue
+    emit->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->stack_break.push_back( NULL );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+
+    // condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+    case te_uint:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_uint( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+
+    default:
+        EM_error2( stmt->cond->linepos,
+             "(emit): internal error: unhandled type '%s' in do/until conditional",
+             stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+
+    // append the op
+    emit->append( op );
+
+    // set the op's target
+    op->set( start_index );
+
+    // stack of continue
+    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    {
+        emit->stack_cont.back()->set( start_index );
+        emit->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->stack_break.size() && emit->stack_break.back() )
+    {
+        emit->stack_break.back()->set( emit->next_index() );
+        emit->stack_cont.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    
+    return ret;
+}
 
 
 
