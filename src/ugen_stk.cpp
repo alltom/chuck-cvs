@@ -362,6 +362,13 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
     QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
 
+    // add PitShift
+    QUERY->ugen_add( QUERY, "PitShift", NULL );
+    QUERY->ugen_func( QUERY, PitShift_ctor, PitShift_dtor, PitShift_tick, PitShift_pmsg );
+    QUERY->ugen_ctrl( QUERY, PitShift_ctrl_shift, NULL, "float", "shift" );
+    QUERY->ugen_ctrl( QUERY, PitShift_ctrl_effectMix, NULL, "float", "effectMix" );
+
+
     // add Mandolin
     QUERY->ugen_add( QUERY, "Mandolin", NULL );
     QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
@@ -4426,7 +4433,7 @@ class Rhodey : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
-  void noteOn(MY_FLOAT amplitude) { noteOn(baseFrequency, amplitude ); } 
+  void noteOn(MY_FLOAT amplitude) { noteOn(baseFrequency * 0.5, amplitude ); } 
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -13149,7 +13156,6 @@ void Rhodey :: setFrequency(MY_FLOAT frequency)
     waves[i]->setFrequency( baseFrequency * ratios[i] );
 }
 
-
 void Rhodey :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
   gains[0] = amplitude * __FM_gains[99];
@@ -19647,6 +19653,45 @@ UGEN_CTRL JCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
     t_CKFLOAT f = GET_CK_FLOAT(value);
     j->setEffectMix( f );
 }
+
+
+// PitShift
+UGEN_CTOR PitShift_ctor( t_CKTIME now )
+{
+    return new PitShift( );
+}
+
+UGEN_DTOR PitShift_dtor( t_CKTIME now, void * data )
+{
+    delete (PitShift *)data;
+}
+
+UGEN_TICK PitShift_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    PitShift * p = (PitShift *)data;
+    *out = p->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG PitShift_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL PitShift_ctrl_shift( t_CKTIME now, void * data, void * value )
+{
+    PitShift * p = (PitShift *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setShift( f );
+}
+
+UGEN_CTRL PitShift_ctrl_effectMix( t_CKTIME now, void * data, void * value )
+{
+    PitShift * p = (PitShift *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setEffectMix( f );
+}
+
 
 UGEN_CTOR Shakers_ctor( t_CKTIME now )
 {
