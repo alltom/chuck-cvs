@@ -355,6 +355,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_freq, Flute_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_rate, Flute_cget_rate, "float", "rate" ); //! frequency
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetReflection, Flute_cget_jetReflection, "float", "jetReflection" ); //! rate of change
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetDelay, Flute_cget_jetDelay, "float", "jetDelay" ); //! rate of change
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_endReflection, Flute_cget_endReflection, "float", "endReflection" ); //! rate of change
@@ -645,7 +646,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
     QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_freq, Saxofony_cget_freq, "float", "freq" ); //! frequency
     QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_rate, Saxofony_cget_rate, "float", "rate" ); //! frequency
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_blowPosition, Saxofony_cget_blowPosition, "float", "lip" ); //! lip stiffness
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_blowPosition, Saxofony_cget_blowPosition, "float", "blowPosition" ); //! lip stiffness
 
 // add Sitar
     //! STK Sitar class
@@ -10102,6 +10103,7 @@ void Flute :: setFrequency(MY_FLOAT frequency)
 
 void Flute :: startBlowing(MY_FLOAT amplitude, MY_FLOAT rate)
 {
+	fprintf (stderr,"flute::startblowing %f %f \n", amplitude, rate);
   adsr->setAttackRate(rate);
   maxPressure = amplitude / (MY_FLOAT) 0.8;
   adsr->keyOn();
@@ -20181,13 +20183,13 @@ UGEN_CGET Brass_cget_lip ( t_CKTIME now, void * data, void * value )
 struct Clarinet_ { 
    Clarinet * imp;
    double m_frequency;
-   double m_lip;
    double m_rate;
+   double m_reed;
    Clarinet_ ( double d ) { 
       imp = new Clarinet(d);
       m_frequency = 100.0;
-      m_lip = 200.0;
       m_rate = 0.5;
+      m_reed = 0.5;
    }
 };
 
