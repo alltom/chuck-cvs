@@ -1,0 +1,18 @@
+todo
+---
+check binary operators
+string
+
+objects
+  - obj_size
+  - self_size
+  - virtual table
+  - global classes
+  - function overloading
+  - instantiation
+  - constructors
+  - destructor
+
+dot member
+arrays
+
