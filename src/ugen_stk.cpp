@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include "ugen_stk.h"
 #include <stdlib.h>
+#include <time.h>
 
 #define MY_FLOAT double
 // see stk_query()...
@@ -726,7 +727,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_aifFilename, NULL, "string", "aifFilename"); //!open AIFF file for writing
     QUERY->ugen_ctrl( QUERY, NULL, WvOut_cget_filename, "string", "filename" ); //!get filename
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_record, WvOut_cget_record, "int", "record" ); // !start/stop output
-    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_closeFile, NULL, "string", "closeFile"); //! close file properly 
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_closeFile, NULL, "string", "closeFile"); //! close file properly
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_autoPrefix, WvOut_cget_autoPrefix, "string", "autoPrefix"); //! set/get auto prefix string
     
     return TRUE;
 }
@@ -5848,8 +5850,9 @@ class WvOut : public Stk
   unsigned int channels;
   unsigned long counter;
   unsigned long totalCount;
-  char m_filename[256];
+  char m_filename[1024];
   t_CKUINT start;
+  char autoPrefix[1024];
 };
 
 #endif // defined(__WVOUT_H)
@@ -17800,12 +17803,13 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
         // order with a sample rate of 22050 Hz.
         fileSize = bufferSize;
         dataOffset = 0;
-        rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
-        fileRate = 22050.0;
         interpolate = true;
         chunking = false;
         dataType = STK_SINT16;
         byteswap = false;
+        fileRate = 22050.0;
+        rate = (MY_FLOAT)fileRate / Stk::sampleRate();
+        
 
         // which
         if( strstr(fileName, "special:sinewave") )
@@ -17878,6 +17882,22 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
             else if( strstr(fileName, "special:twopeaks") ) {
                 rawsize = twopeaks_size; rawdata = twopeaks_data;
             }
+            else if( strstr(fileName, "special:glot_pop") ) {
+                rawsize = glot_pop_size; rawdata = glot_pop_data;
+                fileRate = 44100.0; rate = (MY_FLOAT)44100.0 / Stk::sampleRate();
+            }
+            else if( strstr(fileName, "special:glot_ahh") ) {
+                rawsize = glot_ahh_size; rawdata = glot_ahh_data;
+                fileRate = 44100.0; rate = (MY_FLOAT)44100.0 / Stk::sampleRate();
+            }
+            else if( strstr(fileName, "special:glot_eee" ) ) {
+                rawsize = glot_eee_size; rawdata = glot_eee_data;
+                fileRate = 44100.0; rate = (MY_FLOAT)44100.0 / Stk::sampleRate();
+            }
+            else if( strstr(fileName, "special:glot_ooo" ) ) {
+                rawsize = glot_ooo_size; rawdata = glot_ooo_data;
+                fileRate = 44100.0; rate = (MY_FLOAT)44100.0 / Stk::sampleRate();
+            }
 
             if ( rawdata ) {
                 if ( data ) delete [] data;
@@ -17898,6 +17918,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     if ( doNormalize ) normalize();
     m_loaded = true;
     finished = false;
+    interpolate = ( fmod( rate, 1.0 ) != 0.0 );
     return;
 
 error:
@@ -23129,7 +23150,9 @@ std::map<WvOut *, WvOut *> g_wv;
 // WvOut
 UGEN_CTOR WvOut_ctor( t_CKTIME now )
 {
-    return new WvOut;
+    WvOut * yo = new WvOut;
+    strcpy( yo->autoPrefix, "chuck-session" );
+    return yo;
 }
 
 UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data )
@@ -23160,6 +23183,18 @@ UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
+    char buffer[1024];
+    
+    // special
+    if( strstr( filename, "special:auto" ) )
+    {
+        time_t t; time(&t);
+        strcpy( buffer, w->autoPrefix );
+        strcat( buffer, "(" );
+        strncat( buffer, ctime(&t), 24 );
+        strcat( buffer, ").mat" );
+        filename = buffer;
+    }
     w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
     g_wv[w] = w;
 }
@@ -23168,6 +23203,18 @@ UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
+    char buffer[1024];
+
+    // special
+    if( strstr( filename, "special:auto" ) )
+    {
+        time_t t; time(&t);
+        strcpy( buffer, w->autoPrefix );
+        strcat( buffer, "(" );
+        strncat( buffer, ctime(&t), 24 );
+        strcat( buffer, ").snd" );
+        filename = buffer;
+    }
     w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
     g_wv[w] = w;
 }
@@ -23176,6 +23223,18 @@ UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
+    char buffer[1024];
+
+    // special
+    if( strstr( filename, "special:auto" ) )
+    {
+        time_t t; time(&t);
+        strcpy( buffer, w->autoPrefix );
+        strcat( buffer, "(" );
+        strncat( buffer, ctime(&t), 24 );
+        strcat( buffer, ").wav" );
+        filename = buffer;
+    }
     w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
     g_wv[w] = w;
 }
@@ -23184,6 +23243,18 @@ UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
+    char buffer[1024];
+
+    // special
+    if( strstr( filename, "special:auto" ) )
+    {
+        time_t t; time(&t);
+        strcpy( buffer, w->autoPrefix );
+        strcat( buffer, "(" );
+        strncat( buffer, ctime(&t), 24 );
+        strcat( buffer, ").raw" );
+        filename = buffer;
+    }
     w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
     g_wv[w] = w;
 }
@@ -23192,6 +23263,18 @@ UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
+    char buffer[1024];
+
+    // special
+    if( strstr( filename, "special:auto" ) )
+    {
+        time_t t; time(&t);
+        strcpy( buffer, w->autoPrefix );
+        strcat( buffer, "(" );
+        strncat( buffer, ctime(&t), 24 );
+        strcat( buffer, ").aiff" );
+        filename = buffer;
+    }
     w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
     g_wv[w] = w;
 }
@@ -23213,16 +23296,28 @@ UGEN_CTRL WvOut_ctrl_record( t_CKTIME now, void * data, void * value )
     w->start = i ? 1 : 0;
 }
 
+UGEN_CTRL WvOut_ctrl_autoPrefix( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    strcpy( w->autoPrefix, GET_NEXT_STRING(value) );
+}
+
 UGEN_CGET WvOut_cget_filename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
-    SET_NEXT_STRING ( value, w->m_filename );
+    SET_NEXT_STRING( value, w->m_filename );
 }
 
 UGEN_CGET WvOut_cget_record( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     SET_NEXT_INT( value, w->start );
+}
+
+UGEN_CGET WvOut_cget_autoPrefix( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    SET_NEXT_STRING( value, w->autoPrefix );
 }
 
 //-----------------------------------------------------------------------------
