@@ -141,7 +141,8 @@ int main( int argc, char ** argv )
     t_CKUINT num_buffers = NUM_BUFFERS_DEFAULT;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
-    
+    t_CKBOOL dump = TRUE;
+
     // allocate the vm
     Chuck_VM * vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
@@ -172,6 +173,8 @@ int main( int argc, char ** argv )
 
     // allocate the emitter
     emit = emit_engine_init( env );
+    // enable dump
+    emit->dump = dump;
 
     // test the emitter
     code = emit_engine_emit_prog( emit, g_program );

@@ -110,10 +110,13 @@ struct Chuck_Emitter : public Chuck_VM_Object
     // locals
     vector<Chuck_Local *> locals;
 
+    // dump
+    t_CKBOOL dump;
+
     // constructor
     Chuck_Emitter()
     { env = NULL; vm = NULL; code = NULL; context = NULL; 
-      nspc = NULL; class_def = NULL; func = NULL; }
+      nspc = NULL; class_def = NULL; func = NULL; dump = FALSE; }
 
     // destructor
     ~Chuck_Emitter()

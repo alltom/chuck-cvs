@@ -152,6 +152,8 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     emit->func = NULL;
     // clear the code stack
     emit->stack.clear();
+    // name the code
+    emit->code->name = "[shred main]";
 
     // loop over the program sections
     while( prog && ret )
@@ -187,7 +189,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
         emit->append( new Chuck_Instr_EOC );
 
         // converted to virtual machine code
-        emit->context->nspc.code = emit_to_code( emit->code, NULL, TRUE );
+        emit->context->nspc.code = emit_to_code( emit->code, NULL, emit->dump );
     }
 
     // clear the code
@@ -228,12 +230,14 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     if( dump )
     {
         // name of what we are dumping
-        EM_error2( 0, "dumping %s...", in->name.c_str() );
+        EM_error2( 0, "dumping %s:", in->name.c_str() );
+        EM_error2( 0, "-------" );
 
         // uh
         for( t_CKUINT i = 0; i < code->num_instr; i++ )
             EM_error2( 0, "[%i] %s( %s )", i, 
                code->instr[i]->name(), code->instr[i]->params() );
+        EM_error2( 0, "-------\n" );
     }
 
     return code;
@@ -2531,12 +2535,14 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     emit->stack.push_back( emit->code );
     // make a new one
     emit->code = new Chuck_Code;
+    // name the code
+    emit->code->name = func->name + "( ... )";
     // emit the code
     emit_engine_emit_stmt( emit, func_def->code, FALSE );
     // emit return statement
     emit->append( new Chuck_Instr_Func_Return );
     // vm code
-    func->code = emit_to_code( emit->code, NULL, FALSE );
+    func->code = emit_to_code( emit->code, NULL, emit->dump );
     // unset the func
     emit->env->func = NULL;
     // pop the code
@@ -2590,7 +2596,7 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     op->set( emit->code->stack_depth );
 
     // emit it
-    Chuck_VM_Code * code = emit_to_code( emit->code, NULL );
+    Chuck_VM_Code * code = emit_to_code( emit->code, NULL, emit->dump );
     code->name = string("spork ~ exp");
 
     // restore the code
