@@ -17205,7 +17205,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
 {
   unsigned long lastChannels = channels;
   unsigned long samples, lastSamples = (bufferSize+1)*channels;
-  if(!generate || !strstr(fileName, "sinewave"))
+  if(!generate || !strstr(fileName, "sinewave.raw"))
   {
   closeFile();
 
@@ -17268,7 +17268,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
   chunkPointer = 0;
 
   reset();
-  if(generate && strstr(fileName, "sinewave"))
+  if(generate && strstr(fileName, "sinewave.raw"))
   {
   	fileSize = 256;  // length in 2-byte samples
 	bufferSize = fileSize;
