@@ -744,7 +744,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     char * format = strrchr ( filename, '.');
     if ( format && strcmp ( format, ".raw" ) == 0 ) { 
       fprintf(stderr, "%s :: type is '.raw'.  assuming 16 bit signed mono (PCM)\n", filename);
-      info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16;
+      info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
       info.channels = 1;
       info.samplerate = 44100;
     }
