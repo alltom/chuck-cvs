@@ -2431,11 +2431,15 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             // if array
             if( type->array_depth )
             {
+                // TODO:
                 EM_error2( decl->linepos,
                     "(emit): internal error: array not impl" );
                     return FALSE;
 
-                // emit 
+                // emit array allocation
+                emit->append( new Chuck_Instr_Array_Alloc( type->array_depth, type ) );
+                // assign the object
+                emit->append( new Chuck_Instr_Assign_Object );
             }
             else // not array
             {
@@ -2459,6 +2463,8 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                 {
                     // emit object instantiation code
                     emit->append( new Chuck_Instr_Instantiate_Object( type ) );
+                    // assign the object
+                    emit->append( new Chuck_Instr_Assign_Object );
                     // TODO:
                     // constructor?
                 }
