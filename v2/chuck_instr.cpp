@@ -1822,6 +1822,7 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             "[chuck](VM): Exception DestTimeNegative: '%.6f'\n", *sp );
         // do something!
         shred->is_running = FALSE;
+        shred->is_done = TRUE;
 
         return;
     }
@@ -1973,6 +1974,7 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     {
         // done
         shred->is_running = FALSE;
+        shred->is_done = TRUE;
         return;
     }
 
@@ -2051,10 +2053,11 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds in shred '%s': index='%d'\n", 
+             "[chuck](VM): ArrayOutofBounds in shred [%s]: index='%d'\n", 
              shred->name.c_str(), i );
     // do something!
     shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
@@ -2128,10 +2131,11 @@ void Chuck_Instr_Array_Map_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): InternalArrayMap error in shred '%s': index='%s'\n", 
+             "[chuck](VM): InternalArrayMap error in shred [%s]: index='%s'\n", 
              shred->name.c_str(), key->str.c_str() );
     // do something!
     shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
@@ -2224,10 +2228,11 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds in shred '%s': index='%d'\n", 
+             "[chuck](VM): ArrayOutofBounds in shred [%s]: index='%d'\n", 
              shred->name.c_str(), i );
     // do something!
     shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
@@ -2248,6 +2253,8 @@ void Chuck_Instr_Dot_Member_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     pop_( sp, 1 );
     // get the object pointer
     Chuck_Object * obj = (Chuck_Object *)(*sp);
+    // check
+    if( !obj ) goto error;
     // calculate the data pointer
     data = (t_CKUINT)(obj->data + m_offset);
     
@@ -2264,6 +2271,15 @@ void Chuck_Instr_Dot_Member_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
         else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); }
         else assert( FALSE );
     }
+
+error:
+    // we have a problem
+    fprintf( stderr, 
+             "[chuck](VM): NullPointerException in shred [%s]\n", 
+             shred->name.c_str() );
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
@@ -2284,11 +2300,22 @@ void Chuck_Instr_Dot_Member_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     pop_( sp, 1 );
     // get the object pointer
     Chuck_Object * obj = (Chuck_Object *)(*sp);
+    // check
+    if( !obj ) goto error;
     // calculate the data pointer
     data = (t_CKUINT)(obj->vtable->funcs[m_offset]);
     
     // push the address
     push_( sp, data );
+
+error:
+    // we have a problem
+    fprintf( stderr, 
+             "[chuck](VM): NullPointerException in shred [%s]\n", 
+             shred->name.c_str() );
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
