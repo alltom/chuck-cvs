@@ -502,10 +502,6 @@ t_CKUINT Chuck_Array8::addr( t_CKINT i )
 //-----------------------------------------------------------------------------
 t_CKUINT Chuck_Array8::addr( const string & key )
 {
-    // make sure
-    map<string, t_CKFLOAT>::iterator iter = m_map.find( key );
-    // add
-    if( iter == m_map.end() ) m_map[key] = 0.0;
     // get the addr
     return (t_CKUINT)(&m_map[key]);
 }
