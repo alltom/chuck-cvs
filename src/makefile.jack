@@ -11,9 +11,9 @@ SF_OBJ=util_sndfile.o
 # by default, ChucK uses a pre-configured libsndfile...
 # uncomment the next 3 lines to use libsndfile on your system   
 #-----------------------------------------------------------------------------
-FLAGS+= -D__CK_SNDFILE_NATIVE__
-LIBS+= -lsndfile
-SF_OBJ= 
+#FLAGS+= -D__CK_SNDFILE_NATIVE__
+#LIBS+= -lsndfile
+#SF_OBJ= 
 
 OBJS=chuck.tab.o chuck.yy.o chuck_main.o chuck_errmsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \

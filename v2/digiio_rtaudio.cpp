@@ -167,8 +167,8 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     }
     else  // initial condition
     {
-#ifdef __MACOSX_CORE__
-        if( !m_go && Chuck_VM::our_priority != 0xffffffff )
+#ifndef __WINDOWS_DS__
+        if( !m_go && Chuck_VM::our_priority != 0x7fffffff )
             Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
 #endif
         memset( buffer, 0, len );
