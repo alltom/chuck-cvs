@@ -1,0 +1,14 @@
+CHUCK_DIR=../src/
+
+all: ckdl ckx
+
+ckdl: ckdl.cpp
+	gcc -g -I$(CHUCK_DIR) ckdl.cpp $(CHUCK_DIR)chuck_dl.cpp -o ckdl -ldl -lstdc++
+
+ckx: foo.ckx
+
+foo.ckx: foo.cpp
+	gcc -O3 -g -shared -I$(CHUCK_DIR) foo.cpp -o foo.ckx -lstdc++
+
+clean:
+	rm -f *~ ckdl *.ckx

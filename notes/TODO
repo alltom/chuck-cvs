@@ -1,0 +1,20 @@
+
+TODO:
+---
+Add support for classes
+Add more unit generators
+  - STK
+  - import more filters
+  - FFT/DCT/DWT
+  - analysis
+  - Marsyas
+  - File support
+Add more tutorials
+Add OpenGL API (almost there)
+Fix shred/ugen reference count
+Add OSC support
+Add net language support
+Performance enhancement
+Improve documentation
+
+too many to name.  Need more developers.  Please.
