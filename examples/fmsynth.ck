@@ -9,20 +9,30 @@
 100.0  => float ampM;
 0.0 => float frq;
 0.0 => float t;
-sinosc s => dac;
-fc => s.sfreq;
-0.5 => s.gain;
 
-//timing
+
+sinosc modulation => sinosc carrier => dac;
+
+fm => modulation.sfreq;
+fc => carrier.sfreq;
+0.5 => carrier.gain;
+
+fun void fmloop() {
+	while ( true ) { 
+		fc + ampM * modulation.last => carrier.sfreq;
+		1::samp => now;
+	}
+}
+
+spork ~fmloop();
+
 while ( true ) {
-    //fun sound
+
     120.0 + 120.0 * math.sin( t * 0.2 ) => fm;  //modulate modulators
+    fm => modulation.sfreq;
+
     100.0 + 50.0 * math.sin ( t * 0.05 ) => ampM; //modulate mod amplitude.
 
-    fc + ampM * math.sin ( fm * t * 2.0 * pi) => frq; //fm eq..
-    frq => s.sfreq;
     t + 0.001 => t;
-
-    // for fun, mess with things at 1::samp => now;
     1::ms => now; 
 }
