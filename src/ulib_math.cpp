@@ -302,7 +302,7 @@ CK_DLL_FUNC( min_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
-    RETURN->v_float = y > x ? y : x;
+    RETURN->v_float = x < y ? x : y;
 }
 
 // max
@@ -310,5 +310,5 @@ CK_DLL_FUNC( max_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
-    RETURN->v_float = y < x ? y : x;
+    RETURN->v_float = x > y ? x : y;
 }
