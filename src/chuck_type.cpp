@@ -706,8 +706,12 @@ t_CKBOOL type_engine_check_ugen_def_import( t_Env info, Chuck_UGen_Info * ugen )
             return FALSE;
         }
 
-        // check for duplicates
-        if( params[param->name] )
+        // check for duplicates - unless ugen has declared a parent,
+	// and we expect to find some duplicates.
+	// in general, this just updates the param_map and the
+	// older functions are 'forgotten' though still present 
+	// in the param list
+        if( ugen->parent == "" && params[param->name] )
         {
             EM_error2( ugen->linepos, 
                 "imported ugen '%s.%s': duplicate control parameter name '%s'",

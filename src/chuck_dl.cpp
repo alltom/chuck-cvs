@@ -281,7 +281,7 @@ const char * Chuck_DLL::last_error() const
 Chuck_DL_Query::Chuck_DL_Query( )
 { add_export = __ck_addexport; add_param = __ck_addparam;
   ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func;
-  ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
+  ugen_ctrl = __ck_ugen_ctrl; ugen_extends = __ck_ugen_extends; set_name = __ck_setname;
   dll_name = "[noname]"; reserved = NULL;
 #ifndef __CKDL_NO_BBQ__
   srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
@@ -322,6 +322,21 @@ extern "C" void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query,
            f_ctrl c, f_cget g, const char * t, const char * n )
 { if( query->ugen_exports.size() )
     query->ugen_exports[query->ugen_exports.size()-1].add( c, g, t, n ); }
+
+// inherit functions from 'parent' ugen
+extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
+           const char * parent )
+{
+if( query->ugen_exports.size() > 1 ) { 
+    for ( int i= 0 ; i < query->ugen_exports.size() - 1 ; i++ ) { 
+      if ( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 ) { 
+	query->ugen_exports[query->ugen_exports.size()-1].inherit( &(query->ugen_exports[i]) );
+	return;					     
+      }
+    }
+}
+}
+
 
 // set name
 extern "C" void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query,

@@ -114,7 +114,27 @@ struct Chuck_UGen_Info
     { param_list.push_back( Chuck_Info_Param( t, n, c, g ) );
       param_map[n] = param_list[param_list.size()-1]; }
 
-    // contructor
+    // inherit
+    void inherit ( Chuck_UGen_Info * parentInfo ) { 
+
+      parent = parentInfo->name;
+      //inherit functions ...
+      ctor = parentInfo->ctor;
+      dtor = parentInfo->dtor;
+      tick = parentInfo->tick;
+      pmsg = parentInfo->pmsg;
+
+      for ( int i=0; i <  parentInfo->param_list.size(); i++) { 
+	//copy parent class's functions
+	//(functions added subsequently will overwrite entries in param_map)
+	add( parentInfo->param_list[i].ctrl_addr,   \
+	     parentInfo->param_list[i].cget_addr, \
+	     parentInfo->param_list[i].type, \
+	     parentInfo->param_list[i].name  );
+      }
+    }
+
+    // constructor
     Chuck_UGen_Info( const std::string & n, t_CKUINT min = 0, t_CKUINT max = 0xffffffff )
     {
         name = n;

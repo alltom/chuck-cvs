@@ -411,8 +411,21 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, NULL, "float", "vibratoGain" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, NULL, "float", "loudness" );
 
+    // add FM
+    QUERY->ugen_add( QUERY, "FM", NULL );
+    QUERY->ugen_func( QUERY, FM_ctor, FM_dtor, FM_tick, FM_pmsg );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_noteOff, NULL, "float", "noteOff" );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_modDepth, NULL, "float", "modDepth" );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_modSpeed, NULL, "float", "modSpeed" );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_afterTouch, NULL, "float", "afterTouch" );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_control1, NULL, "float", "control1" );
+    QUERY->ugen_ctrl( QUERY, FM_ctrl_control2, NULL, "float", "control2" );
+
     // add Wurley
     QUERY->ugen_add( QUERY, "Wurley", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
     QUERY->ugen_func( QUERY, Wurley_ctor, Wurley_dtor, Wurley_tick, Wurley_pmsg );
     QUERY->ugen_ctrl( QUERY, Wurley_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, Wurley_ctrl_noteOn, NULL, "float", "noteOn" );
@@ -420,6 +433,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     // add Rhodey
     QUERY->ugen_add( QUERY, "Rhodey", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
     QUERY->ugen_func( QUERY, Rhodey_ctor, Rhodey_dtor, Rhodey_tick, Rhodey_pmsg );
     QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_noteOn, NULL, "float", "noteOn" );
@@ -20290,5 +20304,91 @@ UGEN_CTRL Rhodey_ctrl_noteOff( t_CKTIME now, void * data, void * value )
     Rhodey * rhod= (Rhodey *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
     rhod->noteOff( f );
+}
+
+
+
+//FM functions
+
+UGEN_CTOR FM_ctor ( t_CKTIME now ) 
+{
+  //  return new FM(4);
+  fprintf(stderr,"error : FM is virtual - not for use! \n");
+  return 0;
+}
+
+UGEN_DTOR FM_dtor ( t_CKTIME now, void * data ) 
+{ 
+  //  delete (FM *)data;
+    fprintf(stderr,"error : FM is virtual!\n");
+}
+
+UGEN_TICK FM_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    FM * m = (FM *)data;
+    //    *out = m->tick();
+    fprintf(stderr,"error : FM tick is virtual\n");
+    return TRUE;
+}
+
+UGEN_PMSG FM_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL FM_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setFrequency( f );
+}
+
+UGEN_CTRL FM_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->keyOn();
+}
+
+UGEN_CTRL FM_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->noteOff( f );
+}
+
+UGEN_CTRL FM_ctrl_modDepth( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setModulationDepth( f );
+}
+
+UGEN_CTRL FM_ctrl_modSpeed( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setModulationSpeed( f );
+}
+
+UGEN_CTRL FM_ctrl_control1( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setControl1( f );
+}
+
+UGEN_CTRL FM_ctrl_control2( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->setControl2( f );
+}
+
+UGEN_CTRL FM_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
+{
+    FM * fm= (FM *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    fm->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
 

@@ -99,6 +99,7 @@ typedef void ( CK_DLL_CALL * f_ck_addexport)( Chuck_DL_Query * query, const char
 typedef void ( CK_DLL_CALL * f_ck_addparam)( Chuck_DL_Query * query, const char * type, const char * name );
 // functions for adding unit generators
 typedef void ( CK_DLL_CALL * f_ck_ugen_add)( Chuck_DL_Query * query, const char * name, void * reserved );
+typedef void ( CK_DLL_CALL * f_ck_ugen_extends)( Chuck_DL_Query * query, const char * parent );
 typedef void ( CK_DLL_CALL * f_ck_ugen_func)( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
 typedef void ( CK_DLL_CALL * f_ck_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
 // set name
@@ -109,8 +110,10 @@ extern "C" {
 void CK_DLL_CALL __ck_addexport( Chuck_DL_Query * query, const char * type, const char * name, f_ck_func addr, t_CKBOOL is_func );
 void CK_DLL_CALL __ck_addparam( Chuck_DL_Query * query, const char * type, const char * name );
 void CK_DLL_CALL __ck_ugen_add( Chuck_DL_Query * query, const char * name, void * reserved );
+void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query, const char * parent);
 void CK_DLL_CALL __ck_ugen_func( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
 void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
+void CK_DLL_CALL __ck_ugen_inherit( Chuck_DL_Query * query, const char * parent );
 void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 }
 
@@ -195,6 +198,7 @@ public: // call these from the DLL
     f_ck_addexport add_export;  // call this to add export
     f_ck_addparam  add_param;   // call this to add parameter to last export
     f_ck_ugen_add  ugen_add;    // call this to add a ugen
+    f_ck_ugen_extends  ugen_extends;    // call this to extend another ugen
     f_ck_ugen_func ugen_func;   // call this (once) to set functions for last ugen
     f_ck_ugen_ctrl ugen_ctrl;   // call this (>= 0 times) to add ctrl to last ugen
     f_ck_setname   set_name;    // call this to set name

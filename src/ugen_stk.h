@@ -281,11 +281,15 @@ UGEN_CTOR FM_ctor( t_CKTIME now );
 UGEN_DTOR FM_dtor( t_CKTIME now, void * data );
 UGEN_TICK FM_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG FM_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL FM_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FM_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FM_ctrl_noteOff( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FM_ctrl_modDepth( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FM_ctrl_modSpeed( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FM_ctrl_control1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FM_ctrl_control2( t_CKTIME now, void * data, void * value );
-UGEN_CTRL FM_ctrl_freq( t_CKTIME now, void * data, void * value );
+
+UGEN_CTRL FM_ctrl_afterTouch( t_CKTIME now, void * data, void * value );
 
 // FormSwep
 UGEN_CTOR FormSwep_ctor( t_CKTIME now);
