@@ -773,7 +773,8 @@ static const char * op_str[] = {
   "=<",
   "spork ~",
   "typeof",
-  "sizeof"
+  "sizeof",
+  "new"
 };
 
 

@@ -769,11 +769,6 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
             EM_error2( curr->linepos, "namespace expression not implemented!" );
             return FALSE;
         break;
-    
-        /* case ae_exp_new:
-            curr->exp_type = (t_Type)S_look( env->type, curr->a_new->type );
-        break;
-        */
         
         default:
             EM_error2( curr->linepos, "internal compiler error - no expression '%i'",
@@ -1129,12 +1124,43 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
 {
     t_CKTYPE t = NULL;
     Chuck_Value * v = NULL;
+    string str;
 
     // check syntax
     switch( exp->s_type )
     {
         // variable
         case ae_primary_var:
+            // check for this
+            str = S_name(exp->var);
+            if( str == "this" )
+            {
+                // in class def
+                if( !env->class_def )
+                {
+                    EM_error2( exp->linepos,
+                        "keyword 'this' can be used only inside class definition..." );
+                    return NULL;
+                }
+
+                // in member func
+                if( env->func && !env->func->is_member )
+                {
+                    EM_error2( exp->linepos,
+                        "keyword 'this' cannot be used inside static functions..." );
+                    return NULL;
+                }
+
+                return env->class_def;
+            }
+
+            // check for me
+            if( str == "me" )
+            {
+                // refers to shred
+                return &t_shred;
+            }
+            
             v = env->curr->lookup_value( exp->var, TRUE );
             if( !v )
             {
