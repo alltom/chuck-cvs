@@ -36,7 +36,7 @@
 #include <math.h>
 
 
-#ifdef WIN32
+#ifdef __PLATFORM_WIN32__
 
 #if defined (__cplusplus) || defined(_cplusplus)  
 extern "C" {

@@ -1088,7 +1088,6 @@ t_CKBOOL Chuck_VM_Shreduler::shredule( Chuck_VM_Shred * shred,
 
 
 
-
 //-----------------------------------------------------------------------------
 // name: advance()
 // desc: ...

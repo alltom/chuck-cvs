@@ -41,13 +41,13 @@ using namespace std;
 
 t_CKUINT g_srate;
 
+
 //-----------------------------------------------------------------------------
 // name: xxx_query()
 // desc: ...
 //-----------------------------------------------------------------------------
 DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 {
-
     g_srate = QUERY->srate;
 
     // add noise
@@ -237,6 +237,8 @@ UGEN_DTOR impulse_dtor( t_CKTIME now, void * data )
     // delete
     delete (Pulse_Data *)data;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -534,22 +536,22 @@ struct sndbuf_data
         num_frames = 0;
         num_samples = 0;
 
-	samplerate = 0;
+        samplerate = 0;
 
-	sampleratio = 1.0;
-	chan = 0;
-	curf = 0.0;
-	rate = 0.0;
+        sampleratio = 1.0;
+        chan = 0;
+        curf = 0.0;
+        rate = 0.0;
 
         eob = NULL;
         curr = NULL;
 
-	sinc_table_built = false;
-	sinc_use_table = USE_TABLE;
-	sinc_use_interp = USE_INTERP;
-	sinc_width = WIDTH;
-	sinc_samples_per_zero_crossing = SAMPLES_PER_ZERO_CROSSING;
-	sinc_table = NULL;
+        sinc_table_built = false;
+	    sinc_use_table = USE_TABLE;
+	    sinc_use_interp = USE_INTERP;
+	    sinc_width = WIDTH;
+	    sinc_samples_per_zero_crossing = SAMPLES_PER_ZERO_CROSSING;
+	    sinc_table = NULL;
 
         loop = FALSE;
     }
@@ -645,9 +647,9 @@ UGEN_CGET sndbuf_cget_loop( t_CKTIME now, void * data, void * out )
 inline double sndbuf_linear_interp (double * first, double * second, double * frac);
 bool sinc_table_built = false;
 
-void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out ) { 
-
-        signed long j;
+void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
+{
+    signed long j;
 	double factor = d->rate;
 	double time_now = d->curf;
 	double one_over_factor;
@@ -776,10 +778,10 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
 
-//XXX disabled while we get the rest of the windows build together.
-//because of many conflicts in util_sndfile.c
+// XXX disabled while we get the rest of the windows build together.
+// because of many conflicts in util_sndfile.c
 
-#ifndef WIN32
+#ifndef __PLATFORM_WIN32__
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
 	

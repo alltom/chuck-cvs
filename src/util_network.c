@@ -35,7 +35,7 @@
 //-----------------------------------------------------------------------------
 #include "util_network.h"
 
-#if defined(WIN32) 
+#if defined(__PLATFORM_WIN32__)
 #include <winsock.h>
 #else
 #include <sys/types.h>
@@ -54,7 +54,7 @@
 //-----------------------------------------------------------------------------
 struct ck_socket_
 {
-#ifdef WIN32
+#ifdef __PLATFORM_WIN32__
     WSADATA _wsd;
 #endif
     int sock;
@@ -74,7 +74,7 @@ ck_socket ck_udp_create( )
 
     ck_socket sock = (ck_socket)calloc( 1, sizeof( struct ck_socket_ ) );
 
-#ifdef WIN32  //winsock init
+#ifdef __PLATFORM_WIN32__  //winsock init
     WSAStartup(MAKEWORD(1,1), &(sock->_wsd));
 #endif
 
@@ -109,7 +109,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     int ret;
     struct hostent * host;
 
-#ifdef WIN32
+#ifdef __PLATFORM_WIN32__
     memset( &sock->sock_in, 0,  sizeof(struct sockaddr_in) );
 #else
     bzero( &sock->sock_in, sizeof(struct sockaddr_in) );
@@ -126,7 +126,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     }
     else
     {
-#ifdef WIN32
+#ifdef __PLATFORM_WIN32__
 	    memcpy( (char *)&sock->sock_in.sin_addr, host->h_addr, host->h_length );
 #else
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
@@ -149,7 +149,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 BOOL ck_bind( ck_socket sock, int port ) 
 {
     int ret;
-#ifdef WIN32
+#ifdef __PLATFORM_WIN32__
     memset( &sock->sock_in, 0,  sizeof(struct sockaddr_in) );
 #else
     bzero( &sock->sock_in, 0, sizeof(struct sockaddr_in) );
@@ -226,7 +226,7 @@ void ck_close( ck_socket sock )
     close( sock->sock );
     free( sock );
 
-#ifdef WIN32
+#ifdef __PLATFORM_WIN32__
     WSACleanup();
 #endif
 

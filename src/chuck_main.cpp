@@ -76,7 +76,7 @@ extern int yyparse( void );
 #define CK_VERSION "1.1.4.6"
 
 
-#ifdef WIN32
+#ifdef __PLATFORM_WIN32__
 //'C' specification necessary for windows to link properly
 extern "C" a_Program g_program;
 #else
