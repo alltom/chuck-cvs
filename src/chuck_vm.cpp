@@ -302,7 +302,7 @@ t_CKBOOL Chuck_VM::run( )
 {
     m_running = TRUE;
     Chuck_VM_Shred * shred = NULL;
-    Chuck_Msg msg;
+    Chuck_Msg * msg = NULL;
     
     // audio
     if( m_audio )
@@ -340,7 +340,7 @@ t_CKBOOL Chuck_VM::run( )
 
         // process messages
         while( m_msg_buffer->get( &msg, 1 ) )
-            process_msg( &msg );
+            process_msg( msg );
     }
 
 // vm stop here
@@ -410,7 +410,7 @@ void Chuck_VM::gc( )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::queue_msg( Chuck_Msg * msg, int count )
 {
-    m_msg_buffer->put( msg, count );
+    m_msg_buffer->put( &msg, count );
     return TRUE;
 }
 
@@ -430,6 +430,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         {
             fprintf( stderr, "[chuck](VM): error replacing shred: no shred with id %i...\n",
                 msg->param );
+            SAFE_DELETE(msg);
             return 0;
         }
 
@@ -451,6 +452,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             fprintf( stderr, "[chuck](VM): replacing shred %i with %i...\n",
                      out->id, shred->id );
             delete out;
+            SAFE_DELETE(msg);
             return shred->id;
         }
         else
@@ -458,6 +460,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             fprintf( stderr, "[chuck](VM): shreduler ERROR replacing shred %i...\n",
                      out->id );
             delete shred;
+            SAFE_DELETE(msg);
             return 0;
         }
     }
@@ -479,6 +482,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             else
             {
                 fprintf( stderr, "[chuck](VM): no shreds removed...\n" );
+                SAFE_DELETE(msg);
                 return 0;
             }
         }
@@ -489,12 +493,14 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             {
                 fprintf( stderr, "[chuck](VM): cannot remove: no shred with id %i...\n",
                          msg->param );
+                SAFE_DELETE(msg);
                 return 0;
             }
             if( !m_shreduler->remove( m_shreduler->lookup( msg->param ) ) )
             {
                 fprintf( stderr, "[chuck](VM): shreduler: cannot remove shred %i...\n",
                          msg->param );
+                SAFE_DELETE(msg);
                 return 0;
             }
             m_num_shreds--;

@@ -324,6 +324,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
     else
     {
         fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
+        SAFE_DELETE(cmd);
         return 0;
     }
     
