@@ -1362,7 +1362,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     // type check the base
     t_CKTYPE t_base = type_engine_check_exp( env, member->base );
     if( !t_base ) return NULL;
-
+    
     // push the new class as current
     Chuck_Namespace * old_nspc = env->curr;
     env->curr = env->curr->lookup_class( t_base->name, TRUE );
