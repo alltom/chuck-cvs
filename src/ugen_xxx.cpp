@@ -586,8 +586,8 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
    int i, smin, smax;
    SAMPLE sampi;
    if ( diff >= 0 ) { //forward.
-      smin = ceil ( lastpos );
-      smax = floor ( nowpos );
+      smin = (int)ceil( lastpos );
+      smax = (int)floor( nowpos );
       for ( i = smin ; i <= smax ; i++ ) { 
          sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
 	   //	   fprintf( stderr, "new sample %d %f %f %f \n", i,  in, sampi, d->sample_last );
@@ -595,8 +595,8 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
       }
    }
    else { //moving in reverse
-      smin = ceil ( nowpos );
-      smax = floor ( lastpos );
+      smin = (int)ceil( nowpos );
+      smax = (int)floor( lastpos );
       for ( i = smin ; i <= smax ; i++ ) 
          sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
          d->buffer[i%d->bufsize] += sampi ;   
@@ -664,7 +664,7 @@ UGEN_CTRL delayph_ctrl_max( t_CKTIME now, void * data, void * value )
     delayph_data * d = ( delayph_data * ) data;
     t_CKDUR nmax = * (t_CKDUR *) value; // rate 
     if ( d->bufsize != (int)nmax && nmax > 1.0 ) { 
-      d->bufsize = nmax; 
+      d->bufsize = (int)(nmax+.5); 
       d->buffer = ( SAMPLE * ) realloc ( d->buffer, sizeof ( SAMPLE ) * d->bufsize );
       for ( int i = 0; i < d->bufsize; i++ ) d->buffer[i] = 0;
     }
