@@ -1,17 +1,17 @@
 
 
-class A
+class AA
 {
     int x;
 }
 
-class B 
+class BB extends AA
 {
     int y;
 }
 
-//B b;
-//b.x => b.y;
+BB bb;
+bb.x => bb.y;
 
 
 //adc => sndbuf => dac;
