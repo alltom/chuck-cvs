@@ -38,11 +38,108 @@
 #include <GL/glut.h>
 #include <GL/freeglut_ext.h>
 
+#include <vector>
+using namespace std;
+
 
 // lazy phil's preprocessor functions
 // if these shouldn't be here, tell me
 #define GLUCK_EXPORT(t, n) QUERY->add_export( QUERY, #t, #n, gluck_##n##_impl, TRUE )
 #define GLUCK_PARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
+
+#define GLUCKEVENTBUFFERSIZE 256
+
+
+//functions to help shred loops work while
+//we see about doing a callback-type thing 
+//in chucK..
+
+void gluckDisplayCB();
+void gluckIdleCB();
+void gluckMouseCB(int button, int state, int x, int y);
+void gluckMotionCB( int x, int y);
+void gluckPassiveMotionCB( int x, int y);
+void gluckKeyboardCB( unsigned char key, int x, int y);
+void gluckSpecialCB( int key, int x, int y);
+void gluckReshapeCB( int x, int y );
+
+void gluckAddBufferedEvent( int type, int x, int y, int button, int state, unsigned char key, int skey, int mods);
+bool gluckHasEvents();
+int  gluckGetNextEvent();
+
+
+enum { EV_MOUSE, EV_MOTION, EV_PMOTION, EV_KEY, EV_SPECKEY, EV_NONE};
+
+struct gluckEvent { 
+    int type;
+    int x;
+    int y;
+    int button;
+    int state;
+    unsigned char key;
+    int skey;
+    int modifiers;
+    
+    gluckEvent() { 
+        type = EV_NONE;
+        x = 0;
+        y = 0;
+        button = 0;
+        state = 0;
+        key = '\0';
+        skey = 0;
+    }
+};
+
+struct gluckData { 
+
+    bool watchMouse;
+    bool watchMotion;
+    bool watchKeyboard;
+    
+    bool needDraw;
+    bool needEvent;
+    bool needIdle;
+    bool needReshape;
+    
+    int  windowID;
+    bool doubleBuffered;
+    
+    int  event_w;
+    int  event_r;
+    vector <struct gluckEvent> events;
+    int curmodifiers;
+    int  vp[4];
+    
+    gluckData( )
+    {
+        watchMouse = false; 
+        watchMotion = false; 
+        watchKeyboard = false; 
+    
+        needDraw = false;
+        needEvent = false;
+        needIdle = false;
+        needReshape = false;
+        
+        windowID = 0;
+        doubleBuffered = false;
+        
+        events.resize( 2 );
+        event_r = 0;
+        event_w = 1;
+        curmodifiers = 0;
+        
+        vp[0] =0;
+        vp[1] =0;
+        vp[2] =640;
+        vp[3] =480;       
+    }
+};
+
+struct gluckData * gluckstate;
+
+
 
 //-----------------------------------------------------------------------------
 // name: gluck_query()
@@ -53,7 +150,62 @@ CK_DLL_QUERY
 {
     QUERY->set_name( QUERY, "gluck" );
     
-    return TRUE;
+    //gluck functions
+    GLUCK_EXPORT ( void, InitBasicWindow );
+    GLUCK_PARAM  ( uint, name );
+
+    GLUCK_EXPORT ( void, InitSizedWindow );
+    GLUCK_PARAM  ( uint, name );
+    GLUCK_PARAM  ( int, x );
+    GLUCK_PARAM  ( int, y );
+    GLUCK_PARAM  ( int, w );
+    GLUCK_PARAM  ( int, h );
+    
+    GLUCK_EXPORT ( void, InitFullScreenWindow );
+    GLUCK_PARAM  ( uint, name );
+
+
+    //glut loop handlers...
+    GLUCK_EXPORT ( int, NeedDraw  );
+    GLUCK_EXPORT ( int, NeedEvent );
+    GLUCK_EXPORT ( int, NeedIdle  );
+
+    //glut event watching toggles
+    GLUCK_EXPORT ( void, WatchMouse );
+    GLUCK_PARAM  ( int, toggle );
+    
+    GLUCK_EXPORT ( void, WatchMotion );
+    GLUCK_PARAM  ( int, toggle );
+    
+    GLUCK_EXPORT ( void, WatchKeyboard );
+    GLUCK_PARAM  ( int, toggle );
+    
+    GLUCK_EXPORT ( void, InitCallbacks );    
+    GLUCK_PARAM  ( int, mouse );
+    GLUCK_PARAM  ( int, motion );
+    GLUCK_PARAM  ( int, keyboard );
+    
+    GLUCK_EXPORT ( int, HasEvents );
+    //kludgy stuff until we can pass events back out as objects...
+    GLUCK_EXPORT ( int, GetNextEvent );
+    GLUCK_EXPORT ( int, GetEventType );
+    GLUCK_PARAM  ( int, id );
+    GLUCK_EXPORT ( int, GetEventX );
+    GLUCK_PARAM  ( int, id );
+    GLUCK_EXPORT ( int, GetEventY );
+    GLUCK_PARAM  ( int, id );
+    GLUCK_EXPORT ( int, GetEventButton );
+    GLUCK_PARAM  ( int, id );
+    GLUCK_EXPORT ( int, GetEventState );
+    GLUCK_PARAM  ( int, id );
+    GLUCK_EXPORT ( uint, GetEventKey );
+    GLUCK_PARAM  ( int, id );
+    GLUCK_EXPORT ( int, GetEventSKey );
+    GLUCK_PARAM  ( int, id );
+    
+    
+    
+    //..standard glut library functions
 
     GLUCK_EXPORT ( void, Init );
     //Init should take argc, argv...but not yet..
@@ -125,14 +277,240 @@ CK_DLL_QUERY
     GLUCK_EXPORT ( void, SolidTeapot );
     GLUCK_PARAM  ( float , size );
 
+    return TRUE;
 }
 
+
+CK_DLL_FUNC ( gluck_InitBasicWindow_impl ) { 
+
+    t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(640, 480);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH);
+    gluckstate->doubleBuffered = true;
+
+    char title[] = "basicwindow";
+    glutCreateWindow((char*)title);
+    glViewport(0,0,640,480);
+}
+
+CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) { 
+    t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
+    int x = GET_CK_INT_N(ARGS,0);
+    int y = GET_CK_INT_N(ARGS,1);
+    int w = GET_CK_INT_N(ARGS,2);
+    int h = GET_CK_INT_N(ARGS,3);
+    
+    glutInitWindowPosition(x, y);
+    glutInitWindowSize(w, h);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH);
+    gluckstate->doubleBuffered = true;
+
+    char title[] = "sizedwindow";
+    glutCreateWindow((char*)title);
+    
+    glViewport(x,y,w,h);
+}
+
+CK_DLL_FUNC ( gluck_InitFullScreenWindow_impl ) { 
+
+    t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(640, 480);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH);
+    gluckstate->doubleBuffered = true;
+
+    char title[] = "fullscreenwindow";
+    glutCreateWindow((char*)title);
+    glutFullScreen();
+
+}
+
+CK_DLL_FUNC ( gluck_NeedDraw_impl ) { 
+    RETURN->v_int = gluckstate->needDraw;
+}
+
+CK_DLL_FUNC ( gluck_NeedEvent_impl ) { 
+    RETURN->v_int = gluckstate->needEvent;
+}
+
+CK_DLL_FUNC ( gluck_NeedIdle_impl ) { 
+    RETURN->v_int = gluckstate->needIdle;
+}
+
+CK_DLL_FUNC ( gluck_WatchMouse_impl ) { 
+    gluckstate->watchMouse      = ( GET_CK_INT(ARGS) != 0 );
+    if ( gluckstate->watchMouse ) { 
+        glutMouseFunc   (gluckMouseCB);
+    }
+    else { 
+        glutMouseFunc   (NULL);
+    }
+}
+
+CK_DLL_FUNC ( gluck_WatchMotion_impl ) { 
+    gluckstate->watchMotion     = ( GET_CK_INT(ARGS) != 0 );
+    if ( gluckstate->watchMotion ) { 
+        glutPassiveMotionFunc ( gluckPassiveMotionCB);
+        glutMotionFunc ( gluckMotionCB);
+    }
+    else { 
+        glutPassiveMotionFunc ( NULL );
+        glutMotionFunc ( NULL);
+    }    
+}
+
+CK_DLL_FUNC ( gluck_WatchKeyboard_impl ) { 
+    gluckstate->watchKeyboard   = ( GET_CK_INT(ARGS) != 0 );
+    if ( gluckstate->watchKeyboard ) { 
+        glutKeyboardFunc ( gluckKeyboardCB);
+        glutSpecialFunc  ( gluckSpecialCB );
+    }
+    else  { 
+        glutKeyboardFunc ( NULL );
+        glutSpecialFunc  ( NULL );
+    }
+}
+
+//gluck helper functions ( callbacks! );
+
+
+void gluckDisplayCB() { 
+    gluckstate->needDraw = true;
+}
+
+void gluckIdleCB() { 
+    gluckstate->needIdle = true;
+}
+
+void gluckReshapeCB(int x, int y) { 
+    glViewport (0,0, x, y );
+    gluckstate->needReshape = false;
+}
+
+void gluckMouseCB ( int button, int state, int x, int y) { 
+    gluckAddBufferedEvent ( EV_MOUSE, x, y , button, state, '\0', 0, glutGetModifiers() );
+}
+
+void gluckMotionCB ( int x, int y ) {
+    gluckAddBufferedEvent ( EV_MOUSE, x, y , 0, 0, '\0', 0, -1);
+}
+
+void gluckPassiveMotionCB( int x, int y) { 
+    gluckAddBufferedEvent ( EV_MOUSE, x, y , 0, 0, '\0', 0, -1);
+}
+
+void gluckKeyboardCB ( unsigned char key, int x, int y ) { 
+    gluckAddBufferedEvent ( EV_MOUSE, x, y , 0, 0, key, 0, glutGetModifiers());
+}
+
+void gluckSpecialCB ( int key, int x, int y ) { 
+    gluckAddBufferedEvent ( EV_MOUSE, x, y , 0, 0, '\0', key, glutGetModifiers());
+}
+
+void gluckAddBufferedEvent(  int type, int x, int y, int button, int state, unsigned char key, int skey, int mods ) {
+
+    gluckstate->events[gluckstate->event_w].x = x;
+    gluckstate->events[gluckstate->event_w].y = y;
+    gluckstate->events[gluckstate->event_w].button = button;
+    gluckstate->events[gluckstate->event_w].state = state;
+    gluckstate->events[gluckstate->event_w].key = key;
+    gluckstate->events[gluckstate->event_w].skey = skey;
+    if ( mods >= 0 ) gluckstate->curmodifiers = mods;
+    gluckstate->events[gluckstate->event_w].modifiers = gluckstate->curmodifiers;
+        
+    int nextw = (gluckstate->event_w+1) % gluckstate->events.size(); 
+    if ( nextw == gluckstate->event_r ) { 
+        //resize dynamically,
+        gluckstate->events.insert(gluckstate->events.begin() + gluckstate->event_r, gluckstate->events[gluckstate->event_r]);
+        gluckstate->event_r = (gluckstate->event_r+1);
+    }
+    gluckstate->event_w = nextw;
+    gluckstate->needEvent = true;
+} 
+bool gluckHasEvents() { 
+    return (  (gluckstate->event_r+1) % GLUCKEVENTBUFFERSIZE  != gluckstate->event_w );
+}
+int gluckGetNextEvent() { 
+    if ( gluckHasEvents() ) { 
+        gluckstate->event_r = (gluckstate->event_r+1) % GLUCKEVENTBUFFERSIZE;
+        return gluckstate->event_r;
+    }
+    else return -1;
+}
+
+CK_DLL_FUNC( gluck_HasEvents_impl ) {
+    RETURN->v_int = gluckHasEvents() ? 1 : 0 ; 
+}
+
+CK_DLL_FUNC( gluck_GetNextEvent_impl ) {
+    RETURN->v_int = gluckGetNextEvent();
+}
+
+CK_DLL_FUNC( gluck_GetEventType_impl ) { 
+    int id = GET_CK_INT(ARGS);
+    RETURN->v_int = gluckstate->events[id].type;
+}
+
+
+CK_DLL_FUNC( gluck_GetEventX_impl ) { 
+    int id = GET_CK_INT(ARGS);
+    RETURN->v_int = gluckstate->events[id].x;
+}
+
+CK_DLL_FUNC( gluck_GetEventY_impl )  {
+    int id = GET_CK_INT(ARGS);
+    RETURN->v_int = gluckstate->events[id].y;
+}
+
+CK_DLL_FUNC( gluck_GetEventButton_impl ){
+    int id = GET_CK_INT(ARGS);
+    RETURN->v_int = gluckstate->events[id].button;
+}
+
+CK_DLL_FUNC( gluck_GetEventState_impl ) {
+    int id = GET_CK_INT(ARGS);
+    RETURN->v_int = gluckstate->events[id].state;
+}
+
+CK_DLL_FUNC( gluck_GetEventKey_impl ) {
+    int id = GET_CK_INT(ARGS);
+    RETURN->v_uint = (uint) gluckstate->events[id].key;
+}
+
+CK_DLL_FUNC( gluck_GetEventSKey_impl ) {
+    int id = GET_CK_INT(ARGS);
+    RETURN->v_int = gluckstate->events[id].skey;
+}
+
+
+CK_DLL_FUNC ( gluck_InitCallbacks_impl ) { 
+
+    gluckstate->watchMouse      = ( GET_CK_INT_N(ARGS, 0) != 0 );
+    gluckstate->watchMotion     = ( GET_CK_INT_N(ARGS, 1) != 0 );
+    gluckstate->watchKeyboard   = ( GET_CK_INT_N(ARGS, 2) != 0 );
+    
+    glutDisplayFunc (gluckDisplayCB);
+    glutReshapeFunc (gluckReshapeCB);
+    if ( gluckstate->watchMouse ) { 
+        glutMouseFunc   (gluckMouseCB);
+    }
+    if ( gluckstate->watchMotion ) { 
+        glutPassiveMotionFunc ( gluckPassiveMotionCB);
+        glutMotionFunc ( gluckMotionCB);
+    }
+    if ( gluckstate->watchKeyboard ) { 
+        glutKeyboardFunc ( gluckKeyboardCB);
+        glutSpecialFunc  ( gluckSpecialCB );
+    }
+}
 
 //
 CK_DLL_FUNC( gluck_Init_impl )
 {
   char base[] = "chuck";
   int  num = 1;
+  gluckstate = new gluckData;
   glutInit(&num, (char**)&base);
 }
 
@@ -147,7 +525,7 @@ CK_DLL_FUNC( gluck_InitWindowSize_impl )
 {
   int w = GET_CK_INT_N(ARGS,0);
   int h = GET_CK_INT_N(ARGS,1);
-  glutInitWindowPosition(w, h);
+  glutInitWindowSize(w, h);
 }
 
 CK_DLL_FUNC( gluck_InitDisplayMode_impl )
@@ -166,6 +544,10 @@ CK_DLL_FUNC( gluck_InitDisplayString_impl )
 
 CK_DLL_FUNC( gluck_MainLoopEvent_impl )
 {
+  gluckstate->needDraw = 0;
+  gluckstate->needEvent = 0;
+  gluckstate->needIdle = 0;
+  gluckstate->needReshape = 0;
   glutMainLoopEvent();
 }
 
@@ -174,8 +556,8 @@ CK_DLL_FUNC( gluck_CreateWindow_impl )
   //  t_CKSTRING mode = GET_CK_STRING_N(ARGS,0);
   t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
   char title[] = "=gluck>";
-  RETURN->v_int = glutCreateWindow( (char*)title );
-}
+  gluckstate->windowID = glutCreateWindow( (char*)title );
+  RETURN->v_int = gluckstate->windowID; }
 
 CK_DLL_FUNC( gluck_DestroyWindow_impl )
 {
@@ -223,6 +605,8 @@ CK_DLL_FUNC( gluck_HideWindow_impl )
 CK_DLL_FUNC( gluck_FullScreen_impl )
 {
   glutFullScreen();
+  glGetIntegerv(GL_VIEWPORT, gluckstate->vp);
+
 }
 
 CK_DLL_FUNC( gluck_PostWindowRedisplay_impl )
@@ -238,7 +622,7 @@ CK_DLL_FUNC( gluck_PostRedisplay_impl )
 
 CK_DLL_FUNC( gluck_SwapBuffers_impl )
 {
-  glutSwapBuffers();
+  if ( gluckstate->doubleBuffered ) glutSwapBuffers();
 }
 
 CK_DLL_FUNC( gluck_StrokeCharacter_impl )

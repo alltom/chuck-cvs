@@ -125,6 +125,15 @@ CK_DLL_QUERY
     GL_CKADDPARAM ( float, x );
     GL_CKADDPARAM ( float, y );
     GL_CKADDPARAM ( float, z );
+    
+    GL_CKADDEXPORT( void, Ortho );
+    GL_CKADDPARAM(float, left );
+    GL_CKADDPARAM(float, right );
+    GL_CKADDPARAM(float, bottom );
+    GL_CKADDPARAM(float, top );
+    GL_CKADDPARAM(float, znear );
+    GL_CKADDPARAM(float, zfar );
+    
 
     GL_CKADDEXPORT( void, PushAttrib );
     GL_CKADDPARAM ( uint, which );
@@ -344,6 +353,17 @@ CK_DLL_FUNC( gl_Normal3f_impl ) {
     t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
     t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
     glNormal3d(x,y,z);
+}
+
+CK_DLL_FUNC( gl_Ortho_impl )
+{
+    t_CKFLOAT left = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT right = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT bottom = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT top = GET_CK_FLOAT_N(ARGS,3);
+    t_CKFLOAT znear = GET_CK_FLOAT_N(ARGS,4);
+    t_CKFLOAT zfar = GET_CK_FLOAT_N(ARGS,5);
+    glOrtho(left,right,bottom,top,znear,zfar);
 }
 
 CK_DLL_FUNC( gl_PushAttrib_impl ) {   

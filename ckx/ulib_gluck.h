@@ -40,28 +40,35 @@
 //DLL_QUERY gluck_query( Chuck_DL_Query * QUERY );
 CK_DLL_QUERY;
 
-// exports
-CK_DLL_FUNC( gluck__impl );
+// internals
 
 //gluck 'shortcut' functions
-CK_DLL_FUNC( gluck_BasicWindow_impl ); // -arg for name, - makes double buff, RGBA, depth, 0,0, 640 x 480
-CK_DLL_FUNC( gluck_SizedWindow_impl ); // -arg for name, x, y, w,h - basicwindow with size
-CK_DLL_FUNC( gluck_FullScreenWindow_impl ); // -arg for name, x, y - fullscreen mode
-
-//functions to toggle what events we track
-CK_DLL_FUNC( gluck_CatchMouse_impl );
-CK_DLL_FUNC( gluck_CatchMotion_impl );
-CK_DLL_FUNC( gluck_CatchKeyboard_impl );
-
-//functions to help shred loops work while
-//we see about doing a callback-type thing 
-//in chucK..
+CK_DLL_FUNC( gluck_InitBasicWindow_impl ); // -arg for name, - makes double buff, RGBA, depth, 0,0, 640 x 480
+CK_DLL_FUNC( gluck_InitSizedWindow_impl ); // -arg for name, x, y, w,h - basicwindow with size
+CK_DLL_FUNC( gluck_InitFullScreenWindow_impl ); // -arg for name - fullscreen mode
 
 CK_DLL_FUNC( gluck_NeedDraw_impl );
 CK_DLL_FUNC( gluck_NeedIdle_impl );
 CK_DLL_FUNC( gluck_NeedEvent_impl );
 
-//map standard glut calls for completeness
+//functions to toggle what events we track
+CK_DLL_FUNC( gluck_WatchMouse_impl );
+CK_DLL_FUNC( gluck_WatchMotion_impl );
+CK_DLL_FUNC( gluck_WatchKeyboard_impl );
+CK_DLL_FUNC( gluck_InitCallbacks_impl );
+
+CK_DLL_FUNC( gluck_HasEvents_impl );
+CK_DLL_FUNC( gluck_GetNextEvent_impl );
+CK_DLL_FUNC( gluck_GetEventType_impl );
+CK_DLL_FUNC( gluck_GetEventX_impl );
+CK_DLL_FUNC( gluck_GetEventY_impl );
+CK_DLL_FUNC( gluck_GetEventButton_impl );
+CK_DLL_FUNC( gluck_GetEventState_impl );
+CK_DLL_FUNC( gluck_GetEventKey_impl );
+CK_DLL_FUNC( gluck_GetEventSKey_impl );
+
+
+//map some standard glut calls
 CK_DLL_FUNC( gluck_Init_impl );
 CK_DLL_FUNC( gluck_InitWindowPosition_impl );
 CK_DLL_FUNC( gluck_InitWindowSize_impl );
