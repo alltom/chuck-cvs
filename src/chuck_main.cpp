@@ -517,6 +517,7 @@ void * timer( void * p )
 void * cb( void * p )
 {
     Net_Msg msg;
+    Net_Msg ret;
     ck_socket client;
     int n;
 
@@ -567,22 +568,27 @@ void * cb( void * p )
             {
                 if( !process_msg( &msg, FALSE, client ) )
                 {
-                    msg.param = FALSE;
-                    strcpy( (char *)msg.buffer, EM_lasterror() );
+                    ret.param = FALSE;
+                    strcpy( (char *)ret.buffer, EM_lasterror() );
+                    while( msg.type != MSG_DONE && n )
+                    {
+                        n = ck_recv( client, (char *)&msg, sizeof(msg) );
+                        otf_ntoh( &msg );
+                    }
                     break;
                 }
                 else
                 {
-                    msg.param = TRUE;
-                    strcpy( (char *)msg.buffer, "success" );
+                    ret.param = TRUE;
+                    strcpy( (char *)ret.buffer, "success" );
                     n = ck_recv( client, (char *)&msg, sizeof(msg) );
                     otf_ntoh( &msg );
                 }
             }
         }
         
-        otf_hton( &msg );
-        ck_send( client, (char *)&msg, sizeof(msg) );
+        otf_hton( &ret );
+        ck_send( client, (char *)&ret, sizeof(ret) );
         ck_close( client );
     }
     
@@ -816,8 +822,8 @@ int main( int argc, char ** argv )
                 g_priority = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : 0xffffffff;
             else if( !strncmp(argv[i], "--remote", 8) )
                 strcpy( g_host, argv[i]+8 );
-            else if( !strncmp(argv[i], "-m", 2) )
-                strcpy( g_host, argv[i]+2 );
+            else if( !strncmp(argv[i], "@", 1) )
+                strcpy( g_host, argv[i]+1 );
             else if( !strncmp(argv[i], "--port", 6) )
                 g_port = atoi( argv[i]+6 );
             else if( !strncmp(argv[i], "-p", 2) )
