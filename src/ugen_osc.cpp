@@ -210,7 +210,7 @@ UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     if ( d->sync == 1 )  d->t = (double) now;
     float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
     ph -= floor ( ph );
-    *out = (SAMPLE) ( ph != 0.0 && ph <= width ) ? ph / width : 0.0 ;
+    *out = (SAMPLE) ( d->width != 0.0 && ph <= d->width ) ? ph / d->width : 0.0 ;
  
     if ( !d->sync ) d->t += 1.0;
 
