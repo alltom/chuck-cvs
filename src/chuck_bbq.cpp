@@ -43,7 +43,7 @@
 //-----------------------------------------------------------------------------
 BBQ::BBQ()
 {
-    m_max_midi_device = 128;
+    m_max_midi_device = 1024;
     m_digi_out = new DigitalOut;
     m_digi_in = new DigitalIn;
     m_midi_out = new MidiOut * [m_max_midi_device];

@@ -129,7 +129,7 @@ Chuck_VM::Chuck_VM()
 //-----------------------------------------------------------------------------
 Chuck_VM::~Chuck_VM()
 {
-    if( m_init ) shutdown();
+    //if( m_init ) shutdown();
 }
 
 
@@ -258,7 +258,7 @@ t_CKBOOL Chuck_VM::shutdown()
     {
         prev = curr;
         curr = curr->next;
-        delete prev;
+        // delete prev;
     }
 
     m_shreds = NULL;
@@ -272,7 +272,7 @@ t_CKBOOL Chuck_VM::shutdown()
         m_bbq->digi_out()->cleanup();
         m_bbq->digi_in()->cleanup();
         m_bbq->shutdown();
-        m_bbq = NULL;
+        SAFE_DELETE( m_bbq );
         m_audio = FALSE;
     }
 

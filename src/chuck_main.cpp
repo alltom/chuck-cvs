@@ -97,6 +97,7 @@ void signal_int( int sig_num )
         g_vm = NULL;
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
+        usleep( 50000 );
         vm->shutdown();
         pthread_kill( g_tid, 2 );
         usleep( 100000 );
@@ -106,6 +107,17 @@ void signal_int( int sig_num )
     exit(2);
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: signal_int2()
+// desc: ...
+//-----------------------------------------------------------------------------
+void signal_int2( int sig_num )
+{
+    // exit(2);
+}
 
 
 
@@ -351,6 +363,11 @@ t_CKBOOL load_internal_modules( t_Env env )
 void * cb( void * p )
 {
     Msg msg;
+
+#ifndef __WINDOWS_DS__
+    // catch SIGINT
+    signal( SIGINT, signal_int2 );
+#endif
 
     while( true )
     {
@@ -671,6 +688,13 @@ int main( int argc, char ** argv )
 
     // run the vm
     vm->run();
-    
+
+    // done - clean up
+    vm->shutdown();
+    usleep( 50000 );
+    pthread_kill( g_tid, 2 );
+    usleep( 100000 );
+    delete( vm );
+
     return 0;
 }
