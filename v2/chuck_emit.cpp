@@ -153,7 +153,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     // clear the code stack
     emit->stack.clear();
     // name the code
-    emit->code->name = "[shred main]";
+    emit->code->name = "(shred main)";
 
     // loop over the program sections
     while( prog && ret )
