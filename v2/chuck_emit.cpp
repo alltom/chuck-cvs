@@ -231,9 +231,9 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     {
         // name of what we are dumping
         EM_error2( 0, "dumping %s:", in->name.c_str() );
-        EM_error2( 0, "-------" );
 
         // uh
+        EM_error2( 0, "-------" );
         for( t_CKUINT i = 0; i < code->num_instr; i++ )
             EM_error2( 0, "[%i] %s( %s )", i, 
                code->instr[i]->name(), code->instr[i]->params() );
@@ -945,10 +945,13 @@ t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt )
     if( !emit_engine_emit_exp( emit, stmt->val ) )
         return FALSE;
 
+    // emit return
+    emit->append( new Chuck_Instr_Func_Return );
+
     // determine where later
-    Chuck_Instr_Goto * instr = new Chuck_Instr_Goto( 0 );
-    emit->append( instr );
-//    emit->returns.push_back( instr );
+    // Chuck_Instr_Goto * instr = new Chuck_Instr_Goto( 0 );
+    // emit->append( instr );
+    // emit->code->return_stack.push_back( instr );
 
     return TRUE;
 }
