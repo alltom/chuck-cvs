@@ -34,6 +34,7 @@
 //         Ge Wang (gewang@cs.princeton.edu)
 //-----------------------------------------------------------------------------
 #include "util_network.h"
+#include "chuck_utils.h"
 
 #if defined(__PLATFORM_WIN32__)
 #include <winsock.h>
@@ -56,7 +57,9 @@
 struct ck_socket_
 {
     int sock;
+    int prot;
     struct sockaddr_in sock_in;
+    int len;
 
 #ifndef __PLATFORM_WIN32__
 };
@@ -77,7 +80,7 @@ int ck_socket_::init = 0;
 //-----------------------------------------------------------------------------
 ck_socket ck_udp_create( )
 {
-    ck_socket sock = (ck_socket)calloc( 1, sizeof( struct ck_socket_ ) );
+    ck_socket sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
 
 #ifdef __PLATFORM_WIN32__
     // winsock init
@@ -89,6 +92,33 @@ ck_socket ck_udp_create( )
 #endif
 
     sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
+    sock->prot = SOCK_DGRAM;
+
+    return sock;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_tcp_create()
+// desc: create a tcp socket
+//-----------------------------------------------------------------------------
+ck_socket ck_tcp_create( )
+{
+    ck_socket sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
+
+#ifdef __PLATFORM_WIN32__
+    // winsock init
+    if( ck_socket_::init == 0 )
+        WSAStartup( MAKEWORD(1,1), &(ck_socket_::wsd) );
+
+    // count
+    ck_socket_::init++;
+#endif
+
+    sock->sock = socket( AF_INET, SOCK_STREAM, 0 );
+    sock->prot = SOCK_STREAM;
 
     return sock;
 }
@@ -175,6 +205,48 @@ t_CKBOOL ck_bind( ck_socket sock, int port )
         sizeof(struct sockaddr_in));
 
     return ( ret >= 0 );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_listen()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL ck_listen( ck_socket sock, int backlog )
+{
+    int ret;
+    
+    if( sock->prot != SOCK_STREAM ) return FALSE;
+    ret = listen( sock->sock, backlog );
+    
+    return ( ret >= 0 );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_accept()
+// desc: ...
+//-----------------------------------------------------------------------------
+ck_socket ck_accept( ck_socket sock )
+{
+    ck_socket client;
+    
+    if( sock->prot != SOCK_STREAM ) return FALSE;
+    client = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
+    client->len = sizeof( client->sock_in );
+    client->sock = accept( sock->sock, (struct sockaddr *)&client->sock_in,
+        &client->len );
+    if( !client->sock ) goto error;
+    
+    return client;
+
+error:
+    free( client );
+    return NULL;
 }
 
 
