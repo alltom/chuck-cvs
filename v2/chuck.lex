@@ -198,6 +198,7 @@ public                  { adjust(); return PUBLIC; }
 protected               { adjust(); return PROTECTED; }
 private                 { adjust(); return PRIVATE; }
 static                  { adjust(); return STATIC; }
+abstract                { adjust(); return ABSTRACT; }
 const                   { adjust(); return CONST; }
 spork                   { adjust(); return SPORK; }
 typeof                  { adjust(); return TYPEOF; }

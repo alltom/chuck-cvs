@@ -231,6 +231,7 @@ function_decl
 
 static_decl
         : STATIC                            { $$ = ae_key_static; }
+        |                                   { $$ = ae_key_abstract; }
         |                                   { $$ = 0; }
         ;
 
