@@ -3,7 +3,7 @@ noise n => biquad f => dac;
 // set biquad pole radius
 .99 => f.prad;
 // set biquad gain
-.1 => f.gain;
+.025 => f.gain;
 // set equal zeros 
 1 => f.eqzs;
 // our float

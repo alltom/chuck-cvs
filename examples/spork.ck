@@ -7,13 +7,13 @@ fun void foo( string s )
         s => stdout;
         500::ms => now;
     }
-    "no" => stdout;
 }
 
 spork ~ foo( "you" );
 250::ms => now;
 spork ~ foo( "me" );
 
-// infinite time loop
+
+// infinite time loop - children shreds leave with parent shred
 while( true )
     1::second => now;
