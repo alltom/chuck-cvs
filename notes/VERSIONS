@@ -1,5 +1,28 @@
 
 ---
+1.1.4.5 - 2004.8.14
+  - fixed bug for multiple declarations
+  - made functions local to shred by default
+  - shadowing now works
+  - add 'blackhole' ugen for ticking ugens
+
+new ugens:
+  - blackhole - the silent sample sucker
+  - Wurley (STK)
+  - Rhodey (STK)
+  - OnePole (STK)
+  - OneZero (STK)
+  - PoleZero (STK)
+  - TwoPole (STK)
+  - TwoZero (STK)
+
+new examples:
+  - powerup.ck ( (ab)use of TwoPole and sporking)
+  - i-robot (building feedback filters)
+  - voic-o-form.ck (music for replicants)
+  - rhodey/wurley.ck (more stk-o-matics)
+
+---
 1.1.4.4 - 2004.8.2
   - added sndfile patch for jack/sndfile (Martin Rumori)
   - added special raw wav for WaveLoop (philipd, gewang)
