@@ -275,8 +275,6 @@ struct Chuck_Type : public Chuck_VM_Object
     Chuck_Type * parent;
     // size (in bytes)
     t_CKUINT size;
-    // reference
-    t_CKBOOL ref;
 	// owner of the type
 	Chuck_Namespace * owner;
     // array type
@@ -298,14 +296,14 @@ public:
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
       array_type = NULL; array_depth = 0; self_size = 0; info = NULL;
-      func = NULL; def = NULL; ref = FALSE; }
+      func = NULL; def = NULL; }
     // destructor
     ~Chuck_Type() { reset(); }
     // reset
     void reset()
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
       array_type = NULL; if( info ) info->release(); 
-      owner = info = NULL; func = NULL; ref = FALSE; }
+      owner = info = NULL; func = NULL; }
     // assignment - this does not touch the Chuck_VM_Object
     const Chuck_Type & operator =( const Chuck_Type & rhs )
     {
@@ -321,7 +319,6 @@ public:
       this->self_size = rhs.self_size;
       this->size = rhs.size;
       this->def = rhs.def;
-      this->ref = rhs.ref;
 
       // TODO: fix this reference counting mess
       // add references
@@ -427,6 +424,7 @@ t_CKBOOL operator !=( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs );
 t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs );
+t_CKBOOL isprim( Chuck_Type * type );
 
 
 

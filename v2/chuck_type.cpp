@@ -2665,6 +2665,8 @@ t_CKBOOL type_engine_check_primitive( Chuck_Type * type )
     return ( isa(type, &t_int) || isa(type, &t_float) || isa(type, &t_dur) ||
              isa(type, &t_time) );
 }
+t_CKBOOL isprim( Chuck_Type * type )
+{   return type_engine_check_primitive( type ); }
 
 
 
