@@ -148,6 +148,10 @@ protected:
     GigaMsg m_msg;
     t_CKUINT m_len;
     t_CKBYTE m_buffer[0x8000];
+
+    SAMPLE m_writebuf[0x8000];
+    SAMPLE * m_ptr_w;
+    SAMPLE * m_ptr_end;
 };
 
 
@@ -185,6 +189,10 @@ protected:
     GigaMsg m_msg;
     t_CKUINT m_len;
     t_CKBYTE m_buffer[0x8000];
+    
+    SAMPLE m_readbuf[0x8000];
+    SAMPLE * m_ptr_r;
+    SAMPLE * m_ptr_end;
 };
 
 
@@ -201,6 +209,9 @@ GigaSend::GigaSend( )
     m_buffer_size = 0;
     m_hostname = "127.0.0.1";
     m_port = 8890;
+    m_msg.seq_num = 0;
+    m_ptr_w = m_writebuf;
+    m_ptr_end = NULL;
 }
 t_CKBOOL GigaSend::good( ) { return m_sock != NULL; }
 
@@ -251,11 +262,12 @@ t_CKBOOL GigaSend::connect( const char * hostname, int port )
 //-----------------------------------------------------------------------------
 t_CKBOOL GigaSend::set_bufsize( t_CKUINT bufsize )
 {
-    m_buffer_size = bufsize;
-    m_len = sizeof(GigaMsg) + bufsize - sizeof( m_msg.payload );
+    m_buffer_size = bufsize * sizeof(SAMPLE);
+    m_len = sizeof(GigaMsg) + m_buffer_size - sizeof( m_msg.payload );
     m_msg.type = 0;
-    m_msg.len = m_len;
-    m_msg.seq_num = 0;
+    m_msg.len = bufsize;
+    m_ptr_w = m_writebuf;
+    m_ptr_end = m_writebuf + bufsize;
 
     return TRUE;
 }
@@ -332,6 +344,15 @@ t_CKBOOL GigaSend::send( const t_CKBYTE * buffer )
 //-----------------------------------------------------------------------------
 t_CKBOOL GigaSend::tick_out( SAMPLE sample )
 {
+    // send
+    if( m_ptr_w >= m_ptr_end )
+    {
+        this->send( (t_CKBYTE *)m_writebuf );
+        m_ptr_w = m_writebuf;
+    }
+
+    *m_ptr_w++ = sample;
+    
     return TRUE;
 }
 
@@ -346,6 +367,9 @@ GigaRecv::GigaRecv( )
 {
     m_sock = NULL;
     m_buffer_size = 0;
+    m_msg.seq_num = 1;
+    m_ptr_r = NULL;
+    m_ptr_end = NULL;
 }
 t_CKBOOL GigaRecv::good( ) { return m_sock != NULL; }
 
@@ -383,6 +407,7 @@ t_CKBOOL GigaRecv::listen( int port )
     }
     
     m_port = port;
+    m_msg.seq_num = 1;
     
     return TRUE;
 }
@@ -418,7 +443,6 @@ t_CKBOOL GigaRecv::set_bufsize( t_CKUINT bufsize )
     m_len = sizeof(GigaMsg) + bufsize - sizeof( m_msg.payload );
     m_msg.type = 0;
     m_msg.len = m_len;
-    m_msg.seq_num = 1;
 
     return TRUE;
 }
@@ -438,7 +462,7 @@ t_CKBOOL GigaRecv::recv( t_CKBYTE * buffer )
     if( !m_sock )
         return FALSE;
 
-    do{ ck_recv( m_sock, (char *)m_buffer, m_len ); }
+    do{ ck_recv( m_sock, (char *)m_buffer, 0x8000 ); }
     while( msg->seq_num < m_msg.seq_num );
 
     if( msg->seq_num > (m_msg.seq_num + 1) )
@@ -446,8 +470,10 @@ t_CKBOOL GigaRecv::recv( t_CKBYTE * buffer )
              << " got: " << msg->seq_num << endl;
 
     m_msg.seq_num = msg->seq_num;
+    m_ptr_r = m_readbuf;
+    m_ptr_end = m_readbuf + msg->len;
 
-    memcpy( buffer, m_buffer + sizeof( unsigned int ) * 3, m_buffer_size );
+    memcpy( buffer, m_buffer + sizeof( unsigned int ) * 3, m_msg.len * sizeof(SAMPLE) );
 
     return TRUE;
 }
@@ -473,6 +499,14 @@ t_CKBOOL GigaRecv::expire()
 //-----------------------------------------------------------------------------
 t_CKBOOL GigaRecv::tick_in( SAMPLE * sample )
 {
+    if( m_ptr_r >= m_ptr_end )
+    {
+        this->recv( (t_CKBYTE *)m_readbuf );
+        m_ptr_r = m_readbuf;
+    }
+    
+    *sample = *m_ptr_r++;
+    
     return TRUE;
 }
 
