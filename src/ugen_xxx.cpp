@@ -568,6 +568,7 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
    else  { 
       double dt = ( now - d->writeoff_target_time ) / ( d->writeoff_window_time ); 
       d->writeoff = d->writeoff_target + dt * ( d->writeoff_target - d->writeoff_start );
+      //      fprintf (stderr, "dt %f, off %f , start %f target %f\n", dt, d->writeoff,  d->writeoff_start, d->writeoff_target );
    }
 
    //fprintf(stderr, "writeoff : %f %f %f %f %f\n", d->writeoff, d->writeoff_target, d->writeoff_start, now, d->writeoff_target_time );  
@@ -589,7 +590,7 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
       smax = floor ( nowpos );
       for ( i = smin ; i <= smax ; i++ ) { 
          sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
-         //fprintf( stderr, "new sample %f %f %f \n", in, sampi, d->sample_last );
+	   //	   fprintf( stderr, "new sample %d %f %f %f \n", i,  in, sampi, d->sample_last );
          d->buffer[i%d->bufsize] += sampi;
       }
    }
@@ -598,7 +599,6 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
       smax = floor ( lastpos );
       for ( i = smin ; i <= smax ; i++ ) 
          sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
-         //fprintf( stderr, "new sample %f %f %f \n", in, sampi, d->sample_last );
          d->buffer[i%d->bufsize] += sampi ;   
    }
 
