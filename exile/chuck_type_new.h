@@ -117,6 +117,7 @@ protected:
 struct Chuck_Type;
 struct Chuck_Value;
 struct Chuck_Func;
+class  Chuck_VM_Code;
 
 
 //-----------------------------------------------------------------------------
@@ -153,10 +154,28 @@ struct Chuck_Env
     Chuck_Func * lookup_func( const string & name, t_CKBOOL climb = TRUE );
     // look up class
     Chuck_Env * lookup_class( const string & name, t_CKBOOL climb = TRUE );
-    // look up namespace
-    Chuck_Env * lookup_nspc( const string & name, t_CKBOOL climb = TRUE );
     // look up addr
     void * lookup_addr( const string & name, t_CKBOOL climb = TRUE );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Context
+// desc: runtime type information pertaining to a file
+//-----------------------------------------------------------------------------
+struct Chuck_Context
+{
+    // current type scope
+    Chuck_Scope<Chuck_Env *> env;
+    // current exp env
+    Chuck_Env * exp_env;
+    // src_name
+    string src_name;
+
+    // list of all context
+    static vector<Chuck_Context *> all;
 };
 
 
@@ -213,10 +232,12 @@ struct Chuck_Value
 //-----------------------------------------------------------------------------
 struct Chuck_Func
 {
-    // func def from parser
-    a_Func_Def def;
     // name
     string name;
+    // func def from parser
+    a_Func_Def def;
+    // VM code
+    Chuck_VM_Code * code;
 };
 
 
