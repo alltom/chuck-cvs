@@ -45,7 +45,7 @@
 //-----------------------------------------------------------------------------
 struct Chuck_Type t_void = { te_void, "void", NULL, 0 };
 struct Chuck_Type t_int = { te_int, "int", NULL, sizeof(t_CKINT) };
-struct Chuck_Type t_float = { te_float, "float", NULL, sizeof(double) };
+struct Chuck_Type t_float = { te_float, "float", NULL, sizeof(t_CKFLOAT) };
 struct Chuck_Type t_time = { te_time, "time", NULL, sizeof(t_CKTIME) };
 struct Chuck_Type t_dur = { te_dur, "dur", NULL, sizeof(t_CKTIME) };
 struct Chuck_Type t_object = { te_object, "object", NULL, sizeof(void *) };
@@ -342,7 +342,6 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             env->context->nspc.value.pop();
             break;
 
-        // TODO: implement the following
         case ae_stmt_switch:
             ret = type_engine_check_switch( env, &stmt->stmt_switch );
             break;
@@ -356,15 +355,14 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             break;
 
         case ae_stmt_break:
-            // ret = type_engine_check_break( env, &stmt->break );
+            ret = type_engine_check_break( env, &stmt->stmt_break );
             break;
 
         case ae_stmt_continue:
-            // ret = type_engine_check_continue( env, &stmt->break );
+            ret = type_engine_check_continue( env, &stmt->stmt_continue );
             break;
 
         //case ae_stmt_func:
-        //    // env->print( "func_def" );
         //    ret = type_engine_check_func_def( env, stmt->stmt_func );
         //    break;
         
