@@ -2284,6 +2284,36 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     func->is_member = (f->static_decl != ae_key_static) && 
                       (env->class_def != NULL);
 
+    // make a new type for the function
+    type = env->context->new_Chuck_Type();
+    type->id = te_function;
+    type->name = "[function]";
+    type->parent = &t_function;
+    type->size = sizeof(void *);
+    type->func = func;
+
+    // make new value
+    value = env->context->new_Chuck_Value( type, S_name(f->name) );
+    // it is const
+    value->is_const = TRUE;
+    // remember the owner
+    value->owner = env->curr;
+    value->owner_class = env->class_def;
+    value->is_member = !f->static_decl && (env->class_def != NULL);
+    // is global context
+    value->is_context_global = env->class_def == NULL;
+    // remember the func
+    value->func_ref = func;
+    // remember the value
+    func->value_ref = value;
+    // add as value
+    env->curr->value.add( f->name, value );
+    // enter the name into the function table
+    env->curr->func.add( f->name, func );
+
+    // set the func
+    f->ck_func = func;
+
     // set the current function to this
     env->func = func;
     // push the value stack
@@ -2531,36 +2561,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 
     // pop the value stack
     env->curr->value.pop();
-
-    // make a new type for the function
-    type = env->context->new_Chuck_Type();
-    type->id = te_function;
-    type->name = "[function]";
-    type->parent = &t_function;
-    type->size = sizeof(void *);
-    type->func = func;
-
-    // make new value
-    value = env->context->new_Chuck_Value( type, S_name(f->name) );
-    // it is const
-    value->is_const = TRUE;
-    // remember the owner
-    value->owner = env->curr;
-    value->owner_class = env->class_def;
-    value->is_member = !f->static_decl && (env->class_def != NULL);
-    // is global context
-    value->is_context_global = env->class_def == NULL;
-    // remember the func
-    value->func_ref = func;
-    // remember the value
-    func->value_ref = value;
-    // add as value
-    env->curr->value.add( f->name, value );
-    // enter the name into the function table
-    env->curr->func.add( f->name, func );
-
-    // set the func
-    f->ck_func = func;
+    
     // clear the env's function definition
     env->func = NULL;
 
