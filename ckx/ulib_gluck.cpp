@@ -477,30 +477,44 @@ CK_DLL_QUERY
     //..standard glut library functions
     //! \section Initialization
 
-    //! _MUST_ be first gluck function called
+    //! This <b>MUST</b> be first gluck function called
+    //! in your ChucK application
+
     GLUCK_CKADDEXPORT ( int, Init ); 
 
     //Init should take argc, argv...but not yet..
+
+    //! Sets the initial position ( pixels, relative to upper left ) 
+    //! of subsequent windows.
 
     GLUCK_CKADDEXPORT ( int, InitWindowPosition );
     GLUCK_CKADDPARAM  ( int , x );
     GLUCK_CKADDPARAM  ( int , y );
 
+    //! Sets the initial window size ( pixels ) for any subsequent windows
     GLUCK_CKADDEXPORT ( int, InitWindowSize );
     GLUCK_CKADDPARAM  ( int , w );
     GLUCK_CKADDPARAM  ( int , h );
 
+    //! Sets initial display mode ( as flag arguments ) 
     GLUCK_CKADDEXPORT ( int, InitDisplayMode );
     GLUCK_CKADDPARAM  ( uint , displayMode );
+    
+    //! Sets intial display mode using a string
 
     GLUCK_CKADDEXPORT ( int, InitDisplayString );
     GLUCK_CKADDPARAM  ( string , displayMode );
 
     //! \section Window Shortcuts ( Init must be called ) 
 
+    //! sets up a simple 640x480 RGBA window
+    //! double buffered, with depth testing and blending enabled
     GLUCK_CKADDEXPORT ( int, InitBasicWindow );
     GLUCK_CKADDPARAM  ( string, name );
 
+    //! similar to InitBasicWindow, but takes arguments 
+    //! for the initial screen dimensions ( x y w h ) 
+    //! of your window
     GLUCK_CKADDEXPORT ( int, InitSizedWindow );
     GLUCK_CKADDPARAM  ( string, name );
     GLUCK_CKADDPARAM  ( int, x );
@@ -508,6 +522,7 @@ CK_DLL_QUERY
     GLUCK_CKADDPARAM  ( int, w );
     GLUCK_CKADDPARAM  ( int, h );
     
+    //! creates a full screen window
     GLUCK_CKADDEXPORT ( int, InitFullScreenWindow );
     GLUCK_CKADDPARAM  ( string, name );
 
@@ -540,7 +555,8 @@ CK_DLL_QUERY
     //! glut to handle its business
     //! we call this instead of the more
     //! common glutMainLoop so that we 
-    //! can return control to ChucK
+    //! can return control for timing 
+    //! and other functionality to ChucK
     GLUCK_CKADDEXPORT ( int, MainLoopEvent );
 
 
@@ -548,7 +564,10 @@ CK_DLL_QUERY
     GLUCK_CKADDEXPORT ( int, HasEvents );
     //kludgy stuff until we can pass events back out as objects...
 
-    //! returns an integer value that is used as the argument to GetEvent functions
+    //! gluck's user interface event callbacks are buffered internally
+    //! and polled by the gluck programmer in their own thread.
+    //! presently this call returns an integer value that is used as 
+    //! the argument to GetEvent<Value>() functions.
     //! this will be replaced by something less awkward when we have objects and arrays
     GLUCK_CKADDEXPORT ( int, GetNextEvent ); 
     
@@ -633,7 +652,7 @@ CK_DLL_QUERY
     GLUCK_CKADDPARAM  ( int , font );
     GLUCK_CKADDPARAM  ( string , string );
 
-    //! \section glut shapes
+    //! \section glut builtin shapes
     GLUCK_CKADDEXPORT ( int, WireTeapot );
     GLUCK_CKADDPARAM  ( float , size );
 

@@ -105,6 +105,7 @@ fun void gluckStart() {
 	gl.Enable(gl.LINE_SMOOTH);
 	gl.Enable(gl.POLYGON_SMOOTH);
 	gl.Enable(gl.BLEND);
+	gl.BlendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	gl.Disable(gl.DEPTH_TEST);
 
 	

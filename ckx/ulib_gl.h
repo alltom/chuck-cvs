@@ -57,6 +57,7 @@ CK_DLL_FUNC( gl_End_impl );
 CK_DLL_FUNC( gl_Flush_impl );
 CK_DLL_FUNC( gl_FrontFace_impl );
 CK_DLL_FUNC( gl_Frustum_impl );
+CK_DLL_FUNC( gl_BlendFunc_impl );
 
 //display lists
 
@@ -74,6 +75,7 @@ CK_DLL_FUNC( gl_TexEnv_impl);
 
 CK_DLL_FUNC( gl_GetError_impl );
 CK_DLL_FUNC( gl_LineWidth_impl );
+CK_DLL_FUNC( gl_PointSize_impl );
 
 //lighting
 CK_DLL_FUNC( gl_LightOn_impl );

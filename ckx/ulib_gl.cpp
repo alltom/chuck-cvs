@@ -408,6 +408,9 @@ CK_DLL_QUERY
     GL_CKADDEXPORT ( int, LineWidth );
     GL_CKADDPARAM ( float, width );
 
+    GL_CKADDEXPORT ( int, PointSize );
+    GL_CKADDPARAM ( float, width );
+
     GL_CKADDEXPORT ( int, PolygonMode );
     GL_CKADDPARAM ( uint, face );
     GL_CKADDPARAM ( uint, mode );
@@ -424,6 +427,10 @@ CK_DLL_QUERY
 
     GL_CKADDEXPORT ( void, Enable );
     GL_CKADDPARAM( uint, cap ); 
+
+    GL_CKADDEXPORT ( void, BlendFunc );
+    GL_CKADDPARAM( uint, src ); 
+    GL_CKADDPARAM( uint, dst ); 
 
 
     GL_CKADDEXPORT ( int, Flush );
@@ -946,6 +953,13 @@ CK_DLL_FUNC( gl_BindTexture_impl )
     glBindTexture( target, texture );
 }
 
+// Enable-->glEnable
+CK_DLL_FUNC( gl_BlendFunc_impl )
+{
+    t_CKUINT src = GET_NEXT_UINT(ARGS);
+    t_CKUINT dst = GET_NEXT_UINT(ARGS);
+    glBlendFunc( src, dst );
+}
 
 // Clear-->glClear()
 CK_DLL_FUNC( gl_Clear_impl )
@@ -1209,6 +1223,11 @@ CK_DLL_FUNC( gl_GetError_impl )
 CK_DLL_FUNC( gl_LineWidth_impl ) {  
     t_CKFLOAT width = GET_NEXT_FLOAT(ARGS);
     glLineWidth(width);
+}
+
+CK_DLL_FUNC( gl_PointSize_impl ) {  
+    t_CKFLOAT size = GET_NEXT_FLOAT(ARGS);
+    glPointSize(size);
 }
 
 CK_DLL_FUNC( gl_LoadIdentity_impl ) {   
