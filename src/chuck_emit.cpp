@@ -2833,7 +2833,7 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
         else
         {
             EM_error2( rhs->linepos,
-                       "(emit): internal error: unhandled expression" );
+                       "(emit): internal error: illegal expression" );
             return FALSE;
         }
     }
