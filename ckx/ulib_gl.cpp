@@ -40,7 +40,7 @@
 #define GL_CKADDEXPORT(t, n) QUERY->add_export( QUERY, #t, #n, gl_##n##_impl, TRUE )
 #define GL_CKADDPARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
 
-
+#define VOID_RETURN_TYPE int
 //-----------------------------------------------------------------------------
 // name: gl_query()
 // desc: query entry point
@@ -51,47 +51,47 @@ CK_DLL_QUERY
     QUERY->set_name( QUERY, "gl" );
     
     // Add Begin
-    GL_CKADDEXPORT ( void, Begin );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Begin );
     GL_CKADDPARAM  ( uint, which );
 
-    GL_CKADDEXPORT ( void, BindTexture );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, BindTexture );
     GL_CKADDPARAM  ( uint, target ); 
     GL_CKADDPARAM  ( uint, texture ); 
 
-    GL_CKADDEXPORT( void, Clear );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Clear );
     GL_CKADDPARAM( uint, mask );  //do we have a bitfield op?
 
-    GL_CKADDEXPORT( void, ClearColor );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, ClearColor );
     GL_CKADDPARAM( float, r ); 
     GL_CKADDPARAM( float, g ); 
     GL_CKADDPARAM( float, b ); 
     GL_CKADDPARAM( float, a ); 
 
-    GL_CKADDEXPORT( void, Color3f );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Color3f );
     GL_CKADDPARAM( float, r ); 
     GL_CKADDPARAM( float, g ); 
     GL_CKADDPARAM( float, b ); 
 
-    GL_CKADDEXPORT( void, Color4f );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Color4f );
     GL_CKADDPARAM( float, r ); 
     GL_CKADDPARAM( float, g ); 
     GL_CKADDPARAM( float, b ); 
     GL_CKADDPARAM( float, a ); 
 
-    GL_CKADDEXPORT( void, Disable );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Disable );
     GL_CKADDPARAM( uint, cap ); 
 
-    GL_CKADDEXPORT( void, Enable );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Enable );
     GL_CKADDPARAM( uint, cap ); 
 
-    GL_CKADDEXPORT( void, End );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, End );
 
-    GL_CKADDEXPORT( void, Flush );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Flush );
 
-    GL_CKADDEXPORT( void, FrontFace );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, FrontFace );
     GL_CKADDPARAM(uint, mode);
 
-    GL_CKADDEXPORT( void, Frustum );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Frustum );
     GL_CKADDPARAM(float, left );
     GL_CKADDPARAM(float, right );
     GL_CKADDPARAM(float, bottom );
@@ -100,33 +100,33 @@ CK_DLL_QUERY
     GL_CKADDPARAM(float, zfar );
 
     //let's do gl gets... but we need arrays, and then pointers to them!
-    //GL_CKADDEXPORT( void, GetBooleanv );
+    //GL_CKADDEXPORT ( VOID_RETURN_TYPE, GetBooleanv );
     GL_CKADDEXPORT( uint, GetError );
 
-    GL_CKADDEXPORT( void, Lighti );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Lighti );
     GL_CKADDPARAM ( uint, light );
     GL_CKADDPARAM ( uint, pname );
     GL_CKADDPARAM ( int, param );
 
-    GL_CKADDEXPORT( void, Lightf );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Lightf );
     GL_CKADDPARAM ( uint, light );
     GL_CKADDPARAM ( uint, pname );
     GL_CKADDPARAM ( float, param );
 
-    GL_CKADDEXPORT( void, LineWidth );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, LineWidth );
     GL_CKADDPARAM ( float, width );
 
-    GL_CKADDEXPORT( void, LoadIdentity );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, LoadIdentity );
 
-    GL_CKADDEXPORT( void, MatrixMode );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, MatrixMode );
     GL_CKADDPARAM ( uint, mode );
 
-    GL_CKADDEXPORT( void, Normal3f );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Normal3f );
     GL_CKADDPARAM ( float, x );
     GL_CKADDPARAM ( float, y );
     GL_CKADDPARAM ( float, z );
     
-    GL_CKADDEXPORT( void, Ortho );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Ortho );
     GL_CKADDPARAM(float, left );
     GL_CKADDPARAM(float, right );
     GL_CKADDPARAM(float, bottom );
@@ -135,41 +135,41 @@ CK_DLL_QUERY
     GL_CKADDPARAM(float, zfar );
     
 
-    GL_CKADDEXPORT( void, PushAttrib );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, PushAttrib );
     GL_CKADDPARAM ( uint, which );
 
-    GL_CKADDEXPORT( void, PopAttrib );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, PopAttrib );
 
-    GL_CKADDEXPORT( void, PushMatrix );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, PushMatrix );
 
-    GL_CKADDEXPORT( void, PopMatrix );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, PopMatrix );
 
-    GL_CKADDEXPORT( void, PolygonMode );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, PolygonMode );
     GL_CKADDPARAM ( uint, face );
     GL_CKADDPARAM ( uint, mode );
 
-    GL_CKADDEXPORT( void, Rotatef );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Rotatef );
     GL_CKADDPARAM ( float, degrees );
     GL_CKADDPARAM ( float, x );
     GL_CKADDPARAM ( float, y );
     GL_CKADDPARAM ( float, z );
 
-    GL_CKADDEXPORT( void, Scalef );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Scalef );
     GL_CKADDPARAM ( float, x );
     GL_CKADDPARAM ( float, y );
     GL_CKADDPARAM ( float, z );
 
-    GL_CKADDEXPORT( void, ShadeModel );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, ShadeModel );
     GL_CKADDPARAM ( uint, mode );
 
-    GL_CKADDEXPORT( void, TexCoord1f );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, TexCoord1f );
     GL_CKADDPARAM ( float, u );
 
-    GL_CKADDEXPORT( void, TexCoord2f );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, TexCoord2f );
     GL_CKADDPARAM ( float, u );
     GL_CKADDPARAM ( float, v );
 
-    GL_CKADDEXPORT( void, TexImage1D );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, TexImage1D );
     GL_CKADDPARAM ( uint, target );
     GL_CKADDPARAM ( int, level );
     GL_CKADDPARAM ( int, internalformat );
@@ -179,7 +179,7 @@ CK_DLL_QUERY
     GL_CKADDPARAM ( uint, type );
     GL_CKADDPARAM ( void, pixels ); // void*!!
 
-    GL_CKADDEXPORT( void, TexImage2D );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, TexImage2D );
     GL_CKADDPARAM ( uint, target );
     GL_CKADDPARAM ( uint, level );
     GL_CKADDPARAM ( uint, internalformat );
@@ -190,21 +190,21 @@ CK_DLL_QUERY
     GL_CKADDPARAM ( uint, type );
     GL_CKADDPARAM ( void, pixels ); // void*!!
 
-    GL_CKADDEXPORT( void, Translatef );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Translatef );
     GL_CKADDPARAM ( float, x );
     GL_CKADDPARAM ( float, y );
     GL_CKADDPARAM ( float, z );
 
-    GL_CKADDEXPORT( void, Vertex3f );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Vertex3f );
     GL_CKADDPARAM ( float, x );
     GL_CKADDPARAM ( float, y );
     GL_CKADDPARAM ( float, z );
 
-    GL_CKADDEXPORT( void, Vertex2f );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Vertex2f );
     GL_CKADDPARAM ( float, x );
     GL_CKADDPARAM ( float, y );
 
-    GL_CKADDEXPORT( void, Viewport );
+    GL_CKADDEXPORT ( VOID_RETURN_TYPE, Viewport );
     GL_CKADDPARAM ( int, x );
     GL_CKADDPARAM ( int, y );
     GL_CKADDPARAM ( uint, width );

@@ -4,8 +4,10 @@
 "gluck.ckx" => (:gluck:);
 
 
-42 => uint placeholder;
+
+
 gluck.Init();
+42 => uint placeholder;
 gluck.InitBasicWindow(placeholder);
 
 0.0 => float rx;
