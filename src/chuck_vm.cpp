@@ -249,6 +249,10 @@ t_CKBOOL Chuck_VM::shutdown()
     // make sure we are in the initialized state
     if( !m_init ) return FALSE;
 
+    // stop
+    this->stop();
+    usleep( 10000 );
+
     // free the shreduler
     SAFE_DELETE( m_shreduler );
 
@@ -364,6 +368,7 @@ t_CKBOOL Chuck_VM::pause( )
 t_CKBOOL Chuck_VM::stop( )
 {
     m_running = FALSE;
+    Digitalio::m_end = TRUE;
 
     return TRUE;
 }
