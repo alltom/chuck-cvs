@@ -113,10 +113,8 @@ public:
     Chuck_Instr ** instr;
     t_CKUINT num_instr;
 
-    Chuck_VM_Stack * parent;
-    t_CKUINT stack_depth;
-    
     string name;
+    t_CKUINT stack_depth;    
 };
 
 
@@ -148,7 +146,6 @@ public:
 //-----------------------------------------------------------------------------
 public: // machine components
     // stacks
-    Chuck_VM_Stack * parent_stack;
     Chuck_VM_Stack * mem;
     Chuck_VM_Stack * reg;
     
