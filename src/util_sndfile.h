@@ -9,6 +9,7 @@
 #define HAVE_PWRITE 1
 #define OS_IS_MACOSX 1
 #define OS_IS_WIN32 0
+#define TYPEOF_SF_COUNT_T off_t
 #endif
 
 #ifdef __WINDOWS_DS__
@@ -19,6 +20,29 @@
 #define HAVE_LRINT 1
 #define OS_IS_MACOSX 1
 #define OS_IS_WIN32 0
+#define TYPEOF_SF_COUNT_T off_t
+#endif
+
+#ifdef __LINUX_ALSA__
+#define HAVE_ALSA_ASOUNDLIB_H 
+#endif
+
+#if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__)
+#define CPU_CLIPS_POSITIVE 0
+#define CPU_IS_BIG_ENDIAN 0
+#define CPU_IS_LITTLE_ENDIAN 1
+#define HAVE_PREAD 1
+#define HAVE_PWRITE 1
+#define OS_IS_MACOSX 1
+#define OS_IS_WIN32 0
+#define SIZEOF_OFF64_T 0
+#define SIZEOF_LOFF_T 8
+#define TYPEOF_SF_COUNT_T loff_t
+#define _FILE_OFFSET_BITS 64
+#define HAVE_FDATASYNC 1
+#define HAVE_ENDIAN_H 1
+#define HAVE_LRINTF 1
+#define HAVE_LRINT 1
 #endif
 
 #define COMPILER_IS_GCC 1
@@ -78,7 +102,6 @@
 #define SIZEOF_SSIZE_T 4
 #define SIZEOF_VOIDP 4
 #define STDC_HEADERS 1
-#define TYPEOF_SF_COUNT_T off_t
 #define VERSION "1.0.10"
 
 /*
