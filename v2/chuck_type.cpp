@@ -1582,8 +1582,7 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
-    a_Var_Decl_List list = decl->var_decl_list;
-    a_Var_Decl var_decl = NULL;
+    a_Var_Decl_List list = decl->var_decl_list;    a_Var_Decl var_decl = NULL;
     Chuck_Value * value = NULL;
     t_CKBOOL primitive = FALSE;
     t_CKBOOL do_alloc = TRUE;
@@ -2031,8 +2030,11 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->info = env->context->new_Chuck_Namespace();
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;
+    // if extend, set the beginning of data segment to after the parent
+    if( t_parent ) the_class->info->offset = t_parent->obj_size;
     the_class->func = NULL;
     the_class->def = class_def;
+
 
     // set the new type as current
     env->stack.push_back( env->curr );
@@ -2063,6 +2065,9 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // move to the next section
         body = body->next;
     }
+
+    // set the object size
+    the_class->obj_size = the_class->info->offset;
 
     // pop the new type
     env->class_def = NULL;

@@ -2320,8 +2320,6 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             value = t_base->info->lookup_value( member->id, FALSE );
             // make sure it's there
             assert( value != NULL );
-            // make sure the index > 0
-            assert( value->offset > 0 );
 
             // find the offset for data
             offset = value->offset;

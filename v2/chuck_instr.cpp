@@ -593,7 +593,7 @@ void Chuck_Instr_Reg_Push_Maybe::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: push the value pointed to by m_val onto register stack
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
@@ -614,7 +614,7 @@ void Chuck_Instr_Reg_Push_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: push value from memory stack to register stack
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
@@ -1404,8 +1404,8 @@ void Chuck_Instr_Alloc_Word::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     // zero out the memory stack
     *( (t_CKUINT *)(mem_sp + m_val) ) = 0;
-    // push offset onto operand stack
-    push_( reg_sp, m_val );
+    // push addr onto operand stack
+    push_( reg_sp, (t_CKUINT)(mem_sp + m_val) );
 }
 
 
@@ -1422,8 +1422,8 @@ void Chuck_Instr_Alloc_DWord::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     // zero out the memory stack
     *( (t_CKFLOAT *)(mem_sp + m_val) ) = 0.0;
-    // push offset onto operand stack
-    push_( reg_sp, m_val );
+    // push addr onto operand stack
+    push_( reg_sp, (t_CKUINT)(mem_sp + m_val) );
 }
 
 
@@ -2202,9 +2202,9 @@ void Chuck_Instr_Dot_Static_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     // get the object pointer
     Chuck_Type * t_class = (Chuck_Type *)(*sp);
     // make sure
-    assert( (m_offset + m_size) <= t_class->info->obj_data_size );
+    assert( (m_offset + m_size) <= t_class->info->class_data_size );
     // calculate the data pointer
-    data = (t_CKUINT)(t_class->info->obj_data + m_offset);
+    data = (t_CKUINT)(t_class->info->class_data + m_offset);
     
     // emit addr or value
     if( m_emit_addr )

@@ -141,10 +141,10 @@ struct Chuck_Namespace : public Chuck_VM_Object
 
     // virtual table
     Chuck_VTable obj_v_table;
-    // data segment
-    t_CKBYTE * obj_data;
-    // data segment size
-    t_CKUINT obj_data_size;
+    // static data segment
+    t_CKBYTE * class_data;
+    // static data segment size
+    t_CKUINT class_data_size;
 
     // name
     string name;
@@ -157,7 +157,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
 
     // constructor
 	Chuck_Namespace() { code = NULL; parent = NULL; offset = 0; 
-                        obj_data = NULL; obj_data_size = 0; }
+                        class_data = NULL; class_data_size = 0; }
     // destructor
 	~Chuck_Namespace() { }
 
