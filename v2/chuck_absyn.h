@@ -206,7 +206,7 @@ struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos
 struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; a_Array_Sub array; int linepos; a_Exp self; };
 struct a_Type_Decl_ { a_Id_List id; a_Array_Sub array; int linepos; a_Exp self; };
 struct a_Array_Sub_ { int depth; a_Exp exp_list; int linepos; a_Exp self; 
-                      int errno; int err_pos; };
+                      int err_num; int err_pos; };
 struct a_Arg_List_ { a_Type_Decl type_decl; t_CKTYPE type; S_Symbol id; 
                      a_Arg_List next; int linepos; a_Exp self; };
 

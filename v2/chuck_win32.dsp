@@ -111,14 +111,6 @@ SOURCE=.\chuck_frame.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\chuck_instr.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\chuck_main.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\chuck_otf.cpp
 # End Source File
 # Begin Source File
@@ -148,10 +140,6 @@ SOURCE=.\chuck_utils.cpp
 # Begin Source File
 
 SOURCE=.\chuck_vm.cpp
-# End Source File
-# Begin Source File
-
-SOURCE=.\chuck_win32.c
 # End Source File
 # Begin Source File
 
@@ -212,10 +200,6 @@ SOURCE=.\util_network.c
 # Begin Source File
 
 SOURCE=.\util_raw.c
-# End Source File
-# Begin Source File
-
-SOURCE=.\util_sndfile.c
 # End Source File
 # Begin Source File
 

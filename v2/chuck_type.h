@@ -295,7 +295,7 @@ public:
     // copy
     Chuck_Type * copy( Chuck_Env * env ) const
     { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) );
-      env->context->new_types.push_back( n ); }
+      env->context->new_types.push_back( n ); return n; }
 };
 
 

@@ -667,7 +667,7 @@ a_Array_Sub new_array_sub( a_Exp exp, int pos )
     // make sure no multi
     if( exp && exp->next )
     {
-        a->errno = 1;              // multi
+        a->err_num = 1;            // multi
         a->err_pos = exp->linepos; // set error for type-checker
         goto error;
     }
@@ -683,12 +683,12 @@ error:
 a_Array_Sub prepend_array_sub( a_Array_Sub a, a_Exp exp, int pos )
 {
     // if already error
-    if( a->errno ) goto error;
+    if( a->err_num ) goto error;
 
     // make sure no multi
     if( exp && exp->next )
     {
-        a->errno = 1;              // multi
+        a->err_num = 1;            // multi
         a->err_pos = exp->linepos; // set error for type-checker
         goto error;
     }
@@ -696,7 +696,7 @@ a_Array_Sub prepend_array_sub( a_Array_Sub a, a_Exp exp, int pos )
     // empty or not
     if( (exp && !a->exp_list) || (!exp && a->exp_list) )
     {
-        a->errno = 2;     // partial
+        a->err_num = 2;   // partial
         a->err_pos = pos; // set error for type-checker
         goto error;
     }
