@@ -318,8 +318,8 @@ chuck_expression
 
 array_exp
         : LBRACK expression RBRACK          { $$ = new_array_sub( $2, EM_lineNum ); }
-        | array_exp LBRACK expression RBRACK
-            { $$ = prepend_array_sub( $1, $3, EM_lineNum ); }
+        | LBRACK expression RBRACK array_exp
+            { $$ = prepend_array_sub( $4, $2, EM_lineNum ); }
         ;
 
 array_empty
