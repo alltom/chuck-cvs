@@ -1,25 +1,69 @@
 body { 
+	background : white;
+	color : black;
 	font-size: 10pt;
 	font-family: sans-serif;
+}
+
+.container { 
+	padding : 10px;
+	width: 600px;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.centered { 
+	margin-left: auto;
+	margin-right: auto;
+	text-align : center; 
 }
 
 .a { 
 	text-decoration: none;
 }
 
-.intro { 
-	border: 2px solid #808080;
-	background: #fdfdfd;
-	margin : 10px;
-	margin-bottom: 30px;
+.sectiontitle { 
+	font-size: 130%;
+	font-weight: 300;
 }
 
+.pagetitle { 
+	font-size: 120%;
+	font-weight: 600;
+	color : #339933
+}
+
+.subtitle { 
+	border-top : 1px #808080;
+	font-size: 120%;
+	font-weight: 200;
+	color : #339933
+}
+
+.version { 
+	font-size: 100%;
+	font-weight : 200;
+	padding : 5px;
+	border: 1px solid #d9d9d9;
+	background: #fdfdfd;
+	margin-left : auto;
+	margin-right : auto;
+}
+
+.intro { 
+
+}
 
 .library { 
-	border: 2px solid #808080;
-	background: #fdfdfd;
-	margin : 10px;
+
+	margin : 0px;
 	margin-bottom: 30px;
+	margin-left: 10%;
+}
+
+.exportlist { 
+	padding : 5px;
+	
 }
 
 
@@ -124,14 +168,36 @@ li.members b {
 .example { 
 	padding: 0.5em;
 }
+
 .code { 
 	margin: 20px;
-	padding : 1em;
+	width : 30em;
+	padding: 1em;
 	font-size: 90%;
-	margin-left : 100px;
-	width : 300px;
-	border : 1px solid grey;
-	background : white;
-	font-family : monospace;
+	margin-left: 100px;
+	border: 1px solid grey;
+	background: white;
+	font-family: monospace;
 	white-space:pre;
+}
+
+.section { 
+	color: #aa3333;
+	width : 500px;
+	font-size: 130%;
+	border-bottom: 2px solid #808080;
+	margin : 5px;	
+	margin-bottom: 15px;
+}
+
+.sectionMain { 
+	color: #aa3333;
+	width : 484px;
+	font-size: 200%;
+	font-variant: small-caps;
+	border: 1px solid #808080;
+	background : #ffffdd;
+	padding : 8px;
+	margin : 20px;	
+	margin-left: 5px;
 }
