@@ -50,6 +50,7 @@
 // libsndfile: Erik de Castro Lopo (erikd@mega-nerd.com)
 //-----------------------------------------------------------------------------
 #include "util_sndfile.h"
+#include "chuck_def.h"
 
 /*
  * Copyright 1992 by Jutta Degener and Carsten Bormann, Technische
