@@ -905,7 +905,10 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emmission * emit, a_Exp_Unary exp )
 
     case ae_op_spork:
         if( exp->exp->s_type == ae_exp_func_call )
-            emit_engine_emit_spork( emit, &exp->exp->func_call );
+        {
+            if( !emit_engine_emit_spork( emit, &exp->exp->func_call ) )
+                return FALSE;
+        }
         else
         {
             EM_error2( exp->linepos,
