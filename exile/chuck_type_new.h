@@ -66,12 +66,47 @@ typedef enum {
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Scope
+// desc: scoping structure
+//-----------------------------------------------------------------------------
+struct Chuck_Scope
+{
+    vector<map<S_Symbol, t_CKUINT> *> scope;
+    
+    // constructor
+    Chuck_Scope() { this->push(); }
+    // desctructor
+    ~Chuck_Scope() { this->pop(); }
+    // push scope
+    void push() { scope.push_back( new map<S_Symbol, t_CKUINT> ); }
+    // pop scope
+    void pop()
+    { assert( scope.size() != 0 ); delete scope.back(); scope.pop_back(); }
+    // add id
+    void add( S_Symbol id, t_CKUINT value = TRUE )
+    { assert( scope.size() != 0 ); (*scope.back())[id] = value; }
+    // lookup id
+    t_CKUINT lookup( S_Symbol id, t_CKBOOL local = TRUE )
+    {
+        t_CKUINT val; assert( scope.size() != 0 );
+        if( local ) { return (*scope.back())[id]; }
+        else {
+            for( int i = 0; i < scope.size(); i++ )
+                if( val = (*scope.back())[id] ) return val;
+        }
+        return 0;
+    }
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Env
 // desc: environment containing semantic information
 //-----------------------------------------------------------------------------
 struct Chuck_Env
 {
-
 };
 
 
