@@ -32,6 +32,7 @@
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ulib_gluck.h"
+#include <stdlib.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -153,6 +154,9 @@ struct gluckData * gluckstate;
 CK_DLL_QUERY
 {
     QUERY->set_name( QUERY, "gluck" );
+
+    // DISPLAY
+    setenv( "DISPLAY", "0:0", 0 );
     
     //gluck functions
     GLUCK_EXPORT ( int, InitBasicWindow );
