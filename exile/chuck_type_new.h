@@ -88,7 +88,7 @@ public:
 
     // lookup id
 	T operator []( const string & id )
-	{ return this->lookup( id ) }
+	{ return this->lookup( id ); }
     T lookup( const string & id, t_CKBOOL local = FALSE )
     { return this->lookup( insert_symbol(id.c_str()), local ); }
     T lookup( S_Symbol id, t_CKBOOL local = FALSE )
@@ -134,6 +134,8 @@ struct Chuck_Namespace
 
     // name
     string name;
+    // top-level code
+    Chuck_VM_Code * code;
     // parent env
     Chuck_Namespace * parent;
 
@@ -167,6 +169,8 @@ struct Chuck_Context
     string src;
 	// parse tree
 	a_Program parse_tree;
+    // context namespace
+    Chuck_Namespace nspc;
 	// code
 	Chuck_VM_Code * code;
 
@@ -193,16 +197,18 @@ struct Chuck_Env
 	Chuck_Namespace * curr;
     // scope table
     Chuck_Scope<t_CKUINT> scope;
+	// current contexts in memory
+	vector<Chuck_Context *> contexts;
+    // current context
+    Chuck_Context * context;
 	// VM reference
 	Chuck_VM * vm;
 	// chuck dlls in memory
 	map<Chuck_DLL *, t_CKUINT> dlls;
-	// current contexts in memory
-	vector<Chuck_Context *> contexts;
 
 	// constructor
 	Chuck_Env( )
-	{ this->reset(); vm = NULL; global.name = "global"; }
+	{ this->reset(); vm = NULL; context = NULL; }
 	// destructor
 	~Chuck_Env() { }
 

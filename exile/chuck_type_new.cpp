@@ -84,17 +84,16 @@ struct Chuck_Type t_host = { te_host, "host", &t_object, sizeof(void *) }; */
 // function prototypes
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
-t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
-t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_stmt_list( Chuck_Env * env, a_Stmt_List list );
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
 t_CKBOOL type_engine_check_if( Chuck_Env * env, a_Stmt_If stmt );
 t_CKBOOL type_engine_check_for( Chuck_Env * env, a_Stmt_For stmt );
-t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt );
 t_CKBOOL type_engine_check_while( Chuck_Env * env, a_Stmt_While stmt );
 t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt );
-t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt );
+t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br );
+t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont );
 t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt );
+t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt );
 t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
 t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, 
@@ -111,7 +110,9 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
-// import
+t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt );
+t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
+t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
@@ -156,7 +157,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_CKDUR hour = minute * 60.0;
     t_CKDUR day = hour * 24.0;
     t_CKDUR week = day * 7.0;
-	
+
 	// default global values
 	env->global.value.add( "null", new Chuck_Value( &t_null, "null" ) );
 	env->global.value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system) ) );
@@ -193,6 +194,333 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 
     return env;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_prog()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
+{
+    t_CKBOOL ret = TRUE;
+
+    if( !prog )
+        return FALSE;
+
+    // each parse tree corresponds to a chuck context
+    Chuck_Context * context = new Chuck_Context;
+    // save a reference to the parse tree
+    context->parse_tree = prog;
+    // append the context to the env
+    env->contexts.push_back( context );
+    // make the context current
+    env->context = context;
+
+    // go through each of the program sections
+    while( prog && ret )
+    {
+        switch( prog->section->s_type )
+        {
+        case ae_section_stmt:
+            ret = type_engine_check_stmt_list( env, prog->section->stmt_list );
+            break;
+        
+        case ae_section_func:
+            ret = type_engine_check_func_def( env, prog->section->func_def );
+            break;
+
+        case ae_section_class:
+            ret = type_engine_check_class_def( env, prog->section->class_def );
+            break;
+        
+        default:
+            EM_error2( prog->linepos,
+                "internal error: unrecognized program section in type checker" );
+            ret = FALSE;
+            break;
+        }
+
+        prog = prog->next;
+    }
+    
+    // check to see if everything passed
+    if( !ret )
+    {
+        // make sure we still have the same context
+        assert( env->contexts.back() == context );
+        // TODO: remove the effects of the context in the env
+        // ---> insert code here <----
+        // remove the context
+        env->contexts.pop_back();
+        // delete it
+        delete context;
+    }
+    
+    // reset the current context
+    env->context = NULL;
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_stmt_list()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_stmt_list( Chuck_Env * env, a_Stmt_List list )
+{
+    // push the scope
+    env->scope.push();
+    
+    // type check the stmt_list
+    while( list )
+    {
+        // the current statement
+        if( !type_engine_check_stmt( env, list->stmt ) )
+            return FALSE;
+        
+        // advance to the next statement
+        list = list->next;
+    }
+    
+    // pop the scope
+    env->scope.pop();
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_stmt(()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
+{
+    t_CKBOOL ret = TRUE;
+
+    if( !stmt )
+        return TRUE;
+
+    // the type of stmt
+    switch( stmt->s_type )
+    {
+        case ae_stmt_if:
+            ret = type_engine_check_if( env, &stmt->stmt_if );
+            break;
+
+        case ae_stmt_for:
+            ret = type_engine_check_for( env, &stmt->stmt_for );
+            break;
+
+        case ae_stmt_while:
+            ret = type_engine_check_while( env, &stmt->stmt_while );
+            break;
+            
+        case ae_stmt_until:
+            ret = type_engine_check_until( env, &stmt->stmt_until );
+            break;
+            
+        case ae_stmt_exp:
+            ret = ( type_engine_check_exp( env, stmt->stmt_exp ) != NULL );
+            break;
+
+        case ae_stmt_return:
+            ret = type_engine_check_return( env, &stmt->stmt_return );
+            break;
+
+        case ae_stmt_code:
+            env->context->nspc.value.push();
+            ret = type_engine_check_code_segment( env, &stmt->stmt_code );
+            env->context->nspc.value.pop();
+            break;
+
+        // TODO: implement the following
+        case ae_stmt_switch:
+            ret = type_engine_check_switch( env, &stmt->stmt_switch );
+            break;
+
+        case ae_stmt_case:
+            // ret = type_engine_check_case( env, &stmt->stmt_case );
+            break;
+
+        case ae_stmt_gotolabel:
+            // ret = type_engine_check_gotolabel( env, &stmt->goto_label );
+            break;
+
+        case ae_stmt_break:
+            // ret = type_engine_check_break( env, &stmt->break );
+            break;
+
+        case ae_stmt_continue:
+            // ret = type_engine_check_continue( env, &stmt->break );
+            break;
+
+        //case ae_stmt_func:
+        //    // env->print( "func_def" );
+        //    ret = type_engine_check_func_def( env, stmt->stmt_func );
+        //    break;
+        
+        default:
+            EM_error2( stmt->linepos, 
+                "internal compiler error - no stmt type '%i'!", stmt->s_type );
+            break;
+    }
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_if()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_if( Chuck_Env * env, a_Stmt_If stmt );
+{
+    // check the conditional
+    if( !type_engine_check_exp( env, stmt->cond ) )
+        return FALSE;
+        
+    // TODO: ensure that conditional has valid type
+
+    // check if
+    if( !type_engine_check_stmt( env, stmt->if_body ) )
+        return FALSE;
+
+    // check else, if there is one
+    if( stmt->else_body )
+        if( !type_engine_check_stmt( env, stmt->else_body ) )
+            return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_for()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_for( Chuck_Env * env, a_Stmt_For stmt )
+{
+    // check the initial
+    if( !type_engine_check_stmt( env, stmt->c1 ) )
+        return FALSE;
+    
+    // check the conditional
+    if( !type_engine_check_stmt( env, stmt->c2 ) )
+        return FALSE;
+
+    // TODO: same as if - check conditional type valid
+
+    // check the post
+    if( stmt->c3 && !type_engine_check_exp( env, stmt->c3 ) )
+        return FALSE;
+        
+    // TODO: break and continue statement
+
+    // check body
+    if( !type_engine_check_stmt( env, stmt->body ) )
+        return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_while()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_while( Chuck_Env * env, a_Stmt_While stmt )
+{
+    // check the conditional
+    if( !type_engine_check_exp( env, stmt->cond ) )
+        return FALSE;
+        
+    // TODO: same as if - ensure the type in conditional is valid
+
+    // check the body
+    if( !type_engine_check_stmt( env, stmt->body ) )
+    {
+        // env->out() << "type checker: while statement does not type check" << endl;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_until()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
+{
+    // check the conditional
+    if( !type_engine_check_exp( env, stmt->cond ) )
+        return FALSE;
+        
+    // TODO: same as if - ensure the type in conditional is valid
+
+    // check the body
+    if( !type_engine_check_stmt( env, stmt->body ) )
+        return FALSE;
+
+    return TRUE;
+}
+
+t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
+{
+}
+
+t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
+{
+}
+
+t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
+{
+}
+
+t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
+{
+}
+
+t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
+t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
+t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, 
+                               t_CKTYPE left, t_CKTYPE right );
+t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
+t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
+t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
+t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
+t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
+t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
+t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
+t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
+t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
+t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
+t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
+t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
+t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt );
+t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
+t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
+// import
+t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
+t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
+t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
+										 const string & type, void * addr );
 
 
 
