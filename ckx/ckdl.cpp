@@ -81,17 +81,17 @@ int main( int argc, char ** argv )
         t_CKUINT r, w;
 
         cerr << "[ugen]: " << info->name << endl;
-        cerr << "   [ctrl params]: ( ";
+        cerr << "   [ctrl params]: " << endl;
         for( int n = 0; n < info->param_list.size(); n++ )
         {
-            cerr << info->param_list[n].type << " " 
-                 << info->param_list[n].name << " " << endl;
+            cerr << "       .";
+            cerr << info->param_list[n].name << "  ----  (" 
+                 << info->param_list[n].type << ", ";
             w = info->param_list[n].ctrl_addr != 0;
             r = info->param_list[n].cget_addr != 0;
-            if( w && r ) cerr << "(READ/WRITE)" << endl;
-            else cerr << ( r ? "(read ONLY)" : "(write ONLY)" ) << endl;
+            if( w && r ) cerr << "READ/WRITE)" << endl;
+            else cerr << ( r ? "read ONLY)" : "write ONLY)" ) << endl;
         }
-        cerr << " )" << endl;
         cerr << "   [funcs]: ( ctor: " << (void *)info->ctor << ", ";
         cerr << "dtor: " << (void *)info->dtor << ", ";
         cerr << "tick: " << (void *)info->tick << ", ";
