@@ -39,6 +39,9 @@
 #include <OpenGL/glu.h>
 #include <GLUT/glut.h>
 #else
+#ifdef WIN32
+#include <windows.h>
+#endif
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
@@ -397,8 +400,10 @@ CK_DLL_QUERY
     QUERY->set_name( QUERY, "gluck" );
 
     // DISPLAY
+#ifndef WIN32
     setenv( "DISPLAY", "0:0", 0 );
-    
+#endif
+
     //gluck functions
     GLUCK_EXPORT ( int, InitBasicWindow );
     GLUCK_PARAM  ( string, name );

@@ -34,9 +34,15 @@
 #include "ulib_gl.h"
 
 #ifdef __MACOSX_CORE__
-#include <OpenGL/gl.h>
-#else
+#include <OpenGL/gl.h
+#else 
+
+#ifdef WIN32
+#include <windows.h>
+#endif
+
 #include <GL/gl.h>
+
 #endif
 
 

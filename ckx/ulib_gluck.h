@@ -36,6 +36,9 @@
 
 #include "chuck_dl.h"
 
+#ifndef uint
+#define uint unsigned int
+#endif
 // query
 //DLL_QUERY gluck_query( Chuck_DL_Query * QUERY );
 CK_DLL_QUERY;
