@@ -499,7 +499,7 @@ UGEN_DTOR netout_dtor( t_CKTIME now, void * data )
 UGEN_TICK netout_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
      GigaSend * x = (GigaSend *)data;
-     *out = NULL;
+     *out = 0.0f;
      return x->tick_out( in );
 }
 
