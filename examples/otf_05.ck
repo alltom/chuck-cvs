@@ -18,7 +18,7 @@
 T - (now % T) => now;
 
 sinosc s => gain g => dac;
-.75 => g.gain;
+.4 => g.gain;
 
 while( true )
 {

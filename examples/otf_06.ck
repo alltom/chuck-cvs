@@ -18,7 +18,7 @@
 T - (now % T) => now;
 
 sinosc s => gain g => JCRev r => dac;
-.15 => g.gain;
+.75 => g.gain;
 .25 => r.mix;
 
 while( true )
