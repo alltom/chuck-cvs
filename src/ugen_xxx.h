@@ -95,6 +95,8 @@ UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value );
 UGEN_CGET sndbuf_cget_interp( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_rate( t_CKTIME now, void * data, void * value );
 UGEN_CGET sndbuf_cget_rate( t_CKTIME now, void * data, void * out );
+UGEN_CTRL sndbuf_ctrl_play( t_CKTIME now, void * data, void * value );
+UGEN_CGET sndbuf_cget_play( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CGET sndbuf_cget_freq( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_phase( t_CKTIME now, void * data, void * value );
