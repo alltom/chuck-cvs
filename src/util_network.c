@@ -100,7 +100,7 @@ ck_socket ck_udp_create( )
 // name: ck_connect2()
 // desc: connect to a server
 //-----------------------------------------------------------------------------
-__BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size ) 
+t_CKBOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size ) 
 {
     int ret = connect( sock->sock, addr, size );
 
@@ -114,7 +114,7 @@ __BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size )
 // name: ck_connect()
 // desc: connect to a server
 //-----------------------------------------------------------------------------
-__BOOL ck_connect( ck_socket sock, const char * hostname, int port )
+t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port )
 {
     int ret;
     struct hostent * host;
@@ -133,7 +133,7 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     {
         sock->sock_in.sin_addr.s_addr = inet_addr( hostname );
         if( sock->sock_in.sin_addr.s_addr == -1 )
-            return __FALSE;
+            return FALSE;
     }
     else
     {
@@ -157,7 +157,7 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 // name: ck_bind()
 // desc: bind to a port
 //-----------------------------------------------------------------------------
-__BOOL ck_bind( ck_socket sock, int port ) 
+t_CKBOOL ck_bind( ck_socket sock, int port ) 
 {
     int ret;
 

@@ -36,21 +36,15 @@
 #ifndef __UTIL_NETWORK_H__
 #define __UTIL_NETWORK_H__
 
-
-
 #ifndef __PLATFORM_WIN32__
 #include <sys/types.h>
-
 #include <sys/socket.h>
 #else
 #include <windows.h>
 #endif
 
-#ifndef __BOOL
-#define __BOOL unsigned int
-#define __TRUE 1
-#define __FALSE 0
-#endif
+#include "chuck_def.h"
+
 
 #if defined(_cplusplus) || defined(__cplusplus)
   extern "C" {
@@ -62,12 +56,12 @@ typedef struct ck_socket_ * ck_socket;
 // create a socket
 ck_socket ck_udp_create( );
 // connect to a server
-__BOOL ck_connect( ck_socket sock, const char * hostname, int port );
+t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port );
 // connect to a server
-__BOOL ck_connect2( ck_socket sock, const struct sockaddr * serv_addr,
-                    int addrlen);
+t_CKBOOL ck_connect2( ck_socket sock, const struct sockaddr * serv_addr,
+                      int addrlen);
 // bind to a port
-__BOOL ck_bind( ck_socket sock, int port );
+t_CKBOOL ck_bind( ck_socket sock, int port );
 // send a datagram
 int ck_send( ck_socket sock, const char * buffer, int len );
 // setn using connect/sendto
