@@ -156,6 +156,7 @@ public: // machine components
     Chuck_VM_Code * code;
     Chuck_Instr ** instr;
     Chuck_VM_Shred * parent;
+    map<t_CKUINT, Chuck_VM_Shred *> children;
     t_CKUINT pc;
 
     // time
@@ -307,6 +308,7 @@ public:
 
 protected:
     Chuck_VM_Shred * spork( Chuck_VM_Shred * shred );
+    t_CKBOOL free( Chuck_VM_Shred * shred, t_CKBOOL cascade );
 
 protected:
     t_CKBOOL m_init;

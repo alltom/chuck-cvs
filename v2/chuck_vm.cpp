@@ -338,8 +338,8 @@ t_CKBOOL Chuck_VM::run( )
             // run the shred
             if( !shred->run( this ) )
             {
-                SAFE_DELETE( shred );
-                m_num_shreds--;
+                this->free( shred, TRUE );
+                shred = NULL;
                 if( !m_num_shreds && m_halt ) goto vm_stop;
             }
         }
@@ -476,7 +476,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         {
             EM_error3( "[chuck](VM): replacing shred %i (%s) with %i (%s)...",
                        out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
-            delete out;
+            this->free( out, TRUE );
             retval = shred->id;
             goto done;
         }
@@ -491,7 +491,14 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_REMOVE )
     {
-        if( msg->param == 0xffffffff && this->m_num_shreds )
+        if( msg->param == 0xffffffff && !this->m_num_shreds)
+        {
+            EM_error3( "[chuck](VM): no shreds to remove..." );
+            retval = 0;
+            goto done;
+        }
+        
+        if( msg->param == 0xffffffff )
         {
             t_CKUINT id = m_shred_id;
             Chuck_VM_Shred * shred = NULL;
@@ -499,11 +506,9 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 id--;
             if( id >= 0 )
             {
-                this->m_num_shreds--;
-                if( !this->m_num_shreds ) this->m_shred_id = 0;
                 EM_error3( "[chuck](VM): removing recent shred: %i (%s)...", 
                            id, mini(shred->name.c_str()) );
-                delete shred;
+                this->free( shred, TRUE );
                 retval = id;
             }
             else
@@ -530,11 +535,9 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 retval = 0;
                 goto done;
             }
-            m_num_shreds--;
             EM_error3( "[chuck](VM): removing shred: %i (%s)...",
                        msg->param, mini(shred->name.c_str()) );
-            if( m_num_shreds == 0 ) m_shred_id = 0;
-            delete shred;
+            this->free( shred, TRUE );
             retval = msg->param;
         }
     }
@@ -697,12 +700,50 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
     shred->now = shred->wake_time = m_shreduler->now_system;
     // set the id
     shred->id = next_id();
+    // add it to the parent
+    if( shred->parent )
+        shred->parent->children[shred->id] = shred;
     // shredule it
     m_shreduler->shredule( shred );
     // count
     m_num_shreds++;
 
     return shred;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: free()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade )
+{
+    assert( cascade );
+
+    // mark this done
+    shred->is_done = TRUE;
+
+    // free the children
+    map<t_CKUINT, Chuck_VM_Shred *>::iterator iter;
+    for( iter = shred->children.begin(); iter != shred->children.end(); iter++ )
+        this->free( (*iter).second, cascade );
+
+    // make sure it's done
+    assert( shred->children.size() == 0 );
+
+    // tell parent
+    if( shred->parent )
+        shred->parent->children.erase( shred->parent->children.find(shred->id) );
+
+    // free!
+    m_shreduler->remove( shred );
+    SAFE_DELETE( shred );
+    m_num_shreds--;
+    if( !m_num_shreds ) m_shred_id = 0;
+    
+    return TRUE;
 }
 
 
@@ -1270,7 +1311,7 @@ t_CKBOOL Chuck_VM_Shreduler::replace( Chuck_VM_Shred * out, Chuck_VM_Shred * in 
 t_CKBOOL Chuck_VM_Shreduler::remove( Chuck_VM_Shred * out )
 {
     // sanity check
-    if( !out )
+    if( !out || ( !out->prev && !out->prev && out != shred_list ) )
         return FALSE;
     
     if( !out->prev )
