@@ -7,7 +7,7 @@
 
 int a[10][23];
 
-a[i] => i;
+a[i][0] => i;
 
 class Foo
 {

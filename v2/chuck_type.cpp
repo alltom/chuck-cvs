@@ -1261,7 +1261,8 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
-    a_Var_Decl var_decl = decl->var_decl_list->var_decl;
+    a_Var_Decl_List list = decl->var_decl_list;
+    a_Var_Decl var_decl = NULL;
     Chuck_Value * value = NULL;
 
     // TODO: handle T a, b, c ...
@@ -1274,46 +1275,55 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         return NULL;
     }
 
-    // check if locally defined
-    // if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
-    if( env->curr->lookup_value( var_decl->id, TRUE ) )
+    while( list != NULL )
     {
-        EM_error2( decl->linepos,
-            "'%s' has already been defined in the same scope...",
-            S_name(var_decl->id) );
-        return NULL;
-    }
+        // get the decl
+        var_decl = list->var_decl;
 
-    // TODO: this needs to be redone
-    // check if array
-    if( decl->type->array )
-    {
-        // type check the exp
-        if( !type_engine_check_exp( env, decl->type->array->exp_list ) )
+        // check if locally defined
+        // if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
+        if( env->curr->lookup_value( var_decl->id, TRUE ) )
+        {
+            EM_error2( decl->linepos,
+                "'%s' has already been defined in the same scope...",
+                S_name(var_decl->id) );
             return NULL;
-        // make a copy of the type
-        t = t->copy( env );
-        // set the array depth
-        t->array_depth = decl->type->array->depth;
+        }
+
+        // TODO: this needs to be redone
+        // check if array
+        if( var_decl->array != NULL )
+        {
+            // type check the exp
+            if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
+                return NULL;
+            // make a copy of the type
+            t = t->copy( env );
+            // set the array depth
+            t->array_depth = var_decl->array->depth;
+        }
+
+        // make sure
+        // if( var_decl->isarray )
+        // {
+        //     EM_error2( decl->linepos,
+        //         "for declaration, array subscripts must be placed after type" );
+        //     return NULL;
+        // }
+
+        // enter into value binding
+        // env->context->nspc.value.add( var_decl->id, 
+        //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
+        env->curr->value.add( var_decl->id,
+            value = new Chuck_Value( t, S_name(var_decl->id), NULL ) );
+        // assign the offset
+        value->offset = env->curr->offset;
+        // move the offset (TODO: check the size)
+        env->curr->offset += t->size;
+
+        // the next var decl
+        list = list->next;
     }
-
-    // make sure
-    //if( var_decl->isarray )
-    //{
-    //    EM_error2( decl->linepos,
-    //        "for declaration, array subscripts must be placed after type" );
-    //    return NULL;
-    //}
-
-    // enter into value binding
-    // env->context->nspc.value.add( var_decl->id, 
-    //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
-    env->curr->value.add( var_decl->id,
-        value = new Chuck_Value( t, S_name(var_decl->id), NULL ) );
-    // assign the offset
-    value->offset = env->curr->offset;
-    // move the offset (TODO: check the size)
-    env->curr->offset += t->size;
 
     return t;
 }
@@ -1447,7 +1457,7 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
     if( array->indices->depth > t_base->array_depth )
     {
         EM_error2( array->linepos,
-            "array subscript (%i) exceeds defined dimension (%i)",
+            "array subscripts (%i) exceeds defined dimension (%i)",
             array->indices->depth, t_base->array_depth );
         return NULL;
     }
@@ -1474,6 +1484,9 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
                 depth, e->type->name.c_str() );
             return NULL;
         }
+
+        // advance the list
+        e = e->next;
     }
 
     // sanity
