@@ -1681,7 +1681,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         }
 
         // increment
-        if( unary->exp->type->id == te_int )
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Inc_int );
         else
         {
@@ -1702,7 +1702,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         }
 
         // decrement
-        if( unary->exp->type->id == te_int )
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Dec_int );
         else
         {
@@ -1715,7 +1715,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
 
     case ae_op_tilda:
         // complement
-        if( unary->exp->type->id == te_int )
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Complement_int );
         else
         {
@@ -1728,7 +1728,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
 
     case ae_op_exclamation:
         // !
-        if( unary->exp->type->id == te_int )
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Not_int );
         else
         {
@@ -1741,9 +1741,9 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         
     case ae_op_minus:
         // negate
-        if( unary->exp->type->id == te_int )
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Negate_int );
-        else if( unary->exp->type->id == te_float )
+        else if( equals( unary->exp->type, &t_float ) )
             emit->append( new Chuck_Instr_Negate_double );
         else
         {
@@ -1912,116 +1912,212 @@ t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast )
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
+t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix )
+{
+    // emit the exp
+    if( !emit_engine_emit_exp( emit, postfix->exp ) )
+        return FALSE;
+
+    // emit
+    switch( postfix->op )
+    {
+    case ae_op_plusplus:
+        if( equals( postfix->exp->type, &t_int ) )
+            emit->append( new Chuck_Instr_Inc_int );
+        else
+        {
+            EM_error2( postfix->linepos,
+                "(emit): internal error: unhandled type '%s' for post '++' operator",
+                postfix->exp->type->c_name() );
+            return FALSE;
+        }
+    break;
+
+    case ae_op_minusminus:
+        if( equals( postfix->exp->type, &t_int ) )
+            emit->append( new Chuck_Instr_Dec_int );
+        else
+        {
+            EM_error2( postfix->linepos,
+                "(emit): internal error: unhandled type '%s' for post '--' operator",
+                postfix->exp->type->c_name() );
+            return FALSE;
+        }
+    break;
+
+    default:
+        EM_error2( postfix->linepos,
+            "(emit): internal error: unhandled postfix operator '%s'",
+            op2str( postfix->op ) );
+        return FALSE;
+    }        
+     
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_dur()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
+t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur )
+{
+    // emit base
+    if( !emit_engine_emit_exp( emit, dur->base ) )
+        return FALSE;
+
+    // cast
+    if( equals( dur->base->type, &t_int ) )
+        emit->append( new Chuck_Instr_Cast_int2double );
+
+    // emit unit
+    if( !emit_engine_emit_exp( emit, dur->unit ) )
+        return FALSE;
+        
+    // multiply
+    emit->append( new Chuck_Instr_Times_double );
+        
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_array()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
+t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_func_call()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
+                                         a_Exp_Func_Call func_call )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_dot_member()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
+t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
+                                          a_Exp_Dot_Member member )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_if()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
+t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_decl()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
+t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_namespace
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
+t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit,
+                                         a_Exp_Namespace name_space )
+{
+    return FALSE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_code_segment()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt, t_CKBOOL push );
+t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, 
+                                        a_Stmt_Code stmt, t_CKBOOL push )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_func_def()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
+t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_class_def()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def );
+t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_spork()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
+t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
+{
+    return TRUE;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_symbol()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
-                                  t_CKBOOL offset, int linepos );
+                                  t_CKBOOL offset, int linepos )
+{
+    return TRUE;
+}
 
 
 
@@ -2034,10 +2130,8 @@ void Chuck_Emitter::pop_scope( )
 {
     // sanity
     assert( code != NULL );
-
     // clear locals
     locals.clear();
-
     // get locals
     code->frame->pop_scope( locals );
 
@@ -2061,8 +2155,7 @@ t_CKBOOL Chuck_Emitter::find_dur( const string & name, t_CKDUR * out )
     *out = 0.0;
     // get value from env
     Chuck_Value * value = env->global.lookup_value( name, FALSE );
-    if( !value || !equals( value->type, &t_dur ) )
-        return FALSE;
+    if( !value || !equals( value->type, &t_dur ) ) return FALSE;
     // copy
     *out = *( (t_CKDUR *)value->addr );
     
