@@ -237,7 +237,7 @@ struct Chuck_Env : public Chuck_VM_Object
 
 	// constructor
 	Chuck_Env( )
-	{ this->reset(); vm = NULL; }
+	{ this->reset(); vm = NULL; curr = NULL; class_def = NULL; func = NULL; }
 	// destructor
 	~Chuck_Env() { }
 

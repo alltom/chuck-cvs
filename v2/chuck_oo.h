@@ -52,7 +52,7 @@ struct Chuck_VM_Object
 {
 public:
     Chuck_VM_Object() { this->init(); }
-    virtual ~Chuck_VM_Object() { this->release(); }
+    virtual ~Chuck_VM_Object() { }
 
 public:
     void init( t_CKBOOL pooled = FALSE );
