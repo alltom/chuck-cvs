@@ -545,21 +545,22 @@ a_Type_Decl add_type_decl_array( a_Type_Decl a, a_Array_Sub array, int pos )
     return a;
 }
 
-a_Arg_List new_arg_list( a_Type_Decl type_decl, c_str name, int pos )
+a_Arg_List new_arg_list( a_Type_Decl type_decl, a_Var_Decl var_decl, int pos )
 {
     a_Arg_List a = (a_Arg_List)checked_malloc(
         sizeof( struct a_Arg_List_ ) );
     a->type_decl = type_decl;
-    a->id = insert_symbol( name );
+    a->var_decl = var_decl;
     a->next = NULL;
     a->linepos = pos;
 
     return a;
 }
 
-a_Arg_List prepend_arg_list( a_Type_Decl type_decl, c_str name, a_Arg_List arg_list, int pos )
+a_Arg_List prepend_arg_list( a_Type_Decl type_decl, a_Var_Decl var_decl, 
+                             a_Arg_List arg_list, int pos )
 {
-    a_Arg_List a = new_arg_list( type_decl, name, pos );
+    a_Arg_List a = new_arg_list( type_decl, var_decl, pos );
     a->next = arg_list;
     a->linepos = pos;
 

@@ -10,6 +10,11 @@ int b[23];
 
 b["hi"] + 1;
 
+function int hi( int yo )
+{
+    return yo * 2;
+}
+
 class A
 {
     int aaa;
@@ -30,7 +35,7 @@ class Foo
 
     public int bar()
     {
-        return 0;
+        return hi(g);
     }
 
 	int x[100];

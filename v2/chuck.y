@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 33 shift/reduce conflicts
-%expect 33
+// expect 32 shift/reduce conflicts
+%expect 32
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -244,8 +244,8 @@ type_decl2
         ;
 
 arg_list
-        : type_decl2 ID                      { $$ = new_arg_list( $1, $2, EM_lineNum ); }
-        | type_decl ID COMMA arg_list        { $$ = prepend_arg_list( $1, $2, $4, EM_lineNum ); }
+        : type_decl var_decl                { $$ = new_arg_list( $1, $2, EM_lineNum ); }
+        | type_decl var_decl COMMA arg_list { $$ = prepend_arg_list( $1, $2, $4, EM_lineNum ); }
         ;
 
 statement_list

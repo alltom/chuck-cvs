@@ -1414,14 +1414,14 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     t_CKTYPE a = &t_void;
 
     // make sure we have a function
-    if( isa( f, &t_function ) )
+    if( !isa( f, &t_function ) )
     {
         EM_error2( func_call->linepos, "function call using a non-function value" );
         return NULL;
     }
 
     // get the function and set it in the func_call
-    func_call->ck_func = func = env->func;
+    func_call->ck_func = func = f->func;
 
     // check the arguments
     if( func_call->args )
@@ -1765,30 +1765,30 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         {
             EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, "argument %i '%s' has undefined type '%s'", 
-                count, S_name(arg_list->id), S_name(arg_list->type_decl->id->id) );
+                count, S_name(arg_list->var_decl->id), S_name(arg_list->type_decl->id->id) );
             goto error;
         }
 
         // check if reserved
-        if( type_engine_check_reserved( env, arg_list->id, arg_list->linepos ) )
+        if( type_engine_check_reserved( env, arg_list->var_decl->id, arg_list->linepos ) )
         {
             EM_error2( arg_list->linepos, "in function '%s'", S_name(f->name) );
             goto error;
         }
 
         // look up in scope
-        if( env->curr->lookup_value( arg_list->id, FALSE ) )
+        if( env->curr->lookup_value( arg_list->var_decl->id, FALSE ) )
         {
             EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
-                count, S_name(arg_list->id) );
+                count, S_name(arg_list->var_decl->id) );
             goto error;
         }
 
         // enter into value table
         value = new Chuck_Value( 
-            arg_list->type, S_name(arg_list->id), NULL, FALSE, 0, NULL );
-        env->curr->value.add( arg_list->id, value );
+            arg_list->type, S_name(arg_list->var_decl->id), NULL, FALSE, 0, NULL );
+        env->curr->value.add( arg_list->var_decl->id, value );
 
         // stack
         f->stack_depth += arg_list->type->size;
@@ -2038,11 +2038,11 @@ a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, t_CKUINT index
 
     if( index == (params.size()-1) )
         args = new_arg_list( new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0 ),
-                             (char*)params[index].name.c_str(), 0 );
+                             new_var_decl( (char *)params[index].name.c_str(), NULL, 0 ), 0 );
     else
         args = prepend_arg_list(
             new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0 ),
-            (char*)params[index].name.c_str(),
+            new_var_decl( (char *)params[index].name.c_str(), NULL, 0 ),
             do_make_args( params, index + 1 ), 0 );
     return args;
 }

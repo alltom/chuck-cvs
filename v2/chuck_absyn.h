@@ -167,8 +167,8 @@ a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list
 a_Var_Decl new_var_decl( c_str id, a_Array_Sub array, int pos );
 a_Type_Decl new_type_decl( a_Id_List id, int pos );
 a_Type_Decl add_type_decl_array( a_Type_Decl type_decl, a_Array_Sub array, int pos );
-a_Arg_List new_arg_list( a_Type_Decl type_decl, c_str name, int pos );
-a_Arg_List prepend_arg_list( a_Type_Decl type_decl, c_str name, a_Arg_List arg_list, int pos );
+a_Arg_List new_arg_list( a_Type_Decl type_decl, a_Var_Decl var_decl, int pos );
+a_Arg_List prepend_arg_list( a_Type_Decl type_decl, a_Var_Decl var_decl, a_Arg_List arg_list, int pos );
 a_Array_Sub new_array_sub( a_Exp exp, int pos );
 a_Array_Sub prepend_array_sub( a_Array_Sub array, a_Exp exp, int pos );
 a_Class_Def new_class_def( a_Id_List id, a_Class_Ext ext, a_Class_Body body, int pos );
@@ -207,7 +207,7 @@ struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; a_Array_Sub array; int li
 struct a_Type_Decl_ { a_Id_List id; a_Array_Sub array; int linepos; a_Exp self; };
 struct a_Array_Sub_ { int depth; a_Exp exp_list; int linepos; a_Exp self; 
                       int err_num; int err_pos; };
-struct a_Arg_List_ { a_Type_Decl type_decl; t_CKTYPE type; S_Symbol id; 
+struct a_Arg_List_ { a_Type_Decl type_decl; a_Var_Decl var_decl; t_CKTYPE type;
                      a_Arg_List next; int linepos; a_Exp self; };
 
 // enum primary exp type
