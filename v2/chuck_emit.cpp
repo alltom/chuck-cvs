@@ -2125,8 +2125,25 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
         exp = exp->next;
     }
 
-    // emit the array access
-    emit->append( new Chuck_Instr_Array_Access );
+    // make sure
+    if( type->size != 4 && type->size != 8 )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: array with datasize of %i...", type->size );
+        return FALSE;
+    }
+
+    // check the depth
+    if( depth == 1 )
+    {
+        // emit the array access
+        emit->append( new Chuck_Instr_Array_Access );
+    }
+    else
+    {
+        // emit the multi array access
+        emit->append( new Chuck_Instr_Array_Access_Multi( depth ) );
+    }
 
     // TODO: variable?
 

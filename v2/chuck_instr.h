@@ -1569,7 +1569,7 @@ public:
 // name: class Chuck_Instr_Array_Alloc
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Alloc : public Chuck_Instr_Unary_Op
+class Chuck_Instr_Array_Alloc : public Chuck_Instr
 {
 public:
     Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * base_type );
@@ -1580,6 +1580,7 @@ public:
     virtual const char * params() const { return m_param_str; }
 
 protected:
+    t_CKUINT m_depth;
     Chuck_Type * m_type_ref;
     char * m_param_str;
 };
@@ -1593,9 +1594,6 @@ protected:
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Array_Access : public Chuck_Instr
 {
-public:
-    Chuck_Instr_Array_Access( );
-
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };

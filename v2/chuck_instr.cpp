@@ -1792,7 +1792,7 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 Chuck_Instr_Array_Alloc::Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * t )
 {
     // set
-    this->set( depth );
+    m_depth = depth;
     // copy
     m_type_ref = t;
     // remember
@@ -1836,17 +1836,6 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
 // desc: ...
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-Chuck_Instr_Array_Access::Chuck_Instr_Array_Access( )
 {
 }
 
