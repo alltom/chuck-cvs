@@ -18,8 +18,7 @@ while( true )
     0 => i.pos;
     // randomize gain
     std.rand2f( .4, 2.0 ) => r.gain;
-    v + .1 => v;
+    v + .05 => v;
     // advance time
-    (69.0+math.sin(v)*10.0)::ms => now;
+    69.0::ms => now;
 }
-
