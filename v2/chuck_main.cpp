@@ -54,6 +54,8 @@ extern "C" int yyparse( void );
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #else 
 #define CHUCK_THREAD HANDLE
 #define usleep(x) Sleep(x/1000);
@@ -129,13 +131,15 @@ void signal_int( int sig_num )
 
 
 
+t_CKUINT g_sigpipe_mode = 0;
 //-----------------------------------------------------------------------------
 // name: signal_pipe()
 // desc: ...
 //-----------------------------------------------------------------------------
 void signal_pipe( int sig_num )
 {
-    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (lost connection)...\n" );
+    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (no connection)...\n" );
+    if( g_sigpipe_mode ) exit( 1 );
 }
 
 
@@ -171,13 +175,17 @@ t_CKBOOL parse( c_str fname, FILE * fd = NULL )
     strcpy( filename, fname );
 
     // test it
-    fd = open_cat( filename );
     if( !fd )
-        strcpy( filename, fname );
+    {
+        fd = open_cat( filename );
+        if( !fd ) strcpy( filename, fname );
+    }
 
     // parse
     ret = EM_reset( filename, fd );
     if( ret == FALSE ) return FALSE;
+    // TODO: clean g_program
+    g_program = NULL;
     ret = (yyparse( ) == 0);
 
     return ret;
@@ -277,7 +285,8 @@ void usage()
 {
     fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
-    fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>\n" );
+    fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
+    fprintf( stderr, "               remote<hostname>|port<N>\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
     fprintf( stderr, "chuck version: %s\n", CK_VERSION );
@@ -288,15 +297,97 @@ void usage()
 
 
 //-----------------------------------------------------------------------------
-// name: struct Msg()
+// name: send_file()
 // desc: ...
 //-----------------------------------------------------------------------------
-struct Msg
+int send_file( const char * filename, Net_Msg & msg, const char * op )
 {
-    t_CKUINT type;
-    t_CKUINT param;
-    char buffer[512];
-};
+    FILE * fd = NULL;
+    struct stat fs;
+    
+    strcpy( msg.buffer, "" );
+    if( filename[0] != '/' )
+    { 
+        strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
+        strcat( msg.buffer, getenv("PWD") ? "/" : "" );
+    }
+    strcat( msg.buffer, filename );
+
+    // test it
+    fd = open_cat( (char *)msg.buffer );
+    if( !fd )
+    {
+        fprintf( stderr, "[chuck]: cannot open file '%s' for [%s]...\n", filename, op );
+        return FALSE;
+    }
+            
+    if( !parse( (char *)msg.buffer, fd ) )
+    {
+        fprintf( stderr, "[chuck]: skipping file '%s' for [%s]...\n", filename, op );
+        fclose( fd );
+        return FALSE;
+    }
+            
+    // stat it
+    stat( msg.buffer, &fs );
+    fseek( fd, 0, SEEK_SET );
+
+    // send the first packet
+    msg.param2 = (t_CKUINT)fs.st_size;
+    msg.length = 0;
+    otf_hton( &msg );
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+
+    // send the whole thing
+    t_CKUINT left = (t_CKUINT)fs.st_size;
+    while( left )
+    {
+        // amount to send
+        msg.length = left > NET_BUFFER_SIZE ? NET_BUFFER_SIZE : left;
+        // read
+        msg.param3 = fread( msg.buffer, sizeof(char), msg.length, fd );
+        // amount left
+        left -= msg.param3 ? msg.param3 : 0;
+        msg.param2 = left;
+        // send it
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    
+    // close
+    fclose( fd );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: recv_file()
+// desc: ...
+//-----------------------------------------------------------------------------
+FILE * recv_file( const Net_Msg & msg, ck_socket sock )
+{
+    Net_Msg buf;
+    
+    // what is left
+    t_CKUINT left = msg.param2;
+    // make a temp file
+    FILE * fd = tmpfile();
+
+    do {
+        // msg
+        ck_recv( sock, (char *)&buf, sizeof(buf) );
+        otf_ntoh( &buf );
+        // write
+        fwrite( buf.buffer, sizeof(char), buf.length, fd );
+    }while( buf.param2 );
+    
+    fprintf( stderr, "read: %s...\n", msg.buffer );
+    
+    return fd;
+}
 
 
 
@@ -305,22 +396,28 @@ struct Msg
 // name: process_msg()
 // desc: ...
 //-----------------------------------------------------------------------------
-extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buffer,
-                                 t_CKBOOL immediate )
+extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data )
 {
-    Msg msg;
     Chuck_Msg * cmd = new Chuck_Msg;
+    FILE * fd = NULL;
     
-    // copy in
-    msg.type = type;
-    msg.param = param;
-    if( !buffer ) buffer = "";
-    strcpy( msg.buffer, buffer );
-
     // fprintf( stderr, "UDP message recv...\n" );
-    if( msg.type == MSG_REPLACE || msg.type == MSG_ADD )
+    if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
     {
-        if( !parse( msg.buffer ) )
+        // see if entire file is on the way
+        if( msg->param2 )
+        {
+            fd = recv_file( *msg, (ck_socket)data );
+            if( !fd )
+            {
+                fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
+                    mini(msg->buffer) );
+                return 0;
+            }
+        }
+        
+        // parse
+        if( !parse( msg->buffer, fd ) )
             return 0;
 
         // type check
@@ -334,7 +431,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
 
         // transform the code
         Chuck_VM_Code * code = emit_to_code( emit );
-        code->name = msg.buffer;
+        code->name = msg->buffer;
         cmd->shred = new Chuck_VM_Shred;
         cmd->shred->initialize( code );
         cmd->shred->name = code->name;
@@ -343,16 +440,16 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
         emit_engine_shutdown( emit );
 
         // set the flags for the command
-        cmd->type = msg.type;
+        cmd->type = msg->type;
         cmd->code = code;
-        if( msg.type == MSG_REPLACE )
-            cmd->param = msg.param;
+        if( msg->type == MSG_REPLACE )
+            cmd->param = msg->param;
     }
-    else if( msg.type == MSG_STATUS || msg.type == MSG_REMOVE || msg.type == MSG_REMOVEALL
-             || msg.type == MSG_KILL || msg.type == MSG_TIME )
+    else if( msg->type == MSG_STATUS || msg->type == MSG_REMOVE || msg->type == MSG_REMOVEALL
+             || msg->type == MSG_KILL || msg->type == MSG_TIME )
     {
-        cmd->type = msg.type;
-        cmd->param = msg.param;
+        cmd->type = msg->type;
+        cmd->param = msg->param;
     }
     else
     {
@@ -419,7 +516,8 @@ void * timer( void * p )
 //-----------------------------------------------------------------------------
 void * cb( void * p )
 {
-    Msg msg;
+    Net_Msg msg;
+    Net_Msg ret;
     ck_socket client;
     int n;
 
@@ -442,8 +540,9 @@ void * cb( void * p )
             ck_close( client );
             continue;
         }
-        memset( &msg, 0, sizeof(msg) );
+        msg.clear();
         n = ck_recv( client, (char *)&msg, sizeof(msg) );
+        otf_ntoh( &msg );
         if( n != sizeof(msg) )
         {
             fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
@@ -455,21 +554,41 @@ void * cb( void * p )
             ck_close( client );
             continue;
         }
-
-        if( g_vm )
+        
+        if( msg.header != NET_HEADER )
         {
-            if( !process_msg( msg.type, msg.param, msg.buffer, FALSE ) )
+            fprintf( stderr, "[chuck]: header mismatch - possible endian lunacy...\n" );
+            ck_close( client );
+            continue;
+        }
+
+        while( msg.type != MSG_DONE )
+        {
+            if( g_vm )
             {
-                msg.param = FALSE;
-                strcpy( (char *)msg.buffer, EM_lasterror() );
-            }
-            else
-            {
-                msg.param = TRUE;
-                strcpy( (char *)msg.buffer, "success" );
+                if( !process_msg( &msg, FALSE, client ) )
+                {
+                    ret.param = FALSE;
+                    strcpy( (char *)ret.buffer, EM_lasterror() );
+                    while( msg.type != MSG_DONE && n )
+                    {
+                        n = ck_recv( client, (char *)&msg, sizeof(msg) );
+                        otf_ntoh( &msg );
+                    }
+                    break;
+                }
+                else
+                {
+                    ret.param = TRUE;
+                    strcpy( (char *)ret.buffer, "success" );
+                    n = ck_recv( client, (char *)&msg, sizeof(msg) );
+                    otf_ntoh( &msg );
+                }
             }
         }
-        ck_send( client, (char *)&msg, sizeof(msg) );
+        
+        otf_hton( &ret );
+        ck_send( client, (char *)&ret, sizeof(ret) );
         ck_close( client );
     }
     
@@ -485,8 +604,8 @@ void * cb( void * p )
 //-----------------------------------------------------------------------------
 int send_cmd( int argc, char ** argv, int  & i )
 {
-    Msg msg;
-    memset( &msg, 0, sizeof(msg) );
+    Net_Msg msg;
+    g_sigpipe_mode = 1;
 	
     g_sock = ck_tcp_create( 0 );
     if( !g_sock )
@@ -495,6 +614,9 @@ int send_cmd( int argc, char ** argv, int  & i )
         return 1;
     }
 
+    if( strcmp( g_host, "127.0.0.1" ) )
+        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
+    
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
         fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
@@ -503,7 +625,6 @@ int send_cmd( int argc, char ** argv, int  & i )
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
-        FILE * fd;
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
@@ -511,27 +632,9 @@ int send_cmd( int argc, char ** argv, int  & i )
         }
 
         do {
-            strcpy( msg.buffer, "" );
-            if( argv[i][0] != '/' )
-            { 
-                strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
-                strcat( msg.buffer, getenv("PWD") ? "/" : "" );
-            }
-            strcat( msg.buffer, argv[i] );
-
-            // test it
-            fd = open_cat( (char *)msg.buffer );
-            if( !fd )
-            {
-                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
-                return 1;
-            }
-
-            // close it
-            if( fd ) fclose( fd );
-
             msg.type = MSG_ADD;
-            ck_send( g_sock, (char *)&msg, sizeof(msg) );
+            msg.param = 1;
+            send_file( argv[i], msg, "add" );
         } while( ++i < argc );
     }
     else if( !strcmp( argv[i], "--remove" ) || !strcmp( argv[i], "-" ) )
@@ -545,6 +648,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         do {
             msg.param = atoi( argv[i] );
             msg.type = MSG_REMOVE;
+            otf_hton( &msg );
             ck_send( g_sock, (char *)&msg, sizeof(msg) );
         } while( ++i < argc );
     }
@@ -552,11 +656,11 @@ int send_cmd( int argc, char ** argv, int  & i )
     {
         msg.param = 0xffffffff;
         msg.type = MSG_REMOVE;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
     {
-        FILE * fd;
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
@@ -574,54 +678,49 @@ int send_cmd( int argc, char ** argv, int  & i )
             return 1;
         }
 
-        strcpy( msg.buffer, "" );
-        if( argv[i][0] != '/' )
-        { 
-            strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
-            strcat( msg.buffer, getenv("PWD") ? "/" : "" );
-        }
-        strcat( msg.buffer, argv[i] );
-        
-        fd = open_cat( (char *)msg.buffer );
-        if( !fd )
-        {
-            fprintf( stderr, "[chuck]: cannot open file '%s' for [replace]...\n", argv[i] );
-            return 1;
-        }
-
         msg.type = MSG_REPLACE;
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        send_file( argv[i], msg, "replace" );
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
     {
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--kill" ) )
     {
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
         msg.type = MSG_KILL;
         msg.param = (i+1)<argc ? atoi(argv[++i]) : 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--time" ) )
     {
         msg.type = MSG_TIME;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
     {
         msg.type = MSG_STATUS;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else
         return 0;
         
+    // send
+    msg.type = MSG_DONE;
+    otf_hton( &msg );
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+
     // timer
     CHUCK_THREAD tid;
 #ifndef __PLATFORM_WIN32__
@@ -633,6 +732,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     // reply
     if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
     {
+        otf_ntoh( &msg );
         fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
         if( !msg.param )
             fprintf( stderr, "(reason): %s\n", 
@@ -720,6 +820,14 @@ int main( int argc, char ** argv )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--level", 7) )
                 g_priority = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : 0xffffffff;
+            else if( !strncmp(argv[i], "--remote", 8) )
+                strcpy( g_host, argv[i]+8 );
+            else if( !strncmp(argv[i], "@", 1) )
+                strcpy( g_host, argv[i]+1 );
+            else if( !strncmp(argv[i], "--port", 6) )
+                g_port = atoi( argv[i]+6 );
+            else if( !strncmp(argv[i], "-p", 2) )
+                g_port = atoi( argv[i]+2 );
             else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
                  || !strcmp(argv[i], "--about") )
             {

@@ -5,20 +5,23 @@ YACC=bison
 INCLUDES=
 FLAGS=-D__LINUX_OSS__ -O3 -c
 LIBS=-lpthread -lstdc++ -ldl -lm
+SF_OBJ=util_sndfile.o
 
 #-----------------------------------------------------------------------------
 # by default, ChucK uses a pre-configured libsndfile...
-# uncomment the next line to use libsndfile on your system    
+# uncomment the next 3 lines to use libsndfile on your system    
 #-----------------------------------------------------------------------------
-#FLAGS += -D__CK_SNDFILE_NATIVE__
+#FLAGS+= -D__CK_SNDFILE_NATIVE__
+#LIBS+= -lsndfile
+#SF_OBJ= 
 
 OBJS=chuck.tab.o chuck.yy.o chuck_main.o chuck_errmsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \
 	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_ugen.o \
-	chuck_bbq.o chuck_dl.o digiio_rtaudio.o rtaudio.o midiio_oss.o \
-	ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o ulib_machine.o \
-	ulib_math.o ulib_net.o ulib_std.o util_buffers.o util_math.o \
-	util_network.o util_raw.o util_sndfile.o util_xforms.o
+	chuck_bbq.o chuck_dl.o chuck_otf.o digiio_rtaudio.o rtaudio.o \
+	midiio_oss.o ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o \
+	ulib_machine.o ulib_math.o ulib_net.o ulib_std.o util_buffers.o \
+	util_math.o util_network.o util_raw.o util_xforms.o $(SF_OBJ)
 
 chuck: $(OBJS)
 	$(CC) -o chuck $(OBJS) $(LIBS)
@@ -79,6 +82,9 @@ chuck_utils.o: chuck_utils.cpp chuck_utils.h
 
 chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_oss.h
 	$(CC) $(FLAGS) chuck_bbq.cpp
+
+chuck_otf.o: chuck_otf.h chuck_otf.cpp
+	$(CC) $(FLAGS) chuck_otf.cpp
 
 digiio_rtaudio.o: digiio_rtaudio.h digiio_rtaudio.cpp
 	$(CC) $(FLAGS) digiio_rtaudio.cpp
