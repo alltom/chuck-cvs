@@ -769,10 +769,8 @@ error:
     ck_send( g_sock, (char *)&msg, sizeof(msg) );
     ck_close( g_sock );
     
-    if( !ret )
-        // exit
-        exit( 1 );
-    
+    if( !ret ) exit( 1 );
+
     return 0;
 }
 
@@ -867,8 +865,7 @@ int main( int argc, char ** argv )
                 exit( 0 );
 			else
             {
-                fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
-                usage();
+                fprintf( stderr, "[chuck]: invalid flag '%s' (try --help)\n", argv[i] );
                 exit( 1 );
             }
         }
