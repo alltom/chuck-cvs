@@ -1234,7 +1234,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         if( strstr(filename, "special:sinewave") ) {
             rawsize = 256; rawdata = NULL;
         }
-        else if( strstr(filename, "special:aah") ) {
+        else if( strstr(filename, "special:ahh") ) {
             rawsize = ahh_size; rawdata = ahh_data;
         }
         else if( strstr(filename, "special:britestk") ) {
