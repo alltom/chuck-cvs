@@ -136,8 +136,6 @@ Chuck_VM::~Chuck_VM()
 }
 
 
-
-
 // dac tick
 UGEN_TICK __dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) 
 { *out = in; return TRUE; }
@@ -145,17 +143,21 @@ UGEN_TICK __bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 { *out = 0.0f; return TRUE; }
 
 
+// static
+t_CKINT Chuck_VM::our_priority = 95;
+
 
 #ifndef __WINDOWS_DS__
 //-----------------------------------------------------------------------------
 // name: set_priority()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority, Chuck_VM * vm )
+t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
 {
     struct sched_param param;
     pthread_t tid = pthread_self();
     int policy;
+    // get for thread
     if( pthread_getschedparam( tid, &policy, &param) ) 
     {
         if( vm )
@@ -163,8 +165,12 @@ t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority, Chuck_VM * vm )
         return FALSE;
     }
 
-    param.sched_priority = (int)priority;
-    if( pthread_setschedparam( tid, SCHED_RR, &param ) )
+    // priority
+    param.sched_priority = priority;
+    // policy
+    policy = SCHED_RR;
+    // set for thread
+    if( pthread_setschedparam( tid, policy, &param ) )
     {
         if( vm )
         vm->m_last_error = "could not get set new scheduling parameters";

@@ -890,7 +890,9 @@ int main( int argc, char ** argv )
     
     // check buffer size
     buffer_size = next_power_2( buffer_size-1 );
-    
+    // set priority
+    Chuck_VM::our_priority = g_priority;
+
     if ( !files && vm_halt )
     {
         fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
