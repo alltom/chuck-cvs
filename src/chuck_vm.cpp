@@ -144,6 +144,8 @@ Chuck_VM::~Chuck_VM()
 // dac tick
 UGEN_TICK __dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) 
 { *out = in; return TRUE; }
+UGEN_TICK __bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{ *out = 0.0f; return TRUE; }
 
 
 
@@ -219,8 +221,10 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_dac[1].tick = __dac_tick;
     m_num_adc_channels = 2;
     m_adc = new Chuck_UGen[2];
+    m_bunghole = new Chuck_UGen;
     m_shreduler->m_dac = m_dac;
     m_shreduler->m_adc = m_adc;
+    m_shreduler->m_bunghole = m_bunghole;
     m_shreduler->m_num_dac_channels = m_num_dac_channels;
     m_shreduler->m_num_adc_channels = m_num_adc_channels;
 
@@ -1112,6 +1116,9 @@ void Chuck_VM_Shreduler::advance( )
     l = m_dac[0].m_current;
     //r = m_dac[1].m_current;
     l *= .5f;
+    
+    // suck samples
+    m_bunghole->system_tick( this->now_system );
 
     // tick
     if( audio )

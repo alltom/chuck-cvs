@@ -76,6 +76,7 @@ UGEN_TICK zerox_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 
 // DAC and ADC
 UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_TICK bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 
 // sndbuf
 UGEN_CTOR sndbuf_ctor( t_CKTIME now );

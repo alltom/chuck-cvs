@@ -88,7 +88,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "zerox", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, zerox_ctor, zerox_dtor, zerox_tick, NULL );
-/*
+
     // add dac
     QUERY->ugen_add( QUERY, "dac", NULL );
     // set funcs
@@ -108,7 +108,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "blackhole", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
-*/
+
     // add sndbuf
     QUERY->ugen_add( QUERY, "sndbuf", NULL );
     // set funcs

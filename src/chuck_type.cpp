@@ -317,6 +317,7 @@ t_Env type_engine_init( Chuck_VM * vm )
     S_enter( e->value, insert_symbol( "adc" ), &t_adc );
     S_enter( e->value, insert_symbol( "dac" ), &t_dac );
     S_enter( e->value, insert_symbol( "bunghole" ), &t_bunghole );
+    S_enter( e->value, insert_symbol( "blackhole" ), &t_bunghole );
     
     S_enter( e->value, insert_symbol( "true" ), &t_int );
     S_enter( e->value, insert_symbol( "false" ), &t_int );

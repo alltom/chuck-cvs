@@ -221,6 +221,7 @@ public:
     // ugen
     Chuck_UGen * m_dac;
     Chuck_UGen * m_adc;
+    Chuck_UGen * m_bunghole;
     t_CKUINT m_num_dac_channels;
     t_CKUINT m_num_adc_channels;
 };
@@ -291,6 +292,7 @@ public:
     // ugen
     Chuck_UGen * m_adc;
     Chuck_UGen * m_dac;
+    Chuck_UGen * m_bunghole;
     t_CKUINT m_num_adc_channels;
     t_CKUINT m_num_dac_channels;
     

@@ -2124,7 +2124,7 @@ void Chuck_Instr_DAC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Bunghole::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& reg_sp = (uint *&)shred->reg->sp;
-    push_( reg_sp, 0 );
+    push_( reg_sp, (uint)vm->m_bunghole );
 }
 
 
