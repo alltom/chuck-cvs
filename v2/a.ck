@@ -23,9 +23,11 @@ class BB extends AA
 BB b1;
 b1.bar();
 
-bb @=> BB @ b2;
-bbb.foo();
-bb @=> BB @ bbbb;
+b1 @=> BB @ b2;
+b2.foo();
+
+AA @ aa[100];
+new AA @=> aa[0];
 
 //adc => sndbuf => dac;
 

@@ -1078,8 +1078,15 @@ t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 {
-    Chuck_Type * t = type_engine_check_exp( env, unary->exp );
-    if( !t ) return NULL;
+    Chuck_Type * t = NULL;
+
+    // make sure
+    if( unary->exp )
+    {
+        assert( unary->op == ae_op_new );
+        t = type_engine_check_exp( env, unary->exp );
+        if( !t ) return NULL;
+    }
     
     // check the op
     switch( unary->op )
