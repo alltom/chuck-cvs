@@ -142,7 +142,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * m_num_channels_out;
-    DWORD__ n = 20;
+    DWORD__ n = 5;
     DWORD__ start = 50;
 
     // copy input to local buffer
@@ -157,7 +157,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // copy output into local buffer
     if( m_go >= start )
     {
-        while( !m_out_ready && n-- ) usleep( 100 );
+        while( !m_out_ready && n-- ) usleep( 200 );
         // copy local buffer to be rendered
         if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
@@ -166,7 +166,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     else  // initial condition
     {
 #ifdef __MACOSX_CORE__
-        if( !m_go ) Chuck_VM::set_priority( 85, NULL );
+        if( !m_go ) Chuck_VM::set_priority( 95, NULL );
 #endif
         memset( buffer, 0, len );
         m_go++;
@@ -176,7 +176,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // 2nd buffer
     if( m_go == start )
     {
-        n = 20; while( !m_out_ready && n-- ) usleep( 100 );
+        n = 8; while( !m_out_ready && n-- ) usleep( 250 );
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
@@ -439,7 +439,7 @@ DWORD__ DigitalOut::render()
     Digitalio::m_out_ready = TRUE;
     // synchronize
     while( Digitalio::m_out_ready )
-        usleep( 100 );
+        usleep( 500 );
     // set pointer to the beginning - if not ready, then too late anyway
     *Digitalio::m_write_ptr = (SAMPLE *)Digitalio::m_buffer_out;
 
@@ -611,8 +611,9 @@ DWORD__ DigitalIn::capture( )
 {
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
-    if( !Digitalio::m_in_ready )
-        usleep( 500 );
+    t_CKUINT n = 6;
+    while( !Digitalio::m_in_ready && n-- )
+        usleep( 250 );
 
     // copy data
     memcpy( m_data, Digitalio::m_buffer_in, Digitalio::buffer_size() *
