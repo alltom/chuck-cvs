@@ -24,7 +24,7 @@ sndbuf buf => gain g => JCRev r => dac;
 .05 => r.mix;
 
 // where we actually want to start
-50 => int where;
+25 => int where;
 
 // time loop
 while( true )

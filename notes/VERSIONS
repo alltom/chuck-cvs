@@ -8,6 +8,22 @@
   - endian observed (mac <-> win32/linux)
   - more sensible VM output for on-the-fly commands
   - many on-the-fly bug fixes
+  - sndbuf automatically set .rate to 1.0 (instead of 0.0)
+    (0.0 => buf.rate if no play on next time advance)
+  - new on-the-fly examples
+
+new examples:
+
+  - otf_*.ck - illustrates precise on-the-fly timing
+    chuck them one by one into the VM:
+
+      terminal 1%> chuck --loop
+      terminal 2%> chuck + otf_01.ck
+      (wait)
+      terminal 2%> chuck + otf_02.ck
+      (wait)
+      (repeat through otf_07.ck)
+      (remove, replace and add your own)
 
 
 ---
