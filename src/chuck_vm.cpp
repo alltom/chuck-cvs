@@ -164,7 +164,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority, Chuck_VM * vm )
     }
 
     param.sched_priority = (int)priority;
-    if( pthread_setschedparam( tid, policy, &param ) )
+    if( pthread_setschedparam( tid, SCHED_RR, &param ) )
     {
         if( vm )
         vm->m_last_error = "could not get set new scheduling parameters";
