@@ -522,10 +522,10 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     else if( msg->type == MSG_REMOVEALL )
     {
         int id = m_shred_id;
-        fprintf( stderr, "[chuck](VM): removing all shreds... %i\n", id );
+        fprintf( stderr, "[chuck](VM): removing all (%i) shreds...\n", m_num_shreds );
         Chuck_VM_Shred * shred = NULL;
 
-        while( id >= 0 )
+        while( m_num_shreds && id >= 0 )
         {
             if( m_shreduler->remove( shred = m_shreduler->lookup( id ) ) )
                 delete shred;
