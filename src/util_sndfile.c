@@ -8084,7 +8084,11 @@ psf_fseek (SF_PRIVATE *psf, sf_count_t offset, int whence)
 		} ;
 
 	lDistanceToMove = (DWORD) (offset & 0xFFFFFFFF) ;
-	lDistanceToMoveHigh = (DWORD) ((offset >> 32) & 0xFFFFFFFF) ;
+#ifndef __WINDOWS_DS__
+	lDistanceToMoveHigh = (DWORD) (0xFFFFFFFF & (offset >> 32)) ;
+#else
+    lDistanceToMoveHigh = 0;
+#endif
 
 	dwResult = SetFilePointer ((HANDLE) psf->filedes, lDistanceToMove, &lDistanceToMoveHigh, dwMoveMethod) ;
 
@@ -8118,6 +8122,7 @@ psf_fread (void *ptr, sf_count_t bytes, sf_count_t items, SF_PRIVATE *psf)
 	while (items > 0)
 	{	/* Break the writes down to a sensible size. */
 		count = (items > SENSIBLE_SIZE) ? SENSIBLE_SIZE : (ssize_t) items ;
+        if( items == 16384 ) count = 1024;
 
 		if (ReadFile ((HANDLE) psf->filedes, ((char*) ptr) + total, count, &dwNumberOfBytesRead, 0) == 0)
 		{	psf_log_syserr (psf, GetLastError ()) ;
@@ -8187,7 +8192,7 @@ psf_ftell (SF_PRIVATE *psf)
 	lDistanceToMoveLow = 0 ;
 	lDistanceToMoveHigh = 0 ;
 
-	dwResult = SetFilePointer ((HANDLE) psf->filedes, lDistanceToMoveLow, &lDistanceToMoveHigh, FILE_CURRENT) ;
+	dwResult = SetFilePointer ((HANDLE) psf->filedes, lDistanceToMoveLow, NULL, FILE_CURRENT) ;
 
 	if (dwResult == 0xFFFFFFFF)
 		dwError = GetLastError () ;
@@ -8315,7 +8320,11 @@ psf_ftruncate (SF_PRIVATE *psf, sf_count_t len)
 		return 1 ;
 
 	lDistanceToMoveLow = (DWORD) (len & 0xFFFFFFFF) ;
+#ifndef __WINDOWS_DS__
 	lDistanceToMoveHigh = (DWORD) ((len >> 32) & 0xFFFFFFFF) ;
+#else
+    lDistanceToMoveHigh = 0;
+#endif
 
 	dwResult = SetFilePointer ((HANDLE) psf->filedes, lDistanceToMoveLow, &lDistanceToMoveHigh, FILE_BEGIN) ;
 
