@@ -506,7 +506,7 @@ enum { SNDBUF_DROP = 0, SNDBUF_INTERP, SNDBUF_SINC};
 
 struct sndbuf_data
 {
-    float * buffer;
+    SAMPLE * buffer;
     t_CKUINT num_samples;
     t_CKUINT num_channels;
     t_CKUINT num_frames;
@@ -525,7 +525,7 @@ struct sndbuf_data
     bool    sinc_use_interp;
     int     sinc_samples_per_zero_crossing ;
     int     sinc_width ;
-    float * sinc_table ; 
+    double * sinc_table ; 
     sndbuf_data()
     {
         buffer = NULL;
@@ -687,7 +687,7 @@ void sndbuf_make_sinc( sndbuf_data * d)
     win_freq = PI / d->sinc_width / d->sinc_samples_per_zero_crossing;
     int tabsize = d->sinc_width * d->sinc_samples_per_zero_crossing;
 
-    d->sinc_table = (float *) realloc ( d->sinc_table, tabsize * sizeof(float) );
+    d->sinc_table = (double *) realloc ( d->sinc_table, tabsize * sizeof(double) );
     d->sinc_table[0] = 1.0;
     for (i=1;i< tabsize ;i++)   {
 		temp = (double) i * PI / d->sinc_samples_per_zero_crossing;
@@ -775,6 +775,11 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
+
+//XXX disabled while we get the rest of the windows build together.
+//because of many conflicts in util_sndfile.c
+
+#ifndef WIN32
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
 	
@@ -823,6 +828,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     //    fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
+#endif
 }
 
 UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value )

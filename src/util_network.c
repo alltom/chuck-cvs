@@ -35,13 +35,16 @@
 //-----------------------------------------------------------------------------
 #include "util_network.h"
 
+#if defined(WIN32) 
+#include <winsock.h>
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <netdb.h>
-
+#endif
 
 
 
@@ -96,7 +99,11 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     int ret;
     struct hostent * host;
 
+#ifdef WIN32
+    memset( &sock->sock_in, 0,  sizeof(struct sockaddr_in) );
+#else
     bzero( &sock->sock_in, sizeof(struct sockaddr_in) );
+#endif
     sock->sock_in.sin_family = AF_INET;
     sock->sock_in.sin_port = htons( port );
     // lookup name
@@ -109,8 +116,12 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     }
     else
     {
+#ifdef WIN32
+	    memset( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
+#else
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
-    }
+#endif
+	}
 
     ret = ck_connect2( sock, (struct sockaddr *)&sock->sock_in, 
         sizeof( struct sockaddr_in ) );
@@ -128,9 +139,12 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 BOOL ck_bind( ck_socket sock, int port ) 
 {
     int ret;
-
-    bzero( &sock->sock_in, sizeof(struct sockaddr_in) );
-    sock->sock_in.sin_family = AF_INET;
+#ifdef WIN32
+    memset( &sock->sock_in, 0,  sizeof(struct sockaddr_in) );
+#else
+    bzero( &sock->sock_in, 0, sizeof(struct sockaddr_in) );
+#endif
+	sock->sock_in.sin_family = AF_INET;
     sock->sock_in.sin_port = htons( port );
     sock->sock_in.sin_addr.s_addr = htonl( INADDR_ANY );
 

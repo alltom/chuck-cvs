@@ -124,7 +124,7 @@ struct Chuck_UGen_Info
         tick = parentInfo->tick;
         pmsg = parentInfo->pmsg;
 
-        for ( int i=0; i <  parentInfo->param_list.size(); i++)
+        for ( unsigned int i=0; i <  parentInfo->param_list.size(); i++)
         {
 	        //inherit parent class's functions
 	        //(functions added subsequently will overwrite entries in param_map)

@@ -496,6 +496,7 @@ t_CKBOOL GigaRecv::recv( t_CKBYTE * buffer )
 t_CKBOOL GigaRecv::expire()
 {
     m_msg.seq_num++;
+	return true;
 }
 
 

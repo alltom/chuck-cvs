@@ -33,7 +33,7 @@
 #include "ugen_stk.h"
 #include <stdlib.h>
 
-
+#define MY_FLOAT double
 // see stk_query()...
 
 
@@ -60,8 +60,11 @@
 // following user-definable floating-point type.  You
 // can change this to "float" if you prefer or perhaps
 // a "long double" in the future.
-typedef SAMPLE MY_FLOAT;
 
+//XXX sample is already defined in chuck_def.h!!!
+#if !defined(SAMPLE) 
+   typedef SAMPLE MY_FLOAT;
+#endif
 // The "MY_FLOAT" type will be deprecated in STK
 // versions higher than 4.1.2 and replaced with the variable
 // "StkFloat".
@@ -21288,6 +21291,7 @@ UGEN_PMSG SubNoise_pmsg( t_CKTIME now, void * data, const char * msg, void * val
     NRev * j = (NRev *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value);
     j->setEffectMix( f );
+	return TRUE;
 }
 
 UGEN_CTRL SubNoise_ctrl_rate( t_CKTIME now, void * data, void * value )
@@ -21509,6 +21513,7 @@ UGEN_PMSG WvIn_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
     VoicForm * v = (VoicForm *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
     v->controlChange(__SK_ModWheel_, f * 128.0 );
+	return TRUE;
 }
 
 UGEN_CTRL WvIn_ctrl_rate( t_CKTIME now, void * data, void * value )

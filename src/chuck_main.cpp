@@ -76,7 +76,12 @@ extern int yyparse( void );
 #define CK_VERSION "1.1.4.6"
 
 
+#ifdef WIN32
+	//'C' specification necessary for windows to link properly
+extern "C" a_Program g_program;
+#else
 extern a_Program g_program;
+#endif
 
 ck_socket g_sock;
 Chuck_VM * g_vm = NULL;

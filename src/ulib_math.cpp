@@ -32,27 +32,10 @@
 //-----------------------------------------------------------------------------
 #include "ulib_math.h"
 #include <math.h>
-
+#include "util_math.h"
 
 #if __WINDOWS_DS__
 #include <windows.h>
-double round( double a )
-{
-	double off = a - (long)a;
-	if( off > .5 ) return (double)(long)a + 1.0;
-	return (double)(long)a;
-}
-
-double trunc( double a )
-{
-	return (double)(long)a;
-}
-
-int remainder( int a, int b )
-{
-	int div = a/b;
-	return a - b*div;
-}
 #endif
 
 static double g_pi = 3.14159265358979323846;

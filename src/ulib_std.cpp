@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-
+#include "util_math.h"
 
 #if __WINDOWS_DS__
 #include <windows.h>
@@ -43,6 +43,7 @@ int setenv( char *n, char *v, int i )
 {
     return SetEnvironmentVariable(n, v);
 }
+
 #endif
 
 
