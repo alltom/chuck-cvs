@@ -2126,7 +2126,7 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
     }
 
     // emit the array access
-    emit->append( new Chuck_Instr_Array_Acess );
+    emit->append( new Chuck_Instr_Array_Access );
 
     // TODO: variable?
 
