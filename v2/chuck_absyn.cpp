@@ -607,6 +607,14 @@ a_Class_Def new_class_def( c_str name, a_Class_Ext ext, a_Class_Body body, int p
     return a;
 }
 
+a_Class_Def new_iface_def( c_str name, a_Class_Ext ext, a_Class_Body body, int pos )
+{
+    a_Class_Def a = new_class_def( name, ext, body, pos );
+    a->iface = 1;
+    
+    return a;
+}
+
 a_Class_Body new_class_body( a_Section section, int pos )
 {
     a_Class_Body a = (a_Class_Body)checked_malloc( sizeof( struct a_Class_Body_ ) );
