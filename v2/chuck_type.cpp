@@ -1263,7 +1263,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         if( !type_engine_check_exp( env, decl->type->array->exp_list ) )
             return NULL;        
         // make a copy of the type
-        t = t->copy();
+        t = t->copy( env );
         // set the array depth
         t->array_depth = decl->type->array->depth;
     }
@@ -1448,7 +1448,7 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
     assert( array->indices->depth == depth );
     
     // make sure depth <= max
-    t_CKTYPE t = t_base->copy();
+    t_CKTYPE t = t_base->copy( env );
     if( depth == t_base->array_depth ) t->array_depth = 0;
     else t->array_depth = t_base->array_depth - depth;
 
@@ -1700,5 +1700,5 @@ Chuck_Context::~Chuck_Context()
     for( int i = 0; i < new_types.size(); i++ )
         delete new_types[i];
 
-    // TODO: delete abstract syntax tree
+    // TODO: delete abstract syntax tree * 
 }

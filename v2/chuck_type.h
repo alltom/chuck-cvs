@@ -184,7 +184,7 @@ struct Chuck_Context
 	Chuck_VM_Code * code;
     
     // things to delete with the context
-    vector<t_CKTYPE *> new_types;
+    vector<t_CKTYPE> new_types;
 
 	// constructor
 	Chuck_Context() { parse_tree = NULL; code = NULL; }
@@ -282,8 +282,9 @@ public:
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
       owner = info = NULL; func = NULL; }
     // copy
-    Chuck_Type * copy() const
-    { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) ); }
+    Chuck_Type * copy( Chuck_Env * env ) const
+    { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) );
+      env->context->new_types.push_back( n ); }
 };
 
 
