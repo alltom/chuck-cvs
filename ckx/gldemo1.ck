@@ -71,7 +71,7 @@ function void thedrawloop() {
 		gl.Rotatef (tm * 60.0, 0.0, 1.0 , 0.0 );
 		
 		if ( bg > 0.0 ) { 
-			gl.Color4f( 0.0, 0.0, 0.0, 0.5 ); 
+			gl.Color4f( 0.0, 0.0, 0.0, 0.95 ); 
 			gluck.SolidTeapot ( 0.5  );
 			gl.Color4f( frac , 0.5 + 0.5 * curx , 0.05 + 0.5 * cury, 0.5 );
 			gluck.WireTeapot ( 0.5 + bg );
@@ -116,6 +116,18 @@ function void theeventloop() {
 	}
 }
 
+function void theaudiocontrol( ) { 
+	fc + ampM * frac => a.sfreq;
+//	0.4 + 0.3 * math.sin ( tm * 0.2 ) => a.gain;
+	if ( avol > 1.5 ) 1.5 => avol;
+	0.1 + avol => a.gain;
+	avol + ( 0.033 * -0.1 ) => avol;
+	if ( avol < 0.0 ) { 0.0 => avol; }
+	bg + ( 0.033 * -0.4 ) => bg ; //drain bg
+	if ( bg < 0.0 ) { 0.0 => bg; } 
+	bg => b.gain;
+}
+
 while ( true ) { 
 
 	gluck.MainLoopEvent(); //...
@@ -130,17 +142,10 @@ while ( true ) {
 		theeventloop();
 	}
 
-	fc + ampM * frac => a.sfreq;
-//	0.4 + 0.3 * math.sin ( tm * 0.2 ) => a.gain;
-	if ( avol > 1.5 ) 1.5 => avol;
-	0.1 + avol => a.gain;
-	avol + ( 0.033 * -0.1 ) => avol;
-	if ( avol < 0.0 ) { 0.0 => avol; }
-	bg + ( 0.033 * -0.4 ) => bg ; //drain bg
-	if ( bg < 0.0 ) { 0.0 => bg; } 
-	bg => b.gain;
-
 	gluck.PostRedisplay();
+
+	theaudiocontrol();
+
 //	( float ) now => tm;
 	tm + 0.033 => tm;
 	

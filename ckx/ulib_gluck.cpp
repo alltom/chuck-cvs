@@ -298,9 +298,12 @@ CK_DLL_FUNC ( gluck_InitBasicWindow_impl ) {
     glutInitWindowSize(640, 480);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     gluckstate->doubleBuffered = true;
-
     gluckstate->windowID = glutCreateWindow(title);
+
     glViewport(0,0,640,480);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) { 
