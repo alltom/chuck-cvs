@@ -32,7 +32,7 @@
 #include "digitalio_rtaudio.h"
 #include "rtaudio.h"
 #include "chuck_vm.h"
-#if defined(__WINDOWS_DS__)
+#if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
 #include <windows.h>
 #define usleep(x)  Sleep(x/1000);
 #else
@@ -138,11 +138,11 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
-    DWORD__ n = 1000;
+    DWORD__ n = 200;
     // copy input to local buffer
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
-    while( !m_out_ready && n-- ) usleep( 20 );
+    while( !m_out_ready && n-- ) usleep( 25 );
     // copy local buffer to be rendered
     if( m_out_ready ) memcpy( buffer, m_buffer_out, len );
     // set all elements of local buffer to silence
@@ -152,8 +152,8 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
-        m_go = TRUE; n = 1000;
-        while( !m_out_ready && n-- ) usleep( 20 );
+        m_go = TRUE; n = 200;
+        while( !m_out_ready && n-- ) usleep( 25 );
     }
 
     // set pointer to the beginning - if not ready, then too late anyway

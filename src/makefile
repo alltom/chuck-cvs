@@ -3,7 +3,7 @@ current:
 
 install:
 	@echo "(must be root to install)"
-	cp $(wildcard chuck chuck.exe) /usr/bin/; chmod 555 /usr/bin/$(wildcard chuck chuck.exe)
+	cp $(wildcard chuck chuck.exe) /usr/bin/; chmod 755 /usr/bin/$(wildcard chuck chuck.exe)
 
 osx: 
 	-make -f makefile.osx
