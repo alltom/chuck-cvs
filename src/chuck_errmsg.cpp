@@ -40,8 +40,10 @@ static c_str fileName = "";
 static int lineNum = 1;
 int EM_tokPos = 0;
 int EM_lineNum = 1;
-extern FILE *yyin;
 
+extern "C" { 
+	extern FILE *yyin;
+}
 typedef struct intList {int i; struct intList *rest;} *IntList;
 static IntList linePos=NULL;
 

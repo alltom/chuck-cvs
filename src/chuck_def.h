@@ -35,6 +35,13 @@
 
 #include <stdlib.h>
 
+#ifdef __PLATFORM_WIN32__ //ignore some warnings
+#pragma warning (disable : 4996)  //stdio deprecation
+#pragma warning (disable : 4312)  //type casts from void*
+#pragma warning (disable : 4311)  //type casts to void*
+#pragma warning (disable : 4244)  //truncation
+#endif
+
 // types
 #define t_CKTIME                    double
 #define t_CKDUR                     double
