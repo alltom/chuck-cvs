@@ -1282,8 +1282,9 @@ void Chuck_Instr_Neq_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Lt_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKUINT *& sp_uint = (t_CKUINT *&)sp;
     pop_( sp, 2 );
-    push_( sp, val_(sp) < val_(sp+1) );
+    push_( sp_uint, val_(sp) < val_(sp+1) );
 }
 
 
@@ -1296,8 +1297,9 @@ void Chuck_Instr_Lt_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Gt_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKUINT *& sp_uint = (t_CKUINT *&)sp;
     pop_( sp, 2 );
-    push_( sp, val_(sp) > val_(sp+1) );
+    push_( sp_uint, val_(sp) > val_(sp+1) );
 }
 
 
@@ -1310,8 +1312,9 @@ void Chuck_Instr_Gt_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Le_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKUINT *& sp_uint = (t_CKUINT *&)sp;
     pop_( sp, 2 );
-    push_( sp, val_(sp) <= val_(sp+1) );
+    push_( sp_uint, val_(sp) <= val_(sp+1) );
 }
 
 
@@ -1324,8 +1327,9 @@ void Chuck_Instr_Le_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Ge_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKUINT *& sp_uint = (t_CKUINT *&)sp;
     pop_( sp, 2 );
-    push_( sp, val_(sp) >= val_(sp+1) );
+    push_( sp_uint, val_(sp) >= val_(sp+1) );
 }
 
 
@@ -1337,8 +1341,9 @@ void Chuck_Instr_Ge_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Eq_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKUINT *& sp_uint = (t_CKUINT *&)sp;
     pop_( sp, 2 );
-    push_( sp, val_(sp) == val_(sp+1) );
+    push_( sp_uint, val_(sp) == val_(sp+1) );
 }
 
 
@@ -1351,8 +1356,9 @@ void Chuck_Instr_Eq_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Neq_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKUINT *& sp_uint = (t_CKUINT *&)sp;
     pop_( sp, 2 );
-    push_( sp, val_(sp) != val_(sp+1) );
+    push_( sp_uint, val_(sp) != val_(sp+1) );
 }
 
 
