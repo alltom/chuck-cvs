@@ -335,8 +335,9 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     // send the first packet
     msg.param2 = (t_CKUINT)fs.st_size;
     msg.length = 0;
+    otf_hton( &msg );
     ck_send( g_sock, (char *)&msg, sizeof(msg) );
-            
+
     // send the whole thing
     t_CKUINT left = (t_CKUINT)fs.st_size;
     while( left )
@@ -349,6 +350,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
         left -= msg.param3 ? msg.param3 : 0;
         msg.param2 = left;
         // send it
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     
@@ -377,6 +379,7 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
     do {
         // msg
         ck_recv( sock, (char *)&buf, sizeof(buf) );
+        otf_ntoh( &buf );
         // write
         fwrite( buf.buffer, sizeof(char), buf.length, fd );
     }while( buf.param2 );
@@ -538,6 +541,7 @@ void * cb( void * p )
         }
         msg.clear();
         n = ck_recv( client, (char *)&msg, sizeof(msg) );
+        otf_ntoh( &msg );
         if( n != sizeof(msg) )
         {
             fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
@@ -572,10 +576,12 @@ void * cb( void * p )
                     msg.param = TRUE;
                     strcpy( (char *)msg.buffer, "success" );
                     n = ck_recv( client, (char *)&msg, sizeof(msg) );
+                    otf_ntoh( &msg );
                 }
             }
         }
         
+        otf_hton( &msg );
         ck_send( client, (char *)&msg, sizeof(msg) );
         ck_close( client );
     }
@@ -602,7 +608,8 @@ int send_cmd( int argc, char ** argv, int  & i )
         return 1;
     }
 
-    fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
+    if( strcmp( g_host, "127.0.0.1" ) )
+        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
     
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
@@ -635,6 +642,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         do {
             msg.param = atoi( argv[i] );
             msg.type = MSG_REMOVE;
+            otf_hton( &msg );
             ck_send( g_sock, (char *)&msg, sizeof(msg) );
         } while( ++i < argc );
     }
@@ -642,6 +650,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     {
         msg.param = 0xffffffff;
         msg.type = MSG_REMOVE;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
@@ -670,27 +679,32 @@ int send_cmd( int argc, char ** argv, int  & i )
     {
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--kill" ) )
     {
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
         msg.type = MSG_KILL;
         msg.param = (i+1)<argc ? atoi(argv[++i]) : 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--time" ) )
     {
         msg.type = MSG_TIME;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
     {
         msg.type = MSG_STATUS;
         msg.param = 0;
+        otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else
@@ -698,6 +712,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         
     // send
     msg.type = MSG_DONE;
+    otf_hton( &msg );
     ck_send( g_sock, (char *)&msg, sizeof(msg) );
 
     // timer
@@ -711,6 +726,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     // reply
     if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
     {
+        otf_ntoh( &msg );
         fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
         if( !msg.param )
             fprintf( stderr, "(reason): %s\n", 

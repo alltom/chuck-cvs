@@ -32,3 +32,38 @@
 //-----------------------------------------------------------------------------
 
 #include "chuck_otf.h"
+#include "util_network.h"
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: otf_hton( )
+// desc: ...
+//-----------------------------------------------------------------------------
+void otf_hton( Net_Msg * msg )
+{
+    msg->header = htonl( msg->header );
+    msg->type = htonl( msg->type );
+    msg->param = htonl( msg->param );
+    msg->param2 = htonl( msg->param2 );
+    msg->param3 = htonl( msg->param3 );
+    msg->length = htonl( msg->length );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: otf_ntoh( )
+// desc: ...
+//-----------------------------------------------------------------------------
+void otf_ntoh( Net_Msg * msg )
+{
+    msg->header = ntohl( msg->header );
+    msg->type = ntohl( msg->type );
+    msg->param = ntohl( msg->param );
+    msg->param2 = ntohl( msg->param2 );
+    msg->param3 = ntohl( msg->param3 );
+    msg->length = ntohl( msg->length );
+}

@@ -64,6 +64,10 @@ struct Net_Msg
 };
 
 
+// host to network
+void otf_hton( Net_Msg * msg );
+// network to host
+void otf_ntoh( Net_Msg * msg );
 
 
 
