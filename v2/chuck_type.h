@@ -137,7 +137,10 @@ struct Chuck_Namespace : public Chuck_VM_Object
     Chuck_Scope<Chuck_Value *> value;
     Chuck_Scope<Chuck_Func *> func;
     Chuck_Scope<Chuck_UGen_Info *> ugen;
-    Chuck_Scope<void *> addr;
+    Chuck_Scope<void *> addr;    
+
+    // virtual table
+    Chuck_VTable obj_v_table;
 
     // name
     string name;
@@ -414,9 +417,11 @@ struct Chuck_Func : public Chuck_VM_Object
     t_CKBOOL is_member;
     // offset
     t_CKUINT offset;
+    // virtual table index
+    t_CKINT vt_index;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; offset = 0; }
+    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; offset = 0; vt_index = -1; }
 };
 
 

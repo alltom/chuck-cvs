@@ -2201,7 +2201,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
         return FALSE;
     }
 
-    // push the local stack depth
+    // push the local stack depth - local variables
     emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->stack_depth ) );
 
     // TODO: member functions and static functions

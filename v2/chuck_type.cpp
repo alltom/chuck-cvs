@@ -2366,6 +2366,14 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     env->curr->value.add( f->name, value );
     // enter the name into the function table
     env->curr->func.add( f->name, func );
+    // if member function
+    if( func->is_member )
+    {
+        // add to virtual table
+        env->curr->obj_v_table.funcs.push_back( func );
+        // set the virtual table index
+        func->vt_index = env->curr->obj_v_table.funcs.size() - 1;
+    }
     // clear the env's function definition
     env->func = NULL;
 
