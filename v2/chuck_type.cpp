@@ -1238,6 +1238,18 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
+    a_Var_Decl var_decl = decl->var_decl_list->var_decl;
+    
+    t_CKTYPE t = NULL, t2 = NULL;
+    
+    // check if array
+    if( var_decl->isarray )
+    {
+    }
+    else
+    {
+    }
+    
     return NULL;
 }
 
