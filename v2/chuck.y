@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 32 shift/reduce conflicts
-%expect 32
+// expect 33 shift/reduce conflicts
+%expect 33
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -220,8 +220,8 @@ function_decl
 
 type_decl
         : id_dot                            { $$ = new_type_decl( $1, NULL, EM_lineNum ); }
-//        | S_CHUCK id_dot array_exp                  { $$ = new_type_decl( $2, $3, EM_lineNum ); }
-//        | S_CHUCK id_dot array_empty                { $$ = new_type_decl( $2, $3, EM_lineNum ); }
+        // | id_dot array_exp                  { $$ = new_type_decl( $2, $3, EM_lineNum ); }
+        // | id_dot array_empty                { $$ = new_type_decl( $2, $3, EM_lineNum ); }
         ;
 
 arg_list
@@ -239,7 +239,7 @@ statement
         | loop_statement                    { $$ = $1; }
         | selection_statement               { $$ = $1; }
         | jump_statement                    { $$ = $1; }
-        //| label_statement                   { }
+        // | label_statement                   { }
         | code_segment                      { $$ = $1; }
         ;
 
@@ -287,7 +287,7 @@ expression
 
 chuck_expression
         : decl_expression                   { $$ = $1; }
-        // | rassign_expression                   { $$ = $1; }
+        // | rassign_expression                { $$ = $1; }
         | chuck_expression chuck_operator decl_expression
             { $$ = new_exp_from_binary( $1, $2, $3, EM_lineNum ); }
         ;
@@ -307,7 +307,6 @@ decl_expression
         : conditional_expression            { $$ = $1; }
         | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
         | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, EM_lineNum ); }
-        //| ID array_exp var_decl_list        { $$ = new_exp_decl( $1, $2, $3, EM_lineNum ); }
         ;
 
 var_decl_list
@@ -439,14 +438,14 @@ unary_expression
             { $$ = new_exp_from_unary( ae_op_minusminus, $2, EM_lineNum ); }
         | unary_operator cast_expression
             { $$ = new_exp_from_unary( $1, $2, EM_lineNum ); }
-        | NEW type_decl
-            { }
-        | NEW LT type_decl GT
-            { }
-        | SIZEOF LT unary_expression GT
-            { }
-        | TYPEOF LT unary_expression GT
-            { }
+        // | NEW type_decl
+        //    { }
+        // | NEW LT type_decl GT
+        //    { }
+        // | SIZEOF LT unary_expression GT
+        //    { }
+        | TYPEOF LT expression GT
+            { $$ = new_exp_from_unary( ae_op_typeof, $3, EM_lineNum ); }
         ;
         
 unary_operator
@@ -475,7 +474,6 @@ postfix_expression
             { $$ = new_exp_from_postfix( $1, ae_op_minusminus, EM_lineNum ); }
         | postfix_expression COLONCOLON primary_expression
             { $$ = new_exp_from_dur( $1, $3, EM_lineNum ); }
-        //| postfix_expression RARROW ID    { }
         ;
 
 primary_expression
