@@ -1,7 +1,7 @@
 sinosc s => netout n => blackhole;
 220.0 => s.freq;
-"beanfuzz.dyndns.org" => n.addr;
-8890 => n.port;
+"127.0.0.1" => n.addr;
+n.addr => stdout;
 
 while( true )
 {

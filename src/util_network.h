@@ -67,6 +67,8 @@ BOOL ck_connect2( ck_socket sock, const struct sockaddr * serv_addr,
 BOOL ck_bind( ck_socket sock, int port );
 // send a datagram
 int ck_send( ck_socket sock, const char * buffer, int len );
+// setn using connect/sendto
+int ck_send2( ck_socket sock, const char * buffer, int len );
 // send a datagram
 int ck_sendto( ck_socket sock, const char * buffer, int len,
                const struct sockaddr * to, int tolen );
