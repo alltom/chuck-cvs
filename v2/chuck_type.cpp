@@ -1603,11 +1603,11 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
 {
     Chuck_Value * value = NULL;
+    string str;
 
     // type check the base
     member->t_base = type_engine_check_exp( env, member->base );
     if( !member->t_base ) return NULL;
-    
     if( !member->t_base->info )
     {
         // base type does not have members
@@ -1615,6 +1615,21 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
             "type '%s' does not have members - invalid use in dot expression",
             member->t_base->c_name() );
         return NULL;
+    }
+
+    // this
+    str = S_name(member->id);
+    if( str == "this" )
+    {
+        // in member func
+        if( env->func && !env->func->is_member )
+        {
+            EM_error2( member->linepos,
+                "keyword 'this' cannot be used inside static functions..." );
+            return NULL;
+        }
+
+        return env->class_def;
     }
 
     // find the value
@@ -1701,7 +1716,7 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
 {
     // make new type for class def
-    t_CKTYPE t_class = NULL;
+    t_CKTYPE the_class = NULL;
     // the parent class
     t_CKTYPE t_parent = NULL;
     // the return type
@@ -1746,24 +1761,24 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     }
 
     // allocate new type
-    t_class = new Chuck_Type;
+    the_class = new Chuck_Type;
     // set the fields
-    t_class->id = te_user;
-    t_class->name = S_name(class_def->name->id);
-    t_class->parent = t_parent;
-    t_class->size = 0; // to be filled in
-    t_class->owner = env->curr;
-    t_class->array_depth = 0;
-    t_class->info = new Chuck_Namespace;
-    t_class->info->name = t_class->name;
-    t_class->info->parent = env->curr;
-    t_class->func = NULL;
-    t_class->def = class_def;
+    the_class->id = te_user;
+    the_class->name = S_name(class_def->name->id);
+    the_class->parent = t_parent;
+    the_class->size = 0; // to be filled in
+    the_class->owner = env->curr;
+    the_class->array_depth = 0;
+    the_class->info = new Chuck_Namespace;
+    the_class->info->name = the_class->name;
+    the_class->info->parent = env->curr;
+    the_class->func = NULL;
+    the_class->def = class_def;
 
     // set the new type as current
     env->stack.push_back( env->curr );
-    env->curr = t_class->info;
-    env->class_def = t_class;
+    env->curr = the_class->info;
+    env->class_def = the_class;
 
     // type check the body
     while( body && ret )
@@ -1798,14 +1813,23 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // if things checked out
     if( ret )
     {
+        Chuck_Value * value = NULL;
+
         // add to env
-        env->curr->type.add( t_class->name, t_class );
+        env->curr->type.add( the_class->name, the_class );
+        // allocate value
+        value = new Chuck_Value( &t_class, the_class->name );
+        value->owner = env->curr;
+        value->is_const = TRUE;
+        // add to env
+        env->curr->value.add( the_class->name, value );
+
         // TODO: clean up if the context failed
     }
     else
     {
         // delete the class definition
-        t_class->release();
+        the_class->release();
     }
 
     return ret;
@@ -2129,7 +2153,7 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
 {
     map<string, bool> params;
     Chuck_Type * type = NULL;
-    Chuck_Type * t_class = NULL, * t_parent = NULL;
+    Chuck_Type * the_class = NULL, * t_parent = NULL;
 
     // look up the type
     if( env->curr->lookup_type( ugen->name, FALSE ) )
@@ -2244,21 +2268,21 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
     }
 
     // allocate new type
-    t_class = new Chuck_Type;
+    the_class = new Chuck_Type;
     // init as vm object
-    // t_class->init();
+    // the_class->init();
     // set the fields
-    t_class->id = te_user;
-    t_class->name = ugen->name;
-    t_class->parent = t_parent;
-    t_class->size = 0; // to be filled in
-    t_class->owner = env->curr;
-    t_class->array_depth = 0;
-    t_class->info = NULL;
-    t_class->func = NULL;
+    the_class->id = te_user;
+    the_class->name = ugen->name;
+    the_class->parent = t_parent;
+    the_class->size = 0; // to be filled in
+    the_class->owner = env->curr;
+    the_class->array_depth = 0;
+    the_class->info = NULL;
+    the_class->func = NULL;
 
     // add to env
-    env->curr->type.add( t_class->name, t_class );
+    env->curr->type.add( the_class->name, the_class );
     // add as ugen
     
     return TRUE;
