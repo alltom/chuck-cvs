@@ -20,7 +20,7 @@ T - (now % T) => now;
 // construct the patch
 sndbuf buf => JCRev r => dac;
 "data/snare-chili.wav" => buf.read;
-.4 => buf.gain;
+.25 => buf.gain;
 .1 => r.mix;
 
 // where we actually want to start
