@@ -1204,7 +1204,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         if( rawdata ) {
             d->buffer = new SAMPLE[rawsize+1];
             for( t_CKUINT j = 0; j < rawsize; j++ ) {
-                d->buffer[j] = (SAMPLE)rawdata[j];
+                d->buffer[j] = (SAMPLE)rawdata[j]/(SAMPLE)SHRT_MAX;
             }
         }
         else if( strstr(filename, "special:sinewave") ) {
