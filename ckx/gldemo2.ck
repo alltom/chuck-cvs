@@ -7,9 +7,9 @@
 
 gluck.Init();
 
+gluck.InitBasicWindow("it's a time machine");
+
 gluck.InitCallbacks(1, 0 ,1);
-42 => uint placeholder;
-gluck.InitBasicWindow(placeholder);
 
 
 0.0 => float rx;
@@ -96,16 +96,14 @@ function void thedrawloop () {
 		gl.Translatef ( 0.50, 0.0, 0.0 );
 		gl.Scalef ( 0.003, 0.005, 0.004 );
 		gl.Scalef ( ampM * 0.01, ampM * 0.01, ampM * 0.01 );
-		gluck.StrokeCharacter ( 0, 65);
+		gluck.StrokeString ( 0,"ampM");
 		gl.PopMatrix();
 
 		//fM changes with mod f
 		gl.PushMatrix();
 		gl.Scalef ( 0.003, 0.005, 0.004 );
 		gl.Scalef ( 0.2 + fm / 240.0 , 0.2 + fm / 240.0, 0.2 + fm / 240.0 );
-		gluck.StrokeCharacter ( 0, 102);
-		gl.Translatef( 8.0, 0.0, 0.0);
-		gluck.StrokeCharacter ( 0, 77);
+		gluck.StrokeString ( 0, "Fm");
 		gl.PopMatrix();
 
 
@@ -114,9 +112,7 @@ function void thedrawloop () {
 		gl.Translatef ( -0.50, 0.0, 0.0 );
 		gl.Scalef ( 0.003, 0.005, 0.004 );
 		gl.Scalef ( fc / 440.0 , fc / 440.0, fc / 440.0 );
-		gluck.StrokeCharacter ( 0, 102);
-		gl.Translatef( 8.0, 0.0, 0.0);
-		gluck.StrokeCharacter ( 0, 67);
+		gluck.StrokeString ( 0, "Fc");
 		gl.PopMatrix();
 
 		//GLUUUUUUUCK!
@@ -129,17 +125,7 @@ function void thedrawloop () {
 		gl.Translatef ( -0.50 , -0.25, 0.0 );
 		gl.Scalef ( 0.003, 0.005, 0.004 );
 
-		gluck.StrokeCharacter ( 0, 71 );
-		gl.Translatef ( 10.0 ,0.0, 0.0);
-		gluck.StrokeCharacter ( 0, 76 );
-		gl.Translatef ( 10.0 ,0.0, 0.0);
-		gluck.StrokeCharacter ( 0, 117 );
-		gl.Translatef ( 10.0 ,0.0, 0.0);
-		gluck.StrokeCharacter ( 0, 99 );
-		gl.Translatef ( 10.0 ,0.0, 0.0);
-		gluck.StrokeCharacter ( 0, 75 );
-		gl.Translatef ( 10.0 ,0.0, 0.0);
-		gluck.StrokeCharacter ( 0, 33 );
+		gluck.StrokeString ( 0, "GLucK!");
 		gl.PopMatrix();
 
 		gl.Flush();

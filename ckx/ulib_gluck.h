@@ -68,6 +68,7 @@ CK_DLL_FUNC( gluck_GetEventState_impl );
 CK_DLL_FUNC( gluck_GetEventKey_impl );
 CK_DLL_FUNC( gluck_GetEventSKey_impl );
 
+CK_DLL_FUNC( gluck_GetViewDims_impl );
 
 //map some standard glut calls
 CK_DLL_FUNC( gluck_Init_impl );
@@ -109,6 +110,7 @@ CK_DLL_FUNC ( gluck_StrokeCharacter_impl );
 CK_DLL_FUNC ( gluck_StrokeWidth_impl );
 CK_DLL_FUNC ( gluck_StrokeLength_impl );
 
+CK_DLL_FUNC ( gluck_StrokeString_impl );
 //shapes
 CK_DLL_FUNC ( gluck_WireTeapot_impl );
 CK_DLL_FUNC ( gluck_SolidTeapot_impl );

@@ -216,15 +216,15 @@ CK_DLL_QUERY
 // Begin-->glBegin();
 CK_DLL_FUNC( gl_Begin_impl )
 {
-    t_CKUINT mode = pull_ckUINT(ARGS);
+    t_CKUINT mode = GET_NEXT_UINT(ARGS);
     glBegin( mode );
 }
 
 // BindTexture-->glBindTexture();
 CK_DLL_FUNC( gl_BindTexture_impl )
 {
-    t_CKUINT target  = pull_ckUINT(ARGS);
-    t_CKUINT texture = pull_ckUINT(ARGS);
+    t_CKUINT target  = GET_NEXT_UINT(ARGS);
+    t_CKUINT texture = GET_NEXT_UINT(ARGS);
     glBindTexture( target, texture );
 }
 
@@ -232,26 +232,26 @@ CK_DLL_FUNC( gl_BindTexture_impl )
 // Clear-->glClear()
 CK_DLL_FUNC( gl_Clear_impl )
 {
-    t_CKUINT v = pull_ckUINT(ARGS);
+    t_CKUINT v = GET_NEXT_UINT(ARGS);
     glClear( v );
 }
 
 // ClearColor-->glClearColor()
 CK_DLL_FUNC( gl_ClearColor_impl )
 {
-    t_CKFLOAT r = pull_ckFLOAT(ARGS);
-    t_CKFLOAT g = pull_ckFLOAT(ARGS);
-    t_CKFLOAT b = pull_ckFLOAT(ARGS);
-    t_CKFLOAT a = pull_ckFLOAT(ARGS);
+    t_CKFLOAT r = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT g = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT b = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT a = GET_NEXT_FLOAT(ARGS);
     glClearColor( r, g, b, a );
 }
 
 // Color3f->glColor3d()
 CK_DLL_FUNC( gl_Color3f_impl )
 {
-    t_CKFLOAT r = pull_ckFLOAT(ARGS);
-    t_CKFLOAT g = pull_ckFLOAT(ARGS);
-    t_CKFLOAT b = pull_ckFLOAT(ARGS);
+    t_CKFLOAT r = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT g = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT b = GET_NEXT_FLOAT(ARGS);
 
     glColor3d( r, g, b);
 }
@@ -259,10 +259,10 @@ CK_DLL_FUNC( gl_Color3f_impl )
 // Color4f->glColor4d()
 CK_DLL_FUNC( gl_Color4f_impl )
 {
-    t_CKFLOAT r = pull_ckFLOAT(ARGS);
-    t_CKFLOAT g = pull_ckFLOAT(ARGS);
-    t_CKFLOAT b = pull_ckFLOAT(ARGS);
-    t_CKFLOAT a = pull_ckFLOAT(ARGS);
+    t_CKFLOAT r = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT g = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT b = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT a = GET_NEXT_FLOAT(ARGS);
 
     glColor4d( r, g, b, a);
 }
@@ -270,14 +270,14 @@ CK_DLL_FUNC( gl_Color4f_impl )
 // Disable-->glDisable()
 CK_DLL_FUNC( gl_Disable_impl )
 {
-    t_CKUINT v = pull_ckUINT(ARGS);
+    t_CKUINT v = GET_NEXT_UINT(ARGS);
     glDisable( v );
 }
 
 // Enable-->glEnable
 CK_DLL_FUNC( gl_Enable_impl )
 {
-    t_CKUINT which = pull_ckUINT(ARGS);
+    t_CKUINT which = GET_NEXT_UINT(ARGS);
     glEnable( which );
 }
 
@@ -295,18 +295,18 @@ CK_DLL_FUNC( gl_Flush_impl )
 
 CK_DLL_FUNC( gl_FrontFace_impl )
 {
-    t_CKUINT mode = pull_ckUINT(ARGS);
+    t_CKUINT mode = GET_NEXT_UINT(ARGS);
     glFrontFace(mode);
 }
 
 CK_DLL_FUNC( gl_Frustum_impl )
 {
-    t_CKFLOAT left = pull_ckFLOAT(ARGS);
-    t_CKFLOAT right = pull_ckFLOAT(ARGS);
-    t_CKFLOAT bottom = pull_ckFLOAT(ARGS);
-    t_CKFLOAT top = pull_ckFLOAT(ARGS);
-    t_CKFLOAT znear = pull_ckFLOAT(ARGS);
-    t_CKFLOAT zfar = pull_ckFLOAT(ARGS);
+    t_CKFLOAT left = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT right = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT bottom = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT top = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT znear = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT zfar = GET_NEXT_FLOAT(ARGS);
     glFrustum(left,right,bottom,top,znear,zfar);
 }
 
@@ -317,23 +317,23 @@ CK_DLL_FUNC( gl_GetError_impl )
 // 
 CK_DLL_FUNC( gl_Lighti_impl )
 {
-    t_CKUINT light = pull_ckUINT(ARGS);
-    t_CKUINT pname = pull_ckUINT(ARGS);
-    int      param =  pull_ckINT(ARGS);
+    t_CKUINT light = GET_NEXT_UINT(ARGS);
+    t_CKUINT pname = GET_NEXT_UINT(ARGS);
+    int      param =  GET_NEXT_INT(ARGS);
     glLighti(light, pname, param);
 }
 
 //
 CK_DLL_FUNC( gl_Lightf_impl )
 {
-    t_CKUINT light = pull_ckUINT(ARGS);
-    t_CKUINT pname = pull_ckUINT(ARGS);
-    t_CKFLOAT param = pull_ckFLOAT(ARGS);
+    t_CKUINT light = GET_NEXT_UINT(ARGS);
+    t_CKUINT pname = GET_NEXT_UINT(ARGS);
+    t_CKFLOAT param = GET_NEXT_FLOAT(ARGS);
     glLightf(light, pname, param);
 }
 
 CK_DLL_FUNC( gl_LineWidth_impl ) {  
-    t_CKFLOAT width = pull_ckFLOAT(ARGS);
+    t_CKFLOAT width = GET_NEXT_FLOAT(ARGS);
     glLineWidth(width);
 }
 
@@ -342,31 +342,31 @@ CK_DLL_FUNC( gl_LoadIdentity_impl ) {
 }
 
 CK_DLL_FUNC( gl_MatrixMode_impl ) {   
-    t_CKUINT mode = pull_ckUINT(ARGS);
+    t_CKUINT mode = GET_NEXT_UINT(ARGS);
     glMatrixMode(mode);
 }
 
 // Normal3f --> glNormal3d
 CK_DLL_FUNC( gl_Normal3f_impl ) {   
-    t_CKFLOAT x = pull_ckFLOAT(ARGS);
-    t_CKFLOAT y = pull_ckFLOAT(ARGS);
-    t_CKFLOAT z = pull_ckFLOAT(ARGS);
+    t_CKFLOAT x = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT y = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT z = GET_NEXT_FLOAT(ARGS);
     glNormal3d(x,y,z);
 }
 
 CK_DLL_FUNC( gl_Ortho_impl )
 {
-    t_CKFLOAT left = pull_ckFLOAT(ARGS);
-    t_CKFLOAT right = pull_ckFLOAT(ARGS);
-    t_CKFLOAT bottom = pull_ckFLOAT(ARGS);
-    t_CKFLOAT top = pull_ckFLOAT(ARGS);
-    t_CKFLOAT znear = pull_ckFLOAT(ARGS);
-    t_CKFLOAT zfar = pull_ckFLOAT(ARGS);
+    t_CKFLOAT left = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT right = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT bottom = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT top = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT znear = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT zfar = GET_NEXT_FLOAT(ARGS);
     glOrtho(left,right,bottom,top,znear,zfar);
 }
 
 CK_DLL_FUNC( gl_PushAttrib_impl ) {   
-  t_CKUINT mask = pull_ckUINT(ARGS);
+  t_CKUINT mask = GET_NEXT_UINT(ARGS);
     glPushAttrib(mask);
 }
 
@@ -383,56 +383,56 @@ CK_DLL_FUNC( gl_PopMatrix_impl ) {
 }
 
 CK_DLL_FUNC( gl_PolygonMode_impl ) {   
-    t_CKUINT face = pull_ckUINT(ARGS);
-    t_CKUINT mode = pull_ckUINT(ARGS);
+    t_CKUINT face = GET_NEXT_UINT(ARGS);
+    t_CKUINT mode = GET_NEXT_UINT(ARGS);
     glPolygonMode(face, mode);
 }
 
 // Rotatef --> glRotated()
 CK_DLL_FUNC( gl_Rotatef_impl ) {   
-    t_CKFLOAT degrees = pull_ckFLOAT(ARGS);
-    t_CKFLOAT x = pull_ckFLOAT(ARGS);
-    t_CKFLOAT y = pull_ckFLOAT(ARGS);
-    t_CKFLOAT z = pull_ckFLOAT(ARGS);
+    t_CKFLOAT degrees = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT x = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT y = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT z = GET_NEXT_FLOAT(ARGS);
     glRotated(degrees, x, y, z);
 }
 
 // Scalef --> glScaled();
 CK_DLL_FUNC( gl_Scalef_impl ) {   
-    t_CKFLOAT x = pull_ckFLOAT(ARGS);
-    t_CKFLOAT y = pull_ckFLOAT(ARGS);
-    t_CKFLOAT z = pull_ckFLOAT(ARGS);
+    t_CKFLOAT x = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT y = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT z = GET_NEXT_FLOAT(ARGS);
     glScaled(x,y,z);
 }
 
 CK_DLL_FUNC( gl_ShadeModel_impl ) {   
-    t_CKUINT mode = pull_ckUINT(ARGS);
+    t_CKUINT mode = GET_NEXT_UINT(ARGS);
     glShadeModel(mode);
 }
 
 // TexCoord1f --> glTexCoord1d
 CK_DLL_FUNC( gl_TexCoord1f_impl ) {   
-    t_CKFLOAT u = pull_ckFLOAT(ARGS);
+    t_CKFLOAT u = GET_NEXT_FLOAT(ARGS);
     glTexCoord1d(u);
 }
 
 // TexCoord2f --> glTexCoord2d
 CK_DLL_FUNC( gl_TexCoord2f_impl ) {   
-    t_CKFLOAT u = pull_ckFLOAT(ARGS);
-    t_CKFLOAT v = pull_ckFLOAT(ARGS);
+    t_CKFLOAT u = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT v = GET_NEXT_FLOAT(ARGS);
     glTexCoord2d(u,v);
 }
 
 CK_DLL_FUNC( gl_TexImage1D_impl ) {   
 
-    t_CKUINT target = pull_ckUINT(ARGS);
-    int  level  = pull_ckINT(ARGS);
-    int  internalformat  = pull_ckINT(ARGS);
-    t_CKUINT width = pull_ckUINT(ARGS);
-    int  border = pull_ckINT(ARGS);
-    t_CKUINT format = pull_ckUINT(ARGS);
-    t_CKUINT type = pull_ckUINT(ARGS);
-    t_CKUINT pixu = pull_ckUINT(ARGS);
+    t_CKUINT target = GET_NEXT_UINT(ARGS);
+    int  level  = GET_NEXT_INT(ARGS);
+    int  internalformat  = GET_NEXT_INT(ARGS);
+    t_CKUINT width = GET_NEXT_UINT(ARGS);
+    int  border = GET_NEXT_INT(ARGS);
+    t_CKUINT format = GET_NEXT_UINT(ARGS);
+    t_CKUINT type = GET_NEXT_UINT(ARGS);
+    t_CKUINT pixu = GET_NEXT_UINT(ARGS);
     void* pixels = (void*)pixu;
 
     glTexImage1D(target, level, internalformat, width, border, format, type, pixels);
@@ -440,15 +440,15 @@ CK_DLL_FUNC( gl_TexImage1D_impl ) {
 
 CK_DLL_FUNC( gl_TexImage2D_impl ) {   
 
-    t_CKUINT target = pull_ckUINT(ARGS);
-    int  level  = pull_ckINT(ARGS);
-    int  internalformat  = pull_ckINT(ARGS);
-    t_CKUINT width = pull_ckUINT(ARGS);
-    t_CKUINT height = pull_ckUINT(ARGS);
-    int  border = pull_ckINT(ARGS);
-    t_CKUINT format = pull_ckUINT(ARGS);
-    t_CKUINT type = pull_ckUINT(ARGS);
-    t_CKUINT pixu = pull_ckUINT(ARGS);
+    t_CKUINT target = GET_NEXT_UINT(ARGS);
+    int  level  = GET_NEXT_INT(ARGS);
+    int  internalformat  = GET_NEXT_INT(ARGS);
+    t_CKUINT width = GET_NEXT_UINT(ARGS);
+    t_CKUINT height = GET_NEXT_UINT(ARGS);
+    int  border = GET_NEXT_INT(ARGS);
+    t_CKUINT format = GET_NEXT_UINT(ARGS);
+    t_CKUINT type = GET_NEXT_UINT(ARGS);
+    t_CKUINT pixu = GET_NEXT_UINT(ARGS);
     void* pixels = (void*)pixu;
 
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
@@ -457,32 +457,32 @@ CK_DLL_FUNC( gl_TexImage2D_impl ) {
 
 // Translatef --> glTranslated
 CK_DLL_FUNC( gl_Translatef_impl ) {   
-    t_CKFLOAT x = pull_ckFLOAT(ARGS);
-    t_CKFLOAT y = pull_ckFLOAT(ARGS);
-    t_CKFLOAT z = pull_ckFLOAT(ARGS);
+    t_CKFLOAT x = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT y = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT z = GET_NEXT_FLOAT(ARGS);
     glTranslated(x,y,z);
 }
 
 CK_DLL_FUNC( gl_Vertex2f_impl ) {   
-    t_CKFLOAT x = pull_ckFLOAT(ARGS);
-    t_CKFLOAT y = pull_ckFLOAT(ARGS);
+    t_CKFLOAT x = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT y = GET_NEXT_FLOAT(ARGS);
     glVertex2d(x,y);
 }
 
 // Vertex3f --> glVertex3d()
 CK_DLL_FUNC( gl_Vertex3f_impl ) {   
-    t_CKFLOAT x = pull_ckFLOAT(ARGS);
-    t_CKFLOAT y = pull_ckFLOAT(ARGS);
-    t_CKFLOAT z = pull_ckFLOAT(ARGS);
+    t_CKFLOAT x = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT y = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT z = GET_NEXT_FLOAT(ARGS);
     glVertex3d(x,y,z);
 }
 
 // 
 CK_DLL_FUNC( gl_Viewport_impl ) {   
-    int  x = pull_ckINT(ARGS);
-    int  y = pull_ckINT(ARGS);
-    t_CKUINT width = pull_ckUINT(ARGS);
-    t_CKUINT height = pull_ckUINT(ARGS);
+    int  x = GET_NEXT_INT(ARGS);
+    int  y = GET_NEXT_INT(ARGS);
+    t_CKUINT width = GET_NEXT_UINT(ARGS);
+    t_CKUINT height = GET_NEXT_UINT(ARGS);
     glViewport(x,y,width,height);
 }
 
