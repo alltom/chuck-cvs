@@ -170,6 +170,10 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // make sure Objects have namespaces
     t_object.info = new Chuck_Namespace;
     t_object.info->add_ref();
+    t_ugen.info = new Chuck_Namespace;
+    t_ugen.info->add_ref();
+    t_event.info = new Chuck_Namespace;
+    t_event.info->add_ref();
 
 	// default global values
 	env->global.value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
