@@ -113,7 +113,7 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     bzero( &sock->sock_in, sizeof(struct sockaddr_in) );
 #endif
     sock->sock_in.sin_family = AF_INET;
-    sock->sock_in.sin_port = htons( port );
+    sock->sock_in.sin_port = htons( (unsigned short)port );
     // lookup name
     host = gethostbyname( hostname );
     if( !host )
@@ -153,7 +153,7 @@ __BOOL ck_bind( ck_socket sock, int port )
     bzero( &sock->sock_in, 0, sizeof(struct sockaddr_in) );
 #endif
     sock->sock_in.sin_family = AF_INET;
-    sock->sock_in.sin_port = htons( port );
+    sock->sock_in.sin_port = htons( (unsigned short)port );
     sock->sock_in.sin_addr.s_addr = htonl( INADDR_ANY );
 
     ret = bind( sock->sock, (struct sockaddr *)&sock->sock_in, 

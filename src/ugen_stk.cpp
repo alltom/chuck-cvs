@@ -19288,14 +19288,14 @@ UGEN_CTRL BiQuad_ctrl_pfreq( t_CKTIME now, void * data, void * value )
 {
     BiQuad_ * f = (BiQuad_ *)data;
     f->pfreq = GET_NEXT_FLOAT(value);
-    f->biquad.setResonance( f->pfreq, f->prad, f->norm );
+    f->biquad.setResonance( f->pfreq, f->prad, f->norm != 0 );
 }
 
 UGEN_CTRL BiQuad_ctrl_prad( t_CKTIME now, void * data, void * value )
 {
     BiQuad_ * f = (BiQuad_ *)data;
     f->prad = GET_NEXT_FLOAT(value);
-    f->biquad.setResonance( f->pfreq, f->prad, f->norm );
+    f->biquad.setResonance( f->pfreq, f->prad, f->norm != 0 );
 }
 
 UGEN_CTRL BiQuad_ctrl_zfreq( t_CKTIME now, void * data, void * value )
@@ -19316,7 +19316,7 @@ UGEN_CTRL BiQuad_ctrl_norm( t_CKTIME now, void * data, void * value )
 {
     BiQuad_ * f = (BiQuad_ *)data;
     f->norm = GET_NEXT_UINT(value) != 0;
-    f->biquad.setResonance( f->pfreq, f->prad, f->norm );
+    f->biquad.setResonance( f->pfreq, f->prad, f->norm != 0 );
 }
 
 UGEN_CTRL BiQuad_ctrl_eqzs( t_CKTIME now, void * data, void * value )
@@ -21530,6 +21530,7 @@ UGEN_CTRL WvIn_ctrl_path( t_CKTIME now, void * data, void * value )
     try { w->openFile( c, FALSE, FALSE ); }
     catch( StkError & e )
     {
+        const char * s = e.getMessage();
         // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
     }
 }
