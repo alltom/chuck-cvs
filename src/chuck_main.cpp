@@ -824,7 +824,7 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_audio = TRUE;
     t_CKBOOL vm_halt = TRUE;
     t_CKUINT srate = SAMPLING_RATE_DEFAULT;
-    t_CKUINT buffer_size = 512;
+    t_CKUINT buffer_size = 1024;
     t_CKUINT num_buffers = 4;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
@@ -898,7 +898,7 @@ int main( int argc, char ** argv )
     }
     
     // check buffer size
-    buffer_size = next_power_2( buffer_size );
+    buffer_size = next_power_2( buffer_size-1 );
     
     if ( !files && vm_halt )
     {
