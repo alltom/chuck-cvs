@@ -1,5 +1,5 @@
 
-adc => sndbuf => dac;
+// adc => sndbuf => dac;
 
 1 => int i;
 

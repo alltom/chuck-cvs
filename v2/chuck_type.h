@@ -143,7 +143,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
     // top-level code
     Chuck_VM_Code * code;
     // type that contains this
-    Chuck_Type * parent;
+    Chuck_Namespace * parent;
     // address offset
     t_CKUINT offset;
 

@@ -230,6 +230,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     env->context->nspc.value.push();
     // push the current namespaces
     env->stack.push_back( env->curr );
+    // set the parent
+    context->nspc.parent = env->curr;
     // set the context's namespace as current
     env->curr = &(context->nspc);
 
@@ -1538,7 +1540,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     t_class->array_depth = 0;
     t_class->info = new Chuck_Namespace;
     t_class->info->name = t_class->name;
-    t_class->info->parent = t_class;
+    t_class->info->parent = env->curr;
     t_class->func = NULL;
 
     // set the new type as current
@@ -1960,7 +1962,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * nam
         // set the nspc
         type->info = nspc;
         nspc->name = type->name;
-        nspc->parent = type;
+        nspc->parent = type->info;
     }
 
     // add all the prototypes
@@ -2036,8 +2038,8 @@ t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_
 Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 {
     Chuck_Type * t = type.lookup( name );
-    if( climb && !t && parent && parent->info )
-        return parent->info->lookup_type( name, climb );
+    if( climb && !t && parent )
+        return parent->lookup_type( name, climb );
     return t;
 }
 
@@ -2051,8 +2053,8 @@ Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_Type * t = type.lookup( name );
-    if( climb && !t && parent && parent->info )
-        return parent->info->lookup_type( name, climb );
+    if( climb && !t && parent )
+        return parent->lookup_type( name, climb );
     return t;
 }
 
@@ -2066,8 +2068,8 @@ Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKBOOL climb )
 Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb )
 {
     Chuck_Value * v = value.lookup( name );
-    if( climb && !v && parent && parent->info )
-        return parent->info->lookup_value( name, climb );
+    if( climb && !v && parent )
+        return parent->lookup_value( name, climb );
     return v;
 }
 
@@ -2081,8 +2083,8 @@ Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb
 Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_Value * v = value.lookup( name );
-    if( climb && !v && parent && parent->info )
-        return parent->info->lookup_value( name, climb );
+    if( climb && !v && parent )
+        return parent->lookup_value( name, climb );
     return v;
 }
 
@@ -2096,8 +2098,8 @@ Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
 Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 {
     Chuck_Func * f = func.lookup( name );
-    if( climb && !f && parent && parent->info )
-        return parent->info->lookup_func( name, climb );
+    if( climb && !f && parent )
+        return parent->lookup_func( name, climb );
     return f;
 }
 
@@ -2111,8 +2113,8 @@ Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_Func * f = func.lookup( name );
-    if( climb && !f && parent && parent->info )
-        return parent->info->lookup_func( name, climb );
+    if( climb && !f && parent )
+        return parent->lookup_func( name, climb );
     return f;
 }
 
@@ -2126,8 +2128,8 @@ Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL climb )
 {
     Chuck_UGen_Info * u = ugen.lookup( name );
-    if( climb && !u && parent && parent->info )
-        return parent->info->lookup_ugen( name, climb );
+    if( climb && !u && parent )
+        return parent->lookup_ugen( name, climb );
     return u;
 }
 
@@ -2141,8 +2143,8 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL cl
 Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_UGen_Info * u = ugen.lookup( name );
-    if( climb && !u && parent && parent->info )
-        return parent->info->lookup_ugen( name, climb );
+    if( climb && !u && parent )
+        return parent->lookup_ugen( name, climb );
     return u;
 }
 
@@ -2157,8 +2159,8 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 {
     void * a = addr.lookup( name );
-    if( climb && !a && parent && parent->info )
-        return parent->info->lookup_addr( name, climb );
+    if( climb && !a && parent )
+        return parent->lookup_addr( name, climb );
     return a;
 }
 
@@ -2172,8 +2174,8 @@ void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 void * Chuck_Namespace::lookup_addr( S_Symbol name, t_CKBOOL climb )
 {
     void * a = addr.lookup( name );
-    if( climb && !a && parent && parent->info )
-        return parent->info->lookup_addr( name, climb );
+    if( climb && !a && parent )
+        return parent->lookup_addr( name, climb );
     return a;
 }
 
