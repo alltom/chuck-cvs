@@ -9,5 +9,6 @@ sndbuf buf => dac;
 while( true )
 {
     0 => buf.pos;
+    std.rand2f(.2, .9) => buf.gain;
     100::ms => now;
 }
