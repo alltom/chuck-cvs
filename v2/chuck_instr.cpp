@@ -2416,6 +2416,8 @@ void Chuck_Instr_Dot_Member_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     Chuck_Object * obj = (Chuck_Object *)(*sp);
     // check
     if( !obj ) goto error;
+    // make sure we are in range
+    assert( m_offset < obj->vtable->funcs.size() );
     // calculate the data pointer
     data = (t_CKUINT)(obj->vtable->funcs[m_offset]);
     
@@ -2488,7 +2490,7 @@ void Chuck_Instr_Dot_Static_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     pop_( sp, 1 );
     
     // push the address
-    push_( sp, (t_CKUINT)m_func );
+    push_( sp, (t_CKUINT)(m_func->code) );
 }
 
 
