@@ -171,9 +171,11 @@ t_CKBOOL parse( c_str fname, FILE * fd = NULL )
     strcpy( filename, fname );
 
     // test it
-    fd = open_cat( filename );
     if( !fd )
-        strcpy( filename, fname );
+    {
+        fd = open_cat( filename );
+        if( !fd ) strcpy( filename, fname );
+    }
 
     // parse
     ret = EM_reset( filename, fd );
@@ -288,39 +290,17 @@ void usage()
 
 
 //-----------------------------------------------------------------------------
-// name: struct Msg()
-// desc: ...
-//-----------------------------------------------------------------------------
-struct Msg
-{
-    t_CKUINT type;
-    t_CKUINT param;
-    char buffer[512];
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: process_msg()
 // desc: ...
 //-----------------------------------------------------------------------------
-extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buffer,
-                                 t_CKBOOL immediate )
+extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate )
 {
-    Msg msg;
     Chuck_Msg * cmd = new Chuck_Msg;
     
-    // copy in
-    msg.type = type;
-    msg.param = param;
-    if( !buffer ) buffer = "";
-    strcpy( msg.buffer, buffer );
-
     // fprintf( stderr, "UDP message recv...\n" );
-    if( msg.type == MSG_REPLACE || msg.type == MSG_ADD )
+    if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
     {
-        if( !parse( msg.buffer ) )
+        if( !parse( msg->buffer ) )
             return 0;
 
         // type check
@@ -334,7 +314,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
 
         // transform the code
         Chuck_VM_Code * code = emit_to_code( emit );
-        code->name = msg.buffer;
+        code->name = msg->buffer;
         cmd->shred = new Chuck_VM_Shred;
         cmd->shred->initialize( code );
         cmd->shred->name = code->name;
@@ -343,16 +323,16 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
         emit_engine_shutdown( emit );
 
         // set the flags for the command
-        cmd->type = msg.type;
+        cmd->type = msg->type;
         cmd->code = code;
-        if( msg.type == MSG_REPLACE )
-            cmd->param = msg.param;
+        if( msg->type == MSG_REPLACE )
+            cmd->param = msg->param;
     }
-    else if( msg.type == MSG_STATUS || msg.type == MSG_REMOVE || msg.type == MSG_REMOVEALL
-             || msg.type == MSG_KILL || msg.type == MSG_TIME )
+    else if( msg->type == MSG_STATUS || msg->type == MSG_REMOVE || msg->type == MSG_REMOVEALL
+             || msg->type == MSG_KILL || msg->type == MSG_TIME )
     {
-        cmd->type = msg.type;
-        cmd->param = msg.param;
+        cmd->type = msg->type;
+        cmd->param = msg->param;
     }
     else
     {
@@ -419,7 +399,7 @@ void * timer( void * p )
 //-----------------------------------------------------------------------------
 void * cb( void * p )
 {
-    Msg msg;
+    Net_Msg msg;
     ck_socket client;
     int n;
 
@@ -442,7 +422,7 @@ void * cb( void * p )
             ck_close( client );
             continue;
         }
-        memset( &msg, 0, sizeof(msg) );
+        msg.clear();
         n = ck_recv( client, (char *)&msg, sizeof(msg) );
         if( n != sizeof(msg) )
         {
@@ -458,7 +438,7 @@ void * cb( void * p )
 
         if( g_vm )
         {
-            if( !process_msg( msg.type, msg.param, msg.buffer, FALSE ) )
+            if( !process_msg( &msg, FALSE ) )
             {
                 msg.param = FALSE;
                 strcpy( (char *)msg.buffer, EM_lasterror() );
@@ -485,8 +465,7 @@ void * cb( void * p )
 //-----------------------------------------------------------------------------
 int send_cmd( int argc, char ** argv, int  & i )
 {
-    Msg msg;
-    memset( &msg, 0, sizeof(msg) );
+    Net_Msg msg;
 	
     g_sock = ck_tcp_create( 0 );
     if( !g_sock )
