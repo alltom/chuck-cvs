@@ -1498,6 +1498,20 @@ void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 
 
 //-----------------------------------------------------------------------------
+// name: params()
+// desc: ...
+//-----------------------------------------------------------------------------
+const char * Chuck_Instr_Instantiate_Object::params() const
+{
+    static char buffer[256];
+    sprintf( buffer, "%s", this->type->c_name() );
+    return buffer;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: assign primitive (word)
 //-----------------------------------------------------------------------------
