@@ -406,7 +406,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_unVoiced, NULL, "float", "unVoiced" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_pitchSweepRate, NULL, "float", "pitchSweepRate" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiceMix, NULL, "float", "voiceMix" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_selPhoneme, NULL, "int", "selPhoneme" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_selPhoneme, NULL, "int", "setPhoneme" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoFreq, NULL, "float", "vibratoFreq" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, NULL, "float", "vibratoGain" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, NULL, "float", "loudness" );
