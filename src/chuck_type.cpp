@@ -333,6 +333,7 @@ t_Env type_engine_init( Chuck_VM * vm )
     
     S_enter( e->value, insert_symbol( "true" ), &t_int );
     S_enter( e->value, insert_symbol( "false" ), &t_int );
+    S_enter( e->value, insert_symbol( "maybe" ), &t_int );
     S_enter( e->value, insert_symbol( "pi" ), &t_float );
     S_enter( e->value, insert_symbol( "endl" ), &t_string );
     

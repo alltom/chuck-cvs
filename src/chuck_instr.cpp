@@ -31,6 +31,7 @@
 // date: Autumn 2002
 //-----------------------------------------------------------------------------
 #include <math.h>
+#include <limits.h>
 #include <typeinfo>
 using namespace std;
 
@@ -512,6 +513,22 @@ void Chuck_Instr_Reg_Push_Start::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 
     // push val into reg stack
     push_( reg_sp, shred->start );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Reg_Push_Maybe::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT *& reg_sp = (t_CKINT *&)shred->reg->sp;
+
+    // push val into reg stack
+    float num = (float)rand() / (float)RAND_MAX;
+    push_( reg_sp, num > .5 );
 }
 
 
