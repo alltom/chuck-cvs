@@ -14,4 +14,4 @@ d => gain g3 => d;
 0.95 => g3.gain;
 
 // time loop
-while( true ) 7::ms => now;
+while( true ) 100::ms => now;

@@ -1,5 +1,5 @@
 sndbuf buf => dac;
-"snare.raw" => buf.path;
+"snare.raw" => buf.read;
 
 while( true )
 {
