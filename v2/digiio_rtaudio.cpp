@@ -31,6 +31,7 @@
 //-----------------------------------------------------------------------------
 #include "digiio_rtaudio.h"
 #include "chuck_vm.h"
+#include "chuck_errmsg.h"
 #include "rtaudio.h"
 #if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
 #include <windows.h>
@@ -92,8 +93,17 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     m_end = 0;
 
     // allocate RtAudio
+    try { m_rtaudio = new RtAudio( ); }
+    catch( RtError err )
+    {
+        // problem finding audio devices, most likely
+        EM_error2( 0, "%s", err.getMessageString() );
+        EM_error2( 0, "...(note: try running in non-realtime with --silent flag)" );
+        return m_init = FALSE;
+    }
+
+    // open device
     try {
-        m_rtaudio = new RtAudio( );
         m_rtaudio->openStream(
             m_dac_n, m_num_channels_out, m_adc_n, m_num_channels_in,
             RTAUDIO_FLOAT32, sampling_rate,
@@ -103,6 +113,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     } catch( RtError err ) {
         try {
             m_buffer_size = buffer_size;
+            // try output only
             m_rtaudio->openStream(
                 m_dac_n, m_num_channels_out, 0, 0,
                 RTAUDIO_FLOAT32, sampling_rate,
@@ -110,7 +121,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
             if( m_use_cb )
                 m_rtaudio->setStreamCallback( &cb, NULL );
         } catch( RtError err ) {
-            fprintf( stderr, "%s\n", err.getMessageString() );
+            EM_error2( 0, "%s", err.getMessageString() );
             SAFE_DELETE( m_rtaudio );
             return m_init = FALSE;
         }
