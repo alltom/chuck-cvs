@@ -975,12 +975,9 @@ UGEN_CGET sndbuf_cget_loop( t_CKTIME now, void * data, void * out )
 // http://www.cs.princeton.edu/courses/archive/spring03/cs325/src/TimeStuf/srconvrt.c
 //
 // there's probably a lot in there that could be optimized, if we care to..
-//
 
 #define PI 3.14159265358979323846
-
 //wow... we are sensitive.. 
-
 
 inline double sndbuf_linear_interp (double * first, double * second, double * frac);
 bool sinc_table_built = false;
@@ -1089,7 +1086,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
         *out = (SAMPLE)( (*(d->curr)) ) ;
     }
     else if( d->interp == SNDBUF_INTERP )
-    { //samplewise linear interp
+    {   //samplewise linear interp
         double alpha = d->curf - floor(d->curf);
         *out = (SAMPLE)( (*(d->curr)) ) ;
         *out += (float)alpha * ( sndbuf_sampleAt(d, (long)d->curf+1 ) - *out );
@@ -1102,9 +1099,9 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     //advance
     d->curf += d->rate;
     sndbuf_setpos(d, d->curf);
-    return TRUE;
-    
+    return TRUE;    
 }
+
 
 #if defined(__CK_SNDFILE_NATIVE__)
 #include <sndfile.h>
@@ -1112,9 +1109,9 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 #include "util_sndfile.h"
 #endif
 
+
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
-    
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
 	
@@ -1140,6 +1137,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         info.channels = 1;
         info.samplerate = 44100;
     }
+
     SNDFILE* file = sf_open(filename, SFM_READ, &info);
     int er = sf_error(file);
     if(er) fprintf( stderr, "sndfile error %i\n", er );
@@ -1153,7 +1151,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     d->samplerate = info.samplerate;
     
     d->sampleratio = (double)d->samplerate / (double)g_srate;
-    d->interp     = SNDBUF_INTERP;
+    // d->interp = SNDBUF_INTERP;
     
     if( d->num_samples != size )
     {
@@ -1161,7 +1159,8 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
                  d->num_samples, size, filename );
         return;
     }
-    //    fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
+    
+    // fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
 }
@@ -1231,7 +1230,8 @@ UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out )
 }
 
 
-UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = ( sndbuf_data * ) data;
     unsigned int chan = * (int *) value;
     if ( chan >= 0 && chan < d->num_channels ) { 
@@ -1245,7 +1245,8 @@ UGEN_CGET sndbuf_cget_channel( t_CKTIME now, void * data, void * out )
     SET_NEXT_INT( out, d->chan );
 }
 
-UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = ( sndbuf_data * ) data;
     int pos = * (int *) value;
     sndbuf_setpos(d, pos);
@@ -1257,7 +1258,8 @@ UGEN_CGET sndbuf_cget_pos( t_CKTIME now, void * data, void * out )
     SET_NEXT_INT( out, (int) sndbuf_getpos(d) );
 }
 
-UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = ( sndbuf_data * ) data;
     int interp = * (int *) value;
     d->interp = interp;
@@ -1270,7 +1272,8 @@ UGEN_CGET sndbuf_cget_interp( t_CKTIME now, void * data, void * out )
 }
 
 
-UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = (sndbuf_data *)data;
     t_CKFLOAT phase_offset = * (t_CKFLOAT *) value;
     sndbuf_setpos(d, d->curf + phase_offset * (t_CKFLOAT)d->num_frames );
