@@ -42,27 +42,27 @@ t_CKBOOL net_shutdown();
 
 // net interface
 
-// udpout
-UGEN_CTOR udpout_ctor( t_CKTIME now );
-UGEN_DTOR udpout_dtor( t_CKTIME now, void * data );
-UGEN_TICK udpout_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL udpout_ctrl_addr( t_CKTIME now, void * data, void * value );
-UGEN_CGET udpout_cget_addr( t_CKTIME now, void * data, void * out );
-UGEN_CTRL udpout_ctrl_port( t_CKTIME now, void * data, void * value );
-UGEN_CGET udpout_cget_port( t_CKTIME now, void * data, void * out );
-UGEN_CTRL udpout_ctrl_size( t_CKTIME now, void * data, void * value );
-UGEN_CGET udpout_cget_size( t_CKTIME now, void * data, void * out );
-UGEN_CTRL udpout_ctrl_name( t_CKTIME now, void * data, void * value );
-UGEN_CGET udpout_cget_name( t_CKTIME now, void * data, void * out );
+// netout
+UGEN_CTOR netout_ctor( t_CKTIME now );
+UGEN_DTOR netout_dtor( t_CKTIME now, void * data );
+UGEN_TICK netout_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_CTRL netout_ctrl_addr( t_CKTIME now, void * data, void * value );
+UGEN_CGET netout_cget_addr( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netout_ctrl_port( t_CKTIME now, void * data, void * value );
+UGEN_CGET netout_cget_port( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netout_ctrl_size( t_CKTIME now, void * data, void * value );
+UGEN_CGET netout_cget_size( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netout_ctrl_name( t_CKTIME now, void * data, void * value );
+UGEN_CGET netout_cget_name( t_CKTIME now, void * data, void * out );
 
-// udpin
-UGEN_CTOR udpin_ctor( t_CKTIME now );
-UGEN_DTOR udpin_dtor( t_CKTIME now, void * data );
-UGEN_TICK udpin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL udpin_ctrl_port( t_CKTIME now, void * data, void * value );
-UGEN_CGET udpin_cget_port( t_CKTIME now, void * data, void * out );
-UGEN_CTRL udpin_ctrl_name( t_CKTIME now, void * data, void * value );
-UGEN_CGET udpin_cget_name( t_CKTIME now, void * data, void * out );
+// netin
+UGEN_CTOR netin_ctor( t_CKTIME now );
+UGEN_DTOR netin_dtor( t_CKTIME now, void * data );
+UGEN_TICK netin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_CTRL netin_ctrl_port( t_CKTIME now, void * data, void * value );
+UGEN_CGET netin_cget_port( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netin_ctrl_name( t_CKTIME now, void * data, void * value );
+UGEN_CGET netin_cget_name( t_CKTIME now, void * data, void * out );
 
 
 
