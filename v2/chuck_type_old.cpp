@@ -380,6 +380,9 @@ UGEN_CGET ugen_cget_gain( t_CKTIME now, void * data, void * out ) { }
 // cget last
 UGEN_CGET ugen_cget_last( t_CKTIME now, void * data, void * out ) { }
 
+// ctrl next
+UGEN_CTRL ugen_ctrl_next( t_CKTIME now, void * data, void * out ) { }
+
 
 //-----------------------------------------------------------------------------
 // name: type_engine_add_dll()

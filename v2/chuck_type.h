@@ -119,7 +119,7 @@ struct Chuck_Value;
 struct Chuck_Func;
 struct Chuck_DLL;
 struct Chuck_Multi;
-typedef struct Chuck_Type * t_CKTYPE;
+
 class Chuck_VM;
 class Chuck_VM_Code;
 
@@ -256,7 +256,7 @@ struct Chuck_Env
 // name: struct Chuck_Type
 // desc: class containing information about a type
 //-----------------------------------------------------------------------------
-struct Chuck_Type //: public Chuck_VM_Object
+struct Chuck_Type : public Chuck_VM_Object
 {
     // type id
     te_Type id;

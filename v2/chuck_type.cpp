@@ -36,6 +36,7 @@
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
 #include "chuck_instr.h"
+#include "chuck_ugen.h"
 #include <assert.h>
 
 
@@ -1734,12 +1735,142 @@ t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def f )
 
 
 
+// ctrl op
+UGEN_CTRL ugen_ctrl_op( t_CKTIME now, void * data, void * value ) { }
+UGEN_CGET ugen_cget_op( t_CKTIME now, void * data, void * out ) { }
+// ctrl gain
+UGEN_CTRL ugen_ctrl_gain( t_CKTIME now, void * data, void * value ) { }
+UGEN_CGET ugen_cget_gain( t_CKTIME now, void * data, void * out ) { }
+// cget last
+UGEN_CGET ugen_cget_last( t_CKTIME now, void * data, void * out ) { }
+// ctrl next
+UGEN_CTRL ugen_ctrl_next( t_CKTIME now, void * data, void * out ) { }
+
+
 //-----------------------------------------------------------------------------
 // name: type_engine_check_ugen_def_import()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen )
 {
+    map<string, bool> params;
+    Chuck_Type * type = NULL;
+    Chuck_Type * t_class = NULL, * t_parent = NULL;
+
+    // look up the type
+    if( env->curr->lookup_type( ugen->name, FALSE ) )
+    {
+        EM_error2( ugen->linepos,
+            "imported ugen '%s.%s': \n  type identifier '%s' is in use in namespace '%s'",
+            env->curr->name.c_str(), ugen->name.c_str(), 
+            ugen->name.c_str(), env->curr->name.c_str() );
+        return FALSE;
+    }
+    
+    // no return type
+    if( !ugen->tick )
+    {
+        EM_error2( ugen->linepos, 
+            "imported ugen '%s.%s': no [tick] method defined",
+            env->curr->name.c_str(), ugen->name.c_str() );
+        return FALSE;
+    }
+
+    // type check parent
+    if( ugen->parent != "" )  // trim later
+    {
+        type = env->curr->lookup_type( ugen->parent, TRUE );
+        if( !type )
+        {
+            EM_error2( ugen->linepos,
+                "imported ugen '%s.%s' extends undefined type '%s'",
+                env->curr->name.c_str(), ugen->name.c_str(),
+                ugen->parent.c_str() );
+            return FALSE;
+        }
+        
+        // make sure we are extending from ugen
+        if( !isa( type, &t_ugen ) )
+        {
+            EM_error2( ugen->linepos,
+                "imported ugen '%s.%s' inherits from '%s' -> not a 'ugen'",
+                env->curr->name.c_str(), ugen->name.c_str(),
+                ugen->parent.c_str() );
+            return FALSE;
+        }
+
+        t_parent = type;
+    }
+    else
+    {
+        t_parent = &t_ugen;
+    }
+    
+    // add default
+    ugen->add( ugen_ctrl_op, ugen_cget_op, "int", "op" );
+    ugen->add( ugen_ctrl_gain, ugen_cget_gain, "float", "gain" );
+    ugen->add( NULL, ugen_cget_last, "float", "last" );
+    ugen->add( ugen_ctrl_next, NULL, "float", "next" );
+
+    // loop through ctrl parameters
+    for( unsigned int i = 0; i < ugen->param_list.size(); i++ )
+    {
+        const Chuck_Info_Param * param = &ugen->param_list[i];
+        
+        // check the type
+        type = env->curr->lookup_type( param->type, TRUE );
+        if( !type )
+        {
+            EM_error2( ugen->linepos,
+                "imported ugen '%s.%s': unrecognized type '%s' for control parameter '%s'",
+                env->curr->name.c_str(), ugen->name.c_str(), 
+                param->type.c_str(), param->name.c_str() );
+            return FALSE;
+        }
+
+        // XXX - pld
+        // in general, this just updates the param_map and the
+        // older functions are 'forgotten' though still present 
+        // in the param list
+        if( params[param->name] )
+        {
+            EM_error2( ugen->linepos, 
+                "imported ugen '%s.%s': duplicate control parameter name '%s'",
+                env->curr->name.c_str(), ugen->name.c_str(), param->name.c_str() );
+            return FALSE;
+        }
+
+        // make sure there is a function
+        if( !param->ctrl_addr && !param->cget_addr )
+        {
+            EM_error2( ugen->linepos,
+                "imported ugen '%s.%s': no ctrl or cget function defined for param '%s'",
+                env->curr->name.c_str(), ugen->name.c_str(), param->name.c_str() );
+            return FALSE;
+        }
+        
+        params[param->name] = true;
+    }
+
+    // allocate new type
+    t_class = new Chuck_Type;
+    // init as vm object
+    // t_class->init();
+    // set the fields
+    t_class->id = te_user;
+    t_class->name = ugen->name;
+    t_class->parent = t_parent;
+    t_class->size = 0; // to be filled in
+    t_class->owner = env->curr;
+    t_class->array_depth = 0;
+    t_class->info = NULL;
+    t_class->func = NULL;
+
+    // add to env
+    env->curr->type.add( t_class->name, t_class );
+    // add as ugen
+    
+    return TRUE;
 }
 
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
