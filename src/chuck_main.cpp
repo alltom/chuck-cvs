@@ -40,19 +40,8 @@ extern "C"
 {
 #include "chuck_utils.h"
 #include "chuck_errormsg.h"
-
-#ifndef __WINDOWS_DS__
-#define CHUCK_THREAD pthread_t
-#include <pthread.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#else 
-#define CHUCK_THREAD HANDLE
-#define usleep(x) Sleep(x/1000);
-#endif
-
 #include "chuck_socket.h"
+
 extern int yyparse( void );
 }
 
@@ -63,6 +52,16 @@ extern int yyparse( void );
 #include "chuck_bbq.h"
 
 #include <signal.h>
+#ifndef __WINDOWS_DS__
+#define CHUCK_THREAD pthread_t
+#include <pthread.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#else 
+#define CHUCK_THREAD HANDLE
+#define usleep(x) Sleep(x/1000);
+#endif
 
 #include "ugen_osc.h"
 #include "ugen_xxx.h"
