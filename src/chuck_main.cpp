@@ -602,6 +602,8 @@ int send_cmd( int argc, char ** argv, int  & i )
         return 1;
     }
 
+    fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
+    
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
         fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
