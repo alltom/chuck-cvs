@@ -23,10 +23,10 @@ fun void sweep( float start, float inc, float end , int c)
     0.1 => z.gain;
     t => float st;
     start => float frq;
-    std.rand2f ( 0.98, 0.99 ) => z.radius;
+    std.rand2f ( 0.94, 0.99 ) => z.radius;
     while ( t < end ) {
         math.max ( ( t - st ) * 4.0, 1.0 ) * 0.1  => z.gain; 
-        frq + inc * 0.01  => frq; 
+        frq + inc * -0.02  => frq; 
         frq => z.freq;
         10::ms => now;
     }
@@ -37,7 +37,7 @@ fun void sweep( float start, float inc, float end , int c)
 0 => int c;
 // time loop
 while ( true ) { 
-    125::ms => dur d;
+    500::ms => dur d;
     if ( std.rand2 ( 0, 10 ) > 3 ) d * 2.0 => d;
     if ( std.rand2 ( 0, 10 ) > 6 ) d * 3.0 => d;
     spork ~ sweep( 220.0 * (float)std.rand2(1,8), 

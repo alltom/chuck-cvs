@@ -6,8 +6,8 @@ sndbuf i => JCRev r => dac;
 
 // load glottal ooo
 "special:glot_ooo" => i.read;
-// play
-1.0 => i.rate;
+// play 
+5.0 => i.rate;
 .1 => r.mix;
 0.0 => float v;
   
