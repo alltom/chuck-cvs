@@ -2337,9 +2337,9 @@ void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 {
     uint *& sp = (uint *&)shred->reg->sp;
     
-    pop_( sp, 4 );
-    Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
-    pop_( sp, 1 );
+    pop_( sp, 3 );
+    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
+    pop_( sp, 2 );
     ugen->m_gain = (float)*(double *)sp;
     // push the new value
     ((double *&)shred->reg->sp)++;
