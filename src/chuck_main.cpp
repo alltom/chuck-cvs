@@ -364,11 +364,6 @@ void * cb( void * p )
 {
     Msg msg;
 
-#ifndef __WINDOWS_DS__
-    // catch SIGINT
-    signal( SIGINT, signal_int2 );
-#endif
-
     while( true )
     {
         memset( &msg, 0, sizeof(msg) );
@@ -692,9 +687,10 @@ int main( int argc, char ** argv )
     // done - clean up
     vm->shutdown();
     usleep( 50000 );
+    delete( vm );
+    g_vm = NULL;
     pthread_kill( g_tid, 2 );
     usleep( 100000 );
-    delete( vm );
-
+        
     return 0;
 }
