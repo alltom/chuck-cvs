@@ -671,7 +671,7 @@ void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
 	
 	else {
 
-	        double one_over_factor = 1.0 / factor;
+	    one_over_factor = 1.0 / factor;
 		for (j= -d->sinc_width + 1; j< d->sinc_width; j++) {
 
 
@@ -778,10 +778,6 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
 
-// XXX disabled while we get the rest of the windows build together.
-// because of many conflicts in util_sndfile.c
-
-#ifndef __PLATFORM_WIN32__
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
 	
@@ -830,7 +826,6 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     //    fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
-#endif
 }
 
 UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value )

@@ -7920,7 +7920,8 @@ psf_log_syserr (SF_PRIVATE *psf, int error)
 	return ;
 } /* psf_log_syserr */
 
-#elif	OS_IS_WIN32
+//XXX formerly OS_IS_WIN32
+#elif	__PLATFORM_WIN32__
 
 /* Win32 file i/o functions implemented using native Win32 API */
 

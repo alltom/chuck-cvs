@@ -1,50 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef __MACOSX_CORE__
-#define CPU_CLIPS_POSITIVE 1
-#define CPU_IS_BIG_ENDIAN 1
-#define CPU_IS_LITTLE_ENDIAN 0
-#define HAVE_PREAD 1
-#define HAVE_PWRITE 1
-#define OS_IS_MACOSX 1
-#define OS_IS_WIN32 0
-#define TYPEOF_SF_COUNT_T off_t
-#endif
+//XXX this might break things?
 
-#ifdef __WINDOWS_DS__
-#define CPU_CLIPS_POSITIVE 0
-#define CPU_IS_BIG_ENDIAN 0
-#define CPU_IS_LITTLE_ENDIAN 1
-#define HAVE_LRINTF 0
-#define HAVE_LRINT 0
-#define OS_IS_MACOSX 0
-#define OS_IS_WIN32 1
-#define TYPEOF_SF_COUNT_T off_t
-#endif
-
-#ifdef __LINUX_ALSA__
-#define HAVE_ALSA_ASOUNDLIB_H 
-#endif
-
-#if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
-#define CPU_CLIPS_POSITIVE 0
-#define CPU_IS_BIG_ENDIAN 0
-#define CPU_IS_LITTLE_ENDIAN 1
-#define HAVE_PREAD 1
-#define HAVE_PWRITE 1
-#define OS_IS_MACOSX 0
-#define OS_IS_WIN32 0
-#define SIZEOF_OFF64_T 0
-#define SIZEOF_LOFF_T 8
-#define TYPEOF_SF_COUNT_T loff_t
-#define _FILE_OFFSET_BITS 64
-#define HAVE_FDATASYNC 1
-#define HAVE_ENDIAN_H 1
-#define HAVE_LRINTF 1
-#define HAVE_LRINT 1
-#endif
-
+//these defines were placed after the machine-dependent 
+//checks below...i'm not sure why
 #define COMPILER_IS_GCC 1
 #define CPU_CLIPS_NEGATIVE 1
 #define ENABLE_EXPERIMENTAL_CODE 0
@@ -73,7 +33,6 @@
 #define HAVE_READ 1
 #define HAVE_REALLOC 1
 #define HAVE_SNPRINTF 1
-#define HAVE_SSIZE_T 1
 #define HAVE_STDINT_H 1
 #define HAVE_STDLIB_H 1
 #define HAVE_STRINGS_H 1
@@ -81,7 +40,6 @@
 #define HAVE_SYS_STAT_H 1
 #define HAVE_SYS_TYPES_H 1
 #define HAVE_SYS_WAIT_H 1
-#define HAVE_UNISTD_H 1
 #define HAVE_VSNPRINTF 1
 #define HAVE_WRITE 1
 #define PACKAGE "libsndfile"
@@ -90,7 +48,7 @@
 #define PACKAGE_STRING "libsndfile 1.0.10"
 #define PACKAGE_TARNAME "libsndfile"
 #define PACKAGE_VERSION "1.0.10"
-#define SF_COUNT_MAX 0x7FFFFFFFFFFFFFFFLL
+
 #define SIZEOF_DOUBLE 8
 #define SIZEOF_FLOAT 4
 #define SIZEOF_INT 4
@@ -103,6 +61,68 @@
 #define SIZEOF_VOIDP 4
 #define STDC_HEADERS 1
 #define VERSION "1.0.10"
+
+#ifdef __MACOSX_CORE__
+#define CPU_CLIPS_POSITIVE 1
+#define CPU_IS_BIG_ENDIAN 1
+#define CPU_IS_LITTLE_ENDIAN 0
+#define HAVE_PREAD 1
+#define HAVE_PWRITE 1
+#define OS_IS_MACOSX 1
+#define OS_IS_WIN32 0
+#define TYPEOF_SF_COUNT_T off_t
+#endif
+
+#if     defined(__WINDOWS_DS__) || defined (__PLATFORM_WIN32__)
+#define CPU_CLIPS_POSITIVE 0
+#define CPU_IS_BIG_ENDIAN 0
+#define CPU_IS_LITTLE_ENDIAN 1
+#define HAVE_LRINTF 0
+#define HAVE_LRINT 0
+#undef  HAVE_GMTIME_R
+#undef  HAVE_GMTIME
+#undef  HAVE_SNPRINTF
+#undef  HAVE_FLEXIBLE_ARRAY
+#define OS_IS_MACOSX 0
+#define OS_IS_WIN32 1
+#define TYPEOF_SF_COUNT_T off_t
+#endif
+
+#ifdef __LINUX_ALSA__
+#define HAVE_ALSA_ASOUNDLIB_H 
+#endif
+
+#if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
+#define CPU_CLIPS_POSITIVE 0
+#define CPU_IS_BIG_ENDIAN 0
+#define CPU_IS_LITTLE_ENDIAN 1
+#define HAVE_PREAD 1
+#define HAVE_PWRITE 1
+#define OS_IS_MACOSX 0
+#define OS_IS_WIN32 0
+#define SIZEOF_OFF64_T 0
+#define SIZEOF_LOFF_T 8
+#define TYPEOF_SF_COUNT_T loff_t
+#define _FILE_OFFSET_BITS 64
+#define HAVE_FDATASYNC 1
+#define HAVE_ENDIAN_H 1
+#define HAVE_LRINTF 1
+#define HAVE_LRINT 1
+#endif
+
+
+//XXX 'inline' is necessary for C compilation
+//in the microsoft vc6 compiler...
+//and other ms win32 specialteez. 
+#ifdef __PLATFORM_WIN32__
+#define C_INLINE __inline 
+#define SF_COUNT_MAX 0x7FFFFFFFFFFFFFFF
+#else
+#define C_INLINE inline
+#define SF_COUNT_MAX 0x7FFFFFFFFFFFFFFFLL
+#define HAVE_UNISTD_H 1
+#define HAVE_SSIZE_T 1
+#endif
 
 /*
 ** sndfile.h -- system-wide definitions
@@ -318,7 +338,7 @@ typedef	struct SNDFILE_tag	SNDFILE ;
 
 typedef TYPEOF_SF_COUNT_T sf_count_t ;
 
-#define SF_COUNT_MAX		0x7FFFFFFFFFFFFFFFLL
+//#define SF_COUNT_MAX		0x7FFFFFFFFFFFFFFFLL
 
 /* A pointer to a SF_INFO structure is passed to sf_open_read () and filled in.
 ** On write, the SF_INFO structure is filled in by the user and passed into
@@ -1117,6 +1137,7 @@ void	*psf_memset (void *s, int c, sf_count_t n) ;
 
 #if (defined (WIN32) || defined (_WIN32))
 #define	LSF_SNPRINTF	_snprintf
+#define snprintf _snprintf //XXX really?
 #elif		(HAVE_SNPRINTF && ! FORCE_MISSING_SNPRINTF)
 #define	LSF_SNPRINTF	snprintf
 #else
@@ -2056,12 +2077,12 @@ typedef struct gsm_state GSM_STATE ;
 #define	MAX_LONGWORD	  2147483647
 
 /* Signed arithmetic shift right. */
-static inline word
+static C_INLINE word
 SASR_W (word x, word by)
 {	return (x >> by) ;
 } /* SASR */
 
-static inline longword
+static C_INLINE longword
 SASR_L (longword x, word by)
 {	return (x >> by) ;
 } /* SASR */
@@ -2095,22 +2116,22 @@ word	gsm_asr  		(word a, int n) ;
  *  Inlined functions from add.h 
  */
 
-static inline longword
+static C_INLINE longword
 GSM_MULT_R (word a, word b)
 {	return (((longword) (a)) * ((longword) (b)) + 16384) >> 15 ;
 } /* GSM_MULT_R */
 
-static inline longword
+static C_INLINE longword
 GSM_MULT (word a, word b)
 {	return (((longword) (a)) * ((longword) (b))) >> 15 ;
 } /* GSM_MULT */
 
-static inline longword
+static C_INLINE longword
 GSM_L_MULT (word a, word b)
 {	return ((longword) (a)) * ((longword) (b)) << 1 ;
 } /* GSM_L_MULT */
 
-static inline longword
+static C_INLINE longword
 GSM_L_ADD (longword a, longword b)
 {	ulongword utmp ;
 	
@@ -2127,7 +2148,7 @@ GSM_L_ADD (longword a, longword b)
 	return a + b ;
 } /* GSM_L_ADD */
 
-static inline longword
+static C_INLINE longword
 GSM_ADD (word a, word b)
 {	longword ltmp ;
 
@@ -2141,7 +2162,7 @@ GSM_ADD (word a, word b)
 	return ltmp ;
 } /* GSM_ADD */
 
-static inline longword
+static C_INLINE longword
 GSM_SUB (word a, word b)
 {	longword ltmp ;
 
@@ -2155,7 +2176,7 @@ GSM_SUB (word a, word b)
 	return ltmp ;
 } /* GSM_SUB */
 
-static inline word
+static C_INLINE word
 GSM_ABS (word a)
 {
 	if (a > 0)
