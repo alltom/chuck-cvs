@@ -81,6 +81,11 @@ CK_DLL_FUNC( gluck_InitDisplayMode_impl );
 CK_DLL_FUNC( gluck_InitDisplayString_impl );
 CK_DLL_FUNC( gluck_InitWindowPosition_impl );
 
+CK_DLL_FUNC( gluck_DestroyWindow_impl );
+CK_DLL_FUNC( gluck_Shutdown_impl );
+CK_DLL_FUNC( gluck_CleanUp_impl );
+CK_DLL_FUNC( gluck_Running_impl );
+
 CK_DLL_FUNC( gluck_MainLoopEvent_impl );
 //CK_DLL_FUNC( gluck_MainLoop_impl );  //bad!
 

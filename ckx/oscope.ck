@@ -13,6 +13,7 @@ now => time tstart;
 0.0 => float dtime;
 0 => int dmode;
 
+
 fun void gluckDraw() {
 	0.0 => float f;
 	1.0 / hz => float tspan;
@@ -71,11 +72,13 @@ fun void keycode(uint key) {
 	if ( key == gluck.KEY_c ) { 0 => dmode ; }
 	if ( key == gluck.KEY_v ) { 1 => dmode ; }
 	if ( key == gluck.KEY_b ) { 2 => dmode ; }
+	if ( key == gluck.KEY_q ) { gluck.Shutdown(); }
 	math.max ( 1.0, hz ) => hz;
 }
 
 fun void gluckEvents() { 
-	while ( true ) { 
+
+	while ( gluck.Running() ) { 
 		while ( gluck.HasEvents() ) { 
 			gluck.GetNextEvent() => int curid;
 			gluck.GetEventType(curid) => uint curtype;
@@ -87,6 +90,7 @@ fun void gluckEvents() {
 		30::ms => now;
 	}
 }
+
 fun void gluckStart() { 
 
 	gluck.Init();
@@ -119,17 +123,27 @@ fun void gluckStart() {
 	gl.LightDiffusef( ml, 0.5, 1.0, 1.0, 0.8 );
 	gl.LightSpecularf( ml, 1.0, 1.0, 1.0, 0.2 );
 
-	while ( true ) { 
+	while ( gluck.Running() ) { 
 		gluck.MainLoopEvent();
 		if ( gluck.NeedDraw() ) gluckDraw();
 		gluck.PostRedisplay();
 	}
+
+
+	gluck.DestroyWindow();
+	gluck.CleanUp();
+
+	gluck.MainLoopEvent();
+
 }
 
 
 spork ~gluckStart();
 spork ~gluckEvents();
-while ( true ) { 
+
+1::second => now;
+while ( gluck.Running() ) { 
 	hz => stdout;
 	0.50::second => now;
 }
+

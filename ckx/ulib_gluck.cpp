@@ -65,6 +65,8 @@ using namespace std;
 //we see about doing a callback-type thing 
 //in chucK..
 
+void gluckCleanUp();
+void gluckDeactivate();
 void gluckDisplayCB();
 void gluckIdleCB();
 void gluckMouseCB(int button, int state, int x, int y);
@@ -404,6 +406,8 @@ struct gluckEvent {
 
 struct gluckData { 
 
+    bool isActive;
+
     bool watchMouse;
     bool watchMotion;
     bool watchKeyboard;
@@ -426,6 +430,7 @@ struct gluckData {
     
     gluckData( )
     {
+        isActive = false;
         watchMouse = false; 
         watchMotion = false; 
         watchKeyboard = false; 
@@ -526,6 +531,12 @@ CK_DLL_QUERY
     GLUCK_CKADDEXPORT ( int, InitFullScreenWindow );
     GLUCK_CKADDPARAM  ( string, name );
 
+    GLUCK_CKADDEXPORT ( int, Running );
+    GLUCK_CKADDEXPORT ( int, DestroyWindow );
+    GLUCK_CKADDEXPORT ( int, Shutdown );
+    GLUCK_CKADDEXPORT ( int, CleanUp );
+
+
     //glut event watching toggles
     //! \section Event Handling Functions
     //! Register glut callbacks so that window
@@ -602,8 +613,8 @@ CK_DLL_QUERY
     GLUCK_CKADDEXPORT ( int, CreateWindow );
     GLUCK_CKADDPARAM  ( string , title );
 
-    GLUCK_CKADDEXPORT ( int, DestroyWindow );
-    GLUCK_CKADDPARAM  ( int , window );
+//    GLUCK_CKADDEXPORT ( int, DestroyWindow );
+//    GLUCK_CKADDPARAM  ( int , window );
 
     //! set the current window ( in multi-window context ) 
     GLUCK_CKADDEXPORT ( int, SetWindow );
@@ -1029,8 +1040,18 @@ CK_DLL_FUNC ( gluck_InitFullScreenWindow_impl ) {
 
 }
 
+CK_DLL_FUNC ( gluck_DestroyWindow_impl ) { 
+    if ( gluckstate && gluckstate->windowID ) { 
+        glutDestroyWindow( gluckstate->windowID );
+        gluckstate->windowID = 0;
+    }
+}
+
 CK_DLL_FUNC ( gluck_NeedDraw_impl ) { 
-    RETURN->v_int = gluckstate->needDraw;
+    RETURN->v_int = 0;
+    if ( gluckstate ) { 
+        RETURN->v_int = gluckstate->needDraw;
+    }
 }
 
 CK_DLL_FUNC ( gluck_NeedEvent_impl ) { 
@@ -1084,12 +1105,36 @@ CK_DLL_FUNC ( gluck_WatchKeyboard_impl ) {
 
 void gluckDisplayCB() { 
   //that's all it does!
-    gluckstate->needDraw = true;
+    if ( gluckstate ) { 
+        gluckstate->needDraw = true;
+    }
 }
 
 void gluckIdleCB() { 
   //  glutPostRedisplay();
-    gluckstate->needIdle = true;
+    if ( gluckstate ) { 
+        gluckstate->needIdle = true;
+        if ( !gluckstate->isActive ) {
+            gluckCleanUp();
+        }
+    }
+}
+
+void gluckDeactivate() { 
+    if ( gluckstate && gluckstate->isActive ) { 
+        gluckstate->isActive = 0;
+    }
+}
+
+void gluckCleanUp() { 
+
+    if ( gluckstate ) { 
+        if ( gluckstate->windowID ) { 
+            glutDestroyWindow(gluckstate->windowID);
+        }
+        delete gluckstate;
+        gluckstate  = NULL; 
+    }   
 }
 
 void gluckReshapeCB(int x, int y) { 
@@ -1147,6 +1192,7 @@ void gluckAddBufferedEvent(  int type, int x, int y, int button, int state, unsi
 } 
 
 bool gluckHasEvents() { 
+    if ( !gluckstate ) return 0;    
     return (  (gluckstate->event_r+1) % gluckstate->events.size() != gluckstate->event_w );
 }
 
@@ -1219,6 +1265,11 @@ CK_DLL_FUNC ( gluck_InitCallbacks_impl ) {
     glutDisplayFunc (gluckDisplayCB);
     glutReshapeFunc (gluckReshapeCB);
     glutIdleFunc(gluckIdleCB);
+
+#if (GLUT_MACOSX_IMPLEMENTATION >= 2 )
+    glutWMCloseFunc ( gluckDeactivate );
+#endif
+
     if ( gluckstate->watchMouse ) { 
         glutMouseFunc   (gluckMouseCB);
     }
@@ -1244,13 +1295,32 @@ CK_DLL_FUNC( gluck_Init_impl )
     glutInit               ( &foo, NULL);
 #ifdef __MACOSX_CORE__
 //correct the directory...
-	char *rwd = getcwd(NULL,0);
-	if ( strcmp ( cwd, rwd ) != 0 ) { 
-		chdir(cwd);
-	}
-	free (cwd);
-	free (rwd);
+    char *rwd = getcwd(NULL,0);
+    if ( strcmp ( cwd, rwd ) != 0 ) { 
+        chdir(cwd);
+    }
+    free (cwd);
+    free (rwd);
 #endif
+    
+    gluckstate->isActive = true;
+
+}
+
+
+CK_DLL_FUNC( gluck_Shutdown_impl ) { 
+    gluckstate->isActive = false;
+}
+
+CK_DLL_FUNC( gluck_CleanUp_impl ) { 
+    gluckCleanUp();
+}
+
+CK_DLL_FUNC( gluck_Running_impl ) { 
+    RETURN->v_int = 0;
+    if ( gluckstate && gluckstate->isActive ) {
+        RETURN->v_int = 1; 
+    }
 }
 
 CK_DLL_FUNC( gluck_InitWindowPosition_impl )
@@ -1284,11 +1354,12 @@ CK_DLL_FUNC( gluck_InitDisplayString_impl )
 CK_DLL_FUNC( gluck_MainLoopEvent_impl )
 {
 
-  gluckstate->needDraw = 0;
-  gluckstate->needEvent = 0;
-  gluckstate->needIdle = 0;
-  gluckstate->needReshape = 0;
-
+    if ( gluckstate ) { 
+        gluckstate->needDraw = 0;
+        gluckstate->needEvent = 0;
+        gluckstate->needIdle = 0;
+        gluckstate->needReshape = 0;
+    }
 #ifdef __MACOSX_CORE__
   glutCheckLoop();
 #else
@@ -1304,14 +1375,15 @@ CK_DLL_FUNC( gluck_CreateWindow_impl )
   t_CKUINT ctitle = GET_NEXT_UINT(ARGS);
   char title[] = "=gluck>";
   gluckstate->windowID = glutCreateWindow( (char*)title );
-  RETURN->v_int = gluckstate->windowID; }
-
+  RETURN->v_int = gluckstate->windowID; 
+}
+/*
 CK_DLL_FUNC( gluck_DestroyWindow_impl )
 {
   int window = GET_NEXT_INT(ARGS);
   glutDestroyWindow( window );
 }
-
+*/
 CK_DLL_FUNC( gluck_SetWindow_impl )
 {
   int window = GET_NEXT_INT(ARGS);
