@@ -36,9 +36,8 @@
 #include <vector>
 using namespace std;
 
-extern "C" {
 #include "chuck_absyn.h"
-}
+
 
 
 
@@ -146,38 +145,6 @@ Chuck_UGen_Info * lookup_ugen( t_Env env, S_Symbol ugen_name, t_CKBOOL climb = T
 t_Env lookup_namespace( t_Env env, S_Symbol nspc_name, t_CKBOOL climb = TRUE );
 void * lookup_addr( t_Env env, S_Symbol value_name, t_CKBOOL climb = TRUE );
 t_CKBOOL isa( t_Type a, t_Type b );
-
-
-
-// namespace API
-struct t_Namespace_Value_
-{
-    S_Symbol name;
-    t_Type type;
-    t_CKBOOL is_func;
-    union { a_Func_Def func_def; void * ptr_val; };
-
-    // constructor
-    t_Namespace_Value_()
-    {   name = NULL; type = NULL; is_func = TRUE; func_def = NULL; }
-};
-
-
-// namespace API
-struct t_Namespace_Info_
-{
-    S_Symbol name;
-    vector<Chuck_DLL *> dll_modules;
-    S_table name2value;
-    t_Env parent;
-
-    // constructor
-    t_Namespace_Info_( S_Symbol s );
-    // add value
-    t_CKBOOL add_value( t_Namespace_Value value );
-    // get value
-    t_Namespace_Value get_value( S_Symbol name );
-};
 
 
 

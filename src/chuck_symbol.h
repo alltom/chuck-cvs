@@ -36,6 +36,12 @@
 
 #include "chuck_utils.h"
 
+
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
+
+
 typedef struct S_Symbol_ * S_Symbol;
 
 /* Make a unique symbol from a given c_str.  
@@ -71,6 +77,13 @@ void S_beginScope(S_table t);
    and end the current scope. */
 void S_endScope(S_table t);
 void S_pop(S_table t);
+
+
+#if defined(_cplusplus) || defined(__cplusplus)
+}
+#endif
+
+
 
 
 #endif

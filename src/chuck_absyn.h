@@ -35,6 +35,9 @@
 
 #include "chuck_symbol.h"
 
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
 
 // pos
 typedef int a_Pos;
@@ -329,6 +332,10 @@ struct a_Section_
 
 struct a_Program_ { a_Section section; a_Program next; int linepos; };
 
+
+#if defined(_cplusplus) || defined(__cplusplus)
+}
+#endif
 
 
 

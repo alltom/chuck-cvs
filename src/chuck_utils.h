@@ -37,6 +37,12 @@
 #include "chuck_def.h"
 #include <assert.h>
 
+
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
+
+
 typedef struct U_boolList_ * U_boolList;
 struct U_boolList_
 {
@@ -48,6 +54,11 @@ struct U_boolList_
 void * checked_malloc( int size );
 c_str cc_str( char * );
 U_boolList U_BoolList( t_CKBOOL head, U_boolList tail );
+
+
+#if defined(_cplusplus) || defined(__cplusplus)
+}
+#endif
 
 
 #endif
