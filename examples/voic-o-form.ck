@@ -80,5 +80,6 @@ while( true )
     2 * std.rand2( 0, 4 ) => int freq;
     if( freq == 6 ) 7 => freq;
     if( freq == 8 ) 9 => freq;
-    220.0 * math.pow( 1.05946, (float)(std.rand2(0,1)*12)+(float)freq ) => voc.freq;
+    std.mtof( (float)( 57 + std.rand2(0,1) * 12 + freq ) ) => voc.freq;
+
 }

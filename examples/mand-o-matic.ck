@@ -55,11 +55,13 @@ while( true )
 {
     // position
     std.rand2f( 0.2, 0.8 ) => mand.pluckPos;
+
     // frequency...
     2 * std.rand2( 0, 4 ) => int freq;
     if( freq == 6 ) 7 => freq; if( freq == 8 ) 9 => freq;
-    220.0 * math.pow( 1.05946, (float)(std.rand2(0,2)*12)
-                      +(float)freq ) => mand.freq;
+    freq + 57 + std.rand2(0,2) * 12 => freq; 
+    std.mtof ((float) freq ) => mand.freq;
+
     // pluck it!
     std.rand2f( 0.2, 0.9 ) => mand.pluck;
 
