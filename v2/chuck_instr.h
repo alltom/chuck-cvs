@@ -936,8 +936,25 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Reg_Push_Mem_Addr
+// desc: push addr from mem stack to reg stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Reg_Push_Mem_Addr : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Reg_Push_Mem_Addr( t_CKUINT src )
+    { this->set( src ); }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Deref
-// desc: push a t_CKFLOAT variable from main memory to reg stack
+// desc: push value from pointer
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Reg_Push_Deref : public Chuck_Instr_Unary_Op
 {
@@ -1132,62 +1149,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Primitive_Deref
-// desc: assign primitive (word) from pointer
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Primitive_Deref : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Primitive2_Deref
-// desc: assign primitive (2 word) from pointer
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Primitive2_Deref : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Assign_Object
 // desc: assign object with reference counting and releasing previous reference
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Assign_Object : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Object2
-// desc: assign object with reference counting and NOT releasing previous
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Object2 : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Object_Deref
-// desc: object with reference counting from pointer
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Object_Deref : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

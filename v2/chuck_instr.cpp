@@ -394,6 +394,22 @@ void Chuck_Instr_Reg_Push_Mem2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Reg_Push_Mem_Addr::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKFLOAT *& reg_sp = (t_CKFLOAT *&)shred->reg->sp;
+
+    // push mem stack addr into reg stack
+    push_( reg_sp, (t_CKUINT)(mem_sp + m_val) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Pop_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
@@ -1099,13 +1115,12 @@ void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Primitive::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // copy popped value into mem stack
-    *( (t_CKUINT *)(mem_sp + *(reg_sp+1)) ) = *reg_sp;
+    *((t_CKUINT *)(*(reg_sp+1))) = *reg_sp;
 
     push_( reg_sp, *reg_sp );
 }
@@ -1118,46 +1133,6 @@ void Chuck_Instr_Assign_Primitive::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
 // desc: assign primitive (2 word)
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Primitive2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-
-    // pop word from reg stack
-    pop_( reg_sp, 3 );
-    // copy popped value into mem stack
-    *( (t_CKFLOAT *)(mem_sp + *(reg_sp+2)) ) = *(t_CKFLOAT *)reg_sp;
-
-    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)reg_sp;
-    push_( sp_double, *sp_double );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: assign primitive (word) from pointer
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Assign_Primitive_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-
-    // pop word from reg stack
-    pop_( reg_sp, 2 );
-    // copy popped value into mem stack
-    *( (t_CKUINT *)(*(reg_sp+1)) ) = *reg_sp;
-
-    push_( reg_sp, *reg_sp );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: assign primitive (2 word) from pointer
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Assign_Primitive2_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
@@ -1179,65 +1154,21 @@ void Chuck_Instr_Assign_Primitive2_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_VM_Object ** obj = NULL;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // the previous reference
-    obj = (Chuck_VM_Object **)(mem_sp + *(reg_sp+1));
+    obj = (Chuck_VM_Object **)(*(reg_sp+1));
     // release any previous reference
     if( *obj ) (*obj)->release();
-    // copy popped value into mem stack
+    // copy popped value into memory
     *obj = *(Chuck_VM_Object **)reg_sp;
     // add reference
-    (*obj)->add_ref();
+    if( *obj ) (*obj)->add_ref();
 
     // push the reference value to reg stack
-    push_( reg_sp, *reg_sp );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: assign object with reference counting and NOT releaseing previous
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Assign_Object2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-    
-    // pop word from reg stack
-    pop_( reg_sp, 2 );
-    // copy popped value into mem stack
-    *( (t_CKUINT *)(mem_sp + *reg_sp) ) = *(reg_sp+1);
-    // add reference
-    ( *((Chuck_VM_Object **)(reg_sp+1)) )->add_ref();
-    
-    push_( reg_sp, *(reg_sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: object with reference counting from pointer
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Assign_Object_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-
-    // pop word from reg stack
-    pop_( reg_sp, 2 );
-    // copy popped value into mem stack
-    *( (t_CKUINT *)(*(reg_sp+1)) ) = *reg_sp;
-    // add reference
-    ( *((Chuck_VM_Object **)reg_sp) )->add_ref();
-
     push_( reg_sp, *reg_sp );
 }
 

@@ -132,6 +132,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 {
     // allocate a new env
     Chuck_Env * env = new Chuck_Env;
+    // add
+    env->add_ref();
 	// set the VM reference
     env->vm = vm;
 	// set the name of global namespace
@@ -274,6 +276,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     env->reset();
     // each parse tree corresponds to a chuck context
     Chuck_Context * context = new Chuck_Context;
+    // add reference
+    context->add_ref();
     // save a reference to the parse tree
     context->parse_tree = prog;
     // append the context to the env
@@ -978,7 +982,11 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
     // time advance ( dur => now )
     if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
+    {
+        // assignee
+        rhs->emit_var = TRUE;
         return right;
+    }
 
     // implicit cast
     LR( te_int, te_float ) left = lhs->cast_to = &t_float;
@@ -1105,6 +1113,9 @@ t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             "...(reason: --- incompatible types for assignment)" );
         return NULL;
     }
+
+    // assign
+    rhs->emit_var = TRUE;
 
     return right;
 }

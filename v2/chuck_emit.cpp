@@ -1063,6 +1063,9 @@ t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary )
 {
+    // sanity
+    assert( binary->self->emit_var == FALSE );
+
     t_CKBOOL left = FALSE;
     t_CKBOOL right = FALSE;
 
@@ -1098,6 +1101,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
     switch( op )
     {    
     // ----------------------------- num --------------------------------------
+    case ae_op_plus_chuck:
     case ae_op_plus:
         // time + dur
         if( ( left == te_dur && right == te_time ) ||
@@ -1124,6 +1128,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     
+    case ae_op_minus_chuck:
     case ae_op_minus:
         if( ( left == te_time && right == te_dur ) ) // time - dur = time
             emit->append( new Chuck_Instr_Minus_double );
@@ -1150,6 +1155,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     
+    case ae_op_times_chuck:
     case ae_op_times:
         switch( left )
         {
@@ -1169,6 +1175,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     
+    case ae_op_divide_chuck:
     case ae_op_divide:
         switch( left )
         {
@@ -1188,6 +1195,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     
+    case ae_op_s_or_chuck:
     case ae_op_s_or:
         switch( left )
         {
@@ -1203,6 +1211,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     
+    case ae_op_s_and_chuck:
     case ae_op_s_and:
         switch( left )
         {
@@ -1218,6 +1227,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
 
+    case ae_op_shift_left_chuck:
     case ae_op_shift_left:
         switch( left )
         {
@@ -1233,6 +1243,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     
+    case ae_op_shift_right_chuck:
     case ae_op_shift_right:
         switch( left )
         {
@@ -1248,6 +1259,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     
+    case ae_op_percent_chuck:
     case ae_op_percent:
         switch( left )
         {
@@ -1268,6 +1280,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
 
+    case ae_op_s_xor_chuck:
     case ae_op_s_xor:
         switch( left )
         {
@@ -1348,16 +1361,6 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
     break;
     
     case ae_op_s_chuck:
-    case ae_op_plus_chuck:
-    case ae_op_minus_chuck:
-    case ae_op_times_chuck:
-    case ae_op_divide_chuck:
-    case ae_op_s_and_chuck:
-    case ae_op_s_or_chuck:
-    case ae_op_s_xor_chuck:
-    case ae_op_shift_right_chuck:
-    case ae_op_shift_left_chuck:
-    case ae_op_percent_chuck:
         EM_error2( lhs->linepos,
             "(emit): internal error: unhandled binary operator '%s'...",
             op2str( op ) );
@@ -1521,6 +1524,24 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             op2str( op ) );
         return FALSE;
     }
+    
+    // more...
+    if( left->id == te_int )
+    {
+        switch( op )
+        {
+        case ae_op_add_chuck:
+        case ae_op_minus_chuck:
+        case ae_op_times_chuck:
+        case ae_op_divide_chuck:
+        case ae_op_s_or_chuck:
+        case ae_op_s_and_chuck:
+        case ae_op_shift_left_chuck:
+        case ae_op_shift_right_chuck:
+        case ae_op_xor_chuck:
+        case ae_op_percent_chuck:
+        }
+    }
         
     return TRUE;
 }
@@ -1637,7 +1658,7 @@ t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rh
             // see if rhs is 'now' - time => now
             if( strcmp( "now", S_name(rhs->primary.var) ) == 0 )
             {
-                // pop the now value
+                // pop the now addr
                 emit->append( new Chuck_Instr_Reg_Pop_Word2 );
                 // advance time
                 emit->append( new Chuck_Instr_Time_Advance );

@@ -6,6 +6,8 @@ class AA
 	fun pure void foo();
 }
 
+new AA @=> AA aaa;
+
 5 => float f;
 
 fun int ha( int a, float aa )
