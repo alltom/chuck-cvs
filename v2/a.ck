@@ -5,7 +5,7 @@ class AA
 {
     int x;
 
-	fun pure void foo();
+    fun pure void foo();
 }
 
 //new AA @=> AA aaa;
@@ -23,13 +23,13 @@ class BB extends AA
 {
     int y;
 
-	fun void foo()
-	{
-	}
+    fun void foo()
+    {
+    }
 
-	fun static void bar()
-	{
-	}
+    fun static void bar()
+    {
+    }
 }
 
 BB b1;
@@ -85,10 +85,10 @@ class Foo implements laugh
         return hi(g);
     }
 
-	int x[100];
+    int x[100];
     A y[f];
 
-	A aa;
+    A aa;
 }
 
 fun int no( int j )
