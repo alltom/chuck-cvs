@@ -247,176 +247,6 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Add_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Inc_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Inc_uint : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dec_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Dec_uint : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Complement_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Complement_uint : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Times_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Times_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Add_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Times_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Times_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Add_double
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -473,32 +303,6 @@ public:
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Mod_double : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_dur
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Add_dur : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_dur_time
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Add_dur_time : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -585,174 +389,6 @@ class Chuck_Instr_Branch_Neq_int : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Neq_int( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Lt_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Lt_uint : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Lt_uint( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Gt_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Gt_uint : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Gt_uint( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Le_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Le_uint : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Le_uint( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Ge_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Ge_uint : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Ge_uint( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Eq_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Eq_uint : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Eq_uint( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Neq_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Neq_uint : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Neq_uint( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Lt_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Lt_single : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Lt_single( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Gt_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Gt_single : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Gt_single( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Le_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Le_single : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Le_single( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Ge_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Ge_single : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Ge_single( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Eq_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Eq_single : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Eq_single( uint jmp ) { this->set( jmp ); }
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Neq_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Neq_single : public Chuck_Instr_Branch_Op
-{
-public:
-    Chuck_Instr_Branch_Neq_single( uint jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -948,192 +584,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Negate_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Negate_uint : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Negate_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Negate_single : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Negate_double
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Negate_double : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Lt_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Lt_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Gt_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Gt_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Le_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Le_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Ge_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Ge_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Eq_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Eq_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Neq_uint
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Neq_uint : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Lt_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Lt_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Gt_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Gt_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Le_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Le_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Ge_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Ge_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Eq_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Eq_single : public Chuck_Instr_Binary_Op
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Neq_single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Neq_single : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1604,10 +1058,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Assign
-// desc: ...
+// name: class Chuck_Instr_Assign_Primitive
+// desc: assign primitive (word)
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Assign : public Chuck_Instr
+class Chuck_Instr_Assign_Primitive : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1617,10 +1071,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Assign
-// desc: ...
+// name: class Chuck_Instr_Assign_Primitive2
+// desc: assign primitive (2 word)
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Assign2 : public Chuck_Instr
+class Chuck_Instr_Assign_Primitive2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1630,10 +1084,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Assign_Deref
-// desc: ...
+// name: class Chuck_Instr_Assign_Primitive_Deref
+// desc: assign primitive (word) from pointer
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Assign_Deref : public Chuck_Instr
+class Chuck_Instr_Assign_Primitive_Deref : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1643,10 +1097,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Assign_Deref2
-// desc: ...
+// name: class Chuck_Instr_Assign_Primitive2_Deref
+// desc: assign primitive (2 word) from pointer
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Assign_Deref2 : public Chuck_Instr
+class Chuck_Instr_Assign_Primitive2_Deref : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1656,10 +1110,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Assign_Object
-// desc: ...
+// name: class Chuck_Instr_Assign_Object
+// desc: assign object with reference counting and releasing previous reference
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Assign_Object : public Chuck_Instr
+class Chuck_Instr_Assign_Object : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1669,10 +1123,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Assign_Object_Deref
-// desc: ...
+// name: class Chuck_Instr_Assign_Object2
+// desc: assign object with reference counting and NOT releasing previous
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Assign_Object_Deref : public Chuck_Instr
+class Chuck_Instr_Assign_Object2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1682,10 +1136,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Assign_Object2
-// desc: ...
+// name: class Chuck_Instr_Assign_Object_Deref
+// desc: object with reference counting from pointer
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Assign_Object2 : public Chuck_Instr
+class Chuck_Instr_Assign_Object_Deref : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1788,125 +1242,11 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: enum CI_PrintTypeEnum
-// desc: ...
-//-----------------------------------------------------------------------------
-enum CI_PrintTypeEnum
-{
-    cip_int = 1,
-    cip_uint,
-    cip_float,
-    cip_double,
-    cip_single,
-    cip_string,
-    cip_dur,
-    cip_time,
-    cip_object
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Print_Console
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Print_Console : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Print_Console2
-// desc: ..
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Print_Console2 : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Time_Advance
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Time_Advance : public Chuck_Instr
 {
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Midi_Out
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Midi_Out : public Chuck_Instr_Unary_Op
-{
-public:
-    Chuck_Instr_Midi_Out( uint mode )
-    { this->set(mode); }
-
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Midi_Out_Go
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Midi_Out_Go : public Chuck_Instr_Unary_Op
-{
-public:
-    Chuck_Instr_Midi_Out_Go( uint mode )
-    { this->set( mode ); }
-
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Midi_In
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Midi_In : public Chuck_Instr_Unary_Op
-{
-public:
-    Chuck_Instr_Midi_In( uint mode )
-    { this->set(mode); }
-
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Midi_In_Go
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Midi_In_Go : public Chuck_Instr_Unary_Op
-{
-public:
-    Chuck_Instr_Midi_In_Go( uint mode )
-    { this->set( mode ); }
-
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
@@ -2162,32 +1502,6 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_single2int
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_single2int : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_int2single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_int2single : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Cast_double2int
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2205,32 +1519,6 @@ public:
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Cast_int2double : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_single2double
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_single2double : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_double2single
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_double2single : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

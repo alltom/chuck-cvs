@@ -424,6 +424,30 @@ t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs );
 t_CKBOOL isprim( Chuck_Type * type );
 
+// helpers
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
+t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
+t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err );
+Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
+Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
+
+// default types
+extern Chuck_Type t_void;
+extern Chuck_Type t_int;
+extern Chuck_Type t_float;
+extern Chuck_Type t_time;
+extern Chuck_Type t_dur;
+extern Chuck_Type t_object;
+extern Chuck_Type t_null;
+extern Chuck_Type t_string;
+extern Chuck_Type t_shred;
+extern Chuck_Type t_thread;
+extern Chuck_Type t_function;
+extern Chuck_Type t_class;
+extern Chuck_Type t_event;
+extern Chuck_Type t_ugen;
+
 
 
 

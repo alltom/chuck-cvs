@@ -121,14 +121,6 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * nam
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
 
-// helpers
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
-t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
-t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err );
-Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
-Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
-
 
 
 
@@ -948,7 +940,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) ) return right;
 
-    // time advance
+    // time advance ( dur => now )
     if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
         return right;
 

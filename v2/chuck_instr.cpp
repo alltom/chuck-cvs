@@ -190,203 +190,6 @@ void Chuck_Instr_Divide_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Add_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp; 
-    pop_( sp, 2 );
-    push_( sp, val_(sp) + val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Inc_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
-
-    // pop word from reg stack
-    pop_( reg_sp, 1 );
-    // increment value
-    (*(reg_sp-1))++;
-    // copy value into mem stack
-    *( (uint *)(mem_sp + *(reg_sp)) ) = *(reg_sp-1);
-}
-
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Dec_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
-
-    // pop word from reg stack
-    pop_( reg_sp, 1 );
-    // decrement value
-    (*(reg_sp-1))--;
-    // copy value into mem stack
-    *( (uint *)(mem_sp + *(reg_sp)) ) = *(reg_sp-1);
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: exexute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Complement_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    (*sp) = ~(*sp);
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Mod_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp; 
-    pop_( sp, 2 );
-    push_( sp, val_(sp) % val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Minus_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp; 
-    pop_( sp, 2 );
-    push_( sp, val_(sp) - val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Times_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) * val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Divide_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) / val_(sp+1) );
-}
-
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Add_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) + val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Minus_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) - val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Times_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) * val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Divide_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) / val_(sp+1) );
-}
-
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Mod_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp; 
-    pop_( sp, 2 );
-    push_( sp, (float)fmod( val_(sp), val_(sp+1) ) );
-}
-
-
-
-
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
@@ -815,217 +618,10 @@ void Chuck_Instr_Negate_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Negate_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    sint *& sp_int = (sint *&)shred->reg->sp;
-    (*(sp_int-1)) = -((sint)(*(sp-1)));
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Negate_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    (*(sp-1)) = -(*(sp-1));
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
 void Chuck_Instr_Negate_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     double *& sp = (double *&)shred->reg->sp;
     (*(sp-1)) = -(*(sp-1));
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Lt_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) < val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Gt_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) > val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Le_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) <= val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Ge_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) >= val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Eq_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) == val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Neq_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) != val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Lt_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) < val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Gt_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) > val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Le_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) <= val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Ge_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) >= val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Eq_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) == val_(sp+1) )
-        shred->next_pc = m_jmp;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Branch_Neq_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    if( val_(sp) != val_(sp+1) )
-        shred->next_pc = m_jmp;
 }
 
 
@@ -1279,172 +875,6 @@ void Chuck_Instr_Neq_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Lt_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) < val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Gt_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) > val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Le_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) <= val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Ge_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) >= val_(sp+1) );
-}
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Eq_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) == val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Neq_uint::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_( sp, val_(sp) != val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Lt_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_uint( sp, val_(sp) < val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Gt_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_uint( sp, val_(sp) > val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Le_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_uint( sp, val_(sp) <= val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Ge_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_uint( sp, val_(sp) >= val_(sp+1) );
-}
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Eq_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_uint( sp, val_(sp) == val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Neq_single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 2 );
-    push_uint( sp, val_(sp) != val_(sp+1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
 void Chuck_Instr_Lt_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     double *& sp = (double *&)shred->reg->sp;
@@ -1592,9 +1022,9 @@ void Chuck_Instr_EOC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: assign primitive (word)
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Primitive::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
     uint *& reg_sp = (uint *&)shred->reg->sp;
@@ -1612,9 +1042,9 @@ void Chuck_Instr_Chuck_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: assign primitive (2 word)
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Primitive2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
     uint *& reg_sp = (uint *&)shred->reg->sp;
@@ -1633,9 +1063,9 @@ void Chuck_Instr_Chuck_Assign2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: assign primitive (word) from pointer
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Primitive_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& reg_sp = (uint *&)shred->reg->sp;
 
@@ -1652,9 +1082,9 @@ void Chuck_Instr_Chuck_Assign_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: assign primitive (2 word) from pointer
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign_Deref2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Primitive2_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& reg_sp = (uint *&)shred->reg->sp;
 
@@ -1672,23 +1102,25 @@ void Chuck_Instr_Chuck_Assign_Deref2::execute( Chuck_VM * vm, Chuck_VM_Shred * s
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: assign object with reference counting and releasing previous reference
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
     uint *& reg_sp = (uint *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
-    // release any previous reference
+    // the previous reference
     Chuck_VM_Object ** obj = (Chuck_VM_Object **)(mem_sp + *(reg_sp+1));
-    // if( *obj ) (*obj)->release();
+    // release any previous reference
+    if( *obj ) (*obj)->release();
     // copy popped value into mem stack
     *obj = *(Chuck_VM_Object **)reg_sp;
     // add reference
     (*(Chuck_VM_Object **)reg_sp)->add_ref();
 
+    // push the reference value to reg stack
     push_( reg_sp, *reg_sp );
 }
 
@@ -1697,20 +1129,21 @@ void Chuck_Instr_Chuck_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * s
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: assign object with reference counting and NOT releaseing previous
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Release_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Object2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
     uint *& reg_sp = (uint *&)shred->reg->sp;
-    Chuck_VM_Object * obj = NULL;
-
+    
     // pop word from reg stack
-    pop_( reg_sp, 1 );
+    pop_( reg_sp, 2 );
     // copy popped value into mem stack
-    obj = *( (Chuck_VM_Object **)(mem_sp + *(reg_sp)) );
-    // release
-    obj->release();
+    *( (uint *)(mem_sp + *reg_sp) ) = *(reg_sp+1);
+    // add reference
+    ( *((Chuck_VM_Object **)(reg_sp+1)) )->add_ref();
+    
+    push_( reg_sp, *(reg_sp+1) );
 }
 
 
@@ -1718,9 +1151,9 @@ void Chuck_Instr_Chuck_Release_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * 
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: object with reference counting from pointer
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign_Object_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Object_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& reg_sp = (uint *&)shred->reg->sp;
 
@@ -1739,21 +1172,20 @@ void Chuck_Instr_Chuck_Assign_Object_Deref::execute( Chuck_VM * vm, Chuck_VM_Shr
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: release one reference on object
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign_Object2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Chuck_Release_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
     uint *& reg_sp = (uint *&)shred->reg->sp;
-    
+    Chuck_VM_Object * obj = NULL;
+
     // pop word from reg stack
-    pop_( reg_sp, 2 );
+    pop_( reg_sp, 1 );
     // copy popped value into mem stack
-    *( (uint *)(mem_sp + *reg_sp) ) = *(reg_sp+1);
-    // add reference
-    ( *((Chuck_VM_Object **)(reg_sp+1)) )->add_ref();
-    
-    push_( reg_sp, *(reg_sp+1) );
+    obj = *( (Chuck_VM_Object **)(mem_sp + *(reg_sp)) );
+    // release
+    obj->release();
 }
 
 
@@ -1989,134 +1421,6 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     push_( sp, *sp );
 }
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Add_dur_time::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKTIME *& p = (t_CKTIME *&)shred->reg->sp;
-    pop_( p, 1 );
-    t_CKTIME t = *p;
-
-    t_CKDUR *& sp = (t_CKDUR *&)shred->reg->sp;
-    pop_( sp, 1 );
-    t_CKDUR d = *sp;
-
-    push_( sp, (t_CKTIME)( d + (t_CKDUR)t ) );
-}
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Midi_Out::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-
-    // pop word
-    pop_( sp, m_val ? 1 : 0 );
-
-    // send the word as midi msg
-    MidiOut * out = vm->bbq()->midi_out( m_val ? *(sp) : 0 );
-    if( !out && vm->bbq()->out_count( m_val ? *(sp) : 0 ) < 2 )
-        fprintf( stderr, "[chuck](VM): cannot open MIDI output device # '%i'...\n",
-                 m_val ? *(sp) : 0 );
-                 
-    // push anything?
-    push_( sp, (uint)out );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Midi_Out_Go::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    MidiMsg msg;
-    uint *& sp = (uint *&)shred->reg->sp;
-
-    // pop word
-    pop_( sp, 2 );
-
-    uint v = *( m_val ? sp+1 : sp );
-    msg.data[0] = (v >> 16) & 0xff;
-    msg.data[1] = (v >> 8) & 0xff;
-    msg.data[2] = (v) & 0xff;
-    
-    // send the word as midi msg
-    MidiOut * out = *(MidiOut **)( m_val ? (sp) : sp+1 );
-    if( out ) out->send( &msg );
-
-    // push anything?
-    push_( sp, (uint)out );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Midi_In::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-
-    if( m_val ) pop_( sp, 1 );
-    MidiIn * in = vm->bbq()->midi_in( m_val ? *(sp) : 0 );
-    if( !in && vm->bbq()->in_count( m_val ? *(sp) : 0 ) < 2 )
-    {
-        fprintf( stderr, "[chuck](VM): cannot open MIDI input device '%i'...\n",
-                 m_val ? *(sp) : 0 );
-    }
-    
-    push_( sp, (uint)in );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Midi_In_Go::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    MidiMsg msg;
-    uint *& sp = (uint *&)shred->reg->sp;
-
-    pop_( sp, 1 );
-    MidiIn * in = *(MidiIn **)sp;
-    if( !in )
-    {
-        push_( sp, 0 );
-        return;
-    }
-
-    if( in->recv( &msg ) )
-    {
-        // msg2.data[0] = msg.data[3];
-        // msg2.data[1] = msg.data[2];
-        // msg2.data[2] = msg.data[1];
-        // msg2.data[3] = msg.data[0];
-        push_( sp, *((uint *)&msg) );
-    }
-    else
-    {
-        push_( sp, 0 );
-    }
-}
-
 
 
 
@@ -2476,34 +1780,6 @@ void Chuck_Instr_DLL_Unload::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_single2int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    sint *& sp = (sint *&)shred->reg->sp;
-    pop_( sp, 1 );
-    push_( sp, (sint)*(float *)sp );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_int2single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    pop_( sp, 1 );
-    push_( sp, (float)*(sint *)sp );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
 void Chuck_Instr_Cast_double2int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     double *& sp = (double *&)shred->reg->sp;
@@ -2525,181 +1801,4 @@ void Chuck_Instr_Cast_int2double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     double *& sp_double = (double *&)sp;
     pop_( sp, 1 );
     push_( sp_double, (double)(*sp) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_double2single::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    double *& sp = (double *&)shred->reg->sp;
-    float *& sp_float = (float *&)sp;
-    pop_( sp, 1 );
-    push_( sp_float, (float)(*sp) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_single2double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    float *& sp = (float *&)shred->reg->sp;
-    double *& sp_double = (double *&)sp;
-    pop_( sp, 1 );
-    push_( sp_double, (double)(*sp) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Print_Console::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    uint type;
-    uint w = 0;
-    
-    // pop word from reg stack
-    pop_( sp, 1 );
-    type = *sp;
-    
-    switch( type )
-    {
-        case cip_int:
-        case cip_uint:
-        case cip_string:
-            pop_( sp, 2 );
-            break;
-            
-        case cip_double:
-        case cip_float:
-        case cip_dur:
-        case cip_time:
-            w = 1;
-            pop_( sp, 3 );
-            break;
-            
-        default:
-            fprintf( stderr, 
-                     "[chuck virtual machine]: Exception UnknownTypeToStdout '%u'\n",
-                     type );
-            return;
-    }
-    
-    switch( type )
-    {
-        case cip_int:
-            fprintf( stdout, "%i\n", *((sint*)sp) );
-            break;
-        case cip_uint:
-            fprintf( stdout, "%u\n", *((uint *)sp) );
-            break;
-        case cip_float:
-            fprintf( stdout, "%.6f\n", *((double *)sp) );
-            break;
-        case cip_double:
-            fprintf( stdout, "%.6f\n", *((double *)sp) );
-        break;
-        case cip_string:
-            fprintf( stdout, "%s\n", *((char **)sp) );
-            break;
-        case cip_dur:
-            fprintf( stdout, "dur=%.4fs\n", *((t_CKDUR *)sp) / (double)Digitalio::sampling_rate() );
-            break;
-        case cip_time:
-            fprintf( stdout, "time=%.4fs\n", *((t_CKTIME *)sp) / (double)Digitalio::sampling_rate() );
-            break;
-    }
-    
-    // push the data back
-    double *& sp_double = (double *&)sp;
-    if( w == 0 )
-    {
-        push_( sp, *sp );
-    }
-    else
-    {
-        push_( sp_double, *sp_double );
-    }
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Print_Console2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    uint *& sp = (uint *&)shred->reg->sp;
-    uint type;
-    uint w = 0;
-
-    // pop word from reg stack
-    pop_( sp, 1 );
-    type = *sp;
-
-    switch( type )
-    {
-    case cip_int:
-    case cip_uint:
-    case cip_string:
-        pop_( sp, 2 );
-    break;
-
-    case cip_double:
-    case cip_float:
-    case cip_dur:
-    case cip_time:
-        w = 1;
-        pop_( sp, 3 );
-    break;
-
-    default:
-        fprintf( stderr, 
-                 "[chuck virtual machine]: Exception UnknownTypeToStdout '%u'\n",
-                 type );
-        return;
-    }
-
-    switch( type )
-    {
-    case cip_int:
-        fprintf( stderr, "%i", *((sint*)(sp+1)) );
-        break;
-    case cip_uint:
-        fprintf( stderr, "%u", *((uint *)(sp+1)) );
-        break;
-    case cip_float:
-        fprintf( stderr, "%.6f", *((double *)(sp+1)) );
-    break;
-
-    case cip_double:
-        fprintf( stderr, "%.6f", *((double *)(sp+1)) );
-        break;
-    case cip_string:
-        fprintf( stderr, "%s", *((char **)(sp+1)) );
-        break;
-    case cip_dur:
-        fprintf( stderr, "%.4fs", *((t_CKDUR *)(sp+1)) / (double)Digitalio::sampling_rate() );
-        break;
-    case cip_time:
-        fprintf( stderr, "%.4fs", *((t_CKTIME *)(sp+1)) / (double)Digitalio::sampling_rate() );
-    break;
-    }
-
-    // push
-    push_( sp, *sp );
 }

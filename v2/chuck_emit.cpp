@@ -403,10 +403,9 @@ t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
     switch( stmt->cond->type->id )
     {
     case te_int:
-    case te_uint:
         // push 0
         emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Eq_uint( 0 );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
         break;
     case te_float:
     case te_dur:
@@ -489,10 +488,9 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
         switch( stmt->c2->stmt_exp->type->id )
         {
         case te_int:
-        case te_uint:
             // push 0
             emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-            op = new Chuck_Instr_Branch_Eq_uint( 0 );
+            op = new Chuck_Instr_Branch_Eq_int( 0 );
             break;
         case te_float:
         case te_dur:
@@ -597,10 +595,9 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     switch( stmt->cond->type->id )
     {
     case te_int:
-    case te_uint:
         // push 0
         emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Eq_uint( 0 );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
         break;
     case te_float:
     case te_dur:
@@ -686,10 +683,9 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     switch( stmt->cond->type->id )
     {
     case te_int:
-    case te_uint:
         // push 0
         emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Neq_uint( 0 );
+        op = new Chuck_Instr_Branch_Neq_int( 0 );
         break;
     case te_float:
     case te_dur:
@@ -763,10 +759,9 @@ t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     switch( stmt->cond->type->id )
     {
     case te_int:
-    case te_uint:
         // push 0
         emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Neq_uint( 0 );
+        op = new Chuck_Instr_Branch_Neq_int( 0 );
         break;
     case te_float:
     case te_dur:
@@ -851,10 +846,9 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     switch( stmt->cond->type->id )
     {
     case te_int:
-    case te_uint:
         // push 0
         emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Eq_uint( 0 );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
         break;
     case te_float:
     case te_dur:
@@ -1521,10 +1515,93 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_op_chuck()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
+{
+    t_CKTYPE left = lhs->type, right = rhs->type;
+    
+    // ugen => ugen
+    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
+    {
+        // connect the ugens
+        emit->append( new Chuck_Instr_UGen_Link );
+        // done
+        return TRUE;
+    }
+
+    // time advance
+    if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
+    {
+        // add the two
+        emit->append( new Chuck_Instr_Add_double );
+
+        // see if rhs is 'now'
+        if( strcmp( "now", S_name(rhs->primary.var) ) == 0 )
+        {
+            // advance time
+            emit->append( new Chuck_Instr_Time_Advance );
+        }
+
+        return TRUE;
+    }
+
+    // assignment or something else
+    if( isa( left, right ) )
+    {
+        // basic types?
+        if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
+        {
+            // assigment?
+            if( rhs->s_meta != ae_meta_var )
+            {
+                EM_error2( lhs->linepos,
+                    "(emit): internal error: assignment to non-variable..." );
+                return FALSE;
+            }
+
+            // see if rhs is 'now'
+            if( strcmp( "now", S_name(rhs->primary.var) ) == 0 )
+            {
+                // pop the now value
+                emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+                // advance time
+                emit->append( new Chuck_Instr_Time_Advance );
+            }
+            else
+            {
+                // assign primitive
+                emit->append( new Chuck_Instr_Assign_Primitive );
+            }
+
+            return TRUE;
+        }
+        // aggregate types
+        else
+        {
+            // TODO: check overloading of =>
+
+            // no match
+            EM_error2( lhs->linepos,
+                "no suitable resolution for binary operator '=>'..." );
+            EM_error2( lhs->linepos,
+                "...on types '%s' => '%s'...",
+                left->c_name(), right->c_name() );
+            EM_error2( lhs->linepos,
+                "...(note: use '@=>' for assignment of object references)" );
+            return NULL;
+        }
+    }
+
+    // TODO: check overloading of =>
+
+    // no match
+    EM_error2( lhs->linepos,
+        "no suitable resolution for binary operator '=>' on types '%s' and '%s'...",
+        left->c_name(), right->c_name() );
+    return NULL;
+}
 
 
 
