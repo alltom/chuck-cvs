@@ -1,4 +1,4 @@
-// call class member function...
+// local variable in class function.
 
 class Obj { 
 	int x;

@@ -49,15 +49,17 @@ p24.ck		emit, correct		function taking two arguments
 p25.ck		emit, correct		test pass by value
 p26.ck		emit error exceeds dimension ( see 19.ck ) array pass by reference
 p27.ck		emitted, correct	function calling second function
-p28.ck					recursive function
-p29.ck					variable access outside defining block
-p30.ck
-p31.ck
-p32.ck
-p33.ck
+p28.ck		type error 		recursive function
+p29.ck		type error ( correct )	variable access outside defining block
+p30.ck		emit, bus error		member function with another class as argument
+p31.ck		emit, bus error		call member function of a class			
+p32.ck		emit, bus error		member function that doesn't call a member
+p33.ck		error			class Constructor ( okay, they don't exist )
 p34.ck		emit, wrong value	modify global inside function
 p35.ck		emit, correct		function returning simple value
 p36.ck		emit, incorrect		function returning value of a variable..
+p37.ck		emit, bus error		call empty member function
+
 --Notes--
 
 mar 29, 7:55pm p21 - 25 all give an error from defining a function taking an argument.
