@@ -67,6 +67,15 @@ void EM_newline(void)
 }
 
 
+const char * mini( const char * str )
+{
+    int len = strlen( str );
+    const char * p = str + len;
+    while( p != str && *p != '/' && *p != '\\' ) p--;
+    return ( p == str || strlen(p+1) == 0 ? p : p+1 );
+}
+
+
 void EM_error( int pos, char *message, ... )
 {
     va_list ap;
@@ -80,7 +89,7 @@ void EM_error( int pos, char *message, ... )
         num--;
     }
 
-    fprintf( stderr, "('%s'):", *fileName ? fileName : "chuck" );
+    fprintf( stderr, "('%s'):", *fileName ? mini(fileName) : "chuck" );
     if (lines) fprintf(stderr, "line(%d).char(%d):", num, pos-lines->i );
     fprintf(stderr, " " );
     va_start(ap, message);
@@ -90,12 +99,13 @@ void EM_error( int pos, char *message, ... )
 }
 
 
+
 void EM_error2( int line, char *message, ... )
 {
     va_list ap;
 
-    fprintf( stderr, "[%s]:", *fileName ? fileName : "chuck" );
-    sprintf( g_lasterror, "[%s]:", *fileName ? fileName : "chuck" );
+    fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
+    sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
     if(line) fprintf( stderr, "line(%d):", line );
     if(line) { sprintf( g_buffer, "line(%d):", line ); strcat( g_lasterror, g_buffer ); }
     fprintf( stderr, " " );
