@@ -1710,7 +1710,16 @@ t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rh
             else
             {
                 // assign primitive
-                emit->append( new Chuck_Instr_Assign_Primitive );
+                if( right->size == 4 )
+                    emit->append( new Chuck_Instr_Assign_Primitive );
+                else if( right->size == 8 )
+                    emit->append( new Chuck_Instr_Assign_Primitive2 );
+                else
+                {
+                    EM_error2( rhs->linepos,
+                        "(emit): internal error: assignment to type of size %i...",
+                        right->size );
+                }
             }
 
             return TRUE;

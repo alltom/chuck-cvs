@@ -1487,6 +1487,23 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Assign_Object
+// desc: map object with reference counting and releasing previous reference
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Assign_Object_To_Map : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Assign_Object_To_Map( t_CKUINT size )
+    { this->set( size ); }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Chuck_Release_Object
 // desc: ...
 //-----------------------------------------------------------------------------

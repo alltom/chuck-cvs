@@ -146,7 +146,7 @@ public:
 struct Chuck_Array4 : Chuck_Object
 {
 public:
-    Chuck_Array4( t_CKINT capacity = 8 );
+    Chuck_Array4( t_CKBOOL is_obj, t_CKINT capacity = 8 );
     ~Chuck_Array4();
 
 public:
@@ -168,6 +168,7 @@ public:
     std::map<std::string, t_CKUINT> m_map;
     t_CKINT m_size;
     t_CKINT m_capacity;
+    t_CKBOOL m_is_obj;
 };
 
 

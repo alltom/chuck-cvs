@@ -203,7 +203,7 @@ Chuck_Object::~Chuck_Object()
 // name: Chuck_Array4()
 // desc: constructor
 //-----------------------------------------------------------------------------
-Chuck_Array4::Chuck_Array4( t_CKINT capacity )
+Chuck_Array4::Chuck_Array4( t_CKBOOL is_obj, t_CKINT capacity )
 {
     // sanity check
     assert( capacity > 0 );
@@ -213,6 +213,8 @@ Chuck_Array4::Chuck_Array4( t_CKINT capacity )
     m_size = 0;
     // set capacity
     m_capacity = capacity;
+    // is object
+    m_is_obj = is_obj;
 }
 
 
@@ -298,7 +300,7 @@ t_CKINT Chuck_Array4::get( const string & key, t_CKUINT * val )
 
 //-----------------------------------------------------------------------------
 // name: set()
-// desc: ...
+// desc: include ref counting
 //-----------------------------------------------------------------------------
 t_CKINT Chuck_Array4::set( t_CKINT i, t_CKUINT val )
 {
@@ -306,8 +308,16 @@ t_CKINT Chuck_Array4::set( t_CKINT i, t_CKUINT val )
     if( i < 0 || i >= m_capacity )
         return 0;
 
+    t_CKUINT v = m_vector[i];
+
+    // if obj
+    if( m_is_obj && v ) ((Chuck_Object *)v)->release();
+
     // set the value
     m_vector[i] = val;
+
+    // if obj
+    if( m_is_obj && val ) ((Chuck_Object *)val)->add_ref();
 
     // return good
     return 1;
@@ -318,12 +328,20 @@ t_CKINT Chuck_Array4::set( t_CKINT i, t_CKUINT val )
 
 //-----------------------------------------------------------------------------
 // name: set()
-// desc: ...
+// desc: include ref counting
 //-----------------------------------------------------------------------------
 t_CKINT Chuck_Array4::set( const string & key, t_CKUINT val )
 {
+    t_CKUINT v = m_map[key];
+
+    // if obj
+    if( m_is_obj && v ) ((Chuck_Object *)v)->release();
+
     // set the value
     m_map[key] = val;
+
+    // if obj
+    if( m_is_obj && val ) ((Chuck_Object *)val)->add_ref();
 
     // return good
     return 1;
