@@ -53,8 +53,10 @@
 // our socket type
 typedef struct ck_socket_ * ck_socket;
 
-// create a socket
+// create a UDP socket
 ck_socket ck_udp_create( );
+// create a TCP socket
+ck_socket ck_tcp_create( );
 // connect to a server
 t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port );
 // connect to a server
@@ -62,18 +64,25 @@ t_CKBOOL ck_connect2( ck_socket sock, const struct sockaddr * serv_addr,
                       int addrlen);
 // bind to a port
 t_CKBOOL ck_bind( ck_socket sock, int port );
-// send a datagram
+// listen (TCP)
+t_CKBOOL ck_listen( ck_socket sock, int backlog );
+// accept (TCP)
+ck_socket ck_accept( ck_socket sock );
+
+// send
 int ck_send( ck_socket sock, const char * buffer, int len );
 // setn using connect/sendto
 int ck_send2( ck_socket sock, const char * buffer, int len );
 // send a datagram
 int ck_sendto( ck_socket sock, const char * buffer, int len,
                const struct sockaddr * to, int tolen );
-// recv a datagram
+
+// recv
 int ck_recv( ck_socket sock, char * buffer, int len );
 // recv a datagram
 int ck_recvfrom( ck_socket sock, char * buffer, int len,
                  struct sockaddr * from, int * fromlen );
+
 // close the socket
 void ck_close( ck_socket sock );
 
