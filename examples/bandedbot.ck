@@ -4,13 +4,12 @@ BandedWG band => JCRev r => dac;
 
 0.95 => band.gain;
 1 => band.preset;
-std.mtof( (float)( 45 + std.rand2(0,2) * 12 + 7 ) ) => band.freq;
+std.mtof( (float)( 21 + std.rand2(0,3) * 12 + 7 ) ) => band.freq;
 .8 => r.gain;
 .1 => r.mix;
 // our main loop
 while( true )
-{
-    
+{    
     std.rand2f( 0.1, 0.3 ) => band.bowRate;
     std.rand2f( 0.4, 0.5 ) => band.bowPressure;
     std.rand2f( 0.6, 0.8 ) => band.startBowing;
