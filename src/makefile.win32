@@ -2,7 +2,7 @@
 CC=gcc
 CPP=g++
 INCLUDES= -I/usr/include/directx/
-FLAGS= -D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ $(INCLUDES) -O3 -c -g
+FLAGS= -D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ $(INCLUDES) -O3 -c
 LIBS= -ldsound -ldxguid -lwinmm -lstdc++ -lm
 OBJS= chuck.tab.o chuck.yy.o chuck_main.o chuck_errormsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \
