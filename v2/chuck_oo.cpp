@@ -115,6 +115,7 @@ Chuck_VM_Alloc * Chuck_VM_Alloc::instance()
 //-----------------------------------------------------------------------------
 void Chuck_VM_Alloc::add_object( Chuck_VM_Object * obj )
 {
+    // add it to map
 }
 
 
@@ -126,6 +127,13 @@ void Chuck_VM_Alloc::add_object( Chuck_VM_Object * obj )
 //-----------------------------------------------------------------------------
 void Chuck_VM_Alloc::free_object( Chuck_VM_Object * obj )
 {
+    // make sure the ref count is 0
+    assert( obj && obj->m_ref_count == 0 );
+    
+    // remove it from map
+    
+    // delete it
+    delete obj;
 }
 
 

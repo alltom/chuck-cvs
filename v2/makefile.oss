@@ -17,9 +17,9 @@ SF_OBJ=util_sndfile.o
 
 OBJS=chuck.tab.o chuck.yy.o chuck_main.o chuck_errmsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \
-	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_ugen.o \
-	chuck_bbq.o chuck_dl.o chuck_otf.o digiio_rtaudio.o rtaudio.o \
-	midiio_oss.o ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o \
+	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_oo.o \
+	chuck_ugen.o chuck_bbq.o chuck_dl.o chuck_otf.o digiio_rtaudio.o 
+	rtaudio.o midiio_oss.o ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o \
 	ulib_machine.o ulib_math.o ulib_net.o ulib_std.o util_buffers.o \
 	util_math.o util_network.o util_raw.o util_thread.o util_xforms.o \
 	$(SF_OBJ)
@@ -44,6 +44,9 @@ chuck_frame.o: chuck_frame.h chuck_frame.cpp
 
 chuck_vm.o: chuck_vm.h chuck_vm.cpp
 	$(CC) $(FLAGS) chuck_vm.cpp
+
+chuck_oo.o: chuck_oo.h chuck_oo.cpp
+	$(CC) $(FLAGS) chuck_oo.cpp
 
 chuck_instr.o: chuck_instr.h chuck_instr.cpp
 	$(CC) $(FLAGS) chuck_instr.cpp

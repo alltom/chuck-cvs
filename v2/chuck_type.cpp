@@ -1494,7 +1494,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     }
 
     // allocate new type
-    t_class = new Chuck_Type;         
+    t_class = new Chuck_Type;
     // set the new type as current
 
     // type check the body
