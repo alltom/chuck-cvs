@@ -58,6 +58,7 @@ struct Chuck_Type t_function = { te_function, "function", &t_object, sizeof(void
 struct Chuck_Type t_class = { te_class, "class", &t_object, sizeof(void *) };
 struct Chuck_Type t_event = { te_event, "event", &t_object, sizeof(void *) };
 struct Chuck_Type t_ugen = { te_ugen, "ugen", &t_object, sizeof(void *) };
+struct Chuck_Type t_multi = { te_multi, "@multi", NULL, sizeof(void *) };
 
 /* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
@@ -1238,14 +1239,12 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl var_decl = decl->var_decl_list->var_decl;
     
-    t_CKTYPE t = NULL;
-
     // look up the type
-    t = env->curr->lookup_type( decl->type, TRUE );
+    t_CKTYPE t = env->curr->lookup_type( decl->type->id, TRUE );
     if( !t )
     {
         EM_error2( decl->linepos,
-            "undefined type '%s'...", S_name(decl->type) );
+            "undefined type '%s'...", S_name(decl->type->id) );
         return NULL;
     }
 
@@ -1259,14 +1258,22 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     }
 
     // check if array
-    if( var_decl->isarray )
+    if( decl->type->array )
     {
         // make a copy of the type
         t = t->copy();
         // set the array depth
-        t->array_depth = var_decl->isarray;
+        t->array_depth = decl->type->array->depth;
     }
-    
+
+    // make sure
+    if( var_decl->isarray )
+    {
+        EM_error2( decl->linepos,
+            "for declaration, array subscripts must be placed only with type" );
+        return NULL;
+    }
+
     // enter into value binding
     env->context->nspc.value.add( var_decl->id, 
         new Chuck_Value( t, S_name(var_decl->id), NULL ) );
@@ -1403,16 +1410,16 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
     if( !t_base ) return NULL;
     
     // type check the index
-    t_CKTYPE t_index = type_engine_check_exp( env, array->index );
+    t_CKTYPE t_index = type_engine_check_exp( env, array->indices->exp_list );
     if( !t_index ) return NULL;
     
     // check if index is of valid type
     if( !isa( t_index, &t_int ) && !isa( t_index, &t_string ) )
     {
         // not int or string
-        EM_error2( array->index->linepos,
+        EM_error2( array->indices->linepos,
             "array index must be of type 'int' or 'string', not '%s'",
-            t_index->name.c_str() );
+            "HACK! - need name here" );
         return NULL;
     }
 }
