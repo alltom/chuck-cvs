@@ -462,6 +462,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         }
 
         do {
+            strcpy( msg.buffer, "" );
             if( argv[i][0] != '/' )
             { 
                 strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
@@ -753,7 +754,11 @@ int main( int argc, char ** argv )
     // start tcp server
     g_sock = ck_tcp_create();
     if( !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
+    {
         fprintf( stderr, "[chuck]: cannot bind to tcp port %i...\n", g_port );
+        ck_close( g_sock );
+        g_sock = NULL;
+    }
     else
     {
 #ifndef __PLATFORM_WIN32__

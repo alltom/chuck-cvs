@@ -329,6 +329,8 @@ int ck_recv( ck_socket sock, char * buffer, int len )
 //-----------------------------------------------------------------------------
 void ck_close( ck_socket sock ) 
 {
+    if( !sock ) return;
+    
     close( sock->sock );
     free( sock );
 
