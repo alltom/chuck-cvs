@@ -1,9 +1,11 @@
 
 // adc => sndbuf => dac;
 
-a => int i;
+1 => int i;
 
 1 + 1 => i;
+
+a => a;
 
 class Foo
 {
@@ -24,11 +26,11 @@ class Foo
     }
 }
 
+
 class Bar extends Foo
 {
     int c;
 }
 
-
 Foo fooo;
-fooo.f;   
+
