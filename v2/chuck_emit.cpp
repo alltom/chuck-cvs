@@ -80,7 +80,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
 t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit, Chuck_Type * to, Chuck_Type * from );
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
-                                  t_CKBOOL emit_var, int linepos );
+                                  Chuck_Value * v, t_CKBOOL emit_var, int linepos );
 
 
 
@@ -220,7 +220,7 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     // allocate instruction pointers+
     code->instr = new Chuck_Instr *[code->num_instr];
     // set the stack depth
-    code->stack_depth = in->stack_depth;
+    code->stack_depth = in->frame->curr_offset;
 
     // copy
     for( t_CKUINT i = 0; i < code->num_instr; i++ )
@@ -1941,7 +1941,7 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         {
             // emit the symbol
             return emit_engine_emit_symbol( 
-                emit, exp->var, exp->self->emit_var, exp->linepos );
+                emit, exp->var, exp->value, exp->self->emit_var, exp->linepos );
         }
         break;
     
@@ -2222,7 +2222,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     // call the func
     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)func->code ) );
     // push the local stack depth - local variables
-    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->stack_depth ) );
+    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
 
     // TODO: member functions and static functions
     // call the function
@@ -2560,6 +2560,34 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     // name the code
     emit->code->name = func->name + "( ... )";
 
+    // go through the args
+    a_Arg_List a = func_def->arg_list;
+    Chuck_Value * value = NULL;
+    Chuck_Type * type = NULL;
+    Chuck_Local * local = NULL;
+    t_CKBOOL is_ref = FALSE;
+    while( a )
+    {
+        // get the value
+        value = a->var_decl->value;
+        // get the type
+        type = value->type;
+        // get ref
+        is_ref = a->type_decl->ref;
+        // allocate a place on the local stack
+        local = emit->alloc_local( type->size, value->name, is_ref );
+        if( !local )
+        {
+            EM_error2( a->linepos,
+                "(emit): internal error: cannot allocate local '%s'...",
+                value->name.c_str() );
+            return FALSE;
+        }
+
+        // advance
+        a = a->next;
+    }
+
     // emit the code
     if( !emit_engine_emit_stmt( emit, func_def->code, FALSE ) )
         return FALSE;
@@ -2657,10 +2685,11 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
-                                  t_CKBOOL emit_var, int linepos )
+                                  Chuck_Value * v, t_CKBOOL emit_var,
+                                  int linepos )
 {
     // look up the value
-    Chuck_Value * v = emit->env->curr->lookup_value( symbol, TRUE );
+    // Chuck_Value * v = emit->env->curr->lookup_value( symbol, TRUE );
     // it should be there
     if( !v )
     {
@@ -2669,6 +2698,25 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
             "(emit): internal error: undefined symbol '%s'...",
             S_name(symbol) );
         return FALSE;
+    }
+
+    // if part of class
+    if( v->owner_class )
+    {
+        // emit as this.v
+        a_Exp base = new_exp_from_id( "this", linepos );
+        a_Exp dot = new_exp_from_member_dot( base, (char *)v->name.c_str(), linepos );
+        dot->dot_member.t_base = v->owner_class;
+        // emit it
+        if( !emit_engine_emit_exp_dot_member( emit, &dot->dot_member ) )
+        {
+            // internal error
+            EM_error2( linepos,
+                "(emit): internal error: symbol transformation failed..." );
+            return FALSE;
+        }
+
+        return TRUE;
     }
 
     // var or value

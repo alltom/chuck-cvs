@@ -220,6 +220,7 @@ typedef enum { ae_primary_var, ae_primary_num, ae_primary_float,
 struct a_Exp_Primary_
 {
     ae_Exp_Primary_Type s_type;
+    t_CKVALUE value;
     
     union
     {

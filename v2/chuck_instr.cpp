@@ -1552,12 +1552,12 @@ void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // release any previous reference
     if( *obj ) (*obj)->release();
     // copy popped value into memory
-    *obj = *(Chuck_VM_Object **)reg_sp;
+    *obj = (Chuck_VM_Object *)(*(reg_sp));
     // add reference
     if( *obj ) (*obj)->add_ref();
 
     // push the reference value to reg stack
-    push_( reg_sp, *reg_sp );
+    push_( reg_sp, (t_CKUINT)*obj );
 }
 
 
@@ -1626,8 +1626,8 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // if there are arguments to be passed
     if( stack_depth )
     {
-        // pop the arguments, by number of bytes
-        pop_( reg_sp, func->stack_depth );
+        // pop the arguments, by number of words
+        pop_( reg_sp, stack_depth );
 
         // make copies
         t_CKUINT * mem_sp2 = (t_CKUINT *)mem_sp;

@@ -1398,6 +1398,8 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
 
                 // the type
                 t = v->type;
+                // remember
+                exp->value = v;
             }
         break;
         
@@ -2339,6 +2341,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         // stack
         value->offset = f->stack_depth;
         f->stack_depth += arg_list->type->size;
+
+        // remember
+        arg_list->var_decl->value = value;
 
         // next arg
         arg_list = arg_list->next;
