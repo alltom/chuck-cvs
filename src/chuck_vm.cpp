@@ -735,7 +735,7 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
 
     // tell parent
     if( shred->parent )
-        shred->parent->children.erase( shred->parent->children.find(shred->id) );
+        shred->parent->children.erase( shred->id );
 
     // free!
     m_shreduler->remove( shred );
