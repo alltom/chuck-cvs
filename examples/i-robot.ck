@@ -2,7 +2,7 @@
 // gewang, prc
 
 // our patch - feedforward part
-adc => gain g => DelayL d => dac;
+adc => gain g => DelayA d => dac;
 adc => gain g2 => dac;
 // feedback
 d => gain g3 => d;
@@ -13,4 +13,4 @@ d => gain g3 => d;
 0.95 => g3.gain;
 
 // time loop
-while( true ) 7::ms => now;
+while( true ) 10::ms => now;
