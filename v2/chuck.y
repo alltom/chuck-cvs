@@ -212,7 +212,7 @@ id_list
 
 id_dot
         : ID                                { $$ = new_id_list( $1, EM_lineNum ); }
-        | ID DOT id_dot                     { $$ = prepend_id_list( $1, $3, EM_lineNum ); }
+        // | ID DOT id_dot                     { $$ = prepend_id_list( $1, $3, EM_lineNum ); }
         ;
 
 function_definition
