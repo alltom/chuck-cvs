@@ -283,20 +283,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // add Delay
     QUERY->ugen_add( QUERY, "Delay", NULL );
     QUERY->ugen_func( QUERY, Delay_ctor, Delay_dtor, Delay_tick, Delay_pmsg );
-    QUERY->ugen_ctrl( QUERY, Delay_ctrl_delay, Delay_cget_delay, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, Delay_ctrl_max, Delay_cget_max, "float", "max" );
+    QUERY->ugen_ctrl( QUERY, Delay_ctrl_delay, Delay_cget_delay, "dur", "delay" );
+    QUERY->ugen_ctrl( QUERY, Delay_ctrl_max, Delay_cget_max, "dur", "max" );
 
     // add DelayA
     QUERY->ugen_add( QUERY, "DelayA", NULL );
     QUERY->ugen_func( QUERY, DelayA_ctor, DelayA_dtor, DelayA_tick, DelayA_pmsg );
-    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_delay, DelayA_cget_delay, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_max, DelayA_cget_max, "float", "max" );
+    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_delay, DelayA_cget_delay, "dur", "delay" );
+    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_max, DelayA_cget_max, "dur", "max" );
 
     // add DelayL
     QUERY->ugen_add( QUERY, "DelayL", NULL );
     QUERY->ugen_func( QUERY, DelayL_ctor, DelayL_dtor, DelayL_tick, DelayL_pmsg );
-    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_delay, DelayL_cget_delay, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_max, DelayL_cget_max, "float", "max" );
+    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_delay, DelayL_cget_delay, "dur", "delay" );
+    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_max, DelayL_cget_max, "dur", "max" );
 
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
@@ -19067,25 +19067,25 @@ UGEN_PMSG Delay_pmsg( t_CKTIME now, void * data, const char * msg, void * value 
 
 UGEN_CTRL Delay_ctrl_delay( t_CKTIME now, void * data, void * value )
 {
-    ((Delay *)data)->setDelay( (long)(GET_NEXT_FLOAT(data)+.5) );
+    ((Delay *)data)->setDelay( (long)(GET_NEXT_DUR(value)+.5) );
 }
 
 UGEN_CTRL Delay_ctrl_max( t_CKTIME now, void * data, void * value )
 {
     Delay * delay = (Delay *)data;
-    t_CKFLOAT val = delay->getDelay();
-    t_CKFLOAT max = GET_NEXT_FLOAT(value);
+    t_CKFLOAT val = (t_CKFLOAT)delay->getDelay();
+    t_CKDUR max = GET_NEXT_DUR(value);
     delay->set( (long)(val+.5), (long)(max+.5) );
 }
 
 UGEN_CGET Delay_cget_delay( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_FLOAT( value, ((Delay *)data)->getDelay() );
+    SET_NEXT_DUR( value, (t_CKDUR)((Delay *)data)->getDelay() );
 }
 
 UGEN_CGET Delay_cget_max( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_FLOAT( value, (t_CKFLOAT)((Delay *)data)->length );
+    SET_NEXT_DUR( value, (t_CKDUR)((Delay *)data)->length );
 }
 
 
@@ -19113,25 +19113,25 @@ UGEN_PMSG DelayA_pmsg( t_CKTIME now, void * data, const char * msg, void * value
 
 UGEN_CTRL DelayA_ctrl_delay( t_CKTIME now, void * data, void * value )
 {
-    ((DelayA *)data)->setDelay( GET_NEXT_FLOAT(data) );
+    ((DelayA *)data)->setDelay( GET_NEXT_DUR(value) );
 }
 
 UGEN_CTRL DelayA_ctrl_max( t_CKTIME now, void * data, void * value )
 {
     DelayA * delay = (DelayA *)data;
-    t_CKFLOAT val = delay->getDelay();
-    t_CKFLOAT max = GET_NEXT_FLOAT(value);
+    t_CKDUR val = (t_CKDUR)delay->getDelay();
+    t_CKDUR max = GET_NEXT_DUR(value);
     delay->set( val, (long)(max+.5) );
 }
 
 UGEN_CGET DelayA_cget_delay( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_FLOAT( value, ((DelayA *)data)->getDelay() );
+    SET_NEXT_DUR( value, (t_CKDUR)((DelayA *)data)->getDelay() );
 }
 
 UGEN_CGET DelayA_cget_max( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_FLOAT( value, (t_CKFLOAT)((DelayA *)data)->length );
+    SET_NEXT_DUR( value, (t_CKDUR)((DelayA *)data)->length );
 }
 
 
@@ -19159,25 +19159,25 @@ UGEN_PMSG DelayL_pmsg( t_CKTIME now, void * data, const char * msg, void * value
 
 UGEN_CTRL DelayL_ctrl_delay( t_CKTIME now, void * data, void * value )
 {
-    ((DelayL *)data)->setDelay( GET_NEXT_FLOAT(value) );
+    ((DelayL *)data)->setDelay( GET_NEXT_DUR(value) );
 }
 
 UGEN_CTRL DelayL_ctrl_max( t_CKTIME now, void * data, void * value )
 {
     DelayL * delay = (DelayL *)data;
-    t_CKFLOAT val = (t_CKFLOAT)delay->getDelay();
-    t_CKFLOAT max = GET_NEXT_FLOAT(value);
+    t_CKDUR val = (t_CKDUR)delay->getDelay();
+    t_CKDUR max = GET_NEXT_DUR(value);
     delay->set( val, (long)(max+.5) );
 }
 
 UGEN_CGET DelayL_cget_delay( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_FLOAT( value, ((DelayL *)data)->getDelay() );
+    SET_NEXT_DUR( value, (t_CKDUR)((DelayL *)data)->getDelay() );
 }
 
 UGEN_CGET DelayL_cget_max( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_FLOAT( value, (t_CKFLOAT)((DelayL *)data)->length );
+    SET_NEXT_DUR( value, (t_CKDUR)((DelayL *)data)->length );
 }
 
 
