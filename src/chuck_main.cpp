@@ -107,16 +107,16 @@ void signal_int( int sig_num )
         g_vm = NULL;
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
-        usleep( 100000 );
-        vm->shutdown();
 #ifndef __PLATFORM_WIN32__
-        pthread_kill( g_tid, 3 );
+        pthread_cancel( g_tid );
+        usleep( 100000 );
 #else
         CloseHandle( g_tid );
 #endif
-        usleep( 100000 );
         delete( vm );
     }
+
+    pthread_join( g_tid, NULL );
     
     exit(2);
 }
