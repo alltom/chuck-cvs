@@ -454,7 +454,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         if( !out )
         {
             EM_error3( "[chuck](VM): error replacing shred: no shred with id %i...",
-                msg->param );
+                       msg->param );
             retval = 0;
             goto done;
         }

@@ -122,6 +122,9 @@ void EM_error2( int line, char * message, ... )
 void EM_error3( char * message, ... )
 {
     va_list ap;
+    
+    sprintf( g_lasterror, "" );
+    sprintf( g_buffer, "" );
 
     va_start( ap, message );
     vfprintf( stderr, message, ap );

@@ -57,7 +57,7 @@ struct Net_Msg
     t_CKUINT param3;
     t_CKUINT length;
     char buffer[NET_BUFFER_SIZE];
-    
+
     Net_Msg() { this->clear(); }
     void clear() { header = NET_HEADER; type = param = param2 = param3 = length = 0;
                    memset( buffer, 0, sizeof(buffer) ); }
