@@ -98,7 +98,6 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     {
         // problem finding audio devices, most likely
         EM_error2( 0, "%s", err.getMessageString() );
-        EM_error2( 0, "...(note: try running in non-realtime with --silent flag)" );
         return m_init = FALSE;
     }
 
