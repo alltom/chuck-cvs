@@ -611,11 +611,11 @@ t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt )
     // TODO: make sure this is in a function or is outside class
 
     // push
-    env->context->nspc.value.push();
+    env->curr->value.push(); // env->context->nspc.value.push();
     // do it
     t_CKBOOL t = type_engine_check_stmt_list( env, stmt->stmt_list );
     // pop
-    env->context->nspc.value.pop();
+    env->curr->value.pop();  // env->context->nspc.value.pop();
     
     return t;
 }
@@ -1531,6 +1531,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // set the new type as current
     env->stack.push_back( env->curr );
     env->curr = t_class->info;
+    env->class_def = t_class;
 
     // type check the body
     while( body && ret )
@@ -1558,13 +1559,120 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     }
 
     // pop the new type
+    env->class_def = NULL;
     env->curr = env->stack.back();
     env->stack.pop_back();
     
-    return TRUE;
+    // if things checked out
+    if( ret )
+    {
+        // add to env
+        env->curr->type.add( t_class->name, t_class );
+        // TODO: clean up if the context failed
+    }
+    else
+    {
+        // delete the class definition
+        delete t_class;
+    }
+
+    return ret;
 }
 
-t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
+t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
+{
+    // look up the value
+    if( env->curr->lookup_value( f->name, TRUE ) )
+    {
+        EM_error2( f->linepos, 
+            "function name '%s' is already used by another value", S_name(f->name) );
+        return FALSE;
+    }
+
+    // user-defined
+    f->s_type = ae_func_user;
+    // make sure a code segment is in stmt - else we should push scope
+    assert( f->code.s_type == ae_stmt_code );
+
+    // enter the name into the value table
+    S_enter( env->value, f->name, &t_function );
+    env->scope_add( f->name );
+    // enter the name into the function table
+    S_enter( env->function, f->name, f );
+
+    // push the scope
+    S_beginScope( env->value );
+    env->scope_push( );
+    // set global
+    env->is_global = FALSE;
+    // set the func def
+    env->func_def = f;
+
+    // make room for return address and pc
+    S_enter( env->value, insert_symbol( "@__pc__" ), &t_uint );
+    S_enter( env->value, insert_symbol( "@__mem_sp__" ), &t_uint );
+
+    // look up the return type
+    f->ret_type = (t_Type)S_look( env->type, f->type_decl->id );
+    // no return type
+    if( !f->ret_type )
+    {
+        EM_error2( f->linepos, "for function '%s':", S_name(f->name) );
+        EM_error2( f->linepos, "undefined return type '%s'", S_name(f->type_decl->id) );
+        return FALSE;
+    }
+    // f->ret_type->array_depth = f->type_decl->array;
+
+    a_Arg_List arg_list = f->arg_list;
+    unsigned int count = 1;
+    f->stack_depth = 0;
+
+    while( arg_list )
+    {
+        // look up in type table
+        arg_list->type = (t_Type)S_look( env->type, arg_list->type_decl->id );
+        if( !arg_list->type )
+        {
+            EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
+            EM_error2( arg_list->linepos, "argument %i '%s' has undefined type '%s'", 
+                count, S_name(arg_list->id), S_name(arg_list->type_decl->id) );
+            return FALSE;
+        }
+        
+        // look up in scope
+        if( env->scope_lookup( arg_list->id ) )
+        {
+            EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
+            EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
+                count, S_name(arg_list->id) );
+            return FALSE;
+        }
+
+        // enter into value table
+        S_enter( env->value, arg_list->id, arg_list->type );
+        env->scope_add( arg_list->id );        
+
+        // stack
+        f->stack_depth += arg_list->type->size;
+
+        // next arg
+        arg_list = arg_list->next;
+    }
+
+    // type check the code
+    if( !type_engine_check_stmt( env, f->code ) )
+    {
+        EM_error2( 0, "...in function '%s'.", S_name(f->name) );
+        return FALSE;
+    }
+
+    // set global
+    env->is_global = TRUE;
+    // pop the scope
+    S_endScope( env->value );
+
+    return TRUE;
+}
 
 // import
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );

@@ -214,8 +214,10 @@ struct Chuck_Env
     t_CKUINT dots;
 	// current location
 	ce_scope where;
+    // current class definition
+    Chuck_Type * class_def;
     // current function definition
-    Chuck_Func * func;
+    Chuck_Func * func_def;
 	
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
