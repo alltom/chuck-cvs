@@ -918,11 +918,8 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 
     // no match
     EM_error2( lhs->linepos,
-        "no suitable resolution for binary operator '%s'...",
-        op2str( op ) );
-    EM_error2( lhs->linepos,
-        "...on types '%s' and '%s'",
-        left->c_name(), right->c_name() );
+        "cannot resolve operator '%s' on types '%s' and '%s'",
+        op2str( op ), left->c_name(), right->c_name() );
     return NULL;
 }
 
@@ -962,9 +959,10 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
             // error
             EM_error2( lhs->linepos,
-                "cannot chuck/assign '=>' on types '%s' => '%s'...\n"
-                "(reason): --- right-side operand is not mutable",
+                "cannot chuck/assign '=>' on types '%s' => '%s'...",
                 left->c_name(), right->c_name() );
+            EM_error2( lhs->linepos,
+                "...(reason: right-side operand is not mutable)" );
             return NULL;
         }
         // aggregate types
@@ -974,12 +972,10 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
             // no match
             EM_error2( lhs->linepos,
-                "no suitable resolution for binary operator '=>'..." );
-            EM_error2( lhs->linepos,
-                "...on types '%s' => '%s'...",
+                "cannot resolve operator '=>' on types '%s' and '%s'...",
                 left->c_name(), right->c_name() );
             EM_error2( lhs->linepos,
-                "...(note: use '@=>' for assignment of object references)" );
+                "...(note: use '@=>' for object reference assignment)" );
             return NULL;
         }
     }
@@ -988,7 +984,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
     // no match
     EM_error2( lhs->linepos,
-        "no suitable resolution for binary operator '=>' on types '%s' and '%s'...",
+        "cannot resolve operator '=>' on types '%s' and '%s'...",
         left->c_name(), right->c_name() );
     return NULL;
 }
@@ -2131,7 +2127,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name), 
                 value->owner_class->c_name(), S_name(f->name) );
             EM_error2( f->linepos,
-                "(reason): --- '%s.%s' is declared as 'static'",
+                "...(reason: '%s.%s' is declared as 'static')",
                 value->owner_class->c_name(), S_name(f->name) );
             return FALSE;
         }
@@ -2144,7 +2140,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name), 
                 value->owner_class->c_name(), S_name(f->name) );
             EM_error2( f->linepos,
-                "(reason): --- '%s.%s' is declared as 'static'",
+                "...(reason: '%s.%s' is declared as 'static')",
                 env->class_def->c_name(), S_name(f->name) );
             return FALSE;
         }
@@ -2157,7 +2153,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name), 
                 value->owner_class->c_name(), S_name(f->name) );
             EM_error2( f->linepos,
-                "(reason): --- '%s.%s' is declared as 'pure'",
+                "...(reason: '%s.%s' is declared as 'pure')",
                 env->class_def->c_name(), S_name(f->name) );
             return FALSE;
         }
@@ -2170,7 +2166,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 "function '%s.%s' resembles '%s.%s' but cannot override...",
                 env->class_def->c_name(), S_name(f->name),
                 value->owner_class->c_name(), S_name(f->name) );
-            if( err != "" ) EM_error2( f->linepos, "(reason): --- %s", err.c_str() );
+            if( err != "" ) EM_error2( f->linepos, "...(reason: %s)", err.c_str() );
             return FALSE;
         }
     
