@@ -250,7 +250,7 @@ void usage()
 {
     fprintf( stdout, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
     fprintf( stdout, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
-    fprintf( stdout, "               srate<N>|bufsize<N>|dac<N>|adc<N>\n" );
+    fprintf( stdout, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>\n" );
     fprintf( stdout, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stdout, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
     fprintf( stdout, "chuck version: %s\n", CK_VERSION );

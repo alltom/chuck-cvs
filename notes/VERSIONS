@@ -1,5 +1,17 @@
 
 ---
+1.1.4.9 - 2004.9.18
+  - all of STK is now in ChucK!
+  - new examples (see below)
+  - add '--bufnum<N>' to chuck command line (number of buffers)
+  - --status no longer prints full path for source
+  - full path now works for command line + (thanks Adam T.)
+  - minor bug fixes
+
+new ugens:
+  
+
+---
 1.1.4.8 - 2004.9.8
   - added win32 visual studio support (chuck_win32.*)
   - new oscillators (see below, thanks to Phil)
