@@ -20,13 +20,13 @@ T - (now % T) => now;
 // construct the patch
 sndbuf buf => dac;
 "data/hihat.wav" => buf.read;
-.4 => buf.gain;
+.25 => buf.gain;
 
 // time loop
 while( true )
 {
     std.rand2f(.4,.9) => buf.gain;
-    if( std.randf() > 0.5 )
+    if( std.randf() > 0.75 )
     {
         0 => buf.pos;
         .5::T => now;
