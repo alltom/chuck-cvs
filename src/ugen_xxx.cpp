@@ -402,9 +402,6 @@ UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     // this is a placeholder - the real tick is the VM
 }
 
-
-
-
 enum { SNDBUF_DROP = 0, SNDBUF_INTERP, SNDBUF_SINC};
 //-----------------------------------------------------------------------------
 // name: sndbuf
@@ -473,10 +470,122 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos) {
 
 }
 
+//PRC's sinc interpolation function.. as found 
+// http://www.cs.princeton.edu/courses/archive/spring03/cs325/src/TimeStuf/srconvrt.c
+//
+// there's probably a lot in there that could be optimized, if we care to..
+//
+
+#define PI 3.14159265358979323846
+
+//wow... we are sensitive.. 
+#define WIDTH 16                /* this controls the number of neighboring samples
+				   which are used to interpolate the new samples.  The
+				   processing time is linearly related to this width */
+#define DELAY_SIZE 140
+
+#define USE_TABLE TRUE          /* this controls whether a linearly interpolated lookup
+				   table is used for sinc function calculation, or the
+				   sinc is calculated by floating point trig function calls.  */
+
+#define USE_INTERP TRUE        /*  this controls whether the table is linear
+				interpolated or not.  If you re not using the
+				table, this has no effect         */
+
+#define SAMPLES_PER_ZERO_CROSSING 32    /* this defines how finely the sinc function 
+					   is sampled for storage in the table  */
+
+float sinc_table[WIDTH * SAMPLES_PER_ZERO_CROSSING] = { 0.0 };
+
+double sinc ( double x );
+
+bool sinc_table_built = false;
+
+
 void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out ) { 
-  //punt!
-      *out = (SAMPLE)( (*(d->curr)) ); 
+	//punt!
+	long left_limit, right_limit, j;
+	double factor = d->rate;
+	double time_now = d->curf;
+	double one_over_factor;
+	double int_time = 0;
+	double last_time = 0;
+	double temp1 = 0.0;
+
+	float * samplebase = d->buffer + d->chan;
+	int stride = d->num_channels;
+
+	left_limit = (long)time_now - WIDTH + 1;      /* leftmost neighboring sample used for interp.*/
+	right_limit = (long)time_now + WIDTH; /* rightmost leftmost neighboring sample used for interp.*/
+	if (left_limit<0) left_limit = 0;
+	if (right_limit> d->num_frames) right_limit = d->num_frames;
+	if (factor<1.0) {
+		for (j=left_limit;j<right_limit;j++)
+			temp1 += *(samplebase + j * stride ) * sinc(time_now - (double) j);
+		*out = (SAMPLE) temp1;
+	}
+	
+	else {
+		one_over_factor = 1.0 / factor;
+		for (j=left_limit;j<right_limit;j++)
+			temp1 += *(samplebase + j * stride ) * one_over_factor * sinc(one_over_factor * (time_now - (double) j));
+		*out = (SAMPLE) temp1;
+	}
 }
+
+void make_sinc()
+{
+    int i;
+    double temp,win_freq,win;
+    win_freq = PI / WIDTH / SAMPLES_PER_ZERO_CROSSING;
+    sinc_table[0] = 1.0;
+    for (i=1;i<WIDTH * SAMPLES_PER_ZERO_CROSSING;i++)   {
+		temp = (double) i * PI / SAMPLES_PER_ZERO_CROSSING;
+		sinc_table[i] = sin(temp) / temp;
+		win = 0.5 + 0.5 * cos(win_freq * i);
+		sinc_table[i] *= win;
+    }
+    sinc_table_built = true;
+}
+
+double linear_interp(double first_number,double second_number,double fraction)
+{
+    return (first_number + ((second_number - first_number) * fraction));
+}
+
+double t_sinc(double x)
+{
+    int low;
+    double temp,delta;
+    if ( !sinc_table_built ) make_sinc();
+    if (fabs(x)>=WIDTH-1)
+		return 0.0;
+    else {
+		temp = fabs(x) * (double) SAMPLES_PER_ZERO_CROSSING;
+		low = temp;          /* these are interpolation steps */
+		if (USE_INTERP) {
+			delta = temp - low;  /* and can be ommited if desired */
+			return linear_interp(sinc_table[low],sinc_table[low + 1],delta);
+		}
+		else return sinc_table[low];
+    }
+}
+
+
+double sinc(double x)
+{
+    double temp;
+    if(USE_TABLE) return t_sinc(x);
+    else        {
+		if (x==0.0) return 1.0;
+		else {
+			temp = PI * x;
+			return sin(temp) / (temp);
+		}
+	}
+}
+
+
 
 UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
