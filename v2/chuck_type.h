@@ -303,6 +303,8 @@ struct Chuck_Value
     Chuck_Type * type;
     // name
     string name;
+    // offset
+    t_CKUINT offset;
     // addr
     void * addr;
     // const?
@@ -314,8 +316,9 @@ struct Chuck_Value
 
 	// constructor
 	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
-                 t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL )
-	{ type = t; name = n; is_const = c; access = acc; owner = o; addr = a; }
+                 t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
+                 t_CKUINT s = 0 )
+	{ type = t; name = n; offset = s; is_const = c; access = acc; owner = o; addr = a; }
 };
 
 
