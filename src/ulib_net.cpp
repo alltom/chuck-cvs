@@ -45,9 +45,9 @@ using namespace std;
 DLL_QUERY net_query( Chuck_DL_Query * QUERY )
 {
 
-   /*! \nameinfo
-     ChucK's network ugens
-   */    
+    /*! \nameinfo
+    ChucK's network ugens
+    */    
 
     // add netout
     //! UDP-based network audio transmitter

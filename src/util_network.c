@@ -117,7 +117,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     else
     {
 #ifdef WIN32
-	    memset( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
+        memset( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #else
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #endif
@@ -144,7 +144,7 @@ BOOL ck_bind( ck_socket sock, int port )
 #else
     bzero( &sock->sock_in, 0, sizeof(struct sockaddr_in) );
 #endif
-	sock->sock_in.sin_family = AF_INET;
+    sock->sock_in.sin_family = AF_INET;
     sock->sock_in.sin_port = htons( port );
     sock->sock_in.sin_addr.s_addr = htonl( INADDR_ANY );
 

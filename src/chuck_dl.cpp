@@ -333,9 +333,10 @@ extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
     if( query->ugen_exports.size() > 1 )
         for( int i= 0 ; i < query->ugen_exports.size() - 1 ; i++ )
             if ( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 )
-            { 
-	            query->ugen_exports[query->ugen_exports.size()-1].inherit( &(query->ugen_exports[i]) );
-	            return;					     
+            {
+                query->ugen_exports[query->ugen_exports.size()-1].inherit( 
+                    &(query->ugen_exports[i]) );
+	        return;					     
             }
 }
 
@@ -353,26 +354,26 @@ extern "C"
 
 void *dlopen( const char *path, int mode)
 {
-	return (void *)LoadLibrary(path);
+    return (void *)LoadLibrary(path);
 }
 
 int dlclose( void *handle)
 {
-	FreeLibrary((HMODULE)handle);
-	return 1;
+    FreeLibrary((HMODULE)handle);
+    return 1;
 }
 
 void *dlsym( void * handle, const char *symbol )
 {
-	return (void *)GetProcAddress((HMODULE)handle, symbol);
+    return (void *)GetProcAddress((HMODULE)handle, symbol);
 }
 
 const char * dlerror( void )
 {
-	int error = GetLastError();
-	if( error == 0 ) return NULL;
-	sprintf( dlerror_buffer, "%i", error );
-	return dlerror_buffer;
+    int error = GetLastError();
+    if( error == 0 ) return NULL;
+    sprintf( dlerror_buffer, "%i", error );
+    return dlerror_buffer;
 }
 }
 #endif

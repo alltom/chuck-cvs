@@ -73,7 +73,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
          1.0 => i.next;
          100::ms => now;
       }
-     */
+    */
     
     // add step
     //! step generator - like impulse, but once a value is set, 
@@ -468,7 +468,7 @@ UGEN_TICK zerox_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     // this is a placeholder - the real tick is the VM
-	return 0;
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
