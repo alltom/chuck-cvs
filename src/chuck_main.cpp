@@ -109,8 +109,8 @@ void signal_int( int sig_num )
         vm->stop();
         usleep( 100000 );
         vm->shutdown();
-#ifndef __WINDOWS_DS__
-        pthread_kill( g_tid, 4 );
+#ifndef __PLATFORM_WIN32__
+        pthread_kill( g_tid, 3 );
 #else
         CloseHandle( g_tid );
 #endif
@@ -120,7 +120,16 @@ void signal_int( int sig_num )
     
     exit(2);
 }
-
+//-----------------------------------------------------------------------------
+// name: signal_int2()
+// desc: ...
+//-----------------------------------------------------------------------------
+void signal_int2( int sig_num )
+{
+#ifndef __PLATFORM_WIN32__
+    pthread_exit( NULL );
+#endif
+}
 
 
 
@@ -376,6 +385,8 @@ t_CKBOOL load_internal_modules( t_Env env )
 void * cb( void * p )
 {
     Msg msg;
+
+    signal( SIGQUIT, signal_int2 );
 
     while( true )
     {
