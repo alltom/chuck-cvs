@@ -1350,7 +1350,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                 || isa( t, &t_time ) )
             {
                 EM_error2( unary->linepos,
-                    "cannot instantiate/'new' primitive type '%s'...",
+                    "cannot instantiate/(new) primitive type '%s'...",
                     t->c_name() );
                 EM_error2( unary->linepos,
                     "...(primitive types: 'int', 'float', 'time', 'dur')" );
@@ -1361,7 +1361,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             if( unary->type->ref )
             {
                 EM_error2( unary->linepos,
-                    "cannot 'new'/instantiate object references (@)..." );
+                    "cannot instantiate/(new) object references (@)..." );
                 return NULL;
             }
 
