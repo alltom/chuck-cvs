@@ -147,10 +147,12 @@ a_Program g_program = NULL;
 %type <ival> chuck_operator
 %type <var_decl_list> var_decl_list
 %type <var_decl> var_decl
+%type <var_decl> id_decl
 %type <type_decl> type_decl
 %type <ival> function_decl
 %type <arg_list> arg_list
 %type <id_list> id_list
+%type <id_list> id_dot
 %type <array_sub> array_exp
 %type <array_sub> array_empty
 
@@ -170,9 +172,9 @@ program_section
         ;
 
 class_definition
-        : CLASS ID LBRACE class_body RBRACE
+        : CLASS id_decl LBRACE class_body RBRACE
             { $$ = new_class_def( $2, NULL, $4, EM_lineNum ); }
-        | CLASS ID class_ext LBRACE class_body RBRACE 
+        | CLASS id_decl class_ext LBRACE class_body RBRACE 
             { $$ = new_class_def( $2, $3, $5, EM_lineNum ); }
         ;
 
@@ -197,6 +199,11 @@ id_list
         : ID                                { $$ = new_id_list( $1, EM_lineNum ); }
         | ID COMMA id_list                  { $$ = prepend_id_list( $1, $3, EM_lineNum ); }
         ;
+
+id_dot
+        : ID                                { $$ = new_id_list( $1, EM_lineNum ); }
+        | ID DOT id_dot                     { $$ = prepend_id_list( $1, $3, EM_lineNum ); }
+        ;
         
 function_definition
         : function_decl type_decl ID LPAREN arg_list RPAREN code_segment
@@ -213,9 +220,9 @@ function_decl
         ;
 
 type_decl
-        : ID                                { $$ = new_type_decl( $1, NULL, EM_lineNum ); }
-        | ID array_exp                      { $$ = new_type_decl( $1, $2, EM_lineNum ); }
-        | ID array_empty                    { $$ = new_type_decl( $1, $2, EM_lineNum ); }
+        : id_dot                                { $$ = new_type_decl( $1, NULL, EM_lineNum ); }
+        | id_dot array_exp                      { $$ = new_type_decl( $1, $2, EM_lineNum ); }
+        | id_dot array_empty                    { $$ = new_type_decl( $1, $2, EM_lineNum ); }
         ;
 
 arg_list
@@ -313,6 +320,10 @@ var_decl
         : ID                                { $$ = new_var_decl( $1, EM_lineNum ); }
         // | var_decl LBRACK RBRACK            { $$ = new_var_decl2( $1, 1, NULL, EM_lineNum ); }
         // | var_decl LBRACK expression RBRACK { $$ = new_var_decl2( $1, 1, $3, EM_lineNum ); }
+        ;
+
+id_decl
+        : ID                                { $$ = new_var_decl( $1, EM_lineNum ); }
         ;
         
 chuck_operator

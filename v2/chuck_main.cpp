@@ -69,7 +69,7 @@ extern "C" int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.4.9"
+#define CK_VERSION "1.1.5.0"
 
 
 #ifdef __PLATFORM_WIN32__
@@ -107,8 +107,9 @@ void signal_int( int sig_num )
         g_vm = NULL;
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
+        stk_detach( 0, NULL );
 #ifndef __PLATFORM_WIN32__
-        pthread_kill( g_tid, 2 );
+        // pthread_kill( g_tid, 2 );
         pthread_cancel( g_tid );
         usleep( 100000 );
         delete( vm );

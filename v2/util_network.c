@@ -48,19 +48,26 @@
 
 
 
+
 //-----------------------------------------------------------------------------
 // name: struct ck_socket_
 // desc: ...
 //-----------------------------------------------------------------------------
 struct ck_socket_
 {
-#ifdef __PLATFORM_WIN32__
-    WSADATA _wsd;
-#endif
     int sock;
     struct sockaddr_in sock_in;
+
+#ifndef __PLATFORM_WIN32__
+};
+#else
+    static WSADATA wsd;
+    static int init;
 };
 
+WSADATA ck_socket_::wsd;
+int ck_socket_::init = 0;
+#endif
 
 
 
@@ -72,8 +79,13 @@ ck_socket ck_udp_create( )
 {
     ck_socket sock = (ck_socket)calloc( 1, sizeof( struct ck_socket_ ) );
 
-#ifdef __PLATFORM_WIN32__  //winsock init
-    WSAStartup(MAKEWORD(1,1), &(sock->_wsd));
+#ifdef __PLATFORM_WIN32__
+    // winsock init
+    if( ck_socket_::init == 0 )
+        WSAStartup( MAKEWORD(1,1), &(ck_socket_::wsd) );
+
+    // count
+    ck_socket_::init++;
 #endif
 
     sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -88,7 +100,7 @@ ck_socket ck_udp_create( )
 // name: ck_connect2()
 // desc: connect to a server
 //-----------------------------------------------------------------------------
-__BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size ) 
+t_CKBOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size ) 
 {
     int ret = connect( sock->sock, addr, size );
 
@@ -102,7 +114,7 @@ __BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size )
 // name: ck_connect()
 // desc: connect to a server
 //-----------------------------------------------------------------------------
-__BOOL ck_connect( ck_socket sock, const char * hostname, int port )
+t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port )
 {
     int ret;
     struct hostent * host;
@@ -121,7 +133,7 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     {
         sock->sock_in.sin_addr.s_addr = inet_addr( hostname );
         if( sock->sock_in.sin_addr.s_addr == -1 )
-            return __FALSE;
+            return FALSE;
     }
     else
     {
@@ -145,7 +157,7 @@ __BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 // name: ck_bind()
 // desc: bind to a port
 //-----------------------------------------------------------------------------
-__BOOL ck_bind( ck_socket sock, int port ) 
+t_CKBOOL ck_bind( ck_socket sock, int port ) 
 {
     int ret;
 
@@ -228,7 +240,10 @@ void ck_close( ck_socket sock )
     free( sock );
 
 #ifdef __PLATFORM_WIN32__
-    WSACleanup();
-#endif
+    // uncount
+    ck_socket_::init--;
 
+    // close
+    if( ck_socket_::init == 0 ) WSACleanup();
+#endif
 }
