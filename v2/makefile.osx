@@ -42,16 +42,16 @@ chuck.yy.o: chuck.yy.c chuck.tab.h chuck_errmsg.h chuck_utils.h
 chuck.yy.c: chuck.lex
 	$(LEX) -ochuck.yy.c chuck.lex
 
-chuck_absyn.o: chuck_absyn.cpp chuck_absyn.h chuck_utils.h
+chuck_absyn.o: chuck_absyn.cpp chuck_absyn.h chuck_utils.h chuck_symbol.h
 	$(CC) $(FLAGS) chuck_absyn.cpp
 
-chuck_type.o: chuck_type.cpp chuck_type.h
+chuck_type.o: chuck_type.cpp chuck_type.h chuck_absyn.h chuck_oo.h chuck_vm.h chuck_instr.h
 	$(CC) $(FLAGS) chuck_type.cpp
 
-chuck_emit.o: chuck_emit.cpp chuck_emit.h
+chuck_emit.o: chuck_emit.cpp chuck_emit.h chuck_type.h chuck_instr.h chuck_vm.h
 	$(CC) $(FLAGS) chuck_emit.cpp
 
-chuck_symbol.o: chuck_symbol.cpp chuck_symbol.h
+chuck_symbol.o: chuck_symbol.cpp chuck_symbol.h chuck_table.h chuck_utils.h
 	$(CC) $(FLAGS) chuck_symbol.cpp
 
 chuck_frame.o: chuck_frame.h chuck_frame.cpp
@@ -63,19 +63,19 @@ chuck_errmsg.o: chuck_errmsg.cpp chuck_errmsg.h chuck_utils.h
 chuck_utils.o: chuck_utils.cpp chuck_utils.h
 	$(CC) $(FLAGS) chuck_utils.cpp
 
-chuck_table.o: chuck_table.cpp chuck_table.h
+chuck_table.o: chuck_table.cpp chuck_table.h chuck_utils.h
 	$(CC) $(FLAGS) chuck_table.cpp
 
-chuck_instr.o: chuck_instr.h chuck_instr.cpp
+chuck_instr.o: chuck_instr.h chuck_instr.cpp chuck_type.h chuck_vm.h
 	$(CC) $(FLAGS) chuck_instr.cpp
 
-chuck_vm.o: chuck_vm.h chuck_vm.cpp
+chuck_vm.o: chuck_vm.h chuck_vm.cpp chuck_instr.h chuck_oo.h chuck_type.h
 	$(CC) $(FLAGS) chuck_vm.cpp
 
 chuck_oo.o: chuck_oo.h chuck_oo.cpp
 	$(CC) $(FLAGS) chuck_oo.cpp
 
-chuck_ugen.o: chuck_ugen.cpp chuck_ugen.h
+chuck_ugen.o: chuck_ugen.cpp chuck_ugen.h chuck_def.h
 	$(CC) $(FLAGS) chuck_ugen.cpp
 
 chuck_dl.o: chuck_dl.h chuck_dl.cpp
@@ -87,10 +87,10 @@ chuck_otf.o: chuck_otf.h chuck_otf.cpp
 chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_osx.h
 	$(CC) $(FLAGS) chuck_bbq.cpp
 
-chuck_main.o: chuck_main.cpp chuck_errmsg.h chuck_utils.h
+chuck_main.o: chuck_main.cpp chuck_absyn.h chuck_type.h chuck_emit.h chuck_vm.h chuck_errmsg.h chuck_utils.h
 	$(CC) $(FLAGS) chuck_main.cpp
 
-digiio_rtaudio.o: digiio_rtaudio.h digiio_rtaudio.cpp
+digiio_rtaudio.o: digiio_rtaudio.h digiio_rtaudio.cpp rtaudio.h
 	$(CC) $(FLAGS) digiio_rtaudio.cpp
 
 rtaudio.o: rtaudio.h rtaudio.cpp rterror.h
