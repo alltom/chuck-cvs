@@ -31,6 +31,7 @@ class Foo
     }
 
 	int x[100];
+    A y[f];
 
 	A aa;
 }
@@ -44,4 +45,4 @@ class Bar extends Foo
 Foo foo;
 Bar bar;
 
-foo.x[1] => foo.f;
+foo.y[1].aaa => foo.f;
