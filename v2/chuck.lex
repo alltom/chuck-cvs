@@ -202,7 +202,6 @@ pure                    { adjust(); return ABSTRACT; }
 const                   { adjust(); return CONST; }
 spork                   { adjust(); return SPORK; }
 typeof                  { adjust(); return TYPEOF; }
-same                    { adjust(); return SAME; }
 
 "=>"                    { adjust(); return CHUCK; }
 "=<"                    { adjust(); return UNCHUCK; }

@@ -485,15 +485,13 @@ a_Exp new_exp_from_if( a_Exp cond, a_Exp if_exp, a_Exp else_exp, int pos )
     return a;
 }
 
-a_Exp new_exp_decl( a_Type_Decl type, a_Var_Decl_List var_decl_list, 
-                    int ref, int pos )
+a_Exp new_exp_decl( a_Type_Decl type, a_Var_Decl_List var_decl_list, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_decl;
     a->s_meta = ae_meta_var;
     a->decl.type = type;
     a->decl.var_decl_list = var_decl_list;
-    a->decl.ref = ref;
     a->linepos = pos;
     a->decl.linepos = pos;
     a->decl.self = a;
@@ -543,11 +541,12 @@ a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list
     return a;
 }
 
-a_Type_Decl new_type_decl( a_Id_List type, int pos )
+a_Type_Decl new_type_decl( a_Id_List type, int ref, int pos )
 {
     a_Type_Decl a = (a_Type_Decl)checked_malloc(
         sizeof( struct a_Type_Decl_ ) );
     a->id = type;
+    a->ref = ref;
     a->linepos = pos;
 
     return a;

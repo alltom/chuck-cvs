@@ -2210,11 +2210,11 @@ a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, t_CKUINT index
         return NULL;
 
     if( index == (params.size()-1) )
-        args = new_arg_list( new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0 ),
+        args = new_arg_list( new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0, 0 ),
                              new_var_decl( (char *)params[index].name.c_str(), NULL, 0 ), 0 );
     else
         args = prepend_arg_list(
-            new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0 ),
+            new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0, 0 ),
             new_var_decl( (char *)params[index].name.c_str(), NULL, 0 ),
             do_make_args( params, index + 1 ), 0 );
     return args;
@@ -2269,7 +2269,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * nam
         if( proto->is_func )
         {
             // type decl
-            a_Type_Decl rtype = new_type_decl( new_id_list((char *)proto->type.c_str(), 0), 0 );
+            a_Type_Decl rtype = new_type_decl( new_id_list((char *)proto->type.c_str(), 0), 0, 0 );
             // arg list
             a_Arg_List args = NULL;
             if( proto->params.size() )

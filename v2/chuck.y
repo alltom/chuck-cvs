@@ -240,7 +240,8 @@ static_decl
         ;
 
 type_decl
-        : id_dot                            { $$ = new_type_decl( $1, EM_lineNum ); }
+        : id_dot                            { $$ = new_type_decl( $1, 0, EM_lineNum ); }
+        | id_dot AT_SYM                     { $$ = new_type_decl( $1, 1, EM_lineNum ); }
         ;
 
 type_decl2
@@ -328,10 +329,8 @@ array_empty
 
 decl_expression
         : conditional_expression            { $$ = $1; }
-        | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, 0, EM_lineNum ); }
-        | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, 0, EM_lineNum ); }
-        | SAME AT_SYM var_decl_list         { $$ = new_exp_decl( NULL, $3, 1, EM_lineNum ); }
-        | type_decl AT_SYM var_decl_list    { $$ = new_exp_decl( $1, $3, 1, EM_lineNum ); }
+        | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, EM_lineNum ); }
+        | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
         ;
 
 var_decl_list
