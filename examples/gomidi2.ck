@@ -6,8 +6,8 @@ impulse i => dac;
 while( 5::ms => now )
     while( midiin => int min )
     {
-        // send an impulse
-        1.0 => i.value;
+        // make an impulse
+        1.0 => i.next;
         // advance time a little (by some samples)
         std.rand2(2, 50)::samp => now;
     }
