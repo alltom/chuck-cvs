@@ -991,7 +991,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     
 }
 
-#if defined(__CK_USE_NATIVE_SNDFILE__)
+#if defined(__CK_SNDFILE_NATIVE__)
 #include <sndfile.h>
 #else
 #include "util_sndfile.h"

@@ -6,6 +6,12 @@ INCLUDES=
 FLAGS=-D__LINUX_JACK__ -O3 -c
 LIBS=-lasound -ljack -lstdc++ -ldl -lm
 
+#-----------------------------------------------------------------------------
+# by default, ChucK uses a pre-configured libsndfile...
+# uncomment the next line to use libsndfile on your system   
+#-----------------------------------------------------------------------------
+#FLAGS += -D__CK_SNDFILE_NATIVE__
+
 OBJS=chuck.tab.o chuck.yy.o chuck_main.o chuck_errmsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \
 	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_ugen.o \
