@@ -2190,6 +2190,63 @@ void Chuck_Instr_Dot_Member_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Dot_Static_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // register stack pointer
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    // the pointer
+    t_CKUINT data;
+    
+    // pop the type pointer
+    pop_( sp, 1 );
+    // get the object pointer
+    Chuck_Type * t_class = (Chuck_Type *)(*sp);
+    // make sure
+    assert( (m_offset + m_size) <= t_class->info->obj_data_size );
+    // calculate the data pointer
+    data = (t_CKUINT)(t_class->info->obj_data + m_offset);
+    
+    // emit addr or value
+    if( m_emit_addr )
+    {
+        // push the address
+        push_( sp, data );
+    }
+    else
+    {
+        // 4 or 8
+        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)data) ); }
+        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); }
+        else assert( FALSE );
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Dot_Static_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // register stack pointer
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    
+    // pop the type pointer
+    pop_( sp, 1 );
+    
+    // push the address
+    push_( sp, (t_CKUINT)m_func );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_ADC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
