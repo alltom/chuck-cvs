@@ -504,6 +504,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 EM_error3( "[chuck](VM): removing recent shred: %i (%s)...", 
                            id, mini(shred->name.c_str()) );
                 delete shred;
+                retval = id;
             }
             else
             {
@@ -534,6 +535,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                        msg->param, mini(shred->name.c_str()) );
             if( m_num_shreds == 0 ) m_shred_id = 0;
             delete shred;
+            retval = msg->param;
         }
     }
     else if( msg->type == MSG_REMOVEALL )
