@@ -1387,15 +1387,12 @@ public:
   //! Return a pointer to the next sample frame of data.
   const MY_FLOAT *tickFrame(void);
 
-protected:
+public:
 
   // Read file data.
   void readData(unsigned long index);
-
   MY_FLOAT phaseOffset;
-  
   bool m_loaded;
-
 };
 
 #endif // defined(__WAVELOOP_H)
@@ -4593,7 +4590,7 @@ class Shakers : public Instrmnt
   //! Perform the control change specified by \e number and \e value (0.0 - 128.0).
   virtual void controlChange(int number, MY_FLOAT value);
 
- float freq;
+ MY_FLOAT freq;
  int setupName(char* instr);
  int setupNum(int inst);
 
@@ -15561,15 +15558,15 @@ void Stk :: sleep(unsigned long milliseconds)
 void Stk :: handleError( const char *message, StkError::TYPE type )
 {
   if (type == StkError::WARNING)
-    fprintf(stderr, "\n%s\n\n", message);
+    fprintf(stderr, "%s\n", message);
   else if (type == StkError::DEBUG_WARNING) {
 #if defined(_STK_DEBUG_)
-    fprintf(stderr, "\n%s\n\n", message);
+    fprintf(stderr, "%s\n", message);
 #endif
   }
   else {
     // Print error message before throwing.
-    fprintf(stderr, "\n%s\n\n", message);
+    fprintf(stderr, "%s\n", message);
     throw StkError(message, type);
   }
 }
@@ -15586,7 +15583,7 @@ StkError :: ~StkError(void)
 
 void StkError :: printMessage(void)
 {
-  printf("\n%s\n\n", message);
+  printf("%s\n", message);
 }
 /***************************************************/
 /*! \class SubNoise
@@ -16638,6 +16635,7 @@ WaveLoop :: WaveLoop( )
 
 void WaveLoop :: openFile( const char * fileName, bool raw, bool norm )
 {
+    m_loaded = FALSE;
     WvIn::openFile( fileName, raw, norm );
     // If at end of file, redo extra sample frame for looping.
     if (chunkPointer+bufferSize == fileSize) {
@@ -19341,7 +19339,7 @@ UGEN_DTOR WaveLoop_dtor( t_CKTIME now, void * data )
 UGEN_TICK WaveLoop_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     WaveLoop * w = (WaveLoop *)data;
-    *out = (float)w->tick() / SHRT_MAX;
+    *out = ( w->m_loaded ? (t_CKFLOAT)w->tick() / SHRT_MAX : (SAMPLE)0.0 );
     return TRUE;
 }
 
@@ -19353,14 +19351,14 @@ UGEN_PMSG WaveLoop_pmsg( t_CKTIME now, void * data, const char * msg, void * val
 UGEN_CTRL WaveLoop_ctrl_freq( t_CKTIME now, void * data, void * value )
 {
     WaveLoop * w = (WaveLoop *)data;
-    float f = (float)GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(value);
     w->setFrequency( f );
 }
 
 UGEN_CTRL WaveLoop_ctrl_rate( t_CKTIME now, void * data, void * value )
 {
     WaveLoop * w = (WaveLoop *)data;
-    float f = (float)GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(value);
     w->setRate( f );
 }
 
@@ -19374,7 +19372,7 @@ UGEN_CTRL WaveLoop_ctrl_phase( t_CKTIME now, void * data, void * value )
 UGEN_CTRL WaveLoop_ctrl_phaseOffset( t_CKTIME now, void * data, void * value )
 {
     WaveLoop * w = (WaveLoop *)data;
-    float f = (float)GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(value);
     w->addPhaseOffset( f );
 }
 
@@ -19385,7 +19383,7 @@ UGEN_CTRL WaveLoop_ctrl_path( t_CKTIME now, void * data, void * value )
     try { w->openFile( c, FALSE, FALSE ); }
     catch( StkError & e )
     {
-        fprintf( stderr, "[chuck](via STK): WaveLoop cannot load file '%s'\n", c );
+        // fprintf( stderr, "[chuck](via STK): WaveLoop cannot load file '%s'\n", c );
     }
 }
 
@@ -19415,7 +19413,7 @@ UGEN_PMSG JCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value 
 UGEN_CTRL JCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
 {
     JCRev * j = (JCRev *)data;
-    float f = (float)GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(value);
     j->setEffectMix( f );
 }
 
@@ -19444,26 +19442,26 @@ UGEN_PMSG Shakers_pmsg( t_CKTIME now, void * data, const char * msg, void * valu
 UGEN_CTRL Shakers_ctrl_which( t_CKTIME now, void * data, void * value )
 {
     Shakers * s = (Shakers *)data;
-    int c = *(int *)value;
+    t_CKINT c = GET_CK_INT(value);
     s->setupNum( c );
 }
 
 UGEN_CTRL Shakers_ctrl_noteOn( t_CKTIME now, void * data, void * value )
 {
     Shakers * s = (Shakers *)data;
-    float f = (float)GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(value);
     s->noteOn( s->freq, f );
 }
 
 UGEN_CTRL Shakers_ctrl_noteOff( t_CKTIME now, void * data, void * value )
 {
     Shakers * s = (Shakers *)data;
-    float f = (float)GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(value);
     s->noteOff( f );
 }
 
 UGEN_CTRL Shakers_ctrl_freq( t_CKTIME now, void * data, void * value )
 {
     Shakers * s = (Shakers *)data;
-    s->freq = (float)GET_CK_FLOAT(value);
+    s->freq = GET_CK_FLOAT(value);
 }
