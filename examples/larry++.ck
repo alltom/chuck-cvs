@@ -17,7 +17,7 @@ i => biquad f3 => g;
 // set filter gain
 .1 => f.gain; .1 => f2.gain; .01 => f3.gain;
 0.05 => r.mix;
-// load glottal ahh
+// load glottal pop
 "special:glot_pop" => i.read;
 // play
 1.0 => i.rate;
