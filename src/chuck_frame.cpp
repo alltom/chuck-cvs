@@ -30,8 +30,10 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Autumn 2002
 //-----------------------------------------------------------------------------
-#include "chuck_frame.h" 
-
+#include "chuck_frame.h"
+extern "C" {
+#include "chuck_symbol.h"
+}
 
 
 
@@ -118,12 +120,46 @@ F_Access F_alloc_local( F_Frame f, unsigned int size, unsigned int is_global )
     a->global = is_global;
     a->size = size;
     f->curr_offset += size;
-    f->num_access++;
-    f->tail->tail = (F_Access_List)checked_malloc( sizeof( F_Access_List_ ) );
-    f->tail->head = a;
-    f->tail = f->tail->tail;
+    //f->num_access++;
+    //f->tail->tail = (F_Access_List)checked_malloc( sizeof( F_Access_List_ ) );
+    //f->tail->head = a;
+    //f->tail = f->tail->tail;
 
     return a;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: F_begin_scope()
+// desc: ...
+//-----------------------------------------------------------------------------
+void F_begin_scope( F_Frame f, S_table t )
+{
+    TAB_enter( t, insert_symbol("<mark>"), NULL );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: F_remove_locals()
+// desc: ....
+//-----------------------------------------------------------------------------
+void F_end_scope( F_Frame f, S_table t )
+{
+    S_Symbol s = NULL;
+    S_Symbol mark = insert_symbol("<mark>");
+    F_Access v = NULL;
+    do {
+        v = (F_Access)TAB_topv(t);
+        s = (S_Symbol)TAB_pop(t);
+        if( s == mark ) break;
+        assert(v);
+        f->curr_offset -= v->size;
+        free(v);
+    }while( TRUE );
 }
 
 

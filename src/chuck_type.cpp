@@ -1656,6 +1656,7 @@ t_Type type_engine_check_exp_decl( t_Env env, a_Exp_Decl decl )
     {
         EM_error2( decl->linepos, "array not impl!" );
         t = &t_array;
+        return NULL;
     }
     else
     {

@@ -36,6 +36,7 @@
 
 extern "C" {
 #include "chuck_temp.h"
+#include "chuck_table.h"
 }
 
 
@@ -76,6 +77,8 @@ unsigned int F_offset( F_Access a );
 F_Access_List F_formals( F_Frame f );
 F_Access F_alloc_local( F_Frame f, unsigned int size, unsigned int is_global );
 unsigned int F_stack_depth( F_Frame f );
+void F_begin_scope( F_Frame f, TAB_table t );
+void F_end_scope( F_Frame f, TAB_table t );
 
 
 

@@ -168,6 +168,18 @@ void *TAB_pop(TAB_table t)
     return b->key;
 }
 
+void *TAB_topv(TAB_table t)
+{
+    void *k; binder b; int index;
+    assert(t);
+    k = t->top;
+    assert(k);
+    index = ((unsigned)k) % t->size;
+    b = t->table[index];
+    assert(b);
+    return b->value;
+}
+
 void TAB_dump(TAB_table t, void (*show)(void *key, void *value))
 {
     void *k = t->top;

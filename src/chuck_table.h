@@ -60,6 +60,7 @@ void *TAB_look(TAB_table t, void *key);
 /* Pop the most recent binding and return its key.
  * This may expose another binding for the same key, if there was one. */
 void *TAB_pop(TAB_table t);
+void *TAB_topv(TAB_table t);
 
 
 /* Call "show" on every "key"->"value" pair in the table,

@@ -272,9 +272,10 @@ struct Chuck_Emmission
         return F_stack_depth( global->frame );
     }
 
-    void push( c_str scope_name )
+    void push( c_str scope_name = NULL )
     {
-        S_beginScope( var2offset );
+        // S_beginScope( var2offset );
+        F_begin_scope( NULL, var2offset );
         count++;
     }
 
@@ -286,7 +287,11 @@ struct Chuck_Emmission
             return;
         }
 
-        S_endScope( var2offset );
+        // S_endScope( var2offset );
+        if( is_global )
+            F_end_scope( global->frame, var2offset );
+        else
+            F_end_scope( local->frame, var2offset );
         count--;
     }
 };
@@ -580,11 +585,13 @@ t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emmission * emit, a_Stmt_List list )
 {
     t_CKBOOL ret = TRUE;
 
+    // emit->push();
     while( list && ret )
     {
         ret = emit_engine_emit_stmt( emit, list->stmt );
         list = list->next;
     }
+    // emit->pop();
 
     return ret;    
 }
@@ -626,28 +633,36 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emmission * emit, a_Stmt stmt, t_CKBOOL po
 
         case ae_stmt_if:
             // env->print( "stmt_if" );
+            emit->push();
             ret = emit_engine_emit_if( emit, &stmt->stmt_if );
+            emit->pop();
             break;
 
         case ae_stmt_for:
             // env->print( "stmt_for" );
+            emit->push();
             ret = emit_engine_emit_for( emit, &stmt->stmt_for );
+            emit->pop();
             break;
 
         case ae_stmt_while:
             // env->print( "stmt_while" );
+            emit->push();
             if( stmt->stmt_while.is_do )
                 ret = emit_engine_emit_do_while( emit, &stmt->stmt_while );
             else
                 ret = emit_engine_emit_while( emit, &stmt->stmt_while );
+            emit->pop();
             break;
         
         case ae_stmt_until:
             // env->print( "stmt_until" );
+            emit->push();
             if( stmt->stmt_until.is_do )
                 ret = emit_engine_emit_do_until( emit, &stmt->stmt_until );
             else
                 ret = emit_engine_emit_until( emit, &stmt->stmt_until );
+            emit->pop();
             break;
 
         case ae_stmt_switch:
@@ -663,7 +678,9 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emmission * emit, a_Stmt stmt, t_CKBOOL po
 
         case ae_stmt_code:
             // env->print( "code segment" );
+            emit->push();
             ret = emit_engine_emit_code_segment( emit, &stmt->stmt_code );
+            emit->pop();
             break;
             
         case ae_stmt_continue:
@@ -2828,8 +2845,8 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emmission * emit, a_Func_Def func_def 
     if( func_def->s_type == ae_func_user )
     {
         emit->is_global = FALSE;
-        emit->push( "__func_def_scope__" );
         emit->local = new Chuck_Code( S_name(func_def->name) );
+        emit->push( "__func_def_scope__" );
         emit->functions.push_back( emit->local );
         emit->local->stack_depth = func_def->stack_depth;
         emit->returns.clear();
@@ -2855,6 +2872,7 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emmission * emit, a_Func_Def func_def 
 
         emit->pop();
         emit->is_global = TRUE;
+        emit->local = NULL;
     }
     else
     {
