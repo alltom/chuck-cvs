@@ -266,6 +266,9 @@ t_CKBOOL Chuck_VM::shutdown()
     // stop
     this->stop();
     usleep( 50000 );
+    
+    // dll
+    this->dll_clear();
 
     // free the shreduler
     SAFE_DELETE( m_shreduler );
@@ -713,6 +716,25 @@ t_CKBOOL Chuck_VM::dll_unload( Chuck_DLL *& dll )
     dll = NULL;
     
     return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: dll_clear()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_VM::dll_clear()
+{
+    map<string, Chuck_DLL *>::iterator iter;
+    for( iter = m_dlls.begin(); iter != m_dlls.end(); iter++ )
+    {
+        (*iter).second->unload();
+        delete (*iter).second;
+    }
+    
+    m_dlls.clear();
 }
 
 

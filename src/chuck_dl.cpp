@@ -79,7 +79,7 @@ t_CKBOOL Chuck_DLL::load( f_ck_query query_func, t_CKBOOL lazy )
 {
     m_query_func = query_func;
     m_done_query = FALSE;
-    m_func = "";
+    m_func = "ck_query";
     
     // if not lazy, do it
     if( !lazy && !this->query() )
@@ -130,6 +130,18 @@ const Chuck_DL_Query * Chuck_DLL::query( )
                        + m_filename + string("'");
         return NULL;
     }
+
+    // get the address of the attach function from the DLL
+    if( !m_attach_func )
+        m_attach_func = (f_ck_attach)this->get_addr( "ck_attach" );
+    if( !m_attach_func )
+        m_attach_func = (f_ck_attach)this->get_addr( "_ck_attach" );
+
+    // get the address of the detach function from the DLL
+    if( !m_detach_func )
+        m_detach_func = (f_ck_detach)this->get_addr( "ck_detach" );
+    if( !m_detach_func )
+        m_detach_func = (f_ck_detach)this->get_addr( "_ck_detach" );
 
     // do the query
     m_query.clear();
@@ -185,6 +197,9 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     }
 
     m_done_query = TRUE;
+    
+    // call attach
+    if( m_attach_func ) m_attach_func( 0, NULL );
 
     return &m_query;
 }
@@ -203,6 +218,8 @@ t_CKBOOL Chuck_DLL::unload()
         m_last_error = "cannot unload dynamic library - nothing open...";
         return FALSE;
     }
+
+    if( m_detach_func ) m_detach_func( 0, NULL );
 
     if( m_handle )
     {
@@ -285,7 +302,6 @@ Chuck_DL_Query::Chuck_DL_Query( )
   ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
   ugen_extends = __ck_ugen_extends;  // XXX - pld
   dll_name = "[noname]"; reserved = NULL;
-  dll_attach = NULL; dll_detach = NULL;
   
 #ifndef __CKDL_NO_BBQ__
   srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
@@ -348,11 +364,6 @@ extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
 extern "C" void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query,
            const char * name )
 { query->dll_name = name; }
-
-// set cb
-extern "C" void CK_DLL_CALL __ck_setcb( Chuck_DL_Query * query,
-           f_ck_attach attach, f_ck_detach detach )
-{ query->dll_attach = attach; query->dll_detach = detach; }
 
 // windows
 #if defined(__WINDOWS_DS__)

@@ -279,6 +279,7 @@ public: // msg
 public: // static/dynamic function table
     Chuck_DLL * dll_load( const char * path, const char * id = NULL );
     t_CKBOOL dll_unload( Chuck_DLL * & dll );
+    void dll_clear( );
     void set_env( void * env ) { m_env = env; }
     void * get_env( ) { return m_env; }
     

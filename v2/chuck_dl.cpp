@@ -79,7 +79,7 @@ t_CKBOOL Chuck_DLL::load( f_ck_query query_func, t_CKBOOL lazy )
 {
     m_query_func = query_func;
     m_done_query = FALSE;
-    m_func = "";
+    m_func = "ck_query";
     
     // if not lazy, do it
     if( !lazy && !this->query() )
@@ -119,7 +119,6 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     if( m_done_query )
         return &m_query;
     
-	 //fprintf ( stderr, "dl_query:: querying address of function '%s'\n", m_func.c_str() );
     // get the address of the query function from the DLL
     if( !m_query_func )
         m_query_func = (f_ck_query)this->get_addr( m_func.c_str() );
@@ -131,6 +130,18 @@ const Chuck_DL_Query * Chuck_DLL::query( )
                        + m_filename + string("'");
         return NULL;
     }
+
+    // get the address of the attach function from the DLL
+    if( !m_attach_func )
+        m_attach_func = (f_ck_attach)this->get_addr( "ck_attach" );
+    if( !m_attach_func )
+        m_attach_func = (f_ck_attach)this->get_addr( "_ck_attach" );
+
+    // get the address of the detach function from the DLL
+    if( !m_detach_func )
+        m_detach_func = (f_ck_detach)this->get_addr( "ck_detach" );
+    if( !m_detach_func )
+        m_detach_func = (f_ck_detach)this->get_addr( "_ck_detach" );
 
     // do the query
     m_query.clear();
@@ -186,6 +197,10 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     }
 
     m_done_query = TRUE;
+    
+    // call attach
+    if( m_attach_func ) m_attach_func( 0, NULL );
+
     return &m_query;
 }
 
@@ -203,6 +218,8 @@ t_CKBOOL Chuck_DLL::unload()
         m_last_error = "cannot unload dynamic library - nothing open...";
         return FALSE;
     }
+
+    if( m_detach_func ) m_detach_func( 0, NULL );
 
     if( m_handle )
     {
@@ -283,13 +300,15 @@ Chuck_DL_Query::Chuck_DL_Query( )
 { add_export = __ck_addexport; add_param = __ck_addparam;
   ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func;
   ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
-  ugen_extends = __ck_ugen_extends;  //XXX - pld
+  ugen_extends = __ck_ugen_extends;  // XXX - pld
   dll_name = "[noname]"; reserved = NULL;
+  
 #ifndef __CKDL_NO_BBQ__
   srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
 #else
   srate = 0; bufsize = 0;
 #endif
+
   linepos = 0;
 }
 
@@ -332,11 +351,11 @@ extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
 {
     if( query->ugen_exports.size() > 1 )
         for( int i= 0 ; i < query->ugen_exports.size() - 1 ; i++ )
-            if ( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 )
+            if( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 )
             {
                 query->ugen_exports[query->ugen_exports.size()-1].inherit( 
                     &(query->ugen_exports[i]) );
-	        return;					     
+                return;					     
             }
 }
 

@@ -99,6 +99,8 @@ union  Chuck_DL_Return;
 #define CK_QUERY_FUNC        "ck_query"
 typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
 typedef void ( CK_DLL_CALL * f_ck_func)( void * ARGS, Chuck_DL_Return * RETURN );
+typedef void ( CK_DLL_CALL * f_ck_attach)( t_CKUINT type, void * data );
+typedef void ( CK_DLL_CALL * f_ck_detach)( t_CKUINT type, void * data );
 
 // chuck DLL query
 typedef void ( CK_DLL_CALL * f_ck_addexport)( Chuck_DL_Query * query, const char * type, const char * name, f_ck_func addr, t_CKBOOL is_func );
@@ -204,10 +206,11 @@ public: // call these from the DLL
     f_ck_addexport add_export;  // call this to add export
     f_ck_addparam  add_param;   // call this to add parameter to last export
     f_ck_ugen_add  ugen_add;    // call this to add a ugen
-    f_ck_ugen_extends  ugen_extends;    //XXX - pld call this to extend another ugen 
+    f_ck_ugen_extends  ugen_extends;    // XXX - pld call this to extend another ugen 
     f_ck_ugen_func ugen_func;   // call this (once) to set functions for last ugen
     f_ck_ugen_ctrl ugen_ctrl;   // call this (>= 0 times) to add ctrl to last ugen
     f_ck_setname   set_name;    // call this to set name
+
     const char * dll_name;      // name of the DLL
     void * reserved;
     t_CKUINT srate;             // sample rate
@@ -268,7 +271,8 @@ public:
     Chuck_DLL( const char * id = NULL ) {
         m_handle = NULL; m_done_query = FALSE;
         this->init_ref();
-        m_id = id ? id : ""; m_query_func = NULL; }
+        m_id = id ? id : ""; m_query_func = NULL;
+        m_attach_func = NULL; m_detach_func = NULL; }
     ~Chuck_DLL() {
         this->unload(); }
 
@@ -281,6 +285,8 @@ protected:
     t_CKBOOL m_done_query;
     
     f_ck_query m_query_func;
+    f_ck_attach m_attach_func;
+    f_ck_detach m_detach_func;
     Chuck_DL_Query m_query;
     std::map<std::string, Chuck_DL_Proto *> m_name2proto;
     std::map<std::string, Chuck_UGen_Info *> m_name2ugen;
