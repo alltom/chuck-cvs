@@ -71,11 +71,8 @@ chuck.yy.c: chuck.lex
 chuck_utils.o: chuck_utils.c chuck_utils.h
 	$(CC) $(FLAGS) chuck_utils.c
 
-chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_osx.h digitalio_osx.h
+chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_osx.h
 	$(CC) $(FLAGS) chuck_bbq.cpp
-
-digitalio_osx.o: digitalio_osx.cpp digitalio_osx.h
-	$(CC) $(FLAGS) digitalio_osx.cpp
 
 digitalio_rtaudio.o: digitalio_rtaudio.h digitalio_rtaudio.cpp
 	$(CC) $(FLAGS) digitalio_rtaudio.cpp

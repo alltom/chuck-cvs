@@ -73,7 +73,7 @@ chuck.yy.c: chuck.lex
 chuck_utils.o: chuck_utils.c chuck_utils.h
 	$(CC) $(FLAGS) chuck_utils.c
 
-chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_alsa.h digitalio_alsa.h
+chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_alsa.h
 	$(CC) $(FLAGS) chuck_bbq.cpp
 
 chuck_filter.o: chuck_filter.cpp chuck_filter.h chuck_ugen.h

@@ -32,7 +32,7 @@
 #ifndef __CHUCK_BBQ_H__
 #define __CHUCK_BBQ_H__
 
-
+// currently ChucK uses RtAudio | __CHUCK_NATIVE_AUDIO__ not in use
 #if defined(__CHUCK_NATIVE_AUDIO__)
   #if defined(__LINUX_ALSA__)
     #include "digitalio_alsa.h"
