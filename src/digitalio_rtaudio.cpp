@@ -141,8 +141,8 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
-    DWORD__ n = 50;
-    DWORD__ start = 100;
+    DWORD__ n = 20;
+    DWORD__ start = 50;
 
     // copy input to local buffer
     if( m_num_channels_in )
@@ -151,7 +151,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // copy output into local buffer
     if( m_go >= start )
     {
-        while( !m_out_ready && n-- ) usleep( 20 );
+        while( !m_out_ready && n-- ) usleep( 50 );
         // copy local buffer to be rendered
         if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
@@ -168,6 +168,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // 2nd buffer
     if( m_go == start )
     {
+        n = 20; while( !m_out_ready && n-- ) usleep( 50 );
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
@@ -427,7 +428,7 @@ DWORD__ DigitalOut::render()
     Digitalio::m_out_ready = TRUE;
     // synchronize
     while( Digitalio::m_out_ready )
-        usleep( 20 );
+        usleep( 25 );
     // set pointer to the beginning - if not ready, then too late anyway
     *Digitalio::m_write_ptr = (SAMPLE *)Digitalio::m_buffer_out;
 
@@ -599,7 +600,7 @@ DWORD__ DigitalIn::capture( )
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
     if( !Digitalio::m_in_ready )
-        usleep( 20 );
+        usleep( 25 );
     
     Digitalio::m_in_ready = FALSE;
     // set pointer to the beginning - if not ready, then too late anyway
