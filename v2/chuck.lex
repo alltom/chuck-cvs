@@ -147,6 +147,7 @@ int comment();
 "/"                     { adjust(); return DIVIDE; }
 "%"                     { adjust(); return PERCENT; }
 "#"                     { adjust(); return POUND; }
+"$"                     { adjust(); return DOLLAR; }
 
 "(:"                    { adjust(); return L_NSPC; }
 ":)"                    { adjust(); return R_NSPC; }

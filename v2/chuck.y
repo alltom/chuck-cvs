@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 34 shift/reduce conflicts
-%expect 34
+// expect 30 shift/reduce conflicts
+%expect 30
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -94,7 +94,7 @@ a_Program g_program = NULL;
   IF THEN ELSE WHILE FOR DO
   BREAK NULL_TOK FUNCTION RETURN
   QUESTION EXCLAMATION S_OR S_AND S_XOR
-  PLUSPLUS MINUSMINUS
+  PLUSPLUS MINUSMINUS DOLLAR
   SIMULT PATTERN CODE TRANSPORT HOST
   TIME WHENEVER NEXT UNTIL EVERY BEFORE
   AFTER AT AT_SYM ATAT_SYM NEW SIZEOF TYPEOF
@@ -148,6 +148,8 @@ a_Program g_program = NULL;
 %type <ival> chuck_operator
 %type <var_decl_list> var_decl_list
 %type <var_decl> var_decl
+%type <type_decl> type_decl_a
+%type <type_decl> type_decl_b
 %type <type_decl> type_decl
 %type <type_decl> type_decl2
 %type <ival> function_decl
@@ -239,9 +241,25 @@ static_decl
         |                                   { $$ = 0; }
         ;
 
+type_decl_a
+        : ID                                { $$ = new_type_decl( new_id_list( $1, EM_lineNum ), 0, EM_lineNum ); }
+        | ID AT_SYM                         { $$ = new_type_decl( new_id_list( $1, EM_lineNum ), 1, EM_lineNum ); }
+        ;
+
+type_decl_b
+        : LT id_dot GT                      { $$ = new_type_decl( $2, 0, EM_lineNum ); }
+        | LT id_dot GT AT_SYM               { $$ = new_type_decl( $2, 1, EM_lineNum ); }
+        ;
+
+//type_decl_c
+//        : LPAREN id_dot RPAREN              { $$ = new_type_decl( $3, 0, EM_lineNum ); }
+//        // | LPAREN id_dot RPAREN AT_SYM       { $$ = new_type_decl( $1, 1, EM_lineNum ); }
+//        ;
+
 type_decl
-        : id_dot                            { $$ = new_type_decl( $1, 0, EM_lineNum ); }
-        | id_dot AT_SYM                     { $$ = new_type_decl( $1, 1, EM_lineNum ); }
+        : type_decl_a                       { $$ = $1; }
+        | type_decl_b                       { $$ = $1; }
+        // | type_decl_c                       { $$ = $1; }
         ;
 
 type_decl2
@@ -451,8 +469,8 @@ tilda_expression
         
 cast_expression
         : unary_expression                  { $$ = $1; }
-        | LT type_decl2 GT cast_expression
-            { $$ = new_exp_from_cast( $2, $4, EM_lineNum ); }
+        | cast_expression DOLLAR type_decl
+            { $$ = new_exp_from_cast( $3, $1, EM_lineNum ); }
         ;
         
 unary_expression
@@ -461,16 +479,14 @@ unary_expression
             { $$ = new_exp_from_unary( ae_op_plusplus, $2, EM_lineNum ); }
         | MINUSMINUS unary_expression
             { $$ = new_exp_from_unary( ae_op_minusminus, $2, EM_lineNum ); }
-        | unary_operator cast_expression
+        | unary_operator unary_expression
             { $$ = new_exp_from_unary( $1, $2, EM_lineNum ); }
-        | TYPEOF LT expression GT
-            { $$ = new_exp_from_unary( ae_op_typeof, $3, EM_lineNum ); }
-        | SIZEOF LT unary_expression GT
-            { $$ = new_exp_from_unary( ae_op_sizeof, $3, EM_lineNum ); }
+        | TYPEOF type_decl_b
+            { $$ = new_exp_from_unary2( ae_op_typeof, $2, EM_lineNum ); }
+        | SIZEOF type_decl_b
+            { $$ = new_exp_from_unary2( ae_op_sizeof, $2, EM_lineNum ); }
         | NEW type_decl
             { $$ = new_exp_from_unary2( ae_op_new, $2, EM_lineNum ); }
-        | NEW LT type_decl GT
-            { $$ = new_exp_from_unary2( ae_op_new, $3, EM_lineNum ); }
         ;
 
 unary_operator
