@@ -412,44 +412,44 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     return TRUE;
 }
 
-#include "ugen_sndfile.h"
+#include "util_sndfile.h"
 
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
-	sndbuf_data * d = (sndbuf_data *)data;
-	char * filename = *(char **)value;
+    sndbuf_data * d = (sndbuf_data *)data;
+    char * filename = *(char **)value;
 	
-	if( d->buffer )
-	{
-		delete [] d->buffer;
-		d->buffer = NULL;
-	}
+    if( d->buffer )
+    {
+        delete [] d->buffer;
+        d->buffer = NULL;
+    }
 
-	struct stat s;
-	if( stat( filename, &s ) )
-	{
-		fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
-		return;
-	}
+    struct stat s;
+    if( stat( filename, &s ) )
+    {
+        fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
+        return;
+    }
 
-	SF_INFO info;
-	info.format = 0;
-	SNDFILE* file = sf_open(filename, SFM_READ, &info);
-	int er = sf_error(file);
-	if(er) fprintf( stderr, "sndfile error %i\n", er );
-	int size = info.channels * info.frames;
-	d->buffer = new float[size];
+    SF_INFO info;
+    info.format = 0;
+    SNDFILE* file = sf_open(filename, SFM_READ, &info);
+    int er = sf_error(file);
+    if(er) fprintf( stderr, "sndfile error %i\n", er );
+    int size = info.channels * info.frames;
+    d->buffer = new float[size];
 
-	d->num_samples = sf_read_float(file, d->buffer, size) ;
-	if( d->num_samples != size )
-	{
-		fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
-			    d->num_samples, size, filename );
-		return;
-	}
+    d->num_samples = sf_read_float(file, d->buffer, size) ;
+    if( d->num_samples != size )
+    {
+        fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
+                 d->num_samples, size, filename );
+        return;
+    }
 
-	d->curr = d->buffer;
-	d->eob = d->buffer + d->num_samples;
+    d->curr = d->buffer;
+    d->eob = d->buffer + d->num_samples;
 }
 
 
