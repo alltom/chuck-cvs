@@ -1739,7 +1739,7 @@ t_Type type_engine_check_exp_decl( t_Env env, a_Exp_Decl decl )
             return NULL;
         }
         
-        // check to see if value is there
+/*        // check to see if value is there
         t2 = lookup_value( env, var_decl->id, FALSE );
         if( t2 != NULL )
         {
@@ -1749,7 +1749,7 @@ t_Type type_engine_check_exp_decl( t_Env env, a_Exp_Decl decl )
                 S_name(var_decl->id) );
             return NULL;
         }
-
+*/
         // enter the type into the var->type value binding
         S_enter( env->value, var_decl->id, t );
     }
