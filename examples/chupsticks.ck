@@ -53,9 +53,10 @@ while( true )
 		onebeat => now;
 	}
 
-	if ( std.rand2(0, 4) > 3 ) { 		
-	        2 * std.rand2( 0, 4 ) => int freq;
-	        if( freq == 6 ) 7 => freq; if( freq == 8 ) 9 => freq;
+	if ( std.rand2(0, 4) > 2 ) { 		
+	        2 * std.rand2( -3, 3 ) => int freq;
+	        if( freq == 6 ) 5 => freq;
+		if( freq  < 0 ) freq + 1 => freq ;
 		(float)freq => transp;
 		onebeat * 2.0 => now;
 	}
