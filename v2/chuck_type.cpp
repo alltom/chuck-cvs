@@ -1466,24 +1466,38 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
 {
-     // make new type for class def
-     t_CKTYPE t_class = NULL;
-     
-     // make sure class not already in namespace
-     if( env->curr->lookup_type( class_def->name->id, TRUE ) )
-     {
-         EM_error2( class_def->name->linepos,
-             "class name '%s' is already a defined type in current context",
-             S_name(class_def->name->id) );
-         return FALSE;
-     }
+    // make new type for class def
+    t_CKTYPE t_class = NULL;
+    // the parent class
+    t_CKTYPE t_parent = NULL;
 
-     // make sure inheritance
-     t_CKTYPE t_parent = env->curr->lookup_type( class_def->ext->extend_id, TRUE );
-     
-     // set the new type as current
-     
-     // type check the body
+    // make sure class not already in namespace
+    if( env->curr->lookup_type( class_def->name->id, TRUE ) )
+    {
+        EM_error2( class_def->name->linepos,
+            "class name '%s' is already a defined type in current context",
+            S_name(class_def->name->id) );
+        return FALSE;
+    }
+
+    // make sure inheritance
+    if( class_def->ext )
+    {
+        t_parent = env->curr->lookup_type( class_def->ext->extend_id, TRUE );
+        if( !t_parent )
+        {
+            EM_error2( class_def->ext->linepos,
+                "undefined super class type '%s' in definition of class '%s'",
+                S_name(class_def->ext->extend_id), S_name(class_def->name->id) );
+            return FALSE;
+        }
+    }
+
+    // allocate new type
+    t_class = new Chuck_Type;         
+    // set the new type as current
+
+    // type check the body
 }
 
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );

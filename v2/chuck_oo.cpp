@@ -23,126 +23,129 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: chuck_oo.h
+// file: chuck_oo.cpp
 // desc: ...
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
-// date: Autumn 2002
+// date: Autumn 2004
 //-----------------------------------------------------------------------------
-#ifndef __CHUCK_OO_H__
-#define __CHUCK_OO_H__
-
-#include "chuck_def.h"
-#include <vector>
-#include <map>
+#include <assert.h>
+#include "chuck_oo.h"
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_VM_Object
-// desc: base vm object
+// name: init()
+// desc: initialize vm object
 //-----------------------------------------------------------------------------
-struct Chuck_VM_Object
+void Chuck_VM_Object::init( t_CKBOOL pooled )
 {
-public:
-    Chuck_VM_Object() { this->init(); }
-    virtual ~Chuck_VM_Object() { this->release(); }
-
-public:
-    void init( t_CKBOOL pooled = FALSE );
-    void add_ref();
-    void release();
-
-public:
-    t_CKUINT m_ref_count;
-    t_CKBOOL m_pooled;
-};
+    m_ref_count = 0;
+    m_pooled = pooled;
+    // add reference
+    this->add_ref();
+    // add to vm allocator
+    Chuck_VM_Alloc::instance()->add_object( this );
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_VM_Alloc
-// desc: vm object manager
+// name: add_ref()
+// desc: add reference
 //-----------------------------------------------------------------------------
-struct Chuck_VM_Alloc
+void Chuck_VM_Object::add_ref()
 {
-public:
-    static Chuck_VM_Alloc * instance();
+    m_ref_count++;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: release()
+// desc: remove reference
+//-----------------------------------------------------------------------------
+void Chuck_VM_Object::release()
+{
+    assert( m_ref_count > 0 );
+    m_ref_count--;
     
-public:
-    void add_object( Chuck_VM_Object * obj );
-    void free_object( Chuck_VM_Object * obj );
+    // if no more references
+    if( m_ref_count == 0 )
+    {
+        // tell the object manager to set this free
+        Chuck_VM_Alloc::instance()->free_object( this );
+    }
+}
+
+
+
+
+// static member
+Chuck_VM_Alloc * Chuck_VM_Alloc::our_instance = NULL;
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: instance()
+// desc: return static instance
+//-----------------------------------------------------------------------------
+Chuck_VM_Alloc * Chuck_VM_Alloc::instance()
+{
+    if( !our_instance )
+    {
+        our_instance = new Chuck_VM_Alloc;
+        assert( our_instance != NULL );
+    }
     
-protected:
-    static Chuck_VM_Alloc * our_instance;
-
-protected:
-    Chuck_VM_Alloc();
-    ~Chuck_VM_Alloc();
-
-protected: // data
-    std::map<Chuck_VM_Object, void *> m_objects;
-};
+    return our_instance;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_Object
-// dsec: base object
+// name: add_object()
+// desc: add newly allocated vm object
 //-----------------------------------------------------------------------------
-struct Chuck_Object : Chuck_VM_Object
-{ };
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: struct Chuck_Array
-// desc: native ChucK arrays
-//-----------------------------------------------------------------------------
-template<class T>
-struct Chuck_Array : Chuck_Object
+void Chuck_VM_Alloc::add_object( Chuck_VM_Object * obj )
 {
-public:
-    Chuck_Array( t_CKINT size = 1 );
-    ~Chuck_Array();
-
-public:
-    T operator[]( t_CKINT i );
-
-public:
-    t_CKINT push_back( T val );
-    t_CKINT pop_back( );
-    T back( );
-
-public:
-    std::vector<T> m_vector;
-};
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: Chuck_Event
-// desc: base Chuck Event class
+// name: free_object()
+// desc: free vm object - reference count should be 0
 //-----------------------------------------------------------------------------
-struct Chuck_Event : Chuck_Object
+void Chuck_VM_Alloc::free_object( Chuck_VM_Object * obj )
 {
-public:
-    Chuck_Event();
-    ~Chuck_Event();
-
-public:
-    t_CKUINT signal();
-    t_CKUINT broadcast();
-    t_CKUINT wait();
-};
+}
 
 
 
 
-#endif
+//-----------------------------------------------------------------------------
+// name: Chuck_VM_Alloc()
+// desc: constructor
+//-----------------------------------------------------------------------------
+Chuck_VM_Alloc::Chuck_VM_Alloc()
+{
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_VM_Alloc()
+// desc: destructor
+//-----------------------------------------------------------------------------
+Chuck_VM_Alloc::~Chuck_VM_Alloc()
+{
+}

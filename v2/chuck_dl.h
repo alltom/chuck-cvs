@@ -270,7 +270,7 @@ public:
 
     Chuck_DLL( const char * id = NULL ) {
         m_handle = NULL; m_done_query = FALSE;
-        this->init_ref();
+        this->init();
         m_id = id ? id : ""; m_query_func = NULL;
         m_attach_func = NULL; m_detach_func = NULL; }
     ~Chuck_DLL() {

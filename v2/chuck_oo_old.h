@@ -34,57 +34,35 @@
 #define __CHUCK_OO_H__
 
 #include "chuck_def.h"
+#include <assert.h>
 #include <vector>
-#include <map>
 
 
 
 
 //-----------------------------------------------------------------------------
 // name: struct Chuck_VM_Object
-// desc: base vm object
+// dsec: base vm object
 //-----------------------------------------------------------------------------
 struct Chuck_VM_Object
 {
 public:
-    Chuck_VM_Object() { this->init(); }
-    virtual ~Chuck_VM_Object() { this->release(); }
+    Chuck_VM_Object( t_CKBOOL pooled = FALSE )
+    { this->init_ref(); m_pooled = pooled; }
+    virtual ~Chuck_VM_Object() { }
+    virtual void init() { this->init_ref(); }
+    virtual void done() { }
 
 public:
-    void init( t_CKBOOL pooled = FALSE );
-    void add_ref();
-    void release();
-
+    void init_ref() { m_ref_count = 0; }
+    void add_ref()  { m_ref_count++; }
+    void release()  { assert( m_ref_count > 0 ); m_ref_count--;
+                      if( !m_ref_count )
+                          if( !m_pooled ) delete this;
+                          else assert( FALSE ); }
 public:
     t_CKUINT m_ref_count;
     t_CKBOOL m_pooled;
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: struct Chuck_VM_Alloc
-// desc: vm object manager
-//-----------------------------------------------------------------------------
-struct Chuck_VM_Alloc
-{
-public:
-    static Chuck_VM_Alloc * instance();
-    
-public:
-    void add_object( Chuck_VM_Object * obj );
-    void free_object( Chuck_VM_Object * obj );
-    
-protected:
-    static Chuck_VM_Alloc * our_instance;
-
-protected:
-    Chuck_VM_Alloc();
-    ~Chuck_VM_Alloc();
-
-protected: // data
-    std::map<Chuck_VM_Object, void *> m_objects;
 };
 
 
