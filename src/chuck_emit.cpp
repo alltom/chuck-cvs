@@ -269,7 +269,10 @@ struct Chuck_Emmission
     
     unsigned int stack_depth()
     {
-        return F_stack_depth( global->frame );
+        if( is_global )
+            return F_stack_depth( global->frame );
+        else
+            return F_stack_depth( local->frame );
     }
 
     void push( c_str scope_name = NULL )
@@ -1398,6 +1401,9 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call
         return FALSE;
     }
 
+    // push the local stack depth
+    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->stack_depth() ) );
+    
     // call the function
     if( emit->nspc_func && emit->nspc_func->s_type == ae_func_builtin )
     {
