@@ -34,6 +34,7 @@ U.S.A.
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <fstream>
@@ -1109,6 +1110,8 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 #include "util_sndfile.h"
 #endif
 
+#include "util_raw.h"
+
 
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
@@ -1121,46 +1124,144 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         d->buffer = NULL;
     }
     
-    struct stat s;
-    if( stat( filename, &s ) )
+    // built in
+    if( strstr(filename, "special:") )
     {
-        fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
-        return;
+        SAMPLE * rawdata = NULL;
+        t_CKUINT rawsize = 0;
+
+        // which
+        if( strstr(filename, "special:sinewave") ) {
+            rawsize = 256; rawdata = NULL;
+        }
+        else if( strstr(filename, "special:aah") ) {
+            rawsize = ahh_size; rawdata = ahh_data;
+        }
+        else if( strstr(filename, "special:britestk") ) {
+            rawsize = britestk_size; rawdata = britestk_data;
+        }
+        else if( strstr(filename, "special:dope") ) {
+            rawsize = dope_size; rawdata = dope_data;
+        }
+        else if( strstr(filename, "special:eee") ) {
+            rawsize = eee_size; rawdata = eee_data;
+        }
+        else if( strstr(filename, "special:fwavblnk") ) {
+            rawsize = fwavblnk_size; rawdata = fwavblnk_data;
+        }
+        else if( strstr(filename, "special:halfwave") ) {
+            rawsize = halfwave_size; rawdata = halfwave_data;
+        }
+        else if( strstr(filename, "special:impuls10") ) {
+            rawsize = impuls10_size; rawdata = impuls10_data;
+        }
+        else if( strstr(filename, "special:impuls20") ) {
+            rawsize = impuls20_size; rawdata = impuls20_data;
+        }
+        else if( strstr(filename, "special:impuls40") ) {
+            rawsize = impuls40_size; rawdata = impuls40_data;
+        }
+        else if( strstr(filename, "special:mand1") ) {
+            rawsize = mand1_size; rawdata = mand1_data;
+        }
+        else if( strstr(filename, "special:mandpluk") ) {
+            rawsize = mandpluk_size; rawdata = mandpluk_data;
+        }
+        else if( strstr(filename, "special:marmstk1") ) {
+            rawsize = marmstk1_size; rawdata = marmstk1_data;
+        }
+        else if( strstr(filename, "special:ooo") ) {
+            rawsize = ooo_size; rawdata = ooo_data;
+        }
+        else if( strstr(filename, "special:peksblnk") ) {
+            rawsize = peksblnk_size; rawdata = peksblnk_data;
+        }
+        else if( strstr(filename, "special:ppksblnk") ) {
+            rawsize = ppksblnk_size; rawdata = ppksblnk_data;
+        }
+        else if( strstr(filename, "special:silence") ) {
+            rawsize = silence_size; rawdata = silence_data;
+        }
+        else if( strstr(filename, "special:sineblnk") ) {
+            rawsize = sineblnk_size; rawdata = sineblnk_data;
+        }
+        else if( strstr(filename, "special:sinewave") ) {
+            rawsize = sinewave_size; rawdata = sinewave_data;
+        }
+        else if( strstr(filename, "special:snglpeak") ) {
+            rawsize = snglpeak_size; rawdata = snglpeak_data;
+        }
+        else if( strstr(filename, "special:twopeaks") ) {
+            rawsize = twopeaks_size; rawdata = twopeaks_data;
+        }
+
+        d->num_frames = rawsize;
+        d->num_channels = 1;
+        d->chan = 0;
+        d->samplerate = 22050;
+        d->num_samples = rawsize;
+
+        if( rawdata ) {
+            d->buffer = new SAMPLE[rawsize+1];
+            for( t_CKUINT j = 0; j < rawsize; j++ ) {
+                d->buffer[j] = (SAMPLE)rawdata[j];
+            }
+        }
+        else if( strstr(filename, "special:sinewave") ) {
+            d->buffer = new SAMPLE[rawsize+1];
+            for( t_CKUINT j = 0; j < rawsize; j++ )
+                d->buffer[j] = sin(2*PI*j/rawsize);
+        }
+        else {
+            fprintf( stderr, "[chuck](via sndbuf): cannot load '%s'\n", filename );
+            return;
+        }
+
+        d->buffer[rawsize] = d->buffer[0];
     }
-    
-    SF_INFO info;
-    info.format = 0;
-    char * format = strrchr ( filename, '.');
-    if ( format && strcmp ( format, ".raw" ) == 0 ) { 
-        fprintf(stderr, "%s :: type is '.raw'.  assuming 16 bit signed mono (PCM)\n", filename);
-        info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
-        info.channels = 1;
-        info.samplerate = 44100;
+    // read file
+    else
+    {
+        struct stat s;
+        if( stat( filename, &s ) )
+        {
+            fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
+            return;
+        }
+
+        SF_INFO info;
+        info.format = 0;
+        char * format = strrchr ( filename, '.');
+        if ( format && strcmp ( format, ".raw" ) == 0 ) { 
+            fprintf( stderr, "[chuck](via sndbuf) %s :: type is '.raw'...\n    assuming 16 bit signed mono (PCM)\n", filename );
+            info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
+            info.channels = 1;
+            info.samplerate = 44100;
+        }
+
+        SNDFILE* file = sf_open(filename, SFM_READ, &info);
+        int er = sf_error(file);
+        if(er) fprintf( stderr, "[chuck](via sndbuf): sndfile error '%i' opening '%s'...\n", er, filename );
+        int size = info.channels * info.frames;
+        d->buffer = new SAMPLE[size+1];
+        d->chan = 0;
+        d->num_frames = info.frames;
+        d->num_channels = info.channels;
+        d->num_samples = sf_read_float(file, d->buffer, size) ;
+        // fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
+        d->samplerate = info.samplerate;
+
+        if( d->num_samples != size )
+        {
+            fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
+                     d->num_samples, size, filename );
+            return;
+        }
+        // fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
     }
 
-    SNDFILE* file = sf_open(filename, SFM_READ, &info);
-    int er = sf_error(file);
-    if(er) fprintf( stderr, "sndfile error %i\n", er );
-    int size = info.channels * info.frames;
-    d->buffer = new float[size];
-    d->chan = 0;
-    d->num_frames = info.frames;
-    d->num_channels = info.channels;
-    d->num_samples = sf_read_float(file, d->buffer, size) ;
-    //fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
-    d->samplerate = info.samplerate;
-    
-    d->sampleratio = (double)d->samplerate / (double)g_srate;
     // d->interp = SNDBUF_INTERP;
-    
-    if( d->num_samples != size )
-    {
-        fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
-                 d->num_samples, size, filename );
-        return;
-    }
-    
-    // fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
+    d->sampleratio = (double)d->samplerate / (double)g_srate;
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
 }
