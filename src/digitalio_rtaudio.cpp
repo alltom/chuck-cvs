@@ -140,15 +140,16 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
     DWORD__ n = 200;
-    DWORD__ start = 1;
+    DWORD__ start = 100;
 
     // copy input to local buffer
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
+    if( m_go < start && m_go > 8 && m_out_ready ) m_go = start;
     // copy output into local buffer
     if( m_go >= start )
     {
-        while( !m_out_ready && n-- ) usleep( 25 );
+        n = 50; while( !m_out_ready && n-- ) usleep( 20 );
         // copy local buffer to be rendered
         if( m_out_ready ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
@@ -158,7 +159,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     {
         if( !m_go ) Chuck_VM::set_priority( 95, NULL );
         memset( buffer, 0, len );
-        m_go++; m_in_ready = FALSE;
+        m_go++;
         return 0;
     }
 
@@ -168,8 +169,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
-        m_go++; n = 200;
-        while( !m_out_ready && n-- ) usleep( 25 );
+        m_go++;
     }
 
     // set pointer to the beginning - if not ready, then too late anyway
@@ -423,9 +423,11 @@ DWORD__ DigitalOut::render()
 
     // synchronize
     while( Digitalio::m_out_ready )
-        usleep( 100 );
-
+        usleep( 20 );
     Digitalio::m_out_ready = TRUE;
+    // synchronize
+    while( Digitalio::m_out_ready )
+        usleep( 20 );
     // set pointer to the beginning - if not ready, then too late anyway
     *Digitalio::m_write_ptr = (SAMPLE *)Digitalio::m_buffer_out;
 
@@ -597,7 +599,7 @@ DWORD__ DigitalIn::capture( )
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
     if( !Digitalio::m_in_ready )
-        usleep( 100 );
+        usleep( 20 );
     
     Digitalio::m_in_ready = FALSE;
     // set pointer to the beginning - if not ready, then too late anyway
