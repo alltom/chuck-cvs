@@ -67,12 +67,14 @@ t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
 t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
 t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
 t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
-t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call,
+                                         t_CKBOOL spork = FALSE );
 t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
 t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
 t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
-t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
+t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
+                                        t_CKBOOL push = TRUE );
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
 t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def );
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
@@ -2067,6 +2069,21 @@ t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit,
 t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, 
                                         a_Stmt_Code stmt, t_CKBOOL push )
 {
+    a_Stmt_List list = stmt->stmt_list;
+
+    // loop through
+    while( list )
+    {
+        // emit the statement
+        if( !emit_engine_emit_stmt( emit, list->stmt ) )
+            return FALSE;
+
+        // next
+        list = list->next;
+    }
+
+    // TODO: push
+    
     return TRUE;
 }
 
@@ -2103,6 +2120,10 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 {
+    // emit the function call
+    if( !emit_engine_emit_exp_func_call( emit, exp, TRUE ) )
+        return FALSE;
+
     return TRUE;
 }
 
