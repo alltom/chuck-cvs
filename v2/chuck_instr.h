@@ -1474,7 +1474,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Func_Call
-// desc: ...
+// desc: user-defined function call
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Func_Call : public Chuck_Instr
 {
@@ -1486,36 +1486,36 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_Call2
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Func_Call2 : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_Call3
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Func_Call3 : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Func_Call0
-// desc: ...
+// desc: builtin function call with void return type
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Func_Call0 : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Func_Call4
+// desc: builtin function call with 4-byte return type
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Func_Call4 : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Func_Call8
+// desc: builtin function call with 8-byte return type
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Func_Call8 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

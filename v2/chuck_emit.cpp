@@ -152,10 +152,6 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     emit->func = NULL;
     // clear the code stack
     emit->stack.clear();
-    // clear the stack of continue
-    //emit->stack_cont.clear();
-    // clear the stack of break
-    //emit->stack_break.clear();
 
     // loop over the program sections
     while( prog && ret )
@@ -2203,19 +2199,19 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->stack_depth ) );
     
     // call the function
-    if( emit->nspc_func && emit->nspc_func->s_type == ae_func_builtin )
+    if( func_call->ck_func->def->s_type == ae_func_builtin )
     {
-        if( exp->ret_type->size == 0 )
+        if( func_call->ret_type->size == 0 )
             emit->append( new Chuck_Instr_Func_Call0 );
-        else if( exp->ret_type->size == 4 )
-            emit->append( new Chuck_Instr_Func_Call2 );
-        else if( exp->ret_type->size == 8 )
-            emit->append( new Chuck_Instr_Func_Call3 );
+        else if( func_call->ret_type->size == 4 )
+            emit->append( new Chuck_Instr_Func_Call4 );
+        else if( func_call->ret_type->size == 8 )
+            emit->append( new Chuck_Instr_Func_Call8 );
         else
         {
-            EM_error2( exp->linepos,
+            EM_error2( func_call->linepos,
                        "(emit): internal error: %i func call not handled",
-                       exp->ret_type->size );
+                       func_call->ret_type->size );
             return FALSE;
         }
     }
@@ -2231,7 +2227,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
         // done
         emit->append( new Chuck_Instr_EOC );
         // set the stack depth now that we know
-        op->set( emit->stack_depth() );
+        op->set( emit->code->stack_depth );
 
         // emit it
         Chuck_VM_Code * code = emit_to_code( emit );
@@ -2249,10 +2245,6 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
         emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
         emit->append( new Chuck_Instr_Spork( size ) );
     }
-
-    // reset the emit
-    emit->nspc = emit->env;
-    emit->nspc_func = NULL;
 
     return TRUE;
 }

@@ -1602,9 +1602,41 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: builtin function call with void return type
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Func_Call2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_DL_Return retval;
+
+    pop_( reg_sp, 3 );
+    f_ck_func f = (f_ck_func)(*(reg_sp+1));
+    t_CKUINT stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
+    t_CKUINT local_depth = *(reg_sp+2) + *(mem_sp-1);
+    t_CKUINT push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
+    reg_sp -= stack_size;
+    mem_sp += push;
+    t_CKUINT * sp = reg_sp;
+    t_CKUINT * mem = mem_sp;
+    // copy to args
+    for( t_CKUINT i = 0; i < stack_size; i++ )
+        *mem++ = *sp++;
+    // call the function
+    f( mem_sp, &retval );
+    mem_sp -= push;
+    // push the return args
+    // push_( reg_sp, retval.v_uint );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: builtin function call with 4-byte return type
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Func_Call4::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
@@ -1634,9 +1666,9 @@ void Chuck_Instr_Func_Call2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: ...
+// desc: builtin function call with 8-byte return type
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Func_Call3::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Func_Call8::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
@@ -1660,38 +1692,6 @@ void Chuck_Instr_Func_Call3::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // push the return args
     t_CKFLOAT *& sp_double = (t_CKFLOAT *&)reg_sp;
     push_( sp_double, retval.v_float );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-    Chuck_DL_Return retval;
-
-    pop_( reg_sp, 3 );
-    f_ck_func f = (f_ck_func)(*(reg_sp+1));
-    t_CKUINT stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
-    t_CKUINT local_depth = *(reg_sp+2) + *(mem_sp-1);
-    t_CKUINT push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
-    reg_sp -= stack_size;
-    mem_sp += push;
-    t_CKUINT * sp = reg_sp;
-    t_CKUINT * mem = mem_sp;
-    // copy to args
-    for( t_CKUINT i = 0; i < stack_size; i++ )
-        *mem++ = *sp++;
-    // call the function
-    f( mem_sp, &retval );
-    mem_sp -= push;
-    // push the return args
-    // push_( reg_sp, retval.v_uint );
 }
 
 
