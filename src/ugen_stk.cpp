@@ -45,8 +45,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, ADSR_ctor, ADSR_dtor, ADSR_tick, ADSR_pmsg );
     // set ctrl
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, "int", "keyOn" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, "int", "keyOff" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" );
     /*
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, "float", "attackTime" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, "float", "attackRate" );
@@ -64,28 +64,28 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );
     // set ctrl
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_rate, "float", "rate" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phase, "float", "addPhase" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phaseOffset, "float", "addPhaseOffset" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_path, "string", "path" );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_rate, NULL, "float", "rate" );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phase, NULL, "float", "addPhase" );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phaseOffset, NULL, "float", "addPhaseOffset" );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_path, NULL, "string", "path" );
     
     // add JCRev
     QUERY->ugen_add( QUERY, "JCRev", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
     // set ctrl
-    QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, "float", "mix" );
+    QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
     
     // add Shakers
     QUERY->ugen_add( QUERY, "Shakers", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
     // set ctrl
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, "float", "noteOn" );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, "float", "noteOff" );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, "int", "which" );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, NULL, "int", "which" );
 
     return TRUE;
 }

@@ -1145,6 +1145,10 @@ t_Type type_engine_check_exp_binary( t_Env env, a_Exp_Binary binary )
 {
     a_Exp cl = binary->lhs, cr = binary->rhs;
     t_Type ret = NULL;
+
+    // hack
+    if( binary->op == ae_op_chuck && cr->s_type == ae_exp_dot_member )
+        cr->dot_member.flag = 1;
     
     t_Type left = type_engine_check_exp( env, cl );
     t_Type right = type_engine_check_exp( env, cr);
@@ -1589,6 +1593,21 @@ t_Type type_engine_check_exp_dot_member( t_Env env, a_Exp_Dot_Member member )
             EM_error2( member->linepos,
                        "type checker: internal error: cannot find ugen ctrl or cget for '%s'",
                        param.name.c_str() );
+            return NULL;
+        }
+
+        if( member->flag && !member->data )
+        {
+            EM_error2( member->linepos,
+                       "type checker: cannot chuck values to '%s.%s' - it is read-only",
+                       S_name(env->nspc_name), S_name(member->id) );
+            return NULL;
+        }
+        else if( !member->flag && !member->data2 )
+        {
+            EM_error2( member->linepos,
+                       "type checker: cannot use value from '%s.%s' - it is write-only",
+                       S_name(env->nspc_name), S_name(member->id) );
             return NULL;
         }
         
