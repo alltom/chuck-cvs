@@ -7,7 +7,7 @@
 // our patch
 Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 // set the gain
-.95 => r.gain;
+.15 => r.gain;
 // set the reverb mix
 .2 => r.mix;
 // set max delay for echo
