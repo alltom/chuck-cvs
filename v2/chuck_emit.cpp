@@ -2709,7 +2709,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     }
 
     // unset the class
-    emit->env->func = NULL;
+    emit->env->class_def = NULL;
     // delete the code
     SAFE_DELETE( emit->code );
     // pop the code
