@@ -2985,10 +2985,10 @@ t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_
 // name: lookup_type()
 // desc: lookup type in the env
 //-----------------------------------------------------------------------------
-Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
+Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKINT climb )
 {
-    Chuck_Type * t = type.lookup( name, !climb );
-    if( climb && !t && parent )
+    Chuck_Type * t = type.lookup( name, climb );
+    if( climb > 0 && !t && parent )
         return parent->lookup_type( name, climb );
     return t;
 }
@@ -3000,10 +3000,10 @@ Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 // name: lookup_type()
 // desc: lookup type in the env
 //-----------------------------------------------------------------------------
-Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKBOOL climb )
+Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKINT climb )
 {
-    Chuck_Type * t = type.lookup( name, !climb );
-    if( climb && !t && parent )
+    Chuck_Type * t = type.lookup( name, climb );
+    if( climb > 0 && !t && parent )
         return parent->lookup_type( name, climb );
     return t;
 }
@@ -3015,10 +3015,10 @@ Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKBOOL climb )
 // name: lookup_value()
 // desc: lookup value in the env
 //-----------------------------------------------------------------------------
-Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb )
+Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKINT climb )
 {
-    Chuck_Value * v = value.lookup( name, !climb );
-    if( climb && !v && parent )
+    Chuck_Value * v = value.lookup( name, climb );
+    if( climb > 0 && !v && parent )
         return parent->lookup_value( name, climb );
     return v;
 }
@@ -3030,10 +3030,10 @@ Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb
 // name: lookup_value()
 // desc: lookup value in the env
 //-----------------------------------------------------------------------------
-Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
+Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKINT climb )
 {
-    Chuck_Value * v = value.lookup( name, !climb );
-    if( climb && !v && parent )
+    Chuck_Value * v = value.lookup( name, climb );
+    if( climb > 0 && !v && parent )
         return parent->lookup_value( name, climb );
     return v;
 }
@@ -3045,10 +3045,10 @@ Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
 // name: lookup_func()
 // desc: lookup func in the env
 //-----------------------------------------------------------------------------
-Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
+Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKINT climb )
 {
-    Chuck_Func * f = func.lookup( name, !climb );
-    if( climb && !f && parent )
+    Chuck_Func * f = func.lookup( name, climb );
+    if( climb > 0 && !f && parent )
         return parent->lookup_func( name, climb );
     return f;
 }
@@ -3060,10 +3060,10 @@ Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 // name: lookup_func()
 // desc: lookup func in the env
 //-----------------------------------------------------------------------------
-Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
+Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKINT climb )
 {
-    Chuck_Func * f = func.lookup( name, !climb );
-    if( climb && !f && parent )
+    Chuck_Func * f = func.lookup( name, climb );
+    if( climb > 0 && !f && parent )
         return parent->lookup_func( name, climb );
     return f;
 }
@@ -3075,10 +3075,10 @@ Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 // name: lookup_ugen()
 // desc: lookup ugen in the env
 //-----------------------------------------------------------------------------
-Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL climb )
+Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKINT climb )
 {
-    Chuck_UGen_Info * u = ugen.lookup( name, !climb );
-    if( climb && !u && parent )
+    Chuck_UGen_Info * u = ugen.lookup( name, climb );
+    if( climb > 0 && !u && parent )
         return parent->lookup_ugen( name, climb );
     return u;
 }
@@ -3090,10 +3090,10 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL cl
 // name: lookup_ugen()
 // desc: lookup ugen in the env
 //-----------------------------------------------------------------------------
-Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
+Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKINT climb )
 {
-    Chuck_UGen_Info * u = ugen.lookup( name, !climb );
-    if( climb && !u && parent )
+    Chuck_UGen_Info * u = ugen.lookup( name, climb );
+    if( climb > 0 && !u && parent )
         return parent->lookup_ugen( name, climb );
     return u;
 }
@@ -3106,10 +3106,10 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 // name: lookup_addr()
 // desc: lookup addr in the env
 //-----------------------------------------------------------------------------
-void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
+void * Chuck_Namespace::lookup_addr( const string & name, t_CKINT climb )
 {
-    void * a = addr.lookup( name, !climb );
-    if( climb && !a && parent )
+    void * a = addr.lookup( name, climb );
+    if( climb > 0 && !a && parent )
         return parent->lookup_addr( name, climb );
     return a;
 }
@@ -3121,10 +3121,10 @@ void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 // name: lookup_addr()
 // desc: lookup addr in the env
 //-----------------------------------------------------------------------------
-void * Chuck_Namespace::lookup_addr( S_Symbol name, t_CKBOOL climb )
+void * Chuck_Namespace::lookup_addr( S_Symbol name, t_CKINT climb )
 {
-    void * a = addr.lookup( name, !climb );
-    if( climb && !a && parent )
+    void * a = addr.lookup( name, climb );
+    if( climb > 0 && !a && parent )
         return parent->lookup_addr( name, climb );
     return a;
 }
@@ -3309,7 +3309,8 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
     Chuck_Value * value = NULL;
     if( !type ) return NULL;
     if( !type->info ) return NULL;
-    if( value = type->info->lookup_value( id, FALSE ) ) return value;
+    // -1 for base
+    if( value = type->info->lookup_value( id, -1 ) ) return value;
     if( type->parent ) return type_engine_find_value( type->parent, id );
     return NULL;
 }

@@ -88,17 +88,22 @@ public:
     // lookup id
 	T operator []( const string & id )
 	{ return this->lookup( id ); }
-    T lookup( const string & id, t_CKBOOL local = FALSE )
-    { return this->lookup( insert_symbol(id.c_str()), local ); }
-    T lookup( S_Symbol id, t_CKBOOL local = FALSE )
+    T lookup( const string & id, t_CKINT climb = 1 )
+    { return this->lookup( insert_symbol(id.c_str()), climb ); }
+    // -1 base, 0 current, 1 climb
+    T lookup( S_Symbol id, t_CKINT climb = 1 )
     {
         T val; assert( scope.size() != 0 );
 
-        if( local )
+        if( climb == 0 )
             return (*scope.back())[id];
-        else
+        else if( climb > 0 )
+        {
             for( t_CKUINT i = scope.size(); i > 0; i-- )
                 if( val = (*scope[i-1])[id] ) return val;
+        }
+        else
+            return (*scope.front())[id];
 
         return 0;
     }
@@ -156,20 +161,20 @@ struct Chuck_Namespace : public Chuck_VM_Object
 	~Chuck_Namespace() { }
 
     // look up type
-    Chuck_Type * lookup_type( const string & name, t_CKBOOL climb = TRUE );
-    Chuck_Type * lookup_type( S_Symbol name, t_CKBOOL climb = TRUE );
+    Chuck_Type * lookup_type( const string & name, t_CKINT climb = 1 );
+    Chuck_Type * lookup_type( S_Symbol name, t_CKINT climb = 1 );
     // look up value
-    Chuck_Value * lookup_value( const string & name, t_CKBOOL climb = TRUE );
-    Chuck_Value * lookup_value( S_Symbol name, t_CKBOOL climb = TRUE );
+    Chuck_Value * lookup_value( const string & name, t_CKINT climb = 1 );
+    Chuck_Value * lookup_value( S_Symbol name, t_CKINT climb = 1 );
     // look up func
-    Chuck_Func * lookup_func( const string & name, t_CKBOOL climb = TRUE );
-    Chuck_Func * lookup_func( S_Symbol name, t_CKBOOL climb = TRUE );
+    Chuck_Func * lookup_func( const string & name, t_CKINT climb = 1 );
+    Chuck_Func * lookup_func( S_Symbol name, t_CKINT climb = 1 );
     // look up ugen
-    Chuck_UGen_Info * lookup_ugen( const string & name, t_CKBOOL climb = TRUE );
-    Chuck_UGen_Info * lookup_ugen( S_Symbol name, t_CKBOOL climb = TRUE );
+    Chuck_UGen_Info * lookup_ugen( const string & name, t_CKINT climb = 1 );
+    Chuck_UGen_Info * lookup_ugen( S_Symbol name, t_CKINT climb = 1 );
     // look up addr
-    void * lookup_addr( const string & name, t_CKBOOL climb = TRUE );
-    void * lookup_addr( S_Symbol name, t_CKBOOL climb = TRUE );
+    void * lookup_addr( const string & name, t_CKINT climb = 1 );
+    void * lookup_addr( S_Symbol name, t_CKINT climb = 1 );
 };
 
 

@@ -15,7 +15,7 @@ class Fifo {
 		if ( root == null ) it @=> root;
 		else root.push(it);
 	}
-	fun void empty() {  return ( root == null ); } 
+	fun int empty() {  return ( root == null ); } 
 	fun ListItem pop() { 
 		if ( empty() ) return null;
 		root @=> ListItem @ ret;
@@ -28,4 +28,4 @@ Fifo f;
 
 f.push( ListItem n );
 f.push( ListItem p );
-f.pop() => ListItem @ l;
+f.pop() @=> ListItem @ l;

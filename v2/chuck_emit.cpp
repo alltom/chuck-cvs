@@ -1470,30 +1470,40 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
 
     // -------------------------------- bool -----------------------------------        
     case ae_op_eq:
-        switch( left )
-        {
-        case te_int:
+        if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
             emit->append( instr = new Chuck_Instr_Eq_int );
-            break;
-        case te_float:
-        case te_dur:
-        case te_time:
-            emit->append( instr = new Chuck_Instr_Eq_double );
-            break;
+        else
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Eq_int );
+                break;
+            case te_float:
+            case te_dur:
+            case te_time:
+                emit->append( instr = new Chuck_Instr_Eq_double );
+                break;
+            }
         }
         break;
     
     case ae_op_neq:
-        switch( left )
-        {
-        case te_int:
+        if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
             emit->append( instr = new Chuck_Instr_Neq_int );
-            break;
-        case te_float:
-        case te_dur:
-        case te_time:
-            emit->append( instr = new Chuck_Instr_Neq_double );
-            break;
+        else
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Neq_int );
+                break;
+            case te_float:
+            case te_dur:
+            case te_time:
+                emit->append( instr = new Chuck_Instr_Neq_double );
+                break;
+            }
         }
         break;
     
