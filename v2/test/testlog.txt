@@ -2,8 +2,28 @@
 
 Test		Status			Description
 
+01.ck		emitted			assignment (int)
+02.ck		emitted			assignment (float)
+03.ck		emitted			arithmetic ( addition )
+04.ck		emitted, loops		infinite loop ( while true )
+05.ck		emitted			time
+06.ck		emitted			durations
+07.ck		emitted			division
+08.ck		emitted			variable lookup
+09.ck		emitted			+=>
+10.ck		emitted			void function
+11.ck		emitted			function returning float
+12.ck		emitted			class def and instantiate
+13.ck		emitted			class inheritance
+14.ck		emitted			array instantiation
+15.ck		emitted			multi-dim array instantiation
+16.ck		emitted			multi-array assignment
+17.ck		emitted			partial array
+18.ck		vm:outofbounds		array out of bounds
+19.ck		type:exceeds dimension at 4	array passed to function
+
 p01.ck		emitted			assignment from multi-array to a value
-p02.ck		emitted			array to array sub-assignment
+p02.ck		emitted			array to array sub-assignment ( like 17.ck )
 p03.ck		parse at 9:9		function definition outside class decl
 p04.ck		emit,bus error		assignment to class members
 p05.ck		Obj undefined) at 6     member function taking class instance as argument
