@@ -188,7 +188,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
         emit->append( new Chuck_Instr_EOC );
 
         // converted to virtual machine code
-        emit->context->nspc.code = emit_to_code( emit );
+        emit->context->nspc.code = emit_to_code( emit, TRUE );
     }
 
     // clear the code

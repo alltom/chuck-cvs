@@ -6,7 +6,7 @@ class AA
 	fun pure void foo();
 }
 
-new AA @=> AA aaa;
+//new AA @=> AA aaa;
 
 5 => float f;
 

@@ -125,6 +125,8 @@ int main( int argc, char ** argv )
 {
     t_CKBOOL ret = TRUE;
     Chuck_Env * env = NULL;
+    Chuck_Emitter * emit = NULL;
+    Chuck_VM_Code * code = NULL;
 
     // test the parsing
     if( !test_parse( "a.ck" ) )
@@ -140,11 +142,23 @@ int main( int argc, char ** argv )
     if( !test_type( env, g_program ) )
     {
         fprintf( stderr, "type check failed...\n" );
-        fprintf( stderr, "hmmm" );
         return 1;
     }
     
-    fprintf( stderr, "sucess!\n" );
+    fprintf( stderr, "type check success!\n" );
+
+    // allocate the emitter
+    emit = emit_engine_init( env );
+
+    // test the emitter
+    code = emit_engine_emit_prog( emit, g_program );
+    if( !code )
+    {
+        fprintf( stderr, "emitter failed...\n" );
+        return 1;
+    }
+
+    fprintf( stderr, "emit success!\n" );
 
     return 0;
 }
