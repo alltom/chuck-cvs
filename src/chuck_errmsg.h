@@ -51,7 +51,7 @@ void EM_newline( );
 void EM_error( int, c_str, ... );
 void EM_error2( int, c_str, ... );
 void EM_impossible( c_str, ... );
-void EM_reset( c_str filename );
+t_CKBOOL EM_reset( c_str filename );
 const char * EM_lasterror();
 
 

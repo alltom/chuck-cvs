@@ -164,7 +164,8 @@ t_CKBOOL parse( c_str fname )
     if( f ) fclose( f );
 
     // parse
-    EM_reset( filename );
+    ret = EM_reset( filename );
+    if( ret == FALSE ) return FALSE;
     ret = (yyparse( ) == 0);
 
     return ret;
@@ -574,10 +575,10 @@ int send_cmd( int argc, char ** argv, int  & i )
     // reply
     if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
     {
-        fprintf( stderr, "[chuck]: remote operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
+        fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
         if( !msg.param )
-            fprintf( stderr, "(reason from server): %s\n", 
-                ( strstr( (char *)msg.buffer, "]:line(" ) ? strstr( (char *)msg.buffer, "]:line(" ) - 2 : (char *)msg.buffer ) ) ;
+            fprintf( stderr, "(reason): %s\n", 
+                ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) ) ;
     }
     // close the sock
     ck_close( g_sock );

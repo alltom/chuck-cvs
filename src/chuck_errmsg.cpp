@@ -108,11 +108,10 @@ void EM_error2( int line, char *message, ... )
 
     strcat( g_lasterror, g_buffer );
     fprintf( stderr, "\n" );
-    strcat( g_lasterror, "\n" );
 }
 
 
-void EM_reset( c_str fname )
+t_CKBOOL EM_reset( c_str fname )
 {
     anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
     linePos = intList(0, NULL);
@@ -121,6 +120,8 @@ void EM_reset( c_str fname )
     yyin = fopen(fname, "r");
     if (!yyin)
         EM_error2( 0, "no such file or directory" );
+        
+    return (yyin != 0);
 }
 
 
