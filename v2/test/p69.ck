@@ -31,4 +31,4 @@ f.push( ListItem p );
 f.pop() @=> ListItem @ l;
 
 10 => n.data;
-if( l.data != 10 ) while( true );
+if( l.data != 10 ) 10::second => now;

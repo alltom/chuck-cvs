@@ -1,4 +1,4 @@
-// Point class
+// function sum modifies an argument passed to the function
 
 class Point { 
 	float p[3];

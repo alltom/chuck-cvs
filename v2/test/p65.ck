@@ -25,6 +25,8 @@ class Sequence {
 		//start the note;
 		hold=>now;
 	}
+
+//	fun Sequence getLast
 }
 
 1.0::second => beat;
@@ -35,7 +37,5 @@ Sequence root;
 root.addNote ( 60, quarter );
 root.addNote ( 0, 2::quarter );
 root.addNote ( 64, quarter );
-root.addNote ( 0, beat );
-root.addNote ( 48, 2::quarter );
 
 root.play();
