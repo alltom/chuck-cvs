@@ -47,6 +47,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // set ctrl
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, "int", "keyOn" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, "int", "keyOff" );
+    /*
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, "float", "attackTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, "float", "attackRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayTime, "float", "decayTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayRate, "float", "decayRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, "float", "sustainLevel" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, "float", "releaseTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, "float", "releaseRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_target, "float", "target" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_value, "float", "value" );
+    */
     
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );

@@ -34,6 +34,7 @@
 
 #include <windows.h>
 #include <mmsystem.h>
+#include "util_buffers.h"
 
 
 
@@ -102,35 +103,6 @@ public:
 protected:
     UINT m_device_num;
     HMIDIOUT m_midi_out;
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class CBuffer
-// desc: circular buffer
-//-----------------------------------------------------------------------------
-class CBuffer
-{
-public:
-    CBuffer();
-    ~CBuffer();
-
-public:
-    BOOL initialize( UINT num_elem, UINT width );
-    void cleanup();
-
-public:
-    UINT get( void * data, UINT num_elem );
-    void put( void * data, UINT num_elem );
-
-protected:
-    BYTE * m_data;
-    UINT   m_data_width;
-    UINT   m_read_offset;
-    UINT   m_write_offset;
-    UINT   m_max_elem;
 };
 
 

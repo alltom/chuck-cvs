@@ -1233,8 +1233,6 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
             emit->append( op2 = new Chuck_Instr_Midi_Out_Go(0) );
             emit->push_op( op2 );
             emit->push_op( op );
-            // emit->append( op = new Chuck_Instr_Midi_Out(0) );
-            // emit->push_op( op );
         }
         else if( exp->var == insert_symbol( "dac" ) )
         {
@@ -2513,7 +2511,7 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
             else if( !strcmp( S_name(primary->var), "midiout" ) )
             {
                 emit->append_ops();
-                emit->append( new Chuck_Instr_Midi_Out_Go(0) );
+                // emit->append( new Chuck_Instr_Midi_Out_Go(0) );
                 return TRUE; 
             }
             else if( !strcmp( S_name(primary->var), "true" ) )

@@ -35,13 +35,7 @@
 
 #include <alsa/asoundlib.h>
 #include <pthread.h>
-
-
-#define DWORD__                unsigned int
-#define UINT__                 DWORD__
-#define BOOL__                 DWORD__
-#define FLOAT__                float
-#define BYTE__                 unsigned char
+#include "util_buffers.h"
 
 
 #ifndef CALLBACK
@@ -85,35 +79,6 @@ public:
 protected:
     UINT__ m_device_num;
     snd_rawmidi_t * m_midi_out;
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class CBuffer
-// desc: circular buffer
-//-----------------------------------------------------------------------------
-class CBuffer
-{
-public:
-    CBuffer();
-    ~CBuffer();
-
-public:
-    BOOL__ initialize( UINT__ num_elem, UINT__ width );
-    void cleanup();
-
-public:
-    UINT__ get( void * data, UINT__ num_elem );
-    void put( void * data, UINT__ num_elem );
-
-protected:
-    BYTE__ * m_data;
-    UINT__   m_data_width;
-    UINT__   m_read_offset;
-    UINT__   m_write_offset;
-    UINT__   m_max_elem;
 };
 
 
