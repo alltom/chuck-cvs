@@ -151,6 +151,7 @@ a_Program g_program = NULL;
 %type <type_decl> type_decl
 %type <type_decl> type_decl2
 %type <ival> function_decl
+%type <ival> static_decl
 %type <arg_list> arg_list
 %type <id_list> id_list
 %type <id_list> id_dot
@@ -215,17 +216,22 @@ id_dot
         ;
 
 function_definition
-        : function_decl type_decl2 ID LPAREN arg_list RPAREN code_segment
-            { $$ = new_func_def( $1, $2, $3, $5, $7, EM_lineNum ); }
-        | function_decl type_decl2 ID LPAREN RPAREN code_segment
-            { $$ = new_func_def( $1, $2, $3, NULL, $6, EM_lineNum ); }
+        : function_decl static_decl type_decl2 ID LPAREN arg_list RPAREN code_segment
+            { $$ = new_func_def( $1, $2, $3, $4, $6, $8, EM_lineNum ); }
+        | function_decl static_decl type_decl2 ID LPAREN RPAREN code_segment
+            { $$ = new_func_def( $1, $2, $3, $4, NULL, $7, EM_lineNum ); }
         ;
 
 function_decl
-        : FUNCTION                          { $$ = ae_func_func; }
-        | PUBLIC                            { $$ = ae_func_public; }
-        | PROTECTED                         { $$ = ae_func_protected; }
-        | PRIVATE                           { $$ = ae_func_private; }
+        : FUNCTION                          { $$ = ae_key_func; }
+        | PUBLIC                            { $$ = ae_key_public; }
+        | PROTECTED                         { $$ = ae_key_protected; }
+        | PRIVATE                           { $$ = ae_key_private; }
+        ;
+
+static_decl
+        :                                   { $$ = 0; }
+        | STATIC                            { $$ = ae_key_static; }
         ;
 
 type_decl
@@ -327,9 +333,9 @@ var_decl_list
         ;
 
 var_decl
-        : id_dot                            { $$ = new_var_decl( $1, NULL, EM_lineNum ); }
-        | id_dot array_exp                  { $$ = new_var_decl( $1, $2, EM_lineNum ); }
-        | id_dot array_empty                { $$ = new_var_decl( $1, $2, EM_lineNum ); }
+        : ID                                { $$ = new_var_decl( $1, NULL, EM_lineNum ); }
+        | ID array_exp                      { $$ = new_var_decl( $1, $2, EM_lineNum ); }
+        | ID array_empty                    { $$ = new_var_decl( $1, $2, EM_lineNum ); }
         ;
 
 chuck_operator
