@@ -88,6 +88,9 @@ UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_cget_pos( t_CKTIME now, void * data, void * out );
 
+UGEN_CTRL sndbuf_ctrl_loop( t_CKTIME now, void * data, void * value );
+UGEN_CGET sndbuf_cget_loop( t_CKTIME now, void * data, void * out );
+
 UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_cget_interp( t_CKTIME now, void * data, void * out );
 

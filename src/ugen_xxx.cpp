@@ -117,14 +117,13 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, NULL, "string", "read" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, NULL, "string", "write" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, sndbuf_cget_pos, "int", "pos" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_loop, sndbuf_cget_loop, "int", "loop" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_interp, sndbuf_cget_interp, "int", "interp" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_rate, "float", "rate" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_freq, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase, sndbuf_cget_phase, "float", "phase" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_channel, sndbuf_cget_channel, "int", "channel" );
-    //set only
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, sndbuf_cget_phase, "float", "phase_offset" );
-    //get only
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_samples, "int", "samples" );
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" );
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_channels, "int", "channels" );
@@ -449,17 +448,17 @@ struct sndbuf_data
     sndbuf_data()
     {
         buffer = NULL;
-	interp = SNDBUF_INTERP;
+        interp = SNDBUF_INTERP;
         num_channels = 0;
         num_frames = 0;
         num_samples = 0;
-	samplerate = 0;
-	curf = 0.0;
-	rate = 1.0;
+        samplerate = 0;
+        curf = 0.0;
+        rate = 1.0;
         eob = NULL;
         curr = NULL;
 
-        loop = TRUE;
+        loop = FALSE;
     }
 };
 
@@ -475,26 +474,39 @@ UGEN_DTOR sndbuf_dtor( t_CKTIME now, void * data )
     delete d;
 }
 
-inline void sndbuf_setpos(sndbuf_data *d, double pos) { 
-
-    if ( !d->buffer ) return;
+inline void sndbuf_setpos(sndbuf_data *d, double pos)
+{
+    if( !d->buffer ) return;
   
     d->curf = pos;
 
-    if ( d->loop ) { 
-      while ( d->curf >= d->num_frames ) d->curf -= d->num_frames;
-      while ( d->curf < 0 ) d->curf += d->num_frames;
+    if( d->loop )
+    {
+        while ( d->curf >= d->num_frames ) d->curf -= d->num_frames;
+        while ( d->curf < 0 ) d->curf += d->num_frames;
     } 
-    else { //invalid...
-      if ( d->curf < 0 || d->curf >= d->num_frames ) d->curr = d->eob;
-      return;
+    else
+    { //invalid...
+        if( d->curf < 0 || d->curf >= d->num_frames ) d->curr = d->eob;
+        return;
     }
 
     d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
-
 }
 
-//PRC's sinc interpolation function.. as found 
+UGEN_CTRL sndbuf_ctrl_loop( t_CKTIME now, void * data, void * value )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    d->loop = *(int *)value;
+}
+
+UGEN_CGET sndbuf_cget_loop( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_INT( out, d->loop );
+}
+
+// PRC's sinc interpolation function.. as found 
 // http://www.cs.princeton.edu/courses/archive/spring03/cs325/src/TimeStuf/srconvrt.c
 //
 // there's probably a lot in there that could be optimized, if we care to..
@@ -524,7 +536,6 @@ float sinc_table[WIDTH * SAMPLES_PER_ZERO_CROSSING] = { 0.0 };
 double sinc ( double x );
 
 bool sinc_table_built = false;
-
 
 void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out ) { 
 	//punt!
@@ -623,17 +634,19 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
     //calculate frame
 
-    if ( d->interp == SNDBUF_DROP ) { 
-      *out = (SAMPLE)( (*(d->curr)) ) ;
+    if( d->interp == SNDBUF_DROP )
+    { 
+        *out = (SAMPLE)( (*(d->curr)) ) ;
     }
-    else if ( d->interp == SNDBUF_INTERP ) { //samplewise linear interp
-      double alpha = d->curf - floor(d->curf);
-      *out = (SAMPLE)( (*(d->curr)) ) ;
-      *out += (float)alpha * ( *(d->curr + d->num_channels) - *out );
+    else if( d->interp == SNDBUF_INTERP )
+    { //samplewise linear interp
+        double alpha = d->curf - floor(d->curf);
+        *out = (SAMPLE)( (*(d->curr)) ) ;
+        *out += (float)alpha * ( *(d->curr + d->num_channels) - *out );
     }
     else if ( d->interp == SNDBUF_SINC ) { 
-      //do that fancy sinc function!
-      sndbuf_sinc_interpolate(d, out);
+        //do that fancy sinc function!
+        sndbuf_sinc_interpolate(d, out);
     }
 
     //advance
@@ -707,13 +720,13 @@ UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value )
         return;
     }
 
-
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
 }
 
 
-UGEN_CTRL sndbuf_ctrl_rate( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
     sndbuf_data * d = ( sndbuf_data * ) data;
     t_CKFLOAT rate = * (t_CKFLOAT *) value;  //samples per tick..
 
