@@ -145,8 +145,10 @@ UGEN_TICK Envelope_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Envelope_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Envelope_ctrl_rate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_ctrl_target( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Envelope_cget_target( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_ctrl_time( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_ctrl_value( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Envelope_cget_value( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_ctrl_keyOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Envelope_ctrl_keyOff( t_CKTIME now, void * data, void * value );
 
@@ -165,7 +167,6 @@ UGEN_PMSG OnePole_pmsg( t_CKTIME now, void * data, const char * msg, void * valu
 UGEN_CTRL OnePole_ctrl_a1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OnePole_ctrl_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OnePole_ctrl_pole( t_CKTIME now, void * data, void * value );
-
 
 // TwoPole
 UGEN_CTOR TwoPole_ctor( t_CKTIME now );
@@ -224,6 +225,7 @@ UGEN_DTOR SubNoise_dtor( t_CKTIME now, void * data );
 UGEN_TICK SubNoise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG SubNoise_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL SubNoise_ctrl_rate( t_CKTIME now, void * data, void * value );
+UGEN_CTRL SubNoise_cget_rate( t_CKTIME now, void * data, void * value );
 
 // JCRev 
 UGEN_CTOR JCRev_ctor( t_CKTIME now );
@@ -275,7 +277,6 @@ UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value );
-
 // FM
 UGEN_CTOR FM_ctor( t_CKTIME now );
 UGEN_DTOR FM_dtor( t_CKTIME now, void * data );

@@ -248,8 +248,19 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // set srate
     Stk::setSampleRate( QUERY->srate );
 
+    // add Envelope
+    QUERY->ugen_add( QUERY, "Envelope", NULL );
+    QUERY->ugen_func( QUERY, Envelope_ctor, Envelope_dtor, Envelope_tick, Envelope_pmsg );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOn, NULL, "int", "keyOn" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOff, NULL, "int", "keyOff" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, NULL, "float", "time" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, NULL, "float", "rate");
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_target, Envelope_cget_target, "float", "target" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_value, Envelope_cget_value, "float", "value" );
+
     // add ADSR
     QUERY->ugen_add( QUERY, "ADSR", NULL );
+    QUERY->ugen_extends ( QUERY, "Envelope" );
     QUERY->ugen_func( QUERY, ADSR_ctor, ADSR_dtor, ADSR_tick, ADSR_pmsg );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" );
@@ -260,8 +271,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, ADSR_cget_sustainLevel, "float", "sustainLevel" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, NULL, "float", "releaseTime" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, ADSR_cget_releaseRate, "float", "releaseRate" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_target, ADSR_cget_target, "float", "target" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_value, ADSR_cget_value, "float", "value" );
     QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" );
 
     // add BiQuad
@@ -305,6 +314,12 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" );
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" );
 
+
+    // add Filter
+    QUERY->ugen_add( QUERY, "Filter", NULL );
+    QUERY->ugen_func( QUERY, Filter_ctor, Filter_dtor, Filter_tick, Filter_pmsg );
+    QUERY->ugen_ctrl( QUERY, Filter_ctrl_coefs, NULL, "string", "coefs" );
+
     // add OnePole
     QUERY->ugen_add( QUERY, "OnePole", NULL );
     QUERY->ugen_func( QUERY, OnePole_ctor, OnePole_dtor, OnePole_tick, OnePole_pmsg );
@@ -347,20 +362,59 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_blockZero , NULL, "float", "blockZero" );
     QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_allpass , NULL, "float", "allpass" );
     
+    // add WvIn
+    QUERY->ugen_add( QUERY, "WvIn", NULL );
+    QUERY->ugen_func( QUERY, WvIn_ctor, WvIn_dtor, WvIn_tick, WvIn_pmsg );
+    QUERY->ugen_ctrl( QUERY, WvIn_ctrl_rate, NULL, "float", "rate" );
+    QUERY->ugen_ctrl( QUERY, WvIn_ctrl_path, NULL, "string", "path" );
 
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
+    QUERY->ugen_extends ( QUERY, "WvIn" );
     QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );
     QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_rate, NULL, "float", "rate" );
     QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phase, NULL, "float", "addPhase" );
     QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phaseOffset, NULL, "float", "addPhaseOffset" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_path, NULL, "string", "path" );
+
+    //add WvOut
+    QUERY->ugen_add( QUERY, "WvOut", NULL);
+    QUERY->ugen_func( QUERY, WvOut_ctor, WvOut_dtor, WvOut_tick, WvOut_pmsg );
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_matFilename, NULL, "string", "matFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_sndFilename, NULL, "string", "sndFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_wavFilename, NULL, "string", "wavFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_rawFilename, NULL, "string", "rawFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_aifFilename, NULL, "string", "aifFilename");
+
 
     // add JCRev
     QUERY->ugen_add( QUERY, "JCRev", NULL );
     QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
     QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
+
+    // add NRev
+    QUERY->ugen_add( QUERY, "NRev", NULL );
+    QUERY->ugen_func( QUERY, NRev_ctor, NRev_dtor, NRev_tick, NRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, NRev_ctrl_mix, NULL, "float", "mix" );
+
+
+    // add PRCRev
+    QUERY->ugen_add( QUERY, "PRCRev", NULL );
+    QUERY->ugen_func( QUERY, PRCRev_ctor, PRCRev_dtor, PRCRev_tick, PRCRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, PRCRev_ctrl_mix, NULL, "float", "mix" );
+
+    // add SubNoise
+    QUERY->ugen_add( QUERY, "SubNoise", NULL );
+    QUERY->ugen_func( QUERY, SubNoise_ctor, SubNoise_dtor, SubNoise_tick, SubNoise_pmsg );
+    QUERY->ugen_ctrl( QUERY, SubNoise_ctrl_rate, SubNoise_cget_rate, "int", "rate" );
+
+    // add Chorus
+    QUERY->ugen_add( QUERY, "Chorus", NULL );
+    QUERY->ugen_func( QUERY, Chorus_ctor, Chorus_dtor, Chorus_tick, Chorus_pmsg );
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modFreq, NULL, "float", "modFreq" );
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modDepth, NULL, "float", "modDepth" );
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_mix, NULL, "float", "mix" );
+
+
 
     // add PitShift
     QUERY->ugen_add( QUERY, "PitShift", NULL );
@@ -1467,6 +1521,8 @@ protected:
   MY_FLOAT gain;
   MY_FLOAT time;
   MY_FLOAT rate;
+public:
+  bool m_loaded;
 };
 
 #endif // defined(__WVIN_H)
@@ -1547,7 +1603,6 @@ public:
   // Read file data.
   void readData(unsigned long index);
   MY_FLOAT phaseOffset;
-  bool m_loaded;
 };
 
 #endif // defined(__WAVELOOP_H)
@@ -5492,9 +5547,8 @@ class WvOut : public Stk
   /*!
     An StkError is thrown for invalid argument values or if an error occurs when initializing the output file.
   */
-  void openFile( const char *fileName, unsigned int nChannels = 1,
-                 WvOut::FILE_TYPE type = WVOUT_WAV, Stk::STK_FORMAT format = STK_SINT16 );
-
+  void openFile( const char *fileName, unsigned int nChannels = 1,  \
+		 WvOut::FILE_TYPE type = WVOUT_WAV, Stk::STK_FORMAT = STK_SINT16 );
   //! If a file is open, write out samples in the queue and then close it.
   void closeFile( void );
 
@@ -9653,6 +9707,7 @@ void Filter :: setDenominator(int na, MY_FLOAT *aCoefficients)
     a[i] = aCoefficients[i];
 
   // scale coefficients by a[0] if necessary
+
   if (a[0] != 1.0) {
     for (i=0; i<nB; i++)
       b[i] /= a[0];
@@ -16821,14 +16876,15 @@ WaveLoop :: WaveLoop( const char *fileName, bool raw, bool generate )
     for (unsigned int j=0; j<channels; j++)
       data[bufferSize*channels+j] = data[j];
   }
-  m_loaded = TRUE;
+
 }
 
 WaveLoop :: WaveLoop( )
   : WvIn( ), phaseOffset(0.0)
-{ m_loaded = FALSE; }
+{ } 
 
-void WaveLoop :: openFile( const char * fileName, bool raw, bool norm )
+void
+WaveLoop :: openFile( const char * fileName, bool raw, bool norm )
 {
     m_loaded = FALSE;
     WvIn::openFile( fileName, raw, norm );
@@ -17375,11 +17431,14 @@ WvIn :: ~WvIn()
 
     if (lastOutput)
         delete [] lastOutput;
+
+    m_loaded = false;
 }
 
 void WvIn :: init( void )
 {
     fd = 0;
+    m_loaded = false;
     data = 0;
     lastOutput = 0;
     chunking = false;
@@ -17572,6 +17631,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     else readData( 0 );  // Load file data.
 
     if ( doNormalize ) normalize();
+    m_loaded = true;
     finished = false;
     return;
 
@@ -19083,6 +19143,88 @@ void WvOut :: tickFrame(const MY_FLOAT *frameVector, unsigned int frames)
 
 // chuck - import
 
+
+//-----------------------------------------------------------------------------
+// name: Envelope - import
+// desc: ..
+//-----------------------------------------------------------------------------
+UGEN_CTOR Envelope_ctor( t_CKTIME now )
+{
+    return new Envelope;
+}
+
+UGEN_DTOR Envelope_dtor( t_CKTIME now, void * data )
+{
+    delete (Envelope *)data;
+}
+
+UGEN_TICK Envelope_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Envelope * d = (Envelope *)data;
+    *out = in * d->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Envelope_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+UGEN_CTRL Envelope_ctrl_time( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setTime( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setRate( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_target( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setTarget( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_value( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setValue( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_keyOn( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    if( GET_NEXT_INT(value) )
+        d->keyOn();
+    else
+        d->keyOff();
+}
+
+UGEN_CTRL Envelope_ctrl_keyOff( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    if( !GET_NEXT_INT(value) )
+        d->keyOn();
+    else
+        d->keyOff();
+}
+
+UGEN_CTRL Envelope_cget_target( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    SET_NEXT_FLOAT( value, d->target );
+}
+
+UGEN_CTRL Envelope_cget_value( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    SET_NEXT_FLOAT( value, d->value );
+}
+
+
 //-----------------------------------------------------------------------------
 // name: ADSR - import
 // desc: ..
@@ -19222,6 +19364,8 @@ UGEN_CTRL ADSR_cget_state( t_CKTIME now, void * data, void * value )
     ADSR * d = (ADSR *)data;
     SET_NEXT_INT( value, d->state );
 }
+
+
 
 // BiQuad
 struct BiQuad_
@@ -19561,6 +19705,76 @@ UGEN_CGET Echo_cget_mix( t_CKTIME now, void * data, void * value )
     SET_NEXT_FLOAT( value, (t_CKFLOAT)((Echo *)data)->effectMix );
 }
 
+//Filter
+UGEN_CTOR Filter_ctor( t_CKTIME now )
+{
+    return new Filter;
+}
+
+UGEN_DTOR Filter_dtor( t_CKTIME now, void * data )
+{
+    delete (Filter *)data;
+}
+
+UGEN_TICK Filter_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Filter * d = (Filter *)data;
+    *out = d->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG Filter_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+
+UGEN_CTRL Filter_ctrl_coefs( t_CKTIME now, void * data, void * value )
+{
+    Filter * d = (Filter *)data;
+    fprintf(stderr,"Filter.coefs :: not implemented\n");
+}
+
+// WvIn
+UGEN_CTOR WvIn_ctor( t_CKTIME now )
+{
+    return new WvIn;
+}
+
+UGEN_DTOR WvIn_dtor( t_CKTIME now, void * data )
+{
+    delete (WvIn *)data;
+}
+
+UGEN_TICK WvIn_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    WvIn * w = (WvIn *)data;
+    *out = ( w->m_loaded ? (t_CKFLOAT)w->tick() / SHRT_MAX : (SAMPLE)0.0 );
+    return TRUE;
+}
+
+UGEN_PMSG WvIn_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL WvIn_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    WvIn * w = (WvIn *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    w->setRate( f );
+}
+
+UGEN_CTRL WvIn_ctrl_path( t_CKTIME now, void * data, void * value )
+{
+    WvIn * w = (WvIn *)data;
+    char * c = *(char **)value;
+    try { w->openFile( c, FALSE, FALSE ); }
+    catch( StkError & e )
+    {
+        // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
+    }
+}
 
 // WaveLoop
 UGEN_CTOR WaveLoop_ctor( t_CKTIME now )
@@ -19592,13 +19806,6 @@ UGEN_CTRL WaveLoop_ctrl_freq( t_CKTIME now, void * data, void * value )
     w->setFrequency( f );
 }
 
-UGEN_CTRL WaveLoop_ctrl_rate( t_CKTIME now, void * data, void * value )
-{
-    WaveLoop * w = (WaveLoop *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    w->setRate( f );
-}
-
 UGEN_CTRL WaveLoop_ctrl_phase( t_CKTIME now, void * data, void * value )
 {
     WaveLoop * w = (WaveLoop *)data;
@@ -19613,16 +19820,67 @@ UGEN_CTRL WaveLoop_ctrl_phaseOffset( t_CKTIME now, void * data, void * value )
     w->addPhaseOffset( f );
 }
 
-UGEN_CTRL WaveLoop_ctrl_path( t_CKTIME now, void * data, void * value )
+
+// WvOut
+UGEN_CTOR WvOut_ctor( t_CKTIME now )
 {
-    WaveLoop * w = (WaveLoop *)data;
-    char * c = *(char **)value;
-    try { w->openFile( c, FALSE, FALSE ); }
-    catch( StkError & e )
-    {
-        // fprintf( stderr, "[chuck](via STK): WaveLoop cannot load file '%s'\n", c );
-    }
+    return new WvOut;
 }
+
+UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data )
+{
+    delete (WvOut *)data;
+}
+
+UGEN_TICK WvOut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    WvOut * w = (WvOut *)data;
+    w->tick( in );
+    *out = in; //pass samples downstream
+    return TRUE;
+}
+
+UGEN_PMSG WvOut_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+//XXX chuck got mono, so we have one channel. fix later.
+UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
+}
+
 
 // JCRev
 UGEN_CTOR JCRev_ctor( t_CKTIME now )
@@ -19654,6 +19912,66 @@ UGEN_CTRL JCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
     j->setEffectMix( f );
 }
 
+
+// NRev
+UGEN_CTOR NRev_ctor( t_CKTIME now )
+{
+    return new NRev( 4.0f );
+}
+
+UGEN_DTOR NRev_dtor( t_CKTIME now, void * data )
+{
+    delete (NRev *)data;
+}
+
+UGEN_TICK NRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    NRev * j = (NRev *)data;
+    *out = j->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG NRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL NRev_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    NRev * j = (NRev *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    j->setEffectMix( f );
+}
+
+// PRCRev
+UGEN_CTOR PRCRev_ctor( t_CKTIME now )
+{
+    return new PRCRev( 4.0f );
+}
+
+UGEN_DTOR PRCRev_dtor( t_CKTIME now, void * data )
+{
+    delete (PRCRev *)data;
+}
+
+UGEN_TICK PRCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    PRCRev * j = (PRCRev *)data;
+    *out = j->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG PRCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL PRCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    PRCRev * j = (PRCRev *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    j->setEffectMix( f );
+}
 
 // PitShift
 UGEN_CTOR PitShift_ctor( t_CKTIME now )
@@ -19691,6 +20009,92 @@ UGEN_CTRL PitShift_ctrl_effectMix( t_CKTIME now, void * data, void * value )
     t_CKFLOAT f = GET_CK_FLOAT(value);
     p->setEffectMix( f );
 }
+
+
+
+// SubNoise
+UGEN_CTOR SubNoise_ctor( t_CKTIME now )
+{
+    return new SubNoise( );
+}
+
+UGEN_DTOR SubNoise_dtor( t_CKTIME now, void * data )
+{
+    delete (SubNoise *)data;
+}
+
+UGEN_TICK SubNoise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    SubNoise * p = (SubNoise *)data;
+    *out = p->tick();
+    return TRUE;
+}
+
+UGEN_PMSG SubNoise_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL SubNoise_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    SubNoise * p = (SubNoise *)data;
+    int i = GET_CK_INT(value);
+    p->setRate( i );
+}
+
+UGEN_CTRL SubNoise_cget_rate( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_INT( value, (int)((SubNoise *)data)->subRate() );
+}
+
+
+// Chorus
+UGEN_CTOR Chorus_ctor( t_CKTIME now )
+{
+    return new Chorus( 44100 );
+}
+
+UGEN_DTOR Chorus_dtor( t_CKTIME now, void * data )
+{
+    delete (Chorus *)data;
+}
+
+UGEN_TICK Chorus_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Chorus * p = (Chorus *)data;
+    *out = p->tick(in);
+    return TRUE;
+}
+
+UGEN_PMSG Chorus_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Chorus_ctrl_modDepth( t_CKTIME now, void * data, void * value )
+{
+    Chorus * p = (Chorus *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+
+    p->setModDepth( f );
+}
+
+UGEN_CTRL Chorus_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    Chorus * p = (Chorus *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setEffectMix( f );
+}
+
+UGEN_CTRL Chorus_ctrl_modFreq( t_CKTIME now, void * data, void * value )
+{
+    Chorus * p = (Chorus *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setModFrequency( f );
+}
+
+
+
 
 
 UGEN_CTOR Shakers_ctor( t_CKTIME now )
