@@ -78,6 +78,7 @@ t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
 t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def );
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
+t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit, Chuck_Type * to, Chuck_Type * from );
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
                                   t_CKBOOL offset, int linepos );
 
@@ -1039,6 +1040,11 @@ t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp )
             return FALSE;
         }
 
+        // implicit cast
+        if( exp->cast_to != NULL )
+            if( !emit_engine_emit_cast( emit, exp->cast_to, exp->type ) )
+                return FALSE;
+
         exp = exp->next;
     }
 
@@ -1889,6 +1895,20 @@ t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast )
     Chuck_Type * to = cast->self->type;
     Chuck_Type * from = cast->exp->type;
 
+    // the actual work to be done
+    return emit_engine_emit_cast( emit, to, from );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_cast()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit, 
+                                Chuck_Type * to, Chuck_Type * from )
+{
     // if type is already the same
     if( equals( to, from ) )
         return TRUE;
