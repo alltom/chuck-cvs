@@ -2269,23 +2269,55 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
     t_CKBOOL emit_addr = member->self->emit_var;
     // is the base a class/namespace or a variable
     t_CKBOOL base_static = isa( member->t_base, &t_class );
+    // a function
+    Chuck_Func * func = NULL;
+    // a non-function value
+    Chuck_Value * value = NULL;
     // the offset
     t_CKUINT offset = 0;
-    // actual type
+    // actual type - if base is class name its type is actually 'class'
+    //               to get the actual type use actual_type
     t_base = base_static ? member->t_base->actual_type : member->t_base;
-        
+
     // emit the base
     emit_engine_emit_exp( emit, member->base );
+    // make sure that the base type is object
+    assert( t_base->info != NULL );
 
-    // if member or static
+    // if base is static
     if( !base_static )
     {
         // if is a func
         if( isfunc( member->self->type ) )
         {
+            // get the func
+            func = t_base->info->lookup_func( member->id, FALSE );
+            // make sure it's there
+            assert( func != NULL );
+
+            // is the func static?
+            if( func->is_member )
+            {
+                // find the offset for virtual table
+                
+                // emit the function
+                emit->append( new Chuck_Instr_Dot_Member_Func( offset ) );
+            }
+            else
+            {
+                // emit the static function
+                emit->append( new Chuck_Instr_Dot_Static_Func( func ) );
+            }
         }
         else
         {
+            // get the value
+            value = t_base->info->lookup_value( member->id, FALSE );
+            // make sure it's there
+            assert( value != NULL );
+
+            // find the offset for data
+            offset = value->offset;
             // lookup the member
             emit->append( new Chuck_Instr_Dot_Member_Data( 
                 offset, member->self->type->size, emit_addr ) );
@@ -2293,6 +2325,29 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
     }
     else // static
     {
+        // if is a func
+        if( isfunc( member->self->type ) )
+        {
+            // get the func
+            func = t_base->info->lookup_func( member->id, FALSE );
+            // make sure it's there
+            assert( func != NULL );
+            // emit the function
+            emit->append( new Chuck_Instr_Dot_Static_Func( func ) );
+        }
+        else
+        {
+            // get the value
+            value = t_base->info->lookup_value( member->id, FALSE );
+            // make sure it's there
+            assert( value != NULL );
+
+            // find the offset for data
+            offset = value->offset;
+            // emit the member
+            emit->append( new Chuck_Instr_Dot_Static_Data(
+                offset, member->self->type->size, emit_addr ) );
+        }
     }
     
     return TRUE;

@@ -41,6 +41,7 @@
 class Chuck_VM;
 class Chuck_VM_Shred;
 struct Chuck_Type;
+struct Chuck_Func;
 
 
 
@@ -1684,6 +1685,56 @@ public:
 
 protected:
     t_CKUINT m_offset;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Dot_Static_Data
+// desc: access the static data of object by offset
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Dot_Static_Data : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Dot_Static_Data( t_CKUINT offset, t_CKUINT size, t_CKUINT emit_addr )
+    { m_offset = offset; m_size = size; m_emit_addr = emit_addr; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params()
+    { static char buffer[256];
+      sprintf( buffer, "offset=%d, size=%d, emit_addr=%d", m_offset, m_size, m_emit_addr );
+      return buffer; }
+
+protected:
+    t_CKUINT m_offset;
+    t_CKUINT m_size;
+    t_CKUINT m_emit_addr;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Dot_Static_Func
+// desc: access the static function of object
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Dot_Static_Func : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Dot_Static_Func( Chuck_Func * func )
+    { m_func = func; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params()
+    { static char buffer[256];
+      sprintf( buffer, "func=%d", (t_CKUINT)m_func );
+      return buffer; }
+
+protected:
+    Chuck_Func * m_func;
 };
 
 

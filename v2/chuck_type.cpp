@@ -2193,7 +2193,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         {
             EM_error2( arg_list->linepos,
                 "cannot declare variables of size '0' (i.e. 'void')..." );
-            return NULL;
+            goto error;
         }
 
         // check if reserved
@@ -2235,21 +2235,21 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     {
         EM_error2( f->linepos, "non-class function cannot be declared as 'pure'..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
-        return FALSE;
+        goto error;
     }
     // if interface, then cannot have code
     if( env->class_def && env->class_def->def->iface && f->code )
     {
         EM_error2( f->linepos, "interface function signatures cannot contain code..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
-        return FALSE;
+        goto error;
     }
     // if pure, then cannot have code
     if( f->static_decl == ae_key_abstract && f->code )
     {
         EM_error2( f->linepos, "'pure' function signatures cannot contain code..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
-        return FALSE;
+        goto error;
     }
     // yeah
     if( f->static_decl != ae_key_abstract && !f->code )
@@ -2257,7 +2257,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         EM_error2( f->linepos, "function declaration must contain code..." );
         EM_error2( f->linepos, "(unless in interface, or is declared 'pure')" );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
-        return FALSE;
+        goto error;
     }
 
     // if overriding super class function, then check signatures
@@ -2270,7 +2270,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             EM_error2( f->linepos, "function name '%s' conflicts with previously defined value...",
                 S_name(f->name) );
             EM_error2( f->linepos, "from super class '%s'...", value->owner_class->c_name() );
-            return FALSE;
+            goto error;
         }
 
         // see if parent function is static
@@ -2283,7 +2283,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             EM_error2( f->linepos,
                 "...(reason: '%s.%s' is declared as 'static')",
                 value->owner_class->c_name(), S_name(f->name) );
-            return FALSE;
+            goto error;
         }
 
         // see if function is static
@@ -2296,7 +2296,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             EM_error2( f->linepos,
                 "...(reason: '%s.%s' is declared as 'static')",
                 env->class_def->c_name(), S_name(f->name) );
-            return FALSE;
+            goto error;
         }
 
         // see if function is pure
@@ -2309,7 +2309,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             EM_error2( f->linepos,
                 "...(reason: '%s.%s' is declared as 'pure')",
                 env->class_def->c_name(), S_name(f->name) );
-            return FALSE;
+            goto error;
         }
 
         // match the prototypes
@@ -2321,7 +2321,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name),
                 value->owner_class->c_name(), S_name(f->name) );
             if( err != "" ) EM_error2( f->linepos, "...(reason: %s)", err.c_str() );
-            return FALSE;
+            goto error;
         }
     
         // make sure returns are equal
@@ -2332,7 +2332,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 "function '%s.%s' matches '%s.%s' but cannot override...",
                 env->class_def->c_name(), S_name(f->name),
                 value->owner_class->c_name(), S_name(f->name) );
-            return FALSE;
+            goto error;
         }    
 
     }
