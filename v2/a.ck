@@ -45,7 +45,12 @@ class Bar extends Foo
     int c;
 }
 
+class thing extends ugen
+{
+    int a;
+}
+
 Foo foo;
 Bar bar;
 
-foo.y[1].aaa => b[4.5];
+foo.y[1].aaa => b[2] => a[2][2];
