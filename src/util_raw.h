@@ -60,6 +60,10 @@ extern SAMPLE sineblnk_data[];
 extern SAMPLE sinewave_data[];
 extern SAMPLE snglpeak_data[];
 extern SAMPLE twopeaks_data[];
+extern SAMPLE glot_aah_data[];
+extern SAMPLE glot_eee_data[];
+extern SAMPLE glot_ooo_data[];
+extern SAMPLE glot_pop_data[];
 
 extern t_CKUINT ahh_size;
 extern t_CKUINT britestk_size;
@@ -81,6 +85,11 @@ extern t_CKUINT sineblnk_size;
 extern t_CKUINT sinewave_size;
 extern t_CKUINT snglpeak_size;
 extern t_CKUINT twopeaks_size;
+extern t_CKUINT glot_ahh_size;
+extern t_CKUINT glot_eee_size;
+extern t_CKUINT glot_ooo_size;
+extern t_CKUINT glot_pop_size;
+
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }
