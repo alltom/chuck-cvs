@@ -308,11 +308,11 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     struct stat fs;
     
     strcpy( msg.buffer, "" );
-    if( filename[0] != '/' )
-    { 
-        strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
-        strcat( msg.buffer, getenv("PWD") ? "/" : "" );
-    }
+    //if( filename[0] != '/' )
+    //{ 
+    //    strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
+    //    strcat( msg.buffer, getenv("PWD") ? "/" : "" );
+    //}
     strcat( msg.buffer, filename );
 
     // test it
