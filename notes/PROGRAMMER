@@ -1,31 +1,31 @@
 ---
 ChucK Programmers's Guide
 
-chuck home: http://chuck.cs.princeton.edu/
-current version of this document: 
-http://chuck.cs.princeton.edu/doc/program/
+current version of this document:
+
+    http://chuck.cs.princeton.edu/doc/program/
+
+chuck home:
+
+    http://chuck.cs.princeton.edu/
 
 ---
 
 related: the ChucK Tutorial | Developer's Guide | ChucK Home
 
-Introduction:
-
 If this is your first time programming ChucK, it might be useful to read 
-the Ch$
-(QUICKSTART).
+the ChucK tutorial.  (QUICKSTART).
 
 ---
 
 Overview:
 
 ChucK is a strongly-typed, 'strongly-timed', concurrent audio and 
-multimedia pr$
-compiled into virtual instructions, which is immediately run in the ChucK 
-Virtu$
-the features of the Language, Compiler, and Virtual Machine for a ChucK 
-program$
-ChucK (contribute to the project), visit the developer page (DEVELOPER).
+multimedia programming language. It is compiled into virtual 
+instructions, which is immediately run in the ChucK Virtual Machine. 
+This guide documents the features of the Language, Compiler, and 
+Virtual Machine for a ChucK programmer. If you like to help develop 
+ChucK (contribute to the project), visit the developer page. 
 
 ---
 

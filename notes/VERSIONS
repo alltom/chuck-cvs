@@ -25,7 +25,8 @@
       "special:snglpeak"
       "special:twopeaks"
 
-  - fixed shred shreduling (gewang)
+  - fixed shred shreduling ID bug for on-the-fly added shreds (gewang)
+  - fixed function resolution for on-the-fly added shreds (gewang)
   - added math.npow2( int n ) (Niklas Werner, gewang)
 
 new STK ugens:
