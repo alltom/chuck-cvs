@@ -1,6 +1,5 @@
 // our patch
 Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
-
 // set the gain
 .8 => r.gain;
 // set the reverb mix
@@ -22,8 +21,8 @@ fun void echo_shred( )
     {
         std.rand2f(0.0,1.0) => decider;
         if( decider < .3 ) 0.0 => mix;
-        else if( decider < .6 ) .08 => mix;
-        else if( decider < .85 ) .5 => mix;
+        else if( decider < .55 ) .08 => mix;
+        else if( decider < .8 ) .5 => mix;
         else .15 => mix;
 
         // find the increment
