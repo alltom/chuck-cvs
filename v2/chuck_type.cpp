@@ -1879,7 +1879,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
             the_base->c_name(), S_name(member->id) );
         return NULL;
     }
-    
+
     // make sure
     if( base_static && value->is_member )
     {

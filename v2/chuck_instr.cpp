@@ -47,6 +47,7 @@ using namespace std;
 
 // define SP offset
 #define push_( sp, val )         *(sp) = (val); (sp)++
+#define push_float( sp, val )    *((t_CKFLOAT *&)sp) = (val); ((t_CKFLOAT *&)sp)++
 #define pop_( sp, n )            sp -= (n)
 #define val_( sp )               *(sp)
 
@@ -1939,59 +1940,61 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // reg stack pointer
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     t_CKINT i = 0;
     t_CKUINT val = 0;
     t_CKFLOAT fval = 0;
 
     // pop
-    pop_( reg_sp, 2 );
+    pop_( sp, 2 );
 
     // 4 or 8
     if( m_size == 4 )
     {
         // get array
-        Chuck_Array4 * arr = (Chuck_Array4 *)(*reg_sp);
+        Chuck_Array4 * arr = (Chuck_Array4 *)(*sp);
         // get index
-        i = (t_CKINT)(*reg_sp+1);
+        i = (t_CKINT)(*sp+1);
         // check if writing
-        if( m_is_var ) {
+        if( m_emit_addr ) {
             // get the addr
             val = arr->addr( i );
             // exception
             if( !val ) goto error;
             // push the addr
-            push_( reg_sp, val );
+            push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &val ) )
                 goto error;
             // push the value
-            push_( reg_sp, val );
+            push_( sp, val );
         }
     }
     else if( m_size == 8 )
     {
         // get array
-        Chuck_Array8 * arr = (Chuck_Array8 *)(*reg_sp);
+        Chuck_Array8 * arr = (Chuck_Array8 *)(*sp);
         // get index
-        i = (t_CKINT)(*reg_sp+1);
+        i = (t_CKINT)(*sp+1);
         // check if writing
-        if( m_is_var ) {
+        if( m_emit_addr ) {
             // get the addr
             val = arr->addr( i );
             // exception
             if( !val ) goto error;
             // push the addr
-            push_( reg_sp, val );
+            push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &fval ) )
                 goto error;
             // push the value
-            push_( ((t_CKFLOAT *&)reg_sp), fval );
+            push_( ((t_CKFLOAT *&)sp), fval );
         }
     }
+    else
+        assert( FALSE );
 
     return;
 
@@ -2014,18 +2017,18 @@ error:
 void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // reg stack pointer
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     t_CKINT i = 0;
     t_CKUINT val = 0, j;
     t_CKFLOAT fval = 0;
     t_CKINT * ptr = NULL;
 
     // pop all indices then array
-    pop_( reg_sp, m_depth + 1 );
+    pop_( sp, m_depth + 1 );
 
     // get array
-    Chuck_Array4 * base = (Chuck_Array4 *)(*reg_sp);
-    ptr = (t_CKINT *)(reg_sp+1);
+    Chuck_Array4 * base = (Chuck_Array4 *)(*sp);
+    ptr = (t_CKINT *)(sp+1);
 
     // make sure
     assert( m_depth > 1 );
@@ -2049,19 +2052,19 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
         // get index
         i = (t_CKINT)(*ptr);
         // check if writing
-        if( m_is_var ) {
+        if( m_emit_addr ) {
             // get the addr
             val = arr->addr( i );
             // exception
             if( !val ) goto error;
             // push the addr
-            push_( reg_sp, val );
+            push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &val ) )
                 goto error;
             // push the value
-            push_( reg_sp, val );
+            push_( sp, val );
         }
     }
     else if( m_size == 8 )
@@ -2071,21 +2074,23 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
         // get index
         i = (t_CKINT)(*ptr);
         // check if writing
-        if( m_is_var ) {
+        if( m_emit_addr ) {
             // get the addr
             val = arr->addr( i );
             // exception
             if( !val ) goto error;
             // push the addr
-            push_( reg_sp, val );
+            push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &fval ) )
                 goto error;
             // push the value
-            push_( ((t_CKFLOAT *&)reg_sp), fval );
+            push_( ((t_CKFLOAT *&)sp), fval );
         }
     }
+    else
+        assert( FALSE );
 
     return;
 
@@ -2096,6 +2101,42 @@ error:
              shred->name.c_str(), i );
     // do something!
     shred->is_running = FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Dot_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // register stack pointer
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    // the pointer
+    t_CKUINT data;
+    
+    // pop the object pointer
+    pop_( sp, 1 );
+    // get the object pointer
+    Chuck_Object * obj = (Chuck_Object *)(*sp);
+    // calculate the data pointer
+    data = (t_CKUINT)(obj->data + m_offset);
+    
+    // emit addr or value
+    if( m_emit_addr )
+    {
+        // push the address
+        push_( sp, data );
+    }
+    else
+    {
+        // 4 or 8
+        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)data) ); }
+        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); }
+        else assert( FALSE );
+    }
 }
 
 

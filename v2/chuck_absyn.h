@@ -115,7 +115,7 @@ typedef struct a_Array_Sub_ * a_Array_Sub;
 
 // forward reference for type
 typedef struct Chuck_Type * t_CKTYPE;
-typedef struct Chuck_Value * t_CKVALUE;
+typedef struct Chuck_Value * t_CKVALUE; 
 typedef struct Chuck_Func * t_CKFUNC;
 typedef struct Chuck_Namespace * t_CKNSPC;
 
@@ -199,8 +199,7 @@ struct a_Exp_Dur_ { a_Exp base; a_Exp unit; int linepos; a_Exp self; };
 struct a_Exp_Array_ { a_Exp base; a_Array_Sub indices; int linepos; a_Exp self; };
 struct a_Exp_Func_Call_ { a_Exp func; a_Exp args; t_CKTYPE ret_type;
                           t_CKFUNC ck_func; int linepos; a_Exp self; };
-struct a_Exp_Dot_Member_ { a_Exp base; t_CKTYPE t_base; S_Symbol id; unsigned long data;
-                           unsigned long data2; unsigned int flag; int linepos; a_Exp self; };
+struct a_Exp_Dot_Member_ { a_Exp base; t_CKTYPE t_base; S_Symbol id; int linepos; a_Exp self; };
 struct a_Exp_If_ { a_Exp cond; a_Exp if_exp; a_Exp else_exp; int linepos; a_Exp self; };
 struct a_Exp_Decl_ { a_Type_Decl type; a_Var_Decl_List var_decl_list; int linepos; a_Exp self; };
 struct a_Exp_Namespace_ { S_Symbol name; int linepos; a_Exp self; };

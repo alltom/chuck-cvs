@@ -1595,19 +1595,19 @@ protected:
 class Chuck_Instr_Array_Access : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Array_Access( t_CKUINT size, t_CKUINT is_var )
-    { m_size = size; m_is_var = is_var; }
+    Chuck_Instr_Array_Access( t_CKUINT size, t_CKUINT emit_addr )
+    { m_size = size; m_emit_addr = emit_addr; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
     virtual const char * params()
     { static char buffer[256];
-      sprintf( buffer, "size=%d, is_var=%d", m_size, m_is_var );
+      sprintf( buffer, "size=%d, emit_addr=%d", m_size, m_emit_addr );
       return buffer; }
 
 protected:
     t_CKUINT m_size;
-    t_CKUINT m_is_var;
+    t_CKUINT m_emit_addr;
 };
 
 
@@ -1620,20 +1620,46 @@ protected:
 class Chuck_Instr_Array_Access_Multi : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Array_Access_Multi( t_CKUINT depth, t_CKUINT size, t_CKUINT is_var )
-    { m_size = size; m_depth = depth; m_is_var = is_var; }
+    Chuck_Instr_Array_Access_Multi( t_CKUINT depth, t_CKUINT size, t_CKUINT emit_addr )
+    { m_size = size; m_depth = depth; m_emit_addr = emit_addr; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
     virtual const char * params()
     { static char buffer[256];
-      sprintf( buffer, "depth=%d, size=%d, is_var=%d", m_depth, m_size, m_is_var );
+      sprintf( buffer, "depth=%d, size=%d, emit_addr=%d", m_depth, m_size, m_emit_addr );
       return buffer; }
 
 protected:
     t_CKUINT m_depth;
     t_CKUINT m_size;
-    t_CKUINT m_is_var;
+    t_CKUINT m_emit_addr;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Dot_Member
+// desc: access the member of object by offset
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Dot_Member : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Dot_Member( t_CKUINT offset, t_CKUINT size, t_CKUINT emit_addr )
+    { m_offset = offset; m_size = size; m_emit_addr = emit_addr; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params()
+    { static char buffer[256];
+      sprintf( buffer, "offset=%d, size=%d, emit_addr=%d", m_offset, m_size, m_emit_addr );
+      return buffer; }
+
+protected:
+    t_CKUINT m_offset;
+    t_CKUINT m_size;
+    t_CKUINT m_emit_addr;
 };
 
 

@@ -2259,6 +2259,21 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
 t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
                                           a_Exp_Dot_Member member )
 {
+    // the type of the base
+    Chuck_Type * t_base = NULL;
+    // whether to emit addr or value
+    t_CKBOOL emit_addr = member->self->emit_var;
+    // is the base a class/namespace or a variable
+    t_CKBOOL base_static = isa( member->t_base, &t_class );
+    // actual type
+    t_base = base_static ? member->t_base->actual_type : member->t_base;
+        
+    // emit the base
+    emit_engine_emit_exp( emit, member->base );
+    
+    // lookup the member
+    emit->append( new Chuck_Instr_Dot_Member( emit_addr, emit_addr ) );
+    
     return TRUE;
 }
 
