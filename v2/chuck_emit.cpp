@@ -2304,7 +2304,7 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             if( func->is_member )
             {
                 // find the offset for virtual table
-                
+                offset = func->vt_index;
                 // emit the function
                 emit->append( new Chuck_Instr_Dot_Member_Func( offset ) );
             }
@@ -2320,6 +2320,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             value = t_base->info->lookup_value( member->id, FALSE );
             // make sure it's there
             assert( value != NULL );
+            // make sure the index > 0
+            assert( value->offset > 0 );
 
             // find the offset for data
             offset = value->offset;
