@@ -41,6 +41,7 @@ while( true )
         1::second => now;
         0.001 => band.stopBowing;
         0.5::second * (float) std.rand2(1,3) => now;
+
         // pentatonic
         2 * std.rand2( 0, 4 ) => int freq;
         if( freq == 6 ) 7 => freq;
