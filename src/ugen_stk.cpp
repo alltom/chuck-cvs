@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include "ugen_stk.h"
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define MY_FLOAT double
@@ -23192,6 +23193,8 @@ UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value )
         strcpy( buffer, w->autoPrefix );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
+        buffer[strlen(w->autoPrefix)+14] = 'h';
+        buffer[strlen(w->autoPrefix)+17] = 'm';
         strcat( buffer, ").mat" );
         filename = buffer;
     }
@@ -23212,6 +23215,8 @@ UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value )
         strcpy( buffer, w->autoPrefix );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
+        buffer[strlen(w->autoPrefix)+14] = 'h';
+        buffer[strlen(w->autoPrefix)+17] = 'm';
         strcat( buffer, ").snd" );
         filename = buffer;
     }
@@ -23232,6 +23237,8 @@ UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value )
         strcpy( buffer, w->autoPrefix );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
+        buffer[strlen(w->autoPrefix)+14] = 'h';
+        buffer[strlen(w->autoPrefix)+17] = 'm';
         strcat( buffer, ").wav" );
         filename = buffer;
     }
@@ -23252,6 +23259,8 @@ UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value )
         strcpy( buffer, w->autoPrefix );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
+        buffer[strlen(w->autoPrefix)+14] = 'h';
+        buffer[strlen(w->autoPrefix)+17] = 'm';
         strcat( buffer, ").raw" );
         filename = buffer;
     }
@@ -23272,6 +23281,8 @@ UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value )
         strcpy( buffer, w->autoPrefix );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
+        buffer[strlen(w->autoPrefix)+14] = 'h';
+        buffer[strlen(w->autoPrefix)+17] = 'm';
         strcat( buffer, ").aiff" );
         filename = buffer;
     }
