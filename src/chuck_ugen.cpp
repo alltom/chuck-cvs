@@ -271,31 +271,28 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
         return m_valid;
 
     m_last = m_current;
-    if( m_op != UGEN_OP_STOP )
+    // inc time
+    m_time = now;
+    m_sum = 0.0f;
+
+    // tick the src list
+    for( t_CKUINT i = 0; i < m_num_src; i++ )
+        if( m_src_list[i]->system_tick( now ) )
+            m_sum += m_src_list[i]->m_current;
+
+    if( m_op > 0 )  // UGEN_OP_TICK
     {
-        // inc time
-        m_time = now;
-        m_sum = 0.0f;
-
-        // tick the src list
-        for( t_CKUINT i = 0; i < m_num_src; i++ )
-            if( m_src_list[i]->system_tick( now ) )
-                m_sum += m_src_list[i]->m_current;
-
-        if( m_op > 0 )  // UGEN_OP_TICK
-        {
-            // tick the ugen
-            if( tick ) m_valid = tick( now, state, m_sum, &m_current );
-            if( !m_valid ) m_current = 0.0f;
-            m_current *= m_gain;
-            return m_valid;
-        }
-        else // UGEN_OP_PASS
-        {
-            // pass through
-            m_current = m_sum * m_gain;
-            return TRUE;
-        }
+        // tick the ugen
+        if( tick ) m_valid = tick( now, state, m_sum, &m_current );
+        if( !m_valid ) m_current = 0.0f;
+        m_current *= m_gain;
+        return m_valid;
+    }
+    else( m_op < 0 ) // UGEN_OP_PASS
+    {
+        // pass through
+        m_current = m_sum * m_gain;
+        return TRUE;
     }
     else // UGEN_OP_STOP
         m_current = 0.0f;
