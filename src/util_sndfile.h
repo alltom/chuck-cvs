@@ -27,7 +27,7 @@
 #define HAVE_ALSA_ASOUNDLIB_H 
 #endif
 
-#if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__)
+#if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
 #define CPU_CLIPS_POSITIVE 0
 #define CPU_IS_BIG_ENDIAN 0
 #define CPU_IS_LITTLE_ENDIAN 1
