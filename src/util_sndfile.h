@@ -1,15 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// XXX philipd this might break things?
 
+// these defines were placed after the machine-dependent 
 
-//XXX this might break things?
-
-
-
-//these defines were placed after the machine-dependent 
-
-//checks below...i'm not sure why
+// checks below...i'm not sure why
 
 #define COMPILER_IS_GCC 1
 
@@ -194,17 +190,13 @@
 #ifdef __PLATFORM_WIN32__
 
 #define C_INLINE __inline 
-
 #define SF_COUNT_MAX 0x7FFFFFFFFFFFFFFF
 
 #else
 
 #define C_INLINE inline
-
 #define SF_COUNT_MAX 0x7FFFFFFFFFFFFFFFLL
-
 #define HAVE_UNISTD_H 1
-
 #define HAVE_SSIZE_T 1
 
 #endif
@@ -252,247 +244,109 @@ enum
 	SF_FORMAT_SVX			= 0x060000,		/* Amiga IFF / SVX8 / SV16 format. */
 	SF_FORMAT_NIST			= 0x070000,		/* Sphere NIST format. */
 	SF_FORMAT_VOC			= 0x080000,		/* VOC files. */
-
 	SF_FORMAT_IRCAM			= 0x0A0000,		/* Berkeley/IRCAM/CARL */
-
 	SF_FORMAT_W64			= 0x0B0000,		/* Sonic Foundry's 64 bit RIFF/WAV */
-
 	SF_FORMAT_MAT4			= 0x0C0000,		/* Matlab (tm) V4.2 / GNU Octave 2.0 */
-
 	SF_FORMAT_MAT5			= 0x0D0000,		/* Matlab (tm) V5.0 / GNU Octave 2.1 */
-
 	SF_FORMAT_PVF			= 0x0E0000,		/* Portable Voice Format */
-
 	SF_FORMAT_XI			= 0x0F0000,		/* Fasttracker 2 Extended Instrument */
-
 	SF_FORMAT_HTK			= 0x100000,		/* HMM Tool Kit format */
-
 	SF_FORMAT_SDS			= 0x110000,		/* Midi Sample Dump Standard */
-
 	SF_FORMAT_AVR			= 0x120000,		/* Audio Visual Research */
-
 	SF_FORMAT_WAVEX			= 0x130000,		/* MS WAVE with WAVEFORMATEX */
-
-
 
 	/* Subtypes from here on. */
 
-
-
 	SF_FORMAT_PCM_S8		= 0x0001,		/* Signed 8 bit data */
-
 	SF_FORMAT_PCM_16		= 0x0002,		/* Signed 16 bit data */
-
 	SF_FORMAT_PCM_24		= 0x0003,		/* Signed 24 bit data */
-
 	SF_FORMAT_PCM_32		= 0x0004,		/* Signed 32 bit data */
-
-
-
 	SF_FORMAT_PCM_U8		= 0x0005,		/* Unsigned 8 bit data (WAV and RAW only) */
-
-
-
 	SF_FORMAT_FLOAT			= 0x0006,		/* 32 bit float data */
-
 	SF_FORMAT_DOUBLE		= 0x0007,		/* 64 bit float data */
-
-
-
 	SF_FORMAT_ULAW			= 0x0010,		/* U-Law encoded. */
-
 	SF_FORMAT_ALAW			= 0x0011,		/* A-Law encoded. */
-
 	SF_FORMAT_IMA_ADPCM		= 0x0012,		/* IMA ADPCM. */
-
 	SF_FORMAT_MS_ADPCM		= 0x0013,		/* Microsoft ADPCM. */
-
-
-
 	SF_FORMAT_GSM610		= 0x0020,		/* GSM 6.10 encoding. */
-
 	SF_FORMAT_VOX_ADPCM		= 0x0021,		/* OKI / Dialogix ADPCM */
-
-
-
 	SF_FORMAT_G721_32		= 0x0030,		/* 32kbs G721 ADPCM encoding. */
-
 	SF_FORMAT_G723_24		= 0x0031,		/* 24kbs G723 ADPCM encoding. */
-
 	SF_FORMAT_G723_40		= 0x0032,		/* 40kbs G723 ADPCM encoding. */
-
-
-
 	SF_FORMAT_DWVW_12		= 0x0040, 		/* 12 bit Delta Width Variable Word encoding. */
-
 	SF_FORMAT_DWVW_16		= 0x0041, 		/* 16 bit Delta Width Variable Word encoding. */
-
 	SF_FORMAT_DWVW_24		= 0x0042, 		/* 24 bit Delta Width Variable Word encoding. */
-
 	SF_FORMAT_DWVW_N		= 0x0043, 		/* N bit Delta Width Variable Word encoding. */
-
-
-
 	SF_FORMAT_DPCM_8		= 0x0050,		/* 8 bit differential PCM (XI only) */
-
 	SF_FORMAT_DPCM_16		= 0x0051,		/* 16 bit differential PCM (XI only) */
-
-
-
-
 
 	/* Endian-ness options. */
 
-
-
 	SF_ENDIAN_FILE			= 0x00000000,	/* Default file endian-ness. */
-
 	SF_ENDIAN_LITTLE		= 0x10000000,	/* Force little endian-ness. */
-
 	SF_ENDIAN_BIG			= 0x20000000,	/* Force big endian-ness. */
-
 	SF_ENDIAN_CPU			= 0x30000000,	/* Force CPU endian-ness. */
 
-
-
 	SF_FORMAT_SUBMASK		= 0x0000FFFF,
-
 	SF_FORMAT_TYPEMASK		= 0x0FFF0000,
-
 	SF_FORMAT_ENDMASK		= 0x30000000
-
 } ;
 
 
 
 /*
-
 ** The following are the valid command numbers for the sf_command()
-
 ** interface.  The use of these commands is documented in the file
-
 ** command.html in the doc directory of the source code distribution.
-
 */
 
 
 
 enum
-
 {	SFC_GET_LIB_VERSION				= 0x1000,
-
 	SFC_GET_LOG_INFO				= 0x1001,
-
-
-
 	SFC_GET_NORM_DOUBLE				= 0x1010,
-
 	SFC_GET_NORM_FLOAT				= 0x1011,
-
 	SFC_SET_NORM_DOUBLE				= 0x1012,
-
 	SFC_SET_NORM_FLOAT				= 0x1013,
-
-
-
 	SFC_GET_SIMPLE_FORMAT_COUNT		= 0x1020,
-
 	SFC_GET_SIMPLE_FORMAT			= 0x1021,
-
-
-
 	SFC_GET_FORMAT_INFO				= 0x1028,
-
-
-
 	SFC_GET_FORMAT_MAJOR_COUNT		= 0x1030,
-
 	SFC_GET_FORMAT_MAJOR			= 0x1031,
-
 	SFC_GET_FORMAT_SUBTYPE_COUNT	= 0x1032,
-
 	SFC_GET_FORMAT_SUBTYPE			= 0x1033,
-
-
-
 	SFC_CALC_SIGNAL_MAX				= 0x1040,
-
 	SFC_CALC_NORM_SIGNAL_MAX		= 0x1041,
-
 	SFC_CALC_MAX_ALL_CHANNELS		= 0x1042,
-
 	SFC_CALC_NORM_MAX_ALL_CHANNELS	= 0x1043,
-
-
-
 	SFC_SET_ADD_PEAK_CHUNK			= 0x1050,
-
-
-
 	SFC_UPDATE_HEADER_NOW			= 0x1060,
-
 	SFC_SET_UPDATE_HEADER_AUTO		= 0x1061,
-
-
-
 	SFC_FILE_TRUNCATE				= 0x1080,
-
-
-
 	SFC_SET_RAW_START_OFFSET		= 0x1090,
-
-
-
 	SFC_SET_DITHER_ON_WRITE			= 0x10A0,
-
 	SFC_SET_DITHER_ON_READ			= 0x10A1,
-
-
-
 	SFC_GET_DITHER_INFO_COUNT		= 0x10A2,
-
 	SFC_GET_DITHER_INFO				= 0x10A3,
-
-
-
 	SFC_GET_EMBED_FILE_INFO			= 0x10B0,
-
-
-
 	SFC_SET_CLIPPING				= 0x10C0,
-
 	SFC_GET_CLIPPING				= 0x10C1,
-
-
-
 	SFC_GET_INSTRUMENT				= 0x10D0,
-
 	SFC_SET_INSTRUMENT				= 0x10D1,
 
-
-
 	/* Following commands for testing only. */
-
 	SFC_TEST_IEEE_FLOAT_REPLACE		= 0x6001,
 
-
-
 	/*
-
 	** SFC_SET_ADD_* values are deprecated and will disappear at some
-
 	** time in the future. They are guaranteed to be here up to and
-
 	** including version 1.0.8 to avoid breakage of existng software.
-
 	** They currently do nothing and will continue to do nothing.
-
 	*/
 
 	SFC_SET_ADD_DITHER_ON_WRITE		= 0x1070,
-
 	SFC_SET_ADD_DITHER_ON_READ		= 0x1071
-
 } ;
 
 
@@ -500,101 +354,63 @@ enum
 
 
 /*
-
 ** String types that can be set and read from files. Not all file types
-
 ** support this and even the file types which support one, may not support
-
 ** all string types.
-
 */
 
 
-
 enum
-
 {	SF_STR_TITLE					= 0x01,
-
 	SF_STR_COPYRIGHT				= 0x02,
-
 	SF_STR_SOFTWARE					= 0x03,
-
 	SF_STR_ARTIST					= 0x04,
-
 	SF_STR_COMMENT					= 0x05,
-
-	SF_STR_DATE						= 0x06
-
+	SF_STR_DATE					= 0x06
 } ;
 
 
 
 enum
-
 {	/* True and false */
-
 	SF_FALSE	= 0,
-
 	SF_TRUE		= 1,
 
-
-
 	/* Modes for opening files. */
-
 	SFM_READ	= 0x10,
-
 	SFM_WRITE	= 0x20,
-
 	SFM_RDWR	= 0x30
-
 } ;
 
 
 
 /* Pubic error values. These are guaranteed to remain unchanged for the duration
-
 ** of the library major version number.
-
 ** There are also a large number of private error numbers which are internal to
-
 ** the library which can change at any time.
-
 */
 
 
 
 enum
-
 {	SF_ERR_NO_ERROR				= 0,
-
 	SF_ERR_UNRECOGNISED_FORMAT	= 1,
-
 	SF_ERR_SYSTEM				= 2
-
 } ;
 
 
 
 /* A SNDFILE* pointer can be passed around much like stdio.h's FILE* pointer. */
 
-
-
 typedef	struct SNDFILE_tag	SNDFILE ;
 
 
-
 /* The following typedef is system specific and is defined when libsndfile is.
-
 ** compiled. sf_count_t can be one of loff_t (Linux), off_t (*BSD), 
-
 ** off64_t (Solaris), __int64_t (Win32) etc.
-
 */
 
-
-
 typedef TYPEOF_SF_COUNT_T sf_count_t ;
-
 
 //#define SF_COUNT_MAX		0x7FFFFFFFFFFFFFFFLL
 
