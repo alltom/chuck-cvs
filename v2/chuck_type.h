@@ -274,6 +274,8 @@ struct Chuck_Type : public Chuck_VM_Object
     union { Chuck_Type * array_type; Chuck_Type * actual_type; };
     // array size (equals 0 means not array, else dimension of array)
     t_CKUINT array_depth;
+    // object size (size in memory)
+    t_CKUINT obj_size;
     // self size (size in memory)
     t_CKUINT self_size;
     // type info
@@ -290,15 +292,18 @@ public:
     Chuck_Type( te_Type _id = te_null, const string & _n = "", 
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
-      array_type = NULL; array_depth = 0; self_size = 0; info = NULL;
-      func = NULL; def = NULL; is_copy = FALSE; }
+      array_type = NULL; array_depth = 0; obj_size = 0; self_size = 0;
+      info = NULL; func = NULL; def = NULL; is_copy = FALSE; }
     // destructor
     ~Chuck_Type() { reset(); }
+    
     // reset
     void reset()
-    { id = te_void; parent = NULL; size = array_depth = self_size = 0;
+    { id = te_void; parent = NULL; 
+      size = array_depth = obj_size = self_size = 0;
       array_type = NULL; if( info ) info->release(); 
       owner = info = NULL; func = NULL; is_copy = FALSE; }
+    
     // assignment - this does not touch the Chuck_VM_Object
     const Chuck_Type & operator =( const Chuck_Type & rhs )
     {
@@ -311,6 +316,7 @@ public:
       this->name = rhs.name;
       this->owner = rhs.owner;
       this->parent = rhs.parent;
+      this->obj_size = rhs.obj_size;
       this->self_size = rhs.self_size;
       this->size = rhs.size;
       this->def = rhs.def;
@@ -423,6 +429,7 @@ t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs );
 t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs );
 t_CKBOOL isprim( Chuck_Type * type );
+t_CKBOOL isobj( Chuck_Type * type );
 
 // helpers
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );

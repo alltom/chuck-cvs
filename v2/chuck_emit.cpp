@@ -2043,6 +2043,85 @@ t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
 {
+    a_Var_Decl_List list = decl->var_decl_list;
+    a_Var_Decl var_decl = NULL;
+    Chuck_Value * value = NULL;
+    Chuck_Type * type = NULL;
+    Chuck_Local * local = NULL;
+    t_CKUINT size = 0;
+    t_CKBOOL is_ref = FALSE;
+    t_CKBOOL do_alloc = FALSE;
+
+    // loop through vars
+    while( list )
+    {
+        // the var
+        var_decl = list->var_decl;
+        // get the value determined in type checker
+        value = var_decl->value;
+        // get the type of the value
+        type = value->type;
+        // is the variable a reference
+        is_ref = isobj( type );
+        // do alloc or not
+        do_alloc = !decl->type->ref;
+
+        // see if it's an array
+        if( type->array_depth )
+        {
+            EM_error2( decl->linepos,
+                "(emit): internal error: array not impl" );
+            return FALSE;
+        }
+        else
+        {
+            // allocate a place on the local stack
+            local = emit->alloc_local( type->size, value->name, is_ref );
+            if( !local )
+            {
+                EM_error2( decl->linepos,
+                    "(emit): internal error: cannot allocate local '%s'...",
+                    value->name.c_str() );
+                return FALSE;
+            }
+
+            // zero out location in memory, and leave offset on operand stack
+            if( type->size == 4 )
+                emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
+            else if( type->size == 8 )
+                emit->append( new Chuck_Instr_Alloc_DWord( local->offset ) );
+            else
+            {
+                EM_error2( decl->linepos,
+                    "(emit): unhandle decl size of '%i'...",
+                    type->size );
+                return FALSE;
+            }
+
+            // if this is an object
+            if( is_ref )
+            {
+                // if ugen
+                if( isa( type, &t_ugen ) )
+                {
+                    Chuck_UGen_Info * info = lookup_ugen( emit->nspc, exp->type );
+                    if( !info )
+                    {
+                        EM_error2( exp->linepos,
+                            "(emit): internal error: undefined ugen type '%s'",
+                            value->name.c_str() );
+                        return FALSE;
+                    }
+                    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
+                    emit->append( new Chuck_Instr_UGen_Alloc() );
+                    emit->append( new Chuck_Instr_Chuck_Assign_Object );
+                }
+            }
+        }
+        
+        list = list->next;
+    }
+
     return TRUE;
 }
 

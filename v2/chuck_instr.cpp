@@ -47,7 +47,7 @@ using namespace std;
 
 // define SP offset
 #define push_( sp, val )         *(sp) = (val); (sp)++
-#define push_uint( sp, val )     *((uint*&)sp) = val; ((uint*&)sp)++
+#define push_uint( sp, val )     *((t_CKUINT*&)sp) = val; ((t_CKUINT*&)sp)++
 #define pop_( sp, n )            sp -= (n)
 #define val_( sp )               *(sp)
 
@@ -86,7 +86,7 @@ void Chuck_Instr_Add_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     sint *& reg_sp = (sint *&)shred->reg->sp;
 
     // pop word from reg stack
@@ -107,7 +107,7 @@ void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Dec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     sint *& reg_sp = (sint *&)shred->reg->sp;
 
     // pop word from reg stack
@@ -267,7 +267,7 @@ void Chuck_Instr_Mod_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Imm::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // push val into reg stack
     push_( reg_sp, m_val );
@@ -345,8 +345,8 @@ void Chuck_Instr_Reg_Push_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 {
     if( m_size == 4 )
     {
-        uint *& reg_sp = (uint *&)shred->reg->sp;
-        push_( reg_sp, *((uint *)m_val) );
+        t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+        push_( reg_sp, *((t_CKUINT *)m_val) );
     }
     else
     {
@@ -364,11 +364,11 @@ void Chuck_Instr_Reg_Push_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // push mem stack content into reg stack
-    push_( reg_sp, *((uint *)(mem_sp + m_val)) );
+    push_( reg_sp, *((t_CKUINT *)(mem_sp + m_val)) );
 }
 
 
@@ -380,7 +380,7 @@ void Chuck_Instr_Reg_Push_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Mem2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     double *& reg_sp = (double *&)shred->reg->sp;
 
     // push mem stack content into reg stack
@@ -396,13 +396,13 @@ void Chuck_Instr_Reg_Push_Mem2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Pop_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // copy popped value into mem stack
-    *((uint *)(mem_sp + *(reg_sp+1) )) = *reg_sp;
+    *((t_CKUINT *)(mem_sp + *(reg_sp+1) )) = *reg_sp;
 }
 
 
@@ -414,7 +414,7 @@ void Chuck_Instr_Reg_Pop_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Pop_Word::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack 
     pop_( reg_sp, 1 );
@@ -444,7 +444,7 @@ void Chuck_Instr_Reg_Pop_Word2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Mem_Push_Imm::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& mem_sp = (uint *&)shred->mem->sp;
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
     
     // pop word from reg stack 
     push_( mem_sp, m_val );
@@ -474,7 +474,7 @@ void Chuck_Instr_Mem_Push_Imm2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Mem_Pop_Word::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& mem_sp = (uint *&)shred->mem->sp;
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
     
     // pop word from reg stack 
     pop_( mem_sp, 1 );
@@ -723,7 +723,7 @@ void Chuck_Instr_Branch_Neq_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shr
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Binary_And::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) & val_(sp+1) );
 }
@@ -737,7 +737,7 @@ void Chuck_Instr_Binary_And::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Binary_Or::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) | val_(sp+1) );
 }
@@ -751,7 +751,7 @@ void Chuck_Instr_Binary_Or::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Binary_Xor::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) ^ val_(sp+1) );
 }
@@ -765,7 +765,7 @@ void Chuck_Instr_Binary_Xor::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Binary_Shift_Right::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) >> val_(sp+1) );
 }
@@ -779,7 +779,7 @@ void Chuck_Instr_Binary_Shift_Right::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Binary_Shift_Left::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) << val_(sp+1) );
 }
@@ -960,7 +960,7 @@ void Chuck_Instr_Neq_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_And::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) && val_(sp+1) );
 }
@@ -974,7 +974,7 @@ void Chuck_Instr_And::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Or::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) || val_(sp+1) );
 }
@@ -1022,17 +1022,53 @@ void Chuck_Instr_EOC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
+// desc: alloc local
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Alloc_Word::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // zero out the memory stack
+    *( (t_CKUINT *)(mem_sp + m_val) ) = 0;
+    // push offset onto operand stack
+    push_( reg_sp, m_val );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: alloc local
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Alloc_DWord::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // zero out the memory stack
+    *( (t_CKFLOAT *)(mem_sp + m_val) ) = 0.0;
+    // push offset onto operand stack
+    push_( reg_sp, m_val );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
 // desc: assign primitive (word)
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Primitive::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // copy popped value into mem stack
-    *( (uint *)(mem_sp + *(reg_sp+1)) ) = *reg_sp;
+    *( (t_CKUINT *)(mem_sp + *(reg_sp+1)) ) = *reg_sp;
 
     push_( reg_sp, *reg_sp );
 }
@@ -1046,8 +1082,8 @@ void Chuck_Instr_Assign_Primitive::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Primitive2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 3 );
@@ -1067,12 +1103,12 @@ void Chuck_Instr_Assign_Primitive2::execute( Chuck_VM * vm, Chuck_VM_Shred * shr
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Primitive_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // copy popped value into mem stack
-    *( (uint *)(*(reg_sp+1)) ) = *reg_sp;
+    *( (t_CKUINT *)(*(reg_sp+1)) ) = *reg_sp;
 
     push_( reg_sp, *reg_sp );
 }
@@ -1086,7 +1122,7 @@ void Chuck_Instr_Assign_Primitive_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Primitive2_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 3 );
@@ -1106,19 +1142,20 @@ void Chuck_Instr_Assign_Primitive2_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_VM_Object ** obj = NULL;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // the previous reference
-    Chuck_VM_Object ** obj = (Chuck_VM_Object **)(mem_sp + *(reg_sp+1));
+    obj = (Chuck_VM_Object **)(mem_sp + *(reg_sp+1));
     // release any previous reference
     if( *obj ) (*obj)->release();
     // copy popped value into mem stack
     *obj = *(Chuck_VM_Object **)reg_sp;
     // add reference
-    (*(Chuck_VM_Object **)reg_sp)->add_ref();
+    (*obj)->add_ref();
 
     // push the reference value to reg stack
     push_( reg_sp, *reg_sp );
@@ -1133,13 +1170,13 @@ void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Object2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // copy popped value into mem stack
-    *( (uint *)(mem_sp + *reg_sp) ) = *(reg_sp+1);
+    *( (t_CKUINT *)(mem_sp + *reg_sp) ) = *(reg_sp+1);
     // add reference
     ( *((Chuck_VM_Object **)(reg_sp+1)) )->add_ref();
     
@@ -1155,12 +1192,12 @@ void Chuck_Instr_Assign_Object2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Object_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // copy popped value into mem stack
-    *( (uint *)(*(reg_sp+1)) ) = *reg_sp;
+    *( (t_CKUINT *)(*(reg_sp+1)) ) = *reg_sp;
     // add reference
     ( *((Chuck_VM_Object **)reg_sp) )->add_ref();
 
@@ -1176,8 +1213,8 @@ void Chuck_Instr_Assign_Object_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * s
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Chuck_Release_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_VM_Object * obj = NULL;
 
     // pop word from reg stack
@@ -1197,25 +1234,25 @@ void Chuck_Instr_Chuck_Release_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& mem_sp = (uint *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop word
     pop_( reg_sp, 2 );
     Chuck_VM_Code * func = (Chuck_VM_Code *)*reg_sp;
-    uint local_depth = *(reg_sp+1);
+    t_CKUINT local_depth = *(reg_sp+1);
     local_depth = ( local_depth >> 2 ) + ( local_depth & 0x3 ? 1 : 0 );
-    uint stack_depth = ( func->stack_depth >> 2 ) + ( func->stack_depth & 0x3 ? 1 : 0 );
-    uint prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
+    t_CKUINT stack_depth = ( func->stack_depth >> 2 ) + ( func->stack_depth & 0x3 ? 1 : 0 );
+    t_CKUINT prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
 
     // jump the sp
     mem_sp += prev_stack + local_depth;
     // push the prev stack
     push_( mem_sp, prev_stack + local_depth );
     // push the current function
-    push_( mem_sp, (uint)shred->code );
+    push_( mem_sp, (t_CKUINT)shred->code );
     // push the pc
-    push_( mem_sp, (uint)(shred->pc + 1) );
+    push_( mem_sp, (t_CKUINT)(shred->pc + 1) );
     // push the stack depth
     push_( mem_sp, stack_depth );
     // set the pc to 0
@@ -1226,8 +1263,8 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     if( stack_depth )
     {
-        BYTE__ *& mem_sp2 = (BYTE__ *&)mem_sp;
-        BYTE__ *& reg_sp2 = (BYTE__ *&)reg_sp;
+        t_CKBYTE *& mem_sp2 = (t_CKBYTE *&)mem_sp;
+        t_CKBYTE *& reg_sp2 = (t_CKBYTE *&)reg_sp;
 
         // pop the arguments
         pop_( reg_sp2, stack_depth << 2 );
@@ -1245,21 +1282,21 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Func_Call2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& mem_sp = (uint *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_DL_Return retval;
 
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
-    uint stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
-    uint local_depth = *(reg_sp+2) + *(mem_sp-1);
-    uint push = ((local_depth) >> 2) + ( local_depth & 0x3 ? 1 : 0 );
+    t_CKUINT stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
+    t_CKUINT local_depth = *(reg_sp+2) + *(mem_sp-1);
+    t_CKUINT push = ((local_depth) >> 2) + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
-    uint * sp = reg_sp;
-    uint * mem = mem_sp;
+    t_CKUINT * sp = reg_sp;
+    t_CKUINT * mem = mem_sp;
     // copy to args
-    for( uint i = 0; i < stack_size; i++ )
+    for( t_CKUINT i = 0; i < stack_size; i++ )
         *mem++ = *sp++;
     // call the function
     f( mem_sp, &retval );
@@ -1277,21 +1314,21 @@ void Chuck_Instr_Func_Call2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Func_Call3::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& mem_sp = (uint *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_DL_Return retval;
 
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
-    uint stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
-    uint local_depth = *(reg_sp+2) + *(mem_sp-1);
-    uint push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
+    t_CKUINT stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
+    t_CKUINT local_depth = *(reg_sp+2) + *(mem_sp-1);
+    t_CKUINT push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
-    uint * sp = reg_sp;
-    uint * mem = mem_sp;
+    t_CKUINT * sp = reg_sp;
+    t_CKUINT * mem = mem_sp;
     // copy to args
-    for( uint i = 0; i < stack_size; i++ )
+    for( t_CKUINT i = 0; i < stack_size; i++ )
         *mem++ = *sp++;
     // call the function
     f( mem_sp, &retval );
@@ -1310,21 +1347,21 @@ void Chuck_Instr_Func_Call3::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& mem_sp = (uint *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_DL_Return retval;
 
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
-    uint stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
-    uint local_depth = *(reg_sp+2) + *(mem_sp-1);
-    uint push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
+    t_CKUINT stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
+    t_CKUINT local_depth = *(reg_sp+2) + *(mem_sp-1);
+    t_CKUINT push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
-    uint * sp = reg_sp;
-    uint * mem = mem_sp;
+    t_CKUINT * sp = reg_sp;
+    t_CKUINT * mem = mem_sp;
     // copy to args
-    for( uint i = 0; i < stack_size; i++ )
+    for( t_CKUINT i = 0; i < stack_size; i++ )
         *mem++ = *sp++;
     // call the function
     f( mem_sp, &retval );
@@ -1342,8 +1379,8 @@ void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& mem_sp = (uint *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop pc
     pop_( mem_sp, 2 );
@@ -1370,7 +1407,7 @@ void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop the stack
     pop_( reg_sp, 1 );
@@ -1430,8 +1467,8 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_ADC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
-    push_( reg_sp, (uint)vm->m_adc );
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    push_( reg_sp, (t_CKUINT)vm->m_adc );
 }
 
 
@@ -1443,8 +1480,8 @@ void Chuck_Instr_ADC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_DAC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
-    push_( reg_sp, (uint)vm->m_dac );
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    push_( reg_sp, (t_CKUINT)vm->m_dac );
 }
 
 
@@ -1456,8 +1493,8 @@ void Chuck_Instr_DAC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Bunghole::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& reg_sp = (uint *&)shred->reg->sp;
-    push_( reg_sp, (uint)vm->m_bunghole );
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    push_( reg_sp, (t_CKUINT)vm->m_bunghole );
 }
 
 
@@ -1501,7 +1538,7 @@ void Chuck_Instr_UGen_UnLink::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_UGen_Info * info = NULL;
     Chuck_UGen * ugen = NULL;
 
@@ -1520,7 +1557,7 @@ void Chuck_Instr_UGen_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // setup the reference with the shred
     ugen->shred = shred;
     shred->add( ugen );
-    push_( sp, (uint)ugen );
+    push_( sp, (t_CKUINT)ugen );
 }
 
 
@@ -1543,7 +1580,7 @@ void Chuck_Instr_UGen_DeAlloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_Ctrl::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     
     pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
@@ -1565,7 +1602,7 @@ void Chuck_Instr_UGen_Ctrl::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_CGet::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
 
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
@@ -1585,7 +1622,7 @@ void Chuck_Instr_UGen_CGet::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_Ctrl2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     
     pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
@@ -1608,7 +1645,7 @@ void Chuck_Instr_UGen_Ctrl2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_CGet2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
 
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
@@ -1646,7 +1683,7 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_Ctrl_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     
     pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
@@ -1664,7 +1701,7 @@ void Chuck_Instr_UGen_Ctrl_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_CGet_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
 
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
@@ -1681,7 +1718,7 @@ void Chuck_Instr_UGen_CGet_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     
     // HACK: this won't work for 64-bit long
     ((Chuck_UGen *)*(sp-3))->m_gain = (float)*(double *)(sp-5);
@@ -1700,7 +1737,7 @@ void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_CGet_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
 
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
@@ -1718,7 +1755,7 @@ void Chuck_Instr_UGen_CGet_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_CGet_Last::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
 
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
@@ -1736,7 +1773,7 @@ void Chuck_Instr_UGen_CGet_Last::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_DLL_Load::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     sint retval = FALSE;
     Chuck_DLL * dll = NULL;
     pop_( sp, 2 );
@@ -1748,7 +1785,7 @@ void Chuck_Instr_DLL_Load::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
                                             (const char *)(*(sp+1)) );
 
     // push the result
-    push_( sp, (uint)dll );
+    push_( sp, (t_CKUINT)dll );
 }
 
 
@@ -1760,7 +1797,7 @@ void Chuck_Instr_DLL_Load::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_DLL_Unload::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    uint *& sp = (uint *&)shred->reg->sp;
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     sint retval = FALSE;
     Chuck_DLL * dll = NULL;
     pop_( sp, 1 );

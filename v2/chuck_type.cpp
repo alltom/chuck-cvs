@@ -1471,6 +1471,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     a_Var_Decl var_decl = NULL;
     Chuck_Value * value = NULL;
     t_CKBOOL primitive = FALSE;
+    t_CKBOOL do_alloc = TRUE;
 
     // TODO: handle T a, b, c ...
     // look up the type
@@ -1481,6 +1482,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             "undefined type '%s'...", S_name(decl->type->id->id) );
         return NULL;
     }
+
+    // T @ foo?
+    do_alloc = !decl->type->ref;
 
     // primitive
     if( isprim( t ) && decl->type->ref )  // TODO: string
@@ -1574,6 +1578,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         value->owner = env->curr;
         value->owner_class = env->class_def;
         value->is_member = ( env->class_def != NULL );
+
+        // remember the value
+        var_decl->value = value;
 
         // the next var decl
         list = list->next;
@@ -1858,7 +1865,9 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->id = te_user;
     the_class->name = S_name(class_def->name->id);
     the_class->parent = t_parent;
-    the_class->size = 0; // to be filled in
+    the_class->size = sizeof(void *);
+    the_class->obj_size = 0;  // TODO:
+    the_class->self_size = 0;  // TODO:
     the_class->owner = env->curr;
     the_class->array_depth = 0;
     the_class->info = new Chuck_Namespace;
@@ -2374,7 +2383,9 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
     the_class->id = te_user;
     the_class->name = ugen->name;
     the_class->parent = t_parent;
-    the_class->size = 0; // to be filled in
+    the_class->size = sizeof(void *);
+    the_class->obj_size = 0;  // TODO:
+    the_class->self_size = 0;  // TODO:
     the_class->owner = env->curr;
     the_class->array_depth = 0;
     the_class->info = NULL;
@@ -2829,6 +2840,8 @@ t_CKBOOL type_engine_check_primitive( Chuck_Type * type )
 }
 t_CKBOOL isprim( Chuck_Type * type )
 {   return type_engine_check_primitive( type ); }
+t_CKBOOL isobj( Chuck_Type * type )
+{   return !type_engine_check_primitive( type ); }
 
 
 

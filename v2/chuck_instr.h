@@ -1058,6 +1058,38 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Alloc_Word
+// desc: alloc local - leaves offset on operand stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Alloc_Word : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Alloc_Word( t_CKUINT offset  )
+    { this->set( offset ); }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Alloc_DWord
+// desc: alloc local - leaves offset on operand stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Alloc_DWord : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Alloc_DWord( t_CKUINT offset  )
+    { this->set( offset ); }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Assign_Primitive
 // desc: assign primitive (word)
 //-----------------------------------------------------------------------------
