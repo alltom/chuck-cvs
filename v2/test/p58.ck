@@ -16,10 +16,7 @@ class Obj {
 Obj o;
 o.set( 1 , 2 );
 Obj p;
-p.set( 3, 4 );
+p.set( 1, 2 );
 
-if ( o.xval()  != p.xval()  ) { 
-	3::second => now;
-} 
-
+if ( o.xval()  != p.xval()  ) while( true );
 

@@ -16,8 +16,6 @@ Obj o;
 o.set( 1 , 2 );
 o.xval() => int out;
 
-if ( out == 1  ) { 
-	3::second => now;
-} 
+if ( out != 1  ) while( true );
 
 

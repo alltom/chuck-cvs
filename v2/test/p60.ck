@@ -12,7 +12,4 @@ fun int foo() {
 
 bar() => int answer;
 
-if ( answer != 20 ) { 
-	5::second => now;
-}
-
+if ( answer != 20 ) while( true );
