@@ -1349,7 +1349,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 
         // check if locally defined
         // if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
-        if( env->curr->lookup_value( var_decl->id, TRUE ) )
+        if( env->curr->lookup_value( var_decl->id, FALSE ) )
         {
             EM_error2( var_decl->linepos,
                 "'%s' has already been defined in the same scope...",

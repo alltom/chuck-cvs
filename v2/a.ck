@@ -50,6 +50,10 @@ class thing extends ugen
     int a;
 }
 
+{
+int a;
+}
+
 Foo foo;
 Bar bar;
 
