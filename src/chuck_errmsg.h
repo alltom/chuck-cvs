@@ -55,6 +55,7 @@ void EM_impossible( c_str, ... );
 t_CKBOOL EM_reset( c_str filename, FILE * fd );
 const char * EM_lasterror();
 
+const char * mini( const char * str );
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }

@@ -457,8 +457,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         // replace
         if( m_shreduler->replace( out, shred ) )
         {
-            fprintf( stderr, "[chuck](VM): replacing shred %i with %i...\n",
-                     out->id, shred->id );
+            fprintf( stderr, "[chuck](VM): replacing shred %i with %i (%s)...\n",
+                     out->id, shred->id, mini(shred->name.c_str()) );
             delete out;
             SAFE_DELETE(msg);
             return shred->id;
@@ -484,8 +484,9 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             {
                 this->m_num_shreds--;
                 if( !this->m_num_shreds ) this->m_shred_id = 0;
+                fprintf( stderr, "[chuck](VM): removing recent shred: %i (%s)...\n", 
+                    id, mini(shred->name.c_str()) );
                 delete shred;
-                fprintf( stderr, "[chuck](VM): removing recent shred: %i...\n", id );
             }
             else
             {
@@ -512,9 +513,10 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 return 0;
             }
             m_num_shreds--;
-            delete shred;
+            fprintf( stderr, "[chuck](VM): removing shred: %i (%s)...\n", 
+                msg->param, mini(shred->name.c_str()) );
             if( m_num_shreds == 0 ) m_shred_id = 0;
-            fprintf( stderr, "[chuck](VM): removing shred: %i...\n", msg->param );
+            delete shred;
         }
     }
     else if( msg->type == MSG_REMOVEALL )
@@ -539,7 +541,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         if( msg->shred ) id = this->spork( msg->shred )->id;
         else id = this->spork( msg->code )->id;
         
-        fprintf( stderr, "[chuck](VM): sporking incoming shred: %i...\n", id );
+        const char * s = ( msg->shred ? msg->shred->name.c_str() : msg->code->name.c_str() );
+        fprintf( stderr, "[chuck](VM): sporking incoming shred: %i (%s)...\n", id, mini(s) );
         SAFE_DELETE(msg);
         return id;
     }
@@ -1308,7 +1311,8 @@ void Chuck_VM_Shreduler::status( )
         
         fprintf( stdout, 
             "    [shred id]: %i  [source]: %s  [spork time]: %.2fs ago\n",
-            shred->id, ss, (now_system-shred->start)/(float)Digitalio::sampling_rate() );
+            shred->id, mini( shred->name.c_str() ),
+            (now_system-shred->start)/(float)Digitalio::sampling_rate() );
         shred = shred->next;
     }
 }
