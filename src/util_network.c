@@ -259,6 +259,10 @@ ck_socket ck_accept( ck_socket sock )
     if( client->sock <= 0 ) goto error;
     client->prot = SOCK_STREAM;
     setsockopt( client->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
+
+#ifdef __PLATFORM_WIN32__
+    g_init++;
+#endif
     
     return client;
 
