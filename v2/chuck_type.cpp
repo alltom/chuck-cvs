@@ -2168,6 +2168,9 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // add to env
         env->curr->value.add( the_class->name, value );
 
+        // remember
+        class_def->type = the_class;
+
         // TODO: clean up if the context failed
     }
     else

@@ -316,7 +316,7 @@ struct a_Stmt_
 };
 
 struct a_Stmt_List_ { a_Stmt stmt; a_Stmt_List next; int linepos; };
-struct a_Class_Def_ { a_Id_List name; a_Class_Ext ext; a_Class_Body body; int iface; int linepos; };
+struct a_Class_Def_ { a_Id_List name; a_Class_Ext ext; a_Class_Body body; t_CKTYPE type; int iface; int linepos; };
 struct a_Class_Ext_ { S_Symbol extend_id; a_Id_List impl_list; int linepos; };
 struct a_Class_Body_ { a_Section section; a_Class_Body next; int linepos; };
 struct a_Id_List_ { S_Symbol id; a_Id_List next; int linepos; };

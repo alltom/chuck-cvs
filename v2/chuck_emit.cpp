@@ -2569,6 +2569,20 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     Chuck_Type * type = NULL;
     Chuck_Local * local = NULL;
     t_CKBOOL is_ref = FALSE;
+    // if member (non-static) function
+    if( func->is_member )
+    {
+        // get the size
+        emit->code->stack_depth += sizeof(t_CKUINT);
+        // add this
+        if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
+        {
+            EM_error2( a->linepos,
+                "(emit): internal error: cannot allocate local 'this'..." );
+            return FALSE;
+        }
+    }
+    // loop through args
     while( a )
     {
         // get the value
@@ -2610,6 +2624,8 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     
     // unset the func
     emit->env->func = NULL;
+    // delete the code
+    SAFE_DELETE( emit->code );
     // pop the code
     assert( emit->stack.size() );
     emit->code = emit->stack.back();
@@ -2627,6 +2643,76 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def )
 {
+    // get the type
+    Chuck_Type * type = class_def->type;
+    // the return type
+    t_CKBOOL ret = TRUE;
+    // the class body
+    a_Class_Body body = class_def->body;
+    
+    // make sure the code is empty
+    if( type->info->code != NULL )
+    {
+        EM_error2( class_def->linepos,
+            "(emit): class '%s' already emitted...",
+            type->name.c_str() );
+        return FALSE;
+    }
+
+    // make sure we are not in a class already
+    if( emit->env->class_def != NULL )
+    {
+        EM_error2( class_def->linepos,
+            "(emit): internal error: nested class definition..." );
+        return FALSE;
+    }
+
+    // set the class
+    emit->env->class_def = type;
+    // push the current code
+    emit->stack.push_back( emit->code );
+    // make a new one
+    emit->code = new Chuck_Code;
+    // name the code
+    emit->code->name = string("class ") + type->name;
+
+    // emit the body
+    while( body && ret )
+    {
+        // check the section
+        switch( body->section->s_type )
+        {
+        case ae_section_stmt:
+            ret = emit_engine_emit_stmt_list( emit, body->section->stmt_list );
+            break;
+        
+        case ae_section_func:
+            ret = emit_engine_emit_func_def( emit, body->section->func_def );
+            break;
+        
+        case ae_section_class:
+            EM_error2( body->section->class_def->linepos,
+                "nested class definitions are not yet supported..." );
+            ret = FALSE;
+            break;
+        }
+        
+        // move to the next section
+        body = body->next;
+    }
+
+    // vm code
+    type->info->code = emit_to_code( emit->code, NULL, emit->dump );
+
+    // unset the class
+    emit->env->func = NULL;
+    // delete the code
+    SAFE_DELETE( emit->code );
+    // pop the code
+    assert( emit->stack.size() );
+    emit->code = emit->stack.back();
+    emit->stack.pop_back();
+
     return TRUE;
 }
 
