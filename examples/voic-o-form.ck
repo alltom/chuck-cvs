@@ -81,5 +81,4 @@ while( true )
     if( freq == 6 ) 7 => freq;
     if( freq == 8 ) 9 => freq;
     std.mtof( (float)( 57 + std.rand2(0,1) * 12 + freq ) ) => voc.freq;
-
 }
