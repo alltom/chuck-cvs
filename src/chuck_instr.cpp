@@ -2216,7 +2216,7 @@ void Chuck_Instr_UGen_Ctrl2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     ctrl( shred->now, ugen->state, (void *)sp );
     if( cget ) cget( shred->now, ugen->state, (void *)sp );
     // push the new value
-    double *& sp_double = (double *&)sp;
+    double *& sp_double = (double *&)shred->reg->sp;
     push_( sp_double, *sp_double );
 }
 
@@ -2237,7 +2237,8 @@ void Chuck_Instr_UGen_CGet2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // call cget
     cget( shred->now, ugen->state, (void *)sp );
     // push the new value
-    push_( (double *&)sp, (double)*sp );
+    double *& sp_double = (double *&)shred->reg->sp;
+    push_( sp_double, *sp_double );
 }
 
 
@@ -2287,7 +2288,7 @@ void Chuck_Instr_UGen_CGet_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     int *& sp = (int *&)shred->reg->sp;
 
-    pop_( sp, 1 );
+    pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
     // push the new value
     push_( sp, ugen->m_op );
@@ -2309,7 +2310,7 @@ void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
     pop_( sp, 1 );
     ugen->m_gain = *(double *)sp;
     // push the new value
-    double *& sp_double = (double *&)sp;
+    double *& sp_double = (double *&)shred->reg->sp;
     push_( sp_double, *sp_double );
 }
 
@@ -2324,10 +2325,10 @@ void Chuck_Instr_UGen_CGet_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 {
     uint *& sp = (uint *&)shred->reg->sp;
 
-    pop_( sp, 1 );
+    pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
     // push the new value
-    double *& sp_double = (double *&)sp;
+    double *& sp_double = (double *&)shred->reg->sp;
     push_( sp_double, ugen->m_gain );
 }
 
@@ -2514,10 +2515,10 @@ void Chuck_Instr_Print_Console::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             fprintf( stdout, "%u\n", *((uint *)sp) );
             break;
         case cip_float:
-            fprintf( stdout, "%f\n", *((double *)sp) );
+            fprintf( stdout, "%.6f\n", *((double *)sp) );
             break;
         case cip_double:
-            fprintf( stdout, "%f\n", *((double *)sp) );
+            fprintf( stdout, "%.6f\n", *((double *)sp) );
         break;
         case cip_string:
             fprintf( stdout, "%s\n", *((char **)sp) );
@@ -2591,11 +2592,11 @@ void Chuck_Instr_Print_Console2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
         fprintf( stdout, "%u", *((uint *)(sp+1)) );
         break;
     case cip_float:
-        fprintf( stdout, "%f", *((double *)(sp+1)) );
+        fprintf( stdout, "%.6f", *((double *)(sp+1)) );
     break;
 
     case cip_double:
-        fprintf( stdout, "%f", *((double *)(sp+1)) );
+        fprintf( stdout, "%.6f", *((double *)(sp+1)) );
         break;
     case cip_string:
         fprintf( stdout, "%s", *((char **)(sp+1)) );
