@@ -230,7 +230,7 @@ UGEN_TICK sinosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
     if ( d->sync == 1 )  d->t = (double) now;
 
-    *out = (SAMPLE) ( d->sync == 2 )? sin ( TWO_PI * in )
+    *out = (SAMPLE) ( d->sync == 2 ) ? sin ( TWO_PI * in )
         : sin ( TWO_PI * ( d->phase_offset + d->t * d->num ) );
  
     if ( !d->sync ) d->t += 1.0;
