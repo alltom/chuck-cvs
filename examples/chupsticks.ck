@@ -2,10 +2,9 @@
 
 Wurley left=> gain g => dac ;
 Rhodey right=> gain g => dac ;
-220.0 => left.freq;
-0.95 => left.gain;
-220.0 => right.freq;
-0.95 => right.gain;
+
+0.7 => left.gain;
+0.7 => right.gain;
 
 0.3 => g.gain;
 
@@ -54,11 +53,13 @@ while( true )
 	}
 
 	if ( std.rand2(0, 4) > 2 ) { 		
-	        2 * std.rand2( -3, 3 ) => int freq;
-	        if( freq == 6 ) 5 => freq;
-		if( freq  < 0 ) freq + 1 => freq ;
-		(float)freq => transp;
+//	        2 * std.rand2( -3, 3 ) => int freq;
+//	        if( freq == 6 ) 5 => freq;
+//		if( freq  < 0 ) freq + 1 => freq ;
+		12 * std.rand2( -2, 1 ) => int freq;
 		onebeat * 2.0 => now;
+		1::second / (float) std.rand2(2,4)  => onebeat; 
+		(float)freq => transp;
 	}
 	else { 
 		// d,b 
