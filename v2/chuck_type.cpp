@@ -694,7 +694,9 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
         break;
 
         case ae_exp_namespace:
-            curr->type = type_engine_check_exp_namespace( env, &curr->name_space );
+            //curr->type = type_engine_check_exp_namespace( env, &curr->name_space );
+            EM_error2( curr->linepos, "namespace expression not implemented!" );
+            return FALSE;
         break;
     
         /* case ae_exp_new:
@@ -2027,6 +2029,21 @@ t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_
 // desc: lookup type in the env
 //-----------------------------------------------------------------------------
 Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
+{
+    Chuck_Type * t = type.lookup( name );
+    if( climb && !t && parent && parent->info )
+        return parent->info->lookup_type( name, climb );
+    return t;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_type()
+// desc: lookup type in the env
+//-----------------------------------------------------------------------------
+Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_Type * t = type.lookup( name );
     if( climb && !t && parent && parent->info )

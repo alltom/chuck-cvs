@@ -111,6 +111,10 @@ SOURCE=.\chuck_frame.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_oo.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_otf.cpp
 # End Source File
 # Begin Source File
@@ -152,6 +156,10 @@ SOURCE=.\midiio_win32.cpp
 # Begin Source File
 
 SOURCE=.\rtaudio.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\test_main.cpp
 # End Source File
 # Begin Source File
 
@@ -200,6 +208,10 @@ SOURCE=.\util_network.c
 # Begin Source File
 
 SOURCE=.\util_raw.c
+# End Source File
+# Begin Source File
+
+SOURCE=.\util_sndfile.c
 # End Source File
 # Begin Source File
 
