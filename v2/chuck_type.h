@@ -278,7 +278,7 @@ struct Chuck_Type : public Chuck_VM_Object
 	// owner of the type
 	Chuck_Namespace * owner;
     // array type
-    Chuck_Type * array_type;
+    union { Chuck_Type * array_type; Chuck_Type * actual_type; };
     // array size (equals 0 means not array, else dimension of array)
     t_CKUINT array_depth;
     // self size (size in memory)
@@ -289,6 +289,8 @@ struct Chuck_Type : public Chuck_VM_Object
     Chuck_Func * func;
     // def
     a_Class_Def def;
+    // copy
+    t_CKBOOL is_copy;
 
 public:
     // constructor
@@ -296,14 +298,14 @@ public:
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
       array_type = NULL; array_depth = 0; self_size = 0; info = NULL;
-      func = NULL; def = NULL; }
+      func = NULL; def = NULL; is_copy = FALSE; }
     // destructor
     ~Chuck_Type() { reset(); }
     // reset
     void reset()
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
       array_type = NULL; if( info ) info->release(); 
-      owner = info = NULL; func = NULL; }
+      owner = info = NULL; func = NULL; is_copy = FALSE; }
     // assignment - this does not touch the Chuck_VM_Object
     const Chuck_Type & operator =( const Chuck_Type & rhs )
     {
@@ -319,12 +321,13 @@ public:
       this->self_size = rhs.self_size;
       this->size = rhs.size;
       this->def = rhs.def;
+      this->is_copy = TRUE;
 
       // TODO: fix this reference counting mess
       // add references
-      if( array_type ) rhs.array_type->add_ref();
-      if( info ) rhs.info->add_ref();
-      // return
+      // if( array_type ) rhs.array_type->add_ref();
+      // if( info ) rhs.info->add_ref();
+      
       return *this;
     }
     // copy

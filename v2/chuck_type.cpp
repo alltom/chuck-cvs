@@ -100,6 +100,7 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
 t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
 t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
@@ -917,7 +918,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 
     // TODO: implement this
     case ae_op_at_chuck:
-        assert( FALSE );
+        return type_engine_check_op_at_chuck( env, lhs, rhs );
     break;
     }
 
@@ -1000,7 +1001,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 // name: type_engine_check_op_unchuck()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
+t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 {
     t_CKTYPE left = lhs->type, right = rhs->type;
     
@@ -1016,6 +1017,56 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
         "...on types '%s' and '%s'",
         left->c_name(), right->c_name() );
     return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_op_chuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+{
+    t_CKTYPE left = lhs->type, right = rhs->type;
+
+    // static
+    if( isa( left, &t_class ) )
+    {
+        EM_error2( lhs->linepos,
+            "cannot assign '@=>' using static class as left operand..." );
+        return NULL;
+    }
+    else if( isa( right, &t_class ) )
+    {
+        EM_error2( rhs->linepos,
+            "cannot assign '@=>' using static class as right operand..." );
+        return NULL;
+    }
+
+    // make sure mutable
+    if( rhs->s_meta != ae_meta_var )
+    {
+        EM_error2( lhs->linepos,
+            "cannot assign '@=>' on types '%s' @=> '%s'...",
+            left->c_name(), right->c_name() );
+        EM_error2( lhs->linepos,
+            "...(reason: --- right-side operand is not mutable)" );
+        return NULL;
+    }
+
+    // primitive
+    if( !isa( left, right ) )
+    {
+        EM_error2( lhs->linepos,
+            "cannot assign '@=>' on types '%s' @=> '%s'...",
+            left->c_name(), right->c_name() );
+        EM_error2( lhs->linepos,
+            "...(reason: --- incompatible types for assignment)" );
+        return NULL;
+    }
+
+    return right;
 }
 
 
@@ -1187,13 +1238,6 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                                 S_name(exp->var), env->class_def->name.c_str() );
                         }
                     }
-                }
-
-                // see if class
-                if( env->curr->lookup_type( exp->var, TRUE ) )
-                {
-                    // not assignable
-                    exp->self->s_meta = ae_meta_value;
                 }
 
                 // the type
@@ -1627,15 +1671,17 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     if( !member->t_base ) return NULL;
 
     // is the base a class/namespace or a variable
-    base_static = member->base->s_meta == ae_meta_value;
+    base_static = isa( member->t_base, &t_class );
+    // actual type
+    the_base = base_static ? member->t_base->actual_type : member->t_base;
 
     // have members?
-    if( !member->t_base->info )
+    if( !the_base->info )
     {
         // base type does not have members
         EM_error2( member->base->linepos,
             "type '%s' does not have members - invalid use in dot expression",
-            member->t_base->c_name() );
+            the_base->c_name() );
         return NULL;
     }
 
@@ -1662,13 +1708,13 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     }
 
     // find the value
-    value = type_engine_find_value( member->t_base, member->id );
+    value = type_engine_find_value( the_base, member->id );
     if( !value )
     {
         // can't find member
         EM_error2( member->base->linepos,
             "class '%s' has no member '%s'",
-            member->t_base->c_name(), S_name(member->id) );
+            the_base->c_name(), S_name(member->id) );
         return NULL;
     }
     
@@ -1678,7 +1724,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
         // this won't work
         EM_error2( member->linepos,
             "cannot access member '%s.%s' without object instance...",
-            member->t_base->c_name(), S_name(member->id) );
+            the_base->c_name(), S_name(member->id) );
         return NULL;
     }
 
@@ -1853,11 +1899,14 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     if( ret )
     {
         Chuck_Value * value = NULL;
+        Chuck_Type * type = NULL;
 
         // add to env
         env->curr->type.add( the_class->name, the_class );
         // allocate value
-        value = new Chuck_Value( the_class, the_class->name );
+        type = t_class.copy( env );
+        type->actual_type = the_class;
+        value = new Chuck_Value( type, the_class->name );
         value->owner = env->curr;
         value->is_const = TRUE;
         value->is_member = FALSE;
