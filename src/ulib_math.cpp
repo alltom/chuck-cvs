@@ -36,16 +36,16 @@
 
 #if __WINDOWS_DS__
 #include <windows.h>
-int round( double a )
+double round( double a )
 {
-	double off = a - (int)a;
-	if( off > .5 ) return (int)a + 1;
-	return (int)a;
+	double off = a - (long)a;
+	if( off > .5 ) return (double)(long)a + 1.0;
+	return (double)(long)a;
 }
 
-int trunc( double a )
+double trunc( double a )
 {
-	return (int)a;
+	return (double)(long)a;
 }
 
 int remainder( int a, int b )
