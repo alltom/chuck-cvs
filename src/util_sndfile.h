@@ -2409,7 +2409,7 @@ extern word gsm_FAC [8] ;
 	#define	__USE_ISOC99	1
 
 
-#elif (defined (WIN32) || defined (_WIN32))
+#elif ( defined (WIN32) || defined (_WIN32) || defined(__PLATFORM_WIN32__) )
 
 	#undef		HAVE_LRINT_REPLACEMENT
 	#define		HAVE_LRINT_REPLACEMENT	1
