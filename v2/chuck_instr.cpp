@@ -1857,6 +1857,16 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // copy to ref
         ref = (t_CKUINT)arr;
     }
+    else
+    {
+        // we have a problem
+        fprintf( stderr, 
+            "[chuck](VM): Internal ArrayAlloc Exception: size='%d'\n", m_type_ref->size );
+        // do something!
+        shred->is_running = FALSE;
+
+        return;
+    }
 
     // push
     push_( reg_sp, ref );
@@ -1871,7 +1881,75 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    
+    // reg stack pointer
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKINT i = 0;
+    t_CKUINT val = 0;
+    t_CKFLOAT fval = 0;
+
+    // pop
+    pop_( reg_sp, 2 );
+
+    // 4 or 8
+    if( m_size == 4 )
+    {
+        // get array
+        Chuck_Array4 * arr = (Chuck_Array4 *)(*reg_sp);
+        // get index
+        i = (t_CKINT)(*reg_sp+1);
+        // check if writing
+        if( m_is_var )
+        {
+            // get the addr
+            val = arr->addr( i );
+            // exception
+            if( !val ) goto error;
+            // push the addr
+            push_( reg_sp, val );
+        }
+        else
+        {
+            // get the value
+            if( !arr->get( i, &val ) )
+                goto error;
+            // push the value
+            push_( reg_sp, val );
+        }
+    }
+    else if( m_size == 8 )
+    {
+        // get array
+        Chuck_Array8 * arr = (Chuck_Array8 *)(*reg_sp);
+        // get index
+        i = (t_CKINT)(*reg_sp+1);
+        // check if writing
+        if( m_is_var )
+        {
+            // get the addr
+            val = arr->addr( i );
+            // exception
+            if( !val ) goto error;
+            // push the addr
+            push_( reg_sp, val );
+        }
+        else
+        {
+            // get the value
+            if( !arr->get( i, &fval ) )
+                goto error;
+            // push the value
+            push_( ((t_CKFLOAT *&)reg_sp), val );
+        }
+    }
+
+    return;
+
+error:
+    // we have a problem
+    fprintf( stderr, 
+             "[chuck](VM): ArrayOutofBounds Exception: index='%d'\n", i );
+    // do something!
+    shred->is_running = FALSE;
 }
 
 

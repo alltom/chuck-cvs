@@ -149,13 +149,13 @@ public:
     ~Chuck_Array4();
 
 public:
-    inline t_CKUINT addr( t_CKINT i );
-    inline t_CKINT get( t_CKINT i, t_CKUINT * val );
-    inline t_CKINT set( t_CKINT i, t_CKUINT val );
-    inline t_CKINT push_back( t_CKUINT val );
-    inline t_CKINT pop_back( );
-    inline t_CKINT back( t_CKUINT * val ) const;
-    inline t_CKINT size( ) const { return m_size; }
+    t_CKUINT addr( t_CKINT i );
+    t_CKINT get( t_CKINT i, t_CKUINT * val );
+    t_CKINT set( t_CKINT i, t_CKUINT val );
+    t_CKINT push_back( t_CKUINT val );
+    t_CKINT pop_back( );
+    t_CKINT back( t_CKUINT * val ) const;
+    t_CKINT size( ) const { return m_size; }
     void clear( );
 
 public:
@@ -177,13 +177,13 @@ public:
     ~Chuck_Array8();
 
 public:
-    inline t_CKUINT addr( t_CKINT i );
-    inline t_CKINT get( t_CKINT i, t_CKFLOAT * val );
-    inline t_CKINT set( t_CKINT i, t_CKFLOAT val );
-    inline t_CKINT push_back( t_CKFLOAT val );
-    inline t_CKINT pop_back( );
-    inline t_CKINT back( t_CKFLOAT * val ) const;
-    inline t_CKINT size( ) const { return m_size; }
+    t_CKUINT addr( t_CKINT i );
+    t_CKINT get( t_CKINT i, t_CKFLOAT * val );
+    t_CKINT set( t_CKINT i, t_CKFLOAT val );
+    t_CKINT push_back( t_CKFLOAT val );
+    t_CKINT pop_back( );
+    t_CKINT back( t_CKFLOAT * val ) const;
+    t_CKINT size( ) const { return m_size; }
     void clear( );
 
 public:

@@ -1572,7 +1572,7 @@ public:
 class Chuck_Instr_Array_Alloc : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * base_type );
+    Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * the_type );
     virtual ~Chuck_Instr_Array_Alloc();
 
 public:
@@ -1592,14 +1592,22 @@ protected:
 // name: class Chuck_Instr_Array_Access
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Access : public Chuck_Instr_Unary_Op
+class Chuck_Instr_Array_Access : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Array_Access( t_CKUINT size )
-    { this->set( size ); }
+    Chuck_Instr_Array_Access( t_CKUINT size, t_CKUINT is_var )
+    { m_size = size; m_is_var = is_var; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params()
+    { static char buffer[256];
+      sprintf( buffer, "size=%d, is_var=%d", m_size, m_is_var );
+      return buffer; }
+
+protected:
+    t_CKUINT m_size;
+    t_CKUINT m_is_var;
 };
 
 
@@ -1609,21 +1617,23 @@ public:
 // name: class Chuck_Instr_Array_Access_Multi
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Access_Multi : public Chuck_Instr_Unary_Op
+class Chuck_Instr_Array_Access_Multi : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Array_Access_Multi( t_CKUINT depth, t_CKUINT size )
-    { this->set( size ); m_depth = depth; }
+    Chuck_Instr_Array_Access_Multi( t_CKUINT depth, t_CKUINT size, t_CKUINT is_var )
+    { m_size = size; m_depth = depth; m_is_var = is_var; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
     virtual const char * params()
     { static char buffer[256];
-      sprintf( buffer, "depth=%d, size=%d", m_depth, m_val );
+      sprintf( buffer, "depth=%d, size=%d, is_var=%d", m_depth, m_size, m_is_var );
       return buffer; }
 
 protected:
     t_CKUINT m_depth;
+    t_CKUINT m_size;
+    t_CKUINT m_is_var;
 };
 
 
