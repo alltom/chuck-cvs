@@ -80,6 +80,9 @@ p58.ck		emit, correct		test that two instances are distinct ( via function call 
 p59.ck		emit, correct		member set via function, access via function
 p60.ck		declaration must have code  function declaration, later definition
 p61.ck		function name already used  function overloading (not yet!)
+p62.ck		type fail assertion (unary->op = ae_op_new') spork function(void) that waits 10 sec
+p63.ck		"			       spork 10sec function and 5sec function
+p64.ck		"			       spork functions with wait time as argument
 
 --Notes--
 
