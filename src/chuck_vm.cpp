@@ -30,10 +30,6 @@
 //          Perry R. Cook (prc@cs.princeton.edu)
 // date: Autumn 2002
 //-----------------------------------------------------------------------------
-#include <vector>
-#include <pthread.h>
-using namespace std;
-
 #include "chuck_vm.h"
 #include "chuck_instr.h"
 #include "chuck_bbq.h"
@@ -41,6 +37,16 @@ extern "C" {
   #include "chuck_errormsg.h"
 }
 
+#include <vector>
+using namespace std;
+
+#if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
+  #include <windows.h>
+  #define usleep(x) Sleep(x/1000);
+#else
+  #include <unistd.h>
+  #include <pthread.h>
+#endif
 
 
 
