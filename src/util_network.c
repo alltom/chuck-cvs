@@ -48,19 +48,26 @@
 
 
 
+
 //-----------------------------------------------------------------------------
 // name: struct ck_socket_
 // desc: ...
 //-----------------------------------------------------------------------------
 struct ck_socket_
 {
-#ifdef __PLATFORM_WIN32__
-    WSADATA _wsd;
-#endif
     int sock;
     struct sockaddr_in sock_in;
+
+#ifndef __PLATFORM_WIN32__
+};
+#else
+    static WSADATA wsd;
+    static int init;
 };
 
+WSADATA ck_socket_::wsd;
+int ck_socket_::init = 0;
+#endif
 
 
 
@@ -72,8 +79,13 @@ ck_socket ck_udp_create( )
 {
     ck_socket sock = (ck_socket)calloc( 1, sizeof( struct ck_socket_ ) );
 
-#ifdef __PLATFORM_WIN32__  //winsock init
-    WSAStartup(MAKEWORD(1,1), &(sock->_wsd));
+#ifdef __PLATFORM_WIN32__
+    // winsock init
+    if( ck_socket_::init == 0 )
+        WSAStartup( MAKEWORD(1,1), &(ck_socket_::wsd) );
+
+    // count
+    ck_socket_::init++;
 #endif
 
     sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -228,7 +240,10 @@ void ck_close( ck_socket sock )
     free( sock );
 
 #ifdef __PLATFORM_WIN32__
-    WSACleanup();
-#endif
+    // uncount
+    ck_socket_::init--;
 
+    // close
+    if( ck_socket_::init == 0 ) WSACleanup();
+#endif
 }
