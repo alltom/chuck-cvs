@@ -61,8 +61,12 @@ boardw - padspace => float pad2x;
 0 => int out1;
 0 => int out2;
 
+0 => time lasttime;
 0 => int lastx;
 0 => int lasty;
+
+0.0 => float lastdx;
+0.0 => float lastdy;
 
 0 => int p1score;
 0 => int p2score;
