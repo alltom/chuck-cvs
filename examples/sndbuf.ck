@@ -1,5 +1,5 @@
 sndbuf buf => dac;
-"snare.raw" => buf.read;
+"snare.wav" => buf.read;
 
 while( true )
 {

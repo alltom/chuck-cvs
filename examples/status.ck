@@ -1,3 +1,4 @@
+// useful little shred for on-the-fly programming...
 
 while( true )
 {

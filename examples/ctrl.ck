@@ -1,3 +1,4 @@
+// loops are useful
 
 "" => stdout;
 "while 1" => stdout;

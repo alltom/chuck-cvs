@@ -1,4 +1,4 @@
-// music for replicants
+// more music for replicants
 
 Rhodey voc=> JCRev r => Echo a => Echo b => Echo c => dac;
 
@@ -42,14 +42,14 @@ fun void vecho_shred( )
     }
 }
 
+
 // let echo shred go
 spork ~ vecho_shred();
 
 
 // our main loop
 while( true )
-{
- 
+{ 
     // pentatonic
     2 * std.rand2( 0, 4 ) => int freq;
     if( freq == 6 ) 7 => freq;
@@ -79,6 +79,4 @@ while( true )
             250::ms => now;
         }
     }
-
-
 }

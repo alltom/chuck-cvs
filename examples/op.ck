@@ -1,3 +1,5 @@
+// doesn't get much more pointless than this
+
 "" => stdout;
 "arithmetic" => stdout;
 1 + 2 => stdout;
