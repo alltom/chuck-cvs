@@ -229,7 +229,7 @@ type_decl2
         ;
 
 arg_list
-        : type_decl ID                      { $$ = new_arg_list( $1, $2, EM_lineNum ); }
+        : type_decl2 ID                      { $$ = new_arg_list( $1, $2, EM_lineNum ); }
         // | type_decl ID COMMA arg_list       { $$ = prepend_arg_list( $1, $2, $4, EM_lineNum ); }
         ;
 
