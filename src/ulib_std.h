@@ -52,5 +52,12 @@ CK_DLL_FUNC( atof_impl );
 CK_DLL_FUNC( getenv_impl );
 CK_DLL_FUNC( setenv_impl );
 
+CK_DLL_FUNC( mtof_impl );
+CK_DLL_FUNC( ftom_impl );
+CK_DLL_FUNC( powtodb_impl );
+CK_DLL_FUNC( rmstodb_impl );
+CK_DLL_FUNC( dbtopow_impl );
+CK_DLL_FUNC( dbtorms_impl );
+
 
 #endif
