@@ -946,12 +946,12 @@ t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt )
         return FALSE;
 
     // emit return
-    emit->append( new Chuck_Instr_Func_Return );
+    // emit->append( new Chuck_Instr_Func_Return );
 
     // determine where later
-    // Chuck_Instr_Goto * instr = new Chuck_Instr_Goto( 0 );
-    // emit->append( instr );
-    // emit->code->return_stack.push_back( instr );
+    Chuck_Instr_Goto * instr = new Chuck_Instr_Goto( 0 );
+    emit->append( instr );
+    emit->code->stack_return.push_back( instr );
 
     return TRUE;
 }
@@ -2540,12 +2540,21 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     emit->code = new Chuck_Code;
     // name the code
     emit->code->name = func->name + "( ... )";
+
     // emit the code
     emit_engine_emit_stmt( emit, func_def->code, FALSE );
+
+    // set the index for next instruction for return statements
+    for( t_CKINT i = 0; i < emit->code->stack_return.size(); i++ )
+        emit->code->stack_return[i]->set( emit->next_index() );
+    // clear the return stack
+    emit->code->stack_return.clear();
     // emit return statement
     emit->append( new Chuck_Instr_Func_Return );
+
     // vm code
     func->code = emit_to_code( emit->code, NULL, emit->dump );
+    
     // unset the func
     emit->env->func = NULL;
     // pop the code

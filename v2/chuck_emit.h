@@ -68,6 +68,8 @@ public:
     vector<Chuck_Instr_Goto *> stack_cont;
     // break stack
     vector<Chuck_Instr_Goto *> stack_break;
+    // return stack
+    vector<Chuck_Instr_Goto *> stack_return;
     
     // constructor
     Chuck_Code( )
