@@ -69,7 +69,7 @@ extern "C" int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.4.8"
+#define CK_VERSION "1.1.4.9"
 
 
 #ifdef __PLATFORM_WIN32__
@@ -418,17 +418,22 @@ int send_cmd( int argc, char ** argv, int  & i )
         }
 
         do {
+            if( argv[i][0] != '/' )
+            { 
+                strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
+                strcat( msg.buffer, getenv("PWD") ? "/" : "" );
+            }
+            strcat( msg.buffer, argv[i] );
+
             ifstream fin;
-            fin.open( argv[i] );
+            fin.open( (char *)msg.buffer );
             if( !fin.good() )
             {
-                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]\n", argv[i] );
+                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]\n", msg.buffer );
                 return 1;
             }
+
             msg.type = MSG_ADD;
-            strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
-            strcat( msg.buffer, getenv("PWD") ? "/" : "" );
-            strcat( msg.buffer, argv[i] );
             ck_send( g_sock, (char *)&msg, sizeof(msg) );
         } while( ++i < argc );
     }

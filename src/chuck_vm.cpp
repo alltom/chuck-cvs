@@ -1265,11 +1265,16 @@ void Chuck_VM_Shreduler::status( )
     fprintf( stdout, "[chuck](VM): status (now == %ih%im%is, %.1f samps) ...\n",
              h, m, sec, now_system );
     
+    char buffer[1024];
     while( shred )
     {
+        char * s = buffer, * ss = buffer;
+        strcpy( buffer, shred->name.c_str() );
+        while( *s++ ) if( *s == '/' ) { ss = s+1; }
+        
         fprintf( stdout, 
             "    [shred id]: %i  [source]: %s  [spork time]: %.2fs ago\n",
-            shred->id, shred->name.c_str(), (now_system-shred->start)/(float)Digitalio::sampling_rate() );
+            shred->id, ss, (now_system-shred->start)/(float)Digitalio::sampling_rate() );
         shred = shred->next;
     }
 }
