@@ -34,6 +34,8 @@
 #ifndef __CHUCK_TYPE_H__
 #define __CHUCK_TYPE_H__
 
+#include <stdlib.h>
+#include <memory.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -72,41 +74,48 @@ typedef enum {
 template<class T>
 struct Chuck_Scope
 {
-    vector<map<S_Symbol, t_CKUINT> *> scope;
-    
+public:
     // constructor
     Chuck_Scope() { this->push(); }
     // desctructor
     ~Chuck_Scope() { this->pop(); }
+
     // push scope
     void push() { scope.push_back( new map<S_Symbol, T> ); }
     // pop scope
     void pop()
     { assert( scope.size() != 0 ); delete scope.back(); scope.pop_back(); }
-    // add id
-    void add( c_str id, T value = TRUE )
-    { this->add( insert_symbo(id), value ); }
-    void add( S_Symbol id, T value = TRUE )
+
+    // add
+    void add( const string & id, const T & value )
+    { this->add( insert_symbo(id.c_str()), value ); }
+    void add( S_Symbol id, const T & value )
     { assert( scope.size() != 0 ); (*scope.back())[id] = value; }
+
     // lookup id
-    T lookup( c_str id, t_CKBOOL local = FALSE )
-    { return this->lookup( insert_symbol(id), local ); }
+    T lookup( const string & id, t_CKBOOL local = FALSE )
+    { return this->lookup( insert_symbol(id.c_str()), local ); }
     T lookup( S_Symbol id, t_CKBOOL local = FALSE )
     {
         T val; assert( scope.size() != 0 );
-        if( local ) { return (*scope.back())[id]; }
-        else {
+
+        if( local )
+            return (*scope.back())[id];
+        else
             for( int i = 0; i < scope.size(); i++ )
                 if( val = (*scope.back())[id] ) return val;
-        }
+
         return 0;
     }
+
+protected:
+    vector<map<S_Symbol, T> *> scope;
 };
 
 
 // forward reference
-struct Chuck_Value;
 struct Chuck_Type;
+struct Chuck_Value;
 struct Chuck_Func;
 
 
@@ -116,22 +125,39 @@ struct Chuck_Func;
 //-----------------------------------------------------------------------------
 struct Chuck_Env
 {
-    Chuck_Scope<Chuck_Value *> * value;
+    // maps
     Chuck_Scope<Chuck_Type *> * type;
+    Chuck_Scope<Chuck_Value *> * value;
     Chuck_Scope<Chuck_Func *> * func;
-    Chuck_Scope<Chuck_Env *> * nspc_defs;
     Chuck_Scope<Chuck_Env *> * class_defs;
+    Chuck_Scope<Chuck_Env *> * nspc_defs;
     Chuck_Scope<void *> * addr;
-    
-    S_Symbol name;
+
+    // name
+    string name;
+    // parent env
     Chuck_Env * parent;
-    
-    static Chuck_Scope<t_CKUINT> * scope;
+
+    // static scope table    
+    static Chuck_Scope<t_CKUINT> scope;
     
     // constructor
     Chuck_Env();
     // destructor
     ~Chuck_Env();
+    
+    // look up type
+    Chuck_Type * lookup_type( const string & name, t_CKBOOL climb = TRUE );
+    // look up value
+    Chuck_Value * lookup_value( const string & name, t_CKBOOL climb = TRUE );
+    // look up func
+    Chuck_Func * lookup_func( const string & name, t_CKBOOL climb = TRUE );
+    // look up class
+    Chuck_Env * lookup_class( const string & name, t_CKBOOL climb = TRUE );
+    // look up namespace
+    Chuck_Env * lookup_nspc( const string & name, t_CKBOOL climb = TRUE );
+    // look up addr
+    void * lookup_addr( const string & name, t_CKBOOL climb = TRUE );
 };
 
 
@@ -143,7 +169,6 @@ struct Chuck_Env
 //-----------------------------------------------------------------------------
 struct Chuck_Type
 {
-public:
     // type id
     te_Type id;
     // type name
@@ -157,7 +182,42 @@ public:
     // array size (equals 0 means not array, else dimension of array)
     t_CKUINT array_depth;
     // type environment
-    Chuck_Env env;
+    Chuck_Env * env;
+    
+public:
+    // copy
+    Chuck_Type * copy()
+    { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) ); }
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Value
+// desc: a variable in scope
+//-----------------------------------------------------------------------------
+struct Chuck_Value
+{
+    // type
+    Chuck_Type * type;
+    // name
+    string name;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Func
+// desc: function definition
+//-----------------------------------------------------------------------------
+struct Chuck_Func
+{
+    // func def from parser
+    a_Func_Def def;
+    // name
+    string name;
 };
 
 
