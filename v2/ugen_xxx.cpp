@@ -213,10 +213,9 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_channel, sndbuf_cget_channel, "int", "channel" ); //! select channel ( 0 < p < .channels )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, sndbuf_cget_phase, "float", "phase_offset" ); //! set a phase offset
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_samples, "int", "samples" ); //! fetch number of samples
-    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" ); //! fetch length in seconds
+    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "dur", "length" ); //! fetch length
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_channels, "int", "channels" ); //! fetch number of channels
-    
-    
+
     return TRUE;
 }
 
@@ -1030,7 +1029,7 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos)
     else
     {
         if( d->curf < 0 ) d->curf = 0;
-        else if( d->curf >= d->num_frames ) d->curf = d->num_frames-1;
+        else if( d->curf >= d->num_frames ) d->curf = d->num_frames;
     }
     //sets curr to correct position ( account for channels ) 
     d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
@@ -1431,7 +1430,6 @@ UGEN_CGET sndbuf_cget_freq( t_CKTIME now, void * data, void * out )
     SET_NEXT_FLOAT( out, d->rate * (t_CKFLOAT) g_srate / ( (t_CKFLOAT) d->num_frames ) );
 }
 
-
 UGEN_CTRL sndbuf_ctrl_phase( t_CKTIME now, void * data, void * value ) { 
     sndbuf_data * d = ( sndbuf_data * ) data;
     t_CKFLOAT phase = * (t_CKFLOAT *) value;
@@ -1443,7 +1441,6 @@ UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out )
     sndbuf_data * d = (sndbuf_data *)data;
     SET_NEXT_FLOAT( out, (t_CKFLOAT) d->curf / (t_CKFLOAT)d->num_frames );
 }
-
 
 UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value )
 { 
@@ -1503,7 +1500,7 @@ UGEN_CGET sndbuf_cget_samples( t_CKTIME now, void * data, void * out )
 UGEN_CGET sndbuf_cget_length( t_CKTIME now, void * data, void * out )
 {
     sndbuf_data * d = (sndbuf_data *)data;
-    SET_NEXT_FLOAT( out, (t_CKFLOAT)d->num_frames / (t_CKFLOAT)d->samplerate );
+    SET_NEXT_DUR( out, (t_CKDUR)d->num_frames );
 }
 
 UGEN_CGET sndbuf_cget_channels( t_CKTIME now, void * data, void * out )
