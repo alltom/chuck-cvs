@@ -770,7 +770,7 @@ CK_DLL_QUERY
 CK_DLL_FUNC ( gluck_InitBasicWindow_impl ) { 
 
     char*  title = GET_NEXT_STRING(ARGS);
-    glutInitWindowPosition(0, 0);
+    glutInitWindowPosition(64, 64);
     glutInitWindowSize(640, 480);
     glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     gluckstate->doubleBuffered = true;
@@ -801,7 +801,7 @@ CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) {
 
 CK_DLL_FUNC ( gluck_InitFullScreenWindow_impl ) { 
     char*  title = GET_NEXT_STRING(ARGS);
-    glutInitWindowPosition(0, 0);
+    glutInitWindowPosition(64, 64);
     glutInitWindowSize(640, 480);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     gluckstate->doubleBuffered = true;
@@ -1019,7 +1019,19 @@ CK_DLL_FUNC( gluck_Init_impl )
 {
   gluckstate = new gluckData;
   int foo = 0;
-  glutInit(&foo, NULL);
+#ifdef __MACOSX_CORE__ 
+	char* cwd = getcwd(NULL,0);
+#endif
+    glutInit               ( &foo, NULL);
+#ifdef __MACOSX_CORE__
+//correct the directory...
+	char *rwd = getcwd(NULL,0);
+	if ( strcmp ( cwd, rwd ) != 0 ) { 
+		chdir(cwd);
+	}
+	free (cwd);
+	free (rwd);
+#endif
 }
 
 CK_DLL_FUNC( gluck_InitWindowPosition_impl )
