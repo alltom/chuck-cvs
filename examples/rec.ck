@@ -1,5 +1,5 @@
 // chuck this with other shreds to record to file
-// example> chuck foo.ck bar.ck re.ck (see also re2.ck)
+// example> chuck foo.ck bar.ck rec (see also rec2.ck)
 
 // pull samples from the dac
 dac => gain g => WvOut w => blackhole;
