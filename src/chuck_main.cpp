@@ -230,7 +230,8 @@ t_CKBOOL load_module( t_Env env, f_ck_query query, const char * name, const char
 void usage()
 {
     fprintf( stdout, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
-    fprintf( stdout, "   [options] = halt|loop|audio|silent|dump|nodump|bufsize<N>|dac<N>|adc<N>|about\n" );
+    fprintf( stdout, "   [options] = halt|loop|audio|silent|dump|nodump|about\n" );
+    fprintf( stdout, "               srate<N>|bufsize<N>|dac<N>|adc<N>\n" );
     fprintf( stdout, "   [commands] = add|remove|replace|status\n" );
     fprintf( stdout, "   [+-=^] = short-cuts for add, remove, replace, and status\n\n" );
     fprintf( stdout, "chuck version: %s\n", CK_VERSION );
@@ -330,7 +331,6 @@ t_CKBOOL load_internal_modules( t_Env env )
     load_module( env, xxx_query, "xxx", "global" );
     load_module( env, filter_query, "filter", "global" );
     load_module( env, stk_query, "stk", "global" );
-    stk_init( Digitalio::sampling_rate() );
 
     // load
     load_module( env, machine_query, "machine", "machine" );
@@ -526,6 +526,7 @@ int main( int argc, char ** argv )
     int i, a, files = 0;
     t_CKBOOL enable_audio = TRUE;
     t_CKBOOL vm_halt = TRUE;
+    t_CKUINT srate = SAMPLING_RATE_DEFAULT;
     t_CKUINT buffer_size = 512;
     t_CKUINT num_buffers = 4;
     t_CKUINT dac = 0;
@@ -547,8 +548,12 @@ int main( int argc, char ** argv )
                 vm_halt = TRUE;
             else if( !strcmp(argv[i], "--loop") || !strcmp(argv[i], "-l") )
                 vm_halt = FALSE;
-            else if( !strncmp(argv[i], "--bufsize", 8) )
-                buffer_size = atoi( argv[i]+8 ) > 0 ? atoi( argv[i]+8 ) : 512;
+            else if( !strncmp(argv[i], "--srate", 7) )
+                srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : SAMPLING_RATE_DEFAULT;
+            else if( !strncmp(argv[i], "-r", 2) )
+                srate = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : SAMPLING_RATE_DEFAULT;
+            else if( !strncmp(argv[i], "--bufsize", 9) )
+                buffer_size = atoi( argv[i]+9 ) > 0 ? atoi( argv[i]+9 ) : 512;
             else if( !strncmp(argv[i], "-b", 2) )
                 buffer_size = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : 512;
             else if( !strncmp(argv[i], "--dac", 5) )
@@ -587,8 +592,8 @@ int main( int argc, char ** argv )
 
     // allocate the vm
     Chuck_VM * vm = g_vm = new Chuck_VM;
-    if( !vm->initialize( enable_audio, vm_halt, buffer_size, num_buffers, 
-                         dac, adc, g_priority ) )
+    if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
+                         num_buffers, dac, adc, g_priority ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );

@@ -94,6 +94,8 @@ public:
                        DWORD__ num_buffers = NUM_BUFFERS_DEFAULT,
                        DWORD__ dac = 0,
                        DWORD__ adc = 0 );
+    void set_srate( DWORD__ srate );
+    void set_bufsize( DWORD__ bufsize );
     void shutdown();
 
 public:

@@ -38,6 +38,7 @@
 #include "chuck_def.h"
 #include "chuck_oo.h"
 #include "chuck_ugen.h"
+#include "chuck_bbq.h"
 #include <stdlib.h>
 #include <memory.h>
 #include <string>
@@ -201,7 +202,9 @@ public: // call these from the DLL
     f_ck_setname   set_name;    // call this to set name
     const char * dll_name;      // name of the DLL
     void * reserved;
-    
+    t_CKUINT srate;             // sample rate
+    t_CKUINT bufsize;           // buffer size
+
 public: // these should not be used directly by the DLL
     vector<Chuck_DL_Proto> dll_exports;
     vector<Chuck_UGen_Info> ugen_exports;
@@ -212,7 +215,9 @@ public: // these should not be used directly by the DLL
     { add_export = __ck_addexport; add_param = __ck_addparam;
       ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func; 
       ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
-      dll_name = "[noname]"; reserved = NULL; linepos = 0; }
+      dll_name = "[noname]"; reserved = NULL;
+      srate = Digitalio::sampling_rate(); bufsize = Digitalio::buffer_size();
+      linepos = 0; }
     
     // clear the query
     void clear() { dll_exports.clear(); ugen_exports.clear(); }

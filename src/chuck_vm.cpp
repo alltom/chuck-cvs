@@ -174,7 +174,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority )
 // name: initialize()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt,
+t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT srate,
                                t_CKUINT buffer_size, t_CKUINT num_buffers,
                                t_CKUINT dac, t_CKUINT adc, t_CKUINT priority )
 {
@@ -215,14 +215,18 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt,
 
     if( m_audio )
     {
-
-        
         // init bbq
-        if( !m_bbq->initialize( 2, SAMPLING_RATE_DEFAULT, 16, buffer_size, num_buffers, dac, adc ) )
+        if( !m_bbq->initialize( 2, srate, 16, buffer_size, num_buffers, dac, adc ) )
         {
             m_last_error = "cannot initialize audio device (try using --silent/-s)";
             return FALSE;
         }
+    }
+    else
+    {
+        // at least set the sample rate and buffer size
+        m_bbq->set_srate( srate );
+        m_bbq->set_bufsize( buffer_size );
     }
     
     // m_bbq->midi_out()->open( 0 );
