@@ -36,18 +36,36 @@
 
 #include "chuck_def.h"
 #include "chuck_type.h"
+#include "chuck_vm.h"
 
 
 
-struct Chuck_Emmission;
-class Chuck_VM_Code;
-class Chuck_VM_Shred;
 
-Chuck_Emmission * emit_engine_init( t_Env env );
-t_CKBOOL emit_engine_shutdown( Chuck_Emmission *& emit );
-t_CKBOOL emit_engine_emit_prog( Chuck_Emmission * emit, a_Program prog );
-Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump_funcs = FALSE );
-t_CKBOOL emit_engine_addr_map( Chuck_Emmission * emit, Chuck_VM_Shred * shred );
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Emitter
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Emitter : public Chuck_VM_Object
+{
+    Chuck_Env * env;
+
+    // constructor
+    Chuck_Emitter()
+    { env = NULL; }
+    // destructor
+    ~Chuck_Emitter()
+    { }
+};
+
+
+
+
+// function prototypes
+Chuck_Emitter * emit_engine_init( Chuck_Env * env );
+t_CKBOOL emit_engine_shutdown( Chuck_Emitter *& emit );
+t_CKBOOL emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog );
+Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump_funcs = FALSE );
+t_CKBOOL emit_engine_addr_map( Chuck_Emitter * emit, Chuck_VM_Shred * shred );
 t_CKBOOL emit_engine_resolve( );
 
 
