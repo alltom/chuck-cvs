@@ -10,8 +10,8 @@ class B
     int y;
 }
 
-B b;
-b.x => b.y;
+//B b;
+//b.x => b.y;
 
 
 //adc => sndbuf => dac;

@@ -353,12 +353,15 @@ struct Chuck_Value : public Chuck_VM_Object
     t_CKBOOL access;
     // owner
     Chuck_Namespace * owner;
+    // owner (class)
+    Chuck_Type * owner_class;
 
 	// constructor
 	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
                  t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
-                 t_CKUINT s = 0 )
-	{ type = t; name = n; offset = s; is_const = c; access = acc; owner = o; addr = a; }
+                 Chuck_Type * oc = NULL, t_CKUINT s = 0 )
+	{ type = t; name = n; offset = s; is_const = c; access = acc; 
+      owner = o; owner_class = oc; addr = a; }
 };
 
 
