@@ -176,6 +176,7 @@ a_Class_Body prepend_class_body( a_Section section, a_Class_Body body, int pos )
 a_Class_Ext new_class_ext( c_str extend_id, a_Id_List impl_list, int pos );
 a_Id_List new_id_list( c_str id, int pos );
 a_Id_List prepend_id_list( c_str id, a_Id_List list, int pos );
+void clean_exp( a_Exp exp );
 a_Func_Def new_func_def( ae_Keyword func_decl, a_Type_Decl type_decl, c_str name,
                          a_Arg_List arg_list, a_Stmt code, int pos );
 
@@ -201,7 +202,8 @@ struct a_Exp_Namespace_ { S_Symbol name; int linepos; a_Exp self; };
 struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos; a_Exp self; };
 struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; int isarray; a_Exp exp; int linepos; a_Exp self; };
 struct a_Type_Decl_ { S_Symbol id; a_Array_Sub array; int linepos; a_Exp self; };
-struct a_Array_Sub_ { S_Symbol id; int depth; a_Exp exp_list; int linepos; a_Exp self; };
+struct a_Array_Sub_ { int depth; a_Exp exp_list; int linepos; a_Exp self; 
+                      int errno; int err_pos; };
 struct a_Arg_List_ { a_Type_Decl type_decl; t_CKTYPE type; S_Symbol id; 
                      a_Arg_List next; int linepos; a_Exp self; };
 

@@ -657,6 +657,73 @@ a_Id_List prepend_id_list( c_str id, a_Id_List list, int pos )
     return a;
 }
 
+void clean_exp( a_Exp exp )
+{
+    if( !exp ) return;
+    clean_exp( exp->next );
+    free( exp );    
+}
+
+a_Array_Sub new_array_sub( a_Exp exp, int pos )
+{
+    a_Array_Sub a = (a_Array_Sub)checked_malloc( sizeof( struct a_Array_Sub_ ) );
+    a->exp_list = exp;
+    a->depth = 1;
+    a->linepos = pos;
+    
+    // make sure no multi
+    if( exp && exp->next )
+    {
+        a->errno = 1;              // multi
+        a->err_pos = exp->linepos; // set error for type-checker
+        goto error;
+    }
+    
+    return a;
+    
+error:
+    clean_exp( exp );
+    a->exp_list = NULL;
+    return a;
+}
+
+a_Array_Sub prepend_array_sub( a_Array_Sub a, a_Exp exp, int pos )
+{
+    // if already error
+    if( a->errno ) goto error;
+
+    // make sure no multi
+    if( exp && exp->next )
+    {
+        a->errno = 1;              // multi
+        a->err_pos = exp->linepos; // set error for type-checker
+        goto error;
+    }
+    
+    // empty or not
+    if( (exp && !a->exp_list) || (!exp && a->exp_list) )
+    {
+        a->errno = 2;     // partial
+        a->err_pos = pos; // set error for type-checker
+        goto error;
+    }
+    
+    // prepend
+    if( exp )
+    {
+        exp->next = a->exp_list;
+        a->exp_list = exp->next;
+    }
+    
+    // count
+    a->depth++;
+    return a;
+    
+error:
+    clean_exp( exp );
+    return a;
+}
+
 
 static const char * op_str[] = {
   "+",

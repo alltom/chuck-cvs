@@ -1455,10 +1455,31 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
     return t;
 }
 
-t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
-t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_class_def()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
+{
+     // make new type for class def
+     t_CKTYPE t_class = NULL;
+     
+     // make sure class not already in namespace
+     
+     // make sure inheritance
+     
+     // set the new type as current
+     
+     // type check the body
+}
+
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
+
 // import
+t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
