@@ -80,7 +80,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
 t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit, Chuck_Type * to, Chuck_Type * from );
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
-                                  t_CKBOOL offset, int linepos );
+                                  t_CKBOOL emit_var, int linepos );
 
 
 
@@ -1868,21 +1868,14 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         {
             emit->append( new Chuck_Instr_Reg_Push_Now );
         }
-        else if( exp->var == insert_symbol( "dac" ) )
+        else if( exp->var == insert_symbol( "this" ) )
         {
-            emit->append( new Chuck_Instr_DAC );
+            // TODO: verify this is in the right scope
+            emit->append( new Chuck_Instr_Reg_Push_This );
         }
-        else if( exp->var == insert_symbol( "adc" ) )
+        else if( exp->var == insert_symbol( "me" ) )
         {
-            emit->append( new Chuck_Instr_ADC );
-        }
-        else if( exp->var == insert_symbol( "bunghole" ) )
-        {
-            emit->append( new Chuck_Instr_Bunghole );
-        }
-        else if( exp->var == insert_symbol( "blackhole" ) )
-        {
-            emit->append( new Chuck_Instr_Bunghole );
+            emit->append( new Chuck_Instr_Reg_Push_Me );
         }
         else if( exp->var == insert_symbol( "true" ) )
         {
@@ -1901,6 +1894,22 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
             double pi = 3.14159265358979323846;
             emit->append( new Chuck_Instr_Reg_Push_Imm2( pi ) );
         }
+        else if( exp->var == insert_symbol( "dac" ) )
+        {
+            emit->append( new Chuck_Instr_DAC );
+        }
+        else if( exp->var == insert_symbol( "adc" ) )
+        {
+            emit->append( new Chuck_Instr_ADC );
+        }
+        else if( exp->var == insert_symbol( "bunghole" ) )
+        {
+            emit->append( new Chuck_Instr_Bunghole );
+        }
+        else if( exp->var == insert_symbol( "blackhole" ) )
+        {
+            emit->append( new Chuck_Instr_Bunghole );
+        }
         else if( emit->find_dur( S_name(exp->var), &dur ) )
         {
             emit->append( new Chuck_Instr_Reg_Push_Imm2( dur ) );
@@ -1908,7 +1917,8 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         else
         {
             // emit the symbol
-            return emit_engine_emit_symbol( emit, exp->var, TRUE, exp->linepos );
+            return emit_engine_emit_symbol( 
+                emit, exp->var, exp->self->emit_var, exp->linepos );
         }
         break;
     
@@ -2562,8 +2572,43 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
-                                  t_CKBOOL offset, int linepos )
+                                  t_CKBOOL emit_var, int linepos )
 {
+    // look up the value
+    Chuck_Value * v = emit->env->curr->lookup_value( symbol, TRUE );
+    // it should be there
+    if( !v )
+    {
+        // internal error
+        EM_error2( linepos,
+            "(emit): internal error: defined symbol '%s'...",
+            S_name(symbol) );
+        return FALSE;
+    }
+
+    // var or value
+    if( emit_var )
+    {
+        // emit as addr
+        emit->append( new Chuck_Instr_Reg_Push_Mem_Addr( v->offset ) );
+    }
+    else
+    {
+        // check size
+        if( v->type->size == 4 )
+            emit->append( new Chuck_Instr_Reg_Push_Mem( v->offset ) );
+        else if( v->type->size == 8 )
+            emit->append( new Chuck_Instr_Reg_Push_Mem2( v->offset ) );
+        else
+        {
+            // internal error
+            EM_error2( linepos,
+                "(emit): internal error: symbol '%s' has size '%i'...",
+                S_name(symbol), v->type->size );
+            return FALSE;
+        }
+    }
+
     return TRUE;
 }
 

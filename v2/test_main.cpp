@@ -70,7 +70,7 @@ FILE * open_cat( c_str fname )
 // name: test_parse()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL test_parse( c_str fname, FILE * fd = NULL )
+t_CKBOOL test_parse( c_constr fname, FILE * fd = NULL )
 {
     strcpy( g_filename, fname );
 

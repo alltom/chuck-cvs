@@ -1175,6 +1175,32 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Reg_Push_Me
+// desc: push value of me to reg stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Reg_Push_Me : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Reg_Push_This
+// desc: push value of now to reg stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Reg_Push_This : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Start
 // desc: push value of start to reg stack
 //-----------------------------------------------------------------------------
