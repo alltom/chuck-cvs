@@ -67,15 +67,15 @@ while( true )
     { 500::ms => now; }
     else if( std.randf() > .85 )
     { 250::ms => now; }
-    else if( std.randf() > -0.85 )
+    else if( std.randf() > -0.9 )
     { .125::second => now; }
     else
     {
         1 => int i => int pick_dir;
         // how many times
-        4 * std.rand2( 1, 6 ) => int pick;
+        4 * std.rand2( 1, 5 ) => int pick;
         0.0 => float pluck;
-        0.8 / (float)pick => float inc;
+        0.7 / (float)pick => float inc;
         // time loop
         for( ; i < pick; i++ )
         {
