@@ -586,7 +586,7 @@ int main( int argc, char ** argv )
     
     if ( !files && vm_halt )
     {
-        fprintf( stdout, "[chuck]: no input files...\n" );
+        fprintf( stdout, "[chuck]: no input files... (try --help)\n" );
         exit( 1 );
     }
 
