@@ -12,7 +12,7 @@ GLUT_FRAMEWORK_FLAGS=$(GL_FRAMEWORK_FLAGS) -framework GLUT -framework Foundation
 all: ckdl ckx
 
 ckdl: ckdl.cpp
-	gcc -O3 -g -I$(CHUCK_DIR) $(CHUCK_DIR)chuck_dl.cpp -o ckdl ckdl.cpp -lstdc++
+	gcc -O3 -g -I$(CHUCK_DIR) $(CHUCK_DIR)chuck_dl.cpp -o ckdl ckdl.cpp -ldl -lstdc++
 
 ckx: foo.ckx gl 
 
