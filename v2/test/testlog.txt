@@ -1,0 +1,19 @@
+--Information--
+
+Test		Status			Description
+
+p01.ck		emitted			assignment from multi-array to a value
+p02.ck		emitted			array to array sub-assignment
+p03.ck		parse at 9:9		function definition outside class decl
+p04.ck		emit,bus error		assignment to class members
+p05.ck		Obj undefined) at 6     member function taking class instance as argument
+p06.ck				
+p07.ck		emitted			array of a particular class
+p08.ck		undefined type at 7	class with self as member
+p09.ck		emitted			class with declared, defined class as member
+p10.ck		undefined type at 6	class with udeclared, undefined class as member
+p11.ck		parse at 3:16		class with declared, undefined class as member
+
+--Notes--
+
+mar 29, 2:56 : changed p02.ck to a @=> instead of =>  : success!
