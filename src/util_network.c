@@ -241,6 +241,7 @@ ck_socket ck_accept( ck_socket sock )
     client->sock = accept( sock->sock, (struct sockaddr *)&client->sock_in,
         &client->len );
     if( !client->sock ) goto error;
+    client->prot = SOCK_STREAM;
     
     return client;
 

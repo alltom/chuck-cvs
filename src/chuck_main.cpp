@@ -228,11 +228,11 @@ t_CKBOOL load_module( t_Env env, f_ck_query query, const char * name, const char
     dll->load( query );
     if( !dll->query() || !type_engine_add_dll( env, dll, nspc ) )
     {
-        fprintf( stderr, 
+        fprintf( stdout, 
                  "[chuck]: internal error loading internal module '%s.%s'...\n", 
                  nspc, name );
         if( !dll->query() )
-            fprintf( stderr, "       %s\n", dll->last_error() );
+            fprintf( stdout, "       %s\n", dll->last_error() );
         g_error = TRUE;
         exit(1);
     }    
@@ -330,9 +330,9 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
     }
     else
     {
-        fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
-        SAFE_DELETE(cmd);
-        return 0;
+        fprintf( stdout, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
+        // SAFE_DELETE(cmd);
+        // return 0;
     }
     
     // immediate
@@ -379,12 +379,25 @@ t_CKBOOL load_internal_modules( t_Env env )
 void * cb( void * p )
 {
     Msg msg;
+    ck_socket client;
 
     while( true )
     {
+        client = ck_accept( g_sock );
+        if( !client )
+        {
+            fprintf( stdout, "[chuck]: socket error during accept()...\n" );
+#ifndef __PLATFORM_WIN32__
+            usleep( 100000 );
+#else
+            Sleep( 100 );
+#endif
+            continue;
+        }
         memset( &msg, 0, sizeof(msg) );
         ck_recv( g_sock, (char *)&msg, sizeof(msg) );
         if( g_vm ) process_msg( msg.type, msg.param, msg.buffer, FALSE );
+        ck_close( client );
     }
     
     return NULL;
@@ -402,11 +415,11 @@ int send_cmd( int argc, char ** argv, int  & i )
     Msg msg;
     memset( &msg, 0, sizeof(msg) );
 	
-    g_sock = ck_udp_create();
+    g_sock = ck_tcp_create();
 
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
-        fprintf( stderr, "[chuck]: cannot open UDP socket on %s:%i\n", g_host, g_port );
+        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i\n", g_host, g_port );
         return 1;
     }
 
@@ -518,9 +531,12 @@ int send_cmd( int argc, char ** argv, int  & i )
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else
-        return 0;
+        return 1;
+
+    // close the sock
+    ck_close( g_sock );
     
-    return -1;
+    return 0;
 }
 
 
@@ -622,7 +638,7 @@ int main( int argc, char ** argv )
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
                          num_buffers, dac, adc, g_priority ) )
     {
-        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+        fprintf( stdout, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
     }
 
@@ -688,10 +704,10 @@ int main( int argc, char ** argv )
     // link
     // emit_engine_resolve_globals();
     
-    // start udp server
-    g_sock = ck_udp_create();
-    if( !ck_bind( g_sock, g_port ) )
-        fprintf( stderr, "[chuck]: cannot bind to udp port %i...\n", g_port );
+    // start tcp server
+    g_sock = ck_tcp_create();
+    if( !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
+        fprintf( stderr, "[chuck]: cannot bind to tcp port %i...\n", g_port );
     else
     {
 #ifndef __PLATFORM_WIN32__
