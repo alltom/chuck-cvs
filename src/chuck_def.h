@@ -76,7 +76,7 @@ typedef const char *                c_constr;
 #endif
 
 #ifdef __PLATFORM_WIN32__
-#define usleep(x) Sleep( x / 1000 )
+#define usleep(x) Sleep( (x / 1000 <= 0 ? 1 : x / 1000) )
 #pragma warning (disable : 4996)  //stdio deprecation
 #pragma warning (disable : 4312)  //type casts from void*
 #pragma warning (disable : 4311)  //type casts to void*

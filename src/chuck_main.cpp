@@ -60,7 +60,6 @@ extern "C" int yyparse( void );
 #include <arpa/inet.h>
 #else 
 #define CHUCK_THREAD HANDLE
-// #define usleep(x) Sleep(x/1000);
 #endif
 
 #include "ugen_osc.h"
@@ -543,11 +542,7 @@ void * cb( void * p )
         if( !client )
         {
             if( g_vm ) fprintf( stderr, "[chuck]: socket error during accept()...\n" );
-#ifndef __PLATFORM_WIN32__
             usleep( 40000 );
-#else
-            Sleep( 40 );
-#endif
             ck_close( client );
             continue;
         }
@@ -559,11 +554,7 @@ void * cb( void * p )
         if( n != sizeof(msg) )
         {
             fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
-#ifndef __PLATFORM_WIN32__
             usleep( 40000 );
-#else
-            Sleep( 40 );
-#endif
             ck_close( client );
             continue;
         }
