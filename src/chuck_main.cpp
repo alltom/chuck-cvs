@@ -73,7 +73,7 @@ extern "C" int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.5.1 (beta)"
+#define CK_VERSION "1.1.5.1"
 
 
 #ifdef __PLATFORM_WIN32__
