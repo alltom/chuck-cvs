@@ -56,18 +56,13 @@ UGEN_CTRL ADSR_ctrl_target( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_ctrl_value( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_ctrl_keyOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_ctrl_keyOff( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_attackTime( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_cget_attackRate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_decayTime( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_cget_decayRate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_cget_sustainLevel( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_releaseTime( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_cget_releaseRate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_cget_target( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ADSR_cget_value( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_keyOn( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_keyOff( t_CKTIME now, void * data, void * value );
-
+UGEN_CTRL ADSR_cget_state( t_CKTIME now, void * data, void * value );
 
 // BiQuad
 UGEN_CTOR BiQuad_ctor( t_CKTIME now );

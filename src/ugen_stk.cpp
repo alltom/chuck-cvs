@@ -255,17 +255,16 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // set ctrl
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" );
     QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" );
-    /*
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, "float", "attackTime" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, "float", "attackRate" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayTime, "float", "decayTime" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayRate, "float", "decayRate" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, "float", "sustainLevel" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, "float", "releaseTime" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, "float", "releaseRate" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_target, "float", "target" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_value, "float", "value" );
-    */
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, NULL, "float", "attackTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, ADSR_cget_attackRate, "float", "attackRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayTime, NULL, "float", "decayTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayRate, ADSR_cget_decayRate, "float", "decayRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, ADSR_cget_sustainLevel, "float", "sustainLevel" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, NULL, "float", "releaseTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, ADSR_cget_releaseRate, "float", "releaseRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_target, ADSR_cget_target, "float", "target" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_value, ADSR_cget_value, "float", "value" );
+    QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" );
 
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
@@ -360,7 +359,7 @@ class Envelope : public Stk
   //! Return the last computed output value.
   MY_FLOAT lastOut(void) const;
 
- protected:
+public:
   MY_FLOAT value;
   MY_FLOAT target;
   MY_FLOAT rate;
@@ -451,7 +450,7 @@ class ADSR : public Envelope
   //! Return \e vectorSize envelope outputs in \e vector.
   MY_FLOAT *tick(MY_FLOAT *vector, unsigned int vectorSize);
 
- protected:  
+public:
   MY_FLOAT attackRate;
   MY_FLOAT decayRate;
   MY_FLOAT sustainLevel;
@@ -18706,35 +18705,20 @@ void WvOut :: tickFrame(const MY_FLOAT *frameVector, unsigned int frames)
 // name: ADSR - import
 // desc: ..
 //-----------------------------------------------------------------------------
-struct ADSR_data
-{
-    ADSR adsr;
-    t_CKINT state;
-    t_CKFLOAT attackTime;
-    t_CKFLOAT attackRate;
-    t_CKFLOAT decayTime;
-    t_CKFLOAT decayRate;
-    t_CKFLOAT sustainLevel;
-    t_CKFLOAT releaseTime;
-    t_CKFLOAT releaseRate;
-    t_CKFLOAT target;
-    t_CKFLOAT value;
-};
-
 UGEN_CTOR ADSR_ctor( t_CKTIME now )
 {
-    return new ADSR_data;
+    return new ADSR;
 }
 
 UGEN_DTOR ADSR_dtor( t_CKTIME now, void * data )
 {
-    delete (ADSR_data *)data;
+    delete (ADSR *)data;
 }
 
 UGEN_TICK ADSR_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    *out = in * d->adsr.tick();
+    ADSR * d = (ADSR *)data;
+    *out = in * d->tick();
     return TRUE;
 }
 
@@ -18745,112 +18729,119 @@ UGEN_PMSG ADSR_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
 
 UGEN_CTRL ADSR_ctrl_attackTime( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setAttackTime( f );
-    d->attackTime = f;
+    ADSR * d = (ADSR *)data;
+    d->setAttackTime( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_attackRate( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setAttackRate( f );
-    d->attackRate = f;
+    ADSR * d = (ADSR *)data;
+    d->setAttackRate( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_decayTime( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setDecayTime( f );
-    d->decayTime = f;
+    ADSR * d = (ADSR *)data;
+    d->setDecayTime( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_decayRate( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setDecayRate( f );
-    d->decayRate = f;
+    ADSR * d = (ADSR *)data;
+    d->setDecayRate( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_sustainLevel( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setSustainLevel( f );
-    d->sustainLevel = f;
+    ADSR * d = (ADSR *)data;
+    d->setSustainLevel( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_releaseTime( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setReleaseTime( f );
-    d->releaseTime = f;
+    ADSR * d = (ADSR *)data;
+    d->setReleaseTime( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_releaseRate( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setReleaseRate( f );
-    d->releaseRate = f;
+    ADSR * d = (ADSR *)data;
+    d->setReleaseRate( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_target( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setTarget( f );
-    d->target = f;
+    ADSR * d = (ADSR *)data;
+    d->setTarget( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_value( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    t_CKFLOAT f = GET_NEXT_FLOAT(value);
-    d->adsr.setValue( f );
-    d->value = f;
+    ADSR * d = (ADSR *)data;
+    d->setValue( GET_NEXT_FLOAT(value) );
 }
 
 UGEN_CTRL ADSR_ctrl_keyOn( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    d->state = GET_NEXT_INT(data) != 0;
-    if( d->state )
-        d->adsr.keyOn();
+    ADSR * d = (ADSR *)data;
+    if( GET_NEXT_INT(value) )
+        d->keyOn();
     else
-        d->adsr.keyOff();
+        d->keyOff();
 }
 
 UGEN_CTRL ADSR_ctrl_keyOff( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    d->state = GET_NEXT_INT(data) == 0;
-    if( d->state )
-        d->adsr.keyOn();
+    ADSR * d = (ADSR *)data;
+    if( !GET_NEXT_INT(value) )
+        d->keyOn();
     else
-        d->adsr.keyOff();
+        d->keyOff();
 }
 
-UGEN_CTRL ADSR_cget_attackTime( t_CKTIME now, void * data, void * value )
+UGEN_CTRL ADSR_cget_attackRate( t_CKTIME now, void * data, void * value )
 {
-    ADSR_data * d = (ADSR_data *)data;
-    SET_NEXT_FLOAT( value, d->attackTime );
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->attackRate );
 }
 
-UGEN_CTRL ADSR_cget_attackRate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_decayTime( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_decayRate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_sustainLevel( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_releaseTime( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_releaseRate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_target( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_value( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_keyOn( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ADSR_cget_keyOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ADSR_cget_decayRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->decayRate );
+}
+
+UGEN_CTRL ADSR_cget_sustainLevel( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->sustainLevel );
+}
+
+UGEN_CTRL ADSR_cget_releaseRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->releaseRate );
+}
+
+UGEN_CTRL ADSR_cget_target( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->target );
+}
+
+UGEN_CTRL ADSR_cget_value( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->value );
+}
+
+UGEN_CTRL ADSR_cget_state( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_INT( value, d->state );
+}
+
+
 // WaveLoop
 UGEN_CTOR WaveLoop_ctor( t_CKTIME now )
 {
