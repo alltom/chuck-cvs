@@ -124,3 +124,9 @@ void EM_reset( c_str fname )
         exit(1);
     }
 }
+
+
+const char * EM_lasterror()
+{
+    return g_lasterror;
+}

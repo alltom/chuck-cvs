@@ -128,6 +128,18 @@ void signal_int( int sig_num )
 
 
 
+
+//-----------------------------------------------------------------------------
+// name: signal_pipe()
+// desc: ...
+//-----------------------------------------------------------------------------
+void signal_pipe( int sig_num )
+{
+    fprintf( stderr, "[chuck]: sigpipe handled from broken pipe (phew)...\n" );
+}
+
+
+
 char filename[1024] = "";
 //-----------------------------------------------------------------------------
 // name: parse()
@@ -201,14 +213,14 @@ t_CKBOOL emit_code( Chuck_Emmission * emit, t_Env env, a_Program prog )
 //-----------------------------------------------------------------------------
 t_CKBOOL dump_instr( Chuck_VM_Code * code )
 {
-    fprintf( stdout, "[chuck]: dumping src/shred '%s'...\n", code->name.c_str() );
-    fprintf( stdout, "...\n" );
+    fprintf( stderr, "[chuck]: dumping src/shred '%s'...\n", code->name.c_str() );
+    fprintf( stderr, "...\n" );
 
     for( unsigned int i = 0; i < code->num_instr; i++ )
-        fprintf( stdout, "'%i' %s( %s )\n", i, 
+        fprintf( stderr, "'%i' %s( %s )\n", i, 
             code->instr[i]->name(), code->instr[i]->params() );
 
-    fprintf( stdout, "...\n\n" );
+    fprintf( stderr, "...\n\n" );
 
     return TRUE;
 }
@@ -229,11 +241,11 @@ t_CKBOOL load_module( t_Env env, f_ck_query query, const char * name, const char
     dll->load( query );
     if( !dll->query() || !type_engine_add_dll( env, dll, nspc ) )
     {
-        fprintf( stdout, 
+        fprintf( stderr, 
                  "[chuck]: internal error loading internal module '%s.%s'...\n", 
                  nspc, name );
         if( !dll->query() )
-            fprintf( stdout, "       %s\n", dll->last_error() );
+            fprintf( stderr, "       %s\n", dll->last_error() );
         g_error = TRUE;
         exit(1);
     }    
@@ -250,13 +262,13 @@ t_CKBOOL load_module( t_Env env, f_ck_query query, const char * name, const char
 //-----------------------------------------------------------------------------
 void usage()
 {
-    fprintf( stdout, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
-    fprintf( stdout, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
-    fprintf( stdout, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>\n" );
-    fprintf( stdout, "   [commands] = add|remove|replace|status|time|kill\n" );
-    fprintf( stdout, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
-    fprintf( stdout, "chuck version: %s\n", CK_VERSION );
-    fprintf( stdout, "   http://chuck.cs.princeton.edu/\n\n" );
+    fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
+    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
+    fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>\n" );
+    fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
+    fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
+    fprintf( stderr, "chuck version: %s\n", CK_VERSION );
+    fprintf( stderr, "   http://chuck.cs.princeton.edu/\n\n" );
 }
 
 
@@ -331,7 +343,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
     }
     else
     {
-        fprintf( stdout, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
+        fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
         SAFE_DELETE(cmd);
         return 0;
     }
@@ -382,12 +394,15 @@ void * cb( void * p )
     Msg msg;
     ck_socket client;
 
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
+
     while( true )
     {
         client = ck_accept( g_sock );
         if( !client )
         {
-            // fprintf( stdout, "[chuck]: socket error during accept()...\n" );
+            // fprintf( stderr, "[chuck]: socket error during accept()...\n" );
 #ifndef __PLATFORM_WIN32__
             usleep( 100000 );
 #else
@@ -397,7 +412,20 @@ void * cb( void * p )
         }
         memset( &msg, 0, sizeof(msg) );
         ck_recv( client, (char *)&msg, sizeof(msg) );
-        if( g_vm ) process_msg( msg.type, msg.param, msg.buffer, FALSE );
+        if( g_vm )
+        {
+            if( !process_msg( msg.type, msg.param, msg.buffer, FALSE ) )
+            {
+                msg.param = FALSE;
+                strcpy( (char *)msg.buffer, EM_lasterror() );
+            }
+            else
+            {
+                msg.param = TRUE;
+                strcpy( (char *)msg.buffer, "success" );
+            }
+        }
+        ck_send( client, (char *)&msg, sizeof(msg) );
         ck_close( client );
     }
     
@@ -448,7 +476,7 @@ int send_cmd( int argc, char ** argv, int  & i )
                     strcat( (char *)msg.buffer, ".ck" );
                     if( !(f = fopen( (char *)msg.buffer, "r" )) )
                     {
-                        fprintf( stdout, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
+                        fprintf( stderr, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
                         return 1;
                     }
                 }
@@ -542,6 +570,13 @@ int send_cmd( int argc, char ** argv, int  & i )
     else
         return 0;
 
+    // reply
+    if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
+    {
+        fprintf( stderr, "[chuck]: remote operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
+        if( !msg.param )
+            fprintf( stderr, "    (reason from server): %s\n", (char *)msg.buffer );
+    }
     // close the sock
     ck_close( g_sock );
     
@@ -624,7 +659,7 @@ int main( int argc, char ** argv )
                 exit( !(a < 0) );
 			else
             {
-                fprintf( stdout, "[chuck]: invalid flag '%s'\n", argv[i] );
+                fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
                 usage();
                 exit( 1 );
             }
@@ -638,7 +673,7 @@ int main( int argc, char ** argv )
     
     if ( !files && vm_halt )
     {
-        fprintf( stdout, "[chuck]: no input files... (try --help)\n" );
+        fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
         exit( 1 );
     }
 
@@ -647,13 +682,15 @@ int main( int argc, char ** argv )
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
                          num_buffers, dac, adc, g_priority ) )
     {
-        fprintf( stdout, "[chuck]: %s\n", vm->last_error() );
+        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
     }
 
 
     // catch SIGINT
     signal( SIGINT, signal_int );
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
     // allocate the type system
     g_env = type_engine_init( vm );
     // set the env
