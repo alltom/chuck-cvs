@@ -298,6 +298,13 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, DelayL_ctrl_delay, DelayL_cget_delay, "dur", "delay" );
     QUERY->ugen_ctrl( QUERY, DelayL_ctrl_max, DelayL_cget_max, "dur", "max" );
 
+    // add Echo
+    QUERY->ugen_add( QUERY, "Echo", NULL );
+    QUERY->ugen_func( QUERY, Echo_ctor, Echo_dtor, Echo_tick, Echo_pmsg );
+    QUERY->ugen_ctrl( QUERY, Echo_ctrl_delay, Echo_cget_delay, "dur", "delay" );
+    QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" );
+    QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" );
+
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
     QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );
@@ -309,16 +316,12 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     // add JCRev
     QUERY->ugen_add( QUERY, "JCRev", NULL );
-    // set funcs
     QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
-    // set ctrl
     QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
 
     // add Shakers
     QUERY->ugen_add( QUERY, "Shakers", NULL );
-    // set funcs
     QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
-    // set ctrl
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, NULL, "float", "noteOn" );
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" );
@@ -8707,7 +8710,7 @@ Echo :: ~Echo()
 void Echo :: set( MY_FLOAT max )
 {
     length = (long)max + 2;
-    MY_FLOAT delay = delayLine->getDelay();
+    MY_FLOAT delay = delayLine ? delayLine->getDelay() : length>>1;
     if( delayLine ) delete delayLine;
     delayLine = new Delay(length>>1, length);
     this->clear();
