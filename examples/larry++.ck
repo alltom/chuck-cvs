@@ -15,7 +15,7 @@ i => biquad f3 => g;
 // initialize float variable
 0.0 => float v => float v2;
 // set filter gain
-.1 => f.gain; .1 => f2.gain; .1 => f3.gain;
+.1 => f.gain; .2 => f2.gain; .02 => f3.gain;
 0.05 => r.mix;
 // load glottal ahh
 "special:glot_pop" => i.read;
