@@ -1,5 +1,14 @@
 
 ---
+1.1.5.4 - 2004.11.15
+  - fixed clicks when using adc unit generator
+
+adc examples work better:
+  - adc.ck
+  - echo.ck
+  - i-robot.ck
+
+---
 1.1.5.3 - 2004.11.4
   - when a shred is removed from VM, all children shreds are 
     also recursively removed
