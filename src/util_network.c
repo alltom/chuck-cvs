@@ -138,8 +138,7 @@ BOOL ck_bind( ck_socket sock, int port )
 //-----------------------------------------------------------------------------
 int ck_send( ck_socket sock, const char * buffer, int len ) 
 {
-    return sendto( sock->sock, buffer, len, 0, 
-        (struct sockaddr *)&sock->sock_in, sizeof(struct sockaddr_in) );
+    return send( sock->sock, buffer, len, 0 );
 }
 
 
