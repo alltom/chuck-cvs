@@ -40,7 +40,6 @@ extern "C"
 {
 #include "chuck_utils.h"
 #include "chuck_errormsg.h"
-#include "chuck_socket.h"
 
 extern int yyparse( void );
 }
@@ -50,6 +49,7 @@ extern int yyparse( void );
 #include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_bbq.h"
+#include "util_network.h"
 
 #include <signal.h>
 #ifndef __WINDOWS_DS__
