@@ -134,6 +134,10 @@ public:
 
     void set_redundancy( t_CKUINT n );
     t_CKUINT get_redundancy( );
+    
+    // data
+    string m_hostname;
+    int m_port;
 
 protected:
     ck_socket m_sock;
@@ -166,6 +170,9 @@ public:
     t_CKBOOL tick_in( SAMPLE * sample );
     t_CKBOOL tick_in( SAMPLE * l, SAMPLE * r );
     t_CKBOOL tick_in( SAMPLE * samples, t_CKDWORD n );
+    
+    // data
+    int m_port;
 
 protected:
     ck_socket m_sock;
@@ -187,6 +194,8 @@ GigaSend::GigaSend( )
     m_sock = NULL;
     m_red = 1;
     m_buffer_size = 0;
+    m_hostname = "127.0.0.1";
+    m_port = 8890;
 }
 
 
@@ -220,6 +229,9 @@ t_CKBOOL GigaSend::connect( const char * hostname, int port )
 	         << port << "'" << endl;
         return FALSE;
     }
+    
+    m_hostname = hostname;
+    m_port = port;
     
     return TRUE;
 }
@@ -355,6 +367,8 @@ t_CKBOOL GigaRecv::listen( int port )
         return FALSE;
     }
     
+    m_port = port;
+    
     return TRUE;
 }
 
@@ -424,11 +438,40 @@ t_CKBOOL GigaRecv::expire()
 // name: netout
 // desc: ...
 //-----------------------------------------------------------------------------
-UGEN_CTOR netout_ctor( t_CKTIME now );
-UGEN_DTOR netout_dtor( t_CKTIME now, void * data );
-UGEN_TICK netout_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL netout_ctrl_addr( t_CKTIME now, void * data, void * value );
-UGEN_CGET netout_cget_addr( t_CKTIME now, void * data, void * out );
+UGEN_CTOR netout_ctor( t_CKTIME now )
+{
+     GigaSend * out = new GigaSend;
+     out->set_bufsize( 512 );
+     return out;
+}
+
+UGEN_DTOR netout_dtor( t_CKTIME now, void * data )
+{
+     GigaSend * out = (GigaSend *)data;
+     delete out;
+}
+
+UGEN_TICK netout_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+     GigaSend * x = (GigaSend *)data;
+     *out = NULL;
+     // return x->tick_out( in );
+}
+
+UGEN_CTRL netout_ctrl_addr( t_CKTIME now, void * data, void * value )
+{
+     GigaSend * x = (GigaSend *)data;
+     char * str = GET_NEXT_STRING(value);
+     x->disconnect();
+     x->connect( str, x->m_port );
+}
+
+UGEN_CGET netout_cget_addr( t_CKTIME now, void * data, void * out )
+{
+    GigaSend * x = (GigaSend *)data;
+    SET_NEXT_STRING( out, (char *)x->m_hostname.c_str() );
+}
+
 UGEN_CTRL netout_ctrl_port( t_CKTIME now, void * data, void * value );
 UGEN_CGET netout_cget_port( t_CKTIME now, void * data, void * out );
 UGEN_CTRL netout_ctrl_size( t_CKTIME now, void * data, void * value );
