@@ -43,7 +43,16 @@
 DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
 {
     QUERY->set_name( QUERY, "machine" );
-    
+
+    /*! \nameinfo
+      ChucK runtime interface to the virtual machine.  
+      this interface can be used to manage shreds.  
+      They are similar to the <a href="otfp.html">
+      On-the-fly Programming Commands</a>, except these are 
+      invoked from within a ChucK program, and are accessible 
+      to the timing mechanism.
+   */    
+
     // add add
     //! compile and spork a new shred from file at 'path' into the VM now
     //! returns the shred ID

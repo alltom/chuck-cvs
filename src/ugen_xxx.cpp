@@ -66,6 +66,14 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // ctrl func
     QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "value" );
     QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "next" ); //! set value of next sample
+    /*! \example
+      impulse i => dac;
+
+      while( true ) {
+         1.0 => i.next;
+         100::ms => now;
+      }
+     */
     
     // add step
     //! step generator - like impulse, but once a value is set, 
@@ -76,6 +84,17 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // ctrl func
     QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "value" );
     QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "next" ); //! set the step value 
+    /*! \example
+      step s => dac;
+      -1.0 => float amp;
+
+      // square wave using step
+      while( true ) {
+          -amp => amp => s.next;
+          800::samp => now;
+      }
+    */
+
 
     // add gain
     //! gain control
@@ -86,6 +105,13 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, gain_ctor, gain_dtor, gain_tick, NULL );
     // ctrl func
     QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" ); //! set gain ( all ugen's have this ) 
+    /*! \example
+      noise n => gain g => dac;
+      sinosc s => g;
+      .3 => g.gain;
+      while( true ) { 100::ms => now; }
+    */
+
 
     // add halfrect
     //! half wave rectifier

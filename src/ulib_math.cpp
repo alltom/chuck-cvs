@@ -64,6 +64,10 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 {
     // name
     QUERY->set_name( QUERY, "math" );
+
+   /*! \example
+     math.sin( math.pi /2.0 ) => stdout;
+   */    
     
     // sin
     QUERY->add_export( QUERY, "float", "sin", sin_impl, TRUE );

@@ -52,8 +52,14 @@ int setenv( char *n, char *v, int i )
 //-----------------------------------------------------------------------------
 DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 {
+
+
     QUERY->set_name( QUERY, "std" );
-    
+
+   /*! \example
+     std.rand2f( 100.0, 1000.0 ) => stdout;
+   */    
+
     // add abs
     QUERY->add_export( QUERY, "float", "abs", abs_impl, TRUE );
     QUERY->add_param( QUERY, "float", "value" );
