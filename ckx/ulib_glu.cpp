@@ -78,25 +78,25 @@ CK_DLL_QUERY
 CK_DLL_FUNC( glu_LookAt_impl )
 {
 
-  t_CKFLOAT eye_x = GET_CK_FLOAT_N (ARGS,0);
-  t_CKFLOAT eye_y = GET_CK_FLOAT_N (ARGS,1);
-  t_CKFLOAT eye_z = GET_CK_FLOAT_N (ARGS,2);
-  t_CKFLOAT at_x = GET_CK_FLOAT_N (ARGS,3);
-  t_CKFLOAT at_y = GET_CK_FLOAT_N (ARGS,4);
-  t_CKFLOAT at_z = GET_CK_FLOAT_N (ARGS,5);
-  t_CKFLOAT up_x = GET_CK_FLOAT_N (ARGS,6);
-  t_CKFLOAT up_y = GET_CK_FLOAT_N (ARGS,7);
-  t_CKFLOAT up_z = GET_CK_FLOAT_N (ARGS,8);
+  t_CKFLOAT eye_x = pull_ckFLOAT(ARGS);
+  t_CKFLOAT eye_y = pull_ckFLOAT(ARGS);
+  t_CKFLOAT eye_z = pull_ckFLOAT(ARGS);
+  t_CKFLOAT at_x = pull_ckFLOAT(ARGS);
+  t_CKFLOAT at_y = pull_ckFLOAT(ARGS);
+  t_CKFLOAT at_z = pull_ckFLOAT(ARGS);
+  t_CKFLOAT up_x = pull_ckFLOAT(ARGS);
+  t_CKFLOAT up_y = pull_ckFLOAT(ARGS);
+  t_CKFLOAT up_z = pull_ckFLOAT(ARGS);
 
   gluLookAt(eye_x, eye_y, eye_z, at_x, at_y, at_z, up_x, up_y, up_z);
 
 }
 
 CK_DLL_FUNC( glu_Perspective_impl ) { 
-  t_CKFLOAT fovy = GET_CK_FLOAT_N (ARGS,0);
-  t_CKFLOAT aspect = GET_CK_FLOAT_N (ARGS,1);
-  t_CKFLOAT znear = GET_CK_FLOAT_N (ARGS,2);
-  t_CKFLOAT zfar = GET_CK_FLOAT_N (ARGS,3);
+  t_CKFLOAT fovy = pull_ckFLOAT(ARGS);
+  t_CKFLOAT aspect = pull_ckFLOAT(ARGS);
+  t_CKFLOAT znear = pull_ckFLOAT(ARGS);
+  t_CKFLOAT zfar = pull_ckFLOAT(ARGS);
 
   gluPerspective (fovy, aspect, znear, zfar );
 }

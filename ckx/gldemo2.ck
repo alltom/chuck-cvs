@@ -7,7 +7,7 @@
 
 gluck.Init();
 
-gluck.InitCallbacks(1, 0 ,0);
+gluck.InitCallbacks(1, 0 ,1);
 42 => uint placeholder;
 gluck.InitBasicWindow(placeholder);
 
@@ -46,6 +46,7 @@ gl.Enable (dummy);
 
 sinosc a => dac;
 
+
 noise n => biquad f => dac;
 
 0.99 => f.prad;
@@ -58,7 +59,7 @@ function void fmsyn() {
 	while ( true ) { 
 
 		std.abs ( 2.0 * ( -0.5 + t - math.floor(t)) ) => frac;
-		440.0 + 220.0 * frac => fc;
+		440.0 - 220.0 * frac => fc;
 
 		120.0 + 120.0 * math.sin( t * 0.2 ) => fm;  //modulate modulators
 	    	100.0 + 50.0 * math.sin ( t * 0.05 ) => ampM; //modulate mod amplitude.
@@ -118,8 +119,6 @@ function void thedrawloop () {
 		gluck.StrokeCharacter ( 0, 67);
 		gl.PopMatrix();
 
-		
-
 		//GLUUUUUUUCK!
 		math.fmod ( tm, 4.0 ) * 0.25 => nf;
 		gl.Color3f( 0.0 , 0.5 , nf);
@@ -165,8 +164,6 @@ while ( true ) {
 
 	gluck.MainLoopEvent(); //...
 
-	gluck.NeedDraw();
-
 //	if ( gluck.NeedDraw() ) {	
 		thedrawloop();
 //	}
@@ -178,6 +175,6 @@ while ( true ) {
 	0.1 + 0.25 * nf => n.gain;
 	100.0 + nf * 1000.0 => f.pfreq;
 	
-	tm + 0.033 => tm;
-	33::ms => now;
+	tm + 0.05 => tm;
+	50::ms => now;
 }

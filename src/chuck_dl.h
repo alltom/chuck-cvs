@@ -120,13 +120,14 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define GET_CK_TIME(ptr)       (*(t_CKTIME *)ptr)
 #define GET_CK_DUR(ptr)        (*(t_CKDUR *)ptr)
 
-#define GET_CK_FLOAT_N(ptr,n)  (*((t_CKFLOAT *)ptr+n))
-#define GET_CK_SINGLE_N(ptr,n) (*((float *)ptr+n))
-#define GET_CK_DOUBLE_N(ptr,n) (*((double *)ptr+n))
-#define GET_CK_INT_N(ptr,n)    (*((int *)ptr+n))
-#define GET_CK_UINT_N(ptr,n)   (*((t_CKUINT *)ptr+n))
-#define GET_CK_TIME_N(ptr,n)   (*((t_CKTIME *)ptr+n))
-#define GET_CK_DUR_N(ptr,n)    (*((t_CKDUR *)ptr+n))
+// param conversion with pointer advance
+inline t_CKFLOAT pull_ckFLOAT  ( void* &ptr) { t_CKFLOAT* t = (t_CKFLOAT *)ptr ; ptr = (void*)(t+1);  return *t; } 
+inline float     pull_ckSINGLE ( void* &ptr) { float* t     = (float *)ptr;      ptr = (void*)(t+1);  return *t; } 
+inline double    pull_ckDOUBLE ( void* &ptr) { double* t    = (double *)ptr;     ptr = (void*)(t+1);  return *t ; } 
+inline int       pull_ckINT    ( void* &ptr) { int* t       = (int *)ptr;        ptr = (void*)(t+1);  return *t ; } 
+inline t_CKUINT  pull_ckUINT   ( void* &ptr) { t_CKUINT* t  = (t_CKUINT *)ptr;   ptr = (void*)(t+1);  return *t ; } 
+inline t_CKTIME  pull_ckTIME   ( void* &ptr) { t_CKTIME* t  = (t_CKTIME *)ptr;   ptr = (void*)(t+1);  return *t ; } 
+inline t_CKDUR   pull_ckDUR    ( void* &ptr) { t_CKDUR* t   = (t_CKDUR *) ptr;   ptr = (void*)(t+1);  return *t ; } 
 
 
 

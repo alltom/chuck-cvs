@@ -216,15 +216,15 @@ CK_DLL_QUERY
 // Begin-->glBegin();
 CK_DLL_FUNC( gl_Begin_impl )
 {
-    t_CKUINT mode = GET_CK_UINT(ARGS);
+    t_CKUINT mode = pull_ckUINT(ARGS);
     glBegin( mode );
 }
 
 // BindTexture-->glBindTexture();
 CK_DLL_FUNC( gl_BindTexture_impl )
 {
-    t_CKUINT target  = GET_CK_UINT_N(ARGS,0);
-    t_CKUINT texture = GET_CK_UINT_N(ARGS,1);
+    t_CKUINT target  = pull_ckUINT(ARGS);
+    t_CKUINT texture = pull_ckUINT(ARGS);
     glBindTexture( target, texture );
 }
 
@@ -232,26 +232,26 @@ CK_DLL_FUNC( gl_BindTexture_impl )
 // Clear-->glClear()
 CK_DLL_FUNC( gl_Clear_impl )
 {
-    t_CKUINT v = GET_CK_UINT(ARGS);
+    t_CKUINT v = pull_ckUINT(ARGS);
     glClear( v );
 }
 
 // ClearColor-->glClearColor()
 CK_DLL_FUNC( gl_ClearColor_impl )
 {
-    t_CKFLOAT r = GET_CK_FLOAT(ARGS);
-    t_CKFLOAT g = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT b = GET_CK_FLOAT_N(ARGS,2);
-    t_CKFLOAT a = GET_CK_FLOAT_N(ARGS,3);
+    t_CKFLOAT r = pull_ckFLOAT(ARGS);
+    t_CKFLOAT g = pull_ckFLOAT(ARGS);
+    t_CKFLOAT b = pull_ckFLOAT(ARGS);
+    t_CKFLOAT a = pull_ckFLOAT(ARGS);
     glClearColor( r, g, b, a );
 }
 
 // Color3f->glColor3d()
 CK_DLL_FUNC( gl_Color3f_impl )
 {
-    t_CKFLOAT r = GET_CK_FLOAT(ARGS);
-    t_CKFLOAT g = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT b = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT r = pull_ckFLOAT(ARGS);
+    t_CKFLOAT g = pull_ckFLOAT(ARGS);
+    t_CKFLOAT b = pull_ckFLOAT(ARGS);
 
     glColor3d( r, g, b);
 }
@@ -259,10 +259,10 @@ CK_DLL_FUNC( gl_Color3f_impl )
 // Color4f->glColor4d()
 CK_DLL_FUNC( gl_Color4f_impl )
 {
-    t_CKFLOAT r = GET_CK_FLOAT(ARGS);
-    t_CKFLOAT g = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT b = GET_CK_FLOAT_N(ARGS,2);
-    t_CKFLOAT a = GET_CK_FLOAT_N(ARGS,3);
+    t_CKFLOAT r = pull_ckFLOAT(ARGS);
+    t_CKFLOAT g = pull_ckFLOAT(ARGS);
+    t_CKFLOAT b = pull_ckFLOAT(ARGS);
+    t_CKFLOAT a = pull_ckFLOAT(ARGS);
 
     glColor4d( r, g, b, a);
 }
@@ -270,14 +270,14 @@ CK_DLL_FUNC( gl_Color4f_impl )
 // Disable-->glDisable()
 CK_DLL_FUNC( gl_Disable_impl )
 {
-    t_CKUINT v = GET_CK_UINT(ARGS);
+    t_CKUINT v = pull_ckUINT(ARGS);
     glDisable( v );
 }
 
 // Enable-->glEnable
 CK_DLL_FUNC( gl_Enable_impl )
 {
-    t_CKUINT which = GET_CK_UINT(ARGS);
+    t_CKUINT which = pull_ckUINT(ARGS);
     glEnable( which );
 }
 
@@ -295,18 +295,18 @@ CK_DLL_FUNC( gl_Flush_impl )
 
 CK_DLL_FUNC( gl_FrontFace_impl )
 {
-    t_CKUINT mode = GET_CK_UINT(ARGS);
+    t_CKUINT mode = pull_ckUINT(ARGS);
     glFrontFace(mode);
 }
 
 CK_DLL_FUNC( gl_Frustum_impl )
 {
-    t_CKFLOAT left = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT right = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT bottom = GET_CK_FLOAT_N(ARGS,2);
-    t_CKFLOAT top = GET_CK_FLOAT_N(ARGS,3);
-    t_CKFLOAT znear = GET_CK_FLOAT_N(ARGS,4);
-    t_CKFLOAT zfar = GET_CK_FLOAT_N(ARGS,5);
+    t_CKFLOAT left = pull_ckFLOAT(ARGS);
+    t_CKFLOAT right = pull_ckFLOAT(ARGS);
+    t_CKFLOAT bottom = pull_ckFLOAT(ARGS);
+    t_CKFLOAT top = pull_ckFLOAT(ARGS);
+    t_CKFLOAT znear = pull_ckFLOAT(ARGS);
+    t_CKFLOAT zfar = pull_ckFLOAT(ARGS);
     glFrustum(left,right,bottom,top,znear,zfar);
 }
 
@@ -317,23 +317,23 @@ CK_DLL_FUNC( gl_GetError_impl )
 // 
 CK_DLL_FUNC( gl_Lighti_impl )
 {
-    t_CKUINT light = GET_CK_UINT_N(ARGS,0);
-    t_CKUINT pname = GET_CK_UINT_N(ARGS,1);
-    int      param =  GET_CK_INT_N(ARGS,2);
+    t_CKUINT light = pull_ckUINT(ARGS);
+    t_CKUINT pname = pull_ckUINT(ARGS);
+    int      param =  pull_ckINT(ARGS);
     glLighti(light, pname, param);
 }
 
 //
 CK_DLL_FUNC( gl_Lightf_impl )
 {
-    t_CKUINT light = GET_CK_UINT_N(ARGS,0);
-    t_CKUINT pname = GET_CK_UINT_N(ARGS,1);
-    t_CKFLOAT param = GET_CK_FLOAT_N(ARGS,2);
+    t_CKUINT light = pull_ckUINT(ARGS);
+    t_CKUINT pname = pull_ckUINT(ARGS);
+    t_CKFLOAT param = pull_ckFLOAT(ARGS);
     glLightf(light, pname, param);
 }
 
 CK_DLL_FUNC( gl_LineWidth_impl ) {  
-    t_CKFLOAT width = GET_CK_FLOAT(ARGS);
+    t_CKFLOAT width = pull_ckFLOAT(ARGS);
     glLineWidth(width);
 }
 
@@ -342,31 +342,31 @@ CK_DLL_FUNC( gl_LoadIdentity_impl ) {
 }
 
 CK_DLL_FUNC( gl_MatrixMode_impl ) {   
-    t_CKUINT mode = GET_CK_UINT(ARGS);
+    t_CKUINT mode = pull_ckUINT(ARGS);
     glMatrixMode(mode);
 }
 
 // Normal3f --> glNormal3d
 CK_DLL_FUNC( gl_Normal3f_impl ) {   
-    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT x = pull_ckFLOAT(ARGS);
+    t_CKFLOAT y = pull_ckFLOAT(ARGS);
+    t_CKFLOAT z = pull_ckFLOAT(ARGS);
     glNormal3d(x,y,z);
 }
 
 CK_DLL_FUNC( gl_Ortho_impl )
 {
-    t_CKFLOAT left = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT right = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT bottom = GET_CK_FLOAT_N(ARGS,2);
-    t_CKFLOAT top = GET_CK_FLOAT_N(ARGS,3);
-    t_CKFLOAT znear = GET_CK_FLOAT_N(ARGS,4);
-    t_CKFLOAT zfar = GET_CK_FLOAT_N(ARGS,5);
+    t_CKFLOAT left = pull_ckFLOAT(ARGS);
+    t_CKFLOAT right = pull_ckFLOAT(ARGS);
+    t_CKFLOAT bottom = pull_ckFLOAT(ARGS);
+    t_CKFLOAT top = pull_ckFLOAT(ARGS);
+    t_CKFLOAT znear = pull_ckFLOAT(ARGS);
+    t_CKFLOAT zfar = pull_ckFLOAT(ARGS);
     glOrtho(left,right,bottom,top,znear,zfar);
 }
 
 CK_DLL_FUNC( gl_PushAttrib_impl ) {   
-  t_CKUINT mask = GET_CK_UINT(ARGS);
+  t_CKUINT mask = pull_ckUINT(ARGS);
     glPushAttrib(mask);
 }
 
@@ -383,56 +383,56 @@ CK_DLL_FUNC( gl_PopMatrix_impl ) {
 }
 
 CK_DLL_FUNC( gl_PolygonMode_impl ) {   
-    t_CKUINT face = GET_CK_UINT(ARGS);
-    t_CKUINT mode = GET_CK_UINT_N(ARGS,1);
+    t_CKUINT face = pull_ckUINT(ARGS);
+    t_CKUINT mode = pull_ckUINT(ARGS);
     glPolygonMode(face, mode);
 }
 
 // Rotatef --> glRotated()
 CK_DLL_FUNC( gl_Rotatef_impl ) {   
-    t_CKFLOAT degrees = GET_CK_FLOAT(ARGS);
-    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,2);
-    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,3);
+    t_CKFLOAT degrees = pull_ckFLOAT(ARGS);
+    t_CKFLOAT x = pull_ckFLOAT(ARGS);
+    t_CKFLOAT y = pull_ckFLOAT(ARGS);
+    t_CKFLOAT z = pull_ckFLOAT(ARGS);
     glRotated(degrees, x, y, z);
 }
 
 // Scalef --> glScaled();
 CK_DLL_FUNC( gl_Scalef_impl ) {   
-    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT x = pull_ckFLOAT(ARGS);
+    t_CKFLOAT y = pull_ckFLOAT(ARGS);
+    t_CKFLOAT z = pull_ckFLOAT(ARGS);
     glScaled(x,y,z);
 }
 
 CK_DLL_FUNC( gl_ShadeModel_impl ) {   
-    t_CKUINT mode = GET_CK_UINT(ARGS);
+    t_CKUINT mode = pull_ckUINT(ARGS);
     glShadeModel(mode);
 }
 
 // TexCoord1f --> glTexCoord1d
 CK_DLL_FUNC( gl_TexCoord1f_impl ) {   
-    t_CKFLOAT u = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT u = pull_ckFLOAT(ARGS);
     glTexCoord1d(u);
 }
 
 // TexCoord2f --> glTexCoord2d
 CK_DLL_FUNC( gl_TexCoord2f_impl ) {   
-    t_CKFLOAT u = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT v = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT u = pull_ckFLOAT(ARGS);
+    t_CKFLOAT v = pull_ckFLOAT(ARGS);
     glTexCoord2d(u,v);
 }
 
 CK_DLL_FUNC( gl_TexImage1D_impl ) {   
 
-    t_CKUINT target = GET_CK_UINT_N(ARGS,0);
-    int  level  = GET_CK_INT_N(ARGS,1);
-    int  internalformat  = GET_CK_INT_N(ARGS,2);
-    t_CKUINT width = GET_CK_UINT_N(ARGS,3);
-    int  border = GET_CK_INT_N(ARGS,4);
-    t_CKUINT format = GET_CK_UINT_N(ARGS,5);
-    t_CKUINT type = GET_CK_UINT_N(ARGS,6);
-    t_CKUINT pixu = GET_CK_UINT_N(ARGS,7);
+    t_CKUINT target = pull_ckUINT(ARGS);
+    int  level  = pull_ckINT(ARGS);
+    int  internalformat  = pull_ckINT(ARGS);
+    t_CKUINT width = pull_ckUINT(ARGS);
+    int  border = pull_ckINT(ARGS);
+    t_CKUINT format = pull_ckUINT(ARGS);
+    t_CKUINT type = pull_ckUINT(ARGS);
+    t_CKUINT pixu = pull_ckUINT(ARGS);
     void* pixels = (void*)pixu;
 
     glTexImage1D(target, level, internalformat, width, border, format, type, pixels);
@@ -440,15 +440,15 @@ CK_DLL_FUNC( gl_TexImage1D_impl ) {
 
 CK_DLL_FUNC( gl_TexImage2D_impl ) {   
 
-    t_CKUINT target = GET_CK_UINT_N(ARGS,0);
-    int  level  = GET_CK_INT_N(ARGS,1);
-    int  internalformat  = GET_CK_INT_N(ARGS,2);
-    t_CKUINT width = GET_CK_UINT_N(ARGS,3);
-    t_CKUINT height = GET_CK_UINT_N(ARGS,4);
-    int  border = GET_CK_INT_N(ARGS,5);
-    t_CKUINT format = GET_CK_UINT_N(ARGS,6);
-    t_CKUINT type = GET_CK_UINT_N(ARGS,7);
-    t_CKUINT pixu = GET_CK_UINT_N(ARGS,8);
+    t_CKUINT target = pull_ckUINT(ARGS);
+    int  level  = pull_ckINT(ARGS);
+    int  internalformat  = pull_ckINT(ARGS);
+    t_CKUINT width = pull_ckUINT(ARGS);
+    t_CKUINT height = pull_ckUINT(ARGS);
+    int  border = pull_ckINT(ARGS);
+    t_CKUINT format = pull_ckUINT(ARGS);
+    t_CKUINT type = pull_ckUINT(ARGS);
+    t_CKUINT pixu = pull_ckUINT(ARGS);
     void* pixels = (void*)pixu;
 
     glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
@@ -457,32 +457,32 @@ CK_DLL_FUNC( gl_TexImage2D_impl ) {
 
 // Translatef --> glTranslated
 CK_DLL_FUNC( gl_Translatef_impl ) {   
-    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT x = pull_ckFLOAT(ARGS);
+    t_CKFLOAT y = pull_ckFLOAT(ARGS);
+    t_CKFLOAT z = pull_ckFLOAT(ARGS);
     glTranslated(x,y,z);
 }
 
 CK_DLL_FUNC( gl_Vertex2f_impl ) {   
-    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT x = pull_ckFLOAT(ARGS);
+    t_CKFLOAT y = pull_ckFLOAT(ARGS);
     glVertex2d(x,y);
 }
 
 // Vertex3f --> glVertex3d()
 CK_DLL_FUNC( gl_Vertex3f_impl ) {   
-    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
-    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
-    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT x = pull_ckFLOAT(ARGS);
+    t_CKFLOAT y = pull_ckFLOAT(ARGS);
+    t_CKFLOAT z = pull_ckFLOAT(ARGS);
     glVertex3d(x,y,z);
 }
 
 // 
 CK_DLL_FUNC( gl_Viewport_impl ) {   
-    int  x = GET_CK_INT_N(ARGS,0);
-    int  y = GET_CK_INT_N(ARGS,1);
-    t_CKUINT width = GET_CK_UINT_N(ARGS,2);
-    t_CKUINT height = GET_CK_UINT_N(ARGS,3);
+    int  x = pull_ckINT(ARGS);
+    int  y = pull_ckINT(ARGS);
+    t_CKUINT width = pull_ckUINT(ARGS);
+    t_CKUINT height = pull_ckUINT(ARGS);
     glViewport(x,y,width,height);
 }
 

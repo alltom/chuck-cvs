@@ -282,7 +282,7 @@ CK_DLL_QUERY
 
 CK_DLL_FUNC ( gluck_InitBasicWindow_impl ) { 
 
-    t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
+    t_CKUINT ctitle = pull_ckUINT(ARGS);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(640, 480);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -294,11 +294,11 @@ CK_DLL_FUNC ( gluck_InitBasicWindow_impl ) {
 }
 
 CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) { 
-    t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
-    int x = GET_CK_INT_N(ARGS,0);
-    int y = GET_CK_INT_N(ARGS,1);
-    int w = GET_CK_INT_N(ARGS,2);
-    int h = GET_CK_INT_N(ARGS,3);
+    t_CKUINT ctitle = pull_ckUINT(ARGS);
+    int x = pull_ckINT(ARGS);
+    int y = pull_ckINT(ARGS);
+    int w = pull_ckINT(ARGS);
+    int h = pull_ckINT(ARGS);
     
     glutInitWindowPosition(x, y);
     glutInitWindowSize(w, h);
@@ -313,7 +313,7 @@ CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) {
 
 CK_DLL_FUNC ( gluck_InitFullScreenWindow_impl ) { 
 
-    t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
+    t_CKUINT ctitle = pull_ckUINT(ARGS);
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(640, 480);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
@@ -338,7 +338,7 @@ CK_DLL_FUNC ( gluck_NeedIdle_impl ) {
 }
 
 CK_DLL_FUNC ( gluck_WatchMouse_impl ) { 
-    gluckstate->watchMouse      = ( GET_CK_INT(ARGS) != 0 );
+    gluckstate->watchMouse      = ( pull_ckINT(ARGS) != 0 );
     if ( gluckstate->watchMouse ) { 
         glutMouseFunc   (gluckMouseCB);
     }
@@ -348,7 +348,7 @@ CK_DLL_FUNC ( gluck_WatchMouse_impl ) {
 }
 
 CK_DLL_FUNC ( gluck_WatchMotion_impl ) { 
-    gluckstate->watchMotion     = ( GET_CK_INT(ARGS) != 0 );
+    gluckstate->watchMotion     = ( pull_ckINT(ARGS) != 0 );
     if ( gluckstate->watchMotion ) { 
         glutPassiveMotionFunc ( gluckPassiveMotionCB);
         glutMotionFunc ( gluckMotionCB);
@@ -360,7 +360,7 @@ CK_DLL_FUNC ( gluck_WatchMotion_impl ) {
 }
 
 CK_DLL_FUNC ( gluck_WatchKeyboard_impl ) { 
-    gluckstate->watchKeyboard   = ( GET_CK_INT(ARGS) != 0 );
+    gluckstate->watchKeyboard   = ( pull_ckINT(ARGS) != 0 );
     if ( gluckstate->watchKeyboard ) { 
         glutKeyboardFunc ( gluckKeyboardCB);
         glutSpecialFunc  ( gluckSpecialCB );
@@ -447,50 +447,51 @@ CK_DLL_FUNC( gluck_GetNextEvent_impl ) {
 }
 
 CK_DLL_FUNC( gluck_GetEventType_impl ) { 
-    int id = GET_CK_INT(ARGS);
+    int id = pull_ckINT(ARGS);
     RETURN->v_int = gluckstate->events[id].type;
 }
 
 
 CK_DLL_FUNC( gluck_GetEventX_impl ) { 
-    int id = GET_CK_INT(ARGS);
+    int id = pull_ckINT(ARGS);
     RETURN->v_int = gluckstate->events[id].x;
 }
 
 CK_DLL_FUNC( gluck_GetEventY_impl )  {
-    int id = GET_CK_INT(ARGS);
+    int id = pull_ckINT(ARGS);
     RETURN->v_int = gluckstate->events[id].y;
 }
 
 CK_DLL_FUNC( gluck_GetEventButton_impl ){
-    int id = GET_CK_INT(ARGS);
+    int id = pull_ckINT(ARGS);
     RETURN->v_int = gluckstate->events[id].button;
 }
 
 CK_DLL_FUNC( gluck_GetEventState_impl ) {
-    int id = GET_CK_INT(ARGS);
+    int id = pull_ckINT(ARGS);
     RETURN->v_int = gluckstate->events[id].state;
 }
 
 CK_DLL_FUNC( gluck_GetEventKey_impl ) {
-    int id = GET_CK_INT(ARGS);
+    int id = pull_ckINT(ARGS);
     RETURN->v_uint = (uint) gluckstate->events[id].key;
 }
 
 CK_DLL_FUNC( gluck_GetEventSKey_impl ) {
-    int id = GET_CK_INT(ARGS);
+    int id = pull_ckINT(ARGS);
     RETURN->v_int = gluckstate->events[id].skey;
 }
 
 
 CK_DLL_FUNC ( gluck_InitCallbacks_impl ) { 
 
-    gluckstate->watchMouse      = ( GET_CK_INT_N(ARGS, 0) != 0 );
-    gluckstate->watchMotion     = ( GET_CK_INT_N(ARGS, 1) != 0 );
-    gluckstate->watchKeyboard   = ( GET_CK_INT_N(ARGS, 2) != 0 );
+    gluckstate->watchMouse      = ( pull_ckINT(ARGS) != 0 );
+    gluckstate->watchMotion     = ( pull_ckINT(ARGS) != 0 );
+    gluckstate->watchKeyboard   = ( pull_ckINT(ARGS) != 0 );
     
     glutDisplayFunc (gluckDisplayCB);
     glutReshapeFunc (gluckReshapeCB);
+
     if ( gluckstate->watchMouse ) { 
         glutMouseFunc   (gluckMouseCB);
     }
@@ -514,28 +515,28 @@ CK_DLL_FUNC( gluck_Init_impl )
 
 CK_DLL_FUNC( gluck_InitWindowPosition_impl )
 {
-  int x = GET_CK_INT_N(ARGS,0);
-  int y = GET_CK_INT_N(ARGS,1);
+  int x = pull_ckINT(ARGS);
+  int y = pull_ckINT(ARGS);
   glutInitWindowPosition(x, y);
 }
 
 CK_DLL_FUNC( gluck_InitWindowSize_impl )
 {
-  int w = GET_CK_INT_N(ARGS,0);
-  int h = GET_CK_INT_N(ARGS,1);
+  int w = pull_ckINT(ARGS);
+  int h = pull_ckINT(ARGS);
   glutInitWindowSize(w, h);
 }
 
 CK_DLL_FUNC( gluck_InitDisplayMode_impl )
 {
-  t_CKUINT mode = GET_CK_UINT_N(ARGS,0);
+  t_CKUINT mode = pull_ckUINT(ARGS);
   glutInitDisplayMode(mode);
 }
 
 
 CK_DLL_FUNC( gluck_InitDisplayString_impl )
 {
-  t_CKUINT mode = GET_CK_UINT_N(ARGS,0);
+  t_CKUINT mode = pull_ckUINT(ARGS);
   glutInitDisplayString((char*)mode);
 }
 
@@ -551,42 +552,42 @@ CK_DLL_FUNC( gluck_MainLoopEvent_impl )
 
 CK_DLL_FUNC( gluck_CreateWindow_impl )
 {
-  //  t_CKSTRING mode = GET_CK_STRING_N(ARGS,0);
-  t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
+  //  t_CKSTRING mode = pull_ckSTRING(ARGS);
+  t_CKUINT ctitle = pull_ckUINT(ARGS);
   char title[] = "=gluck>";
   gluckstate->windowID = glutCreateWindow( (char*)title );
   RETURN->v_int = gluckstate->windowID; }
 
 CK_DLL_FUNC( gluck_DestroyWindow_impl )
 {
-  int window = GET_CK_INT_N(ARGS,0);
+  int window = pull_ckINT(ARGS);
   glutDestroyWindow( window );
 }
 
 CK_DLL_FUNC( gluck_SetWindow_impl )
 {
-  int window = GET_CK_INT_N(ARGS,0);
+  int window = pull_ckINT(ARGS);
   glutSetWindow(window);
 }
 
 CK_DLL_FUNC( gluck_SetWindowTitle_impl )
 {
-  t_CKUINT ctitle = GET_CK_UINT_N(ARGS,0);
+  t_CKUINT ctitle = pull_ckUINT(ARGS);
   char title[] = "gluck!"; //no chance here
   glutSetWindowTitle((char*)title);
 }
 
 CK_DLL_FUNC( gluck_ReshapeWindow_impl )
 {
-  int width = GET_CK_INT_N(ARGS,0);
-  int height = GET_CK_INT_N(ARGS,1);
+  int width = pull_ckINT(ARGS);
+  int height = pull_ckINT(ARGS);
   glutReshapeWindow(width, height);
 }
 
 CK_DLL_FUNC( gluck_PositionWindow_impl )
 {
-  int x = GET_CK_INT_N(ARGS,0);
-  int y = GET_CK_INT_N(ARGS,1);
+  int x = pull_ckINT(ARGS);
+  int y = pull_ckINT(ARGS);
   glutPositionWindow(x,y);
 }
 
@@ -609,7 +610,7 @@ CK_DLL_FUNC( gluck_FullScreen_impl )
 
 CK_DLL_FUNC( gluck_PostWindowRedisplay_impl )
 {
-  int window = GET_CK_INT_N(ARGS,0);
+  int window = pull_ckINT(ARGS);
   glutPostWindowRedisplay(window);
 }
 
@@ -625,8 +626,8 @@ CK_DLL_FUNC( gluck_SwapBuffers_impl )
 
 CK_DLL_FUNC( gluck_StrokeCharacter_impl )
 {
-  t_CKUINT font = GET_CK_UINT_N(ARGS,0);
-  int c = GET_CK_INT_N(ARGS,1);
+  t_CKUINT font = pull_ckUINT(ARGS);
+  int c = pull_ckINT(ARGS);
 
   //  glutStrokeCharacter((void*)&font, c);
   glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
@@ -634,26 +635,26 @@ CK_DLL_FUNC( gluck_StrokeCharacter_impl )
 
 CK_DLL_FUNC( gluck_StrokeWidth_impl )
 {
-  t_CKUINT font = GET_CK_UINT_N(ARGS,0);
-  int c = GET_CK_INT_N(ARGS,1);
+  t_CKUINT font = pull_ckUINT(ARGS);
+  int c = pull_ckINT(ARGS);
   RETURN->v_int = glutStrokeWidth( (void*)&font, c);
 }
 
 CK_DLL_FUNC( gluck_StrokeLength_impl )
 {  
-  t_CKUINT font = GET_CK_UINT_N(ARGS,0);
-  t_CKUINT str = GET_CK_UINT_N(ARGS,1);
+  t_CKUINT font = pull_ckUINT(ARGS);
+  t_CKUINT str = pull_ckUINT(ARGS);
 
   RETURN->v_int = glutStrokeLength( (void*)&font, (unsigned char*)str);
 }
 
 CK_DLL_FUNC( gluck_WireTeapot_impl )
 {
-  t_CKFLOAT size = GET_CK_FLOAT_N(ARGS,0);
+  t_CKFLOAT size = pull_ckFLOAT(ARGS);
   glutWireTeapot(size);
 }
 CK_DLL_FUNC( gluck_SolidTeapot_impl )
 {
-  t_CKFLOAT size = GET_CK_FLOAT_N(ARGS,0);
+  t_CKFLOAT size = pull_ckFLOAT(ARGS);
   glutSolidTeapot(size);
 }
