@@ -563,17 +563,20 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
 {
     Chuck_Type * ret_type = NULL;
     
+    // check to see if within function definition
     if( !env->func )
     {
         EM_error2( stmt->linepos, "'return' statement found outside function definition" );
         return FALSE;
     }
     
+    // check the type of the return
     if( stmt->val )
         ret_type = type_engine_check_exp( env, stmt->val );
     else
         ret_type = &t_void;
 
+    // check to see that return type matches the prototype
     if( ret_type && !equals( ret_type, env->func->def->ret_type ) )
     {
         EM_error2( stmt->linepos,
