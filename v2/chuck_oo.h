@@ -121,9 +121,18 @@ public:
 struct Chuck_Object : Chuck_VM_Object
 {
 public:
-    // Chuck_Object();
+    Chuck_Object();
+    virtual ~Chuck_Object();
+
 public:
+    // virtual table
     Chuck_VTable * vtable;
+    // reference to type
+    Chuck_Type * type_ref;
+    // the size of the data region
+    t_CKUINT * size;
+    // data for the object
+    t_CKBYTE * data;
 };
 
 

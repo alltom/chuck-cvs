@@ -150,8 +150,7 @@ void Chuck_VM_Alloc::free_object( Chuck_VM_Object * obj )
 // desc: constructor
 //-----------------------------------------------------------------------------
 Chuck_VM_Alloc::Chuck_VM_Alloc()
-{
-}
+{ }
 
 
 
@@ -161,5 +160,38 @@ Chuck_VM_Alloc::Chuck_VM_Alloc()
 // desc: destructor
 //-----------------------------------------------------------------------------
 Chuck_VM_Alloc::~Chuck_VM_Alloc()
+{ }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_Object()
+// desc: constructor
+//-----------------------------------------------------------------------------
+Chuck_Object::Chuck_Object()
 {
+    // zero virtual table
+    vtable = NULL;
+    // zero type
+    type_ref = NULL;
+    // zero size
+    size = 0;
+    // zero data
+    data = NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_Object()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Object::~Chuck_Object()
+{
+    // free
+    if( vtable ) { delete vtable; vtable = NULL; }
+    if( type_ref ) { type_ref->release(); type_ref = NULL; }
+    if( data ) { delete [] data; size = 0; data = NULL; }
 }
