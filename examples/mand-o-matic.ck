@@ -7,7 +7,7 @@
 // our patch
 Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 // set the gain
-.8 => r.gain;
+.95 => r.gain;
 // set the reverb mix
 .2 => r.mix;
 // set max delay for echo
@@ -26,7 +26,7 @@ fun void echo_shred( )
     while( true )
     {
         std.rand2f(0.0,1.0) => decider;
-        if( decider < .3 ) 0.0 => mix;
+        if( decider < .35 ) 0.0 => mix;
         else if( decider < .55 ) .08 => mix;
         else if( decider < .8 ) .5 => mix;
         else .15 => mix;
@@ -63,26 +63,29 @@ while( true )
     // pluck it!
     std.rand2f( 0.2, 0.9 ) => mand.pluck;
 
-    if( std.randf() > 0.7 )
+    if( std.randf() > 0.8 )
     { 500::ms => now; }
-    else if( std.randf() > .7 )
+    else if( std.randf() > .85 )
     { 250::ms => now; }
-    else if( std.randf() > -0.8 )
+    else if( std.randf() > -0.85 )
     { .125::second => now; }
     else
     {
-        0 => int i => int pick_dir;
+        1 => int i => int pick_dir;
         // how many times
-        4 * std.rand2( 1, 4 ) => int pick;
+        4 * std.rand2( 1, 6 ) => int pick;
         0.0 => float pluck;
+        0.8 / (float)pick => float inc;
         // time loop
         for( ; i < pick; i++ )
         {
-            std.rand2f(.2,.3) + (float)i*.035 => pluck;
+            75::ms => now;
+            std.rand2f(.2,.3) + (float)i*inc => pluck;
             pluck + -.2 * (float)pick_dir => mand.pluck;
             // simulate pluck direction
             !pick_dir => pick_dir;
-            75::ms => now;
         }
+        // let time pass for final pluck
+        75::ms => now;
     }
 }
