@@ -319,6 +319,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
     QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
 
+    // add Mandolin
     QUERY->ugen_add( QUERY, "Mandolin", NULL );
     QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluck, NULL, "float", "pluck" );
@@ -328,7 +329,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDamping, NULL, "float", "stringDamping" );
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, NULL, "float", "stringDetune" );
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" );
-
 
     // add Shakers
     QUERY->ugen_add( QUERY, "Shakers", NULL );
