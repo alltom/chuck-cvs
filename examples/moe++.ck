@@ -35,7 +35,7 @@ while( true )
     // increment v
     v + .1 => v;
     // randomize gain
-    std.rand2f( .04, .2 ) => g.gain;
+    std.rand2f( .1, .5 ) => g.gain;
     // advance time
     (70.0 + math.sin(v)*10.0)::ms => now;
 }

@@ -1,5 +1,5 @@
 // run each stooge, or run three stooges concurrently
-// %> chuck moe larry curly
+// %> chuck moe++ larry++ curly++
 
 // impulse to filter to dac
 sndbuf i => biquad f => gain g => JCRev r => dac;
@@ -34,7 +34,7 @@ while( true )
     // increment v
     v + .1 => v;
     // randomize gain
-    std.rand2f( .02, .2 ) => g.gain;
+    std.rand2f( .05, .4 ) => g.gain;
     // advance time
     (71.0+math.sin(v)*10.0)::ms => now;
 }

@@ -1,5 +1,5 @@
 // run each stooge, or run three stooges concurrently
-// %> chuck moe larry curly
+// %> chuck moe++ larry++ curly++
 
 // impulse to filter to dac
 sndbuf i => JCRev r => dac;
