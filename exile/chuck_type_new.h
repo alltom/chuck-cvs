@@ -234,8 +234,10 @@ struct Chuck_Type
     t_CKUINT self_size;
     // array size (equals 0 means not array, else dimension of array)
     t_CKUINT array_depth;
-    // type environment
-    Chuck_Namespace * nspc;
+    // type info
+    Chuck_Namespace * info;
+	// owner of the type
+	Chuck_Namespace * owner;
 
 public:
     // copy

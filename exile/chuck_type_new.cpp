@@ -45,11 +45,7 @@
 //-----------------------------------------------------------------------------
 struct Chuck_Type t_void = { te_void, "void", NULL, 0 };
 struct Chuck_Type t_int = { te_int, "int", NULL, sizeof(t_CKINT) };
-struct Chuck_Type t_uint = { te_uint, "uint", NULL, sizeof(t_CKUINT) };
-struct Chuck_Type t_single = { te_single, "single", NULL, sizeof(float) };
-// NOTE: chuck float == c double
 struct Chuck_Type t_float = { te_float, "float", NULL, sizeof(double) };
-struct Chuck_Type t_double = { te_double, "double", NULL, sizeof(double) };
 struct Chuck_Type t_time = { te_time, "time", NULL, sizeof(t_CKTIME) };
 struct Chuck_Type t_dur = { te_dur, "dur", NULL, sizeof(t_CKTIME) };
 struct Chuck_Type t_object = { te_object, "object", NULL, sizeof(void *) };
@@ -69,6 +65,9 @@ struct Chuck_Type t_midiin = { te_midiin, "midiin", &t_object, sizeof(void *) };
 struct Chuck_Type t_stdout = { te_stdout, "@stdout", &t_object, sizeof(void *) };
 struct Chuck_Type t_stderr ={ te_stdout, "@stderr", &t_object, sizeof(void *) };
 /* exile
+struct Chuck_Type t_uint = { te_uint, "uint", NULL, sizeof(t_CKUINT) };
+struct Chuck_Type t_single = { te_single, "single", NULL, sizeof(float) };
+struct Chuck_Type t_double = { te_double, "double", NULL, sizeof(double) };
 struct Chuck_Type t_code = { te_code, "code", NULL, sizeof(void *) };
 struct Chuck_Type t_tuple = { te_tuple, "tuple", NULL, sizeof(void *) };
 struct Chuck_Type t_pattern = { te_pattern, "pattern", &t_object, sizeof(void *) };
@@ -82,6 +81,7 @@ struct Chuck_Type t_host = { te_host, "host", &t_object, sizeof(void *) }; */
 // function prototypes
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
+t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_stmt_list( Chuck_Env * env, a_Stmt_List list );
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
