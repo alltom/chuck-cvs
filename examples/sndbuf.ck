@@ -1,7 +1,11 @@
+// the patch
 sndbuf buf => dac;
+// load
 "snare.wav" => buf.read;
-1.0 => buf.rate;
+// play with rate 1.0
+1.0 => buf.play;
 
+// time loop
 while( true )
 {
     0 => buf.pos;
