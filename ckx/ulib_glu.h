@@ -36,11 +36,11 @@
 #include "chuck_dl.h"
 
 // query
-DLL_QUERY glu_query( Chuck_DL_Query * QUERY );
+//DLL_QUERY glu_query( Chuck_DL_Query * QUERY );
+CK_DLL_QUERY;
 
 // exports
 CK_DLL_FUNC( glu_LookAt_impl );
 CK_DLL_FUNC( glu_Perspective_impl );
-
 
 #endif

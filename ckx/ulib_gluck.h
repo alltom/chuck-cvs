@@ -36,10 +36,26 @@
 #include "chuck_dl.h"
 
 // query
-DLL_QUERY gluck_query( Chuck_DL_Query * QUERY );
+//DLL_QUERY gluck_query( Chuck_DL_Query * QUERY );
+CK_DLL_QUERY;
 
 // exports
 CK_DLL_FUNC( gluck__impl );
+
+//gluck 'shortcut' functions
+CK_DLL_FUNC( gluck_BasicWindow_impl ); // -arg for name, - makes double buff, RGBA, depth, 0,0, 640 x 480
+CK_DLL_FUNC( gluck_SizedWindow_impl ); // -arg for name, x, y, w,h - basicwindow with size
+CK_DLL_FUNC( gluck_FullScreenWindow_impl ); // -arg for name, x, y - fullscreen mode
+
+//map standard glut calls for completeness
+CK_DLL_FUNC( gluck_Init_impl );
+CK_DLL_FUNC( gluck_CreateWindow_impl );
+CK_DLL_FUNC( gluck_InitDisplayMode_impl );
+CK_DLL_FUNC( gluck_Init_impl );
+CK_DLL_FUNC( gluck_Init_impl );
+CK_DLL_FUNC( gluck_Init_impl );
+CK_DLL_FUNC( gluck_Init_impl );
+CK_DLL_FUNC( gluck_Init_impl );
 
 
 #endif

@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Philip L. Davidson (philipd@alumni.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ulib_gl.h"
@@ -39,26 +40,439 @@
 #endif
 
 
+// lazy phil's preprocessor functions
+// if these shouldn't be here, tell me
+#define GL_CKADDEXPORT(t, n) QUERY->add_export( QUERY, #t, #n, gl_##n##_impl, TRUE )
+#define GL_CKADDPARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
+
 
 //-----------------------------------------------------------------------------
 // name: gl_query()
 // desc: query entry point
 //-----------------------------------------------------------------------------
-DLL_QUERY gl_query( Chuck_DL_Query * QUERY )
+//DLL_QUERY gl_query( Chuck_DL_Query * QUERY )
+CK_DLL_QUERY
 {
     QUERY->set_name( QUERY, "gl" );
     
-    // add Begin
-    QUERY->add_export( QUERY, "void", "Begin", gl_Begin_impl, TRUE );
-    QUERY->add_param( QUERY, "int", "which" );
+    // Add Begin
+    GL_CKADDEXPORT ( void, Begin );
+    GL_CKADDPARAM  ( uint, which );
+
+    GL_CKADDEXPORT ( void, BindTexture );
+    GL_CKADDPARAM  ( uint, target ); 
+    GL_CKADDPARAM  ( uint, texture ); 
+
+    GL_CKADDEXPORT( void, Clear );
+    GL_CKADDPARAM( uint, mask );  //do we have a bitfield op?
+
+    GL_CKADDEXPORT( void, ClearColor );
+    GL_CKADDPARAM( float, r ); 
+    GL_CKADDPARAM( float, g ); 
+    GL_CKADDPARAM( float, b ); 
+    GL_CKADDPARAM( float, a ); 
+
+    GL_CKADDEXPORT( void, Color3f );
+    GL_CKADDPARAM( float, r ); 
+    GL_CKADDPARAM( float, g ); 
+    GL_CKADDPARAM( float, b ); 
+
+    GL_CKADDEXPORT( void, Color4f );
+    GL_CKADDPARAM( float, r ); 
+    GL_CKADDPARAM( float, g ); 
+    GL_CKADDPARAM( float, b ); 
+    GL_CKADDPARAM( float, a ); 
+
+    GL_CKADDEXPORT( void, Disable );
+    GL_CKADDPARAM( uint, cap ); 
+
+    GL_CKADDEXPORT( void, Enable );
+    GL_CKADDPARAM( uint, cap ); 
+
+    GL_CKADDEXPORT( void, End );
+
+    GL_CKADDEXPORT( void, Flush );
+
+    GL_CKADDEXPORT( void, FrontFace );
+    GL_CKADDPARAM(uint, mode);
+
+    GL_CKADDEXPORT( void, Frustum );
+    GL_CKADDPARAM(float, left );
+    GL_CKADDPARAM(float, right );
+    GL_CKADDPARAM(float, bottom );
+    GL_CKADDPARAM(float, top );
+    GL_CKADDPARAM(float, znear );
+    GL_CKADDPARAM(float, zfar );
+
+    //let's do gl gets... but we need arrays, and then pointers to them!
+    //GL_CKADDEXPORT( void, GetBooleanv );
+
+    GL_CKADDEXPORT( void, Lighti );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( uint, pname );
+    GL_CKADDPARAM ( int, param );
+
+    GL_CKADDEXPORT( void, Lightf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( uint, pname );
+    GL_CKADDPARAM ( float, param );
+
+    GL_CKADDEXPORT( void, LineWidth );
+    GL_CKADDPARAM ( float, width );
+
+    GL_CKADDEXPORT( void, LoadIdentity );
+
+    GL_CKADDEXPORT( void, MatrixMode );
+    GL_CKADDPARAM ( uint, mode );
+
+    GL_CKADDEXPORT( void, Normal3f );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+    GL_CKADDEXPORT( void, PushAttrib );
+    GL_CKADDPARAM ( uint, which );
+
+    GL_CKADDEXPORT( void, PopAttrib );
+
+    GL_CKADDEXPORT( void, PushMatrix );
+
+    GL_CKADDEXPORT( void, PopMatrix );
+
+    GL_CKADDEXPORT( void, PolygonMode );
+    GL_CKADDPARAM ( uint, face );
+    GL_CKADDPARAM ( uint, mode );
+
+    GL_CKADDEXPORT( void, Rotatef );
+    GL_CKADDPARAM ( float, degrees );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+    GL_CKADDEXPORT( void, Scalef );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+    GL_CKADDEXPORT( void, ShadeModel );
+    GL_CKADDPARAM ( uint, mode );
+
+    GL_CKADDEXPORT( void, TexCoord1f );
+    GL_CKADDPARAM ( float, u );
+
+    GL_CKADDEXPORT( void, TexCoord2f );
+    GL_CKADDPARAM ( float, u );
+    GL_CKADDPARAM ( float, v );
+
+    GL_CKADDEXPORT( void, TexImage1D );
+    GL_CKADDPARAM ( uint, target );
+    GL_CKADDPARAM ( int, level );
+    GL_CKADDPARAM ( int, internalformat );
+    GL_CKADDPARAM ( uint, width );
+    GL_CKADDPARAM ( int, border );
+    GL_CKADDPARAM ( uint, format );
+    GL_CKADDPARAM ( uint, type );
+    GL_CKADDPARAM ( void, pixels ); // void*!!
+
+    GL_CKADDEXPORT( void, TexImage2D );
+    GL_CKADDPARAM ( uint, target );
+    GL_CKADDPARAM ( uint, level );
+    GL_CKADDPARAM ( uint, internalformat );
+    GL_CKADDPARAM ( uint, width );
+    GL_CKADDPARAM ( uint, height );
+    GL_CKADDPARAM ( uint, border );
+    GL_CKADDPARAM ( uint, format );
+    GL_CKADDPARAM ( uint, type );
+    GL_CKADDPARAM ( void, pixels ); // void*!!
+
+    GL_CKADDEXPORT( void, Translatef );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+    GL_CKADDEXPORT( void, Vertex3f );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+    GL_CKADDEXPORT( void, Vertex2f );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+
+    GL_CKADDEXPORT( void, Viewport );
+    GL_CKADDPARAM ( int, x );
+    GL_CKADDPARAM ( int, y );
+    GL_CKADDPARAM ( uint, width );
+    GL_CKADDPARAM ( uint, height );
     
     return TRUE;
 }
 
 
-// Begin
+// Begin-->glBegin();
 CK_DLL_FUNC( gl_Begin_impl )
 {
-    t_CKUINT v = *(t_CKUINT *)ARGS;
-    glBegin( v );
+    t_CKUINT mode = GET_CK_UINT(ARGS);
+    glBegin( mode );
 }
+
+// BindTexture-->glBindTexture();
+CK_DLL_FUNC( gl_BindTexture_impl )
+{
+    t_CKUINT target  = GET_CK_UINT_N(ARGS,0);
+    t_CKUINT texture = GET_CK_UINT_N(ARGS,1);
+    glBindTexture( target, texture );
+}
+
+
+// Clear-->glClear()
+CK_DLL_FUNC( gl_Clear_impl )
+{
+    t_CKUINT v = GET_CK_UINT(ARGS);
+    glClear( v );
+}
+
+// ClearColor-->glClearColor()
+CK_DLL_FUNC( gl_ClearColor_impl )
+{
+    t_CKFLOAT r = GET_CK_FLOAT(ARGS);
+    t_CKFLOAT g = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT b = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT a = GET_CK_FLOAT_N(ARGS,3);
+    glClearColor( r, g, b, a );
+}
+
+// Color3f->glColor3d()
+CK_DLL_FUNC( gl_Color3f_impl )
+{
+    t_CKFLOAT r = GET_CK_FLOAT(ARGS);
+    t_CKFLOAT g = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT b = GET_CK_FLOAT_N(ARGS,2);
+
+    glColor3d( r, g, b);
+}
+
+// Color4f->glColor4d()
+CK_DLL_FUNC( gl_Color4f_impl )
+{
+    t_CKFLOAT r = GET_CK_FLOAT(ARGS);
+    t_CKFLOAT g = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT b = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT a = GET_CK_FLOAT_N(ARGS,3);
+
+    glColor4d( r, g, b, a);
+}
+
+// Disable-->glDisable()
+CK_DLL_FUNC( gl_Disable_impl )
+{
+    t_CKUINT v = GET_CK_UINT(ARGS);
+    glDisable( v );
+}
+
+// Enable-->glEnable
+CK_DLL_FUNC( gl_Enable_impl )
+{
+    t_CKUINT which = GET_CK_UINT(ARGS);
+    glEnable( which );
+}
+
+// End->glEnd()
+CK_DLL_FUNC( gl_End_impl )
+{
+    glEnd();
+}
+
+// etc....
+CK_DLL_FUNC( gl_Flush_impl )
+{
+    glFlush();
+}
+
+CK_DLL_FUNC( gl_FrontFace_impl )
+{
+    t_CKUINT mode = GET_CK_UINT(ARGS);
+    glFrontFace(mode);
+}
+
+CK_DLL_FUNC( gl_Frustum_impl )
+{
+    t_CKFLOAT left = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT right = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT bottom = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT top = GET_CK_FLOAT_N(ARGS,3);
+    t_CKFLOAT znear = GET_CK_FLOAT_N(ARGS,4);
+    t_CKFLOAT zfar = GET_CK_FLOAT_N(ARGS,5);
+    glFrustum(left,right,bottom,top,znear,zfar);
+}
+
+// 
+CK_DLL_FUNC( gl_Lighti_impl )
+{
+    t_CKUINT light = GET_CK_UINT_N(ARGS,0);
+    t_CKUINT pname = GET_CK_UINT_N(ARGS,1);
+    int      param =  GET_CK_INT_N(ARGS,2);
+    glLighti(light, pname, param);
+}
+
+//
+CK_DLL_FUNC( gl_Lightf_impl )
+{
+    t_CKUINT light = GET_CK_UINT_N(ARGS,0);
+    t_CKUINT pname = GET_CK_UINT_N(ARGS,1);
+    t_CKFLOAT param = GET_CK_FLOAT_N(ARGS,2);
+    glLightf(light, pname, param);
+}
+
+CK_DLL_FUNC( gl_LineWidth_impl ) {  
+    t_CKFLOAT width = GET_CK_FLOAT(ARGS);
+    glLineWidth(width);
+}
+
+CK_DLL_FUNC( gl_LoadIdentity_impl ) {   
+    glLoadIdentity();
+}
+
+CK_DLL_FUNC( gl_MatrixMode_impl ) {   
+    t_CKUINT mode = GET_CK_UINT(ARGS);
+    glMatrixMode(mode);
+}
+
+// Normal3f --> glNormal3d
+CK_DLL_FUNC( gl_Normal3f_impl ) {   
+    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    glNormal3d(x,y,z);
+}
+
+CK_DLL_FUNC( gl_PushAttrib_impl ) {   
+  t_CKUINT mask = GET_CK_UINT(ARGS);
+    glPushAttrib(mask);
+}
+
+CK_DLL_FUNC( gl_PopAttrib_impl ) {   
+    glPopAttrib();
+}
+
+CK_DLL_FUNC( gl_PushMatrix_impl ) {   
+    glPushMatrix();
+}
+
+CK_DLL_FUNC( gl_PopMatrix_impl ) {   
+    glPopMatrix();
+}
+
+CK_DLL_FUNC( gl_PolygonMode_impl ) {   
+    t_CKUINT face = GET_CK_UINT(ARGS);
+    t_CKUINT mode = GET_CK_UINT_N(ARGS,1);
+    glPolygonMode(face, mode);
+}
+
+// Rotatef --> glRotated()
+CK_DLL_FUNC( gl_Rotatef_impl ) {   
+    t_CKFLOAT degrees = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,2);
+    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,3);
+    glRotated(degrees, x, y, z);
+}
+
+// Scalef --> glScaled();
+CK_DLL_FUNC( gl_Scalef_impl ) {   
+    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    glScaled(x,y,z);
+}
+
+CK_DLL_FUNC( gl_ShadeModel_impl ) {   
+    t_CKUINT mode = GET_CK_UINT(ARGS);
+    glShadeModel(mode);
+}
+
+// TexCoord1f --> glTexCoord1d
+CK_DLL_FUNC( gl_TexCoord1f_impl ) {   
+    t_CKFLOAT u = GET_CK_FLOAT_N(ARGS,0);
+    glTexCoord1d(u);
+}
+
+// TexCoord2f --> glTexCoord2d
+CK_DLL_FUNC( gl_TexCoord2f_impl ) {   
+    t_CKFLOAT u = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT v = GET_CK_FLOAT_N(ARGS,1);
+    glTexCoord2d(u,v);
+}
+
+CK_DLL_FUNC( gl_TexImage1D_impl ) {   
+
+    t_CKUINT target = GET_CK_UINT_N(ARGS,0);
+    int  level  = GET_CK_INT_N(ARGS,1);
+    int  internalformat  = GET_CK_INT_N(ARGS,2);
+    t_CKUINT width = GET_CK_UINT_N(ARGS,3);
+    int  border = GET_CK_INT_N(ARGS,4);
+    t_CKUINT format = GET_CK_UINT_N(ARGS,5);
+    t_CKUINT type = GET_CK_UINT_N(ARGS,6);
+    t_CKUINT pixu = GET_CK_UINT_N(ARGS,7);
+    void* pixels = (void*)pixu;
+
+    glTexImage1D(target, level, internalformat, width, border, format, type, pixels);
+}
+
+CK_DLL_FUNC( gl_TexImage2D_impl ) {   
+
+    t_CKUINT target = GET_CK_UINT_N(ARGS,0);
+    int  level  = GET_CK_INT_N(ARGS,1);
+    int  internalformat  = GET_CK_INT_N(ARGS,2);
+    t_CKUINT width = GET_CK_UINT_N(ARGS,3);
+    t_CKUINT height = GET_CK_UINT_N(ARGS,4);
+    int  border = GET_CK_INT_N(ARGS,5);
+    t_CKUINT format = GET_CK_UINT_N(ARGS,6);
+    t_CKUINT type = GET_CK_UINT_N(ARGS,7);
+    t_CKUINT pixu = GET_CK_UINT_N(ARGS,8);
+    void* pixels = (void*)pixu;
+
+    glTexImage2D(target, level, internalformat, width, height, border, format, type, pixels);
+
+}
+
+// Translatef --> glTranslated
+CK_DLL_FUNC( gl_Translatef_impl ) {   
+    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    glTranslated(x,y,z);
+}
+
+CK_DLL_FUNC( gl_Vertex2f_impl ) {   
+    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
+    glVertex2d(x,y);
+}
+
+// Vertex3f --> glVertex3d()
+CK_DLL_FUNC( gl_Vertex3f_impl ) {   
+    t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,0);
+    t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,2);
+    glVertex3d(x,y,z);
+}
+
+// 
+CK_DLL_FUNC( gl_Viewport_impl ) {   
+    int  x = GET_CK_INT_N(ARGS,0);
+    int  y = GET_CK_INT_N(ARGS,1);
+    t_CKUINT width = GET_CK_UINT_N(ARGS,2);
+    t_CKUINT height = GET_CK_UINT_N(ARGS,3);
+    glViewport(x,y,width,height);
+}
+
+
+
+
+
+
+
+
+
+

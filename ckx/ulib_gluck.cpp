@@ -49,7 +49,8 @@
 // name: gluck_query()
 // desc: query entry point
 //-----------------------------------------------------------------------------
-DLL_QUERY gluck_query( Chuck_DL_Query * QUERY )
+//DLL_QUERY gluck_query( Chuck_DL_Query * QUERY )
+CK_DLL_QUERY
 {
     QUERY->set_name( QUERY, "gluck" );
     

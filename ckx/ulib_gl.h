@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Philip L. Davidson (phlipd@alumni.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #ifndef __ULIB_GL_H__
@@ -36,10 +37,12 @@
 #include "chuck_dl.h"
 
 // query
-DLL_QUERY gl_query( Chuck_DL_Query * QUERY );
+// DLL_QUERY gl_query( Chuck_DL_Query * QUERY );
+CK_DLL_QUERY;
 
 // exports
 CK_DLL_FUNC( gl_Begin_impl );
+CK_DLL_FUNC( gl_BindTexture_impl );
 CK_DLL_FUNC( gl_Clear_impl );
 CK_DLL_FUNC( gl_ClearColor_impl );
 CK_DLL_FUNC( gl_Color3f_impl );
@@ -50,16 +53,33 @@ CK_DLL_FUNC( gl_End_impl );
 CK_DLL_FUNC( gl_Flush_impl );
 CK_DLL_FUNC( gl_FrontFace_impl );
 CK_DLL_FUNC( gl_Frustum_impl );
+//genlists
+//gentextures
+CK_DLL_FUNC( gl_LineWidth_impl );
+CK_DLL_FUNC( gl_Lighti_impl );
+CK_DLL_FUNC( gl_Lightf_impl );
 CK_DLL_FUNC( gl_LoadIdentity_impl );
 CK_DLL_FUNC( gl_MatrixMode_impl );
 CK_DLL_FUNC( gl_Normal3f_impl );
+CK_DLL_FUNC( gl_Ortho_impl );
+CK_DLL_FUNC( gl_PointSize_impl );
+
+CK_DLL_FUNC( gl_PushAttrib_impl );
+CK_DLL_FUNC( gl_PopAttrib_impl );
+
 CK_DLL_FUNC( gl_PushMatrix_impl );
 CK_DLL_FUNC( gl_PopMatrix_impl );
+
 CK_DLL_FUNC( gl_PolygonMode_impl );
 CK_DLL_FUNC( gl_Rotatef_impl );
 CK_DLL_FUNC( gl_Scalef_impl );
 CK_DLL_FUNC( gl_ShadeModel_impl );
+CK_DLL_FUNC( gl_TexCoord1f_impl );
+CK_DLL_FUNC( gl_TexCoord2f_impl );
+CK_DLL_FUNC( gl_TexImage1D_impl );
+CK_DLL_FUNC( gl_TexImage2D_impl );
 CK_DLL_FUNC( gl_Translatef_impl );
+CK_DLL_FUNC( gl_Vertex2f_impl );
 CK_DLL_FUNC( gl_Vertex3f_impl );
 CK_DLL_FUNC( gl_Viewport_impl );
 

@@ -42,25 +42,35 @@
 
 
 
+#define GLU_CKADDEXPORT(t, n) QUERY->add_export( QUERY, #t, #n, glu_##n##_impl, TRUE )
+#define GLU_CKADDPARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
+
 //-----------------------------------------------------------------------------
 // name: glu_query()
 // desc: query entry point
 //-----------------------------------------------------------------------------
-DLL_QUERY glu_query( Chuck_DL_Query * QUERY )
+//DLL_QUERY glu_query( Chuck_DL_Query * QUERY )
+CK_DLL_QUERY
 {
     QUERY->set_name( QUERY, "glu" );
     
     // add LookAt
-    QUERY->add_export( QUERY, "void", "LookAt", gl_Begin_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "eye_x" );
-    QUERY->add_param( QUERY, "float", "eye_y" );
-    QUERY->add_param( QUERY, "float", "eye_z" );
-    QUERY->add_param( QUERY, "float", "at_x" );
-    QUERY->add_param( QUERY, "float", "at_y" );
-    QUERY->add_param( QUERY, "float", "at_z" );
-    QUERY->add_param( QUERY, "float", "up_x" );
-    QUERY->add_param( QUERY, "float", "up_y" );
-    QUERY->add_param( QUERY, "float", "up_z" );
+    GLU_CKADDEXPORT( void, LookAt);
+    GLU_CKADDPARAM ( float, eye_x );
+    GLU_CKADDPARAM ( float, eye_y );
+    GLU_CKADDPARAM ( float, eye_z );
+    GLU_CKADDPARAM ( float, at_x );
+    GLU_CKADDPARAM ( float, at_y );
+    GLU_CKADDPARAM ( float, at_z );
+    GLU_CKADDPARAM ( float, up_x );
+    GLU_CKADDPARAM ( float, up_y );
+    GLU_CKADDPARAM ( float, up_z );
+
+    GLU_CKADDEXPORT( void, Perspective );
+    GLU_CKADDPARAM ( float, fovy );
+    GLU_CKADDPARAM ( float, aspect );
+    GLU_CKADDPARAM ( float, near );
+    GLU_CKADDPARAM ( float, far );
     
     return TRUE;
 }
@@ -69,4 +79,26 @@ DLL_QUERY glu_query( Chuck_DL_Query * QUERY )
 // LookAt
 CK_DLL_FUNC( glu_LookAt_impl )
 {
+
+  t_CKFLOAT eye_x = GET_CK_FLOAT_N (ARGS,0);
+  t_CKFLOAT eye_y = GET_CK_FLOAT_N (ARGS,1);
+  t_CKFLOAT eye_z = GET_CK_FLOAT_N (ARGS,2);
+  t_CKFLOAT at_x = GET_CK_FLOAT_N (ARGS,3);
+  t_CKFLOAT at_y = GET_CK_FLOAT_N (ARGS,4);
+  t_CKFLOAT at_z = GET_CK_FLOAT_N (ARGS,5);
+  t_CKFLOAT up_x = GET_CK_FLOAT_N (ARGS,6);
+  t_CKFLOAT up_y = GET_CK_FLOAT_N (ARGS,7);
+  t_CKFLOAT up_z = GET_CK_FLOAT_N (ARGS,8);
+
+  gluLookAt(eye_x, eye_y, eye_z, at_x, at_y, at_z, up_x, up_y, up_z);
+
+}
+
+CK_DLL_FUNC( glu_Perspective_impl ) { 
+  t_CKFLOAT fovy = GET_CK_FLOAT_N (ARGS,0);
+  t_CKFLOAT aspect = GET_CK_FLOAT_N (ARGS,1);
+  t_CKFLOAT znear = GET_CK_FLOAT_N (ARGS,2);
+  t_CKFLOAT zfar = GET_CK_FLOAT_N (ARGS,3);
+
+  gluPerspective (fovy, aspect, znear, zfar );
 }
