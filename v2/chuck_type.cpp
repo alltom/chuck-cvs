@@ -1252,6 +1252,7 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl var_decl = decl->var_decl_list->var_decl;
+    Chuck_Value * value = NULL;
 
     // TODO: handle T a, b, c ...
     // look up the type
@@ -1298,7 +1299,11 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     // env->context->nspc.value.add( var_decl->id, 
     //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
     env->curr->value.add( var_decl->id,
-        new Chuck_Value( t, S_name(var_decl->id), NULL ) );
+        value = new Chuck_Value( t, S_name(var_decl->id), NULL ) );
+    // assign the offset
+    value->offset = env->curr->offset;
+    // move the offset (TODO: check the size)
+    env->curr->offset += t->size;
 
     return t;
 }

@@ -144,9 +144,11 @@ struct Chuck_Namespace
     Chuck_VM_Code * code;
     // parent env
     Chuck_Namespace * parent;
+    // address offset
+    t_CKUINT offset;
 
     // constructor
-	Chuck_Namespace() { parent = NULL; }
+	Chuck_Namespace() { parent = NULL; offset = 0; }
     // destructor
 	~Chuck_Namespace() { }
 
