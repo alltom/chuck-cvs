@@ -106,11 +106,11 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, NULL, "string", "write" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, sndbuf_cget_pos, "int", "pos" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_interp, sndbuf_cget_interp, "int", "interp" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_pos, "float", "rate" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_pos, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase, sndbuf_cget_pos, "float", "phase" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_rate, "float", "rate" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_freq, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase, sndbuf_cget_phase, "float", "phase" );
     //set only
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, NULL, "float", "phase_offset" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, sndbuf_cget_phase, "float", "phase_offset" );
     //get only
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_samples, "int", "samples" );
     QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" );
@@ -726,7 +726,7 @@ UGEN_CTRL sndbuf_ctrl_phase( t_CKTIME now, void * data, void * value ) {
 UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out )
 {
     sndbuf_data * d = (sndbuf_data *)data;
-    SET_NEXT_FLOAT( out, d->curf / (t_CKFLOAT)d->num_frames );
+    SET_NEXT_FLOAT( out, (t_CKFLOAT) d->curf / (t_CKFLOAT)d->num_frames );
 }
 
 
