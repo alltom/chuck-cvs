@@ -1913,7 +1913,7 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // recursively allocate
     ref = (t_CKUINT)do_alloc_array( 
         (t_CKINT *)reg_sp,
-        (t_CKINT *)(reg_sp + m_depth),
+        (t_CKINT *)(reg_sp + m_depth - 1),
         m_type_ref->size
     );
 
