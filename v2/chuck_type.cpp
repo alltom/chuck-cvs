@@ -840,6 +840,43 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         return NULL;
     }
 
+    // implicit cast
+    if( *left != *right )
+    {
+        // for some
+        switch( op )
+        {
+        case ae_op_plus:
+        case ae_op_minus:
+        case ae_op_times:
+        case ae_op_divide:
+        case ae_op_lt:
+        case ae_op_le:
+        case ae_op_gt:
+        case ae_op_ge:
+        case ae_op_eq:
+        case ae_op_neq:
+        case ae_op_percent:
+            // mark for cast
+            LR( te_int, te_float ) left = lhs->cast_to = &t_float;
+            else LR( te_float, te_int ) right = rhs->cast_to = &t_float;
+        break;
+        }
+
+        // no commute
+        switch( op )
+        {
+        case ae_op_plus_chuck:
+        case ae_op_minus_chuck:
+        case ae_op_times_chuck:
+        case ae_op_divide_chuck:
+        case ae_op_percent_chuck:
+            // mark for cast
+            LR( te_int, te_float ) left = lhs->cast_to = &t_float;
+        break;
+        }
+    }
+
     // based on the op
     switch( op )
     {
@@ -849,6 +886,9 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_unchuck:
         return type_engine_check_op_unchuck( env, lhs, rhs );
     
+    case ae_op_at_chuck:
+        return type_engine_check_op_at_chuck( env, lhs, rhs );
+
     case ae_op_plus_chuck:
     case ae_op_plus:
         LR( te_int, te_int ) return &t_int;
@@ -856,7 +896,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_dur, te_dur ) return &t_dur;
         COMMUTE( te_dur, te_time ) return &t_time;
     break;
-    
+
     case ae_op_minus_chuck:
     case ae_op_minus:
         LR( te_int, te_int ) return &t_int;
@@ -898,7 +938,6 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_s_xor_chuck:
     case ae_op_shift_right_chuck:
     case ae_op_shift_left_chuck:
-    case ae_op_percent_chuck:
     case ae_op_and:
     case ae_op_or:
     case ae_op_s_xor:
@@ -906,13 +945,13 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_s_or:
     case ae_op_shift_left:
     case ae_op_shift_right:
-    case ae_op_percent:
-        LR( te_int, te_int ) return &t_int;
+        LR( te_int, te_int ) return &t_int;        
     break;
 
-    // TODO: implement this
-    case ae_op_at_chuck:
-        return type_engine_check_op_at_chuck( env, lhs, rhs );
+    case ae_op_percent_chuck:
+    case ae_op_percent:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
     break;
     }
 
@@ -940,6 +979,9 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     // time advance ( dur => now )
     if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
         return right;
+
+    // implicit cast
+    LR( te_int, te_float ) left = lhs->cast_to = &t_float;
 
     // assignment or something else
     if( isa( left, right ) )
@@ -1049,6 +1091,9 @@ t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             "...(reason: --- right-side operand is not mutable)" );
         return NULL;
     }
+
+    // implicit cast
+    LR( te_int, te_float ) left = lhs->cast_to = &t_float;
 
     // primitive
     if( !isa( left, right ) )
@@ -1647,10 +1692,22 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
         // no match
         if( !isa( e->type, e1->type ) )
         {
-            EM_error2( func_call->linepos,
-                "argument '%i' of function call '%s' has type '%s' -- expecting type '%s'",
-                count, func->name.c_str(), e->type->c_name(), e1->type->c_name() );
-            return NULL;
+            // implicit cast
+            if( *e->type == t_int && *e1->type == t_float )
+            {
+                // int to float
+                e->cast_to = &t_float;
+            }
+            else
+            {
+                EM_error2( e->linepos,
+                    "argument '%i' of function call '%s(...)' has type '%s'...",
+                    count, func->name.c_str(), e->type->c_name() );
+                EM_error2( e->linepos,
+                    "...(expecting: type '%s')",
+                    e1->type->c_name() );
+                return NULL;
+            }
         }
 
         e = e->next;

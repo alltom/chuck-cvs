@@ -8,10 +8,10 @@ class AA
 
 5 => float f;
 
-fun void ha( int a, float aa )
-{ }
+fun int ha( int a, float aa )
+{ return 1; }
 
-ha( 1., 1 );
+ha( 1, 1 ) => float aaa;
 
 AA the;
 1 => the.x;

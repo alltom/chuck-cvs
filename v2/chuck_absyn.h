@@ -251,6 +251,7 @@ struct a_Exp_
     t_CKNSPC owner;
     t_CKUINT group_size;
     t_CKBOOL emit_var;
+    t_CKTYPE cast_to;
     a_Exp next;
     
     union
