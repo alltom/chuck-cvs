@@ -1611,12 +1611,42 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_check_array_subscripts( )
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_array_subscripts( Chuck_Env * env, a_Exp exp_list )
+{
+    a_Exp exp = exp_list;
+
+    // loop through
+    while( exp )
+    {
+        // if not int
+        if( !isa( exp->type, &t_int ) )
+        {
+            EM_error2( exp->linepos,
+                "incompatible array subscript type '%s'...",
+                exp->type->name.c_str() );
+            return FALSE;
+        }
+
+        exp = exp->next;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_check_exp_decl( )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
-    a_Var_Decl_List list = decl->var_decl_list;    a_Var_Decl var_decl = NULL;
+    a_Var_Decl_List list = decl->var_decl_list;
+    a_Var_Decl var_decl = NULL;
     Chuck_Value * value = NULL;
     t_CKBOOL primitive = FALSE;
     t_CKBOOL do_alloc = TRUE;
@@ -1694,6 +1724,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             Chuck_Type * t2 = t;
             // type check the exp
             if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
+                return NULL;
+            // make sure types are of int
+            if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
                 return NULL;
             // make new type
             t = env->context->new_Chuck_Type();

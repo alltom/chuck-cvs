@@ -2390,6 +2390,8 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                 //    "(emit): internal error: array not impl" );
                 //    return FALSE;
 
+                // emit indices
+                emit_engine_emit_exp( emit, var_decl->array->exp_list );
                 // emit array allocation
                 emit->append( new Chuck_Instr_Array_Alloc( type->array_depth, type ) );
             }
