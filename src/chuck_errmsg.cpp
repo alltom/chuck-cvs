@@ -129,7 +129,9 @@ t_CKBOOL EM_reset( c_str fname, FILE * fd )
     else yyin = fopen( fname, "r" );
     if (!yyin)
         EM_error2( 0, "no such file or directory" );
-        
+    else
+        fseek( yyin, 0, SEEK_SET );
+
     return (yyin != 0);
 }
 

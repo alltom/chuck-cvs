@@ -184,6 +184,8 @@ t_CKBOOL parse( c_str fname, FILE * fd = NULL )
     // parse
     ret = EM_reset( filename, fd );
     if( ret == FALSE ) return FALSE;
+    // TODO: clean g_program
+    g_program = NULL;
     ret = (yyparse( ) == 0);
 
     return ret;
@@ -327,6 +329,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
             
     // stat it
     fstat( (int)fd, &fs );
+    fseek( fd, 0, SEEK_SET );
 
     // send the first packet
     msg.param2 = (t_CKUINT)fs.st_size;
