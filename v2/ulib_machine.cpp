@@ -105,14 +105,22 @@ t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func proc_msg )
 CK_DLL_FUNC( machine_add_impl )
 {
     const char * v = *(const char **)ARGS;
-    RETURN->v_int = (int)the_func( MSG_ADD, 0, v, TRUE );
+    Net_Msg msg;
+
+    msg.type = MSG_ADD;
+    strcpy( msg.buffer, v );
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }
 
 // remove
 CK_DLL_FUNC( machine_remove_impl )
 {
     t_CKUINT v = *(t_CKUINT *)ARGS;
-    RETURN->v_int = (int)the_func( MSG_REMOVE, v, NULL, TRUE );
+    Net_Msg msg;
+    
+    msg.type = MSG_REMOVE;
+    msg.param = v;
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }
 
 // replace
@@ -120,11 +128,19 @@ CK_DLL_FUNC( machine_replace_impl )
 {
     t_CKUINT v = *(t_CKUINT *)ARGS;
     const char * v2 = *((const char **)ARGS+1);
-    RETURN->v_int = (int)the_func( MSG_REPLACE, v, v2, TRUE );
+    Net_Msg msg;
+    
+    msg.type = MSG_REPLACE;
+    msg.param = v;
+    strcpy( msg.buffer, v2 );
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }
 
 // status
 CK_DLL_FUNC( machine_status_impl )
 {
-    RETURN->v_int = (int)the_func( MSG_STATUS, 0, NULL, TRUE );
+    Net_Msg msg;
+    
+    msg.type = MSG_STATUS;
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }

@@ -980,7 +980,7 @@ struct sndbuf_data
         sampleratio = 1.0;
         chan = 0;
         curf = 0.0;
-        rate = 0.0;
+        rate = 1.0;
         
         eob = NULL;
         curr = NULL;

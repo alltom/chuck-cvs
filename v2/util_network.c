@@ -42,6 +42,7 @@
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -319,7 +320,7 @@ int ck_recvfrom( ck_socket sock, char * buffer, int len,
 
 
 //-----------------------------------------------------------------------------
-// name: ck_recv
+// name: ck_recv()
 // desc: recv a datagram
 //-----------------------------------------------------------------------------
 int ck_recv( ck_socket sock, char * buffer, int len ) 
@@ -339,6 +340,38 @@ int ck_recv( ck_socket sock, char * buffer, int len )
         return len;
     }
     else return recv( sock->sock, buffer, len, 0);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_send_timeout()
+// desc: ...
+//-----------------------------------------------------------------------------
+int ck_send_timeout( ck_socket sock, long sec, long usec )
+{
+    struct timeval t;
+    t.tv_sec = sec;
+    t.tv_usec = usec;
+    
+    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_SNDTIMEO, (const char *)&t, sizeof(t) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_recv_timeout()
+// desc: ...
+//-----------------------------------------------------------------------------
+int ck_recv_timeout( ck_socket sock, long sec, long usec )
+{
+    struct timeval t;
+    t.tv_sec = sec;
+    t.tv_usec = usec;
+    
+    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&t, sizeof(t) );
 }
 
 

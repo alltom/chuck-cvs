@@ -34,13 +34,16 @@
 #define __ULIB_MACHINE_H__
 
 #include "chuck_dl.h"
+#include "chuck_otf.h"
 
 class Chuck_VM;
 
+
 // query
 DLL_QUERY machine_query( Chuck_DL_Query * QUERY );
-typedef t_CKUINT (* proc_msg_func)( t_CKUINT, t_CKUINT, const char *, t_CKBOOL );
+typedef t_CKUINT (* proc_msg_func)( Net_Msg *, t_CKBOOL, void * );
 t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func func );
+
 
 // exports
 CK_DLL_FUNC( machine_add_impl );
