@@ -48,7 +48,7 @@ extern "C" int yyparse( void );
 #include "util_network.h"
 
 #include <signal.h>
-#ifndef __WINDOWS_DS__
+#ifndef __PLATFORM_WIN32__
 #define CHUCK_THREAD pthread_t
 #include <pthread.h>
 #include <unistd.h>
@@ -684,7 +684,7 @@ int main( int argc, char ** argv )
         fprintf( stderr, "[chuck]: cannot bind to udp port %i...\n", g_port );
     else
     {
-#ifndef __WINDOWS_DS__
+#ifndef __PLATFORM_WIN32__
         pthread_create( &g_tid, NULL, cb, NULL );
 #else
         g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)cb, NULL, 0, 0);
@@ -699,7 +699,7 @@ int main( int argc, char ** argv )
     usleep( 50000 );
     delete( vm );
     g_vm = NULL;
-#ifndef __WINDOWS_DS__
+#ifndef __PLATFORM_WIN32__
     pthread_kill( g_tid, 2 );
 #else
     CloseHandle( g_tid );
