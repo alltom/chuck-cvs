@@ -24,7 +24,7 @@
 
 //-----------------------------------------------------------------------------
 // file: chuck_emit.cpp
-// desc: ...
+// desc: chuck instruction emitter
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
@@ -60,6 +60,7 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
 t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
 t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
 t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
 t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
 t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp );
 t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
@@ -1076,10 +1077,445 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
 
 
 //-----------------------------------------------------------------------------
-// name:
-// desc: ...
+// name: emit_engine_emit_op()
+// desc: emit binary operator
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs )
+{
+    // get the types of the left and right
+    te_Type left = lhs->type->id;
+    te_Type right = rhs->type->id;
+
+    // operator
+    switch( op )
+    {    
+    // ----------------------------- num --------------------------------------
+    case ae_op_plus:
+        // time + dur
+        if( ( left == te_dur && right == te_time ) ||
+            ( left == te_time && right == te_dur ) )
+            emit->append( new Chuck_Instr_Add_double );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( new Chuck_Instr_Add_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( new Chuck_Instr_Add_double );
+                break;
+
+            default:
+                EM_error2( lhs->linepos, 
+                    "(emit): internal error: unhandled type '%i' in binary op '+'",
+                    left );
+                return FALSE;
+            }
+        }
+        break;
+    
+    case ae_op_minus:
+        if( ( left == te_time && right == te_dur ) ) // time - dur = time
+            emit->append( new Chuck_Instr_Minus_double );
+        else if( ( left == te_time && right == te_time ) ) // time - time = dur
+            emit->append( new Chuck_Instr_Minus_double );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( new Chuck_Instr_Minus_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( new Chuck_Instr_Minus_double );
+                break;
+
+            default:
+                EM_error2( lhs->linepos, 
+                    "(emit): internal error: unhandled '%i' in binary op '-'",
+                    left );
+                return FALSE;
+            }
+        }
+        break;
+    
+    case ae_op_times:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Times_int );
+            break;
+        case te_float:
+        case te_dur:
+            emit->append( new Chuck_Instr_Times_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '*'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_divide:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Divide_int );
+            break;
+        case te_float:
+        case te_dur:
+            emit->append( new Chuck_Instr_Divide_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '/'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_s_or:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Binary_Or );
+            break;
+        
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '|'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_s_and:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Binary_And );
+            break;
+        
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '&'",
+                left );
+            return FALSE;
+        }
+        break;
+
+    case ae_op_shift_left:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Binary_Shift_Left );
+            break;
+        
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '<<'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_shift_right:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Binary_Shift_Right );
+            break;
+        
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '>>'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_percent:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Mod_int );
+            break;
+        case te_float:
+        case te_time:
+        case te_dur:
+            emit->append( new Chuck_Instr_Mod_double );
+            break;
+        
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '%%'",
+                left );
+            return FALSE;
+        }
+        break;
+
+    case ae_op_s_xor:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Binary_Xor );
+            break;
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '^'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    // ----------------------------- chuck -------------------------------------
+    case ae_op_chuck:
+    {
+        a_Exp cl = lhs, cr = rhs;
+
+        // TODO: cross chuck
+        assert( cl->next == cr->next == NULL );
+        while( cr )
+        {
+            cl = lhs;
+            while( cl )
+            {
+                if( !emit_engine_emit_op_chuck( emit, cl, cr ) )
+                    return FALSE;
+                cl = cl->next;
+            }
+            
+            cr = cr->next;
+        }
+        break;
+    }
+    
+    case ae_op_unchuck:
+    {
+        a_Exp cl = lhs, cr = rhs;
+        
+        // TODO: cross chuck
+        assert( cl->next == cr->next == NULL );
+        while( cr )
+        {
+            cl = lhs;
+            while( cl )
+            {
+                if( !emit_engine_emit_op_unchuck( emit, cl, cr ) )
+                    return FALSE;
+                cl = cl->next;
+            }
+            
+            cr = cr->next;
+        }
+        break;
+    }
+    
+    case ae_op_at_chuck:
+    {
+        a_Exp cl = lhs, cr = rhs;
+        
+        // TODO: cross chuck
+        assert( cl->next == cr->next == NULL );
+        while( cr )
+        {
+            cl = lhs;
+            while( cl )
+            {
+                if( !emit_engine_emit_op_at_chuck( emit, cl, cr ) )
+                    return FALSE;
+                cl = cl->next;
+            }
+            
+            cr = cr->next;
+        }
+        break;
+    }
+    break;
+    
+    case ae_op_s_chuck:
+    case ae_op_plus_chuck:
+    case ae_op_minus_chuck:
+    case ae_op_times_chuck:
+    case ae_op_divide_chuck:
+    case ae_op_s_and_chuck:
+    case ae_op_s_or_chuck:
+    case ae_op_s_xor_chuck:
+    case ae_op_shift_right_chuck:
+    case ae_op_shift_left_chuck:
+    case ae_op_percent_chuck:
+        EM_error2( lhs->linepos,
+            "(emit): internal error: unhandled binary operator '%s'...",
+            op2str( op ) );
+        return FALSE;
+    break;
+
+    // -------------------------------- bool -----------------------------------        
+    case ae_op_eq:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Eq_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( new Chuck_Instr_Eq_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '=='",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_neq:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Neq_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( new Chuck_Instr_Neq_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '!='",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_lt:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Lt_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( new Chuck_Instr_Lt_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '<'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_le:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Le_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( new Chuck_Instr_Le_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '<='",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_gt:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Gt_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( new Chuck_Instr_Gt_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '>='",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_ge:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Ge_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( new Chuck_Instr_Ge_double );
+            break;
+
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '>='",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_and:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_And );
+            break;
+ 
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '&&'",
+                left );
+            return FALSE;
+        }
+        break;
+    
+    case ae_op_or:
+        switch( left )
+        {
+        case te_int:
+            emit->append( new Chuck_Instr_Or );
+            break;
+ 
+        default:
+            EM_error2( lhs->linepos,
+                "(emit): internal error: unhandled type '%i' in binary op '||'",
+                left );
+            return FALSE;
+        }
+        break;
+
+    default:
+        EM_error2( lhs->linepos,
+            "(emit): internal error: op '%s' not handled",
+            op2str( op ) );
+        return FALSE;
+    }
+        
+    return TRUE;
+}
 
 
 

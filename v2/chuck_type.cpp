@@ -961,7 +961,12 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             // TODO: const
             // assigment?
             if( rhs->s_meta == ae_meta_var )
+            {
+                // emit ref - remember for emitter
+                rhs->emit_var = TRUE;
+                // right side
                 return right;
+            }
 
             // error
             EM_error2( lhs->linepos,

@@ -24,7 +24,7 @@
 
 //-----------------------------------------------------------------------------
 // file: chuck_emit.h
-// desc: ...
+// desc: chuck instruction emitter
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)

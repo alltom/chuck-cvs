@@ -247,8 +247,9 @@ struct a_Exp_
     ae_Exp_Meta s_meta;
     t_CKTYPE type;
     t_CKNSPC owner;
-    a_Exp next;
     t_CKUINT group_size;
+    t_CKBOOL emit_var;
+    a_Exp next;
     
     union
     {

@@ -7,6 +7,9 @@ class AA
 	fun pure void foo();
 }
 
+AA the;
+1 => the.x;
+
 class BB extends AA
 {
     int y;
