@@ -1919,7 +1919,7 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top, t_CKUINT
     if( !base ) goto out_of_memory;
 
     // allocate the next level
-    for( i = 0; i < base->size(); i++ )
+    for( i = 0; i < base->capacity(); i++ )
     {
         // the next
         next = do_alloc_array( capacity+1, top, size );

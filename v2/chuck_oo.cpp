@@ -211,6 +211,8 @@ Chuck_Array4::Chuck_Array4( t_CKINT capacity )
     m_vector.resize( capacity );
     // reset size
     m_size = 0;
+    // set capacity
+    m_capacity = capacity;
 }
 
 
@@ -235,7 +237,7 @@ Chuck_Array4::~Chuck_Array4()
 t_CKUINT Chuck_Array4::addr( t_CKINT i )
 {
     // bound check
-    if( i < 0 || i >= m_size )
+    if( i < 0 || i >= m_capacity )
         return 0;
 
     // get the addr
@@ -252,7 +254,7 @@ t_CKUINT Chuck_Array4::addr( t_CKINT i )
 t_CKINT Chuck_Array4::get( t_CKINT i, t_CKUINT * val )
 {
     // bound check
-    if( i < 0 || i >= m_size )
+    if( i < 0 || i >= m_capacity )
         return 0;
 
     // get the value
@@ -272,7 +274,7 @@ t_CKINT Chuck_Array4::get( t_CKINT i, t_CKUINT * val )
 t_CKINT Chuck_Array4::set( t_CKINT i, t_CKUINT val )
 {
     // bound check
-    if( i < 0 || i >= m_size )
+    if( i < 0 || i >= m_capacity )
         return 0;
 
     // set the value
@@ -297,6 +299,8 @@ t_CKINT Chuck_Array4::push_back( t_CKUINT val )
 
     // add to vector
     m_vector.push_back( val );
+    // reset capacity
+    m_capacity = m_vector.capacity();
     
     // track size
     m_size++;
@@ -376,6 +380,8 @@ Chuck_Array8::Chuck_Array8( t_CKINT capacity )
     m_vector.resize( capacity );
     // reset size
     m_size = 0;
+    // set capacity
+    m_capacity = capacity;
 }
 
 
@@ -400,7 +406,7 @@ Chuck_Array8::~Chuck_Array8()
 t_CKUINT Chuck_Array8::addr( t_CKINT i )
 {
     // bound check
-    if( i < 0 || i >= m_size )
+    if( i < 0 || i >= m_capacity )
         return 0;
 
     // get the addr
@@ -417,7 +423,7 @@ t_CKUINT Chuck_Array8::addr( t_CKINT i )
 t_CKINT Chuck_Array8::get( t_CKINT i, t_CKFLOAT * val )
 {
     // bound check
-    if( i < 0 || i >= m_size )
+    if( i < 0 || i >= m_capacity )
         return 0;
 
     // get the value
@@ -437,7 +443,7 @@ t_CKINT Chuck_Array8::get( t_CKINT i, t_CKFLOAT * val )
 t_CKINT Chuck_Array8::set( t_CKINT i, t_CKFLOAT val )
 {
     // bound check
-    if( i < 0 || i >= m_size )
+    if( i < 0 || i >= m_capacity )
         return 0;
 
     // set the value
@@ -462,6 +468,8 @@ t_CKINT Chuck_Array8::push_back( t_CKFLOAT val )
 
     // add to vector
     m_vector.push_back( val );
+    // get capacity
+    m_capacity = m_vector.capacity();
     
     // track size
     m_size++;

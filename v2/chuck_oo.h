@@ -156,11 +156,13 @@ public:
     t_CKINT pop_back( );
     t_CKINT back( t_CKUINT * val ) const;
     t_CKINT size( ) const { return m_size; }
+    t_CKINT capacity( ) const { return m_capacity; }
     void clear( );
 
 public:
     std::vector<t_CKUINT> m_vector;
     t_CKINT m_size;
+    t_CKINT m_capacity;
 };
 
 
@@ -184,11 +186,13 @@ public:
     t_CKINT pop_back( );
     t_CKINT back( t_CKFLOAT * val ) const;
     t_CKINT size( ) const { return m_size; }
+    t_CKINT capacity( ) const { return m_capacity; }
     void clear( );
 
 public:
     std::vector<t_CKFLOAT> m_vector;
     t_CKINT m_size;
+    t_CKINT m_capacity;
 };
 
 
