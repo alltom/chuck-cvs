@@ -51,6 +51,10 @@ UGEN_CGET sinosc_cget_freq( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sinosc_ctrl_sfreq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sinosc_ctrl_phase( t_CKTIME now, void * data, void * value );
 UGEN_CGET sinosc_cget_phase( t_CKTIME now, void * data, void * out );
+UGEN_CTRL sinosc_ctrl_phase_offset( t_CKTIME now, void * data, void * value );
+UGEN_CGET sinosc_cget_phase_offset( t_CKTIME now, void * data, void * out );
+UGEN_CTRL sinosc_ctrl_sync( t_CKTIME now, void * data, void * value );
+UGEN_CGET sinosc_cget_sync( t_CKTIME now, void * data, void * out );
 
 
 

@@ -36,6 +36,7 @@
 #include <math.h>
 #include <stdio.h>
 
+#define TWO_PI (2.0 * 3.14159265358979323846)
 
 //-----------------------------------------------------------------------------
 // name: osc_query()
@@ -49,8 +50,10 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, sinosc_ctor, sinosc_dtor, sinosc_tick, sinosc_pmsg );
     // add ctrl
     QUERY->ugen_ctrl( QUERY, sinosc_ctrl_freq, sinosc_cget_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sfreq, NULL, "float", "sfreq" );
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sfreq, sinosc_cget_freq, "float", "sfreq" );
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase_offset, sinosc_cget_phase_offset, "float", "phase_offset" );
     QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase, sinosc_cget_phase, "float", "phase" );
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sync, sinosc_cget_sync, "int", "sync" );
 
     return TRUE;
 }
@@ -67,7 +70,8 @@ struct Osc_Data
     double t;
     double num;
     double freq;
-    double phase;
+    double phase_offset;
+    int    sync; 
     t_CKUINT srate;
     
     Osc_Data( )
@@ -75,10 +79,11 @@ struct Osc_Data
         t = 0.0;
         num = 0.0;
         freq = 220.0;
-        phase = 0.0;
+	sync = 0;
+        phase_offset = 0.0;
         srate = Digitalio::sampling_rate();
         sinosc_ctrl_freq( 0, this, &freq );
-        sinosc_ctrl_phase( 0, this, &phase );
+        sinosc_ctrl_phase_offset( 0, this, &phase_offset );
     }
 };
 
@@ -118,8 +123,12 @@ UGEN_TICK sinosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     Osc_Data * d = (Osc_Data *)data;
     //phase offsets don't mean so much when oscillators are keeping 
     //track of their own ticks, unless they are created at the same time..
-    *out = (SAMPLE)sin( d->phase + d->t * d->num );
-    d->t += 1.0;
+
+    if ( d->sync )  d->t = (double) now;
+
+    *out = (SAMPLE)sin( d->phase_offset + d->t * d->num );
+ 
+    if ( !d->sync ) d->t += 1.0;
 
     return TRUE;
 }
@@ -135,7 +144,7 @@ UGEN_CTRL sinosc_ctrl_freq( t_CKTIME now, void * data, void * value )
 {
     Osc_Data * d = (Osc_Data *)data;
     d->freq = GET_CK_FLOAT(value);
-    d->num = 2.0 * 3.14159265358979323846 * d->freq / d->srate;
+    d->num = TWO_PI * d->freq / d->srate;
 }
 
 
@@ -150,22 +159,10 @@ UGEN_CTRL sinosc_ctrl_sfreq( t_CKTIME now, void * data, void * value )
     Osc_Data * d = (Osc_Data *)data;
     double curnum = d->num;
     d->freq = (float)GET_CK_FLOAT(value);
-    d->num = 2.0 * 3.14159265358979323846 * d->freq / d->srate;
-    double nphase = d->phase + d->t * ( curnum - d->num );
-    d->phase = nphase - (2.0 * 3.14159265358979323846) * floor ( nphase / (2.0 * 3.14159265358979323846) );
+    d->num = TWO_PI * d->freq / d->srate;
+    double nphase = d->phase_offset + d->t * ( curnum - d->num );
+    d->phase_offset = nphase - TWO_PI * floor ( nphase / TWO_PI );
 }
-
-
-//-----------------------------------------------------------------------------
-// name: sinosc_ctrl_phase()
-// desc: explicitly set oscillator phase-offset   -pld
-//-----------------------------------------------------------------------------
-UGEN_CTRL sinosc_ctrl_phase( t_CKTIME now, void * data, void * value )
-{
-    Osc_Data * d = (Osc_Data *)data;
-    d->phase = (float)GET_CK_FLOAT(value);
-}
-
 
 //-----------------------------------------------------------------------------
 // name: sinosc_cget_freq()
@@ -178,14 +175,69 @@ UGEN_CGET sinosc_cget_freq( t_CKTIME now, void * data, void * out )
 }
 
 
+
+//-----------------------------------------------------------------------------
+// name: sinosc_ctrl_phase_offset()
+// desc: explicitly set oscillator phase-offset   -pld
+//-----------------------------------------------------------------------------
+UGEN_CTRL sinosc_ctrl_phase_offset( t_CKTIME now, void * data, void * value )
+{
+    Osc_Data * d = (Osc_Data *)data;
+    d->phase_offset = (float)GET_CK_FLOAT(value);
+}
+
+//-----------------------------------------------------------------------------
+// name: sinosc_cget_phase_offset()
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_CGET sinosc_cget_phase_offset( t_CKTIME now, void * data, void * out )
+{
+    Osc_Data * d = (Osc_Data *)data;
+    SET_NEXT_FLOAT( out, (t_CKFLOAT)d->phase_offset );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: sinosc_ctrl_phase()
+// desc: explicitly set oscillator phase   -pld
+//-----------------------------------------------------------------------------
+UGEN_CTRL sinosc_ctrl_phase ( t_CKTIME now, void * data, void * value )
+{
+    Osc_Data * d = (Osc_Data *)data;
+    t_CKFLOAT phase = GET_CK_FLOAT(value);
+    double cphase =  phase - ( d->t * d->num );
+    d->phase_offset = cphase - TWO_PI * floor ( cphase / TWO_PI );
+}
+
 //-----------------------------------------------------------------------------
 // name: sinosc_cget_phase()
 // desc: ...
 //-----------------------------------------------------------------------------
-UGEN_CGET sinosc_cget_phase( t_CKTIME now, void * data, void * out )
+UGEN_CGET sinosc_cget_phase ( t_CKTIME now, void * data, void * out )
 {
     Osc_Data * d = (Osc_Data *)data;
-    SET_NEXT_FLOAT( out, (t_CKFLOAT)d->phase );
+    SET_NEXT_FLOAT( out, (t_CKFLOAT) d->phase_offset + d->t * d->num );
+}
+
+//-----------------------------------------------------------------------------
+// name: sinosc_ctrl_sync()
+// desc: set sync   -pld
+//-----------------------------------------------------------------------------
+UGEN_CTRL sinosc_ctrl_sync ( t_CKTIME now, void * data, void * value )
+{
+    Osc_Data * d = (Osc_Data *)data;
+    d->sync = GET_CK_INT(value);
+}
+
+//-----------------------------------------------------------------------------
+// name: sinosc_cget_sync()
+// desc: get sync
+//-----------------------------------------------------------------------------
+UGEN_CGET sinosc_cget_sync ( t_CKTIME now, void * data, void * out )
+{
+    Osc_Data * d = (Osc_Data *)data;
+    SET_NEXT_INT( out, d->sync );
 }
 
 

@@ -105,6 +105,16 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, NULL, "string", "read" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, NULL, "string", "write" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, sndbuf_cget_pos, "int", "pos" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_interp, sndbuf_cget_interp, "int", "interp" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_pos, "float", "rate" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_pos, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase, sndbuf_cget_pos, "float", "phase" );
+    //set only
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, NULL, "float", "phase_offset" );
+    //get only
+    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_samples, "int", "samples" );
+    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_length, "float", "length" );
+    QUERY->ugen_ctrl( QUERY, NULL, sndbuf_cget_channels, "int", "channels" );
 
     return TRUE;
 }
@@ -395,6 +405,7 @@ UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
 
 
+enum { SNDBUF_DROP = 0, SNDBUF_INTERP, SNDBUF_SINC};
 //-----------------------------------------------------------------------------
 // name: sndbuf
 // desc: ...
@@ -403,16 +414,30 @@ struct sndbuf_data
 {
     float * buffer;
     t_CKUINT num_samples;
+    t_CKUINT num_channels;
+    t_CKUINT num_frames;
+    t_CKUINT samplerate;
+    t_CKUINT chan;
     float * eob;
     float * curr;
+    double  curf;
+    float   rate;
+    int     interp;
     t_CKBOOL loop;
     
     sndbuf_data()
     {
         buffer = NULL;
+	interp = SNDBUF_INTERP;
+        num_channels = 0;
+        num_frames = 0;
         num_samples = 0;
+	samplerate = 0;
+	curf = 0.0;
+	rate = 1.0;
         eob = NULL;
         curr = NULL;
+
         loop = TRUE;
     }
 };
@@ -429,22 +454,62 @@ UGEN_DTOR sndbuf_dtor( t_CKTIME now, void * data )
     delete d;
 }
 
+inline void sndbuf_setpos(sndbuf_data *d, double pos) { 
+
+    if ( !d->buffer ) return;
+  
+    d->curf = pos;
+
+    if ( d->loop ) { 
+      while ( d->curf >= d->num_frames ) d->curf -= d->num_frames;
+      while ( d->curf < 0 ) d->curf += d->num_frames;
+    } 
+    else { //invalid...
+      if ( d->curf < 0 || d->curf >= d->num_frames ) d->curr = d->eob;
+      return;
+    }
+
+    d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
+
+}
+
+void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out ) { 
+  //punt!
+      *out = (SAMPLE)( (*(d->curr)) ); 
+}
+
 UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     sndbuf_data * d = (sndbuf_data *)data;
     if( !d->buffer ) return FALSE;
     
-    if( d->curr == d->eob )
-    {
-        if( d->loop )
-            d->curr = d->buffer;
-        else
-            return FALSE;
-    }
-    else
-        *out = (SAMPLE)( (*(d->curr)++) ) ;
+    //we're ticking once per sample ( system )
+    //curf in samples;
     
+    if ( !d->loop && d->curr == d->eob ) return FALSE;
+
+    //calculate frame
+
+    if ( d->interp == SNDBUF_DROP ) { 
+      *out = (SAMPLE)( (*(d->curr)) ) ;
+    }
+    else if ( d->interp == SNDBUF_INTERP ) { //samplewise linear interp
+      double alpha = d->curf - floor(d->curf);
+      *out = (SAMPLE)( (*(d->curr)) ) ;
+      *out += alpha * ( *(d->curr + d->num_channels) - *out );
+    }
+    else if ( d->interp == SNDBUF_SINC ) { 
+      //do that fancy sinc function!
+      sndbuf_sinc_interpolate(d, out);
+    }
+
+    //advance
+    d->curf += d->rate;
+
+    sndbuf_setpos(d, d->curf);
+   
     return TRUE;
+
 }
 
 #include "util_sndfile.h"
@@ -474,19 +539,22 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     if(er) fprintf( stderr, "sndfile error %i\n", er );
     int size = info.channels * info.frames;
     d->buffer = new float[size];
-
+    d->chan = 0;
+    d->num_frames = info.frames;
+    d->num_channels = info.channels;
     d->num_samples = sf_read_float(file, d->buffer, size) ;
+    d->samplerate = info.samplerate;
+    d->interp     = SNDBUF_INTERP;
     if( d->num_samples != size )
     {
         fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
                  d->num_samples, size, filename );
         return;
     }
-
+    //fprintf( stderr, "read file : %d frames %d channels, samplerate: %dHZ, duration %f\n", d->num_frames, d->num_channels, d->samplerate, (double) d->num_frames / (double) d->samplerate ) ; 
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
 }
-
 
 UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value )
 {
@@ -512,28 +580,95 @@ UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value )
 }
 
 
+UGEN_CTRL sndbuf_ctrl_rate( t_CKTIME now, void * data, void * value ) { 
+    sndbuf_data * d = ( sndbuf_data * ) data;
+    t_CKFLOAT rate = * (t_CKFLOAT *) value;  //samples per tick..
 
-UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value )
-{
-    sndbuf_data * d = (sndbuf_data *)data;
-    int pos = *(int *)value;
-    
-    if( !d->buffer ) return;
-    
-    if( pos >= d->num_samples )
-    {
-        if( d->loop )
-            d->curr = d->buffer;
-        else
-            d->curr = d->eob;
-    }
-    else
-        d->curr = d->buffer + pos;
+    d->rate = rate; 
 }
 
+UGEN_CGET sndbuf_cget_rate( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_FLOAT( out, d->rate );
+}
+
+
+UGEN_CTRL sndbuf_ctrl_freq( t_CKTIME now, void * data, void * value ) { 
+    sndbuf_data * d = ( sndbuf_data * ) data;
+    t_CKFLOAT freq = * (t_CKFLOAT *) value;  //hz
+
+    d->rate = freq * (double) d->num_frames / (double) d->samplerate;
+}
+
+UGEN_CGET sndbuf_cget_freq( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_FLOAT( out, d->rate * (t_CKFLOAT) d->samplerate / (t_CKFLOAT) d->num_frames );
+}
+
+
+UGEN_CTRL sndbuf_ctrl_phase( t_CKTIME now, void * data, void * value ) { 
+    sndbuf_data * d = ( sndbuf_data * ) data;
+    t_CKFLOAT phase = * (t_CKFLOAT *) value;
+    sndbuf_setpos(d, phase * (double)d->num_frames);
+}
+
+UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_FLOAT( out, d->curf / (t_CKFLOAT)d->num_frames );
+}
+
+
+UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value ) { 
+    sndbuf_data * d = ( sndbuf_data * ) data;
+    int pos = * (int *) value;
+    sndbuf_setpos(d, pos);
+}
 
 UGEN_CGET sndbuf_cget_pos( t_CKTIME now, void * data, void * out )
 {
     sndbuf_data * d = (sndbuf_data *)data;
     SET_NEXT_INT( out, d->curr - d->buffer );
 }
+
+UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value ) { 
+    sndbuf_data * d = ( sndbuf_data * ) data;
+    int interp = * (int *) value;
+    d->interp = interp;
+}
+
+UGEN_CGET sndbuf_cget_interp( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_INT( out, d->interp );
+}
+
+
+UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value ) { 
+    sndbuf_data * d = (sndbuf_data *)data;
+    t_CKFLOAT phase_offset = * (t_CKFLOAT *) value;
+    sndbuf_setpos(d, d->curf + phase_offset * (t_CKFLOAT)d->num_frames );
+}
+
+UGEN_CGET sndbuf_cget_samples( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_INT( out, d->num_frames );
+}
+
+UGEN_CGET sndbuf_cget_length( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_FLOAT( out, (t_CKFLOAT)d->num_frames / (t_CKFLOAT)d->samplerate );
+}
+
+UGEN_CGET sndbuf_cget_channels( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_INT( out, d->num_channels );
+}
+
+
+
