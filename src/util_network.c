@@ -36,13 +36,13 @@
 #include "util_network.h"
 #include "chuck_utils.h"
 #include <stdio.h>
-#include <sys/time.h>
 
 #if defined(__PLATFORM_WIN32__)
 #include <winsock.h>
 #else
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <unistd.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
@@ -355,7 +355,7 @@ int ck_send_timeout( ck_socket sock, long sec, long usec )
     t.tv_sec = sec;
     t.tv_usec = usec;
     
-    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_SNDTIMEO, &t, sizeof(t) );
+    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_SNDTIMEO, (const char *)&t, sizeof(t) );
 }
 
 
@@ -371,7 +371,7 @@ int ck_recv_timeout( ck_socket sock, long sec, long usec )
     t.tv_sec = sec;
     t.tv_usec = usec;
     
-    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t) );
+    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&t, sizeof(t) );
 }
 
 
