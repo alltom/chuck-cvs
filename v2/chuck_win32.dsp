@@ -127,10 +127,6 @@ SOURCE=.\chuck_table.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\chuck_temp.cpp
-# End Source File
-# Begin Source File
-
 SOURCE=.\chuck_type.cpp
 # End Source File
 # Begin Source File
@@ -272,10 +268,6 @@ SOURCE=.\chuck_symbol.h
 # Begin Source File
 
 SOURCE=.\chuck_table.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\chuck_temp.h
 # End Source File
 # Begin Source File
 
