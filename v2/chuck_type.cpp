@@ -3025,6 +3025,8 @@ t_CKBOOL isprim( Chuck_Type * type )
 {   return type_engine_check_primitive( type ); }
 t_CKBOOL isobj( Chuck_Type * type )
 {   return !type_engine_check_primitive( type ); }
+t_CKBOOL isfunc( Chuck_Type * type )
+{   return isa( type, &t_function ); }
 
 
 

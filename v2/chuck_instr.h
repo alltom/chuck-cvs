@@ -1640,13 +1640,13 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dot_Member
-// desc: access the member of object by offset
+// name: class Chuck_Instr_Dot_Member_Data
+// desc: access the member data of object by offset
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Dot_Member : public Chuck_Instr
+class Chuck_Instr_Dot_Member_Data : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Dot_Member( t_CKUINT offset, t_CKUINT size, t_CKUINT emit_addr )
+    Chuck_Instr_Dot_Member_Data( t_CKUINT offset, t_CKUINT size, t_CKUINT emit_addr )
     { m_offset = offset; m_size = size; m_emit_addr = emit_addr; }
 
 public:
@@ -1660,6 +1660,30 @@ protected:
     t_CKUINT m_offset;
     t_CKUINT m_size;
     t_CKUINT m_emit_addr;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Dot_Member_Func
+// desc: access the member function of object by offset
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Dot_Member_Func : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Dot_Member_Func( t_CKUINT offset )
+    { m_offset = offset; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params()
+    { static char buffer[256];
+      sprintf( buffer, "offset=%d", m_offset );
+      return buffer; }
+
+protected:
+    t_CKUINT m_offset;
 };
 
 

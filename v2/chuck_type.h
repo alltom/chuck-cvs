@@ -445,6 +445,7 @@ t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs );
 t_CKBOOL isprim( Chuck_Type * type );
 t_CKBOOL isobj( Chuck_Type * type );
+t_CKBOOL isfunc( Chuck_Type * type );
 
 // helpers
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );

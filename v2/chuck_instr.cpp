@@ -2110,7 +2110,7 @@ error:
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Dot_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Dot_Member_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // register stack pointer
     t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
@@ -2137,6 +2137,31 @@ void Chuck_Instr_Dot_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); }
         else assert( FALSE );
     }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Dot_Member_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // register stack pointer
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    // the pointer
+    t_CKUINT data;
+    
+    // pop the object pointer
+    pop_( sp, 1 );
+    // get the object pointer
+    Chuck_Object * obj = (Chuck_Object *)(*sp);
+    // calculate the data pointer
+    data = (t_CKUINT)(obj->vtable->funcs[m_offset]);
+    
+    // push the address
+    push_( sp, data );
 }
 
 

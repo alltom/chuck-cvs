@@ -2197,7 +2197,8 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
 
     // push the local stack depth
     emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->stack_depth ) );
-    
+
+    // TODO: member functions and static functions
     // call the function
     if( func_call->ck_func->def->s_type == ae_func_builtin )
     {
@@ -2241,8 +2242,11 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
 
         a_Exp e = func_call->args;
         t_CKUINT size = 0;
-        while( e ) { size += e->type->size; e = e->next; }        
+        while( e ) { size += e->type->size; e = e->next; }
+
+        // emit instruction that will put the code on the stack
         emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
+        // emit spork instruction
         emit->append( new Chuck_Instr_Spork( size ) );
     }
 
@@ -2271,8 +2275,16 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
     // emit the base
     emit_engine_emit_exp( emit, member->base );
     
-    // lookup the member
-    emit->append( new Chuck_Instr_Dot_Member( emit_addr, emit_addr ) );
+    // if is a func
+    if( isfunc( member->type ) )
+    {
+        // static
+    }
+    else
+    {
+        // lookup the member
+        emit->append( new Chuck_Instr_Dot_Member_Data( emit_addr, emit_addr ) );
+    }
     
     return TRUE;
 }
