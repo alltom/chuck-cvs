@@ -28,7 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
-// date: Autumn 2002
+// date: Autumn 2002 - original
 //       Autumn 2004 - rewrite
 //-----------------------------------------------------------------------------
 #ifndef __CHUCK_TYPE_H__
