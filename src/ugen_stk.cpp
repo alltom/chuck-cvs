@@ -525,7 +525,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //end FM
 	
-
     //! \section stk - delay
 
     // add Delay
@@ -663,8 +662,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //end Filters
 
 
-
-
     //! \section stk-reverbs
 
     // add JCRev
@@ -698,7 +695,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Modulate_ctrl_vibratoRate, Modulate_cget_vibratoRate, "float", "vibratoRate" );  //! set rate of vibrato
     QUERY->ugen_ctrl( QUERY, Modulate_ctrl_vibratoGain, Modulate_cget_vibratoGain, "float", "vibratoGain" ); //! gain for vibrato
     QUERY->ugen_ctrl( QUERY, Modulate_ctrl_randomGain, Modulate_cget_randomGain, "float", "randomGain" ); //!  gain for random contribution
-
 
     // add PitShift
     QUERY->ugen_add( QUERY, "PitShift", NULL );
@@ -738,7 +734,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_rawFilename, NULL, "string", "rawFilename"); //!open raw file for writing
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_aifFilename, NULL, "string", "aifFilename"); //!open AIFF file for writing
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_closeFile, NULL, "string", "closeFile"); //! close file properly 
-    
     
     return TRUE;
 }
