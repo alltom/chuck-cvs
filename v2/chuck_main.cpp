@@ -33,6 +33,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <fstream>
 using namespace std;
 
@@ -54,8 +56,6 @@ extern "C" int yyparse( void );
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #else 
 #define CHUCK_THREAD HANDLE
 #define usleep(x) Sleep(x/1000);
@@ -384,8 +384,6 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
         fwrite( buf.buffer, sizeof(char), buf.length, fd );
     }while( buf.param2 );
     
-    fprintf( stderr, "read: %s...\n", msg.buffer );
-    
     return fd;
 }
 
@@ -620,7 +618,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
         fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
-        return 1;
+        goto error;
     }
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
@@ -628,7 +626,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
-            return 1;
+            goto error;
         }
 
         do {
@@ -642,7 +640,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [remove]...\n" );
-            return 1;
+            goto error;
         }
 
         do {
@@ -664,7 +662,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
-            return 1;
+            goto error;
         }
         
         if( i <= 0 )
@@ -675,7 +673,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
-            return 1;
+            goto error;
         }
 
         msg.type = MSG_REPLACE;
@@ -745,6 +743,16 @@ int send_cmd( int argc, char ** argv, int  & i )
     exit( msg.param );
 
     return 0;
+    
+error:
+    msg.type = MSG_DONE;
+    otf_hton( &msg );
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    
+    // exit
+    exit( 1 );
+    
+    return 1;
 }
 
 
@@ -789,7 +797,7 @@ int main( int argc, char ** argv )
     for( i = 1; i < argc; i++ )
     {
         if( argv[i][0] == '-' || argv[i][0] == '+' ||
-            argv[i][0] == '=' || argv[i][0] == '^' )
+            argv[i][0] == '=' || argv[i][0] == '^' || argv[i][0] == '@' )
         {
             if( !strcmp(argv[i], "--dump") || !strcmp(argv[i], "+d")
                 || !strcmp(argv[i], "--nodump") || !strcmp(argv[i], "-d") )
