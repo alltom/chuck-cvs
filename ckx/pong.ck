@@ -16,6 +16,13 @@ TubeBell t => r;
 0.1 => t.gain;
 r => dac;
 
+1    => int oldskool;
+
+0.01 => float dt;
+0.0 => float p1f;
+0.0 => float p2f;
+
+-1.0 => float grav;
 
 0.0 => float puckx;
 0.0 => float pucky;
@@ -28,7 +35,7 @@ r => dac;
 
 0.02 => float puckrad;
 
-0.0 => float  pad1y;
+0.0 => float pad1y;
 0.0 => float pad1vy;
 
 0.0 => float pad2y; 
@@ -37,10 +44,16 @@ r => dac;
 0.03 => float padw;
 0.3 => float padh;
 
-0.1 => float padspace;
-
 1.0 => float boardw;
 1.0 => float boardh;
+
+0.1 => float padspace;
+-boardw + padspace => float pad1x;
+boardw - padspace => float pad2x;
+0.0 => float pad1vx;
+0.0 => float pad2vx;
+
+
 
 0 => int bouncex;
 0 => int bouncey;
@@ -60,6 +73,14 @@ function void keycode ( uint k ) {
 
 	if ( k == 113 ) { 
 		0 => running;
+	}	
+
+	if ( k == 116 ) { 
+		1 - oldskool => oldskool;
+		if ( oldskool ) { 
+			-boardw + padspace => pad1x;
+			boardw - padspace =>  pad2x;
+		}	
 	}	
 
 	if ( k == 119 ) { 
@@ -100,9 +121,11 @@ function void drag ( int x, int y ) {
 	y - lasty => int dy;
 	if ( x > gluck.GetViewDims(0) / 2 ) { 
 		-0.6 * (float)dy => pad2vy;
+		 0.6 * (float)dx => pad2vx;
 	}
 	else { 
 		-0.6 * (float)dy => pad1vy;
+		 0.6 * (float)dx => pad1vx;
 	}	
 }
 
@@ -131,7 +154,7 @@ function void theeventpoll() {
 	}
 }
 
-function void thedrawloop() { 
+function void drawWindow() { 
 
 		gl.ClearColor( 0.4, 0.4, 0.4 , 0.0);
 		gl.Clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
@@ -181,7 +204,7 @@ function void thedrawloop() {
 		gl.End();
 
 		gl.PushMatrix();
-		gl.Translatef ( -boardw + padspace, pad1y, 0.0 );
+		gl.Translatef ( pad1x, pad1y, 0.0 );
 		gl.Begin(gl.QUADS );
 		gl.Vertex3f ( -padw, -padh, 0.0 );
 		gl.Vertex3f (  padw, -padh, 0.0 );
@@ -191,7 +214,7 @@ function void thedrawloop() {
 		gl.PopMatrix();
 
 		gl.PushMatrix();
-		gl.Translatef (  boardw - padspace, pad2y, 0.0 );
+		gl.Translatef (  pad2x , pad2y, 0.0 );
 		gl.Begin(gl.QUADS );
 		gl.Vertex3f ( -padw, -padh, 0.0 );
 		gl.Vertex3f (  padw, -padh, 0.0 );
@@ -216,16 +239,9 @@ function void thedrawloop() {
 		gl.End();
 
 
-		
-		
-		
 		gl.Flush();
 		gluck.SwapBuffers();
-}
 
-function void audioshred( ) { 
-
- 
 }
 
 function void sndtrigger ( int which ) { 
@@ -237,15 +253,16 @@ function void sndtrigger ( int which ) {
 		1.5 => shake2.noteOn;
 	}
 	else if ( which == 3 ) { 
-		110.0 => t.freq;
-//		math.max ( 0.0, math.min ( 1.0 , std.abs( puckvx * 0.3))) => m.stringDetune;
+		220.0 => t.freq;
 		0.9  + math.max ( 0.0, math.min ( 1.0 , std.abs( puckvy * 0.3 ))) => t.noteOn;
+	}
+
+	else if ( which == 4 ) { 
+		440.0 => t.freq;
+		0.7  + math.max ( 0.0, math.min ( 1.0 , std.abs( puckvy * 0.3 ))) => t.noteOn;
 	}
 }
 
-0.001 => float dt;
-0.0 => float p1f;
-0.0 => float p2f;
 
 
 function void score ( int which ) { 
@@ -263,6 +280,7 @@ function void score ( int which ) {
 	0.0 => puckvx;
 	0.0 => puckvy;
 }
+
 function void testcollisions() { 
 	
 	//pad1;
@@ -275,6 +293,8 @@ function void testcollisions() {
 		-boardh + ( -boardh - (pad1y-padh) ) + padh  => pad1y;
 	}
 
+	math.max ( -boardw , math.min ( -boardw * 0.5 , pad1x ) ) => pad1x;  
+	math.max (  boardw * 0.5 , math.min ( boardw  , pad2x ) ) => pad2x;  
 
 	//pad2;
 	if ( pad2y + padh > boardh ) { 
@@ -286,24 +306,20 @@ function void testcollisions() {
 		-boardh + ( -boardh - (pad2y-padh) ) + padh  => pad2y;
 	}
 
-
-
 	//puck
 
-	//sides
-	if ( pucky < -boardh || boardh < pucky) { 
+	//top/bottom
+	if ( pucky < -boardh ) { 
 		sndtrigger(3);
 		puckvy * -1.0 => puckvy;
 	}	
+	if ( boardh < pucky) { 
+		sndtrigger(4);
+		puckvy * -1.0 => puckvy;
+	}
 
-	-boardw + padspace + padw => p1f;
-	boardw - ( padspace + padw ) => p2f;
-
-//	if ( puckx < -boardw || puckx > boardw ) { 
-//		math.fmod ( puckx + boardw , boardw * 2.0  ) - boardw => puckx;
-//		if ( puckx < -boardw ) puckx + boardw * 2.0 => puckx;
-//	}
-
+	pad1x + padw => p1f;
+	pad2x - padw => p2f;
 
 	if ( puckx < -boardw ) { 
 		score( 2 );
@@ -313,45 +329,71 @@ function void testcollisions() {
 	}
 
 	if ( puckx - puckrad < p1f && pucky < pad1y + padh && pucky > pad1y - padh ) { 
-		if ( puckx - puckrad + puckvx * -dt  > p1f ) { 
+		if ( puckx - puckrad + puckvx * -dt * 10.0  > p1f ) { 
 			puckvx * -1.0 => puckvx;
 			p1f + ( p1f - ( puckx - puckrad )  ) + puckrad => puckx;
 			puckvy + 0.5 * ( pad1vy - puckvy ) => puckvy; //friction transfer...
+			if ( ! oldskool ) { 
+				puckvx + 0.5 * ( pad1vx - puckvx ) => puckvx; //friction transfer...
+			}
 			sndtrigger(1);
 		} 
 	}	
 	else if ( puckx + puckrad > p2f && pucky < pad2y + padh && pucky > pad2y - padh ) { 
-		if ( puckx + puckrad +  puckvx * -dt < p2f ) { 
+		if ( puckx + puckrad +  puckvx * -dt * 10.0 < p2f ) { 
 			puckvx * -1.0 => puckvx; //bouncy
 			p2f + ( p2f - ( puckx + puckrad ) ) - puckrad  => puckx;
 			puckvy + 0.5 * ( pad2vy - puckvy )  => puckvy; //friction transfer...
+			if ( oldskool == 0 ) { 
+				puckvx + 0.5 * ( pad2vx - puckvx ) => puckvx; //friction transfer...
+			}
 			sndtrigger(2);	
 		} 
 	}		
 }
 
 
-function void actionshred() { 
+function void simulshred() { 
 
 	while ( running == 1 ) { 
 
+		0.0 => puckax;
+		0.0 => puckay;
 
+		//drag on the paddles. 
 		std.sgn( pad1vy ) * math.max( 0.0, std.abs(pad1vy) - 0.2 * dt ) => pad1vy;
-		pad1y + pad1vy * dt => pad1y;
-
 		std.sgn( pad2vy ) * math.max( 0.0, std.abs(pad2vy) - 0.2 * dt ) => pad2vy;
+		std.sgn( pad1vx ) * math.max( 0.0, std.abs(pad1vx) - 0.2 * dt ) => pad1vx;
+		std.sgn( pad2vx ) * math.max( 0.0, std.abs(pad2vx) - 0.2 * dt ) => pad2vx;
+
+		testcollisions();
+
+		//gravittles
+		puckay + grav => puckay;
+		
+		pad1y + pad1vy * dt => pad1y;
 		pad2y + pad2vy * dt => pad2y;
+
+		if ( oldskool == 0 ) { 
+			pad1x + pad1vx * dt => pad1x;
+			pad2x + pad2vx * dt => pad2x;
+		}
+
+		puckvx + puckax * dt => puckvx;
+		puckvy + puckay * dt => puckvy;
 
 		puckx + puckvx * dt => puckx;
 		pucky + puckvy * dt => pucky;
-
-		testcollisions();
-		1::ms => now;
+ 
+		10::ms => now;
 
  	}
 }
 
 function void eventshred() { 
+
+	//handle events that were buffered by glut's calls.
+	//once we have events, this will change. 
 
 	while ( running == 1 ) { 
 		theeventpoll();
@@ -362,30 +404,32 @@ function void eventshred() {
 
 function void gluckinitcall() { 
 
-	//MUST be called before any other gluck function
 
-	gluck.Init();
+	gluck.Init(); 	//MUST be called before any other gluck function
 
-	gluck.InitBasicWindow("ponnng?"); //generate a simple window
+	gluck.InitBasicWindow("ponnng?"); //request a window... 
 
 	gluck.InitCallbacks(0, 1, 1); //register callbacks for the window
 	//arguments monitor ( mouse, motion, keyboard );
 
-	//set up basic camera
+	//set up a simple view matrix
+
 	gl.MatrixMode(gl.PROJECTION); 
 	gl.LoadIdentity();
 	gl.Ortho(-1.0, 1.0, -1.0 , 1.0, -4.0 , 4.0 );
 
 	gl.MatrixMode(gl.MODELVIEW); 
 	gl.LoadIdentity();
+
+	
 	gl.ClearColor ( 0.0 , 0.0, 0.3, 0.0 );
 }
 
-function void gluckloop( ) { 
+function void eventloop( ) { 
 	
-	gluck.MainLoopEvent(); //...
-	if ( gluck.NeedDraw() && running == 1 ) { thedrawloop(); }
-	gluck.PostRedisplay();
+	gluck.MainLoopEvent(); // let glut do its bizness
+	if ( gluck.NeedDraw() && running == 1 ) { drawWindow(); }
+	gluck.PostRedisplay(); // request that we draw again;
 
 }
 
@@ -394,14 +438,13 @@ function void gluckshred() {
 	gluckinitcall();
 	spork ~ eventshred();
 	while ( running == 1 ) { 
-		gluckloop(); 
+		eventloop(); 
 		33::ms => now; //30 fps
 	}
 }
 
 spork ~ gluckshred();
-spork ~ audioshred();
-spork ~ actionshred();
+spork ~ simulshred();
 
 while ( running == 1 ) { 
 
