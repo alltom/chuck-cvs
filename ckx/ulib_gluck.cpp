@@ -628,7 +628,8 @@ CK_DLL_FUNC( gluck_StrokeCharacter_impl )
   t_CKUINT font = GET_CK_UINT_N(ARGS,0);
   int c = GET_CK_INT_N(ARGS,1);
 
-  glutStrokeCharacter((void*)&font, c);
+  //  glutStrokeCharacter((void*)&font, c);
+  glutStrokeCharacter(GLUT_STROKE_ROMAN, c);
 }
 
 CK_DLL_FUNC( gluck_StrokeWidth_impl )

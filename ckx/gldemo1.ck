@@ -27,41 +27,18 @@ sinosc a => dac;
 
 gl.MatrixMode(dummy); //projection
 gl.LoadIdentity();
-gl.Ortho(-1.0, 1.0, -1.0 , 1.0, -1.0 , 1.0 );
+gl.Ortho(-1.0, 1.0, -1.0 , 1.0, -4.0 , 4.0 );
 
 5888 => dummy;
 gl.MatrixMode(dummy); //modelview
 gl.LoadIdentity();
 
-gl.ClearColor ( 0.0 , 0.3, 0.0, 0.0 );
+gl.ClearColor ( 0.0 , 0.0, 0.3, 0.0 );
 0.0 => float tm;
 
 "gl_setup" => stdout;
 
-function void thedrawloop () { 
 
-		"the draw loop!" => stdout;
-//		tm => stdout;
-//		now => stdout;
-		16640 => dummy; //GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
-		gl.Clear(dummy);
-		gl.Color3f(1.0, 0.0 ,0.0);
-		gl.LineWidth(2.0);
-		gl.PushMatrix();
-		gl.Rotatef ( 45.0, 1.0, 0.0 , 0.0 );
-		gl.Rotatef (tm * 60.0, 0.0, 1.0 , 0.0 );
-		"setup" => stdout;
-		gluck.WireTeapot( 0.5 );
-		"teapot" => stdout; 
-		gl.PopMatrix();
-		gl.Flush();
-		"flush" => stdout;
-		gluck.SwapBuffers();
-		"swap" => stdout;
-
-}
-
-"draw func def" => stdout; 
 
 function void theeventloop() { 
 	"the event loop!" => stdout;
@@ -75,28 +52,44 @@ function void theeventloop() {
 "event func def" => stdout;
 //chuck loop!
 
+0.0 => float frac;
 while ( true ) { 
 
-	"enter loop" => stdout; 
 	gluck.MainLoopEvent(); //...
 
-	"mainloopev" => stdout;
 	gluck.NeedDraw();
-	"need_draw test" => stdout;
+
 //	if ( gluck.NeedDraw() ) {	
-		"try draw " => stdout;	
-		thedrawloop();
-		"did draw" => stdout; 
+
+
+		16640 => dummy; //GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
+		gl.Clear(dummy);
+		std.abs ( 2.0 * ( -0.5 + tm - math.floor(tm)) ) => frac;
+		
+		gl.Color3f( frac , 1.0-frac ,0.0);
+		gl.LineWidth(2.0);
+		gl.PushMatrix();
+		gl.Scalef  ( 1.1 + math.sin ( tm * 0.2 ), 1.1 + math.sin ( tm * 0.2 ), 1.1 + math.sin ( tm * 0.2 ) ); 
+		gl.Rotatef ( tm * 45.0, 1.0, 0.0 , 0.0 );
+		gl.Rotatef (tm * 60.0, 0.0, 1.0 , 0.0 );
+
+		gluck.WireTeapot( 0.5 );
+
+		gl.PopMatrix();
+		gl.Flush();
+
+		gluck.SwapBuffers();
 //	}
-	"draw check" => stdout;
+
 	if ( gluck.NeedEvent() ) {
 		theeventloop();
 	}
-	"event check" => stdout;
 
+
+	440.0 + 220.0 * frac => a.sfreq;
 	tm + 0.033 => tm;
 	math.sin ( tm ) => rx;
 	math.cos ( tm * 3.0 ) => ry;
-	"chuck loop" => stdout;
+
 	33::ms => now;
 }

@@ -390,7 +390,7 @@ CK_DLL_FUNC( gl_PolygonMode_impl ) {
 
 // Rotatef --> glRotated()
 CK_DLL_FUNC( gl_Rotatef_impl ) {   
-    t_CKFLOAT degrees = GET_CK_FLOAT_N(ARGS,1);
+    t_CKFLOAT degrees = GET_CK_FLOAT(ARGS);
     t_CKFLOAT x = GET_CK_FLOAT_N(ARGS,1);
     t_CKFLOAT y = GET_CK_FLOAT_N(ARGS,2);
     t_CKFLOAT z = GET_CK_FLOAT_N(ARGS,3);
