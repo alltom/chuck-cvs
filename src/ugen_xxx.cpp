@@ -173,10 +173,10 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 
       //! varible write delay.  
     QUERY->ugen_add( QUERY, "delayph" , NULL);
-    QUERY->ugen_func ( QUERY, delayph_ctor, delayph_dtor, delayph_tick, NULL );
+    QUERY->ugen_func ( QUERY, delayph_ctor, delayph_dtor, delayph_tick, delayph_pmsg);
     QUERY->ugen_ctrl( QUERY, delayph_ctrl_delay, delayph_cget_delay , "dur", "delay" ); //! delay before subsequent values emerge
     QUERY->ugen_ctrl( QUERY, delayph_ctrl_window, delayph_cget_window , "dur", "window" ); //! time for 'write head' to move
-    QUERY->ugen_ctrl( QUERY, delayph_ctrl_delay, delayph_cget_delay , "dur", "max" ); //! max delay possible.  trashes buffer, so do it first! 
+    QUERY->ugen_ctrl( QUERY, delayph_ctrl_max, delayph_cget_max , "dur", "max" ); //! max delay possible.  trashes buffer, so do it first! 
  
 
     //! \section sound files
@@ -528,22 +528,22 @@ struct delayph_data
    delayph_data() 
    { 
       bufsize  = 2 * g_srate;
-      fprintf ( stderr, "delayph-allocate %d\n", bufsize );
-      buffer   = ( SAMPLE * ) realloc ( buffer, sizeof ( SAMPLE ) * bufsize );
+      buffer   = ( SAMPLE * ) realloc ( NULL, sizeof ( SAMPLE ) * bufsize );
       for ( int i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
       readpos  = 0.0;
-      writeoff  = 1.0; 
-      writeoff_last = 1.0;
+      writeoff  = 1000.0; 
+      writeoff_last = 1000.0;
+      writeoff_start = 1000.0;
+      writeoff_target = 1000.0;
       sample_last = 0;
       writeoff_window_time = 1.0;
       writeoff_target_time = 0.0;
-      writeoff_start = 0.0;
    }
 };
 
 UGEN_CTOR delayph_ctor( t_CKTIME now )
 {
-   fprintf ( stderr, "delayph- ctor\n" );
+
    return new delayph_data;
 }
 
@@ -553,55 +553,65 @@ UGEN_DTOR delayph_dtor( t_CKTIME now, void * data )
     if( d->buffer ) delete [] d->buffer;
     delete d;
 }
-
+UGEN_PMSG delayph_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
 UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
-   fprintf ( stderr, "delayph- tick\n" );
+
    
    delayph_data * d = (delayph_data *)data;
+   if ( !d->buffer ) return FALSE;
    
-
    //calculate new write-offset position
-   if ( now < d->writeoff_target_time ) d->writeoff = d->writeoff_target;
+   if ( now >= d->writeoff_target_time || d->writeoff_window_time == 0 ) d->writeoff = d->writeoff_target;
    else  { 
       double dt = ( now - d->writeoff_target_time ) / ( d->writeoff_window_time ); 
       d->writeoff = d->writeoff_target + dt * ( d->writeoff_target - d->writeoff_start );
    }
 
+   //fprintf(stderr, "writeoff : %f %f %f %f %f\n", d->writeoff, d->writeoff_target, d->writeoff_start, now, d->writeoff_target_time );  
    //writeoff __must__ be positive!
 
    //find locations in buffer...
    double lastpos = d->writeoff_last + d->readpos - 1.0 ;
    double nowpos  = d->writeoff + d->readpos;
 
-
+   
    //linear interpolation.  will introduce some lowpass/aliasing.
 
    double diff= nowpos - lastpos;
-   double d_samp = in - lastpos;
+   double d_samp = in - d->sample_last;
    int i, smin, smax;
-
+   SAMPLE sampi;
    if ( diff >= 0 ) { //forward.
       smin = ceil ( lastpos );
       smax = floor ( nowpos );
-      for ( i = smin ; i <= smax ; i++ )
-         d->buffer[i%d->bufsize] += d->sample_last + d_samp * ( (double) i - lastpos ) / diff;
+      for ( i = smin ; i <= smax ; i++ ) { 
+         sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
+         //fprintf( stderr, "new sample %f %f %f \n", in, sampi, d->sample_last );
+         d->buffer[i%d->bufsize] += sampi;
+      }
    }
    else { //moving in reverse
       smin = ceil ( nowpos );
       smax = floor ( lastpos );
       for ( i = smin ; i <= smax ; i++ ) 
-         d->buffer[i%d->bufsize] += d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;   
+         sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
+         //fprintf( stderr, "new sample %f %f %f \n", in, sampi, d->sample_last );
+         d->buffer[i%d->bufsize] += sampi ;   
    }
 
    d->writeoff_last = d->writeoff;
    d->sample_last = in;
 
-   //output last sample
-   int rpos = ( (int) d->readpos ) % d->bufsize ; 
 
    //output should go through a dc blocking filter, for cases where 
    //we are zipping around in the buffer leaving a fairly constant
    //trail of samples
+
+   //output last sample
+   int rpos = ( (int) d->readpos ) % d->bufsize ; 
    *out = d->buffer[rpos];
    d->buffer[rpos] = 0; //clear once it's been read
    d->readpos++;
@@ -637,7 +647,8 @@ UGEN_CTRL delayph_ctrl_window( t_CKTIME now, void * data, void * value )
     delayph_data * d = ( delayph_data * ) data;
     t_CKDUR window = * (t_CKDUR *) value; // rate     
     if ( window >= 0 ) {
-       d->writeoff_window_time = window; 
+       d->writeoff_window_time = window;
+       //fprintf ( stderr, "set window time %f , %f , %d \n", d->writeoff_window_time, d->writeoff, d->bufsize );
     }
 }
 
@@ -650,10 +661,8 @@ UGEN_CGET delayph_cget_window( t_CKTIME now, void * data, void * out )
 
 UGEN_CTRL delayph_ctrl_max( t_CKTIME now, void * data, void * value )
 {   
-    fprintf ( stderr, "delayph- max\n" );
     delayph_data * d = ( delayph_data * ) data;
     t_CKDUR nmax = * (t_CKDUR *) value; // rate 
-    fprintf ( stderr, "delayph- max to %f \n", nmax  );
     if ( d->bufsize != (int)nmax && nmax > 1.0 ) { 
       d->bufsize = nmax; 
       d->buffer = ( SAMPLE * ) realloc ( d->buffer, sizeof ( SAMPLE ) * d->bufsize );

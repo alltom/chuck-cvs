@@ -81,6 +81,7 @@ UGEN_TICK bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 
 UGEN_CTOR delayph_ctor( t_CKTIME now );
 UGEN_DTOR delayph_dtor( t_CKTIME now, void * data );
+UGEN_PMSG delayph_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTRL delayph_ctrl_delay( t_CKTIME now, void * data, void * value );
 UGEN_CGET delayph_cget_delay( t_CKTIME now, void * data, void * out );
