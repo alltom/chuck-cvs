@@ -1360,6 +1360,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         d->chan = 0;
         d->num_frames = info.frames;
         d->num_channels = info.channels;
+        sf_seek(file, 0, SEEK_SET );
         d->num_samples = sf_read_float(file, d->buffer, size) ;
         // fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
         d->samplerate = info.samplerate;

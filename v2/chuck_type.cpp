@@ -243,7 +243,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
         
         default:
             EM_error2( prog->linepos,
-                "(type-checker): internal error: unrecognized program section in type checker..." );
+                "internal error: unrecognized program section in type checker..." );
             ret = FALSE;
             break;
         }
@@ -367,7 +367,7 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
         
         default:
             EM_error2( stmt->linepos, 
-                "(type-checker): internal compiler error - no stmt type '%i'!", stmt->s_type );
+                "internal compiler error - no stmt type '%i'!", stmt->s_type );
             ret = FALSE;
             break;
     }
@@ -507,7 +507,7 @@ t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
 t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 {
     // TODO: implement this
-    EM_error2( stmt->linepos, "(type-checker): switch not implemented..." );
+    EM_error2( stmt->linepos, "switch not implemented..." );
 
     return FALSE;
 }
@@ -524,7 +524,7 @@ t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
     // check to see if inside valid stmt
     if( env->loops.size() <= 0 && env->swich.size() <= 0 )
     {
-        EM_error2( br->linepos, "(type-checker): 'break' found outside of for/while/until/switch..." );
+        EM_error2( br->linepos, "'break' found outside of for/while/until/switch..." );
         return FALSE;
     }
     
@@ -543,7 +543,7 @@ t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
     // check to see if inside valid loop
     if( env->loops.size() <= 0 )
     {
-        EM_error2( cont->linepos, "(type-checker): 'continue' found outside of for/while/until..." );
+        EM_error2( cont->linepos, "'continue' found outside of for/while/until..." );
         return FALSE;
     }
     
@@ -564,7 +564,7 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     // check to see if within function definition
     if( !env->func )
     {
-        EM_error2( stmt->linepos, "(type-checker): 'return' statement found outside function definition" );
+        EM_error2( stmt->linepos, "'return' statement found outside function definition" );
         return FALSE;
     }
     
@@ -578,7 +578,7 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     if( ret_type && !isa( ret_type, env->func->def->ret_type ) )
     {
         EM_error2( stmt->linepos,
-            "(type-checker): function '%s' was defined with return type '%s' -- but returning type '%s'",
+            "function '%s' was defined with return type '%s' -- but returning type '%s'",
             env->func->name.c_str(), env->func->def->ret_type->name.c_str(),
             ret_type->name.c_str() );
         return FALSE;
@@ -687,7 +687,7 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
         */
         
         default:
-            EM_error2( curr->linepos, "(type-checker): internal compiler error - no expression '%i'",
+            EM_error2( curr->linepos, "internal compiler error - no expression '%i'",
                 curr->s_type );
             return NULL;
         }
@@ -753,7 +753,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     {
         // TODO: implement this
         EM_error2( lhs->linepos,
-            "(type-checker): multi-value binary operations not implemented..." );
+            "multi-value binary operations not implemented..." );
         return NULL;
     }
 
@@ -835,7 +835,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 
     // no match
     EM_error2( lhs->linepos,
-        "(type-checker): no suitable resolution for binary operator '%s' on types '%s' and '%s'...",
+        "no suitable resolution for binary operator '%s' on types '%s' and '%s'...",
         op2str( op ), left->name.c_str(), right->name.c_str() );
     return NULL;
 }
@@ -867,7 +867,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
             // error
             EM_error2( lhs->linepos,
-                "(type-checker): no suitable resolution for binary operator '=>' on types '%s' => '%s'...\n"
+                "no suitable resolution for binary operator '=>' on types '%s' => '%s'...\n"
                 "    (right-side operand is not mutable)",
                 left->name.c_str(), right->name.c_str() );
             return NULL;
@@ -879,7 +879,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             
             // no match
             EM_error2( lhs->linepos,
-                "(type-checker): no suitable resolution for binary operator '=>' on types '%s' => '%s...'\n"
+                "no suitable resolution for binary operator '=>' on types '%s' => '%s...'\n"
                 "    (note: use @=> for assignment of objects)",
                 left->name.c_str(), right->name.c_str() );
             return NULL;
@@ -894,7 +894,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
     // no match
     EM_error2( lhs->linepos,
-        "(type-checker): no suitable resolution for binary operator '=>' on types '%s' and '%s'...",
+        "no suitable resolution for binary operator '=>' on types '%s' and '%s'...",
         left->name.c_str(), right->name.c_str() );
     return NULL;
 }
@@ -917,7 +917,7 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
     
     // no match
     EM_error2( lhs->linepos,
-        "(type-checker): no suitable resolution for binary operator '=<' on types '%s' and '%s'...",
+        "no suitable resolution for binary operator '=<' on types '%s' and '%s'...",
         left->name.c_str(), right->name.c_str() );
     return NULL;
 }
@@ -943,7 +943,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             if( unary->exp->s_meta != ae_meta_var )
             {
                 EM_error2( unary->linepos,
-                    "(type-checker): prefix unary operator '%s' cannot "
+                    "prefix unary operator '%s' cannot "
                     "be used on non-mutable data-types...", op2str( unary->op ) );
                 return NULL;
             }
@@ -970,7 +970,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             else
             {
                  EM_error2( unary->linepos,
-                     "(type-checker): only function calls can be sporked..." );
+                     "only function calls can be sporked..." );
                  return NULL;
             }
         break;
@@ -978,7 +978,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
     
     // no match
     EM_error2( unary->linepos,
-        "(type-checker): no suitable resolution for prefix unary operator '%s' on type '%s...",
+        "no suitable resolution for prefix unary operator '%s' on type '%s...",
         op2str( unary->op ), t->name.c_str() );
     return NULL;
 }
@@ -1007,13 +1007,13 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
                 if( !env->dots )
                 {
                     EM_error2( exp->linepos,
-                        "(type-checker): undefined variable '%s'...",
+                        "undefined variable '%s'...",
                         S_name(exp->var) );
                 }
                 else
                 {
                     EM_error2( exp->linepos,
-                        "(type-checker): undefined member '%s' in class/namespace '%s'...",
+                        "undefined member '%s' in class/namespace '%s'...",
                         S_name(exp->var), env->curr->name.c_str() );
                 }
                 return NULL;
@@ -1044,7 +1044,7 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
         // no match
         default:
             EM_error2( exp->linepos,
-                "(type-checker): internal error - unrecognized primary type '%i'...", exp->s_type );
+                "internal error - unrecognized primary type '%i'...", exp->s_type );
         return NULL;
     }
     
@@ -1069,7 +1069,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !t2 )
     {
         EM_error2( cast->linepos,
-            "(type-checker): undefined type '%s' in cast...",
+            "undefined type '%s' in cast...",
             S_name( cast->type ) );
         return NULL;
     }
@@ -1078,7 +1078,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !type_engine_check_cast_valid( env, t2, t ) )
     {
         EM_error2( cast->linepos,
-            "(type-checker): invalid cast to '%s' from '%s'...",
+            "invalid cast to '%s' from '%s'...",
             S_name( cast->type ), t->name.c_str() );
         return NULL;
     }
@@ -1130,7 +1130,7 @@ t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
     if( !isa( base, &t_int ) && !isa( base, &t_float ) )
     {
         EM_error2( dur->base->linepos,
-            "(type-checker): invalid type '%s' in prefix of dur expression...\n"
+            "invalid type '%s' in prefix of dur expression...\n"
             "    (must be of type 'int' or 'float')", base->name.c_str() );
         return NULL;
     }
@@ -1139,7 +1139,7 @@ t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
     if( !isa( unit, &t_dur ) )
     {
         EM_error2( dur->unit->linepos,
-            "(type-checker): invalid type '%s' in postfix of dur expression...\n"
+            "invalid type '%s' in postfix of dur expression...\n"
             "    (must be of type 'dur')", unit->name.c_str() );
         return NULL;
     }
@@ -1169,8 +1169,8 @@ t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
             if( postfix->exp->s_meta != ae_meta_var )
             {
                 EM_error2( postfix->exp->linepos,
-                    "(type-checker): postfix operator '%s' cannot be used "
-                    "on non-mutable data-type...", op2str( postfix->op ) );
+                    "postfix operator '%s' cannot be used on non-mutable data-type...",
+                    op2str( postfix->op ) );
                 return NULL;
             }
             
@@ -1184,13 +1184,13 @@ t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
         default:
             // no match
             EM_error2( postfix->linepos,
-                "(type-checker): internal compiler error: unrecognized postfix '%i'", postfix->op );
+                "internal compiler error: unrecognized postfix '%i'", postfix->op );
         return NULL;
     }
     
     // no match
     EM_error2( postfix->linepos,
-        "(type-checker): no suitable resolutation for postfix operator '%s' on type '%s'...",
+        "no suitable resolutation for postfix operator '%s' on type '%s'...",
         op2str( postfix->op ), t->name.c_str() );
     return NULL;
 }
@@ -1219,7 +1219,7 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
     if( !( *if_exp == *else_exp ) )
     {
         EM_error2( exp_if->linepos,
-            "(type-checker): incompatible types '%s' and '%s' in if expression...",
+            "incompatible types '%s' and '%s' in if expression...",
             if_exp->name.c_str(), else_exp->name.c_str() );
         return NULL;
     }
@@ -1245,8 +1245,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     if( !t )
     {
         EM_error2( decl->linepos,
-            "(type-checker): undefined type '%s'...",
-            S_name(decl->type) );
+            "undefined type '%s'...", S_name(decl->type) );
         return NULL;
     }
 
@@ -1254,7 +1253,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
     {
         EM_error2( decl->linepos,
-            "(type-checker): '%s' has already been defined in the same scope...",
+            "'%s' has already been defined in the same scope...",
             S_name(var_decl->id) );
         return NULL;
     }
@@ -1275,8 +1274,123 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     return t;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_func_call()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call )
+{
+    Chuck_Func * func = NULL;
+
+    // type check the func
+    t_CKTYPE f = type_engine_check_exp( env, func_call->func );
+    if( !f ) return NULL;
+
+    // void type for args
+    t_Type a = &t_void;
+
+    // make sure we have a function
+    if( isa( f, &t_function ) )
+    {
+        EM_error2( func_call->linepos, "function call using a non-function value" );
+        return NULL;
+    }
+
+    // get the function
+    func = 
+    Chuck_Func * func = func_call->func->owner->lookup_func( 
+    
+    if( func_call->func->s_type == ae_exp_primary )
+    {
+        if( func_call->func->primary.s_type == ae_primary_var )
+        {
+            // find func
+            func = env->curr->lookup_func( func_call->func->primary.var, TRUE );
+            if( !func )
+            {
+                EM_error2( func_call->linepos,
+                    "no function named '%s' defined", S_name(func_call->func->primary.var) );
+                return NULL;
+            }
+        }
+        else
+        {
+            EM_error2( func_call->linepos, "function call using illegal f-value" );
+            return NULL;
+        }
+    }
+    else  // namespace or class
+    {
+        t_Env e = env->child;
+        S_Symbol s = env->nspc_name;
+        
+        // make sure both there
+        if( !e || !s )
+        {
+            EM_error2( func_call->linepos, "type checker: missing env/symbol in func call" );
+            return NULL;
+        }
+        
+        // find func
+        func = lookup_func( e, s );
+        if( !func )
+        {
+            EM_error2( func_call->linepos,
+                "no function named '%s' defined in namespace/class '%s'",
+                S_name(s), S_name(e->name) );
+            return NULL;
+        }
+    }
+
+    if( func_call->args )
+    {
+        a = type_engine_check_exp( env, func_call->args );
+        if( !a ) return NULL;
+    }
+
+    a_Exp e = func_call->args;
+    a_Arg_List e1 = func->arg_list;
+    unsigned int count = 1;
+
+    // check arguments
+    while( e )
+    {
+        if( e1 == NULL )
+        {
+            EM_error2( func_call->linepos,
+                "extra argument(s) in function call '%s' %i %s",
+                S_name(func_call->func->primary.var), e->s_type, e->type->name );
+            return NULL;
+        }
+
+        if( e->type->type != e1->type->type )
+        {
+            EM_error2( func_call->linepos,
+                "argument '%i' of function call '%s' has type '%s' -- expecting type '%s'",
+                count, S_name(func_call->func->primary.var), e->type->name, e1->type->name );
+            return NULL;
+        }
+
+        e = e->next;
+        e1 = e1->next;
+        count++;
+    }
+
+    if( e1 != NULL )
+    {
+        EM_error2( func_call->linepos,
+            "missing argument(s) in function call '%s', next arg: '%s %s'",
+            S_name(func_call->func->primary.var), e1->type->name, S_name(e1->id) );
+        return NULL;
+    }
+
+    return func->ret_type;
+}
+
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
-t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
@@ -1431,23 +1545,21 @@ void * Chuck_Namespace::lookup_addr( S_Symbol name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
 {
-     // check id
-     if( lhs.id != rhs.id ) return FALSE;
+    // check id
+    if( lhs.id != rhs.id ) return FALSE;
+    // check array depth
+    if( lhs.array_depth != rhs.array_depth ) return FALSE;
      
-     // if user-defined type
-     if( lhs.id == te_user )
-     {
-         // check name
-         if( lhs.name != rhs.name ) return FALSE;
-         
-         // check array depth
-         if( lhs.array_depth != rhs.array_depth ) return FALSE;
-         
-         // check owner
-         if( lhs.owner != rhs.owner ) return FALSE;
-     }
-     
-     return TRUE;
+    // if user-defined type
+    if( lhs.id == te_user )
+    {
+        // check name
+        if( lhs.name != rhs.name ) return FALSE;
+        // check owner
+        if( lhs.owner != rhs.owner ) return FALSE;
+    }
+
+    return TRUE;
 }
 
 

@@ -5861,6 +5861,7 @@ class WvOut : public Stk
   char m_filename[1024];
   t_CKUINT start;
   char autoPrefix[1024];
+  t_CKUINT flush;
 };
 
 #endif // defined(__WVOUT_H)
@@ -18796,6 +18797,7 @@ void WvOut :: init()
   totalCount = 0;
   m_filename[0] = '\0';
   start = TRUE;
+  flush = 0;
 }
 
 void WvOut :: closeFile( void )
@@ -19388,6 +19390,14 @@ void WvOut :: writeData( unsigned long frames )
       if ( fwrite(&sample, 8, 1, fd) != 1 ) goto error;
     }
   }
+
+  flush += frames;
+  if( flush >= 8192 )
+  {
+      flush = 0;
+      fflush( fd );
+  }
+
   return;
 
  error:

@@ -113,6 +113,7 @@ typedef struct a_Class_Body_ * a_Class_Body;
 
 // forward reference for type
 typedef struct Chuck_Type * t_CKTYPE;
+typedef struct Chuck_Namespace * t_CKNSPC;
 
 
 
@@ -236,6 +237,7 @@ struct a_Exp_
     ae_Exp_Type s_type;
     ae_Exp_Meta s_meta;
     t_CKTYPE type;
+    t_CKNSPC owner;
     a_Exp next;
     t_CKUINT group_size;
     

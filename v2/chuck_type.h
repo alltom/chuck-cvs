@@ -191,7 +191,7 @@ struct Chuck_Context
 
 
 // where we are
-enum ce_scope{ ce_global = 0, ce_global_func, ce_class, ce_class_func }; 
+enum ce_scope{ ce_global = 0, ce_class }; 
 
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Env
@@ -209,6 +209,8 @@ struct Chuck_Env
     t_CKUINT dots;
 	// current location
 	ce_scope where;
+    // current function definition
+    Chuck_Func * func;
 	
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
@@ -218,8 +220,6 @@ struct Chuck_Env
     // control scope (for break, continue)
     vector<a_Stmt> loops;
     vector<a_Stmt> swich;
-    // current function definition
-    Chuck_Func * func;
 
 	// VM reference
 	Chuck_VM * vm;
@@ -268,6 +268,8 @@ struct Chuck_Type
     t_CKUINT self_size;
     // type info
     Chuck_Namespace * info;
+    // func info
+    Chuck_Func * func;
 
 public:
     // copy
@@ -311,6 +313,11 @@ struct Chuck_Func
     a_Func_Def def;
     // VM code
     Chuck_VM_Code * code;
+    // instance or static
+    t_CKBOOL instance;
+
+    // constructor
+    Chuck_Func() { def = NULL; code = NULL; instance = NULL; }
 };
 
 
