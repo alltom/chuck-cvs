@@ -202,7 +202,7 @@ struct Chuck_Env
     vector<a_Stmt> loops;
     vector<a_Stmt> swich;
     // current function definition
-    Chuck_Func * func_def;
+    Chuck_Func * func;
 
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
@@ -216,7 +216,7 @@ struct Chuck_Env
 
 	// constructor
 	Chuck_Env( )
-	{ this->reset(); vm = NULL; context = NULL; func_def = NULL; }
+	{ this->reset(); vm = NULL; context = NULL; func = NULL; }
 	// destructor
 	~Chuck_Env() { }
 

@@ -724,5 +724,4 @@ t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
 // name: equals()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs )
-{ return (*lhs) == (*rhs); }
+t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) == (*rhs); }
