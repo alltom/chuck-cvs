@@ -75,12 +75,10 @@ struct Osc_Data
         t = 0.0;
         num = 0.0;
         freq = 220.0;
-        phase = 0;
+        phase = 0.0;
         srate = Digitalio::sampling_rate();
-        float f = (float)freq;
-        float p = (float)phase;
-        sinosc_ctrl_freq( 0, this, &f );
-        sinosc_ctrl_phase( 0, this, &p );
+        sinosc_ctrl_freq( 0, this, &freq );
+        sinosc_ctrl_phase( 0, this, &phase );
     }
 };
 
@@ -136,7 +134,7 @@ UGEN_TICK sinosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_CTRL sinosc_ctrl_freq( t_CKTIME now, void * data, void * value )
 {
     Osc_Data * d = (Osc_Data *)data;
-    d->freq = (float)GET_CK_FLOAT(value);
+    d->freq = GET_CK_FLOAT(value);
     d->num = 2.0 * 3.14159265358979323846 * d->freq / d->srate;
 }
 
@@ -176,7 +174,7 @@ UGEN_CTRL sinosc_ctrl_phase( t_CKTIME now, void * data, void * value )
 UGEN_CGET sinosc_cget_freq( t_CKTIME now, void * data, void * out )
 {
     Osc_Data * d = (Osc_Data *)data;
-    SET_NEXT_FLOAT( out, d->freq );
+    SET_NEXT_FLOAT( out, (t_CKFLOAT)d->freq );
 }
 
 
@@ -187,7 +185,7 @@ UGEN_CGET sinosc_cget_freq( t_CKTIME now, void * data, void * out )
 UGEN_CGET sinosc_cget_phase( t_CKTIME now, void * data, void * out )
 {
     Osc_Data * d = (Osc_Data *)data;
-    SET_NEXT_FLOAT( out, d->phase );
+    SET_NEXT_FLOAT( out, (t_CKFLOAT)d->phase );
 }
 
 

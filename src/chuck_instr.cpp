@@ -2237,7 +2237,7 @@ void Chuck_Instr_UGen_CGet2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // call cget
     cget( shred->now, ugen->state, (void *)sp );
     // push the new value
-    push_( (double *)sp, (double)*sp );
+    push_( (double *&)sp, (double)*sp );
 }
 
 
