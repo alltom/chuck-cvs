@@ -258,6 +258,7 @@ public: // shreds
 
 public: // audio
     BBQ * bbq() const;
+    t_CKUINT srate() const;
 
 public: // running the machine
     t_CKBOOL run( );
@@ -310,12 +311,12 @@ protected:
     // shred
     Chuck_VM_Shred * m_shreds;
     t_CKUINT m_num_shreds;
-    Chuck_VM_Shreduler * m_shreduler;
     t_CKUINT m_shred_id;
+    Chuck_VM_Shreduler * m_shreduler;
 
     // audio
     BBQ * m_bbq;
-    
+
     // function table
     Chuck_VM_FTable * m_func_table;
     t_CKUINT m_num_func;

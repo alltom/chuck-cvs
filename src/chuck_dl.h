@@ -99,6 +99,8 @@ union  Chuck_DL_Return;
 #define CK_QUERY_FUNC        "ck_query"
 typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
 typedef void ( CK_DLL_CALL * f_ck_func)( void * ARGS, Chuck_DL_Return * RETURN );
+typedef void ( CK_DLL_CALL * f_ck_attach)( t_CKUINT type, void * data );
+typedef void ( CK_DLL_CALL * f_ck_detach)( t_CKUINT type, void * data );
 
 // chuck DLL query
 typedef void ( CK_DLL_CALL * f_ck_addexport)( Chuck_DL_Query * query, const char * type, const char * name, f_ck_func addr, t_CKBOOL is_func );
@@ -110,6 +112,7 @@ typedef void ( CK_DLL_CALL * f_ck_ugen_func)( Chuck_DL_Query * query, f_ctor cto
 typedef void ( CK_DLL_CALL * f_ck_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
 // set name
 typedef void ( CK_DLL_CALL * f_ck_setname)( Chuck_DL_Query * query, const char * name );
+typedef void ( CK_DLL_CALL * f_ck_setcb)( Chuck_DL_Query * query, f_ck_attach attach, f_ck_detach detach );
 
 // internal implementation header
 extern "C" {
@@ -121,6 +124,7 @@ void CK_DLL_CALL __ck_ugen_func( Chuck_DL_Query * query, f_ctor ctor, f_dtor dto
 void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
 void CK_DLL_CALL __ck_ugen_inherit( Chuck_DL_Query * query, const char * parent );
 void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
+void CK_DLL_CALL __ck_setcb( Chuck_DL_Query * query, f_ck_attach attach, f_ck_detach detach );
 }
 
 // param conversion
@@ -208,7 +212,12 @@ public: // call these from the DLL
     f_ck_ugen_func ugen_func;   // call this (once) to set functions for last ugen
     f_ck_ugen_ctrl ugen_ctrl;   // call this (>= 0 times) to add ctrl to last ugen
     f_ck_setname   set_name;    // call this to set name
+    f_ck_setcb     set_cb;      // call this to set DLL callback
+
     const char * dll_name;      // name of the DLL
+    f_ck_attach dll_attach;     // function called when DLL attaches
+    f_ck_detach dll_detach;     // function called when DLL detaches
+    
     void * reserved;
     t_CKUINT srate;             // sample rate
     t_CKUINT bufsize;           // buffer size

@@ -119,7 +119,6 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     if( m_done_query )
         return &m_query;
     
-	 //fprintf ( stderr, "dl_query:: querying address of function '%s'\n", m_func.c_str() );
     // get the address of the query function from the DLL
     if( !m_query_func )
         m_query_func = (f_ck_query)this->get_addr( m_func.c_str() );
@@ -186,6 +185,7 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     }
 
     m_done_query = TRUE;
+
     return &m_query;
 }
 
@@ -283,13 +283,16 @@ Chuck_DL_Query::Chuck_DL_Query( )
 { add_export = __ck_addexport; add_param = __ck_addparam;
   ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func;
   ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
-  ugen_extends = __ck_ugen_extends;  //XXX - pld
+  ugen_extends = __ck_ugen_extends;  // XXX - pld
   dll_name = "[noname]"; reserved = NULL;
+  dll_attach = NULL; dll_detach = NULL;
+  
 #ifndef __CKDL_NO_BBQ__
   srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
 #else
   srate = 0; bufsize = 0;
 #endif
+
   linepos = 0;
 }
 
@@ -332,11 +335,11 @@ extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
 {
     if( query->ugen_exports.size() > 1 )
         for( int i= 0 ; i < query->ugen_exports.size() - 1 ; i++ )
-            if ( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 )
+            if( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 )
             {
                 query->ugen_exports[query->ugen_exports.size()-1].inherit( 
                     &(query->ugen_exports[i]) );
-	        return;					     
+                return;					     
             }
 }
 
@@ -345,6 +348,11 @@ extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
 extern "C" void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query,
            const char * name )
 { query->dll_name = name; }
+
+// set cb
+extern "C" void CK_DLL_CALL __ck_setcb( Chuck_DL_Query * query,
+           f_ck_attach attach, f_ck_detach detach )
+{ query->dll_attach = attach; query->dll_detach = detach; }
 
 // windows
 #if defined(__WINDOWS_DS__)
