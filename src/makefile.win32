@@ -9,8 +9,8 @@ OBJS= chuck.tab.o chuck.yy.o chuck_main.o chuck_errormsg.o chuck_utils.o \
 	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_ugen.o \
 	chuck_bbq.o chuck_dl.o digitalio_rtaudio.o rtaudio.o midiio_win32.o \
 	ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o ulib_machine.o \
-	ulib_math.o ulib_net.o ulib_std.o util_buffers.o util_network.o \
-	util_raw.o util_sndfile.o util_xforms.o
+	ulib_math.o ulib_net.o ulib_std.o util_buffers.o util_math.o \
+	util_network.o util_raw.o util_sndfile.o util_xforms.o
 
 chuck: $(OBJS)
 	$(CC) -o chuck $(OBJS) $(LIBS)
@@ -110,6 +110,9 @@ ulib_std.o: ulib_std.h ulib_std.cpp
 
 util_buffers.o: util_buffers.h util_buffers.cpp
 	$(CC) $(FLAGS) util_buffers.cpp
+
+util_math.o: util_math.h util_math.c
+	$(CC) $(FLAGS) util_math.c
 
 util_network.o: util_network.h util_network.c
 	$(CC) $(FLAGS) util_network.c
