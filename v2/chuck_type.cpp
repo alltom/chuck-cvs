@@ -1336,6 +1336,13 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 // refers to shred
                 t = &t_shred;
             }
+            else if( str == "now" ) // now
+            {
+                // assignable in a strongly timed way
+                exp->self->s_meta = ae_meta_var;
+                // time
+                t = &t_time;
+            }
             else  // look up
             {
                 v = env->curr->lookup_value( exp->var, TRUE );
