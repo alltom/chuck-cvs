@@ -39,6 +39,7 @@ gl.ClearColor ( 0.0 , 0.0, 0.3, 0.0 );
 0.0 => float cury;
 
 0.0 => float bg;
+0.0 => float avol;
 
 noise n => biquad b => dac;
 
@@ -57,15 +58,26 @@ function void thedrawloop() {
 
 		16640 => dummy; //GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT
 		gl.Clear( dummy );
-		gl.Color3f( frac , 0.5 + 0.5 * curx , 0.05 + 0.5 * cury );
+
 		gl.LineWidth(2.0);
 		gl.PushMatrix();
 		gl.Translatef ( curx, cury, 0.0);
-		gl.Scalef  ( 1.1 + math.sin ( tm * 0.2 ), 1.1 + math.sin ( tm * 0.2 ), 1.1 + math.sin ( tm * 0.2 ) ); 
+//		gl.Scalef  ( 1.1 + math.sin ( tm * 0.2 ), 1.1 + math.sin ( tm * 0.2 ), 1.1 + math.sin ( tm * 0.2 ) ); 
+		gl.Scalef  ( 0.1 + avol , 0.1 + avol , 0.1 + avol ); 
 		gl.Rotatef ( tm * 45.0, 1.0, 0.0 , 0.0 );
 		gl.Rotatef (tm * 60.0, 0.0, 1.0 , 0.0 );
-		gluck.WireTeapot( 0.5 );
-		if ( bg > 0.0 ) gluck.WireTeapot ( 0.5 + bg );
+		
+		if ( bg > 0.0 ) { 
+			gl.Color4f( 0.0, 0.0, 0.0, 0.5 ); 
+			gluck.SolidTeapot ( 0.5  );
+			gl.Color4f( frac , 0.5 + 0.5 * curx , 0.05 + 0.5 * cury, 0.5 );
+			gluck.WireTeapot ( 0.5 + bg );
+
+		}
+		else { 
+			gl.Color4f( frac , 0.5 + 0.5 * curx , 0.05 + 0.5 * cury, 0.5 );
+			gluck.WireTeapot( 0.5 );
+		}
 		gl.PopMatrix();
 		gl.Flush();
 		gluck.SwapBuffers();
@@ -86,7 +98,7 @@ function void theeventloop() {
 			gluck.GetEventKey(id) => uint k;
 			100.0 + (float) ( k - 65 ) * 50.0 => b.pfreq;
 			0.2 => bg; 
-
+			avol + 0.04 => avol;
 		}
 	}
 }
@@ -106,7 +118,11 @@ while ( true ) {
 	}
 
 	fc + ampM * frac => a.sfreq;
-	0.4 + 0.3 * math.sin ( tm * 0.2 ) => a.gain;
+//	0.4 + 0.3 * math.sin ( tm * 0.2 ) => a.gain;
+	if ( avol > 1.5 ) 1.5 => avol;
+	0.1 + avol => a.gain;
+	avol + ( 0.033 * -0.1 ) => avol;
+	if ( avol < 0.0 ) { 0.0 => avol; }
 	bg + ( 0.033 * -0.4 ) => bg ; //drain bg
 	if ( bg < 0.0 ) { 0.0 => bg; } 
 	bg => b.gain;
