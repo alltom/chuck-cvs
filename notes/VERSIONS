@@ -7,6 +7,9 @@
   - fixed Shakers (thanks to philipd) : examples/shake-o-matic.ck
   - better compilation for cygwin
   - minor bugs fixes
+  - added many READ functionality for ugen parameters
+       see online documentation at:
+       http://chuck.cs.princeton.edu/doc/program/ugen.html
 
 new ugens:
   - netout (alpha version) - audio over UDP (see net_send.ck)
