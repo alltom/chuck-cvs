@@ -118,6 +118,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
 t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * name );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
 
@@ -2323,4 +2325,51 @@ Chuck_Context::~Chuck_Context()
         delete new_types[i];
 
     // TODO: delete abstract syntax tree * 
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_reserved()
+// desc: ...
+//--------------------------------------------------------------------------
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos )
+{
+    // key word?
+    if( env->key_words[id] )
+    {
+        EM_error2( pos, "illegal use of keyword '%s'.", id.c_str() );
+        return FALSE;
+    }
+
+    // key value?
+    if( env->key_values[id] )
+    {
+        EM_error2( pos, "illegal re-declaration of reserved value '%s'.",
+            id.c_str() );
+        return FALSE;
+    }
+
+    // key type?
+    if( env->key_types[id] )
+    {
+        EM_error2( pos, "illegal use of reserved type id '%s'.",
+            id.c_str() );
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_reserved()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos )
+{
+    return type_engine_check_reserved( env, string(S_name(id)) );
 }
