@@ -117,7 +117,9 @@ void signal_int( int sig_num )
         delete( vm );
     }
 
+#ifndef __PLATFORM_WIN32__
     pthread_join( g_tid, NULL );
+#endif
     
     exit(2);
 }
