@@ -1,3 +1,9 @@
+//--------------
+// mand-o-matic!
+// author: Ge Wang (gewang@cs.princeton.edu)
+//         Perry R. Cook (prc@cs.princeton.edu)
+//--------------
+
 // our patch
 Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 // set the gain
