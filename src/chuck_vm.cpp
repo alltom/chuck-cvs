@@ -1065,6 +1065,7 @@ void Chuck_VM_Shreduler::advance( )
     //m_dac[1].system_tick( this->now_system );
     l = m_dac[0].m_current;
     //r = m_dac[1].m_current;
+    l *= .5f;
 
     // tick
     if( audio )

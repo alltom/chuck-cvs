@@ -10,7 +10,7 @@ impulse i => biquad f => dac;
 // initialize float variable
 0.0 => float v;
 // set filter gain
-.3 => f.gain;
+.5 => f.gain;
   
 // infinite time-loop   
 while( true )
