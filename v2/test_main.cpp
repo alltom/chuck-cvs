@@ -39,7 +39,12 @@ extern "C" int yyparse( void );
 // global variables
 char g_filename[1024] = "";
 
-
+// priority
+#if defined(__MACOSX_CORE__)
+t_CKUINT g_priority = 95;
+#else
+t_CKUINT g_priority = 0xffffffff;
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -127,9 +132,27 @@ int main( int argc, char ** argv )
     Chuck_Env * env = NULL;
     Chuck_Emitter * emit = NULL;
     Chuck_VM_Code * code = NULL;
-
+    Chuck_VM_Shred * shred = NULL;
+    
+    t_CKBOOL enable_audio = TRUE;
+    t_CKBOOL vm_halt = TRUE;
+    t_CKUINT srate = SAMPLING_RATE_DEFAULT;
+    t_CKUINT buffer_size = 1024;
+    t_CKUINT num_buffers = 8;
+    t_CKUINT dac = 0;
+    t_CKUINT adc = 0;
+    
+    // allocate the vm
+    Chuck_VM * vm = new Chuck_VM;
+    if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
+                         num_buffers, dac, adc, g_priority ) )
+    {
+        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+        exit( 1 );
+    }
+    
     // test the parsing
-    if( !test_parse( "a.ck" ) )
+    if( !test_parse( argv[1] ) )
     {
         fprintf( stderr, "parse failed...\n" );
         return 1;
@@ -159,6 +182,12 @@ int main( int argc, char ** argv )
     }
 
     fprintf( stderr, "emit success!\n" );
+
+    // spork the code into shred
+    shred = vm->spork( code, NULL );
+    
+    // run the vm
+    vm->run();
 
     return 0;
 }
