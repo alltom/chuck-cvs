@@ -17381,7 +17381,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
                 bufferSize = rawsize;
                 fileSize = bufferSize;
                 for ( int j=0; j < rawsize; j++ ) {
-                    data[j] = (MY_FLOAT)(SHRT_MAX) * rawdata[j];
+                    data[j] = (MY_FLOAT) rawdata[j];
                 }
             }
             else
