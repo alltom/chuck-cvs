@@ -12,14 +12,13 @@ noise n => biquad f => dac;
 // concurrent control
 fun void wind_gain( )
 {
-    // our gain
-    0.000 => float gain => n.gain;
-    now + 5::second => time later;
+    0.0 => float t; 
 
-    // ramp up the gain in the 3 seconds
-    while( now < later )
+    // time loop to ramp up the gain / oscillate
+    while( true )
     {
-        gain + .001 => gain => n.gain;
+        0.8 * std.abs( math.sin( t ) ) => n.gain;
+        t + .001 => t;
         10::ms => now;
     }
 }
