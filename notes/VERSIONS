@@ -1,7 +1,19 @@
 
 ---
 1.1.4.3 - 2004.6.18
-  - add sfreq and phase (Phil Davidson)
+  - add sndfile support (Ari Lazier)
+  - add sndbuf file reading/writing (Ari Lazier)
+  - add sinosc.sfreq and phase (Phil Davidson)
+  - add sndbuf rate and sinc interp (Phil Davidson)
+  - add cget functions for unit generators parameters
+    (many parameters are readable now)
+  - add .last for last sample computed for all ugen's
+  - add constants in lib import
+  - add math.pi math.twopi math.e
+  - typing .ck extension optional on command line
+  - fixed spork bug involved local variables
+  - fixed nested function calls
+  - fixed math.min/max bug (Phil Davidson)
 
 
 ---
