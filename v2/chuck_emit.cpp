@@ -2125,6 +2125,11 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
         exp = exp->next;
     }
 
+    // emit the array access
+    emit->append( new Chuck_Instr_Array_Acess );
+
+    // TODO: variable?
+
     return TRUE;
 }
 
@@ -2231,6 +2236,8 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                 EM_error2( decl->linepos,
                     "(emit): internal error: array not impl" );
                     return FALSE;
+
+                // emit 
             }
             else // not array
             {
