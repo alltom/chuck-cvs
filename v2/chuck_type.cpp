@@ -1483,6 +1483,14 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         return NULL;
     }
 
+    // make sure it's not void
+    if( t->size == 0 )
+    {
+        EM_error2( decl->linepos,
+            "cannot declare variables of size '0' (i.e. 'void')..." );
+        return NULL;
+    }
+
     // T @ foo?
     do_alloc = !decl->type->ref;
 
@@ -2030,6 +2038,14 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             goto error;
         }
 
+        // make sure it's not void
+        if( arg_list->type->size == 0 )
+        {
+            EM_error2( arg_list->linepos,
+                "cannot declare variables of size '0' (i.e. 'void')..." );
+            return NULL;
+        }
+
         // check if reserved
         if( type_engine_check_reserved( env, arg_list->var_decl->id, arg_list->linepos ) )
         {
@@ -2342,6 +2358,14 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
                 "imported ugen '%s.%s': unrecognized type '%s' for control parameter '%s'",
                 env->curr->name.c_str(), ugen->name.c_str(), 
                 param->type.c_str(), param->name.c_str() );
+            return FALSE;
+        }
+
+        // make sure it's not void
+        if( type->size == 0 )
+        {
+            EM_error2( ugen->linepos,
+                "cannot declare variables of size '0' (i.e. 'void')..." );
             return FALSE;
         }
 

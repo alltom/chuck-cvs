@@ -1,5 +1,3 @@
-
-
 class AA
 {
     int x;
