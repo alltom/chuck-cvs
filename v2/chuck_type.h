@@ -313,7 +313,7 @@ public:
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
       array_type = NULL; array_depth = 0; obj_size = 0; self_size = 0;
       info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
-      ugen = NULL; is_complete = FALSE; }
+      ugen = NULL; is_complete = TRUE; }
     // destructor
     ~Chuck_Type() { reset(); }
     

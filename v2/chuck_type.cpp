@@ -1705,6 +1705,23 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     // T @ foo?
     do_alloc = !decl->type->ref;
 
+    // make sure complete
+    if( !t->is_complete && do_alloc )
+    {
+        EM_error2( decl->linepos,
+            "cannot declare object due to incomplete type '%s'...",
+            t->c_name() );
+        EM_error2( decl->linepos,
+            "...(note: can define only references (@) to incomplete types)" );
+        if( env->class_def && equals( t, env->class_def ) )
+        {
+            EM_error2( decl->linepos,
+                "...(note: object of type '%s' declared inside itself)",
+                t->c_name() );
+        }
+        return NULL;
+    }
+
     // primitive
     if( isprim( t ) && decl->type->ref )  // TODO: string
     {
@@ -2160,6 +2177,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->def = class_def;
     // add to env
     env->curr->type.add( the_class->name, the_class );
+    // incomplete
+    the_class->is_complete = FALSE;
 
     // set the new type as current
     env->stack.push_back( env->curr );
@@ -2193,8 +2212,6 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         body = body->next;
     }
 
-    // set the object size
-    the_class->obj_size = the_class->info->offset;
 
     // pop the new type
     env->class_def = NULL;
@@ -2207,6 +2224,10 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         Chuck_Value * value = NULL;
         Chuck_Type * type = NULL;
 
+        // set the object size
+        the_class->obj_size = the_class->info->offset;
+        // set complete
+        the_class->is_complete = TRUE;
 
         // allocate value
         type = t_class.copy( env );

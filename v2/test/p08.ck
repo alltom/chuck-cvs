@@ -4,7 +4,7 @@ class ListItem
 {
     public void foo() { }
     int value;
-    ListItem next;
+    ListItem @ next;
 }
 
 ListItem root;
