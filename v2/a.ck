@@ -31,4 +31,5 @@ class Bar extends Foo
 }
 
 Foo foo;
-foo.f => foo.a1;
+Bar bar;
+foo.f + bar.c => foo.a1;
