@@ -78,7 +78,8 @@ UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTOR sndbuf_ctor( t_CKTIME now );
 UGEN_DTOR sndbuf_dtor( t_CKTIME now, void * data );
 UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL sndbuf_ctrl_path( t_CKTIME now, void * data, void * value );
+UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value );
+UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value );
 
 

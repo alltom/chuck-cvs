@@ -102,7 +102,8 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, sndbuf_ctor, sndbuf_dtor, sndbuf_tick, NULL );
     // set ctrl
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_path, "string", "path" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, "string", "read" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, "string", "write" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, "int", "pos" );
 
     return TRUE;
@@ -365,10 +366,10 @@ UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 //-----------------------------------------------------------------------------
 struct sndbuf_data
 {
-    short * buffer;
+    float * buffer;
     t_CKUINT num_samples;
-    short * eob;
-    short * curr;
+    float * eob;
+    float * curr;
     t_CKBOOL loop;
     
     sndbuf_data()
@@ -377,7 +378,7 @@ struct sndbuf_data
         num_samples = 0;
         eob = NULL;
         curr = NULL;
-        loop = FALSE;
+        loop = TRUE;
     }
 };
 
@@ -406,12 +407,53 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
             return FALSE;
     }
     else
-        *out = (*(d->curr)++)/(float)SHRT_MAX;
+        *out = (SAMPLE)( (*(d->curr)++) ) ;
     
     return TRUE;
 }
 
-UGEN_CTRL sndbuf_ctrl_path( t_CKTIME now, void * data, void * value )
+#include "ugen_sndfile.h"
+
+UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
+{
+	sndbuf_data * d = (sndbuf_data *)data;
+	char * filename = *(char **)value;
+	
+	if( d->buffer )
+	{
+		delete [] d->buffer;
+		d->buffer = NULL;
+	}
+
+	struct stat s;
+	if( stat( filename, &s ) )
+	{
+		fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
+		return;
+	}
+
+	SF_INFO info;
+	info.format = 0;
+	SNDFILE* file = sf_open(filename, SFM_READ, &info);
+	int er = sf_error(file);
+	if(er) fprintf( stderr, "sndfile error %i\n", er );
+	int size = info.channels * info.frames;
+	d->buffer = new float[size];
+
+	d->num_samples = sf_read_float(file, d->buffer, size) ;
+	if( d->num_samples != size )
+	{
+		fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
+			    d->num_samples, size, filename );
+		return;
+	}
+
+	d->curr = d->buffer;
+	d->eob = d->buffer + d->num_samples;
+}
+
+
+UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value )
 {
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
@@ -429,23 +471,12 @@ UGEN_CTRL sndbuf_ctrl_path( t_CKTIME now, void * data, void * value )
         return;
     }
 
-    ifstream is;
-    is.open( filename, ios::binary );
-    if( is.fail() )
-    {
-        fprintf( stderr, "[chuck](via sndbuf): cannot open file '%s'...\n", filename );
-        return;
-    }
-
-    d->num_samples = s.st_size / sizeof(short);
-    d->buffer = new short[d->num_samples];
-
-    is.read( (char *)d->buffer, s.st_size );
 
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
-    is.close();
 }
+
+
 
 UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value )
 {
