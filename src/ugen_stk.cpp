@@ -1170,7 +1170,7 @@ public:
     An StkError will be thrown if the file is not found, its format is
     unknown, or a read error occurs.
   */
-  WvIn( const char *fileName, bool raw = FALSE, bool doNormalize = TRUE );
+  WvIn( const char *fileName, bool raw = FALSE, bool doNormalize = TRUE, bool generate=true );
 
   //! Class destructor.
   virtual ~WvIn();
@@ -1180,7 +1180,7 @@ public:
     An StkError will be thrown if the file is not found, its format is
     unknown, or a read error occurs.
   */
-  virtual void openFile( const char *fileName, bool raw = FALSE, bool doNormalize = TRUE );
+  virtual void openFile( const char *fileName, bool raw = FALSE, bool doNormalize = TRUE, bool generate = true );
 
   //! If a file is open, close it.
   void closeFile(void);
@@ -1349,7 +1349,7 @@ class WaveLoop : public WvIn
 public:
   WaveLoop( );
   //! Class constructor.
-  WaveLoop( const char *fileName, bool raw = FALSE );
+  WaveLoop( const char *fileName, bool raw = FALSE, bool generate = true );
   
   virtual void openFile( const char * fileName, bool raw = FALSE, bool n = TRUE );
 
@@ -16621,7 +16621,7 @@ MY_FLOAT Voicer :: lastOutRight() const
 
 #include <math.h>
 
-WaveLoop :: WaveLoop( const char *fileName, bool raw )
+WaveLoop :: WaveLoop( const char *fileName, bool raw, bool generate )
   : WvIn( fileName, raw ), phaseOffset(0.0)
 {
   // If at end of file, redo extra sample frame for looping.
@@ -17164,10 +17164,10 @@ WvIn :: WvIn()
   init();
 }
 
-WvIn :: WvIn( const char *fileName, bool raw, bool doNormalize )
+WvIn :: WvIn( const char *fileName, bool raw, bool doNormalize, bool generate )
 {
   init();
-  openFile( fileName, raw );
+  openFile( fileName, raw, generate );
 }
 
 WvIn :: ~WvIn()
@@ -17201,8 +17201,12 @@ void WvIn :: closeFile( void )
   finished = true;
 }
 
-void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize )
+void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool generate )
 {
+  unsigned long lastChannels = channels;
+  unsigned long samples, lastSamples = (bufferSize+1)*channels;
+  if(!generate || !strstr(fileName, "sinewave"))
+  {
   closeFile();
 
   // Try to open the file.
@@ -17212,8 +17216,6 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize )
     handleError(msg, StkError::FILE_NOT_FOUND);
   }
 
-  unsigned long lastChannels = channels;
-  unsigned long samples, lastSamples = (bufferSize+1)*channels;
   bool result = false;
   if ( raw )
     result = getRawInfo( fileName );
@@ -17250,9 +17252,9 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize )
     sprintf(msg, "WvIn: File (%s) data size is zero!", fileName);
     handleError(msg, StkError::FILE_ERROR);
   }
+  }
 
   // Allocate new memory if necessary.
-  samples = (bufferSize+1)*channels;
   if ( lastSamples < samples ) {
     if ( data ) delete [] data;
     data = (MY_FLOAT *) new MY_FLOAT[samples];
@@ -17264,8 +17266,76 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize )
 
   if ( fmod(rate, 1.0) != 0.0 ) interpolate = true;
   chunkPointer = 0;
+
   reset();
-  readData( 0 );  // Load file data.
+  if(generate && strstr(fileName, "sinewave"))
+  {
+  	fileSize = 256;  // length in 2-byte samples
+	bufferSize = fileSize;
+	if (fileSize > CHUNK_THRESHOLD) {
+		chunking = true;
+		bufferSize = CHUNK_SIZE;
+		gain = 1.0 / 32768.0;
+	}
+
+	// STK rawwave files have no header and are assumed to contain a
+	// monophonic stream of 16-bit signed integers in big-endian byte
+	// order with a sample rate of 22050 Hz.
+	channels = 1;
+	dataOffset = 0;
+	rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
+	fileRate = 22050.0;
+	interpolate = false;
+	dataType = STK_SINT16;
+	byteswap = false;
+	#ifdef __LITTLE_ENDIAN__
+	byteswap = true;
+	#endif
+	
+	unsigned long indexHACKED = 0;
+	while (indexHACKED < (unsigned long)chunkPointer) {
+		// Negative rate.
+		chunkPointer -= CHUNK_SIZE;
+		bufferSize = CHUNK_SIZE;
+		if (chunkPointer < 0) {
+			bufferSize += chunkPointer;
+			chunkPointer = 0;
+		}
+	}
+	while (indexHACKED >= chunkPointer+bufferSize) {
+		// Positive rate.
+		chunkPointer += CHUNK_SIZE;
+		bufferSize = CHUNK_SIZE;
+		if ( (unsigned long)chunkPointer+CHUNK_SIZE >= fileSize) {
+			bufferSize = fileSize - chunkPointer;
+		}
+	}
+
+	long i, length = bufferSize;
+	bool endfile = (chunkPointer+bufferSize == fileSize);
+	if ( !endfile ) length += 1;
+	
+	// Read samples into data[].  Use MY_FLOAT data structure
+	// to store samples.
+	SINT16 *buf = (SINT16 *)data;
+	for (unsigned int j=0; j<length; j++)
+	{
+		buf[j] = (SINT16)(32768 * sin(2*PI*j/256));
+	}	    
+	if ( byteswap ) {
+		SINT16 *ptr = buf;
+		for (i=length*channels-1; i>=0; i--)
+			swap16((unsigned char *)(ptr++));
+	}
+	for (i=length*channels-1; i>=0; i--)
+	data[i] = buf[i];
+	// If at end of file, repeat last sample frame for interpolation.
+	if ( endfile ) {
+		for (unsigned int j=0; j<channels; j++)
+		data[bufferSize*channels+j] = data[(bufferSize-1)*channels+j];
+	}
+  }
+  else readData( 0 );  // Load file data.
   if ( doNormalize ) normalize();
   finished = false;
   return;
@@ -17725,6 +17795,10 @@ bool WvIn :: getMatInfo( const char *fileName )
   sprintf(msg, "WvIn: Error reading MAT-file (%s).", fileName);
   return false;
 }
+
+
+
+
 
 void WvIn :: readData( unsigned long index )
 {
