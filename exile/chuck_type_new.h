@@ -119,6 +119,7 @@ protected:
 struct Chuck_Type;
 struct Chuck_Value;
 struct Chuck_Func;
+struct Chuck_DLL;
 class  Chuck_VM;
 class  Chuck_VM_Code;
 
@@ -199,6 +200,8 @@ struct Chuck_Env
     Chuck_Scope<t_CKUINT> scope;
 	// VM reference
 	Chuck_VM * vm;
+	// current contexts in memory
+	vector<Chuck_Context *> contexts;
 
 	// constructor
 	Chuck_Env( Chuck_VM * _vm )
@@ -276,6 +279,21 @@ struct Chuck_Func
     // VM code
     Chuck_VM_Code * code;
 };
+
+
+
+
+//-----------------------------------------------------------------------------
+// primary chuck type checker interface
+//-----------------------------------------------------------------------------
+// type check a program into the env
+t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
+// type check a statement
+t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
+// type check an expression
+Chuck_Type * type_engine_check_exp( Chuck_Env * env, a_Exp exp );
+// add an chuck dll into the env
+t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & nspc );
 
 
 
