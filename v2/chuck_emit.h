@@ -64,6 +64,11 @@ public:
     // code
     vector<Chuck_Instr *> code;
 
+    // continue stack
+    vector<Chuck_Instr_Goto *> stack_cont;
+    // break stack
+    vector<Chuck_Instr_Goto *> stack_break;
+    
     // constructor
     Chuck_Code( )
     {
@@ -102,10 +107,6 @@ struct Chuck_Emitter : public Chuck_VM_Object
 
     // code stack
     vector<Chuck_Code *> stack;
-    // continue stack
-    vector<Chuck_Instr_Goto *> stack_cont;
-    // break stack
-    vector<Chuck_Instr_Goto *> stack_break;
     // locals
     vector<Chuck_Local *> locals;
 

@@ -153,9 +153,9 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     // clear the code stack
     emit->stack.clear();
     // clear the stack of continue
-    emit->stack_cont.clear();
+    //emit->stack_cont.clear();
     // clear the stack of break
-    emit->stack_break.clear();
+    //emit->stack_break.clear();
 
     // loop over the program sections
     while( prog && ret )
@@ -487,9 +487,9 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
     // the start index
     t_CKUINT start_index = emit->next_index();
     // mark the stack of continue
-    emit->stack_cont.push_back( NULL );
+    emit->code->stack_cont.push_back( NULL );
     // mark the stack of break
-    emit->stack_break.push_back( NULL );
+    emit->code->stack_break.push_back( NULL );
 
     // emit the cond - keep the result on the stack
     emit_engine_emit_stmt( emit, stmt->c2, FALSE );
@@ -557,17 +557,17 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
         op->set( emit->next_index() );
 
     // stack of continue
-    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
-        emit->stack_cont.back()->set( start_index );
-        emit->stack_cont.pop_back();
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
     }
 
     // stack of break
-    while( emit->stack_break.size() && emit->stack_break.back() )
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
-        emit->stack_break.back()->set( emit->next_index() );
-        emit->stack_cont.pop_back();
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_cont.pop_back();
     }
 
     // pop stack
@@ -594,9 +594,9 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     // get the index
     t_CKUINT start_index = emit->next_index();
     // mark the stack of continue
-    emit->stack_cont.push_back( NULL );
+    emit->code->stack_cont.push_back( NULL );
     // mark the stack of break
-    emit->stack_break.push_back( NULL );
+    emit->code->stack_break.push_back( NULL );
 
     // emit the cond
     ret = emit_engine_emit_exp( emit, stmt->cond );
@@ -641,17 +641,17 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     op->set( emit->next_index() );
 
     // stack of continue
-    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
-        emit->stack_cont.back()->set( start_index );
-        emit->stack_cont.pop_back();
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
     }
 
     // stack of break
-    while( emit->stack_break.size() && emit->stack_break.back() )
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
-        emit->stack_break.back()->set( emit->next_index() );
-        emit->stack_cont.pop_back();
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_cont.pop_back();
     }
 
     // pop stack
@@ -677,9 +677,9 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     emit->push_scope();
 
     // mark the stack of continue
-    emit->stack_cont.push_back( NULL );
+    emit->code->stack_cont.push_back( NULL );
     // mark the stack of break
-    emit->stack_break.push_back( NULL );
+    emit->code->stack_break.push_back( NULL );
 
     // emit the body
     ret = emit_engine_emit_stmt( emit, stmt->body );
@@ -721,17 +721,17 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     op->set( start_index );
 
     // stack of continue
-    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
-        emit->stack_cont.back()->set( start_index );
-        emit->stack_cont.pop_back();
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
     }
 
     // stack of break
-    while( emit->stack_break.size() && emit->stack_break.back() )
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
-        emit->stack_break.back()->set( emit->next_index() );
-        emit->stack_cont.pop_back();
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_cont.pop_back();
     }
 
     // pop stack
@@ -758,9 +758,9 @@ t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     // get index
     t_CKUINT start_index = emit->next_index();
     // mark the stack of continue
-    emit->stack_cont.push_back( NULL );
+    emit->code->stack_cont.push_back( NULL );
     // mark the stack of break
-    emit->stack_break.push_back( NULL );
+    emit->code->stack_break.push_back( NULL );
 
     // emit the cond
     ret = emit_engine_emit_exp( emit, stmt->cond );
@@ -803,17 +803,17 @@ t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     op->set( emit->next_index() );
 
     // stack of continue
-    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
-        emit->stack_cont.back()->set( start_index );
-        emit->stack_cont.pop_back();
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
     }
 
     // stack of break
-    while( emit->stack_break.size() && emit->stack_break.back() )
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
-        emit->stack_break.back()->set( emit->next_index() );
-        emit->stack_cont.pop_back();
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_cont.pop_back();
     }
 
     // pop stack
@@ -840,9 +840,9 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     // the index
     t_CKUINT start_index = emit->next_index();
     // mark the stack of continue
-    emit->stack_cont.push_back( NULL );
+    emit->code->stack_cont.push_back( NULL );
     // mark the stack of break
-    emit->stack_break.push_back( NULL );
+    emit->code->stack_break.push_back( NULL );
 
     // emit the body
     ret = emit_engine_emit_stmt( emit, stmt->body );
@@ -884,17 +884,17 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     op->set( start_index );
 
     // stack of continue
-    while( emit->stack_cont.size() && emit->stack_cont.back() )
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
-        emit->stack_cont.back()->set( start_index );
-        emit->stack_cont.pop_back();
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
     }
 
     // stack of break
-    while( emit->stack_break.size() && emit->stack_break.back() )
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
-        emit->stack_break.back()->set( emit->next_index() );
-        emit->stack_cont.pop_back();
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_cont.pop_back();
     }
 
     // pop stack
@@ -913,7 +913,7 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
 t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br )
 {
     // append
-    emit->stack_break.push_back( new Chuck_Instr_Goto( 0 ) );
+    emit->code->stack_break.push_back( new Chuck_Instr_Goto( 0 ) );
     
     return TRUE;
 }
@@ -928,7 +928,7 @@ t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br )
 t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont )
 {
     // append
-    emit->stack_cont.push_back( new Chuck_Instr_Goto( 0 ) );
+    emit->code->stack_cont.push_back( new Chuck_Instr_Goto( 0 ) );
 
     return TRUE;
 }
@@ -2166,6 +2166,94 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
                                          a_Exp_Func_Call func_call,
                                          t_CKBOOL spork )
 {
+    if( func_call->args )
+    {
+        // emit the args
+        if( !emit_engine_emit_exp( emit, func_call->args ) )
+        {
+            EM_error2( func_call->linepos,
+                       "(emit): internal error in emitting function call arguments..." );
+            return FALSE;
+        }
+    }
+
+    // spork
+    Chuck_Instr_Mem_Push_Imm * op = NULL;
+    if( spork )
+    {
+        // push the current code
+        emit->stack.push_back( emit->code );
+        // make a new one
+        emit->code = new Chuck_Code;
+        // push op
+        op = new Chuck_Instr_Mem_Push_Imm( 0 );
+        // emit the stack depth - we don't know this yet
+        emit->append( op );
+    }
+
+    // emit func
+    if( !emit_engine_emit_exp( emit, func_call->func ) )
+    {
+        EM_error2( func_call->linepos,
+                   "(emit): internal error in evaluating function call..." );
+        return FALSE;
+    }
+
+    // push the local stack depth
+    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->stack_depth ) );
+    
+    // call the function
+    if( emit->nspc_func && emit->nspc_func->s_type == ae_func_builtin )
+    {
+        if( exp->ret_type->size == 0 )
+            emit->append( new Chuck_Instr_Func_Call0 );
+        else if( exp->ret_type->size == 4 )
+            emit->append( new Chuck_Instr_Func_Call2 );
+        else if( exp->ret_type->size == 8 )
+            emit->append( new Chuck_Instr_Func_Call3 );
+        else
+        {
+            EM_error2( exp->linepos,
+                       "(emit): internal error: %i func call not handled",
+                       exp->ret_type->size );
+            return FALSE;
+        }
+    }
+    else
+    {
+        Chuck_Instr * op = new Chuck_Instr_Func_Call;
+        emit->append( op );
+    }
+
+    // spork
+    if( spork )
+    {
+        // done
+        emit->append( new Chuck_Instr_EOC );
+        // set the stack depth now that we know
+        op->set( emit->stack_depth() );
+
+        // emit it
+        Chuck_VM_Code * code = emit_to_code( emit );
+        code->name = string("spork ~ exp");
+
+        // restore the code
+        assert( emit->stack.size() > 0 );
+        emit->code = emit->stack.back();
+        // pop
+        emit->stack.pop_back();
+
+        a_Exp e = func_call->args;
+        t_CKUINT size = 0;
+        while( e ) { size += e->type->size; e = e->next; }        
+        emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
+        emit->append( new Chuck_Instr_Spork( size ) );
+    }
+
+    // reset the emit
+    emit->nspc = emit->env;
+    emit->nspc_func = NULL;
+
     return TRUE;
 }
 
