@@ -435,15 +435,108 @@ CK_DLL_QUERY
 
     //! \section Lighting 
 
-    GL_CKADDEXPORT ( int, Lighti );
+    GL_CKADDEXPORT ( void, LightOn );
+    GL_CKADDPARAM ( uint, light );
+
+    GL_CKADDEXPORT ( void, LightOff );
+    GL_CKADDPARAM ( uint, light );
+
+    GL_CKADDEXPORT ( void, Lighti );
     GL_CKADDPARAM ( uint, light );
     GL_CKADDPARAM ( uint, pname );
     GL_CKADDPARAM ( int, param );
 
-    GL_CKADDEXPORT ( int, Lightf );
+    GL_CKADDEXPORT ( void, Lightf );
     GL_CKADDPARAM ( uint, light );
     GL_CKADDPARAM ( uint, pname );
     GL_CKADDPARAM ( float, param );
+
+    GL_CKADDEXPORT ( void, Light3i );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( uint, pname );
+    GL_CKADDPARAM ( int, param1 );
+    GL_CKADDPARAM ( int, param2 );
+    GL_CKADDPARAM ( int, param3 );
+
+    GL_CKADDEXPORT ( void, Light3f );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( uint, pname );
+    GL_CKADDPARAM ( float, param1 );
+    GL_CKADDPARAM ( float, param2 );
+    GL_CKADDPARAM ( float, param3 );
+
+    GL_CKADDEXPORT ( void, Light4i );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( uint, pname );
+    GL_CKADDPARAM ( int, param1 );
+    GL_CKADDPARAM ( int, param2 );
+    GL_CKADDPARAM ( int, param3 );
+    GL_CKADDPARAM ( int, param4 );
+
+    GL_CKADDEXPORT ( void, Light4f );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( uint, pname );
+    GL_CKADDPARAM ( float, param1 );
+    GL_CKADDPARAM ( float, param2 );
+    GL_CKADDPARAM ( float, param3 );
+    GL_CKADDPARAM ( float, param4 );
+
+
+    GL_CKADDEXPORT ( void, LightPosf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+    GL_CKADDPARAM ( float, w );
+
+
+    GL_CKADDEXPORT ( void, LightAmbientf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, r );
+    GL_CKADDPARAM ( float, g );
+    GL_CKADDPARAM ( float, b );
+    GL_CKADDPARAM ( float, a );
+
+    GL_CKADDEXPORT ( void, LightDiffusef );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, r );
+    GL_CKADDPARAM ( float, g );
+    GL_CKADDPARAM ( float, b );
+    GL_CKADDPARAM ( float, a );
+
+    GL_CKADDEXPORT ( void, LightSpecularf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, r );
+    GL_CKADDPARAM ( float, g );
+    GL_CKADDPARAM ( float, b );
+    GL_CKADDPARAM ( float, a );
+
+    GL_CKADDEXPORT ( void, LightSpotDirf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+    GL_CKADDEXPORT ( void, LightSpotExpf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, f );
+
+    GL_CKADDEXPORT ( void, LightSpotCutofff );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, f );
+
+    GL_CKADDEXPORT ( void, LightAttenConstantf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, f );
+
+    GL_CKADDEXPORT ( void, LightAttenLinearf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, f );
+
+    GL_CKADDEXPORT ( void, LightAttenQuadf );
+    GL_CKADDPARAM ( uint, light );
+    GL_CKADDPARAM ( float, f );
+
 
     GL_CKADDEXPORT ( int, ShadeModel );
     GL_CKADDPARAM ( uint, mode );
@@ -936,26 +1029,181 @@ CK_DLL_FUNC( gl_Frustum_impl )
     glFrustum(left,right,bottom,top,znear,zfar);
 }
 
+
+CK_DLL_FUNC( gl_GenLists_impl )
+{
+    int n = GET_NEXT_INT(ARGS);
+    RETURN->v_int = glGenLists(n);
+}
+
+CK_DLL_FUNC( gl_NewList_impl )
+{
+    int list = GET_NEXT_INT(ARGS);
+    t_CKUINT mode = GET_NEXT_UINT(ARGS);
+    glNewList( list, mode );
+}
+
+CK_DLL_FUNC( gl_EndList_impl )
+{
+    glEndList();
+}
+
+//Textures?
+
+
+//Lighting
+CK_DLL_FUNC( gl_LightOn_impl ) {  
+  uint light = GET_NEXT_INT(ARGS);
+  glEnable(GL_LIGHT0 + light );
+}
+
+CK_DLL_FUNC( gl_LightOff_impl ) {  
+  uint light = GET_NEXT_INT(ARGS);
+  glDisable(GL_LIGHT0 + light );
+}
+
+CK_DLL_FUNC( gl_Lighti_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    uint pname = GET_NEXT_INT(ARGS);
+    int n = GET_NEXT_INT(ARGS);
+    glLighti( light, pname, n );
+}
+
+CK_DLL_FUNC( gl_Lightf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    uint pname = GET_NEXT_INT(ARGS);
+    t_CKFLOAT v = GET_NEXT_FLOAT(ARGS);
+    glLightf( light, pname, v );
+}
+CK_DLL_FUNC( gl_Light3i_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    uint pname = GET_NEXT_INT(ARGS);
+    GLint n[3];
+    n[0] = GET_NEXT_INT(ARGS);
+    n[1] = GET_NEXT_INT(ARGS);
+    n[2] = GET_NEXT_INT(ARGS);
+    glLightiv(light, pname, (GLint*)n );
+}
+CK_DLL_FUNC( gl_Light3f_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    uint pname = GET_NEXT_INT(ARGS);
+    GLfloat v[3];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    v[1] = GET_NEXT_FLOAT(ARGS);
+    v[2] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, pname, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_Light4i_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    uint pname = GET_NEXT_INT(ARGS);
+    GLint n[4];
+    n[0] = GET_NEXT_INT(ARGS);
+    n[1] = GET_NEXT_INT(ARGS);
+    n[2] = GET_NEXT_INT(ARGS);
+    n[3] = GET_NEXT_INT(ARGS);
+    glLightiv(light, pname, (GLint*)n );
+}
+
+CK_DLL_FUNC( gl_Light4f_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    uint pname = GET_NEXT_INT(ARGS);
+    GLfloat v[4];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    v[1] = GET_NEXT_FLOAT(ARGS);
+    v[2] = GET_NEXT_FLOAT(ARGS);
+    v[3] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, pname, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightPosf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[4];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    v[1] = GET_NEXT_FLOAT(ARGS);
+    v[2] = GET_NEXT_FLOAT(ARGS);
+    v[3] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_POSITION, (GLfloat *)v );
+}
+CK_DLL_FUNC( gl_LightAmbientf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[4];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    v[1] = GET_NEXT_FLOAT(ARGS);
+    v[2] = GET_NEXT_FLOAT(ARGS);
+    v[3] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_AMBIENT, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightDiffusef_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[4];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    v[1] = GET_NEXT_FLOAT(ARGS);
+    v[2] = GET_NEXT_FLOAT(ARGS);
+    v[3] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_DIFFUSE, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightSpecularf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[4];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    v[1] = GET_NEXT_FLOAT(ARGS);
+    v[2] = GET_NEXT_FLOAT(ARGS);
+    v[3] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_SPECULAR, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightSpotDirf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[4];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    v[1] = GET_NEXT_FLOAT(ARGS);
+    v[2] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_SPOT_DIRECTION, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightSpotExpf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[1];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_SPOT_EXPONENT, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightSpotCutofff_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[1];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_SPOT_EXPONENT, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightAttenConstantf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[1];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_SPOT_EXPONENT, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightAttenLinearf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[1];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_SPOT_EXPONENT, (GLfloat *)v );
+}
+
+CK_DLL_FUNC( gl_LightAttenQuadf_impl ){
+    uint light = GET_NEXT_INT(ARGS);
+    GLfloat v[1];
+    v[0] = GET_NEXT_FLOAT(ARGS);
+    glLightfv(light, GL_SPOT_EXPONENT, (GLfloat *)v );
+}
+
+
+
 CK_DLL_FUNC( gl_GetError_impl )
 {
     RETURN->v_uint = (uint) glGetError();
-}
-// 
-CK_DLL_FUNC( gl_Lighti_impl )
-{
-    t_CKUINT light = GET_NEXT_UINT(ARGS);
-    t_CKUINT pname = GET_NEXT_UINT(ARGS);
-    int      param =  GET_NEXT_INT(ARGS);
-    glLighti(light, pname, param);
-}
-
-//
-CK_DLL_FUNC( gl_Lightf_impl )
-{
-    t_CKUINT light = GET_NEXT_UINT(ARGS);
-    t_CKUINT pname = GET_NEXT_UINT(ARGS);
-    t_CKFLOAT param = GET_NEXT_FLOAT(ARGS);
-    glLightf(light, pname, param);
 }
 
 CK_DLL_FUNC( gl_LineWidth_impl ) {  

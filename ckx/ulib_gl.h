@@ -57,12 +57,47 @@ CK_DLL_FUNC( gl_End_impl );
 CK_DLL_FUNC( gl_Flush_impl );
 CK_DLL_FUNC( gl_FrontFace_impl );
 CK_DLL_FUNC( gl_Frustum_impl );
-//genlists
+
+//display lists
+
+CK_DLL_FUNC( gl_GenLists_impl );
+CK_DLL_FUNC( gl_NewList_impl );
+CK_DLL_FUNC( gl_EndList_impl );
+
 //gentextures
+
+CK_DLL_FUNC( gl_BindTexture_impl );
+CK_DLL_FUNC( gl_TexImage1D_impl );
+CK_DLL_FUNC( gl_TexImage2D_impl );
+CK_DLL_FUNC( gl_TexEnv_impl);
+
+
 CK_DLL_FUNC( gl_GetError_impl );
 CK_DLL_FUNC( gl_LineWidth_impl );
+
+//lighting
+CK_DLL_FUNC( gl_LightOn_impl );
+CK_DLL_FUNC( gl_LightOff_impl );
 CK_DLL_FUNC( gl_Lighti_impl );
 CK_DLL_FUNC( gl_Lightf_impl );
+CK_DLL_FUNC( gl_Light3i_impl );
+CK_DLL_FUNC( gl_Light3f_impl );
+CK_DLL_FUNC( gl_Light4i_impl );
+CK_DLL_FUNC( gl_Light4f_impl );
+
+CK_DLL_FUNC( gl_LightPosf_impl );
+CK_DLL_FUNC( gl_LightAmbientf_impl );
+CK_DLL_FUNC( gl_LightDiffusef_impl );
+CK_DLL_FUNC( gl_LightSpecularf_impl );
+CK_DLL_FUNC( gl_LightSpotDirf_impl );
+CK_DLL_FUNC( gl_LightSpotExpf_impl );
+CK_DLL_FUNC( gl_LightSpotCutofff_impl );
+CK_DLL_FUNC( gl_LightAttenConstantf_impl );
+CK_DLL_FUNC( gl_LightAttenLinearf_impl );
+CK_DLL_FUNC( gl_LightAttenQuadf_impl );
+
+
+
 CK_DLL_FUNC( gl_LoadIdentity_impl );
 CK_DLL_FUNC( gl_MatrixMode_impl );
 CK_DLL_FUNC( gl_Normal3f_impl );

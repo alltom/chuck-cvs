@@ -41,7 +41,19 @@
 CK_DLL_QUERY;
 
 // exports
+
+//view matrices
 CK_DLL_FUNC( glu_LookAt_impl );
 CK_DLL_FUNC( glu_Perspective_impl );
+
+//shapes
+
+CK_DLL_FUNC( glu_NewQuadric_impl );
+CK_DLL_FUNC( glu_DeleteQuadric_impl );
+CK_DLL_FUNC( glu_Disk_impl );
+CK_DLL_FUNC( glu_Cylinder_impl );
+CK_DLL_FUNC( glu_PartialDisk_impl );
+CK_DLL_FUNC( glu_Sphere_impl );
+
 
 #endif

@@ -993,9 +993,7 @@ CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) {
     glutInitWindowSize(w, h);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
     gluckstate->doubleBuffered = true;
-
     gluckstate->windowID = glutCreateWindow(title);
-    
     glViewport(x,y,w,h);
 }
 
