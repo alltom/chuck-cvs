@@ -79,6 +79,9 @@ public:
     // pop scope
     void pop()
     { assert( scope.size() != 0 ); delete scope.back(); scope.pop_back(); }
+    // reset the scope
+    void reset()
+    { scope.clear(); this->push(); }
 
     // add
     void add( const string & id, const T & value )
@@ -195,6 +198,8 @@ struct Chuck_Env
 	vector<Chuck_Namespace *> stack;
 	// expression namespace
 	Chuck_Namespace * curr;
+    // number of dot exp
+    t_CKUINT dots;
 
     // scope table
     Chuck_Scope<t_CKUINT> scope;
@@ -216,13 +221,15 @@ struct Chuck_Env
 
 	// constructor
 	Chuck_Env( )
-	{ this->reset(); vm = NULL; context = NULL; func = NULL; }
+	{ this->reset(); vm = NULL; }
 	// destructor
 	~Chuck_Env() { }
 
 	// reset
 	void reset( )
-	{ stack.clear(); stack.push_back( &global ); curr = NULL; }
+	{ stack.clear(); stack.push_back( &global ); 
+      curr = NULL; context = NULL; func = NULL; 
+      scope.reset(); dots = 0; }
 
 	// top
 	Chuck_Namespace * top( )

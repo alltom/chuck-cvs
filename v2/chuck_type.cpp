@@ -54,8 +54,8 @@ struct Chuck_Type t_null = { te_null, "@null", NULL, 0 };
 struct Chuck_Type t_string = { te_string, "string", &t_object, sizeof(void *) };
 struct Chuck_Type t_shred = { te_shred, "shred", &t_object, sizeof(void *) };
 struct Chuck_Type t_thread = { te_thread, "thread", &t_object, sizeof(void *) };
-struct Chuck_Type t_function = { te_function, "function", NULL, sizeof(void *) };
-struct Chuck_Type t_class = { te_class, "class", NULL, sizeof(void *) };
+struct Chuck_Type t_function = { te_function, "function", &t_object, sizeof(void *) };
+struct Chuck_Type t_class = { te_class, "class", &t_object, sizeof(void *) };
 struct Chuck_Type t_event = { te_event, "event", &t_object, sizeof(void *) };
 struct Chuck_Type t_ugen = { te_ugen, "ugen", &t_object, sizeof(void *) };
 
@@ -221,6 +221,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     env->contexts.push_back( context );
     // make the context current
     env->context = context;
+    // push the context scope
+    env->context->nspc.value.push();
 
     // go through each of the program sections
     while( prog && ret )
@@ -241,7 +243,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
         
         default:
             EM_error2( prog->linepos,
-                "internal error: unrecognized program section in type checker" );
+                "(type-checker): internal error: unrecognized program section in type checker..." );
             ret = FALSE;
             break;
         }
@@ -249,6 +251,9 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
         prog = prog->next;
     }
     
+    // pop the context scope
+    env->context->nspc.value.pop();
+
     // check to see if everything passed
     if( !ret )
     {
@@ -262,8 +267,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
         delete context;
     }
     
-    // reset the current context
-    env->context = NULL;
+    // reset the env
+    env->reset();
 
     return ret;
 }
@@ -277,9 +282,6 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_stmt_list( Chuck_Env * env, a_Stmt_List list )
 {
-    // push the scope
-    env->scope.push();
-    
     // type check the stmt_list
     while( list )
     {
@@ -290,9 +292,6 @@ t_CKBOOL type_engine_check_stmt_list( Chuck_Env * env, a_Stmt_List list )
         // advance to the next statement
         list = list->next;
     }
-    
-    // pop the scope
-    env->scope.pop();
 
     return TRUE;
 }
@@ -340,8 +339,10 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
 
         case ae_stmt_code:
             env->context->nspc.value.push();
+            env->scope.push();
             ret = type_engine_check_code_segment( env, &stmt->stmt_code );
             env->context->nspc.value.pop();
+            env->scope.pop();
             break;
 
         case ae_stmt_break:
@@ -370,7 +371,7 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
         
         default:
             EM_error2( stmt->linepos, 
-                "internal compiler error - no stmt type '%i'!", stmt->s_type );
+                "(type-checker): internal compiler error - no stmt type '%i'!", stmt->s_type );
             ret = FALSE;
             break;
     }
@@ -510,7 +511,7 @@ t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
 t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 {
     // TODO: implement this
-    EM_error2( stmt->linepos, "switch not implemented" );
+    EM_error2( stmt->linepos, "(type-checker): switch not implemented..." );
 
     return FALSE;
 }
@@ -527,7 +528,7 @@ t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
     // check to see if inside valid stmt
     if( env->loops.size() <= 0 && env->swich.size() <= 0 )
     {
-        EM_error2( br->linepos, "'break' found outside of for/while/until/switch..." );
+        EM_error2( br->linepos, "(type-checker): 'break' found outside of for/while/until/switch..." );
         return FALSE;
     }
     
@@ -546,7 +547,7 @@ t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
     // check to see if inside valid loop
     if( env->loops.size() <= 0 )
     {
-        EM_error2( cont->linepos, "'continue' found outside of for/while/until..." );
+        EM_error2( cont->linepos, "(type-checker): 'continue' found outside of for/while/until..." );
         return FALSE;
     }
     
@@ -567,7 +568,7 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     // check to see if within function definition
     if( !env->func )
     {
-        EM_error2( stmt->linepos, "'return' statement found outside function definition" );
+        EM_error2( stmt->linepos, "(type-checker): 'return' statement found outside function definition" );
         return FALSE;
     }
     
@@ -581,7 +582,7 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     if( ret_type && !isa( ret_type, env->func->def->ret_type ) )
     {
         EM_error2( stmt->linepos,
-            "function '%s' was defined with return type '%s' -- but returning type '%s'",
+            "(type-checker): function '%s' was defined with return type '%s' -- but returning type '%s'",
             env->func->name.c_str(), env->func->def->ret_type->name.c_str(),
             ret_type->name.c_str() );
         return FALSE;
@@ -671,7 +672,7 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
         */
         
         default:
-            EM_error2( curr->linepos, "internal compiler error - no expression '%i'",
+            EM_error2( curr->linepos, "(type-checker): internal compiler error - no expression '%i'",
                 curr->s_type );
             return NULL;
         }
@@ -708,15 +709,8 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
     while( cr )
     {
         // type check the pair
-        ret = type_engine_check_op( env, binary->op, cl, cr );
-        if( !ret )
-        {
-            EM_error2( binary->linepos, 
-                "no suitable resolution for binary operator '%s' on types '%s' and '%s'",
-                op2str(binary->op), cl->type->name.c_str(), cr->type->name.c_str() );
-                
+        if( !type_engine_check_op( env, binary->op, cl, cr ) )
             return NULL;
-        }
 
         cr = cr->next;
     }
@@ -738,6 +732,15 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 {
     t_CKTYPE left = lhs->type, right = rhs->type;
     assert( left && right );
+    
+    // if lhs is multi-value, then check separately
+    if( lhs->next )
+    {
+        // TODO: implement this
+        EM_error2( lhs->linepos,
+            "(type-checker): multi-value binary operations not implemented..." );
+        return NULL;
+    }
 
     // based on the op
     switch( op )
@@ -815,6 +818,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     break;
     }
 
+    // no match
+    EM_error2( lhs->linepos,
+        "(type-checker): no suitable resolution for binary operator '%s' on types '%s' and '%s'...",
+        op2str( op ), left->name.c_str(), right->name.c_str() );
     return NULL;
 }
 
@@ -832,14 +839,48 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) ) return right;
     
-    // assignment
-    if( isa( left, right ) && rhs->s_meta == ae_meta_var ) return right;
+    // assignment or something else
+    if( isa( left, right ) )
+    {
+        // basic types?
+        if( isa( left, &t_int ) || isa( left, &t_float ) || isa( left, &t_dur ) 
+            || isa( left, &t_time ) || isa( left, &t_string ) )
+        {
+            // assigment?
+            if( rhs->s_meta == ae_meta_var )
+                return right;
+
+            // error
+            EM_error2( lhs->linepos,
+                "(type-checker): no suitable resolution for binary operator '=>' on types '%s' => '%s'...\n"
+                "    (right-side operand is not mutable)",
+                left->name.c_str(), right->name.c_str() );
+            return NULL;
+        }
+        // aggregate types
+        else
+        {
+            // TODO: check overloading of =>
+            
+            // no match
+            EM_error2( lhs->linepos,
+                "(type-checker): no suitable resolution for binary operator '=>' on types '%s' => '%s...'\n"
+                "    (note: use @=> for assignment of objects)",
+                left->name.c_str(), right->name.c_str() );
+            return NULL;
+        }
+    }
     
     // time advance
     if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
         return right;
+        
+    // TODO: check overloading of =>
 
     // no match
+    EM_error2( lhs->linepos,
+        "(type-checker): no suitable resolution for binary operator '=>' on types '%s' and '%s'...",
+        left->name.c_str(), right->name.c_str() );
     return NULL;
 }
 
@@ -852,25 +893,157 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
 {
+    t_CKTYPE left = lhs->type, right = rhs->type;
+    
+    // ugen =< ugen
+    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) ) return right;
+    
+    // TODO: check overloading of =<
+    
     // no match
+    EM_error2( lhs->linepos,
+        "(type-checker): no suitable resolution for binary operator '=<' on types '%s' and '%s'...",
+        left->name.c_str(), right->name.c_str() );
     return NULL;
 }
 
 
 
 
-t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
-t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_unary()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
+{
+    t_CKTYPE t = type_engine_check_exp( env, unary->exp );
+    if( !t ) return NULL;
+    
+    // check the op
+    switch( unary->op )
+    {
+        ae_op_plusplus:
+        ae_op_minusminus:
+            // assignable?
+            if( unary->exp->s_meta != ae_meta_var )
+            {
+                EM_error2( unary->linepos,
+                    "(type-checker): prefix unary operator '%s' cannot "
+                    "be used on non-mutable data-types...", op2str( unary->op ) );
+                return NULL;
+            }
+            
+            // check type
+            if( isa( t, &t_int ) || isa( t, &t_float ) )
+                return t;
+                
+            // TODO: check overloading
+        break;
+        
+        ae_op_minus:
+            // float
+            if( isa( t, &t_float ) ) return t;
+        ae_op_tilda:
+        ae_op_exclamation:
+            // int
+            if( isa( t, &t_int ) ) return t;
+        break;
+        
+        ae_op_spork:
+            // spork shred
+            if( unary->exp->s_type == ae_exp_func_call ) return &t_shred;
+            else
+            {
+                 EM_error2( unary->linepos,
+                     "(type-checker): only function calls can be sporked..." );
+                 return NULL;
+            }
+        break;
+    }
+    
+    // no match
+    EM_error2( unary->linepos,
+        "(type-checker): no suitable resolution for prefix unary operator '%s' on type '%s...",
+        op2str( unary->op ), t->name.c_str() );
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_primary()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
+{
+    t_CKTYPE t = NULL;
+    
+    // check syntax
+    switch( exp->s_type )
+    {
+        // variable
+        ae_primary_var:
+            t = env->curr->lookup_type( S_name(exp->var), env->dots == 0 );
+            if( !t )
+            {
+                // error
+                if( !env->dots )
+                {
+                    EM_error2( exp->linepos,
+                        "(type-checker): undefined variable '%s'...",
+                        S_name(exp->var) );
+                }
+                else
+                {
+                    EM_error2( exp->linepos,
+                        "(type-checker): undefined member '%s' in class/namespace '%s'...",
+                        S_name(exp->var), env->curr->name.c_str() );
+                }
+                return NULL;
+            }
+        break;
+        
+        // int
+        ae_primary_num:
+            t = &t_int;
+        break;
+        
+        // float
+        ae_primary_float:
+            t = &t_float;
+        break;
+        
+        // string
+        ae_primary_str:
+            t = &t_string;
+        break;
+        
+        // expression
+        ae_primary_exp:
+            t = type_engine_check_exp( env, exp->exp );
+        break;
+
+        // no match
+        default:
+            EM_error2( exp->linepos,
+                "(type-checker): internal error - unrecognized primary type '%i'...", exp->s_type );
+        return NULL;
+    }
+    
+    return t;
+}
+
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
-t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
+t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
+t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
 t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
 t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
-t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
 t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
