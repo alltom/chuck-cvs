@@ -1722,12 +1722,16 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         if( var_decl->array != NULL )
         {
             Chuck_Type * t2 = t;
-            // type check the exp
-            if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
-                return NULL;
-            // make sure types are of int
-            if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
-                return NULL;
+            // may be partial and empty []
+            if( var_decl->array->exp_list )
+            {
+                // type check the exp
+                if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
+                    return NULL;
+                // make sure types are of int
+                if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
+                    return NULL;
+            }
             // make new type
             t = env->context->new_Chuck_Type();
             // set the id
@@ -1744,6 +1748,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             t->array_type = t2;
             // set owner
             t->owner = env->curr;
+            // set ref
+            if( !var_decl->array->exp_list )
+                decl->type->ref = TRUE;
         }
 
         // make sure
@@ -2021,7 +2028,7 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
     else
     {
         // partial
-        t_CKTYPE t = array->base->type->copy( env );
+        t = array->base->type->copy( env );
         // remainder
         t->array_depth -= depth;
     }

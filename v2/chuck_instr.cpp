@@ -2004,7 +2004,7 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // get array
         Chuck_Array4 * arr = (Chuck_Array4 *)(*sp);
         // get index
-        i = (t_CKINT)(*sp+1);
+        i = (t_CKINT)(*(sp+1));
         // check if writing
         if( m_emit_addr ) {
             // get the addr
