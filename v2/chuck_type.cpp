@@ -2392,6 +2392,8 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
     the_class->array_depth = 0;
     the_class->info = NULL;
     the_class->func = NULL;
+    // make reference to the ugen info (for emit)
+    the_class->ugen = ugen;
 
     // add to env
     env->curr->type.add( the_class->name, the_class );
@@ -2445,14 +2447,14 @@ a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, t_CKUINT index
 // name: type_engine_add_dll()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * name )
+t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & name )
 {    
     // lookup the namesapce
     Chuck_Namespace * nspc = NULL;
     Chuck_Type * type = NULL;
     
     // go through type - which is what namespaces are in ChucK
-    if( type = env->global.lookup_type( string(name) ) )
+    if( type = env->global.lookup_type( name ) )
         nspc = type->info;
 
     // if already there
@@ -2473,7 +2475,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * nam
             // the name
             type->name = name;
             // add to global type space
-            env->global.type.add( string(name), type );
+            env->global.type.add( name, type );
         }
         // set the nspc
         type->info = nspc;

@@ -2007,7 +2007,8 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
-                                         a_Exp_Func_Call func_call )
+                                         a_Exp_Func_Call func_call,
+                                         t_CKBOOL spork )
 {
     return TRUE;
 }
@@ -2107,7 +2108,8 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                 // if ugen
                 if( isa( type, &t_ugen ) )
                 {
-                    Chuck_UGen_Info * info = lookup_ugen( emit->nspc, decl->type );
+                    // get the ugen info
+                    Chuck_UGen_Info * info = decl->self->type->ugen;
                     if( !info )
                     {
                         EM_error2( decl->linepos,

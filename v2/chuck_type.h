@@ -293,6 +293,8 @@ struct Chuck_Type : public Chuck_VM_Object
     Chuck_Func * func;
     // def
     a_Class_Def def;
+    // ugen
+    Chuck_UGen_Info * ugen;
     // copy
     t_CKBOOL is_copy;
 
@@ -302,13 +304,14 @@ public:
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
       array_type = NULL; array_depth = 0; obj_size = 0; self_size = 0;
-      info = NULL; func = NULL; def = NULL; is_copy = FALSE; }
+      info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
+      ugen = NULL; }
     // destructor
     ~Chuck_Type() { reset(); }
     
     // reset
     void reset()
-    { id = te_void; parent = NULL; 
+    { id = te_void; parent = NULL; ugen = NULL;
       size = array_depth = obj_size = self_size = 0;
       array_type = NULL; if( info ) info->release(); 
       owner = info = NULL; func = NULL; is_copy = FALSE; }
