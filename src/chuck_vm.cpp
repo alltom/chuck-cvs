@@ -491,15 +491,15 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_REMOVE )
     {
-        if( msg->param == 0xffffffff && !this->m_num_shreds)
-        {
-            EM_error3( "[chuck](VM): no shreds to remove..." );
-            retval = 0;
-            goto done;
-        }
-        
         if( msg->param == 0xffffffff )
         {
+            if( !this->m_num_shreds)
+            {
+                EM_error3( "[chuck](VM): no shreds to remove..." );
+                retval = 0;
+                goto done;
+            }
+
             t_CKUINT id = m_shred_id;
             Chuck_VM_Shred * shred = NULL;
             while( id >= 0 && m_shreduler->remove( shred = m_shreduler->lookup( id ) ) == 0 )
