@@ -115,23 +115,24 @@ struct Chuck_UGen_Info
       param_map[n] = param_list[param_list.size()-1]; }
 
     //XXX - pld  inherit
-    void inherit ( Chuck_UGen_Info * parentInfo ) { 
+    void inherit( Chuck_UGen_Info * parentInfo )
+    {
+        parent = parentInfo->name;
+        //inherit functions ...
+        ctor = parentInfo->ctor;
+        dtor = parentInfo->dtor;
+        tick = parentInfo->tick;
+        pmsg = parentInfo->pmsg;
 
-      parent = parentInfo->name;
-      //inherit functions ...
-      ctor = parentInfo->ctor;
-      dtor = parentInfo->dtor;
-      tick = parentInfo->tick;
-      pmsg = parentInfo->pmsg;
-
-      for ( int i=0; i <  parentInfo->param_list.size(); i++) { 
-	//inherit parent class's functions
-	//(functions added subsequently will overwrite entries in param_map)
-	add( parentInfo->param_list[i].ctrl_addr,   \
-	     parentInfo->param_list[i].cget_addr, \
-	     parentInfo->param_list[i].type, \
-	     parentInfo->param_list[i].name  );
-      }
+        for ( int i=0; i <  parentInfo->param_list.size(); i++)
+        {
+	        //inherit parent class's functions
+	        //(functions added subsequently will overwrite entries in param_map)
+	        add( parentInfo->param_list[i].ctrl_addr,
+	             parentInfo->param_list[i].cget_addr,
+	             parentInfo->param_list[i].type,
+	             parentInfo->param_list[i].name );
+         }
     }
 
     // constructor

@@ -289,7 +289,8 @@ Chuck_DL_Query::Chuck_DL_Query( )
 #else
   srate = 0; bufsize = 0;
 #endif
-  linepos = 0; }
+  linepos = 0;
+}
 
 
 
@@ -328,14 +329,13 @@ extern "C" void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query,
 extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
            const char * parent )
 {
-if( query->ugen_exports.size() > 1 ) { 
-    for ( int i= 0 ; i < query->ugen_exports.size() - 1 ; i++ ) { 
-      if ( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 ) { 
-	query->ugen_exports[query->ugen_exports.size()-1].inherit( &(query->ugen_exports[i]) );
-	return;					     
-      }
-    }
-}
+    if( query->ugen_exports.size() > 1 )
+        for( int i= 0 ; i < query->ugen_exports.size() - 1 ; i++ )
+            if ( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 )
+            { 
+	            query->ugen_exports[query->ugen_exports.size()-1].inherit( &(query->ugen_exports[i]) );
+	            return;					     
+            }
 }
 
 
