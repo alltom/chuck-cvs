@@ -1858,12 +1858,14 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         break;
         
     case ae_primary_str:
-        temp = (uint)exp->str;
+        // TODO: fix this
+        temp = (t_CKUINT)exp->str;
         emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
         break;
         
     case ae_primary_exp:
-        emit_engine_emit_exp( emit, exp->exp );
+        if( !emit_engine_emit_exp( emit, exp->exp ) )
+            return FALSE;
         break;
     }
     
@@ -1874,10 +1876,34 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_cast()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
+t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast )
+{
+    Chuck_Type * to = cast->self->type;
+    Chuck_Type * from = cast->exp->type;
+
+    // if type is already the same
+    if( equals( to, from ) )
+        return TRUE;
+
+    // int to float
+    if( equals( to, &t_int ) && equals( from, &t_float ) )
+        emit->append( new Chuck_Instr_Cast_double2int );
+    // float to int
+    else if( equals( to, &t_float ) && equals( from, &t_int ) )
+        emit->append( new Chuck_Instr_Cast_int2double );
+    // up cast - do nothing
+    else if( !isa( to, from ) && !isa( from, to ) )
+    {
+        EM_error2( 0, "(emit): internal error: cannot cast type '%s' to '%s'",
+             from->c_name(), to->c_name() );
+        return FALSE;
+    }
+
+    return TRUE;
+}
 
 
 
