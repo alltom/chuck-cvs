@@ -48,8 +48,8 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // srate
     g_srate = QUERY->srate;
 
-	//! phasor
-	QUERY->ugen_add( QUERY, "phasor", NULL );
+    //! phasor
+    QUERY->ugen_add( QUERY, "phasor", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, osc_tick, osc_pmsg );
     // add ctrls / cgets
@@ -73,8 +73,8 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase, sinosc_cget_phase, "float", "phase" ); //! current phase
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
 
-	//! pulse oscillators
-	QUERY->ugen_add( QUERY, "pulseosc", NULL );
+    //! pulse oscillators
+    QUERY->ugen_add( QUERY, "pulseosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, pulseosc_tick, osc_pmsg );
     // add ctrls / cgets
@@ -85,8 +85,8 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
 
-	//! square wave oscillator ( secretly just pulse )
-	QUERY->ugen_add( QUERY, "sqrosc", NULL );
+    //! square wave oscillator ( secretly just pulse )
+    QUERY->ugen_add( QUERY, "sqrosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, sqrosc_tick, osc_pmsg );
     // add ctrls / cgets
@@ -97,8 +97,8 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
 
-	//! triangle wave oscillator
-	QUERY->ugen_add( QUERY, "triosc", NULL );
+    //! triangle wave oscillator
+    QUERY->ugen_add( QUERY, "triosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, triosc_tick, osc_pmsg );
     // add ctrls / cgets
@@ -109,8 +109,8 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
 	
-	//! sawtooth wave oscillator
-	QUERY->ugen_add( QUERY, "sawosc", NULL );
+    //! sawtooth wave oscillator
+    QUERY->ugen_add( QUERY, "sawosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, sawosc_tick, osc_pmsg );
     // add ctrls / cgets
@@ -121,9 +121,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
 
-
-
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -141,7 +139,7 @@ struct Osc_Data
     double phase_offset;
     int    sync; 
     t_CKUINT srate;
-	double width; 
+    double width; 
     
     Osc_Data( )
     {
@@ -149,7 +147,7 @@ struct Osc_Data
         num = 0.0;
         freq = 220.0;
         sync = 0; //internal 
-		width = 0.5;
+        width = 0.5;
         phase_offset = 0.0;
         srate = g_srate;
         osc_ctrl_freq( 0, this, &freq );
@@ -195,8 +193,8 @@ UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     //track of their own ticks, unless they are created at the same time..
 
     if ( d->sync == 1 )  d->t = (double) now;
-	float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
-	ph -= floor ( ph );
+    float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
+    ph -= floor ( ph );
     *out = (SAMPLE) ph;
  
     if ( !d->sync ) d->t += 1.0;
@@ -217,8 +215,8 @@ UGEN_TICK sinosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
     if ( d->sync == 1 )  d->t = (double) now;
 
-	*out = (SAMPLE) ( d->sync == 2 )? sin ( TWO_PI * in ) \
-									: sin ( TWO_PI * ( d->phase_offset + d->t * d->num ) );
+    *out = (SAMPLE) ( d->sync == 2 )? sin ( TWO_PI * in )
+        : sin ( TWO_PI * ( d->phase_offset + d->t * d->num ) );
  
     if ( !d->sync ) d->t += 1.0;
 
@@ -237,11 +235,11 @@ UGEN_TICK triosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
     if ( d->sync == 1 )  d->t = (double) now;
 
-	float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
-	ph -= floor ( ph );
-	float width = d->width;
-	if ( ph < width ) *out = ( width == 0.0 ) ? 1.0 :  -1.0 + 2.0 * ph / width;
-	else *out = ( width == 1.0 ) ? 0 : 1.0 - 2.0 * (ph - width) / (1.0 - width);
+    float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
+    ph -= floor ( ph );
+    float width = d->width;
+    if ( ph < width ) *out = ( width == 0.0 ) ? 1.0 :  -1.0 + 2.0 * ph / width;
+    else *out = ( width == 1.0 ) ? 0 : 1.0 - 2.0 * (ph - width) / (1.0 - width);
 	
     if ( !d->sync ) d->t += 1.0;
 
@@ -261,10 +259,10 @@ UGEN_TICK pulseosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
     if ( d->sync == 1 )  d->t = (double) now;
 
-	float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
-	ph -= floor ( ph );
-	if ( ph < d->width ) *out = -1.0;
-	else *out = 1.0;
+    float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
+    ph -= floor ( ph );
+    if ( ph < d->width ) *out = -1.0;
+    else *out = 1.0;
 	
     if ( !d->sync ) d->t += 1.0;
 
@@ -278,8 +276,8 @@ UGEN_TICK pulseosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_TICK sqrosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     Osc_Data * d = (Osc_Data *)data;
-	d->width = 0.5;
-	return pulseosc_tick ( now, data, in , out );
+    d->width = 0.5;
+    return pulseosc_tick ( now, data, in , out );
 }
 
 //-----------------------------------------------------------------------------
@@ -289,8 +287,8 @@ UGEN_TICK sqrosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_TICK sawosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     Osc_Data * d = (Osc_Data *)data;
-	d->width = ( d->width < 0.5 ) ? 0.0 : 1.0;
-	return triosc_tick ( now, data, in , out );
+    d->width = ( d->width < 0.5 ) ? 0.0 : 1.0;
+    return triosc_tick ( now, data, in , out );
 }
 
 //-----------------------------------------------------------------------------
@@ -364,7 +362,7 @@ UGEN_CTRL osc_ctrl_phase ( t_CKTIME now, void * data, void * value )
     Osc_Data * d = (Osc_Data *)data;
     t_CKFLOAT phase = GET_CK_FLOAT(value);
     double cphase =  phase - ( d->t * d->num );
-	d->phase_offset = cphase - floor ( cphase );
+    d->phase_offset = cphase - floor ( cphase );
 }
 
 //-----------------------------------------------------------------------------
@@ -387,7 +385,7 @@ UGEN_CTRL sinosc_ctrl_phase ( t_CKTIME now, void * data, void * value )
     Osc_Data * d = (Osc_Data *)data;
     t_CKFLOAT phase = GET_CK_FLOAT(value) / TWO_PI;
     double cphase =  phase - ( d->t * d->num );
-	d->phase_offset = cphase - floor ( cphase );
+    d->phase_offset = cphase - floor ( cphase );
 }
 
 //-----------------------------------------------------------------------------
