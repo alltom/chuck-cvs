@@ -1677,7 +1677,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     {
         // this won't work
         EM_error2( member->linepos,
-            "cannot member '%s.%s' without object instance...",
+            "cannot access member '%s.%s' without object instance...",
             member->t_base->c_name(), S_name(member->id) );
         return NULL;
     }
@@ -2128,7 +2128,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // remember the owner
     value->owner = env->curr;
     value->owner_class = env->class_def;
-    value->is_member = !f->static_decl && env->class_def != 0;
+    value->is_member = !f->static_decl && (env->class_def != NULL);
     // add as value
     env->curr->value.add( f->name, value );
     // enter the name into the function table

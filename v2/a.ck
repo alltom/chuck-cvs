@@ -1,6 +1,6 @@
 class Foo
 {
-    fun static void foo()
+    fun void foo()
 	{ }
 }
 
