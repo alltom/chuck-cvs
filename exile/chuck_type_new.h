@@ -69,6 +69,7 @@ typedef enum {
 // name: struct Chuck_Scope
 // desc: scoping structure
 //-----------------------------------------------------------------------------
+template class<T>
 struct Chuck_Scope
 {
     vector<map<S_Symbol, t_CKUINT> *> scope;
@@ -78,17 +79,21 @@ struct Chuck_Scope
     // desctructor
     ~Chuck_Scope() { this->pop(); }
     // push scope
-    void push() { scope.push_back( new map<S_Symbol, t_CKUINT> ); }
+    void push() { scope.push_back( new map<S_Symbol, T> ); }
     // pop scope
     void pop()
     { assert( scope.size() != 0 ); delete scope.back(); scope.pop_back(); }
     // add id
-    void add( S_Symbol id, t_CKUINT value = TRUE )
+    void add( c_str id, T value = TRUE )
+    { this->add( insert_symbo(id), value ); }
+    void add( S_Symbol id, T value = TRUE )
     { assert( scope.size() != 0 ); (*scope.back())[id] = value; }
     // lookup id
-    t_CKUINT lookup( S_Symbol id, t_CKBOOL local = TRUE )
+    T lookup( c_str id, t_CKBOOL local = FALSE )
+    { return this->lookup( insert_symbol(id), local ); }
+    T lookup( S_Symbol id, t_CKBOOL local = FALSE )
     {
-        t_CKUINT val; assert( scope.size() != 0 );
+        T val; assert( scope.size() != 0 );
         if( local ) { return (*scope.back())[id]; }
         else {
             for( int i = 0; i < scope.size(); i++ )
@@ -99,6 +104,10 @@ struct Chuck_Scope
 };
 
 
+// forward reference
+struct Chuck_Value;
+struct Chuck_Type;
+struct Chuck_Func;
 
 
 //-----------------------------------------------------------------------------
@@ -107,6 +116,22 @@ struct Chuck_Scope
 //-----------------------------------------------------------------------------
 struct Chuck_Env
 {
+    Chuck_Scope<Chuck_Value *> * value;
+    Chuck_Scope<Chuck_Type *> * type;
+    Chuck_Scope<Chuck_Func *> * func;
+    Chuck_Scope<Chuck_Env *> * nspc_defs;
+    Chuck_Scope<Chuck_Env *> * class_defs;
+    Chuck_Scope<void *> * addr;
+    
+    S_Symbol name;
+    Chuck_Env * parent;
+    
+    static Chuck_Scope<t_CKUINT> * scope;
+    
+    // constructor
+    Chuck_Env();
+    // destructor
+    ~Chuck_Env();
 };
 
 
