@@ -422,8 +422,6 @@ DWORD__ DigitalOut::render()
     //if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
     // synchronize
-    while( Digitalio::m_out_ready )
-        usleep( 20 );
     Digitalio::m_out_ready = TRUE;
     // synchronize
     while( Digitalio::m_out_ready )
