@@ -43,13 +43,19 @@ IS          (u|U|l|L)*
 // date: Summer 2002
 //-----------------------------------------------------------------------------
 
-//#include <windows.h>
 #include <stdlib.h>
 #include <string.h>
 #include "chuck_utils.h"
 #include "chuck_absyn.h"
-#include "chuck.tab.h"
 #include "chuck_errmsg.h"
+
+#ifndef __PLATFORM_WIN32__
+  #include "chuck.tab.h"
+#else
+  #include "chuck_win32.h"
+#endif
+
+
 
 // globals
 extern YYSTYPE yylval;
