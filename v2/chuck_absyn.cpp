@@ -427,20 +427,6 @@ a_Exp new_exp_from_int( long num, int pos )
     return a;
 }
 
-a_Exp new_exp_from_uint( unsigned long num, int pos )
-{
-    a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
-    a->s_type = ae_exp_primary;
-    a->s_meta = ae_meta_value;
-    a->primary.s_type = ae_primary_uint;
-    a->primary.num2 = num;
-    a->linepos = pos;
-    a->primary.linepos = pos;
-    a->primary.self = a;
-
-    return a;
-}
-
 a_Exp new_exp_from_float( double num, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
@@ -580,12 +566,14 @@ a_Arg_List prepend_arg_list( a_Type_Decl type_decl, c_str name, a_Arg_List arg_l
     return a;
 }
 
-a_Func_Def new_func_def( ae_Keyword func_decl, a_Type_Decl type_decl, c_str name,
+a_Func_Def new_func_def( ae_Keyword func_decl, ae_Keyword static_decl,
+                         a_Type_Decl type_decl, c_str name,
                          a_Arg_List arg_list, a_Stmt code, int pos )
 {
     a_Func_Def a = (a_Func_Def)checked_malloc(
         sizeof( struct a_Func_Def_ ) );
     a->func_decl = func_decl;
+    a->static_decl = static_decl;
     a->type_decl = type_decl;
     a->name = insert_symbol( name );
     a->arg_list = arg_list;

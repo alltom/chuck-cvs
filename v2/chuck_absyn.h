@@ -61,8 +61,8 @@ const char * op2str( ae_Operator op );
 
 // enum key words
 typedef enum {
-    ae_key_before, ae_key_after, ae_key_at, ae_this, ae_func_func, ae_func_public,
-    ae_func_protected, ae_func_private
+    ae_key_this, ae_key_me, ae_key_func, ae_key_public, ae_key_protected,
+    ae_key_private, ae_key_static
 } ae_Keyword;
 
 
@@ -164,7 +164,7 @@ a_Exp new_exp_decl( a_Type_Decl type_decl, a_Var_Decl_List var_decl_list, int po
 a_Exp new_exp_from_namespace( c_str name, int pos );
 a_Var_Decl_List new_var_decl_list( a_Var_Decl var_decl, int pos );
 a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list, int pos );
-a_Var_Decl new_var_decl( a_Id_List id, a_Array_Sub array, int pos );
+a_Var_Decl new_var_decl( c_str id, a_Array_Sub array, int pos );
 a_Type_Decl new_type_decl( a_Id_List id, int pos );
 a_Type_Decl add_type_decl_array( a_Type_Decl type_decl, a_Array_Sub array, int pos );
 a_Arg_List new_arg_list( a_Type_Decl type_decl, c_str name, int pos );
@@ -179,7 +179,8 @@ a_Class_Def new_iface_def( c_str id, a_Class_Ext ext, a_Class_Body body, int pos
 a_Id_List new_id_list( c_str id, int pos );
 a_Id_List prepend_id_list( c_str id, a_Id_List list, int pos );
 void clean_exp( a_Exp exp );
-a_Func_Def new_func_def( ae_Keyword func_decl, a_Type_Decl type_decl, c_str name,
+a_Func_Def new_func_def( ae_Keyword func_decl, ae_Keyword static_decl,
+                         a_Type_Decl type_decl, c_str name,
                          a_Arg_List arg_list, a_Stmt code, int pos );
 
 
@@ -210,8 +211,8 @@ struct a_Arg_List_ { a_Type_Decl type_decl; t_CKTYPE type; S_Symbol id;
                      a_Arg_List next; int linepos; a_Exp self; };
 
 // enum primary exp type
-typedef enum { ae_primary_var, ae_primary_num, ae_primary_uint,
-               ae_primary_float, ae_primary_str, ae_primary_exp
+typedef enum { ae_primary_var, ae_primary_num, ae_primary_float, 
+               ae_primary_str, ae_primary_exp
              } ae_Exp_Primary_Type;
 
 struct a_Exp_Primary_
@@ -221,9 +222,8 @@ struct a_Exp_Primary_
     union
     {
         S_Symbol var;
-        int num;
-        unsigned num2;
-        double fnum;
+        t_CKINT num;
+        t_CKFLOAT fnum;
         c_str str;
         a_Exp exp;
     };
@@ -319,13 +319,20 @@ typedef enum { ae_func_user, ae_func_builtin } ae_Func_Type;
 struct t_Func_User_ { int linepos; };
 typedef unsigned int (* builtin_func_ptr)( unsigned int arg );
 struct t_Func_BuiltIn_ { builtin_func_ptr func_ptr; int linepos; };
-struct a_Func_Def_ { ae_Keyword func_decl; a_Type_Decl type_decl;
-                     t_CKTYPE ret_type; S_Symbol name; a_Arg_List arg_list;
-                     a_Stmt code; unsigned int global; unsigned int s_type;
-                     unsigned int stack_depth;
-                     union { struct t_Func_User_ user; 
-                             builtin_func_ptr builtin; };
-                     int linepos; };
+struct a_Func_Def_ {
+    ae_Keyword func_decl;
+    ae_Keyword static_decl; 
+    a_Type_Decl type_decl;
+    t_CKTYPE ret_type;
+    S_Symbol name; 
+    a_Arg_List arg_list;
+    a_Stmt code;
+    unsigned int global;
+    unsigned int s_type;
+    unsigned int stack_depth;
+    union { struct t_Func_User_ user; builtin_func_ptr builtin; };
+    int linepos;
+};
 
 // enum values for section types
 typedef enum { ae_section_stmt, ae_section_func, ae_section_class 
