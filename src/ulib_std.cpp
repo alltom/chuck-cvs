@@ -142,8 +142,9 @@ int irand_exclusive ( int max ) {
   
   while (x >= max * RAND_INV_RANGE (max)) 
     x = ::rand();
-  
+
   x /= RAND_INV_RANGE (max);
+  return x;
 }
 
 
