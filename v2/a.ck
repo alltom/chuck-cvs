@@ -4,12 +4,15 @@ class AA
 {
     int x;
 
-	fun void foo();
+	fun void foo()
+	{ }
 }
 
 class BB extends AA
 {
     int y;
+
+	fun pure void foo();
 }
 
 BB bb;

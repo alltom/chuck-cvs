@@ -124,6 +124,7 @@ t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name,
 // helpers
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
+t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
 
@@ -645,7 +646,8 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     // check to see if within function definition
     if( !env->func )
     {
-        EM_error2( stmt->linepos, "'return' statement found outside function definition" );
+        EM_error2( stmt->linepos, 
+            "'return' statement found outside function definition" );
         return FALSE;
     }
     
@@ -842,7 +844,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     if( lhs->next )
     {
         // TODO: implement this
-        EM_error2( lhs->linepos,
+        EM_error2( lhs->linepos, 
             "multi-value binary operations not implemented..." );
         return NULL;
     }
@@ -962,7 +964,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             // error
             EM_error2( lhs->linepos,
                 "cannot chuck/assign '=>' on types '%s' => '%s'...\n"
-                "...reason: right-side operand is not mutable)",
+                "(reason) --- right-side operand is not mutable",
                 left->c_name(), right->c_name() );
             return NULL;
         }
@@ -974,7 +976,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             // no match
             EM_error2( lhs->linepos,
                 "no suitable resolution for binary operator '=>' on types '%s' => '%s...'\n"
-                "    (note: use @=> for assignment of objects)",
+                "(note) --- use @=> for assignment of object references",
                 left->c_name(), right->c_name() );
             return NULL;
         }
@@ -1097,8 +1099,7 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
                 if( !env->class_def )
                 {
                     EM_error2( exp->linepos,
-                        "undefined variable '%s'...",
-                        S_name(exp->var) );
+                        "undefined variable '%s'...", S_name(exp->var) );
                 }
                 else
                 {
@@ -1165,8 +1166,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !t2 )
     {
         EM_error2( cast->linepos,
-            "undefined type '%s' in cast...",
-            S_name( cast->type->id->id ) );
+            "undefined type '%s' in cast...", S_name( cast->type->id->id ) );
         return NULL;
     }
     
@@ -1355,9 +1355,8 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // check if reserved
         if( type_engine_check_reserved( env, var_decl->id, var_decl->linepos ) )
         {
-            EM_error2( var_decl->linepos,
-                "...in variable declaration",
-                S_name(var_decl->id) );
+            EM_error2( var_decl->linepos, 
+                "...in variable declaration", S_name(var_decl->id) );
             return FALSE;
         }
 
@@ -1443,7 +1442,8 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     // make sure we have a function
     if( !isa( f, &t_function ) )
     {
-        EM_error2( func_call->linepos, "function call using a non-function value" );
+        EM_error2( func_call->linepos,
+            "function call using a non-function value" );
         return NULL;
     }
 
@@ -1626,8 +1626,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // check if reserved
     if( type_engine_check_reserved( env, class_def->name->id, class_def->name->linepos ) )
     {
-        EM_error2( class_def->name->linepos,
-            "...in class definition '%s'",
+        EM_error2( class_def->name->linepos, "...in class definition '%s'",
             S_name(class_def->name->id) );
         return FALSE;
     }
@@ -1743,8 +1742,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // check if reserved
     if( type_engine_check_reserved( env, f->name, f->linepos ) )
     {
-        EM_error2( f->linepos,
-            "...in function definition '%s'",
+        EM_error2( f->linepos, "...in function definition '%s'",
             S_name(f->name) );
         return FALSE;
     }
@@ -1755,13 +1753,6 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         EM_error2( f->linepos, 
             "function name '%s' is already used by another value", S_name(f->name) );
         return FALSE;
-    }
-
-    // look up value in parent
-    if( env->class_def && ( value =
-        type_engine_find_value( env->class_def->parent, f->name ) ) )
-    {
-        // TODO: make sure the function signatures match
     }
 
     // make sure a code segment is in stmt - else we should push scope
@@ -1848,36 +1839,108 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // only class functions can be pure
     if( !env->class_def && f->static_decl == ae_key_abstract )
     {
-        EM_error2( f->linepos,
-            "non-class function cannot be declared as 'pure'..." );
+        EM_error2( f->linepos, "non-class function cannot be declared as 'pure'..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         return FALSE;
     }
     // if interface, then cannot have code
     if( env->class_def && env->class_def->def->iface && f->code )
     {
-        EM_error2( f->linepos,
-            "interface function signatures cannot contain code..." );
+        EM_error2( f->linepos, "interface function signatures cannot contain code..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         return FALSE;
     }
     // if pure, then cannot have code
     if( f->static_decl == ae_key_abstract && f->code )
     {
-        EM_error2( f->linepos,
-            "'pure' function signatures cannot contain code..." );
+        EM_error2( f->linepos, "'pure' function signatures cannot contain code..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         return FALSE;
     }
     // yeah
     if( f->static_decl != ae_key_abstract && !f->code )
     {
-        EM_error2( f->linepos,
-            "function declaration must contain code..." );
-        EM_error2( f->linepos,
-            "(unless in interface, or is declared 'pure')" );
+        EM_error2( f->linepos, "function declaration must contain code..." );
+        EM_error2( f->linepos, "(unless in interface, or is declared 'pure')" );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         return FALSE;
+    }
+
+    // if overriding super class function, then check signatures
+    if( env->class_def && ( value =
+        type_engine_find_value( env->class_def->parent, f->name ) ) )
+    {
+        // see if the target is a function
+        if( !isa( value->type, &t_function ) )
+        {
+            EM_error2( f->linepos, "function name '%s' conflicts with previously defined value...",
+                S_name(f->name) );
+            EM_error2( f->linepos, "from super class '%s'...", value->owner_class->c_name() );
+            return FALSE;
+        }
+
+        // see if parent function is static
+        if( value->type->func->def->static_decl == ae_key_static )
+        {
+            EM_error2( f->linepos,
+                "function '%s.%s' resembles '%s.%s' but cannot override...",
+                env->class_def->c_name(), S_name(f->name), 
+                value->owner_class->c_name(), S_name(f->name) );
+            EM_error2( f->linepos,
+                "(reason) --- '%s.%s' is declared as 'static'",
+                value->owner_class->c_name(), S_name(f->name) );
+            return FALSE;
+        }
+
+        // see if function is static
+        if( f->static_decl == ae_key_static )
+        {
+            EM_error2( f->linepos,
+                "function '%s.%s' resembles '%s.%s' but cannot override...",
+                env->class_def->c_name(), S_name(f->name), 
+                value->owner_class->c_name(), S_name(f->name) );
+            EM_error2( f->linepos,
+                "(reason) --- '%s.%s' is declared as 'static'",
+                env->class_def->c_name(), S_name(f->name) );
+            return FALSE;
+        }
+
+        // see if function is pure
+        if( f->static_decl == ae_key_abstract )
+        {
+            EM_error2( f->linepos,
+                "function '%s.%s' resembles '%s.%s' but cannot override...",
+                env->class_def->c_name(), S_name(f->name), 
+                value->owner_class->c_name(), S_name(f->name) );
+            EM_error2( f->linepos,
+                "(reason) --- '%s.%s' is declared as 'pure'",
+                env->class_def->c_name(), S_name(f->name) );
+            return FALSE;
+        }
+
+        // match the prototypes
+        string err;
+        if( !type_engine_compat_func( f, value->type->func->def, f->linepos, err ) )
+        {
+            EM_error2( f->linepos,
+                "function '%s.%s' resembles '%s.%s' but cannot override...",
+                env->class_def->c_name(), S_name(f->name),
+                value->owner_class->c_name(), S_name(f->name) );
+            if( err != "" ) EM_error2( f->linepos, "(reason) --- %s", err.c_str() );
+            return FALSE;
+        }
+    
+        // make sure returns are equal
+        if( *(f->ret_type) != *(value->type->func->def->ret_type) )
+        {
+            EM_error2( f->linepos, "function signatures differ in return type..." );
+            EM_error2( f->linepos,
+                "function '%s.%s' matches '%s.%s' but cannot override...",
+                env->class_def->c_name(), S_name(f->name),
+                value->owner_class->c_name(), S_name(f->name) );
+            return FALSE;
+        }    
+
     }
 
     // type check the code
@@ -2424,6 +2487,16 @@ t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
 
 
 //-----------------------------------------------------------------------------
+// name: operator !=
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL operator !=( const Chuck_Type & lhs, const Chuck_Type & rhs )
+{ return !( lhs == rhs ); }
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: equals()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2496,16 +2569,14 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
     // key value?
     if( env->key_values[id] )
     {
-        EM_error2( pos, "illegal re-declaration of reserved value '%s'.",
-            id.c_str() );
+        EM_error2( pos, "illegal re-declaration of reserved value '%s'.", id.c_str() );
         return TRUE;
     }
 
     // key type?
     if( env->key_types[id] )
     {
-        EM_error2( pos, "illegal use of reserved type id '%s'.",
-            id.c_str() );
+        EM_error2( pos, "illegal use of reserved type id '%s'.", id.c_str() );
         return TRUE;
     }
 
@@ -2551,4 +2622,54 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id )
 {
     return type_engine_find_value( type, string(S_name(id)) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_compat_func()
+// desc: see if two function signatures are compatible
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err )
+{
+    // make sure public/private/protected/function match
+    if( lhs->func_decl != rhs->func_decl )
+    {
+        EM_error2( pos, "function signatures differ in access modifiers..." );
+        EM_error2( pos, "(both must be one of public/private/protected/function)..." );
+        return FALSE;
+    }
+
+    a_Arg_List e1 = lhs->arg_list;
+    a_Arg_List e2 = rhs->arg_list;
+    unsigned int count = 1;
+
+    // check arguments against the definition
+    while( e1 && e2 )
+    {
+        // make sure
+        assert( e1->type && e2->type );
+
+        // match types
+        if( *e1->type != *e2->type )
+        {
+            EM_error2( pos, "function signatures differ in argument %i's type...", count );
+            return FALSE;
+        }
+
+        e1 = e1->next;
+        e2 = e2->next;
+        count++;
+    }
+
+    // anything left
+    if( e1 != NULL || e2 != NULL )
+    {
+        EM_error2( pos,
+            "function signatures differ in number of arguments..." );
+        return FALSE;
+    }
+
+    return TRUE;
 }

@@ -408,6 +408,7 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
 t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & nspc );
 // type equality
 t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs );
+t_CKBOOL operator !=( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs );
 t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs );
