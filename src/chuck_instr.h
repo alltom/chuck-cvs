@@ -1426,6 +1426,19 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Reg_Push_Start
+// desc: push value of start to reg stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Reg_Push_Start : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Mem
 // desc: push a variable from mem stack to reg stack
 //-----------------------------------------------------------------------------

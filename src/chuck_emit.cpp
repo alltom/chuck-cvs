@@ -1275,6 +1275,10 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
         {
             emit->append( new Chuck_Instr_Reg_Push_Now );
         }
+        else if( exp->var == insert_symbol( "start" ) )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Start );
+        }
         else if( exp->var == insert_symbol( "midiin" ) )
         {
             if( emit->get_op() )
