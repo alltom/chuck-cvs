@@ -46,7 +46,7 @@ using namespace std;
 
 // define SP offset
 #define push_( sp, val )         *(sp) = (val); (sp)++
-#define push_uint( sp, val )     *((uint*)sp) = val; ((uint*)sp)++
+#define push_uint( sp, val )     *((uint*&)sp) = val; ((uint*&)sp)++
 #define pop_( sp, n )            sp -= (n)
 #define val_( sp )               *(sp)
 
