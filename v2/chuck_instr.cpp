@@ -1908,29 +1908,20 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // ref
     t_CKUINT ref = 0;
 
-    // figure out width
-    if( m_type_ref->size == 4 )
-    {
-        // instantiate the array
-        Chuck_Array4 * arr = new Chuck_Array4;
-        // copy to ref
-        ref = (t_CKUINT)arr;
-    }
-    else if( m_type_ref->size == 8 )
-    {
-        // instantiate the array
-        Chuck_Array8 * arr = new Chuck_Array8;
-        // copy to ref
-        ref = (t_CKUINT)arr;
-    }
-    else
-    {
-        // we have a problem
-        fprintf( stderr, 
-            "[chuck](VM): Internal ArrayAlloc Exception: size='%d'\n", m_type_ref->size );
-        // do something!
-        shred->is_running = FALSE;
+    // pop the indices
+    pop_( reg_sp, m_depth );
+    // recursively allocate
+    ref = (t_CKUINT)do_alloc_array( 
+        (t_CKINT *)reg_sp,
+        (t_CKINT *)(reg_sp + m_depth),
+        m_type_ref->size
+    );
 
+    // problem
+    if( !ref )
+    {
+        // done
+        shred->is_running = FALSE;
         return;
     }
 
