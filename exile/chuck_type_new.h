@@ -130,7 +130,6 @@ struct Chuck_Env
     Chuck_Scope<Chuck_Value *> value;
     Chuck_Scope<Chuck_Func *> func;
     Chuck_Scope<Chuck_Env *> class_defs;
-    Chuck_Scope<Chuck_Env *> nspc_defs;
     Chuck_Scope<void *> addr;
 
     // name

@@ -45,3 +45,63 @@ Chuck_Type * Chuck_Env::lookup_type( const string & name, t_CKBOOL climb )
         return parent->lookup_type( name, climb );
     return t;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_value()
+// desc: lookup value in the env
+//-----------------------------------------------------------------------------
+Chuck_Value * Chuck_Env::lookup_value( const string & name, t_CKBOOL climb )
+{
+    Chuck_Value * v = value.lookup( name );
+    if( climb && !v && parent )
+        return parent->lookup_value( name, climb );
+    return v;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_func()
+// desc: lookup func in the env
+//-----------------------------------------------------------------------------
+Chuck_Func * Chuck_Env::lookup_func( const string & name, t_CKBOOL climb )
+{
+    Chuck_Func * f = func.lookup( name );
+    if( climb && !f && parent )
+        return parent->lookup_func( name, climb );
+    return f;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_class()
+// desc: lookup class in the env
+//-----------------------------------------------------------------------------
+Chuck_Env * Chuck_Env::lookup_class( const string & name, t_CKBOOL climb )
+{
+    Chuck_Env * e = class_defs.lookup( name );
+    if( climb && !e && parent )
+        return parent->lookup_class( name, climb );
+    return e;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_addr()
+// desc: lookup addr in the env
+//-----------------------------------------------------------------------------
+void * Chuck_Env::lookup_addr( const string & name, t_CKBOOL climb )
+{
+    void * a = addr.lookup( name );
+    if( climb && !a && parent )
+        return parent->lookup_addr( name, climb );
+    return a;
+}
