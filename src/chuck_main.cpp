@@ -380,7 +380,7 @@ void * cb( void * p )
     {
         memset( &msg, 0, sizeof(msg) );
         ck_recv( g_sock, (char *)&msg, sizeof(msg) );
-        process_msg( msg.type, msg.param, msg.buffer, FALSE );
+        if( g_vm ) process_msg( msg.type, msg.param, msg.buffer, FALSE );
     }
     
     return NULL;
