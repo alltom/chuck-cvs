@@ -305,6 +305,14 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" );
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" );
 
+    // add OnePole
+    QUERY->ugen_add( QUERY, "OnePole", NULL );
+    QUERY->ugen_func( QUERY, OnePole_ctor, OnePole_dtor, OnePole_tick, OnePole_pmsg );
+    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_a1 , NULL, "float", "a1" );
+    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_b0, NULL,  "float", "b0" );
+    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_pole, NULL, "float", "pole" );
+
+
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
     QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );
@@ -350,6 +358,23 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" );
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, NULL, "int", "which" );
 
+    // add VoicForm
+    QUERY->ugen_add( QUERY, "VoicForm", NULL );
+    QUERY->ugen_func( QUERY, VoicForm_ctor, VoicForm_dtor, VoicForm_tick, VoicForm_pmsg );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_phoneme, NULL, "string", "phoneme" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOff, NULL, "float", "noteOff" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_speak, NULL, "float", "speak" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_quiet, NULL, "float", "quiet" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiced, NULL, "float", "voice" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_unVoiced, NULL, "float", "unVoiced" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_pitchSweepRate, NULL, "float", "pitchSweepRate" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiceMix, NULL, "float", "voiceMix" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_selPhoneme, NULL, "int", "selPhoneme" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoFreq, NULL, "float", "vibratoFreq" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, NULL, "float", "vibratoGain" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, NULL, "float", "loudness" );
 
 
     return TRUE;
@@ -2195,7 +2220,6 @@ class BlowHole : public Instrmnt
 
 #if !defined(__ONEPOLE_H)
 #define __ONEPOLE_H
-
 
 class OnePole : protected Filter
 {
@@ -5597,7 +5621,6 @@ class TwoPole : protected Filter
     by Perry R. Cook and Gary P. Scavone, 1995 - 2002.
 */
 /***************************************************/
-
 #if !defined(__VOICFORM_H)
 #define __VOICFORM_H
 
@@ -5640,6 +5663,8 @@ class VoicForm : public Instrmnt
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  //! start at current frequency..
+  void noteOn( MY_FLOAT amplitude);
 
   //! Stop a note with the given amplitude (speed of decay).
   void noteOff(MY_FLOAT amplitude);
@@ -16244,7 +16269,7 @@ void VoicForm :: setVoiced(MY_FLOAT vGain)
 
 void VoicForm :: setUnVoiced(MY_FLOAT nGain)
 {
-	noiseEnv->setTarget(nGain);
+	noiseEnv->setTarget(nGain * 0.01);
 }
 
 void VoicForm :: setFilterSweepRate(int whichOne, MY_FLOAT rate)
@@ -16276,6 +16301,12 @@ void VoicForm :: quiet()
 void VoicForm :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
 	setFrequency(frequency);
+	voiced->setGainTarget(amplitude);
+	onepole->setPole( 0.97 - (amplitude * 0.2) );
+}
+
+void VoicForm :: noteOn( MY_FLOAT amplitude )
+{
 	voiced->setGainTarget(amplitude);
 	onepole->setPole( 0.97 - (amplitude * 0.2) );
 }
@@ -16318,7 +16349,7 @@ void VoicForm :: controlChange(int number, MY_FLOAT value)
 
 	if (number == __SK_Breath_)	{ // 2
 		this->setVoiced( 1.0 - norm );
-		this->setUnVoiced( 0.01 * norm );
+		this->setUnVoiced( norm );
 	}
 	else if (number == __SK_FootControl_)	{ // 4
     MY_FLOAT temp = 0.0;
@@ -19642,7 +19673,7 @@ UGEN_CTRL Moog_ctrl_noteOn( t_CKTIME now, void * data, void * value )
 {
     Moog * m = (Moog *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->noteOn( f * 127.0 );
+    m->noteOn( f );
 }
 
 
@@ -19687,5 +19718,169 @@ UGEN_CTRL Moog_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
     Moog * m = (Moog *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+}
+
+
+UGEN_CTOR VoicForm_ctor ( t_CKTIME now ) 
+{
+  return new VoicForm();
+}
+
+UGEN_DTOR VoicForm_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (VoicForm *)data;
+}
+
+UGEN_TICK VoicForm_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    VoicForm * m = (VoicForm *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG VoicForm_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL VoicForm_ctrl_phoneme( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    char *c = GET_CK_STRING(value); 
+    v->setPhoneme( c );
+}
+
+UGEN_CTRL VoicForm_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setFrequency( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->noteOn( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->noteOff( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_speak( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    v->speak();
+}
+
+UGEN_CTRL VoicForm_ctrl_quiet( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    v->quiet();
+}
+
+UGEN_CTRL VoicForm_ctrl_voiced( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setVoiced( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_unVoiced( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setUnVoiced( f ); //not sure if this should be multiplied
+}
+
+UGEN_CTRL VoicForm_ctrl_voiceMix( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange(__SK_Breath_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_selPhoneme( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    int i = GET_CK_INT(value); 
+    v->controlChange(__SK_FootControl_, i );
+}
+
+UGEN_CTRL VoicForm_ctrl_vibratoFreq( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange( __SK_ModFrequency_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_vibratoGain( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange(__SK_ModWheel_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_loudness( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange(__SK_AfterTouch_Cont_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_pitchSweepRate( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setPitchSweepRate( f );
+}
+
+
+
+UGEN_CTOR OnePole_ctor ( t_CKTIME now ) 
+{
+  return new OnePole();
+}
+
+UGEN_DTOR OnePole_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (OnePole *)data;
+}
+
+UGEN_TICK OnePole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    OnePole * m = (OnePole *)data;
+    *out = m->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG OnePole_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL OnePole_ctrl_a1( t_CKTIME now, void * data, void * value )
+{
+    OnePole * filter = (OnePole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setA1( f );
+}
+
+UGEN_CTRL OnePole_ctrl_b0( t_CKTIME now, void * data, void * value )
+{
+    OnePole * filter = (OnePole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB0( f );
+}
+
+UGEN_CTRL OnePole_ctrl_pole( t_CKTIME now, void * data, void * value )
+{
+    OnePole * filter = (OnePole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setPole( f );
 }
 

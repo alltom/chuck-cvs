@@ -618,9 +618,20 @@ UGEN_TICK VoicForm_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG VoicForm_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL VoicForm_ctrl_phoneme( t_CKTIME now, void * data, void * value );
 UGEN_CTRL VoicForm_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_speak( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_quiet( t_CKTIME now, void * data, void * value );
 UGEN_CTRL VoicForm_ctrl_voiced( t_CKTIME now, void * data, void * value );
 UGEN_CTRL VoicForm_ctrl_unVoiced( t_CKTIME now, void * data, void * value );
 UGEN_CTRL VoicForm_ctrl_pitchSweepRate( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_voiceMix( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_selPhoneme( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_vibratoFreq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_vibratoGain( t_CKTIME now, void * data, void * value );
+UGEN_CTRL VoicForm_ctrl_loudness( t_CKTIME now, void * data, void * value );
+
+
 
 // Whistle
 UGEN_CTOR Whistle_ctor( t_CKTIME now );

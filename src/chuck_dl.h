@@ -122,7 +122,7 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define GET_CK_UINT(ptr)       (*(t_CKUINT *)ptr)
 #define GET_CK_TIME(ptr)       (*(t_CKTIME *)ptr)
 #define GET_CK_DUR(ptr)        (*(t_CKDUR *)ptr)
-#define GET_CK_STRING(ptr)     (*(char *)ptr)
+#define GET_CK_STRING(ptr)     (*(char **)ptr)
 
 // param conversion with pointer advance
 #define GET_NEXT_FLOAT(ptr)    (*((t_CKFLOAT *&)ptr)++)
