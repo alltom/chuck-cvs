@@ -192,6 +192,7 @@ public:
     t_CKINT get( const std::string & key, t_CKFLOAT * val );
     t_CKINT set( t_CKINT i, t_CKFLOAT val );
     t_CKINT set( const std::string & key, t_CKFLOAT val );
+    t_CKINT erase( const std::string & key );
     t_CKINT push_back( t_CKFLOAT val );
     t_CKINT pop_back( );
     t_CKINT back( t_CKFLOAT * val ) const;
