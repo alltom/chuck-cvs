@@ -60,7 +60,7 @@ extern "C" int yyparse( void );
 #include <arpa/inet.h>
 #else 
 #define CHUCK_THREAD HANDLE
-#define usleep(x) Sleep(x/1000);
+// #define usleep(x) Sleep(x/1000);
 #endif
 
 #include "ugen_osc.h"
