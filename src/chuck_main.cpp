@@ -107,16 +107,15 @@ void signal_int( int sig_num )
         g_vm = NULL;
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
+        stk_detach( 0, NULL );
 #ifndef __PLATFORM_WIN32__
-        pthread_kill( g_tid, 2 );
+        // pthread_kill( g_tid, 2 );
         pthread_cancel( g_tid );
         usleep( 100000 );
         delete( vm );
 #else
         CloseHandle( g_tid );
 #endif
-        // detach STK module
-        stk_detach( 0, NULL );
     }
 
 #ifndef __PLATFORM_WIN32__

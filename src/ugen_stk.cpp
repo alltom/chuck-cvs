@@ -18871,7 +18871,7 @@ bool WvOut :: setRawFile( const char *fileName )
   byteswap = true;
 #endif
 
-  printf("\nCreating RAW file: %s\n", name);
+  // printf("\nCreating RAW file: %s\n", name);
   return true;
 }
 
@@ -18885,8 +18885,6 @@ bool WvOut :: setWavFile( const char *fileName )
     sprintf(msg, "[chuck](via WvOut): Could not create WAV file: %s", name);
     return false;
   }
-
-
 
   struct wavhdr hdr = {"RIF", 44, "WAV", "fmt", 16, 1, 1,
                         (SINT32) Stk::sampleRate(), 0, 2, 16, "dat", 0};
@@ -18930,7 +18928,7 @@ bool WvOut :: setWavFile( const char *fileName )
     return false;
   }
 
-  printf("\nCreating WAV file: %s\n", name);
+  // printf("\nCreating WAV file: %s\n", name);
   return true;
 }
 
@@ -18999,7 +18997,7 @@ bool WvOut :: setSndFile( const char *fileName )
     return false;
   }
 
-  printf("\nCreating SND file: %s\n", name);
+  // printf("\nCreating SND file: %s\n", name);
   return true;
 }
 
@@ -19122,7 +19120,7 @@ bool WvOut :: setAifFile( const char *fileName )
   
   if ( fwrite(&ssnd, 4, 4, fd) != 4 ) goto error;
 
-  printf("\nCreating AIF file: %s\n", name);
+  // printf("\nCreating AIF file: %s\n", name);
   return true;
 
  error:
@@ -19265,7 +19263,7 @@ bool WvOut :: setMatFile( const char *fileName )
   if ( fseek(fd, 0, SEEK_END) == -1 ) goto error;
 
   byteswap = false;
-  printf("\nCreating MAT-file (%s) containing MATLAB array: %s\n", name, arrayName);
+  fprintf( stderr, "[chuck]:(via STK): creating MAT-file (%s) containing MATLAB array: %s\n", name, arrayName);
   return true;
 
  error:
@@ -23132,6 +23130,8 @@ UGEN_CTOR WvOut_ctor( t_CKTIME now )
 
 UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data )
 {
+    WvOut * w = (WvOut *)data;
+    w->closeFile();
     delete (WvOut *)data;
 }
 
@@ -23139,7 +23139,7 @@ UGEN_TICK WvOut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     WvOut * w = (WvOut *)data;
     w->tick( in );
-    *out = in; //pass samples downstream
+    *out = in; // pass samples downstream
     return TRUE;
 }
 
@@ -23148,7 +23148,7 @@ UGEN_PMSG WvOut_pmsg( t_CKTIME now, void * data, const char * msg, void * value 
     return TRUE;
 }
 
-//XXX chuck got mono, so we have one channel. fix later.
+// XXX chuck got mono, so we have one channel. fix later.
 UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
@@ -23211,7 +23211,6 @@ UGEN_CGET WvOut_cget_filename( t_CKTIME now, void * data, void * value )
 //-----------------------------------------------------------------------------
 t_CKBOOL stk_detach( t_CKUINT type, void * data )
 {
-    fprintf( stderr, "detach\n" );
     std::map<WvOut *, WvOut *>::iterator iter;
     
     for( iter = g_wv.begin(); iter != g_wv.end(); iter++ )
