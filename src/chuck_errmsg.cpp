@@ -89,12 +89,17 @@ void EM_error( int pos, char *message, ... )
     }
 
     fprintf( stderr, "('%s'):", *fileName ? mini(fileName) : "chuck" );
-    if (lines) fprintf(stderr, "line(%d).char(%d):", num, pos-lines->i );
+    sprintf( g_lasterror, "('%s'):", *fileName ? mini(fileName) : "chuck" );
+    if(lines) fprintf(stderr, "line(%d).char(%d):", num, pos-lines->i );
+    if(lines) { sprintf( g_buffer, "line(%d).char(%d):", num, pos-lines->i ); strcat( g_lasterror, g_buffer ); }
     fprintf(stderr, " " );
+    strcat( g_lasterror, " " );
     va_start(ap, message);
     vfprintf(stderr, message, ap);
+    vsprintf( g_buffer, message, ap );
     va_end(ap);
     fprintf(stderr, "\n");
+    strcat( g_lasterror, g_buffer );
 }
 
 
