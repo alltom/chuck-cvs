@@ -34,8 +34,7 @@
 #define __CHUCK_INSTR_H__
 
 #include <stdio.h>
-
-
+#include "chuck_def.h"
 
 
 // forward reference
@@ -43,8 +42,8 @@ class Chuck_VM;
 class Chuck_VM_Shred;
 
 // define
-#define sint long
-#define uint unsigned long
+#define sint t_CKINT
+#define uint t_CKUINT
 
 
 

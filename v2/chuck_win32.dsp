@@ -111,6 +111,10 @@ SOURCE=.\chuck_frame.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_instr.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_oo.cpp
 # End Source File
 # Begin Source File

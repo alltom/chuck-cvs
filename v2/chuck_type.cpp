@@ -84,7 +84,6 @@ struct Chuck_Type t_host = { te_host, "host", &t_object, sizeof(void *) }; */
 //-----------------------------------------------------------------------------
 // function prototypes
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
 t_CKBOOL type_engine_check_stmt_list( Chuck_Env * env, a_Stmt_List list );
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
 t_CKBOOL type_engine_check_if( Chuck_Env * env, a_Stmt_If stmt );

@@ -55,22 +55,22 @@ t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br );
 t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont );
 t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt );
 t_CKBOOL emit_engine_emit_switch( Chuck_Emitter * emit, a_Stmt_Switch stmt );
-t_CKTYPE emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
-t_CKTYPE emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary );
-t_CKTYPE emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
-t_CKTYPE emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
-t_CKTYPE emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
-t_CKTYPE emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
-t_CKTYPE emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp );
-t_CKTYPE emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
-t_CKTYPE emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
-t_CKTYPE emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
-t_CKTYPE emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
-t_CKTYPE emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
-t_CKTYPE emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
-t_CKTYPE emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
-t_CKTYPE emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
-t_CKTYPE emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
+t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
+t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary );
+t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
+t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp );
+t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
+t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
+t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
+t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
+t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
+t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
+t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
+t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
 t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
 t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def );
@@ -186,7 +186,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
 
 
 //-----------------------------------------------------------------------------
-// name: emit_to_code
+// name: emit_to_code()
 // desc: ...
 //-----------------------------------------------------------------------------
 Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump )
@@ -245,28 +245,198 @@ t_CKBOOL emit_engine_resolve( );
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_stmt_list()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emitter * emit, a_Stmt_List list );
+t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emitter * emit, a_Stmt_List list )
+{
+    t_CKBOOL ret = TRUE;
+
+    // emit->push();
+    while( list && ret )
+    {
+        ret = emit_engine_emit_stmt( emit, list->stmt );
+        list = list->next;
+    }
+    // emit->pop();
+
+    return ret;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_stmt()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt );
+t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt )
+{
+    // empty stmt list
+    if( !stmt )
+        return TRUE;
+
+    // return
+    t_CKBOOL ret = TRUE;
+
+    // loop over statements
+    switch( stmt->s_type )
+    {
+        case ae_stmt_exp:  // expression statement
+            // emit it
+            ret = emit_engine_emit_exp( emit, stmt->stmt_exp );
+            // need to pop the final value from stack
+            if( ret && stmt->stmt_exp->type->size > 0 )
+            {
+                // HACK!
+                if( stmt->stmt_exp->type->size == 4 )
+                    emit->append( new Chuck_Instr_Reg_Pop_Word );
+                else if( stmt->stmt_exp->type->size == 8 )
+                    emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+                else
+                {
+                    EM_error2( stmt->stmt_exp->linepos,
+                               "(emit): internal error: %i byte stack item unhandled...",
+                               stmt->stmt_exp->type->size );
+                    return FALSE;
+                }
+            }
+            break;
+
+        case ae_stmt_if:  // if statement
+            ret = emit_engine_emit_if( emit, &stmt->stmt_if );
+            break;
+
+        case ae_stmt_for:  // for statement
+            ret = emit_engine_emit_for( emit, &stmt->stmt_for );
+            break;
+
+        case ae_stmt_while:  // while statement
+            if( stmt->stmt_while.is_do )
+                ret = emit_engine_emit_do_while( emit, &stmt->stmt_while );
+            else
+                ret = emit_engine_emit_while( emit, &stmt->stmt_while );
+            break;
+        
+        case ae_stmt_until:  // until statement
+            if( stmt->stmt_until.is_do )
+                ret = emit_engine_emit_do_until( emit, &stmt->stmt_until );
+            else
+                ret = emit_engine_emit_until( emit, &stmt->stmt_until );
+            break;
+
+        case ae_stmt_switch:  // switch statement
+            // not implemented
+            ret = FALSE;
+            break;
+
+        case ae_stmt_break:  // break statement
+            ret = emit_engine_emit_break( emit, &stmt->stmt_break );
+            break;
+
+        case ae_stmt_code:  // code segment
+            ret = emit_engine_emit_code_segment( emit, &stmt->stmt_code );
+            break;
+            
+        case ae_stmt_continue:  // continue statement
+            ret = emit_engine_emit_continue( emit, &stmt->stmt_continue );
+            break;
+            
+        case ae_stmt_return:  // return statement
+            ret = emit_engine_emit_return( emit, &stmt->stmt_return );
+            break;
+            
+        case ae_stmt_case:  // case statement
+            // not implemented
+            ret = FALSE;
+            // ret = emit_engine_emit_case( emit, &stmt->stmt_case );
+            break;
+       
+        case ae_stmt_gotolabel:  // goto label statement
+            // not implemented
+            ret = FALSE;
+            // ret = emit_engine_emit_gotolabel( emit, &stmt->stmt_case );
+            break;
+        
+        default:  // bad
+            EM_error2( stmt->linepos, 
+                 "(emit): internal error: unhandled statement type '%i'...",
+                 stmt->s_type );
+            break;
+    }
+
+    return ret;
+}
 
 
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_if()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt );
+t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL, * op2 = NULL;
+    t_CKUINT start_index = emit->next_index();
+    
+    // emit the condition
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+
+    // type of the condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+    case te_uint:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_uint( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+            "(emit): internal error: unhandled type '%s' in if condition",
+            stmt->cond->type->name.c_str() );
+        ret = FALSE;
+        break;
+    }
+
+    if( !ret ) return FALSE;
+
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->if_body );
+    if( !ret )
+        return FALSE;
+
+    // emit the skip to the end
+    emit->append( op2 = new Chuck_Instr_Goto(0) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->else_body );
+    if( !ret )
+        return FALSE;
+
+    // set the op2's target
+    op2->set( emit->next_index() );
+
+    return ret;
+}
 
 
 
@@ -356,7 +526,7 @@ t_CKBOOL emit_engine_emit_switch( Chuck_Emitter * emit, a_Stmt_Switch stmt );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
+t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
 
 
 
@@ -365,7 +535,7 @@ t_CKTYPE emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary );
+t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary );
 
 
 
@@ -374,7 +544,7 @@ t_CKTYPE emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
 
 
 
@@ -383,7 +553,7 @@ t_CKTYPE emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
 
 
 
@@ -392,7 +562,7 @@ t_CKTYPE emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
 
 
 
@@ -401,7 +571,7 @@ t_CKTYPE emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
+t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
 
 
 
@@ -410,7 +580,7 @@ t_CKTYPE emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp );
+t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp );
 
 
 
@@ -419,7 +589,7 @@ t_CKTYPE emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
+t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
 
 
 
@@ -428,7 +598,7 @@ t_CKTYPE emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
+t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
 
 
 
@@ -437,7 +607,7 @@ t_CKTYPE emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postf
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
+t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
 
 
 
@@ -446,7 +616,7 @@ t_CKTYPE emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
+t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
 
 
 
@@ -455,7 +625,7 @@ t_CKTYPE emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
 
 
 
@@ -464,7 +634,7 @@ t_CKTYPE emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call f
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
+t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
 
 
 
@@ -473,7 +643,7 @@ t_CKTYPE emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
+t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
 
 
 
@@ -482,7 +652,7 @@ t_CKTYPE emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
+t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
 
 
 
@@ -491,7 +661,7 @@ t_CKTYPE emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
+t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
 
 
 

@@ -114,6 +114,19 @@ struct Chuck_Emitter : public Chuck_VM_Object
     // append instruction
     void append( Chuck_Instr * instr )
     { assert( code != NULL ); code->code.push_back( instr ); }
+    // index
+    t_CKUINT next_index()
+    { assert( code != NULL ); return code->code.size(); }
+
+    // push scope
+    void push_scope( )
+    { assert( code != NULL ); code->frame->push_scope(); }
+    // alloc local
+    Chuck_Local * alloc_local( t_CKUINT size, const string & name )
+    { assert( code != NULL ); return code->frame->alloc_local( size, name ); }
+    // pop scope
+    void pop_scope( )
+    { assert( code != NULL ); code->frame->pop_scope(); }
 };
 
 
