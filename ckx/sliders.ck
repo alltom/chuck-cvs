@@ -1,3 +1,9 @@
+//sliders - gluck interactivity demo
+//June, 2004
+//
+//Philip Davidson (philipd@alumni.princeton.edu)
+//
+//
 
 "gl.ckx" => (:gl:);
 "glu.ckx" => (:glu:);
@@ -76,7 +82,7 @@
 0.0 => float cbmag;
 
 
-//general slider drawing variables
+//generic slider drawing variables
 
 0.06 => float width;
 0.02 => float border;
@@ -166,6 +172,7 @@ function int hitSlider ( float x, float y, float val) {
 	return 0;
 }
 
+//checks if we've hit along the groove..
 function int hitGroove ( float x, float y ) { 
 	mx - x => float locx;
 	my - y => float locy;
@@ -175,7 +182,7 @@ function int hitGroove ( float x, float y ) {
 
 //value adjustment for slider ( click vs motion ) 
 function float positionAdjustSlider ( float x, float y ) { 
-	return ( ( my - y ) / groovelength );
+	return math.min ( math.max ( ( my - y ) / groovelength, 0 ), 1.0 );
 }
 
 function float motionAdjustSlider ( float x, float y, float val ) { 
@@ -184,11 +191,13 @@ function float motionAdjustSlider ( float x, float y, float val ) {
 }
 
 function void mposEvent ( int mid ) { 
-	//map to ndc, store last
+	//store last values
 	mx => pmx;
 	my => pmy;
+	//map to ndc
 	 2.0 * ( (float) gluck.GetEventX(mid) / (float) gluck.GetViewDims(0) ) - 1.0  => mx;
 	-2.0 * ( (float) gluck.GetEventY(mid) / (float) gluck.GetViewDims(1) ) + 1.0  => my;
+	//calculate dx,dy
 	mx - pmx => mdx;
 	my - pmy => mdy; 	
 }
@@ -289,16 +298,14 @@ function void thedrawloop() {
 		gl.Vertex3f (  1.0, -1.0 , 0.0 );
 		gl.Vertex3f ( -1.0, -1.0 , 0.0 );
 
-//		gl.Vertex3f ( -1.0,  1.0 , 0.0 );
-//		gl.Vertex3f (  1.0,  1.0 , 0.0 );
-//		gl.Vertex3f (  1.0,  1.0 - 2.0 * math.sqrt(ctlb_val) , 0.0 );
-//		gl.Vertex3f ( -1.0,  1.0 - 2.0 * math.sqrt(ctlb_val) , 0.0 );
 		gl.End();
 
 		gl.PopMatrix();
 
-		gl.PushMatrix();
 
+
+		//timeline effect
+		gl.PushMatrix();
 
 		gl.Translatef ( -1.0 ,-1.0 , 0.0);
 		gl.Scalef ( 2.0, 2.0 , 1.0  );
@@ -324,15 +331,17 @@ function void thedrawloop() {
 		gl.Vertex3f ( tc - math.floor(tc), 1.0 , -0.2 );
 		gl.End();
 
+		//'front' following the time marker
 		gl.Begin (GL_QUADS );
 		gl.Color4f ( 0.8, 0.0, 0.0, 0.75 - (tm - tb) );
+
 		gl.Vertex3f ( tb - math.floor(tb) , 0.0, -0.1);
 		gl.Vertex3f ( tb - math.floor(tb) , 1.0, -0.1);
-		if ( tm - math.floor(tm) > tb - math.floor(tb)) { 
+		if ( tm - math.floor(tm) > tb - math.floor(tb)) { //easy
 			gl.Vertex3f ( tm - math.floor(tm)  , 1.0, -0.1);
 			gl.Vertex3f ( tm - math.floor(tm)  , 0.0, -0.1);
 		}
-		else { 
+		else { 						  //wrapped
 			gl.Vertex3f ( 1.0  , 1.0, -0.1);
 			gl.Vertex3f ( 1.0  , 0.0, -0.1);
 
@@ -343,7 +352,9 @@ function void thedrawloop() {
 
 		}
 
+		//front for tc
 		gl.Color4f ( 0.0, 0.8, 0.0, 0.75 - (tm - tc) );
+
 		gl.Vertex3f ( tc - math.floor(tc)  , 0.0, -0.08);
 		gl.Vertex3f ( tc - math.floor(tc)  , 1.0, -0.08);
 		if ( tm - math.floor(tm) > tc - math.floor(tc)) { 
@@ -376,17 +387,20 @@ function void thedrawloop() {
 }
 
 function void ricochet( float loud, float mfreq) { 
+
 	noise nose => biquad bork => dac;
 	0.99 => bork.prad;
 	1    => bork.eqzs;
 	mfreq => bork.pfreq;
 	loud => float borkg;
 	borkg => bork.gain;
+
 	while ( borkg > 0.0 ) { 
 		borkg => bork.gain;
 		borkg - ( 0.006 * loud ) => borkg;
 		1::ms => now;
 	}
+
 }
 
 function void audioshred( ) { 
@@ -404,21 +418,20 @@ function void controlshred() {
 	while ( true ) { 
 
 		//bouncybouncy-c
-		if ( ctlc_sel != 1 ) { 
-			if ( ctlc_val > 0.0 || ctlc_dv > 0.0 ) { 
+		if ( ctlc_sel != 1 ) { //if we arent' adjusting the value
+			if ( ctlc_val > 0.0 || ctlc_dv > 0.0 ) { //forward euler
 			        ctlc_dv  - (gac * dt) => ctlc_dv;
 				ctlc_val + (ctlc_dv * dt) => ctlc_val;
 			}
-			else if ( ctlc_val < 0.0 ) { 
+
+			else if ( ctlc_val < 0.0 ) { //bounce calculation
 				if ( ctlc_dv < -0.01 ) { 
 					if ( ctlb_val == 0.0 ) { 			
 						 ctlb_dv - ctlc_dv * ( 1.0 - ctla_val )  => ctlb_dv; 
 					}
 					ctlc_dv * -ctla_val => ctlc_dv; 
-					//0.1 + ctlc_dv * 0.3 => cbmag;
-					//cbmag=> stdout;
-					tm => tc;
 					spork ~ ricochet( 0.1 + ctlc_dv * 0.1 , 880.0 );
+					tm => tc;
 				}
 				else { 0.0 => ctlc_dv; }
 				0.0 => ctlc_val;
@@ -428,7 +441,7 @@ function void controlshred() {
 
 
 		//bouncybouncy-b
-		if ( ctlb_sel != 1 ) { 
+		if ( ctlb_sel != 1 ) { //if we aren't adjusting the value
 			if ( ctlb_val > 0.0 || ctlb_dv > 0.0 ) { 
 			        ctlb_dv - (gac * dt) => ctlb_dv;
 				ctlb_val + (ctlb_dv * dt) => ctlb_val;
@@ -440,8 +453,8 @@ function void controlshred() {
 						ctlc_dv - ctlb_dv *  ( 1.0 - ctla_val)  => ctlc_dv;
 					}
 					ctlb_dv * -ctla_val => ctlb_dv; 
-					tm => tb;
 					spork ~ ricochet( 0.1 + ctlb_dv * 0.1, 1100.0 );
+					tm => tb;
 				}
 				else { 0.0 => ctlb_dv; }
 				0.0 => ctlb_val;

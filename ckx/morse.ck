@@ -1,3 +1,8 @@
+// morse code - gluck keyboard event demo 
+// june 2004 Philip Davidson ( philipd@alumni.princeton.edu )
+//
+//
+//
 
 "gl.ckx" => (:gl:);
 "glu.ckx" => (:glu:);
