@@ -220,7 +220,7 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     // allocate instruction pointers+
     code->instr = new Chuck_Instr *[code->num_instr];
     // set the stack depth
-    code->stack_depth = in->frame->curr_offset;
+    code->stack_depth = in->stack_depth;
 
     // copy
     for( t_CKUINT i = 0; i < code->num_instr; i++ )
@@ -2445,6 +2445,9 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             return FALSE;
         }
 
+        // put in the value
+        value->offset = local->offset;
+
         // zero out location in memory, and leave offset on operand stack
         if( type->size == 4 )
             emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
@@ -2574,6 +2577,8 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
         type = value->type;
         // get ref
         is_ref = a->type_decl->ref;
+        // get the size
+        emit->code->stack_depth += type->size;
         // allocate a place on the local stack
         local = emit->alloc_local( type->size, value->name, is_ref );
         if( !local )
