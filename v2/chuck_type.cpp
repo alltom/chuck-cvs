@@ -199,6 +199,57 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     S_enter( e->value, insert_symbol( "endl" ), &t_string );
     */
 
+    // add reserve words
+    env->key_words["for"] = TRUE;
+    env->key_words["while"] = TRUE;
+    env->key_words["until"] = TRUE;
+    env->key_words["if"] = TRUE;
+    env->key_words["else"] = TRUE;
+    env->key_words["spork"] = TRUE;
+    env->key_words["return"] = TRUE;
+    env->key_words["class"] = TRUE;
+    env->key_words["extends"] = TRUE;
+    env->key_words["implements"] = TRUE;
+    env->key_words["function"] = TRUE;
+    env->key_words["fun"] = TRUE;
+    env->key_words["public"] = TRUE;
+    env->key_words["protected"] = TRUE;
+    env->key_words["private"] = TRUE;
+    env->key_words["static"] = TRUE;
+
+    env->key_values["now"] = TRUE;
+    env->key_values["beginning"] = TRUE;
+    env->key_values["true"] = TRUE;
+    env->key_values["false"] = TRUE;
+    env->key_values["maybe"] = TRUE;
+    env->key_values["pi"] = TRUE;
+    env->key_values["this"] = TRUE;
+    env->key_values["super"] = TRUE;
+    env->key_values["samp"] = TRUE;
+    env->key_values["ms"] = TRUE;
+    env->key_values["second"] = TRUE;
+    env->key_values["minute"] = TRUE;
+    env->key_values["hour"] = TRUE;
+    env->key_values["day"] = TRUE;
+    env->key_values["week"] = TRUE;
+    env->key_values["adc"] = TRUE;
+    env->key_values["dac"] = TRUE;
+    env->key_values["global"] = TRUE;
+
+    env->key_types["void"] = TRUE;
+    env->key_types["int"] = TRUE;
+    env->key_types["float"] = TRUE;
+    env->key_types["dur"] = TRUE;
+    env->key_types["time"] = TRUE;
+    env->key_types["object"] = TRUE;
+    env->key_types["string"] = TRUE;
+    env->key_types["shred"] = TRUE;
+    env->key_types["event"] = TRUE;
+    env->key_types["ugen"] = TRUE;
+    env->key_types["machine"] = TRUE;
+    env->key_types["language"] = TRUE;
+    env->key_types["compiler"] = TRUE;
+
     return env;
 }
 

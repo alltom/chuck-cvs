@@ -235,6 +235,11 @@ struct Chuck_Env : public Chuck_VM_Object
 	// chuck dlls in memory
 	map<Chuck_DLL *, t_CKUINT> dlls;
 
+    // reserved words
+    map<string, t_CKBOOL> key_words;
+    map<string, t_CKBOOL> key_types;
+    map<string, t_CKBOOL> key_values;
+
 	// constructor
 	Chuck_Env( )
 	{ this->reset(); vm = NULL; curr = NULL; class_def = NULL; func = NULL; }
