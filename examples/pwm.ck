@@ -1,4 +1,6 @@
-//control oscillators - send to blackhole
+// pulse width modulation (gewang / philipd)
+
+// drive sinosc with blackhole
 sinosc modw => blackhole; 
 0.125 => modw.freq;
 
