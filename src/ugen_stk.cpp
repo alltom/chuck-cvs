@@ -17253,6 +17253,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     }
 
     // Allocate new memory if necessary.
+    samples = (bufferSize+1)*channels;
     if ( lastSamples < samples ) {
         if ( data ) delete [] data;
         data = (MY_FLOAT *) new MY_FLOAT[samples];
