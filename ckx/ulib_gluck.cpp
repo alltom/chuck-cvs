@@ -55,8 +55,8 @@ using namespace std;
 
 // lazy phil's preprocessor functions
 // if these shouldn't be here, tell me
-#define GLUCK_EXPORT(t, n) QUERY->add_export( QUERY, #t, #n, gluck_##n##_impl, TRUE )
-#define GLUCK_PARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
+#define GLUCK_CKADDEXPORT(t, n) QUERY->add_export( QUERY, #t, #n, gluck_##n##_impl, TRUE )
+#define GLUCK_CKADDPARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
 
 
 
@@ -86,6 +86,72 @@ static uint gluck_EVENT_PMOTION = EV_PMOTION;
 static uint gluck_EVENT_KEY = EV_KEY;
 static uint gluck_EVENT_SPECKEY = EV_SPECKEY;
 
+
+
+//static uint glut_KEY_x	=	'x';
+static uint gluck_KEY_a	= 'a';
+static uint gluck_KEY_b	= 'b';
+static uint gluck_KEY_c	= 'c';
+static uint gluck_KEY_d	= 'd';
+static uint gluck_KEY_e	= 'e';
+static uint gluck_KEY_f	= 'f';
+static uint gluck_KEY_g	= 'g';
+static uint gluck_KEY_h	= 'h';
+static uint gluck_KEY_i	= 'i';
+static uint gluck_KEY_j	= 'j';
+static uint gluck_KEY_k	= 'k';
+static uint gluck_KEY_l	= 'l';
+static uint gluck_KEY_m	= 'm';
+static uint gluck_KEY_n	= 'n';
+static uint gluck_KEY_o	= 'o';
+static uint gluck_KEY_p	= 'p';
+static uint gluck_KEY_q	= 'q';
+static uint gluck_KEY_r	= 'r';
+static uint gluck_KEY_s	= 's';
+static uint gluck_KEY_t	= 't';
+static uint gluck_KEY_u	= 'u';
+static uint gluck_KEY_v	= 'v';
+static uint gluck_KEY_w	= 'w';
+static uint gluck_KEY_x	= 'x';
+static uint gluck_KEY_y	= 'y';
+static uint gluck_KEY_z	= 'z';
+static uint gluck_KEY_A	= 'A';
+static uint gluck_KEY_B	= 'B';
+static uint gluck_KEY_C	= 'C';
+static uint gluck_KEY_D	= 'D';
+static uint gluck_KEY_E	= 'E';
+static uint gluck_KEY_F	= 'F';
+static uint gluck_KEY_G	= 'G';
+static uint gluck_KEY_H	= 'H';
+static uint gluck_KEY_I	= 'I';
+static uint gluck_KEY_J	= 'J';
+static uint gluck_KEY_K	= 'K';
+static uint gluck_KEY_L	= 'L';
+static uint gluck_KEY_M	= 'M';
+static uint gluck_KEY_N	= 'N';
+static uint gluck_KEY_O	= 'O';
+static uint gluck_KEY_P	= 'P';
+static uint gluck_KEY_Q	= 'Q';
+static uint gluck_KEY_R	= 'R';
+static uint gluck_KEY_S	= 'S';
+static uint gluck_KEY_T	= 'T';
+static uint gluck_KEY_U	= 'U';
+static uint gluck_KEY_V	= 'V';
+static uint gluck_KEY_W	= 'W';
+static uint gluck_KEY_X	= 'X';
+static uint gluck_KEY_Y	= 'Y';
+static uint gluck_KEY_Z	= 'Z';
+static uint gluck_KEY_1	= '1';
+static uint gluck_KEY_2	= '2';
+static uint gluck_KEY_3	= '3';
+static uint gluck_KEY_4	= '4';
+static uint gluck_KEY_5	= '5';
+static uint gluck_KEY_6	= '6';
+static uint gluck_KEY_7	= '7';
+static uint gluck_KEY_8	= '8';
+static uint gluck_KEY_9	= '9';
+static uint gluck_KEY_0	= '0';
+static uint gluck_KEY_SPACE	= ' ';
 
 /*
  * GLUT API macro definitions -- the special key codes:
@@ -405,149 +471,214 @@ CK_DLL_QUERY
 #endif
 
     //gluck functions
-    GLUCK_EXPORT ( int, InitBasicWindow );
-    GLUCK_PARAM  ( string, name );
 
-    GLUCK_EXPORT ( int, InitSizedWindow );
-    GLUCK_PARAM  ( string, name );
-    GLUCK_PARAM  ( int, x );
-    GLUCK_PARAM  ( int, y );
-    GLUCK_PARAM  ( int, w );
-    GLUCK_PARAM  ( int, h );
-    
-    GLUCK_EXPORT ( int, InitFullScreenWindow );
-    GLUCK_PARAM  ( string, name );
-
-
-    //glut loop handlers...
-    GLUCK_EXPORT ( int, NeedDraw  );
-    GLUCK_EXPORT ( int, NeedEvent );
-    GLUCK_EXPORT ( int, NeedIdle  );
-    GLUCK_EXPORT ( int, NeedReshape  );
-
-    //glut event watching toggles
-    GLUCK_EXPORT ( int, WatchMouse );
-    GLUCK_PARAM  ( int, toggle );
-    
-    GLUCK_EXPORT ( int, WatchMotion );
-    GLUCK_PARAM  ( int, toggle );
-    
-    GLUCK_EXPORT ( int, WatchKeyboard );
-    GLUCK_PARAM  ( int, toggle );
-    
-    GLUCK_EXPORT ( int, InitCallbacks );    
-    GLUCK_PARAM  ( int, mouse );
-    GLUCK_PARAM  ( int, motion );
-    GLUCK_PARAM  ( int, keyboard );
-    
-    GLUCK_EXPORT ( int, HasEvents );
-    //kludgy stuff until we can pass events back out as objects...
-    GLUCK_EXPORT ( int, GetNextEvent );
-    GLUCK_EXPORT ( int, GetEventType );
-    GLUCK_PARAM  ( int, id );
-    GLUCK_EXPORT ( int, GetEventX );
-    GLUCK_PARAM  ( int, id );
-    GLUCK_EXPORT ( int, GetEventY );
-    GLUCK_PARAM  ( int, id );
-    GLUCK_EXPORT ( int, GetEventButton );
-    GLUCK_PARAM  ( int, id );
-    GLUCK_EXPORT ( int, GetEventState );
-    GLUCK_PARAM  ( int, id );
-    GLUCK_EXPORT ( uint, GetEventKey );
-    GLUCK_PARAM  ( int, id );
-    GLUCK_EXPORT ( int, GetEventSKey );
-    GLUCK_PARAM  ( int, id );
-    
-    GLUCK_EXPORT ( int, GetViewDims );
-    GLUCK_PARAM  ( int, which );
-    
+    //! \sectionMain Functions
     //..standard glut library functions
+    //! \section Initialization
 
-    GLUCK_EXPORT ( int, Init );
+    //! _MUST_ be first gluck function called
+    GLUCK_CKADDEXPORT ( int, Init ); 
+
     //Init should take argc, argv...but not yet..
 
-    GLUCK_EXPORT ( int, InitWindowPosition );
-    GLUCK_PARAM  ( int , x );
-    GLUCK_PARAM  ( int , y );
+    GLUCK_CKADDEXPORT ( int, InitWindowPosition );
+    GLUCK_CKADDPARAM  ( int , x );
+    GLUCK_CKADDPARAM  ( int , y );
 
-    GLUCK_EXPORT ( int, InitWindowSize );
-    GLUCK_PARAM  ( int , w );
-    GLUCK_PARAM  ( int , h );
+    GLUCK_CKADDEXPORT ( int, InitWindowSize );
+    GLUCK_CKADDPARAM  ( int , w );
+    GLUCK_CKADDPARAM  ( int , h );
 
-    GLUCK_EXPORT ( int, InitDisplayMode );
-    GLUCK_PARAM  ( uint , displayMode );
+    GLUCK_CKADDEXPORT ( int, InitDisplayMode );
+    GLUCK_CKADDPARAM  ( uint , displayMode );
 
-    GLUCK_EXPORT ( int, InitDisplayString );
-    GLUCK_PARAM  ( string , displayMode );
+    GLUCK_CKADDEXPORT ( int, InitDisplayString );
+    GLUCK_CKADDPARAM  ( string , displayMode );
+
+    //! \section Window Shortcuts ( Init must be called ) 
+
+    GLUCK_CKADDEXPORT ( int, InitBasicWindow );
+    GLUCK_CKADDPARAM  ( string, name );
+
+    GLUCK_CKADDEXPORT ( int, InitSizedWindow );
+    GLUCK_CKADDPARAM  ( string, name );
+    GLUCK_CKADDPARAM  ( int, x );
+    GLUCK_CKADDPARAM  ( int, y );
+    GLUCK_CKADDPARAM  ( int, w );
+    GLUCK_CKADDPARAM  ( int, h );
     
-    GLUCK_EXPORT ( int, MainLoopEvent );
+    GLUCK_CKADDEXPORT ( int, InitFullScreenWindow );
+    GLUCK_CKADDPARAM  ( string, name );
 
-    GLUCK_EXPORT ( int, CreateWindow );
-    GLUCK_PARAM  ( string , title );
+    //glut event watching toggles
+    //! \section Event Handling Functions
+    //! Register glut callbacks so that window
+    //! events will be dispatched to the
+    //! proper functions
+    GLUCK_CKADDEXPORT ( int, InitCallbacks );    
+    GLUCK_CKADDPARAM  ( int, mouse );
+    GLUCK_CKADDPARAM  ( int, motion );
+    GLUCK_CKADDPARAM  ( int, keyboard );
 
-    GLUCK_EXPORT ( int, DestroyWindow );
-    GLUCK_PARAM  ( int , window );
 
-    GLUCK_EXPORT ( int, SetWindow );
-    GLUCK_PARAM  ( int , window );
+    //! toggle mouse (button click) events
+    GLUCK_CKADDEXPORT ( int, WatchMouse );
+    GLUCK_CKADDPARAM  ( int, toggle );
+    
+    //! toggle mouse motion tracking
+    GLUCK_CKADDEXPORT ( int, WatchMotion );
+    GLUCK_CKADDPARAM  ( int, toggle );
+    
+    //! toggle keyboard events
+    GLUCK_CKADDEXPORT ( int, WatchKeyboard );
+    GLUCK_CKADDPARAM  ( int, toggle );
+    
 
-    GLUCK_EXPORT ( int, SetWindowTitle );
-    GLUCK_PARAM  ( string , title );
+    //! \section Event Loop
+    //! this is where we enter to allow 
+    //! glut to handle its business
+    //! we call this instead of the more
+    //! common glutMainLoop so that we 
+    //! can return control to ChucK
+    GLUCK_CKADDEXPORT ( int, MainLoopEvent );
 
-    GLUCK_EXPORT ( int, ReshapeWindow );
-    GLUCK_PARAM  ( int , width );
-    GLUCK_PARAM  ( int , height );
 
-    GLUCK_EXPORT ( int, PositionWindow );
-    GLUCK_PARAM  ( int , x );
-    GLUCK_PARAM  ( int , y );
+    //! \section Event Information
+    GLUCK_CKADDEXPORT ( int, HasEvents );
+    //kludgy stuff until we can pass events back out as objects...
 
-    GLUCK_EXPORT ( int, ShowWindow );
+    //! returns an integer value that is used as the argument to GetEvent functions
+    //! this will be replaced by something less awkward when we have objects and arrays
+    GLUCK_CKADDEXPORT ( int, GetNextEvent ); 
+    
+    GLUCK_CKADDEXPORT ( int, GetEventType ); //! see the 'Event Types' constants...
+    GLUCK_CKADDPARAM  ( int, id );
+    GLUCK_CKADDEXPORT ( int, GetEventX ); //! returns the x location of the cursor ( from left ) 
+    GLUCK_CKADDPARAM  ( int, id );
+    GLUCK_CKADDEXPORT ( int, GetEventY ); //! returns the y location of the cursor ( from bottom ) 
+    GLUCK_CKADDPARAM  ( int, id );
+    GLUCK_CKADDEXPORT ( int, GetEventButton ); //! returns the button pressed -- see 'Mouse State'
+    GLUCK_CKADDPARAM  ( int, id );
+    GLUCK_CKADDEXPORT ( int, GetEventState ); //! returns the state of the button pressed
+    GLUCK_CKADDPARAM  ( int, id );
+    GLUCK_CKADDEXPORT ( uint, GetEventKey ); //! returns the key ( see 'Key Values' ) pressed
+    GLUCK_CKADDPARAM  ( int, id );
+    GLUCK_CKADDEXPORT ( int, GetEventSKey ); //! return the special key value ( see 'Key Variables' ) pressed
+    GLUCK_CKADDPARAM  ( int, id );
+    
+    //glut loop handlers...
+    //! \section Loop Handling
+    GLUCK_CKADDEXPORT ( int, NeedDraw  );   //! whether MainLoop has requested a Redraw
+    GLUCK_CKADDEXPORT ( int, NeedEvent );
+    GLUCK_CKADDEXPORT ( int, NeedIdle  );
+    GLUCK_CKADDEXPORT ( int, NeedReshape  );
 
-    GLUCK_EXPORT ( int, HideWindow );
 
-    GLUCK_EXPORT ( int, FullScreen );
+    GLUCK_CKADDEXPORT ( int, GetViewDims ); //! return the dimension ( in pixels ) of the window  (0=x , 1=y)
+    GLUCK_CKADDPARAM  ( int, which );
 
-    GLUCK_EXPORT ( int, PostWindowRedisplay );
-    GLUCK_PARAM  ( int , window );
 
-    GLUCK_EXPORT ( int, PostRedisplay );
+    //! \section Window Management
+    GLUCK_CKADDEXPORT ( int, CreateWindow );
+    GLUCK_CKADDPARAM  ( string , title );
 
-    GLUCK_EXPORT ( int, SwapBuffers );
+    GLUCK_CKADDEXPORT ( int, DestroyWindow );
+    GLUCK_CKADDPARAM  ( int , window );
 
-    GLUCK_EXPORT ( int, StrokeCharacter );
-    GLUCK_PARAM  ( int , font );
-    GLUCK_PARAM  ( int , character );
+    //! set the current window ( in multi-window context ) 
+    GLUCK_CKADDEXPORT ( int, SetWindow );
+    GLUCK_CKADDPARAM  ( int , window );
 
-    GLUCK_EXPORT ( int, StrokeString );
-    GLUCK_PARAM  ( int , font );
-    GLUCK_PARAM  ( string , string );
+    GLUCK_CKADDEXPORT ( int, SetWindowTitle );
+    GLUCK_CKADDPARAM  ( string , title );
 
-    GLUCK_EXPORT ( int, StrokeWidth );
-    GLUCK_PARAM  ( int , font );
-    GLUCK_PARAM  ( int , character );
+    GLUCK_CKADDEXPORT ( int, ReshapeWindow );
+    GLUCK_CKADDPARAM  ( int , width );
+    GLUCK_CKADDPARAM  ( int , height );
 
-    GLUCK_EXPORT ( int, StrokeLength );
-    GLUCK_PARAM  ( int , font );
-    GLUCK_PARAM  ( string , string );
+    GLUCK_CKADDEXPORT ( int, PositionWindow );
+    GLUCK_CKADDPARAM  ( int , x );
+    GLUCK_CKADDPARAM  ( int , y );
 
-    GLUCK_EXPORT ( int, WireTeapot );
-    GLUCK_PARAM  ( float , size );
+    GLUCK_CKADDEXPORT ( int, ShowWindow );
 
-    GLUCK_EXPORT ( int, SolidTeapot );
-    GLUCK_PARAM  ( float , size );
+    GLUCK_CKADDEXPORT ( int, HideWindow );
 
-    //special gluck values
+    GLUCK_CKADDEXPORT ( int, FullScreen );
+
+    //! \section Draw Triggers
+    GLUCK_CKADDEXPORT ( int, PostWindowRedisplay );
+    GLUCK_CKADDPARAM  ( int , window );
+
+    GLUCK_CKADDEXPORT ( int, PostRedisplay );
+
+    GLUCK_CKADDEXPORT ( int, SwapBuffers );
+
+
+    //! \section String and Character functions
+    GLUCK_CKADDEXPORT ( int, StrokeCharacter );
+    GLUCK_CKADDPARAM  ( int , font );
+    GLUCK_CKADDPARAM  ( int , character );
+
+    GLUCK_CKADDEXPORT ( int, StrokeString );
+    GLUCK_CKADDPARAM  ( int , font );
+    GLUCK_CKADDPARAM  ( string , string );
+
+    GLUCK_CKADDEXPORT ( int, StrokeWidth );
+    GLUCK_CKADDPARAM  ( int , font );
+    GLUCK_CKADDPARAM  ( int , character );
+
+    GLUCK_CKADDEXPORT ( int, StrokeLength );
+    GLUCK_CKADDPARAM  ( int , font );
+    GLUCK_CKADDPARAM  ( string , string );
+
+    //! \section glut shapes
+    GLUCK_CKADDEXPORT ( int, WireTeapot );
+    GLUCK_CKADDPARAM  ( float , size );
+
+    GLUCK_CKADDEXPORT ( int, SolidTeapot );
+    GLUCK_CKADDPARAM  ( float , size );
+
+    //! \sectionMain Constants
+
+    //! \section Event Types
     QUERY->add_export( QUERY, "uint", "EVENT_MOUSE", (f_ck_func)&gluck_EVENT_MOUSE, FALSE);
     QUERY->add_export( QUERY, "uint", "EVENT_MOTION", (f_ck_func)&gluck_EVENT_MOTION, FALSE);
     QUERY->add_export( QUERY, "uint", "EVENT_PMOTION", (f_ck_func)&gluck_EVENT_PMOTION, FALSE);
     QUERY->add_export( QUERY, "uint", "EVENT_KEY", (f_ck_func)&gluck_EVENT_KEY, FALSE);
     QUERY->add_export( QUERY, "uint", "EVENT_SPECKEY", (f_ck_func)&gluck_EVENT_SPECKEY, FALSE);
 
+
        
+/*
+ * GLUT API macro definitions -- mouse state definitions
+ */
+	//! \section Mouse State
+
+	QUERY->add_export( QUERY, "uint", "LEFT_BUTTON", (f_ck_func)&glut_LEFT_BUTTON, FALSE);
+	QUERY->add_export( QUERY, "uint", "MIDDLE_BUTTON", (f_ck_func)&glut_MIDDLE_BUTTON, FALSE);
+	QUERY->add_export( QUERY, "uint", "RIGHT_BUTTON", (f_ck_func)&glut_RIGHT_BUTTON, FALSE);
+	QUERY->add_export( QUERY, "uint", "DOWN", (f_ck_func)&glut_DOWN, FALSE);
+	QUERY->add_export( QUERY, "uint", "UP", (f_ck_func)&glut_UP, FALSE);
+	QUERY->add_export( QUERY, "uint", "LEFT", (f_ck_func)&glut_LEFT, FALSE);
+	QUERY->add_export( QUERY, "uint", "ENTERED", (f_ck_func)&glut_ENTERED, FALSE);
+
+
+/*
+ * GLUT API macro definitions -- the glutGetModifiers parameters
+ */
+	//! \section Modifier Keys
+
+	QUERY->add_export( QUERY, "uint", "ACTIVE_SHIFT", (f_ck_func)&glut_ACTIVE_SHIFT, FALSE);
+	QUERY->add_export( QUERY, "uint", "ACTIVE_CTRL", (f_ck_func)&glut_ACTIVE_CTRL, FALSE);
+	QUERY->add_export( QUERY, "uint", "ACTIVE_ALT", (f_ck_func)&glut_ACTIVE_ALT, FALSE);
+
+
 /*
  * GLUT API macro definitions -- the special key codes:
  */
+    //! \section Key Definitions
+
 	QUERY->add_export( QUERY, "uint", "KEY_F1", (f_ck_func)&glut_KEY_F1, FALSE);
 	QUERY->add_export( QUERY, "uint", "KEY_F2", (f_ck_func)&glut_KEY_F2, FALSE);
 	QUERY->add_export( QUERY, "uint", "KEY_F3", (f_ck_func)&glut_KEY_F3, FALSE);
@@ -570,20 +701,81 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "KEY_END", (f_ck_func)&glut_KEY_END, FALSE);
 	QUERY->add_export( QUERY, "uint", "KEY_INSERT", (f_ck_func)&glut_KEY_INSERT, FALSE);
 
-/*
- * GLUT API macro definitions -- mouse state definitions
- */
-	QUERY->add_export( QUERY, "uint", "LEFT_BUTTON", (f_ck_func)&glut_LEFT_BUTTON, FALSE);
-	QUERY->add_export( QUERY, "uint", "MIDDLE_BUTTON", (f_ck_func)&glut_MIDDLE_BUTTON, FALSE);
-	QUERY->add_export( QUERY, "uint", "RIGHT_BUTTON", (f_ck_func)&glut_RIGHT_BUTTON, FALSE);
-	QUERY->add_export( QUERY, "uint", "DOWN", (f_ck_func)&glut_DOWN, FALSE);
-	QUERY->add_export( QUERY, "uint", "UP", (f_ck_func)&glut_UP, FALSE);
-	QUERY->add_export( QUERY, "uint", "LEFT", (f_ck_func)&glut_LEFT, FALSE);
-	QUERY->add_export( QUERY, "uint", "ENTERED", (f_ck_func)&glut_ENTERED, FALSE);
+
+
+    //! \section Key Values 
+
+	//abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWYXZ1234567890
+	QUERY->add_export( QUERY, "uint", "KEY_a", (f_ck_func)&gluck_KEY_a, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_b", (f_ck_func)&gluck_KEY_b, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_c", (f_ck_func)&gluck_KEY_c, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_d", (f_ck_func)&gluck_KEY_d, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_e", (f_ck_func)&gluck_KEY_e, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_f", (f_ck_func)&gluck_KEY_f, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_g", (f_ck_func)&gluck_KEY_g, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_h", (f_ck_func)&gluck_KEY_h, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_i", (f_ck_func)&gluck_KEY_i, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_j", (f_ck_func)&gluck_KEY_j, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_k", (f_ck_func)&gluck_KEY_k, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_l", (f_ck_func)&gluck_KEY_l, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_m", (f_ck_func)&gluck_KEY_m, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_n", (f_ck_func)&gluck_KEY_n, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_o", (f_ck_func)&gluck_KEY_o, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_p", (f_ck_func)&gluck_KEY_p, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_q", (f_ck_func)&gluck_KEY_q, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_r", (f_ck_func)&gluck_KEY_r, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_s", (f_ck_func)&gluck_KEY_s, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_t", (f_ck_func)&gluck_KEY_t, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_u", (f_ck_func)&gluck_KEY_u, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_v", (f_ck_func)&gluck_KEY_v, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_w", (f_ck_func)&gluck_KEY_w, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_x", (f_ck_func)&gluck_KEY_x, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_y", (f_ck_func)&gluck_KEY_y, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_z", (f_ck_func)&gluck_KEY_z, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_A", (f_ck_func)&gluck_KEY_A, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_B", (f_ck_func)&gluck_KEY_B, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_C", (f_ck_func)&gluck_KEY_C, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_D", (f_ck_func)&gluck_KEY_D, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_E", (f_ck_func)&gluck_KEY_E, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_F", (f_ck_func)&gluck_KEY_F, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_G", (f_ck_func)&gluck_KEY_G, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_H", (f_ck_func)&gluck_KEY_H, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_I", (f_ck_func)&gluck_KEY_I, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_J", (f_ck_func)&gluck_KEY_J, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_K", (f_ck_func)&gluck_KEY_K, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_L", (f_ck_func)&gluck_KEY_L, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_M", (f_ck_func)&gluck_KEY_M, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_N", (f_ck_func)&gluck_KEY_N, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_O", (f_ck_func)&gluck_KEY_O, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_P", (f_ck_func)&gluck_KEY_P, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_Q", (f_ck_func)&gluck_KEY_Q, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_R", (f_ck_func)&gluck_KEY_R, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_S", (f_ck_func)&gluck_KEY_S, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_T", (f_ck_func)&gluck_KEY_T, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_U", (f_ck_func)&gluck_KEY_U, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_V", (f_ck_func)&gluck_KEY_V, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_W", (f_ck_func)&gluck_KEY_W, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_Y", (f_ck_func)&gluck_KEY_Y, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_X", (f_ck_func)&gluck_KEY_X, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_Z", (f_ck_func)&gluck_KEY_Z, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_1", (f_ck_func)&gluck_KEY_1, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_2", (f_ck_func)&gluck_KEY_2, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_3", (f_ck_func)&gluck_KEY_3, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_4", (f_ck_func)&gluck_KEY_4, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_5", (f_ck_func)&gluck_KEY_5, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_6", (f_ck_func)&gluck_KEY_6, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_7", (f_ck_func)&gluck_KEY_7, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_8", (f_ck_func)&gluck_KEY_8, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_9", (f_ck_func)&gluck_KEY_9, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_0", (f_ck_func)&gluck_KEY_0, FALSE);
+	QUERY->add_export( QUERY, "uint", "KEY_SPACE", (f_ck_func)&gluck_KEY_SPACE, FALSE);
+
 
 /*
  * GLUT API macro definitions -- the display mode definitions
  */
+	//! \section Display Modes
+
 	QUERY->add_export( QUERY, "uint", "RGB", (f_ck_func)&glut_RGB, FALSE);
 	QUERY->add_export( QUERY, "uint", "RGBA", (f_ck_func)&glut_RGBA, FALSE);
 	QUERY->add_export( QUERY, "uint", "INDEX", (f_ck_func)&glut_INDEX, FALSE);
@@ -600,6 +792,8 @@ CK_DLL_QUERY
 /*
  * GLUT API macro definitions -- windows and menu related definitions
  */
+	//! \section Window Constants
+
 	QUERY->add_export( QUERY, "uint", "MENU_NOT_IN_USE", (f_ck_func)&glut_MENU_NOT_IN_USE, FALSE);
 	QUERY->add_export( QUERY, "uint", "MENU_IN_USE", (f_ck_func)&glut_MENU_IN_USE, FALSE);
 	QUERY->add_export( QUERY, "uint", "NOT_VISIBLE", (f_ck_func)&glut_NOT_VISIBLE, FALSE);
@@ -613,8 +807,9 @@ CK_DLL_QUERY
 /*
  * GLUT API macro definitions -- the glutGet parameters
  */
+	//! \section glutGet parameters
 	QUERY->add_export( QUERY, "uint", "WINDOW_X", (f_ck_func)&glut_WINDOW_X, FALSE);
-	QUERY->add_export( QUERY, "uint", "WINDOW_Y", (f_ck_func)&glut_WINDOW_Y, FALSE);
+ 	QUERY->add_export( QUERY, "uint", "WINDOW_Y", (f_ck_func)&glut_WINDOW_Y, FALSE);
 	QUERY->add_export( QUERY, "uint", "WINDOW_WIDTH", (f_ck_func)&glut_WINDOW_WIDTH, FALSE);
 	QUERY->add_export( QUERY, "uint", "WINDOW_HEIGHT", (f_ck_func)&glut_WINDOW_HEIGHT, FALSE);
 	QUERY->add_export( QUERY, "uint", "WINDOW_BUFFER_SIZE", (f_ck_func)&glut_WINDOW_BUFFER_SIZE, FALSE);
@@ -655,6 +850,8 @@ CK_DLL_QUERY
 /*
  * GLUT API macro definitions -- the glutDeviceGet parameters
  */
+	//! \section DeviceGet parameters
+
 	QUERY->add_export( QUERY, "uint", "HAS_KEYBOARD", (f_ck_func)&glut_HAS_KEYBOARD, FALSE);
 	QUERY->add_export( QUERY, "uint", "HAS_MOUSE", (f_ck_func)&glut_HAS_MOUSE, FALSE);
 	QUERY->add_export( QUERY, "uint", "HAS_SPACEBALL", (f_ck_func)&glut_HAS_SPACEBALL, FALSE);
@@ -676,6 +873,7 @@ CK_DLL_QUERY
 /*
  * GLUT API macro definitions -- the glutLayerGet parameters
  */
+	//! \section Mouse State
 	QUERY->add_export( QUERY, "uint", "OVERLAY_POSSIBLE", (f_ck_func)&glut_OVERLAY_POSSIBLE, FALSE);
 	QUERY->add_export( QUERY, "uint", "LAYER_IN_USE", (f_ck_func)&glut_LAYER_IN_USE, FALSE);
 	QUERY->add_export( QUERY, "uint", "HAS_OVERLAY", (f_ck_func)&glut_HAS_OVERLAY, FALSE);
@@ -686,6 +884,7 @@ CK_DLL_QUERY
 /*
  * GLUT API macro definitions -- the glutVideoResizeGet parameters
  */
+	//! \section VideoResize
 	QUERY->add_export( QUERY, "uint", "VIDEO_RESIZE_POSSIBLE", (f_ck_func)&glut_VIDEO_RESIZE_POSSIBLE, FALSE);
 	QUERY->add_export( QUERY, "uint", "VIDEO_RESIZE_IN_USE", (f_ck_func)&glut_VIDEO_RESIZE_IN_USE, FALSE);
 	QUERY->add_export( QUERY, "uint", "VIDEO_RESIZE_X_DELTA", (f_ck_func)&glut_VIDEO_RESIZE_X_DELTA, FALSE);
@@ -703,12 +902,6 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "NORMAL", (f_ck_func)&glut_NORMAL, FALSE);
 	QUERY->add_export( QUERY, "uint", "OVERLAY", (f_ck_func)&glut_OVERLAY, FALSE);
 
-/*
- * GLUT API macro definitions -- the glutGetModifiers parameters
- */
-	QUERY->add_export( QUERY, "uint", "ACTIVE_SHIFT", (f_ck_func)&glut_ACTIVE_SHIFT, FALSE);
-	QUERY->add_export( QUERY, "uint", "ACTIVE_CTRL", (f_ck_func)&glut_ACTIVE_CTRL, FALSE);
-	QUERY->add_export( QUERY, "uint", "ACTIVE_ALT", (f_ck_func)&glut_ACTIVE_ALT, FALSE);
 
 /*
  * GLUT API macro definitions -- the glutSetCursor parameters
@@ -747,6 +940,7 @@ CK_DLL_QUERY
 /*
  * GLUT API macro definitions -- additional keyboard and joystick definitions
  */
+	//! \section Keyboard/Joystick Info
 	QUERY->add_export( QUERY, "uint", "KEY_REPEAT_OFF", (f_ck_func)&glut_KEY_REPEAT_OFF, FALSE);
 	QUERY->add_export( QUERY, "uint", "KEY_REPEAT_ON", (f_ck_func)&glut_KEY_REPEAT_ON, FALSE);
 	QUERY->add_export( QUERY, "uint", "KEY_REPEAT_DEFAULT", (f_ck_func)&glut_KEY_REPEAT_DEFAULT, FALSE);
@@ -759,6 +953,7 @@ CK_DLL_QUERY
 /*
  * GLUT API macro definitions -- game mode definitions
  */
+	//! \section Game Mode Info
 	QUERY->add_export( QUERY, "uint", "GAME_MODE_ACTIVE", (f_ck_func)&glut_GAME_MODE_ACTIVE, FALSE);
 	QUERY->add_export( QUERY, "uint", "GAME_MODE_POSSIBLE", (f_ck_func)&glut_GAME_MODE_POSSIBLE, FALSE);
 	QUERY->add_export( QUERY, "uint", "GAME_MODE_WIDTH", (f_ck_func)&glut_GAME_MODE_WIDTH, FALSE);
@@ -870,6 +1065,7 @@ CK_DLL_FUNC ( gluck_WatchKeyboard_impl ) {
 
 
 void gluckDisplayCB() { 
+  //that's all it does!
     gluckstate->needDraw = true;
 }
 
@@ -951,7 +1147,7 @@ CK_DLL_FUNC( gluck_HasEvents_impl ) {
 CK_DLL_FUNC( gluck_GetNextEvent_impl ) {
     RETURN->v_int = gluckGetNextEvent();
 }
-
+ 
 CK_DLL_FUNC( gluck_GetEventType_impl ) { 
     int id = GET_NEXT_INT(ARGS);
     RETURN->v_int = gluckstate->events[id].type;

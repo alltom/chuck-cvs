@@ -50,7 +50,6 @@
 // if these shouldn't be here, tell me
 #define GL_CKADDEXPORT(t, n) QUERY->add_export( QUERY, #t, #n, gl_##n##_impl, TRUE )
 #define GL_CKADDPARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
-
 //define them variables!
 
 /* Boolean values */
@@ -348,22 +347,13 @@ CK_DLL_QUERY
 {
     QUERY->set_name( QUERY, "gl" );
     
-    // Add Begin
-    GL_CKADDEXPORT ( int, Begin );
+    //! \sectionMain Functions
+
+    //! \section Drawing 
+    GL_CKADDEXPORT ( int, Begin ); //! primitive constants are enumerated below
     GL_CKADDPARAM  ( uint, which );
 
-    GL_CKADDEXPORT ( int, BindTexture );
-    GL_CKADDPARAM  ( uint, target ); 
-    GL_CKADDPARAM  ( uint, texture ); 
-
-    GL_CKADDEXPORT ( void, Clear );
-    GL_CKADDPARAM( uint, mask );  //do we have a bitfield op?
-
-    GL_CKADDEXPORT ( void, ClearColor );
-    GL_CKADDPARAM( float, r ); 
-    GL_CKADDPARAM( float, g ); 
-    GL_CKADDPARAM( float, b ); 
-    GL_CKADDPARAM( float, a ); 
+    GL_CKADDEXPORT ( void, End );
 
     GL_CKADDEXPORT ( void, Color3f );
     GL_CKADDPARAM( float, r ); 
@@ -376,30 +366,74 @@ CK_DLL_QUERY
     GL_CKADDPARAM( float, b ); 
     GL_CKADDPARAM( float, a ); 
 
+    GL_CKADDEXPORT ( int, Normal3f );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+
+    GL_CKADDEXPORT ( int, TexCoord1f );
+    GL_CKADDPARAM ( float, u );
+
+    GL_CKADDEXPORT ( int, TexCoord2f );
+    GL_CKADDPARAM ( float, u );
+    GL_CKADDPARAM ( float, v );
+
+
+    GL_CKADDEXPORT ( int, Vertex3f );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
+
+    GL_CKADDEXPORT ( int, Vertex2f );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+
+
+    //! \section Draw State
+
+
+    GL_CKADDEXPORT ( void, Clear );
+    GL_CKADDPARAM( uint, mask );  //do we have a bitfield op?
+
+    GL_CKADDEXPORT ( void, ClearColor );
+    GL_CKADDPARAM( float, r ); 
+    GL_CKADDPARAM( float, g ); 
+    GL_CKADDPARAM( float, b ); 
+    GL_CKADDPARAM( float, a ); 
+
+    GL_CKADDEXPORT ( int, FrontFace );
+    GL_CKADDPARAM(uint, mode);
+
+    GL_CKADDEXPORT ( int, LineWidth );
+    GL_CKADDPARAM ( float, width );
+
+    GL_CKADDEXPORT ( int, PolygonMode );
+    GL_CKADDPARAM ( uint, face );
+    GL_CKADDPARAM ( uint, mode );
+
+    //! \section Attributes and State
+
+    GL_CKADDEXPORT ( int, PushAttrib );
+    GL_CKADDPARAM ( uint, which );
+
+    GL_CKADDEXPORT ( int, PopAttrib );
+
     GL_CKADDEXPORT ( void, Disable );
     GL_CKADDPARAM( uint, cap ); 
 
     GL_CKADDEXPORT ( void, Enable );
     GL_CKADDPARAM( uint, cap ); 
 
-    GL_CKADDEXPORT ( void, End );
 
     GL_CKADDEXPORT ( int, Flush );
-
-    GL_CKADDEXPORT ( int, FrontFace );
-    GL_CKADDPARAM(uint, mode);
-
-    GL_CKADDEXPORT ( int, Frustum );
-    GL_CKADDPARAM(float, left );
-    GL_CKADDPARAM(float, right );
-    GL_CKADDPARAM(float, bottom );
-    GL_CKADDPARAM(float, top );
-    GL_CKADDPARAM(float, znear );
-    GL_CKADDPARAM(float, zfar );
 
     //let's do gl gets... but we need arrays, and then pointers to them!
     //GL_CKADDEXPORT ( int, GetBooleanv );
     GL_CKADDEXPORT( uint, GetError );
+
+
+    //! \section Lighting 
 
     GL_CKADDEXPORT ( int, Lighti );
     GL_CKADDPARAM ( uint, light );
@@ -411,19 +445,30 @@ CK_DLL_QUERY
     GL_CKADDPARAM ( uint, pname );
     GL_CKADDPARAM ( float, param );
 
-    GL_CKADDEXPORT ( int, LineWidth );
-    GL_CKADDPARAM ( float, width );
+    GL_CKADDEXPORT ( int, ShadeModel );
+    GL_CKADDPARAM ( uint, mode );
 
-    GL_CKADDEXPORT ( int, LoadIdentity );
+    //! \section Matrices and Transformations
 
     GL_CKADDEXPORT ( int, MatrixMode );
     GL_CKADDPARAM ( uint, mode );
 
-    GL_CKADDEXPORT ( int, Normal3f );
-    GL_CKADDPARAM ( float, x );
-    GL_CKADDPARAM ( float, y );
-    GL_CKADDPARAM ( float, z );
-    
+    GL_CKADDEXPORT ( int, LoadIdentity );
+
+    GL_CKADDEXPORT ( int, PushMatrix );
+
+    GL_CKADDEXPORT ( int, PopMatrix );
+
+    //! \section View ( other functions available in glu )
+
+    GL_CKADDEXPORT ( int, Frustum );
+    GL_CKADDPARAM(float, left );
+    GL_CKADDPARAM(float, right );
+    GL_CKADDPARAM(float, bottom );
+    GL_CKADDPARAM(float, top );
+    GL_CKADDPARAM(float, znear );
+    GL_CKADDPARAM(float, zfar );
+
     GL_CKADDEXPORT ( int, Ortho );
     GL_CKADDPARAM(float, left );
     GL_CKADDPARAM(float, right );
@@ -432,19 +477,13 @@ CK_DLL_QUERY
     GL_CKADDPARAM(float, znear );
     GL_CKADDPARAM(float, zfar );
     
+    GL_CKADDEXPORT ( int, Viewport );
+    GL_CKADDPARAM ( int, x );
+    GL_CKADDPARAM ( int, y );
+    GL_CKADDPARAM ( uint, width );
+    GL_CKADDPARAM ( uint, height );
 
-    GL_CKADDEXPORT ( int, PushAttrib );
-    GL_CKADDPARAM ( uint, which );
-
-    GL_CKADDEXPORT ( int, PopAttrib );
-
-    GL_CKADDEXPORT ( int, PushMatrix );
-
-    GL_CKADDEXPORT ( int, PopMatrix );
-
-    GL_CKADDEXPORT ( int, PolygonMode );
-    GL_CKADDPARAM ( uint, face );
-    GL_CKADDPARAM ( uint, mode );
+    //! \section Transforms
 
     GL_CKADDEXPORT ( int, Rotatef );
     GL_CKADDPARAM ( float, degrees );
@@ -457,15 +496,16 @@ CK_DLL_QUERY
     GL_CKADDPARAM ( float, y );
     GL_CKADDPARAM ( float, z );
 
-    GL_CKADDEXPORT ( int, ShadeModel );
-    GL_CKADDPARAM ( uint, mode );
+    GL_CKADDEXPORT ( int, Translatef );
+    GL_CKADDPARAM ( float, x );
+    GL_CKADDPARAM ( float, y );
+    GL_CKADDPARAM ( float, z );
 
-    GL_CKADDEXPORT ( int, TexCoord1f );
-    GL_CKADDPARAM ( float, u );
+    //! \section Texture State
 
-    GL_CKADDEXPORT ( int, TexCoord2f );
-    GL_CKADDPARAM ( float, u );
-    GL_CKADDPARAM ( float, v );
+    GL_CKADDEXPORT ( int, BindTexture );
+    GL_CKADDPARAM  ( uint, target ); 
+    GL_CKADDPARAM  ( uint, texture ); 
 
     GL_CKADDEXPORT ( int, TexImage1D );
     GL_CKADDPARAM ( uint, target );
@@ -488,32 +528,16 @@ CK_DLL_QUERY
     GL_CKADDPARAM ( uint, type );
     GL_CKADDPARAM ( void, pixels ); // void*!!
 
-    GL_CKADDEXPORT ( int, Translatef );
-    GL_CKADDPARAM ( float, x );
-    GL_CKADDPARAM ( float, y );
-    GL_CKADDPARAM ( float, z );
 
-    GL_CKADDEXPORT ( int, Vertex3f );
-    GL_CKADDPARAM ( float, x );
-    GL_CKADDPARAM ( float, y );
-    GL_CKADDPARAM ( float, z );
-
-    GL_CKADDEXPORT ( int, Vertex2f );
-    GL_CKADDPARAM ( float, x );
-    GL_CKADDPARAM ( float, y );
-
-    GL_CKADDEXPORT ( int, Viewport );
-    GL_CKADDPARAM ( int, x );
-    GL_CKADDPARAM ( int, y );
-    GL_CKADDPARAM ( uint, width );
-    GL_CKADDPARAM ( uint, height );
-    
+    //! \sectionMain Constants    
     //export!!!
 /* Boolean values */
+//! \section Booleans
 	QUERY->add_export( QUERY, "uint", "FALSE", (f_ck_func)&gl_FALSE, FALSE );
 	QUERY->add_export( QUERY, "uint", "TRUE", (f_ck_func)&gl_TRUE, FALSE );
 
 /* Primitives */
+//! \section Drawing Primitives
 	QUERY->add_export( QUERY, "uint", "POINTS", (f_ck_func)&gl_POINTS, FALSE );
 	QUERY->add_export( QUERY, "uint", "LINES", (f_ck_func)&gl_LINES, FALSE );
 	QUERY->add_export( QUERY, "uint", "LINE_LOOP", (f_ck_func)&gl_LINE_LOOP, FALSE );
@@ -526,6 +550,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "POLYGON", (f_ck_func)&gl_POLYGON, FALSE );
 
 /* Data types */
+//! \section Data Types
 	QUERY->add_export( QUERY, "uint", "BYTE", (f_ck_func)&gl_BYTE, FALSE );
 	QUERY->add_export( QUERY, "uint", "UNSIGNED_BYTE", (f_ck_func)&gl_UNSIGNED_BYTE, FALSE );
 	QUERY->add_export( QUERY, "uint", "SHORT", (f_ck_func)&gl_SHORT, FALSE );
@@ -539,18 +564,21 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "4_BYTES", (f_ck_func)&gl_4_BYTES, FALSE );
 
 /* Matrix Mode */
+//! \section Matrix Mode
 	QUERY->add_export( QUERY, "uint", "MATRIX_MODE", (f_ck_func)&gl_MATRIX_MODE, FALSE );
 	QUERY->add_export( QUERY, "uint", "MODELVIEW", (f_ck_func)&gl_MODELVIEW, FALSE );
 	QUERY->add_export( QUERY, "uint", "PROJECTION", (f_ck_func)&gl_PROJECTION, FALSE );
 	QUERY->add_export( QUERY, "uint", "TEXTURE", (f_ck_func)&gl_TEXTURE, FALSE );
 
 /* Points */
+//! \section Points
 	QUERY->add_export( QUERY, "uint", "POINT_SMOOTH", (f_ck_func)&gl_POINT_SMOOTH, FALSE );
 	QUERY->add_export( QUERY, "uint", "POINT_SIZE", (f_ck_func)&gl_POINT_SIZE, FALSE );
 	QUERY->add_export( QUERY, "uint", "POINT_SIZE_GRANULARITY", (f_ck_func)&gl_POINT_SIZE_GRANULARITY, FALSE );
 	QUERY->add_export( QUERY, "uint", "POINT_SIZE_RANGE", (f_ck_func)&gl_POINT_SIZE_RANGE, FALSE );
 
 /* Lines */
+//! \section Lines
 	QUERY->add_export( QUERY, "uint", "LINE_SMOOTH", (f_ck_func)&gl_LINE_SMOOTH, FALSE );
 	QUERY->add_export( QUERY, "uint", "LINE_STIPPLE", (f_ck_func)&gl_LINE_STIPPLE, FALSE );
 	QUERY->add_export( QUERY, "uint", "LINE_STIPPLE_PATTERN", (f_ck_func)&gl_LINE_STIPPLE_PATTERN, FALSE );
@@ -560,6 +588,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "LINE_WIDTH_RANGE", (f_ck_func)&gl_LINE_WIDTH_RANGE, FALSE );
 
 /* Polygons */
+//! \section Polygons
 	QUERY->add_export( QUERY, "uint", "POINT", (f_ck_func)&gl_POINT, FALSE );
 	QUERY->add_export( QUERY, "uint", "LINE", (f_ck_func)&gl_LINE, FALSE );
 	QUERY->add_export( QUERY, "uint", "FILL", (f_ck_func)&gl_FILL, FALSE );
@@ -581,6 +610,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "POLYGON_OFFSET_FILL", (f_ck_func)&gl_POLYGON_OFFSET_FILL, FALSE );
 
 /* Display Lists */
+//! \section Display Lists
 	QUERY->add_export( QUERY, "uint", "COMPILE", (f_ck_func)&gl_COMPILE, FALSE );
 	QUERY->add_export( QUERY, "uint", "COMPILE_AND_EXECUTE", (f_ck_func)&gl_COMPILE_AND_EXECUTE, FALSE );
 	QUERY->add_export( QUERY, "uint", "LIST_BASE", (f_ck_func)&gl_LIST_BASE, FALSE );
@@ -588,6 +618,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "LIST_MODE", (f_ck_func)&gl_LIST_MODE, FALSE );
 
 /* Depth buffer */
+//! \section Depth Buffer
 	QUERY->add_export( QUERY, "uint", "NEVER", (f_ck_func)&gl_NEVER, FALSE );
 	QUERY->add_export( QUERY, "uint", "LESS", (f_ck_func)&gl_LESS, FALSE );
 	QUERY->add_export( QUERY, "uint", "EQUAL", (f_ck_func)&gl_EQUAL, FALSE );
@@ -605,6 +636,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "DEPTH_COMPONENT", (f_ck_func)&gl_DEPTH_COMPONENT, FALSE );
 
 /* Lighting */
+//! \section Lighting
 	QUERY->add_export( QUERY, "uint", "LIGHTING", (f_ck_func)&gl_LIGHTING, FALSE );
 	QUERY->add_export( QUERY, "uint", "LIGHT0", (f_ck_func)&gl_LIGHT0, FALSE );
 	QUERY->add_export( QUERY, "uint", "LIGHT1", (f_ck_func)&gl_LIGHT1, FALSE );
@@ -641,6 +673,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "NORMALIZE", (f_ck_func)&gl_NORMALIZE, FALSE );
 
 /* Blending */
+//! \section Blending
 	QUERY->add_export( QUERY, "uint", "BLEND", (f_ck_func)&gl_BLEND, FALSE );
 	QUERY->add_export( QUERY, "uint", "BLEND_SRC", (f_ck_func)&gl_BLEND_SRC, FALSE );
 	QUERY->add_export( QUERY, "uint", "BLEND_DST", (f_ck_func)&gl_BLEND_DST, FALSE );
@@ -661,6 +694,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "ONE_MINUS_CONSTANT_ALPHA", (f_ck_func)&gl_ONE_MINUS_CONSTANT_ALPHA, FALSE );
 
 /* Buffers, Pixel Drawing/Reading */
+//! \section Buffers, Pixel Draw/Fetch
 	QUERY->add_export( QUERY, "uint", "NONE", (f_ck_func)&gl_NONE, FALSE );
 	QUERY->add_export( QUERY, "uint", "LEFT", (f_ck_func)&gl_LEFT, FALSE );
 	QUERY->add_export( QUERY, "uint", "RIGHT", (f_ck_func)&gl_RIGHT, FALSE );
@@ -699,6 +733,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "RGBA", (f_ck_func)&gl_RGBA, FALSE );
 
 /* Gets */
+//! \section Get Values
 	QUERY->add_export( QUERY, "uint", "ATTRIB_STACK_DEPTH", (f_ck_func)&gl_ATTRIB_STACK_DEPTH, FALSE );
 	QUERY->add_export( QUERY, "uint", "CLIENT_ATTRIB_STACK_DEPTH", (f_ck_func)&gl_CLIENT_ATTRIB_STACK_DEPTH, FALSE );
 	QUERY->add_export( QUERY, "uint", "COLOR_CLEAR_VALUE", (f_ck_func)&gl_COLOR_CLEAR_VALUE, FALSE );
@@ -728,6 +763,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "VIEWPORT", (f_ck_func)&gl_VIEWPORT, FALSE );
 
 /* Texture mapping */
+//! \section Texture Mapping
 	QUERY->add_export( QUERY, "uint", "TEXTURE_ENV", (f_ck_func)&gl_TEXTURE_ENV, FALSE );
 	QUERY->add_export( QUERY, "uint", "TEXTURE_ENV_MODE", (f_ck_func)&gl_TEXTURE_ENV_MODE, FALSE );
 	QUERY->add_export( QUERY, "uint", "TEXTURE_1D", (f_ck_func)&gl_TEXTURE_1D, FALSE );
@@ -773,6 +809,7 @@ CK_DLL_QUERY
 	QUERY->add_export( QUERY, "uint", "TEXTURE_GEN_Q", (f_ck_func)&gl_TEXTURE_GEN_Q, FALSE );
 
 /* glPush/PopAttrib bits */
+//! \section Attributes
 	QUERY->add_export( QUERY, "uint", "CURRENT_BIT", (f_ck_func)&gl_CURRENT_BIT, FALSE );
 	QUERY->add_export( QUERY, "uint", "POINT_BIT", (f_ck_func)&gl_POINT_BIT, FALSE );
 	QUERY->add_export( QUERY, "uint", "LINE_BIT", (f_ck_func)&gl_LINE_BIT, FALSE );
