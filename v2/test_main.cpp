@@ -152,7 +152,7 @@ int main( int argc, char ** argv )
     }
     
     // test the parsing
-    if( !test_parse( argc > 1 ? argv[1] : "a.ck" ) )
+    if( !test_parse( argc > 1 ? argv[1] : "test/08.ck" ) )
     {
         fprintf( stderr, "parse failed...\n" );
         return 1;
@@ -182,6 +182,13 @@ int main( int argc, char ** argv )
     }
 
     fprintf( stderr, "emit success!\n" );
+
+    // unload the context from the type-checker
+    if( !type_engine_unload_context( env ) )
+    {
+        fprintf( stderr, "error unloading context...\n" );
+        return 1;
+    }
 
     // spork the code into shred
     shred = vm->spork( code, NULL );

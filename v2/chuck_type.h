@@ -439,6 +439,10 @@ struct Chuck_Func : public Chuck_VM_Object
 Chuck_Env * type_engine_init( Chuck_VM * vm );
 // shutdown the type engine
 void type_engine_shutdown( Chuck_Env * env );
+// load a context to be type-checked or emitted
+t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context );
+// unload a context after being emitted
+t_CKBOOL type_engine_unload_context( Chuck_Env * env );
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
 // type check a statement

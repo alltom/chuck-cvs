@@ -282,18 +282,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     context->add_ref();
     // save a reference to the parse tree
     context->parse_tree = prog;
-    // append the context to the env
-    env->contexts.push_back( context );
-    // make the context current
-    env->context = context;
-    // push the context scope
-    env->context->nspc.value.push();
-    // push the current namespaces
-    env->stack.push_back( env->curr );
-    // set the parent
-    context->nspc.parent = env->curr;
-    // set the context's namespace as current
-    env->curr = &(context->nspc);
+    // load the context
+    type_engine_load_context( env, context );
 
     // go through each of the program sections
     while( prog && ret )
@@ -326,17 +316,6 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     assert( env->contexts.size() != 0 );
     assert( env->contexts.back() == context );
 
-    // pop the context scope
-    env->context->nspc.value.pop();
-    // restore the current namespace
-    env->curr = env->stack.back();
-    // pop the namespace stack
-    env->stack.pop_back();
-
-    // make sure the nspc is ok
-    assert( env->stack.size() != 0 );
-    // assert( env->stack.back() == &(context->nspc) );
-
     // check to see if everything passed
     if( !ret )
     {
@@ -350,6 +329,54 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     }
 
     return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_load_context()
+// desc: call this before context is type-checked
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
+{
+    // append the context to the env
+    env->contexts.push_back( context );
+    // make the context current
+    env->context = context;
+    // push the context scope
+    env->context->nspc.value.push();
+    // push the current namespaces
+    env->stack.push_back( env->curr );
+    // set the parent
+    context->nspc.parent = env->curr;
+    // set the context's namespace as current
+    env->curr = &(context->nspc);
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_unload_context()
+// desc: call this after context is emitted
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_unload_context( Chuck_Env * env )
+{
+    // pop the context scope
+    env->context->nspc.value.pop();
+    // restore the current namespace
+    env->curr = env->stack.back();
+    // pop the namespace stack
+    env->stack.pop_back();
+
+    // make sure the nspc is ok
+    assert( env->stack.size() != 0 );
+    // assert( env->stack.back() == &(context->nspc) );
+    
+    return TRUE;
 }
 
 
