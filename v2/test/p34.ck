@@ -3,10 +3,10 @@
 int myglobal;
 
 fun void changeglobal ( ) { 
-	10 => myglobal;
+	0 => myglobal;
 }
 
-5 => myglobal;
+10 => myglobal;
 changeglobal();
 
 1.0::second => dur onesec;

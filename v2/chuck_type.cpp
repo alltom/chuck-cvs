@@ -2495,6 +2495,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         }
 
         // update virtual table
+        func->vt_index = value->func_ref->vt_index;
         assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
         env->curr->obj_v_table.funcs[func->vt_index] = func;
     }
@@ -2533,6 +2534,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     value->owner = env->curr;
     value->owner_class = env->class_def;
     value->is_member = !f->static_decl && (env->class_def != NULL);
+    // is global context
+    value->is_context_global = env->class_def == NULL;
     // remember the func
     value->func_ref = func;
     // remember the value

@@ -775,10 +775,10 @@ void Chuck_Instr_Reg_Pop_Word2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Mem_Set_Imm::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT * mem_sp = (t_CKUINT *)(shred->mem->sp + m_offset);
     
     // set
-    *(mem_sp + m_offset) = m_val;
+    *(mem_sp) = m_val;
 }
 
 
@@ -790,10 +790,10 @@ void Chuck_Instr_Mem_Set_Imm::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Mem_Set_Imm2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKFLOAT *& mem_sp = (t_CKFLOAT *&)shred->mem->sp;
+    t_CKFLOAT * mem_sp = (t_CKFLOAT *)(shred->mem->sp + m_offset);
     
-    // pop word from reg stack 
-    push_( mem_sp, m_val );
+    // set
+    *(mem_sp) = m_val;
 }
 
 

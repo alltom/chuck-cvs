@@ -1,7 +1,7 @@
 // class with function taking class as argument
 
 class Other { 
-	int x;
+	10 => int x;
 	int y;
 }
 
@@ -18,3 +18,5 @@ Other a;
 Obj o;
 o.set(a);
 
+
+if( o.x != 10 ) while( true );
