@@ -182,11 +182,14 @@ struct Chuck_Context
     Chuck_Namespace nspc;
 	// code
 	Chuck_VM_Code * code;
+    
+    // things to delete with the context
+    vector<t_CKTYPE *> new_types;
 
 	// constructor
 	Chuck_Context() { parse_tree = NULL; code = NULL; }
 	// destructor
-	~Chuck_Context() { }
+	~Chuck_Context();
 };
 
 

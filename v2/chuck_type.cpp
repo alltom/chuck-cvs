@@ -1686,3 +1686,19 @@ t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) <= (*rhs); }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Context()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Context::~Chuck_Context()
+{
+    // delete the types
+    for( int i = 0; i < new_types.size(); i++ )
+        delete new_types[i];
+
+    // TODO: delete abstract syntax tree
+}
