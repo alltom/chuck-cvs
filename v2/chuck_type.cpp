@@ -1593,6 +1593,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 {
     Chuck_Value * value = NULL;
     Chuck_Func * func = NULL;
+    a_Arg_List arg_list = NULL;
+    t_CKUINT count = 0;
 
     // see if we are already in a function definition
     if( env->func != NULL )
@@ -1611,7 +1613,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // make sure a code segment is in stmt - else we should push scope
-    assert( !f->code || f->code.s_type == ae_stmt_code );
+    assert( !f->code || f->code->s_type == ae_stmt_code );
 
     // make a new func object
     func = new Chuck_Func;
@@ -1644,8 +1646,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // TODO: deal with arrays
 
     // look up types for the function arguments
-    a_Arg_List arg_list = f->arg_list;
-    unsigned int count = 1;
+    arg_list = f->arg_list;
+    count = 1;
     f->stack_depth = 0;
     while( arg_list )
     {
