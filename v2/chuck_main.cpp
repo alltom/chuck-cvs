@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fstream>
 
 #include "chuck_type.h"
 #include "chuck_emit.h"
@@ -18,7 +19,6 @@
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
 
-#include <fstream>
 
 
 // current version
