@@ -32,8 +32,9 @@
 //-----------------------------------------------------------------------------
 #include "ulib_math.h"
 #include <math.h>
-#include "util_math.h"
-
+extern "C" { 
+   #include "util_math.h"
+}
 #if __WINDOWS_DS__
 #include <windows.h>
 #endif

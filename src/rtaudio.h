@@ -190,9 +190,9 @@ protected:
     RtAudioFormat deviceFormat[2]; // Playback and record, respectively.
     StreamMutex mutex;
     CallbackInfo callbackInfo;
-
+    //XXX VC6 throws an error using UNINITIALIZED ( protected member ) 
     RtApiStream()
-      :apiHandle(0), userBuffer(0), deviceBuffer(0), sub_mode(UNINITIALIZED) {}
+       :apiHandle(0), userBuffer(0), deviceBuffer(0), sub_mode((enum RtApi::StreamMode)-75) {}
     //      mode(UNINITIALIZED), state(STREAM_STOPPED),
   };
 

@@ -34,8 +34,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+extern "C" { 
 #include "util_math.h"
-
+}
 #if __WINDOWS_DS__
 #include <windows.h>
 
