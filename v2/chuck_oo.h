@@ -38,10 +38,13 @@
 #include <map>
 
 
-
-
 // forward reference
+struct Chuck_Type;
+struct Chuck_Value;
 struct Chuck_Func;
+struct Chuck_Namespace;
+struct Chuck_Context;
+struct Chuck_Env;
 
 
 //-----------------------------------------------------------------------------
@@ -55,13 +58,17 @@ public:
     virtual ~Chuck_VM_Object() { }
 
 public:
-    void init( t_CKBOOL pooled = FALSE );
+    void init();
     void add_ref();
     void release();
 
 public:
     t_CKUINT m_ref_count;
     t_CKBOOL m_pooled;
+
+public:
+    // where
+    std::vector<Chuck_VM_Object *> * m_v_ref;
 };
 
 
@@ -79,7 +86,7 @@ public:
 public:
     void add_object( Chuck_VM_Object * obj );
     void free_object( Chuck_VM_Object * obj );
-    
+
 protected:
     static Chuck_VM_Alloc * our_instance;
 
@@ -88,7 +95,20 @@ protected:
     ~Chuck_VM_Alloc();
 
 protected: // data
-    std::map<Chuck_VM_Object, void *> m_objects;
+    std::map<Chuck_VM_Object *, void *> m_objects;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_VTable
+// desc: virtual table
+//-----------------------------------------------------------------------------
+struct Chuck_VTable
+{
+public:
+    std::vector<Chuck_Func *> funcs;
 };
 
 
@@ -101,8 +121,9 @@ protected: // data
 struct Chuck_Object : Chuck_VM_Object
 {
 public:
-    Chuck_Func ** m_vtable;
-    t_CKUINT m_vtable_size;
+    Chuck_Object();
+public:
+    Chuck_VTable * vtable;
 };
 
 
