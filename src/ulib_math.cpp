@@ -31,17 +31,13 @@
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ulib_math.h"
-#include <math.h>
-extern "C" { 
-   #include "util_math.h"
-}
-#if __WINDOWS_DS__
-#include <windows.h>
-#endif
+#include "util_math.h"
+
 
 static double g_pi = 3.14159265358979323846;
 static double g_twopi = 2.0 * 3.14159265358979323846;
 static double g_e = ::exp( 1.0 );
+
 
 // query
 DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
