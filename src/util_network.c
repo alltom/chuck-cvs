@@ -70,8 +70,6 @@ struct ck_socket_
 //-----------------------------------------------------------------------------
 ck_socket ck_udp_create( )
 {
-
-
     ck_socket sock = (ck_socket)calloc( 1, sizeof( struct ck_socket_ ) );
 
 #ifdef __PLATFORM_WIN32__  //winsock init
@@ -90,7 +88,7 @@ ck_socket ck_udp_create( )
 // name: ck_connect2()
 // desc: connect to a server
 //-----------------------------------------------------------------------------
-BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size ) 
+__BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size ) 
 {
     int ret = connect( sock->sock, addr, size );
 
@@ -104,7 +102,7 @@ BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size )
 // name: ck_connect()
 // desc: connect to a server
 //-----------------------------------------------------------------------------
-BOOL ck_connect( ck_socket sock, const char * hostname, int port )
+__BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 {
     int ret;
     struct hostent * host;
@@ -122,7 +120,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     {
         sock->sock_in.sin_addr.s_addr = inet_addr( hostname );
         if( sock->sock_in.sin_addr.s_addr == -1 )
-            return FALSE;
+            return __FALSE;
     }
     else
     {
@@ -146,7 +144,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 // name: ck_bind()
 // desc: bind to a port
 //-----------------------------------------------------------------------------
-BOOL ck_bind( ck_socket sock, int port ) 
+__BOOL ck_bind( ck_socket sock, int port ) 
 {
     int ret;
 #ifdef __PLATFORM_WIN32__
