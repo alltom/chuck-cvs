@@ -770,6 +770,10 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
             return NULL;
         }
 
+        // error
+        if( !curr->type )
+            return FALSE;
+
         // advance to next expression
         curr = curr->next;
     }
