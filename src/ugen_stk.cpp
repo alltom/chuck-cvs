@@ -6241,7 +6241,7 @@ void ADSR :: keyOff()
 void ADSR :: setAttackRate(MY_FLOAT aRate)
 {
   if (aRate < 0.0) {
-    printf("ADSR: negative rates not allowed ... correcting!\n");
+    printf("[chuck](via ADSR): negative rates not allowed ... correcting!\n");
     attackRate = -aRate;
   }
   else attackRate = aRate;
@@ -6250,7 +6250,7 @@ void ADSR :: setAttackRate(MY_FLOAT aRate)
 void ADSR :: setDecayRate(MY_FLOAT aRate)
 {
   if (aRate < 0.0) {
-    printf("ADSR: negative rates not allowed ... correcting!\n");
+    printf("[chuck](via ADSR): negative rates not allowed ... correcting!\n");
     decayRate = -aRate;
   }
   else decayRate = aRate;
@@ -6259,7 +6259,7 @@ void ADSR :: setDecayRate(MY_FLOAT aRate)
 void ADSR :: setSustainLevel(MY_FLOAT aLevel)
 {
   if (aLevel < 0.0 ) {
-    printf("ADSR: sustain level out of range ... correcting!\n");
+    printf("[chuck](via ADSR): sustain level out of range ... correcting!\n");
     sustainLevel = (MY_FLOAT)  0.0;
   }
   else sustainLevel = aLevel;
@@ -6268,7 +6268,7 @@ void ADSR :: setSustainLevel(MY_FLOAT aLevel)
 void ADSR :: setReleaseRate(MY_FLOAT aRate)
 {
   if (aRate < 0.0) {
-    printf("ADSR: negative rates not allowed ... correcting!\n");
+    printf("[chuck](via ADSR): negative rates not allowed ... correcting!\n");
     releaseRate = -aRate;
   }
   else releaseRate = aRate;
@@ -6277,7 +6277,7 @@ void ADSR :: setReleaseRate(MY_FLOAT aRate)
 void ADSR :: setAttackTime(MY_FLOAT aTime)
 {
   if (aTime < 0.0) {
-    printf("ADSR: negative rates not allowed ... correcting!\n");
+    printf("[chuck](via ADSR): negative rates not allowed ... correcting!\n");
     attackRate = 1.0 / ( -aTime * Stk::sampleRate() );
   }
   else attackRate = 1.0 / ( aTime * Stk::sampleRate() );
@@ -6286,7 +6286,7 @@ void ADSR :: setAttackTime(MY_FLOAT aTime)
 void ADSR :: setDecayTime(MY_FLOAT aTime)
 {
   if (aTime < 0.0) {
-    printf("ADSR: negative times not allowed ... correcting!\n");
+    printf("[chuck](via ADSR): negative times not allowed ... correcting!\n");
     decayRate = 1.0 / ( -aTime * Stk::sampleRate() );
   }
   else decayRate = 1.0 / ( aTime * Stk::sampleRate() );
@@ -6295,7 +6295,7 @@ void ADSR :: setDecayTime(MY_FLOAT aTime)
 void ADSR :: setReleaseTime(MY_FLOAT aTime)
 {
   if (aTime < 0.0) {
-    printf("ADSR: negative times not allowed ... correcting!\n");
+    printf("[chuck](via ADSR): negative times not allowed ... correcting!\n");
     releaseRate = sustainLevel / ( -aTime * Stk::sampleRate() );
   }
   else releaseRate = sustainLevel / ( aTime * Stk::sampleRate() );
@@ -8819,7 +8819,7 @@ void Envelope :: keyOff(void)
 void Envelope :: setRate(MY_FLOAT aRate)
 {
   if (aRate < 0.0) {
-    printf("Envelope: negative rates not allowed ... correcting!\n");
+    printf("[chuck](via Envelope): negative rates not allowed ... correcting!\n");
     rate = -aRate;
   }
   else
@@ -8829,7 +8829,7 @@ void Envelope :: setRate(MY_FLOAT aRate)
 void Envelope :: setTime(MY_FLOAT aTime)
 {
   if (aTime < 0.0) {
-    printf("Envelope: negative times not allowed ... correcting!\n");
+    printf("[chuck](via Envelope): negative times not allowed ... correcting!\n");
     rate = 1.0 / (-aTime * Stk::sampleRate());
   }
   else
@@ -13114,8 +13114,8 @@ int subStrings(char *aString,
   temp = nextChar(aString);
   if (temp >= __SK_MAX_SIZE_) {
     notDone = 0;
-    printf("Confusion here: Ignoring this line\n");
-    printf("%s\n",aString);
+    // printf("Confusion here: Ignoring this line\n");
+    // printf("%s\n",aString);
     return howMany;
   }
   point = temp;
@@ -16894,7 +16894,7 @@ MY_FLOAT Whistle :: tick()
     frameCount += 1;
     if (frameCount >= (1470 / subSample))	{
       frameCount = 0;
-      printf("%f %f %f\n",tempVectorP->getX(),tempVectorP->getY(),envOut);
+      // printf("%f %f %f\n",tempVectorP->getX(),tempVectorP->getY(),envOut);
       fflush(stdout);
     }
 #endif

@@ -57,6 +57,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, impulse_ctor, impulse_dtor, impulse_tick, NULL );
     // ctrl func
     QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "value" );
+    QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "next" );
     
     // add step
     QUERY->ugen_add( QUERY, "step", NULL );
@@ -64,6 +65,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, step_ctor, step_dtor, step_tick, NULL );
     // ctrl func
     QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "value" );
+    QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "next" );
 
     // add gain
     QUERY->ugen_add( QUERY, "gain", NULL );
