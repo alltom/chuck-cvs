@@ -248,7 +248,7 @@ public: // init
                          t_CKUINT srate = 44100,
                          t_CKUINT buffer_size = 512, t_CKUINT num_buffers = 4,
                          t_CKUINT dac = 0, t_CKUINT adc = 0, 
-                         t_CKUINT priority = 0xffffffff );
+                         t_CKINT priority = 0x7fffffff );
     t_CKBOOL shutdown();
 
 public: // shreds

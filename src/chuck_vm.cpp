@@ -144,7 +144,11 @@ UGEN_TICK __bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
 
 // static
+#ifdef __MACOSX_CORE__
 t_CKINT Chuck_VM::our_priority = 95;
+#else
+t_CKINT Chuck_VM::our_priority = 0x7fffffff;
+#endif
 
 
 #ifndef __WINDOWS_DS__
@@ -190,7 +194,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT srate,
                                t_CKUINT buffer_size, t_CKUINT num_buffers,
-                               t_CKUINT dac, t_CKUINT adc, t_CKUINT priority )
+                               t_CKUINT dac, t_CKUINT adc, t_CKINT priority )
 {
     if( m_init )
     {
@@ -200,7 +204,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 
 #ifndef __WINDOWS_DS__
     // boost thread priority
-    if( priority != 0xffffffff && !set_priority( priority, this ) )
+    if( priority != 0x7fffffff && !set_priority( priority, this ) )
         return FALSE;
 #endif
 
