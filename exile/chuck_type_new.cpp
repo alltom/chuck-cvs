@@ -32,3 +32,16 @@
 //       Autumn 2004 - rewrite
 //-----------------------------------------------------------------------------
 #include "chuck_type_new.h"
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_type()
+// desc: lookup type in the env
+//-----------------------------------------------------------------------------
+Chuck_Type * Chuck_Env::lookup_type( const string & name, t_CKBOOL climb )
+{
+    Chuck_Type * t = type.lookup( name );
+    if( climb && !t && parent )
+        return parent->lookup_type( name, climb );
+    return t;
+}

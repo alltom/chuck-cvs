@@ -126,12 +126,12 @@ struct Chuck_Func;
 struct Chuck_Env
 {
     // maps
-    Chuck_Scope<Chuck_Type *> * type;
-    Chuck_Scope<Chuck_Value *> * value;
-    Chuck_Scope<Chuck_Func *> * func;
-    Chuck_Scope<Chuck_Env *> * class_defs;
-    Chuck_Scope<Chuck_Env *> * nspc_defs;
-    Chuck_Scope<void *> * addr;
+    Chuck_Scope<Chuck_Type *> type;
+    Chuck_Scope<Chuck_Value *> value;
+    Chuck_Scope<Chuck_Func *> func;
+    Chuck_Scope<Chuck_Env *> class_defs;
+    Chuck_Scope<Chuck_Env *> nspc_defs;
+    Chuck_Scope<void *> addr;
 
     // name
     string name;
