@@ -43,7 +43,7 @@ char g_filename[1024] = "";
 #if defined(__MACOSX_CORE__)
 t_CKUINT g_priority = 95;
 #else
-t_CKUINT g_priority = 0xffffffff;
+t_CKUINT g_priority = 0x7fffffff;
 #endif
 
 
@@ -137,8 +137,8 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_audio = TRUE;
     t_CKBOOL vm_halt = TRUE;
     t_CKUINT srate = SAMPLING_RATE_DEFAULT;
-    t_CKUINT buffer_size = 1024;
-    t_CKUINT num_buffers = 8;
+    t_CKUINT buffer_size = BUFFER_SIZE_DEFAULT;
+    t_CKUINT num_buffers = NUM_BUFFERS_DEFAULT;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
     
@@ -152,7 +152,7 @@ int main( int argc, char ** argv )
     }
     
     // test the parsing
-    if( !test_parse( argv[1] ) )
+    if( !test_parse( argc > 1 ? argv[1] : "a.ck" ) )
     {
         fprintf( stderr, "parse failed...\n" );
         return 1;

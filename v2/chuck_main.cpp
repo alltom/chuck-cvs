@@ -90,9 +90,9 @@ CHUCK_THREAD g_tid = 0;
 char g_host[256] = "127.0.0.1";
 int g_port = 8888;
 #if defined(__MACOSX_CORE__)
-t_CKUINT g_priority = 95;
+t_CKINT g_priority = 95;
 #else
-t_CKUINT g_priority = 0xffffffff;
+t_CKINT g_priority = 0x7fffffff;
 #endif
 
 
@@ -815,7 +815,7 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_audio = TRUE;
     t_CKBOOL vm_halt = TRUE;
     t_CKUINT srate = SAMPLING_RATE_DEFAULT;
-    t_CKUINT buffer_size = 1024;
+    t_CKUINT buffer_size = BUFFER_SIZE_DEFAULT;
     t_CKUINT num_buffers = 8;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
@@ -860,7 +860,7 @@ int main( int argc, char ** argv )
             else if( !strncmp(argv[i], "--adc", 5) )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--level", 7) )
-                g_priority = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : 0xffffffff;
+                g_priority = atoi( argv[i]+7 );
             else if( !strncmp(argv[i], "--remote", 8) )
                 strcpy( g_host, argv[i]+8 );
             else if( !strncmp(argv[i], "@", 1) )
@@ -877,7 +877,7 @@ int main( int argc, char ** argv )
             }
             else if( a = send_cmd( argc, argv, i ) )
                 exit( 0 );
-			else
+            else
             {
                 fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
                 usage();
