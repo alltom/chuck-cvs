@@ -1783,10 +1783,92 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_primary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp );
+t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
+{
+    t_CKUINT temp;
+    t_CKDUR dur;
+    Chuck_Instr_Unary_Op * op = NULL, * op2 = NULL;
+
+    // find out exp
+    switch( exp->s_type )
+    {
+    case ae_primary_var:
+        if( exp->var == insert_symbol( "now" ) )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Now );
+        }
+        else if( exp->var == insert_symbol( "start" ) )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Start );
+        }
+        else if( exp->var == insert_symbol( "dac" ) )
+        {
+            emit->append( new Chuck_Instr_DAC );
+        }
+        else if( exp->var == insert_symbol( "adc" ) )
+        {
+            emit->append( new Chuck_Instr_ADC );
+        }
+        else if( exp->var == insert_symbol( "bunghole" ) )
+        {
+            emit->append( new Chuck_Instr_Bunghole );
+        }
+        else if( exp->var == insert_symbol( "blackhole" ) )
+        {
+            emit->append( new Chuck_Instr_Bunghole );
+        }
+        else if( exp->var == insert_symbol( "true" ) )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 1 ) );
+        }
+        else if( exp->var == insert_symbol( "false" ) )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        }
+        else if( exp->var == insert_symbol("maybe") )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Maybe() );
+        }
+        else if( exp->var == insert_symbol( "pi" ) )
+        {
+            double pi = 3.14159265358979323846;
+            emit->append( new Chuck_Instr_Reg_Push_Imm2( pi ) );
+        }
+        else if( emit->find_dur( exp->var, &dur ) )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Imm2( dur ) );
+        }
+        else
+        {
+            // emit the symbol
+            return emit_engine_emit_symbol( emit, exp->var, TRUE, exp->linepos );
+        }
+        break;
+    
+    case ae_primary_num:
+        memcpy( &temp, &exp->num, sizeof(temp) );
+        emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
+        break;
+        
+    case ae_primary_float:
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( exp->fnum ) );
+        break;
+        
+    case ae_primary_str:
+        temp = (uint)exp->str;
+        emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
+        break;
+        
+    case ae_primary_exp:
+        emit_engine_emit_exp( emit, exp->exp );
+        break;
+    }
+    
+    return TRUE;
+}
 
 
 
