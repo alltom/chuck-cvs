@@ -410,8 +410,10 @@ void * cb( void * p )
     Msg msg;
     ck_socket client;
 
+#ifndef __PLATFORM_WIN32__
     // catch SIGPIPE
     signal( SIGPIPE, signal_pipe );
+#endif
 
     while( true )
     {
@@ -646,8 +648,10 @@ int main( int argc, char ** argv )
 
     // catch SIGINT
     signal( SIGINT, signal_int );
+#ifndef __PLATFORM_WIN32__
     // catch SIGPIPE
     signal( SIGPIPE, signal_pipe );
+#endif
 
     for( i = 1; i < argc; i++ )
     {

@@ -61,17 +61,13 @@ struct ck_socket_
     int prot;
     struct sockaddr_in sock_in;
     int len;
-
-#ifndef __PLATFORM_WIN32__
-};
-#else
-    static WSADATA wsd;
-    static int init;
 };
 
-WSADATA ck_socket_::wsd;
-int ck_socket_::init = 0;
+#ifdef __PLATFORM_WIN32__
+static WSADATA g_wsd;
+static int g_init = 0;
 #endif
+
 
 
 
@@ -85,11 +81,11 @@ ck_socket ck_udp_create( )
 
 #ifdef __PLATFORM_WIN32__
     // winsock init
-    if( ck_socket_::init == 0 )
-        WSAStartup( MAKEWORD(1,1), &(ck_socket_::wsd) );
+    if( g_init == 0 )
+        WSAStartup( MAKEWORD(1,1), &(g_wsd) );
 
     // count
-    ck_socket_::init++;
+    g_init++;
 #endif
 
     sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
@@ -111,11 +107,11 @@ ck_socket ck_tcp_create( )
 
 #ifdef __PLATFORM_WIN32__
     // winsock init
-    if( ck_socket_::init == 0 )
-        WSAStartup( MAKEWORD(1,1), &(ck_socket_::wsd) );
+    if( g_init == 0 )
+        WSAStartup( MAKEWORD(1,1), &(g_wsd) );
 
     // count
-    ck_socket_::init++;
+    g_init++;
 #endif
 
     sock->sock = socket( AF_INET, SOCK_STREAM, 0 );
@@ -345,9 +341,9 @@ void ck_close( ck_socket sock )
 
 #ifdef __PLATFORM_WIN32__
     // uncount
-    ck_socket_::init--;
+    g_init--;
 
     // close
-    if( ck_socket_::init == 0 ) WSACleanup();
+    if( g_init == 0 ) WSACleanup();
 #endif
 }
