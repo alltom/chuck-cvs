@@ -44,6 +44,8 @@ using namespace std;
 #include "chuck_absyn.h"
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: enum te_Type
 // desc: basic, default ChucK types
@@ -88,7 +90,7 @@ public:
 
     // add
     void add( const string & id, const T & value )
-    { this->add( insert_symbo(id.c_str()), value ); }
+    { this->add( insert_symbol(id.c_str()), value ); }
     void add( S_Symbol id, const T & value )
     { assert( scope.size() != 0 ); (*scope.back())[id] = value; }
 
@@ -174,6 +176,28 @@ struct Chuck_Context
 
     // list of all context
     static vector<Chuck_Context *> all;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Env
+// desc: chuck env with type info
+//-----------------------------------------------------------------------------
+struct Chuck_Env
+{
+	// global namespace
+	Chuck_Namespace global;
+	// namespace stack
+	Chuck_Scope<Chuck_Namespace *> stack;
+	// expression namespace
+	Chuck_Namespace * curr;
+
+	// constructor
+	Chuck_Env() { curr = NULL; stack.push(); stack.add( "global", &global ); }
+	// destructor
+	~Chuck_Env() { stack.pop(); curr = NULL; }
 };
 
 
