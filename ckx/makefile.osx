@@ -2,18 +2,12 @@ CHUCK_DIR=../src/
 
 SYS_FLAGS=-D__MACOSX_CORE__
 
-#X11 GL libraries 
-GL_PATH=/usr/X11R6/
+GL_INC_FLAGS    =
+GL_LIB_FLAGS    =-framework OpenGL
+GLU_LIB_FLAGS   =$(GL_LIB_FLAGS)
 
-#freeglut glut library 
-GLUT_PATH=/usr/local/
-
-GL_INC_FLAGS    =-I$(GL_PATH)include/
-GL_LIB_FLAGS    =-L$(GL_PATH)lib/ -lGL
-GLU_LIB_FLAGS   =$(GL_LIB_FLAGS) -lGLU
-
-GLUT_INC_FLAGS  =$(GL_INC_FLAGS) -I$(GLUT_PATH)include/
-GLUT_LIB_FLAGS  =$(GLU_LIB_FLAGS) -L$(GLUT_PATH)lib/ -lglut
+GLUT_INC_FLAGS  =
+GLUT_LIB_FLAGS  =$(GL_LIB_FLAGS) -framework GLUT -framework Foundation
 
 all: ckx ckdl
 
@@ -28,17 +22,12 @@ foo.ckx: foo.cpp
 gl: gl.ckx glu.ckx gluck.ckx
 
 gl.ckx: ulib_gl.cpp ulib_gl.h
-	@echo "NOTE::gl/glu/glut now link against X11 dev libaries"
-	@echo "    ::you may need to install from the apple's dev tools"
 	gcc -O3 -g -bundle $(SYS_FLAGS) -I$(CHUCK_DIR) $(GL_INC_FLAGS) ulib_gl.cpp -o gl.ckx -lstdc++ $(GL_LIB_FLAGS)
 
 glu.ckx: ulib_glu.cpp ulib_glu.h
 	gcc -O3 -g -bundle $(SYS_FLAGS) -I$(CHUCK_DIR) $(GL_INC_FLAGS) ulib_glu.cpp -o glu.ckx -lstdc++ $(GLU_LIB_FLAGS)
 
 gluck.ckx: ulib_gluck.cpp ulib_gluck.h
-	@echo "NOTE::glut uses the freeglut libary for rendering"
-	@echo "    ::download from http://prdownloads.sourceforge.net/freeglut/freeglut-2.2.0.tar.gz?download"
-	@echo "    ::and follow the config/make/install instructions"
 	gcc -O3 -g -bundle $(SYS_FLAGS) -I$(CHUCK_DIR) $(GLUT_INC_FLAGS) ulib_gluck.cpp -o gluck.ckx -lstdc++ $(GLUT_LIB_FLAGS)
 
 clean:

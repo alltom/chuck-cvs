@@ -9,41 +9,13 @@
 "glu.ckx" => (:glu:);
 "gluck.ckx" => (:gluck:);
 
-//convenient gl constants
-0 => uint GL_POINTS;
-1 => uint GL_LINES;
-2 => uint GL_LINE_LOOP;
-3 => uint GL_LINE_STRIP;
-4 => uint GL_TRIANGLES;
-5 => uint GL_TRIANGLE_STRIP;
-6 => uint GL_TRIANGLE_FAN;
-7 => uint GL_QUADS;
-8 => uint GL_QUAD_STRIP;
-9 => uint GL_POLYGON;
-
-5889 => uint GL_PROJECTION_MATRIX;
-5888 => uint GL_MODELVIEW_MATRIX;
-
-16384 => uint GL_COLOR_BUFFER_BIT;
-256   => uint GL_DEPTH_BUFFER_BIT;
-
-0     => uint GLUCK_LEFT_BUTTON;
-1     => uint GLUCK_MIDDLE_BUTTON;
-2     => uint GLUCK_RIGHT_BUTTON;
-
-0     => uint GLUCK_DOWN;
-1     => uint GLUCK_UP;
-
-
 //our variables
 
-0.0 => float tm;
 
+//timing 
+0.0 => float tm;
 0.0 => float tb;
 0.0 => float tc;
-//event info
-0   => int curid;
-0   => int curtype;
 
 //mouse tracking
 0.0 => float mx;
@@ -98,7 +70,7 @@ function void drawSlider (float val, float x, float y, int selected, string titl
 	gl.Translatef (x, y, 0.0 );
 
 	//box
-	gl.Begin(GL_LINE_LOOP); 
+	gl.Begin(gl.LINE_LOOP); 
 	gl.Color4f(0.0, 0.5, 0.0, 0.75);
 	gl.Vertex3f( -(width+border), -border, 0.0 );
 	gl.Vertex3f(  (width+border), -border, 0.0 );
@@ -107,7 +79,7 @@ function void drawSlider (float val, float x, float y, int selected, string titl
 	gl.End();
 
 	//groove
-	gl.Begin(GL_LINES);
+	gl.Begin(gl.LINES);
 	gl.Color4f(0.0,1.0,0.0,0.75 );
 	gl.Vertex3f(0.0,0.0,0.0);
 	gl.Vertex3f(0.0,groovelength,0.0); 
@@ -119,7 +91,7 @@ function void drawSlider (float val, float x, float y, int selected, string titl
 
 	gl.Color4f  ( 0.2, 1.0, 0.2, 0.9);
 	if ( selected == 1 ) { gl.Color4f(0.5, 1.0, 0.2, 1.0 ); }
-	gl.Begin(GL_QUADS);
+	gl.Begin(gl.QUADS);
 	gl.Vertex3f (-width, -slideheight, 0.01 );
 	gl.Vertex3f ( width, -slideheight, 0.01 );
 	gl.Vertex3f ( width, slideheight,  0.01 );
@@ -127,7 +99,7 @@ function void drawSlider (float val, float x, float y, int selected, string titl
 	gl.End();
 
 	gl.Color4f  ( 0.0, 0.2, 0.0, 1.0 );
-	gl.Begin(GL_LINES);
+	gl.Begin(gl.LINES);
 	gl.Vertex3f ( -width, 0.0, 0.02 );
 	gl.Vertex3f (  width, 0.0, 0.02 );
 	gl.End();
@@ -139,7 +111,7 @@ function void drawSlider (float val, float x, float y, int selected, string titl
 	gl.Translatef (0.0, groovelength + border, 0.0 );
 	gl.Color4f (0.3, 0.6, 0.3, 0.8);
 	if ( selected == 2 ) { gl.Color4f(0.5, 1.0, 0.2, 1.0 ); }
-	gl.Begin(GL_QUADS);
+	gl.Begin(gl.QUADS);
 	gl.Vertex3f ( -(width+border), 0.0,  0.0);
 	gl.Vertex3f ( width+border,    0.0,  0.0);
 	gl.Vertex3f ( width+border,    titleheight,  0.0);
@@ -206,7 +178,7 @@ function void slidermouse ( int button , int state ) {
 
 	//mouse clicks
 
-	if ( state == GLUCK_DOWN ) { 
+	if ( state == gluck.DOWN ) { 
 
 		mx => downx;
 		my => downy;
@@ -216,7 +188,7 @@ function void slidermouse ( int button , int state ) {
 		hitSlider (ctlc_x, ctlc_y, ctlc_val) => ctlc_sel;
 
 	}
-	if ( state == GLUCK_UP ) { 
+	if ( state == gluck.UP ) { 
 		//for value-selected boxes...test t		
 
 		if ( mx == downx && my == downy ) { //click and release in same location
@@ -251,19 +223,19 @@ function void theeventloop() {
 
 	while ( gluck.HasEvents() ) { 
 
-		gluck.GetNextEvent() => curid;
-		gluck.GetEventType(curid) => curtype;
+		gluck.GetNextEvent() => int id;
+		gluck.GetEventType(id) => int type;
 
-		if ( curtype == 0 ) {  // mouse click
-			mposEvent(curid);
-			slidermouse(gluck.GetEventButton(curid), gluck.GetEventState(curid));
+		if (  type == gluck.EVENT_MOUSE ) {  // mouse click
+			mposEvent( id );
+			slidermouse(gluck.GetEventButton(id), gluck.GetEventState(id));
 		}
-		else if ( curtype == 1 ) { //depressed motion
-			mposEvent(curid);
-			slidermotion(gluck.GetEventButton(curid), gluck.GetEventState(curid));
+		else if ( type == gluck.EVENT_MOTION ) { //depressed motion
+			mposEvent( id );
+			slidermotion(gluck.GetEventButton(id), gluck.GetEventState(id));
 		}
-	 	else if ( curtype == 3 ) { //keyboard
-			gluck.GetEventKey(curid) => uint k;
+	 	else if ( type == gluck.EVENT_KEY ) { //keyboard
+			gluck.GetEventKey(id) => uint k;
 		}
 	}
 
@@ -273,66 +245,63 @@ function void thedrawloop() {
 
 		gl.ClearColor( ctlc_val, ctlb_val, ctla_val, 0.0);
 
-		gl.Clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		gl.Clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
+
 
 		gl.PushMatrix();
- 		gl.Translatef ( 0.0, 0.0, -0.5 ); 
 
+		gl.Translatef ( -1.0 ,-1.0 , -0.5);
+		gl.Scalef ( 2.0, 2.0 , 1.0  );
+
+		//bouncing bars
 		gl.Color4f(0.8, 0.0, 0.0, 0.5 );
-		gl.Begin( GL_QUADS ) ;
-		gl.Vertex3f ( -1.0, -1.0 + 2.0 * math.sqrt(ctlc_val) , 0.0 );
-		gl.Vertex3f (  1.0, -1.0 + 2.0 * math.sqrt(ctlc_val) , 0.0 );
-		gl.Vertex3f (  1.0, -1.0 , 0.0 );
-		gl.Vertex3f ( -1.0, -1.0 , 0.0 );
+		gl.Begin( gl.QUADS ) ;
 
-
-
+		gl.Vertex3f ( 0.0,  math.sqrt(math.max(0.0,ctlc_val)) , 0.0 );
+		gl.Vertex3f (  1.0, math.sqrt(math.max(0.0,ctlc_val)) , 0.0 );
+		gl.Vertex3f (  1.0, 0.0 ,0.0 );
+		gl.Vertex3f (  0.0, 0.0 ,0.0 );
 		gl.End();
 
 		gl.Translatef ( 0.0, 0.0 , 0.1 );
-		gl.Color4f(0.0, 0.8, 0.0, 0.5 );
-		gl.Begin( GL_QUADS ) ;
 
-		gl.Vertex3f ( -1.0, -1.0 + 2.0 * math.sqrt(ctlb_val) , 0.0 );
-		gl.Vertex3f (  1.0, -1.0 + 2.0 * math.sqrt(ctlb_val) , 0.0 );
-		gl.Vertex3f (  1.0, -1.0 , 0.0 );
-		gl.Vertex3f ( -1.0, -1.0 , 0.0 );
+		gl.Color4f(0.0, 0.8, 0.0, 0.5 );
+		gl.Begin( gl.QUADS ) ;
+
+		gl.Vertex3f (  0.0, math.sqrt(math.max(0.0,ctlb_val)) , 0.0 );
+		gl.Vertex3f (  1.0, math.sqrt(math.max(0.0,ctlb_val)) , 0.0 );
+		gl.Vertex3f (  1.0, 0.0 ,0.0 );
+		gl.Vertex3f (  0.0, 0.0 ,0.0 );
 
 		gl.End();
 
-		gl.PopMatrix();
-
-
 
 		//timeline effect
-		gl.PushMatrix();
 
-		gl.Translatef ( -1.0 ,-1.0 , 0.0);
-		gl.Scalef ( 2.0, 2.0 , 1.0  );
-
+		gl.Translatef( 0.0, 0.0, 0.3 );
 		gl.Color4f ( 1.0, 1.0 , 1.0, 0.5);
 
-		gl.Begin(GL_LINES);
+		gl.Begin(gl.LINES);
 
 		gl.Vertex3f ( tm - math.floor(tm), 0.0 ,  -0.2 );
 		gl.Vertex3f ( tm - math.floor(tm), 1.0 , -0.2 );
 		gl.End();
 
 		gl.Color4f ( 0.0, 1.0 , 0.0, 0.5);
-		gl.Begin(GL_LINES);
+		gl.Begin(gl.LINES);
 
 		gl.Vertex3f ( tb - math.floor(tb), 0.0 ,  -0.2 );
 		gl.Vertex3f ( tb - math.floor(tb), 1.0 , -0.2 );
 		gl.End();
 
 		gl.Color4f ( 1.0, 0.0 , 0.0, 0.5);
-		gl.Begin(GL_LINES);
+		gl.Begin(gl.LINES);
 		gl.Vertex3f ( tc - math.floor(tc), 0.0 ,  -0.2 );
 		gl.Vertex3f ( tc - math.floor(tc), 1.0 , -0.2 );
 		gl.End();
 
 		//'front' following the time marker
-		gl.Begin (GL_QUADS );
+		gl.Begin (gl.QUADS );
 		gl.Color4f ( 0.8, 0.0, 0.0, 0.75 - (tm - tb) );
 
 		gl.Vertex3f ( tb - math.floor(tb) , 0.0, -0.1);
@@ -403,15 +372,10 @@ function void ricochet( float loud, float mfreq) {
 
 }
 
-sinosc bsin => dac;
-sinosc csin => dac;
-.5 => bsin.gain;
-.5 => csin.gain;
 function void audioshred( ) { 
 
 	while ( true ) { 
-		ctlb_val * (ctlb_x + 1.0) * 1000.0 + (ctlb_y + 1.0) * 1000.0 => bsin.sfreq;
-		ctlc_val * (ctlc_x + 1.0) * 1000.0 + (ctlc_y + 1.0) * 1000.0 => csin.sfreq;
+		//mmm. audio looump.
 		1::samp => now;
 	}
  
@@ -484,11 +448,11 @@ function void gluckinitcall() {
 	//arguments monitor ( mouse, motion, keyboard );
 
 	//set up basic camera
-	gl.MatrixMode(GL_PROJECTION_MATRIX); 
+	gl.MatrixMode(gl.PROJECTION); 
 	gl.LoadIdentity();
 	gl.Ortho(-1.0, 1.0, -1.0 , 1.0, -4.0 , 4.0 );
 
-	gl.MatrixMode(GL_MODELVIEW_MATRIX); 
+	gl.MatrixMode(gl.MODELVIEW); 
 	gl.LoadIdentity();
 	gl.ClearColor ( 0.0 , 0.0, 0.3, 0.0 );
 }

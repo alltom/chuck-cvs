@@ -33,7 +33,12 @@
 //-----------------------------------------------------------------------------
 #include "ulib_gl.h"
 
+#ifdef __MACOSX_CORE__
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
+
 
 // lazy phil's preprocessor functions
 // if these shouldn't be here, tell me

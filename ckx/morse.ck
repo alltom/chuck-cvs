@@ -8,32 +8,6 @@
 "glu.ckx" => (:glu:);
 "gluck.ckx" => (:gluck:);
 
-//convenient gl constants
-0 => uint GL_POINTS;
-1 => uint GL_LINES;
-2 => uint GL_LINE_LOOP;
-3 => uint GL_LINE_STRIP;
-4 => uint GL_TRIANGLES;
-5 => uint GL_TRIANGLE_STRIP;
-6 => uint GL_TRIANGLE_FAN;
-7 => uint GL_QUADS;
-8 => uint GL_QUAD_STRIP;
-9 => uint GL_POLYGON;
-
-5889 => uint GL_PROJECTION_MATRIX;
-5888 => uint GL_MODELVIEW_MATRIX;
-
-16384 => uint GL_COLOR_BUFFER_BIT;
-256   => uint GL_DEPTH_BUFFER_BIT;
-
-0     => uint GLUCK_LEFT_BUTTON;
-1     => uint GLUCK_MIDDLE_BUTTON;
-2     => uint GLUCK_RIGHT_BUTTON;
-
-0     => uint GLUCK_DOWN;
-1     => uint GLUCK_UP;
-
-
 //our variables
 
 sinosc morsetone => dac;
@@ -253,7 +227,7 @@ function void theeventpoll() {
 		gluck.GetNextEvent() => curid;
 		gluck.GetEventType(curid) => curtype;
 
-	 	if ( curtype == 3 ) { //keyboard
+	 	if ( curtype == gluck.EVENT_KEY ) { //keyboard
 			gluck.GetEventKey(curid) => uint k;
 			morsecode(k);
 		}
@@ -263,7 +237,7 @@ function void theeventpoll() {
 function void thedrawloop() { 
 
 		gl.ClearColor( 0.4, 0.4, 0.4 , 0.0);
-		gl.Clear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+		gl.Clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
 		gl.Color3f(0.0, 0.0, 0.0);
 		gl.LineWidth(4.0);
@@ -343,11 +317,11 @@ function void gluckinitcall() {
 	//arguments monitor ( mouse, motion, keyboard );
 
 	//set up basic camera
-	gl.MatrixMode(GL_PROJECTION_MATRIX); 
+	gl.MatrixMode(gl.PROJECTION); 
 	gl.LoadIdentity();
 	gl.Ortho(-1.0, 1.0, -1.0 , 1.0, -4.0 , 4.0 );
 
-	gl.MatrixMode(GL_MODELVIEW_MATRIX); 
+	gl.MatrixMode(gl.MODELVIEW); 
 	gl.LoadIdentity();
 	gl.ClearColor ( 0.0 , 0.0, 0.3, 0.0 );
 }

@@ -34,10 +34,13 @@
 #include "ulib_glu.h"
 
 
+#ifdef __MACOSX_CORE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
 #include <GL/gl.h>
 #include <GL/glu.h>
-
-
+#endif
 
 
 #define GLU_CKADDEXPORT(t, n) QUERY->add_export( QUERY, #t, #n, glu_##n##_impl, TRUE )
