@@ -209,6 +209,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     if( !prog )
         return FALSE;
 
+    // reset the env
+    env->reset();
     // each parse tree corresponds to a chuck context
     Chuck_Context * context = new Chuck_Context;
     // save a reference to the parse tree
@@ -497,6 +499,13 @@ t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
     return TRUE;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_switch()
+// desc: ...
+//-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 {
     // TODO: implement this
@@ -505,6 +514,13 @@ t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
     return FALSE;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_break()
+// desc: ...
+//-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
 {
     // check to see if inside valid stmt
@@ -517,6 +533,13 @@ t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
     return TRUE;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_continue()
+// desc: ...
+//-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
 {
     // check to see if inside valid loop
@@ -529,9 +552,42 @@ t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
     return TRUE;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_return()
+// desc: ...
+//-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
 {
+    Chuck_Type * ret_type = NULL;
+    
+    if( !env->func_def )
+    {
+        EM_error2( stmt->linepos, "'return' statement found outside function definition" );
+        return FALSE;
+    }
+    
+    if( stmt->val )
+        ret_type = type_engine_check_exp( env, stmt->val );
+    else
+        ret_type = &t_void;
+
+    if( ret_type && ret_type != env->func_def->def->ret_type )
+    {
+        EM_error2( stmt->linepos,
+            "function '%s' was defined with return type '%s' -- but returning type '%s'",
+            env->func_def->name.c_str(), env->func_def->def->ret_type->name.c_str(),
+            ret_type->name.c_str() );
+        return FALSE;
+    }
+
+    return ret_type != NULL;
 }
+
+
+
 
 t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
 t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
@@ -632,3 +688,24 @@ void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
         return parent->lookup_addr( name, climb );
     return a;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: operator ==
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
+{
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: equals()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs )
+{ return (*lhs) == (*rhs); }

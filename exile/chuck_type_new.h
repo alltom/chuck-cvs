@@ -201,6 +201,8 @@ struct Chuck_Env
     // control scope (for break, continue)
     vector<a_Stmt> loops;
     vector<a_Stmt> swich;
+    // current function definition
+    Chuck_Func * func_def;
 
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
@@ -214,7 +216,7 @@ struct Chuck_Env
 
 	// constructor
 	Chuck_Env( )
-	{ this->reset(); vm = NULL; context = NULL; }
+	{ this->reset(); vm = NULL; context = NULL; func_def = NULL; }
 	// destructor
 	~Chuck_Env() { }
 
@@ -315,6 +317,9 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
 t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
 // add an chuck dll into the env
 t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & nspc );
+// type equality
+t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs );
+t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs );
 
 
 
