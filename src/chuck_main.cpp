@@ -462,7 +462,12 @@ int send_cmd( int argc, char ** argv, int  & i )
     Msg msg;
     memset( &msg, 0, sizeof(msg) );
 	
-    g_sock = ck_tcp_create();
+    g_sock = ck_tcp_create( 0 );
+    if( !g_sock )
+    {
+        fprintf( stderr, "[chuck]: cannot open socket to send command...\n" );
+        return 1;
+    }
 
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
@@ -784,8 +789,8 @@ int main( int argc, char ** argv )
     // emit_engine_resolve_globals();
     
     // start tcp server
-    g_sock = ck_tcp_create();
-    if( !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
+    g_sock = ck_tcp_create( 1 );
+    if( !g_sock || !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
     {
         fprintf( stderr, "[chuck]: cannot bind to tcp port %i...\n", g_port );
         ck_close( g_sock );

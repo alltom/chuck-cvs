@@ -56,7 +56,7 @@ typedef struct ck_socket_ * ck_socket;
 // create a UDP socket
 ck_socket ck_udp_create( );
 // create a TCP socket
-ck_socket ck_tcp_create( );
+ck_socket ck_tcp_create( int flags );
 // connect to a server
 t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port );
 // connect to a server

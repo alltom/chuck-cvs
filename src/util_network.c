@@ -35,6 +35,7 @@
 //-----------------------------------------------------------------------------
 #include "util_network.h"
 #include "chuck_utils.h"
+#include <stdio.h>
 
 #if defined(__PLATFORM_WIN32__)
 #include <winsock.h>
@@ -77,17 +78,23 @@ static int g_init = 0;
 //-----------------------------------------------------------------------------
 ck_socket ck_udp_create( )
 {
-    ck_socket sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
+    ck_socket sock = NULL;
 
 #ifdef __PLATFORM_WIN32__
     // winsock init
     if( g_init == 0 )
-        WSAStartup( MAKEWORD(1,1), &(g_wsd) );
+        if( WSAStartup( MAKEWORD(1,1), &(g_wsd) ) != 0 && 
+            WSAStartup( MAKEWORD(1,0), &(g_wsd) ) != 0 )
+        {
+            fprintf( stderr, "[chuck]: cannot start winsock, networking disabled...\n" );
+            return NULL;
+        }
 
     // count
     g_init++;
 #endif
 
+    sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
     sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
     sock->prot = SOCK_DGRAM;
 
@@ -101,14 +108,19 @@ ck_socket ck_udp_create( )
 // name: ck_tcp_create()
 // desc: create a tcp socket
 //-----------------------------------------------------------------------------
-ck_socket ck_tcp_create( )
+ck_socket ck_tcp_create( int flags )
 {
     ck_socket sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
 
 #ifdef __PLATFORM_WIN32__
     // winsock init
     if( g_init == 0 )
-        WSAStartup( MAKEWORD(1,1), &(g_wsd) );
+        if( WSAStartup( MAKEWORD(1,1), &(g_wsd) ) != 0 &&
+            WSAStartup( MAKEWORD(1,0), &(g_wsd) ) != 0 )
+        {
+            fprintf( stderr, "[chuck]: cannot start winsock, networking disabled...\n" );
+            return NULL;
+        }
 
     // count
     g_init++;
@@ -117,7 +129,7 @@ ck_socket ck_tcp_create( )
     sock->sock = socket( AF_INET, SOCK_STREAM, 0 );
     sock->prot = SOCK_STREAM;
 
-    if( sock->prot == SOCK_STREAM )
+    if( sock->prot == SOCK_STREAM && flags )
     {
         int nd = 1; int ru = 1;
         setsockopt( sock->sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&ru, sizeof(ru) );
