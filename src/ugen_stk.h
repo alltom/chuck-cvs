@@ -347,6 +347,12 @@ UGEN_CTOR FormSwep_ctor( t_CKTIME now);
 UGEN_DTOR FormSwep_dtor( t_CKTIME now, void * data );
 UGEN_TICK FormSwep_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG FormSwep_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL FormSwep_ctrl_frequency( t_CKTIME now, void * data, void * value );
+UGEN_CGET FormSwep_cget_frequency( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FormSwep_ctrl_radius( t_CKTIME now, void * data, void * value );
+UGEN_CGET FormSwep_cget_radius( t_CKTIME now, void * data, void * value );
+UGEN_CTRL FormSwep_ctrl_gain( t_CKTIME now, void * data, void * value );
+UGEN_CGET FormSwep_cget_gain( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FormSwep_ctrl_sweepRate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL FormSwep_ctrl_sweepTime( t_CKTIME now, void * data, void * value );
 UGEN_CGET FormSwep_cget_sweepRate( t_CKTIME now, void * data, void * value );
@@ -392,15 +398,20 @@ UGEN_DTOR BandedWG_dtor( t_CKTIME now, void * data );
 UGEN_TICK BandedWG_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG BandedWG_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL BandedWG_ctrl_strikePosition( t_CKTIME now, void * data, void * value );
+UGEN_CGET BandedWG_cget_strikePosition( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET BandedWG_cget_freq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_preset( t_CKTIME now, void * data, void * value );
+UGEN_CGET BandedWG_cget_preset( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_bowRate( t_CKTIME now, void * data, void * value );
+UGEN_CGET BandedWG_cget_bowRate( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BandedWG_ctrl_bowPressure( t_CKTIME now, void * data, void * value );
+UGEN_CGET BandedWG_cget_bowPressure( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_startBowing( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_stopBowing( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_pluck( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_noteOff( t_CKTIME now, void * data, void * value );
-UGEN_CTRL BandedWG_ctrl_bowPressure( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_aftertouch( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_bowTarget( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BandedWG_ctrl_modWheel( t_CKTIME now, void * data, void * value );
@@ -422,25 +433,50 @@ UGEN_CTOR BlowBotl_ctor( t_CKTIME now );
 UGEN_DTOR BlowBotl_dtor( t_CKTIME now, void * data );
 UGEN_TICK BlowBotl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG BlowBotl_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL BlowBotl_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowBotl_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowBotl_ctrl_startBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowBotl_ctrl_stopBlowing( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BlowBotl_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CGET BlowBotl_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowBotl_ctrl_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET BlowBotl_cget_rate( t_CKTIME now, void * data, void * value );
 
 // BlowHole
 UGEN_CTOR BlowHole_ctor( t_CKTIME now );
 UGEN_DTOR BlowHole_dtor( t_CKTIME now, void * data );
 UGEN_TICK BlowHole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG BlowHole_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL BlowHole_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowHole_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowHole_ctrl_startBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowHole_ctrl_stopBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowHole_ctrl_rate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BlowHole_ctrl_tonehole( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BlowHole_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL BlowHole_ctrl_vent( t_CKTIME now, void * data, void * value );
+UGEN_CTRL BlowHole_ctrl_reed( t_CKTIME now, void * data, void * value );
+UGEN_CGET BlowHole_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET BlowHole_cget_tonehole( t_CKTIME now, void * data, void * value );
+UGEN_CGET BlowHole_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET BlowHole_cget_vent( t_CKTIME now, void * data, void * value );
+UGEN_CGET BlowHole_cget_reed( t_CKTIME now, void * data, void * value );
 
 // Bowed
 UGEN_CTOR Bowed_ctor( t_CKTIME now );
 UGEN_DTOR Bowed_dtor( t_CKTIME now, void * data );
 UGEN_TICK Bowed_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Bowed_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL Bowed_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Bowed_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Bowed_ctrl_startBowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Bowed_ctrl_stopBowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Bowed_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Bowed_ctrl_rate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Bowed_ctrl_vibrato( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Bowed_ctrl_frequency( t_CKTIME now, void * data, void * value );
+UGEN_CGET Bowed_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET Bowed_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET Bowed_cget_vibrato( t_CKTIME now, void * data, void * value );
 
 // BowTabl
 UGEN_CTOR BowTabl_ctor( t_CKTIME now );
@@ -455,29 +491,54 @@ UGEN_CTOR Brass_ctor( t_CKTIME now );
 UGEN_DTOR Brass_dtor( t_CKTIME now, void * data );
 UGEN_TICK Brass_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Brass_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL Brass_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Brass_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Brass_ctrl_startBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Brass_ctrl_stopBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Brass_ctrl_clear( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Brass_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET Brass_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Brass_ctrl_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET Brass_cget_rate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Brass_ctrl_lip( t_CKTIME now, void * data, void * value );
+UGEN_CGET Brass_cget_lip( t_CKTIME now, void * data, void * value );
 
 // Clarinet
 UGEN_CTOR Clarinet_ctor( t_CKTIME now );
 UGEN_DTOR Clarinet_dtor( t_CKTIME now, void * data );
 UGEN_TICK Clarinet_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Clarinet_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
-UGEN_CTRL Clarinet_ctrl_freq( t_CKTIME now, void * data, void *value );
+UGEN_CTRL Clarinet_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Clarinet_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Clarinet_ctrl_startBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Clarinet_ctrl_stopBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Clarinet_ctrl_clear( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Clarinet_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET Clarinet_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Clarinet_ctrl_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET Clarinet_cget_rate( t_CKTIME now, void * data, void * value );
 
 // Flute
 UGEN_CTOR Flute_ctor( t_CKTIME now );
 UGEN_DTOR Flute_dtor( t_CKTIME now, void * data );
 UGEN_TICK Flute_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Flute_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
-UGEN_CTRL Flute_ctrl_freq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Flute_ctrl_jetReflection( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Flute_ctrl_jetDelay( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Flute_ctrl_endReflection( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Flute_ctrl_startBlowing( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Flute_ctrl_stopBlowing( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Flute_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Flute_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_startBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_stopBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_clear( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET Flute_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET Flute_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_jetReflection( t_CKTIME now, void * data, void * value );
+UGEN_CGET Flute_cget_jetReflection( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_jetDelay( t_CKTIME now, void * data, void * value );
+UGEN_CGET Flute_cget_jetDelay( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Flute_ctrl_endReflection( t_CKTIME now, void * data, void * value );
+UGEN_CGET Flute_cget_endReflection( t_CKTIME now, void * data, void * value );
+
 
 // FMVoices
 UGEN_CTOR FMVoices_ctor( t_CKTIME now );
@@ -549,20 +610,45 @@ UGEN_CTOR ModalBar_ctor( t_CKTIME now );
 UGEN_DTOR ModalBar_dtor( t_CKTIME now, void * data );
 UGEN_TICK ModalBar_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG ModalBar_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
-UGEN_CTRL ModalBar_ctrl_strikePosition( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ModalBar_ctrl_stickHardness( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_strike( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_damp( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_clear( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_noteOff( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_preset( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_strikePosition( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_stickHardness( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_masterGain( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_directGain( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_mode( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_modeGain( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_modeRatio( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_modeRadius( t_CKTIME now, void * data, void * value );
+
+
+UGEN_CTRL ModalBar_ctrl_preset( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_strikePosition( t_CKTIME now, void * data, void * value );
+UGEN_CTRL ModalBar_ctrl_stickHardness( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_masterGain( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_directGain( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_mode( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_modeRatio( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_modeRadius( t_CKTIME now, void * data, void * value );
 UGEN_CTRL ModalBar_ctrl_modeGain( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ModalBar_ctrl_strike( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ModalBar_ctrl_damp( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ModalBar_ctrl_noteOn( t_CKTIME now, void * data, void * value );
-UGEN_CTRL ModalBar_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+
+UGEN_CGET ModalBar_cget_preset( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_strikePosition( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_stickHardness( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_masterGain( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_directGain( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_mode( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_modeRatio( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_modeRadius( t_CKTIME now, void * data, void * value );
+UGEN_CGET ModalBar_cget_modeGain( t_CKTIME now, void * data, void * value );
+
 
 // Moog
 UGEN_CTOR Moog_ctor( t_CKTIME now );
@@ -646,10 +732,14 @@ UGEN_DTOR Saxofony_dtor( t_CKTIME now, void * data );
 UGEN_TICK Saxofony_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Saxofony_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Saxofony_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Saxofony_ctrl_rate( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Saxofony_ctrl_blowPosition( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Saxofony_ctrl_blowPosition( t_CKTIME now, void * data, void * value );
+UGEN_CGET Saxofony_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET Saxofony_cget_rate( t_CKTIME now, void * data, void * value );
+UGEN_CGET Saxofony_cget_blowPosition( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Saxofony_ctrl_startBlowing( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Saxofony_ctrl_stopBlowing( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Saxofony_ctrl_clear( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Saxofony_ctrl_noteOn( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Saxofony_ctrl_noteOff( t_CKTIME now, void * data, void * value );
 
@@ -693,7 +783,12 @@ UGEN_CTOR Sitar_ctor( t_CKTIME now );
 UGEN_DTOR Sitar_dtor( t_CKTIME now, void * data );
 UGEN_TICK Sitar_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Sitar_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL Sitar_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Sitar_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Sitar_ctrl_pluck( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Sitar_ctrl_clear( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Sitar_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Sitar_cget_freq( t_CKTIME now, void * data, void * value );
 
 // Sphere
 UGEN_CTOR Sphere_ctor( t_CKTIME now );
@@ -708,10 +803,19 @@ UGEN_CTOR StifKarp_ctor( t_CKTIME now );
 UGEN_DTOR StifKarp_dtor( t_CKTIME now, void * data );
 UGEN_TICK StifKarp_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG StifKarp_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
-UGEN_CTRL StifKarp_ctrl_pickupPosition( t_CKTIME now, void * data, void * value );
+UGEN_CTRL StifKarp_ctrl_pluck( t_CKTIME now, void * data, void * value );
+UGEN_CTRL StifKarp_ctrl_clear( t_CKTIME now, void * data, void * value );
+UGEN_CTRL StifKarp_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL StifKarp_ctrl_noteOff( t_CKTIME now, void * data, void * value );
+
 UGEN_CTRL StifKarp_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET StifKarp_cget_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL StifKarp_ctrl_pickupPosition( t_CKTIME now, void * data, void * value );
+UGEN_CGET StifKarp_cget_pickupPosition( t_CKTIME now, void * data, void * value );
 UGEN_CTRL StifKarp_ctrl_stretch( t_CKTIME now, void * data, void * value );
+UGEN_CGET StifKarp_cget_stretch( t_CKTIME now, void * data, void * value );
 UGEN_CTRL StifKarp_ctrl_baseLoopGain( t_CKTIME now, void * data, void * value );
+UGEN_CGET StifKarp_cget_baseLoopGain( t_CKTIME now, void * data, void * value );
 
 // TubeBell
 UGEN_CTOR TubeBell_ctor( t_CKTIME now );

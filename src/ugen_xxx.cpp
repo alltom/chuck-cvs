@@ -172,11 +172,11 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //! \section delays
 
       //! varible write delay.  
-    QUERY->ugen_add( QUERY, "delayph" , NULL);
-    QUERY->ugen_func ( QUERY, delayph_ctor, delayph_dtor, delayph_tick, delayph_pmsg);
-    QUERY->ugen_ctrl( QUERY, delayph_ctrl_delay, delayph_cget_delay , "dur", "delay" ); //! delay before subsequent values emerge
-    QUERY->ugen_ctrl( QUERY, delayph_ctrl_window, delayph_cget_window , "dur", "window" ); //! time for 'write head' to move
-    QUERY->ugen_ctrl( QUERY, delayph_ctrl_max, delayph_cget_max , "dur", "max" ); //! max delay possible.  trashes buffer, so do it first! 
+    QUERY->ugen_add( QUERY, "delayp" , NULL);
+    QUERY->ugen_func ( QUERY, delayp_ctor, delayp_dtor, delayp_tick, delayp_pmsg);
+    QUERY->ugen_ctrl( QUERY, delayp_ctrl_delay, delayp_cget_delay , "dur", "delay" ); //! delay before subsequent values emerge
+    QUERY->ugen_ctrl( QUERY, delayp_ctrl_window, delayp_cget_window , "dur", "window" ); //! time for 'write head' to move
+    QUERY->ugen_ctrl( QUERY, delayp_ctrl_max, delayp_cget_max , "dur", "max" ); //! max delay possible.  trashes buffer, so do it first! 
  
 
     //! \section sound files
@@ -505,7 +505,7 @@ UGEN_TICK bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 }
 
 
-struct delayph_data 
+struct delayp_data 
 { 
    SAMPLE * buffer;
    int bufsize;
@@ -525,12 +525,25 @@ struct delayph_data
    SAMPLE sample_last;
    double writeoff_last;
    
-   delayph_data() 
+   double acoeff[2];
+   double bcoeff[2];
+   SAMPLE outputs[3];
+   SAMPLE inputs[3];
+
+   delayp_data() 
    { 
       bufsize  = 2 * g_srate;
       buffer   = ( SAMPLE * ) realloc ( NULL, sizeof ( SAMPLE ) * bufsize );
-      for ( int i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
+      int i;
+      
+      for ( i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
+      for ( i = 0 ; i < 3 ; i++ ) { acoeff[i] = 0; bcoeff[i] = 0; }
+      acoeff[0] = 1.0;
+      acoeff[1] = -.99;
+      bcoeff[0] = 1.0;
+      bcoeff[1] = -1.0;
       readpos  = 0.0;
+
       writeoff  = 1000.0; 
       writeoff_last = 1000.0;
       writeoff_start = 1000.0;
@@ -541,26 +554,26 @@ struct delayph_data
    }
 };
 
-UGEN_CTOR delayph_ctor( t_CKTIME now )
+UGEN_CTOR delayp_ctor( t_CKTIME now )
 {
 
-   return new delayph_data;
+   return new delayp_data;
 }
 
-UGEN_DTOR delayph_dtor( t_CKTIME now, void * data )
+UGEN_DTOR delayp_dtor( t_CKTIME now, void * data )
 {
-    delayph_data * d = (delayph_data *)data;
+    delayp_data * d = (delayp_data *)data;
     if( d->buffer ) delete [] d->buffer;
     delete d;
 }
-UGEN_PMSG delayph_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+UGEN_PMSG delayp_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
 {
     return TRUE;
 }
-UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
+UGEN_TICK delayp_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
 
    
-   delayph_data * d = (delayph_data *)data;
+   delayp_data * d = (delayp_data *)data;
    if ( !d->buffer ) return FALSE;
    
    //calculate new write-offset position
@@ -571,14 +584,10 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
       //      fprintf (stderr, "dt %f, off %f , start %f target %f\n", dt, d->writeoff,  d->writeoff_start, d->writeoff_target );
    }
 
-   //fprintf(stderr, "writeoff : %f %f %f %f %f\n", d->writeoff, d->writeoff_target, d->writeoff_start, now, d->writeoff_target_time );  
-   //writeoff __must__ be positive!
-
    //find locations in buffer...
    double lastpos = d->writeoff_last + d->readpos - 1.0 ;
    double nowpos  = d->writeoff + d->readpos;
 
-   
    //linear interpolation.  will introduce some lowpass/aliasing.
 
    double diff= nowpos - lastpos;
@@ -612,7 +621,23 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
 
    //output last sample
    int rpos = ( (int) d->readpos ) % d->bufsize ; 
-   *out = d->buffer[rpos];
+
+//   *out = d->buffer[rpos];
+   
+   d->outputs[0] =  0.0;
+   d->inputs [0] =  d->buffer[rpos];
+   
+   d->outputs[0] += d->bcoeff[1] * d->inputs[1];
+   d->inputs [1] =  d->inputs[0];
+   
+   d->outputs[0] += d->bcoeff[0] * d->inputs[0];
+
+   d->outputs[0] += -d->acoeff[1] * d->outputs[1];
+   d->outputs[1] =  d->outputs[0];
+   
+   *out = d->outputs[0];
+
+   
    d->buffer[rpos] = 0; //clear once it's been read
    d->readpos++;
 
@@ -621,13 +646,13 @@ UGEN_TICK delayph_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) {
    
 }
 
-UGEN_CTRL delayph_ctrl_delay( t_CKTIME now, void * data, void * value )
+UGEN_CTRL delayp_ctrl_delay( t_CKTIME now, void * data, void * value )
 {
-    delayph_data * d = ( delayph_data * ) data;
+    delayp_data * d = ( delayp_data * ) data;
     t_CKDUR target = * (t_CKDUR *) value; // rate     
     if ( target != d->writeoff_target ) {
        if ( target > d->bufsize ) { 
-          fprintf( stderr, "[chuck](via delayph): delay time %f over max!  set max first!\n", target);
+          fprintf( stderr, "[chuck](via delayp): delay time %f over max!  set max first!\n", target);
           return;
        }
        d->writeoff_target = target;
@@ -636,15 +661,15 @@ UGEN_CTRL delayph_ctrl_delay( t_CKTIME now, void * data, void * value )
     }
 }
 
-UGEN_CGET delayph_cget_delay( t_CKTIME now, void * data, void * out )
+UGEN_CGET delayp_cget_delay( t_CKTIME now, void * data, void * out )
 {
-    delayph_data * d = ( delayph_data * ) data;
+    delayp_data * d = ( delayp_data * ) data;
     SET_NEXT_DUR( out, d->writeoff_last );
 }
 
-UGEN_CTRL delayph_ctrl_window( t_CKTIME now, void * data, void * value )
+UGEN_CTRL delayp_ctrl_window( t_CKTIME now, void * data, void * value )
 {
-    delayph_data * d = ( delayph_data * ) data;
+    delayp_data * d = ( delayp_data * ) data;
     t_CKDUR window = * (t_CKDUR *) value; // rate     
     if ( window >= 0 ) {
        d->writeoff_window_time = window;
@@ -652,16 +677,16 @@ UGEN_CTRL delayph_ctrl_window( t_CKTIME now, void * data, void * value )
     }
 }
 
-UGEN_CGET delayph_cget_window( t_CKTIME now, void * data, void * out )
+UGEN_CGET delayp_cget_window( t_CKTIME now, void * data, void * out )
 {
-    delayph_data * d = ( delayph_data * ) data;
+    delayp_data * d = ( delayp_data * ) data;
     SET_NEXT_DUR( out, d->writeoff_last );
 }
 
 
-UGEN_CTRL delayph_ctrl_max( t_CKTIME now, void * data, void * value )
+UGEN_CTRL delayp_ctrl_max( t_CKTIME now, void * data, void * value )
 {   
-    delayph_data * d = ( delayph_data * ) data;
+    delayp_data * d = ( delayp_data * ) data;
     t_CKDUR nmax = * (t_CKDUR *) value; // rate 
     if ( d->bufsize != (int)nmax && nmax > 1.0 ) { 
       d->bufsize = (int)(nmax+.5); 
@@ -669,11 +694,11 @@ UGEN_CTRL delayph_ctrl_max( t_CKTIME now, void * data, void * value )
       for ( int i = 0; i < d->bufsize; i++ ) d->buffer[i] = 0;
     }
 
-
 }
-UGEN_CGET delayph_cget_max( t_CKTIME now, void * data, void * out )
+
+UGEN_CGET delayp_cget_max( t_CKTIME now, void * data, void * out )
 {
-    delayph_data * d = ( delayph_data * ) data;
+    delayp_data * d = ( delayp_data * ) data;
     SET_NEXT_DUR( out, (t_CKDUR) d->bufsize );
 }
 
@@ -1006,6 +1031,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     d->num_frames = info.frames;
     d->num_channels = info.channels;
     d->num_samples = sf_read_float(file, d->buffer, size) ;
+    //fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
     d->samplerate = info.samplerate;
 
     d->sampleratio = (double)d->samplerate / (double)g_srate;

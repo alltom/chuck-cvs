@@ -253,6 +253,21 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! \sectionMain STK
 
+    // add BandedWG
+    QUERY->ugen_add( QUERY, "BandedWG", NULL ); 
+    QUERY->ugen_func( QUERY, BandedWG_ctor, BandedWG_dtor, BandedWG_tick, BandedWG_pmsg );
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_noteOn, NULL, "float", "noteOn" ); //! noteOn
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_noteOff, NULL, "float", "noteOff" ); //! noteOff
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_pluck, NULL, "float", "pluck" ); //! pluck waveguide
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_startBowing, NULL, "float", "startBowing" ); //! pluck waveguide
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! pluck waveguide
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_freq, BandedWG_cget_freq, "float", "strikePosition" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowRate, BandedWG_cget_bowRate, "float", "bowRate" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowPressure, BandedWG_cget_bowPressure, "float", "bowPressure" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_preset, BandedWG_cget_preset, "int", "preset" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_strikePosition, BandedWG_cget_strikePosition, "float", "strikePosition" ); //! strike Position
+    
+
     // add BiQuad
     QUERY->ugen_add( QUERY, "BiQuad", NULL ); 
     QUERY->ugen_func( QUERY, BiQuad_ctor, BiQuad_dtor, BiQuad_tick, BiQuad_pmsg );
@@ -273,7 +288,76 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! STK blown bottle class
     QUERY->ugen_add( QUERY, "BlowBotl", NULL );
     QUERY->ugen_func( QUERY, BlowBotl_ctor, BlowBotl_dtor, BlowBotl_tick, BlowBotl_pmsg );
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
     QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_freq, BlowBotl_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_rate, BlowBotl_cget_rate, "float", "rate" ); //! frequency
+
+        // add BlowHole
+    //! STK blow hole class
+    QUERY->ugen_add( QUERY, "BlowHole", NULL );
+    QUERY->ugen_func( QUERY, BlowHole_ctor, BlowHole_dtor, BlowHole_tick, BlowHole_pmsg );
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_freq, BlowHole_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_vent, BlowHole_cget_vent, "float", "vent" ); //! vent frequency
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_tonehole, BlowHole_cget_tonehole, "float", "tonehole" ); //! tonehole size
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_reed, BlowHole_cget_reed, "float", "reed" ); //! reed stiffness
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_rate, BlowHole_cget_rate, "float", "rate" ); //! rate of change
+
+    //! STK blow hole class
+    QUERY->ugen_add( QUERY, "Bowed", NULL );
+    QUERY->ugen_func( QUERY, Bowed_ctor, Bowed_dtor, Bowed_tick, Bowed_pmsg );
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_noteOff, NULL, "float", "noteOff" ); //! note off
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_startBowing, NULL, "float", "startBowing" ); //! begin bowing instrument
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! stop bowing
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_freq, Bowed_cget_freq, "float", "freq" ); //!
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_rate, Bowed_cget_rate, "float", "rate" ); //!
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_vibrato, Bowed_cget_vibrato, "float", "vibrato" ); //!
+
+            // add Brass
+    //! STK Brass class
+    QUERY->ugen_add( QUERY, "Brass", NULL );
+    QUERY->ugen_func( QUERY, Brass_ctor, Brass_dtor, Brass_tick, Brass_pmsg );
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_clear, NULL, "float", "clear" ); //! clear instrument
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_freq, Brass_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_rate, Brass_cget_rate, "float", "rate" ); //! rate of change
+    QUERY->ugen_ctrl( QUERY, Brass_ctrl_lip, Brass_cget_lip, "float", "lip" ); //! lip stiffness
+
+            // add Clarinet
+    //! STK Clarinet class
+    QUERY->ugen_add( QUERY, "Clarinet", NULL );
+    QUERY->ugen_func( QUERY, Clarinet_ctor, Clarinet_dtor, Clarinet_tick, Clarinet_pmsg );
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_clear, NULL, "float", "clear" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_freq, Clarinet_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_rate, Clarinet_cget_rate, "float", "rate" ); //! rate of change
+
+            // add Flute
+    //! STK Flute class
+    QUERY->ugen_add( QUERY, "Flute", NULL );
+    QUERY->ugen_func( QUERY, Flute_ctor, Flute_dtor, Flute_tick, Flute_pmsg );
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_clear, NULL, "float", "clear" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_freq, Flute_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetReflection, Flute_cget_jetReflection, "float", "jetReflection" ); //! rate of change
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetDelay, Flute_cget_jetDelay, "float", "jetDelay" ); //! rate of change
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_endReflection, Flute_cget_endReflection, "float", "endReflection" ); //! rate of change
 
     // add Chorus
     QUERY->ugen_add( QUERY, "Chorus", NULL );
@@ -496,6 +580,32 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, Mandolin_cget_stringDetune, "float", "stringDetune" ); //! control detuning of string pair
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" ); //!aftertouch
     
+
+    // add ModalBar
+    //! see \example ModalBarie.ck
+    QUERY->ugen_add( QUERY, "ModalBar", NULL );
+    QUERY->ugen_func( QUERY, ModalBar_ctor, ModalBar_dtor, ModalBar_tick, ModalBar_pmsg );
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strike, NULL, "float", "strike" ); //! strike bar
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_damp, NULL, "float", "damp" ); //! damp bar
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop note
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_clear, NULL, "float", "clear" ); //! reset
+
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_preset, ModalBar_cget_preset, "int", "preset" ); //! choose preset
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_freq, ModalBar_cget_freq, "float", "freq" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strikePosition, ModalBar_cget_strikePosition, "float", "strikePosition" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_stickHardness, ModalBar_cget_stickHardness, "float", "stickHardness" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_masterGain, ModalBar_cget_masterGain, "float", "masterGain" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_directGain, ModalBar_cget_directGain, "float", "directGain" ); //! set frequency
+
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_mode, ModalBar_cget_mode, "int", "mode" ); //! choose mode
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRatio, ModalBar_cget_modeRatio, "float", "modeRatio" ); //! mode edit
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRadius, ModalBar_cget_modeRadius, "float", "modeRadius" ); //! mode dit
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeGain, ModalBar_cget_modeGain, "float", "modeGain" ); //! mode edit
+
+
+
+
     // add Moog
     //! see \example moogie.ck
     QUERY->ugen_add( QUERY, "Moog", NULL );
@@ -523,6 +633,42 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "PRCRev", NULL );
     QUERY->ugen_func( QUERY, PRCRev_ctor, PRCRev_dtor, PRCRev_tick, PRCRev_pmsg );
     QUERY->ugen_ctrl( QUERY, PRCRev_ctrl_mix, PRCRev_cget_mix, "float", "mix" ); //! mix level
+    
+    // add Saxofony
+    //! STK Saxofony class
+    QUERY->ugen_add( QUERY, "Saxofony", NULL );
+    QUERY->ugen_func( QUERY, Saxofony_ctor, Saxofony_dtor, Saxofony_tick, Saxofony_pmsg );
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_clear, NULL, "float", "clear" ); //! clear instrument
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_freq, Saxofony_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_rate, Saxofony_cget_rate, "float", "rate" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_blowPosition, Saxofony_cget_blowPosition, "float", "lip" ); //! lip stiffness
+
+// add Sitar
+    //! STK Sitar class
+    QUERY->ugen_add( QUERY, "Sitar", NULL );
+    QUERY->ugen_func( QUERY, Sitar_ctor, Sitar_dtor, Sitar_tick, Sitar_pmsg );
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_pluck, NULL, "float", "pluck" ); //! 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOn, NULL, "float", "noteOn" ); 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOff, NULL, "float", "noteOff" ); 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_clear, NULL, "float", "clear" ); 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_freq, Sitar_cget_freq, "float", "freq" ); 
+
+// add StifKarp
+    //! STK StifKarp class
+    QUERY->ugen_add( QUERY, "StifKarp", NULL );
+    QUERY->ugen_func( QUERY, StifKarp_ctor, StifKarp_dtor, StifKarp_tick, StifKarp_pmsg );
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pluck, NULL, "float", "pluck" ); //! 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOn, NULL, "float", "noteOn" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOff, NULL, "float", "noteOff" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_clear, NULL, "float", "clear" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_freq, StifKarp_cget_freq, "float", "freq" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pickupPosition, StifKarp_cget_pickupPosition, "float", "pickupPosition" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_stretch, StifKarp_cget_stretch, "float", "stretch" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_baseLoopGain, StifKarp_cget_baseLoopGain, "float", "baseLoopGain" ); 
     
     // add Shakers
     //! see \example shake-o-matic.ck
@@ -1324,6 +1470,7 @@ class BandedWG : public Instrmnt
   void pluck(MY_FLOAT amp);
 
   //! Start a note with the given frequency and amplitude.
+  void noteOn(MY_FLOAT amplitude) { noteOn ( freakency, amplitude ); } 
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
 
   //! Stop a note with the given amplitude (speed of decay).
@@ -1336,6 +1483,10 @@ class BandedWG : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected
+
+  double m_rate;
+  int m_preset;
+  double m_bowpressure;
 
   bool doPluck;
   bool trackVelocity;
@@ -2134,11 +2285,17 @@ class BlowBotl : public Instrmnt
   //! Set instrument parameters for a particular frequency.
   void setFrequency(MY_FLOAT frequency);
 
+  //! Apply breath velocity to instrument
+  void startBlowing(MY_FLOAT amplitude) { startBlowing ( amplitude, m_rate ); } //chuck
+
   //! Apply breath velocity to instrument with given amplitude and rate of increase.
   void startBlowing(MY_FLOAT amplitude, MY_FLOAT rate);
 
   //! Decrease breath velocity with given rate of decrease.
   void stopBlowing(MY_FLOAT rate);
+
+  //! Start a note current frequency, given amplitude.
+  void noteOn(MY_FLOAT amplitude) { noteOn ( baseFrequency, amplitude ); } //chuck
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
@@ -2153,6 +2310,8 @@ class BlowBotl : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected  
+ 
+  double m_rate;
   JetTabl *jetTable;
   BiQuad *resonator;
   PoleZero *dcBlock;
@@ -2380,6 +2539,9 @@ class BlowHole : public Instrmnt
   //! Set the register hole state (0.0 = closed, 1.0 = fully open).
   void setVent(MY_FLOAT newValue);
 
+  //! Apply breath velocity to instrument
+  void startBlowing(MY_FLOAT amplitude) { startBlowing ( amplitude, m_rate ); } //chuck
+
   //! Apply breath pressure to instrument with given amplitude and rate of increase.
   void startBlowing(MY_FLOAT amplitude, MY_FLOAT rate);
 
@@ -2387,6 +2549,7 @@ class BlowHole : public Instrmnt
   void stopBlowing(MY_FLOAT rate);
 
   //! Start a note with the given frequency and amplitude.
+  void noteOn( MY_FLOAT amplitude ) { noteOn ( m_frequency, amplitude ); }
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
 
   //! Stop a note with the given amplitude (speed of decay).
@@ -2399,6 +2562,13 @@ class BlowHole : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected  
+
+  double m_frequency;
+  double m_rate;
+  double m_tonehole;
+  double m_vent;
+  double m_reed;
+
   DelayL *delays[3];
   ReedTabl *reedTable;
   OneZero *filter;
@@ -2543,12 +2713,14 @@ class Bowed : public Instrmnt
   //! Set vibrato gain.
   void setVibrato(MY_FLOAT gain);
 
+  void startBowing(MY_FLOAT amplitude) { startBowing(amplitude, m_rate ); }
   //! Apply breath pressure to instrument with given amplitude and rate of increase.
   void startBowing(MY_FLOAT amplitude, MY_FLOAT rate);
 
   //! Decrease breath pressure with given rate of decrease.
   void stopBowing(MY_FLOAT rate);
 
+  void noteOn(MY_FLOAT amplitude) { noteOn ( m_frequency, amplitude ); } 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
 
@@ -2562,6 +2734,8 @@ class Bowed : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected  
+  double m_frequency; 
+  double m_rate; 
   DelayL *neckDelay;
   DelayL *bridgeDelay;
   BowTabl *bowTable;
@@ -6746,6 +6920,7 @@ void BandedWG :: clear()
 void BandedWG :: setPreset(int preset)
 {
   int i;
+  m_preset = preset;
   switch (preset){
 
   case 1: // Tuned Bar
@@ -6993,6 +7168,7 @@ void BandedWG :: controlChange(int number, MY_FLOAT value)
   }
 
   if (number == __SK_BowPressure_) { // 2
+    m_bowpressure = norm;
     if ( norm == 0.0 )
       doPluck = true;
     else {
@@ -7288,6 +7464,8 @@ MY_FLOAT *BiQuad :: tick(MY_FLOAT *vector, unsigned int vectorSize)
 
 BlowBotl :: BlowBotl()
 {
+
+  m_rate = 1.0;
   jetTable = new JetTabl();
 
   dcBlock = new PoleZero();
@@ -7458,6 +7636,10 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
 
 BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
 {
+
+   m_rate = 1.0;
+   m_frequency = 220.0;
+   m_reed = 0.5;
   length = (long) (Stk::sampleRate() / lowestFrequency + 1);
   // delays[0] is the delay line between the reed and the register vent.
   delays[0] = (DelayL *) new DelayL( 5.0 * Stk::sampleRate() / 22050.0, 100 );
@@ -7557,10 +7739,10 @@ void BlowHole :: setVent(MY_FLOAT newValue)
   // (newValue = 0).
 
   MY_FLOAT gain;
-
   if (newValue <= 0.0) gain = 0.0;
   else if (newValue >= 1.0) gain = rh_gain;
   else gain = newValue * rh_gain;
+  m_vent = newValue;  
   vent->setGain(gain);
 }
 
@@ -7574,6 +7756,7 @@ void BlowHole :: setTonehole(MY_FLOAT newValue)
   if (newValue <= 0.0) new_coeff = 0.9995;
   else if (newValue >= 1.0) new_coeff = th_coeff;
   else new_coeff = (newValue * (th_coeff - 0.9995)) + 0.9995;
+  m_tonehole = newValue;
   tonehole->setA1(-new_coeff);
   tonehole->setB0(new_coeff);
 }
@@ -7657,8 +7840,10 @@ void BlowHole :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): BlowHole: Control value greater than 128.0!" << std::endl;
   }
 
-  if (number == __SK_ReedStiffness_) // 2
-    reedTable->setSlope( -0.44 + (0.26 * norm) );
+  if (number == __SK_ReedStiffness_) { // 2 
+    m_reed = norm;
+    reedTable->setSlope( -0.44 + (0.26 * norm) ); 
+   }
   else if (number == __SK_NoiseLevel_) // 4
     noiseGain = ( norm * 0.4);
   else if (number == __SK_ModFrequency_) // 11
@@ -7817,6 +8002,7 @@ void Bowed :: setFrequency(MY_FLOAT frequency)
     std::cerr << "[chuck](via STK): Bowed: setFrequency parameter is less than or equal to zero!" << std::endl;
     freakency = 220.0;
   }
+  m_frequency = freakency;
 
   // Delay = length - approximate filter delay.
   baseDelay = Stk::sampleRate() / freakency - (MY_FLOAT) 4.0;
@@ -19231,6 +19417,148 @@ void WvOut :: tickFrame(const MY_FLOAT *frameVector, unsigned int frames)
 // chuck - import
 // wrapper functions
 
+//convenience functions 
+/* void 
+ck_domidi ( Instrmnt * inst, unsigned int i ) { 
+    unsigned char status = (i>>16)&&0xff;
+    unsigned char data1  = (i>>8)&&0xff;
+    unsigned char data2  = (i)&&0xff;
+
+}
+
+void 
+ck_domidi ( Instrmnt * inst, unsigned char status, unsigned char data1, unsigned char data2) { 
+    unsigned char type = status && 0xf0; 
+    switch ( type ) { 
+    case __SK_NoteOn_: 
+      inst->noteOn( mtof ( (float)data1 ), ((float)data2) / 128.0 );
+      break;
+    case __SK_NoteOff_:
+      inst->noteOff( ((float)data2) / 128.0 );
+      break;
+    case __SK_ControlChange_:
+      inst->controlChange( data1, data2 );
+      break;
+    case __SK_AfterTouch_:
+      inst->controlChange( __SK_AfterTouch_, ((float)data1) / 128.0 );
+    case __SK_PitchBend_:
+      unsigned int mnum = ((unsigned int)data2) << 7 || data1 );
+      inst->controlChange( __SK_PitchBend_, ((float)mnum) / 16384.0 );
+      break;
+    }
+}
+
+*/
+
+UGEN_CTOR BandedWG_ctor ( t_CKTIME now ) { 
+   return new BandedWG();
+}
+
+UGEN_DTOR BandedWG_dtor ( t_CKTIME now, void * data ) { 
+    delete (BandedWG *)data;
+}
+
+UGEN_TICK BandedWG_tick ( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
+   *out = ((BandedWG *)data)->tick();
+   return TRUE;
+}
+
+UGEN_PMSG BandedWG_pmsg( t_CKTIME now, void * data, const char * msg, void * value ) { 
+   return FALSE;
+}
+
+
+
+UGEN_CTRL BandedWG_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->noteOn( GET_NEXT_FLOAT ( value ));
+}
+
+UGEN_CTRL BandedWG_ctrl_pluck( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->pluck( GET_NEXT_FLOAT ( value ));
+}
+
+UGEN_CTRL BandedWG_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->noteOff( GET_NEXT_FLOAT ( value ));
+}
+
+UGEN_CTRL BandedWG_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->setFrequency( GET_NEXT_FLOAT ( value ));
+}
+
+
+UGEN_CGET BandedWG_cget_freq( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    SET_NEXT_FLOAT ( value, f->freakency);
+}
+
+UGEN_CTRL BandedWG_ctrl_strikePosition( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->setStrikePosition( GET_NEXT_FLOAT ( value ) );
+}
+UGEN_CGET BandedWG_cget_strikePosition( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    SET_NEXT_FLOAT ( value, f->strikePosition );
+}
+
+UGEN_CTRL BandedWG_ctrl_bowRate( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->m_rate =  GET_NEXT_FLOAT ( value );
+}
+UGEN_CGET BandedWG_cget_bowRate( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    SET_NEXT_FLOAT ( value, f->m_rate );
+}
+
+UGEN_CTRL BandedWG_ctrl_bowPressure( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->controlChange( __SK_BowPressure_, GET_NEXT_FLOAT(value) * 128.0 );
+
+}
+UGEN_CGET BandedWG_cget_bowPressure( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    SET_NEXT_FLOAT ( value, f->m_bowpressure );
+}
+
+
+UGEN_CTRL BandedWG_ctrl_preset( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->setPreset ( GET_NEXT_INT ( value ) );
+}
+
+UGEN_CGET BandedWG_cget_preset( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    SET_NEXT_INT ( value, f->m_preset );
+}
+
+UGEN_CTRL BandedWG_ctrl_startBowing( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->startBowing( GET_NEXT_FLOAT (value), f->m_rate );
+}
+UGEN_CTRL BandedWG_ctrl_stopBowing( t_CKTIME now, void * data, void * value )
+{
+    BandedWG * f = (BandedWG *)data;
+    f->stopBowing( GET_NEXT_FLOAT (value) );
+}
+
+
 
 // BiQuad
 struct BiQuad_
@@ -19379,6 +19707,296 @@ UGEN_CGET BiQuad_cget_a0( t_CKTIME now, void * data, void * value )
     SET_NEXT_FLOAT( value, f->biquad.a[0] );
 }
 
+// BlowBotl
+UGEN_CTOR BlowBotl_ctor( t_CKTIME now )
+{
+    return new BlowBotl();
+}
+
+UGEN_DTOR BlowBotl_dtor( t_CKTIME now, void * data )
+{
+    delete (BlowBotl *)data;
+}
+
+UGEN_TICK BlowBotl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    *out = p->tick();
+    return TRUE;
+}
+
+UGEN_PMSG BlowBotl_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL BlowBotl_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->noteOn ( f );
+}
+
+
+UGEN_CTRL BlowBotl_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->noteOff ( f );
+}
+
+UGEN_CTRL BlowBotl_ctrl_startBlowing( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->startBlowing ( f );
+}
+
+UGEN_CTRL BlowBotl_ctrl_stopBlowing( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->stopBlowing ( f );
+}
+
+UGEN_CTRL BlowBotl_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setFrequency( f );
+}
+
+UGEN_CGET BlowBotl_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    SET_NEXT_FLOAT( value, p->baseFrequency );
+}
+
+
+UGEN_CTRL BlowBotl_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->m_rate = f;
+}
+
+UGEN_CGET BlowBotl_cget_rate ( t_CKTIME now, void * data, void * value )
+{
+    BlowBotl * p = (BlowBotl *)data;
+    SET_NEXT_FLOAT( value, p->m_rate );
+}
+
+// BlowHole
+UGEN_CTOR BlowHole_ctor( t_CKTIME now )
+{
+    return new BlowHole( 44100 );
+}
+
+UGEN_DTOR BlowHole_dtor( t_CKTIME now, void * data )
+{
+    delete (BlowHole *)data;
+}
+
+UGEN_TICK BlowHole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    BlowHole * p = (BlowHole *)data;
+    *out = p->tick();
+    return TRUE;
+}
+
+UGEN_PMSG BlowHole_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL BlowHole_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->noteOn ( f );
+}
+
+
+UGEN_CTRL BlowHole_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->noteOff ( f );
+}
+
+UGEN_CTRL BlowHole_ctrl_startBlowing( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->startBlowing ( f );
+}
+
+UGEN_CTRL BlowHole_ctrl_stopBlowing( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->stopBlowing ( f );
+}
+
+UGEN_CTRL BlowHole_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setFrequency( f );
+}
+
+UGEN_CGET BlowHole_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    SET_NEXT_FLOAT( value, p->m_frequency );
+}
+
+
+UGEN_CTRL BlowHole_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->m_rate = f;
+}
+
+UGEN_CGET BlowHole_cget_rate ( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    SET_NEXT_FLOAT( value, p->m_rate );
+}
+
+UGEN_CTRL BlowHole_ctrl_tonehole( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setTonehole( f );
+}
+
+UGEN_CGET BlowHole_cget_tonehole ( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    SET_NEXT_FLOAT( value, p->m_tonehole );
+}
+
+UGEN_CTRL BlowHole_ctrl_vent( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setVent( f );
+}
+
+UGEN_CGET BlowHole_cget_vent ( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    SET_NEXT_FLOAT( value, p->m_vent );
+}
+
+UGEN_CTRL BlowHole_ctrl_reed( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->controlChange(__SK_ReedStiffness_, f * 128.0);
+}
+
+UGEN_CGET BlowHole_cget_reed ( t_CKTIME now, void * data, void * value )
+{
+    BlowHole * p = (BlowHole *)data;
+    SET_NEXT_FLOAT( value, p->m_reed );
+}
+
+
+// Bowed
+UGEN_CTOR Bowed_ctor( t_CKTIME now )
+{
+    return new Bowed(40.0);
+}
+
+UGEN_DTOR Bowed_dtor( t_CKTIME now, void * data )
+{
+    delete (Bowed *)data;
+}
+
+UGEN_TICK Bowed_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Bowed * p = (Bowed *)data;
+    *out = p->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Bowed_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Bowed_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->noteOn ( f );
+}
+
+UGEN_CTRL Bowed_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->noteOff ( f );
+}
+
+UGEN_CTRL Bowed_ctrl_startBowing( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->startBowing ( f );
+}
+
+UGEN_CTRL Bowed_ctrl_stopBowing( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->stopBowing ( f );
+}
+
+UGEN_CTRL Bowed_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setFrequency( f );
+}
+
+UGEN_CGET Bowed_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    SET_NEXT_FLOAT( value, p->m_frequency );
+}
+
+UGEN_CTRL Bowed_ctrl_vibrato( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setVibrato( f );
+}
+
+UGEN_CGET Bowed_cget_vibrato( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    SET_NEXT_FLOAT( value, p->vibratoGain );
+}
+
+UGEN_CTRL Bowed_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->m_rate = f;
+}
+
+UGEN_CGET Bowed_cget_rate ( t_CKTIME now, void * data, void * value )
+{
+    Bowed * p = (Bowed *)data;
+    SET_NEXT_FLOAT( value, p->m_rate );
+}
+
+
+
 
 // Chorus
 UGEN_CTOR Chorus_ctor( t_CKTIME now )
@@ -19443,6 +20061,880 @@ UGEN_CGET Chorus_cget_modFreq( t_CKTIME now, void * data, void * value )
     Chorus * p = (Chorus *)data;
     SET_NEXT_FLOAT ( value, p->mods[0]->m_freq );
 }
+
+//Brass
+struct Brass_ { 
+   Brass * imp;
+
+   double m_frequency;
+   double m_rate;
+   double m_lip;
+
+   Brass_ ( double d ) { 
+      imp = new Brass(d);
+      m_frequency = 100.0;
+      m_rate = 0.5;
+      m_lip = 0.1;        
+   }
+};
+
+UGEN_CTOR Brass_ctor( t_CKTIME now )
+{
+    return new Brass_( 30.0 );
+}
+
+UGEN_DTOR Brass_dtor( t_CKTIME now, void * data )
+{
+    delete ((Brass_ *)data)->imp;
+    delete (Brass_ *)data;
+}
+
+UGEN_TICK Brass_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Brass_ * b = (Brass_ *)data;
+    *out = b->imp->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Brass_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Brass_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOn ( b->m_frequency, f );
+}
+
+
+UGEN_CTRL Brass_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOff ( f );
+}
+
+UGEN_CTRL Brass_ctrl_startBlowing( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->startBlowing ( f, b->m_rate );
+}
+
+UGEN_CTRL Brass_ctrl_stopBlowing( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->stopBlowing ( f );
+}
+
+UGEN_CTRL Brass_ctrl_clear( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    b->imp->clear();
+}
+
+UGEN_CTRL Brass_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_frequency = f;
+    b->imp->setFrequency( f );
+}
+
+UGEN_CGET Brass_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    SET_NEXT_FLOAT( value, b->m_frequency );
+}
+
+UGEN_CTRL Brass_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_rate = f;
+}
+
+UGEN_CGET Brass_cget_rate ( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    SET_NEXT_FLOAT( value, b->m_rate );
+}
+
+UGEN_CTRL Brass_ctrl_lip( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_lip = f;
+    b->imp->setLip(f);
+}
+
+UGEN_CGET Brass_cget_lip ( t_CKTIME now, void * data, void * value )
+{
+    Brass_ * b = (Brass_ *)data;
+    SET_NEXT_FLOAT( value, b->m_lip );
+}
+
+
+struct Clarinet_ { 
+   Clarinet * imp;
+   double m_frequency;
+   double m_lip;
+   double m_rate;
+   Clarinet_ ( double d ) { 
+      imp = new Clarinet(d);
+      m_frequency = 100.0;
+      m_lip = 200.0;
+      m_rate = 0.5;
+   }
+};
+
+
+// Clarinet
+UGEN_CTOR Clarinet_ctor( t_CKTIME now )
+{
+    return new Clarinet_( 40.0 );
+}
+
+UGEN_DTOR Clarinet_dtor( t_CKTIME now, void * data )
+{
+    delete ((Clarinet_ *)data)->imp;
+    delete (Clarinet_ *)data;
+}
+
+UGEN_TICK Clarinet_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    *out = b->imp->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Clarinet_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Clarinet_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOn ( b->m_frequency, f );
+}
+
+
+UGEN_CTRL Clarinet_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOff ( f );
+}
+
+UGEN_CTRL Clarinet_ctrl_startBlowing( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->startBlowing ( f, b->m_rate );
+}
+
+UGEN_CTRL Clarinet_ctrl_stopBlowing( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->stopBlowing ( f );
+}
+
+UGEN_CTRL Clarinet_ctrl_clear( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    b->imp->clear();
+}
+
+UGEN_CTRL Clarinet_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_frequency = f;
+    b->imp->setFrequency( f );
+}
+
+UGEN_CGET Clarinet_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    SET_NEXT_FLOAT( value, b->m_frequency );
+}
+
+UGEN_CTRL Clarinet_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_rate = f;
+}
+
+UGEN_CGET Clarinet_cget_rate ( t_CKTIME now, void * data, void * value )
+{
+    Clarinet_ * b = (Clarinet_ *)data;
+    SET_NEXT_FLOAT( value, b->m_rate );
+}
+
+// Flute
+struct Flute_ { 
+   Flute * imp;
+
+   double m_frequency;
+   double m_rate;
+   double m_jetDelay;
+   double m_jetReflection;
+   double m_endReflection;
+
+   Flute_ ( double d ) { 
+      imp = new Flute(d);
+      m_frequency = 100.0;
+      m_rate = 0.5;
+      m_jetDelay = 0.0;
+      m_jetReflection = 0.0;
+      m_endReflection = 0.0;
+   }
+};
+
+UGEN_CTOR Flute_ctor( t_CKTIME now )
+{
+    return new Flute_( 40.0 );
+}
+
+UGEN_DTOR Flute_dtor( t_CKTIME now, void * data )
+{
+    delete ((Flute_ *)data)->imp;
+    delete (Flute_ *)data;
+}
+
+UGEN_TICK Flute_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Flute_ * b = (Flute_ *)data;
+    *out = b->imp->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Flute_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Flute_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOn ( b->m_frequency, f );
+}
+
+
+UGEN_CTRL Flute_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOff ( f );
+}
+
+UGEN_CTRL Flute_ctrl_startBlowing( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->startBlowing ( f, b->m_rate );
+}
+
+UGEN_CTRL Flute_ctrl_stopBlowing( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->stopBlowing ( f );
+}
+
+UGEN_CTRL Flute_ctrl_clear( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    b->imp->clear();
+}
+
+UGEN_CTRL Flute_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_frequency = f;
+    b->imp->setFrequency( f );
+}
+
+UGEN_CGET Flute_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    SET_NEXT_FLOAT( value, b->m_frequency );
+}
+
+UGEN_CTRL Flute_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_rate = f;
+}
+
+UGEN_CGET Flute_cget_rate ( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    SET_NEXT_FLOAT( value, b->m_rate );
+}
+
+UGEN_CTRL Flute_ctrl_jetDelay( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_jetDelay = f;
+    b->imp->setJetDelay( f);
+}
+
+UGEN_CGET Flute_cget_jetDelay ( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    SET_NEXT_FLOAT( value, b->m_jetDelay );
+}
+
+UGEN_CTRL Flute_ctrl_jetReflection( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_jetReflection = f;
+    b->imp->setJetReflection( f);
+}
+
+UGEN_CGET Flute_cget_jetReflection ( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    SET_NEXT_FLOAT( value, b->m_jetReflection );
+}
+
+UGEN_CTRL Flute_ctrl_endReflection( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_endReflection = f;
+    b->imp->setEndReflection(f);
+}
+
+UGEN_CGET Flute_cget_endReflection ( t_CKTIME now, void * data, void * value )
+{
+    Flute_ * b = (Flute_ *)data;
+    SET_NEXT_FLOAT( value, b->m_endReflection );
+}
+
+
+// ModalBar
+struct ModalBar_ { 
+   ModalBar modalbar;
+
+   int    m_preset;
+   int    m_modeIndex;
+   double m_modeRatio;
+   double m_modeRadius;
+   
+   ModalBar_ ( ) { 
+      m_preset = 0;
+      m_modeIndex = 0;
+   }
+};
+
+UGEN_CTOR ModalBar_ctor( t_CKTIME now )
+{
+    return new ModalBar_();
+}
+
+UGEN_DTOR ModalBar_dtor( t_CKTIME now, void * data )
+{
+    delete (ModalBar *)data;
+}
+
+UGEN_TICK ModalBar_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    *out = b->modalbar.tick();
+    return TRUE;
+}
+
+UGEN_PMSG ModalBar_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL ModalBar_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.noteOn ( b->modalbar.baseFrequency , f );
+}
+
+UGEN_CTRL ModalBar_ctrl_strike( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.strike ( f );
+}
+
+UGEN_CTRL ModalBar_ctrl_damp( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.damp ( f );
+}
+
+UGEN_CTRL ModalBar_ctrl_clear( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.clear ();
+}
+
+UGEN_CTRL ModalBar_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.noteOn ( b->modalbar.baseFrequency, f);
+}
+
+UGEN_CTRL ModalBar_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.setFrequency ( f );
+}
+
+UGEN_CGET ModalBar_cget_freq( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->modalbar.baseFrequency );
+}
+
+
+UGEN_CTRL ModalBar_ctrl_preset( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    int f = GET_CK_INT(value);
+    b->m_preset = f;
+    b->modalbar.setPreset ( f );
+}
+
+UGEN_CGET ModalBar_cget_preset( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_INT( value, b->m_preset );
+}
+
+UGEN_CTRL ModalBar_ctrl_strikePosition( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.setStrikePosition ( f );
+}
+
+UGEN_CGET ModalBar_cget_strikePosition( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->modalbar.strikePosition );
+}
+
+UGEN_CTRL ModalBar_ctrl_stickHardness( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.setStickHardness ( f );
+}
+
+UGEN_CGET ModalBar_cget_stickHardness( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->modalbar.stickHardness );
+}
+UGEN_CTRL ModalBar_ctrl_masterGain( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.setMasterGain ( f );
+}
+
+UGEN_CGET ModalBar_cget_masterGain( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->modalbar.masterGain );
+}
+
+UGEN_CTRL ModalBar_ctrl_directGain( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.setDirectGain ( f );
+}
+
+UGEN_CGET ModalBar_cget_directGain( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->modalbar.directGain );
+}
+
+
+UGEN_CTRL ModalBar_ctrl_mode( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    int i = GET_CK_INT(value);
+    if ( i >= 0 && i < b->modalbar.nModes ) { 
+        b->m_modeIndex = i;
+        b->m_modeRatio = b->modalbar.ratios[i];
+        b->m_modeRadius = b->modalbar.radii[i];
+    }
+}
+
+UGEN_CGET ModalBar_cget_mode( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->m_modeIndex );
+}
+
+UGEN_CTRL ModalBar_ctrl_modeGain( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->modalbar.setModeGain ( b->m_modeIndex, f );
+}
+
+UGEN_CGET ModalBar_cget_modeGain( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->modalbar.filters[b->m_modeIndex]->getGain() );
+}
+
+UGEN_CTRL ModalBar_ctrl_modeRatio( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    if ( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes ) { 
+      b->modalbar.setRatioAndRadius ( b->m_modeIndex, f , b->m_modeRadius );
+      b->m_modeRatio = b->modalbar.ratios[b->m_modeIndex];
+    }
+}
+
+UGEN_CGET ModalBar_cget_modeRatio( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->m_modeRatio );
+}
+
+UGEN_CTRL ModalBar_ctrl_modeRadius( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    if ( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes ) { 
+      b->modalbar.setRatioAndRadius ( b->m_modeIndex, b->m_modeRatio, f );
+      b->m_modeRadius = b->modalbar.radii[b->m_modeIndex];
+    }
+}
+
+UGEN_CGET ModalBar_cget_modeRadius( t_CKTIME now, void * data, void * value )
+{
+    ModalBar_ * b = (ModalBar_ *)data;
+    SET_NEXT_FLOAT( value, b->m_modeRadius );
+}
+
+
+//Sitar
+struct Sitar_ { 
+   Sitar * imp;
+   double m_frequency;
+
+   Sitar_ ( double d ) { 
+      imp = new Sitar(d);
+      m_frequency = 100.0;
+   }
+};
+
+UGEN_CTOR Sitar_ctor( t_CKTIME now )
+{
+    return new Sitar_( 30.0 );
+}
+
+UGEN_DTOR Sitar_dtor( t_CKTIME now, void * data )
+{
+    delete ((Sitar_ *)data)->imp;
+    delete (Sitar_ *)data;
+}
+
+UGEN_TICK Sitar_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Sitar_ * b = (Sitar_ *)data;
+    *out = b->imp->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Sitar_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Sitar_ctrl_pluck( t_CKTIME now, void * data, void * value )
+{
+    Sitar_ * b = (Sitar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->pluck ( f );
+}
+
+UGEN_CTRL Sitar_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Sitar_ * b = (Sitar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOn ( b->m_frequency, f );
+}
+
+UGEN_CTRL Sitar_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Sitar_ * b = (Sitar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOff ( f );
+}
+
+UGEN_CTRL Sitar_ctrl_clear( t_CKTIME now, void * data, void * value )
+{
+    Sitar_ * b = (Sitar_ *)data;
+    b->imp->clear();
+}
+
+UGEN_CTRL Sitar_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Sitar_ * b = (Sitar_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_frequency = f;
+    b->imp->setFrequency( f );
+}
+
+UGEN_CGET Sitar_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    Sitar_ * b = (Sitar_ *)data;
+    SET_NEXT_FLOAT( value, b->m_frequency );
+}
+
+
+
+//Saxofony
+struct Saxofony_ { 
+   Saxofony * imp;
+
+   double m_frequency;
+   double m_rate;
+
+   Saxofony_ ( double d ) { 
+      imp = new Saxofony(d);
+      m_frequency = 100.0;
+      m_rate = 0.5;
+   }
+};
+
+UGEN_CTOR Saxofony_ctor( t_CKTIME now )
+{
+    return new Saxofony_( 30.0 );
+}
+
+UGEN_DTOR Saxofony_dtor( t_CKTIME now, void * data )
+{
+    delete ((Saxofony_ *)data)->imp;
+    delete (Saxofony_ *)data;
+}
+
+UGEN_TICK Saxofony_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    *out = b->imp->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Saxofony_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Saxofony_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOn ( b->m_frequency, f );
+}
+
+
+UGEN_CTRL Saxofony_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->noteOff ( f );
+}
+
+UGEN_CTRL Saxofony_ctrl_startBlowing( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->startBlowing ( f, b->m_rate );
+}
+
+UGEN_CTRL Saxofony_ctrl_stopBlowing( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->stopBlowing ( f );
+}
+
+UGEN_CTRL Saxofony_ctrl_clear( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    b->imp->clear();
+}
+
+UGEN_CTRL Saxofony_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_frequency = f;
+    b->imp->setFrequency( f );
+}
+
+UGEN_CGET Saxofony_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    SET_NEXT_FLOAT( value, b->m_frequency );
+}
+
+UGEN_CTRL Saxofony_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->m_rate = f;
+}
+
+UGEN_CGET Saxofony_cget_rate ( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    SET_NEXT_FLOAT( value, b->m_rate );
+}
+
+UGEN_CTRL Saxofony_ctrl_blowPosition( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->imp->setBlowPosition(f);
+}
+
+UGEN_CGET Saxofony_cget_blowPosition ( t_CKTIME now, void * data, void * value )
+{
+    Saxofony_ * b = (Saxofony_ *)data;
+    SET_NEXT_FLOAT( value, b->imp->position );
+}
+
+
+
+//StifKarp
+
+UGEN_CTOR StifKarp_ctor( t_CKTIME now )
+{
+    return new StifKarp( 30.0 );
+}
+
+UGEN_DTOR StifKarp_dtor( t_CKTIME now, void * data )
+{
+    delete (StifKarp *)data;
+}
+
+UGEN_TICK StifKarp_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    StifKarp * b = (StifKarp *)data;
+    *out = b->tick();
+    return TRUE;
+}
+
+UGEN_PMSG StifKarp_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL StifKarp_ctrl_pluck( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->pluck ( f );
+}
+
+UGEN_CTRL StifKarp_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->noteOn ( b->lastFrequency, f );
+}
+
+UGEN_CTRL StifKarp_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->noteOff ( f );
+}
+
+UGEN_CTRL StifKarp_ctrl_clear( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    b->clear();
+}
+
+UGEN_CTRL StifKarp_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->setFrequency( f );
+}
+
+UGEN_CGET StifKarp_cget_freq ( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    SET_NEXT_FLOAT( value, b->lastFrequency );
+}
+
+UGEN_CTRL StifKarp_ctrl_pickupPosition( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->setPickupPosition( f );
+}
+
+UGEN_CGET StifKarp_cget_pickupPosition( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    SET_NEXT_FLOAT( value, b->pickupPosition );
+}
+
+UGEN_CTRL StifKarp_ctrl_stretch( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->setStretch( f );
+}
+
+UGEN_CGET StifKarp_cget_stretch( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    SET_NEXT_FLOAT( value, b->stretching );
+}
+
+UGEN_CTRL StifKarp_ctrl_baseLoopGain( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    b->setBaseLoopGain( f );
+}
+
+UGEN_CGET StifKarp_cget_baseLoopGain ( t_CKTIME now, void * data, void * value )
+{
+    StifKarp * b = (StifKarp *)data;
+    SET_NEXT_FLOAT( value, b->baseLoopGain );
+}
+
 
 // Delay
 UGEN_CTOR Delay_ctor( t_CKTIME now )
@@ -20762,6 +22254,35 @@ UGEN_CGET Wurley_cget_freq( t_CKTIME now, void * data, void * value )
     SET_NEXT_FLOAT( value, wurl->baseFrequency );
 }
 
+//FormSwep functions
+
+UGEN_CTOR FormSwep_ctor ( t_CKTIME now ) 
+{
+  return new FormSwep();
+}
+
+UGEN_DTOR FormSwep_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (FormSwep *)data;
+}
+
+UGEN_TICK FormSwep_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    FormSwep * m = (FormSwep *)data;
+    *out = m->tick(in);
+    return TRUE;
+}
+
+UGEN_PMSG FormSwep_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+//FormSwep requires multiple arguments
+//to most of its parameters. 
+
+
+
 UGEN_CTOR JCRev_ctor( t_CKTIME now )
 {
     return new JCRev( 4.0f );
@@ -20800,7 +22321,7 @@ UGEN_CGET JCRev_cget_mix( t_CKTIME now, void * data, void * value )
 
 UGEN_CTOR Mandolin_ctor ( t_CKTIME now ) 
 {
-  return new Mandolin( 100.0f );
+  return new Mandolin( 50.0f );
 }
 
 UGEN_DTOR Mandolin_dtor ( t_CKTIME now, void * data ) 
@@ -20966,42 +22487,6 @@ UGEN_CGET Modulate_cget_randomGain( t_CKTIME now, void * data, void * value )
 }
 
 
-
-// BlowBotl
-UGEN_CTOR BlowBotl_ctor( t_CKTIME now )
-{
-    return new BlowBotl( );
-}
-
-UGEN_DTOR BlowBotl_dtor( t_CKTIME now, void * data )
-{
-    delete (BlowBotl *)data;
-}
-
-UGEN_TICK BlowBotl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    BlowBotl * j = (BlowBotl *)data;
-    *out = j->tick();
-    return TRUE;
-}
-
-UGEN_PMSG BlowBotl_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL BlowBotl_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    BlowBotl * j = (BlowBotl *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    j->setFrequency( f );
-}
-
-UGEN_CGET BlowBotl_cget_freq( t_CKTIME now, void * data, void * value )
-{
-    BlowBotl * bot = (BlowBotl *)data;
-    SET_NEXT_FLOAT ( value, bot->baseFrequency );
-}
 
 UGEN_CTOR Moog_ctor ( t_CKTIME now ) 
 {
@@ -21559,6 +23044,7 @@ UGEN_CTRL WvIn_ctrl_path( t_CKTIME now, void * data, void * value )
     try { w->openFile( c, FALSE, FALSE ); }
     catch( StkError & e )
     {
+
         const char * s = e.getMessage();
         // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
     }
