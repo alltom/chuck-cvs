@@ -1786,6 +1786,85 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 //-----------------------------------------------------------------------------
+// name: Chuck_Instr_Array_Alloc()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Instr_Array_Alloc::Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * t )
+{
+    // set
+    this->set( depth );
+    // copy
+    m_type_ref = t;
+    // remember
+    m_type_ref->add_ref();
+    // type
+    m_param_str = new char[64];
+    const char * str = m_type_ref->c_name();
+    t_CKUINT len = strlen( str );
+    // copy
+    if( len < 64 )
+        strcpy( m_param_str, str );
+    else
+    {
+        strncpy( m_param_str, str, 60 );
+        strcpy( m_param_str + 60, "..." );
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Instr_Array_Alloc()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
+{
+    // delete
+    delete [] m_param_str;
+    m_param_str = NULL;
+    // release
+    m_type_ref->release();
+    m_type_ref = NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------

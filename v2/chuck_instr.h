@@ -1566,6 +1566,61 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Array_Alloc
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Array_Alloc : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * base_type );
+    virtual ~Chuck_Instr_Array_Alloc();
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const { return m_param_str; }
+
+protected:
+    Chuck_Type * m_type_ref;
+    char * m_param_str;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Array_Access
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Array_Access : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Array_Access( );
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Array_Access_Multi
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Array_Access_Multi : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Array_Access_Multi( t_CKUINT depth )
+    { this->set( depth ); }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_ADC
 // desc: ...
 //-----------------------------------------------------------------------------
