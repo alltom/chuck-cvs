@@ -1755,7 +1755,7 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // push the stack depth
     push_( mem_sp, stack_depth );
     // set the parent mem stack
-    shred->parent = func->parent;
+    shred->parent_stack = func->parent;
     // set the pc to 0
     shred->next_pc = 0;
     // set the code
@@ -1897,7 +1897,7 @@ void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // set the shred 
     shred->code = func;
     shred->instr = func->instr;
-    shred->parent = func->parent;
+    shred->parent_stack = func->parent;
 }
 
 
@@ -1916,7 +1916,7 @@ void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // get the code
     Chuck_VM_Code * code = *(Chuck_VM_Code **)reg_sp;
     // spork it
-    Chuck_VM_Shred * sh = vm->spork( code );
+    Chuck_VM_Shred * sh = vm->spork( code, shred );
     // copy args
     if( m_val )
     {

@@ -148,11 +148,14 @@ public:
 //-----------------------------------------------------------------------------
 public: // machine components
     // stacks
-    Chuck_VM_Stack * parent;
+    Chuck_VM_Stack * parent_stack;
     Chuck_VM_Stack * mem;
     Chuck_VM_Stack * reg;
+    
+    // code
     Chuck_VM_Code * code;
     Chuck_Instr ** instr;
+    Chuck_VM_Shred * parent;
     t_CKUINT pc;
 
     // time
@@ -251,7 +254,7 @@ public: // init
     t_CKBOOL shutdown();
 
 public: // shreds
-    Chuck_VM_Shred * spork( Chuck_VM_Code * code );
+    Chuck_VM_Shred * spork( Chuck_VM_Code * code, Chuck_VM_Shred * parent );
     Chuck_VM_Shred * fork( Chuck_VM_Code * code );
     Chuck_VM_Shreduler * shreduler() const;
     t_CKUINT next_id( );

@@ -558,7 +558,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     {
         t_CKUINT id = 0;
         if( msg->shred ) id = this->spork( msg->shred )->id;
-        else id = this->spork( msg->code )->id;
+        else id = this->spork( msg->code, NULL )->id;
         
         const char * s = ( msg->shred ? msg->shred->name.c_str() : msg->code->name.c_str() );
         EM_error3( "[chuck](VM): sporking incoming shred: %i (%s)...", id, mini(s) );
@@ -666,7 +666,7 @@ Chuck_VM_Shred * Chuck_VM::fork( Chuck_VM_Code * code )
 // name: spork()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code )
+Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code, Chuck_VM_Shred * parent )
 {
     // allocate a new shred
     Chuck_VM_Shred * shred = new Chuck_VM_Shred;
@@ -674,6 +674,8 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code )
     shred->initialize( code );
     // set the name
     shred->name = code->name;
+    // set the parent
+    shred->parent = parent;
     // spork it
     this->spork( shred );
 
@@ -889,6 +891,7 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     next = prev = NULL;
     instr = NULL;
     parent = NULL;
+    parent_stack = NULL;
 }
 
 
@@ -928,7 +931,7 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     // shred running
     is_running = FALSE;
     // set the parent stack
-    parent = c->parent;
+    parent_stack = c->parent;
     // set the instr
     instr = c->instr;
     // zero out the id

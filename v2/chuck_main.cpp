@@ -959,7 +959,7 @@ int main( int argc, char ** argv )
         if( dump ) dump_instr( code );
 
         // spork it
-        shred = vm->spork( code );
+        shred = vm->spork( code, NULL );
         
         // mem map it
         emit_engine_addr_map( emit, shred );
