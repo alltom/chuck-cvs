@@ -6,7 +6,7 @@
       http://chuck.cs.princeton.edu/
       http://soundlab.cs.princeton.edu/
 
-    This program is free software; you can redistribute it and/or modify"special:sinewave"
+    This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation; either version 2 of the License, or
     (at your option) any later version.
@@ -17203,7 +17203,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
 {
     unsigned long lastChannels = channels;
     unsigned long samples, lastSamples = (bufferSize+1)*channels;
-    if(!generate || !strstr(fileName, "special:sinewave"))
+    if(!generate || !strstr(fileName, "special:"))
     {
         closeFile();
 
@@ -17272,15 +17272,13 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     chunkPointer = 0;
 
     reset();
-    if(generate && strstr(fileName, "special:sinewave"))
+    if(generate && strstr(fileName, "special:"))
     {
-  	    fileSize = 256;  // length in 2-byte samples
-	    bufferSize = fileSize;
-	    channels = 1;
-	    dataOffset = 0;
         // STK rawwave files have no header and are assumed to contain a
         // monophonic stream of 16-bit signed integers in big-endian byte
         // order with a sample rate of 22050 Hz.
+        fileSize = bufferSize;
+	    dataOffset = 0;
         rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
 	    fileRate = 22050.0;
 	    interpolate = true;
@@ -17288,8 +17286,17 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
 	    dataType = STK_SINT16;
 	    byteswap = false;
 
-	    for (unsigned int j=0; j<bufferSize; j++)
-		    data[j] = (SHRT_MAX) * sin(2*PI*j/256);
+        // which
+        if( strstr(fileName, "special:sinewave") )
+        {
+	        for (unsigned int j=0; j<bufferSize; j++)
+		        data[j] = (SHRT_MAX) * sin(2*PI*j/256);
+        }
+        else
+        {
+            // error
+            goto error;
+        }
         data[bufferSize] = data[0];
     }
     else readData( 0 );  // Load file data.
