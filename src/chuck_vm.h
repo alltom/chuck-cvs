@@ -55,7 +55,7 @@ class Chuck_Instr;
 class Chuck_VM;
 class Chuck_VM_Func;
 class Chuck_VM_FTable;
-class Chuck_Msg;
+struct Chuck_Msg;
 class BBQ;
 class CBuffer;
 class Digitalio;

@@ -91,18 +91,18 @@ union  Chuck_DL_Return;
 
 // chuck DLL interface
 #define CK_QUERY_FUNC        "ck_query"
-typedef t_CKBOOL (* CK_DLL_CALL f_ck_query)( Chuck_DL_Query * QUERY );
-typedef void (* CK_DLL_CALL f_ck_func)( void * ARGS, Chuck_DL_Return * RETURN );
+typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
+typedef void ( CK_DLL_CALL * f_ck_func)( void * ARGS, Chuck_DL_Return * RETURN );
 
 // chuck DLL query
-typedef void (* CK_DLL_CALL f_ck_addexport)( Chuck_DL_Query * query, const char * type, const char * name, f_ck_func addr, t_CKBOOL is_func );
-typedef void (* CK_DLL_CALL f_ck_addparam)( Chuck_DL_Query * query, const char * type, const char * name );
+typedef void ( CK_DLL_CALL * f_ck_addexport)( Chuck_DL_Query * query, const char * type, const char * name, f_ck_func addr, t_CKBOOL is_func );
+typedef void ( CK_DLL_CALL * f_ck_addparam)( Chuck_DL_Query * query, const char * type, const char * name );
 // functions for adding unit generators
-typedef void (* CK_DLL_CALL f_ck_ugen_add)( Chuck_DL_Query * query, const char * name, void * reserved );
-typedef void (* CK_DLL_CALL f_ck_ugen_func)( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
-typedef void (* CK_DLL_CALL f_ck_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
+typedef void ( CK_DLL_CALL * f_ck_ugen_add)( Chuck_DL_Query * query, const char * name, void * reserved );
+typedef void ( CK_DLL_CALL * f_ck_ugen_func)( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
+typedef void ( CK_DLL_CALL * f_ck_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
 // set name
-typedef void (* CK_DLL_CALL f_ck_setname)( Chuck_DL_Query * query, const char * name );
+typedef void ( CK_DLL_CALL * f_ck_setname)( Chuck_DL_Query * query, const char * name );
 
 // internal implementation header
 extern "C" {
@@ -260,7 +260,7 @@ public:
         this->init_ref();
         m_id = id ? id : ""; m_query_func = NULL; }
     ~Chuck_DLL() {
-        this-unload(); }
+        this->unload(); }
 
 protected:
     void * m_handle;
@@ -300,6 +300,32 @@ protected:
   #define RTLD_UNSHARED     0x40
   #define RTLD_NODELETE     0x80
   #define RTLD_LAZY_UNDEF   0x100
+
+  #ifdef __cplusplus
+  }
+  #endif
+
+#elif defined(__WINDOWS_DS__)
+
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+
+  #define RTLD_LAZY         0x1
+  #define RTLD_NOW          0x2
+  #define RTLD_LOCAL        0x4
+  #define RTLD_GLOBAL       0x8
+  #define RTLD_NOLOAD       0x10
+  #define RTLD_SHARED       0x20	/* not used, the default */
+  #define RTLD_UNSHARED     0x40
+  #define RTLD_NODELETE     0x80
+  #define RTLD_LAZY_UNDEF   0x100
+
+  void * dlopen( const char * path, int mode );
+  void * dlsym( void * handle, const char * symbol );
+  const char * dlerror( void );
+  int dlclose( void * handle );
+  static char dlerror_buffer[128];
 
   #ifdef __cplusplus
   }

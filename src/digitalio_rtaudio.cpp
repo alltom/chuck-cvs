@@ -99,7 +99,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
             (int *)&m_buffer_size, num_buffers );
         if( m_use_cb )
             m_rtaudio->setStreamCallback( &cb, NULL );
-    } catch( RtError & err ) {
+    } catch( RtError err ) {
         try {
             m_buffer_size = buffer_size;
             m_rtaudio->openStream(
@@ -108,7 +108,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                 (int *)&m_buffer_size, num_buffers );
             if( m_use_cb )
                 m_rtaudio->setStreamCallback( &cb, NULL );
-        } catch( RtError & err ) {
+        } catch( RtError err ) {
             fprintf( stderr, "%s\n", err.getMessageString() );
             SAFE_DELETE( m_rtaudio );
             return m_init = FALSE;
@@ -197,7 +197,7 @@ BOOL__ Digitalio::start( )
               m_rtaudio->startStream();
          m_start++;
          return m_start;
-    } catch( RtError & err ){ return FALSE; }
+    } catch( RtError err ){ return FALSE; }
 }
 
 
@@ -213,7 +213,7 @@ BOOL__ Digitalio::stop( )
          if( !m_start )
              m_rtaudio->stopStream();
          return m_start;
-    } catch( RtError & err ){ return FALSE; }
+    } catch( RtError err ){ return FALSE; }
 }
 
 
@@ -236,7 +236,7 @@ BOOL__ Digitalio::tick( )
         }
         
         return TRUE;
-    } catch( RtError & err ){ return FALSE; }
+    } catch( RtError err ){ return FALSE; }
 }
 
 

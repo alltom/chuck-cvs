@@ -328,6 +328,37 @@ extern "C" void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query,
            const char * name )
 { query->dll_name = name; }
 
+// windows
+#if defined(__WINDOWS_DS__)
+extern "C"
+{
+#include <windows.h>
+
+void *dlopen( const char *path, int mode)
+{
+	return (void *)LoadLibrary(path);
+}
+
+int dlclose( void *handle)
+{
+	FreeLibrary((HMODULE)handle);
+	return 1;
+}
+
+void *dlsym( void * handle, const char *symbol )
+{
+	return (void *)GetProcAddress((HMODULE)handle, symbol);
+}
+
+const char * dlerror( void )
+{
+	int error = GetLastError();
+	if( error == 0 ) return NULL;
+	sprintf( dlerror_buffer, "%i", error );
+	return dlerror_buffer;
+}
+}
+#endif
 
 // mac os x
 #if defined(__MACOSX_CORE__)

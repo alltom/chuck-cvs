@@ -147,7 +147,7 @@ UGEN_TICK __dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 
 
 
-
+#ifndef __WINDOWS_DS__
 //-----------------------------------------------------------------------------
 // name: set_priority()
 // desc: ...
@@ -174,6 +174,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority, Chuck_VM * vm )
     
     return TRUE;
 }
+#endif
 
 
 
@@ -192,9 +193,11 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         return FALSE;
     }
 
+#ifndef __WINDOWS_DS__
     // boost thread priority
     if( priority != 0xffffffff && !set_priority( priority, this ) )
         return FALSE;
+#endif
 
     // allocate bbq
     m_bbq = new BBQ;

@@ -40,21 +40,28 @@ extern "C"
 {
 #include "chuck_utils.h"
 #include "chuck_errormsg.h"
-#include "chuck_socket.h"
+
+#ifndef __WINDOWS_DS__
+#define THREAD pthread_t;
+#include <pthread.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#else 
+#define THREAD HANDLE
+#define usleep(x) Sleep(x/1000);
+#endif
 
 extern int yyparse( void );
 }
 
+#include "chuck_socket.h"
 #include "chuck_type.h"
 #include "chuck_emit.h"
 #include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_bbq.h"
 
-#include <pthread.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
 #include <signal.h>
 
 #include "ugen_osc.h"
@@ -68,12 +75,14 @@ extern int yyparse( void );
 // current version
 #define CK_VERSION "1.1.4.4"
 
+
 extern a_Program g_program;
+
 ck_socket g_sock;
 Chuck_VM * g_vm = NULL;
 t_Env g_env = NULL;
 t_CKBOOL g_error = FALSE;
-pthread_t g_tid = 0;
+THREAD g_tid = 0;
 char g_host[256] = "127.0.0.1";
 int g_port = 8888;
 #if defined(__MACOSX_CORE__)
@@ -99,7 +108,11 @@ void signal_int( int sig_num )
         vm->stop();
         usleep( 100000 );
         vm->shutdown();
+#ifndef __WINDOWS_DS__
         pthread_kill( g_tid, 2 );
+#else
+		CloseHandle( g_tid );
+#endif
         usleep( 100000 );
         delete( vm );
     }
@@ -184,7 +197,7 @@ t_CKBOOL dump_instr( Chuck_VM_Code * code )
     fprintf( stdout, "[chuck]: dumping src/shred '%s'...\n", code->name.c_str() );
     fprintf( stdout, "...\n" );
 
-    for( int i = 0; i < code->num_instr; i++ )
+    for( unsigned int i = 0; i < code->num_instr; i++ )
         fprintf( stdout, "'%i' %s( %s )\n", i, 
             code->instr[i]->name(), code->instr[i]->params() );
 
@@ -379,6 +392,8 @@ int send_cmd( int argc, char ** argv, int  & i )
 {
     Msg msg;
     memset( &msg, 0, sizeof(msg) );
+	
+
     g_sock = ck_udp_create();
 
     if( !ck_connect( g_sock, g_host, g_port ) )
@@ -497,7 +512,6 @@ int send_cmd( int argc, char ** argv, int  & i )
 
 
 
-
 //-----------------------------------------------------------------------------
 // name: next_power_2()
 // desc: ...
@@ -566,7 +580,7 @@ int main( int argc, char ** argv )
             }
             else if( a = send_cmd( argc, argv, i ) )
                 exit( !(a < 0) );
-            else
+			else
             {
                 fprintf( stdout, "[chuck]: invalid flag '%s'\n", argv[i] );
                 usage();
@@ -595,11 +609,9 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-#ifndef __WINDOWS_DS__
+
     // catch SIGINT
     signal( SIGINT, signal_int );
-#endif
-
     // allocate the type system
     g_env = type_engine_init( vm );
     // set the env
@@ -662,7 +674,11 @@ int main( int argc, char ** argv )
         fprintf( stderr, "[chuck]: cannot bind to udp port %i...\n", g_port );
     else
     {
+#ifndef __WINDOWS_DS__
         pthread_create( &g_tid, NULL, cb, NULL );
+#else
+		g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)cb, NULL, 0, 0);
+#endif
     }
 
     // run the vm
@@ -673,7 +689,11 @@ int main( int argc, char ** argv )
     usleep( 50000 );
     delete( vm );
     g_vm = NULL;
+#ifndef __WINDOWS_DS__
     pthread_kill( g_tid, 2 );
+#else
+	CloseHandle( g_tid );
+#endif
     usleep( 100000 );
         
     return 0;

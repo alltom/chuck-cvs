@@ -34,6 +34,7 @@
 // date: Autumn 2002
 //-----------------------------------------------------------------------------
 #include <stdio.h>
+#include <string.h>
 #include "chuck_utils.h"
 #include "chuck_table.h"
 
@@ -68,7 +69,7 @@ TAB_table TAB_empty(void)
 TAB_table TAB_empty2( unsigned int s )
 {
     TAB_table t = checked_malloc(sizeof(struct TAB_table_));
-    int i;
+    unsigned int i;
     t->table = checked_malloc(sizeof(binder)*s);
     t->size = s;
     t->top = NULL;
@@ -92,7 +93,7 @@ TAB_table TAB_empty3( TAB_eq_func eq, TAB_hash_func hash, unsigned int s )
 
 void TAB_delete( TAB_table t )
 {
-    int i;
+    unsigned int i;
     binder p = NULL, n = NULL;
     for(i = 0; i < t->size; i++ )
     {

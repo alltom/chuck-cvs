@@ -335,7 +335,7 @@ t_Env type_engine_init( Chuck_VM * vm )
 // name: do_make_args()
 // desc: ...
 //-----------------------------------------------------------------------------
-a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, int index )
+a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, unsigned int index )
 {
     a_Arg_List args = NULL;
     if( index >= params.size() )
@@ -387,7 +387,7 @@ t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
 
     // add all the prototypes
     Chuck_DL_Query * query = (Chuck_DL_Query *)dll->query();
-    for( int i = 0; i < query->dll_exports.size(); i++ )
+    for( unsigned int i = 0; i < query->dll_exports.size(); i++ )
     {
         // the prototype
         Chuck_DL_Proto * proto = &query->dll_exports[i];
@@ -430,7 +430,7 @@ t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
     }
 
     // add the unit generators
-    for( int j = 0; j < query->ugen_exports.size(); j++ )
+    for( unsigned int j = 0; j < query->ugen_exports.size(); j++ )
     {
         Chuck_UGen_Info * ugen = new Chuck_UGen_Info( query->ugen_exports[j] );
         
@@ -692,7 +692,7 @@ t_CKBOOL type_engine_check_ugen_def_import( t_Env info, Chuck_UGen_Info * ugen )
     ugen->add( NULL, ugen_cget_last, "float", "last" );
 
     // loop through ctrl parameters
-    for( int i = 0; i < ugen->param_list.size(); i++ )
+    for( unsigned int i = 0; i < ugen->param_list.size(); i++ )
     {
         const Chuck_Info_Param * param = &ugen->param_list[i];
         

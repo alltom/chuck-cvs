@@ -403,6 +403,7 @@ UGEN_TICK zerox_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     // this is a placeholder - the real tick is the VM
+	return 0;
 }
 
 enum { SNDBUF_DROP = 0, SNDBUF_INTERP, SNDBUF_SINC};
@@ -507,7 +508,7 @@ bool sinc_table_built = false;
 
 void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out ) { 
 	//punt!
-	long left_limit, right_limit, j;
+	unsigned long left_limit, right_limit, j;
 	double factor = d->rate;
 	double time_now = d->curf;
 	double one_over_factor;
@@ -520,8 +521,8 @@ void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out ) {
 
 	left_limit = (long)time_now - WIDTH + 1;      /* leftmost neighboring sample used for interp.*/
 	right_limit = (long)time_now + WIDTH; /* rightmost leftmost neighboring sample used for interp.*/
-	if (left_limit<0) left_limit = 0;
-	if (right_limit> d->num_frames) right_limit = d->num_frames;
+	if (left_limit < 0) left_limit = 0;
+	if (right_limit > d->num_frames) right_limit = d->num_frames;
 	if (factor<1.0) {
 		for (j=left_limit;j<right_limit;j++)
 			temp1 += *(samplebase + j * stride ) * sinc(time_now - (double) j);
@@ -544,9 +545,9 @@ void make_sinc()
     sinc_table[0] = 1.0;
     for (i=1;i<WIDTH * SAMPLES_PER_ZERO_CROSSING;i++)   {
 		temp = (double) i * PI / SAMPLES_PER_ZERO_CROSSING;
-		sinc_table[i] = sin(temp) / temp;
+		sinc_table[i] = (float)(sin(temp) / temp);
 		win = 0.5 + 0.5 * cos(win_freq * i);
-		sinc_table[i] *= win;
+		sinc_table[i] *= (float)win;
     }
     sinc_table_built = true;
 }
@@ -608,7 +609,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     else if ( d->interp == SNDBUF_INTERP ) { //samplewise linear interp
       double alpha = d->curf - floor(d->curf);
       *out = (SAMPLE)( (*(d->curr)) ) ;
-      *out += alpha * ( *(d->curr + d->num_channels) - *out );
+      *out += (float)alpha * ( *(d->curr + d->num_channels) - *out );
     }
     else if ( d->interp == SNDBUF_SINC ) { 
       //do that fancy sinc function!
@@ -623,7 +624,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     return TRUE;
 
 }
-
+/*
 #include "util_sndfile.h"
 
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
@@ -696,7 +697,7 @@ UGEN_CTRL sndbuf_ctrl_rate( t_CKTIME now, void * data, void * value ) {
     sndbuf_data * d = ( sndbuf_data * ) data;
     t_CKFLOAT rate = * (t_CKFLOAT *) value;  //samples per tick..
 
-    d->rate = rate; 
+    d->rate = (float)rate; 
 }
 
 UGEN_CGET sndbuf_cget_rate( t_CKTIME now, void * data, void * out )
@@ -710,7 +711,7 @@ UGEN_CTRL sndbuf_ctrl_freq( t_CKTIME now, void * data, void * value ) {
     sndbuf_data * d = ( sndbuf_data * ) data;
     t_CKFLOAT freq = * (t_CKFLOAT *) value;  //hz
 
-    d->rate = freq * (double) d->num_frames / (double) d->samplerate;
+    d->rate = (float)(freq * (double) d->num_frames / (double) d->samplerate);
 }
 
 UGEN_CGET sndbuf_cget_freq( t_CKTIME now, void * data, void * out )
@@ -735,7 +736,7 @@ UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out )
 
 UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value ) { 
     sndbuf_data * d = ( sndbuf_data * ) data;
-    int chan = * (int *) value;
+    unsigned int chan = * (int *) value;
     if ( chan >= 0 && chan < d->num_channels ) { 
       d->chan = chan;
     }
@@ -798,5 +799,5 @@ UGEN_CGET sndbuf_cget_channels( t_CKTIME now, void * data, void * out )
     SET_NEXT_INT( out, d->num_channels );
 }
 
-
+*/
 

@@ -316,14 +316,14 @@ Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump )
     code->instr = new Chuck_Instr *[code->num_instr];
 
     // copy
-    for( int i = 0; i < code->num_instr; i++ )
+    for( unsigned int i = 0; i < code->num_instr; i++ )
         code->instr[i] = emit->global->code[i];
 
     // set the parent
     code->parent = emit->parent;
 
     // functions
-    for( int j = 0; j < emit->functions.size(); j++ )
+    for( unsigned int j = 0; j < emit->functions.size(); j++ )
     {
         Chuck_VM_Code * code2 = new Chuck_VM_Code;
         Chuck_Code * c = emit->functions[j];
@@ -331,7 +331,7 @@ Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump )
         code2->instr = new Chuck_Instr *[code2->num_instr];
 
         // copy
-        for( int i = 0; i < code2->num_instr; i++ )
+        for( unsigned int i = 0; i < code2->num_instr; i++ )
             code2->instr[i] = c->code[i];
 
         // set the parent
@@ -342,7 +342,7 @@ Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump )
         {
             fprintf( stderr, "[chuck]: dumping function %s( ... )\n\n", c->name.c_str() );
 
-            for( int i = 0; i < code2->num_instr; i++ )
+            for( unsigned int i = 0; i < code2->num_instr; i++ )
                 fprintf( stdout, "'%i' %s( %s )\n", i, 
                     code2->instr[i]->name(), code2->instr[i]->params() );
 
@@ -372,7 +372,7 @@ t_CKBOOL emit_engine_addr_map( Chuck_Emmission * emit, Chuck_VM_Shred * shred )
     sp += 4;
     
     // map the offset to pointers
-    for( int i = 0; i < emit->addr_map.size(); i++ )
+    for( unsigned int i = 0; i < emit->addr_map.size(); i++ )
         emit->addr_map[i]->set( sp + emit->addr_map[i]->get() );
 
     return TRUE;
@@ -389,7 +389,7 @@ t_CKBOOL emit_engine_resolve()
     Func_Link * f = NULL;
     Chuck_VM_Code * code = NULL;
 
-    for( int i = 0; i < g_func_links.size(); i++ )
+    for( unsigned int i = 0; i < g_func_links.size(); i++ )
     {
         f = g_func_links[i];
         code = (Chuck_VM_Code *)S_look( g_func2code, f->name );
@@ -1269,7 +1269,6 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
 {
     uint temp;
     t_CKDUR dur;
-    double f;
     Chuck_Instr_Unary_Op * op = NULL, * op2 = NULL;
 
     switch( exp->s_type )
@@ -2903,8 +2902,6 @@ t_CKBOOL emit_engine_emit_unchuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs 
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emmission * emit, a_Func_Def func_def )
 {
-    int i;
-
     if( func_def->s_type == ae_func_user )
     {
         emit->is_global = FALSE;
@@ -2927,7 +2924,7 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emmission * emit, a_Func_Def func_def 
         emit_engine_emit_stmt( emit, func_def->code );
 
         // return index to the end of the function
-        for( i = 0; i < emit->returns.size(); i++ )
+        for( unsigned int i = 0; i < emit->returns.size(); i++ )
             emit->returns[i]->set( emit->next_index() );
 
         // emit the return

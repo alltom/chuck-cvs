@@ -36,6 +36,15 @@
 #include <math.h>
 
 
+#if __WINDOWS_DS__
+#include <windows.h>
+extern int round( double a );
+
+int setenv( char *n, char *v, int i )
+{
+	return SetEnvironmentVariable(n, v);
+}
+#endif
 
 
 //-----------------------------------------------------------------------------
@@ -128,7 +137,7 @@ CK_DLL_FUNC( rand2f_impl )
 CK_DLL_FUNC( rand2_impl )
 {
     int min = *(int *)ARGS, max = *((int *)ARGS + 1);
-    RETURN->v_int = (int)::round((t_CKFLOAT)min + (max-min)*(::rand()/(t_CKFLOAT)RAND_MAX));
+    RETURN->v_int = (int)round((t_CKFLOAT)min + (max-min)*(rand()/(t_CKFLOAT)RAND_MAX));
 }
 
 // sgn
@@ -142,28 +151,28 @@ CK_DLL_FUNC( sgn_impl )
 CK_DLL_FUNC( system_impl )
 {
     char * cmd = *(char **)ARGS;
-    RETURN->v_int = ::system( cmd );
+    RETURN->v_int = system( cmd );
 }
 
 // aoti
 CK_DLL_FUNC( atoi_impl )
 {
     char * v = *(char **)ARGS;
-    RETURN->v_int = ::atoi( v );
+    RETURN->v_int = atoi( v );
 }
 
 // atof
 CK_DLL_FUNC( atof_impl )
 {
     char * v = *(char **)ARGS;
-    RETURN->v_float = ::atof( v );
+    RETURN->v_float = atof( v );
 }
 
 // getenv
 CK_DLL_FUNC( getenv_impl )
 {
     char * v = *(char **)ARGS;
-    RETURN->v_string = ::getenv( v );
+    RETURN->v_string = getenv( v );
 }
 
 // setenv
@@ -171,5 +180,5 @@ CK_DLL_FUNC( setenv_impl )
 {
     char * v1 = *(char **)ARGS;
     char * v2 = *( (char **)ARGS + 1 );
-    RETURN->v_int = ::setenv( v1, v2, 1 );
+    RETURN->v_int = setenv( v1, v2, 1 );
 }

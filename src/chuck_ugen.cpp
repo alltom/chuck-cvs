@@ -180,10 +180,10 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
         return FALSE;
 
     // remove
-    for( int i = 0; i < m_num_src; i++ )
+    for( unsigned int i = 0; i < m_num_src; i++ )
         if( m_src_list[i] == src )
         {
-            for( int j = i+1; j < m_num_src; j++ )
+            for( unsigned int j = i+1; j < m_num_src; j++ )
                 m_src_list[j-1] = m_src_list[j];
 
             m_src_list[--m_num_src] = NULL;
@@ -205,10 +205,10 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
 void Chuck_UGen::remove_by( Chuck_UGen * dest )
 {
     // remove
-    for( int i = 0; i < m_num_dest; i++ )
+    for( unsigned int i = 0; i < m_num_dest; i++ )
         if( m_dest_list[i] == dest )
         {
-            for( int j = i+1; j < m_num_dest; j++ )
+            for( unsigned int j = i+1; j < m_num_dest; j++ )
                 m_dest_list[j-1] = m_dest_list[j];
 
             m_dest_list[--m_num_dest] = NULL;
@@ -228,7 +228,7 @@ void Chuck_UGen::remove_all( )
     assert( this->m_num_dest == 0 );
     
     // remove
-    for( int i = 0; i < m_num_src; i++ )
+    for( unsigned int i = 0; i < m_num_src; i++ )
         m_src_list[i]->release();
 
     m_num_src = 0;
@@ -245,7 +245,7 @@ void Chuck_UGen::remove_all( )
 t_CKBOOL Chuck_UGen::disconnect( t_CKBOOL recursive )
 {
     // remove
-    for( int i = 0; i < m_num_dest; i++ )
+    for( unsigned int i = 0; i < m_num_dest; i++ )
         m_dest_list[i]->remove( this );
 
     m_num_dest = 0;

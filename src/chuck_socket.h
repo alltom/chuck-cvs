@@ -37,7 +37,11 @@
 #define __CHUCK_SOCKET_H__
 
 #include <sys/types.h>
+#ifndef __WINDOWS_DS__
 #include <sys/socket.h>
+#else
+#include <windows.h>
+#endif
 
 #ifndef BOOL
 #define BOOL unsigned int

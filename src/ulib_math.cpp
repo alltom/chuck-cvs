@@ -34,6 +34,27 @@
 #include <math.h>
 
 
+#if __WINDOWS_DS__
+#include <windows.h>
+int round( double a )
+{
+	double off = a - (int)a;
+	if( off > .5 ) return (int)a + 1;
+	return (int)a;
+}
+
+int trunc( double a )
+{
+	return (int)a;
+}
+
+int remainder( int a, int b )
+{
+	int div = a/b;
+	return a - b*div;
+}
+#endif
+
 static double g_pi = 3.14159265358979323846;
 static double g_twopi = 2.0 * 3.14159265358979323846;
 static double g_e = ::exp( 1.0 );
@@ -289,13 +310,13 @@ CK_DLL_FUNC( ceil_impl )
 // round
 CK_DLL_FUNC( round_impl )
 {
-    RETURN->v_float = ::round( GET_CK_FLOAT(ARGS) );
+    RETURN->v_float = round( GET_CK_FLOAT(ARGS) );
 }
 
 // trunc
 CK_DLL_FUNC( trunc_impl )
 {
-    RETURN->v_float = ::trunc( GET_CK_FLOAT(ARGS) );
+    RETURN->v_float = trunc( GET_CK_FLOAT(ARGS) );
 }
 
 // fmod
@@ -303,7 +324,7 @@ CK_DLL_FUNC( fmod_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
-    RETURN->v_float = ::fmod( x, y );
+    RETURN->v_float = fmod( x, y );
 }
 
 // remainder
@@ -311,7 +332,7 @@ CK_DLL_FUNC( remainder_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
-    RETURN->v_float = ::remainder( x, y );
+    RETURN->v_float = remainder( x, y );
 }
 
 // min

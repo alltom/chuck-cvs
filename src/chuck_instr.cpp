@@ -1789,9 +1789,9 @@ void Chuck_Instr_Func_Call2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
-    uint stack_size = (*reg_sp) >> 2 + ( *reg_sp & 0x3 ? 1 : 0 );
+    uint stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
     uint local_depth = *(reg_sp+2) + *(mem_sp-1);
-    uint push = (local_depth) >> 2 + ( local_depth & 0x3 ? 1 : 0 );
+    uint push = ((local_depth) >> 2) + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
     uint * sp = reg_sp;
@@ -1821,9 +1821,9 @@ void Chuck_Instr_Func_Call3::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
-    uint stack_size = (*reg_sp) >> 2 + ( *reg_sp & 0x3 ? 1 : 0 );
+    uint stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
     uint local_depth = *(reg_sp+2) + *(mem_sp-1);
-    uint push = local_depth >> 2 + ( local_depth & 0x3 ? 1 : 0 );
+    uint push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
     uint * sp = reg_sp;
@@ -1854,9 +1854,9 @@ void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
-    uint stack_size = (*reg_sp) >> 2 + ( *reg_sp & 0x3 ? 1 : 0 );
+    uint stack_size = ((*reg_sp) >> 2) + ( *reg_sp & 0x3 ? 1 : 0 );
     uint local_depth = *(reg_sp+2) + *(mem_sp-1);
-    uint push = local_depth >> 2 + ( local_depth & 0x3 ? 1 : 0 );
+    uint push = (local_depth >> 2) + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
     uint * sp = reg_sp;
@@ -1989,7 +1989,6 @@ void Chuck_Instr_Add_dur_time::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Midi_Out::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    MidiMsg msg;
     uint *& sp = (uint *&)shred->reg->sp;
 
     // pop word
@@ -2042,7 +2041,6 @@ void Chuck_Instr_Midi_Out_Go::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Midi_In::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    MidiMsg msg, msg2;
     uint *& sp = (uint *&)shred->reg->sp;
 
     if( m_val ) pop_( sp, 1 );
@@ -2065,7 +2063,7 @@ void Chuck_Instr_Midi_In::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Midi_In_Go::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    MidiMsg msg, msg2;
+    MidiMsg msg;
     uint *& sp = (uint *&)shred->reg->sp;
 
     pop_( sp, 1 );
@@ -2342,7 +2340,7 @@ void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
     pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
     pop_( sp, 1 );
-    ugen->m_gain = *(double *)sp;
+    ugen->m_gain = (float)*(double *)sp;
     // push the new value
     ((double *&)shred->reg->sp)++;
 }
