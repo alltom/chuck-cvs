@@ -2529,14 +2529,14 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     // get the func
     Chuck_Func * func = func_def->ck_func;
     // make sure it's the same one
-    Chuck_Func * func2 = emit->env->context->nspc.lookup_func( func_def->name, FALSE );
-    if( func != func2 )
-    {
-        EM_error2( func_def->linepos,
-            "(emit): ambiguous function resolution for %s...",
-            S_name(func_def->name) );
-        return FALSE;
-    }
+    //Chuck_Func * func2 = emit->env->context->nspc.lookup_func( func_def->name, FALSE );
+    //if( func != func2 )
+    //{
+    //    EM_error2( func_def->linepos,
+    //        "(emit): ambiguous function resolution for %s...",
+    //        S_name(func_def->name) );
+    //    return FALSE;
+    //}
     // make sure the code is empty
     if( func->code != NULL )
     {
@@ -2701,8 +2701,12 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         body = body->next;
     }
 
-    // vm code
-    type->info->code = emit_to_code( emit->code, NULL, emit->dump );
+    // if ok
+    if( ret )
+    {
+        // vm code
+        type->info->code = emit_to_code( emit->code, NULL, emit->dump );
+    }
 
     // unset the class
     emit->env->func = NULL;
@@ -2713,7 +2717,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     emit->code = emit->stack.back();
     emit->stack.pop_back();
 
-    return TRUE;
+    return ret;
 }
 
 
