@@ -48,7 +48,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 {
     // add noise
     QUERY->ugen_add( QUERY, "noise", NULL );
-    // set funcs,
+    // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, noise_tick, NULL );
     
     // add impulse

@@ -3,15 +3,15 @@ CC=gcc
 LEX=flex
 YACC=bison
 INCLUDES=
-FLAGS= -D__LINUX_OSS__ -O3 -g -c
+FLAGS= -D__LINUX_OSS__ -O3 -c
 LIBS= -lpthread -lstdc++ -ldl -lm
 OBJS= chuck.tab.o chuck.yy.o chuck_main.o chuck_errormsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \
 	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_ugen.o \
 	chuck_bbq.o chuck_dl.o digitalio_rtaudio.o rtaudio.o midiio_oss.o \
 	ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o ulib_machine.o \
-	ulib_math.o ulib_std.o util_buffers.o util_network.o util_raw.o \
-	util_sndfile.o util_xforms.o
+	ulib_math.o ulib_net.o ulib_std.o util_buffers.o util_network.o \
+	util_raw.o util_sndfile.o util_xforms.o
 
 chuck: $(OBJS)
 	$(CC) -o chuck $(OBJS) $(LIBS)
@@ -111,6 +111,9 @@ ulib_machine.o: ulib_machine.h ulib_machine.cpp
 
 ulib_math.o: ulib_math.h ulib_math.cpp
 	$(CC) $(FLAGS) ulib_math.cpp
+
+ulib_net.o: ulib_net.h ulib_net.cpp
+	$(CC) $(FLAGS) ulib_net.cpp
 
 ulib_std.o: ulib_std.h ulib_std.cpp
 	$(CC) $(FLAGS) ulib_std.cpp

@@ -396,7 +396,6 @@ int send_cmd( int argc, char ** argv, int  & i )
     Msg msg;
     memset( &msg, 0, sizeof(msg) );
 	
-
     g_sock = ck_udp_create();
 
     if( !ck_connect( g_sock, g_host, g_port ) )
