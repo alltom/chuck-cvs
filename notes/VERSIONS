@@ -1,12 +1,19 @@
 
 ---
-1.1.5.4 - 2004.11.15
+1.1.5.4 - 2004.11.18
   - fixed clicks when using adc unit generator
+  - added 'maybe' keyword
+    maybe == 0 or 1, with 50% probability each
+
+new examples:
+  - maybe.ck : the maybe keyword
+  - maybecli.ck : maybe click, maybe not
 
 adc examples work better:
   - adc.ck
   - echo.ck
   - i-robot.ck
+
 
 ---
 1.1.5.3 - 2004.11.4
