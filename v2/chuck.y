@@ -230,7 +230,6 @@ function_decl
         ;
 
 static_decl
-        //:                                   { $$ = 0; }
         : STATIC                            { $$ = ae_key_static; }
         |                                   { $$ = 0; }
         ;
