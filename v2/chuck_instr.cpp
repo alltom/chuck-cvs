@@ -1832,6 +1832,72 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
 
 
 //-----------------------------------------------------------------------------
+// name: do_alloc_array()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top, t_CKUINT size )
+{
+    // not top level
+    Chuck_Array4 * base;
+    Chuck_Object * next;
+    t_CKINT i;
+
+    // see if top level
+    if( capacity >= top )
+    {
+        // check size
+        if( size == 4 )
+        {
+            Chuck_Array4 * base = new Chuck_Array4( *capacity );
+            if( !base ) goto out_of_memory;
+            return base;
+        }
+        else
+        {
+            Chuck_Array8 * base = new Chuck_Array8( *capacity );
+            if( !base ) goto out_of_memory;
+            return base;
+        }
+
+        // shouldn't get here
+        assert( FALSE );
+    }
+
+    // not top level
+    base = new Chuck_Array4( *capacity );
+    if( !base ) goto out_of_memory;
+
+    // allocate the next level
+    for( i = 0; i < base->size(); i++ )
+    {
+        // the next
+        next = do_alloc_array( capacity+1, top, size );
+        // error if NULL
+        if( !next ) goto error;
+        // set that
+        base->set( i, (t_CKUINT)next );
+        // ref count it
+        next->add_ref();
+    }
+
+    return base;
+
+out_of_memory:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): OutOfMemory: while allocating arrays\n" );
+    return NULL;
+
+error:
+    // base shouldn't have been ref counted
+    SAFE_DELETE( base );
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -1941,7 +2007,7 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds Exception in shred '%s': index='%d'\n", 
+             "[chuck](VM): ArrayOutofBounds in shred '%s': index='%d'\n", 
              shred->name.c_str(), i );
     // do something!
     shred->is_running = FALSE;
@@ -2035,7 +2101,7 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds Exception in shred '%s': index='%d'\n", 
+             "[chuck](VM): ArrayOutofBounds in shred '%s': index='%d'\n", 
              shred->name.c_str(), i );
     // do something!
     shred->is_running = FALSE;
