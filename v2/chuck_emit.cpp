@@ -1058,15 +1058,15 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
     t_CKBOOL right = FALSE;
 
     // emit
-    left = emit_engine_emit_exp( emit, exp->lhs );
-    right = emit_engine_emit_exp( emit, exp->rhs );
+    left = emit_engine_emit_exp( emit, binary->lhs );
+    right = emit_engine_emit_exp( emit, binary->rhs );
 
     // check
     if( !left || !right )
         return FALSE;
 
     // emit the op
-    if( !emit_engine_emit_op( emit, exp->op, exp->lhs, exp->rhs ) )
+    if( !emit_engine_emit_op( emit, binary->op, binary->lhs, binary->rhs ) )
         return FALSE;
 
     return TRUE;
