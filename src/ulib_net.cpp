@@ -470,7 +470,7 @@ t_CKBOOL GigaRecv::recv( t_CKBYTE * buffer )
              << " got: " << msg->seq_num << endl;
 
     m_msg.seq_num = msg->seq_num;
-    m_ptr_r = m_readbuf;
+    m_msg.len = msg->len;
     m_ptr_end = m_readbuf + msg->len;
 
     memcpy( buffer, m_buffer + sizeof( unsigned int ) * 3, m_msg.len * sizeof(SAMPLE) );
