@@ -613,7 +613,7 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emmission * emit, a_Stmt stmt, t_CKBOOL po
             ret = emit_engine_emit_exp( emit, stmt->stmt_exp );
             if( pop && stmt->stmt_exp->type->size > 0 )
             {
-                if( stmt->stmt_exp->type->size == 4 )
+                if( stmt->stmt_exp->type->size == 4 || stmt->stmt_exp->s_type == ae_exp_decl )
                     emit->append( new Chuck_Instr_Reg_Pop_Word );
                 else if( stmt->stmt_exp->type->size == 8 )
                     emit->append( new Chuck_Instr_Reg_Pop_Word2 );
