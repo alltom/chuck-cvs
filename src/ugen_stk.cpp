@@ -312,8 +312,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, Envelope_ctor, Envelope_dtor, Envelope_tick, Envelope_pmsg );
     QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOn, NULL, "int", "keyOn" ); //! start envelope
     QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOff, NULL, "int", "keyOff" );
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, NULL, "float", "time" ); //! time to reach target
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, NULL, "float", "rate"); //! rate of change 
+	QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, Envelope_cget_time, "float", "time" ); //! time to reach target
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, Envelope_cget_rate, "float", "rate"); //! rate of change 
     QUERY->ugen_ctrl( QUERY, Envelope_ctrl_target, Envelope_cget_target, "float", "target" ); //! set envelope target
     QUERY->ugen_ctrl( QUERY, Envelope_ctrl_value, Envelope_cget_value, "float", "value" ); //! set immediate value
     // ZZZ finish
@@ -19698,6 +19698,17 @@ UGEN_CTRL Envelope_cget_value( t_CKTIME now, void * data, void * value )
     SET_NEXT_FLOAT( value, d->value );
 }
 
+UGEN_CTRL Envelope_cget_rate( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    SET_NEXT_FLOAT( value, d->rate );
+}
+
+UGEN_CTRL Envelope_cget_time( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+	SET_NEXT_FLOAT( value, 1.0 / ( d->rate * Stk::sampleRate() ) );
+}
 
 //-----------------------------------------------------------------------------
 // name: ADSR - import
