@@ -232,12 +232,14 @@ UGEN_CTOR NRev_ctor( t_CKTIME now );
 UGEN_DTOR NRev_dtor( t_CKTIME now, void * data );
 UGEN_TICK NRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG NRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL NRev_ctrl_mix( t_CKTIME now, void * data, void * value );
 
 // PRCRev
 UGEN_CTOR PRCRev_ctor( t_CKTIME now );
 UGEN_DTOR PRCRev_dtor( t_CKTIME now, void * data );
 UGEN_TICK PRCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG PRCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL PRCRev_ctrl_mix( t_CKTIME now, void * data, void * value );
 
 // WaveLoop
 UGEN_CTOR WaveLoop_ctor( t_CKTIME now );
