@@ -6,11 +6,9 @@
 
 // pull samples from the dac
 dac => gain g => WvOut w => blackhole;
-
 // uncomment this next line to dump to data/
 // (but make sure there is a data directory before running)
-// "data/chuck-session" => w.autoPrefix;
-
+//"data/chuck-session" => w.autoPrefix;
 // this is the output file name
 "special:auto" => w.wavFilename;
 chout => "writing to file: ";
