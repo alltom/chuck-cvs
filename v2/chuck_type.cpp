@@ -36,6 +36,7 @@
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
 #include "chuck_instr.h"
+#include <assert.h>
 
 
 
@@ -810,14 +811,54 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 
     // TODO: implement this
     case ae_op_at_chuck:
+        assert( FALSE );
     break;
     }
 
     return NULL;
 }
 
-t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
-t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_op_chuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+{
+    t_CKTYPE left = lhs->type, right = rhs->type;
+    
+    // ugen => ugen
+    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) ) return right;
+    
+    // assignment
+    if( isa( left, right ) && rhs->s_meta == ae_meta_var ) return right;
+    
+    // time advance
+    if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
+        return right;
+
+    // no match
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_op_unchuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
+{
+    // no match
+    return NULL;
+}
+
+
+
+
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
 t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
