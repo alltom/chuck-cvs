@@ -1553,6 +1553,64 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
         // basic types?
         if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
         {
+            // use at assign
+            return emit_engine_emit_op_at_chuck( emit, lhs, rhs );
+        }
+    }
+
+    // TODO: check overloading of =>
+
+    // no match
+    EM_error2( lhs->linepos,
+        "(emit): internal error: unhandled '=>' on types '%s' and '%s'...",
+        left->c_name(), right->c_name() );
+
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_op_unchuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
+{
+    // if ugen
+    if( isa( lhs->type, &t_ugen ) && isa( rhs->type, &t_ugen ) )
+    {
+        // no connect
+        emit->append( new Chuck_Instr_UGen_UnLink );
+    }
+    else
+    {
+        EM_error2( lhs->linepos,
+            "(emit): internal error: unhandled '=<' on types '%s' and '%s'",
+            lhs->type->c_name(), rhs->type->c_name() );
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_op_at_chuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
+{
+    t_CKTYPE left = lhs->type, right = rhs->type;
+    
+    // assignment or something else
+    if( isa( left, right ) )
+    {
+        // basic types?
+        if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
+        {
             // assigment?
             if( rhs->s_meta != ae_meta_var )
             {
@@ -1577,13 +1635,20 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 
             return TRUE;
         }
+        else // objects
+        {
+            // assign object
+            emit->append( new Chuck_Instr_Assign_Object );
+
+            return TRUE;
+        }
     }
 
     // TODO: check overloading of =>
 
     // no match
     EM_error2( lhs->linepos,
-        "(emit): internal error: unhandled '=>' on types '%s' and '%s'...",
+        "(emit): internal error: unhandled '@=>' on types '%s' and '%s'...",
         left->c_name(), right->c_name() );
 
     return FALSE;
@@ -1593,16 +1658,7 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 
 
 //-----------------------------------------------------------------------------
-// name:
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
-
-
-
-
-//-----------------------------------------------------------------------------
-// name:
+// name: 
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
