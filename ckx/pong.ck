@@ -71,11 +71,11 @@ boardw - padspace => float pad2x;
 
 function void keycode ( uint k ) { 
 
-	if ( k == 113 ) { 
+	if ( k == gluck.KEY_q ) { 
 		0 => running;
 	}	
 
-	if ( k == 116 ) { 
+	if ( k == gluck.KEY_t ) { 
 		1 - oldskool => oldskool;
 		if ( oldskool ) { 
 			-boardw + padspace => pad1x;
@@ -83,26 +83,26 @@ function void keycode ( uint k ) {
 		}	
 	}	
 
-	if ( k == 119 ) { 
+	if ( k == gluck.KEY_w ) { 
 		math.max ( 0.2, math.min ( 1.6 , pad1vy + 0.2) ) => pad1vy;
 	}
-	if ( k == 115 ) { 
+	if ( k == gluck.KEY_s ) { 
 		0.0 => pad1vy;
 	}
-	if ( k == 120 ) { 
+	if ( k == gluck.KEY_x ) { 
 		math.min ( -0.2 , math.max (-1.6 , pad1vy - 0.2) ) => pad1vy;
 	}
 
-	if ( k == 105 ) { 
+	if ( k == gluck.KEY_i ) { 
 		math.max ( 0.2, math.min ( 1.6 , pad2vy + 0.2) ) => pad2vy; 
 	}
-	if ( k == 106 ) { 
+	if ( k == gluck.KEY_j ) { 
 		0.0 => pad2vy;
 	}
-	if ( k == 110 ) { 
+	if ( k == gluck.KEY_n ) { 
 		math.min ( -0.2, math.max (-1.6 , pad2vy - 0.2) ) => pad2vy;
 	}
-	if ( k == 32 ) { 
+	if ( k == gluck.KEY_SPACE ) { 
 		std.rand2f( 0.0, 100.0 ) => float deg;
 		std.rand2f( 1.0, 2.0 ) => float mag;
 		mag * math.cos(deg) => puckvx;
@@ -328,24 +328,25 @@ function void testcollisions() {
 		score( 1 );
 	}
 
+
 	if ( puckx - puckrad < p1f && pucky < pad1y + padh && pucky > pad1y - padh ) { 
-		if ( puckx - puckrad + puckvx * -dt * 10.0  > p1f ) { 
-			puckvx * -1.0 => puckvx;
+		if ( puckx - puckrad + puckvx * -dt * 5.0  > p1f + pad1vx * -dt * 5.0 ) { 
 			p1f + ( p1f - ( puckx - puckrad )  ) + puckrad => puckx;
-			puckvy + 0.5 * ( pad1vy - puckvy ) => puckvy; //friction transfer...
-			if ( ! oldskool ) { 
-				puckvx + 0.5 * ( pad1vx - puckvx ) => puckvx; //friction transfer...
+			puckvy + 0.3 * ( pad1vy - puckvy ) => puckvy; //friction transfer...
+			if ( oldskool ) { puckvx * -1.0 => puckvx; }
+			else { 
+				pad1vx + -0.3 * ( puckvx - pad1vx ) => puckvx; //ricochet
 			}
 			sndtrigger(1);
 		} 
 	}	
 	else if ( puckx + puckrad > p2f && pucky < pad2y + padh && pucky > pad2y - padh ) { 
-		if ( puckx + puckrad +  puckvx * -dt * 10.0 < p2f ) { 
-			puckvx * -1.0 => puckvx; //bouncy
+		if ( puckx + puckrad + puckvx * -dt * 5.0 < p2f + pad2vx * -dt * 5.0 ) { 
 			p2f + ( p2f - ( puckx + puckrad ) ) - puckrad  => puckx;
-			puckvy + 0.5 * ( pad2vy - puckvy )  => puckvy; //friction transfer...
-			if ( oldskool == 0 ) { 
-				puckvx + 0.5 * ( pad2vx - puckvx ) => puckvx; //friction transfer...
+			puckvy + 0.3 * ( pad2vy - puckvy )  => puckvy; //friction transfer...
+			if ( oldskool ) { puckvx * -1.0 => puckvx; }
+			else { 
+				pad2vx + -0.3 * ( puckvx - pad2vx ) => puckvx; //ricochet
 			}
 			sndtrigger(2);	
 		} 
@@ -369,12 +370,13 @@ function void simulshred() {
 		testcollisions();
 
 		//gravittles
-		puckay + grav => puckay;
+
+		if ( !oldskool ) puckay + grav => puckay;
 		
 		pad1y + pad1vy * dt => pad1y;
 		pad2y + pad2vy * dt => pad2y;
 
-		if ( oldskool == 0 ) { 
+		if ( !oldskool ) { 
 			pad1x + pad1vx * dt => pad1x;
 			pad2x + pad2vx * dt => pad2x;
 		}
