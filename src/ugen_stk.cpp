@@ -21300,12 +21300,12 @@ UGEN_CTRL SubNoise_cget_rate( t_CKTIME now, void * data, void * value )
 
 
 
-UGEN_CTOR VoicForm_ctor ( t_CKTIME now ) 
+UGEN_CTOR VoicForm_ctor( t_CKTIME now ) 
 {
   return new VoicForm();
 }
 
-UGEN_DTOR VoicForm_dtor ( t_CKTIME now, void * data ) 
+UGEN_DTOR VoicForm_dtor( t_CKTIME now, void * data ) 
 { 
   delete (VoicForm *)data;
 }
