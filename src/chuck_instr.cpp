@@ -2648,26 +2648,26 @@ void Chuck_Instr_Print_Console2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
     switch( type )
     {
     case cip_int:
-        fprintf( stdout, "%i", *((sint*)(sp+1)) );
+        fprintf( stderr, "%i", *((sint*)(sp+1)) );
         break;
     case cip_uint:
-        fprintf( stdout, "%u", *((uint *)(sp+1)) );
+        fprintf( stderr, "%u", *((uint *)(sp+1)) );
         break;
     case cip_float:
-        fprintf( stdout, "%.6f", *((double *)(sp+1)) );
+        fprintf( stderr, "%.6f", *((double *)(sp+1)) );
     break;
 
     case cip_double:
-        fprintf( stdout, "%.6f", *((double *)(sp+1)) );
+        fprintf( stderr, "%.6f", *((double *)(sp+1)) );
         break;
     case cip_string:
-        fprintf( stdout, "%s", *((char **)(sp+1)) );
+        fprintf( stderr, "%s", *((char **)(sp+1)) );
         break;
     case cip_dur:
-        fprintf( stdout, "%.4fs", *((t_CKDUR *)(sp+1)) / (double)Digitalio::sampling_rate() );
+        fprintf( stderr, "%.4fs", *((t_CKDUR *)(sp+1)) / (double)Digitalio::sampling_rate() );
         break;
     case cip_time:
-        fprintf( stdout, "%.4fs", *((t_CKTIME *)(sp+1)) / (double)Digitalio::sampling_rate() );
+        fprintf( stderr, "%.4fs", *((t_CKTIME *)(sp+1)) / (double)Digitalio::sampling_rate() );
     break;
     }
 
