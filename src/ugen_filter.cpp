@@ -55,59 +55,59 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, biquad_ctor, biquad_dtor, biquad_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_pfreq, "float", "pfreq" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_prad, "float", "prad" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_zfreq, "float", "zfreq" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_zrad, "float", "zrad" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_norm, "int", "norm" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_pregain, "float", "pregain" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_eqzs, "int", "eqzs" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b0, "float", "b0" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b1, "float", "b1" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b2, "float", "b2" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a0, "float", "a0" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a1, "float", "a1" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a2, "float", "a2" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_pfreq, NULL, "float", "pfreq" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_prad, NULL, "float", "prad" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_zfreq, NULL, "float", "zfreq" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_zrad, NULL, "float", "zrad" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_norm, NULL, "int", "norm" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_pregain, NULL, "float", "pregain" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_eqzs, NULL, "int", "eqzs" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b0, NULL, "float", "b0" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b1, NULL, "float", "b1" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b2, NULL, "float", "b2" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a0, NULL, "float", "a0" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a1, NULL, "float", "a1" );
+    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a2, NULL, "float", "a2" );
     
     // add onepole
     QUERY->ugen_add( QUERY, "onepole", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, onepole_ctor, onepole_dtor, onepole_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, onepole_ctrl_pole, "float", "pole" );
+    QUERY->ugen_ctrl( QUERY, onepole_ctrl_pole, NULL, "float", "pole" );
     
     // add onezero
     QUERY->ugen_add( QUERY, "onezero", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, onezero_ctor, onezero_dtor, onezero_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, onezero_ctrl_zero, "float", "zero" );
+    QUERY->ugen_ctrl( QUERY, onezero_ctrl_zero, NULL,"float", "zero" );
 
     // add twopole
     QUERY->ugen_add( QUERY, "twopole", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, twopole_ctor, twopole_dtor, twopole_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, twopole_ctrl_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, twopole_ctrl_rad, "float", "rad" );
-    QUERY->ugen_ctrl( QUERY, twopole_ctrl_norm, "int", "norm" );
+    QUERY->ugen_ctrl( QUERY, twopole_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, twopole_ctrl_rad, NULL, "float", "rad" );
+    QUERY->ugen_ctrl( QUERY, twopole_ctrl_norm, NULL, "int", "norm" );
 
     // add twozero
     QUERY->ugen_add( QUERY, "twozero", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, twozero_ctor, twozero_dtor, twozero_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, twozero_ctrl_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, twozero_ctrl_rad, "float", "rad" );
+    QUERY->ugen_ctrl( QUERY, twozero_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, twozero_ctrl_rad, NULL, "float", "rad" );
 
     // add gQ
     // QUERY->ugen_add( QUERY, "gQ", NULL );
     // set funcs
     // QUERY->ugen_func( QUERY, gQ_ctor, gQ_dtor, gQ_tick, NULL );
     // ctrl func
-    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_freq, "float", "freq" );
-    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_rad, "float", "rad" );
-    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_norm, "int", "norm" );
+    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_freq, NULL, "float", "freq" );
+    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_rad, NULL, "float", "rad" );
+    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_norm, NULL, "int", "norm" );
 
     // add allpass
     // QUERY->ugen_add( QUERY, "allpass", NULL );
@@ -119,27 +119,27 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, delay_ctor, delay_dtor, delay_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, delay_ctrl_delay, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, delay_ctrl_max, "float", "max" );
-    // QUERY->ugen_ctrl( QUERY, delay_ctrl_energy, "int", "energy" );
-    // QUERY->ugen_ctrl( QUERY, delay_ctrl_tap, "int", "tap" );
-    // QUERY->ugen_ctrl( QUERY, delay_ctrl_ftap, "float", "ftap" );
+    QUERY->ugen_ctrl( QUERY, delay_ctrl_delay, NULL, "float", "delay" );
+    QUERY->ugen_ctrl( QUERY, delay_ctrl_max, NULL, "float", "max" );
+    // QUERY->ugen_ctrl( QUERY, delay_ctrl_energy, NULL,"int", "energy" );
+    // QUERY->ugen_ctrl( QUERY, delay_ctrl_tap, NULL, "int", "tap" );
+    // QUERY->ugen_ctrl( QUERY, delay_ctrl_ftap, NULL, "float", "ftap" );
 
     // add delayA
     QUERY->ugen_add( QUERY, "delayA", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, delayA_ctor, delayA_dtor, delayA_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, delayA_ctrl_delay, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, delayA_ctrl_max, "float", "max" );
+    QUERY->ugen_ctrl( QUERY, delayA_ctrl_delay, NULL,  "float", "delay" );
+    QUERY->ugen_ctrl( QUERY, delayA_ctrl_max, NULL, "float", "max" );
 
     // add one
     QUERY->ugen_add( QUERY, "delayL", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, delayL_ctor, delayL_dtor, delayL_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, delayL_ctrl_delay, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, delayL_ctrl_max, "float", "max" );
+    QUERY->ugen_ctrl( QUERY, delayL_ctrl_delay, NULL, "float", "delay" );
+    QUERY->ugen_ctrl( QUERY, delayL_ctrl_max, NULL, "float", "max" );
 
 
     return TRUE;

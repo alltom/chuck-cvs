@@ -44,25 +44,40 @@ UGEN_CTOR filter_ctor( t_CKTIME now );
 UGEN_DTOR filter_dtor( t_CKTIME now, void * data );
 UGEN_TICK filter_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTRL filter_ctrl_coefs( t_CKTIME now, void * data, void * value );
+UGEN_CGET filter_cget_coefs( t_CKTIME now, void * data, void * out );
 UGEN_PMSG filter_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 
 // biquad
 UGEN_CTOR biquad_ctor( t_CKTIME now );
 UGEN_DTOR biquad_dtor( t_CKTIME now, void * data );
 UGEN_TICK biquad_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+
 UGEN_CTRL biquad_ctrl_pfreq( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_pfreq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_prad( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_prad( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_zfreq( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_zfreq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_zrad( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_zrad( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_norm( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_norm( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_pregain( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_pregain( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_eqzs( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_eqzs( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_b0( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_b1( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_b1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_b2( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_b2( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_a0( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_a0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_a1( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_a1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL biquad_ctrl_a2( t_CKTIME now, void * data, void * value );
+UGEN_CGET biquad_cget_a2( t_CKTIME now, void * data, void * value );
 
 // onepole
 UGEN_CTOR onepole_ctor( t_CKTIME now );
