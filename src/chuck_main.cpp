@@ -108,6 +108,7 @@ void signal_int( int sig_num )
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
 #ifndef __PLATFORM_WIN32__
+        pthread_kill( g_tid, 2 );
         pthread_cancel( g_tid );
         usleep( 100000 );
 #else
@@ -119,16 +120,6 @@ void signal_int( int sig_num )
     pthread_join( g_tid, NULL );
     
     exit(2);
-}
-//-----------------------------------------------------------------------------
-// name: signal_int2()
-// desc: ...
-//-----------------------------------------------------------------------------
-void signal_int2( int sig_num )
-{
-#ifndef __PLATFORM_WIN32__
-    pthread_exit( NULL );
-#endif
 }
 
 
@@ -385,8 +376,6 @@ t_CKBOOL load_internal_modules( t_Env env )
 void * cb( void * p )
 {
     Msg msg;
-
-    signal( SIGQUIT, signal_int2 );
 
     while( true )
     {
