@@ -563,7 +563,7 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
 {
     Chuck_Type * ret_type = NULL;
     
-    if( !env->func_def )
+    if( !env->func )
     {
         EM_error2( stmt->linepos, "'return' statement found outside function definition" );
         return FALSE;
@@ -574,11 +574,11 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     else
         ret_type = &t_void;
 
-    if( ret_type && ret_type != env->func_def->def->ret_type )
+    if( ret_type && !equals( ret_type, env->func->def->ret_type ) )
     {
         EM_error2( stmt->linepos,
             "function '%s' was defined with return type '%s' -- but returning type '%s'",
-            env->func_def->name.c_str(), env->func_def->def->ret_type->name.c_str(),
+            env->func->name.c_str(), env->func->def->ret_type->name.c_str(),
             ret_type->name.c_str() );
         return FALSE;
     }

@@ -30,7 +30,7 @@ while( true )
 
 	for( ; i < pick; i++ )
         {
-            std.rand2f(.4,.6) + (float)i*.035 => pluck;
+            std.rand2f(.4,.6) + (float)i*.35/(float)pick => pluck;
             pluck + 0.1 * (float)pick_dir => band.pluck;
             !pick_dir => pick_dir;
             d::ms => now;
@@ -46,9 +46,8 @@ while( true )
         2 * std.rand2( 0, 4 ) => int freq;
         if( freq == 6 ) 7 => freq;
         if( freq == 8 ) 9 => freq;
-        std.mtof( (float)( 21 + std.rand2(0,3) * 12 + freq ) ) => band.freq;
+        std.mtof( (float)( 21 + std.rand2(0,5) * 12 + freq ) ) => band.freq;
         if ( std.randf() > 0.7 ) 
             std.rand2(0,3) => band.preset;
     }
-
 }
