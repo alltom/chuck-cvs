@@ -257,7 +257,7 @@ struct Chuck_Type
 
 public:
     // copy
-    Chuck_Type * copy()
+    Chuck_Type * copy() const
     { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) ); }
 };
 
