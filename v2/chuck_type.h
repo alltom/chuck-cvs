@@ -185,6 +185,8 @@ struct Chuck_Context
 
 
 
+// where we are
+enum ce_scope{ ce_global = 0, ce_global_func, ce_class, ce_class_func }; 
 
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Env
@@ -200,6 +202,9 @@ struct Chuck_Env
 	Chuck_Namespace * curr;
     // number of dot exp
     t_CKUINT dots;
+	// current location
+	ce_scope where;
+	
 
     // scope table
     Chuck_Scope<t_CKUINT> scope;
@@ -229,7 +234,7 @@ struct Chuck_Env
 	void reset( )
 	{ stack.clear(); stack.push_back( &global ); 
       curr = &global; context = NULL; func = NULL; 
-      scope.reset(); dots = 0; }
+      scope.reset(); dots = 0; where = ce_global; }
 
 	// top
 	Chuck_Namespace * top( )
