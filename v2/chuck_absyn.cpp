@@ -705,7 +705,7 @@ a_Array_Sub prepend_array_sub( a_Array_Sub a, a_Exp exp, int pos )
     if( exp )
     {
         exp->next = a->exp_list;
-        a->exp_list = exp->next;
+        a->exp_list = exp;
     }
     
     // count
