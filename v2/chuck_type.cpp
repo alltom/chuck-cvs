@@ -608,6 +608,8 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt )
 {
+    // TODO: make sure this is in a function or is outside class
+
     // push
     env->context->nspc.value.push();
     // do it
@@ -1485,6 +1487,10 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     t_CKTYPE t_class = NULL;
     // the parent class
     t_CKTYPE t_parent = NULL;
+    // the return type
+    t_CKBOOL ret = TRUE;
+    // the class body
+    a_Class_Body body = class_def->body;
 
     // make sure class not already in namespace
     if( env->curr->lookup_type( class_def->name->id, TRUE ) )
