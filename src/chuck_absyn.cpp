@@ -274,6 +274,7 @@ a_Exp new_exp_from_binary( a_Exp lhs, ae_Operator oper, a_Exp rhs, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_binary;
+    a->s_meta = ae_meta_value;
     a->binary.lhs = lhs;
     a->binary.op = oper;
     a->binary.rhs = rhs;
@@ -287,6 +288,7 @@ a_Exp new_exp_from_unary( ae_Operator oper, a_Exp exp, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_unary;
+    a->s_meta = exp->s_meta;
     a->unary.op = oper;
     a->unary.exp = exp;
     a->linepos = pos;
@@ -299,6 +301,7 @@ a_Exp new_exp_from_cast( c_str type, a_Exp exp, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_cast;
+    a->s_meta = ae_meta_value;
     a->cast.type = insert_symbol( type );
     a->cast.exp = exp;
     a->linepos = pos;
@@ -311,6 +314,7 @@ a_Exp new_exp_from_array( a_Exp base, a_Exp index, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_array;
+    a->s_meta = ae_meta_var;
     a->array.base = base;
     a->array.index = index;
     a->linepos = pos;
@@ -323,6 +327,7 @@ a_Exp new_exp_from_func_call( a_Exp base, a_Exp args, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_func_call;
+    a->s_meta = ae_meta_value;
     a->func_call.func = base;
     a->func_call.args = args;
     a->linepos = pos;
@@ -335,6 +340,7 @@ a_Exp new_exp_from_member_dot( a_Exp base, c_str id, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_dot_member;
+    a->s_meta = ae_meta_var;
     a->dot_member.base = base;
     a->dot_member.id = insert_symbol( id );
     a->linepos = pos;
@@ -347,6 +353,7 @@ a_Exp new_exp_from_postfix( a_Exp base, ae_Operator op, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_postfix;
+    a->s_meta = ae_meta_var;
     a->postfix.exp = base;
     a->postfix.op = op;
     a->linepos = pos;
@@ -359,6 +366,7 @@ a_Exp new_exp_from_dur( a_Exp base, a_Exp unit, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_dur;
+    a->s_meta = ae_meta_value;
     a->dur.base = base;
     a->dur.unit = unit;
     a->linepos = pos;
@@ -371,6 +379,7 @@ a_Exp new_exp_from_id( c_str id, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_var;
     a->primary.s_type = ae_primary_var;
     a->primary.var = insert_symbol( id );
     a->linepos = pos;
@@ -383,6 +392,7 @@ a_Exp new_exp_from_int( long num, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
     a->primary.s_type = ae_primary_num;
     a->primary.num = num;
     a->linepos = pos;
@@ -395,6 +405,7 @@ a_Exp new_exp_from_uint( unsigned long num, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
     a->primary.s_type = ae_primary_uint;
     a->primary.num2 = num;
     a->linepos = pos;
@@ -407,6 +418,7 @@ a_Exp new_exp_from_float( double num, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
     a->primary.s_type = ae_primary_float;
     a->primary.fnum = num;
     a->linepos = pos;
@@ -419,6 +431,7 @@ a_Exp new_exp_from_str( c_str str, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
     a->primary.s_type = ae_primary_str;
     a->primary.str = str;
     a->linepos = pos;
@@ -431,6 +444,8 @@ a_Exp new_exp_from_if( a_Exp cond, a_Exp if_exp, a_Exp else_exp, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_if;
+    a->s_meta = ( ( if_exp->s_meta == ae_meta_var && 
+        else_exp->s_meta == ae_meta_var ) ? ae_meta_var : ae_meta_value );
     a->exp_if.cond = cond;
     a->exp_if.if_exp = if_exp;
     a->exp_if.else_exp = else_exp;
@@ -444,6 +459,7 @@ a_Exp new_exp_decl( c_str type, a_Var_Decl_List var_decl_list, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_decl;
+    a->s_meta = ae_meta_var;
     a->decl.type = insert_symbol( type );
     a->decl.var_decl_list = var_decl_list;
     a->linepos = pos;
@@ -456,6 +472,7 @@ a_Exp new_exp_from_namespace( c_str name, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_namespace;
+    a->s_meta = ae_meta_value;
     a->name_space.name = insert_symbol( name );
     a->name_space.linepos = pos;
     a->linepos = pos;

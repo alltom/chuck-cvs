@@ -227,10 +227,13 @@ typedef enum { ae_exp_binary = 0, ae_exp_unary, ae_exp_cast, ae_exp_postfix,
                ae_exp_dur, ae_exp_primary, ae_exp_array, ae_exp_func_call,
                ae_exp_dot_member, ae_exp_if, ae_exp_decl, ae_exp_namespace
              } ae_Exp_Type;
-               
+
+typedef enum { ae_meta_value = 0, ae_meta_var } ae_Exp_Meta;
+
 struct a_Exp_
 {
     ae_Exp_Type s_type;
+    ae_Exp_Meta s_meta;
     t_Type type;
     a_Exp next;
     
