@@ -384,8 +384,6 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
         fwrite( buf.buffer, sizeof(char), buf.length, fd );
     }while( buf.param2 );
     
-    fprintf( stderr, "read: %s...\n", msg.buffer );
-    
     return fd;
 }
 
