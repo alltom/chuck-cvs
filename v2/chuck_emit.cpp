@@ -2245,7 +2245,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
         while( e ) { size += e->type->size; e = e->next; }
 
         // emit instruction that will put the code on the stack
-        emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
+        emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)code ) );
         // emit spork instruction
         emit->append( new Chuck_Instr_Spork( size ) );
     }
@@ -2269,21 +2269,30 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
     t_CKBOOL emit_addr = member->self->emit_var;
     // is the base a class/namespace or a variable
     t_CKBOOL base_static = isa( member->t_base, &t_class );
+    // the offset
+    t_CKUINT offset = 0;
     // actual type
     t_base = base_static ? member->t_base->actual_type : member->t_base;
         
     // emit the base
     emit_engine_emit_exp( emit, member->base );
-    
-    // if is a func
-    if( isfunc( member->type ) )
+
+    // if member or static
+    if( !base_static )
     {
-        // static
+        // if is a func
+        if( isfunc( member->self->type ) )
+        {
+        }
+        else
+        {
+            // lookup the member
+            emit->append( new Chuck_Instr_Dot_Member_Data( 
+                offset, member->self->type->size, emit_addr ) );
+        }
     }
-    else
+    else // static
     {
-        // lookup the member
-        emit->append( new Chuck_Instr_Dot_Member_Data( emit_addr, emit_addr ) );
     }
     
     return TRUE;
