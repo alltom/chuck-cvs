@@ -2429,41 +2429,75 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                     }
                     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
                     emit->append( new Chuck_Instr_UGen_Alloc() );
-                    // TODO: constructor
                 }
                 else
                 {
                     // emit object instantiation code
                     emit->append( new Chuck_Instr_Instantiate_Object( type ) );
-                    // TODO: constructor
+                }
+                
+                // TODO: constructor
+                if( type->info->code != NULL )
+                {
+                    // push this
+                    emit->append( new Chuck_Instr_Reg_Dup_Last );
+                    // push pre-constructor
+                    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->code ) );
+                    // push frame offset
+                    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
+                    // call the function
+                    emit->append( new Chuck_Instr_Func_Call );
                 }
             }
         }
 
-        // allocate a place on the local stack
-        local = emit->alloc_local( type->size, value->name, is_ref );
-        if( !local )
-        {
-            EM_error2( decl->linepos,
-                "(emit): internal error: cannot allocate local '%s'...",
-                value->name.c_str() );
-            return FALSE;
-        }
+
 
         // put in the value
-        value->offset = local->offset;
 
-        // zero out location in memory, and leave offset on operand stack
-        if( type->size == 4 )
-            emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
-        else if( type->size == 8 )
-            emit->append( new Chuck_Instr_Alloc_DWord( local->offset ) );
-        else
+        // member
+        if( value->is_member )
         {
-            EM_error2( decl->linepos,
-                "(emit): unhandle decl size of '%i'...",
-                type->size );
-            return FALSE;
+            // zero out location in object, and leave addr on operand stack
+            if( type->size == 4 )
+                emit->append( new Chuck_Instr_Alloc_Member_Word( value->offset ) );
+            else if( type->size == 8 )
+                emit->append( new Chuck_Instr_Alloc_Member_Word2( value->offset ) );
+            else
+            {
+                EM_error2( decl->linepos,
+                    "(emit): unhandle decl size of '%i'...",
+                    type->size );
+                return FALSE;
+            }
+        }
+        else // not member
+        {
+            // allocate a place on the local stack
+            local = emit->alloc_local( type->size, value->name, is_ref );
+            if( !local )
+            {
+                EM_error2( decl->linepos,
+                    "(emit): internal error: cannot allocate local '%s'...",
+                    value->name.c_str() );
+                return FALSE;
+            }
+
+            // put in the value
+            value->offset = local->offset;
+
+            // zero out location in memory, and leave addr on operand stack
+            if( type->size == 4 )
+                emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
+            else if( type->size == 8 )
+                emit->append( new Chuck_Instr_Alloc_Word2( local->offset ) );
+            else
+            {
+                EM_error2( decl->linepos,
+                    "(emit): unhandle decl size of '%i'...",
+                    type->size );
+                return FALSE;
+            }
         }
 
         // if object, assign
@@ -2679,6 +2713,9 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     // name the code
     emit->code->name = string("class ") + type->name;
 
+    // make room for this 
+    emit->code->stack_depth += sizeof(t_CKUINT);
+
     // emit the body
     while( body && ret )
     {
@@ -2707,6 +2744,8 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     // if ok
     if( ret )
     {
+        // emit return statement
+        emit->append( new Chuck_Instr_Func_Return );
         // vm code
         type->info->code = emit_to_code( emit->code, NULL, emit->dump );
     }

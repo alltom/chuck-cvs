@@ -549,6 +549,36 @@ void Chuck_Instr_Reg_Push_Imm2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Reg_Dup_Last::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // dup val into reg stack
+    push_( reg_sp, *(reg_sp-1) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Reg_Dup_Last2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT *& reg_sp = (t_CKFLOAT *&)shred->reg->sp;
+
+    // dup val into reg stack
+    push_( reg_sp, *(reg_sp-1) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Now::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKTIME *& reg_sp = (t_CKTIME *&)shred->reg->sp;
@@ -1452,7 +1482,7 @@ void Chuck_Instr_Alloc_Word::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: alloc local
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Alloc_DWord::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Alloc_Word2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
@@ -1461,6 +1491,46 @@ void Chuck_Instr_Alloc_DWord::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     *( (t_CKFLOAT *)(mem_sp + m_val) ) = 0.0;
     // push addr onto operand stack
     push_( reg_sp, (t_CKUINT)(mem_sp + m_val) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: alloc member
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Alloc_Member_Word::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // get the object
+    Chuck_Object * obj = (Chuck_Object *)*(mem_sp);
+    // zero out the memory stack
+    *( (t_CKUINT *)(obj->data + m_val) ) = 0;
+    // push addr onto operand stack
+    push_( reg_sp, (t_CKUINT)(obj->data + m_val) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: alloc member
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Alloc_Member_Word2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // get the object
+    Chuck_Object * obj = (Chuck_Object *)*(mem_sp);
+    // zero out the memory stack
+    *( (t_CKFLOAT *)(obj->data + m_val) ) = 0.0;
+    // push addr onto operand stack
+    push_( reg_sp, (t_CKUINT)(obj->data + m_val) );
 }
 
 
@@ -1675,6 +1745,8 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // push the arguments
         for( t_CKUINT i = 0; i < stack_depth; i++ )
             *mem_sp2++ = *reg_sp2++;
+
+        t_CKUINT x = *mem_sp;
         // memcpy( mem_sp2, reg_sp2, stack_depth << 2 );
     }
 }

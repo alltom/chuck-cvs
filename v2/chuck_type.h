@@ -421,12 +421,12 @@ struct Chuck_Func : public Chuck_VM_Object
     // member
     t_CKBOOL is_member;
     // offset
-    t_CKUINT offset;
+    // t_CKUINT offset;
     // virtual table index
     t_CKINT vt_index;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; offset = 0; vt_index = -1; }
+    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; /* offset = 0; */ vt_index = -1; }
 };
 
 

@@ -1162,6 +1162,32 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Reg_Dup_Last
+// desc: duplicate last value on reg stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Reg_Dup_Last : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Reg_Dup_Last2
+// desc: duplicate last float on reg stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Reg_Dup_Last2 : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Now
 // desc: push value of now to reg stack
 //-----------------------------------------------------------------------------
@@ -1422,7 +1448,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Alloc_Word
-// desc: alloc local - leaves offset on operand stack
+// desc: alloc local - leaves addr on operand stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Alloc_Word : public Chuck_Instr_Unary_Op
 {
@@ -1437,13 +1463,45 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Alloc_DWord
-// desc: alloc local - leaves offset on operand stack
+// name: class Chuck_Instr_Alloc_Word2
+// desc: alloc local - leaves addr on operand stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Alloc_DWord : public Chuck_Instr_Unary_Op
+class Chuck_Instr_Alloc_Word2 : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Alloc_DWord( t_CKUINT offset  )
+    Chuck_Instr_Alloc_Word2( t_CKUINT offset  )
+    { this->set( offset ); }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Alloc_Member_Word
+// desc: alloc member - leaves addr on operand stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Alloc_Member_Word : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Alloc_Member_Word( t_CKUINT offset  )
+    { this->set( offset ); }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Alloc_Member_Word2
+// desc: alloc member - leaves addr on operand stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Alloc_Member_Word2 : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Alloc_Member_Word2( t_CKUINT offset  )
     { this->set( offset ); }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

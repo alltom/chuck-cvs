@@ -1781,22 +1781,6 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
         env->curr->value.add( var_decl->id,
             value = env->context->new_Chuck_Value( t, S_name(var_decl->id) ) );
- 
-        // see if in function or not
-        if( env->func )
-        {
-            // assign the offset in the function
-            value->offset = env->func->offset;
-            // move the offset (TODO: check the size)
-            env->func->offset += t->size;
-        }
-        else
-        {
-            // assign the offset
-            value->offset = env->curr->offset;
-            // move the offset (TODO: check the size)
-            env->curr->offset += t->size;
-        }
 
         // remember the owner
         value->owner = env->curr;
@@ -1808,6 +1792,31 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 
         // remember the value
         var_decl->value = value;
+
+        // see if in function or not
+        // if( env->func )
+        // {
+        //    // assign the offset in the function
+        //    value->offset = env->func->offset;
+        //    // move the offset (TODO: check the size)
+        //    env->func->offset += t->size;
+        //}
+        //else
+        //{
+        //    // assign the offset
+        //    value->offset = env->curr->offset;
+        //    // move the offset (TODO: check the size)
+        //    env->curr->offset += t->size;
+        //}
+
+        // member?
+        if( value->is_member )
+        {
+            // offset
+            value->offset = env->curr->offset;
+            // move the offset (TODO: check the size)
+            env->curr->offset += t->size;
+        }
 
         // the next var decl
         list = list->next;
@@ -2108,6 +2117,9 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // TODO: interface
     }
 
+    // by default object
+    if( !t_parent ) t_parent = &t_object;
+
     // allocate new type
     the_class = env->context->new_Chuck_Type();
     // set the fields
@@ -2123,7 +2135,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;
     // if extend, set the beginning of data segment to after the parent
-    if( t_parent ) the_class->info->offset = t_parent->obj_size;
+    the_class->info->offset = t_parent->obj_size;
     the_class->func = NULL;
     the_class->def = class_def;
 
