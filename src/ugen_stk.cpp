@@ -21245,12 +21245,13 @@ UGEN_CTRL Shakers_ctrl_freq( t_CKTIME now, void * data, void * value )
 {
     Shakers * s = (Shakers *)data;
     s->freq = GET_CK_FLOAT(value);
+    s->controlChange( __SK_ModWheel_, s->freq );
 }
 
 UGEN_CGET Shakers_cget_which( t_CKTIME now, void * data, void * value )
 {
     Shakers * s = (Shakers *)data;
-    SET_NEXT_INT ( value, s->m_noteNum );
+    SET_NEXT_INT( value, s->m_noteNum );
 }
 
 UGEN_CGET Shakers_cget_freq( t_CKTIME now, void * data, void * value )
