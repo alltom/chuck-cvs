@@ -139,26 +139,54 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_Array
-// desc: native ChucK arrays
+// name: struct Chuck_Array4
+// desc: native ChucK arrays (for 4-byte)
 //-----------------------------------------------------------------------------
-template<class T>
-struct Chuck_Array : Chuck_Object
+struct Chuck_Array4 : Chuck_Object
 {
 public:
-    Chuck_Array( t_CKINT size = 1 );
-    ~Chuck_Array();
+    Chuck_Array4( t_CKINT capacity = 8 );
+    ~Chuck_Array4();
 
 public:
-    T operator[]( t_CKINT i );
+    inline t_CKINT get( t_CKINT i, t_CKUINT * val );
+    inline t_CKINT set( t_CKINT i, t_CKUINT val );
+    inline t_CKINT push_back( t_CKUINT val );
+    inline t_CKINT pop_back( );
+    inline t_CKINT back( t_CKUINT * val ) const;
+    inline t_CKINT size( ) const { return m_size; }
+    void clear( );
 
 public:
-    t_CKINT push_back( T val );
-    t_CKINT pop_back( );
-    T back( );
+    std::vector<t_CKUINT> m_vector;
+    t_CKINT m_size;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Array8
+// desc: native ChucK arrays (for 8-byte)
+//-----------------------------------------------------------------------------
+struct Chuck_Array8 : Chuck_Object
+{
+public:
+    Chuck_Array8( t_CKINT capacity = 8 );
+    ~Chuck_Array8();
 
 public:
-    std::vector<T> m_vector;
+    inline t_CKINT get( t_CKINT i, t_CKFLOAT * val );
+    inline t_CKINT set( t_CKINT i, t_CKFLOAT val );
+    inline t_CKINT push_back( t_CKFLOAT val );
+    inline t_CKINT pop_back( );
+    inline t_CKINT back( t_CKFLOAT * val ) const;
+    inline t_CKINT size( ) const { return m_size; }
+    void clear( );
+
+public:
+    std::vector<t_CKFLOAT> m_vector;
+    t_CKINT m_size;
 };
 
 

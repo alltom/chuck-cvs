@@ -1837,6 +1837,8 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
+    // instantiate the array
+    Chuck_Array4 * arr = new Chuck_Array4;
 }
 
 

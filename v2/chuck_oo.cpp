@@ -195,3 +195,299 @@ Chuck_Object::~Chuck_Object()
     if( type_ref ) { type_ref->release(); type_ref = NULL; }
     if( data ) { delete [] data; size = 0; data = NULL; }
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_Array4()
+// desc: constructor
+//-----------------------------------------------------------------------------
+Chuck_Array4::Chuck_Array4( t_CKINT capacity )
+{
+    // sanity check
+    assert( capacity > 0 );
+    // set capacity
+    m_vector.resize( capacity );
+    // reset size
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Array4()
+// desc: destructor
+//-----------------------------------------------------------------------------
+Chuck_Array4::~Chuck_Array4()
+{
+    // do nothing
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array4::get( t_CKINT i, t_CKUINT * val )
+{
+    // bound check
+    if( i < 0 || i >= m_size )
+        return 0;
+
+    // get the value
+    *val = m_vector[i];
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array4::set( t_CKINT i, t_CKUINT val )
+{
+    // bound check
+    if( i < 0 || i >= m_size )
+        return 0;
+
+    // set the value
+    m_vector[i] = val;
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: push_back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array4::push_back( t_CKUINT val )
+{
+    // check
+    if( m_size + 1 < 0 )
+        return 0;
+
+    // add to vector
+    m_vector.push_back( val );
+    
+    // track size
+    m_size++;
+
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: pop_back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array4::pop_back( )
+{
+    // check
+    if( m_size == 0 )
+        return 0;
+
+    // add to vector
+    m_vector.pop_back();
+    
+    // track size
+    m_size--;
+
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array4::back( t_CKUINT * val ) const
+{
+    // check
+    if( m_size == 0 )
+        return 0;
+
+    // get
+    *val = m_vector.back();
+    
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: clear()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Array4::clear( )
+{
+    // clear vector
+    m_vector.clear();
+
+    // set size
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_Array8()
+// desc: constructor
+//-----------------------------------------------------------------------------
+Chuck_Array8::Chuck_Array8( t_CKINT capacity )
+{
+    // sanity check
+    assert( capacity > 0 );
+    // set capacity
+    m_vector.resize( capacity );
+    // reset size
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Array8()
+// desc: destructor
+//-----------------------------------------------------------------------------
+Chuck_Array8::~Chuck_Array8()
+{
+    // do nothing
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array8::get( t_CKINT i, t_CKFLOAT * val )
+{
+    // bound check
+    if( i < 0 || i >= m_size )
+        return 0;
+
+    // get the value
+    *val = m_vector[i];
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array8::set( t_CKINT i, t_CKFLOAT val )
+{
+    // bound check
+    if( i < 0 || i >= m_size )
+        return 0;
+
+    // set the value
+    m_vector[i] = val;
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: push_back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array8::push_back( t_CKFLOAT val )
+{
+    // check
+    if( m_size + 1 < 0 )
+        return 0;
+
+    // add to vector
+    m_vector.push_back( val );
+    
+    // track size
+    m_size++;
+
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: pop_back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array8::pop_back( )
+{
+    // check
+    if( m_size == 0 )
+        return 0;
+
+    // add to vector
+    m_vector.pop_back();
+    
+    // track size
+    m_size--;
+
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array8::back( t_CKFLOAT * val ) const
+{
+    // check
+    if( m_size == 0 )
+        return 0;
+
+    // get
+    *val = m_vector.back();
+    
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: clear()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Array8::clear( )
+{
+    // clear vector
+    m_vector.clear();
+
+    // set size
+    m_size = 0;
+}
