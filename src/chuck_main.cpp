@@ -160,11 +160,8 @@ t_CKBOOL parse( c_str fname )
                 strcpy( filename, fname );
         }
 
-    // close it
-    if( f ) fclose( f );
-
     // parse
-    ret = EM_reset( filename );
+    ret = EM_reset( filename, f );
     if( ret == FALSE ) return FALSE;
     ret = (yyparse( ) == 0);
 
