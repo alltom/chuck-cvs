@@ -1393,8 +1393,9 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     if( !t_base ) return NULL;
     
     // push the new class as current
-    Chuck_Namespace * old_nspc = env->curr;
-    env->curr = env->curr->lookup_class( t_base->name, TRUE );
+    Chuck_Type * type = env->curr->lookup_type( t_base->name, FALSE );
+    env->stack.push_back( env->curr );
+    env->curr = type->info;
     if( !env->curr )
     {
         // can't find class
@@ -1956,31 +1957,32 @@ Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 
 
 //-----------------------------------------------------------------------------
-// name: lookup_class()
-// desc: lookup class in the namespace
+// name: lookup_ugen()
+// desc: lookup ugen in the env
 //-----------------------------------------------------------------------------
-Chuck_Namespace * Chuck_Namespace::lookup_class( const string & name, t_CKBOOL climb )
+Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL climb )
 {
-    Chuck_Namespace * e = class_defs.lookup( name );
-    if( climb && !e && parent )
-        return parent->lookup_class( name, climb );
-    return e;
+    Chuck_UGen_Info * u = ugen.lookup( name );
+    if( climb && !u && parent )
+        return parent->lookup_ugen( name, climb );
+    return u;
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: lookup_class()
-// desc: lookup class in the namespace
+// name: lookup_ugen()
+// desc: lookup ugen in the env
 //-----------------------------------------------------------------------------
-Chuck_Namespace * Chuck_Namespace::lookup_class( S_Symbol name, t_CKBOOL climb )
+Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 {
-    Chuck_Namespace * e = class_defs.lookup( name );
-    if( climb && !e && parent )
-        return parent->lookup_class( name, climb );
-    return e;
+    Chuck_UGen_Info * u = ugen.lookup( name );
+    if( climb && !u && parent )
+        return parent->lookup_ugen( name, climb );
+    return u;
 }
+
 
 
 

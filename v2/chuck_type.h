@@ -119,6 +119,7 @@ struct Chuck_Value;
 struct Chuck_Func;
 struct Chuck_DLL;
 struct Chuck_Multi;
+struct Chuck_UGen_Info;
 
 class Chuck_VM;
 class Chuck_VM_Code;
@@ -134,7 +135,7 @@ struct Chuck_Namespace
     Chuck_Scope<Chuck_Type *> type;
     Chuck_Scope<Chuck_Value *> value;
     Chuck_Scope<Chuck_Func *> func;
-    Chuck_Scope<Chuck_Namespace *> class_defs;
+    Chuck_Scope<Chuck_UGen_Info *> ugen;
     Chuck_Scope<void *> addr;
 
     // name
@@ -148,7 +149,7 @@ struct Chuck_Namespace
 	Chuck_Namespace() { parent = NULL; }
     // destructor
 	~Chuck_Namespace() { }
-    
+
     // look up type
     Chuck_Type * lookup_type( const string & name, t_CKBOOL climb = TRUE );
     Chuck_Type * lookup_type( S_Symbol name, t_CKBOOL climb = TRUE );
@@ -158,9 +159,9 @@ struct Chuck_Namespace
     // look up func
     Chuck_Func * lookup_func( const string & name, t_CKBOOL climb = TRUE );
     Chuck_Func * lookup_func( S_Symbol name, t_CKBOOL climb = TRUE );
-    // look up class
-    Chuck_Namespace * lookup_class( const string & name, t_CKBOOL climb = TRUE );
-    Chuck_Namespace * lookup_class( S_Symbol name, t_CKBOOL climb = TRUE );
+    // look up ugen
+    Chuck_UGen_Info * lookup_ugen( const string & name, t_CKBOOL climb = TRUE );
+    Chuck_UGen_Info * lookup_ugen( S_Symbol name, t_CKBOOL climb = TRUE );
     // look up addr
     void * lookup_addr( const string & name, t_CKBOOL climb = TRUE );
     void * lookup_addr( S_Symbol name, t_CKBOOL climb = TRUE );
