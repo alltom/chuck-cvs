@@ -896,6 +896,8 @@ t_CKBOOL Chuck_VM_Stack::initialize( t_CKUINT size )
     if( m_is_init )
         return FALSE;
 
+    // make room for header
+    size += 16;
     // allocate stack
     stack = new t_CKBYTE[size];
     if( !stack )
@@ -907,6 +909,8 @@ t_CKBOOL Chuck_VM_Stack::initialize( t_CKUINT size )
     // set the sp
     sp = stack;
     sp_max = sp + size;
+    // advance sp after the header
+    sp += 16;
 
     // set flag and return
     return m_is_init = TRUE;

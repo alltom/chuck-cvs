@@ -332,6 +332,7 @@ struct a_Func_Def_ {
     S_Symbol name; 
     a_Arg_List arg_list;
     a_Stmt code;
+    t_CKFUNC ck_func;
     unsigned int global;
     unsigned int s_type;
     unsigned int stack_depth;

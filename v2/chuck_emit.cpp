@@ -187,7 +187,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
         emit->append( new Chuck_Instr_EOC );
 
         // converted to virtual machine code
-        emit->context->nspc.code = emit_to_code( emit, TRUE );
+        emit->context->nspc.code = emit_to_code( emit->code, NULL, TRUE );
     }
 
     // clear the code
@@ -205,26 +205,30 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
 // name: emit_to_code()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump )
+Chuck_VM_Code * emit_to_code( Chuck_Code * in,
+                              Chuck_VM_Code * out,
+                              t_CKBOOL dump )
 {
     // allocate the vm code
-    Chuck_VM_Code * code = new Chuck_VM_Code;
+    Chuck_VM_Code * code = out ? out : new Chuck_VM_Code;
+    // make sure
+    assert( code->num_instr == 0 );
     // size
-    code->num_instr = emit->code->code.size();
-    // allocate instruction pointers
+    code->num_instr = in->code.size();
+    // allocate instruction pointers+
     code->instr = new Chuck_Instr *[code->num_instr];
     // set the stack depth
-    code->stack_depth = emit->code->stack_depth;
+    code->stack_depth = in->stack_depth;
 
     // copy
     for( t_CKUINT i = 0; i < code->num_instr; i++ )
-        code->instr[i] = emit->code->code[i];
+        code->instr[i] = in->code[i];
 
     // dump
     if( dump )
     {
         // name of what we are dumping
-        EM_error2( 0, "dumping %s...", emit->code->name.c_str() );
+        EM_error2( 0, "dumping %s...", in->name.c_str() );
 
         // uh
         for( t_CKUINT i = 0; i < code->num_instr; i++ )
@@ -2185,28 +2189,16 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
         }
     }
 
-    // spork
-    Chuck_Instr_Mem_Push_Imm * op = NULL;
-    if( spork )
-    {
-        // push the current code
-        emit->stack.push_back( emit->code );
-        // make a new one
-        emit->code = new Chuck_Code;
-        // push op
-        op = new Chuck_Instr_Mem_Push_Imm( 0 );
-        // emit the stack depth - we don't know this yet
-        emit->append( op );
-    }
-
     // emit func
-    if( !emit_engine_emit_exp( emit, func_call->func ) )
-    {
-        EM_error2( func_call->linepos,
-                   "(emit): internal error in evaluating function call..." );
-        return FALSE;
-    }
+    //if( !emit_engine_emit_exp( emit, func_call->func ) )
+    //{
+    //    EM_error2( func_call->linepos,
+    //               "(emit): internal error in evaluating function call..." );
+    //    return FALSE;
+    //}
 
+    // call the func
+    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)func->code ) );
     // push the local stack depth - local variables
     emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->stack_depth ) );
 
@@ -2231,34 +2223,6 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     else
     {
         emit->append( new Chuck_Instr_Func_Call );
-    }
-
-    // spork
-    if( spork )
-    {
-        // done
-        emit->append( new Chuck_Instr_EOC );
-        // set the stack depth now that we know
-        op->set( emit->code->stack_depth );
-
-        // emit it
-        Chuck_VM_Code * code = emit_to_code( emit );
-        code->name = string("spork ~ exp");
-
-        // restore the code
-        assert( emit->stack.size() > 0 );
-        emit->code = emit->stack.back();
-        // pop
-        emit->stack.pop_back();
-
-        a_Exp e = func_call->args;
-        t_CKUINT size = 0;
-        while( e ) { size += e->type->size; e = e->next; }
-
-        // emit instruction that will put the code on the stack
-        emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)code ) );
-        // emit spork instruction
-        emit->append( new Chuck_Instr_Spork( size ) );
     }
 
     return TRUE;
@@ -2533,6 +2497,53 @@ t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit,
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
 {
+    // get the func
+    Chuck_Func * func = func_def->ck_func;
+    // make sure it's the same one
+    Chuck_Func * func2 = emit->env->context->nspc.lookup_func( func_def->name, FALSE );
+    if( func != func2 )
+    {
+        EM_error2( func_def->linepos,
+            "(emit): ambiguous function resolution for %s...",
+            S_name(func_def->name) );
+        return FALSE;
+    }
+    // make sure the code is empty
+    if( func->code != NULL )
+    {
+        EM_error2( func_def->linepos,
+            "(emit): function '%s' already emitted...",
+            S_name(func_def->name) );
+        return FALSE;
+    }
+
+    // make sure we are not in a function already
+    if( emit->env->func != NULL )
+    {
+        EM_error2( func_def->linepos,
+            "(emit): internal error: nested function definition..." );
+        return FALSE;
+    }
+
+    // set the func
+    emit->env->func = func;
+    // push the current code
+    emit->stack.push_back( emit->code );
+    // make a new one
+    emit->code = new Chuck_Code;
+    // emit the code
+    emit_engine_emit_stmt( emit, func_def->code, FALSE );
+    // emit return statement
+    emit->append( new Chuck_Instr_Func_Return );
+    // vm code
+    func->code = emit_to_code( emit->code, NULL, FALSE );
+    // unset the func
+    emit->env->func = NULL;
+    // pop the code
+    assert( emit->stack.size() );
+    emit->code = emit->stack.back();
+    emit->stack.pop_back();
+
     return TRUE;
 }
 
@@ -2557,9 +2568,45 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 {
+    // spork
+    Chuck_Instr_Mem_Push_Imm * op = NULL;
+
+    // push the current code
+    emit->stack.push_back( emit->code );
+    // make a new one
+    emit->code = new Chuck_Code;
+    // push op
+    op = new Chuck_Instr_Mem_Push_Imm( 0 );
+    // emit the stack depth - we don't know this yet
+    emit->append( op );
+
     // emit the function call, with special flag
     if( !emit_engine_emit_exp_func_call( emit, exp, TRUE ) )
         return FALSE;
+
+    // done
+    emit->append( new Chuck_Instr_EOC );
+    // set the stack depth now that we know
+    op->set( emit->code->stack_depth );
+
+    // emit it
+    Chuck_VM_Code * code = emit_to_code( emit->code, NULL );
+    code->name = string("spork ~ exp");
+
+    // restore the code
+    assert( emit->stack.size() > 0 );
+    emit->code = emit->stack.back();
+    // pop
+    emit->stack.pop_back();
+
+    a_Exp e = exp->args;
+    t_CKUINT size = 0;
+    while( e ) { size += e->type->size; e = e->next; }
+
+    // emit instruction that will put the code on the stack
+    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)code ) );
+    // emit spork instruction
+    emit->append( new Chuck_Instr_Spork( size ) );
 
     return TRUE;
 }

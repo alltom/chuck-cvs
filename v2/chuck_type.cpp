@@ -2413,6 +2413,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         // set the virtual table index
         func->vt_index = env->curr->obj_v_table.funcs.size() - 1;
     }
+    // set the func
+    f->ck_func = func;
     // clear the env's function definition
     env->func = NULL;
 
