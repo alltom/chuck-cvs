@@ -167,6 +167,10 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_CKDUR day = hour * 24.0;
     t_CKDUR week = day * 7.0;
 
+    // make sure Objects have namespaces
+    t_object.info = new Chuck_Namespace;
+    t_object.info->add_ref();
+
 	// default global values
 	env->global.value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
     // TODO:

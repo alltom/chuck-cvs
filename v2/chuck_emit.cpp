@@ -2200,15 +2200,12 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     Chuck_Func * func = func_call->ck_func;
     // is a member?
     t_CKBOOL is_member = func->is_member;
-    // imm
-    Chuck_Instr_Reg_Push_Imm * op = NULL;
 
     // if member
     if( is_member )
     {
-
         // this
-        emit->append( op = new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        emit->append( new Chuck_Instr_Reg_Push_This );
     }
 
     // make sure there are args
@@ -2307,6 +2304,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             // is the func static?
             if( func->is_member )
             {
+                // dup the base pointer
+                emit->append( new Chuck_Instr_Reg_Dup_Last );
                 // find the offset for virtual table
                 offset = func->vt_index;
                 // emit the function
@@ -2616,19 +2615,7 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     Chuck_Type * type = NULL;
     Chuck_Local * local = NULL;
     t_CKBOOL is_ref = FALSE;
-    // if member (non-static) function
-    if( func->is_member )
-    {
-        // get the size
-        emit->code->stack_depth += sizeof(t_CKUINT);
-        // add this
-        if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
-        {
-            EM_error2( a->linepos,
-                "(emit): internal error: cannot allocate local 'this'..." );
-            return FALSE;
-        }
-    }
+
     // loop through args
     while( a )
     {
@@ -2652,6 +2639,20 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
 
         // advance
         a = a->next;
+    }
+
+    // if member (non-static) function
+    if( func->is_member )
+    {
+        // get the size
+        emit->code->stack_depth += sizeof(t_CKUINT);
+        // add this
+        if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
+        {
+            EM_error2( a->linepos,
+                "(emit): internal error: cannot allocate local 'this'..." );
+            return FALSE;
+        }
     }
 
     // emit the code
