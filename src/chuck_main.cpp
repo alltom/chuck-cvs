@@ -110,13 +110,15 @@ void signal_int( int sig_num )
         stk_detach( 0, NULL );
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
-        pthread_cancel( g_tid );
-        usleep( 100000 );
+        if( g_tid ) pthread_cancel( g_tid );
+        if( g_tid ) usleep( 50000 );
+        fprintf( stderr, "a\n" );
         delete( vm );
 #else
         CloseHandle( g_tid );
 #endif
         ck_close( g_sock );
+        fprintf( stderr, "b\n" );
     }
 
 #ifndef __PLATFORM_WIN32__
@@ -404,9 +406,9 @@ void * cb( void * p )
         {
             // fprintf( stderr, "[chuck]: socket error during accept()...\n" );
 #ifndef __PLATFORM_WIN32__
-            usleep( 100000 );
+            usleep( 50000 );
 #else
-            Sleep( 100 );
+            Sleep( 50 );
 #endif
             continue;
         }
