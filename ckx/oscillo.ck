@@ -8,17 +8,6 @@
 
 0 => uint ml;
 
-Wurley r => gain mix => dac;
-
-fun void play ( ) { 
-	while ( true ) { 
-	
-		std.mtof((float)std.rand2(50,60)) => r.freq;	
-		0.5 + std.rand2f( 0.1, 0.4)  => r.noteOn;
-		0.50::second * (float)std.rand2(1,3) => now;
-	}
-}
-
 fun void gluckDraw() {
 
 	gl.Clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
@@ -28,7 +17,7 @@ fun void gluckDraw() {
 	0.0 => float f;
 	tspan / div => float res;
 	for ( 0.0 => f; f <= tspan; f+res => f ) { 
-		r.last => float smp;
+		dac.last => float smp;
 		gl.Normal3f ( 0.0, 0.0, 1.0 );
 		gl.Vertex2f ( f / tspan, 0.0 );
 		gl.Normal3f ( 0.0, -smp * 0.2, smp );
@@ -56,7 +45,7 @@ fun void gluckStart() {
 	gl.Translatef ( -1.0, 0.0, 0.0 );
 	gl.Scalef ( 2.0, 1.0, 1.0 );
 	
-	gl.ClearColor ( 0.0 , 0.0, 0.3, 0.0 );
+	gl.ClearColor ( 0.3 , 0.3, 0.5, 0.0 );
 
 	gl.Enable(gl.LIGHTING);
 
@@ -64,8 +53,8 @@ fun void gluckStart() {
 	gl.LightPosf(ml, 0.0, 0.0, 0.3, 1.0 );
 	gl.LightSpotDirf(ml, 0.0, 0.0, -1.0 );
 	gl.LightAmbientf( ml, 0.1, 0.3,0.0,0.9);
-	gl.LightDiffusef( ml, 0.8, 1.0, 1.0, 0.9 );
-	gl.LightSpecularf( ml, 1.0, 1.0, 1.0, 1.0 );
+	gl.LightDiffusef( ml, 0.5, 1.0, 1.0, 0.8 );
+	gl.LightSpecularf( ml, 1.0, 1.0, 1.0, 0.2 );
 
 	while ( true ) { 
 		gluck.MainLoopEvent();
@@ -74,8 +63,9 @@ fun void gluckStart() {
 	}
 }
 
-spork ~play ();
+
 spork ~gluckStart();
+
 while ( true ) { 
 	1::second => now;
 }
