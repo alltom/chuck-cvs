@@ -1107,6 +1107,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 #if defined(__CK_SNDFILE_NATIVE__)
 #include <sndfile.h>
 #else
+#error
 #include "util_sndfile.h"
 #endif
 
@@ -1397,6 +1398,3 @@ UGEN_CGET sndbuf_cget_channels( t_CKTIME now, void * data, void * out )
     sndbuf_data * d = (sndbuf_data *)data;
     SET_NEXT_INT( out, d->num_channels );
 }
-
-
-
