@@ -1577,30 +1577,16 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 
             return TRUE;
         }
-        // aggregate types
-        else
-        {
-            // TODO: check overloading of =>
-
-            // no match
-            EM_error2( lhs->linepos,
-                "no suitable resolution for binary operator '=>'..." );
-            EM_error2( lhs->linepos,
-                "...on types '%s' => '%s'...",
-                left->c_name(), right->c_name() );
-            EM_error2( lhs->linepos,
-                "...(note: use '@=>' for assignment of object references)" );
-            return NULL;
-        }
     }
 
     // TODO: check overloading of =>
 
     // no match
     EM_error2( lhs->linepos,
-        "no suitable resolution for binary operator '=>' on types '%s' and '%s'...",
+        "(emit): internal error: unhandled '=>' on types '%s' and '%s'...",
         left->c_name(), right->c_name() );
-    return NULL;
+
+    return FALSE;
 }
 
 
