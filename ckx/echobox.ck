@@ -266,8 +266,8 @@ fun void gluckStartup ( ) {
 
 fun void fiddlebox () { 
 	sinosc p => sinosc s => blackhole;
-	0.5 => s.sfreq;
-	0.5 => p.sfreq;
+	1.0 / 60.0  => s.sfreq;
+	1.0 / 60.0  => p.sfreq;
 	0.25 => p.phase_offset;
 	while ( true ) { 
 
