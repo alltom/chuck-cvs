@@ -491,7 +491,14 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_REMOVE )
     {
-        if( msg->param == 0xffffffff && this->m_num_shreds )
+        if( msg->param == 0xffffffff && !this->m_num_shreds)
+        {
+            EM_error3( "[chuck](VM): no shreds to remove..." );
+            retval = 0;
+            goto done;
+        }
+        
+        if( msg->param == 0xffffffff )
         {
             t_CKUINT id = m_shred_id;
             Chuck_VM_Shred * shred = NULL;
@@ -499,8 +506,6 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 id--;
             if( id >= 0 )
             {
-                this->m_num_shreds--;
-                if( !this->m_num_shreds ) this->m_shred_id = 0;
                 EM_error3( "[chuck](VM): removing recent shred: %i (%s)...", 
                            id, mini(shred->name.c_str()) );
                 this->free( shred, TRUE );
@@ -530,7 +535,6 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 retval = 0;
                 goto done;
             }
-            m_num_shreds--;
             EM_error3( "[chuck](VM): removing shred: %i (%s)...",
                        msg->param, mini(shred->name.c_str()) );
             this->free( shred, TRUE );
@@ -724,10 +728,7 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade )
     // free the children
     map<t_CKUINT, Chuck_VM_Shred *>::iterator iter;
     for( iter = shred->children.begin(); iter != shred->children.end(); iter++ )
-    {
-        fprintf( stderr, "removing %i\n", (*iter).first );
         this->free( (*iter).second, cascade );
-    }
 
     // make sure it's done
     assert( shred->children.size() == 0 );
