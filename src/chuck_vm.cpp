@@ -457,8 +457,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         // replace
         if( m_shreduler->replace( out, shred ) )
         {
-            fprintf( stderr, "[chuck](VM): replacing shred %i with %i (%s)...\n",
-                     out->id, shred->id, mini(shred->name.c_str()) );
+            fprintf( stderr, "[chuck](VM): replacing shred %i (%s) with %i (%s)...\n",
+                     out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
             delete out;
             SAFE_DELETE(msg);
             return shred->id;

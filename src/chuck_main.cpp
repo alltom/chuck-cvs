@@ -458,7 +458,6 @@ void * cb( void * p )
 
         if( g_vm )
         {
-            fprintf( stderr, "[chuck]: incoming message...\n" );
             if( !process_msg( msg.type, msg.param, msg.buffer, FALSE ) )
             {
                 msg.param = FALSE;
