@@ -271,15 +271,13 @@ struct Chuck_Type
     Chuck_Namespace * info;
     // func info
     Chuck_Func * func;
-    // multi
-    vector<Chuck_Type *> * multi;
 
 public:
     ~Chuck_Type() { reset(); }
     // reset
     void reset()
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
-      owner = info = NULL; func = NULL; if( multi ) delete multi; multi = NULL; }
+      owner = info = NULL; func = NULL; }
     // copy
     Chuck_Type * copy() const
     { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) ); }
