@@ -102,8 +102,8 @@ public:
         if( local )
             return (*scope.back())[id];
         else
-            for( t_CKUINT i = 0; i < scope.size(); i++ )
-                if( val = (*scope.back())[id] ) return val;
+            for( t_CKUINT i = scope.size(); i > 0; i-- )
+                if( val = (*scope[i-1])[id] ) return val;
 
         return 0;
     }
