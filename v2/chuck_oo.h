@@ -121,7 +121,7 @@ public:
 struct Chuck_Object : Chuck_VM_Object
 {
 public:
-    Chuck_Object();
+    // Chuck_Object();
 public:
     Chuck_VTable * vtable;
 };

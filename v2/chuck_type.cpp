@@ -1556,7 +1556,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // env->context->nspc.value.add( var_decl->id, 
         //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
         env->curr->value.add( var_decl->id,
-            value = new Chuck_Value( t, S_name(var_decl->id), NULL ) );
+            value = env->context->new_Chuck_Value( t, S_name(var_decl->id) ) );
  
         // see if in function or not
         if( env->func )
@@ -1860,7 +1860,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     }
 
     // allocate new type
-    the_class = new Chuck_Type;
+    the_class = env->context->new_Chuck_Type();
     // set the fields
     the_class->id = te_user;
     the_class->name = S_name(class_def->name->id);
@@ -1870,7 +1870,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->self_size = 0;  // TODO:
     the_class->owner = env->curr;
     the_class->array_depth = 0;
-    the_class->info = new Chuck_Namespace;
+    the_class->info = env->context->new_Chuck_Namespace();
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;
     the_class->func = NULL;
@@ -1922,7 +1922,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // allocate value
         type = t_class.copy( env );
         type->actual_type = the_class;
-        value = new Chuck_Value( type, the_class->name );
+        value = env->context->new_Chuck_Value( type, the_class->name );
         value->owner = env->curr;
         value->is_const = TRUE;
         value->is_member = FALSE;
@@ -1983,7 +1983,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     assert( !f->code || f->code->s_type == ae_stmt_code );
 
     // make a new func object
-    func = new Chuck_Func;
+    func = env->context->new_Chuck_Func();
     // set the name
     func->name = S_name(f->name);
     // reference the function definition
@@ -2047,8 +2047,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         }
 
         // make new value
-        value = new Chuck_Value( 
-            arg_list->type, S_name(arg_list->var_decl->id), NULL, FALSE, 0, NULL );
+        value = env->context->new_Chuck_Value( 
+            arg_list->type, S_name(arg_list->var_decl->id) );
         // remember the owner
         value->owner = env->curr;
         value->owner_class = env->class_def;
@@ -2182,14 +2182,16 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // pop the value stack
     env->curr->value.pop();
     // make a new type for the function
-    type = new Chuck_Type;
-    type->name = "[function]";
+    type = env->context->new_Chuck_Type();
     type->id = te_function;
+    type->name = "[function]";
     type->parent = &t_function;
     type->size = sizeof(void *);
     type->func = func;
     // make new value
-    value = new Chuck_Value( type, S_name(f->name), NULL, TRUE, 0, NULL );
+    value = env->context->new_Chuck_Value( type, S_name(f->name) );
+    // it is const
+    value->is_const = TRUE;
     // remember the owner
     value->owner = env->curr;
     value->owner_class = env->class_def;
@@ -2376,7 +2378,7 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
     }
 
     // allocate new type
-    the_class = new Chuck_Type;
+    the_class = env->context->new_Chuck_Type();
     // init as vm object
     // the_class->init();
     // set the fields
@@ -2461,11 +2463,16 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * nam
     if( !nspc )
     {
         // allocate new namespace
-        nspc = new Chuck_Namespace;
+        nspc = env->context->new_Chuck_Namespace();
         if( !type )
         {
             // add as new type/namespace
-            type = new Chuck_Type( te_user, name, NULL, 0 );
+            type = env->context->new_Chuck_Type();
+            // user defined
+            type->id = te_user;
+            // the name
+            type->name = name;
+            // add to global type space
             env->global.type.add( string(name), type );
         }
         // set the nspc
@@ -2920,4 +2927,102 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
     }
 
     return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_special()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_special( Chuck_VM_Object * obj )
+{
+    // init
+    obj->init();
+    // reference
+    obj->add_ref();
+    // add to vector
+    if( obj->m_v_ref ) obj->m_v_ref->push_back( obj );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: new_Chuck_Type()
+// desc: instantiate new chuck type
+//-----------------------------------------------------------------------------
+Chuck_Type * Chuck_Context::new_Chuck_Type()
+{
+    // allocate
+    Chuck_Type * type = new Chuck_Type;
+    if( !type ) return NULL;
+    // set v ref
+    type->m_v_ref = &new_types;
+    // initialize it
+    init_special( type );
+
+    return type;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: new_Chuck_Value()
+// desc: instantiate new chuck value
+//-----------------------------------------------------------------------------
+Chuck_Value * Chuck_Context::new_Chuck_Value( Chuck_Type * t,
+                                              const string & name )
+{
+    // allocate
+    Chuck_Value * value = new Chuck_Value( t, name );
+    if( !value ) return NULL;
+    // set v ref
+    value->m_v_ref = &new_values;
+    // initialize it
+    init_special( value );
+
+    return value;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: new_Chuck_Func()
+// desc: instantiate new chuck func
+//-----------------------------------------------------------------------------
+Chuck_Func * Chuck_Context::new_Chuck_Func()
+{
+    // allocate
+    Chuck_Func * func = new Chuck_Func;
+    if( !func ) return NULL;
+    // set v ref
+    func->m_v_ref = &new_funcs;
+    // initialize it
+    init_special( func );
+
+    return func;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: new_Chuck_Namespace()
+// desc: instantiate new chuck namespace
+//-----------------------------------------------------------------------------
+Chuck_Namespace * Chuck_Context::new_Chuck_Namespace()
+{
+    // allocate
+    Chuck_Namespace * nspc = new Chuck_Namespace;
+    if( !nspc ) return NULL;
+    // set v ref
+    nspc->m_v_ref = &new_nspc;
+    // initialize it
+    init_special( nspc );
+
+    return nspc;
 }

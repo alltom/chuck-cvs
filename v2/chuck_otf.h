@@ -34,7 +34,7 @@
 #define __CHUCK_OTF_H__
 
 #include "chuck_def.h"
-#include "chuck_vm.h"
+// #include "chuck_vm.h"
 #include <memory.h>
 
 

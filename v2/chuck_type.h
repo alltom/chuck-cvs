@@ -186,13 +186,22 @@ struct Chuck_Context : public Chuck_VM_Object
     // context namespace
     Chuck_Namespace nspc;
 
-    // things to delete with the context
-    vector<t_CKTYPE> new_types;
+    // things to release with the context
+    std::vector<Chuck_VM_Object *> new_types;
+    std::vector<Chuck_VM_Object *> new_values;
+    std::vector<Chuck_VM_Object *> new_funcs;
+    std::vector<Chuck_VM_Object *> new_nspc;
 
-	// constructor
+    // constructor
 	Chuck_Context() { parse_tree = NULL; }
 	// destructor
 	~Chuck_Context();
+
+    // special alloc
+    Chuck_Type * new_Chuck_Type();
+    Chuck_Value * new_Chuck_Value( Chuck_Type * t, const string & name );
+    Chuck_Func * new_Chuck_Func();
+    Chuck_Namespace * new_Chuck_Namespace();
 };
 
 
@@ -329,10 +338,12 @@ public:
       
       return *this;
     }
+
     // copy
     Chuck_Type * copy( Chuck_Env * env ) const
-    { Chuck_Type * n = new Chuck_Type; *n = *this;
-      env->context->new_types.push_back( n ); return n; }
+    { Chuck_Type * n = env->context->new_Chuck_Type(); 
+      *n = *this; return n; }
+    
     // to string
     string ret;
     const string & str()

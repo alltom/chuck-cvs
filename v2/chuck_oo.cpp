@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include <assert.h>
 #include "chuck_oo.h"
+#include "chuck_type.h"
 
 
 
@@ -40,14 +41,14 @@
 // name: init()
 // desc: initialize vm object
 //-----------------------------------------------------------------------------
-void Chuck_VM_Object::init( t_CKBOOL pooled )
+void Chuck_VM_Object::init()
 {
+    // set reference count
     m_ref_count = 0;
-    m_pooled = pooled;
-    // add reference
-    this->add_ref();
-    // add to vm allocator
-    Chuck_VM_Alloc::instance()->add_object( this );
+    // set flag
+    m_pooled = FALSE;
+    // set v ref
+    m_v_ref = NULL;
 }
 
 
@@ -59,7 +60,14 @@ void Chuck_VM_Object::init( t_CKBOOL pooled )
 //-----------------------------------------------------------------------------
 void Chuck_VM_Object::add_ref()
 {
+    // increment reference count
     m_ref_count++;
+    // if going from 0 to 1
+    if( m_ref_count == 1 )
+    {
+        // add to vm allocator
+        Chuck_VM_Alloc::instance()->add_object( this );
+    }
 }
 
 
@@ -71,7 +79,9 @@ void Chuck_VM_Object::add_ref()
 //-----------------------------------------------------------------------------
 void Chuck_VM_Object::release()
 {
+    // make sure there is at least one reference
     assert( m_ref_count > 0 );
+    // de
     m_ref_count--;
     
     // if no more references
@@ -83,12 +93,8 @@ void Chuck_VM_Object::release()
 }
 
 
-
-
 // static member
 Chuck_VM_Alloc * Chuck_VM_Alloc::our_instance = NULL;
-
-
 
 
 //-----------------------------------------------------------------------------
