@@ -31,144 +31,85 @@
 // date: Autumn 2002
 //-----------------------------------------------------------------------------
 #include "chuck_frame.h"
-#include <vector>
 using namespace std;
 
 
 
+
 //-----------------------------------------------------------------------------
-// name: struct F_Frame_
+// name: Chuck_Frame()
 // desc: ...
 //-----------------------------------------------------------------------------
-struct F_Frame_
+Chuck_Frame::Chuck_Frame()
 {
-    Temp_Label label;
-    F_Access_List head;
-    F_Access_List tail;
-    unsigned int num_access;
-    unsigned int curr_offset;
-    vector<F_Access> stack;
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: F_new_frame()
-// desc: ...
-//-----------------------------------------------------------------------------
-F_Frame F_new_frame( Temp_Label name )
-{
-    F_Frame f = new F_Frame_;
-    f->label = name;
-    // f->tail = f->head = (F_Access_List)checked_malloc( sizeof(F_Access_List_) );
-    // f->head->head = NULL;
-    // f->head->tail = NULL;
-    f->num_access = 0;
-    f->curr_offset = 0;
-
-    return f;
+    // name
+    name = "";
+    // ofset
+    curr_offset = 0;
+    // don't know
+    num_access = 0;
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: F_name()
+// name: alloc_local()
 // desc: ...
 //-----------------------------------------------------------------------------
-Temp_Label F_name( F_Frame f )
+Chuck_Local * Chuck_Frame::alloc_local( t_CKUINT size, const string & name )
 {
-    return f->label;
+    // alloc
+    Chuck_Local * local = new Chuck_Local;
+    // size
+    local->size = size;
+    // the offset
+    local->offset = this->curr_offset;
+    // the next offset
+    this->curr_offset += local->size;
+    // name
+    local->name = name;
+    // push the local
+    this->stack.push_back( local );
+
+    return local;
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: F_formals()
+// name: push_scope()
 // desc: ...
 //-----------------------------------------------------------------------------
-F_Access_List F_formals( F_Frame f )
+void Chuck_Frame::push_scope( )
 {
-    return NULL;
-    // return f->head->tail;
+    stack.push_back( NULL );
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: F_formals()
-// desc: ...
-//-----------------------------------------------------------------------------
-unsigned int F_offset( F_Access a )
-{
-    return a->offset;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: F_alloc_local()
-// desc: ...
-//-----------------------------------------------------------------------------
-F_Access F_alloc_local( F_Frame f, unsigned int size, unsigned int is_global )
-{
-    F_Access a = (F_Access)checked_malloc( sizeof( F_Access_ ) );
-    a->offset = f->curr_offset;
-    a->global = is_global;
-    a->size = size;
-    f->curr_offset += size;
-    f->stack.push_back( a );
-    //f->num_access++;
-    //f->tail->tail = (F_Access_List)checked_malloc( sizeof( F_Access_List_ ) );
-    //f->tail->head = a;
-    //f->tail = f->tail->tail;
-
-    return a;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: F_begin_scope()
-// desc: ...
-//-----------------------------------------------------------------------------
-void F_begin_scope( F_Frame f )
-{
-    f->stack.push_back( NULL );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: F_remove_locals()
+// name: pop_scope()
 // desc: ....
 //-----------------------------------------------------------------------------
-void F_end_scope( F_Frame f )
+void Chuck_Frame::pop_scope( )
 {
-    F_Access v = NULL;
+    // sanity
+    assert( this->stack.size() > 0 );
+
+    Chuck_Local * local = NULL;
     do {
-        v = f->stack[f->stack.size()-1];
-        f->stack.pop_back();
-        if( !v ) break;
-        f->curr_offset -= v->size;
-        free(v);
-    }while( TRUE );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: F_stack_depth()
-// desc: ...
-//-----------------------------------------------------------------------------
-unsigned int F_stack_depth( F_Frame f )
-{
-    return f->curr_offset;
+        // last thing
+        local = stack.back();
+        // free
+        stack.pop_back();
+        // marker
+        if( !local ) break;
+        // offset
+        curr_offset -= local->size;
+        // free
+        delete local;
+    } while( TRUE );
 }

@@ -34,50 +34,60 @@
 #ifndef __CHUCK_FRAME_H__
 #define __CHUCK_FRAME_H__
 
+#include "chuck_def.h"
 
-#include "chuck_temp.h"
-
-
-
-
-// frame
-typedef struct F_Frame_ * F_Frame;
-typedef struct F_Access_ * F_Access;
-
-
+#include <string>
+#include <vector>
 
 
 //-----------------------------------------------------------------------------
-// name: struct F_Access_
+// name: struct Chuck_Local
 // desc: ...
 //-----------------------------------------------------------------------------
-struct F_Access_
+struct Chuck_Local
 {
-    unsigned int offset;
-    unsigned int global;
-    unsigned int size;
+    // name
+    std::string name;
+    // the size of the local
+    t_CKUINT size;
+    // the offset
+    t_CKUINT offset;
+
+    // constructor
+    Chuck_Local()
+    { size = 0; offset = 0; }
 };
 
 
 
 
-// access list
-typedef struct F_Access_List_ * F_Access_List;
-struct F_Access_List_
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Frame
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Frame
 {
-    F_Access head;
-    F_Access_List tail;
-};
+    // yes
+    std::string name;
+    // the offset
+    t_CKUINT curr_offset;
+    // not sure
+    t_CKUINT num_access;
+    // offset stack
+    std::vector<Chuck_Local *> stack;
 
-// functions
-F_Frame F_new_frame( Temp_Label name );
-Temp_Label F_name( F_Frame f );
-unsigned int F_offset( F_Access a );
-F_Access_List F_formals( F_Frame f );
-F_Access F_alloc_local( F_Frame f, unsigned int size, unsigned int is_global );
-unsigned int F_stack_depth( F_Frame f );
-void F_begin_scope( F_Frame f );
-void F_end_scope( F_Frame f );
+public:
+    Chuck_Frame();
+    ~Chuck_Frame() { }
+
+public:
+    // push scope
+    void push_scope();
+    // add local
+    Chuck_Local * alloc_local( t_CKUINT size, const std::string & name );
+    // pop scope
+    void pop_scope();
+};
 
 
 

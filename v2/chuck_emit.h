@@ -40,9 +40,9 @@
 
 
 // forward references
+class Chuck_Instr;
 class Chuck_VM_Code;
 class Chuck_VM_Shred;
-class Chuck_VM_Instr;
 
 
 
@@ -53,21 +53,22 @@ class Chuck_VM_Instr;
 struct Chuck_Code
 {
 public:
-    vector<Chuck_Instr *> code;
-    unsigned int stack_depth;
+    // name
     string name;
+    // code
+    vector<Chuck_Instr *> code;
+    // stack depth
+    t_CKUINT stack_depth;
 
     // constructor
     Chuck_Code( const string & scope_name )
     {
         name = scope_name;
         stack_depth = 0;
-        code = NULL;
     }
 
     // destructor
-    ~Chuck_Code()
-    { }
+    ~Chuck_Code() { }
 };
 
 
