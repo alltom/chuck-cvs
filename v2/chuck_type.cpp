@@ -1405,6 +1405,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
     Chuck_Value * value = NULL;
+    t_CKBOOL primitive = FALSE;
 
     // TODO: handle T a, b, c ...
     // look up the type
@@ -1416,6 +1417,18 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         return NULL;
     }
 
+    // primitive
+    if( isprim( t ) && decl->type->ref )  // TODO: string
+    {
+        EM_error2( decl->linepos,
+            "cannot declare references (@) of primitive type '%s'...",
+            t->c_name() );
+        EM_error2( decl->linepos,
+            "...(primitive types: 'int', 'float', 'time', 'dur')" );
+        return NULL;
+    }
+
+    // loop through the variables
     while( list != NULL )
     {
         // get the decl
