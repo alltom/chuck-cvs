@@ -244,7 +244,8 @@ public:
 public: // init
     t_CKBOOL initialize( t_CKBOOL enable_audio = TRUE, t_CKBOOL halt = TRUE,
                          t_CKUINT buffer_size = 512, t_CKUINT num_buffers = 4,
-                         t_CKUINT dac = 0, t_CKUINT adc = 0 );
+                         t_CKUINT dac = 0, t_CKUINT adc = 0, 
+                         t_CKUINT priority = 0xffffffff );
     t_CKBOOL shutdown();
 
 public: // shreds
@@ -319,6 +320,9 @@ protected:
     // type information
     void * m_env;
     map<string, Chuck_DLL *> m_dlls;
+    
+    // priority
+    t_CKBOOL set_priority( t_CKUINT priority );
 };
 
 

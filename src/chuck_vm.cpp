@@ -139,19 +139,54 @@ Chuck_VM::~Chuck_VM()
 UGEN_TICK __dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) 
 { *out = in; return TRUE; }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_priority()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority )
+{
+    struct sched_param param;
+    pthread_t tid = pthread_self();
+    int policy;
+    if ( pthread_getschedparam( tid, &policy, &param) ) 
+    {
+        m_last_error = "could not get current scheduling parameters";
+        return FALSE;
+    }
+
+    param.sched_priority = (int)priority;
+    if( pthread_setschedparam( tid, policy, &param ) )
+    {
+        m_last_error = "could not get set new scheduling parameters";
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+
+
+        
 //-----------------------------------------------------------------------------
 // name: initialize()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt,
                                t_CKUINT buffer_size, t_CKUINT num_buffers,
-                               t_CKUINT dac, t_CKUINT adc )
+                               t_CKUINT dac, t_CKUINT adc, t_CKUINT priority )
 {
     if( m_init )
     {
         m_last_error = "VM already initialized!";
         return FALSE;
     }
+
+    // boost thread priority
+    if( priority != 0xffffffff && !set_priority( priority ) )
+        return FALSE;
 
     // allocate bbq
     m_bbq = new BBQ;
@@ -180,23 +215,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt,
 
     if( m_audio )
     {
-        // init bbq
-	struct sched_param param;
-	pthread_t tid = pthread_self();
-	int policy;
-	if ( pthread_getschedparam( tid, &policy, &param) ) 
-	{
-            m_last_error = "could not get current scheduling parameters";
-            return FALSE;
-	}
 
-	param.sched_priority = 90;
-	if( pthread_setschedparam( tid, policy, &param ) )
-	{
-            m_last_error = "could not get set new scheduling parameters";
-            return FALSE;
-	}
-    	    
+        
+        // init bbq
         if( !m_bbq->initialize( 2, SAMPLING_RATE_DEFAULT, 16, buffer_size, num_buffers, dac, adc ) )
         {
             m_last_error = "cannot initialize audio device (try using --silent/-s)";

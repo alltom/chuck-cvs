@@ -76,6 +76,11 @@ t_CKBOOL g_error = FALSE;
 pthread_t g_tid = 0;
 char g_host[256] = "127.0.0.1";
 int g_port = 8888;
+#if defined(__MACOSX_CORE__)
+t_CKUINT g_priority = 90;
+#else
+t_CKUINT g_priority = 0xffffffff;
+#endif
 
 
 
@@ -93,8 +98,9 @@ void signal_int( int sig_num )
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
         vm->shutdown();
-        delete( vm );
         pthread_kill( g_tid, 2 );
+        usleep( 100000 );
+        delete( vm );
     }
     
     exit(2);
@@ -534,7 +540,9 @@ int main( int argc, char ** argv )
                 dac = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--adc", 5) )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
-            else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h") 
+            else if( !strncmp(argv[i], "--priority", 10) )
+                g_priority = atoi( argv[i]+10 ) > 0 ? atoi( argv[i]+10 ) : 0xffffffff;
+            else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
                  || !strcmp(argv[i], "--about") )
             {
                 usage();
@@ -564,7 +572,8 @@ int main( int argc, char ** argv )
 
     // allocate the vm
     Chuck_VM * vm = g_vm = new Chuck_VM;
-    if( !vm->initialize( enable_audio, vm_halt, buffer_size, num_buffers, dac, adc ) )
+    if( !vm->initialize( enable_audio, vm_halt, buffer_size, num_buffers, 
+                         dac, adc, g_priority ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
