@@ -131,13 +131,15 @@ void signal_int( int sig_num )
 
 
 
+t_CKUINT g_sigpipe_mode = 0;
 //-----------------------------------------------------------------------------
 // name: signal_pipe()
 // desc: ...
 //-----------------------------------------------------------------------------
 void signal_pipe( int sig_num )
 {
-    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (lost connection)...\n" );
+    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (no connection)...\n" );
+    if( g_sigpipe_mode ) exit( 1 );
 }
 
 
@@ -375,6 +377,8 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
         fwrite( buf.buffer, sizeof(char), buf.length, fd );
     }while( buf.param2 );
     
+    fprintf( stderr, "read: %s...\n", msg.buffer );
+    
     return fd;
 }
 
@@ -585,6 +589,7 @@ void * cb( void * p )
 int send_cmd( int argc, char ** argv, int  & i )
 {
     Net_Msg msg;
+    g_sigpipe_mode = 1;
 	
     g_sock = ck_tcp_create( 0 );
     if( !g_sock )
