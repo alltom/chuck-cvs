@@ -45,4 +45,5 @@ class Bar extends Foo
 Foo foo;
 Bar bar;
 
-foo.y[1].aaa => foo.f;
+float b;
+<float>foo.y[1].aaa => b;

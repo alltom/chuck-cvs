@@ -446,7 +446,7 @@ tilda_expression
 cast_expression
         : unary_expression                  { $$ = $1; }
         | LT type_decl2 GT cast_expression
-            { $$ = new_exp_from_cast( NULL, $4, EM_lineNum ); }
+            { $$ = new_exp_from_cast( $2, $4, EM_lineNum ); }
         ;
         
 unary_expression

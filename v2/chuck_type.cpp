@@ -1147,12 +1147,12 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !t ) return NULL;
 
     // the type to cast to
-    t_CKTYPE t2 = env->curr->lookup_type( cast->type->id, TRUE );
+    t_CKTYPE t2 = env->curr->lookup_type( cast->type->id->id, TRUE );
     if( !t2 )
     {
         EM_error2( cast->linepos,
             "undefined type '%s' in cast...",
-            S_name( cast->type->id ) );
+            S_name( cast->type->id->id ) );
         return NULL;
     }
     
@@ -1161,7 +1161,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     {
         EM_error2( cast->linepos,
             "invalid cast to '%s' from '%s'...",
-            S_name( cast->type->id ), t->c_name() );
+            S_name( cast->type->id->id ), t->c_name() );
         return NULL;
     }
     
