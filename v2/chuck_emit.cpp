@@ -221,6 +221,8 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     code->instr = new Chuck_Instr *[code->num_instr];
     // set the stack depth
     code->stack_depth = in->stack_depth;
+    // set name
+    code->name = in->name;
 
     // copy
     for( t_CKUINT i = 0; i < code->num_instr; i++ )
