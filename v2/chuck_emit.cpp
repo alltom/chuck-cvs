@@ -2165,8 +2165,10 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
     if( depth == 1 )
     {
         // emit the array access
-        if( is_str ) emit->append( new Chuck_Instr_Array_Map_Access( type->size, is_var ) );
-        else emit->append( new Chuck_Instr_Array_Access( type->size, is_var ) );
+        if( is_str )
+            emit->append( new Chuck_Instr_Array_Map_Access( type->size, is_var ) );
+        else
+            emit->append( new Chuck_Instr_Array_Access( type->size, is_var ) );
     }
     else
     {
