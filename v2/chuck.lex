@@ -191,6 +191,7 @@ function                { adjust(); return FUNCTION; }
 fun                     { adjust(); return FUNCTION; }
 new                     { adjust(); return NEW; }
 class                   { adjust(); return CLASS; }
+interface               { adjust(); return INTERFACE; }
 extends                 { adjust(); return EXTENDS; }
 implements              { adjust(); return IMPLEMENTS; }
 public                  { adjust(); return PUBLIC; }
