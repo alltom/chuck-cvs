@@ -7,9 +7,28 @@
   - --status no longer prints full path for source
   - full path now works for command line + (thanks Adam T.)
   - minor bug fixes
+  - improved online ugen documentation (go phil!)
 
-new ugens:
-  
+new ugens: (again, thanks to Phil Davidson!)
+  BandedWG (STK)
+  Blowhole (STK)
+  BlowBotl (STK)
+  Bowed (STK)
+  Brass (STK)
+  Clarinet (STK)
+  Flute (STK)
+  ModalBar (STK)
+  Saxofony (STK)
+  Sitar (STK)
+  StifKarp (STK)
+  delayp - variable write position delay line
+
+new examples:
+  band-o-matic.ck - banded waveguide, automated
+  delayp.ck - shows usage
+  mode-o-matic.ck - modal bar, happy chaos
+  stifkarp.ck - stifkarp, chaos
+
 
 ---
 1.1.4.8 - 2004.9.8
