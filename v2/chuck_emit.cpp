@@ -2362,8 +2362,8 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
     Chuck_Type * type = NULL;
     Chuck_Local * local = NULL;
     t_CKUINT size = 0;
+    t_CKBOOL is_obj = FALSE;
     t_CKBOOL is_ref = FALSE;
-    t_CKBOOL do_alloc = FALSE;
 
     // loop through vars
     while( list )
@@ -2375,9 +2375,48 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         // get the type of the value
         type = value->type;
         // is the variable a reference
-        is_ref = isobj( type );
+        is_obj = isobj( type );
         // do alloc or not
-        do_alloc = !decl->type->ref;
+        is_ref = decl->type->ref;
+
+        // if this is an object
+        if( is_obj && !is_ref )
+        {
+            // if array
+            if( type->array_depth )
+            {
+                // TODO:
+                EM_error2( decl->linepos,
+                    "(emit): internal error: array not impl" );
+                    return FALSE;
+
+                // emit array allocation
+                emit->append( new Chuck_Instr_Array_Alloc( type->array_depth, type ) );
+            }
+            else // not array
+            {
+                // if ugen
+                if( isa( type, &t_ugen ) )
+                {
+                    // get the ugen info
+                    Chuck_UGen_Info * info = decl->self->type->ugen;
+                    if( !info )
+                    {
+                        EM_error2( decl->linepos,
+                            "(emit): internal error: undefined ugen type '%s'",
+                            value->name.c_str() );
+                        return FALSE;
+                    }
+                    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
+                    emit->append( new Chuck_Instr_UGen_Alloc() );
+                }
+                else
+                {
+                    // emit object instantiation code
+                    emit->append( new Chuck_Instr_Instantiate_Object( type ) );
+                }
+            }
+        }
 
         // allocate a place on the local stack
         local = emit->alloc_local( type->size, value->name, is_ref );
@@ -2402,50 +2441,13 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             return FALSE;
         }
 
-        // if this is an object
-        if( is_ref )
+        // if object, assign
+        if( is_obj && !is_ref )
         {
-            // if array
-            if( type->array_depth )
-            {
-                // TODO:
-                EM_error2( decl->linepos,
-                    "(emit): internal error: array not impl" );
-                    return FALSE;
-
-                // emit array allocation
-                emit->append( new Chuck_Instr_Array_Alloc( type->array_depth, type ) );
-                // assign the object
-                emit->append( new Chuck_Instr_Assign_Object );
-            }
-            else // not array
-            {
-                // if ugen
-                if( isa( type, &t_ugen ) )
-                {
-                    // get the ugen info
-                    Chuck_UGen_Info * info = decl->self->type->ugen;
-                    if( !info )
-                    {
-                        EM_error2( decl->linepos,
-                            "(emit): internal error: undefined ugen type '%s'",
-                            value->name.c_str() );
-                        return FALSE;
-                    }
-                    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
-                    emit->append( new Chuck_Instr_UGen_Alloc() );
-                    emit->append( new Chuck_Instr_Assign_Object );
-                }
-                else
-                {
-                    // emit object instantiation code
-                    emit->append( new Chuck_Instr_Instantiate_Object( type ) );
-                    // assign the object
-                    emit->append( new Chuck_Instr_Assign_Object );
-                    // TODO:
-                    // constructor?
-                }
-            }
+            // assign the object
+            emit->append( new Chuck_Instr_Assign_Object );
+            // TODO:
+            // constructor?
         }
         
         list = list->next;
