@@ -36,6 +36,7 @@
 #include "util_network.h"
 #include "chuck_utils.h"
 #include <stdio.h>
+#include <sys/time.h>
 
 #if defined(__PLATFORM_WIN32__)
 #include <winsock.h>
@@ -319,7 +320,7 @@ int ck_recvfrom( ck_socket sock, char * buffer, int len,
 
 
 //-----------------------------------------------------------------------------
-// name: ck_recv
+// name: ck_recv()
 // desc: recv a datagram
 //-----------------------------------------------------------------------------
 int ck_recv( ck_socket sock, char * buffer, int len ) 
@@ -339,6 +340,38 @@ int ck_recv( ck_socket sock, char * buffer, int len )
         return len;
     }
     else return recv( sock->sock, buffer, len, 0);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_send_timeout()
+// desc: ...
+//-----------------------------------------------------------------------------
+int ck_send_timeout( ck_socket sock, long sec, long usec )
+{
+    struct timeval t;
+    t.tv_sec = sec;
+    t.tv_usec = usec;
+    
+    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_SNDTIMEO, &t, sizeof(t) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_recv_timeout()
+// desc: ...
+//-----------------------------------------------------------------------------
+int ck_recv_timeout( ck_socket sock, long sec, long usec )
+{
+    struct timeval t;
+    t.tv_sec = sec;
+    t.tv_usec = usec;
+    
+    return 0 == setsockopt( sock->sock, SOL_SOCKET, SO_RCVTIMEO, &t, sizeof(t) );
 }
 
 

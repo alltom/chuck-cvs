@@ -383,13 +383,19 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
 
     do {
         // msg
-        ck_recv( sock, (char *)&buf, sizeof(buf) );
+        if( !ck_recv( sock, (char *)&buf, sizeof(buf) ) )
+            goto error;
         otf_ntoh( &buf );
         // write
         fwrite( buf.buffer, sizeof(char), buf.length, fd );
     }while( buf.param2 );
     
     return fd;
+
+error:
+    fclose( fd );
+    fd = NULL;
+    return NULL;
 }
 
 
@@ -546,6 +552,8 @@ void * cb( void * p )
             continue;
         }
         msg.clear();
+        // set time out
+        ck_recv_timeout( client, 0, 5000000 );
         n = ck_recv( client, (char *)&msg, sizeof(msg) );
         otf_ntoh( &msg );
         if( n != sizeof(msg) )
@@ -627,6 +635,8 @@ int send_cmd( int argc, char ** argv, int  & i )
         fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
         goto error;
     }
+    
+    ck_send_timeout( g_sock, 0, 2000000 );
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
@@ -719,21 +729,15 @@ int send_cmd( int argc, char ** argv, int  & i )
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else
-        return 0;
+        goto error;
         
     // send
     msg.type = MSG_DONE;
     otf_hton( &msg );
     ck_send( g_sock, (char *)&msg, sizeof(msg) );
 
-    // timer
-    CHUCK_THREAD tid;
-#ifndef __PLATFORM_WIN32__
-    pthread_create( &tid, NULL, timer, new t_CKUINT(2000000) );
-#else
-    tid = (CHUCK_THREAD)CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)timer, new t_CKUINT(2000000), 0, 0 );
-#endif
-
+    // set timeout
+    ck_recv_timeout( g_sock, 0, 2000000 );
     // reply
     if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
     {
@@ -742,6 +746,10 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( !msg.param )
             fprintf( stderr, "(reason): %s\n", 
                 ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) ) ;
+    }
+    else
+    {
+        fprintf( stderr, "[chuck]: remote operation timed out...\n" );
     }
     // close the sock
     ck_close( g_sock );
