@@ -2104,17 +2104,17 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                 // if ugen
                 if( isa( type, &t_ugen ) )
                 {
-                    Chuck_UGen_Info * info = lookup_ugen( emit->nspc, exp->type );
+                    Chuck_UGen_Info * info = lookup_ugen( emit->nspc, decl->type );
                     if( !info )
                     {
-                        EM_error2( exp->linepos,
+                        EM_error2( decl->linepos,
                             "(emit): internal error: undefined ugen type '%s'",
                             value->name.c_str() );
                         return FALSE;
                     }
                     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
                     emit->append( new Chuck_Instr_UGen_Alloc() );
-                    emit->append( new Chuck_Instr_Chuck_Assign_Object );
+                    emit->append( new Chuck_Instr_Assign_Object );
                 }
             }
         }
@@ -2199,7 +2199,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 {
-    // emit the function call
+    // emit the function call, with special flag
     if( !emit_engine_emit_exp_func_call( emit, exp, TRUE ) )
         return FALSE;
 
