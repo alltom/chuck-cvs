@@ -533,6 +533,8 @@ UGEN_DTOR Rhodey_dtor( t_CKTIME now, void * data );
 UGEN_TICK Rhodey_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Rhodey_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Rhodey_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Rhodey_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Rhodey_ctrl_noteOff( t_CKTIME now, void * data, void * value );
 
 // Saxofony
 UGEN_CTOR Saxofony_ctor( t_CKTIME now );
@@ -655,6 +657,8 @@ UGEN_DTOR Wurley_dtor( t_CKTIME now, void * data );
 UGEN_TICK Wurley_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Wurley_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Wurley_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Wurley_ctrl_noteOn( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Wurley_ctrl_noteOff( t_CKTIME now, void * data, void * value );
 
 
 

@@ -402,7 +402,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOff, NULL, "float", "noteOff" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_speak, NULL, "float", "speak" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_quiet, NULL, "float", "quiet" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiced, NULL, "float", "voice" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiced, NULL, "float", "voiced" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_unVoiced, NULL, "float", "unVoiced" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_pitchSweepRate, NULL, "float", "pitchSweepRate" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiceMix, NULL, "float", "voiceMix" );
@@ -411,7 +411,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, NULL, "float", "vibratoGain" );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, NULL, "float", "loudness" );
 
+    // add Wurley
+    QUERY->ugen_add( QUERY, "Wurley", NULL );
+    QUERY->ugen_func( QUERY, Wurley_ctor, Wurley_dtor, Wurley_tick, Wurley_pmsg );
+    QUERY->ugen_ctrl( QUERY, Wurley_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Wurley_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, Wurley_ctrl_noteOff, NULL, "float", "noteOff" );
 
+    // add Rhodey
+    QUERY->ugen_add( QUERY, "Rhodey", NULL );
+    QUERY->ugen_func( QUERY, Rhodey_ctor, Rhodey_dtor, Rhodey_tick, Rhodey_pmsg );
+    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_noteOff, NULL, "float", "noteOff" );
+  
     return TRUE;
 }
 
@@ -4360,6 +4373,7 @@ class Rhodey : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  void noteOn(MY_FLOAT amplitude);
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -6022,6 +6036,7 @@ class Wurley : public FM
 
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
+  void noteOn(MY_FLOAT amplitude);
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -13080,6 +13095,11 @@ void Rhodey :: setFrequency(MY_FLOAT frequency)
     waves[i]->setFrequency( baseFrequency * ratios[i] );
 }
 
+void Rhodey :: noteOn(MY_FLOAT amplitude)
+{ 
+  noteOn ( baseFrequency, amplitude ) ;
+}
+
 void Rhodey :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
   gains[0] = amplitude * __FM_gains[99];
@@ -17194,6 +17214,10 @@ void Wurley :: setFrequency(MY_FLOAT frequency)
   waves[3]->setFrequency(ratios[3]);
 }
 
+void Wurley :: noteOn( MY_FLOAT amplitude ) { 
+  noteOn(baseFrequency, amplitude );
+}
+
 void Wurley :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
   gains[0] = amplitude * __FM_gains[99];
@@ -20174,5 +20198,97 @@ UGEN_CTRL PoleZero_ctrl_blockZero( t_CKTIME now, void * data, void * value )
     PoleZero * filter = (PoleZero *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
     filter->setBlockZero( f );
+}
+
+
+//Wurley functions
+
+UGEN_CTOR Wurley_ctor ( t_CKTIME now ) 
+{
+  return new Wurley();
+}
+
+UGEN_DTOR Wurley_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Wurley *)data;
+}
+
+UGEN_TICK Wurley_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Wurley * m = (Wurley *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Wurley_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Wurley_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Wurley * wurl= (Wurley *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    wurl->setFrequency( f );
+}
+
+UGEN_CTRL Wurley_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Wurley * wurl= (Wurley *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    wurl->noteOn( f );
+}
+
+UGEN_CTRL Wurley_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Wurley * wurl= (Wurley *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    wurl->noteOff( f );
+}
+
+
+//Rhodey functions
+
+UGEN_CTOR Rhodey_ctor ( t_CKTIME now ) 
+{
+  return new Rhodey();
+}
+
+UGEN_DTOR Rhodey_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Rhodey *)data;
+}
+
+UGEN_TICK Rhodey_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Rhodey * m = (Rhodey *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Rhodey_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Rhodey_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Rhodey * rhod= (Rhodey *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    rhod->setFrequency( f );
+}
+
+UGEN_CTRL Rhodey_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Rhodey * rhod= (Rhodey *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    rhod->noteOn( f );
+}
+
+UGEN_CTRL Rhodey_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Rhodey * rhod= (Rhodey *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    rhod->noteOff( f );
 }
 
