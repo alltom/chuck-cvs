@@ -174,13 +174,13 @@ program_section
         ;
 
 class_definition
-        : CLASS ID LBRACE class_body RBRACE
+        : CLASS id_list LBRACE class_body RBRACE
             { $$ = new_class_def( $2, NULL, $4, EM_lineNum ); }
-        | CLASS ID class_ext LBRACE class_body RBRACE 
+        | CLASS id_list class_ext LBRACE class_body RBRACE 
             { $$ = new_class_def( $2, $3, $5, EM_lineNum ); }
-        | INTERFACE ID LBRACE class_body RBRACE
+        | INTERFACE id_list LBRACE class_body RBRACE
             { $$ = new_iface_def( $2, NULL, $4, EM_lineNum ); }
-        | INTERFACE ID iface_ext LBRACE class_body RBRACE
+        | INTERFACE id_list iface_ext LBRACE class_body RBRACE
             { $$ = new_iface_def( $2, $3, $5, EM_lineNum ); }
         ;
 

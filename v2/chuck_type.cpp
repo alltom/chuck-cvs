@@ -1470,11 +1470,11 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
      t_CKTYPE t_class = NULL;
      
      // make sure class not already in namespace
-     if( env->curr->lookup_type( class_def->name, TRUE ) )
+     if( env->curr->lookup_type( class_def->name->id, TRUE ) )
      {
-         EM_error2( class_def->linepos,
+         EM_error2( class_def->name->linepos,
              "class name '%s' is already a defined type in current context",
-             S_name(class_def->name) );
+             S_name(class_def->name->id) );
          return FALSE;
      }
 
