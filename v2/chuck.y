@@ -141,7 +141,7 @@ a_Program g_program = NULL;
 %type <exp> tilda_expression
 %type <exp> cast_expression
 %type <exp> unary_expression
-%type <exp> postfix_expression  
+%type <exp> postfix_expression
 %type <exp> primary_expression
 %type <exp> decl_expression
 %type <ival> unary_operator
