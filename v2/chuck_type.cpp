@@ -338,11 +338,7 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             break;
 
         case ae_stmt_code:
-            env->context->nspc.value.push();
-            env->scope.push();
             ret = type_engine_check_code_segment( env, &stmt->stmt_code );
-            env->context->nspc.value.pop();
-            env->scope.pop();
             break;
 
         case ae_stmt_break:
@@ -589,6 +585,29 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     }
 
     return ret_type != NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_code_segment()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt )
+{
+    // push
+    env->context->nspc.value.push();
+    env->scope.push();
+    
+    // do it
+    t_CKBOOL t = type_engine_check_stmt_list( env, stmt->stmt_list );
+    
+    // pop
+    env->context->nspc.value.pop();
+    env->scope.pop();
+    
+    return t;
 }
 
 
@@ -1093,15 +1112,132 @@ t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE fr
     return FALSE;
 }
 
-t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
-t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
-t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
-t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
-t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
-t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_dur()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
+{
+    // type check the two components
+    t_CKTYPE base = type_engine_check_exp( env, dur->base );
+    t_CKTYPE unit = type_engine_check_exp( env, dur->unit );
+    
+    // make sure both type check
+    if( !base || !unit ) return NULL;
+    
+    // check base type
+    if( !isa( base, &t_int ) && !isa( base, &t_float ) )
+    {
+        EM_error2( dur->base->linepos,
+            "(type-checker): invalid type '%s' in prefix of dur expression...\n"
+            "    (must be of type 'int' or 'float')", base->name.c_str() );
+        return NULL;
+    }
+    
+    // check unit type
+    if( !isa( unit, &t_dur ) )
+    {
+        EM_error2( dur->unit->linepos,
+            "(type-checker): invalid type '%s' in postfix of dur expression...\n"
+            "    (must be of type 'dur')", unit->name.c_str() );
+        return NULL;
+    }
+    
+    return unit;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_postfix()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
+{
+    // check the exp
+    t_CKTYPE t = type_engine_check_exp( env, postfix->exp );
+    if( !t ) return NULL;
+    
+    // syntax
+    switch( postfix->op )
+    {
+        case ae_op_plusplus:
+        case ae_op_minusminus:
+            // assignable?
+            if( postfix->exp->s_meta != ae_meta_var )
+            {
+                EM_error2( postfix->exp->linepos,
+                    "(type-checker): postfix operator '%s' cannot be used "
+                    "on non-mutable data-type...", op2str( postfix->op ) );
+                return NULL;
+            }
+            
+            // TODO: mark somewhere we need to post increment
+            
+            // check type
+            if( isa( t, &t_int ) || isa( t, &t_float ) )
+                return t;
+        break;
+        
+        default:
+            // no match
+            EM_error2( postfix->linepos,
+                "(type-checker): internal compiler error: unrecognized postfix '%i'", postfix->op );
+        return NULL;
+    }
+    
+    // no match
+    EM_error2( postfix->linepos,
+        "(type-checker): no suitable resolutation for postfix operator '%s' on type '%s'...",
+        op2str( postfix->op ), t->name.c_str() );
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_if()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
+{
+    // check the components
+    t_CKTYPE cond = type_engine_check_exp( env, exp_if->cond );
+    t_CKTYPE if_exp = type_engine_check_exp( env, exp_if->if_exp );
+    t_CKTYPE else_exp = type_engine_check_exp( env, exp_if->else_exp );
+    
+    // make sure everything good
+    if( !cond || !if_exp || !else_exp ) return NULL;
+    
+    // check the type
+    if( !isa( cond, &t_int ) ) return NULL;
+    
+    // make sure the if and else have compatible types
+    if( !( *if_exp == *else_exp ) )
+    {
+        EM_error2( exp_if->linepos,
+            "(type-checker): incompatible types '%s' and '%s' in if expression...",
+            if_exp->name.c_str(), else_exp->name.c_str() );
+        return NULL;
+    }
+    
+    return if_exp;
+}
+
+
+
+
+
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
+t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
+t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
+t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
-t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
 // import
