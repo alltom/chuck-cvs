@@ -252,12 +252,12 @@ ck_socket ck_accept( ck_socket sock )
 {
     ck_socket client;
     
-    if( sock->prot != SOCK_STREAM ) return FALSE;
+    if( sock->prot != SOCK_STREAM ) return NULL;
     client = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
     client->len = sizeof( client->sock_in );
     client->sock = accept( sock->sock, (struct sockaddr *)&client->sock_in,
         &client->len );
-    if( !client->sock ) goto error;
+    if( client->sock <= 0 ) goto error;
     client->prot = SOCK_STREAM;
     
     return client;
@@ -348,7 +348,12 @@ void ck_close( ck_socket sock )
 {
     if( !sock ) return;
     
+#ifdef __PLATFORM_WIN32__
+    closesocket( sock->sock );
+#else
     close( sock->sock );
+#endif
+
     free( sock );
 
 #ifdef __PLATFORM_WIN32__

@@ -409,6 +409,7 @@ void * cb( void * p )
 {
     Msg msg;
     ck_socket client;
+    int n;
 
 #ifndef __PLATFORM_WIN32__
     // catch SIGPIPE
@@ -426,10 +427,23 @@ void * cb( void * p )
 #else
             Sleep( 40 );
 #endif
+            ck_close( client );
             continue;
         }
         memset( &msg, 0, sizeof(msg) );
-        ck_recv( client, (char *)&msg, sizeof(msg) );
+        n = ck_recv( client, (char *)&msg, sizeof(msg) );
+        if( n != sizeof(msg) )
+        {
+            fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
+#ifndef __PLATFORM_WIN32__
+            usleep( 40000 );
+#else
+            Sleep( 40 );
+#endif
+            ck_close( client );
+            continue;
+        }
+
         if( g_vm )
         {
             if( !process_msg( msg.type, msg.param, msg.buffer, FALSE ) )
