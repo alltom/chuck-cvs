@@ -42,7 +42,7 @@ int main( int argc, char ** argv )
             x = (token[0]-'0')*64 + (token[1]-'0')*8 + (token[2]-'0');
             x <<= 8;
             x += (token2[0]-'0')*64 + (token2[1]-'0')*8 + (token[2]-'0');
-            printf( "%.6f,", x/(float)SHRT_MAX );
+            printf( "%f,", (float)x );
             count++;
             c++;
         }
