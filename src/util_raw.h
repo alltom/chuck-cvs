@@ -60,7 +60,7 @@ extern SAMPLE sineblnk_data[];
 extern SAMPLE sinewave_data[];
 extern SAMPLE snglpeak_data[];
 extern SAMPLE twopeaks_data[];
-extern SAMPLE glot_aah_data[];
+extern SAMPLE glot_ahh_data[];
 extern SAMPLE glot_eee_data[];
 extern SAMPLE glot_ooo_data[];
 extern SAMPLE glot_pop_data[];

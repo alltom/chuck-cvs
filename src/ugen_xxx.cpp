@@ -1229,6 +1229,7 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
     {
         SAMPLE * rawdata = NULL;
         t_CKUINT rawsize = 0;
+        t_CKUINT srate = 22050;
 
         // which
         if( strstr(filename, "special:sinewave") ) {
@@ -1294,11 +1295,23 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         else if( strstr(filename, "special:twopeaks") ) {
             rawsize = twopeaks_size; rawdata = twopeaks_data;
         }
+        else if( strstr(filename, "special:glot_ahh") ) {
+            rawsize = glot_ahh_size; rawdata = glot_ahh_data; srate = 44100;
+        }
+        else if( strstr(filename, "special:glot_eee") ) {
+            rawsize = glot_eee_size; rawdata = glot_eee_data; srate = 44100;
+        }
+        else if( strstr(filename, "special:glot_ooo") ) {
+            rawsize = glot_ooo_size; rawdata = glot_ooo_data; srate = 44100;
+        }
+        else if( strstr(filename, "special:glot_pop") ) {
+            rawsize = glot_pop_size; rawdata = glot_pop_data; srate = 44100;
+        }
 
         d->num_frames = rawsize;
         d->num_channels = 1;
         d->chan = 0;
-        d->samplerate = 22050;
+        d->samplerate = srate;
         d->num_samples = rawsize;
 
         if( rawdata ) {
