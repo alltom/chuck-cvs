@@ -1,5 +1,28 @@
 
 ---
+1.1.5.0 - 2004.9.29
+  - now able to write audio files (wav, aiff, raw)
+    (try rec.ck and rec2.ck concurrently with any other shreds
+     to record to disk)
+  - added 4 "special" built-in sound samples
+    "special:glot_pop" - glottal pulse (flat)
+    "special:glot_ahh" - glottal 'ahh' pop
+    "special:glot_eee" - glottal 'eee' pop
+    "special:glot_ooo" - glottal 'ooo' pop
+    (see/listen to moe++.ck, larry++.ck, curly++.ck)
+  - all bulit-in sound samples now loadable from both WaveLoop and sndbuf
+
+new examples:
+  - moe++.ck - stooges, evolved
+  - larry++.ck
+  - curly++.ck
+  - rec.ck - run this concurrently to write audio to file
+    (also try with -s flag for file out, no real-time audio)
+  - rec2.ck - same as rec, but writes to different file every time
+    for many sessions
+
+
+---
 1.1.4.9 - 2004.9.18
   - all of STK is now in ChucK!
   - new examples (see below)
