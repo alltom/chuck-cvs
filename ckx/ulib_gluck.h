@@ -50,6 +50,7 @@ CK_DLL_FUNC( gluck_InitFullScreenWindow_impl ); // -arg for name - fullscreen mo
 CK_DLL_FUNC( gluck_NeedDraw_impl );
 CK_DLL_FUNC( gluck_NeedIdle_impl );
 CK_DLL_FUNC( gluck_NeedEvent_impl );
+CK_DLL_FUNC( gluck_NeedReshape_impl );
 
 //functions to toggle what events we track
 CK_DLL_FUNC( gluck_WatchMouse_impl );

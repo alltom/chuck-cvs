@@ -168,6 +168,7 @@ CK_DLL_QUERY
     GLUCK_EXPORT ( int, NeedDraw  );
     GLUCK_EXPORT ( int, NeedEvent );
     GLUCK_EXPORT ( int, NeedIdle  );
+    GLUCK_EXPORT ( int, NeedReshape  );
 
     //glut event watching toggles
     GLUCK_EXPORT ( int, WatchMouse );
@@ -289,7 +290,7 @@ CK_DLL_FUNC ( gluck_InitBasicWindow_impl ) {
     gluckstate->doubleBuffered = true;
 
     char title[] = "basicwindow";
-    glutCreateWindow((char*)title);
+    gluckstate->windowID = glutCreateWindow((char*)title);
     glViewport(0,0,640,480);
 }
 
@@ -306,7 +307,7 @@ CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) {
     gluckstate->doubleBuffered = true;
 
     char title[] = "sizedwindow";
-    glutCreateWindow((char*)title);
+    gluckstate->windowID = glutCreateWindow((char*)title);
     
     glViewport(x,y,w,h);
 }
@@ -320,7 +321,7 @@ CK_DLL_FUNC ( gluck_InitFullScreenWindow_impl ) {
     gluckstate->doubleBuffered = true;
 
     char title[] = "fullscreenwindow";
-    glutCreateWindow((char*)title);
+    gluckstate->windowID = glutCreateWindow((char*)title);
     glutFullScreen();
 
 }
@@ -335,6 +336,10 @@ CK_DLL_FUNC ( gluck_NeedEvent_impl ) {
 
 CK_DLL_FUNC ( gluck_NeedIdle_impl ) { 
     RETURN->v_int = gluckstate->needIdle;
+}
+
+CK_DLL_FUNC ( gluck_NeedReshape_impl ) { 
+    RETURN->v_int = gluckstate->needReshape;
 }
 
 CK_DLL_FUNC ( gluck_WatchMouse_impl ) { 
@@ -384,7 +389,8 @@ void gluckIdleCB() {
 
 void gluckReshapeCB(int x, int y) { 
     glViewport (0,0, x, y );
-    gluckstate->needReshape = false;
+    fprintf(stderr, "reshape called\n");
+    gluckstate->needReshape = true;
 }
 
 void gluckMouseCB ( int button, int state, int x, int y) { 
@@ -485,6 +491,7 @@ CK_DLL_FUNC( gluck_GetEventSKey_impl ) {
 
 CK_DLL_FUNC ( gluck_InitCallbacks_impl ) { 
 
+
     gluckstate->watchMouse      = ( pull_ckINT(ARGS) != 0 );
     gluckstate->watchMotion     = ( pull_ckINT(ARGS) != 0 );
     gluckstate->watchKeyboard   = ( pull_ckINT(ARGS) != 0 );
@@ -503,6 +510,7 @@ CK_DLL_FUNC ( gluck_InitCallbacks_impl ) {
         glutKeyboardFunc ( gluckKeyboardCB);
         glutSpecialFunc  ( gluckSpecialCB );
     }
+   fprintf(stderr, "callbacks registered\n" );
 }
 
 //
@@ -548,6 +556,7 @@ CK_DLL_FUNC( gluck_MainLoopEvent_impl )
   gluckstate->needIdle = 0;
   gluckstate->needReshape = 0;
   glutMainLoopEvent();
+  //hork;
 }
 
 CK_DLL_FUNC( gluck_CreateWindow_impl )

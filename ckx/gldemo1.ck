@@ -9,7 +9,7 @@ gluck.Init();
 
 "gluck init " => stdout;
 
-gluck.InitCallbacks(1, 0 ,0);
+gluck.InitCallbacks(1, 1, 1);
 42 => uint placeholder;
 gluck.InitBasicWindow(placeholder);
 
@@ -57,8 +57,14 @@ while ( true ) {
 
 	gluck.MainLoopEvent(); //...
 
-	gluck.NeedDraw();
+	if ( gluck.NeedDraw() ) { 
+		"needs draw!" => stdout;
+	}
+	if ( gluck.NeedReshape() != 0 ) { 
+		"need reshape!" => stdout;
+	}
 
+	
 //	if ( gluck.NeedDraw() ) {	
 
 
@@ -91,5 +97,6 @@ while ( true ) {
 	math.sin ( tm ) => rx;
 	math.cos ( tm * 3.0 ) => ry;
 
+	gluck.PostRedisplay();
 	33::ms => now;
 }

@@ -14,5 +14,8 @@ linux:
 win32: 
 	-make -f makefile.win32
 
+common: 
+	-make -f makefile.common
+
 clean:
 	rm -f *.o *.ckx $(wildcard ckdl ckdl.exe)
