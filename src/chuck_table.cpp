@@ -23,7 +23,7 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: chuck_table.c
+// file: chuck_table.cpp
 // desc: ...
 //
 // copyright (c) 1997 Andrew W. Appel.
@@ -35,8 +35,8 @@
 //-----------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
-#include "chuck_utils.h"
 #include "chuck_table.h"
+#include "chuck_utils.h"
 
 #define TABSIZE 65437
 
@@ -44,7 +44,7 @@
 typedef struct binder_ *binder;
 struct binder_ {void *key; void *value; binder next; void *prevtop;};
 struct TAB_table_ {
-  unsigned int size;
+  unsigned long size;
   binder * table;
   void * top;
   TAB_eq_func eq_func;
@@ -66,10 +66,10 @@ TAB_table TAB_empty(void)
 }
 
 
-TAB_table TAB_empty2( unsigned int s )
+TAB_table TAB_empty2( unsigned long s )
 {
     TAB_table t = (TAB_table)checked_malloc(sizeof(struct TAB_table_));
-    unsigned int i;
+    unsigned long i;
     t->table = (binder *)checked_malloc(sizeof(binder)*s);
     t->size = s;
     t->top = NULL;
@@ -80,7 +80,7 @@ TAB_table TAB_empty2( unsigned int s )
     return t;
 }
 
-TAB_table TAB_empty3( TAB_eq_func eq, TAB_hash_func hash, unsigned int s )
+TAB_table TAB_empty3( TAB_eq_func eq, TAB_hash_func hash, unsigned long s )
 {
     TAB_table t = TAB_empty2(s);
     t->eq_func = eq;
@@ -93,7 +93,7 @@ TAB_table TAB_empty3( TAB_eq_func eq, TAB_hash_func hash, unsigned int s )
 
 void TAB_delete( TAB_table t )
 {
-    unsigned int i;
+    unsigned long i;
     binder p = NULL, n = NULL;
     for(i = 0; i < t->size; i++ )
     {
@@ -124,25 +124,25 @@ void TAB_delete( TAB_table t )
 
 void TAB_enter(TAB_table t, void *key, void *value)
 {
-    int index;
-    unsigned hval = (unsigned)key;
+    long index;
+    unsigned long hval = (unsigned long)key;
     assert(t && key);
     if( t->hash_func )
-        hval = (unsigned)t->hash_func(key);
-    index = ((unsigned)hval) % t->size;
+        hval = (unsigned long)t->hash_func(key);
+    index = hval % t->size;
     t->table[index] = Binder(key, value, t->table[index], t->top);
     t->top = key;
 }
 
 void *TAB_look(TAB_table t, void *key)
 {
-    int index;
-    unsigned hval = (unsigned)key;
+    long index;
+    unsigned long hval = (unsigned long)key;
     binder b;
     assert(t && key);
     if( t->hash_func )
-        hval = (unsigned)t->hash_func(key);
-    index=((unsigned)hval) % t->size;
+        hval = (unsigned long)t->hash_func(key);
+    index= hval % t->size;
     if( !t->eq_func )
     {
         for(b=t->table[index]; b; b=b->next)
@@ -159,14 +159,14 @@ void *TAB_look(TAB_table t, void *key)
 
 void *TAB_pop(TAB_table t)
 {
-    void *k; binder b; int index;
-    unsigned hval;
+    void *k; binder b; long index;
+    unsigned long hval;
     assert (t);
     k = t->top;
     assert (k);
-    hval = (unsigned)k;
-    if(t->hash_func) hval = (unsigned)t->hash_func(k);
-    index = ((unsigned)hval) % t->size;
+    hval = (unsigned long)k;
+    if(t->hash_func) hval = (unsigned long)t->hash_func(k);
+    index = ((unsigned long)hval) % t->size;
     b = t->table[index];
     assert(b);
     t->table[index] = b->next;
@@ -176,14 +176,14 @@ void *TAB_pop(TAB_table t)
 
 void *TAB_topv(TAB_table t)
 {
-    void *k; binder b; int index;
-    unsigned hval;
+    void *k; binder b; long index;
+    unsigned long hval;
     assert(t);
     k = t->top;
     assert(k);
-    hval = (unsigned)k;
-    if(t->hash_func) hval = (unsigned)t->hash_func(k);
-    index = ((unsigned)hval) % t->size;
+    hval = (unsigned long)k;
+    if(t->hash_func) hval = (unsigned long)t->hash_func(k);
+    index = hval % t->size;
     b = t->table[index];
     assert(b);
     return b->value;
@@ -192,7 +192,7 @@ void *TAB_topv(TAB_table t)
 void TAB_dump(TAB_table t, void (*show)(void *key, void *value))
 {
     void *k = t->top;
-    int index = ((unsigned)k) % t->size;
+    long index = ((unsigned long)k) % t->size;
     binder b = t->table[index];
     if (b==NULL) return;
     t->table[index]=b->next;
@@ -204,14 +204,14 @@ void TAB_dump(TAB_table t, void (*show)(void *key, void *value))
     t->table[index]=b;
 }
 
-int str_eq( void * lhs, void * rhs )
+long str_eq( void * lhs, void * rhs )
 {
     return !strcmp( (char *)lhs, (char *)rhs );
 }
 
-int str_hash( void * str )
+long str_hash( void * str )
 {
-    unsigned int h=0; char *s;
+    unsigned long h=0; char *s;
     for(s=(char *)str; *s; s++)  
         h = h*65599 + *s;
     return h;

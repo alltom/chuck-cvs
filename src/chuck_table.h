@@ -41,12 +41,12 @@
 
 
 typedef struct TAB_table_ * TAB_table;
-typedef int (* TAB_eq_func)( void * lhs, void * rhs );
-typedef int (* TAB_hash_func)( void * key );
+typedef long (* TAB_eq_func)( void * lhs, void * rhs );
+typedef long (* TAB_hash_func)( void * key );
 
 /* Make a new table mapping "keys" to "values". */
 TAB_table TAB_empty(void);
-TAB_table TAB_empty2(unsigned int size);
+TAB_table TAB_empty2(unsigned long size);
 TAB_table TAB_empty3( TAB_eq_func eq, TAB_hash_func hash, unsigned int size );
 void TAB_delete( TAB_table t );
 
@@ -69,7 +69,7 @@ void *TAB_topv(TAB_table t);
 void TAB_dump(TAB_table t, void (*show)(void *key, void *value));
 
 /* str eq function */
-int str_eq( void * lhs, void * rhs );
-int str_hash( void * key );
+long str_eq( void * lhs, void * rhs );
+long str_hash( void * key );
 
 #endif
