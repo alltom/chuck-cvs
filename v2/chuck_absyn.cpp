@@ -32,7 +32,6 @@
 //-----------------------------------------------------------------------------
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
 #include "chuck_absyn.h"
 #include "chuck_utils.h"
 

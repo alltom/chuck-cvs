@@ -30,7 +30,6 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Autumn 2004
 //-----------------------------------------------------------------------------
-#include <assert.h>
 #include "chuck_oo.h"
 #include "chuck_type.h"
 

@@ -218,9 +218,10 @@ BOOL__ Digitalio::start( )
 {
     try{ if( !m_start )
               m_rtaudio->startStream();
-         m_start++;
-         return m_start;
+         m_start = TRUE;
     } catch( RtError err ){ return FALSE; }
+    
+    return m_start;
 }
 
 
@@ -232,11 +233,12 @@ BOOL__ Digitalio::start( )
 //-----------------------------------------------------------------------------
 BOOL__ Digitalio::stop( )
 {
-    try{ m_start--;
-         if( !m_start )
+    try{ if( m_start )
              m_rtaudio->stopStream();
-         return m_start;
+         m_start = FALSE;
     } catch( RtError err ){ return FALSE; }
+
+    return !m_start;
 }
 
 

@@ -31,7 +31,6 @@
 // date: Autumn 2002 - original
 //       Autumn 2004 - rewrite
 //-----------------------------------------------------------------------------
-#include <assert.h>
 #include "chuck_type.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"

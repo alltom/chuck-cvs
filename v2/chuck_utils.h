@@ -35,7 +35,6 @@
 #define __CHUCK_UTILS_H__
 
 #include "chuck_def.h"
-#include <assert.h>
 
 
 #if defined(_cplusplus) || defined(__cplusplus)
