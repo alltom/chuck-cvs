@@ -145,7 +145,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // copy input to local buffer
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
-    if( m_go < start && m_go > 8 && m_out_ready ) m_go = start;
+    if( m_go < start && m_go > 5 && m_out_ready ) m_go = start;
     // copy output into local buffer
     if( m_go >= start )
     {
