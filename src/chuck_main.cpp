@@ -620,7 +620,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
         fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
-        return 1;
+        goto error;
     }
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
@@ -628,7 +628,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
-            return 1;
+            goto error;
         }
 
         do {
@@ -642,7 +642,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [remove]...\n" );
-            return 1;
+            goto error;
         }
 
         do {
@@ -664,7 +664,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
-            return 1;
+            goto error;
         }
         
         if( i <= 0 )
@@ -675,7 +675,7 @@ int send_cmd( int argc, char ** argv, int  & i )
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
-            return 1;
+            goto error;
         }
 
         msg.type = MSG_REPLACE;
@@ -745,6 +745,16 @@ int send_cmd( int argc, char ** argv, int  & i )
     exit( msg.param );
 
     return 0;
+    
+error:
+    msg.type = MSG_DONE;
+    otf_hton( &msg );
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    
+    // exit
+    exit( 1 );
+    
+    return 1;
 }
 
 
