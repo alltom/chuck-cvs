@@ -119,6 +119,7 @@ protected:
 struct Chuck_Type;
 struct Chuck_Value;
 struct Chuck_Func;
+class  Chuck_VM;
 class  Chuck_VM_Code;
 
 
@@ -140,9 +141,6 @@ struct Chuck_Namespace
     // parent env
     Chuck_Namespace * parent;
 
-    // static scope table    
-    static Chuck_Scope<t_CKUINT> scope;
-    
     // constructor
 	Chuck_Namespace() { parent = NULL; }
     // destructor
@@ -171,11 +169,15 @@ struct Chuck_Context
 {
     // src_name
     string src;
+	// parse tree
+	a_Program parse_tree;
 	// code
 	Chuck_VM_Code * code;
 
-    // list of all context
-    static vector<Chuck_Context *> all;
+	// constructor
+	Chuck_Context() { parse_tree = NULL; code = NULL; }
+	// destructor
+	~Chuck_Context() { }
 };
 
 
@@ -190,14 +192,27 @@ struct Chuck_Env
 	// global namespace
 	Chuck_Namespace global;
 	// namespace stack
-	Chuck_Scope<Chuck_Namespace *> stack;
+	vector<Chuck_Namespace *> stack;
 	// expression namespace
 	Chuck_Namespace * curr;
+    // scope table
+    Chuck_Scope<t_CKUINT> scope;
+	// VM reference
+	Chuck_VM * vm;
 
 	// constructor
-	Chuck_Env() { curr = NULL; stack.push(); stack.add( "global", &global ); }
+	Chuck_Env( Chuck_VM * _vm )
+	{ this->reset(); vm = _vm; global.name = "global"; }
 	// destructor
-	~Chuck_Env() { stack.pop(); curr = NULL; }
+	~Chuck_Env() { }
+
+	// reset
+	void reset( )
+	{ stack.clear(); stack.push_back( &global ); curr = NULL; }
+
+	// top
+	Chuck_Namespace * top( )
+	{ assert( stack.size() > 0 ); return stack.back(); }
 };
 
 
