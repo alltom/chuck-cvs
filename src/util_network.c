@@ -125,7 +125,7 @@ ck_socket ck_tcp_create( )
     {
         int nd = 1; int ru = 1;
         setsockopt( sock->sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&ru, sizeof(ru) );
-        setsockopt( sock->sock, SOL_SOCKET, SO_REUSEPORT, (const char *)&ru, sizeof(ru) );
+        // setsockopt( sock->sock, SOL_SOCKET, SO_REUSEPORT, (const char *)&ru, sizeof(ru) );
         setsockopt( sock->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
     }
 
