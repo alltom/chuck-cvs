@@ -17,7 +17,7 @@ while( true )
     // set the current sample/impulse
     0 => i.pos;
     // randomize gain
-    math.cos(v) * std.rand2f( .4, 2.0 ) => r.gain;
+    math.cos(v) * std.rand2f( 1.5, 2.0 ) => r.gain;
     v + .05 => v;
     // advance time
     81.0::ms => now;
