@@ -9,7 +9,7 @@ StifKarp karp => JCRev r => Echo a => Echo b => Echo c => dac;
 // set the gain
 .95 => r.gain;
 // set the reverb mix
-.2 => r.mix;
+.1 => r.mix;
 // set max delay for echo
 1000::ms => a.max => b.max => c.max;
 // set delay for echo
