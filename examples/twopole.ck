@@ -28,7 +28,7 @@ fun void sweep( float start, float inc, float end , int c) {
 		frq => z.freq;
 		10::ms => now;
 	}
-	0.0 => z.gain ;
+	z =< dac;
 }
 
 
