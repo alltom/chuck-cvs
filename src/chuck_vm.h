@@ -298,6 +298,9 @@ public:
     t_CKBOOL m_audio;
 
 protected:
+    Chuck_VM_Shred * spork( Chuck_VM_Shred * shred );
+
+protected:
     t_CKBOOL m_init;
     t_CKBOOL m_running;
     string m_last_error;

@@ -434,8 +434,13 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         }
 
         Chuck_VM_Shred * shred = msg->shred;
-        // shred->initialize( msg->code );
-        shred->name = msg->code->name;
+        if( !shred )
+        {
+            shred = new Chuck_VM_Shred;
+            shred->initialize( msg->code );
+            shred->name = msg->code->name;
+        }
+
         // replace
         if( m_shreduler->replace( out, shred ) )
         {
@@ -512,8 +517,12 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_ADD )
     {
-        t_CKUINT id = msg->shred->id;
+        t_CKUINT id = 0;
+        if( msg->shred ) id = this->spork( msg->shred )->id;
+        else id = this->spork( msg->code )->id;
+        
         fprintf( stderr, "[chuck](VM): sporking incoming shred: %i...\n", id );
+        SAFE_DELETE(msg);
         return id;
     }
     else if( msg->type == MSG_KILL )
@@ -537,6 +546,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         fprintf( stderr, "      = %.6f (week)\n", m_shreduler->now_system / srate / 60.0f / 60.0f / 24.0f / 7.0f );
     }
 
+    SAFE_DELETE(msg);
     return 0xfffffff0;
 }
 
@@ -601,12 +611,27 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code )
     Chuck_VM_Shred * shred = new Chuck_VM_Shred;
     // initialize the shred (default stack size)
     shred->initialize( code );
+    // set the name
+    shred->name = code->name;
+    // spork it
+    this->spork( shred );
+
+    return shred;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: spork()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
+{
     // set the current time
     shred->start = m_shreduler->now_system;
     // set the id
     shred->id = next_id();
-    // set the name
-    shred->name = code->name;
     // shredule it
     m_shreduler->shredule( shred );
     // count

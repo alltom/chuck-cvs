@@ -276,7 +276,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
                                  t_CKBOOL immediate )
 {
     Msg msg;
-    Chuck_Msg cmd;
+    Chuck_Msg * cmd = new Chuck_Msg;
     
     // copy in
     msg.type = type;
@@ -302,35 +302,36 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
         // transform the code
         Chuck_VM_Code * code = emit_to_code( emit );
         code->name = msg.buffer;
-        cmd.shred = g_vm->spork( code );
-        cmd.shred->name = code->name;
-        emit_engine_addr_map( emit, cmd.shred );
+        cmd->shred = new Chuck_VM_Shred;
+        cmd->shred->initialize( code );
+        cmd->shred->name = code->name;
+        emit_engine_addr_map( emit, cmd->shred );
         emit_engine_resolve();
         emit_engine_shutdown( emit );
 
         // set the flags for the command
-        cmd.type = msg.type;
-        cmd.code = code;
+        cmd->type = msg.type;
+        cmd->code = code;
         if( msg.type == MSG_REPLACE )
-            cmd.param = msg.param;
+            cmd->param = msg.param;
     }
     else if( msg.type == MSG_STATUS || msg.type == MSG_REMOVE || msg.type == MSG_REMOVEALL
              || msg.type == MSG_KILL || msg.type == MSG_TIME )
     {
-        cmd.type = msg.type;
-        cmd.param = msg.param;
+        cmd->type = msg.type;
+        cmd->param = msg.param;
     }
     else
     {
-        fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd.type );
+        fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
         return 0;
     }
     
     // immediate
     if( immediate )
-        return g_vm->process_msg( &cmd );
+        return g_vm->process_msg( cmd );
 
-    g_vm->queue_msg( &cmd, 1 );
+    g_vm->queue_msg( cmd, 1 );
 
     return 0;
 }
