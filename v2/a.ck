@@ -3,6 +3,10 @@
 class AA
 {
     int x;
+
+	fun void foo()
+	{
+	}
 }
 
 class BB extends AA
@@ -11,7 +15,6 @@ class BB extends AA
 }
 
 BB bb;
-bb.x => bb.y;
 
 
 //adc => sndbuf => dac;
