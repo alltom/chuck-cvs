@@ -138,21 +138,22 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
-    DWORD__ n = 10;
+    DWORD__ n = 100;
     // copy input to local buffer
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
-    while( !m_out_ready && n-- ) usleep( 100 );
+    while( !m_out_ready && n-- ) usleep( 10 );
     // copy local buffer to be rendered
     if( m_out_ready ) memcpy( buffer, m_buffer_out, len );
     // set all elements of local buffer to silence
     else memset( buffer, 0, len);
     if( !m_go ) {
-        Chuck_VM::set_priority( 90, NULL );
+        Chuck_VM::set_priority( 95, NULL );
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
-        m_go = TRUE; usleep( 1000 );
+        m_go = TRUE; n = 100;
+        while( !m_out_ready && n-- ) usleep( 10 );
     }
 
     // set pointer to the beginning - if not ready, then too late anyway
