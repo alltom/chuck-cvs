@@ -34,6 +34,7 @@
 #define __CHUCK_OTF_H__
 
 #include "chuck_def.h"
+#include "chuck_vm.h"
 #include <memory.h>
 
 
@@ -55,6 +56,12 @@ struct Net_Msg
     void clear() { header = type = param = param2 = param3 = length = 0;
                    memset( buffer, 0, sizeof(buffer) ); }
 };
+
+
+// defines
+#define NET_HEADER     0x8c8cc8c8
+
+
 
 
 #endif
