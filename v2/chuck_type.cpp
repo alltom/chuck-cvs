@@ -1926,6 +1926,7 @@ a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, unsigned int i
 t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
 {    
     // lookup the namesapce
+    Chuck_Type * type = env->global->
     t_Env info = (t_Env)S_look( env->name_space,
                                 insert_symbol( (char *)nspc ) );
     // if not there

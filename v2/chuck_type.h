@@ -129,7 +129,7 @@ class Chuck_VM_Code;
 // name: struct Chuck_Namespace
 // desc: Chuck Namespace containing semantic information
 //-----------------------------------------------------------------------------
-struct Chuck_Namespace
+struct Chuck_Namespace : public Chuck_VM_Object
 {
     // maps
     Chuck_Scope<Chuck_Type *> type;
@@ -176,7 +176,7 @@ struct Chuck_Namespace
 // name: struct Chuck_Context
 // desc: runtime type information pertaining to a file
 //-----------------------------------------------------------------------------
-struct Chuck_Context
+struct Chuck_Context : public Chuck_VM_Object  
 {
     // src_name
     string src;
@@ -205,7 +205,7 @@ enum ce_scope{ ce_global = 0, ce_class };
 // name: struct Chuck_Env
 // desc: chuck env with type info
 //-----------------------------------------------------------------------------
-struct Chuck_Env
+struct Chuck_Env : public Chuck_VM_Object
 {
 	// global namespace
 	Chuck_Namespace global;
@@ -282,9 +282,10 @@ struct Chuck_Type : public Chuck_VM_Object
 
 public:
     // constructor
-    Chuck_Type( te_Type _id = te_null, const string & _n = "", Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
-    { id = _id; name = _n; parent = _p; size = _s; owner = NULL; array_depth = 0;
-      self_size = 0; info = NULL; func = NULL; }
+    Chuck_Type( te_Type _id = te_null, const string & _n = "", 
+                Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
+    { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
+      array_depth = 0; self_size = 0; info = NULL; func = NULL; }
     // destructor
     ~Chuck_Type() { if( info ) delete info; reset(); }
     // reset
@@ -335,7 +336,7 @@ struct Chuck_Value : public Chuck_VM_Object
 // name: struct Chuck_Func
 // desc: function definition
 //-----------------------------------------------------------------------------
-struct Chuck_Func
+struct Chuck_Func : public Chuck_VM_Object
 {
     // name
     string name;
