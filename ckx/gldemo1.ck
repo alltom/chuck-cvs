@@ -7,7 +7,6 @@
 //MUST be called before any other gluck function
 gluck.Init();
 
-
 gluck.InitBasicWindow("danger! teapot!"); //generate a simple window
 
 gluck.InitCallbacks(1, 1, 1); //register callbacks for the window
@@ -128,25 +127,25 @@ function void theaudiocontrol( ) {
 	bg => b.gain;
 }
 
-while ( true ) { 
-
+function void thegraphicscall( ) { 
+	
 	gluck.MainLoopEvent(); //...
 
-	std.abs ( 2.0 * ( -0.5 + tm - math.floor(tm)) ) => frac;
-	
-	if ( gluck.NeedDraw() ) {	
-		thedrawloop();
-	}
-
-	if ( gluck.NeedEvent() ) {
-		theeventloop();
-	}
+	if ( gluck.NeedDraw()  ) { thedrawloop(); }
+	if ( gluck.NeedEvent() ) { theeventloop(); }
 
 	gluck.PostRedisplay();
 
+}
+
+while ( true ) { 
+
+	std.abs ( 2.0 * ( -0.5 + tm - math.floor(tm)) ) => frac;
+
+	thegraphicscall ();
+
 	theaudiocontrol();
 
-//	( float ) now => tm;
 	tm + 0.033 => tm;
 	
 	33::ms => now;

@@ -218,6 +218,7 @@ CK_DLL_FUNC( gl_Begin_impl )
 {
     t_CKUINT mode = GET_NEXT_UINT(ARGS);
     glBegin( mode );
+    RETURN->v_int = 0;
 }
 
 // BindTexture-->glBindTexture();
@@ -244,6 +245,7 @@ CK_DLL_FUNC( gl_ClearColor_impl )
     t_CKFLOAT b = GET_NEXT_FLOAT(ARGS);
     t_CKFLOAT a = GET_NEXT_FLOAT(ARGS);
     glClearColor( r, g, b, a );
+    RETURN->v_int = 0;
 }
 
 // Color3f->glColor3d()

@@ -404,6 +404,7 @@ void gluckReshapeCB(int x, int y) {
 }
 
 void gluckMouseCB ( int button, int state, int x, int y) { 
+
     gluckAddBufferedEvent ( EV_MOUSE, x, y , button, state, '\0', 0, glutGetModifiers() );
 }
 
@@ -425,6 +426,7 @@ void gluckSpecialCB ( int key, int x, int y ) {
 
 void gluckAddBufferedEvent(  int type, int x, int y, int button, int state, unsigned char key, int skey, int mods ) {
 
+
     gluckstate->events[gluckstate->event_w].type = type;
     gluckstate->events[gluckstate->event_w].x = x;
     gluckstate->events[gluckstate->event_w].y = y;
@@ -436,17 +438,22 @@ void gluckAddBufferedEvent(  int type, int x, int y, int button, int state, unsi
     gluckstate->events[gluckstate->event_w].modifiers = gluckstate->curmodifiers;
         
     int nextw = (gluckstate->event_w+1) % gluckstate->events.size(); 
+
     if ( nextw == gluckstate->event_r ) { 
         //resize dynamically,
         gluckstate->events.insert(gluckstate->events.begin() + gluckstate->event_r, gluckstate->events[gluckstate->event_r]);
         gluckstate->event_r = (gluckstate->event_r+1);
     }
+
     gluckstate->event_w = nextw;
     gluckstate->needEvent = true;
+
 } 
+
 bool gluckHasEvents() { 
     return (  (gluckstate->event_r+1) % gluckstate->events.size() != gluckstate->event_w );
 }
+
 int gluckGetNextEvent() { 
     if ( gluckHasEvents() ) { 
         gluckstate->event_r = (gluckstate->event_r+1) % gluckstate->events.size();
