@@ -1369,6 +1369,16 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             return NULL;
         }
 
+        // check if in parent
+        if( env->class_def && ( value =
+            type_engine_find_value( env->class_def->parent, var_decl->id ) ) )
+        {
+            EM_error2( var_decl->linepos,
+                "'%s' has already been defined in super class '%s'...",
+                S_name(var_decl->id), value->owner_class->c_name() );
+            return NULL;
+        }
+
         // TODO: this needs to be redone
         // check if array
         if( var_decl->array != NULL )
@@ -1495,6 +1505,8 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
 {
+    Chuck_Value * value = NULL;
+
     // type check the base
     member->t_base = type_engine_check_exp( env, member->base );
     if( !member->t_base ) return NULL;
@@ -1509,8 +1521,8 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     }
 
     // find the value
-    Chuck_Value * m = member->t_base->info->lookup_value( member->id, FALSE );
-    if( !m )
+    value = type_engine_find_value( member->t_base, member->id );
+    if( !value )
     {
         // can't find member
         EM_error2( member->base->linepos,
@@ -1519,7 +1531,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
         return NULL;
     }
     
-    return m->type;
+    return value->type;
 }
 
 
