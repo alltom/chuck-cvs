@@ -122,6 +122,8 @@ public:
     static BOOL__  start( );
     static BOOL__  stop( );
     static BOOL__  tick( );
+    static void    set_extern( SAMPLE * in, SAMPLE * out )
+                   { m_extern_in = in; m_extern_out = out; } 
     static int cb( char * buffer, int buffer_size, void * user_data );
 
 public: // data
@@ -139,6 +141,8 @@ public: // data
     static SAMPLE * m_buffer_in;
     static SAMPLE ** m_write_ptr;
     static SAMPLE ** m_read_ptr;
+    static SAMPLE * m_extern_in;
+    static SAMPLE * m_extern_out;
     static BOOL__ m_out_ready;
     static BOOL__ m_in_ready;
     static BOOL__ m_use_cb;

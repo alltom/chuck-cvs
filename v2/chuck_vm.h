@@ -275,6 +275,7 @@ public: // garbage collection
 public: // msg
     t_CKBOOL queue_msg( Chuck_Msg * msg, int num_msg );
     t_CKUINT process_msg( Chuck_Msg * msg );
+    Chuck_Msg * get_reply( );
 
 public: // static/dynamic function table
     Chuck_DLL * dll_load( const char * path, const char * id = NULL );
@@ -324,6 +325,7 @@ protected:
 
     // message queue
     CBuffer * m_msg_buffer;
+    CBuffer * m_reply_buffer;
 
     // type information
     void * m_env;
@@ -357,6 +359,8 @@ enum Chuck_Msg_Type
 
 
 
+// callback function prototype
+typedef void (* ck_msg_func)( const Chuck_Msg * msg );
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Msg
 // desc: ...
@@ -368,6 +372,14 @@ struct Chuck_Msg
     Chuck_VM_Code * code;
     Chuck_VM_Shred * shred;
     t_CKTIME when;
+
+    void * user;
+    ck_msg_func reply;
+    t_CKUINT replyA;
+    t_CKUINT replyB;
+    void * replyC;
+
+    Chuck_Msg() { memset( this, 0, sizeof(*this) ); }
 };
 
 

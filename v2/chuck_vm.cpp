@@ -40,7 +40,6 @@ using namespace std;
 
 #if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
   #include <windows.h>
-  #define usleep(x) Sleep(x/1000);
 #else
   #include <unistd.h>
   #include <pthread.h>
@@ -210,7 +209,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 
     // allocate msg buffer
     m_msg_buffer = new CBuffer;
-    m_msg_buffer->initialize( 1024, sizeof(Chuck_Msg) );
+    m_msg_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
+    m_reply_buffer = new CBuffer;
+    m_reply_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
 
     // allocate dac and adc
     m_num_dac_channels = 2;
@@ -426,11 +427,27 @@ t_CKBOOL Chuck_VM::queue_msg( Chuck_Msg * msg, int count )
 
 
 //-----------------------------------------------------------------------------
+// name: get_reply()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Msg * Chuck_VM::get_reply( )
+{
+    Chuck_Msg * msg = NULL;
+    m_reply_buffer->get( &msg, 1 );
+    return msg;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: process_msg()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
 {
+    t_CKUINT retval = 0xfffffff0;
+
     if( msg->type == MSG_REPLACE )
     {
         Chuck_VM_Shred * out = m_shreduler->lookup( msg->param );
@@ -438,8 +455,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         {
             fprintf( stderr, "[chuck](VM): error replacing shred: no shred with id %i...\n",
                 msg->param );
-            SAFE_DELETE(msg);
-            return 0;
+            retval = 0;
+            goto done;
         }
 
         Chuck_VM_Shred * shred = msg->shred;
@@ -460,16 +477,16 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             fprintf( stderr, "[chuck](VM): replacing shred %i (%s) with %i (%s)...\n",
                      out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
             delete out;
-            SAFE_DELETE(msg);
-            return shred->id;
+            retval = shred->id;
+            goto done;
         }
         else
         {
             fprintf( stderr, "[chuck](VM): shreduler ERROR replacing shred %i...\n",
                      out->id );
             delete shred;
-            SAFE_DELETE(msg);
-            return 0;
+            retval = 0;
+            goto done;
         }
     }
     else if( msg->type == MSG_REMOVE )
@@ -491,8 +508,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             else
             {
                 fprintf( stderr, "[chuck](VM): no shreds removed...\n" );
-                SAFE_DELETE(msg);
-                return 0;
+                retval = 0;
+                goto done;
             }
         }
         else
@@ -502,15 +519,15 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             {
                 fprintf( stderr, "[chuck](VM): cannot remove: no shred with id %i...\n",
                          msg->param );
-                SAFE_DELETE(msg);
-                return 0;
+                retval = 0;
+                goto done;
             }
             if( !m_shreduler->remove( m_shreduler->lookup( msg->param ) ) )
             {
                 fprintf( stderr, "[chuck](VM): shreduler: cannot remove shred %i...\n",
                          msg->param );
-                SAFE_DELETE(msg);
-                return 0;
+                retval = 0;
+                goto done;
             }
             m_num_shreds--;
             fprintf( stderr, "[chuck](VM): removing shred: %i (%s)...\n", 
@@ -522,10 +539,10 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     else if( msg->type == MSG_REMOVEALL )
     {
         int id = m_shred_id;
-        fprintf( stderr, "[chuck](VM): removing all shreds... %i\n", id );
+        fprintf( stderr, "[chuck](VM): removing all (%i) shreds...\n", m_num_shreds );
         Chuck_VM_Shred * shred = NULL;
 
-        while( id >= 0 )
+        while( m_num_shreds && id >= 0 )
         {
             if( m_shreduler->remove( shred = m_shreduler->lookup( id ) ) )
                 delete shred;
@@ -543,8 +560,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         
         const char * s = ( msg->shred ? msg->shred->name.c_str() : msg->code->name.c_str() );
         fprintf( stderr, "[chuck](VM): sporking incoming shred: %i (%s)...\n", id, mini(s) );
-        SAFE_DELETE(msg);
-        return id;
+        retval = id;
+        goto done;
     }
     else if( msg->type == MSG_KILL )
     {
@@ -567,8 +584,17 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         fprintf( stderr, "      = %.6f (week)\n", m_shreduler->now_system / srate / 60.0f / 60.0f / 24.0f / 7.0f );
     }
 
-    SAFE_DELETE(msg);
-    return 0xfffffff0;
+done:
+
+    if( msg->reply )
+    {
+        msg->replyA = retval;
+        m_reply_buffer->put( &msg, 1 );
+    }
+    else
+        SAFE_DELETE(msg);
+
+    return retval;
 }
 
 
