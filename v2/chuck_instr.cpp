@@ -2026,7 +2026,7 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // get array
         Chuck_Array8 * arr = (Chuck_Array8 *)(*sp);
         // get index
-        i = (t_CKINT)(*sp+1);
+        i = (t_CKINT)(*(sp+1));
         // check if writing
         if( m_emit_addr ) {
             // get the addr
@@ -2053,6 +2053,83 @@ error:
     fprintf( stderr, 
              "[chuck](VM): ArrayOutofBounds in shred '%s': index='%d'\n", 
              shred->name.c_str(), i );
+    // do something!
+    shred->is_running = FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Array_Map_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // reg stack pointer
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_String * key = NULL;
+    t_CKUINT val = 0;
+    t_CKFLOAT fval = 0;
+
+    // pop
+    pop_( sp, 2 );
+
+    // 4 or 8
+    if( m_size == 4 )
+    {
+        // get array
+        Chuck_Array4 * arr = (Chuck_Array4 *)(*sp);
+        // get index
+        key = (Chuck_String *)(*(sp+1));
+        // check if writing
+        if( m_emit_addr ) {
+            // get the addr
+            val = arr->addr( key->str );
+            // exception
+            if( !val ) goto error;
+            // push the addr
+            push_( sp, val );
+        } else {
+            // get the value
+            if( !arr->get( key->str, &val ) )
+                goto error;
+            // push the value
+            push_( sp, val );
+        }
+    }
+    else if( m_size == 8 )
+    {
+        // get array
+        Chuck_Array8 * arr = (Chuck_Array8 *)(*sp);
+        // get index
+        key = (Chuck_String *)(*(sp+1));
+        // check if writing
+        if( m_emit_addr ) {
+            // get the addr
+            val = arr->addr( key->str );
+            // exception
+            if( !val ) goto error;
+            // push the addr
+            push_( sp, val );
+        } else {
+            // get the value
+            if( !arr->get( key->str, &fval ) )
+                goto error;
+            // push the value
+            push_( ((t_CKFLOAT *&)sp), fval );
+        }
+    }
+    else
+        assert( FALSE );
+
+    return;
+
+error:
+    // we have a problem
+    fprintf( stderr, 
+             "[chuck](VM): InternalArrayMap error in shred '%s': index='%s'\n", 
+             shred->name.c_str(), key->str.c_str() );
     // do something!
     shred->is_running = FALSE;
 }

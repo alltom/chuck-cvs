@@ -1639,7 +1639,35 @@ protected:
 class Chuck_Instr_Array_Access : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Array_Access( t_CKUINT size, t_CKUINT emit_addr )
+    Chuck_Instr_Array_Access( t_CKUINT size, t_CKUINT emit_addr, 
+        t_CKUINT istr = FALSE )
+    { m_size = size; m_emit_addr = emit_addr; m_istr = istr; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params()
+    { static char buffer[256];
+      sprintf( buffer, "size=%d, emit_addr=%d istr=%d", 
+               m_size, m_emit_addr, m_istr );
+      return buffer; }
+
+protected:
+    t_CKUINT m_size;
+    t_CKUINT m_emit_addr;
+    t_CKUINT m_istr;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Array_Map_Access
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Array_Map_Access : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Array_Map_Access( t_CKUINT size, t_CKUINT emit_addr )
     { m_size = size; m_emit_addr = emit_addr; }
 
 public:

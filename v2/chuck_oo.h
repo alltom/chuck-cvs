@@ -229,4 +229,21 @@ public:
 
 
 
+//-----------------------------------------------------------------------------
+// name: Chuck_String
+// desc: base Chuck string class
+//-----------------------------------------------------------------------------
+struct Chuck_String : Chuck_Object
+{
+public:
+    Chuck_String( const std::string & s = "" ) { str = s; }
+    ~Chuck_String() { }
+
+public:
+    std::string str;
+};
+
+
+
+
 #endif

@@ -1879,6 +1879,7 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
     t_CKUINT temp;
     t_CKDUR dur;
     Chuck_Instr_Unary_Op * op = NULL, * op2 = NULL;
+    Chuck_String * str = NULL;
 
     // find out exp
     switch( exp->s_type )
@@ -1953,7 +1954,9 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         
     case ae_primary_str:
         // TODO: fix this
-        temp = (t_CKUINT)exp->str;
+        str = new Chuck_String;
+        str->str = exp->str;
+        temp = (t_CKUINT)str;
         emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
         break;
         
@@ -2103,7 +2106,8 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
     t_CKUINT depth = 0;
     a_Array_Sub sub = NULL;
     a_Exp exp = NULL;
-    t_CKUINT is_var = FALSE;
+    t_CKBOOL is_var = FALSE;
+    t_CKBOOL is_str = FALSE;
 
     // get the type
     type = array->self->type;
@@ -2145,6 +2149,10 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
     if( !emit_engine_emit_exp( emit, exp ) )
         return FALSE;
 
+    // find out first element
+    if( isa( exp->type, &t_string ) )
+        is_str = TRUE;
+
     // make sure
     if( type->size != 4 && type->size != 8 )
     {
@@ -2157,7 +2165,8 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
     if( depth == 1 )
     {
         // emit the array access
-        emit->append( new Chuck_Instr_Array_Access( type->size, is_var ) );
+        if( is_str ) emit->append( new Chuck_Instr_Array_Map_Access( type->size, is_var ) );
+        else emit->append( new Chuck_Instr_Array_Access( type->size, is_var ) );
     }
     else
     {
