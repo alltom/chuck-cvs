@@ -42,6 +42,33 @@
 // forward references
 class Chuck_VM_Code;
 class Chuck_VM_Shred;
+class Chuck_VM_Instr;
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Code
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Code
+{
+public:
+    vector<Chuck_Instr *> code;
+    unsigned int stack_depth;
+    string name;
+
+    // constructor
+    Chuck_Code( const string & scope_name )
+    {
+        name = scope_name;
+        stack_depth = 0;
+        code = NULL;
+    }
+
+    // destructor
+    ~Chuck_Code()
+    { }
+};
 
 
 
@@ -52,11 +79,15 @@ class Chuck_VM_Shred;
 //-----------------------------------------------------------------------------
 struct Chuck_Emitter : public Chuck_VM_Object
 {
+    // reference to the type checker environment
     Chuck_Env * env;
+    // curr code emitted
+    Chuck_Code * code;
 
     // constructor
     Chuck_Emitter()
-    { env = NULL; }
+    { env = NULL; code = NULL; }
+
     // destructor
     ~Chuck_Emitter()
     { }
