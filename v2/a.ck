@@ -6,7 +6,12 @@ class AA
 	fun pure void foo();
 }
 
-1 + .5 => float f;
+5 => float f;
+
+fun void ha( int a, float aa )
+{ }
+
+ha( 1., 1 );
 
 AA the;
 1 => the.x;
