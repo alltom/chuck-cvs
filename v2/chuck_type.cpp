@@ -1734,7 +1734,14 @@ t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def f )
 
 
 
-t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
+//-----------------------------------------------------------------------------
+// name: type_engine_check_ugen_def_import()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen )
+{
+}
+
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );

@@ -40,6 +40,10 @@
 
 
 
+// forward reference
+struct Chuck_Func;
+
+
 //-----------------------------------------------------------------------------
 // name: struct Chuck_VM_Object
 // desc: base vm object
@@ -95,7 +99,11 @@ protected: // data
 // dsec: base object
 //-----------------------------------------------------------------------------
 struct Chuck_Object : Chuck_VM_Object
-{ };
+{
+public:
+    Chuck_Func ** m_vtable;
+    t_CKUINT m_vtable_size;
+};
 
 
 
