@@ -685,7 +685,7 @@ UGEN_DTOR zerox_dtor( t_CKTIME now, void * data )
 }
 
 
-#define __SGN(x)  (x >= 0.0f ? 1.0f : -1.0f )
+#define __SGN(x)  (x > 0.0f ? 1.0f : ( x == 0.0f ? 0.0f : -1.0f ) )
 //-----------------------------------------------------------------------------
 // name: zerox_tick()
 // desc: ...
