@@ -122,6 +122,9 @@ util_raw.o: util_raw.h util_raw.cpp
 
 util_sndfile.o: util_sndfile.h util_sndfile.c
 	$(CC) $(FLAGS) util_sndfile.c
+
+util_xforms.o: util_xforms.h util_xforms.c
+	$(CC) $(FLAGS) util_xforms.c
     
 clean: 
 	rm -f chuck.exe *~ *.o chuck.output chuck.tab.h chuck.tab.c chuck.yy.c
