@@ -18,10 +18,10 @@
 T - (now % T) => now;
 
 // construct the patch
-sndbuf buf => gain g => JCRev r => dac;
+sndbuf buf => JCRev r => dac;
 "data/snare-chili.wav" => buf.read;
-.5 => g.gain;
-.05 => r.mix;
+.4 => buf.gain;
+.1 => r.mix;
 
 // where we actually want to start
 50 => int where;
@@ -42,13 +42,10 @@ while( true )
             i++;
         }
 
-        while( i > 0 )
-        {
-            (float)i / 8.0 => buf.gain;
-            where => buf.pos;
-            (1.0/8.0)::T => now;
-            i--;
-        }
+        where => buf.pos;
+        .5::T => now;
+        where => buf.pos;
+        .5::T => now;
     }
     else
     {
