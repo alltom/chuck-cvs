@@ -847,7 +847,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     // implicit cast
     if( *left != *right )
     {
-        // for some
+        // for some - int/float
         switch( op )
         {
         case ae_op_plus:
@@ -867,7 +867,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         break;
         }
 
-        // no commute
+        // no commute - int/float
         switch( op )
         {
         case ae_op_plus_chuck:
@@ -879,6 +879,47 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             LR( te_int, te_float ) left = lhs->cast_to = &t_float;
         break;
         }
+        
+        // int/dur
+        if( op == ae_op_times )
+        {
+            LR( te_int, te_dur ) left = lhs->cast_to = &t_float;
+            else LR( te_dur, te_int ) right = rhs->cast_to = &t_float;
+        }
+        else if( op == ae_op_divide )
+        {
+            LR( te_dur, te_int ) right = rhs->cast_to = &t_float;
+        }
+    }
+    
+    // make sure
+    switch( op )
+    {
+    case ae_op_plus_chuck:
+    case ae_op_minus_chuck:
+    case ae_op_times_chuck:
+    case ae_op_divide_chuck:
+    case ae_op_percent_chuck:
+    case ae_op_s_and_chuck:
+    case ae_op_s_or_chuck:
+    case ae_op_s_xor_chuck:
+    case ae_op_shift_left_chuck:
+    case ae_op_shift_right_chuck:
+        // make sure mutable
+        if( rhs->s_meta != ae_meta_var )
+        {
+            EM_error2( lhs->linepos,
+                "cannot assign '%s' on types '%s' %s '%s'...",
+                op2str( op ), left->c_name(), op2str( op ), right->c_name() );
+            EM_error2( lhs->linepos,
+                "...(reason: --- right-side operand is not mutable)" );
+            return NULL;
+        }
+        
+        // mark to emit var instead of value
+        rhs->emit_var = 1;
+
+        break;
     }
 
     // based on the op
@@ -901,30 +942,44 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         COMMUTE( te_dur, te_time ) return &t_time;
     break;
 
-    case ae_op_minus_chuck:
     case ae_op_minus:
+        LR( te_time, te_time ) return &t_dur;
+        LR( te_time, te_dur ) return &t_time;
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
         LR( te_dur, te_dur ) return &t_dur;
-        LR( te_time, te_dur ) return &t_time;
-        LR( te_time, te_time ) return &t_dur;
     break;
-    
+
+    // take care of non-commutative
+    case ae_op_minus_chuck:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
+        LR( te_dur, te_dur ) return &t_dur;
+        LR( te_dur, te_time ) return &t_time;
+    break;
+
     case ae_op_times_chuck:
     case ae_op_times:
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
         COMMUTE( te_float, te_dur ) return &t_dur;
     break;
-    
-    case ae_op_divide_chuck:
+
     case ae_op_divide:
+        LR( te_dur, te_dur ) return &t_float;
+        LR( te_time, te_dur ) return &t_float;
+        LR( te_dur, te_float ) return &t_dur;
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
-        LR( te_dur, te_dur ) return &t_float;
-        LR( te_dur, te_float ) return &t_dur;
     break;
-    
+
+    // take care of non-commutative
+    case ae_op_divide_chuck:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
+        LR( te_float, te_dur ) return &t_dur;
+    break;
+
     case ae_op_lt:
     case ae_op_gt:
     case ae_op_le:
@@ -942,6 +997,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_s_xor_chuck:
     case ae_op_shift_right_chuck:
     case ae_op_shift_left_chuck:
+        // the above are non-commutative
     case ae_op_and:
     case ae_op_or:
     case ae_op_s_xor:
@@ -952,10 +1008,18 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_int, te_int ) return &t_int;        
     break;
 
-    case ae_op_percent_chuck:
     case ae_op_percent:
+        LR( te_time, te_dur ) return &t_dur;
+        LR( te_dur, te_dur ) return &t_dur;
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
+    break;
+
+    // take of non-commutative
+    case ae_op_percent_chuck:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
+        LR( te_dur, te_dur ) return &t_dur;
     break;
     }
 
@@ -981,10 +1045,9 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) ) return right;
 
     // time advance ( dur => now )
-    if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
+    if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var
+        && rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
     {
-        // assignee
-        rhs->emit_var = TRUE;
         return right;
     }
 

@@ -164,7 +164,6 @@ public:
 
 
 
-
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Dec_int
 // desc: ...
@@ -205,10 +204,36 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Mod_int_Reverse
+// desc: same as mod_int, operands reversed, for %=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Mod_int_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Minus_int
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Minus_int : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Minus_int_Reverse
+// desc: same as minus_int, operands reversed, for -=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Minus_int_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -244,6 +269,19 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Divide_int_Reverse
+// desc: same as divide_int, operands reversed, for /=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Divide_int_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Add_double
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -261,6 +299,19 @@ public:
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Minus_double : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Minus_double_Reverse
+// desc: same as minus_double, operands reversed, for -=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Minus_double_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -296,10 +347,166 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Divide_double_Reverse
+// desc: same as divide_double, operands reversed, for /=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Divide_double_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Mod_double
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Mod_double : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Mod_double_Reverse
+// desc: same as mod_double, operands reversed, for %=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Mod_double_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Add_int_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Add_int_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Mod_int_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Mod_int_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Minus_int_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Minus_int_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Times_int_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Times_int_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Divide_int_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Divide_int_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Add_double_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Add_double_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Minus_double_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Minus_double_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Times_double_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Times_double_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Divide_double_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Divide_double_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Mod_double_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Mod_double_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -724,10 +931,101 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Binary_Shift_Right_Reverse
+// desc: same as shift_right, operands reversed, for >>=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Binary_Shift_Right_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Binary_Shift_Left
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Binary_Shift_Left : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Binary_Shift_Left_Reverse
+// desc: same as shift_left, operands reversed, for <<=>
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Binary_Shift_Left_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Binary_And_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Binary_And_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Binary_Or_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Binary_Or_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Binary_Xor_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Binary_Xor_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Binary_Shift_Right_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Binary_Shift_Right_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Binary_Shift_Left_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Binary_Shift_Left_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

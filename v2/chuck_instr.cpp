@@ -47,7 +47,6 @@ using namespace std;
 
 // define SP offset
 #define push_( sp, val )         *(sp) = (val); (sp)++
-#define push_uint( sp, val )     *((t_CKUINT*&)sp) = val; ((t_CKUINT*&)sp)++
 #define pop_( sp, n )            sp -= (n)
 #define val_( sp )               *(sp)
 
@@ -152,11 +151,39 @@ void Chuck_Instr_Mod_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Mod_int_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp; 
+    pop_( sp, 2 );
+    push_( sp, val_(sp+1) % val_(sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Minus_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKINT *& sp = (t_CKINT *&)shred->reg->sp; 
     pop_( sp, 2 );
     push_( sp, val_(sp) - val_(sp+1) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Minus_int_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp; 
+    pop_( sp, 2 );
+    push_( sp, val_(sp+1) - val_(sp) );
 }
 
 
@@ -194,6 +221,20 @@ void Chuck_Instr_Divide_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Divide_int_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    push_( sp, val_(sp+1) / val_(sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Add_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
@@ -213,6 +254,20 @@ void Chuck_Instr_Minus_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) - val_(sp+1) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Minus_double_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    push_( sp, val_(sp+1) - val_(sp) );
 }
 
 
@@ -251,11 +306,209 @@ void Chuck_Instr_Divide_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Divide_double_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    push_( sp, val_(sp+1) / val_(sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Mod_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp; 
     pop_( sp, 2 );
-    push_( sp, fmod( val_(sp), val_(sp+1) ) );
+    push_( sp, ::fmod( val_(sp), val_(sp+1) ) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Mod_double_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp; 
+    pop_( sp, 2 );
+    push_( sp, ::fmod( val_(sp+1), val_(sp) ) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_int_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) += val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Mod_int_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) %= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Minus_int_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) -= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Times_int_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) *= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Divide_int_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) /= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_double_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT temp;
+    t_CKBYTE *& sp = (t_CKBYTE *&)shred->reg->sp;
+    // pop value + pointer
+    pop_( sp, sz_FLOAT + sz_UINT );
+    // assign
+    temp = **(t_CKFLOAT **)(sp+sz_FLOAT) += val_((t_CKFLOAT *&)sp);
+    // push result
+    push_( (t_CKFLOAT *&)sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Minus_double_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT temp;
+    t_CKBYTE *& sp = (t_CKBYTE *&)shred->reg->sp;
+    // pop value + pointer
+    pop_( sp, sz_FLOAT + sz_UINT );
+    // assign
+    temp = **(t_CKFLOAT **)(sp+sz_FLOAT) -= val_((t_CKFLOAT *&)sp);
+    // push result
+    push_( (t_CKFLOAT *&)sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Times_double_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT temp;
+    t_CKBYTE *& sp = (t_CKBYTE *&)shred->reg->sp;
+    // pop value + pointer
+    pop_( sp, sz_FLOAT + sz_UINT );
+    // assign
+    temp = **(t_CKFLOAT **)(sp+sz_FLOAT) *= val_((t_CKFLOAT *&)sp);
+    // push result
+    push_( (t_CKFLOAT *&)sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Divide_double_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT temp;
+    t_CKBYTE *& sp = (t_CKBYTE *&)shred->reg->sp;
+    // pop value + pointer
+    pop_( sp, sz_FLOAT + sz_UINT );
+    // assign
+    temp = **(t_CKFLOAT **)(sp+sz_FLOAT) /= val_((t_CKFLOAT *&)sp);
+    // push result
+    push_( (t_CKFLOAT *&)sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Mod_double_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT temp;
+    t_CKBYTE *& sp = (t_CKBYTE *&)shred->reg->sp;
+    // pop value + pointer
+    pop_( sp, sz_FLOAT + sz_UINT );
+    // assign
+    temp = ::fmod( **(t_CKFLOAT **)(sp+sz_FLOAT), val_((t_CKFLOAT *&)sp) );
+    **(t_CKFLOAT **)(sp+sz_FLOAT) = temp;
+    // push result
+    push_( (t_CKFLOAT *&)sp, temp );
 }
 
 
@@ -793,11 +1046,114 @@ void Chuck_Instr_Binary_Shift_Right::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Binary_Shift_Right_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    push_( sp, val_(sp+1) >> val_(sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Binary_Shift_Left::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
     pop_( sp, 2 );
     push_( sp, val_(sp) << val_(sp+1) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Binary_Shift_Left_Reverse::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    push_( sp, val_(sp+1) << val_(sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Binary_And_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) &= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Binary_Or_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) |= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Binary_Xor_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) ^= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Binary_Shift_Right_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) >>= val_(sp);
+    push_( sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Binary_Shift_Left_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT temp, *& sp = (t_CKINT *&)shred->reg->sp;
+    pop_( sp, 2 );
+    temp = **(t_CKINT **)(sp+1) <<= val_(sp);
+    push_( sp, temp );
 }
 
 
@@ -895,7 +1251,7 @@ void Chuck_Instr_Lt_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
     pop_( sp, 2 );
-    push_uint( sp, val_(sp) < val_(sp+1) );
+    push_( sp, val_(sp) < val_(sp+1) );
 }
 
 
@@ -909,7 +1265,7 @@ void Chuck_Instr_Gt_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
     pop_( sp, 2 );
-    push_uint( sp, val_(sp) > val_(sp+1) );
+    push_( sp, val_(sp) > val_(sp+1) );
 }
 
 
@@ -923,7 +1279,7 @@ void Chuck_Instr_Le_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
     pop_( sp, 2 );
-    push_uint( sp, val_(sp) <= val_(sp+1) );
+    push_( sp, val_(sp) <= val_(sp+1) );
 }
 
 
@@ -937,7 +1293,7 @@ void Chuck_Instr_Ge_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
     pop_( sp, 2 );
-    push_uint( sp, val_(sp) >= val_(sp+1) );
+    push_( sp, val_(sp) >= val_(sp+1) );
 }
 
 
@@ -950,7 +1306,7 @@ void Chuck_Instr_Eq_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
     pop_( sp, 2 );
-    push_uint( sp, val_(sp) == val_(sp+1) );
+    push_( sp, val_(sp) == val_(sp+1) );
 }
 
 
@@ -964,7 +1320,7 @@ void Chuck_Instr_Neq_double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
     pop_( sp, 2 );
-    push_uint( sp, val_(sp) != val_(sp+1) );
+    push_( sp, val_(sp) != val_(sp+1) );
 }
 
 

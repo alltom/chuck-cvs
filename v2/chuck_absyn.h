@@ -249,10 +249,11 @@ struct a_Exp_
     ae_Exp_Meta s_meta;
     t_CKTYPE type;
     t_CKNSPC owner;
-    t_CKUINT group_size;
-    t_CKBOOL emit_var;
-    t_CKTYPE cast_to;
     a_Exp next;
+
+    t_CKUINT group_size;
+    t_CKTYPE cast_to;
+    t_CKUINT emit_var; // 1 = emit var, 2 = emit var and value
     
     union
     {

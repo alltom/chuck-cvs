@@ -1093,214 +1093,297 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs )
 {
-    // get the types of the left and right
+    // any implicit cast happens before this
     Chuck_Type * t_left = lhs->cast_to ? lhs->cast_to : lhs->type;
     Chuck_Type * t_right = rhs->cast_to ? rhs->cast_to : rhs->type;
-
+    // get the types of the left and right
     te_Type left = t_left->id;
     te_Type right = t_right->id;
+    // op
+    Chuck_Instr * instr = NULL;
 
-    // any implicit cast happens before this
-    assert( isa( t_left, t_right ) );
-    
     // emit op
     switch( op )
     {    
     // ----------------------------- num --------------------------------------
-    case ae_op_plus_chuck:
     case ae_op_plus:
         // time + dur
         if( ( left == te_dur && right == te_time ) ||
             ( left == te_time && right == te_dur ) )
-            emit->append( new Chuck_Instr_Add_double );
+        {
+            emit->append( instr = new Chuck_Instr_Add_double );
+        }
         else // other types
         {
             switch( left )
             {
             case te_int:
-                emit->append( new Chuck_Instr_Add_int );
+                emit->append( instr = new Chuck_Instr_Add_int );
                 break;
             case te_float:
             case te_dur:
-                emit->append( new Chuck_Instr_Add_double );
+                emit->append( instr = new Chuck_Instr_Add_double );
                 break;
+            }
+        }
+        break;
+    
+    case ae_op_plus_chuck:
+        // time + dur
+        if( ( left == te_dur && right == te_time ) ||
+            ( left == te_time && right == te_dur ) )
+        {
+            emit->append( instr = new Chuck_Instr_Add_double_Assign );
+        }
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Add_int_Assign );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Add_double_Assign );
+                break;
+            }
+        }
+        break;
 
-            default:
-                EM_error2( lhs->linepos, 
-                    "(emit): internal error: unhandled type '%i' in binary op '+'",
-                    left );
-                return FALSE;
+    case ae_op_minus:
+        if( ( left == te_time && right == te_dur ) ) // time - dur = time
+            emit->append( instr = new Chuck_Instr_Minus_double );
+        else if( ( left == te_time && right == te_time ) ) // time - time = dur
+            emit->append( instr = new Chuck_Instr_Minus_double );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Minus_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Minus_double );
+                break;
             }
         }
         break;
     
     case ae_op_minus_chuck:
-    case ae_op_minus:
-        if( ( left == te_time && right == te_dur ) ) // time - dur = time
-            emit->append( new Chuck_Instr_Minus_double );
+        if( ( left == te_dur && right == te_time ) ) // time - dur = time
+            emit->append( instr = new Chuck_Instr_Minus_double_Assign );
         else if( ( left == te_time && right == te_time ) ) // time - time = dur
-            emit->append( new Chuck_Instr_Minus_double );
+            emit->append( instr = new Chuck_Instr_Minus_double_Assign );
         else // other types
         {
             switch( left )
             {
             case te_int:
-                emit->append( new Chuck_Instr_Minus_int );
+                emit->append( instr = new Chuck_Instr_Minus_int_Assign );
                 break;
             case te_float:
             case te_dur:
-                emit->append( new Chuck_Instr_Minus_double );
+                emit->append( instr = new Chuck_Instr_Minus_double_Assign );
                 break;
-
-            default:
-                EM_error2( lhs->linepos, 
-                    "(emit): internal error: unhandled '%i' in binary op '-'",
-                    left );
-                return FALSE;
             }
         }
         break;
-    
-    case ae_op_times_chuck:
+
     case ae_op_times:
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Times_int );
+            emit->append( instr = new Chuck_Instr_Times_int );
             break;
         case te_float:
         case te_dur:
-            emit->append( new Chuck_Instr_Times_double );
+            emit->append( instr = new Chuck_Instr_Times_double );
             break;
+        }
+        break;
+    
+    case ae_op_times_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Times_int_Assign );
+            break;
+        case te_float:
+            emit->append( instr = new Chuck_Instr_Times_double_Assign );
+            break;
+        }
+        break;
 
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '*'",
-                left );
-            return FALSE;
+    case ae_op_divide:
+        if( ( left == te_time && right == te_dur ) ) // time / dur = float
+            emit->append( instr = new Chuck_Instr_Divide_double );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Divide_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Divide_double );
+                break;
+            }
         }
         break;
     
     case ae_op_divide_chuck:
-    case ae_op_divide:
-        switch( left )
+        // reverse
+        if( ( left == te_dur && right == te_time ) ) // time / dur = float
+            emit->append( instr = new Chuck_Instr_Divide_double_Assign );
+        else // other types
         {
-        case te_int:
-            emit->append( new Chuck_Instr_Divide_int );
-            break;
-        case te_float:
-        case te_dur:
-            emit->append( new Chuck_Instr_Divide_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '/'",
-                left );
-            return FALSE;
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Divide_int_Assign );
+                break;
+            case te_float:
+                emit->append( instr = new Chuck_Instr_Divide_double_Assign );
+                break;
+            }
         }
         break;
-    
-    case ae_op_s_or_chuck:
+
     case ae_op_s_or:
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Binary_Or );
+            emit->append( instr = new Chuck_Instr_Binary_Or );
             break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '|'",
-                left );
-            return FALSE;
         }
         break;
     
-    case ae_op_s_and_chuck:
+    case ae_op_s_or_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Or_Assign );
+            break;
+        }
+        break;
+
     case ae_op_s_and:
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Binary_And );
+            emit->append( instr = new Chuck_Instr_Binary_And );
             break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '&'",
-                left );
-            return FALSE;
         }
         break;
 
-    case ae_op_shift_left_chuck:
+    case ae_op_s_and_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_And_Assign );
+            break;
+        }
+        break;
+
     case ae_op_shift_left:
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Binary_Shift_Left );
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Left );
             break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '<<'",
-                left );
-            return FALSE;
+        }
+        break;
+
+    case ae_op_shift_left_chuck:
+        // reverse
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Left_Assign );
+            break;
         }
         break;
     
-    case ae_op_shift_right_chuck:
     case ae_op_shift_right:
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Binary_Shift_Right );
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Right );
             break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '>>'",
-                left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_percent_chuck:
-    case ae_op_percent:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Mod_int );
-            break;
-        case te_float:
-        case te_time:
-        case te_dur:
-            emit->append( new Chuck_Instr_Mod_double );
-            break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '%%'",
-                left );
-            return FALSE;
         }
         break;
 
-    case ae_op_s_xor_chuck:
+    case ae_op_shift_right_chuck:
+        // reverse
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Right_Assign );
+            break;
+        }
+        break;
+
+    case ae_op_percent:
+        if( ( left == te_time && right == te_dur ) ) // time % dur = dur
+        {
+            emit->append( instr = new Chuck_Instr_Divide_double );
+        }
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Mod_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Mod_double );
+                break;
+            }
+        }
+        break;
+
+    case ae_op_percent_chuck:
+        // reverse
+        if( ( left == te_dur && right == te_time ) ) // time % dur = dur
+        {
+            emit->append( instr = new Chuck_Instr_Divide_double_Reverse );
+        }
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Mod_int_Reverse );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Mod_double_Reverse );
+                break;
+            }
+        }
+        break;
+
     case ae_op_s_xor:
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Binary_Xor );
+            emit->append( instr = new Chuck_Instr_Binary_Xor );
             break;
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '^'",
-                left );
-            return FALSE;
         }
         break;
     
+    case ae_op_s_xor_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Xor_Assign );
+            break;
+        }
+        break;
+
     // ----------------------------- chuck -------------------------------------
     case ae_op_chuck:
     {
@@ -1364,13 +1447,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
     }
-    break;
     
     case ae_op_s_chuck:
-        EM_error2( lhs->linepos,
-            "(emit): internal error: unhandled binary operator '%s'...",
-            op2str( op ) );
-        return FALSE;
     break;
 
     // -------------------------------- bool -----------------------------------        
@@ -1378,19 +1456,13 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Eq_int );
+            emit->append( instr = new Chuck_Instr_Eq_int );
             break;
         case te_float:
         case te_dur:
         case te_time:
-            emit->append( new Chuck_Instr_Eq_double );
+            emit->append( instr = new Chuck_Instr_Eq_double );
             break;
-
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '=='",
-                left );
-            return FALSE;
         }
         break;
     
@@ -1398,19 +1470,13 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Neq_int );
+            emit->append( instr = new Chuck_Instr_Neq_int );
             break;
         case te_float:
         case te_dur:
         case te_time:
-            emit->append( new Chuck_Instr_Neq_double );
+            emit->append( instr = new Chuck_Instr_Neq_double );
             break;
-
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '!='",
-                left );
-            return FALSE;
         }
         break;
     
@@ -1418,19 +1484,13 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Lt_int );
+            emit->append( instr = new Chuck_Instr_Lt_int );
             break;
         case te_float:
         case te_dur:
         case te_time:
-            emit->append( new Chuck_Instr_Lt_double );
+            emit->append( instr = new Chuck_Instr_Lt_double );
             break;
-
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '<'",
-                left );
-            return FALSE;
         }
         break;
     
@@ -1438,19 +1498,13 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Le_int );
+            emit->append( instr = new Chuck_Instr_Le_int );
             break;
         case te_float:
         case te_dur:
         case te_time:
-            emit->append( new Chuck_Instr_Le_double );
+            emit->append( instr = new Chuck_Instr_Le_double );
             break;
-
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '<='",
-                left );
-            return FALSE;
         }
         break;
     
@@ -1458,19 +1512,13 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Gt_int );
+            emit->append( instr = new Chuck_Instr_Gt_int );
             break;
         case te_float:
         case te_dur:
         case te_time:
-            emit->append( new Chuck_Instr_Gt_double );
+            emit->append( instr = new Chuck_Instr_Gt_double );
             break;
-
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '>='",
-                left );
-            return FALSE;
         }
         break;
     
@@ -1478,19 +1526,13 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Ge_int );
+            emit->append( instr = new Chuck_Instr_Ge_int );
             break;
         case te_float:
         case te_dur:
         case te_time:
-            emit->append( new Chuck_Instr_Ge_double );
+            emit->append( instr = new Chuck_Instr_Ge_double );
             break;
-
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '>='",
-                left );
-            return FALSE;
         }
         break;
     
@@ -1498,14 +1540,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_And );
+            emit->append( instr = new Chuck_Instr_And );
             break;
- 
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '&&'",
-                left );
-            return FALSE;
         }
         break;
     
@@ -1513,49 +1549,25 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         switch( left )
         {
         case te_int:
-            emit->append( new Chuck_Instr_Or );
+            emit->append( instr = new Chuck_Instr_Or );
             break;
- 
-        default:
-            EM_error2( lhs->linepos,
-                "(emit): internal error: unhandled type '%i' in binary op '||'",
-                left );
-            return FALSE;
         }
         break;
 
     default:
         EM_error2( lhs->linepos,
-            "(emit): internal error: op '%s' not handled",
-            op2str( op ) );
+            "(emit): internal error: unhandled op '%s' %s '%s'",
+            t_left->c_name(), op2str( op ), t_right->c_name() );
         return FALSE;
     }
     
-    // more...
-    if( left == te_int )
+    // make sure emit
+    if( !instr )
     {
-        switch( op )
-        {
-        case ae_op_plus_chuck: case ae_op_minus_chuck: 
-        case ae_op_times_chuck: case ae_op_divide_chuck:
-        case ae_op_s_or_chuck: case ae_op_s_and_chuck: case ae_op_shift_left_chuck:
-        case ae_op_shift_right_chuck: case ae_op_percent_chuck: case ae_op_s_xor_chuck:
-            // emit assignment
-            emit->append( new Chuck_Instr_Assign_Primitive );
-            break;
-        }
-    }
-    else if( left == te_float )
-    {
-        switch( op )
-        {
-        case ae_op_plus_chuck: case ae_op_minus_chuck:
-        case ae_op_times_chuck: case ae_op_divide_chuck:
-        case ae_op_percent_chuck:
-            // emit assignment
-            emit->append( new Chuck_Instr_Assign_Primitive2 );
-            break;
-        }
+        EM_error2( lhs->linepos,
+            "(emit): internal error: unhandled op '%s' %s '%s'",
+            t_left->c_name(), op2str( op ), t_right->c_name() );
+        return FALSE;
     }
         
     return TRUE;
@@ -1588,7 +1600,7 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
         emit->append( new Chuck_Instr_Add_double );
 
         // see if rhs is 'now'
-        if( strcmp( "now", S_name(rhs->primary.var) ) == 0 )
+        if( rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
         {
             // advance time
             emit->append( new Chuck_Instr_Time_Advance );
@@ -1671,7 +1683,7 @@ t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rh
             }
 
             // see if rhs is 'now' - time => now
-            if( strcmp( "now", S_name(rhs->primary.var) ) == 0 )
+            if( rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
             {
                 // pop the now addr
                 emit->append( new Chuck_Instr_Reg_Pop_Word2 );
@@ -1850,10 +1862,6 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         {
             emit->append( new Chuck_Instr_Reg_Push_Now );
         }
-        else if( exp->var == insert_symbol( "start" ) )
-        {
-            emit->append( new Chuck_Instr_Reg_Push_Start );
-        }
         else if( exp->var == insert_symbol( "dac" ) )
         {
             emit->append( new Chuck_Instr_DAC );
@@ -1973,7 +1981,7 @@ t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit,
 
 
 //-----------------------------------------------------------------------------
-// name:
+// name: emit_engine_emit_exp_postfix()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix )
@@ -2055,6 +2063,7 @@ t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
 {
+    
     return TRUE;
 }
 

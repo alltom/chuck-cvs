@@ -51,6 +51,19 @@
 #define t_CKBYTE                    unsigned char
 #define t_CKPVOID                   void *
 
+// size
+#define sz_TIME                     sizeof(double)
+#define sz_DUR                      sizeof(double)
+#define sz_FLOAT                    sizeof(double)
+#define sz_DOUBLE                   sizeof(double)
+#define sz_SINGLE                   sizeof(float)
+#define sz_INT                      sizeof(long)
+#define sz_DWORD                    sizeof(unsigned long)
+#define sz_UINT                     sizeof(t_CKDWORD)
+#define sz_BOOL                     sizeof(t_CKDWORD)
+#define sz_BYTE                     sizeof(unsigned char)
+#define sz_PVOID                    sizeof(void *)
+
 typedef char *                      c_str;
 typedef const char *                c_constr;
 
