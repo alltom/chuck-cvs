@@ -853,7 +853,11 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) ) return right;
-    
+
+    // time advance
+    if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
+        return right;
+
     // assignment or something else
     if( isa( left, right ) )
     {
@@ -876,7 +880,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
         else
         {
             // TODO: check overloading of =>
-            
+
             // no match
             EM_error2( lhs->linepos,
                 "no suitable resolution for binary operator '=>' on types '%s' => '%s...'\n"
@@ -885,11 +889,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             return NULL;
         }
     }
-    
-    // time advance
-    if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
-        return right;
-        
+
     // TODO: check overloading of =>
 
     // no match
@@ -1065,12 +1065,12 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !t ) return NULL;
 
     // the type to cast to
-    t_CKTYPE t2 = env->curr->lookup_type( cast->type, TRUE );
+    t_CKTYPE t2 = env->curr->lookup_type( cast->type->id, TRUE );
     if( !t2 )
     {
         EM_error2( cast->linepos,
             "undefined type '%s' in cast...",
-            S_name( cast->type ) );
+            S_name( cast->type->id ) );
         return NULL;
     }
     
@@ -1079,7 +1079,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     {
         EM_error2( cast->linepos,
             "invalid cast to '%s' from '%s'...",
-            S_name( cast->type ), t->name.c_str() );
+            S_name( cast->type->id ), t->name.c_str() );
         return NULL;
     }
     
@@ -1238,12 +1238,13 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl var_decl = decl->var_decl_list->var_decl;
 
+    // TODO: handle T a, b, c ...
     // look up the type
-    t_CKTYPE t = env->curr->lookup_type( decl->type->id, TRUE );
+    t_CKTYPE t = env->curr->lookup_type( decl->type->id->id, TRUE );
     if( !t )
     {
         EM_error2( decl->linepos,
-            "undefined type '%s'...", S_name(decl->type->id) );
+            "undefined type '%s'...", S_name(decl->type->id->id) );
         return NULL;
     }
 
@@ -1256,12 +1257,13 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         return NULL;
     }
 
+    // TODO: this needs to be redone
     // check if array
     if( decl->type->array )
     {
         // type check the exp
         if( !type_engine_check_exp( env, decl->type->array->exp_list ) )
-            return NULL;        
+            return NULL;
         // make a copy of the type
         t = t->copy( env );
         // set the array depth
@@ -1269,12 +1271,12 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     }
 
     // make sure
-    if( var_decl->isarray )
-    {
-        EM_error2( decl->linepos,
-            "for declaration, array subscripts must be placed after type" );
-        return NULL;
-    }
+    //if( var_decl->isarray )
+    //{
+    //    EM_error2( decl->linepos,
+    //        "for declaration, array subscripts must be placed after type" );
+    //    return NULL;
+    //}
 
     // enter into value binding
     env->context->nspc.value.add( var_decl->id, 
@@ -1468,11 +1470,11 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
      t_CKTYPE t_class = NULL;
      
      // make sure class not already in namespace
-     if( env->curr->lookup_type( class_def->name->id, TRUE ) )
+     if( env->curr->lookup_type( class_def->name, TRUE ) )
      {
-         EM_error2( class_def->id->linepos,
+         EM_error2( class_def->linepos,
              "class name '%s' is already a defined type in current context",
-             S_name(class_def->name->id) );
+             S_name(class_def->name) );
          return FALSE;
      }
 
