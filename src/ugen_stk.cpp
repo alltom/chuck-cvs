@@ -17161,188 +17161,188 @@ MY_FLOAT Wurley :: tick()
 
 WvIn :: WvIn()
 {
-  init();
+    init();
 }
 
 WvIn :: WvIn( const char *fileName, bool raw, bool doNormalize, bool generate )
 {
-  init();
-  openFile( fileName, raw, generate );
+    init();
+    openFile( fileName, raw, generate );
 }
 
 WvIn :: ~WvIn()
 {
-  if (fd)
-    fclose(fd);
+    if (fd)
+        fclose(fd);
 
-  if (data)
-    delete [] data;
+    if (data)
+        delete [] data;
 
-  if (lastOutput)
-    delete [] lastOutput;
+    if (lastOutput)
+        delete [] lastOutput;
 }
 
 void WvIn :: init( void )
 {
-  fd = 0;
-  data = 0;
-  lastOutput = 0;
-  chunking = false;
-  finished = true;
-  interpolate = false;
-  bufferSize = 0;
-  channels = 0;
-  time = 0.0;
+    fd = 0;
+    data = 0;
+    lastOutput = 0;
+    chunking = false;
+    finished = true;
+    interpolate = false;
+    bufferSize = 0;
+    channels = 0;
+    time = 0.0;
 }
 
 void WvIn :: closeFile( void )
 {
-  if ( fd ) fclose( fd );
-  finished = true;
+    if ( fd ) fclose( fd );
+    finished = true;
 }
 
 void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool generate )
 {
-  unsigned long lastChannels = channels;
-  unsigned long samples, lastSamples = (bufferSize+1)*channels;
-  if(!generate || !strstr(fileName, "sinewave.raw"))
-  {
-  closeFile();
+    unsigned long lastChannels = channels;
+    unsigned long samples, lastSamples = (bufferSize+1)*channels;
+    if(!generate || !strstr(fileName, "sinewave.raw"))
+    {
+        closeFile();
 
-  // Try to open the file.
-  fd = fopen(fileName, "rb");
-  if (!fd) {
-    sprintf(msg, "[chuck](via WvIn): Could not open or find file (%s).", fileName);
-    handleError(msg, StkError::FILE_NOT_FOUND);
-  }
+        // Try to open the file.
+        fd = fopen(fileName, "rb");
+        if (!fd) {
+            sprintf(msg, "[chuck](via WvIn): Could not open or find file (%s).", fileName);
+            handleError(msg, StkError::FILE_NOT_FOUND);
+        }
 
-  bool result = false;
-  if ( raw )
-    result = getRawInfo( fileName );
-  else {
-    char header[12];
-    if ( fread(&header, 4, 3, fd) != 3 ) goto error;
-    if ( !strncmp(header, "RIFF", 4) &&
-         !strncmp(&header[8], "WAVE", 4) )
-      result = getWavInfo( fileName );
-    else if ( !strncmp(header, ".snd", 4) )
-      result = getSndInfo( fileName );
-    else if ( !strncmp(header, "FORM", 4) &&
-              (!strncmp(&header[8], "AIFF", 4) || !strncmp(&header[8], "AIFC", 4) ) )
-      result = getAifInfo( fileName );
-    else {
-      if ( fseek(fd, 126, SEEK_SET) == -1 ) goto error;
-      if ( fread(&header, 2, 1, fd) != 1 ) goto error;
-      if (!strncmp(header, "MI", 2) ||
-          !strncmp(header, "IM", 2) )
-        result = getMatInfo( fileName );
-      else {
-        raw = TRUE;
-        result = getRawInfo( fileName );
-        // sprintf(msg, "WvIn: File (%s) format unknown.", fileName);
-        // handleError(msg, StkError::FILE_UNKNOWN_FORMAT);
-      }
+        bool result = false;
+        if ( raw )
+            result = getRawInfo( fileName );
+        else {
+            char header[12];
+            if ( fread(&header, 4, 3, fd) != 3 ) goto error;
+            if ( !strncmp(header, "RIFF", 4) &&
+                !strncmp(&header[8], "WAVE", 4) )
+                result = getWavInfo( fileName );
+            else if ( !strncmp(header, ".snd", 4) )
+                result = getSndInfo( fileName );
+            else if ( !strncmp(header, "FORM", 4) &&
+                    (!strncmp(&header[8], "AIFF", 4) || !strncmp(&header[8], "AIFC", 4) ) )
+                result = getAifInfo( fileName );
+            else {
+                if ( fseek(fd, 126, SEEK_SET) == -1 ) goto error;
+                if ( fread(&header, 2, 1, fd) != 1 ) goto error;
+                if (!strncmp(header, "MI", 2) ||
+                    !strncmp(header, "IM", 2) )
+                    result = getMatInfo( fileName );
+                else {
+                    raw = TRUE;
+                    result = getRawInfo( fileName );
+                    // sprintf(msg, "WvIn: File (%s) format unknown.", fileName);
+                    // handleError(msg, StkError::FILE_UNKNOWN_FORMAT);
+                }
+            }
+        }
+
+        if ( result == false )
+            handleError(msg, StkError::FILE_ERROR);
+
+        if ( fileSize == 0 ) {
+            sprintf(msg, "[chuck](via WvIn): File (%s) data size is zero!", fileName);
+            handleError(msg, StkError::FILE_ERROR);
+        }
     }
-  }
 
-  if ( result == false )
-    handleError(msg, StkError::FILE_ERROR);
+    // Allocate new memory if necessary.
+    if ( lastSamples < samples ) {
+        if ( data ) delete [] data;
+        data = (MY_FLOAT *) new MY_FLOAT[samples];
+    }
+    if ( lastChannels < channels ) {
+        if ( lastOutput ) delete [] lastOutput;
+        lastOutput = (MY_FLOAT *) new MY_FLOAT[channels];
+    }
 
-  if ( fileSize == 0 ) {
-    sprintf(msg, "[chuck](via WvIn): File (%s) data size is zero!", fileName);
-    handleError(msg, StkError::FILE_ERROR);
-  }
-  }
+    if ( fmod(rate, 1.0) != 0.0 ) interpolate = true;
+    chunkPointer = 0;
 
-  // Allocate new memory if necessary.
-  if ( lastSamples < samples ) {
-    if ( data ) delete [] data;
-    data = (MY_FLOAT *) new MY_FLOAT[samples];
-  }
-  if ( lastChannels < channels ) {
-    if ( lastOutput ) delete [] lastOutput;
-    lastOutput = (MY_FLOAT *) new MY_FLOAT[channels];
-  }
+    reset();
+    if(generate && strstr(fileName, "sinewave.raw"))
+    {
+  	    fileSize = 256;  // length in 2-byte samples
+	    bufferSize = fileSize;
+	    if (fileSize > CHUNK_THRESHOLD) {
+		    chunking = true;
+		    bufferSize = CHUNK_SIZE;
+		    gain = 1.0 / 32768.0;
+	    }
 
-  if ( fmod(rate, 1.0) != 0.0 ) interpolate = true;
-  chunkPointer = 0;
-
-  reset();
-  if(generate && strstr(fileName, "sinewave.raw"))
-  {
-  	fileSize = 256;  // length in 2-byte samples
-	bufferSize = fileSize;
-	if (fileSize > CHUNK_THRESHOLD) {
-		chunking = true;
-		bufferSize = CHUNK_SIZE;
-		gain = 1.0 / 32768.0;
-	}
-
-	// STK rawwave files have no header and are assumed to contain a
-	// monophonic stream of 16-bit signed integers in big-endian byte
-	// order with a sample rate of 22050 Hz.
-	channels = 1;
-	dataOffset = 0;
-	rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
-	fileRate = 22050.0;
-	interpolate = false;
-	dataType = STK_SINT16;
-	byteswap = false;
-	#ifdef __LITTLE_ENDIAN__
-	byteswap = true;
-	#endif
+	    // STK rawwave files have no header and are assumed to contain a
+	    // monophonic stream of 16-bit signed integers in big-endian byte
+	    // order with a sample rate of 22050 Hz.
+	    channels = 1;
+	    dataOffset = 0;
+	    rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
+	    fileRate = 22050.0;
+	    interpolate = false;
+	    dataType = STK_SINT16;
+	    byteswap = false;
+	    #ifdef __LITTLE_ENDIAN__
+	    byteswap = true;
+	    #endif
 	
-	unsigned long indexHACKED = 0;
-	while (indexHACKED < (unsigned long)chunkPointer) {
-		// Negative rate.
-		chunkPointer -= CHUNK_SIZE;
-		bufferSize = CHUNK_SIZE;
-		if (chunkPointer < 0) {
-			bufferSize += chunkPointer;
-			chunkPointer = 0;
-		}
-	}
-	while (indexHACKED >= chunkPointer+bufferSize) {
-		// Positive rate.
-		chunkPointer += CHUNK_SIZE;
-		bufferSize = CHUNK_SIZE;
-		if ( (unsigned long)chunkPointer+CHUNK_SIZE >= fileSize) {
-			bufferSize = fileSize - chunkPointer;
-		}
-	}
+	    unsigned long indexHACKED = 0;
+	    while (indexHACKED < (unsigned long)chunkPointer) {
+            // Negative rate.
+		    chunkPointer -= CHUNK_SIZE;
+		    bufferSize = CHUNK_SIZE;
+		    if (chunkPointer < 0) {
+			    bufferSize += chunkPointer;
+			    chunkPointer = 0;
+		    }
+	    }
+	    while (indexHACKED >= chunkPointer+bufferSize) {
+		    // Positive rate.
+		    chunkPointer += CHUNK_SIZE;
+		    bufferSize = CHUNK_SIZE;
+		    if ( (unsigned long)chunkPointer+CHUNK_SIZE >= fileSize) {
+			    bufferSize = fileSize - chunkPointer;
+		    }
+	    }
 
-	long i, length = bufferSize;
-	bool endfile = (chunkPointer+bufferSize == fileSize);
-	if ( !endfile ) length += 1;
+	    long i, length = bufferSize;
+ 	    bool endfile = (chunkPointer+bufferSize == fileSize);
+	    if ( !endfile ) length += 1;
 	
-	// Read samples into data[].  Use MY_FLOAT data structure
-	// to store samples.
-	SINT16 *buf = (SINT16 *)data;
-	for (unsigned int j=0; j<length; j++)
-	{
-		buf[j] = (SINT16)(32768 * sin(2*PI*j/256));
-	}	    
-	if ( byteswap ) {
-		SINT16 *ptr = buf;
-		for (i=length*channels-1; i>=0; i--)
-			swap16((unsigned char *)(ptr++));
-	}
-	for (i=length*channels-1; i>=0; i--)
-	data[i] = buf[i];
-	// If at end of file, repeat last sample frame for interpolation.
-	if ( endfile ) {
-		for (unsigned int j=0; j<channels; j++)
-		data[bufferSize*channels+j] = data[(bufferSize-1)*channels+j];
-	}
-  }
-  else readData( 0 );  // Load file data.
-  if ( doNormalize ) normalize();
-  finished = false;
-  return;
+	    // Read samples into data[].  Use MY_FLOAT data structure
+	    // to store samples.
+	    SINT16 *buf = (SINT16 *)data;
+	    for (unsigned int j=0; j<length; j++)
+	    {
+		    buf[j] = (SINT16)(32768 * sin(2*PI*j/256));
+	    }	    
+	    if ( byteswap ) {
+		    SINT16 *ptr = buf;
+		    for (i=length*channels-1; i>=0; i--)
+			    swap16((unsigned char *)(ptr++));
+	    }
+	    for (i=length*channels-1; i>=0; i--)
+	        data[i] = buf[i];
+	    // If at end of file, repeat last sample frame for interpolation.
+	    if ( endfile ) {
+		    for (unsigned int j=0; j<channels; j++)
+		    data[bufferSize*channels+j] = data[(bufferSize-1)*channels+j];
+	    }
+    }
+    else readData( 0 );  // Load file data.
+    if ( doNormalize ) normalize();
+    finished = false;
+    return;
 
- error:
-  sprintf(msg, "[chuck](via WvIn): Error reading file (%s).", fileName);
-  handleError(msg, StkError::FILE_ERROR);
+error:
+    sprintf(msg, "[chuck](via WvIn): Error reading file (%s).", fileName);
+    handleError(msg, StkError::FILE_ERROR);
 }
 
 bool WvIn :: getRawInfo( const char *fileName )

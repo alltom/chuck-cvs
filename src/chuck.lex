@@ -180,9 +180,7 @@ NULL                    { adjust(); return NULL_TOK; }
 null                    { adjust(); return NULL_TOK; }
 return                  { adjust(); return RETURN; }
 
-next                    { adjust(); return NEXT; }
 until                   { adjust(); return UNTIL; }
-every                   { adjust(); return EVERY; }
 before                  { adjust(); return BEFORE; }
 after                   { adjust(); return AFTER; }
 at                      { adjust(); return AT; }
