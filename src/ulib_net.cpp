@@ -124,11 +124,14 @@ public:
 
     t_CKBOOL connect( const char * hostname, int port, t_CKUINT buffer_size );
     t_CKBOOL disconnect( );
-    void tick( SAMPLE sample );
     t_CKBOOL send( const t_CKBYTE * buffer );
+
+    t_CKBOOL tick_out( SAMPLE sample );
+    t_CKBOOL tick_out( SAMPLE l, SAMPLE r );
+    t_CKBOOL tick_out( SAMPLE * samples, t_CKDWORD n );
+
     void set_redundancy( t_CKUINT n );
     t_CKUINT get_redundancy( );
-
 protected:
     ck_socket m_sock;
     t_CKUINT m_red;
@@ -153,8 +156,11 @@ public:
 
     t_CKBOOL listen( int port, t_CKUINT buffer_size );
     t_CKBOOL recv( t_CKBYTE * buffer );
-    t_CKBOOL tick( SAMPLE * sample );
     t_CKBOOL expire();
+    
+    t_CKBOOL tick_in( SAMPLE * sample );
+    t_CKBOOL tick_in( SAMPLE * l, SAMPLE * r );
+    t_CKBOOL tick_in( SAMPLE * samples, t_CKDWORD n );
 
 protected:
     ck_socket m_sock;
