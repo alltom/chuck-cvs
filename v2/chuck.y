@@ -330,8 +330,8 @@ decl_expression
         : conditional_expression            { $$ = $1; }
         | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, 0, EM_lineNum ); }
         | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, 0, EM_lineNum ); }
-        | SAME AT var_decl_list             { $$ = new_exp_decl( NULL, $3, 1, EM_lineNum ); }
-        | type_decl AT var_decl_list        { $$ = new_exp_decl( $1, $3, 1, EM_lineNum ); }
+        | SAME AT_SYM var_decl_list         { $$ = new_exp_decl( NULL, $3, 1, EM_lineNum ); }
+        | type_decl AT_SYM var_decl_list    { $$ = new_exp_decl( $1, $3, 1, EM_lineNum ); }
         ;
 
 var_decl_list

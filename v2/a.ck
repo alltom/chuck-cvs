@@ -17,7 +17,7 @@ class BB extends AA
 }
 
 BB bb;
-
+BB @ bbb;
 
 //adc => sndbuf => dac;
 
