@@ -41,7 +41,11 @@ DLL_QUERY xxx_query( Chuck_DL_Query * query );
 
 // noise
 UGEN_TICK noise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-
+UGEN_CTOR cnoise_ctor( t_CKTIME now );
+UGEN_DTOR cnoise_dtor( t_CKTIME now, void * data );
+UGEN_TICK cnoise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_CTRL cnoise_ctrl_mode( t_CKTIME now, void * data, void * value );
+UGEN_CTRL cnoise_ctrl_fprob( t_CKTIME now, void * data, void * value );
 // impulse
 UGEN_CTOR impulse_ctor( t_CKTIME now );
 UGEN_DTOR impulse_dtor( t_CKTIME now, void * data );
