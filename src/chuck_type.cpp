@@ -358,6 +358,9 @@ UGEN_CGET ugen_cget_op( t_CKTIME now, void * data, void * out ) { }
 UGEN_CTRL ugen_ctrl_gain( t_CKTIME now, void * data, void * value ) { }
 UGEN_CGET ugen_cget_gain( t_CKTIME now, void * data, void * out ) { }
 
+// cget last
+UGEN_CGET ugen_cget_last( t_CKTIME now, void * data, void * out ) { }
+
 
 //-----------------------------------------------------------------------------
 // name: type_engine_add_dll()
@@ -668,6 +671,7 @@ t_CKBOOL type_engine_check_ugen_def_import( t_Env info, Chuck_UGen_Info * ugen )
     // add default
     ugen->add( ugen_ctrl_op, ugen_cget_op, "int", "op" );
     ugen->add( ugen_ctrl_gain, ugen_cget_gain, "float", "gain" );
+    ugen->add( NULL, ugen_cget_last, "float", "last" );
 
     // loop through ctrl parameters
     for( int i = 0; i < ugen->param_list.size(); i++ )

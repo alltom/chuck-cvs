@@ -81,6 +81,7 @@ void Chuck_UGen::init()
     m_valid = TRUE;
     m_sum = 0.0f;
     m_current = 0.0f;
+    m_last = 0.0f;
     m_op = UGEN_OP_TICK;
     m_gain = 1.0f;
     
@@ -268,6 +269,7 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     if( m_time >= now )
         return m_valid;
 
+    m_last = m_current;
     if( m_op != UGEN_OP_STOP )
     {
         // inc time

@@ -175,6 +175,7 @@ public: // data
     t_CKBOOL m_valid;
     SAMPLE m_sum;
     SAMPLE m_current;
+    SAMPLE m_last;
     SAMPLE m_gain;
     int m_op;
     Chuck_VM_Shred * shred;

@@ -2361,7 +2361,26 @@ void Chuck_Instr_UGen_CGet_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
     // push the new value
-    ((double *&)shred->reg->sp)++;
+    double *& sp_double = (double *&)shred->reg->sp;
+    push_( sp_double, (double)ugen->m_gain );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_UGen_CGet_Last::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    uint *& sp = (uint *&)shred->reg->sp;
+
+    pop_( sp, 2 );
+    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
+    // push the new value
+    double *& sp_double = (double *&)shred->reg->sp;
+    push_( sp_double, (double)ugen->m_last );
 }
 
 

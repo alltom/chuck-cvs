@@ -1503,6 +1503,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Memb
                 emit->append( new Chuck_Instr_UGen_CGet_Op );
             else if( !strcmp( S_name(exp->id), "gain" ) )
                 emit->append( new Chuck_Instr_UGen_CGet_Gain );
+            else if( !strcmp( S_name(exp->id), "last" ) )
+                emit->append( new Chuck_Instr_UGen_CGet_Last );
             else
             {
                 // cget passing to ugen
@@ -2778,6 +2780,12 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
                 emit->append( new Chuck_Instr_UGen_Ctrl_Op );
             else if( !strcmp( S_name(rhs->dot_member.id), "gain" ) )
                 emit->append( new Chuck_Instr_UGen_Ctrl_Gain );
+            else if( !strcmp( S_name(rhs->dot_member.id), "last" ) )
+            {
+                EM_error2( rhs->linepos,
+                           "(emit): internal error: cannot chuck to 'ugen.last'" );
+                return FALSE;
+            }
             else
             {
                 // ctrl passing to ugen
