@@ -2291,6 +2291,41 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             goto error;
         }
 
+        // check if array
+        if( arg_list->var_decl->array != NULL )
+        {
+            Chuck_Type * t = arg_list->type;
+            Chuck_Type * t2 = t;
+            // should be partial and empty []
+            if( arg_list->var_decl->array->exp_list )
+            {
+                EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
+                EM_error2( arg_list->linepos, "argument %i '%s' must be defined with empty []'s",
+                    count, S_name(arg_list->var_decl->id) );
+                return FALSE;
+            }
+            // make new type
+            t = env->context->new_Chuck_Type();
+            // set the id
+            t->id = te_array;
+            // set the name
+            t->name = t2->name;
+            // set the parent
+            t->parent = &t_array;
+            // is a ref
+            t->size = t_array.size;
+            // set the array depth
+            t->array_depth = arg_list->var_decl->array->depth;
+            // set the base type
+            t->array_type = t2; // TODO: ref
+            // set owner
+            t->owner = env->curr;
+            // set ref
+            arg_list->type_decl->ref = TRUE;
+            // set type
+            arg_list->type = t;
+        }
+        
         // make new value
         value = env->context->new_Chuck_Value( 
             arg_list->type, S_name(arg_list->var_decl->id) );

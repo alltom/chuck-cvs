@@ -305,6 +305,8 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop 
         case ae_stmt_exp:  // expression statement
             // emit it
             ret = emit_engine_emit_exp( emit, stmt->stmt_exp );
+            if( !ret )
+                return FALSE;
             // need to pop the final value from stack
             if( ret && pop && stmt->stmt_exp->type->size > 0 )
             {
@@ -2559,7 +2561,8 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     emit->code->name = func->name + "( ... )";
 
     // emit the code
-    emit_engine_emit_stmt( emit, func_def->code, FALSE );
+    if( !emit_engine_emit_stmt( emit, func_def->code, FALSE ) )
+        return FALSE;
 
     // set the index for next instruction for return statements
     for( t_CKINT i = 0; i < emit->code->stack_return.size(); i++ )
@@ -2663,7 +2666,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
     {
         // internal error
         EM_error2( linepos,
-            "(emit): internal error: defined symbol '%s'...",
+            "(emit): internal error: undefined symbol '%s'...",
             S_name(symbol) );
         return FALSE;
     }
