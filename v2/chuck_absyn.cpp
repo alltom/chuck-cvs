@@ -328,13 +328,13 @@ a_Exp new_exp_from_cast( c_str type, a_Exp exp, int pos )
     return a;
 }
 
-a_Exp new_exp_from_array( a_Exp base, a_Exp index, int pos )
+a_Exp new_exp_from_array( a_Exp base, a_Array_Sub indices, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_array;
     a->s_meta = ae_meta_var;
     a->array.base = base;
-    a->array.index = index;
+    a->array.indices = indices;
     a->linepos = pos;
     a->array.linepos = pos;
     a->array.self = a;
@@ -484,12 +484,12 @@ a_Exp new_exp_from_if( a_Exp cond, a_Exp if_exp, a_Exp else_exp, int pos )
     return a;
 }
 
-a_Exp new_exp_decl( c_str type, a_Var_Decl_List var_decl_list, int pos )
+a_Exp new_exp_decl( a_Type_Decl type, a_Var_Decl_List var_decl_list, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_decl;
     a->s_meta = ae_meta_var;
-    a->decl.type = insert_symbol( type );
+    a->decl.type = type;
     a->decl.var_decl_list = var_decl_list;
     a->linepos = pos;
     a->decl.linepos = pos;
@@ -551,21 +551,15 @@ a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list
     return a;
 }
 
-a_Type_Decl new_type_decl( c_str type, int pos )
+a_Type_Decl new_type_decl( c_str type, a_Array_Sub array, int pos )
 {
     a_Type_Decl a = (a_Type_Decl)checked_malloc(
         sizeof( struct a_Type_Decl_ ) );
     a->id = insert_symbol( type );
-    a->array = 0;
+    a->array = array;
     a->linepos = pos;
 
     return a;
-}
-
-a_Type_Decl new_type_decl_array( a_Type_Decl decl, int pos )
-{
-    decl->array++;
-    return decl;
 }
 
 a_Arg_List new_arg_list( a_Type_Decl type_decl, c_str name, int pos )
