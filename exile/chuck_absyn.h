@@ -182,23 +182,23 @@ a_Func_Def new_func_def( ae_Keyword func_decl, a_Type_Decl type_decl, c_str name
 //------------------------------------------------------------------------------
 // structs
 //------------------------------------------------------------------------------
-struct a_Exp_Binary_ { a_Exp lhs; ae_Operator op; a_Exp rhs; int linepos; };
-struct a_Exp_Cast_ { S_Symbol type; a_Exp exp; int linepos; };
-struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; int linepos; };
-struct a_Exp_Postfix_ { a_Exp exp; ae_Operator op; int linepos; };
-struct a_Exp_Dur_ { a_Exp base; a_Exp unit; int linepos; };
-struct a_Exp_Array_ { a_Exp base; a_Exp index; int linepos; };
-struct a_Exp_Func_Call_ { a_Exp func; a_Exp args; t_CKTYPE ret_type; int linepos; };
+struct a_Exp_Binary_ { a_Exp lhs; ae_Operator op; a_Exp rhs; int linepos; a_Exp self; };
+struct a_Exp_Cast_ { S_Symbol type; a_Exp exp; int linepos; a_Exp self; };
+struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; int linepos; a_Exp self; };
+struct a_Exp_Postfix_ { a_Exp exp; ae_Operator op; int linepos; a_Exp self; };
+struct a_Exp_Dur_ { a_Exp base; a_Exp unit; int linepos; a_Exp self; };
+struct a_Exp_Array_ { a_Exp base; a_Exp index; int linepos; a_Exp self; };
+struct a_Exp_Func_Call_ { a_Exp func; a_Exp args; t_CKTYPE ret_type; int linepos; a_Exp self; };
 struct a_Exp_Dot_Member_ { a_Exp base; S_Symbol id; unsigned long data;
-                           unsigned long data2; unsigned int flag; int linepos; };
-struct a_Exp_If_ { a_Exp cond; a_Exp if_exp; a_Exp else_exp; int linepos; };
-struct a_Exp_Decl_ { S_Symbol type; a_Var_Decl_List var_decl_list; int linepos; };
-struct a_Exp_Namespace_ { S_Symbol name; int linepos; };
-struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos; };
-struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; int isarray; a_Exp exp; int linepos; };
-struct a_Type_Decl_ { S_Symbol id; int array; int linepos; };
+                           unsigned long data2; unsigned int flag; int linepos; a_Exp self; };
+struct a_Exp_If_ { a_Exp cond; a_Exp if_exp; a_Exp else_exp; int linepos; a_Exp self; };
+struct a_Exp_Decl_ { S_Symbol type; a_Var_Decl_List var_decl_list; int linepos; a_Exp self; };
+struct a_Exp_Namespace_ { S_Symbol name; int linepos; a_Exp self; };
+struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos; a_Exp self; };
+struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; int isarray; a_Exp exp; int linepos; a_Exp self; };
+struct a_Type_Decl_ { S_Symbol id; int array; int linepos; a_Exp self; };
 struct a_Arg_List_ { a_Type_Decl type_decl; t_CKTYPE type; S_Symbol id; 
-                     a_Arg_List next; int linepos; };
+                     a_Arg_List next; int linepos; a_Exp self; };
 
 // enum primary exp type
 typedef enum { ae_primary_var, ae_primary_num, ae_primary_uint,
@@ -220,6 +220,7 @@ struct a_Exp_Primary_
     };
 
     int linepos;
+    a_Exp self;
 };
 
 // enum exp type
@@ -256,17 +257,17 @@ struct a_Exp_
     int linepos;
 };
 
-struct a_Stmt_While_ { int is_do; a_Exp cond; a_Stmt body; int linepos; };
-struct a_Stmt_Until_ { int is_do; a_Exp cond; a_Stmt body; int linepos; };
-struct a_Stmt_For_ { a_Stmt c1; a_Stmt c2; a_Exp c3; a_Stmt body; int linepos; };
-struct a_Stmt_Code_ { a_Stmt_List stmt_list; int linepos; };
-struct a_Stmt_If_ { a_Exp cond; a_Stmt if_body; a_Stmt else_body; int linepos; };
-struct a_Stmt_Switch_ { a_Exp val; int linepos; };
-//struct a_Stmt_Break_ { int linepos; };
-//struct a_Stmt_Continue_ { int linepos; };
-struct a_Stmt_Return_ { a_Exp val; int linepos; };
-struct a_Stmt_Case_ { a_Exp exp; int linepos; };
-struct a_Stmt_GotoLabel_ { S_Symbol name; int linepos; };
+struct a_Stmt_While_ { int is_do; a_Exp cond; a_Stmt body; int linepos; a_Stmt self; };
+struct a_Stmt_Until_ { int is_do; a_Exp cond; a_Stmt body; int linepos; a_Stmt self; };
+struct a_Stmt_For_ { a_Stmt c1; a_Stmt c2; a_Exp c3; a_Stmt body; int linepos; a_Stmt self; };
+struct a_Stmt_Code_ { a_Stmt_List stmt_list; int linepos; a_Stmt self; };
+struct a_Stmt_If_ { a_Exp cond; a_Stmt if_body; a_Stmt else_body; int linepos; a_Stmt self; };
+struct a_Stmt_Switch_ { a_Exp val; int linepos; a_Stmt self; };
+struct a_Stmt_Break_ { int linepos; a_Stmt self; };
+struct a_Stmt_Continue_ { int linepos; a_Stmt self; };
+struct a_Stmt_Return_ { a_Exp val; int linepos; a_Stmt self; };
+struct a_Stmt_Case_ { a_Exp exp; int linepos; a_Stmt self; };
+struct a_Stmt_GotoLabel_ { S_Symbol name; int linepos; a_Stmt self; };
 
 // enum values for stmt type
 typedef enum { ae_stmt_exp, ae_stmt_while, ae_stmt_until, ae_stmt_for,
@@ -287,8 +288,8 @@ struct a_Stmt_
         struct a_Stmt_For_ stmt_for;
         struct a_Stmt_If_ stmt_if;
         struct a_Stmt_Switch_ stmt_switch;
-//        struct a_Stmt_Break_ stmt_break;
-//        struct a_Stmt_Continue_ stmt_continue;
+        struct a_Stmt_Break_ stmt_break;
+        struct a_Stmt_Continue_ stmt_continue;
         struct a_Stmt_Return_ stmt_return;
         struct a_Stmt_Case_ stmt_case;
         struct a_Stmt_GotoLabel_ stmt_gotolabel;

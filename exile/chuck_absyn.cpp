@@ -119,6 +119,7 @@ a_Stmt new_stmt_from_code( a_Stmt_List stmt_list, int pos )
     a->stmt_code.stmt_list = stmt_list;
     a->linepos = pos;
     a->stmt_code.linepos = pos;
+    a->stmt_code.self = a;
 
     return a;
 }
@@ -132,6 +133,7 @@ a_Stmt new_stmt_from_if( a_Exp cond, a_Stmt if_body, a_Stmt else_body, int pos )
     a->stmt_if.else_body = else_body;
     a->linepos = pos;
     a->stmt_if.linepos = pos;
+    a->stmt_if.self = a;
 
     return a;
 }
@@ -145,6 +147,7 @@ a_Stmt new_stmt_from_while( a_Exp cond, a_Stmt body, int pos )
     a->stmt_while.body = body;
     a->linepos = pos;
     a->stmt_while.linepos = pos;
+    a->stmt_while.self = a;
 
     return a;
 }
@@ -158,6 +161,7 @@ a_Stmt new_stmt_from_do_while( a_Exp cond, a_Stmt body, int pos )
     a->stmt_while.body = body;
     a->linepos = pos;
     a->stmt_while.linepos = pos;
+    a->stmt_while.self = a;
 
     return a;
 }
@@ -171,6 +175,7 @@ a_Stmt new_stmt_from_until( a_Exp cond, a_Stmt body, int pos )
     a->stmt_until.body = body;
     a->linepos = pos;
     a->stmt_until.linepos = pos;
+    a->stmt_until.self = a;
 
     return a;
 }
@@ -184,6 +189,7 @@ a_Stmt new_stmt_from_do_until( a_Exp cond, a_Stmt body, int pos )
     a->stmt_until.body = body;
     a->linepos = pos;
     a->stmt_until.linepos = pos;
+    a->stmt_until.self = a;
 
     return a;
 }
@@ -198,6 +204,7 @@ a_Stmt new_stmt_from_for( a_Stmt c1, a_Stmt c2, a_Exp c3, a_Stmt body, int pos )
     a->stmt_for.body = body;
     a->linepos = pos;
     a->stmt_for.linepos = pos;
+    a->stmt_for.self = a;
     
     return a;
 }
@@ -209,7 +216,8 @@ a_Stmt new_stmt_from_switch( a_Exp val, int pos )
     a->stmt_switch.val = val;
     a->linepos = pos;
     a->stmt_switch.linepos = pos;
-    
+    a->stmt_switch.self = a;
+
     return a;
 }
 
@@ -218,6 +226,8 @@ a_Stmt new_stmt_from_break( int pos )
     a_Stmt a = (a_Stmt)checked_malloc( sizeof( struct a_Stmt_ ) );
     a->s_type = ae_stmt_break;
     a->linepos = pos;
+    a->stmt_break.linepos = pos;
+    a->stmt_break.self = a;
 
     return a;
 }
@@ -227,7 +237,9 @@ a_Stmt new_stmt_from_continue( int pos )
     a_Stmt a = (a_Stmt)checked_malloc( sizeof( struct a_Stmt_ ) );
     a->s_type = ae_stmt_continue;
     a->linepos = pos;
-    
+    a->stmt_continue.linepos = pos;
+    a->stmt_continue.self = a;
+
     return a;
 }
 
@@ -238,6 +250,7 @@ a_Stmt new_stmt_from_return( a_Exp exp, int pos )
     a->stmt_return.val = exp;
     a->linepos = pos;
     a->stmt_return.linepos = pos;
+    a->stmt_return.self = a;
     
     return a;
 }
@@ -249,7 +262,8 @@ a_Stmt new_stmt_from_label( c_str id, int pos )
     a->stmt_gotolabel.name = insert_symbol( id );
     a->linepos = pos;
     a->stmt_gotolabel.linepos = pos;
-    
+    a->stmt_gotolabel.self = a;
+
     return a;
 }
 
@@ -260,7 +274,8 @@ a_Stmt new_stmt_from_case( a_Exp exp, int pos )
     a->stmt_case.exp = exp;
     a->linepos = pos;
     a->stmt_case.linepos = pos;
-    
+    a->stmt_case.self = a;
+
     return a;    
 }
 
@@ -280,6 +295,7 @@ a_Exp new_exp_from_binary( a_Exp lhs, ae_Operator oper, a_Exp rhs, int pos )
     a->binary.rhs = rhs;
     a->linepos = pos;
     a->binary.linepos = pos;
+    a->binary.self = a;
     
     return a;
 }
@@ -293,6 +309,7 @@ a_Exp new_exp_from_unary( ae_Operator oper, a_Exp exp, int pos )
     a->unary.exp = exp;
     a->linepos = pos;
     a->unary.linepos = pos;
+    a->unary.self = a;
     
     return a;
 }
@@ -306,6 +323,7 @@ a_Exp new_exp_from_cast( c_str type, a_Exp exp, int pos )
     a->cast.exp = exp;
     a->linepos = pos;
     a->cast.linepos = pos;
+    a->cast.self = a;
     
     return a;
 }
@@ -319,7 +337,8 @@ a_Exp new_exp_from_array( a_Exp base, a_Exp index, int pos )
     a->array.index = index;
     a->linepos = pos;
     a->array.linepos = pos;
-    
+    a->array.self = a;
+
     return a;
 }
 
@@ -332,7 +351,8 @@ a_Exp new_exp_from_func_call( a_Exp base, a_Exp args, int pos )
     a->func_call.args = args;
     a->linepos = pos;
     a->func_call.linepos = pos;
-    
+    a->func_call.self = a;
+
     return a;
 }
 
@@ -345,7 +365,8 @@ a_Exp new_exp_from_member_dot( a_Exp base, c_str id, int pos )
     a->dot_member.id = insert_symbol( id );
     a->linepos = pos;
     a->dot_member.linepos = pos;
-    
+    a->dot_member.self = a;
+
     return a;
 }
 
@@ -358,7 +379,8 @@ a_Exp new_exp_from_postfix( a_Exp base, ae_Operator op, int pos )
     a->postfix.op = op;
     a->linepos = pos;
     a->postfix.linepos = pos;
-    
+    a->postfix.self = a;
+
     return a;
 }
 
@@ -371,7 +393,8 @@ a_Exp new_exp_from_dur( a_Exp base, a_Exp unit, int pos )
     a->dur.unit = unit;
     a->linepos = pos;
     a->dur.linepos = pos;
-    
+    a->dur.self = a;
+
     return a;
 }
 
@@ -384,7 +407,8 @@ a_Exp new_exp_from_id( c_str id, int pos )
     a->primary.var = insert_symbol( id );
     a->linepos = pos;
     a->primary.linepos = pos;
-    
+    a->primary.self = a;
+
     return a;    
 }
 
@@ -397,6 +421,7 @@ a_Exp new_exp_from_int( long num, int pos )
     a->primary.num = num;
     a->linepos = pos;
     a->primary.linepos = pos;
+    a->primary.self = a;
     
     return a;
 }
@@ -410,7 +435,8 @@ a_Exp new_exp_from_uint( unsigned long num, int pos )
     a->primary.num2 = num;
     a->linepos = pos;
     a->primary.linepos = pos;
-    
+    a->primary.self = a;
+
     return a;
 }
 
@@ -423,7 +449,8 @@ a_Exp new_exp_from_float( double num, int pos )
     a->primary.fnum = num;
     a->linepos = pos;
     a->primary.linepos = pos;
-    
+    a->primary.self = a;
+
     return a;
 }
 
@@ -436,7 +463,8 @@ a_Exp new_exp_from_str( c_str str, int pos )
     a->primary.str = str;
     a->linepos = pos;
     a->primary.linepos = pos;
-    
+    a->primary.self = a;
+
     return a;
 }
 
@@ -451,7 +479,8 @@ a_Exp new_exp_from_if( a_Exp cond, a_Exp if_exp, a_Exp else_exp, int pos )
     a->exp_if.else_exp = else_exp;
     a->linepos = pos;
     a->exp_if.linepos = pos;
-    
+    a->exp_if.self = a;
+
     return a;
 }
 
@@ -464,7 +493,8 @@ a_Exp new_exp_decl( c_str type, a_Var_Decl_List var_decl_list, int pos )
     a->decl.var_decl_list = var_decl_list;
     a->linepos = pos;
     a->decl.linepos = pos;
-    
+    a->decl.self = a;
+
     return a;
 }
 
@@ -476,6 +506,8 @@ a_Exp new_exp_from_namespace( c_str name, int pos )
     a->name_space.name = insert_symbol( name );
     a->name_space.linepos = pos;
     a->linepos = pos;
+    a->name_space.linepos = pos;
+    a->name_space.self = a;
 
     return a;
 }

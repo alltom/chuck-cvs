@@ -382,7 +382,7 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
 // name: type_engine_check_if()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_check_if( Chuck_Env * env, a_Stmt_If stmt );
+t_CKBOOL type_engine_check_if( Chuck_Env * env, a_Stmt_If stmt )
 {
     // check the conditional
     if( !type_engine_check_exp( env, stmt->cond ) )
@@ -425,11 +425,16 @@ t_CKBOOL type_engine_check_for( Chuck_Env * env, a_Stmt_For stmt )
     if( stmt->c3 && !type_engine_check_exp( env, stmt->c3 ) )
         return FALSE;
         
-    // TODO: break and continue statement
+    // for break and continue statement
+    env->loops.push_back( stmt->self );
 
     // check body
     if( !type_engine_check_stmt( env, stmt->body ) )
         return FALSE;
+        
+    // remove the loop from the stack
+    assert( env->loops.size() && env->loops.back() == stmt->self );
+    env->loops.pop_back();
 
     return TRUE;
 }

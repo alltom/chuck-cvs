@@ -195,12 +195,17 @@ struct Chuck_Env
 	vector<Chuck_Namespace *> stack;
 	// expression namespace
 	Chuck_Namespace * curr;
+
     // scope table
     Chuck_Scope<t_CKUINT> scope;
+    // control scope (for break, continue)
+    vector<a_Stmt> loops;
+
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
     // current context
     Chuck_Context * context;
+
 	// VM reference
 	Chuck_VM * vm;
 	// chuck dlls in memory
