@@ -96,7 +96,7 @@ a_Program g_program = NULL;
   PLUSPLUS MINUSMINUS
   SIMULT PATTERN CODE TRANSPORT HOST
   TIME WHENEVER NEXT UNTIL EVERY BEFORE
-  AFTER AT AT_SYM ATAT_SYM NEW
+  AFTER AT AT_SYM ATAT_SYM NEW TYPEOF SAME
   PLUS_CHUCK MINUS_CHUCK TIMES_CHUCK
   DIVIDE_CHUCK S_AND_CHUCK S_OR_CHUCK
   S_XOR_CHUCK SHIFT_RIGHT_CHUCK
@@ -210,13 +210,13 @@ function_decl
         ;
 
 type_decl
-        : ID                                { $$ = new_type_decl( $1, EM_lineNum ); }
-        | type_decl LBRACK RBRACK           { $$ = new_type_decl_array( $1, EM_lineNum ); }
+        : ID                                    { $$ = new_type_decl( $1, EM_lineNum ); }
+        | type_decl LBRACK expression RBRACK    { $$ = new_type_decl_array( $1, NULL, EM_lineNum ); }
         ;
 
 arg_list
         : type_decl ID                      { $$ = new_arg_list( $1, $2, EM_lineNum ); }
-        | type_decl ID COMMA arg_list       { $$ = prepend_arg_list( $1, $2, $4, EM_lineNum ); }
+        // | type_decl ID COMMA arg_list       { $$ = prepend_arg_list( $1, $2, $4, EM_lineNum ); }
         ;
 
 statement_list
@@ -284,8 +284,8 @@ chuck_expression
         
 decl_expression
         : conditional_expression            { $$ = $1; }
-        | ID var_decl_list                  { $$ = new_exp_decl( $1, $2, EM_lineNum ); }
-        | AT_SYM var_decl_list              { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
+        | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
+        | type_decl var_decl_list           { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
         ;
 
 var_decl_list
@@ -295,8 +295,8 @@ var_decl_list
 
 var_decl
         : ID                                { $$ = new_var_decl( $1, EM_lineNum ); }
-        | var_decl LBRACK RBRACK            { $$ = new_var_decl2( $1, 1, NULL, EM_lineNum ); }
-        | var_decl LBRACK expression RBRACK { $$ = new_var_decl2( $1, 1, $3, EM_lineNum ); }
+        // | var_decl LBRACK RBRACK            { $$ = new_var_decl2( $1, 1, NULL, EM_lineNum ); }
+        // | var_decl LBRACK expression RBRACK { $$ = new_var_decl2( $1, 1, $3, EM_lineNum ); }
         ;
         
 chuck_operator
@@ -387,7 +387,7 @@ additive_expression
         | additive_expression MINUS multiplicative_expression
             { $$ = new_exp_from_binary( $1, ae_op_minus, $3, EM_lineNum ); }
         ;
-        
+
 multiplicative_expression
         : tilda_expression                   { $$ = $1; }
         | multiplicative_expression TIMES tilda_expression
@@ -407,7 +407,6 @@ tilda_expression
 cast_expression
         : unary_expression                  { $$ = $1; }
         | LPAREN ID RPAREN cast_expression  { $$ = new_exp_from_cast( $2, $4, EM_lineNum ); }
-        //| LT ID GT cast_expression          { $$ = new_exp_from_cast( $2, $4, EM_lineNum ); }
         ;
         
 unary_expression
@@ -418,7 +417,12 @@ unary_expression
             { $$ = new_exp_from_unary( ae_op_minusminus, $2, EM_lineNum ); }
         | unary_operator cast_expression
             { $$ = new_exp_from_unary( $1, $2, EM_lineNum ); }
-        //| SIZEOF unary_expression         { }
+        | NEW type_decl
+            { }
+        | NEW LT type_decl GT
+            { }
+        //| SIZEOF LT unary_expression GT         { }
+        //| TYPEOF LT unary_expression GT         { }
         ;
         
 unary_operator
@@ -430,7 +434,7 @@ unary_operator
         | TIMES                             { $$ = ae_op_times; }
         | SPORK TILDA                       { $$ = ae_op_spork; }
         ;
-        
+
 postfix_expression
         : primary_expression                { $$ = $1; }
         | postfix_expression LBRACK expression RBRACK

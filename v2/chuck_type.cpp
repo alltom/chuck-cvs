@@ -1398,6 +1398,23 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
 {
+    // type check the base
+    t_CKTYPE t_base = type_engine_check_exp( env, array->base );
+    if( !t_base ) return NULL;
+    
+    // type check the index
+    t_CKTYPE t_index = type_engine_check_exp( env, array->index );
+    if( !t_index ) return NULL;
+    
+    // check if index is of valid type
+    if( !isa( t_index, &t_int ) && !isa( t_index, &t_string ) )
+    {
+        // not int or string
+        EM_error2( array->index->linepos,
+            "array index must be of type 'int' or 'string', not '%s'",
+            t_index->name.c_str() );
+        return NULL;
+    }
 }
 
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );

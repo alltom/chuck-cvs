@@ -187,9 +187,6 @@ null                    { adjust(); return NULL_TOK; }
 return                  { adjust(); return RETURN; }
 
 until                   { adjust(); return UNTIL; }
-before                  { adjust(); return BEFORE; }
-after                   { adjust(); return AFTER; }
-at                      { adjust(); return AT; }
 function                { adjust(); return FUNCTION; }
 fun                     { adjust(); return FUNCTION; }
 new                     { adjust(); return NEW; }
@@ -202,6 +199,8 @@ private                 { adjust(); return PRIVATE; }
 static                  { adjust(); return STATIC; }
 const                   { adjust(); return CONST; }
 spork                   { adjust(); return SPORK; }
+typeof                  { adjust(); return TYPEOF; }
+same                    { adjust(); return SAME; }
 
 "=>"                    { adjust(); return CHUCK; }
 "=<"                    { adjust(); return UNCHUCK; }
