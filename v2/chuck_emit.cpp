@@ -2077,7 +2077,54 @@ t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
 {
-    
+    Chuck_Type * type = NULL;
+    t_CKUINT depth = 0;
+    a_Array_Sub sub = NULL;
+    a_Exp exp = NULL;
+
+    // get the type
+    type = array->self->type;
+    // get the dimension
+    depth = type->array_depth;
+    // make sure
+    if( depth == 0 )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: array with 0 depth..." );
+        return FALSE;
+    }
+    // get the sub
+    sub = array->indices;
+    if( !sub )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: NULL array sub..." );
+        return FALSE;
+    }
+    // get the exp list
+    exp = sub->exp_list;
+    if( !exp )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: NULL array exp..." );
+        return FALSE;
+    }
+
+    // emit the base (it should be a pointer to array)
+    if( !emit_engine_emit_exp( emit, array->base ) )
+        return FALSE;
+
+    // loop over the exp
+    while( exp )
+    {
+        // emit the exp
+        if( !emit_engine_emit_exp( emit, exp ) )
+            return FALSE;
+        
+        // move to the next
+        exp = exp->next;
+    }
+
     return TRUE;
 }
 
@@ -2152,40 +2199,40 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         // do alloc or not
         do_alloc = !decl->type->ref;
 
-        // see if it's an array
-        if( type->array_depth )
+        // allocate a place on the local stack
+        local = emit->alloc_local( type->size, value->name, is_ref );
+        if( !local )
         {
             EM_error2( decl->linepos,
-                "(emit): internal error: array not impl" );
+                "(emit): internal error: cannot allocate local '%s'...",
+                value->name.c_str() );
             return FALSE;
         }
+
+        // zero out location in memory, and leave offset on operand stack
+        if( type->size == 4 )
+            emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
+        else if( type->size == 8 )
+            emit->append( new Chuck_Instr_Alloc_DWord( local->offset ) );
         else
         {
-            // allocate a place on the local stack
-            local = emit->alloc_local( type->size, value->name, is_ref );
-            if( !local )
+            EM_error2( decl->linepos,
+                "(emit): unhandle decl size of '%i'...",
+                type->size );
+            return FALSE;
+        }
+
+        // if this is an object
+        if( is_ref )
+        {
+            // if array
+            if( type->array_depth )
             {
                 EM_error2( decl->linepos,
-                    "(emit): internal error: cannot allocate local '%s'...",
-                    value->name.c_str() );
-                return FALSE;
+                    "(emit): internal error: array not impl" );
+                    return FALSE;
             }
-
-            // zero out location in memory, and leave offset on operand stack
-            if( type->size == 4 )
-                emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
-            else if( type->size == 8 )
-                emit->append( new Chuck_Instr_Alloc_DWord( local->offset ) );
-            else
-            {
-                EM_error2( decl->linepos,
-                    "(emit): unhandle decl size of '%i'...",
-                    type->size );
-                return FALSE;
-            }
-
-            // if this is an object
-            if( is_ref )
+            else // not array
             {
                 // if ugen
                 if( isa( type, &t_ugen ) )
@@ -2202,6 +2249,10 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
                     emit->append( new Chuck_Instr_UGen_Alloc() );
                     emit->append( new Chuck_Instr_Assign_Object );
+                }
+                else
+                {
+                    // TODO:
                 }
             }
         }

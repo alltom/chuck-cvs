@@ -56,6 +56,7 @@ Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
 Chuck_Type t_shred( te_shred, "shred", &t_object, sizeof(void *) );
 Chuck_Type t_thread( te_thread, "thread", &t_object, sizeof(void *) );
 Chuck_Type t_function( te_function, "function", &t_object, sizeof(void *) );
+Chuck_Type t_array( te_array, "@array", NULL, sizeof(void *) );
 Chuck_Type t_class( te_class, "class", &t_object, sizeof(void *) );
 Chuck_Type t_event( te_event, "event", &t_object, sizeof(void *) );
 Chuck_Type t_ugen( te_ugen, "ugen", &t_object, sizeof(void *) );
@@ -151,6 +152,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 	env->global.type.add( t_thread.name, &t_thread );
 	env->global.type.add( t_function.name, &t_function );
 	env->global.type.add( t_class.name, &t_class );
+    env->global.type.add( t_array.name, &t_array );
 	env->global.type.add( t_event.name, &t_event );
 	env->global.type.add( t_ugen.name, &t_ugen );
 
@@ -1656,13 +1658,26 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // check if array
         if( var_decl->array != NULL )
         {
+            Chuck_Type * t2 = t;
             // type check the exp
             if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
                 return NULL;
-            // make a copy of the type
-            t = t->copy( env );
+            // make new type
+            t = env->context->new_Chuck_Type();
+            // set the id
+            t->id = te_array;
+            // set the name
+            t->name = t2->name;
+            // set the parent
+            t->parent = &t_array;
+            // is a ref
+            t->size = t_array.size;
             // set the array depth
             t->array_depth = var_decl->array->depth;
+            // set the base type
+            t->array_type = t2;
+            // set owner
+            t->owner = env->curr;
         }
 
         // make sure
@@ -1929,11 +1944,21 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
 
     // sanity
     assert( array->indices->depth == depth );
-    
+
+    t_CKTYPE t = NULL;
     // make sure depth <= max
-    t_CKTYPE t = t_base->copy( env );
-    if( depth == t_base->array_depth ) t->array_depth = 0;
-    else t->array_depth = t_base->array_depth - depth;
+    if( depth == t_base->array_depth )
+    {
+        // the original type
+        t = array->base->type->array_type;
+    }
+    else
+    {
+        // partial
+        t_CKTYPE t = array->base->type->copy( env );
+        // remainder
+        t->array_depth -= depth;
+    }
 
     return t;
 }
@@ -2994,7 +3019,7 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos )
 t_CKBOOL type_engine_check_primitive( Chuck_Type * type )
 {
     return ( isa(type, &t_int) || isa(type, &t_float) || isa(type, &t_dur) ||
-             isa(type, &t_time) );
+             isa(type, &t_time) ) && ( type->array_depth == 0 );
 }
 t_CKBOOL isprim( Chuck_Type * type )
 {   return type_engine_check_primitive( type ); }
