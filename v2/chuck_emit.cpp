@@ -582,7 +582,7 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     emit->push_scope();
 
     // get the index
-    uint start_index = emit->next_index();
+    t_CKUINT start_index = emit->next_index();
     // mark the stack of continue
     emit->stack_cont.push_back( NULL );
     // mark the stack of break
@@ -661,7 +661,7 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
 {
     t_CKBOOL ret = TRUE;
     Chuck_Instr_Branch_Op * op = NULL;
-    uint start_index = emit->next_index();
+    t_CKUINT start_index = emit->next_index();
     
     // push stack
     emit->push_scope();
@@ -746,7 +746,7 @@ t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     emit->push_scope();
 
     // get index
-    uint start_index = emit->next_index();
+    t_CKUINT start_index = emit->next_index();
     // mark the stack of continue
     emit->stack_cont.push_back( NULL );
     // mark the stack of break
@@ -828,7 +828,7 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     emit->push_scope();
 
     // the index
-    uint start_index = emit->next_index();
+    t_CKUINT start_index = emit->next_index();
     // mark the stack of continue
     emit->stack_cont.push_back( NULL );
     // mark the stack of break

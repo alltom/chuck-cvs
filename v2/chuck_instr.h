@@ -40,10 +40,7 @@
 // forward reference
 class Chuck_VM;
 class Chuck_VM_Shred;
-
-// define
-#define sint t_CKINT
-#define uint t_CKUINT
+struct Chuck_Type;
 
 
 
@@ -76,14 +73,14 @@ public:
 class Chuck_Instr_Branch_Op : public Chuck_Instr
 {
 public:
-    inline void set( uint jmp ) { m_jmp = jmp; }
+    inline void set( t_CKUINT jmp ) { m_jmp = jmp; }
 
 public:
     virtual const char * params() const
     { static char buffer[256]; sprintf( buffer, "%d", m_jmp ); return buffer; }
 
 protected:
-    uint m_jmp;
+    t_CKUINT m_jmp;
 };
 
 
@@ -96,15 +93,15 @@ protected:
 class Chuck_Instr_Unary_Op : public Chuck_Instr
 {
 public:
-    inline void set( uint val ) { m_val = val; }
-    inline uint get() { return m_val; }
+    inline void set( t_CKUINT val ) { m_val = val; }
+    inline t_CKUINT get() { return m_val; }
 
 public:
     virtual const char * params() const
     { static char buffer[256]; sprintf( buffer, "%d", m_val ); return buffer; }
 
 protected:
-    uint m_val;
+    t_CKUINT m_val;
 };
 
 
@@ -117,15 +114,15 @@ protected:
 class Chuck_Instr_Unary_Op2 : public Chuck_Instr
 {
 public:
-    inline void set( double val ) { m_val = val; }
-    inline double get() { return m_val; }
+    inline void set( t_CKFLOAT val ) { m_val = val; }
+    inline t_CKFLOAT get() { return m_val; }
 
 public:
     virtual const char * params() const
     { static char buffer[256]; sprintf( buffer, "%.6f", m_val ); return buffer; }
 
 protected:
-    double m_val;
+    t_CKFLOAT m_val;
 };
 
 
@@ -318,7 +315,7 @@ public:
 class Chuck_Instr_Branch_Lt_int : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Lt_int( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Lt_int( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -332,7 +329,7 @@ public:
 class Chuck_Instr_Branch_Gt_int : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Gt_int( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Gt_int( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -346,7 +343,7 @@ public:
 class Chuck_Instr_Branch_Le_int : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Le_int( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Le_int( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -360,7 +357,7 @@ public:
 class Chuck_Instr_Branch_Ge_int : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Ge_int( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Ge_int( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -374,7 +371,7 @@ public:
 class Chuck_Instr_Branch_Eq_int : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Eq_int( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Eq_int( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -388,7 +385,7 @@ public:
 class Chuck_Instr_Branch_Neq_int : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Neq_int( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Neq_int( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -402,7 +399,7 @@ public:
 class Chuck_Instr_Branch_Lt_double : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Lt_double( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Lt_double( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -416,7 +413,7 @@ public:
 class Chuck_Instr_Branch_Gt_double : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Gt_double( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Gt_double( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -430,7 +427,7 @@ public:
 class Chuck_Instr_Branch_Le_double : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Le_double( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Le_double( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -444,7 +441,7 @@ public:
 class Chuck_Instr_Branch_Ge_double : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Ge_double( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Ge_double( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -458,7 +455,7 @@ public:
 class Chuck_Instr_Branch_Eq_double : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Eq_double( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Eq_double( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -472,7 +469,7 @@ public:
 class Chuck_Instr_Branch_Neq_double : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Branch_Neq_double( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Branch_Neq_double( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -772,7 +769,7 @@ public:
 class Chuck_Instr_Goto : public Chuck_Instr_Branch_Op
 {
 public:
-    Chuck_Instr_Goto( uint jmp ) { this->set( jmp ); }
+    Chuck_Instr_Goto( t_CKUINT jmp ) { this->set( jmp ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
@@ -794,7 +791,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Pop_Word2
-// desc: pop double word from reg stack
+// desc: pop t_CKFLOAT word from reg stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Reg_Pop_Word2 : public Chuck_Instr
 {
@@ -820,7 +817,7 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Pop_Mem2
-// desc: pop double word, and copy it to the mem stack
+// desc: pop t_CKFLOAT word, and copy it to the mem stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Reg_Pop_Mem2: public Chuck_Instr_Unary_Op
 {
@@ -838,7 +835,7 @@ public:
 class Chuck_Instr_Reg_Push_Imm : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Reg_Push_Imm( uint val )
+    Chuck_Instr_Reg_Push_Imm( t_CKUINT val )
     { this->set( val ); }
 
 public:
@@ -850,12 +847,12 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Imm2
-// desc: push double immediate to reg stack
+// desc: push t_CKFLOAT immediate to reg stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Reg_Push_Imm2 : public Chuck_Instr_Unary_Op2
 {
 public:
-    Chuck_Instr_Reg_Push_Imm2( double val )
+    Chuck_Instr_Reg_Push_Imm2( t_CKFLOAT val )
     { this->set( val ); }
 
 public:
@@ -911,7 +908,7 @@ public:
 class Chuck_Instr_Reg_Push_Mem : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Reg_Push_Mem( uint src )
+    Chuck_Instr_Reg_Push_Mem( t_CKUINT src )
     { this->set( src ); }
 
 public:
@@ -923,12 +920,12 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Mem2
-// desc: push a double variable from mem stack to reg stack
+// desc: push a t_CKFLOAT variable from mem stack to reg stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Reg_Push_Mem2 : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Reg_Push_Mem2( uint src )
+    Chuck_Instr_Reg_Push_Mem2( t_CKUINT src )
     { this->set( src ); }
 
 public:
@@ -940,17 +937,17 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Deref
-// desc: push a double variable from main memory to reg stack
+// desc: push a t_CKFLOAT variable from main memory to reg stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Reg_Push_Deref : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Reg_Push_Deref( uint src, uint size )
+    Chuck_Instr_Reg_Push_Deref( t_CKUINT src, t_CKUINT size )
     { this->set( src ); m_size = size; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    uint m_size;
+    t_CKUINT m_size;
 };
 
 
@@ -958,12 +955,12 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Reg_Push_Deref
-// desc: push a double variable from main memory to reg stack
+// desc: push a t_CKFLOAT variable from main memory to reg stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Reg_Push_Deref2 : public Chuck_Instr_Unary_Op2
 {
 public:
-    Chuck_Instr_Reg_Push_Deref2( double src )
+    Chuck_Instr_Reg_Push_Deref2( t_CKFLOAT src )
     { this->set( src ); }
 
 public:
@@ -980,7 +977,7 @@ public:
 class Chuck_Instr_Mem_Push_Imm : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Mem_Push_Imm( uint src )
+    Chuck_Instr_Mem_Push_Imm( t_CKUINT src )
     { this->set( src ); }
     
 public:
@@ -991,12 +988,12 @@ public:
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Mem_Push_Imm2
-// desc: push a double value unto mem stack
+// desc: push a t_CKFLOAT value unto mem stack
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Mem_Push_Imm2 : public Chuck_Instr_Unary_Op2
 {
 public:
-    Chuck_Instr_Mem_Push_Imm2( double src )
+    Chuck_Instr_Mem_Push_Imm2( t_CKFLOAT src )
     { this->set( src ); }
     
 public:
@@ -1084,6 +1081,25 @@ public:
     { this->set( offset ); }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Instantiate_Object
+// desc: instantiate object - leaves reference value on operand stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Instantiate_Object : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Instantiate_Object( Chuck_Type * type )
+    { this->type = type; }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+
+public:
+    Chuck_Type * type;
 };
 
 
@@ -1265,7 +1281,7 @@ public:
 class Chuck_Instr_Spork : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Spork( uint v = 0 ) { this->set( v ); }
+    Chuck_Instr_Spork( t_CKUINT v = 0 ) { this->set( v ); }
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
