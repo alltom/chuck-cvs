@@ -2,7 +2,8 @@
 For the ideas and design behind ChucK, read the papers at:
     http://chuck.cs.princeton.edu/doc/publish/
 
-more to come for the tutorial...
+For the most updated tutorial:
+    http://chuck.cs.princeton.edu/doc/learn/
 
 ---
 Hello ChucK:
@@ -70,7 +71,7 @@ Now, let's try changing the frequency randomly every 100ms:
     // time-loop, in which the osc's frequency is changed every 100 ms
     while( true ) {
         100::ms => now;
-        400.0 * ( std.rand() + 1.0 ) => s.freq;
+        std.randf( 30.0, 800.0 ) => s.freq;
     }
 
 This should sound like computer mainframes in old sci-fi movies.  Two more things to note here.  (1) We are 
@@ -81,8 +82,8 @@ Go ahead and run this (again replace foo.ck with your filename):
 
   %> chuck foo.ck
 
-Play with the parameters in the program.  change 100::ms to something else (like 50::ms or 500::ms), or change 
-400.0 to 4000.
+Play with the parameters in the program.  change 100::ms to something 
+else (like 50::ms or 500::ms), or change 800.0 to 8000.
 
 Run and listen:
 
