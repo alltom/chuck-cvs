@@ -48,7 +48,7 @@
 // chuck dll export linkage and calling convention
 
 #if defined (WIN32) 
-#define CK_DLL_LINKAGE extern "C" __declspec( dllexport )
+#define CK_DLL_LINKAGE       extern "C" __declspec( dllexport )
 #else
 #define CK_DLL_LINKAGE       extern "C" 
 #endif 
