@@ -1,4 +1,4 @@
-\//----------------------------|
+//----------------------------|
 // on-the-fly synchronization
 // adapted from Perry's ChucK Drummin' + Ge's sine poops
 //
@@ -20,7 +20,7 @@ T - (now % T) => now;
 // construct the patch
 sndbuf buf => gain g => JCRev r => dac;
 "data/snare-chili.wav" => buf.read;
-.2 => buf.gain;
+.1 => g.gain;
 .15 => r.mix;
 
 // where we actually want to start
