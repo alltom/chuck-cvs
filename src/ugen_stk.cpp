@@ -19455,7 +19455,7 @@ UGEN_CTRL Delay_ctrl_max( t_CKTIME now, void * data, void * value )
     Delay * delay = (Delay *)data;
     t_CKFLOAT val = (t_CKFLOAT)delay->getDelay();
     t_CKDUR max = GET_NEXT_DUR(value);
-    delay->set( (long)(val+.5), (long)(max+.5) );
+    delay->set( (long)(val+.5), (long)(max+1.5) );
 }
 
 UGEN_CGET Delay_cget_delay( t_CKTIME now, void * data, void * value )
@@ -19465,7 +19465,7 @@ UGEN_CGET Delay_cget_delay( t_CKTIME now, void * data, void * value )
 
 UGEN_CGET Delay_cget_max( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_DUR( value, (t_CKDUR)((Delay *)data)->length );
+    SET_NEXT_DUR( value, (t_CKDUR)((Delay *)data)->length-1.0 );
 }
 
 
@@ -19501,7 +19501,7 @@ UGEN_CTRL DelayA_ctrl_max( t_CKTIME now, void * data, void * value )
     DelayA * delay = (DelayA *)data;
     t_CKDUR val = (t_CKDUR)delay->getDelay();
     t_CKDUR max = GET_NEXT_DUR(value);
-    delay->set( val, (long)(max+.5) );
+    delay->set( val, (long)(max+1.5) );
 }
 
 UGEN_CGET DelayA_cget_delay( t_CKTIME now, void * data, void * value )
@@ -19511,7 +19511,7 @@ UGEN_CGET DelayA_cget_delay( t_CKTIME now, void * data, void * value )
 
 UGEN_CGET DelayA_cget_max( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_DUR( value, (t_CKDUR)((DelayA *)data)->length );
+    SET_NEXT_DUR( value, (t_CKDUR)((DelayA *)data)->length-1.0 );
 }
 
 
@@ -19547,7 +19547,7 @@ UGEN_CTRL DelayL_ctrl_max( t_CKTIME now, void * data, void * value )
     DelayL * delay = (DelayL *)data;
     t_CKDUR val = (t_CKDUR)delay->getDelay();
     t_CKDUR max = GET_NEXT_DUR(value);
-    delay->set( val, (long)(max+.5) );
+    delay->set( val, (long)(max+1.5) );
 }
 
 UGEN_CGET DelayL_cget_delay( t_CKTIME now, void * data, void * value )
@@ -19557,7 +19557,7 @@ UGEN_CGET DelayL_cget_delay( t_CKTIME now, void * data, void * value )
 
 UGEN_CGET DelayL_cget_max( t_CKTIME now, void * data, void * value )
 {
-    SET_NEXT_DUR( value, (t_CKDUR)((DelayL *)data)->length );
+    SET_NEXT_DUR( value, (t_CKDUR)((DelayL *)data)->length-1.0 );
 }
 
 
