@@ -506,8 +506,8 @@ primary_expression
         | NUM                               { $$ = new_exp_from_int( $1, EM_lineNum ); }
         | FLOAT                             { $$ = new_exp_from_float( $1, EM_lineNum ); }
         | STRING_LIT                        { $$ = new_exp_from_str( $1, EM_lineNum ); }
-	//| array_lit                         { $$ = 
-        | L_NSPC R_NSPC                     { $$ = new_exp_from_namespace( "", EM_lineNum ); }
-        | L_NSPC ID R_NSPC                  { $$ = new_exp_from_namespace( $2, EM_lineNum ); }
+        | array_exp                         { $$ = new_exp_from_array_lit( $1, EM_lineNum ); }
+        //| L_NSPC R_NSPC                     { $$ = new_exp_from_namespace( "", EM_lineNum ); }
+        //| L_NSPC ID R_NSPC                  { $$ = new_exp_from_namespace( $2, EM_lineNum ); }
         | LPAREN expression RPAREN          { $$ = $2; }
         ;

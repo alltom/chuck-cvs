@@ -152,6 +152,7 @@ a_Exp new_exp_from_unary( ae_Operator oper, a_Exp exp, int pos );
 a_Exp new_exp_from_unary2( ae_Operator oper, a_Type_Decl type, int pos );
 a_Exp new_exp_from_cast( a_Type_Decl type, a_Exp exp, int pos );
 a_Exp new_exp_from_array( a_Exp base, a_Array_Sub indices, int pos );
+a_Exp new_exp_from_array_lit( a_Array_Sub exp_list, int pos );
 a_Exp new_exp_from_func_call( a_Exp base, a_Exp args, int pos );
 a_Exp new_exp_from_member_dot( a_Exp base, c_str member, int pos );
 a_Exp new_exp_from_postfix( a_Exp base, ae_Operator op, int pos );
@@ -214,7 +215,7 @@ struct a_Arg_List_ { a_Type_Decl type_decl; a_Var_Decl var_decl; t_CKTYPE type;
 
 // enum primary exp type
 typedef enum { ae_primary_var, ae_primary_num, ae_primary_float, 
-               ae_primary_str, ae_primary_exp
+               ae_primary_str, ae_primary_array, ae_primary_exp
              } ae_Exp_Primary_Type;
 
 struct a_Exp_Primary_
@@ -228,6 +229,7 @@ struct a_Exp_Primary_
         t_CKINT num;
         t_CKFLOAT fnum;
         c_str str;
+        a_Array_Sub array;
         a_Exp exp;
     };
 

@@ -43,6 +43,9 @@ chuck.yy.o: chuck.yy.c chuck.tab.h chuck_errmsg.h chuck_utils.h
 chuck.yy.c: chuck.lex
 	$(LEX) -ochuck.yy.c chuck.lex
 
+chuck_win32.c: chuck.tab.c chuck.tab.h chuck.yy.c
+	cat chuck.tab.c chuck.yy.c > chuck_win32.c; cp chuck.tab.h chuck_win32.h
+
 chuck_absyn.o: chuck_absyn.cpp chuck_absyn.h chuck_utils.h chuck_symbol.h
 	$(CC) $(FLAGS) chuck_absyn.cpp
 

@@ -469,6 +469,20 @@ a_Exp new_exp_from_str( c_str str, int pos )
     return a;
 }
 
+a_Exp new_exp_from_array_lit( a_Array_Sub exp_list, int pos )
+{
+    a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
+    a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
+    a->primary.s_type = ae_primary_array;
+    a->primary.array = exp_list;
+    a->linepos = pos;
+    a->primary.linepos = pos;
+    a->primary.self = a;
+
+    return a;
+}
+
 a_Exp new_exp_from_if( a_Exp cond, a_Exp if_exp, a_Exp else_exp, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
