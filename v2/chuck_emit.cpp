@@ -2457,7 +2457,10 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                 }
                 else
                 {
+                    // emit object instantiation code
+                    emit->append( new Chuck_Instr_Instantiate_Object( type ) );
                     // TODO:
+                    // constructor?
                 }
             }
         }
