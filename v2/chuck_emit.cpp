@@ -154,6 +154,8 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     emit->stack.clear();
     // name the code
     emit->code->name = "(shred main)";
+    // whether code need this
+    emit->code->need_this = TRUE;
 
     // loop over the program sections
     while( prog && ret )
@@ -221,6 +223,8 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     code->instr = new Chuck_Instr *[code->num_instr];
     // set the stack depth
     code->stack_depth = in->stack_depth;
+    // set whether code need this base pointer
+    code->need_this = in->need_this;
     // set name
     code->name = in->name;
 
@@ -2202,11 +2206,11 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     t_CKBOOL is_member = func->is_member;
 
     // if member
-    if( is_member )
-    {
-        // this
-        emit->append( new Chuck_Instr_Reg_Push_This );
-    }
+    //if( is_member )
+    //{
+    //    // this
+    //    emit->append( new Chuck_Instr_Reg_Push_This );
+    //}
 
     // make sure there are args
     if( func_call->args )
@@ -2609,12 +2613,16 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
         return FALSE;
     }
 
-    // put function on stack
-    local = emit->alloc_local( value->type->size, value->name, TRUE );
-    // remember the offset
-    value->offset = local->offset;
-    // write to mem stack
-    emit->append( new Chuck_Instr_Mem_Set_Imm( value->offset, (t_CKUINT)func ) );
+    // if not part of a class
+    if( !emit->env->class_def )
+    {
+        // put function on stack
+        local = emit->alloc_local( value->type->size, value->name, TRUE );
+        // remember the offset
+        value->offset = local->offset;
+        // write to mem stack
+        emit->append( new Chuck_Instr_Mem_Set_Imm( value->offset, (t_CKUINT)func ) );
+    }
 
     // set the func
     emit->env->func = func;
@@ -2624,11 +2632,26 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     emit->code = new Chuck_Code;
     // name the code
     emit->code->name = func->name + "( ... )";
+    // set whether need this
+    emit->code->need_this = func->is_member;
 
     // go through the args
     a_Arg_List a = func_def->arg_list;
     t_CKBOOL is_ref = FALSE;
 
+    // if member (non-static) function
+    if( func->is_member )
+    {
+        // get the size
+        emit->code->stack_depth += sizeof(t_CKUINT);
+        // add this
+        if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
+        {
+            EM_error2( a->linepos,
+                "(emit): internal error: cannot allocate local 'this'..." );
+            return FALSE;
+        }
+    }
     // loop through args
     while( a )
     {
@@ -2654,20 +2677,6 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
 
         // advance
         a = a->next;
-    }
-
-    // if member (non-static) function
-    if( func->is_member )
-    {
-        // get the size
-        emit->code->stack_depth += sizeof(t_CKUINT);
-        // add this
-        if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
-        {
-            EM_error2( a->linepos,
-                "(emit): internal error: cannot allocate local 'this'..." );
-            return FALSE;
-        }
     }
 
     // emit the code
@@ -2738,6 +2747,8 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     emit->code = new Chuck_Code;
     // name the code
     emit->code->name = string("class ") + type->name;
+    // whether code needs this
+    emit->code->need_this = TRUE;
 
     // get the size
     emit->code->stack_depth += sizeof(t_CKUINT);
@@ -2811,6 +2822,8 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     emit->stack.push_back( emit->code );
     // make a new one
     emit->code = new Chuck_Code;
+    // handle need this
+    emit->code->need_this = exp->ck_func->is_member;
     // push op
     op = new Chuck_Instr_Mem_Push_Imm( 0 );
     // emit the stack depth - we don't know this yet
@@ -2879,6 +2892,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
         base->type = v->owner_class;
         dot->type = v->type;
         dot->dot_member.t_base = v->owner_class;
+        dot->emit_var = emit_var;
         // emit it
         if( !emit_engine_emit_exp_dot_member( emit, &dot->dot_member ) )
         {

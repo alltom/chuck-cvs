@@ -867,6 +867,8 @@ Chuck_VM_Code::Chuck_VM_Code()
 {
     instr = NULL;
     num_instr = 0;
+    stack_depth = 0;
+    need_this = FALSE;
 }
 
 

@@ -16,3 +16,4 @@ Obj fum;
 fum.set ( 1 ,2 );
 
 
+if( fum.x != 1 ) while( true );

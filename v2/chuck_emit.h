@@ -59,6 +59,8 @@ public:
     string name;
     // stack depth
     t_CKUINT stack_depth;
+    // need this
+    t_CKBOOL need_this;
     // frame
     Chuck_Frame * frame;
     // code
@@ -75,6 +77,7 @@ public:
     Chuck_Code( )
     {
         stack_depth = 0;
+        need_this = FALSE;
         frame = new Chuck_Frame;
     }
 

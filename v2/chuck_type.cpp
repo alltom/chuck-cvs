@@ -2492,8 +2492,19 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name),
                 value->owner_class->c_name(), S_name(f->name) );
             goto error;
-        }    
+        }
 
+        // update virtual table
+        func->vt_index = value->func_ref->vt_index;
+        assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
+        env->curr->obj_v_table.funcs[func->vt_index] = func;
+    }
+    else if( func->is_member )
+    {
+        // remember virtual table index
+        func->vt_index = env->curr->obj_v_table.funcs.size();
+        // append to virtual table
+        env->curr->obj_v_table.funcs.push_back( func );
     }
 
     // type check the code
@@ -2506,6 +2517,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 
     // pop the value stack
     env->curr->value.pop();
+
     // make a new type for the function
     type = env->context->new_Chuck_Type();
     type->id = te_function;
@@ -2513,6 +2525,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     type->parent = &t_function;
     type->size = sizeof(void *);
     type->func = func;
+
     // make new value
     value = env->context->new_Chuck_Value( type, S_name(f->name) );
     // it is const
@@ -2529,14 +2542,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     env->curr->value.add( f->name, value );
     // enter the name into the function table
     env->curr->func.add( f->name, func );
-    // if member function
-    if( func->is_member )
-    {
-        // add to virtual table
-        // env->curr->obj_v_table.funcs.push_back( func );
-        // set the virtual table index
-        // func->vt_index = env->curr->obj_v_table.funcs.size() - 1;
-    }
+
     // set the func
     f->ck_func = func;
     // clear the env's function definition

@@ -110,7 +110,7 @@ protected: // data
 struct Chuck_VTable
 {
 public:
-    std::vector<Chuck_VM_Code *> funcs;
+    std::vector<Chuck_Func *> funcs;
 };
 
 

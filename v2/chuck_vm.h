@@ -114,7 +114,10 @@ public:
     t_CKUINT num_instr;
 
     string name;
-    t_CKUINT stack_depth;    
+    t_CKUINT stack_depth;
+    t_CKBOOL need_this;
+    // native
+    t_CKUINT native_func;
 };
 
 
