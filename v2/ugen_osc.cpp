@@ -142,7 +142,9 @@ struct Osc_Data
     double phase_offset;
     int    sync; 
     t_CKUINT srate;
-    double width; 
+    double width;
+    
+    double phase;
     
     Osc_Data( )
     {
@@ -155,6 +157,8 @@ struct Osc_Data
         srate = g_srate;
         osc_ctrl_freq( 0, this, &freq );
         osc_ctrl_phase_offset( 0, this, &phase_offset );
+        
+        phase = 0.0;
     }
 };
 
@@ -224,16 +228,16 @@ UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 //-----------------------------------------------------------------------------
 UGEN_TICK sinosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
+    // get this
     Osc_Data * d = (Osc_Data *)data;
-    //phase offsets don't mean so much when oscillators are keeping 
-    //track of their own ticks, unless they are created at the same time..
-
-    if ( d->sync == 1 )  d->t = (double) now;
-
-    *out = (SAMPLE) ( d->sync == 2 )? sin ( TWO_PI * in )
-        : sin ( TWO_PI * ( d->phase_offset + d->t * d->num ) );
- 
-    if ( !d->sync ) d->t += 1.0;
+    // sync to now
+    if( d->sync == 1 ) d->phase = now * d->num;
+    // compute
+    *out = (SAMPLE) ( d->sync == 2 ) ? sin( TWO_PI * in ) : sin( TWO_PI * d->phase );
+    // move phase
+    if( d->sync == 0 ) d->phase += d->num;
+    // unwrap
+    if( d->phase > TWO_PI ) fmod( d->phase, TWO_PI );
 
     return TRUE;
 }
@@ -315,6 +319,7 @@ UGEN_CTRL osc_ctrl_freq( t_CKTIME now, void * data, void * value )
     Osc_Data * d = (Osc_Data *)data;
     d->freq = GET_CK_FLOAT(value);
     d->num = d->freq / d->srate;
+    d->phase = 0.0;
 }
 
 
@@ -398,9 +403,7 @@ UGEN_CGET osc_cget_phase ( t_CKTIME now, void * data, void * out )
 UGEN_CTRL sinosc_ctrl_phase ( t_CKTIME now, void * data, void * value )
 {
     Osc_Data * d = (Osc_Data *)data;
-    t_CKFLOAT phase = GET_CK_FLOAT(value) / TWO_PI;
-    double cphase =  phase - ( d->t * d->num );
-    d->phase_offset = cphase - floor ( cphase );
+    d->phase = GET_CK_FLOAT(value) / TWO_PI;
 }
 
 //-----------------------------------------------------------------------------
@@ -410,7 +413,7 @@ UGEN_CTRL sinosc_ctrl_phase ( t_CKTIME now, void * data, void * value )
 UGEN_CGET sinosc_cget_phase ( t_CKTIME now, void * data, void * out )
 {
     Osc_Data * d = (Osc_Data *)data;
-    SET_NEXT_FLOAT( out, (t_CKFLOAT) TWO_PI * ( d->phase_offset + d->t * d->num ) );
+    SET_NEXT_FLOAT( out, (t_CKFLOAT) TWO_PI * d->phase );
 }
 
 //-----------------------------------------------------------------------------
