@@ -421,7 +421,7 @@ t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emmission * emit, a_Exp_Postfix exp
 t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emmission * emit, a_Exp_Dur exp );
 t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp );
 t_CKBOOL emit_engine_emit_exp_array( Chuck_Emmission * emit, a_Exp_Array exp );
-t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call exp );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call exp, t_CKBOOL spork = FALSE );
 t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Member exp );
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emmission * emit, a_Exp_If exp );
 t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emmission * emit, a_Exp_Decl exp );
@@ -935,25 +935,41 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emmission * emit, a_Exp_Unary exp )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_spork( Chuck_Emmission * emit, a_Exp_Func_Call exp )
 {
+    // emit the function call
+    if( !emit_engine_emit_exp_func_call( emit, exp, true ) )
+        return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_spork
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_spork( Chuck_Emmission * emit, a_Exp exp )
+{
     Chuck_Emmission * emit2 = emit_engine_init( emit->env );
-    
+
     Chuck_Instr_Mem_Push_Imm * op = new Chuck_Instr_Mem_Push_Imm( 0 );
 
     // emit the stack depth - we don't know this yet
     emit2->append( op );
-    
+
     // emit the function call
-    if( !emit_engine_emit_exp_func_call( emit2, exp ) )
+    if( !emit_engine_emit_exp( emit2, exp ) )
         return FALSE;
 
     // done
     emit2->append( new Chuck_Instr_EOC );
     // set the stack depth now that we know
     op->set( emit2->stack_depth() );
-    
+
     // emit it
     Chuck_VM_Code * code = emit_to_code( emit2 );
-    code->name = string("spork~") + string(S_name(exp->func->primary.var));
+    code->name = string("spork ~ exp");
     emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
     emit->append( new Chuck_Instr_Spork );
 
@@ -1322,7 +1338,8 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emmission * emit, a_Exp_Array exp )
 // name: emit_engine_emit_exp_func_call
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call exp )
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call exp,
+                                         t_CKBOOL spork )
 {
     if( exp->args )
     {
@@ -1333,6 +1350,17 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call
                        "(emit): internal error in emitting function call arguments..." );
             return FALSE;
         }
+    }
+
+    // spork
+    Chuck_Emmission * emit_save = emit;
+    Chuck_Instr_Mem_Push_Imm * op = NULL;
+    if( spork )
+    {
+        emit = emit_engine_init( emit->env );
+        op = new Chuck_Instr_Mem_Push_Imm( 0 );
+        // emit the stack depth - we don't know this yet
+        emit->append( op );
     }
 
     // emit func
@@ -1362,6 +1390,26 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call
     {
         Chuck_Instr * op = new Chuck_Instr_Func_Call;
         emit->append( op );
+    }
+
+    // spork
+    if( spork )
+    {
+        // done
+        emit->append( new Chuck_Instr_EOC );
+        // set the stack depth now that we know
+        op->set( emit->stack_depth() );
+
+        // emit it
+        Chuck_VM_Code * code = emit_to_code( emit );
+        code->name = string("spork ~ exp");
+        emit = emit_save;
+
+        a_Exp e = exp->args;
+        t_CKUINT size = 0;
+        while( e ) { size += e->type->size; e=e->next; }        
+        emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
+        emit->append( new Chuck_Instr_Spork( size ) );
     }
 
     // reset the emit

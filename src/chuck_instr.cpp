@@ -1881,6 +1881,13 @@ void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     Chuck_VM_Code * code = *(Chuck_VM_Code **)reg_sp;
     // spork it
     Chuck_VM_Shred * sh = vm->spork( code );
+    // copy args
+    if( m_val )
+    {
+        pop_( shred->reg->sp, m_val );
+        memcpy( sh->reg->sp, shred->reg->sp, m_val );
+        sh->reg->sp += m_val;
+    }
     // push the stack
     push_( reg_sp, sh->id );
 }

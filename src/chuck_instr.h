@@ -1737,8 +1737,10 @@ public:
 // name: class Chuck_Instr_Spork
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Spork : public Chuck_Instr
+class Chuck_Instr_Spork : public Chuck_Instr_Unary_Op
 {
+public:
+    Chuck_Instr_Spork( uint v = 0 ) { this->set( v ); }
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
