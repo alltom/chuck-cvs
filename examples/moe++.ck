@@ -15,7 +15,7 @@ i => biquad f3 => g;
 // initialize float variable
 1.5 * math.pi => float v;
 // set filter gain
-.1 => f.gain; .1 => f2.gain; .1 => f3.gain;
+.1 => f.gain; .08 => f2.gain; .04 => f3.gain;
 // load glottal pop
 "special:glot_pop" => i.read;
 // play
