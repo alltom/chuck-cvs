@@ -141,7 +141,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 //-----------------------------------------------------------------------------
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
-    DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
+    DWORD__ len = buffer_size * sizeof(SAMPLE) * m_num_channels_out;
     DWORD__ n = 20;
     DWORD__ start = 50;
 
@@ -480,8 +480,9 @@ DigitalIn::~DigitalIn()
 //-----------------------------------------------------------------------------
 BOOL__ DigitalIn::initialize( )
 {
+    m_data = new SAMPLE[Digitalio::buffer_size() * Digitalio::num_channels_in()];
     // set the buffer to the beginning of the local buffer
-    m_data_ptr_in = Digitalio::m_use_cb ? Digitalio::m_buffer_in
+    m_data_ptr_in = Digitalio::m_use_cb ? m_data
         : (SAMPLE *)Digitalio::audio()->getStreamBuffer();
     // calculate past buffer
     m_data_max_in = m_data_ptr_in + 
@@ -611,11 +612,14 @@ DWORD__ DigitalIn::capture( )
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
     if( !Digitalio::m_in_ready )
-        usleep( 100 );
-    
+        usleep( 500 );
+
+    // copy data
+    memcpy( m_data, Digitalio::m_buffer_in, Digitalio::buffer_size() *
+            Digitalio::num_channels_in() * sizeof(SAMPLE) );
     Digitalio::m_in_ready = FALSE;
     // set pointer to the beginning - if not ready, then too late anyway
-    *Digitalio::m_read_ptr = (SAMPLE *)Digitalio::m_buffer_in;
+    *Digitalio::m_read_ptr = (SAMPLE *)m_data;
     
     return TRUE;
 }
