@@ -35,6 +35,9 @@ gl.ClearColor ( 0.0 , 0.0, 0.3, 0.0 );
 220.0 => float ampM;
 0.0 => float frac;
 
+0 => int lastx;
+0 => int lasty;
+
 0.0 => float curx;
 0.0 => float cury;
 
@@ -87,6 +90,16 @@ function void thedrawloop() {
 function void theeventloop() { 
 	while ( gluck.HasEvents() ) { 
 		gluck.GetNextEvent() => int id;
+
+		if ( gluck.GetEventType(id) == 0 ) { 
+			if ( gluck.GetEventX(id) == lastx & gluck.GetEventY(id) == lasty  ) { 
+				0.2 => bg; 
+				avol + 0.04 => avol;
+			}
+			gluck.GetEventX(id) => lastx;
+			gluck.GetEventY(id) => lasty;
+
+		}
 		if ( gluck.GetEventType(id) == 1 ) { 
 			2.0 * ( (float) gluck.GetEventX(id) / (float) gluck.GetViewDims(0) ) - 1.0  => curx;
 			-2.0 * ( (float) gluck.GetEventY(id) / (float) gluck.GetViewDims(1) ) + 1.0  => cury;
