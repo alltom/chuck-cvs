@@ -1359,6 +1359,34 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
 {
+    // type check the base
+    t_CKTYPE t_base = type_engine_check_exp( env, member->base );
+    if( !t_base ) return NULL;
+
+    // push the new class as current
+    Chuck_Namespace * old_nspc = env->curr;
+    env->curr = env->curr->lookup_class( t_base->name, TRUE );
+    if( !env->curr )
+    {
+        // can't find class
+        EM_error2( member->base->linepos,
+            "type '%s' does not have members - invalid use in dot expression",
+            t_base->name.c_str() );
+        return NULL;
+    }
+
+    // find the value
+    Chuck_Value * m = env->curr->lookup_value( member->id, FALSE );
+    if( !m )
+    {
+        // can't find member
+        EM_error2( member->base->linepos,
+            "class '%s' has no member '%s'",
+            t_base->name.c_str(), S_name(member->id) );
+        return NULL;
+    }
+    
+    return m->type;
 }
 
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
