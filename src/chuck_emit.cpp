@@ -1407,7 +1407,9 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call
     // call the function
     if( emit->nspc_func && emit->nspc_func->s_type == ae_func_builtin )
     {
-        if( exp->ret_type->size == 4 )
+        if( exp->ret_type->size == 0 )
+            emit->append( new Chuck_Instr_Func_Call0 );
+        else if( exp->ret_type->size == 4 )
             emit->append( new Chuck_Instr_Func_Call2 );
         else if( exp->ret_type->size == 8 )
             emit->append( new Chuck_Instr_Func_Call3 );

@@ -1843,6 +1843,37 @@ void Chuck_Instr_Func_Call3::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    uint *& mem_sp = (uint *&)shred->mem->sp;
+    uint *& reg_sp = (uint *&)shred->reg->sp;
+    Chuck_DL_Return retval;
+
+    pop_( reg_sp, 3 );
+    f_ck_func f = (f_ck_func)(*(reg_sp+1));
+    uint stack_size = (*reg_sp) >> 2 + ( *reg_sp & 0x3 ? 1 : 0 );
+    uint push = (*(mem_sp-1)) >> 2 + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
+    reg_sp -= stack_size;
+    mem_sp += push;
+    uint * sp = reg_sp;
+    uint * mem = mem_sp;
+    // copy to args
+    for( uint i = 0; i < stack_size; i++ )
+        *mem++ = *sp++;
+    // call the function
+    f( mem_sp, &retval );
+    mem_sp -= push;
+    // push the return args
+    // push_( reg_sp, retval.v_uint );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& mem_sp = (uint *&)shred->mem->sp;
