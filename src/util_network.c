@@ -102,7 +102,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
         return FALSE;
 
     ret = ck_connect2( sock, (struct sockaddr *)&sock->sock_in, 
-    sizeof( struct sockaddr_in ) );
+        sizeof( struct sockaddr_in ) );
 
     return ( ret >= 0 );
 }
@@ -138,7 +138,8 @@ BOOL ck_bind( ck_socket sock, int port )
 //-----------------------------------------------------------------------------
 int ck_send( ck_socket sock, const char * buffer, int len ) 
 {
-    return send( sock->sock, buffer, len, 0);
+    return sendto( sock->sock, buffer, len, 0, 
+        (struct sockaddr *)&sock->sock_in, sizeof(struct sockaddr_in) );
 }
 
 
