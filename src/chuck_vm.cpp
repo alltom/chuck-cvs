@@ -726,9 +726,13 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
     shred->is_done = TRUE;
 
     // free the children
+    vector<Chuck_VM_Shred *> list;
+    list.resize( shred->children.size() );
     map<t_CKUINT, Chuck_VM_Shred *>::iterator iter;
     for( iter = shred->children.begin(); iter != shred->children.end(); iter++ )
-        this->free( (*iter).second, cascade );
+        list.push_back( (*iter).second );
+    for( int i = list.size() - 1; i >= 0; i-- )
+        this->free( list[i], cascade );
 
     // make sure it's done
     assert( shred->children.size() == 0 );
