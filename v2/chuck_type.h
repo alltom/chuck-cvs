@@ -284,13 +284,15 @@ struct Chuck_Type : public Chuck_VM_Object
     Chuck_Namespace * info;
     // func info
     Chuck_Func * func;
+    // def
+    a_Class_Def def;
 
 public:
     // constructor
     Chuck_Type( te_Type _id = te_null, const string & _n = "", 
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
-      array_depth = 0; self_size = 0; info = NULL; func = NULL; }
+      array_depth = 0; self_size = 0; info = NULL; func = NULL; def = NULL; }
     // destructor
     ~Chuck_Type() { if( info ) info->release(); reset(); }
     // reset

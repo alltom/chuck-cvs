@@ -295,7 +295,7 @@ loop_statement
         ;
                 
 code_segment
-        : LBRACE RBRACE                     { $$ = NULL; }
+        : LBRACE RBRACE                     { $$ = new_stmt_from_code( NULL, EM_lineNum ); }
         | LBRACE statement_list RBRACE      { $$ = new_stmt_from_code( $2, EM_lineNum ); }
         ;
         

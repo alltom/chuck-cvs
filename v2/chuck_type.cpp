@@ -1873,9 +1873,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     if( f->static_decl != ae_key_abstract && !f->code )
     {
         EM_error2( f->linepos,
-            "function must have associated code..." );
+            "function declaration must contain code..." );
         EM_error2( f->linepos,
-            "...(unless it is part of interface, or is declared 'pure')" );
+            "(unless in interface, or is declared 'pure')" );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         return FALSE;
     }
