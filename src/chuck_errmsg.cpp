@@ -31,6 +31,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
 
@@ -40,6 +41,8 @@ static c_str fileName = "";
 static int lineNum = 1;
 int EM_tokPos = 0;
 int EM_lineNum = 1;
+static char g_buffer[1024] = "";
+static char g_lasterror[1024] = "[chuck]: (no error)";
 
 extern "C" { 
 	extern FILE *yyin;
@@ -92,12 +95,20 @@ void EM_error2( int line, char *message, ... )
     va_list ap;
 
     fprintf( stderr, "[%s]:", *fileName ? fileName : "chuck" );
-    if (line) fprintf(stderr, "line(%d):", line );
-    fprintf(stderr, " " );
-    va_start(ap, message);
-    vfprintf(stderr, message, ap);
-    va_end(ap);
-    fprintf(stderr, "\n");
+    sprintf( g_lasterror, "[%s]:", *fileName ? fileName : "chuck" );
+    if(line) fprintf( stderr, "line(%d):", line );
+    if(line) { sprintf( g_buffer, "line(%d):", line ); strcat( g_lasterror, g_buffer ); }
+    fprintf( stderr, " " );
+    strcat( g_lasterror, " " );
+
+    va_start( ap, message );
+    vfprintf( stderr, message, ap );
+    vsprintf( g_buffer, message, ap );
+    va_end( ap );
+
+    strcat( g_lasterror, g_buffer );
+    fprintf( stderr, "\n" );
+    strcat( g_lasterror, "\n" );
 }
 
 
