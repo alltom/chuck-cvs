@@ -46,14 +46,9 @@ while( true )
 		onebeat => now;
 	}
 
-        62.0 => float low;
-        if( std.randf() > 0.5 )
-            67.0 => low;
-        else if( std.randf() > 0.3 )
-            55.0 => low;
-        fingers(low, 69.0);
+        fingers(62.0, 69.0 );
         onebeat => now;
-        fingers(low, 71.0 );
+        fingers(62.0, 71.0 );
         onebeat => now;
 
 	//4x  c, c    60 72
