@@ -1,3 +1,10 @@
+
+---
+1.1.5.3 - 2004.11.4
+  - fixed crash due to removing shreds with active children shreds
+  - 'start' keyword now available
+
+
 ---
 1.1.5.2 - 2004.10.17
   - crtical patch shreduler time precision
