@@ -342,6 +342,14 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             env->context->nspc.value.pop();
             break;
 
+        case ae_stmt_break:
+            ret = type_engine_check_break( env, &stmt->stmt_break );
+            break;
+
+        case ae_stmt_continue:
+            ret = type_engine_check_continue( env, &stmt->stmt_continue );
+            break;
+
         case ae_stmt_switch:
             ret = type_engine_check_switch( env, &stmt->stmt_switch );
             break;
@@ -354,14 +362,6 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             // ret = type_engine_check_gotolabel( env, &stmt->goto_label );
             break;
 
-        case ae_stmt_break:
-            ret = type_engine_check_break( env, &stmt->stmt_break );
-            break;
-
-        case ae_stmt_continue:
-            ret = type_engine_check_continue( env, &stmt->stmt_continue );
-            break;
-
         //case ae_stmt_func:
         //    ret = type_engine_check_func_def( env, stmt->stmt_func );
         //    break;
@@ -369,6 +369,7 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
         default:
             EM_error2( stmt->linepos, 
                 "internal compiler error - no stmt type '%i'!", stmt->s_type );
+            ret = FALSE;
             break;
     }
 
@@ -590,7 +591,97 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
 
 
 
-t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
+{
+    a_Exp curr = exp;
+    
+    // reset the group size
+    exp->group_size = 0;
+
+    // loop through parallel expressions
+    while( curr )
+    {
+        // reset the type
+        curr->type = NULL;
+        // increment first exp's group size
+        exp->group_size++;
+
+        // examine the syntax
+        switch( curr->s_type )
+        {
+        case ae_exp_binary:
+            curr->type = type_engine_check_exp_binary( env, &curr->binary );
+        break;
+    
+        case ae_exp_unary:
+            curr->type = type_engine_check_exp_unary( env, &curr->unary );
+        break;
+    
+        case ae_exp_cast:
+            curr->type = type_engine_check_exp_cast( env, &curr->cast );
+        break;
+    
+        case ae_exp_postfix:
+            curr->type = type_engine_check_exp_postfix( env, &curr->postfix );
+        break;
+    
+        case ae_exp_dur:
+            curr->type = type_engine_check_exp_dur( env, &curr->dur );
+        break;
+    
+        case ae_exp_primary:
+            curr->type = type_engine_check_primary( env, &curr->primary );
+        break;
+    
+        case ae_exp_array:
+            curr->type = type_engine_check_exp_array( env, &curr->array );
+        break;
+    
+        case ae_exp_func_call:
+            curr->type = type_engine_check_exp_func_call( env, &curr->func_call );
+            // set the return type
+            curr->func_call.ret_type = curr->type;
+        break;
+    
+        case ae_exp_dot_member:
+            curr->type = type_engine_check_exp_dot_member( env, &curr->dot_member );
+        break;
+    
+        case ae_exp_if:
+            curr->type = type_engine_check_exp_if( env, &curr->exp_if );
+        break;
+    
+        case ae_exp_decl:
+            curr->type = type_engine_check_exp_decl( env, &curr->decl );
+        break;
+
+        case ae_exp_namespace:
+            curr->type = type_engine_check_exp_namespace( env, &curr->name_space );
+        break;
+    
+        /* case ae_exp_new:
+            curr->exp_type = (t_Type)S_look( env->type, curr->a_new->type );
+        break;
+        */
+        
+        default:
+            EM_error2( curr->linepos, "internal compiler error - no expression '%i'",
+                curr->s_type );
+            return NULL;
+        }
+
+        // advance to next expression
+        curr = curr->next;
+    }
+
+    // return type
+    return exp->type;
+}
+
 t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, 
                                t_CKTYPE left, t_CKTYPE right );
