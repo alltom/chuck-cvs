@@ -2200,6 +2200,16 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     Chuck_Func * func = func_call->ck_func;
     // is a member?
     t_CKBOOL is_member = func->is_member;
+    // imm
+    Chuck_Instr_Reg_Push_Imm * op = NULL;
+
+    // if member
+    if( is_member )
+    {
+
+        // this
+        emit->append( op = new Chuck_Instr_Reg_Push_Imm( 0 ) );
+    }
 
     // make sure there are args
     if( func_call->args )
@@ -2837,7 +2847,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
         return FALSE;
     }
 
-    // if part of class
+    // if part of class - this only works because x.y is handled separately
     if( v->owner_class )
     {
         // emit as this.v

@@ -2126,16 +2126,18 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->id = te_user;
     the_class->name = S_name(class_def->name->id);
     the_class->parent = t_parent;
+    the_class->owner = env->curr;
+    the_class->array_depth = 0;
     the_class->size = sizeof(void *);
     the_class->obj_size = 0;  // TODO:
     the_class->self_size = 0;  // TODO:
-    the_class->owner = env->curr;
-    the_class->array_depth = 0;
     the_class->info = env->context->new_Chuck_Namespace();
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;
-    // if extend, set the beginning of data segment to after the parent
+    // set the beginning of data segment to after the parent
     the_class->info->offset = t_parent->obj_size;
+    // duplicate the parent's virtual table
+    the_class->info->obj_v_table = t_parent->info->obj_v_table;
     the_class->func = NULL;
     the_class->def = class_def;
 
@@ -2515,6 +2517,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     value->owner = env->curr;
     value->owner_class = env->class_def;
     value->is_member = !f->static_decl && (env->class_def != NULL);
+    // remember the func
+    value->func_ref = func;
     // add as value
     env->curr->value.add( f->name, value );
     // enter the name into the function table
@@ -2523,9 +2527,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     if( func->is_member )
     {
         // add to virtual table
-        env->curr->obj_v_table.funcs.push_back( func );
+        // env->curr->obj_v_table.funcs.push_back( func );
         // set the virtual table index
-        func->vt_index = env->curr->obj_v_table.funcs.size() - 1;
+        // func->vt_index = env->curr->obj_v_table.funcs.size() - 1;
     }
     // set the func
     f->ck_func = func;

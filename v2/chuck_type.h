@@ -393,6 +393,8 @@ struct Chuck_Value : public Chuck_VM_Object
     Chuck_Namespace * owner;
     // owner (class)
     Chuck_Type * owner_class;
+    // remember function pointer - if this is a function
+    Chuck_Func * func_ref;
 
 	// constructor
 	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
@@ -400,7 +402,7 @@ struct Chuck_Value : public Chuck_VM_Object
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
 	{ type = t; name = n; offset = s; is_const = c; access = acc; 
       owner = o; owner_class = oc; addr = a; is_member = FALSE;
-      is_context_global = FALSE; }
+      is_context_global = FALSE; func_ref = NULL; }
 };
 
 
@@ -420,13 +422,11 @@ struct Chuck_Func : public Chuck_VM_Object
     Chuck_VM_Code * code;
     // member
     t_CKBOOL is_member;
-    // offset
-    // t_CKUINT offset;
     // virtual table index
     t_CKINT vt_index;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; /* offset = 0; */ vt_index = -1; }
+    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = -1; }
 };
 
 

@@ -46,6 +46,7 @@ struct Chuck_Func;
 struct Chuck_Namespace;
 struct Chuck_Context;
 struct Chuck_Env;
+class Chuck_VM_Code;
 
 
 //-----------------------------------------------------------------------------
@@ -109,7 +110,7 @@ protected: // data
 struct Chuck_VTable
 {
 public:
-    std::vector<Chuck_Func *> funcs;
+    std::vector<Chuck_VM_Code *> funcs;
 };
 
 
