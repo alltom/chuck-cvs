@@ -182,8 +182,6 @@ if                      { adjust(); return IF; }
 else                    { adjust(); return ELSE; }
 then                    { adjust(); return THEN; }
 
-NULL                    { adjust(); return NULL_TOK; }
-null                    { adjust(); return NULL_TOK; }
 return                  { adjust(); return RETURN; }
 
 until                   { adjust(); return UNTIL; }

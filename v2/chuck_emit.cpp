@@ -1918,6 +1918,11 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         {
             emit->append( new Chuck_Instr_Reg_Push_Maybe() );
         }
+        else if( exp->var == insert_symbol("null") ||
+                 exp->var == insert_symbol("NULL") )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        }
         else if( exp->var == insert_symbol( "pi" ) )
         {
             double pi = 3.14159265358979323846;

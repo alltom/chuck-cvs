@@ -51,7 +51,7 @@ Chuck_Type t_float( te_float, "float", NULL, sizeof(t_CKFLOAT) );
 Chuck_Type t_time( te_time, "time", NULL, sizeof(t_CKTIME) );
 Chuck_Type t_dur( te_dur, "dur", NULL, sizeof(t_CKTIME) );
 Chuck_Type t_object( te_object, "object", NULL, sizeof(void *) );
-Chuck_Type t_null( te_null, "@null", NULL, 0 );
+Chuck_Type t_null( te_null, "@null", NULL, sizeof(void *) );
 Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
 Chuck_Type t_shred( te_shred, "shred", &t_object, sizeof(void *) );
 Chuck_Type t_thread( te_thread, "thread", &t_object, sizeof(void *) );
@@ -187,6 +187,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 
 	// default global values
 	env->global.value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
+	env->global.value.add( "NULL", new Chuck_Value( &t_null, "NULL", new void *(NULL), TRUE ) );
     // TODO:
 	// env->global.value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system), TRUE ) );
 	env->global.value.add( "t_zero", new Chuck_Value( &t_time, "time_zero", new t_CKDUR(0.0), TRUE ) );
@@ -259,6 +260,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_values["adc"] = TRUE;
     env->key_values["dac"] = TRUE;
     env->key_values["global"] = TRUE;
+    env->key_values["null"] = TRUE;
+    env->key_values["NULL"] = TRUE;
 
     env->key_types["void"] = TRUE;
     env->key_types["same"] = TRUE;
@@ -1197,18 +1200,18 @@ t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     t_CKTYPE left = lhs->type, right = rhs->type;
 
     // static
-    if( isa( left, &t_class ) )
-    {
-        EM_error2( lhs->linepos,
-            "cannot assign '@=>' using static class as left operand..." );
-        return NULL;
-    }
-    else if( isa( right, &t_class ) )
-    {
-        EM_error2( rhs->linepos,
-            "cannot assign '@=>' using static class as right operand..." );
-        return NULL;
-    }
+    //if( isa( left, &t_class ) )
+    //{
+    //    EM_error2( lhs->linepos,
+    //        "cannot assign '@=>' using static class as left operand..." );
+    //    return NULL;
+    //}
+    //else if( isa( right, &t_class ) )
+    //{
+    //    EM_error2( rhs->linepos,
+    //        "cannot assign '@=>' using static class as right operand..." );
+    //    return NULL;
+    //}
 
     // make sure mutable
     if( rhs->s_meta != ae_meta_var )
@@ -1400,6 +1403,13 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 exp->self->s_meta = ae_meta_var;
                 // time
                 t = &t_time;
+            }
+            else if( str == "null" || str == "NULL" ) // null / NULL
+            {
+                // not assignable
+                exp->self->s_meta = ae_meta_value;
+                // refers to null
+                t = &t_null;
             }
             else  // look up
             {
@@ -3146,11 +3156,22 @@ t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs )
     if( lhs == rhs ) return TRUE;
     
     // if lhs is a child of rhs
-    Chuck_Type * curr = lhs.parent;
+    const Chuck_Type * curr = lhs.parent;
     while( curr )
     {
         if( *curr == rhs ) return TRUE;
         curr = curr->parent;
+    }
+
+    // if lhs is null and rhs is a object
+    if( lhs == t_null )
+    {
+        curr = &rhs;
+        while( curr )
+        {
+            if( *curr == t_object ) return TRUE;
+            curr = curr->parent;
+        }
     }
     
     return FALSE;
