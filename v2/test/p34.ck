@@ -9,8 +9,5 @@ fun void changeglobal ( ) {
 5 => myglobal;
 changeglobal();
 
-if ( myglobal != 10 ) { 
-
-	while ( true );
-
-}	
+1.0::second => dur onesec;
+myglobal *onesec => now;
