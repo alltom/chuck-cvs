@@ -1174,7 +1174,6 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol id,
         else // local and global
         {
             Chuck_Instr_Unary_Op * op = NULL;
-            fprintf( stderr, "%s", S_name(id) );
             // the offset is not set yet
             emit->append( op = new Chuck_Instr_Reg_Push_Deref( offset, size ) );
             // queue for addr translation later
