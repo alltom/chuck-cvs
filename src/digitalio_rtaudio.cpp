@@ -140,12 +140,13 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
     DWORD__ n = 200;
+    DWORD__ start = 1;
 
     // copy input to local buffer
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
     // copy output into local buffer
-    if( m_go > 2 )
+    if( m_go >= start )
     {
         while( !m_out_ready && n-- ) usleep( 25 );
         // copy local buffer to be rendered
@@ -162,7 +163,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     }
 
     // 2nd buffer
-    if( m_go == 3 )
+    if( m_go == start )
     {
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
@@ -422,7 +423,7 @@ DWORD__ DigitalOut::render()
 
     // synchronize
     while( Digitalio::m_out_ready )
-        usleep( 1000 );
+        usleep( 100 );
 
     Digitalio::m_out_ready = TRUE;
     // set pointer to the beginning - if not ready, then too late anyway
@@ -596,7 +597,7 @@ DWORD__ DigitalIn::capture( )
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
     if( !Digitalio::m_in_ready )
-        usleep( 500 );
+        usleep( 100 );
     
     Digitalio::m_in_ready = FALSE;
     // set pointer to the beginning - if not ready, then too late anyway
