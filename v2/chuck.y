@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 34 shift/reduce conflicts
-%expect 34
+// expect 33 shift/reduce conflicts
+%expect 33
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM

@@ -5,8 +5,6 @@
 
 1 + 1 => i;
 
-a => a;
-
 class Foo
 {
     int f;
@@ -32,5 +30,5 @@ class Bar extends Foo
     int c;
 }
 
-Foo fooo;
-fooo.f => stdout;
+Foo foo;
+foo.f => foo.a1;

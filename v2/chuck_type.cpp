@@ -1521,7 +1521,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         if( !t_parent )
         {
             EM_error2( class_def->ext->linepos,
-                "undefined super class type '%s' in definition of class '%s'",
+                "undefined super class '%s' in definition of class '%s'",
                 S_name(class_def->ext->extend_id), S_name(class_def->name->id) );
             return FALSE;
         }
