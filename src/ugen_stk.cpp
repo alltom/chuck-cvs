@@ -319,6 +319,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
     QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
 
+    QUERY->ugen_add( QUERY, "Mandolin", NULL );
+    QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluck, NULL, "float", "pluck" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluckPos, NULL, "float", "pluckPos" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_bodySize, NULL, "float", "bodySize" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDamping, NULL, "float", "stringDamping" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, NULL, "float", "stringDetune" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" );
+
+
     // add Shakers
     QUERY->ugen_add( QUERY, "Shakers", NULL );
     QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
@@ -326,6 +337,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, NULL, "float", "noteOn" );
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" );
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, NULL, "int", "which" );
+
+
 
     return TRUE;
 }
@@ -6795,7 +6808,7 @@ BeeThree :: BeeThree()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
+  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
 
   this->setRatio(0, 0.999);
   this->setRatio(1, 1.997);
@@ -8543,20 +8556,22 @@ unsigned char genMIDIMap[128] =
     0,0,0,0,0,0,0,0,		// 112-119
     0,0,0,0,0,0,0,0     // 120-127
   };
-				  
-char waveNames[DRUM_NUMWAVES][16] =
+ 
+//XXX changed this from 16 to 32 for the 'special' convention..also, we do not have these linked
+//in the headers			  
+char waveNames[DRUM_NUMWAVES][32] =
   { 
-    "dope.raw",
-    "bassdrum.raw",
-    "snardrum.raw",
-    "tomlowdr.raw",
-    "tommiddr.raw",
-    "tomhidrm.raw",
-    "hihatcym.raw",
-    "ridecymb.raw",
-    "crashcym.raw", 
-    "cowbell1.raw", 
-    "tambourn.raw"
+    "special:dope",
+    "special:bassdrum",
+    "special:snardrum",
+    "special:tomlowdr",
+    "special:tommiddr",
+    "special:tomhidrm",
+    "special:hihatcym",
+    "special:ridecymb",
+    "special:crashcym", 
+    "special:cowbell1", 
+    "special:tambourn"
   };
 
 Drummer :: Drummer() : Instrmnt()
@@ -9140,7 +9155,7 @@ FMVoices :: FMVoices()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
+  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
 
   this->setRatio(0, 2.00);
   this->setRatio(1, 4.00);
@@ -9874,7 +9889,7 @@ HevyMetl :: HevyMetl()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
+  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
 
   this->setRatio(0, 1.0 * 1.000);
   this->setRatio(1, 4.0 * 0.999);
@@ -10198,18 +10213,18 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
   : PluckTwo(lowestFrequency)
 {
   // Concatenate the STK rawwave path to the rawwave files
-  soundfile[0] = new WvIn( (Stk::rawwavePath() + "mand1.raw").c_str(), TRUE );
-  soundfile[1] = new WvIn( (Stk::rawwavePath() + "mand2.raw").c_str(), TRUE );
-  soundfile[2] = new WvIn( (Stk::rawwavePath() + "mand3.raw").c_str(), TRUE );
-  soundfile[3] = new WvIn( (Stk::rawwavePath() + "mand4.raw").c_str(), TRUE );
-  soundfile[4] = new WvIn( (Stk::rawwavePath() + "mand5.raw").c_str(), TRUE );
-  soundfile[5] = new WvIn( (Stk::rawwavePath() + "mand6.raw").c_str(), TRUE );
-  soundfile[6] = new WvIn( (Stk::rawwavePath() + "mand7.raw").c_str(), TRUE );
-  soundfile[7] = new WvIn( (Stk::rawwavePath() + "mand8.raw").c_str(), TRUE );
-  soundfile[8] = new WvIn( (Stk::rawwavePath() + "mand9.raw").c_str(), TRUE );
-  soundfile[9] = new WvIn( (Stk::rawwavePath() + "mand10.raw").c_str(), TRUE );
-  soundfile[10] = new WvIn( (Stk::rawwavePath() + "mand11.raw").c_str(), TRUE );
-  soundfile[11] = new WvIn( (Stk::rawwavePath() + "mand12.raw").c_str(), TRUE );
+  soundfile[0] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[1] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[2] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[3] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[4] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[5] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[6] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[7] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[8] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[9] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[10] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
+  soundfile[11] = new WvIn( (Stk::rawwavePath() + "special:mand1").c_str(), TRUE );
 
   directBody = 1.0;
   mic = 0;
@@ -10982,7 +10997,7 @@ ModalBar :: ModalBar()
   : Modal()
 {
   // Concatenate the STK rawwave path to the rawwave file
-  wave = new WvIn( (Stk::rawwavePath() + "marmstk1.raw").c_str(), TRUE );
+  wave = new WvIn( (Stk::rawwavePath() + "special:marmstk1").c_str(), TRUE );
   wave->setRate((MY_FLOAT) 0.5 * 22050.0 / Stk::sampleRate() );
 
   // Set the resonances for preset 0 (marimba).
@@ -11230,8 +11245,8 @@ MY_FLOAT Modulate :: lastOut() const
 Moog :: Moog()
 {
   // Concatenate the STK rawwave path to the rawwave file
-  attacks[0] = new WvIn( (Stk::rawwavePath() + "mandpluk.raw").c_str(), TRUE );
-  loops[0] = new WaveLoop( (Stk::rawwavePath() + "impuls20.raw").c_str(), TRUE );
+  attacks[0] = new WvIn( (Stk::rawwavePath() + "special:mandpluk").c_str(), TRUE );
+  loops[0] = new WaveLoop( (Stk::rawwavePath() + "special:impuls20").c_str(), TRUE );
   loops[1] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE ); // vibrato
   loops[1]->setFrequency((MY_FLOAT) 6.122);
 
@@ -11843,7 +11858,7 @@ PercFlut :: PercFlut()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
+  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
 
   this->setRatio(0, 1.50 * 1.000);
   this->setRatio(1, 3.00 * 0.995);
@@ -12940,7 +12955,7 @@ Rhodey :: Rhodey()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
+  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
 
   this->setRatio(0, 1.0);
   this->setRatio(1, 0.5);
@@ -14762,7 +14777,7 @@ Simple :: Simple()
   baseFrequency = (MY_FLOAT) 440.0;
 
   // Concatenate the STK rawwave path to the rawwave file
-  loop = new WaveLoop( (Stk::rawwavePath() + "impuls10.raw").c_str(), TRUE );
+  loop = new WaveLoop( (Stk::rawwavePath() + "special:impuls10").c_str(), TRUE );
 
   filter = new OnePole(0.5);
   noise = new Noise;
@@ -15771,7 +15786,7 @@ TubeBell :: TubeBell()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
+  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
 
   this->setRatio(0, 1.0   * 0.995);
   this->setRatio(1, 1.414 * 0.995);
@@ -16122,7 +16137,7 @@ void Vector3D :: setZ(double aval)
 VoicForm :: VoicForm() : Instrmnt()
 {
   // Concatenate the STK rawwave path to the rawwave file
-	voiced = new SingWave( (Stk::rawwavePath() + "impuls20.raw").c_str(), TRUE );
+	voiced = new SingWave( (Stk::rawwavePath() + "special:impuls20").c_str(), TRUE );
 	voiced->setGainRate( 0.001 );
 	voiced->setGainTarget( 0.0 );
 
@@ -17041,7 +17056,7 @@ Wurley :: Wurley()
   // Concatenate the STK rawwave path to the rawwave files
   for ( int i=0; i<3; i++ )
     waves[i] = new WaveLoop( (Stk::rawwavePath() + "special:sinewave").c_str(), TRUE );
-  waves[3] = new WaveLoop( (Stk::rawwavePath() + "fwavblnk.raw").c_str(), TRUE );
+  waves[3] = new WaveLoop( (Stk::rawwavePath() + "special:fwavblnk").c_str(), TRUE );
 
   this->setRatio(0, 1.0);
   this->setRatio(1, 4.0);
@@ -17156,6 +17171,8 @@ MY_FLOAT Wurley :: tick()
 #include <string.h>
 
 #include <iostream>
+
+#include "util_raw.h"
 
 WvIn :: WvIn()
 {
@@ -17292,6 +17309,80 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
 	        for (unsigned int j=0; j<bufferSize; j++)
 		        data[j] = (SHRT_MAX) * sin(2*PI*j/256);
         }
+	else if ( strstr(fileName, "special:") ) { //hijack for the other STK raw files
+	  SAMPLE * rawdata = NULL;
+	  int      rawsize = 0;
+	  if ( strstr(fileName, "special:aah") ) { 
+	    rawsize = ahh_size; rawdata = ahh_data;
+	  }
+	  else if ( strstr(fileName, "special:britestk") ) { 
+	    rawsize = britestk_size; rawdata = britestk_data;
+	  }
+	  else if ( strstr(fileName, "special:dope") ) { 
+	    rawsize = dope_size; rawdata = dope_data;
+	  }
+	  else if ( strstr(fileName, "special:eee") ) { 
+	    rawsize = eee_size; rawdata = eee_data;
+	  }
+	  else if ( strstr(fileName, "special:fwavblnk") ) { 
+	    rawsize = fwavblnk_size; rawdata = fwavblnk_data;
+	  }
+	  else if ( strstr(fileName, "special:halfwave") ) { 
+	    rawsize = halfwave_size; rawdata = halfwave_data;
+	  }
+	  else if ( strstr(fileName, "special:impuls10") ) { 
+	    rawsize = impuls10_size; rawdata = impuls10_data;
+	  }
+	  else if ( strstr(fileName, "special:impuls20") ) { 
+	    rawsize = impuls20_size; rawdata = impuls20_data;
+	  }
+	  else if ( strstr(fileName, "special:impuls40") ) { 
+	    rawsize = impuls40_size; rawdata = impuls40_data;
+	  }
+	  else if ( strstr(fileName, "special:mand1") ) { 
+	    rawsize = mand1_size; rawdata = mand1_data;
+	  }
+	  else if ( strstr(fileName, "special:mandpluk") ) { 
+	    rawsize = mandpluk_size; rawdata = mandpluk_data;
+	  }
+	  else if ( strstr(fileName, "special:marmstk1") ) { 
+	    rawsize = marmstk1_size; rawdata = marmstk1_data;
+	  }
+	  else if ( strstr(fileName, "special:ooo") ) { 
+	    rawsize = ooo_size; rawdata = ooo_data;
+	  }
+	  else if ( strstr(fileName, "special:peksblnk") ) { 
+	    rawsize = peksblnk_size; rawdata = peksblnk_data;
+	  }
+	  else if ( strstr(fileName, "special:ppksblnk") ) { 
+	    rawsize = ppksblnk_size; rawdata = ppksblnk_data;
+	  }
+	  else if ( strstr(fileName, "special:silence") ) { 
+	    rawsize = silence_size; rawdata = silence_data;
+	  }
+	  else if ( strstr(fileName, "special:sineblnk") ) { 
+	    rawsize = sineblnk_size; rawdata = sineblnk_data;
+	  }
+	  else if ( strstr(fileName, "special:sinewave") ) { 
+	    rawsize = sinewave_size; rawdata = sinewave_data;
+	  }
+	  else if ( strstr(fileName, "special:snglpeak") ) { 
+	    rawsize = snglpeak_size; rawdata = snglpeak_data;
+	  }
+	  else if ( strstr(fileName, "special:twopeaks") ) { 
+	    rawsize = twopeaks_size; rawdata = twopeaks_data;
+	  }
+	  
+	  if ( rawdata ) {  
+	    if ( data ) delete [] data;
+	    data = (MY_FLOAT *) new MY_FLOAT[rawsize+1];
+	    bufferSize = rawsize;
+	    fileSize = bufferSize;
+	    for ( int j=0; j < rawsize; j++ ) {
+	      data[j] = (MY_FLOAT)(SHRT_MAX) * rawdata[j];
+	    }
+	  }
+	}
         else
         {
             // error
@@ -19431,4 +19522,77 @@ UGEN_CTRL Shakers_ctrl_freq( t_CKTIME now, void * data, void * value )
 {
     Shakers * s = (Shakers *)data;
     s->freq = GET_CK_FLOAT(value);
+}
+
+UGEN_CTOR Mandolin_ctor ( t_CKTIME now ) 
+{
+  return new Mandolin( 100.0f );
+}
+
+UGEN_DTOR Mandolin_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Mandolin *)data;
+}
+
+UGEN_TICK Mandolin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Mandolin * m = (Mandolin *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Mandolin_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Mandolin_ctrl_pluck( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->pluck( f );
+}
+
+UGEN_CTRL Mandolin_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setFrequency( f );
+
+}
+
+UGEN_CTRL Mandolin_ctrl_pluckPos( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setPluckPosition( f );
+}
+
+UGEN_CTRL Mandolin_ctrl_bodySize( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setBodySize( f * 2.0 );
+}
+
+UGEN_CTRL Mandolin_ctrl_stringDamping( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setBaseLoopGain( 0.97f + f * 0.03f );
+}
+
+UGEN_CTRL Mandolin_ctrl_stringDetune( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setDetune( 1.0f - 0.1f * f );
+}
+
+UGEN_CTRL Mandolin_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    //not sure what this does in stk version so we'll just call controlChange
+    m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }

@@ -419,7 +419,14 @@ UGEN_CTOR Mandolin_ctor( t_CKTIME now );
 UGEN_DTOR Mandolin_dtor( t_CKTIME now, void * data );
 UGEN_TICK Mandolin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Mandolin_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL Mandolin_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Mandolin_ctrl_pluck( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Mandolin_ctrl_pluckPos( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Mandolin_ctrl_bodySize( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Mandolin_ctrl_stringDamping( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Mandolin_ctrl_stringDetune( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Mandolin_ctrl_afterTouch( t_CKTIME now, void * data, void * value );
+
 
 // Modal
 UGEN_CTOR Modal_ctor( t_CKTIME now );

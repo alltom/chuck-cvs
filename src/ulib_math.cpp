@@ -179,7 +179,7 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_export( QUERY, "float", "pi", (f_ck_func)&g_pi, FALSE );
 
     // twopi
-    QUERY->add_export( QUERY, "float", "twopi", (f_ck_func)&g_pi, FALSE );
+    QUERY->add_export( QUERY, "float", "twopi", (f_ck_func)&g_twopi, FALSE );
 
     // e
     QUERY->add_export( QUERY, "float", "e", (f_ck_func)&g_e, FALSE );
