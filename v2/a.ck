@@ -10,7 +10,7 @@ int b[23];
 
 b["hi"] + 1;
 
-function int hi( int yo )
+fun int hi( int yo )
 {
     return yo * 2;
 }
@@ -44,6 +44,10 @@ class Foo
 	A aa;
 }
 
+fun int no( int j )
+{
+    int jj;
+}
 
 class Bar extends Foo
 {
@@ -55,8 +59,10 @@ class thing extends ugen
     int a;
 }
 
+thing x => thing y => thing z;
+
 {
-int a;
+    int a;
 }
 
 Foo foo;

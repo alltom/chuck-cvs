@@ -112,7 +112,7 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
-t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt );
+t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
@@ -668,16 +668,17 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
 // name: type_engine_check_code_segment()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt )
+t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
+                                         t_CKBOOL push )
 {
     // TODO: make sure this is in a function or is outside class
 
     // push
-    env->curr->value.push(); // env->context->nspc.value.push();
+    if( push ) env->curr->value.push(); // env->context->nspc.value.push();
     // do it
     t_CKBOOL t = type_engine_check_stmt_list( env, stmt->stmt_list );
     // pop
-    env->curr->value.pop();  // env->context->nspc.value.pop();
+    if( push ) env->curr->value.pop();  // env->context->nspc.value.pop();
     
     return t;
 }
@@ -1690,6 +1691,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 {
+    Chuck_Type * type = NULL;
     Chuck_Value * value = NULL;
     Chuck_Func * func = NULL;
     a_Arg_List arg_list = NULL;
@@ -1798,7 +1800,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // type check the code
-    if( f->code && !type_engine_check_stmt( env, f->code ) )
+    assert( f->code == NULL || f->code->s_type == ae_stmt_code );
+    if( f->code && !type_engine_check_code_segment( env, &f->code->stmt_code, FALSE ) )
     {
         EM_error2( 0, "...in function '%s'", S_name(f->name) );
         goto error;
@@ -1806,8 +1809,15 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 
     // pop the value stack
     env->curr->value.pop();
+    // make a new type for the function
+    type = new Chuck_Type;
+    type->name = "[function]";
+    type->id = te_user;
+    type->parent = &t_function;
+    type->size = sizeof(void *);
+    type->func = func;
     // enter the name into the value table
-    value = new Chuck_Value( func->def->ret_type, S_name(f->name), NULL, TRUE, 0, NULL );
+    value = new Chuck_Value( type, S_name(f->name), NULL, TRUE, 0, NULL );
     env->curr->value.add( f->name, value );
     // enter the name into the function table
     env->curr->func.add( f->name, func );
@@ -2157,7 +2167,7 @@ t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_
 //-----------------------------------------------------------------------------
 Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 {
-    Chuck_Type * t = type.lookup( name );
+    Chuck_Type * t = type.lookup( name, !climb );
     if( climb && !t && parent )
         return parent->lookup_type( name, climb );
     return t;
@@ -2172,7 +2182,7 @@ Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKBOOL climb )
 {
-    Chuck_Type * t = type.lookup( name );
+    Chuck_Type * t = type.lookup( name, !climb );
     if( climb && !t && parent )
         return parent->lookup_type( name, climb );
     return t;
@@ -2187,7 +2197,7 @@ Chuck_Type * Chuck_Namespace::lookup_type( S_Symbol name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb )
 {
-    Chuck_Value * v = value.lookup( name );
+    Chuck_Value * v = value.lookup( name, !climb );
     if( climb && !v && parent )
         return parent->lookup_value( name, climb );
     return v;
@@ -2202,7 +2212,7 @@ Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb
 //-----------------------------------------------------------------------------
 Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
 {
-    Chuck_Value * v = value.lookup( name );
+    Chuck_Value * v = value.lookup( name, !climb );
     if( climb && !v && parent )
         return parent->lookup_value( name, climb );
     return v;
@@ -2217,7 +2227,7 @@ Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 {
-    Chuck_Func * f = func.lookup( name );
+    Chuck_Func * f = func.lookup( name, !climb );
     if( climb && !f && parent )
         return parent->lookup_func( name, climb );
     return f;
@@ -2232,7 +2242,7 @@ Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 {
-    Chuck_Func * f = func.lookup( name );
+    Chuck_Func * f = func.lookup( name, !climb );
     if( climb && !f && parent )
         return parent->lookup_func( name, climb );
     return f;
@@ -2247,7 +2257,7 @@ Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL climb )
 {
-    Chuck_UGen_Info * u = ugen.lookup( name );
+    Chuck_UGen_Info * u = ugen.lookup( name, !climb );
     if( climb && !u && parent )
         return parent->lookup_ugen( name, climb );
     return u;
@@ -2262,7 +2272,7 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL cl
 //-----------------------------------------------------------------------------
 Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 {
-    Chuck_UGen_Info * u = ugen.lookup( name );
+    Chuck_UGen_Info * u = ugen.lookup( name, !climb );
     if( climb && !u && parent )
         return parent->lookup_ugen( name, climb );
     return u;
@@ -2278,7 +2288,7 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 {
-    void * a = addr.lookup( name );
+    void * a = addr.lookup( name, !climb );
     if( climb && !a && parent )
         return parent->lookup_addr( name, climb );
     return a;
@@ -2293,7 +2303,7 @@ void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 void * Chuck_Namespace::lookup_addr( S_Symbol name, t_CKBOOL climb )
 {
-    void * a = addr.lookup( name );
+    void * a = addr.lookup( name, !climb );
     if( climb && !a && parent )
         return parent->lookup_addr( name, climb );
     return a;
