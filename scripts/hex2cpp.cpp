@@ -39,10 +39,10 @@ int main( int argc, char ** argv )
 
         while( sin >> token >> token2 )
         {
-            x = (token[0]-'0')*64 + (token[1]-'0')*8 + (token[2]-'0');
+            x = (token2[0]-'0')*64 + (token2[1]-'0')*8 + (token2[2]-'0');
             x <<= 8;
-            x += (token2[0]-'0')*64 + (token2[1]-'0')*8 + (token[2]-'0');
-            printf( "%f,", (float)x );
+            x += (token[0]-'0')*64 + (token[1]-'0')*8 + (token[2]-'0');
+            printf( "%.1ff,", (float)x );
             count++;
             c++;
         }
