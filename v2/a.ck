@@ -5,6 +5,10 @@
 
 1 + 1 => i;
 
+int a[10][23];
+
+a[i] => i;
+
 class Foo
 {
     int f;
@@ -25,11 +29,12 @@ class Foo
 }
 
 
-class Bar extends Fooa
+class Bar extends Foo
 {
     int c;
 }
 
 Foo foo;
 Bar bar;
+
 foo.f + bar.c => foo.a1;

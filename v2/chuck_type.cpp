@@ -1447,7 +1447,7 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
     if( array->indices->depth > t_base->array_depth )
     {
         EM_error2( array->linepos,
-            "dimension of array subscripts (%i) exceeds what is defined (%i)",
+            "array subscript (%i) exceeds defined dimension (%i)",
             array->indices->depth, t_base->array_depth );
         return NULL;
     }
