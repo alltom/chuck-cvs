@@ -2077,15 +2077,17 @@ t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
 {
-    Chuck_Type * type = NULL;
+    Chuck_Type * type = NULL, * base_type = NULL;
     t_CKUINT depth = 0;
     a_Array_Sub sub = NULL;
     a_Exp exp = NULL;
 
     // get the type
     type = array->self->type;
+    // get the base type
+    base_type = array->base->type;
     // get the dimension
-    depth = type->array_depth;
+    depth = base_type->array_depth - type->array_depth;
     // make sure
     if( depth == 0 )
     {
@@ -2137,12 +2139,12 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
     if( depth == 1 )
     {
         // emit the array access
-        emit->append( new Chuck_Instr_Array_Access );
+        emit->append( new Chuck_Instr_Array_Access( type->size ) );
     }
     else
     {
         // emit the multi array access
-        emit->append( new Chuck_Instr_Array_Access_Multi( depth ) );
+        emit->append( new Chuck_Instr_Array_Access_Multi( depth, type->size ) );
     }
 
     // TODO: variable?

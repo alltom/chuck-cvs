@@ -1592,8 +1592,12 @@ protected:
 // name: class Chuck_Instr_Array_Access
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Access : public Chuck_Instr
+class Chuck_Instr_Array_Access : public Chuck_Instr_Unary_Op
 {
+public:
+    Chuck_Instr_Array_Access( t_CKUINT size )
+    { this->set( size ); }
+
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
@@ -1608,11 +1612,18 @@ public:
 class Chuck_Instr_Array_Access_Multi : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Array_Access_Multi( t_CKUINT depth )
-    { this->set( depth ); }
+    Chuck_Instr_Array_Access_Multi( t_CKUINT depth, t_CKUINT size )
+    { this->set( size ); m_depth = depth; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params()
+    { static char buffer[256];
+      sprintf( buffer, "depth=%d, size=%d", m_depth, m_val );
+      return buffer; }
+
+protected:
+    t_CKUINT m_depth;
 };
 
 

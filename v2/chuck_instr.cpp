@@ -1837,8 +1837,29 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    // instantiate the array
-    Chuck_Array4 * arr = new Chuck_Array4;
+    // reg stack pointer
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    // ref
+    t_CKUINT ref = 0;
+
+    // figure out width
+    if( m_type_ref->size == 4 )
+    {
+        // instantiate the array
+        Chuck_Array4 * arr = new Chuck_Array4;
+        // copy to ref
+        ref = (t_CKUINT)arr;
+    }
+    else if( m_type_ref->size == 8 )
+    {
+        // instantiate the array
+        Chuck_Array8 * arr = new Chuck_Array8;
+        // copy to ref
+        ref = (t_CKUINT)arr;
+    }
+
+    // push
+    push_( reg_sp, ref );
 }
 
 
@@ -1850,6 +1871,7 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
+    
 }
 
 
