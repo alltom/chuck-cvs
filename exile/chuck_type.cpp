@@ -31,7 +31,7 @@
 // date: Autumn 2002 - original
 //       Autumn 2004 - rewrite
 //-----------------------------------------------------------------------------
-#include "chuck_type_new.h"
+#include "chuck_type.h"
 #include "chuck_vm.h"
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
@@ -681,6 +681,9 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
     // return type
     return exp->type;
 }
+
+
+
 
 t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, 
