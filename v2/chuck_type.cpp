@@ -260,8 +260,6 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     // make sure we still have the same context
     assert( env->contexts.size() != 0 );
     assert( env->contexts.back() == context );
-    assert( env->stack.size() != 0 );
-    assert( env->stack.back() == &(context->nspc) );
 
     // pop the context scope
     env->context->nspc.value.pop();
@@ -269,6 +267,10 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     env->curr = env->stack.back();
     // pop the namespace stack
     env->stack.pop_back();
+
+    // make sure the nspc is ok
+    assert( env->stack.size() != 0 );
+    // assert( env->stack.back() == &(context->nspc) );
 
     // check to see if everything passed
     if( !ret )
