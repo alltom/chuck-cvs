@@ -243,7 +243,12 @@ typedef double FLOAT64;
 #endif
 
 
-
+//------------------------------------------------------------------------------
+// name: union what
+// desc: the litmus
+//------------------------------------------------------------------------------
+union what { long x; char y[sizeof(long)]; };
+t_CKBOOL little_endian = FALSE;
 
 //-----------------------------------------------------------------------------
 // name: stk_query()
@@ -253,6 +258,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 {
     // set srate
     Stk::setSampleRate( QUERY->srate );
+    // test for endian
+    what w; w.x = 1;
+    little_endian = (t_CKBOOL)w.y[0];
 
     //! \sectionMain STK
 
@@ -432,7 +440,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pickupPosition, StifKarp_cget_pickupPosition, "float", "pickupPosition" ); 
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_stretch, StifKarp_cget_stretch, "float", "stretch" ); 
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_baseLoopGain, StifKarp_cget_baseLoopGain, "float", "baseLoopGain" ); 
-    
 
     // add VoicForm
     //! see \example voic-o-form.ck
@@ -16175,9 +16182,9 @@ Table :: Table(char *fileName)
   long i = 0;
   double temp;
   while ( fread(&temp, 8, 1, fd) ) {
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
     swap64((unsigned char *)&temp);
-#endif
+
     data[i++] = (MY_FLOAT) temp;
   }
   fclose(fd);
@@ -17954,9 +17961,8 @@ bool WvIn :: getRawInfo( const char *fileName )
   interpolate = false;
   dataType = STK_SINT16;
   byteswap = false;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   byteswap = true;
-#endif
 
   return true;
 }
@@ -17969,9 +17975,9 @@ bool WvIn :: getWavInfo( const char *fileName )
   if ( fread(&id, 4, 1, fd) != 1 ) goto error;
   while ( strncmp(id, "fmt ", 4) ) {
     if ( fread(&chunkSize, 4, 1, fd) != 1 ) goto error;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
     swap32((unsigned char *)&chunkSize);
-#endif
+
     if ( fseek(fd, chunkSize, SEEK_CUR) == -1 ) goto error;
     if ( fread(&id, 4, 1, fd) != 1 ) goto error;
   }
@@ -17980,10 +17986,11 @@ bool WvIn :: getWavInfo( const char *fileName )
   SINT16 format_tag;
   if ( fread(&chunkSize, 4, 1, fd) != 1 ) goto error; // Read fmt chunk size.
   if ( fread(&format_tag, 2, 1, fd) != 1 ) goto error;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
+{
   swap16((unsigned char *)&format_tag);
   swap32((unsigned char *)&chunkSize);
-#endif
+}
   if (format_tag != 1 && format_tag != 3 ) { // PCM = 1, FLOAT = 3
     sprintf(msg, "[chuck](via WvIn): %s contains an unsupported data format type (%d).", fileName, format_tag);
     return false;
@@ -17992,17 +17999,17 @@ bool WvIn :: getWavInfo( const char *fileName )
   // Get number of channels from the header.
   SINT16 temp;
   if ( fread(&temp, 2, 1, fd) != 1 ) goto error;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
   swap16((unsigned char *)&temp);
-#endif
+
   channels = (unsigned int ) temp;
 
   // Get file sample rate from the header.
   SINT32 srate;
   if ( fread(&srate, 4, 1, fd) != 1 ) goto error;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
   swap32((unsigned char *)&srate);
-#endif
+
   fileRate = (MY_FLOAT) srate;
 
   // Set default rate based on file sampling rate.
@@ -18012,9 +18019,9 @@ bool WvIn :: getWavInfo( const char *fileName )
   dataType = 0;
   if ( fseek(fd, 6, SEEK_CUR) == -1 ) goto error;   // Locate bits_per_sample info.
   if ( fread(&temp, 2, 1, fd) != 1 ) goto error;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
   swap16((unsigned char *)&temp);
-#endif
+
   if ( format_tag == 1 ) {
     if (temp == 8)
       dataType = STK_SINT8;
@@ -18042,9 +18049,9 @@ bool WvIn :: getWavInfo( const char *fileName )
 
   while ( strncmp(id, "data", 4) ) {
     if ( fread(&chunkSize, 4, 1, fd) != 1 ) goto error;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
     swap32((unsigned char *)&chunkSize);
-#endif
+
     if ( fseek(fd, chunkSize, SEEK_CUR) == -1 ) goto error;
     if ( fread(&id, 4, 1, fd) != 1 ) goto error;
   }
@@ -18052,9 +18059,9 @@ bool WvIn :: getWavInfo( const char *fileName )
   // Get length of data from the header.
   SINT32 bytes;
   if ( fread(&bytes, 4, 1, fd) != 1 ) goto error;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
   swap32((unsigned char *)&bytes);
-#endif
+
   fileSize = 8 * bytes / temp / channels;  // sample frames
   bufferSize = fileSize;
   if (fileSize > CHUNK_THRESHOLD) {
@@ -18064,9 +18071,8 @@ bool WvIn :: getWavInfo( const char *fileName )
 
   dataOffset = ftell(fd);
   byteswap = false;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
   byteswap = true;
-#endif
 
   return true;
 
@@ -18081,9 +18087,9 @@ bool WvIn :: getSndInfo( const char *fileName )
   SINT32 format;
   if ( fseek(fd, 12, SEEK_SET) == -1 ) goto error;   // Locate format
   if ( fread(&format, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
     swap32((unsigned char *)&format);
-#endif
+
   if (format == 2) dataType = STK_SINT8;
   else if (format == 3) dataType = STK_SINT16;
   else if (format == 5) dataType = STK_SINT32;
@@ -18097,9 +18103,9 @@ bool WvIn :: getSndInfo( const char *fileName )
   // Get file sample rate from the header.
   SINT32 srate;
   if ( fread(&srate, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&srate);
-#endif
+
   fileRate = (MY_FLOAT) srate;
 
   // Set default rate based on file sampling rate.
@@ -18108,22 +18114,21 @@ bool WvIn :: getSndInfo( const char *fileName )
   // Get number of channels from the header.
   SINT32 chans;
   if ( fread(&chans, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&chans);
-#endif
+
   channels = chans;
 
   if ( fseek(fd, 4, SEEK_SET) == -1 ) goto error;
   if ( fread(&dataOffset, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&dataOffset);
-#endif
 
   // Get length of data from the header.
   if ( fread(&fileSize, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&fileSize);
-#endif
+
   fileSize /= 2 * channels;  // Convert to sample frames.
   bufferSize = fileSize;
   if (fileSize > CHUNK_THRESHOLD) {
@@ -18132,9 +18137,8 @@ bool WvIn :: getSndInfo( const char *fileName )
   }
 
   byteswap = false;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   byteswap = true;
-#endif
 
   return true;
 
@@ -18158,9 +18162,9 @@ bool WvIn :: getAifInfo( const char *fileName )
   if ( fread(&id, 4, 1, fd) != 1) goto error;
   while ( strncmp(id, "COMM", 4) ) {
     if ( fread(&chunkSize, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
     swap32((unsigned char *)&chunkSize);
-#endif
+
     if ( fseek(fd, chunkSize, SEEK_CUR) == -1 ) goto error;
     if ( fread(&id, 4, 1, fd) != 1 ) goto error;
   }
@@ -18169,17 +18173,17 @@ bool WvIn :: getAifInfo( const char *fileName )
   SINT16 temp;
   if ( fseek(fd, 4, SEEK_CUR) == -1 ) goto error; // Jump over chunk size
   if ( fread(&temp, 2, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap16((unsigned char *)&temp);
-#endif
+
   channels = temp;
 
   // Get length of data from the header.
   SINT32 frames;
   if ( fread(&frames, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&frames);
-#endif
+
   fileSize = frames; // sample frames
   bufferSize = fileSize;
   if (fileSize > CHUNK_THRESHOLD) {
@@ -18189,9 +18193,8 @@ bool WvIn :: getAifInfo( const char *fileName )
 
   // Read the number of bits per sample.
   if ( fread(&temp, 2, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap16((unsigned char *)&temp);
-#endif
 
   // Get file sample rate from the header.  For AIFF files, this value
   // is stored in a 10-byte, IEEE Standard 754 floating point number,
@@ -18202,9 +18205,9 @@ bool WvIn :: getAifInfo( const char *fileName )
   unsigned long last;
   if ( fread(&srate, 10, 1, fd) != 1 ) goto error;
   mantissa = (unsigned long) *(unsigned long *)(srate+2);
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&mantissa);
-#endif
+
   exp = 30 - *(srate+1);
   last = 0;
   while (exp--) {
@@ -18241,9 +18244,9 @@ bool WvIn :: getAifInfo( const char *fileName )
   if ( fread(&id, 4, 1, fd) != 1 ) goto error;
   while ( strncmp(id, "SSND", 4) ) {
     if ( fread(&chunkSize, 4, 1, fd) != 1 ) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
     swap32((unsigned char *)&chunkSize);
-#endif
+
     if ( fseek(fd, chunkSize, SEEK_CUR) == -1 ) goto error;
     if ( fread(&id, 4, 1, fd) != 1 ) goto error;
   }
@@ -18253,9 +18256,8 @@ bool WvIn :: getAifInfo( const char *fileName )
 
   dataOffset = ftell(fd);
   byteswap = false;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   byteswap = true;
-#endif
 
   return true;
 
@@ -18284,15 +18286,18 @@ bool WvIn :: getMatInfo( const char *fileName )
   // Locate "M" and "I" characters in header.
   if ( fseek(fd, 126, SEEK_SET) == -1 ) goto error;
   if ( fread(&mi, 2, 1, fd) != 1) goto error;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
+{
   if ( !strncmp(mi, "MI", 2) )
     byteswap = true;
   else if ( strncmp(mi, "IM", 2) ) goto error;
-#else
+}
+else
+{
   if ( !strncmp(mi, "IM", 2))
     byteswap = true;
   else if ( strncmp(mi, "MI", 2) ) goto error;
-#endif
+}
 
   // Check the data element type
   SINT32 datatype;
@@ -18893,9 +18898,8 @@ bool WvOut :: setRawFile( const char *fileName )
   }
 
   byteswap = false;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   byteswap = true;
-#endif
 
   // printf("\nCreating RAW file: %s\n", name);
   return true;
@@ -18937,7 +18941,8 @@ bool WvOut :: setWavFile( const char *fileName )
   hdr.bytes_per_sec = (SINT32) (hdr.sample_rate * hdr.bytes_per_samp);
 
   byteswap = false;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
+{
   byteswap = true;
   swap32((unsigned char *)&hdr.file_size);
   swap32((unsigned char *)&hdr.chunk_size);
@@ -18947,7 +18952,7 @@ bool WvOut :: setWavFile( const char *fileName )
   swap32((unsigned char *)&hdr.bytes_per_sec);
   swap16((unsigned char *)&hdr.bytes_per_samp);
   swap16((unsigned char *)&hdr.bits_per_samp);
-#endif
+}
 
   if ( fwrite(&hdr, 4, 11, fd) != 11 ) {
     sprintf(msg, "[chuck](via WvOut): Could not write WAV header for file %s", name);
@@ -18969,16 +18974,16 @@ void WvOut :: closeWavFile( void )
     bytes_per_sample = 8;
 
   SINT32 bytes = totalCount * channels * bytes_per_sample;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
   swap32((unsigned char *)&bytes);
-#endif
+
   fseek(fd, 40, SEEK_SET); // jump to data length
   fwrite(&bytes, 4, 1, fd);
 
   bytes = totalCount * channels * bytes_per_sample + 44;
-#ifndef __LITTLE_ENDIAN__
+if( !little_endian )
   swap32((unsigned char *)&bytes);
-#endif
+
   fseek(fd, 4, SEEK_SET); // jump to file size
   fwrite(&bytes, 4, 1, fd);
   fclose( fd );
@@ -19010,13 +19015,14 @@ bool WvOut :: setSndFile( const char *fileName )
     hdr.format = 7;
 
   byteswap = false;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
+{
   byteswap = true;
   swap32 ((unsigned char *)&hdr.hdr_length);
   swap32 ((unsigned char *)&hdr.format);
   swap32 ((unsigned char *)&hdr.sample_rate);
   swap32 ((unsigned char *)&hdr.num_channels);
-#endif
+}
 
   if ( fwrite(&hdr, 4, 10, fd) != 10 ) {
     sprintf(msg, "[chuck](via WvOut): Could not write SND header for file %s", name);
@@ -19040,9 +19046,9 @@ void WvOut :: closeSndFile( void )
     bytes_per_sample = 8;
 
   SINT32 bytes = totalCount * bytes_per_sample * channels;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32 ((unsigned char *)&bytes);
-#endif
+
   fseek(fd, 8, SEEK_SET); // jump to data size
   fwrite(&bytes, 4, 1, fd);
   fclose(fd);
@@ -19097,9 +19103,9 @@ bool WvOut :: setAifFile( const char *fileName )
     if (!exp) break;
   }
   i += 16383;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap16((unsigned char *)&i);
-#endif
+
   *(SINT16 *)(hdr.srate) = (SINT16) i;
 
   for (i=32; i; i--) {
@@ -19107,13 +19113,14 @@ bool WvOut :: setAifFile( const char *fileName )
     rate <<= 1;
   }
 
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&rate);
-#endif
+
   *(unsigned long *)(hdr.srate+2) = (unsigned long) rate;
 
   byteswap = false;  
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
+{
   byteswap = true;
   swap32((unsigned char *)&hdr.form_size);
   swap32((unsigned char *)&hdr.comm_size);
@@ -19122,7 +19129,7 @@ bool WvOut :: setAifFile( const char *fileName )
   swap32((unsigned char *)&ssnd.ssnd_size);
   swap32((unsigned char *)&ssnd.offset);
   swap32((unsigned char *)&ssnd.block_size);
-#endif
+}
 
   // The structure boundaries don't allow a single write of 54 bytes.
   if ( fwrite(&hdr, 4, 5, fd) != 5 ) goto error;
@@ -19157,9 +19164,9 @@ bool WvOut :: setAifFile( const char *fileName )
 void WvOut :: closeAifFile( void )
 {
   unsigned long frames = (unsigned long) totalCount;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&frames);
-#endif
+
   fseek(fd, 22, SEEK_SET); // jump to "COMM" sample_frames
   fwrite(&frames, 4, 1, fd);
 
@@ -19173,17 +19180,17 @@ void WvOut :: closeAifFile( void )
 
   unsigned long bytes = totalCount * bytes_per_sample * channels + 46;
   if ( dataType == MY_FLOAT32 || dataType == MY_FLOAT64 ) bytes += 6;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&bytes);
-#endif
+
   fseek(fd, 4, SEEK_SET); // jump to file size
   fwrite(&bytes, 4, 1, fd);
 
   bytes = totalCount * bytes_per_sample * channels + 8;
   if ( dataType == MY_FLOAT32 || dataType == MY_FLOAT64 ) bytes += 6;
-#ifdef __LITTLE_ENDIAN__
+if( little_endian )
   swap32((unsigned char *)&bytes);
-#endif
+
   if ( dataType == MY_FLOAT32 || dataType == MY_FLOAT64 )
     fseek(fd, 48, SEEK_SET); // jump to "SSND" chunk size
   else
