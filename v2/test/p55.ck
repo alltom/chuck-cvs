@@ -7,6 +7,4 @@ class Obj {
 Obj o;
 o.returnFive() => int myVal;
 
-if ( myVal == 5 ) { 
-	5::second => now;
-}
+if ( myVal != 5 ) while( true ); 

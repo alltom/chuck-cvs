@@ -12,10 +12,8 @@ class Obj {
 Obj o;
 o.set( 1 , 2 );
 Obj p;
-p.set( 3, 4 );
+p.set( 1, 2 );
 
-if ( o.x != p.x ) { 
-	3::second => now;
-} 
+if ( o.x != p.x ) while( true );
 
 
