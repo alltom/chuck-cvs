@@ -465,7 +465,7 @@ union yyalloc
 /* YYNNTS -- Number of nonterminals. */
 #define YYNNTS  48
 /* YYNRULES -- Number of rules. */
-#define YYNRULES  143
+#define YYNRULES  144
 /* YYNRULES -- Number of states. */
 #define YYNSTATES  269
 
@@ -525,18 +525,18 @@ static const unsigned short yyprhs[] =
        0,     0,     3,     5,     8,    10,    12,    14,    20,    27,
       33,    40,    43,    48,    51,    56,    58,    61,    63,    65,
       68,    70,    74,    76,    80,    89,    97,    99,   101,   103,
-     105,   107,   109,   111,   114,   117,   122,   124,   127,   129,
-     131,   133,   135,   137,   140,   144,   150,   158,   164,   172,
-     179,   187,   193,   201,   204,   208,   210,   213,   215,   219,
-     221,   225,   229,   234,   237,   241,   243,   246,   249,   251,
-     255,   257,   260,   263,   265,   267,   269,   271,   273,   275,
-     277,   279,   281,   283,   285,   291,   293,   297,   299,   303,
-     305,   309,   311,   315,   317,   321,   323,   327,   331,   333,
-     337,   341,   345,   349,   351,   355,   359,   361,   365,   369,
-     371,   375,   379,   383,   385,   389,   391,   396,   398,   401,
-     404,   407,   412,   417,   419,   421,   423,   425,   427,   430,
-     432,   435,   439,   444,   448,   451,   454,   458,   460,   462,
-     464,   466,   469,   473
+     105,   107,   108,   110,   112,   115,   118,   123,   125,   128,
+     130,   132,   134,   136,   138,   141,   145,   151,   159,   165,
+     173,   180,   188,   194,   202,   205,   209,   211,   214,   216,
+     220,   222,   226,   230,   235,   238,   242,   244,   247,   250,
+     252,   256,   258,   261,   264,   266,   268,   270,   272,   274,
+     276,   278,   280,   282,   284,   286,   292,   294,   298,   300,
+     304,   306,   310,   312,   316,   318,   322,   324,   328,   332,
+     334,   338,   342,   346,   350,   352,   356,   360,   362,   366,
+     370,   372,   376,   380,   384,   386,   390,   392,   397,   399,
+     402,   405,   408,   413,   418,   420,   422,   424,   426,   428,
+     431,   433,   436,   440,   445,   449,   452,   455,   459,   461,
+     463,   465,   467,   470,   474
 };
 
 /* YYRHS -- A `-1'-separated list of the rules' RHS. */
@@ -552,44 +552,44 @@ static const short yyrhs[] =
        3,     8,   107,    -1,     3,    -1,     3,    17,   108,    -1,
      110,   111,   113,     3,    11,   114,    12,   120,    -1,   110,
      111,   113,     3,    11,    12,   120,    -1,    40,    -1,    91,
-      -1,    92,    -1,    93,    -1,    94,    -1,   108,    -1,   112,
-      -1,   112,   125,    -1,   113,     3,    -1,   112,     3,     8,
-     114,    -1,   116,    -1,   116,   115,    -1,   121,    -1,   119,
-      -1,   118,    -1,   117,    -1,   120,    -1,    41,    10,    -1,
-      41,   122,    10,    -1,    32,    11,   122,    12,   116,    -1,
-      32,    11,   122,    12,   116,    34,   116,    -1,    35,    11,
-     122,    12,   116,    -1,    37,   116,    35,    11,   122,    12,
-      10,    -1,    36,    11,   121,   121,    12,   116,    -1,    36,
-      11,   121,   121,   122,    12,   116,    -1,    57,    11,   122,
-      12,   116,    -1,    37,   116,    57,    11,   122,    12,    10,
-      -1,    15,    16,    -1,    15,   115,    16,    -1,    10,    -1,
-     122,    10,    -1,   123,    -1,   123,     8,   122,    -1,   126,
-      -1,   123,   129,   126,    -1,    13,   122,    14,    -1,   124,
-      13,   122,    14,    -1,    13,    14,    -1,   125,    13,    14,
-      -1,   130,    -1,    67,   127,    -1,   112,   127,    -1,   128,
-      -1,   128,     8,   127,    -1,     3,    -1,     3,   124,    -1,
-       3,   125,    -1,    81,    -1,    84,    -1,    68,    -1,    69,
-      -1,    70,    -1,    71,    -1,    75,    -1,    76,    -1,    77,
-      -1,    86,    -1,   131,    -1,   131,    42,   122,     9,   130,
-      -1,   132,    -1,   131,    30,   132,    -1,   133,    -1,   132,
-      29,   133,    -1,   134,    -1,   133,    44,   134,    -1,   135,
-      -1,   134,    46,   135,    -1,   136,    -1,   135,    45,   136,
-      -1,   137,    -1,   136,    23,   137,    -1,   136,    24,   137,
-      -1,   138,    -1,   137,    25,   138,    -1,   137,    27,   138,
-      -1,   137,    26,   138,    -1,   137,    28,   138,    -1,   139,
-      -1,   138,    79,   139,    -1,   138,    78,   139,    -1,   140,
-      -1,   139,    18,   140,    -1,   139,    19,   140,    -1,   141,
-      -1,   140,    20,   141,    -1,   140,    21,   141,    -1,   140,
-      22,   141,    -1,   142,    -1,   141,    80,   142,    -1,   143,
-      -1,    25,   113,    27,   142,    -1,   145,    -1,    47,   143,
-      -1,    48,   143,    -1,   144,   142,    -1,    66,    25,   122,
-      27,    -1,    65,    25,   143,    27,    -1,    18,    -1,    19,
-      -1,    80,    -1,    43,    -1,    20,    -1,    96,    80,    -1,
-     146,    -1,   145,   124,    -1,   145,    11,    12,    -1,   145,
-      11,   122,    12,    -1,   145,    17,     3,    -1,   145,    47,
-      -1,   145,    48,    -1,   145,    82,   146,    -1,     3,    -1,
-       5,    -1,     6,    -1,     4,    -1,    97,    98,    -1,    97,
-       3,    98,    -1,    11,   122,    12,    -1
+      -1,    92,    -1,    93,    -1,    94,    -1,    -1,   108,    -1,
+     112,    -1,   112,   125,    -1,   113,     3,    -1,   112,     3,
+       8,   114,    -1,   116,    -1,   116,   115,    -1,   121,    -1,
+     119,    -1,   118,    -1,   117,    -1,   120,    -1,    41,    10,
+      -1,    41,   122,    10,    -1,    32,    11,   122,    12,   116,
+      -1,    32,    11,   122,    12,   116,    34,   116,    -1,    35,
+      11,   122,    12,   116,    -1,    37,   116,    35,    11,   122,
+      12,    10,    -1,    36,    11,   121,   121,    12,   116,    -1,
+      36,    11,   121,   121,   122,    12,   116,    -1,    57,    11,
+     122,    12,   116,    -1,    37,   116,    57,    11,   122,    12,
+      10,    -1,    15,    16,    -1,    15,   115,    16,    -1,    10,
+      -1,   122,    10,    -1,   123,    -1,   123,     8,   122,    -1,
+     126,    -1,   123,   129,   126,    -1,    13,   122,    14,    -1,
+     124,    13,   122,    14,    -1,    13,    14,    -1,   125,    13,
+      14,    -1,   130,    -1,    67,   127,    -1,   112,   127,    -1,
+     128,    -1,   128,     8,   127,    -1,     3,    -1,     3,   124,
+      -1,     3,   125,    -1,    81,    -1,    84,    -1,    68,    -1,
+      69,    -1,    70,    -1,    71,    -1,    75,    -1,    76,    -1,
+      77,    -1,    86,    -1,   131,    -1,   131,    42,   122,     9,
+     130,    -1,   132,    -1,   131,    30,   132,    -1,   133,    -1,
+     132,    29,   133,    -1,   134,    -1,   133,    44,   134,    -1,
+     135,    -1,   134,    46,   135,    -1,   136,    -1,   135,    45,
+     136,    -1,   137,    -1,   136,    23,   137,    -1,   136,    24,
+     137,    -1,   138,    -1,   137,    25,   138,    -1,   137,    27,
+     138,    -1,   137,    26,   138,    -1,   137,    28,   138,    -1,
+     139,    -1,   138,    79,   139,    -1,   138,    78,   139,    -1,
+     140,    -1,   139,    18,   140,    -1,   139,    19,   140,    -1,
+     141,    -1,   140,    20,   141,    -1,   140,    21,   141,    -1,
+     140,    22,   141,    -1,   142,    -1,   141,    80,   142,    -1,
+     143,    -1,    25,   113,    27,   142,    -1,   145,    -1,    47,
+     143,    -1,    48,   143,    -1,   144,   142,    -1,    66,    25,
+     122,    27,    -1,    65,    25,   143,    27,    -1,    18,    -1,
+      19,    -1,    80,    -1,    43,    -1,    20,    -1,    96,    80,
+      -1,   146,    -1,   145,   124,    -1,   145,    11,    12,    -1,
+     145,    11,   122,    12,    -1,   145,    17,     3,    -1,   145,
+      47,    -1,   145,    48,    -1,   145,    82,   146,    -1,     3,
+      -1,     5,    -1,     6,    -1,     4,    -1,    97,    98,    -1,
+      97,     3,    98,    -1,    11,   122,    12,    -1
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
@@ -598,18 +598,18 @@ static const unsigned short yyrline[] =
        0,   166,   166,   167,   171,   172,   173,   177,   179,   181,
      183,   188,   189,   190,   191,   195,   196,   200,   201,   205,
      209,   210,   214,   215,   219,   221,   226,   227,   228,   229,
-     234,   238,   242,   243,   247,   248,   252,   253,   257,   258,
-     259,   260,   262,   266,   267,   271,   273,   278,   280,   282,
-     284,   286,   288,   293,   294,   298,   299,   303,   304,   308,
-     309,   314,   315,   320,   321,   325,   326,   327,   331,   332,
-     336,   337,   338,   342,   343,   344,   345,   346,   347,   348,
-     349,   350,   351,   359,   360,   365,   366,   371,   372,   377,
-     378,   383,   384,   389,   390,   395,   396,   398,   403,   404,
-     406,   408,   410,   415,   416,   418,   423,   424,   426,   431,
-     432,   434,   436,   441,   442,   447,   448,   453,   454,   456,
-     458,   460,   462,   471,   472,   473,   474,   475,   476,   481,
-     482,   484,   486,   488,   490,   492,   494,   499,   500,   501,
-     502,   503,   504,   505
+     234,   235,   239,   243,   244,   248,   249,   253,   254,   258,
+     259,   260,   261,   263,   267,   268,   272,   274,   279,   281,
+     283,   285,   287,   289,   294,   295,   299,   300,   304,   305,
+     309,   310,   315,   316,   321,   322,   326,   327,   328,   332,
+     333,   337,   338,   339,   343,   344,   345,   346,   347,   348,
+     349,   350,   351,   352,   360,   361,   366,   367,   372,   373,
+     378,   379,   384,   385,   390,   391,   396,   397,   399,   404,
+     405,   407,   409,   411,   416,   417,   419,   424,   425,   427,
+     432,   433,   435,   437,   442,   443,   448,   449,   454,   455,
+     457,   459,   461,   463,   472,   473,   474,   475,   476,   477,
+     482,   483,   485,   487,   489,   491,   493,   495,   500,   501,
+     502,   503,   504,   505,   506
 };
 #endif
 
@@ -674,18 +674,18 @@ static const unsigned char yyr1[] =
        0,    99,   100,   100,   101,   101,   101,   102,   102,   102,
      102,   103,   103,   103,   103,   104,   104,   105,   105,   106,
      107,   107,   108,   108,   109,   109,   110,   110,   110,   110,
-     111,   112,   113,   113,   114,   114,   115,   115,   116,   116,
-     116,   116,   116,   117,   117,   118,   118,   119,   119,   119,
-     119,   119,   119,   120,   120,   121,   121,   122,   122,   123,
-     123,   124,   124,   125,   125,   126,   126,   126,   127,   127,
-     128,   128,   128,   129,   129,   129,   129,   129,   129,   129,
-     129,   129,   129,   130,   130,   131,   131,   132,   132,   133,
-     133,   134,   134,   135,   135,   136,   136,   136,   137,   137,
-     137,   137,   137,   138,   138,   138,   139,   139,   139,   140,
-     140,   140,   140,   141,   141,   142,   142,   143,   143,   143,
-     143,   143,   143,   144,   144,   144,   144,   144,   144,   145,
-     145,   145,   145,   145,   145,   145,   145,   146,   146,   146,
-     146,   146,   146,   146
+     111,   111,   112,   113,   113,   114,   114,   115,   115,   116,
+     116,   116,   116,   116,   117,   117,   118,   118,   119,   119,
+     119,   119,   119,   119,   120,   120,   121,   121,   122,   122,
+     123,   123,   124,   124,   125,   125,   126,   126,   126,   127,
+     127,   128,   128,   128,   129,   129,   129,   129,   129,   129,
+     129,   129,   129,   129,   130,   130,   131,   131,   132,   132,
+     133,   133,   134,   134,   135,   135,   136,   136,   136,   137,
+     137,   137,   137,   137,   138,   138,   138,   139,   139,   139,
+     140,   140,   140,   140,   141,   141,   142,   142,   143,   143,
+     143,   143,   143,   143,   144,   144,   144,   144,   144,   144,
+     145,   145,   145,   145,   145,   145,   145,   145,   146,   146,
+     146,   146,   146,   146,   146
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
@@ -694,18 +694,18 @@ static const unsigned char yyr2[] =
        0,     2,     1,     2,     1,     1,     1,     5,     6,     5,
        6,     2,     4,     2,     4,     1,     2,     1,     1,     2,
        1,     3,     1,     3,     8,     7,     1,     1,     1,     1,
-       1,     1,     1,     2,     2,     4,     1,     2,     1,     1,
-       1,     1,     1,     2,     3,     5,     7,     5,     7,     6,
-       7,     5,     7,     2,     3,     1,     2,     1,     3,     1,
-       3,     3,     4,     2,     3,     1,     2,     2,     1,     3,
-       1,     2,     2,     1,     1,     1,     1,     1,     1,     1,
-       1,     1,     1,     1,     5,     1,     3,     1,     3,     1,
-       3,     1,     3,     1,     3,     1,     3,     3,     1,     3,
-       3,     3,     3,     1,     3,     3,     1,     3,     3,     1,
-       3,     3,     3,     1,     3,     1,     4,     1,     2,     2,
-       2,     4,     4,     1,     1,     1,     1,     1,     2,     1,
-       2,     3,     4,     3,     2,     2,     3,     1,     1,     1,
-       1,     2,     3,     3
+       1,     0,     1,     1,     2,     2,     4,     1,     2,     1,
+       1,     1,     1,     1,     2,     3,     5,     7,     5,     7,
+       6,     7,     5,     7,     2,     3,     1,     2,     1,     3,
+       1,     3,     3,     4,     2,     3,     1,     2,     2,     1,
+       3,     1,     2,     2,     1,     1,     1,     1,     1,     1,
+       1,     1,     1,     1,     1,     5,     1,     3,     1,     3,
+       1,     3,     1,     3,     1,     3,     1,     3,     3,     1,
+       3,     3,     3,     3,     1,     3,     3,     1,     3,     3,
+       1,     3,     3,     3,     1,     3,     1,     4,     1,     2,
+       2,     2,     4,     4,     1,     1,     1,     1,     1,     2,
+       1,     2,     3,     4,     3,     2,     2,     3,     1,     1,
+       1,     1,     2,     3,     3
 };
 
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
@@ -713,33 +713,33 @@ static const unsigned char yyr2[] =
    means the default is an error.  */
 static const unsigned char yydefact[] =
 {
-       0,   137,   140,   138,   139,    55,     0,     0,   123,   124,
-     127,     0,     0,     0,     0,     0,    26,     0,   126,     0,
-       0,     0,     0,     0,     0,   125,     0,     0,    27,    28,
-      29,     0,     0,     0,     2,     6,    31,     5,     0,     0,
-       4,    36,    41,    40,    39,    42,    38,     0,    57,    59,
-      65,    83,    85,    87,    89,    91,    93,    95,    98,   103,
-     106,   109,   113,   115,     0,   117,   129,     0,     0,    53,
-       0,    22,    32,     0,     0,     0,     0,     0,    43,     0,
-     137,   118,   119,     0,     0,     0,    70,    66,    68,    20,
-       0,     0,   128,     0,   141,     1,     3,    30,     0,    67,
-      37,    56,     0,    75,    76,    77,    78,    79,    80,    81,
-      73,    74,    82,     0,     0,     0,     0,     0,     0,     0,
+       0,   138,   141,   139,   140,    56,     0,     0,   124,   125,
+     128,     0,     0,     0,     0,     0,    26,     0,   127,     0,
+       0,     0,     0,     0,     0,   126,     0,     0,    27,    28,
+      29,     0,     0,     0,     2,     6,    32,     5,    31,     0,
+       4,    37,    42,    41,    40,    43,    39,     0,    58,    60,
+      66,    84,    86,    88,    90,    92,    94,    96,    99,   104,
+     107,   110,   114,   116,     0,   118,   130,     0,     0,    54,
+       0,    22,    33,     0,     0,     0,     0,     0,    44,     0,
+     138,   119,   120,     0,     0,     0,    71,    67,    69,    20,
+       0,     0,   129,     0,   142,     1,     3,    30,     0,    68,
+      38,    57,     0,    76,    77,    78,    79,    80,    81,    82,
+      74,    75,    83,     0,     0,     0,     0,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
-       0,     0,     0,     0,   120,     0,     0,     0,   134,   135,
-       0,   130,    23,   143,    54,     0,    33,     0,     0,     0,
-       0,     0,     0,    44,     0,     0,     0,     0,    71,    72,
-       0,     0,     0,     0,     0,     0,     0,     0,     0,   142,
-       0,    58,    60,    86,     0,    88,    90,    92,    94,    96,
-      97,    99,   101,   100,   102,   105,   104,   107,   108,   110,
-     111,   112,   114,   131,     0,     0,   133,   136,     0,    63,
-       0,   116,     0,     0,     0,     0,     0,     0,   122,   121,
-      69,    21,     0,    15,    18,    17,    13,    11,     0,     0,
-      19,     0,     0,     0,   132,    61,     0,    64,    45,    47,
-       0,     0,     0,     0,    51,     7,    16,     0,     0,     0,
-       9,     0,     0,    84,    62,     0,    49,     0,     0,     0,
-      14,    12,     8,    10,     0,     0,     0,     0,    46,    50,
-      48,    52,    25,     0,    34,     0,     0,    24,    35
+       0,     0,     0,     0,   121,     0,     0,     0,   135,   136,
+       0,   131,    23,   144,    55,     0,    34,     0,     0,     0,
+       0,     0,     0,    45,     0,     0,     0,     0,    72,    73,
+       0,     0,     0,     0,     0,     0,     0,     0,     0,   143,
+       0,    59,    61,    87,     0,    89,    91,    93,    95,    97,
+      98,   100,   102,   101,   103,   106,   105,   108,   109,   111,
+     112,   113,   115,   132,     0,     0,   134,   137,     0,    64,
+       0,   117,     0,     0,     0,     0,     0,     0,   123,   122,
+      70,    21,     0,    15,    18,    17,    13,    11,     0,     0,
+      19,     0,     0,     0,   133,    62,     0,    65,    46,    48,
+       0,     0,     0,     0,    52,     7,    16,     0,     0,     0,
+       9,     0,     0,    85,    63,     0,    50,     0,     0,     0,
+      14,    12,     8,    10,     0,     0,     0,     0,    47,    51,
+      49,    53,    25,     0,    35,     0,     0,    24,    36
 };
 
 /* YYDEFGOTO[NTERM-NUM]. */
@@ -1753,43 +1753,43 @@ yyreduce:
     break;
 
   case 31:
-#line 238 "chuck.y"
-    { yyval.type_decl = new_type_decl( yyvsp[0].id_list, EM_lineNum ); ;}
+#line 235 "chuck.y"
+    { yyval.ival = 0; ;}
     break;
 
   case 32:
-#line 242 "chuck.y"
-    { yyval.type_decl = yyvsp[0].type_decl; ;}
+#line 239 "chuck.y"
+    { yyval.type_decl = new_type_decl( yyvsp[0].id_list, EM_lineNum ); ;}
     break;
 
   case 33:
 #line 243 "chuck.y"
-    { yyval.type_decl = add_type_decl_array( yyvsp[-1].type_decl, yyvsp[0].array_sub, EM_lineNum ); ;}
+    { yyval.type_decl = yyvsp[0].type_decl; ;}
     break;
 
   case 34:
-#line 247 "chuck.y"
-    { yyval.arg_list = new_arg_list( yyvsp[-1].type_decl, yyvsp[0].sval, EM_lineNum ); ;}
+#line 244 "chuck.y"
+    { yyval.type_decl = add_type_decl_array( yyvsp[-1].type_decl, yyvsp[0].array_sub, EM_lineNum ); ;}
     break;
 
   case 35:
 #line 248 "chuck.y"
-    { yyval.arg_list = prepend_arg_list( yyvsp[-3].type_decl, yyvsp[-2].sval, yyvsp[0].arg_list, EM_lineNum ); ;}
+    { yyval.arg_list = new_arg_list( yyvsp[-1].type_decl, yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 36:
-#line 252 "chuck.y"
-    { yyval.stmt_list = new_stmt_list( yyvsp[0].stmt, EM_lineNum ); ;}
+#line 249 "chuck.y"
+    { yyval.arg_list = prepend_arg_list( yyvsp[-3].type_decl, yyvsp[-2].sval, yyvsp[0].arg_list, EM_lineNum ); ;}
     break;
 
   case 37:
 #line 253 "chuck.y"
-    { yyval.stmt_list = prepend_stmt_list( yyvsp[-1].stmt, yyvsp[0].stmt_list, EM_lineNum ); ;}
+    { yyval.stmt_list = new_stmt_list( yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 38:
-#line 257 "chuck.y"
-    { yyval.stmt = yyvsp[0].stmt; ;}
+#line 254 "chuck.y"
+    { yyval.stmt_list = prepend_stmt_list( yyvsp[-1].stmt, yyvsp[0].stmt_list, EM_lineNum ); ;}
     break;
 
   case 39:
@@ -1808,153 +1808,153 @@ yyreduce:
     break;
 
   case 42:
-#line 262 "chuck.y"
+#line 261 "chuck.y"
     { yyval.stmt = yyvsp[0].stmt; ;}
     break;
 
   case 43:
-#line 266 "chuck.y"
-    { yyval.stmt = new_stmt_from_return( NULL, EM_lineNum ); ;}
+#line 263 "chuck.y"
+    { yyval.stmt = yyvsp[0].stmt; ;}
     break;
 
   case 44:
 #line 267 "chuck.y"
-    { yyval.stmt = new_stmt_from_return( yyvsp[-1].exp, EM_lineNum ); ;}
+    { yyval.stmt = new_stmt_from_return( NULL, EM_lineNum ); ;}
     break;
 
   case 45:
-#line 272 "chuck.y"
-    { yyval.stmt = new_stmt_from_if( yyvsp[-2].exp, yyvsp[0].stmt, NULL, EM_lineNum ); ;}
+#line 268 "chuck.y"
+    { yyval.stmt = new_stmt_from_return( yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 46:
-#line 274 "chuck.y"
-    { yyval.stmt = new_stmt_from_if( yyvsp[-4].exp, yyvsp[-2].stmt, yyvsp[0].stmt, EM_lineNum ); ;}
+#line 273 "chuck.y"
+    { yyval.stmt = new_stmt_from_if( yyvsp[-2].exp, yyvsp[0].stmt, NULL, EM_lineNum ); ;}
     break;
 
   case 47:
-#line 279 "chuck.y"
-    { yyval.stmt = new_stmt_from_while( yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
+#line 275 "chuck.y"
+    { yyval.stmt = new_stmt_from_if( yyvsp[-4].exp, yyvsp[-2].stmt, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 48:
-#line 281 "chuck.y"
-    { yyval.stmt = new_stmt_from_do_while( yyvsp[-2].exp, yyvsp[-5].stmt, EM_lineNum ); ;}
+#line 280 "chuck.y"
+    { yyval.stmt = new_stmt_from_while( yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 49:
-#line 283 "chuck.y"
-    { yyval.stmt = new_stmt_from_for( yyvsp[-3].stmt, yyvsp[-2].stmt, NULL, yyvsp[0].stmt, EM_lineNum ); ;}
+#line 282 "chuck.y"
+    { yyval.stmt = new_stmt_from_do_while( yyvsp[-2].exp, yyvsp[-5].stmt, EM_lineNum ); ;}
     break;
 
   case 50:
-#line 285 "chuck.y"
-    { yyval.stmt = new_stmt_from_for( yyvsp[-4].stmt, yyvsp[-3].stmt, yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
+#line 284 "chuck.y"
+    { yyval.stmt = new_stmt_from_for( yyvsp[-3].stmt, yyvsp[-2].stmt, NULL, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 51:
-#line 287 "chuck.y"
-    { yyval.stmt = new_stmt_from_until( yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
+#line 286 "chuck.y"
+    { yyval.stmt = new_stmt_from_for( yyvsp[-4].stmt, yyvsp[-3].stmt, yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 52:
-#line 289 "chuck.y"
-    { yyval.stmt = new_stmt_from_do_until( yyvsp[-2].exp, yyvsp[-5].stmt, EM_lineNum ); ;}
+#line 288 "chuck.y"
+    { yyval.stmt = new_stmt_from_until( yyvsp[-2].exp, yyvsp[0].stmt, EM_lineNum ); ;}
     break;
 
   case 53:
-#line 293 "chuck.y"
-    { yyval.stmt = NULL; ;}
+#line 290 "chuck.y"
+    { yyval.stmt = new_stmt_from_do_until( yyvsp[-2].exp, yyvsp[-5].stmt, EM_lineNum ); ;}
     break;
 
   case 54:
 #line 294 "chuck.y"
-    { yyval.stmt = new_stmt_from_code( yyvsp[-1].stmt_list, EM_lineNum ); ;}
+    { yyval.stmt = NULL; ;}
     break;
 
   case 55:
-#line 298 "chuck.y"
-    { yyval.stmt = NULL; ;}
+#line 295 "chuck.y"
+    { yyval.stmt = new_stmt_from_code( yyvsp[-1].stmt_list, EM_lineNum ); ;}
     break;
 
   case 56:
 #line 299 "chuck.y"
-    { yyval.stmt = new_stmt_from_expression( yyvsp[-1].exp, EM_lineNum ); ;}
+    { yyval.stmt = NULL; ;}
     break;
 
   case 57:
-#line 303 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 300 "chuck.y"
+    { yyval.stmt = new_stmt_from_expression( yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 58:
 #line 304 "chuck.y"
-    { yyval.exp = prepend_expression( yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
-    break;
-
-  case 59:
-#line 308 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
+  case 59:
+#line 305 "chuck.y"
+    { yyval.exp = prepend_expression( yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
+    break;
+
   case 60:
-#line 310 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, yyvsp[-1].ival, yyvsp[0].exp, EM_lineNum ); ;}
+#line 309 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 61:
-#line 314 "chuck.y"
-    { yyval.array_sub = new_array_sub( yyvsp[-1].exp, EM_lineNum ); ;}
+#line 311 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, yyvsp[-1].ival, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 62:
-#line 316 "chuck.y"
-    { yyval.array_sub = prepend_array_sub( yyvsp[-3].array_sub, yyvsp[-1].exp, EM_lineNum ); ;}
+#line 315 "chuck.y"
+    { yyval.array_sub = new_array_sub( yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 63:
-#line 320 "chuck.y"
-    { yyval.array_sub = new_array_sub( NULL, EM_lineNum ); ;}
+#line 317 "chuck.y"
+    { yyval.array_sub = prepend_array_sub( yyvsp[-3].array_sub, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 64:
 #line 321 "chuck.y"
-    { yyval.array_sub = prepend_array_sub( yyvsp[-2].array_sub, NULL, EM_lineNum ); ;}
+    { yyval.array_sub = new_array_sub( NULL, EM_lineNum ); ;}
     break;
 
   case 65:
-#line 325 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 322 "chuck.y"
+    { yyval.array_sub = prepend_array_sub( yyvsp[-2].array_sub, NULL, EM_lineNum ); ;}
     break;
 
   case 66:
 #line 326 "chuck.y"
-    { yyval.exp = new_exp_decl( NULL, yyvsp[0].var_decl_list, EM_lineNum ); ;}
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 67:
 #line 327 "chuck.y"
-    { yyval.exp = new_exp_decl( yyvsp[-1].type_decl, yyvsp[0].var_decl_list, EM_lineNum ); ;}
+    { yyval.exp = new_exp_decl( NULL, yyvsp[0].var_decl_list, EM_lineNum ); ;}
     break;
 
   case 68:
-#line 331 "chuck.y"
-    { yyval.var_decl_list = new_var_decl_list( yyvsp[0].var_decl, EM_lineNum ); ;}
+#line 328 "chuck.y"
+    { yyval.exp = new_exp_decl( yyvsp[-1].type_decl, yyvsp[0].var_decl_list, EM_lineNum ); ;}
     break;
 
   case 69:
 #line 332 "chuck.y"
-    { yyval.var_decl_list = prepend_var_decl_list( yyvsp[-2].var_decl, yyvsp[0].var_decl_list, EM_lineNum ); ;}
+    { yyval.var_decl_list = new_var_decl_list( yyvsp[0].var_decl, EM_lineNum ); ;}
     break;
 
   case 70:
-#line 336 "chuck.y"
-    { yyval.var_decl = new_var_decl( yyvsp[0].sval, NULL, EM_lineNum ); ;}
+#line 333 "chuck.y"
+    { yyval.var_decl_list = prepend_var_decl_list( yyvsp[-2].var_decl, yyvsp[0].var_decl_list, EM_lineNum ); ;}
     break;
 
   case 71:
 #line 337 "chuck.y"
-    { yyval.var_decl = new_var_decl( yyvsp[-1].sval, yyvsp[0].array_sub, EM_lineNum ); ;}
+    { yyval.var_decl = new_var_decl( yyvsp[0].sval, NULL, EM_lineNum ); ;}
     break;
 
   case 72:
@@ -1963,357 +1963,362 @@ yyreduce:
     break;
 
   case 73:
-#line 342 "chuck.y"
-    { yyval.ival = ae_op_chuck; ;}
+#line 339 "chuck.y"
+    { yyval.var_decl = new_var_decl( yyvsp[-1].sval, yyvsp[0].array_sub, EM_lineNum ); ;}
     break;
 
   case 74:
 #line 343 "chuck.y"
-    { yyval.ival = ae_op_at_chuck; ;}
+    { yyval.ival = ae_op_chuck; ;}
     break;
 
   case 75:
 #line 344 "chuck.y"
-    { yyval.ival = ae_op_plus_chuck; ;}
+    { yyval.ival = ae_op_at_chuck; ;}
     break;
 
   case 76:
 #line 345 "chuck.y"
-    { yyval.ival = ae_op_minus_chuck; ;}
+    { yyval.ival = ae_op_plus_chuck; ;}
     break;
 
   case 77:
 #line 346 "chuck.y"
-    { yyval.ival = ae_op_times_chuck; ;}
+    { yyval.ival = ae_op_minus_chuck; ;}
     break;
 
   case 78:
 #line 347 "chuck.y"
-    { yyval.ival = ae_op_divide_chuck; ;}
+    { yyval.ival = ae_op_times_chuck; ;}
     break;
 
   case 79:
 #line 348 "chuck.y"
-    { yyval.ival = ae_op_shift_right_chuck; ;}
+    { yyval.ival = ae_op_divide_chuck; ;}
     break;
 
   case 80:
 #line 349 "chuck.y"
-    { yyval.ival = ae_op_shift_left_chuck; ;}
+    { yyval.ival = ae_op_shift_right_chuck; ;}
     break;
 
   case 81:
 #line 350 "chuck.y"
-    { yyval.ival = ae_op_percent_chuck; ;}
+    { yyval.ival = ae_op_shift_left_chuck; ;}
     break;
 
   case 82:
 #line 351 "chuck.y"
-    { yyval.ival = ae_op_unchuck; ;}
+    { yyval.ival = ae_op_percent_chuck; ;}
     break;
 
   case 83:
-#line 359 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 352 "chuck.y"
+    { yyval.ival = ae_op_unchuck; ;}
     break;
 
   case 84:
-#line 361 "chuck.y"
-    { yyval.exp = new_exp_from_if( yyvsp[-4].exp, yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
+#line 360 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 85:
-#line 365 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 362 "chuck.y"
+    { yyval.exp = new_exp_from_if( yyvsp[-4].exp, yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 86:
-#line 367 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_or, yyvsp[0].exp, EM_lineNum ); ;}
+#line 366 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 87:
-#line 371 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 368 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_or, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 88:
-#line 373 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_and, yyvsp[0].exp, EM_lineNum ); ;}
+#line 372 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 89:
-#line 377 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 374 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_and, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 90:
-#line 379 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_or, yyvsp[0].exp, EM_lineNum ); ;}
+#line 378 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 91:
-#line 383 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 380 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_or, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 92:
-#line 385 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_xor, yyvsp[0].exp, EM_lineNum ); ;}
+#line 384 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 93:
-#line 389 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 386 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_xor, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 94:
-#line 391 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_and, yyvsp[0].exp, EM_lineNum ); ;}
+#line 390 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 95:
-#line 395 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 392 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_s_and, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 96:
-#line 397 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_eq, yyvsp[0].exp, EM_lineNum ); ;}
+#line 396 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 97:
-#line 399 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_neq, yyvsp[0].exp, EM_lineNum ); ;}
+#line 398 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_eq, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 98:
-#line 403 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 400 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_neq, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 99:
-#line 405 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_lt, yyvsp[0].exp, EM_lineNum ); ;}
+#line 404 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 100:
-#line 407 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_gt, yyvsp[0].exp, EM_lineNum ); ;}
+#line 406 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_lt, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 101:
-#line 409 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_le, yyvsp[0].exp, EM_lineNum ); ;}
+#line 408 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_gt, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 102:
-#line 411 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_ge, yyvsp[0].exp, EM_lineNum ); ;}
+#line 410 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_le, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 103:
-#line 415 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 412 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_ge, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 104:
-#line 417 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_shift_left, yyvsp[0].exp, EM_lineNum ); ;}
+#line 416 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 105:
-#line 419 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_shift_right, yyvsp[0].exp, EM_lineNum ); ;}
+#line 418 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_shift_left, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 106:
-#line 423 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 420 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_shift_right, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 107:
-#line 425 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_plus, yyvsp[0].exp, EM_lineNum ); ;}
+#line 424 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 108:
-#line 427 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_minus, yyvsp[0].exp, EM_lineNum ); ;}
+#line 426 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_plus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 109:
-#line 431 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 428 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_minus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 110:
-#line 433 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_times, yyvsp[0].exp, EM_lineNum ); ;}
+#line 432 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 111:
-#line 435 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_divide, yyvsp[0].exp, EM_lineNum ); ;}
+#line 434 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_times, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 112:
-#line 437 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_percent, yyvsp[0].exp, EM_lineNum ); ;}
+#line 436 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_divide, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 113:
-#line 441 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 438 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_percent, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 114:
-#line 443 "chuck.y"
-    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_tilda, yyvsp[0].exp, EM_lineNum ); ;}
+#line 442 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 115:
-#line 447 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 444 "chuck.y"
+    { yyval.exp = new_exp_from_binary( yyvsp[-2].exp, ae_op_tilda, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 116:
-#line 449 "chuck.y"
-    { yyval.exp = new_exp_from_cast( NULL, yyvsp[0].exp, EM_lineNum ); ;}
-    break;
-
-  case 117:
-#line 453 "chuck.y"
+#line 448 "chuck.y"
     { yyval.exp = yyvsp[0].exp; ;}
     break;
 
+  case 117:
+#line 450 "chuck.y"
+    { yyval.exp = new_exp_from_cast( NULL, yyvsp[0].exp, EM_lineNum ); ;}
+    break;
+
   case 118:
-#line 455 "chuck.y"
-    { yyval.exp = new_exp_from_unary( ae_op_plusplus, yyvsp[0].exp, EM_lineNum ); ;}
+#line 454 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 119:
-#line 457 "chuck.y"
-    { yyval.exp = new_exp_from_unary( ae_op_minusminus, yyvsp[0].exp, EM_lineNum ); ;}
+#line 456 "chuck.y"
+    { yyval.exp = new_exp_from_unary( ae_op_plusplus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 120:
-#line 459 "chuck.y"
-    { yyval.exp = new_exp_from_unary( yyvsp[-1].ival, yyvsp[0].exp, EM_lineNum ); ;}
+#line 458 "chuck.y"
+    { yyval.exp = new_exp_from_unary( ae_op_minusminus, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 121:
-#line 461 "chuck.y"
-    { yyval.exp = new_exp_from_unary( ae_op_typeof, yyvsp[-1].exp, EM_lineNum ); ;}
+#line 460 "chuck.y"
+    { yyval.exp = new_exp_from_unary( yyvsp[-1].ival, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 122:
-#line 463 "chuck.y"
-    { yyval.exp = new_exp_from_unary( ae_op_sizeof, yyvsp[-1].exp, EM_lineNum ); ;}
+#line 462 "chuck.y"
+    { yyval.exp = new_exp_from_unary( ae_op_typeof, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 123:
-#line 471 "chuck.y"
-    { yyval.ival = ae_op_plus; ;}
+#line 464 "chuck.y"
+    { yyval.exp = new_exp_from_unary( ae_op_sizeof, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 124:
 #line 472 "chuck.y"
-    { yyval.ival = ae_op_minus; ;}
+    { yyval.ival = ae_op_plus; ;}
     break;
 
   case 125:
 #line 473 "chuck.y"
-    { yyval.ival = ae_op_tilda; ;}
+    { yyval.ival = ae_op_minus; ;}
     break;
 
   case 126:
 #line 474 "chuck.y"
-    { yyval.ival = ae_op_exclamation; ;}
+    { yyval.ival = ae_op_tilda; ;}
     break;
 
   case 127:
 #line 475 "chuck.y"
-    { yyval.ival = ae_op_times; ;}
+    { yyval.ival = ae_op_exclamation; ;}
     break;
 
   case 128:
 #line 476 "chuck.y"
-    { yyval.ival = ae_op_spork; ;}
+    { yyval.ival = ae_op_times; ;}
     break;
 
   case 129:
-#line 481 "chuck.y"
-    { yyval.exp = yyvsp[0].exp; ;}
+#line 477 "chuck.y"
+    { yyval.ival = ae_op_spork; ;}
     break;
 
   case 130:
-#line 483 "chuck.y"
-    { yyval.exp = new_exp_from_array( yyvsp[-1].exp, yyvsp[0].array_sub, EM_lineNum ); ;}
+#line 482 "chuck.y"
+    { yyval.exp = yyvsp[0].exp; ;}
     break;
 
   case 131:
-#line 485 "chuck.y"
-    { yyval.exp = new_exp_from_func_call( yyvsp[-2].exp, NULL, EM_lineNum ); ;}
+#line 484 "chuck.y"
+    { yyval.exp = new_exp_from_array( yyvsp[-1].exp, yyvsp[0].array_sub, EM_lineNum ); ;}
     break;
 
   case 132:
-#line 487 "chuck.y"
-    { yyval.exp = new_exp_from_func_call( yyvsp[-3].exp, yyvsp[-1].exp, EM_lineNum ); ;}
+#line 486 "chuck.y"
+    { yyval.exp = new_exp_from_func_call( yyvsp[-2].exp, NULL, EM_lineNum ); ;}
     break;
 
   case 133:
-#line 489 "chuck.y"
-    { yyval.exp = new_exp_from_member_dot( yyvsp[-2].exp, yyvsp[0].sval, EM_lineNum ); ;}
+#line 488 "chuck.y"
+    { yyval.exp = new_exp_from_func_call( yyvsp[-3].exp, yyvsp[-1].exp, EM_lineNum ); ;}
     break;
 
   case 134:
-#line 491 "chuck.y"
-    { yyval.exp = new_exp_from_postfix( yyvsp[-1].exp, ae_op_plusplus, EM_lineNum ); ;}
+#line 490 "chuck.y"
+    { yyval.exp = new_exp_from_member_dot( yyvsp[-2].exp, yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 135:
-#line 493 "chuck.y"
-    { yyval.exp = new_exp_from_postfix( yyvsp[-1].exp, ae_op_minusminus, EM_lineNum ); ;}
+#line 492 "chuck.y"
+    { yyval.exp = new_exp_from_postfix( yyvsp[-1].exp, ae_op_plusplus, EM_lineNum ); ;}
     break;
 
   case 136:
-#line 495 "chuck.y"
-    { yyval.exp = new_exp_from_dur( yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
+#line 494 "chuck.y"
+    { yyval.exp = new_exp_from_postfix( yyvsp[-1].exp, ae_op_minusminus, EM_lineNum ); ;}
     break;
 
   case 137:
-#line 499 "chuck.y"
-    { yyval.exp = new_exp_from_id( yyvsp[0].sval, EM_lineNum ); ;}
+#line 496 "chuck.y"
+    { yyval.exp = new_exp_from_dur( yyvsp[-2].exp, yyvsp[0].exp, EM_lineNum ); ;}
     break;
 
   case 138:
 #line 500 "chuck.y"
-    { yyval.exp = new_exp_from_int( yyvsp[0].ival, EM_lineNum ); ;}
+    { yyval.exp = new_exp_from_id( yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 139:
 #line 501 "chuck.y"
-    { yyval.exp = new_exp_from_float( yyvsp[0].fval, EM_lineNum ); ;}
+    { yyval.exp = new_exp_from_int( yyvsp[0].ival, EM_lineNum ); ;}
     break;
 
   case 140:
 #line 502 "chuck.y"
-    { yyval.exp = new_exp_from_str( yyvsp[0].sval, EM_lineNum ); ;}
+    { yyval.exp = new_exp_from_float( yyvsp[0].fval, EM_lineNum ); ;}
     break;
 
   case 141:
 #line 503 "chuck.y"
-    { yyval.exp = new_exp_from_namespace( "", EM_lineNum ); ;}
+    { yyval.exp = new_exp_from_str( yyvsp[0].sval, EM_lineNum ); ;}
     break;
 
   case 142:
 #line 504 "chuck.y"
-    { yyval.exp = new_exp_from_namespace( yyvsp[-1].sval, EM_lineNum ); ;}
+    { yyval.exp = new_exp_from_namespace( "", EM_lineNum ); ;}
     break;
 
   case 143:
 #line 505 "chuck.y"
+    { yyval.exp = new_exp_from_namespace( yyvsp[-1].sval, EM_lineNum ); ;}
+    break;
+
+  case 144:
+#line 506 "chuck.y"
     { yyval.exp = yyvsp[-1].exp; ;}
     break;
 
@@ -2321,7 +2326,7 @@ yyreduce:
     }
 
 /* Line 999 of yacc.c.  */
-#line 2325 "chuck.tab.c"
+#line 2330 "chuck.tab.c"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -2532,7 +2537,7 @@ yyreturn:
 /* A lexical scanner generated by flex */
 
 /* Scanner skeleton version:
- * $Header: /cvs/chuck_dev/v2/chuck_win32.c,v 1.2 2004/12/20 03:53:09 gw-chuck Exp $
+ * $Header: /cvs/chuck_dev/v2/chuck_win32.c,v 1.3 2004/12/20 04:27:36 gw-chuck Exp $
  */
 
 #define FLEX_SCANNER
