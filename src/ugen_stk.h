@@ -132,8 +132,10 @@ UGEN_DTOR Echo_dtor( t_CKTIME now, void * data );
 UGEN_TICK Echo_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Echo_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Echo_ctrl_delay( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Echo_ctrl_max( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Echo_ctrl_mix( t_CKTIME now, void * data, void * value );
 UGEN_CGET Echo_cget_delay( t_CKTIME now, void * data, void * value );
+UGEN_CGET Echo_cget_max( t_CKTIME now, void * data, void * value );
 UGEN_CGET Echo_cget_mix( t_CKTIME now, void * data, void * value );
 
 // Envelope

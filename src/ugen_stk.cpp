@@ -2689,7 +2689,7 @@ class Drummer : public Instrmnt
 
 class Echo : public Stk
 {
- public:
+public:
   //! Class constructor, taking the longest desired delay length.
   Echo(MY_FLOAT longestDelay);
 
@@ -2701,6 +2701,8 @@ class Echo : public Stk
 
   //! Set the delay line length in samples.
   void setDelay(MY_FLOAT delay);
+  void set(MY_FLOAT max);
+  MY_FLOAT getDelay();
 
   //! Set the mixture of input and processed levels in the output (0.0 = input only, 1.0 = processed only). 
   void setEffectMix(MY_FLOAT mix);
@@ -2714,7 +2716,7 @@ class Echo : public Stk
   //! Input \e vectorSize samples to the filter and return an equal number of outputs in \e vector.
   MY_FLOAT *tick(MY_FLOAT *vector, unsigned int vectorSize);
 
- protected:
+public:
   Delay *delayLine;
   long length;
   MY_FLOAT lastOutput;
@@ -8692,15 +8694,29 @@ MY_FLOAT Drummer :: tick()
 
 Echo :: Echo(MY_FLOAT longestDelay)
 {
-  length = (long) longestDelay + 2;
-  delayLine = new Delay(length>>1, length);
-  effectMix = 0.5;
-  this->clear();
+    delayLine = NULL;
+    this->set( longestDelay );
+    effectMix = 0.5;
 }
 
 Echo :: ~Echo()
 {
-  delete delayLine;
+    delete delayLine;
+}
+
+void Echo :: set( MY_FLOAT max )
+{
+    length = (long)max + 2;
+    MY_FLOAT delay = delayLine->getDelay();
+    if( delayLine ) delete delayLine;
+    delayLine = new Delay(length>>1, length);
+    this->clear();
+    this->setDelay(delay+.5);
+}
+
+MY_FLOAT Echo :: getDelay()
+{
+    return delayLine->getDelay();
 }
 
 void Echo :: clear()
@@ -19178,6 +19194,59 @@ UGEN_CGET DelayL_cget_delay( t_CKTIME now, void * data, void * value )
 UGEN_CGET DelayL_cget_max( t_CKTIME now, void * data, void * value )
 {
     SET_NEXT_DUR( value, (t_CKDUR)((DelayL *)data)->length );
+}
+
+
+// Echo
+UGEN_CTOR Echo_ctor( t_CKTIME now )
+{
+    return new Echo( Stk::sampleRate() / 2.0 );
+}
+
+UGEN_DTOR Echo_dtor( t_CKTIME now, void * data )
+{
+    delete (Echo *)data;
+}
+
+UGEN_TICK Echo_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    *out = (SAMPLE)((Echo *)data)->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG Echo_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+UGEN_CTRL Echo_ctrl_delay( t_CKTIME now, void * data, void * value )
+{
+    ((Echo *)data)->setDelay( GET_NEXT_DUR(value) );
+}
+
+UGEN_CTRL Echo_ctrl_max( t_CKTIME now, void * data, void * value )
+{
+    ((Echo *)data)->set( GET_NEXT_DUR(value) );
+}
+
+UGEN_CTRL Echo_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    ((Echo *)data)->setEffectMix( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CGET Echo_cget_delay( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_DUR( value, (t_CKDUR)((Echo *)data)->getDelay() ); 
+}
+
+UGEN_CGET Echo_cget_max( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_DUR( value, (t_CKDUR)((Echo *)data)->length );
+}
+
+UGEN_CGET Echo_cget_mix( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_FLOAT( value, (t_CKFLOAT)((Echo *)data)->effectMix );
 }
 
 
