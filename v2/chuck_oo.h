@@ -149,6 +149,7 @@ public:
     ~Chuck_Array4();
 
 public:
+    inline t_CKUINT addr( t_CKINT i );
     inline t_CKINT get( t_CKINT i, t_CKUINT * val );
     inline t_CKINT set( t_CKINT i, t_CKUINT val );
     inline t_CKINT push_back( t_CKUINT val );
@@ -176,6 +177,7 @@ public:
     ~Chuck_Array8();
 
 public:
+    inline t_CKUINT addr( t_CKINT i );
     inline t_CKINT get( t_CKINT i, t_CKFLOAT * val );
     inline t_CKINT set( t_CKINT i, t_CKFLOAT val );
     inline t_CKINT push_back( t_CKFLOAT val );
