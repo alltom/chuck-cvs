@@ -68,10 +68,6 @@ typedef enum { te_nspc, te_nspc_class } te_Nspc_Kind;
 //-----------------------------------------------------------------------------
 // type engine struct
 //-----------------------------------------------------------------------------
-// typedef struct t_Type_ * t_Type;  // already defined in chuck_absyn.h
-typedef struct t_Type_List_ * t_Type_List;
-typedef struct t_Field_ * t_Field;
-typedef struct t_Field_List_ * t_Field_List;
 
 // type struct
 struct t_Type_
@@ -89,13 +85,6 @@ struct t_Type_
     // dynamic
     unsigned int dyn;
 };
-
-// type list
-struct t_Type_List_ { t_Type item; t_Type_List next; };
-// field
-struct t_Field_ { S_Symbol name; t_Type type; };
-// field list
-struct t_Field_List_ { t_Field item; t_Field_List next; };
 
 
 
