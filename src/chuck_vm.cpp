@@ -157,7 +157,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority, Chuck_VM * vm )
     struct sched_param param;
     pthread_t tid = pthread_self();
     int policy;
-    if ( pthread_getschedparam( tid, &policy, &param) ) 
+    if( pthread_getschedparam( tid, &policy, &param) ) 
     {
         if( vm )
         vm->m_last_error = "could not get current scheduling parameters";
