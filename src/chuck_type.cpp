@@ -1175,6 +1175,8 @@ t_Type type_engine_check_op( t_Env env, ae_Operator op,
             return &t_time;
         if( (left->type == te_dur) && (right->type == left->type) )
             return &t_dur;
+        if( (left->type == te_time) && (right->type == left->type) ) //XXX time - time = dur
+            return &t_dur;
     case ae_op_times:
     case ae_op_divide:
     case ae_op_plus_chuck:

@@ -1695,6 +1695,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emmission * emit,
     case ae_op_minus:
         if( ( left == te_time && right == te_dur ) )
             emit->append( new Chuck_Instr_Minus_double );
+        else if( ( left == te_time && right == te_time ) ) // XXX time - time = dur
+            emit->append( new Chuck_Instr_Minus_double );
         else
         {
             switch( left )
