@@ -1709,7 +1709,7 @@ t_Type type_engine_check_exp_decl( t_Env env, a_Exp_Decl decl )
 {
     a_Var_Decl var_decl = decl->var_decl_list->var_decl;
     
-    t_Type t = NULL;
+    t_Type t = NULL, t2 = NULL;
     
     if( var_decl->isarray )
     {
@@ -1728,6 +1728,17 @@ t_Type type_engine_check_exp_decl( t_Env env, a_Exp_Decl decl )
             // error - no type
             EM_error2( decl->linepos, "undefined type '%s'",
                 S_name(decl->type) );
+            return NULL;
+        }
+        
+        // check to see if value is there
+        t2 = lookup_value( env, var_decl->id, FALSE );
+        if( t2 != NULL )
+        {
+            // error - already defined in local scope
+            EM_error2( decl->linepos, 
+                "'%s' has already been defined in the same scope",
+                S_name(var_decl->id) );
             return NULL;
         }
 
