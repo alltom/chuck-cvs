@@ -34,7 +34,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+
 #include <sys/stat.h>
+
 #include <fstream>
 using namespace std;
 
@@ -152,11 +154,11 @@ void signal_pipe( int sig_num )
 FILE * open_cat( c_str fname )
 {
     FILE * fd = NULL;
-    if( !(fd = fopen( fname, "r" )) )
+    if( !(fd = fopen( fname, "rb" )) )
         if( !strstr( fname, ".ck" ) && !strstr( fname, ".CK" ) )
         {
             strcat( fname, ".ck" );
-            fd = fopen( fname, "r" );
+            fd = fopen( fname, "rb" );
         }
     return fd;
 }
@@ -332,6 +334,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     stat( msg.buffer, &fs );
     fseek( fd, 0, SEEK_SET );
 
+    //fprintf(stderr, "sending TCP file %s\n", msg.buffer );
     // send the first packet
     msg.param2 = (t_CKUINT)fs.st_size;
     msg.length = 0;
@@ -342,6 +345,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     t_CKUINT left = (t_CKUINT)fs.st_size;
     while( left )
     {
+        //fprintf(stderr,"file %03d bytes left ... ", left);
         // amount to send
         msg.length = left > NET_BUFFER_SIZE ? NET_BUFFER_SIZE : left;
         // read
@@ -349,6 +353,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
         // amount left
         left -= msg.param3 ? msg.param3 : 0;
         msg.param2 = left;
+        //fprintf(stderr, "sending fread %03d length %03d...\n", msg.param3, msg.length );
         // send it
         otf_hton( &msg );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
@@ -356,7 +361,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     
     // close
     fclose( fd );
-    
+    //fprintf(stderr, "done.\n", msg.buffer );
     return TRUE;
 }
 
@@ -499,8 +504,10 @@ t_CKBOOL load_internal_modules( t_Env env )
 //-----------------------------------------------------------------------------
 void * timer( void * p )
 {
-    t_CKUINT t = *(t_CKUINT *)p;
-    usleep( t );
+    if ( p ) { 
+        t_CKUINT t = *(t_CKUINT *)p;
+        usleep( t );
+    }
     fprintf( stderr, "[chuck]: operation timed out...\n" );
     exit(1);
 }
@@ -724,7 +731,7 @@ int send_cmd( int argc, char ** argv, int  & i )
 #ifndef __PLATFORM_WIN32__
     pthread_create( &tid, NULL, timer, new t_CKUINT(2000000) );
 #else
-    tid = (CHUCK_THREAD)CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)timer, NULL, 0, 0 );
+    tid = (CHUCK_THREAD)CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)timer, new t_CKUINT(2000000), 0, 0 );
 #endif
 
     // reply
