@@ -5,6 +5,7 @@
     also recursively removed
     (this fix crash due to removing shreds with active children shreds)
     (to keep children around, put parent in infinite time-loop)
+    (this isn't always good - real solution coming soon)
   - 'start' keyword now available - holds the a shred's begin time
 
 updated examples:
