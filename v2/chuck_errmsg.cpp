@@ -28,9 +28,9 @@
  *
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <string.h>
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
 
@@ -40,6 +40,8 @@ static c_str fileName = "";
 static int lineNum = 1;
 int EM_tokPos = 0;
 int EM_lineNum = 1;
+static char g_buffer[1024] = "";
+static char g_lasterror[1024] = "[chuck]: (no error)";
 
 extern "C" { 
 	extern FILE *yyin;
@@ -64,6 +66,15 @@ void EM_newline(void)
 }
 
 
+const char * mini( const char * str )
+{
+    int len = strlen( str );
+    const char * p = str + len;
+    while( p != str && *p != '/' && *p != '\\' ) p--;
+    return ( p == str || strlen(p+1) == 0 ? p : p+1 );
+}
+
+
 void EM_error( int pos, char *message, ... )
 {
     va_list ap;
@@ -77,7 +88,7 @@ void EM_error( int pos, char *message, ... )
         num--;
     }
 
-    fprintf( stderr, "('%s'):", *fileName ? fileName : "chuck" );
+    fprintf( stderr, "('%s'):", *fileName ? mini(fileName) : "chuck" );
     if (lines) fprintf(stderr, "line(%d).char(%d):", num, pos-lines->i );
     fprintf(stderr, " " );
     va_start(ap, message);
@@ -91,25 +102,39 @@ void EM_error2( int line, char *message, ... )
 {
     va_list ap;
 
-    fprintf( stderr, "[%s]:", *fileName ? fileName : "chuck" );
-    if (line) fprintf(stderr, "line(%d):", line );
-    fprintf(stderr, " " );
-    va_start(ap, message);
-    vfprintf(stderr, message, ap);
-    va_end(ap);
-    fprintf(stderr, "\n");
+    fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
+    sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
+    if(line) fprintf( stderr, "line(%d):", line );
+    if(line) { sprintf( g_buffer, "line(%d):", line ); strcat( g_lasterror, g_buffer ); }
+    fprintf( stderr, " " );
+    strcat( g_lasterror, " " );
+
+    va_start( ap, message );
+    vfprintf( stderr, message, ap );
+    vsprintf( g_buffer, message, ap );
+    va_end( ap );
+
+    strcat( g_lasterror, g_buffer );
+    fprintf( stderr, "\n" );
 }
 
 
-void EM_reset( c_str fname )
+t_CKBOOL EM_reset( c_str fname, FILE * fd )
 {
     anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
-    linePos=intList(0, NULL);
+    linePos = intList( 0, NULL );
 
-    yyin = fopen(fname, "r");
-    if (!yyin) 
-    {
-        EM_error( 0, "no such file or directory" );
-        exit(1);
-    }
+    if( yyin ) fclose( yyin );
+    if( fd ) yyin = fd;
+    else yyin = fopen( fname, "r" );
+    if (!yyin)
+        EM_error2( 0, "no such file or directory" );
+        
+    return (yyin != 0);
+}
+
+
+const char * EM_lasterror()
+{
+    return g_lasterror;
 }

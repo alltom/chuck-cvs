@@ -69,7 +69,7 @@ extern "C" int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.5.0"
+#define CK_VERSION "1.1.5.1 (beta)"
 
 
 #ifdef __PLATFORM_WIN32__
@@ -110,12 +110,13 @@ void signal_int( int sig_num )
         stk_detach( 0, NULL );
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
-        pthread_cancel( g_tid );
-        usleep( 100000 );
+        if( g_tid ) pthread_cancel( g_tid );
+        if( g_tid ) usleep( 50000 );
         delete( vm );
 #else
         CloseHandle( g_tid );
 #endif
+        ck_close( g_sock );
     }
 
 #ifndef __PLATFORM_WIN32__
@@ -127,31 +128,56 @@ void signal_int( int sig_num )
 
 
 
+
+//-----------------------------------------------------------------------------
+// name: signal_pipe()
+// desc: ...
+//-----------------------------------------------------------------------------
+void signal_pipe( int sig_num )
+{
+    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (lost connection)...\n" );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: open_cat()
+// desc: ...
+//-----------------------------------------------------------------------------
+FILE * open_cat( c_str fname )
+{
+    FILE * fd = NULL;
+    if( !(fd = fopen( fname, "r" )) )
+        if( !strstr( fname, ".ck" ) && !strstr( fname, ".CK" ) )
+        {
+            strcat( fname, ".ck" );
+            fd = fopen( fname, "r" );
+        }
+    return fd;
+}
+
+
+
+
 char filename[1024] = "";
 //-----------------------------------------------------------------------------
 // name: parse()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL parse( c_str fname )
+t_CKBOOL parse( c_str fname, FILE * fd = NULL )
 {
     t_CKBOOL ret = FALSE;
     strcpy( filename, fname );
-    FILE * f = NULL;
 
     // test it
-    if( !(f = fopen( filename, "r" )) )
-        if( !strstr( filename, ".ck" ) && !strstr( filename, ".CK" ) )
-        {
-            strcat( filename, ".ck" );
-            if( !(f = fopen( filename, "r" )) )
-                strcpy( filename, fname );
-        }
-
-    // close it
-    if( f ) fclose( f );
+    fd = open_cat( filename );
+    if( !fd )
+        strcpy( filename, fname );
 
     // parse
-    EM_reset( filename );
+    ret = EM_reset( filename, fd );
+    if( ret == FALSE ) return FALSE;
     ret = (yyparse( ) == 0);
 
     return ret;
@@ -200,14 +226,14 @@ t_CKBOOL emit_code( Chuck_Emmission * emit, t_Env env, a_Program prog )
 //-----------------------------------------------------------------------------
 t_CKBOOL dump_instr( Chuck_VM_Code * code )
 {
-    fprintf( stdout, "[chuck]: dumping src/shred '%s'...\n", code->name.c_str() );
-    fprintf( stdout, "...\n" );
+    fprintf( stderr, "[chuck]: dumping src/shred '%s'...\n", code->name.c_str() );
+    fprintf( stderr, "...\n" );
 
     for( unsigned int i = 0; i < code->num_instr; i++ )
-        fprintf( stdout, "'%i' %s( %s )\n", i, 
+        fprintf( stderr, "'%i' %s( %s )\n", i, 
             code->instr[i]->name(), code->instr[i]->params() );
 
-    fprintf( stdout, "...\n\n" );
+    fprintf( stderr, "...\n\n" );
 
     return TRUE;
 }
@@ -249,13 +275,13 @@ t_CKBOOL load_module( t_Env env, f_ck_query query, const char * name, const char
 //-----------------------------------------------------------------------------
 void usage()
 {
-    fprintf( stdout, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
-    fprintf( stdout, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
-    fprintf( stdout, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>\n" );
-    fprintf( stdout, "   [commands] = add|remove|replace|status|time|kill\n" );
-    fprintf( stdout, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
-    fprintf( stdout, "chuck version: %s\n", CK_VERSION );
-    fprintf( stdout, "   http://chuck.cs.princeton.edu/\n\n" );
+    fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
+    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
+    fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>\n" );
+    fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
+    fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
+    fprintf( stderr, "chuck version: %s\n", CK_VERSION );
+    fprintf( stderr, "   http://chuck.cs.princeton.edu/\n\n" );
 }
 
 
@@ -341,7 +367,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
 
     g_vm->queue_msg( cmd, 1 );
 
-    return 0;
+    return 1;
 }
 
 
@@ -373,18 +399,78 @@ t_CKBOOL load_internal_modules( t_Env env )
 
 
 //-----------------------------------------------------------------------------
+// name: timer()
+// desc: ...
+//-----------------------------------------------------------------------------
+void * timer( void * p )
+{
+    t_CKUINT t = *(t_CKUINT *)p;
+    usleep( t );
+    fprintf( stderr, "[chuck]: operation timed out...\n" );
+    exit(1);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: cb()
 // desc: ...
 //-----------------------------------------------------------------------------
 void * cb( void * p )
 {
     Msg msg;
+    ck_socket client;
+    int n;
+
+#ifndef __PLATFORM_WIN32__
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
+#endif
 
     while( true )
     {
+        client = ck_accept( g_sock );
+        if( !client )
+        {
+            if( g_vm ) fprintf( stderr, "[chuck]: socket error during accept()...\n" );
+#ifndef __PLATFORM_WIN32__
+            usleep( 40000 );
+#else
+            Sleep( 40 );
+#endif
+            ck_close( client );
+            continue;
+        }
         memset( &msg, 0, sizeof(msg) );
-        ck_recv( g_sock, (char *)&msg, sizeof(msg) );
-        if( g_vm ) process_msg( msg.type, msg.param, msg.buffer, FALSE );
+        n = ck_recv( client, (char *)&msg, sizeof(msg) );
+        if( n != sizeof(msg) )
+        {
+            fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
+#ifndef __PLATFORM_WIN32__
+            usleep( 40000 );
+#else
+            Sleep( 40 );
+#endif
+            ck_close( client );
+            continue;
+        }
+
+        if( g_vm )
+        {
+            if( !process_msg( msg.type, msg.param, msg.buffer, FALSE ) )
+            {
+                msg.param = FALSE;
+                strcpy( (char *)msg.buffer, EM_lasterror() );
+            }
+            else
+            {
+                msg.param = TRUE;
+                strcpy( (char *)msg.buffer, "success" );
+            }
+        }
+        ck_send( client, (char *)&msg, sizeof(msg) );
+        ck_close( client );
     }
     
     return NULL;
@@ -402,23 +488,30 @@ int send_cmd( int argc, char ** argv, int  & i )
     Msg msg;
     memset( &msg, 0, sizeof(msg) );
 	
-    g_sock = ck_udp_create();
+    g_sock = ck_tcp_create( 0 );
+    if( !g_sock )
+    {
+        fprintf( stderr, "[chuck]: cannot open socket to send command...\n" );
+        return 1;
+    }
 
     if( !ck_connect( g_sock, g_host, g_port ) )
     {
-        fprintf( stderr, "[chuck]: cannot open UDP socket on %s:%i\n", g_host, g_port );
+        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
         return 1;
     }
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
+        FILE * fd;
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [add]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
             return 1;
         }
 
         do {
+            strcpy( msg.buffer, "" );
             if( argv[i][0] != '/' )
             { 
                 strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
@@ -426,13 +519,16 @@ int send_cmd( int argc, char ** argv, int  & i )
             }
             strcat( msg.buffer, argv[i] );
 
-            ifstream fin;
-            fin.open( (char *)msg.buffer );
-            if( !fin.good() )
+            // test it
+            fd = open_cat( (char *)msg.buffer );
+            if( !fd )
             {
-                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]\n", msg.buffer );
+                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
                 return 1;
             }
+
+            // close it
+            if( fd ) fclose( fd );
 
             msg.type = MSG_ADD;
             ck_send( g_sock, (char *)&msg, sizeof(msg) );
@@ -442,7 +538,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     {
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [remove]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [remove]...\n" );
             return 1;
         }
 
@@ -460,9 +556,10 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
     {
+        FILE * fd;
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [replace]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
             return 1;
         }
         
@@ -473,21 +570,26 @@ int send_cmd( int argc, char ** argv, int  & i )
 
         if( ++i >= argc )
         {
-            fprintf( stderr, "[chuck]: not enough arguments following [replace]\n" );
+            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
             return 1;
         }
 
-        ifstream fin;
-        fin.open( argv[i] );
-        if( !fin.good() )
+        strcpy( msg.buffer, "" );
+        if( argv[i][0] != '/' )
+        { 
+            strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
+            strcat( msg.buffer, getenv("PWD") ? "/" : "" );
+        }
+        strcat( msg.buffer, argv[i] );
+        
+        fd = open_cat( (char *)msg.buffer );
+        if( !fd )
         {
-            fprintf( stderr, "[chuck]: cannot open file '%s' for [replace]\n", argv[i] );
+            fprintf( stderr, "[chuck]: cannot open file '%s' for [replace]...\n", argv[i] );
             return 1;
         }
-        fin.close();
-        
+
         msg.type = MSG_REPLACE;
-        strcpy( msg.buffer, argv[i] );
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
@@ -519,8 +621,30 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else
         return 0;
+        
+    // timer
+    CHUCK_THREAD tid;
+#ifndef __PLATFORM_WIN32__
+    pthread_create( &tid, NULL, timer, new t_CKUINT(2000000) );
+#else
+    tid = (CHUCK_THREAD)CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)timer, NULL, 0, 0 );
+#endif
+
+    // reply
+    if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
+    {
+        fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
+        if( !msg.param )
+            fprintf( stderr, "(reason): %s\n", 
+                ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) ) ;
+    }
+    // close the sock
+    ck_close( g_sock );
     
-    return -1;
+    // exit
+    exit( msg.param );
+
+    return 0;
 }
 
 
@@ -554,6 +678,13 @@ int main( int argc, char ** argv )
     t_CKUINT num_buffers = 4;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
+
+    // catch SIGINT
+    signal( SIGINT, signal_int );
+#ifndef __PLATFORM_WIN32__
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
+#endif
 
     for( i = 1; i < argc; i++ )
     {
@@ -596,10 +727,10 @@ int main( int argc, char ** argv )
                 exit( 2 );
             }
             else if( a = send_cmd( argc, argv, i ) )
-                exit( !(a < 0) );
+                exit( a );
 			else
             {
-                fprintf( stdout, "[chuck]: invalid flag '%s'\n", argv[i] );
+                fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
                 usage();
                 exit( 1 );
             }
@@ -613,7 +744,7 @@ int main( int argc, char ** argv )
     
     if ( !files && vm_halt )
     {
-        fprintf( stdout, "[chuck]: no input files... (try --help)\n" );
+        fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
         exit( 1 );
     }
 
@@ -626,9 +757,6 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-
-    // catch SIGINT
-    signal( SIGINT, signal_int );
     // allocate the type system
     g_env = type_engine_init( vm );
     // set the env
@@ -688,10 +816,14 @@ int main( int argc, char ** argv )
     // link
     // emit_engine_resolve_globals();
     
-    // start udp server
-    g_sock = ck_udp_create();
-    if( !ck_bind( g_sock, g_port ) )
-        fprintf( stderr, "[chuck]: cannot bind to udp port %i...\n", g_port );
+    // start tcp server
+    g_sock = ck_tcp_create( 1 );
+    if( !g_sock || !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
+    {
+        fprintf( stderr, "[chuck]: cannot bind to tcp port %i...\n", g_port );
+        ck_close( g_sock );
+        g_sock = NULL;
+    }
     else
     {
 #ifndef __PLATFORM_WIN32__
@@ -715,6 +847,7 @@ int main( int argc, char ** argv )
     CloseHandle( g_tid );
 #endif
     usleep( 100000 );
+    ck_close( g_sock );
         
     return 0;
 }

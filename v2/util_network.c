@@ -34,6 +34,8 @@
 //         Ge Wang (gewang@cs.princeton.edu)
 //-----------------------------------------------------------------------------
 #include "util_network.h"
+#include "chuck_utils.h"
+#include <stdio.h>
 
 #if defined(__PLATFORM_WIN32__)
 #include <winsock.h>
@@ -42,6 +44,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #endif
@@ -56,18 +59,16 @@
 struct ck_socket_
 {
     int sock;
+    int prot;
     struct sockaddr_in sock_in;
-
-#ifndef __PLATFORM_WIN32__
-};
-#else
-    static WSADATA wsd;
-    static int init;
+    int len;
 };
 
-WSADATA ck_socket_::wsd;
-int ck_socket_::init = 0;
+#ifdef __PLATFORM_WIN32__
+static WSADATA g_wsd;
+static int g_init = 0;
 #endif
+
 
 
 
@@ -77,18 +78,62 @@ int ck_socket_::init = 0;
 //-----------------------------------------------------------------------------
 ck_socket ck_udp_create( )
 {
-    ck_socket sock = (ck_socket)calloc( 1, sizeof( struct ck_socket_ ) );
+    ck_socket sock = NULL;
 
 #ifdef __PLATFORM_WIN32__
     // winsock init
-    if( ck_socket_::init == 0 )
-        WSAStartup( MAKEWORD(1,1), &(ck_socket_::wsd) );
+    if( g_init == 0 )
+        if( WSAStartup( MAKEWORD(1,1), &(g_wsd) ) != 0 && 
+            WSAStartup( MAKEWORD(1,0), &(g_wsd) ) != 0 )
+        {
+            fprintf( stderr, "[chuck]: cannot start winsock, networking disabled...\n" );
+            return NULL;
+        }
 
     // count
-    ck_socket_::init++;
+    g_init++;
 #endif
 
+    sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
     sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
+    sock->prot = SOCK_DGRAM;
+
+    return sock;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_tcp_create()
+// desc: create a tcp socket
+//-----------------------------------------------------------------------------
+ck_socket ck_tcp_create( int flags )
+{
+    ck_socket sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
+    int nd = 1; int ru = 1;
+
+#ifdef __PLATFORM_WIN32__
+    // winsock init
+    if( g_init == 0 )
+        if( WSAStartup( MAKEWORD(1,1), &(g_wsd) ) != 0 &&
+            WSAStartup( MAKEWORD(1,0), &(g_wsd) ) != 0 )
+        {
+            fprintf( stderr, "[chuck]: cannot start winsock, networking disabled...\n" );
+            return NULL;
+        }
+
+    // count
+    g_init++;
+#endif
+
+    sock->sock = socket( AF_INET, SOCK_STREAM, 0 );
+    sock->prot = SOCK_STREAM;
+
+    if( flags )
+        setsockopt( sock->sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&ru, sizeof(ru) );
+    // setsockopt( sock->sock, SOL_SOCKET, SO_REUSEPORT, (const char *)&ru, sizeof(ru) );
+    setsockopt( sock->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
 
     return sock;
 }
@@ -181,6 +226,51 @@ t_CKBOOL ck_bind( ck_socket sock, int port )
 
 
 //-----------------------------------------------------------------------------
+// name: ck_listen()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL ck_listen( ck_socket sock, int backlog )
+{
+    int ret;
+    
+    if( sock->prot != SOCK_STREAM ) return FALSE;
+    ret = listen( sock->sock, backlog );
+    
+    return ( ret >= 0 );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_accept()
+// desc: ...
+//-----------------------------------------------------------------------------
+ck_socket ck_accept( ck_socket sock )
+{
+    ck_socket client;
+    int nd = 1;
+    
+    if( sock->prot != SOCK_STREAM ) return NULL;
+    client = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
+    client->len = sizeof( client->sock_in );
+    client->sock = accept( sock->sock, (struct sockaddr *)&client->sock_in,
+        &client->len );
+    if( client->sock <= 0 ) goto error;
+    client->prot = SOCK_STREAM;
+    setsockopt( client->sock, IPPROTO_TCP, TCP_NODELAY, (const char *)&nd, sizeof(nd) );
+    
+    return client;
+
+error:
+    free( client );
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: ck_send()
 // desc: send a datagram
 //-----------------------------------------------------------------------------
@@ -199,7 +289,8 @@ int ck_send( ck_socket sock, const char * buffer, int len )
 int ck_sendto( ck_socket sock, const char * buffer, int len,
                const struct sockaddr * to, int tolen ) 
 {
-    return sendto( sock->sock, buffer, len, 0, to, tolen );
+    if( sock->prot == SOCK_STREAM ) return 0;
+    else return sendto( sock->sock, buffer, len, 0, to, tolen );
 }
 
 
@@ -212,7 +303,12 @@ int ck_sendto( ck_socket sock, const char * buffer, int len,
 int ck_recvfrom( ck_socket sock, char * buffer, int len,
                  struct sockaddr * from, int * fromlen ) 
 {
-    return recvfrom( sock->sock, buffer, len, 0, from, fromlen );
+    if( sock->prot == SOCK_STREAM )
+    {
+        memset( buffer, 0, len );
+        return 0;
+    }
+    else return recvfrom( sock->sock, buffer, len, 0, from, fromlen );
 }
 
 
@@ -224,7 +320,21 @@ int ck_recvfrom( ck_socket sock, char * buffer, int len,
 //-----------------------------------------------------------------------------
 int ck_recv( ck_socket sock, char * buffer, int len ) 
 {
-    return recv( sock->sock, buffer, len, 0);
+    if( sock->prot == SOCK_STREAM )
+    {
+        int ret;
+        int togo = len;
+        char * p = buffer;
+        while( togo > 0 )
+        {
+            ret = recv( sock->sock, p, togo, 0 );
+            if( ret < 0 ) return 0;
+            togo -= ret;
+            p += ret;
+        }
+        return len;
+    }
+    else return recv( sock->sock, buffer, len, 0);
 }
 
 
@@ -236,14 +346,21 @@ int ck_recv( ck_socket sock, char * buffer, int len )
 //-----------------------------------------------------------------------------
 void ck_close( ck_socket sock ) 
 {
+    if( !sock ) return;
+    
+#ifdef __PLATFORM_WIN32__
+    closesocket( sock->sock );
+#else
     close( sock->sock );
+#endif
+
     free( sock );
 
 #ifdef __PLATFORM_WIN32__
     // uncount
-    ck_socket_::init--;
+    g_init--;
 
     // close
-    if( ck_socket_::init == 0 ) WSACleanup();
+    if( g_init == 0 ) WSACleanup();
 #endif
 }

@@ -343,7 +343,7 @@ public:
 //-----------------------------------------------------------------------------
 enum Chuck_Msg_Type
 {
-	MSG_ADD= 1,
+	MSG_ADD = 1,
 	MSG_REMOVE,
     MSG_REMOVEALL,
 	MSG_REPLACE,

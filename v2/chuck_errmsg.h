@@ -35,6 +35,7 @@
 #define __CHUCK_ERRORMSG_H__
 
 #include "chuck_def.h"
+#include <stdio.h>
 
 
 #if defined(_cplusplus) || defined(__cplusplus)
@@ -51,8 +52,10 @@ void EM_newline( );
 void EM_error( int, c_str, ... );
 void EM_error2( int, c_str, ... );
 void EM_impossible( c_str, ... );
-void EM_reset( c_str filename );
+t_CKBOOL EM_reset( c_str filename, FILE * fd );
+const char * EM_lasterror();
 
+const char * mini( const char * str );
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }
