@@ -197,7 +197,7 @@ public: // data
     SAMPLE m_current;
     SAMPLE m_last;
     SAMPLE m_gain;
-    int m_op;
+    t_CKINT m_op;
     Chuck_VM_Shred * shred;
 
 public: // dynamic linking client data

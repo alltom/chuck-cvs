@@ -35,12 +35,6 @@
 
 #include <stdlib.h>
 
-#ifdef __PLATFORM_WIN32__ //ignore some warnings
-#pragma warning (disable : 4996)  //stdio deprecation
-#pragma warning (disable : 4312)  //type casts from void*
-#pragma warning (disable : 4311)  //type casts to void*
-#pragma warning (disable : 4244)  //truncation
-#endif
 
 // types
 #define t_CKTIME                    double
@@ -68,6 +62,13 @@ typedef const char *                c_constr;
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(x)              { if(x){ delete x; x = NULL; } }
 #define SAFE_DELETE_ARRAY(x)        { if(x){ delete [] x; x = NULL; } }
+#endif
+
+#ifdef __PLATFORM_WIN32__ //ignore some warnings
+#pragma warning (disable : 4996)  //stdio deprecation
+#pragma warning (disable : 4312)  //type casts from void*
+#pragma warning (disable : 4311)  //type casts to void*
+#pragma warning (disable : 4244)  //truncation
 #endif
 
 

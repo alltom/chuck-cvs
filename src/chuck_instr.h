@@ -43,6 +43,7 @@ class Chuck_VM;
 class Chuck_VM_Shred;
 
 // define
+#define sint long
 #define uint unsigned long
 
 

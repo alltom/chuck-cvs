@@ -13331,7 +13331,7 @@ SKINI :: SKINI(char *fileName)
   char msg[256];
 
   myFile = fopen(fileName,"r");
-  if ((int) myFile < 0) {
+  if ((long) myFile < 0) {
     sprintf(msg, "[chuck](via SKINI): Could not open or find file (%s).", fileName);
     handleError(msg, StkError::FILE_NOT_FOUND);
   }
