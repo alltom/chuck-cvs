@@ -124,7 +124,7 @@ t_CKBOOL EM_reset( c_str fname, FILE * fd )
     anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
     linePos = intList( 0, NULL );
 
-    if( yyin ) fclose( yyin );
+    // if( yyin ) fclose( yyin );
     if( fd ) yyin = fd;
     else yyin = fopen( fname, "r" );
     if (!yyin)
