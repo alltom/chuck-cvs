@@ -1389,7 +1389,17 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     return m->type;
 }
 
-t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_array()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
+{
+}
+
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
