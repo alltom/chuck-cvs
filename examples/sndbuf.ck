@@ -1,6 +1,6 @@
 // the patch 
 sndbuf buf => dac;
-"snare.wav" => buf.read;
+"data/snare.wav" => buf.read;
 // play starting now
 1.0 => buf.play; 
 
