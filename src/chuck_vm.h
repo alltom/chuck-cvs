@@ -322,8 +322,9 @@ protected:
     void * m_env;
     map<string, Chuck_DLL *> m_dlls;
     
+public:
     // priority
-    t_CKBOOL set_priority( t_CKUINT priority );
+    static t_CKBOOL set_priority( t_CKUINT priority, Chuck_VM * vm );
 };
 
 

@@ -31,6 +31,7 @@
 //-----------------------------------------------------------------------------
 #include "digitalio_rtaudio.h"
 #include "rtaudio.h"
+#include "chuck_vm.h"
 #if defined(__WINDOWS_DS__)
 #include <windows.h>
 #define usleep(x)  Sleep(x/1000);
@@ -147,6 +148,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // set all elements of local buffer to silence
     else memset( buffer, 0, len);
     if( !m_go ) {
+        Chuck_VM::set_priority( 90, NULL );
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;

@@ -146,21 +146,23 @@ UGEN_TICK __dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 // name: set_priority()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority )
+t_CKBOOL Chuck_VM::set_priority( t_CKUINT priority, Chuck_VM * vm )
 {
     struct sched_param param;
     pthread_t tid = pthread_self();
     int policy;
     if ( pthread_getschedparam( tid, &policy, &param) ) 
     {
-        m_last_error = "could not get current scheduling parameters";
+        if( vm )
+        vm->m_last_error = "could not get current scheduling parameters";
         return FALSE;
     }
 
     param.sched_priority = (int)priority;
     if( pthread_setschedparam( tid, policy, &param ) )
     {
-        m_last_error = "could not get set new scheduling parameters";
+        if( vm )
+        vm->m_last_error = "could not get set new scheduling parameters";
         return FALSE;
     }
     
@@ -185,7 +187,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     }
 
     // boost thread priority
-    if( priority != 0xffffffff && !set_priority( priority ) )
+    if( priority != 0xffffffff && !set_priority( priority, this ) )
         return FALSE;
 
     // allocate bbq
