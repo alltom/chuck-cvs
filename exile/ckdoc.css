@@ -8,7 +8,8 @@ body {
 }
 
 .ugen { 
-	border: 1px solid #d9d9d9;
+	border: 2px solid #808080;
+	border-left : 12px solid #e0e0e0;
 	background: #fdfdfd;
 	margin : 10px;
 	margin-bottom: 30px;
@@ -17,12 +18,15 @@ body {
 .ugen h3 { 
 	font-size: 120%;
 	font-weight: 400;
-	margin : 0.5em;
+	padding: 0.5em;
+	background: #f0fff0;
+	margin: 0px;
+	margin-left : -11px;
 }
 
 
 .ugen h3 .name { 
-	font-size: 110%;
+	font-size: 100%;
 	font-weight: 800;
 }	
 
