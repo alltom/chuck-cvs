@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 33 shift/reduce conflicts
-%expect 33
+// expect 34 shift/reduce conflicts
+%expect 34
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -204,7 +204,7 @@ id_dot
         : ID                                { $$ = new_id_list( $1, EM_lineNum ); }
         | ID DOT id_dot                     { $$ = prepend_id_list( $1, $3, EM_lineNum ); }
         ;
-        
+
 function_definition
         : function_decl type_decl2 ID LPAREN arg_list RPAREN code_segment
             { $$ = new_func_def( $1, $2, $3, $5, $7, EM_lineNum ); }
@@ -222,9 +222,9 @@ function_decl
 type_decl
         : id_dot                            { $$ = new_type_decl( $1, EM_lineNum ); }
         ;
-        
+
 type_decl2
-        : type_decl                         { $$ = $1; };
+        : type_decl                         { $$ = $1; }
         | type_decl array_empty             { $$ = add_type_decl_array( $1, $2, EM_lineNum ); }
         ;
 
@@ -320,8 +320,8 @@ var_decl_list
 
 var_decl
         : id_dot                            { $$ = new_var_decl( $1, NULL, EM_lineNum ); }
-        | id_dot array_exp                  { $$ = new_var_decl( $1, $2, EM_lineNum ); }
-        | id_dot array_empty                { $$ = new_var_decl( $1, $2, EM_lineNum ); }
+        | var_decl array_exp                  { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
+        | var_decl array_empty                { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
         ;
 
 chuck_operator
@@ -431,8 +431,8 @@ tilda_expression
         
 cast_expression
         : unary_expression                  { $$ = $1; }
-        | LPAREN id_dot RPAREN cast_expression
-            { $$ = new_exp_from_cast( $2, $4, EM_lineNum ); }
+        | LT type_decl2 GT cast_expression
+            { $$ = new_exp_from_cast( NULL, $4, EM_lineNum ); }
         ;
         
 unary_expression
