@@ -320,25 +320,25 @@ var_decl_list
 
 var_decl
         : id_dot                            { $$ = new_var_decl( $1, NULL, EM_lineNum ); }
-        | var_decl array_exp                  { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
-        | var_decl array_empty                { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
+        | id_dot array_exp                  { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
+        | id_dot array_empty                { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
         ;
 
 chuck_operator
         : CHUCK                             { $$ = ae_op_chuck; }
-        | S_CHUCK                           { $$ = ae_op_s_chuck; }
         | AT_CHUCK                          { $$ = ae_op_at_chuck; }
         | PLUS_CHUCK                        { $$ = ae_op_plus_chuck; }
         | MINUS_CHUCK                       { $$ = ae_op_minus_chuck; }
         | TIMES_CHUCK                       { $$ = ae_op_times_chuck; }
         | DIVIDE_CHUCK                      { $$ = ae_op_divide_chuck; }
-        | S_AND_CHUCK                       { $$ = ae_op_s_and_chuck; }
-        | S_OR_CHUCK                        { $$ = ae_op_s_or_chuck; }
-        | S_XOR_CHUCK                       { $$ = ae_op_s_xor_chuck; }
         | SHIFT_RIGHT_CHUCK                 { $$ = ae_op_shift_right_chuck; }
         | SHIFT_LEFT_CHUCK                  { $$ = ae_op_shift_left_chuck; }
         | PERCENT_CHUCK                     { $$ = ae_op_percent_chuck; }
         | UNCHUCK                           { $$ = ae_op_unchuck; }
+        // | S_CHUCK                           { $$ = ae_op_s_chuck; }
+        // | S_AND_CHUCK                       { $$ = ae_op_s_and_chuck; }
+        // | S_OR_CHUCK                        { $$ = ae_op_s_or_chuck; }
+        // | S_XOR_CHUCK                       { $$ = ae_op_s_xor_chuck; }
         ;
 
 conditional_expression
