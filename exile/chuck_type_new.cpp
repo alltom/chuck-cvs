@@ -159,8 +159,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 	
 	// default global values
 	env->global.value.add( "null", new Chuck_Value( &t_null, "null" ) );
-	env->global.value.add( "now", new Chuck_Value( &t_time, "now" ) );
-	env->global.value.add( "start", new Chuck_Value( &t_time, "start" ) );
+	env->global.value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system) ) );
+	env->global.value.add( "zero", new Chuck_Value( &t_time, "zero" ) );
 	env->global.value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp) ) );
 	env->global.value.add( "ms", new Chuck_Value( &t_dur, "ms", new t_CKDUR(ms) ) );
 	env->global.value.add( "second", new Chuck_Value( &t_dur, "second", new t_CKDUR(second) ) );
@@ -175,9 +175,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 	env->global.value.add( "global", new Chuck_Value( &t_class, "global", &(env->global) ) );
 
 	/*
+    S_enter( e->value, insert_symbol( "machine" ), &t_null );
     S_enter( e->value, insert_symbol( "language" ), &t_null );
     S_enter( e->value, insert_symbol( "compiler" ), &t_null );
-    S_enter( e->value, insert_symbol( "machine" ), &t_null );
     S_enter( e->value, insert_symbol( "chout" ), &t_system_out );
     S_enter( e->value, insert_symbol( "cherr" ), &t_system_err );
     S_enter( e->value, insert_symbol( "stdout" ), &t_system_out );

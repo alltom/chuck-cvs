@@ -310,8 +310,8 @@ protected:
     // shred
     Chuck_VM_Shred * m_shreds;
     t_CKUINT m_num_shreds;
-    Chuck_VM_Shreduler * m_shreduler;
     t_CKUINT m_shred_id;
+    Chuck_VM_Shreduler * m_shreduler;
 
     // audio
     BBQ * m_bbq;
