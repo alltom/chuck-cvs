@@ -267,31 +267,29 @@ t_CKBOOL Chuck_UGen::disconnect( t_CKBOOL recursive )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
 {
-    float result, temp, absop;
-
     if( m_time >= now )
         return m_valid;
 
     m_last = m_current;
     // inc time
     m_time = now;
-    m_sum = 0.0f;
-    m_sum = result = m_num_src && m_src_list[0]->system_tick( now ) ? 
-                     m_src_list[0]->m_current : 0.0f;
+    m_sum = m_num_src && m_src_list[0]->system_tick( now ) ? 
+            m_src_list[0]->m_current : 0.0f;
 
     // tick the src list
     for( t_CKUINT i = 1; i < m_num_src; i++ )
         if( m_src_list[i]->system_tick( now ) )
         {
-            m_sum += ( temp = m_src_list[i]->m_current );
-            if( m_op > 1 )  // special ops
+            if( m_op <= 1 )
+                m_sum += m_src_list[i]->m_current;
+            else // special ops
             {
                 switch( m_op )
                 {
-                case 2: result -= temp; break;
-                case 3: result *= temp; break;
-                case 4: result /= temp; break;
-                default: result = m_sum; break;
+                case 2: m_sum -= m_src_list[i]->m_current; break;
+                case 3: m_sum *= m_src_list[i]->m_current; break;
+                case 4: m_sum /= m_src_list[i]->m_current; break;
+                default: m_sum += m_src_list[i]->m_current; break;
                 }
             }
         }
@@ -299,7 +297,7 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     if( m_op > 0 )  // UGEN_OP_TICK
     {
         // tick the ugen
-        if( tick ) m_valid = tick( now, state, (m_op==1?m_sum:result), &m_current );
+        if( tick ) m_valid = tick( now, state, m_sum, &m_current );
         if( !m_valid ) m_current = 0.0f;
         m_current *= m_gain;
         return m_valid;
