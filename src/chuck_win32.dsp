@@ -119,6 +119,10 @@ SOURCE=.\chuck_main.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_otf.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_symbol.cpp
 # End Source File
 # Begin Source File
@@ -256,6 +260,10 @@ SOURCE=.\chuck_instr.h
 # Begin Source File
 
 SOURCE=.\chuck_oo.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\chuck_otf.h
 # End Source File
 # Begin Source File
 
