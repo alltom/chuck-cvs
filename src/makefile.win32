@@ -105,9 +105,6 @@ ugen_filter.o: ugen_filter.h ugen_filter.cpp
 ugen_stk.o: ugen_stk.h ugen_stk.cpp
 	$(CC) $(FLAGS) ugen_stk.cpp
 
-util_sndfile.o: util_sndfile.h util_sndfile.c
-	$(CC) $(FLAGS) util_sndfile.c
-
 ulib_machine.o: ulib_machine.h ulib_machine.cpp
 	$(CC) $(FLAGS) ulib_machine.cpp
 
