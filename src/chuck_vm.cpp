@@ -430,8 +430,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             return 0;
         }
 
-        Chuck_VM_Shred * shred = new Chuck_VM_Shred;
-        shred->initialize( msg->code );
+        Chuck_VM_Shred * shred = msg->shred;
+        // shred->initialize( msg->code );
         shred->name = msg->code->name;
         // replace
         if( m_shreduler->replace( out, shred ) )
@@ -509,7 +509,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_ADD )
     {
-        t_CKUINT id = this->spork( msg->code )->id;
+        t_CKUINT id = msg->shred->id;
         fprintf( stderr, "[chuck](VM): sporking incoming shred: %i...\n", id );
         return id;
     }
@@ -533,7 +533,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         fprintf( stderr, "      = %.6f (day)\n", m_shreduler->now_system / srate / 60.0f / 60.0f / 24.0f );
         fprintf( stderr, "      = %.6f (week)\n", m_shreduler->now_system / srate / 60.0f / 60.0f / 24.0f / 7.0f );
     }
-    
+
     return 0xfffffff0;
 }
 

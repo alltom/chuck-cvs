@@ -66,7 +66,7 @@ extern int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.4.3"
+#define CK_VERSION "1.1.4.4"
 
 extern a_Program g_program;
 ck_socket g_sock;
@@ -290,10 +290,15 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
         // transform the code
         Chuck_VM_Code * code = emit_to_code( emit );
         code->name = msg.buffer;
+        cmd.shred = g_vm->spork( code );
+        cmd.shred->name = code->name;
+        emit_engine_addr_map( emit, cmd.shred );
+        emit_engine_resolve();
+        emit_engine_shutdown( emit );
 
+        // set the flags for the command
         cmd.type = msg.type;
         cmd.code = code;
-
         if( msg.type == MSG_REPLACE )
             cmd.param = msg.param;
     }

@@ -358,6 +358,7 @@ struct Chuck_Msg
     t_CKUINT type;
     t_CKUINT param;
     Chuck_VM_Code * code;
+    Chuck_VM_Shred * shred;
     t_CKTIME when;
 };
 
