@@ -16,13 +16,13 @@ fun void timer() {
 spork ~ timer();
 
 // sweep shred
-fun void sweep( float start, float inc, float end , int c)
+fun void sweep( float st, float inc, float end , int c)
 {
     n => TwoPole z => dac; 
     1  => z.norm;
     0.1 => z.gain;
     t => float st;
-    start => float frq;
+    st => float frq;
     std.rand2f ( 0.94, 0.99 ) => z.radius;
     while ( t < end ) {
         math.max ( ( t - st ) * 4.0, 1.0 ) * 0.1  => z.gain; 
