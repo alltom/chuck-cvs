@@ -10,8 +10,8 @@ std.mtof( (float)( 21 + std.rand2(0,3) * 12 + 7 ) ) => band.freq;
 // our main loop
 while( true )
 {    
-    std.rand2f( 0.1, 0.3 ) => band.bowRate;
-    std.rand2f( 0.4, 0.5 ) => band.bowPressure;
+    std.rand2f( 0.1, 0.9 ) => band.bowRate;
+    std.rand2f( 0.2, 0.35 ) => band.bowPressure;
     std.rand2f( 0.6, 0.8 ) => band.startBowing;
 
     if( std.randf() > 0.7 )

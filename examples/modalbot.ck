@@ -64,10 +64,10 @@ while( true )
     // frequency...
     2 * std.rand2( 0, 4 ) => int freq;
     if( freq == 6 ) 7 => freq; if( freq == 8 ) 9 => freq;
-    220.0 * math.pow( 1.05946, (float)(std.rand2(0,2)*12)
+    110.0 * math.pow( 1.05946, (float)(std.rand2(0,3)*12)
                       +(float)freq ) => modey.freq;
     // pluck it!
-    std.rand2f( 0.2, 0.9 ) => modey.strike;
+    std.rand2f( 0.2, 0.6 ) => modey.strike;
 
     if( std.randf() > 0.8 )
     { 500::ms => now; }
@@ -81,7 +81,7 @@ while( true )
         // how many times
         4 * std.rand2( 1, 5 ) => int pick;
         0.0 => float pluck;
-        0.7 / (float)pick => float inc;
+        0.65 / (float)pick => float inc;
         // time loop
         for( ; i < pick; i++ )
         {
