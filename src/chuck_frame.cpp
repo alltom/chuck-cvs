@@ -59,7 +59,7 @@ struct F_Frame_
 //-----------------------------------------------------------------------------
 F_Frame F_new_frame( Temp_Label name )
 {
-    F_Frame f = (F_Frame)checked_malloc( sizeof(F_Frame_) );
+    F_Frame f = (F_Frame)checked_malloc( sizeof(struct F_Frame_) );
     f->label = name;
     f->tail = f->head = (F_Access_List)checked_malloc( sizeof(F_Access_List_) );
     f->head->head = NULL;
