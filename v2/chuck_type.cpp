@@ -101,7 +101,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
-t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
+t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
 t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
@@ -738,7 +738,7 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
         break;
     
         case ae_exp_primary:
-            curr->type = type_engine_check_primary( env, &curr->primary );
+            curr->type = type_engine_check_exp_primary( env, &curr->primary );
         break;
     
         case ae_exp_array:
@@ -1079,10 +1079,10 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_check_primary()
+// name: type_engine_check_exp_primary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
+t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
 {
     t_CKTYPE t = NULL;
     Chuck_Value * v = NULL;
