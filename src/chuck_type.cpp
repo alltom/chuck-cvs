@@ -706,6 +706,7 @@ t_CKBOOL type_engine_check_ugen_def_import( t_Env info, Chuck_UGen_Info * ugen )
             return FALSE;
         }
 
+	//XXX - pld 
         // check for duplicates - unless ugen has declared a parent,
 	// and we expect to find some duplicates.
 	// in general, this just updates the param_map and the
