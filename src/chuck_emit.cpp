@@ -1517,7 +1517,7 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Memb
         // cget
         if( exp->flag == 0 )
         {
-            if( exp->data2 == NULL )
+            if( exp->data2 == 0 )
             {
                 EM_error2( exp->linepos,
                            "(emit): internal error: cannot read from ugen parameter '%s.%s', it is write-only",

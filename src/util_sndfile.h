@@ -2541,15 +2541,37 @@ extern word gsm_FAC [8] ;
 #define		S_IXUSR	0000100	/* execute/search permission, owner */
 #endif
 
-#define	S_IRWXG		0000070	/* rwx, group */
-#define		S_IRGRP	0000040	/* read permission, group */
-#define		S_IWGRP	0000020	/* write permission, grougroup */
-#define		S_IXGRP	0000010	/* execute/search permission, group */
+#ifndef     S_IRWXG
+#define	    S_IRWXG 0000070	/* rwx, group */
+#endif
 
-#define	S_IRWXO		0000007	/* rwx, other */
+#ifndef     S_IRGRP
+#define		S_IRGRP	0000040	/* read permission, group */
+#endif
+
+#ifndef     S_IWGRP
+#define		S_IWGRP	0000020	/* write permission, grougroup */
+#endif
+
+#ifndef     S_IXGRP
+#define		S_IXGRP	0000010	/* execute/search permission, group */
+#endif
+
+#ifndef     S_IRWXO
+#define     S_IRWXO	0000007	/* rwx, other */
+#endif
+
+#ifndef     S_IROTH
 #define		S_IROTH	0000004	/* read permission, other */
+#endif
+
+#ifndef     S_IWOTH
 #define		S_IWOTH	0000002	/* write permission, other */
+#endif
+
+#ifndef     S_IXOTH
 #define		S_IXOTH	0000001	/* execute/search permission, other */
+#endif
 
 #ifndef S_ISFIFO
 #define S_ISFIFO(mode)	(((mode) & _S_IFMT) == _S_IFIFO)
