@@ -1607,10 +1607,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         return FALSE;
     }
 
-    // user-defined
-    f->s_type = ae_func_user;
     // make sure a code segment is in stmt - else we should push scope
-    assert( f->code.s_type == ae_stmt_code );
+    assert( !f->code || f->code.s_type == ae_stmt_code );
 
     // make a new func object
     func = new Chuck_Func;
@@ -1680,9 +1678,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // type check the code
-    if( !type_engine_check_stmt( env, f->code ) )
+    if( f->code && !type_engine_check_stmt( env, f->code ) )
     {
-        EM_error2( 0, "...in function '%s'.", S_name(f->name) );
+        EM_error2( 0, "...in function '%s'", S_name(f->name) );
         goto error;
     }
 
@@ -1710,12 +1708,36 @@ error:
     return FALSE;
 }
 
-// import
-t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
-t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_func_def_import()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def f )
+{
+    assert( f->code == NULL );
+
+    // builtin
+    f->s_type = ae_func_builtin;
+    // type check it
+    if( !type_engine_check_func_def( env, f ) )
+    {
+        EM_error2( 0, "...in imported function '%s'", S_name(f->name) );
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
+t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 
 
 
