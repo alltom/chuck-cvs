@@ -350,7 +350,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
         // release it
         context->release();
     }
-    
+
     // reset the env
     env->reset();
 

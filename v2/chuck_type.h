@@ -185,14 +185,12 @@ struct Chuck_Context : public Chuck_VM_Object
 	a_Program parse_tree;
     // context namespace
     Chuck_Namespace nspc;
-	// code
-	Chuck_VM_Code * code;
-    
+
     // things to delete with the context
     vector<t_CKTYPE> new_types;
 
 	// constructor
-	Chuck_Context() { parse_tree = NULL; code = NULL; }
+	Chuck_Context() { parse_tree = NULL; }
 	// destructor
 	~Chuck_Context();
 };
@@ -214,15 +212,11 @@ struct Chuck_Env : public Chuck_VM_Object
 	vector<Chuck_Namespace *> stack;
 	// expression namespace
 	Chuck_Namespace * curr;
-    // number of dot exp
-    t_CKUINT dots;
-	// current location
-	ce_scope where;
     // current class definition
     Chuck_Type * class_def;
     // current function definition
     Chuck_Func * func;
-	
+
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
     // current context
@@ -250,8 +244,7 @@ struct Chuck_Env : public Chuck_VM_Object
 	// reset
 	void reset( )
 	{ stack.clear(); stack.push_back( &global ); 
-      curr = &global; context = NULL; func = NULL; 
-      dots = 0; where = ce_global; }
+      curr = &global; context = NULL; func = NULL; }
 
 	// top
 	Chuck_Namespace * top( )
@@ -394,7 +387,7 @@ struct Chuck_Func : public Chuck_VM_Object
     string name;
     // func def from parser
     a_Func_Def def;
-    // VM code
+    // code
     Chuck_VM_Code * code;
     // member
     t_CKBOOL is_member;

@@ -64,9 +64,8 @@ public:
     vector<Chuck_Instr *> code;
 
     // constructor
-    Chuck_Code( const string & scope_name )
+    Chuck_Code( )
     {
-        name = scope_name;
         stack_depth = 0;
         frame = new Chuck_Frame;
     }
@@ -86,16 +85,35 @@ struct Chuck_Emitter : public Chuck_VM_Object
 {
     // reference to the type checker environment
     Chuck_Env * env;
-    // curr code emitted
-    Chuck_Code * code;
+    // reference to VM
+    Chuck_VM * vm;
 
+    // current code
+    Chuck_Code * code;
+    // current context
+    Chuck_Context * context;
+	// expression namespace
+	Chuck_Namespace * nspc;
+    // current class definition
+    Chuck_Type * class_def;
+    // current function definition
+    Chuck_Func * func;
+
+    // code stack
+    vector<Chuck_Code *> stack;
+    
     // constructor
     Chuck_Emitter()
-    { env = NULL; code = NULL; }
+    { env = NULL; vm = NULL; code = NULL; context = NULL; 
+      nspc = NULL; class_def = NULL; func = NULL; }
 
     // destructor
     ~Chuck_Emitter()
     { }
+
+    // append instruction
+    void append( Chuck_Instr * instr )
+    { assert( code != NULL ); code->code.push_back( instr ); }
 };
 
 
@@ -105,7 +123,7 @@ struct Chuck_Emitter : public Chuck_VM_Object
 Chuck_Emitter * emit_engine_init( Chuck_Env * env );
 t_CKBOOL emit_engine_shutdown( Chuck_Emitter *& emit );
 t_CKBOOL emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog );
-Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump_funcs = FALSE );
+Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump = FALSE );
 t_CKBOOL emit_engine_addr_map( Chuck_Emitter * emit, Chuck_VM_Shred * shred );
 t_CKBOOL emit_engine_resolve( );
 
