@@ -22102,7 +22102,6 @@ raw_open	(SF_PRIVATE *psf)
 	psf->blockwidth = psf->bytewidth * psf->sf.channels ;
 	psf->dataoffset = 0 ;
 	psf->datalength = psf->filelength ;
-
 	switch (subformat)
 	{	case SF_FORMAT_PCM_S8 :
 				error = pcm_init (psf) ;

@@ -166,7 +166,7 @@ UGEN_CTRL sinosc_ctrl_sfreq( t_CKTIME now, void * data, void * value )
     d->freq = (float)GET_CK_FLOAT(value);
     d->num = TWO_PI * d->freq / d->srate;
     double nphase = d->phase_offset + d->t * ( curnum - d->num );
-    d->phase_offset = nphase - TWO_PI * floor ( nphase / TWO_PI );
+    d->phase_offset = fmod( nphase, TWO_PI ) ; //nphase - TWO_PI * floor ( nphase / TWO_PI );
 }
 
 //-----------------------------------------------------------------------------
@@ -212,7 +212,7 @@ UGEN_CTRL sinosc_ctrl_phase ( t_CKTIME now, void * data, void * value )
     Osc_Data * d = (Osc_Data *)data;
     t_CKFLOAT phase = GET_CK_FLOAT(value);
     double cphase =  phase - ( d->t * d->num );
-    d->phase_offset = cphase - TWO_PI * floor ( cphase / TWO_PI );
+    d->phase_offset = fmod ( cphase, TWO_PI ); //cphase - TWO_PI * floor ( cphase / TWO_PI );
 }
 
 //-----------------------------------------------------------------------------
