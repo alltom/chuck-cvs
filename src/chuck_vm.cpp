@@ -40,7 +40,6 @@ using namespace std;
 
 #if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
   #include <windows.h>
-  #define usleep(x) Sleep(x/1000);
 #else
   #include <unistd.h>
   #include <pthread.h>

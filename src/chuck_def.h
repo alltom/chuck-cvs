@@ -34,6 +34,7 @@
 #define __CHUCK_DEF_H__
 
 #include <stdlib.h>
+#include <memory.h>
 
 
 // types
@@ -64,7 +65,8 @@ typedef const char *                c_constr;
 #define SAFE_DELETE_ARRAY(x)        { if(x){ delete [] x; x = NULL; } }
 #endif
 
-#ifdef __PLATFORM_WIN32__ //ignore some warnings
+#ifdef __PLATFORM_WIN32__
+#define usleep(x) Sleep( x / 1000 )
 #pragma warning (disable : 4996)  //stdio deprecation
 #pragma warning (disable : 4312)  //type casts from void*
 #pragma warning (disable : 4311)  //type casts to void*

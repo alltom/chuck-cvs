@@ -378,6 +378,8 @@ struct Chuck_Msg
     t_CKUINT replyA;
     t_CKUINT replyB;
     void * replyC;
+
+    Chuck_Msg() { memset( this, 0, sizeof(*this) ); }
 };
 
 

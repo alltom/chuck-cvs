@@ -122,7 +122,8 @@ public:
     static BOOL__  start( );
     static BOOL__  stop( );
     static BOOL__  tick( );
-    static void    set_extern( SAMPLE * in, SAMPLE * out );
+    static void    set_extern( SAMPLE * in, SAMPLE * out )
+                   { m_extern_in = in; m_extern_out = out; } 
     static int cb( char * buffer, int buffer_size, void * user_data );
 
 public: // data
