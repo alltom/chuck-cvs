@@ -941,8 +941,8 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
     // check the op
     switch( unary->op )
     {
-        ae_op_plusplus:
-        ae_op_minusminus:
+        case ae_op_plusplus:
+        case ae_op_minusminus:
             // assignable?
             if( unary->exp->s_meta != ae_meta_var )
             {
@@ -959,16 +959,16 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             // TODO: check overloading
         break;
         
-        ae_op_minus:
+        case ae_op_minus:
             // float
             if( isa( t, &t_float ) ) return t;
-        ae_op_tilda:
-        ae_op_exclamation:
+        case ae_op_tilda:
+        case ae_op_exclamation:
             // int
             if( isa( t, &t_int ) ) return t;
         break;
         
-        ae_op_spork:
+        case ae_op_spork:
             // spork shred
             if( unary->exp->s_type == ae_exp_func_call ) return &t_shred;
             else
@@ -1002,7 +1002,7 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
     switch( exp->s_type )
     {
         // variable
-        ae_primary_var:
+        case ae_primary_var:
             t = env->curr->lookup_type( S_name(exp->var), env->dots == 0 );
             if( !t )
             {
@@ -1024,22 +1024,22 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
         break;
         
         // int
-        ae_primary_num:
+        case ae_primary_num:
             t = &t_int;
         break;
         
         // float
-        ae_primary_float:
+        case ae_primary_float:
             t = &t_float;
         break;
         
         // string
-        ae_primary_str:
+        case ae_primary_str:
             t = &t_string;
         break;
         
         // expression
-        ae_primary_exp:
+        case ae_primary_exp:
             t = type_engine_check_exp( env, exp->exp );
         break;
 
@@ -1232,8 +1232,15 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 
 
 
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_decl( )
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
+{
+    return NULL;
+}
 
-t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
 t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
