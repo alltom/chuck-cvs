@@ -33,7 +33,8 @@
 #define __UTIL_BUFFERS_H__
 
 
-#define DWORD__                unsigned int
+#define DWORD__                unsigned long
+#define SINT__                 long
 #define UINT__                 DWORD__
 #define BOOL__                 DWORD__
 #define FLOAT__                float

@@ -127,7 +127,7 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define GET_CK_FLOAT(ptr)      (*(t_CKFLOAT *)ptr)
 #define GET_CK_SINGLE(ptr)     (*(float *)ptr)
 #define GET_CK_DOUBLE(ptr)     (*(double *)ptr)
-#define GET_CK_INT(ptr)        (*(int *)ptr)
+#define GET_CK_INT(ptr)        (*(t_CKINT *)ptr)
 #define GET_CK_UINT(ptr)       (*(t_CKUINT *)ptr)
 #define GET_CK_TIME(ptr)       (*(t_CKTIME *)ptr)
 #define GET_CK_DUR(ptr)        (*(t_CKDUR *)ptr)
@@ -137,7 +137,7 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define GET_NEXT_FLOAT(ptr)    (*((t_CKFLOAT *&)ptr)++)
 #define GET_NEXT_SINGLE(ptr)   (*((float *&)ptr)++)
 #define GET_NEXT_DOUBLE(ptr)   (*((double *&)ptr)++)
-#define GET_NEXT_INT(ptr)      (*((int *&)ptr)++)
+#define GET_NEXT_INT(ptr)      (*((t_CKINT *&)ptr)++)
 #define GET_NEXT_UINT(ptr)     (*((t_CKUINT *&)ptr)++)
 #define GET_NEXT_TIME(ptr)     (*((t_CKTIME *&)ptr)++)
 #define GET_NEXT_DUR(ptr)      (*((t_CKDUR *&)ptr)++)
@@ -147,7 +147,7 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define SET_CK_FLOAT(ptr,v)      (*(t_CKFLOAT *&)ptr=v)
 #define SET_CK_SINGLE(ptr,v)     (*(float *&)ptr=v)
 #define SET_CK_DOUBLE(ptr,v)     (*(double *&)ptr=v)
-#define SET_CK_INT(ptr,v)        (*(int *&)ptr=v)
+#define SET_CK_INT(ptr,v)        (*(t_CKINT *&)ptr=v)
 #define SET_CK_UINT(ptr,v)       (*(t_CKUINT *&)ptr=v)
 #define SET_CK_TIME(ptr,v)       (*(t_CKTIME *&)ptr=v)
 #define SET_CK_DUR(ptr,v)        (*(t_CKDUR *&)ptr=v)
@@ -157,7 +157,7 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define SET_NEXT_FLOAT(ptr,v)    (*((t_CKFLOAT *&)ptr)++=v)
 #define SET_NEXT_SINGLE(ptr,v)   (*((float *&)ptr)++=v)
 #define SET_NEXT_DOUBLE(ptr,v)   (*((double *&)ptr)++=v)
-#define SET_NEXT_INT(ptr,v)      (*((int *&)ptr)++=v)
+#define SET_NEXT_INT(ptr,v)      (*((t_CKINT *&)ptr)++=v)
 #define SET_NEXT_UINT(ptr,v)     (*((t_CKUINT *&)ptr)++=v)
 #define SET_NEXT_TIME(ptr,v)     (*((t_CKTIME *&)ptr)++=v)
 #define SET_NEXT_DUR(ptr,v)      (*((t_CKDUR *&)ptr)++=v)
@@ -234,7 +234,7 @@ public: // these should not be used directly by the DLL
 //------------------------------------------------------------------------------
 union Chuck_DL_Return
 {
-    int    v_int;
+    t_CKINT v_int;
     t_CKUINT v_uint;
     t_CKFLOAT v_float;
     char * v_string;

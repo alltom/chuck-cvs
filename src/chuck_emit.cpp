@@ -366,7 +366,7 @@ t_CKBOOL emit_engine_addr_map( Chuck_Emmission * emit, Chuck_VM_Shred * shred )
     uint sp = (uint)shred->mem->sp;
     
     // offset the initial region
-    sp += 4;
+    sp += sizeof(t_CKINT);
     
     // map the offset to pointers
     for( unsigned int i = 0; i < emit->addr_map.size(); i++ )

@@ -114,8 +114,8 @@ struct t_Class_Info_
 
 // types
 struct t_Type_ t_void = { te_void, "void", NULL, 0 };
-struct t_Type_ t_int = { te_int, "int", NULL, sizeof(int) };
-struct t_Type_ t_uint = { te_uint, "uint", NULL, sizeof(unsigned int) };
+struct t_Type_ t_int = { te_int, "int", NULL, sizeof(t_CKINT) };
+struct t_Type_ t_uint = { te_uint, "uint", NULL, sizeof(t_CKUINT) };
 // NOTE: float is single
 struct t_Type_ t_single = { te_single, "single", NULL, sizeof(float) };
 struct t_Type_ t_float = { te_float, "float", NULL, sizeof(double) };

@@ -2350,6 +2350,7 @@ void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 {
     uint *& sp = (uint *&)shred->reg->sp;
     
+    // HACK: this won't work for 64-bit systems that have 8 byte longs
     ((Chuck_UGen *)*(sp-3))->m_gain = (float)*(double *)(sp-5);
     pop_( sp, 5 );
 
