@@ -118,7 +118,7 @@ void signal_int( int sig_num )
     }
 
 #ifndef __PLATFORM_WIN32__
-    pthread_join( g_tid, NULL );
+//    pthread_join( g_tid, NULL );
 #endif
     
     exit(2);
