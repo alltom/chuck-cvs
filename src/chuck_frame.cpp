@@ -158,6 +158,7 @@ void F_end_scope( F_Frame f, S_table t )
         if( s == mark ) break;
         assert(v);
         f->curr_offset -= v->size;
+        fprintf( stderr, "%i\n", f->curr_offset );
         free(v);
     }while( TRUE );
 }
