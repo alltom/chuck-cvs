@@ -251,7 +251,7 @@ t_CKBOOL Chuck_VM::shutdown()
 
     // stop
     this->stop();
-    usleep( 10000 );
+    usleep( 50000 );
 
     // free the shreduler
     SAFE_DELETE( m_shreduler );

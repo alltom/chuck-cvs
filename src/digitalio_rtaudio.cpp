@@ -63,6 +63,7 @@ BOOL__ Digitalio::m_use_cb = USE_CB_DEFAULT;
 DWORD__ Digitalio::m_go = 0;
 DWORD__ Digitalio::m_dac_n = 0;
 DWORD__ Digitalio::m_adc_n = 0;
+DWORD__ Digitalio::m_end = 0;
 
 
 
@@ -87,6 +88,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     m_start = 0;
     m_tick_count = 0;
     m_go = 0;
+    m_end = 0;
 
     // allocate RtAudio
     try {
@@ -151,7 +153,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     {
         while( !m_out_ready && n-- ) usleep( 20 );
         // copy local buffer to be rendered
-        if( m_out_ready ) memcpy( buffer, m_buffer_out, len );
+        if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
         else memset( buffer, 0, len);
     }
