@@ -33,9 +33,6 @@
 #ifndef __CHUCK_TYPE_H__
 #define __CHUCK_TYPE_H__
 
-#include <vector>
-using namespace std;
-
 #include "chuck_absyn.h"
 
 
@@ -55,12 +52,6 @@ typedef enum {
     te_void, __te_system_out__, __te_system_err__, __te_system_time__,
     __te_system_namespace__, __te_system_class__, __te_system_user__
 } te_Type;
-
-// function
-typedef enum { te_func_user, te_func_builtin } te_Func_Kind;
-
-// namespace type
-typedef enum { te_nspc, te_nspc_class } te_Nspc_Kind;
 
 
 
@@ -84,20 +75,6 @@ struct t_Type_
     unsigned int array_depth;
     // dynamic
     unsigned int dyn;
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class t_Chuck_Op_Functor
-// desc: ...
-//-----------------------------------------------------------------------------
-class t_Chuck_Op_Functor
-{
-public:
-    virtual ~t_Chuck_Op_Functor();
-    virtual void apply() = 0;
 };
 
 
