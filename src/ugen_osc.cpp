@@ -86,9 +86,9 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
 
 	//! square wave oscillator ( secretly just pulse )
-	QUERY->ugen_add( QUERY, "squareosc", NULL );
+	QUERY->ugen_add( QUERY, "sqrosc", NULL );
     // set funcs
-    QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, squareosc_tick, osc_pmsg );
+    QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, sqrosc_tick, osc_pmsg );
     // add ctrls / cgets
     QUERY->ugen_ctrl( QUERY, osc_ctrl_freq, osc_cget_freq, "float", "freq" );  //! oscillator frequency ( Hz ) 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sfreq, osc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
@@ -272,10 +272,10 @@ UGEN_TICK pulseosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 }
 
 //-----------------------------------------------------------------------------
-// name: pulseosc_tick()
+// name: sqrosc_tick()
 // desc: ...
 //-----------------------------------------------------------------------------
-UGEN_TICK squareosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+UGEN_TICK sqrosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     Osc_Data * d = (Osc_Data *)data;
 	d->width = 0.5;
@@ -283,7 +283,7 @@ UGEN_TICK squareosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 }
 
 //-----------------------------------------------------------------------------
-// name: pulseosc_tick()
+// name: sawosc_tick()
 // desc: ...
 //-----------------------------------------------------------------------------
 UGEN_TICK sawosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
@@ -294,7 +294,7 @@ UGEN_TICK sawosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 }
 
 //-----------------------------------------------------------------------------
-// name: sinosc_ctrl_freq()
+// name: osc_ctrl_freq()
 // desc: set oscillator frequency
 //-----------------------------------------------------------------------------
 UGEN_CTRL osc_ctrl_freq( t_CKTIME now, void * data, void * value )

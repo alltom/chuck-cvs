@@ -47,7 +47,7 @@ UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_TICK osc_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL osc_ctrl_freq( t_CKTIME now, void * data, void * value );
 UGEN_CGET osc_cget_freq( t_CKTIME now, void * data, void * out );
-//sfreq &  phase controls  - pld
+// sfreq &  phase controls  - pld
 UGEN_CTRL osc_ctrl_sfreq( t_CKTIME now, void * data, void * value );
 UGEN_CTRL osc_ctrl_phase( t_CKTIME now, void * data, void * value );
 UGEN_CGET osc_cget_phase( t_CKTIME now, void * data, void * out );
@@ -64,9 +64,8 @@ UGEN_CGET sinosc_cget_phase( t_CKTIME now, void * data, void * out );
 
 UGEN_TICK triosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_TICK sawosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-
 UGEN_TICK pulseosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_TICK squareosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_TICK sqrosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 
 
 #endif
