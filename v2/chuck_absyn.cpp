@@ -625,7 +625,7 @@ a_Class_Body prepend_class_body( a_Section section, a_Class_Body body, int pos )
 a_Class_Ext new_class_ext( c_str extend_id, a_Id_List impl_list, int pos )
 {
     a_Class_Ext a = (a_Class_Ext)checked_malloc( sizeof( struct a_Class_Ext_ ) );
-    a->extend_id = insert_symbol( extend_id );
+    a->extend_id = extend_id ? insert_symbol( extend_id ) : NULL;
     a->impl_list = impl_list;
     a->linepos = pos;
 

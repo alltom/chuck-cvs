@@ -20,7 +20,14 @@ class A
     int aaa;
 }
 
-class Foo
+interface laugh
+{
+    public int foo()
+	{
+	}
+}
+
+class Foo implements laugh
 {
     int f;
     int a1;

@@ -1607,14 +1607,20 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // make sure inheritance
     if( class_def->ext )
     {
-        t_parent = env->curr->lookup_type( class_def->ext->extend_id, TRUE );
-        if( !t_parent )
+        // if extend
+        if( class_def->ext->extend_id )
         {
-            EM_error2( class_def->ext->linepos,
-                "undefined super class '%s' in definition of class '%s'",
-                S_name(class_def->ext->extend_id), S_name(class_def->name->id) );
-            return FALSE;
+            t_parent = env->curr->lookup_type( class_def->ext->extend_id, TRUE );
+            if( !t_parent )
+            {
+                EM_error2( class_def->ext->linepos,
+                    "undefined super class '%s' in definition of class '%s'",
+                    S_name(class_def->ext->extend_id), S_name(class_def->name->id) );
+                return FALSE;
+            }
         }
+
+        // TODO: interface
     }
 
     // allocate new type
