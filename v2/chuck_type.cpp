@@ -1675,7 +1675,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     else
     {
         // delete the class definition
-        delete t_class;
+        t_class->release();
     }
 
     return ret;
@@ -1822,7 +1822,7 @@ error:
     if( func )
     {
         env->func = NULL;
-        delete func;
+        func->release();
     }
 
     return FALSE;
@@ -2377,7 +2377,7 @@ Chuck_Context::~Chuck_Context()
 {
     // delete the types
     for( int i = 0; i < new_types.size(); i++ )
-        delete new_types[i];
+        new_types[i]->release();
 
     // TODO: delete abstract syntax tree * 
 }

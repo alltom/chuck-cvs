@@ -292,7 +292,7 @@ public:
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
       array_depth = 0; self_size = 0; info = NULL; func = NULL; }
     // destructor
-    ~Chuck_Type() { if( info ) delete info; reset(); }
+    ~Chuck_Type() { if( info ) info->release(); reset(); }
     // reset
     void reset()
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
@@ -300,6 +300,7 @@ public:
     // assignment - this does not touch the Chuck_VM_Object
     const Chuck_Type & operator =( const Chuck_Type & rhs )
     {
+      // copy
       this->array_depth = rhs.array_depth;
       this->func = rhs.func;
       this->id = rhs.id;
@@ -309,6 +310,9 @@ public:
       this->parent = rhs.parent;
       this->self_size = rhs.self_size;
       this->size = rhs.size;
+      // add references
+      if( info ) rhs.info->add_ref();
+      // return
       return *this;
     }
     // copy

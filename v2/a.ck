@@ -6,6 +6,9 @@
 1 + 1 => i;
 
 int a[10][23];
+int b[23];
+
+b["hi"] + 1;
 
 class A
 {
@@ -45,5 +48,4 @@ class Bar extends Foo
 Foo foo;
 Bar bar;
 
-float b;
-<float>foo.y[1].aaa => b;
+foo.y[1].aaa => b[4.5];
