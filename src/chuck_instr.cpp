@@ -2377,7 +2377,7 @@ void Chuck_Instr_UGen_CGet_Last::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
     // push the new value
     double *& sp_double = (double *&)shred->reg->sp;
-    push_( sp_double, (double)ugen->m_last );
+    push_( sp_double, (double)ugen->m_current );
 }
 
 
