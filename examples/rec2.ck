@@ -1,13 +1,13 @@
 // chuck this with other shreds to record to file
-// example> chuck foo.ck bar.ck re2.ck
+// example> chuck foo.ck bar.ck rec2
 // 
-// this is just like re.ck, except "special:auto"
+// this is just like rec.ck, except "special:auto"
 // generates a different file name every time
 
 // pull samples from the dac
 dac => gain g => WvOut w => blackhole;
 
-// uncomment this next line to dump to data/
+// uncomment this next line to dump to data/ (win32: use '\')
 // (but make sure there is a data directory before running)
 // "data/chuck-session" => w.autoPrefix;
 

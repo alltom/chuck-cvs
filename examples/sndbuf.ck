@@ -1,5 +1,6 @@
 // the patch 
 sndbuf buf => dac;
+// load the file (win32: may need to change / to \)
 "data/snare.wav" => buf.read;
 
 // play starting the next sample in ChucK time
