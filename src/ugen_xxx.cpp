@@ -562,7 +562,7 @@ double t_sinc(double x)
 		return 0.0;
     else {
 		temp = fabs(x) * (double) SAMPLES_PER_ZERO_CROSSING;
-		low = temp;          /* these are interpolation steps */
+		low = (int)temp;          /* these are interpolation steps */
 		if (USE_INTERP) {
 			delta = temp - low;  /* and can be ommited if desired */
 			return linear_interp(sinc_table[low],sinc_table[low + 1],delta);

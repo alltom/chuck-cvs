@@ -142,6 +142,7 @@ t_Type lookup_value( t_Env env, S_Symbol type_name, t_CKBOOL climb = TRUE );
 a_Func_Def lookup_func( t_Env env, S_Symbol func_name, t_CKBOOL climb = TRUE );
 Chuck_UGen_Info * lookup_ugen( t_Env env, S_Symbol ugen_name, t_CKBOOL climb = TRUE );
 t_Env lookup_namespace( t_Env env, S_Symbol nspc_name, t_CKBOOL climb = TRUE );
+void * lookup_addr( t_Env env, S_Symbol value_name, t_CKBOOL climb = TRUE );
 t_CKBOOL isa( t_Type a, t_Type b );
 
 

@@ -62,6 +62,7 @@ struct t_Env_
     S_table ugen;
     S_table name_space;
     S_table class_defs;
+    S_table addr;
 
     // data
     S_Symbol name;
@@ -149,6 +150,7 @@ t_CKBOOL type_engine_check_prog( t_Env env, a_Program prog );
 t_CKBOOL type_engine_check_func_def( t_Env env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_func_def_import( t_Env nspc, a_Func_Def func_def );
 t_CKBOOL type_engine_check_ugen_def_import( t_Env nspc, Chuck_UGen_Info * ugen );
+t_CKBOOL type_engine_check_value_import( t_Env nspc, S_Symbol name, S_Symbol type, void * addr );
 t_CKBOOL type_engine_check_stmt_list( t_Env env, a_Stmt_List list );
 t_CKBOOL type_engine_check_stmt( t_Env env, a_Stmt stmt );
 t_Type type_engine_check_exp( t_Env env, a_Exp exp );
@@ -231,6 +233,7 @@ t_Env new_namespace( const char * name, t_Env parent, unsigned size )
     e->function = S_empty2( size );
     e->ugen = S_empty2( size );
     e->name_space = S_empty2( size );
+    e->addr = S_empty2( size );
     e->name = insert_symbol( name );
     e->parent = parent;
     e->vm = ( parent ? parent->vm : NULL );
@@ -389,24 +392,40 @@ t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
         // the prototype
         Chuck_DL_Proto * proto = &query->dll_exports[i];
 
-        // type decl
-        a_Type_Decl rtype = new_type_decl( (char*)proto->type.c_str(), 0 );
-        // arg list
-        a_Arg_List args = NULL;
-        if( proto->params.size() )
-            args = do_make_args( proto->params, 0 );
-        // allocate a new function
-        a_Func_Def func = new_func_def( 
-            ae_func_func, rtype, (char*)proto->name.c_str(), args, NULL, 0 );
-        // set the pointer
-        func->builtin = (builtin_func_ptr)proto->addr;
-        func->linepos = query->linepos;
-        // type check it
-        if( !type_engine_check_func_def_import( info, func ) )
+        // add func
+        if( proto->is_func )
         {
-            // clean up
-            info->dlls.erase( dll );
-            return FALSE;
+            // type decl
+            a_Type_Decl rtype = new_type_decl( (char *)proto->type.c_str(), 0 );
+            // arg list
+            a_Arg_List args = NULL;
+            if( proto->params.size() )
+                args = do_make_args( proto->params, 0 );
+            // allocate a new function
+            a_Func_Def func = new_func_def( 
+                ae_func_func, rtype, (char*)proto->name.c_str(), args, NULL, 0 );
+            // set the pointer
+            func->builtin = (builtin_func_ptr)proto->addr;
+            func->linepos = query->linepos;
+            // type check it
+            if( !type_engine_check_func_def_import( info, func ) )
+            {
+                // clean up
+                info->dlls.erase( dll );
+                return FALSE;
+            }
+        }
+        else
+        {
+            // add value
+            if( !type_engine_check_value_import( info,
+                insert_symbol((char *)proto->name.c_str()),
+                insert_symbol((char *)proto->type.c_str()),
+                (void *)proto->addr ) )
+            {
+                info->dlls.erase( dll );
+                return FALSE;
+            }
         }
     }
 
@@ -586,7 +605,7 @@ t_CKBOOL type_engine_check_func_def( t_Env env, a_Func_Def f )
 t_CKBOOL type_engine_check_func_def_import( t_Env info, a_Func_Def f )
 {
     // look up the value
-    if( lookup_value( info, f->name ) )
+    if( lookup_value( info, f->name, FALSE ) )
     {
         EM_error2( f->linepos,
             "imported identifier '%s' is already in use in namespace '%s'",
@@ -596,14 +615,13 @@ t_CKBOOL type_engine_check_func_def_import( t_Env info, a_Func_Def f )
     
     // look up the return type
     f->ret_type = lookup_type( info, f->type_decl->id );
-    f->ret_type->array_depth = f->type_decl->array;
-    // no return type
     if( !f->ret_type )
     {
         EM_error2( f->linepos, "imported function '%s.%s':", S_name(info->name), S_name(f->name) );
         EM_error2( f->linepos, "undefined return type '%s'", S_name(f->type_decl->id) );
         return FALSE;
     }
+    f->ret_type->array_depth = f->type_decl->array;
     
     a_Arg_List arg_list = f->arg_list;
     unsigned int count = 1;
@@ -715,6 +733,43 @@ t_CKBOOL type_engine_check_ugen_def_import( t_Env info, Chuck_UGen_Info * ugen )
     // enter into the ugen table
     S_enter( info->ugen, insert_symbol(ugen->name.c_str()), (void *)ugen );
     
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_value_import()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_value_import( t_Env info, S_Symbol name,
+                                         S_Symbol type, void * addr )
+{
+    // lookup the value
+    if( lookup_value( info, name, FALSE ) )
+    {
+        EM_error2( 0,
+                   "imported identifier '%s' is already in use in namespace '%s'",
+                   name, S_name(info->name) );
+        return FALSE;
+    }
+
+    // lookup the type
+    t_Type t = lookup_type( info, type );
+    if( !t )
+    {
+        EM_error2( 0,
+                   "imported identifier '%s.%s' has unrecognized type '%s'",
+                   S_name(info->name), name, type );
+        return FALSE;
+    }
+
+    // insert value
+    S_enter( info->value, name, t );
+    // insert addr
+    S_enter( info->addr, name, addr );
+
     return TRUE;
 }
 
@@ -1947,6 +2002,21 @@ t_Env lookup_namespace( t_Env env, S_Symbol nspc, t_CKBOOL climb )
     if( climb && !e && env->parent )
         return lookup_namespace( env->parent, nspc, climb );
     return e;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lookup_addr()
+// desc: ...
+//-----------------------------------------------------------------------------
+void * lookup_addr( t_Env env, S_Symbol value, t_CKBOOL climb )
+{
+    void * v = S_look( env->addr, value );
+    if( climb && !v && env->parent )
+        return lookup_addr( env->parent, value, climb );
+    return v;
 }
 
 

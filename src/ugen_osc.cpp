@@ -79,7 +79,7 @@ struct Osc_Data
         t = 0.0;
         num = 0.0;
         freq = 220.0;
-	sync = 0;
+        sync = 0;
         phase_offset = 0.0;
         srate = Digitalio::sampling_rate();
         sinosc_ctrl_freq( 0, this, &freq );

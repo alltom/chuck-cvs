@@ -34,6 +34,10 @@
 #include <math.h>
 
 
+static double g_pi = 3.14159265358979323846;
+static double g_twopi = 2.0 * 3.14159265358979323846;
+static double g_e = ::exp( 1.0 );
+
 // query
 DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 {
@@ -145,6 +149,15 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_export( QUERY, "float", "max", max_impl, TRUE );
     QUERY->add_param( QUERY, "float", "x" );
     QUERY->add_param( QUERY, "float", "y" );
+
+    // pi
+    QUERY->add_export( QUERY, "float", "pi", (f_ck_func)&g_pi, FALSE );
+
+    // twopi
+    QUERY->add_export( QUERY, "float", "twopi", (f_ck_func)&g_pi, FALSE );
+
+    // e
+    QUERY->add_export( QUERY, "float", "e", (f_ck_func)&g_e, FALSE );
 
     return TRUE;
 }

@@ -275,7 +275,7 @@ const char * Chuck_DLL::last_error() const
 extern "C" void CK_DLL_CALL __ck_addexport( Chuck_DL_Query * query, 
            const char * type, const char * name, f_ck_func addr,
            t_CKBOOL is_func )
-{ query->dll_exports.push_back( Chuck_DL_Proto( type, name, addr, is_func ) ); }
+{ query->dll_exports.push_back( Chuck_DL_Proto( type, name, (void *)addr, is_func ) ); }
 
 // add param
 extern "C" void CK_DLL_CALL __ck_addparam( Chuck_DL_Query * query,

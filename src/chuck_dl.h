@@ -171,8 +171,8 @@ public: // these should not be used directly by the DLL
 
     // constructor
     Chuck_DL_Proto( const char * t = "", const char * n = "", 
-                    f_ck_func a = NULL, t_CKBOOL f = TRUE )
-    { type = t; name = n; addr = a, is_func = f; }
+                    void * a = NULL, t_CKBOOL f = TRUE )
+    { type = t; name = n; addr = (f_ck_func)a, is_func = f; }
 
     // clear proto
     void clear()

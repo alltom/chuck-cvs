@@ -1198,12 +1198,34 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol id,
                        "(emit): internal error: class/lookup not impl" );
             return FALSE;
         }
+        else if( emit->nspc && ( t = lookup_value( emit->nspc, id, FALSE ) ) )
+        {
+            void * addr = lookup_addr( emit->nspc, id, FALSE );
+            if( !addr )
+            {
+                EM_error2( linepos,
+                           "(emit): internal error looking up addr for '%s.%s'",
+                           "[namespace]", S_name(id) );
+                return FALSE;
+            }
+
+            // push the addr
+            if( t->size == 4 || t->size == 8 )
+                emit->append( new Chuck_Instr_Reg_Push_Deref( (uint)addr, t->size ) );
+            else
+            {
+                EM_error2( linepos,
+                           "(emit): internal error resolving '%s.%s'",
+                           "[namespace]", S_name(id) );
+                return FALSE;
+            }
+        }
         else
         {
             // error
             EM_error2( linepos,
-                "(emit): internal error resolving var '%s'",
-                S_name(id) );
+                       "(emit): internal error resolving var '%s'",
+                       S_name(id) );
             return FALSE;
         }
     }
