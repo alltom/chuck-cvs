@@ -1674,7 +1674,7 @@ void Chuck_Instr_Chuck_Assign_Deref2::execute( Chuck_VM * vm, Chuck_VM_Shred * s
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
     uint *& reg_sp = (uint *&)shred->reg->sp;
@@ -1690,6 +1690,28 @@ void Chuck_Instr_Chuck_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * s
     (*(Chuck_VM_Object **)reg_sp)->add_ref();
 
     push_( reg_sp, *reg_sp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Chuck_Assign_Object2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
+    uint *& reg_sp = (uint *&)shred->reg->sp;
+    
+    // pop word from reg stack
+    pop_( reg_sp, 2 );
+    // copy popped value into mem stack
+    *( (uint *)(mem_sp + *reg_sp) ) = *(reg_sp+1);
+    // add reference
+    ( *((Chuck_VM_Object **)(reg_sp+1)) )->add_ref();
+    
+    push_( reg_sp, *(reg_sp+1) );
 }
 
 
@@ -1732,28 +1754,6 @@ void Chuck_Instr_Chuck_Assign_Object_Deref::execute( Chuck_VM * vm, Chuck_VM_Shr
     ( *((Chuck_VM_Object **)reg_sp) )->add_ref();
 
     push_( reg_sp, *reg_sp );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Chuck_Assign_Object2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    BYTE__ *& mem_sp = (BYTE__ *&)shred->mem->sp;
-    uint *& reg_sp = (uint *&)shred->reg->sp;
-    
-    // pop word from reg stack
-    pop_( reg_sp, 2 );
-    // copy popped value into mem stack
-    *( (uint *)(mem_sp + *reg_sp) ) = *(reg_sp+1);
-    // add reference
-    ( *((Chuck_VM_Object **)(reg_sp+1)) )->add_ref();
-    
-    push_( reg_sp, *(reg_sp+1) );
 }
 
 
