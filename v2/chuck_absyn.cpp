@@ -525,7 +525,7 @@ a_Var_Decl new_var_decl2( a_Var_Decl var_decl, int isarray, a_Exp exp, int pos )
 {
     a_Var_Decl a = (a_Var_Decl)checked_malloc( sizeof( struct a_Var_Decl_ ) );
     a->var_decl = var_decl;
-    a->isarray = isarray;
+    a->isarray++;
     a->exp = exp;
     a->linepos = pos;
     
