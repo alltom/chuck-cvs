@@ -221,12 +221,127 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 //-----------------------------------------------------------------------------
 UGEN_TICK noise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
-    *out = (SAMPLE)rand() / RAND_MAX;
+    *out = -1.0 + 2.0 * (SAMPLE)rand() / RAND_MAX;
     return TRUE;
 }
 
+/*
+enum { NOISE_WHITE, NOISE_PINK, NOISE_BROWN, NOISE_FBM, NOISE_FLIP, NOISE_XOR }
 
+class CNoise_Data { 
+  SAMPLE value;
+  t_CKUINT mode;
+  t_CKFLOAT fbmH;
+  int counter;
+  int* pink_array;
+  int  pink_depth;
+  bool pink_rand;
+  int rand_bits;
+  double scale;
+  double bias;
+  int last;
+  CNoise_Data() { 
+    value = 0; 
+    mode = NOISE_WHITE; 
+    pink_depth = 32;
+    pink_array = NULL;
+    counter = 1;
+    scale = 2.0 / (double) RAND_MAX ;
+    bias = -1.0;
+    pink_rand = false;
+    int randt = RAND_MAX;
+    rand_bits = 0;
+    while ( randt > 0 ) { 
+      rand_bits++;
+      randt = randt >> 1;
+    }
+  } 
+  ~CNoise_Data() {}
+  void tick( t_CKTIME now, SAMPLE * out );
+  void setcolor(char * c);
 
+  int pink_tick();
+  int brown_tick();
+  int xor_tick();
+  int flip_tick();
+  int fbm_tick();
+}
+
+UGEN_CTOR cnoise_ctor( t_CKTIME now ) { 
+  return new CNoise_Data();
+}
+
+UGEN_DTOR cnoise_dtor (  t_CKTIME now, void * data ) { 
+  delete ( CNoise_Data* data );
+}
+
+UGEN_TICK cnoise_tick ( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
+  CNoise_Data d = ( CNoise_Data * ) data;
+  switch( mode ) { 
+  case NOISE_WHITE: 
+    noise_tick(now,data,in,out);
+    break;
+  case NOISE_PINK:
+    d->pink_tick(out);
+    break;
+  case NOISE_XOR:
+    d->xor_tick(out);
+    break;
+  case NOISE_FLIP:
+    d->flip_tick(out);
+    break;
+  case NOISE_FBM:
+    d->fbm_tick(out);
+    break;
+  }
+}
+
+CNoise_Data::pink_tick() { 
+
+  //based on Voss-McCartney
+
+  if ( pink_array == NULL ) { 
+    pink_array = malloc ( sizeof ( int ) * pink_depth );
+    last = 0;
+    for ( int i = 0 ; i < pink_depth ; i++ ) { pink_array[i] = rand(); last += pink_array[i]; } 
+    scale = 2.0 / (double)(RAND_MAX  * ( pink_depth + 1 ) );
+  }
+
+  int pind = 0;
+
+  //count trailing zeroes
+  while ( pind < pink_depth )
+    if ( counter & ( 1 << pind ) ) 
+      pind++;
+  
+  if ( pind < pink_depth ) { 
+    int diff = rand() - pink_array[pind];
+    pink_array[pind] += diff;
+    last += diff;
+  }
+
+  *out = bias + scale * (SAMPLE) ( rand() + last );
+  counter++;
+  if ( pink_rand ) counter = rand();
+}
+
+CNoise_Data::xor_tick() { 
+  last = last ^ rand();
+  *out = bias + scale * (SAMPLE)last;
+}
+
+CNoise_Data::flip_tick() { 
+  int ind = rand_bits * rand() / ( RAND_MAX + 1.0 );
+  last = last ^ ( 1 << ind );
+  *out = bias + scale * (SAMPLE)last;
+}
+
+CNoise_Data::fbm_tick() { 
+  //brownian noise function..later!
+  *out = 0;
+}
+
+*/
 
 //-----------------------------------------------------------------------------
 // name: struct Pulse_Data
