@@ -248,31 +248,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // set srate
     Stk::setSampleRate( QUERY->srate );
 
-    // add Envelope
-    QUERY->ugen_add( QUERY, "Envelope", NULL );
-    QUERY->ugen_func( QUERY, Envelope_ctor, Envelope_dtor, Envelope_tick, Envelope_pmsg );
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOn, NULL, "int", "keyOn" );
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOff, NULL, "int", "keyOff" );
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, NULL, "float", "time" );
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, NULL, "float", "rate");
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_target, Envelope_cget_target, "float", "target" );
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_value, Envelope_cget_value, "float", "value" );
-
-    // add ADSR
-    QUERY->ugen_add( QUERY, "ADSR", NULL );
-    QUERY->ugen_extends ( QUERY, "Envelope" );
-    QUERY->ugen_func( QUERY, ADSR_ctor, ADSR_dtor, ADSR_tick, ADSR_pmsg );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, NULL, "float", "attackTime" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, ADSR_cget_attackRate, "float", "attackRate" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayTime, NULL, "float", "decayTime" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayRate, ADSR_cget_decayRate, "float", "decayRate" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, ADSR_cget_sustainLevel, "float", "sustainLevel" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, NULL, "float", "releaseTime" );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, ADSR_cget_releaseRate, "float", "releaseRate" );
-    QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" );
-
     // add BiQuad
     QUERY->ugen_add( QUERY, "BiQuad", NULL );
     QUERY->ugen_func( QUERY, BiQuad_ctor, BiQuad_dtor, BiQuad_tick, BiQuad_pmsg );
@@ -289,12 +264,21 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_norm, NULL, "float", "norm" );
     QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_eqzs, NULL, "float", "eqzs" );
 
+    // add Chorus
+    QUERY->ugen_add( QUERY, "Chorus", NULL );
+    QUERY->ugen_func( QUERY, Chorus_ctor, Chorus_dtor, Chorus_tick, Chorus_pmsg );
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modFreq, NULL, "float", "modFreq" );
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modDepth, NULL, "float", "modDepth" );
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_mix, NULL, "float", "mix" );
+
     // add Delay
     QUERY->ugen_add( QUERY, "Delay", NULL );
     QUERY->ugen_func( QUERY, Delay_ctor, Delay_dtor, Delay_tick, Delay_pmsg );
     QUERY->ugen_ctrl( QUERY, Delay_ctrl_delay, Delay_cget_delay, "dur", "delay" );
     QUERY->ugen_ctrl( QUERY, Delay_ctrl_max, Delay_cget_max, "dur", "max" );
 
+    // delay 'subs' not actually extending . 
+    
     // add DelayA
     QUERY->ugen_add( QUERY, "DelayA", NULL );
     QUERY->ugen_func( QUERY, DelayA_ctor, DelayA_dtor, DelayA_tick, DelayA_pmsg );
@@ -313,13 +297,41 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_delay, Echo_cget_delay, "dur", "delay" );
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" );
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" );
+    
+    // add Envelope
+    QUERY->ugen_add( QUERY, "Envelope", NULL );
+    QUERY->ugen_func( QUERY, Envelope_ctor, Envelope_dtor, Envelope_tick, Envelope_pmsg );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOn, NULL, "int", "keyOn" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOff, NULL, "int", "keyOff" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, NULL, "float", "time" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, NULL, "float", "rate");
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_target, Envelope_cget_target, "float", "target" );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_value, Envelope_cget_value, "float", "value" );
+    
+    //Envelope subclasses
 
+    // add ADSR
+    QUERY->ugen_add( QUERY, "ADSR", NULL );
+    QUERY->ugen_extends ( QUERY, "Envelope" );
+    QUERY->ugen_func( QUERY, ADSR_ctor, ADSR_dtor, ADSR_tick, ADSR_pmsg );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, NULL, "float", "attackTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, ADSR_cget_attackRate, "float", "attackRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayTime, NULL, "float", "decayTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayRate, ADSR_cget_decayRate, "float", "decayRate" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, ADSR_cget_sustainLevel, "float", "sustainLevel" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, NULL, "float", "releaseTime" );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, ADSR_cget_releaseRate, "float", "releaseRate" );
+    QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" );
 
     // add Filter
     QUERY->ugen_add( QUERY, "Filter", NULL );
     QUERY->ugen_func( QUERY, Filter_ctor, Filter_dtor, Filter_tick, Filter_pmsg );
     QUERY->ugen_ctrl( QUERY, Filter_ctrl_coefs, NULL, "string", "coefs" );
 
+    // Filter subclasses
+    
     // add OnePole
     QUERY->ugen_add( QUERY, "OnePole", NULL );
     QUERY->ugen_func( QUERY, OnePole_ctor, OnePole_dtor, OnePole_tick, OnePole_pmsg );
@@ -361,116 +373,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_b1, NULL,  "float", "b1" );
     QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_blockZero , NULL, "float", "blockZero" );
     QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_allpass , NULL, "float", "allpass" );
-    
-    // add WvIn
-    QUERY->ugen_add( QUERY, "WvIn", NULL );
-    QUERY->ugen_func( QUERY, WvIn_ctor, WvIn_dtor, WvIn_tick, WvIn_pmsg );
-    QUERY->ugen_ctrl( QUERY, WvIn_ctrl_rate, NULL, "float", "rate" );
-    QUERY->ugen_ctrl( QUERY, WvIn_ctrl_path, NULL, "string", "path" );
 
-    // add WaveLoop
-    QUERY->ugen_add( QUERY, "WaveLoop", NULL );
-    QUERY->ugen_extends ( QUERY, "WvIn" );
-    QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phase, NULL, "float", "addPhase" );
-    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phaseOffset, NULL, "float", "addPhaseOffset" );
-
-    //add WvOut
-    QUERY->ugen_add( QUERY, "WvOut", NULL);
-    QUERY->ugen_func( QUERY, WvOut_ctor, WvOut_dtor, WvOut_tick, WvOut_pmsg );
-    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_matFilename, NULL, "string", "matFilename");
-    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_sndFilename, NULL, "string", "sndFilename");
-    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_wavFilename, NULL, "string", "wavFilename");
-    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_rawFilename, NULL, "string", "rawFilename");
-    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_aifFilename, NULL, "string", "aifFilename");
-
-
-    // add JCRev
-    QUERY->ugen_add( QUERY, "JCRev", NULL );
-    QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
-    QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
-
-    // add NRev
-    QUERY->ugen_add( QUERY, "NRev", NULL );
-    QUERY->ugen_func( QUERY, NRev_ctor, NRev_dtor, NRev_tick, NRev_pmsg );
-    QUERY->ugen_ctrl( QUERY, NRev_ctrl_mix, NULL, "float", "mix" );
-
-
-    // add PRCRev
-    QUERY->ugen_add( QUERY, "PRCRev", NULL );
-    QUERY->ugen_func( QUERY, PRCRev_ctor, PRCRev_dtor, PRCRev_tick, PRCRev_pmsg );
-    QUERY->ugen_ctrl( QUERY, PRCRev_ctrl_mix, NULL, "float", "mix" );
-
-    // add SubNoise
-    QUERY->ugen_add( QUERY, "SubNoise", NULL );
-    QUERY->ugen_func( QUERY, SubNoise_ctor, SubNoise_dtor, SubNoise_tick, SubNoise_pmsg );
-    QUERY->ugen_ctrl( QUERY, SubNoise_ctrl_rate, SubNoise_cget_rate, "int", "rate" );
-
-    // add Chorus
-    QUERY->ugen_add( QUERY, "Chorus", NULL );
-    QUERY->ugen_func( QUERY, Chorus_ctor, Chorus_dtor, Chorus_tick, Chorus_pmsg );
-    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modFreq, NULL, "float", "modFreq" );
-    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modDepth, NULL, "float", "modDepth" );
-    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_mix, NULL, "float", "mix" );
-
-
-
-    // add PitShift
-    QUERY->ugen_add( QUERY, "PitShift", NULL );
-    QUERY->ugen_func( QUERY, PitShift_ctor, PitShift_dtor, PitShift_tick, PitShift_pmsg );
-    QUERY->ugen_ctrl( QUERY, PitShift_ctrl_shift, NULL, "float", "shift" );
-    QUERY->ugen_ctrl( QUERY, PitShift_ctrl_effectMix, NULL, "float", "effectMix" );
-
-
-    // add Mandolin
-    QUERY->ugen_add( QUERY, "Mandolin", NULL );
-    QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluck, NULL, "float", "pluck" );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluckPos, NULL, "float", "pluckPos" );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_bodySize, NULL, "float", "bodySize" );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDamping, NULL, "float", "stringDamping" );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, NULL, "float", "stringDetune" );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" );
-
-    // add Moog
-    QUERY->ugen_add( QUERY, "Moog", NULL );
-    QUERY->ugen_func( QUERY, Moog_ctor, Moog_dtor, Moog_tick, Moog_pmsg );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_noteOn, NULL, "float", "noteOn" );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modSpeed, NULL, "float", "modSpeed" );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modDepth, NULL, "float", "modDepth" );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterQ, NULL, "float", "filterQ" );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterSweepRate, NULL, "float", "filterSweepRate" );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_afterTouch, NULL, "float", "afterTouch" );
-
-
-    // add Shakers
-    QUERY->ugen_add( QUERY, "Shakers", NULL );
-    QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, NULL, "float", "noteOn" );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, NULL, "int", "which" );
-
-    // add VoicForm
-    QUERY->ugen_add( QUERY, "VoicForm", NULL );
-    QUERY->ugen_func( QUERY, VoicForm_ctor, VoicForm_dtor, VoicForm_tick, VoicForm_pmsg );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_phoneme, NULL, "string", "phoneme" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOn, NULL, "float", "noteOn" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOff, NULL, "float", "noteOff" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_speak, NULL, "float", "speak" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_quiet, NULL, "float", "quiet" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiced, NULL, "float", "voiced" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_unVoiced, NULL, "float", "unVoiced" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_pitchSweepRate, NULL, "float", "pitchSweepRate" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiceMix, NULL, "float", "voiceMix" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_selPhoneme, NULL, "int", "setPhoneme" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoFreq, NULL, "float", "vibratoFreq" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, NULL, "float", "vibratoGain" );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, NULL, "float", "loudness" );
+    //end Filters
 
     // add FM
     QUERY->ugen_add( QUERY, "FM", NULL );
@@ -483,6 +387,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, FM_ctrl_afterTouch, NULL, "float", "afterTouch" );
     QUERY->ugen_ctrl( QUERY, FM_ctrl_control1, NULL, "float", "control1" );
     QUERY->ugen_ctrl( QUERY, FM_ctrl_control2, NULL, "float", "control2" );
+    
+    // add FM's subclasses
 
     // add BeeThree
     QUERY->ugen_add( QUERY, "BeeThree", NULL );
@@ -515,13 +421,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, PercFlut_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, PercFlut_ctrl_noteOn, NULL, "float", "noteOn" );
 
+    // add Rhodey
+    QUERY->ugen_add( QUERY, "Rhodey", NULL );
+    QUERY->ugen_extends (QUERY, "FM");
+    QUERY->ugen_func( QUERY, Rhodey_ctor, Rhodey_dtor, Rhodey_tick, Rhodey_pmsg );
+    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_noteOn, NULL, "float", "noteOn" );
+
     // add TubeBell
     QUERY->ugen_add( QUERY, "TubeBell", NULL );
     QUERY->ugen_extends (QUERY, "FM");
     QUERY->ugen_func( QUERY, TubeBell_ctor, TubeBell_dtor, TubeBell_tick, TubeBell_pmsg );
     QUERY->ugen_ctrl( QUERY, TubeBell_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, TubeBell_ctrl_noteOn, NULL, "float", "noteOn" );
-
+    
     // add Wurley
     QUERY->ugen_add( QUERY, "Wurley", NULL );
     QUERY->ugen_extends (QUERY, "FM");
@@ -529,13 +442,106 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Wurley_ctrl_freq, NULL, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, Wurley_ctrl_noteOn, NULL, "float", "noteOn" );
 
-    // add Rhodey
-    QUERY->ugen_add( QUERY, "Rhodey", NULL );
-    QUERY->ugen_extends (QUERY, "FM");
-    QUERY->ugen_func( QUERY, Rhodey_ctor, Rhodey_dtor, Rhodey_tick, Rhodey_pmsg );
-    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, Rhodey_ctrl_noteOn, NULL, "float", "noteOn" );
-  
+    //end FM
+
+    // add JCRev
+    QUERY->ugen_add( QUERY, "JCRev", NULL );
+    QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, NULL, "float", "mix" );
+
+    // add Mandolin
+    QUERY->ugen_add( QUERY, "Mandolin", NULL );
+    QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluck, NULL, "float", "pluck" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluckPos, NULL, "float", "pluckPos" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_bodySize, NULL, "float", "bodySize" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDamping, NULL, "float", "stringDamping" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, NULL, "float", "stringDetune" );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" );
+    
+    // add Moog
+    QUERY->ugen_add( QUERY, "Moog", NULL );
+    QUERY->ugen_func( QUERY, Moog_ctor, Moog_dtor, Moog_tick, Moog_pmsg );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modSpeed, NULL, "float", "modSpeed" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modDepth, NULL, "float", "modDepth" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterQ, NULL, "float", "filterQ" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterSweepRate, NULL, "float", "filterSweepRate" );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_afterTouch, NULL, "float", "afterTouch" );
+
+    // add NRev
+    QUERY->ugen_add( QUERY, "NRev", NULL );
+    QUERY->ugen_func( QUERY, NRev_ctor, NRev_dtor, NRev_tick, NRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, NRev_ctrl_mix, NULL, "float", "mix" );
+
+    // add PitShift
+    QUERY->ugen_add( QUERY, "PitShift", NULL );
+    QUERY->ugen_func( QUERY, PitShift_ctor, PitShift_dtor, PitShift_tick, PitShift_pmsg );
+    QUERY->ugen_ctrl( QUERY, PitShift_ctrl_shift, NULL, "float", "shift" );
+    QUERY->ugen_ctrl( QUERY, PitShift_ctrl_effectMix, NULL, "float", "effectMix" );
+    
+    // add PRCRev
+    QUERY->ugen_add( QUERY, "PRCRev", NULL );
+    QUERY->ugen_func( QUERY, PRCRev_ctor, PRCRev_dtor, PRCRev_tick, PRCRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, PRCRev_ctrl_mix, NULL, "float", "mix" );
+    
+    // add Shakers
+    QUERY->ugen_add( QUERY, "Shakers", NULL );
+    QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, NULL, "int", "which" );
+    
+    // add SubNoise
+    QUERY->ugen_add( QUERY, "SubNoise", NULL );
+    QUERY->ugen_func( QUERY, SubNoise_ctor, SubNoise_dtor, SubNoise_tick, SubNoise_pmsg );
+    QUERY->ugen_ctrl( QUERY, SubNoise_ctrl_rate, SubNoise_cget_rate, "int", "rate" );
+
+    // add VoicForm
+    QUERY->ugen_add( QUERY, "VoicForm", NULL );
+    QUERY->ugen_func( QUERY, VoicForm_ctor, VoicForm_dtor, VoicForm_tick, VoicForm_pmsg );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_phoneme, NULL, "string", "phoneme" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOn, NULL, "float", "noteOn" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOff, NULL, "float", "noteOff" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_speak, NULL, "float", "speak" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_quiet, NULL, "float", "quiet" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiced, NULL, "float", "voiced" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_unVoiced, NULL, "float", "unVoiced" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_pitchSweepRate, NULL, "float", "pitchSweepRate" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiceMix, NULL, "float", "voiceMix" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_selPhoneme, NULL, "int", "setPhoneme" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoFreq, NULL, "float", "vibratoFreq" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, NULL, "float", "vibratoGain" );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, NULL, "float", "loudness" );  
+    
+    // add WvIn
+    QUERY->ugen_add( QUERY, "WvIn", NULL );
+    QUERY->ugen_func( QUERY, WvIn_ctor, WvIn_dtor, WvIn_tick, WvIn_pmsg );
+    QUERY->ugen_ctrl( QUERY, WvIn_ctrl_rate, NULL, "float", "rate" );
+    QUERY->ugen_ctrl( QUERY, WvIn_ctrl_path, NULL, "string", "path" );
+
+    // add WaveLoop
+    QUERY->ugen_add( QUERY, "WaveLoop", NULL );
+    QUERY->ugen_extends ( QUERY, "WvIn" );
+    QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_freq, NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phase, NULL, "float", "addPhase" );
+    QUERY->ugen_ctrl( QUERY, WaveLoop_ctrl_phaseOffset, NULL, "float", "addPhaseOffset" );
+
+    //add WvOut
+    QUERY->ugen_add( QUERY, "WvOut", NULL);
+    QUERY->ugen_func( QUERY, WvOut_ctor, WvOut_dtor, WvOut_tick, WvOut_pmsg );
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_matFilename, NULL, "string", "matFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_sndFilename, NULL, "string", "sndFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_wavFilename, NULL, "string", "wavFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_rawFilename, NULL, "string", "rawFilename");
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_aifFilename, NULL, "string", "aifFilename");
+    
+    
     return TRUE;
 }
 
@@ -19140,231 +19146,8 @@ void WvOut :: tickFrame(const MY_FLOAT *frameVector, unsigned int frames)
 
 
 
-
 // chuck - import
-
-
-//-----------------------------------------------------------------------------
-// name: Envelope - import
-// desc: ..
-//-----------------------------------------------------------------------------
-UGEN_CTOR Envelope_ctor( t_CKTIME now )
-{
-    return new Envelope;
-}
-
-UGEN_DTOR Envelope_dtor( t_CKTIME now, void * data )
-{
-    delete (Envelope *)data;
-}
-
-UGEN_TICK Envelope_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    Envelope * d = (Envelope *)data;
-    *out = in * d->tick();
-    return TRUE;
-}
-
-UGEN_PMSG Envelope_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return FALSE;
-}
-
-UGEN_CTRL Envelope_ctrl_time( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    d->setTime( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL Envelope_ctrl_rate( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    d->setRate( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL Envelope_ctrl_target( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    d->setTarget( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL Envelope_ctrl_value( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    d->setValue( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL Envelope_ctrl_keyOn( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    if( GET_NEXT_INT(value) )
-        d->keyOn();
-    else
-        d->keyOff();
-}
-
-UGEN_CTRL Envelope_ctrl_keyOff( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    if( !GET_NEXT_INT(value) )
-        d->keyOn();
-    else
-        d->keyOff();
-}
-
-UGEN_CTRL Envelope_cget_target( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    SET_NEXT_FLOAT( value, d->target );
-}
-
-UGEN_CTRL Envelope_cget_value( t_CKTIME now, void * data, void * value )
-{
-    Envelope * d = (Envelope *)data;
-    SET_NEXT_FLOAT( value, d->value );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ADSR - import
-// desc: ..
-//-----------------------------------------------------------------------------
-UGEN_CTOR ADSR_ctor( t_CKTIME now )
-{
-    return new ADSR;
-}
-
-UGEN_DTOR ADSR_dtor( t_CKTIME now, void * data )
-{
-    delete (ADSR *)data;
-}
-
-UGEN_TICK ADSR_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    ADSR * d = (ADSR *)data;
-    *out = in * d->tick();
-    return TRUE;
-}
-
-UGEN_PMSG ADSR_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return FALSE;
-}
-
-UGEN_CTRL ADSR_ctrl_attackTime( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setAttackTime( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_attackRate( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setAttackRate( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_decayTime( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setDecayTime( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_decayRate( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setDecayRate( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_sustainLevel( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setSustainLevel( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_releaseTime( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setReleaseTime( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_releaseRate( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setReleaseRate( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_target( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setTarget( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_value( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    d->setValue( GET_NEXT_FLOAT(value) );
-}
-
-UGEN_CTRL ADSR_ctrl_keyOn( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    if( GET_NEXT_INT(value) )
-        d->keyOn();
-    else
-        d->keyOff();
-}
-
-UGEN_CTRL ADSR_ctrl_keyOff( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    if( !GET_NEXT_INT(value) )
-        d->keyOn();
-    else
-        d->keyOff();
-}
-
-UGEN_CTRL ADSR_cget_attackRate( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    SET_NEXT_FLOAT( value, d->attackRate );
-}
-
-UGEN_CTRL ADSR_cget_decayRate( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    SET_NEXT_FLOAT( value, d->decayRate );
-}
-
-UGEN_CTRL ADSR_cget_sustainLevel( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    SET_NEXT_FLOAT( value, d->sustainLevel );
-}
-
-UGEN_CTRL ADSR_cget_releaseRate( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    SET_NEXT_FLOAT( value, d->releaseRate );
-}
-
-UGEN_CTRL ADSR_cget_target( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    SET_NEXT_FLOAT( value, d->target );
-}
-
-UGEN_CTRL ADSR_cget_value( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    SET_NEXT_FLOAT( value, d->value );
-}
-
-UGEN_CTRL ADSR_cget_state( t_CKTIME now, void * data, void * value )
-{
-    ADSR * d = (ADSR *)data;
-    SET_NEXT_INT( value, d->state );
-}
-
+// wrapper functions
 
 
 // BiQuad
@@ -19514,6 +19297,51 @@ UGEN_CGET BiQuad_cget_a0( t_CKTIME now, void * data, void * value )
     SET_NEXT_FLOAT( value, f->biquad.a[0] );
 }
 
+
+// Chorus
+UGEN_CTOR Chorus_ctor( t_CKTIME now )
+{
+    return new Chorus( 44100 );
+}
+
+UGEN_DTOR Chorus_dtor( t_CKTIME now, void * data )
+{
+    delete (Chorus *)data;
+}
+
+UGEN_TICK Chorus_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Chorus * p = (Chorus *)data;
+    *out = p->tick(in);
+    return TRUE;
+}
+
+UGEN_PMSG Chorus_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Chorus_ctrl_modDepth( t_CKTIME now, void * data, void * value )
+{
+    Chorus * p = (Chorus *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+
+    p->setModDepth( f );
+}
+
+UGEN_CTRL Chorus_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    Chorus * p = (Chorus *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setEffectMix( f );
+}
+
+UGEN_CTRL Chorus_ctrl_modFreq( t_CKTIME now, void * data, void * value )
+{
+    Chorus * p = (Chorus *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setModFrequency( f );
+}
 
 // Delay
 UGEN_CTOR Delay_ctor( t_CKTIME now )
@@ -19705,6 +19533,231 @@ UGEN_CGET Echo_cget_mix( t_CKTIME now, void * data, void * value )
     SET_NEXT_FLOAT( value, (t_CKFLOAT)((Echo *)data)->effectMix );
 }
 
+
+
+//-----------------------------------------------------------------------------
+// name: Envelope - import
+// desc: ..
+//-----------------------------------------------------------------------------
+UGEN_CTOR Envelope_ctor( t_CKTIME now )
+{
+    return new Envelope;
+}
+
+UGEN_DTOR Envelope_dtor( t_CKTIME now, void * data )
+{
+    delete (Envelope *)data;
+}
+
+UGEN_TICK Envelope_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Envelope * d = (Envelope *)data;
+    *out = in * d->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Envelope_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+UGEN_CTRL Envelope_ctrl_time( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setTime( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setRate( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_target( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setTarget( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_value( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    d->setValue( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL Envelope_ctrl_keyOn( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    if( GET_NEXT_INT(value) )
+        d->keyOn();
+    else
+        d->keyOff();
+}
+
+UGEN_CTRL Envelope_ctrl_keyOff( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    if( !GET_NEXT_INT(value) )
+        d->keyOn();
+    else
+        d->keyOff();
+}
+
+UGEN_CTRL Envelope_cget_target( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    SET_NEXT_FLOAT( value, d->target );
+}
+
+UGEN_CTRL Envelope_cget_value( t_CKTIME now, void * data, void * value )
+{
+    Envelope * d = (Envelope *)data;
+    SET_NEXT_FLOAT( value, d->value );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: ADSR - import
+// desc: ..
+//-----------------------------------------------------------------------------
+UGEN_CTOR ADSR_ctor( t_CKTIME now )
+{
+    return new ADSR;
+}
+
+UGEN_DTOR ADSR_dtor( t_CKTIME now, void * data )
+{
+    delete (ADSR *)data;
+}
+
+UGEN_TICK ADSR_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    ADSR * d = (ADSR *)data;
+    *out = in * d->tick();
+    return TRUE;
+}
+
+UGEN_PMSG ADSR_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+UGEN_CTRL ADSR_ctrl_attackTime( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setAttackTime( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_attackRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setAttackRate( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_decayTime( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setDecayTime( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_decayRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setDecayRate( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_sustainLevel( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setSustainLevel( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_releaseTime( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setReleaseTime( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_releaseRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setReleaseRate( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_target( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setTarget( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_value( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    d->setValue( GET_NEXT_FLOAT(value) );
+}
+
+UGEN_CTRL ADSR_ctrl_keyOn( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    if( GET_NEXT_INT(value) )
+        d->keyOn();
+    else
+        d->keyOff();
+}
+
+UGEN_CTRL ADSR_ctrl_keyOff( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    if( !GET_NEXT_INT(value) )
+        d->keyOn();
+    else
+        d->keyOff();
+}
+
+UGEN_CTRL ADSR_cget_attackRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->attackRate );
+}
+
+UGEN_CTRL ADSR_cget_decayRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->decayRate );
+}
+
+UGEN_CTRL ADSR_cget_sustainLevel( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->sustainLevel );
+}
+
+UGEN_CTRL ADSR_cget_releaseRate( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->releaseRate );
+}
+
+UGEN_CTRL ADSR_cget_target( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->target );
+}
+
+UGEN_CTRL ADSR_cget_value( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_FLOAT( value, d->value );
+}
+
+UGEN_CTRL ADSR_cget_state( t_CKTIME now, void * data, void * value )
+{
+    ADSR * d = (ADSR *)data;
+    SET_NEXT_INT( value, d->state );
+}
+
+
 //Filter
 UGEN_CTOR Filter_ctor( t_CKTIME now )
 {
@@ -19733,684 +19786,6 @@ UGEN_CTRL Filter_ctrl_coefs( t_CKTIME now, void * data, void * value )
 {
     Filter * d = (Filter *)data;
     fprintf(stderr,"Filter.coefs :: not implemented\n");
-}
-
-// WvIn
-UGEN_CTOR WvIn_ctor( t_CKTIME now )
-{
-    return new WvIn;
-}
-
-UGEN_DTOR WvIn_dtor( t_CKTIME now, void * data )
-{
-    delete (WvIn *)data;
-}
-
-UGEN_TICK WvIn_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    WvIn * w = (WvIn *)data;
-    *out = ( w->m_loaded ? (t_CKFLOAT)w->tick() / SHRT_MAX : (SAMPLE)0.0 );
-    return TRUE;
-}
-
-UGEN_PMSG WvIn_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL WvIn_ctrl_rate( t_CKTIME now, void * data, void * value )
-{
-    WvIn * w = (WvIn *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    w->setRate( f );
-}
-
-UGEN_CTRL WvIn_ctrl_path( t_CKTIME now, void * data, void * value )
-{
-    WvIn * w = (WvIn *)data;
-    char * c = *(char **)value;
-    try { w->openFile( c, FALSE, FALSE ); }
-    catch( StkError & e )
-    {
-        // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
-    }
-}
-
-// WaveLoop
-UGEN_CTOR WaveLoop_ctor( t_CKTIME now )
-{
-    return new WaveLoop;
-}
-
-UGEN_DTOR WaveLoop_dtor( t_CKTIME now, void * data )
-{
-    delete (WaveLoop *)data;
-}
-
-UGEN_TICK WaveLoop_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    WaveLoop * w = (WaveLoop *)data;
-    *out = ( w->m_loaded ? (t_CKFLOAT)w->tick() / SHRT_MAX : (SAMPLE)0.0 );
-    return TRUE;
-}
-
-UGEN_PMSG WaveLoop_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL WaveLoop_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    WaveLoop * w = (WaveLoop *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    w->setFrequency( f );
-}
-
-UGEN_CTRL WaveLoop_ctrl_phase( t_CKTIME now, void * data, void * value )
-{
-    WaveLoop * w = (WaveLoop *)data;
-    float f = (float)GET_CK_FLOAT(value);
-    w->addPhase( f );
-}
-
-UGEN_CTRL WaveLoop_ctrl_phaseOffset( t_CKTIME now, void * data, void * value )
-{
-    WaveLoop * w = (WaveLoop *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    w->addPhaseOffset( f );
-}
-
-
-// WvOut
-UGEN_CTOR WvOut_ctor( t_CKTIME now )
-{
-    return new WvOut;
-}
-
-UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data )
-{
-    delete (WvOut *)data;
-}
-
-UGEN_TICK WvOut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    WvOut * w = (WvOut *)data;
-    w->tick( in );
-    *out = in; //pass samples downstream
-    return TRUE;
-}
-
-UGEN_PMSG WvOut_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-//XXX chuck got mono, so we have one channel. fix later.
-UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value )
-{
-    WvOut * w = (WvOut *)data;
-    char *filename = * (char**) value;
-    w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
-}
-
-UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value )
-{
-    WvOut * w = (WvOut *)data;
-    char *filename = * (char**) value;
-    w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
-}
-
-UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value )
-{
-    WvOut * w = (WvOut *)data;
-    char *filename = * (char**) value;
-    w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
-}
-
-UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value )
-{
-    WvOut * w = (WvOut *)data;
-    char *filename = * (char**) value;
-    w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
-}
-
-UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value )
-{
-    WvOut * w = (WvOut *)data;
-    char *filename = * (char**) value;
-    w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
-}
-
-
-// JCRev
-UGEN_CTOR JCRev_ctor( t_CKTIME now )
-{
-    return new JCRev( 4.0f );
-}
-
-UGEN_DTOR JCRev_dtor( t_CKTIME now, void * data )
-{
-    delete (JCRev *)data;
-}
-
-UGEN_TICK JCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    JCRev * j = (JCRev *)data;
-    *out = j->tick( in );
-    return TRUE;
-}
-
-UGEN_PMSG JCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL JCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
-{
-    JCRev * j = (JCRev *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    j->setEffectMix( f );
-}
-
-
-// NRev
-UGEN_CTOR NRev_ctor( t_CKTIME now )
-{
-    return new NRev( 4.0f );
-}
-
-UGEN_DTOR NRev_dtor( t_CKTIME now, void * data )
-{
-    delete (NRev *)data;
-}
-
-UGEN_TICK NRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    NRev * j = (NRev *)data;
-    *out = j->tick( in );
-    return TRUE;
-}
-
-UGEN_PMSG NRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL NRev_ctrl_mix( t_CKTIME now, void * data, void * value )
-{
-    NRev * j = (NRev *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    j->setEffectMix( f );
-}
-
-// PRCRev
-UGEN_CTOR PRCRev_ctor( t_CKTIME now )
-{
-    return new PRCRev( 4.0f );
-}
-
-UGEN_DTOR PRCRev_dtor( t_CKTIME now, void * data )
-{
-    delete (PRCRev *)data;
-}
-
-UGEN_TICK PRCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    PRCRev * j = (PRCRev *)data;
-    *out = j->tick( in );
-    return TRUE;
-}
-
-UGEN_PMSG PRCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL PRCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
-{
-    PRCRev * j = (PRCRev *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    j->setEffectMix( f );
-}
-
-// PitShift
-UGEN_CTOR PitShift_ctor( t_CKTIME now )
-{
-    return new PitShift( );
-}
-
-UGEN_DTOR PitShift_dtor( t_CKTIME now, void * data )
-{
-    delete (PitShift *)data;
-}
-
-UGEN_TICK PitShift_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    PitShift * p = (PitShift *)data;
-    *out = p->tick( in );
-    return TRUE;
-}
-
-UGEN_PMSG PitShift_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL PitShift_ctrl_shift( t_CKTIME now, void * data, void * value )
-{
-    PitShift * p = (PitShift *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    p->setShift( f );
-}
-
-UGEN_CTRL PitShift_ctrl_effectMix( t_CKTIME now, void * data, void * value )
-{
-    PitShift * p = (PitShift *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    p->setEffectMix( f );
-}
-
-
-
-// SubNoise
-UGEN_CTOR SubNoise_ctor( t_CKTIME now )
-{
-    return new SubNoise( );
-}
-
-UGEN_DTOR SubNoise_dtor( t_CKTIME now, void * data )
-{
-    delete (SubNoise *)data;
-}
-
-UGEN_TICK SubNoise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    SubNoise * p = (SubNoise *)data;
-    *out = p->tick();
-    return TRUE;
-}
-
-UGEN_PMSG SubNoise_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL SubNoise_ctrl_rate( t_CKTIME now, void * data, void * value )
-{
-    SubNoise * p = (SubNoise *)data;
-    int i = GET_CK_INT(value);
-    p->setRate( i );
-}
-
-UGEN_CTRL SubNoise_cget_rate( t_CKTIME now, void * data, void * value )
-{
-    SET_NEXT_INT( value, (int)((SubNoise *)data)->subRate() );
-}
-
-
-// Chorus
-UGEN_CTOR Chorus_ctor( t_CKTIME now )
-{
-    return new Chorus( 44100 );
-}
-
-UGEN_DTOR Chorus_dtor( t_CKTIME now, void * data )
-{
-    delete (Chorus *)data;
-}
-
-UGEN_TICK Chorus_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    Chorus * p = (Chorus *)data;
-    *out = p->tick(in);
-    return TRUE;
-}
-
-UGEN_PMSG Chorus_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL Chorus_ctrl_modDepth( t_CKTIME now, void * data, void * value )
-{
-    Chorus * p = (Chorus *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-
-    p->setModDepth( f );
-}
-
-UGEN_CTRL Chorus_ctrl_mix( t_CKTIME now, void * data, void * value )
-{
-    Chorus * p = (Chorus *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    p->setEffectMix( f );
-}
-
-UGEN_CTRL Chorus_ctrl_modFreq( t_CKTIME now, void * data, void * value )
-{
-    Chorus * p = (Chorus *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    p->setModFrequency( f );
-}
-
-
-
-
-
-UGEN_CTOR Shakers_ctor( t_CKTIME now )
-{
-    return new Shakers;
-}
-
-UGEN_DTOR Shakers_dtor( t_CKTIME now, void * data )
-{
-    delete (Shakers *)data;
-}
-
-UGEN_TICK Shakers_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    Shakers * s = (Shakers *)data;
-    *out = s->tick();
-    return TRUE;
-}
-
-UGEN_PMSG Shakers_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL Shakers_ctrl_which( t_CKTIME now, void * data, void * value )
-{
-    Shakers * s = (Shakers *)data;
-    t_CKINT c = GET_CK_INT(value);
-    s->setupNum( c );
-}
-
-UGEN_CTRL Shakers_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    Shakers * s = (Shakers *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    s->noteOn( s->freq, f );
-}
-
-UGEN_CTRL Shakers_ctrl_noteOff( t_CKTIME now, void * data, void * value )
-{
-    Shakers * s = (Shakers *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    s->noteOff( f );
-}
-
-UGEN_CTRL Shakers_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    Shakers * s = (Shakers *)data;
-    s->freq = GET_CK_FLOAT(value);
-}
-
-UGEN_CTOR Mandolin_ctor ( t_CKTIME now ) 
-{
-  return new Mandolin( 100.0f );
-}
-
-UGEN_DTOR Mandolin_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (Mandolin *)data;
-}
-
-UGEN_TICK Mandolin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    Mandolin * m = (Mandolin *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG Mandolin_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL Mandolin_ctrl_pluck( t_CKTIME now, void * data, void * value )
-{
-    Mandolin * m = (Mandolin *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    m->pluck( f );
-}
-
-UGEN_CTRL Mandolin_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    Mandolin * m = (Mandolin *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    m->setFrequency( f );
-
-}
-
-UGEN_CTRL Mandolin_ctrl_pluckPos( t_CKTIME now, void * data, void * value )
-{
-    Mandolin * m = (Mandolin *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    m->setPluckPosition( f );
-}
-
-UGEN_CTRL Mandolin_ctrl_bodySize( t_CKTIME now, void * data, void * value )
-{
-    Mandolin * m = (Mandolin *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    m->setBodySize( f * 2.0 );
-}
-
-UGEN_CTRL Mandolin_ctrl_stringDamping( t_CKTIME now, void * data, void * value )
-{
-    Mandolin * m = (Mandolin *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    m->setBaseLoopGain( 0.97f + f * 0.03f );
-}
-
-UGEN_CTRL Mandolin_ctrl_stringDetune( t_CKTIME now, void * data, void * value )
-{
-    Mandolin * m = (Mandolin *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    m->setDetune( 1.0f - 0.1f * f );
-}
-
-UGEN_CTRL Mandolin_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
-{
-    Mandolin * m = (Mandolin *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    //not sure what this does in stk version so we'll just call controlChange
-    m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
-}
-
-
-UGEN_CTOR Moog_ctor ( t_CKTIME now ) 
-{
-  return new Moog();
-}
-
-UGEN_DTOR Moog_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (Moog *)data;
-}
-
-UGEN_TICK Moog_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    Moog * m = (Moog *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG Moog_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-
-UGEN_CTRL Moog_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    Moog * m = (Moog *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->noteOn( f );
-}
-
-
-UGEN_CTRL Moog_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    Moog * m = (Moog *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->setFrequency ( f );
-}
-
-UGEN_CTRL Moog_ctrl_modSpeed( t_CKTIME now, void * data, void * value )
-{
-    Moog * m = (Moog *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->setModulationSpeed(f);
-} 
-
-UGEN_CTRL Moog_ctrl_modDepth( t_CKTIME now, void * data, void * value )
-{
-    Moog * m = (Moog *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->setModulationDepth(f);
-}
-
-UGEN_CTRL Moog_ctrl_filterQ( t_CKTIME now, void * data, void * value )
-{
-    Moog * m = (Moog *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->controlChange( __SK_FilterQ_, f * 128.0 );
-}
-
-UGEN_CTRL Moog_ctrl_filterSweepRate( t_CKTIME now, void * data, void * value )
-{
-    Moog * m = (Moog *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->controlChange( __SK_FilterSweepRate_, f * 128.0 );
-
-}
-
-UGEN_CTRL Moog_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
-{
-    Moog * m = (Moog *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
-}
-
-
-UGEN_CTOR VoicForm_ctor ( t_CKTIME now ) 
-{
-  return new VoicForm();
-}
-
-UGEN_DTOR VoicForm_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (VoicForm *)data;
-}
-
-UGEN_TICK VoicForm_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    VoicForm * m = (VoicForm *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG VoicForm_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL VoicForm_ctrl_phoneme( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    char *c = GET_CK_STRING(value); 
-    v->setPhoneme( c );
-}
-
-UGEN_CTRL VoicForm_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->setFrequency( f );
-}
-
-UGEN_CTRL VoicForm_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->noteOn( f );
-}
-
-UGEN_CTRL VoicForm_ctrl_noteOff( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->noteOff( f );
-}
-
-UGEN_CTRL VoicForm_ctrl_speak( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    v->speak();
-}
-
-UGEN_CTRL VoicForm_ctrl_quiet( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    v->quiet();
-}
-
-UGEN_CTRL VoicForm_ctrl_voiced( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->setVoiced( f );
-}
-
-UGEN_CTRL VoicForm_ctrl_unVoiced( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->setUnVoiced( f ); //not sure if this should be multiplied
-}
-
-UGEN_CTRL VoicForm_ctrl_voiceMix( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->controlChange(__SK_Breath_, f * 128.0 );
-}
-
-UGEN_CTRL VoicForm_ctrl_selPhoneme( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    int i = GET_CK_INT(value); 
-    v->controlChange(__SK_FootControl_, i );
-}
-
-UGEN_CTRL VoicForm_ctrl_vibratoFreq( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->controlChange( __SK_ModFrequency_, f * 128.0 );
-}
-
-UGEN_CTRL VoicForm_ctrl_vibratoGain( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->controlChange(__SK_ModWheel_, f * 128.0 );
-}
-
-UGEN_CTRL VoicForm_ctrl_loudness( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->controlChange(__SK_AfterTouch_Cont_, f * 128.0 );
-}
-
-UGEN_CTRL VoicForm_ctrl_pitchSweepRate( t_CKTIME now, void * data, void * value )
-{
-    VoicForm * v = (VoicForm *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    v->setPitchSweepRate( f );
 }
 
 
@@ -20695,6 +20070,8 @@ UGEN_CTRL PoleZero_ctrl_blockZero( t_CKTIME now, void * data, void * value )
     filter->setBlockZero( f );
 }
 
+
+
 //FM functions
 
 UGEN_CTOR FM_ctor ( t_CKTIME now ) 
@@ -20779,97 +20156,6 @@ UGEN_CTRL FM_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
     fm->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
 
-//Wurley functions
-
-UGEN_CTOR Wurley_ctor ( t_CKTIME now ) 
-{
-  return new Wurley();
-}
-
-UGEN_DTOR Wurley_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (Wurley *)data;
-}
-
-UGEN_TICK Wurley_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    Wurley * m = (Wurley *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG Wurley_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL Wurley_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    Wurley * wurl= (Wurley *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    wurl->setFrequency( f );
-}
-
-UGEN_CTRL Wurley_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    Wurley * wurl= (Wurley *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    wurl->noteOn( f );
-}
-
-UGEN_CTRL Wurley_ctrl_noteOff( t_CKTIME now, void * data, void * value )
-{
-    Wurley * wurl= (Wurley *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    wurl->noteOff( f );
-}
-
-
-//Rhodey functions
-
-UGEN_CTOR Rhodey_ctor ( t_CKTIME now ) 
-{
-  return new Rhodey();
-}
-
-UGEN_DTOR Rhodey_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (Rhodey *)data;
-}
-
-UGEN_TICK Rhodey_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    Rhodey * m = (Rhodey *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG Rhodey_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL Rhodey_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    Rhodey * rhod= (Rhodey *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    rhod->setFrequency( f );
-}
-
-UGEN_CTRL Rhodey_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    Rhodey * rhod= (Rhodey *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    rhod->noteOn( f );
-}
-
-UGEN_CTRL Rhodey_ctrl_noteOff( t_CKTIME now, void * data, void * value )
-{
-    Rhodey * rhod= (Rhodey *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    rhod->noteOff( f );
-}
-
 
 //BeeThree functions
 
@@ -20901,117 +20187,6 @@ UGEN_CTRL BeeThree_ctrl_noteOn( t_CKTIME now, void * data, void * value )
     t_CKFLOAT f = GET_CK_FLOAT(value); 
     bee->noteOn( f );
 }
-
-
-//PercFlut functions
-
-UGEN_CTOR PercFlut_ctor ( t_CKTIME now ) 
-{
-  return new PercFlut();
-}
-
-UGEN_DTOR PercFlut_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (PercFlut *)data;
-}
-
-UGEN_TICK PercFlut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    PercFlut * m = (PercFlut *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG PercFlut_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL PercFlut_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    PercFlut * perc= (PercFlut *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    perc->noteOn( f );
-}
-
-UGEN_CTRL PercFlut_ctrl_freq( t_CKTIME now, void * data, void * value )
-{
-    PercFlut * perc= (PercFlut *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    perc->setFrequency( f );
-}
-
-
-//HevyMetl functions
-
-UGEN_CTOR HevyMetl_ctor ( t_CKTIME now ) 
-{
-  return new HevyMetl();
-}
-
-UGEN_DTOR HevyMetl_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (HevyMetl *)data;
-}
-
-UGEN_TICK HevyMetl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    HevyMetl * m = (HevyMetl *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG HevyMetl_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL HevyMetl_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    HevyMetl * hevy= (HevyMetl *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    hevy->noteOn( f );
-}
-
-
-//TubeBell functions
-
-UGEN_CTOR TubeBell_ctor ( t_CKTIME now ) 
-{
-  return new TubeBell();
-}
-
-UGEN_DTOR TubeBell_dtor ( t_CKTIME now, void * data ) 
-{ 
-  delete (TubeBell *)data;
-}
-
-UGEN_TICK TubeBell_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    TubeBell * m = (TubeBell *)data;
-    *out = m->tick();
-    return TRUE;
-}
-
-UGEN_PMSG TubeBell_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
-{
-    return TRUE;
-}
-
-UGEN_CTRL TubeBell_ctrl_noteOn( t_CKTIME now, void * data, void * value )
-{
-    TubeBell * tube = (TubeBell *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    tube->noteOn( f );
-}
-
-UGEN_CTRL TubeBell_ctrl_freq( t_CKTIME now, void * data, void * value )
-{ 
-    TubeBell * tube= (TubeBell *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    tube->setFrequency( f );
-}
-
 
 
 //FMVoices functions
@@ -21087,6 +20262,852 @@ UGEN_CTRL FMVoices_ctrl_adsrTarget( t_CKTIME now, void * data, void * value )
     t_CKFLOAT f = GET_CK_FLOAT(value); 
     voc->controlChange( __SK_AfterTouch_Cont_, f * 128.0);
 }
+
+
+//HevyMetl functions
+
+UGEN_CTOR HevyMetl_ctor ( t_CKTIME now ) 
+{
+  return new HevyMetl();
+}
+
+UGEN_DTOR HevyMetl_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (HevyMetl *)data;
+}
+
+UGEN_TICK HevyMetl_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    HevyMetl * m = (HevyMetl *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG HevyMetl_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL HevyMetl_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    HevyMetl * hevy= (HevyMetl *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    hevy->noteOn( f );
+}
+
+
+//PercFlut functions
+
+UGEN_CTOR PercFlut_ctor ( t_CKTIME now ) 
+{
+  return new PercFlut();
+}
+
+UGEN_DTOR PercFlut_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (PercFlut *)data;
+}
+
+UGEN_TICK PercFlut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    PercFlut * m = (PercFlut *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG PercFlut_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL PercFlut_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    PercFlut * perc= (PercFlut *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    perc->noteOn( f );
+}
+
+UGEN_CTRL PercFlut_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    PercFlut * perc= (PercFlut *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    perc->setFrequency( f );
+}
+
+
+//Rhodey functions
+
+UGEN_CTOR Rhodey_ctor ( t_CKTIME now ) 
+{
+  return new Rhodey();
+}
+
+UGEN_DTOR Rhodey_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Rhodey *)data;
+}
+
+UGEN_TICK Rhodey_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Rhodey * m = (Rhodey *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Rhodey_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Rhodey_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Rhodey * rhod= (Rhodey *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    rhod->setFrequency( f );
+}
+
+UGEN_CTRL Rhodey_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Rhodey * rhod= (Rhodey *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    rhod->noteOn( f );
+}
+
+UGEN_CTRL Rhodey_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Rhodey * rhod= (Rhodey *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    rhod->noteOff( f );
+}
+
+//TubeBell functions
+
+UGEN_CTOR TubeBell_ctor ( t_CKTIME now ) 
+{
+  return new TubeBell();
+}
+
+UGEN_DTOR TubeBell_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (TubeBell *)data;
+}
+
+UGEN_TICK TubeBell_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    TubeBell * m = (TubeBell *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG TubeBell_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL TubeBell_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    TubeBell * tube = (TubeBell *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    tube->noteOn( f );
+}
+
+UGEN_CTRL TubeBell_ctrl_freq( t_CKTIME now, void * data, void * value )
+{ 
+    TubeBell * tube= (TubeBell *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    tube->setFrequency( f );
+}
+
+
+
+//Wurley functions
+
+UGEN_CTOR Wurley_ctor ( t_CKTIME now ) 
+{
+  return new Wurley();
+}
+
+UGEN_DTOR Wurley_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Wurley *)data;
+}
+
+UGEN_TICK Wurley_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Wurley * m = (Wurley *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Wurley_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Wurley_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Wurley * wurl= (Wurley *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    wurl->setFrequency( f );
+}
+
+UGEN_CTRL Wurley_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Wurley * wurl= (Wurley *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    wurl->noteOn( f );
+}
+
+UGEN_CTRL Wurley_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Wurley * wurl= (Wurley *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    wurl->noteOff( f );
+}
+
+
+
+
+// JCRev
+UGEN_CTOR JCRev_ctor( t_CKTIME now )
+{
+    return new JCRev( 4.0f );
+}
+
+UGEN_DTOR JCRev_dtor( t_CKTIME now, void * data )
+{
+    delete (JCRev *)data;
+}
+
+UGEN_TICK JCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    JCRev * j = (JCRev *)data;
+    *out = j->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG JCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL JCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    JCRev * j = (JCRev *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    j->setEffectMix( f );
+}
+
+UGEN_CTOR Mandolin_ctor ( t_CKTIME now ) 
+{
+  return new Mandolin( 100.0f );
+}
+
+UGEN_DTOR Mandolin_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Mandolin *)data;
+}
+
+UGEN_TICK Mandolin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Mandolin * m = (Mandolin *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Mandolin_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Mandolin_ctrl_pluck( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->pluck( f );
+}
+
+UGEN_CTRL Mandolin_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setFrequency( f );
+
+}
+
+UGEN_CTRL Mandolin_ctrl_pluckPos( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setPluckPosition( f );
+}
+
+UGEN_CTRL Mandolin_ctrl_bodySize( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setBodySize( f * 2.0 );
+}
+
+UGEN_CTRL Mandolin_ctrl_stringDamping( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setBaseLoopGain( 0.97f + f * 0.03f );
+}
+
+UGEN_CTRL Mandolin_ctrl_stringDetune( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    m->setDetune( 1.0f - 0.1f * f );
+}
+
+UGEN_CTRL Mandolin_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
+{
+    Mandolin * m = (Mandolin *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    //not sure what this does in stk version so we'll just call controlChange
+    m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+}
+
+
+UGEN_CTOR Moog_ctor ( t_CKTIME now ) 
+{
+  return new Moog();
+}
+
+UGEN_DTOR Moog_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (Moog *)data;
+}
+
+UGEN_TICK Moog_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Moog * m = (Moog *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Moog_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+
+UGEN_CTRL Moog_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->noteOn( f );
+}
+
+
+UGEN_CTRL Moog_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->setFrequency ( f );
+}
+
+UGEN_CTRL Moog_ctrl_modSpeed( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->setModulationSpeed(f);
+} 
+
+UGEN_CTRL Moog_ctrl_modDepth( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->setModulationDepth(f);
+}
+
+UGEN_CTRL Moog_ctrl_filterQ( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->controlChange( __SK_FilterQ_, f * 128.0 );
+}
+
+UGEN_CTRL Moog_ctrl_filterSweepRate( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->controlChange( __SK_FilterSweepRate_, f * 128.0 );
+
+}
+
+UGEN_CTRL Moog_ctrl_afterTouch( t_CKTIME now, void * data, void * value )
+{
+    Moog * m = (Moog *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+}
+
+
+// NRev
+UGEN_CTOR NRev_ctor( t_CKTIME now )
+{
+    return new NRev( 4.0f );
+}
+
+UGEN_DTOR NRev_dtor( t_CKTIME now, void * data )
+{
+    delete (NRev *)data;
+}
+
+UGEN_TICK NRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    NRev * j = (NRev *)data;
+    *out = j->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG NRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL NRev_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    NRev * j = (NRev *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    j->setEffectMix( f );
+}
+
+
+
+// PitShift
+UGEN_CTOR PitShift_ctor( t_CKTIME now )
+{
+    return new PitShift( );
+}
+
+UGEN_DTOR PitShift_dtor( t_CKTIME now, void * data )
+{
+    delete (PitShift *)data;
+}
+
+UGEN_TICK PitShift_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    PitShift * p = (PitShift *)data;
+    *out = p->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG PitShift_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL PitShift_ctrl_shift( t_CKTIME now, void * data, void * value )
+{
+    PitShift * p = (PitShift *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setShift( f );
+}
+
+UGEN_CTRL PitShift_ctrl_effectMix( t_CKTIME now, void * data, void * value )
+{
+    PitShift * p = (PitShift *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    p->setEffectMix( f );
+}
+
+// PRCRev
+UGEN_CTOR PRCRev_ctor( t_CKTIME now )
+{
+    return new PRCRev( 4.0f );
+}
+
+UGEN_DTOR PRCRev_dtor( t_CKTIME now, void * data )
+{
+    delete (PRCRev *)data;
+}
+
+UGEN_TICK PRCRev_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    PRCRev * j = (PRCRev *)data;
+    *out = j->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG PRCRev_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL PRCRev_ctrl_mix( t_CKTIME now, void * data, void * value )
+{
+    PRCRev * j = (PRCRev *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    j->setEffectMix( f );
+}
+
+
+
+
+
+UGEN_CTOR Shakers_ctor( t_CKTIME now )
+{
+    return new Shakers;
+}
+
+UGEN_DTOR Shakers_dtor( t_CKTIME now, void * data )
+{
+    delete (Shakers *)data;
+}
+
+UGEN_TICK Shakers_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    Shakers * s = (Shakers *)data;
+    *out = s->tick();
+    return TRUE;
+}
+
+UGEN_PMSG Shakers_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL Shakers_ctrl_which( t_CKTIME now, void * data, void * value )
+{
+    Shakers * s = (Shakers *)data;
+    t_CKINT c = GET_CK_INT(value);
+    s->setupNum( c );
+}
+
+UGEN_CTRL Shakers_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    Shakers * s = (Shakers *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    s->noteOn( s->freq, f );
+}
+
+UGEN_CTRL Shakers_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    Shakers * s = (Shakers *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    s->noteOff( f );
+}
+
+UGEN_CTRL Shakers_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    Shakers * s = (Shakers *)data;
+    s->freq = GET_CK_FLOAT(value);
+}
+
+
+
+
+// SubNoise
+UGEN_CTOR SubNoise_ctor( t_CKTIME now )
+{
+    return new SubNoise( );
+}
+
+UGEN_DTOR SubNoise_dtor( t_CKTIME now, void * data )
+{
+    delete (SubNoise *)data;
+}
+
+UGEN_TICK SubNoise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    SubNoise * p = (SubNoise *)data;
+    *out = p->tick();
+    return TRUE;
+}
+
+UGEN_PMSG SubNoise_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL SubNoise_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    SubNoise * p = (SubNoise *)data;
+    int i = GET_CK_INT(value);
+    p->setRate( i );
+}
+
+UGEN_CTRL SubNoise_cget_rate( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_INT( value, (int)((SubNoise *)data)->subRate() );
+}
+
+
+
+
+UGEN_CTOR VoicForm_ctor ( t_CKTIME now ) 
+{
+  return new VoicForm();
+}
+
+UGEN_DTOR VoicForm_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (VoicForm *)data;
+}
+
+UGEN_TICK VoicForm_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    VoicForm * m = (VoicForm *)data;
+    *out = m->tick();
+    return TRUE;
+}
+
+UGEN_PMSG VoicForm_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL VoicForm_ctrl_phoneme( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    char *c = GET_CK_STRING(value); 
+    v->setPhoneme( c );
+}
+
+UGEN_CTRL VoicForm_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setFrequency( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_noteOn( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->noteOn( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_noteOff( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->noteOff( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_speak( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    v->speak();
+}
+
+UGEN_CTRL VoicForm_ctrl_quiet( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    v->quiet();
+}
+
+UGEN_CTRL VoicForm_ctrl_voiced( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setVoiced( f );
+}
+
+UGEN_CTRL VoicForm_ctrl_unVoiced( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setUnVoiced( f ); //not sure if this should be multiplied
+}
+
+UGEN_CTRL VoicForm_ctrl_voiceMix( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange(__SK_Breath_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_selPhoneme( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    int i = GET_CK_INT(value); 
+    v->controlChange(__SK_FootControl_, i );
+}
+
+UGEN_CTRL VoicForm_ctrl_vibratoFreq( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange( __SK_ModFrequency_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_vibratoGain( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange(__SK_ModWheel_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_loudness( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->controlChange(__SK_AfterTouch_Cont_, f * 128.0 );
+}
+
+UGEN_CTRL VoicForm_ctrl_pitchSweepRate( t_CKTIME now, void * data, void * value )
+{
+    VoicForm * v = (VoicForm *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    v->setPitchSweepRate( f );
+}
+
+
+
+
+// WvIn
+UGEN_CTOR WvIn_ctor( t_CKTIME now )
+{
+    return new WvIn;
+}
+
+UGEN_DTOR WvIn_dtor( t_CKTIME now, void * data )
+{
+    delete (WvIn *)data;
+}
+
+UGEN_TICK WvIn_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    WvIn * w = (WvIn *)data;
+    *out = ( w->m_loaded ? (t_CKFLOAT)w->tick() / SHRT_MAX : (SAMPLE)0.0 );
+    return TRUE;
+}
+
+UGEN_PMSG WvIn_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL WvIn_ctrl_rate( t_CKTIME now, void * data, void * value )
+{
+    WvIn * w = (WvIn *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    w->setRate( f );
+}
+
+UGEN_CTRL WvIn_ctrl_path( t_CKTIME now, void * data, void * value )
+{
+    WvIn * w = (WvIn *)data;
+    char * c = *(char **)value;
+    try { w->openFile( c, FALSE, FALSE ); }
+    catch( StkError & e )
+    {
+        // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
+    }
+}
+
+// WaveLoop
+UGEN_CTOR WaveLoop_ctor( t_CKTIME now )
+{
+    return new WaveLoop;
+}
+
+UGEN_DTOR WaveLoop_dtor( t_CKTIME now, void * data )
+{
+    delete (WaveLoop *)data;
+}
+
+UGEN_TICK WaveLoop_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    WaveLoop * w = (WaveLoop *)data;
+    *out = ( w->m_loaded ? (t_CKFLOAT)w->tick() / SHRT_MAX : (SAMPLE)0.0 );
+    return TRUE;
+}
+
+UGEN_PMSG WaveLoop_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL WaveLoop_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    WaveLoop * w = (WaveLoop *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    w->setFrequency( f );
+}
+
+UGEN_CTRL WaveLoop_ctrl_phase( t_CKTIME now, void * data, void * value )
+{
+    WaveLoop * w = (WaveLoop *)data;
+    float f = (float)GET_CK_FLOAT(value);
+    w->addPhase( f );
+}
+
+UGEN_CTRL WaveLoop_ctrl_phaseOffset( t_CKTIME now, void * data, void * value )
+{
+    WaveLoop * w = (WaveLoop *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value);
+    w->addPhaseOffset( f );
+}
+
+
+// WvOut
+UGEN_CTOR WvOut_ctor( t_CKTIME now )
+{
+    return new WvOut;
+}
+
+UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data )
+{
+    delete (WvOut *)data;
+}
+
+UGEN_TICK WvOut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    WvOut * w = (WvOut *)data;
+    w->tick( in );
+    *out = in; //pass samples downstream
+    return TRUE;
+}
+
+UGEN_PMSG WvOut_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+//XXX chuck got mono, so we have one channel. fix later.
+UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
+}
+
+UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    char *filename = * (char**) value;
+    w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
+}
+
+
 
 
 
