@@ -154,6 +154,7 @@ t_CKBOOL EM_reset( c_str fname, FILE * fd )
     else
         fseek( yyin, 0, SEEK_SET );
 
+    EM_lineNum = 0;
     return (yyin != 0);
 }
 

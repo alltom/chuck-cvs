@@ -308,7 +308,8 @@ public:
 
 protected:
     Chuck_VM_Shred * spork( Chuck_VM_Shred * shred );
-    t_CKBOOL free( Chuck_VM_Shred * shred, t_CKBOOL cascade );
+    t_CKBOOL free( Chuck_VM_Shred * shred, t_CKBOOL cascade, 
+                   t_CKBOOL dec = TRUE );
 
 protected:
     t_CKBOOL m_init;

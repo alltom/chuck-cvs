@@ -476,7 +476,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         {
             EM_error3( "[chuck](VM): replacing shred %i (%s) with %i (%s)...",
                        out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
-            this->free( out, TRUE );
+            this->free( out, TRUE, FALSE );
             retval = shred->id;
             goto done;
         }
@@ -718,7 +718,7 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
 // name: free()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade )
+t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec )
 {
     assert( cascade );
 
@@ -740,7 +740,7 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade )
     // free!
     m_shreduler->remove( shred );
     SAFE_DELETE( shred );
-    m_num_shreds--;
+    if( dec ) m_num_shreds--;
     if( !m_num_shreds ) m_shred_id = 0;
     
     return TRUE;
