@@ -361,6 +361,8 @@ struct Chuck_Value : public Chuck_VM_Object
     void * addr;
     // const?
     t_CKBOOL is_const;
+    // member?
+    t_CKBOOL is_member;
     // 0 = public, 1 = protected, 2 = private
     t_CKBOOL access;
     // owner
@@ -373,7 +375,7 @@ struct Chuck_Value : public Chuck_VM_Object
                  t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
 	{ type = t; name = n; offset = s; is_const = c; access = acc; 
-      owner = o; owner_class = oc; addr = a; }
+      owner = o; owner_class = oc; addr = a; is_member = FALSE; }
 };
 
 

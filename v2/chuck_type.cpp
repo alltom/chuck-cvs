@@ -1131,9 +1131,10 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
     {
         // variable
         case ae_primary_var:
-            // check for this
             str = S_name(exp->var);
-            if( str == "this" )
+
+            // check it
+            if( str == "this" ) // this
             {
                 // in class def
                 if( !env->class_def )
@@ -1151,40 +1152,53 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                     return NULL;
                 }
 
-                return env->class_def;
+                // not assignable
+                exp->self->s_meta = ae_meta_value;
+                // whatever the class is
+                t = env->class_def;
             }
-
-            // check for me
-            if( str == "me" )
+            else if( str == "me" ) // me
             {
+                // not assignable
+                exp->self->s_meta = ae_meta_value;
                 // refers to shred
-                return &t_shred;
+                t = &t_shred;
             }
-            
-            v = env->curr->lookup_value( exp->var, TRUE );
-            if( !v )
+            else  // look up
             {
-                // error
-                if( !env->class_def )
+                v = env->curr->lookup_value( exp->var, TRUE );
+                if( !v )
                 {
-                    EM_error2( exp->linepos,
-                        "undefined variable '%s'...", S_name(exp->var) );
-                }
-                else
-                {
-                    // see if in parent
-                    v = type_engine_find_value( env->class_def->parent, exp->var );
-                    if( !v )
+                    // error
+                    if( !env->class_def )
                     {
                         EM_error2( exp->linepos,
-                            "undefined member '%s' in class/namespace '%s'...",
-                            S_name(exp->var), env->class_def->name.c_str() );
+                            "undefined variable '%s'...", S_name(exp->var) );
+
+                    }
+                    else
+                    {
+                        // see if in parent
+                        v = type_engine_find_value( env->class_def->parent, exp->var );
+                        if( !v )
+                        {
+                            EM_error2( exp->linepos,
+                                "undefined member '%s' in class/namespace '%s'...",
+                                S_name(exp->var), env->class_def->name.c_str() );
+                        }
                     }
                 }
+
+                // see if class
+                if( env->curr->lookup_type( exp->var, TRUE ) )
+                {
+                    // not assignable
+                    exp->self->s_meta = ae_meta_value;
+                }
+
+                // the type
+                t = v->type;
             }
-            
-            if( !v ) return NULL;
-            t = v->type;
         break;
         
         // int
@@ -1508,6 +1522,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // remember the owner
         value->owner = env->curr;
         value->owner_class = env->class_def;
+        value->is_member = ( env->class_def != NULL );
 
         // the next var decl
         list = list->next;
@@ -1603,11 +1618,18 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
 {
     Chuck_Value * value = NULL;
+    Chuck_Type * the_base = NULL;
+    t_CKBOOL base_static = FALSE;
     string str;
 
     // type check the base
     member->t_base = type_engine_check_exp( env, member->base );
     if( !member->t_base ) return NULL;
+
+    // is the base a class/namespace or a variable
+    base_static = member->base->s_meta == ae_meta_value;
+
+    // have members?
     if( !member->t_base->info )
     {
         // base type does not have members
@@ -1621,6 +1643,13 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     str = S_name(member->id);
     if( str == "this" )
     {
+        // uh
+        if( base_static )
+        {
+            EM_error2( member->linepos,
+                "keyword 'this' must be associated with object instance..." );
+            return FALSE;
+        }
         // in member func
         if( env->func && !env->func->is_member )
         {
@@ -1643,6 +1672,16 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
         return NULL;
     }
     
+    // make sure
+    if( base_static && value->is_member )
+    {
+        // this won't work
+        EM_error2( member->linepos,
+            "cannot member '%s.%s' without object instance...",
+            member->t_base->c_name(), S_name(member->id) );
+        return NULL;
+    }
+
     return value->type;
 }
 
@@ -1818,9 +1857,10 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // add to env
         env->curr->type.add( the_class->name, the_class );
         // allocate value
-        value = new Chuck_Value( &t_class, the_class->name );
+        value = new Chuck_Value( the_class, the_class->name );
         value->owner = env->curr;
         value->is_const = TRUE;
+        value->is_member = FALSE;
         // add to env
         env->curr->value.add( the_class->name, value );
 
@@ -1883,8 +1923,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     func->name = S_name(f->name);
     // reference the function definition
     func->def = f;
-    // note whether the function is marked (so far) as member
-    func->is_member = f->static_decl != ae_key_static;
+    // note whether the function is marked as member
+    func->is_member = (f->static_decl != ae_key_static) && 
+                      (env->class_def != NULL);
 
     // set the current function to this
     env->func = func;
@@ -1946,6 +1987,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         // remember the owner
         value->owner = env->curr;
         value->owner_class = env->class_def;
+        value->is_member = FALSE;
         // add as value
         env->curr->value.add( arg_list->var_decl->id, value );
 
@@ -2077,7 +2119,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // make a new type for the function
     type = new Chuck_Type;
     type->name = "[function]";
-    type->id = te_user;
+    type->id = te_function;
     type->parent = &t_function;
     type->size = sizeof(void *);
     type->func = func;
@@ -2086,6 +2128,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // remember the owner
     value->owner = env->curr;
     value->owner_class = env->class_def;
+    value->is_member = !f->static_decl && env->class_def != 0;
     // add as value
     env->curr->value.add( f->name, value );
     // enter the name into the function table
