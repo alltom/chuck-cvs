@@ -16,30 +16,28 @@
 //--------------------------------------|
 
 // this synchronizes to period
-1.25::second => dur T;
+.5::second => dur T;
 T - (now % T) => now;
 
 // construct the patch
 sndbuf buf => gain g => dac;
-"puzzler.au" => buf.read;
-.90 => g.gain;
+"data/hihat.wav" => buf.read;
+.25 => g.gain;
 
-1.2 => buf.rate;
-0.7 => buf.phase;
 // time loop
 while( true )
 {
     std.rand2f(.4,.9) => buf.gain;
     if( std.randf() > 0.75 )
     {
-        0.8 => buf.phase;
+        0 => buf.pos;
         .5::T => now;
     }
     else
     {
-        0.5 => buf.phase;
+        0 => buf.pos;
         .25::T => now;
-        0.8 => buf.phase;
+        0 => buf.pos;
         .25::T => now;
     }
 }
