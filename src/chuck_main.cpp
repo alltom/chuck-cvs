@@ -329,7 +329,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     }
             
     // stat it
-    fstat( (int)fd, &fs );
+    stat( msg.buffer, &fs );
     fseek( fd, 0, SEEK_SET );
 
     // send the first packet
