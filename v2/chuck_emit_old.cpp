@@ -113,7 +113,6 @@ struct Chuck_Emmission
 {
     Chuck_Code * global;
     Chuck_Code * local;
-    Chuck_VM_Stack * parent;
     vector<Chuck_Code *> functions;
     S_table var2offset;
     S_table dur2num_samps;
@@ -134,8 +133,6 @@ struct Chuck_Emmission
     {
         global = NULL;
         local = NULL;
-        parent = new Chuck_VM_Stack;
-        parent->initialize( CVM_MEM_STACK_SIZE );
         var2offset = S_empty();
         dur2num_samps = S_empty();
         globals = S_empty();
@@ -316,9 +313,6 @@ Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump )
     for( unsigned int i = 0; i < code->num_instr; i++ )
         code->instr[i] = emit->global->code[i];
 
-    // set the parent
-    code->parent = emit->parent;
-
     // functions
     for( unsigned int j = 0; j < emit->functions.size(); j++ )
     {
@@ -332,7 +326,6 @@ Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump )
             code2->instr[i] = c->code[i];
 
         // set the parent
-        code2->parent = emit->parent;
         code2->stack_depth = c->stack_depth;
         
         if( dump )

@@ -939,7 +939,6 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     next = prev = NULL;
     instr = NULL;
     parent = NULL;
-    parent_stack = NULL;
 }
 
 
@@ -978,8 +977,6 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     is_done = FALSE;
     // shred running
     is_running = FALSE;
-    // set the parent stack
-    parent_stack = c->parent;
     // set the instr
     instr = c->instr;
     // zero out the id

@@ -1786,8 +1786,6 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     push_( mem_sp, (uint)(shred->pc + 1) );
     // push the stack depth
     push_( mem_sp, stack_depth );
-    // set the parent mem stack
-    shred->parent_stack = func->parent;
     // set the pc to 0
     shred->next_pc = 0;
     // set the code
@@ -1929,7 +1927,6 @@ void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // set the shred 
     shred->code = func;
     shred->instr = func->instr;
-    shred->parent_stack = func->parent;
 }
 
 
