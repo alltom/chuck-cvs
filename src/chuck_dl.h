@@ -210,7 +210,7 @@ public: // these should not be used directly by the DLL
     int linepos;
     
     // constructor
-    Chuck_DL_Query();
+    Chuck_DL_Query( );
     
     // clear the query
     void clear() { dll_exports.clear(); ugen_exports.clear(); }

@@ -33,8 +33,9 @@
 // date: spring 2004
 //-----------------------------------------------------------------------------
 #include "chuck_dl.h"
+#ifndef __CKDL_NO_BBQ__
 #include "chuck_bbq.h"
-
+#endif
 
 
 
@@ -276,12 +277,16 @@ const char * Chuck_DLL::last_error() const
 // name: Chuck_DL_Query
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_DL_Query::Chuck_DL_Query()
+Chuck_DL_Query::Chuck_DL_Query( )
 { add_export = __ck_addexport; add_param = __ck_addparam;
   ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func;
   ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
   dll_name = "[noname]"; reserved = NULL;
-  srate = Digitalio::sampling_rate(); bufsize = Digitalio::buffer_size();
+#ifndef __CKDL_NO_BBQ__
+  srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
+#else
+  srate = 0; bufsize = 0;
+#endif
   linepos = 0; }
 
 

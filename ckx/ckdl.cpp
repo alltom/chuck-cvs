@@ -45,7 +45,6 @@ int main( int argc, char ** argv )
     cerr << "reading ChucK DLL '" << query->dll_name << "' interface: " << endl;
     cerr << endl;
     cerr << "--- [functions/values] ---" << endl;
-    cerr << endl;
 
     for( int i = 0; i < query->dll_exports.size(); i++ )
     {
@@ -69,22 +68,28 @@ int main( int argc, char ** argv )
         }
     }
 
+    // none?
+    if( query->dll_exports.size() == 0 )
+        cerr << "(NO FUNCTION/VALUE IMPORTS)" << endl;
+
     cerr << endl;
     cerr << "--- [unit generators] ---" << endl;
-    cerr << endl;
 
     for( int m = 0; m < query->ugen_exports.size(); m++ )
     {
         const Chuck_UGen_Info * info = &query->ugen_exports[m];
+        t_CKUINT r, w;
 
         cerr << "[ugen]: " << info->name << endl;
         cerr << "   [ctrl params]: ( ";
         for( int n = 0; n < info->param_list.size(); n++ )
         {
             cerr << info->param_list[n].type << " " 
-                 << info->param_list[n].name << " "
-                 << "*" << (void *)info->param_list[n].addr << "*";
-            if( n < info->param_list.size()-1 ) cerr << ", ";
+                 << info->param_list[n].name << " " << endl;
+            w = info->param_list[n].ctrl_addr != 0;
+            r = info->param_list[n].cget_addr != 0;
+            if( w && r ) cerr << "(READ/WRITE)" << endl;
+            else cerr << ( r ? "(read ONLY)" : "(write ONLY)" ) << endl;
         }
         cerr << " )" << endl;
         cerr << "   [funcs]: ( ctor: " << (void *)info->ctor << ", ";
@@ -93,6 +98,10 @@ int main( int argc, char ** argv )
         cerr << "pmsg: " << (void *)info->pmsg << " )" << endl;
     }
 
+    // none?
+    if( query->ugen_exports.size() == 0 )
+        cerr << "(NO UNIT GENERATOR IMPORTS)" << endl;
+    
     cerr << endl;
     cerr << "---" << endl;
     cerr << endl;

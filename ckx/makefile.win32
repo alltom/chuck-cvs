@@ -3,7 +3,7 @@ CHUCK_DIR=../src/
 all: ckdl ckx
 
 ckdl: ckdl.cpp
-	gcc -g -I$(CHUCK_DIR) ckdl.cpp $(CHUCK_DIR)chuck_dl.cpp -o ckdl -lstdc++
+	gcc __CKDL_NO_BBQ__ -g -I$(CHUCK_DIR) ckdl.cpp $(CHUCK_DIR)chuck_dl.cpp -o ckdl -lstdc++
 
 ckx: foo.ckx
 

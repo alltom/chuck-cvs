@@ -32,11 +32,13 @@
 // date: Summer 2004
 //-----------------------------------------------------------------------------
 #include "ugen_osc.h"
-#include "chuck_bbq.h"
 #include <math.h>
 #include <stdio.h>
 
+
 #define TWO_PI (2.0 * 3.14159265358979323846)
+static t_CKUINT g_srate = 0;
+
 
 //-----------------------------------------------------------------------------
 // name: osc_query()
@@ -44,6 +46,9 @@
 //-----------------------------------------------------------------------------
 DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 {
+    // srate
+    g_srate = QUERY->srate;
+
     // add sinosc
     QUERY->ugen_add( QUERY, "sinosc", NULL );
     // set funcs
@@ -81,7 +86,7 @@ struct Osc_Data
         freq = 220.0;
         sync = 0;
         phase_offset = 0.0;
-        srate = Digitalio::sampling_rate();
+        srate = g_srate;
         sinosc_ctrl_freq( 0, this, &freq );
         sinosc_ctrl_phase_offset( 0, this, &phase_offset );
     }
