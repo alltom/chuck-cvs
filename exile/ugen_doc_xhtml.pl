@@ -7,6 +7,7 @@ sub open_flist;
 sub close_flist;
 sub print_extends;
 sub print_function;
+
 sub cleanup;
 
 $ugen_open = 0;
@@ -20,11 +21,13 @@ sub close_export;
 sub add_param;
 
 $namespace_open = 0;
-$export_open = 0;
 $namespace_name ="";
+$export_open = 0;
 $export_name ="";
 @export_comments = ();
 $export_param_num = 0;
+$export_is_function = 0;
+
 %library_notes = ( 
     'stk' => '(STK Import)'
     );
@@ -41,7 +44,9 @@ $doc_info_open = 0;
 $example_open = 0;
 $example_ready = 0;
 @example_lines = ();
+
 sub print_example;
+sub print_section;
 
 foreach ( @ARGV ) { 
 
@@ -77,7 +82,7 @@ foreach ( @ARGV ) {
 
     $outfile = substr ( $file, rindex($file, "/" ) + 1 );
     $outfile =~ s/(\.cpp|\.c)/.html/;
-    print "THE OUTFILE IS $outfile\n";
+    print "file: $file : generating documentation in $outfile\n";
     open ( HTML , ">" , "$outfile" ) || die "outfile could not be opened";
     print HTML "
 <html>
@@ -86,6 +91,8 @@ foreach ( @ARGV ) {
 <link rel=\"stylesheet\" type=\"text/css\" href=\"ckdoc.css\">
 </head>
 <body>
+<div class=\"library\">
+<div class=\"exportlist\">
 ";
 
     open ( SOURCE , $file ) || printf " cannot open file \n";
@@ -110,9 +117,17 @@ foreach ( @ARGV ) {
 
 	}
 
-	if ( /\/\/\!(.*)$/ ) { 
-#	    print HTML "comment - $1\n";
-	    push @comments, $1;
+#	if ( /\/\/\!\s*\\(section\w*)\s+(.*)$/ ) {  //in comment case
+
+	if ( /\/\/\!\s*(.*)$/ ) { 
+	    #comments
+	    my $comm = $1;
+	    if ( $comm =~ /\\(section\w*)\s+(.*)/ ) { 
+		print_section ( $2, $1 );
+	    }
+	    else { 
+		push @comments, $comm;
+	    }
 	}
 
 	if ( /DLL_QUERY\s+(\w*)_query/ ) { 
@@ -132,26 +147,44 @@ foreach ( @ARGV ) {
 	    print_function ( split ( /[\s,\"]+/ , $1 ) , @comments);
 	    @comments = ();
 	}
-
+ 
 	if ( /QUERY->set_name\s*\(\s*(.*?)\)/ ) { 
 	    open_namespace ( split ( /[\s,\"]+/ , $1 ) , @comments);
 	    @comments = ();
 	}
 
-	if ( /QUERY->add_export\s*\(\s*(.*?)\)/ ) { 
+
+	if ( /^\s*QUERY->add_export\s*\(\s*(.*?)\)/ ) { 
 	    open_export ( split ( /[\s,\"]+/ , $1 ) , @comments);
 	    @comments = ();
 	}
 
-	if ( /QUERY->add_param\s*\(\s*(.*?)\)/ ) { 
+	if ( /^\s*QUERY->add_param\s*\(\s*(.*?)\)/ ) { 
 	    add_param ( split ( /[\s,\"]+/ , $1 ) , @comments);
 	    @comments = ();
 	}
 
+	#stupid lazy shortcuts in ckx libs
+	if ( /^\s*(\w+)_CKADDEXPORT\s*\(\s*(.*?)\)/ ) { 
+	    my ( $type, $name ) = split ( /[\s,\"]+/ , $2 );
+	    @stdargs = ( "QUERY", $type, $name, lc($1).$name."_impl", "TRUE");
+	    open_export ( @stdargs , @comments);
+	    @comments = ();
+	}
+
+	#more laziness biting me in the ass
+	if ( /^\s*(\w+)_CKADDPARAM\s*\(\s*(.*?)\)/ ) { 
+	    @expargs = split ( /[\s,\"]+/ , $2 );
+	    @stdargs = ( "QUERY", @expargs );
+	    add_param ( @stdargs , @comments);
+	    @comments = ();
+	}
+
+
     }
     cleanup();
     close ( SOURCE );
-    print HTML "\n</body></html>";
+    print HTML "\n</div></div></body></html>";
     close ( HTML );
 
 }
@@ -197,8 +230,8 @@ sub print_extends {
 
 
 sub cleanup { 
-    if ( $ugen_open ) { close_ugen(); }
-    if ( $export_open ) { close_export(); }
+    if ( $ugen_open == 1) { close_ugen(); }
+    if ( $export_open == 1) { close_export(); }
 }
 
 sub open_flist { 
@@ -241,6 +274,11 @@ sub print_example {
     $example_ready = 0;
 }
 
+sub print_section { 
+    cleanup(); #sections end current class...
+    my ( $name, $type ) = @_;
+    print HTML "<div class=\"$type\">$name</div>";
+}
 
 sub open_namespace { 
     my ( $query, $name ) = @_;
@@ -255,24 +293,34 @@ sub open_export {
     my ( $query, $type, $name, $func, $flag, @comments ) = @_;
     cleanup();
     @export_comments=@comments;
-    
-    print HTML "<div class=\"export\"><h3>
+
+    if ( $flag eq "TRUE" ) { 
+	print HTML "<div class=\"export\"><h3>
 <a class=\"heading\" name=\"$name\">[function]</a>: 
 $type <b class=\"name\">$name</b> ( ";
+	$export_is_function = 1;
+    }
+
+    else { 
+	print HTML "<div class=\"export\"><h3>
+<a class=\"heading\" name=\"$name\">[constant]</a>: 
+$type <b class=\"name\">$name</b></h3>\n";
+	$export_is_function = 0;
+    }
     $export_param_num = 0;
     $export_open = 1;
 }
 
 sub close_export { 
 
-    print HTML " );</h3>\n";
+    if ( $export_is_function == 1 ) { print HTML " );</h3>\n"; }
     if ( scalar( @export_comments ) > 0 ) { 
-	print HTML "<div class=\"comments\"><ul>";
+	print HTML "<div class=\"comments\"><ul>\n";
 	foreach ( @export_comments ) { print HTML "<li>$_</li>\n"; } 
-	print HTML "</ul></div>";
+	print HTML "</ul></div>\n";
     }
     if ( $example_ready ) { print_example(); }
-    print HTML "</div>";
+    print HTML "</div>\n";
     $export_open = 0;
 
 
