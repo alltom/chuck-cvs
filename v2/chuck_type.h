@@ -254,7 +254,7 @@ struct Chuck_Env
 // name: struct Chuck_Type
 // desc: class containing information about a type
 //-----------------------------------------------------------------------------
-struct Chuck_Type
+struct Chuck_Type : public Chuck_VM_Object
 {
     // type id
     te_Type id;
@@ -276,7 +276,7 @@ struct Chuck_Type
     Chuck_Func * func;
 
 public:
-    ~Chuck_Type() { reset(); }
+    ~Chuck_Type() { if( info ) delete info; reset(); }
     // reset
     void reset()
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
