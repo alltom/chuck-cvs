@@ -112,13 +112,11 @@ void signal_int( int sig_num )
         // pthread_kill( g_tid, 2 );
         if( g_tid ) pthread_cancel( g_tid );
         if( g_tid ) usleep( 50000 );
-        fprintf( stderr, "a\n" );
         delete( vm );
 #else
         CloseHandle( g_tid );
 #endif
         ck_close( g_sock );
-        fprintf( stderr, "b\n" );
     }
 
 #ifndef __PLATFORM_WIN32__
@@ -429,6 +427,7 @@ void * cb( void * p )
         }
         ck_send( client, (char *)&msg, sizeof(msg) );
         ck_close( client );
+        fprintf( stderr, "ready\n" );
     }
     
     return NULL;
