@@ -47,7 +47,6 @@ using namespace std;
 #define GLUCK_EXPORT(t, n) QUERY->add_export( QUERY, #t, #n, gluck_##n##_impl, TRUE )
 #define GLUCK_PARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
 
-#define VOID_RETURN_TYPE int
 
 
 //functions to help shred loops work while
@@ -151,17 +150,17 @@ CK_DLL_QUERY
     QUERY->set_name( QUERY, "gluck" );
     
     //gluck functions
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitBasicWindow );
+    GLUCK_EXPORT ( int, InitBasicWindow );
     GLUCK_PARAM  ( uint, name );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitSizedWindow );
+    GLUCK_EXPORT ( int, InitSizedWindow );
     GLUCK_PARAM  ( uint, name );
     GLUCK_PARAM  ( int, x );
     GLUCK_PARAM  ( int, y );
     GLUCK_PARAM  ( int, w );
     GLUCK_PARAM  ( int, h );
     
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitFullScreenWindow );
+    GLUCK_EXPORT ( int, InitFullScreenWindow );
     GLUCK_PARAM  ( uint, name );
 
 
@@ -171,16 +170,16 @@ CK_DLL_QUERY
     GLUCK_EXPORT ( int, NeedIdle  );
 
     //glut event watching toggles
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, WatchMouse );
+    GLUCK_EXPORT ( int, WatchMouse );
     GLUCK_PARAM  ( int, toggle );
     
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, WatchMotion );
+    GLUCK_EXPORT ( int, WatchMotion );
     GLUCK_PARAM  ( int, toggle );
     
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, WatchKeyboard );
+    GLUCK_EXPORT ( int, WatchKeyboard );
     GLUCK_PARAM  ( int, toggle );
     
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitCallbacks );    
+    GLUCK_EXPORT ( int, InitCallbacks );    
     GLUCK_PARAM  ( int, mouse );
     GLUCK_PARAM  ( int, motion );
     GLUCK_PARAM  ( int, keyboard );
@@ -207,59 +206,59 @@ CK_DLL_QUERY
     
     //..standard glut library functions
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, Init );
+    GLUCK_EXPORT ( int, Init );
     //Init should take argc, argv...but not yet..
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitWindowPosition );
+    GLUCK_EXPORT ( int, InitWindowPosition );
     GLUCK_PARAM  ( int , x );
     GLUCK_PARAM  ( int , y );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitWindowSize );
+    GLUCK_EXPORT ( int, InitWindowSize );
     GLUCK_PARAM  ( int , w );
     GLUCK_PARAM  ( int , h );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitDisplayMode );
+    GLUCK_EXPORT ( int, InitDisplayMode );
     GLUCK_PARAM  ( uint , displayMode );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, InitDisplayString );
+    GLUCK_EXPORT ( int, InitDisplayString );
     GLUCK_PARAM  ( uint , displayMode );
     
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, MainLoopEvent );
+    GLUCK_EXPORT ( int, MainLoopEvent );
 
     GLUCK_EXPORT ( int, CreateWindow );
     GLUCK_PARAM  ( uint , title );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, DestroyWindow );
+    GLUCK_EXPORT ( int, DestroyWindow );
     GLUCK_PARAM  ( int , window );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, SetWindow );
+    GLUCK_EXPORT ( int, SetWindow );
     GLUCK_PARAM  ( int , window );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, SetWindowTitle );
+    GLUCK_EXPORT ( int, SetWindowTitle );
     GLUCK_PARAM  ( uint , title );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, ReshapeWindow );
+    GLUCK_EXPORT ( int, ReshapeWindow );
     GLUCK_PARAM  ( int , width );
     GLUCK_PARAM  ( int , height );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, PositionWindow );
+    GLUCK_EXPORT ( int, PositionWindow );
     GLUCK_PARAM  ( int , x );
     GLUCK_PARAM  ( int , y );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, ShowWindow );
+    GLUCK_EXPORT ( int, ShowWindow );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, HideWindow );
+    GLUCK_EXPORT ( int, HideWindow );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, FullScreen );
+    GLUCK_EXPORT ( int, FullScreen );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, PostWindowRedisplay );
+    GLUCK_EXPORT ( int, PostWindowRedisplay );
     GLUCK_PARAM  ( int , window );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, PostRedisplay );
+    GLUCK_EXPORT ( int, PostRedisplay );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, SwapBuffers );
+    GLUCK_EXPORT ( int, SwapBuffers );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, StrokeCharacter );
+    GLUCK_EXPORT ( int, StrokeCharacter );
     GLUCK_PARAM  ( int , font );
     GLUCK_PARAM  ( int , character );
 
@@ -271,10 +270,10 @@ CK_DLL_QUERY
     GLUCK_PARAM  ( int , font );
     GLUCK_PARAM  ( uint , string );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, WireTeapot );
+    GLUCK_EXPORT ( int, WireTeapot );
     GLUCK_PARAM  ( float , size );
 
-    GLUCK_EXPORT ( VOID_RETURN_TYPE, SolidTeapot );
+    GLUCK_EXPORT ( int, SolidTeapot );
     GLUCK_PARAM  ( float , size );
 
     return TRUE;

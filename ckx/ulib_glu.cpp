@@ -43,7 +43,6 @@
 #define GLU_CKADDEXPORT(t, n) QUERY->add_export( QUERY, #t, #n, glu_##n##_impl, TRUE )
 #define GLU_CKADDPARAM(t, n)  QUERY->add_param ( QUERY, #t, #n )
 
-#define VOID_RETURN_TYPE int
 //-----------------------------------------------------------------------------
 // name: glu_query()
 // desc: query entry point
@@ -54,7 +53,7 @@ CK_DLL_QUERY
     QUERY->set_name( QUERY, "glu" );
     
     // add LookAt
-    GLU_CKADDEXPORT ( VOID_RETURN_TYPE, LookAt);
+    GLU_CKADDEXPORT ( int, LookAt);
     GLU_CKADDPARAM ( float, eye_x );
     GLU_CKADDPARAM ( float, eye_y );
     GLU_CKADDPARAM ( float, eye_z );
@@ -65,7 +64,7 @@ CK_DLL_QUERY
     GLU_CKADDPARAM ( float, up_y );
     GLU_CKADDPARAM ( float, up_z );
 
-    GLU_CKADDEXPORT ( VOID_RETURN_TYPE, Perspective );
+    GLU_CKADDEXPORT ( int, Perspective );
     GLU_CKADDPARAM ( float, fovy );
     GLU_CKADDPARAM ( float, aspect );
     GLU_CKADDPARAM ( float, near );
