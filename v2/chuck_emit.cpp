@@ -703,7 +703,7 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     default:
         EM_error2( stmt->cond->linepos,
                    "(emit): internal error: unhandled type '%s' in do/while conditional",
-                   stmt->cond->type->name );
+                   stmt->cond->type->c_name() );
         return FALSE;
     }
     
@@ -1692,7 +1692,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         {
             EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for pre '++'' operator",
-                unary->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
@@ -1713,7 +1713,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         {
             EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for pre '--' operator",
-                unary->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
@@ -1726,7 +1726,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         {
             EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for '~' operator",
-                unary->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
@@ -1739,7 +1739,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         {
             EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for '!' operator",
-                unary->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
@@ -1754,7 +1754,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         {
             EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for unary '-' operator",
-                unary->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
