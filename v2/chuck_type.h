@@ -228,7 +228,7 @@ struct Chuck_Env
 	// reset
 	void reset( )
 	{ stack.clear(); stack.push_back( &global ); 
-      curr = NULL; context = NULL; func = NULL; 
+      curr = &global; context = NULL; func = NULL; 
       scope.reset(); dots = 0; }
 
 	// top

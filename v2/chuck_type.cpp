@@ -1034,8 +1034,65 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
     return t;
 }
 
-t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
-t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_cast()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
+{
+    // check the exp
+    t_CKTYPE t = type_engine_check_exp( env, cast->exp );
+    if( !t ) return NULL;
+
+    // the type to cast to
+    t_CKTYPE t2 = env->curr->lookup_type( S_name( cast->type ), TRUE );
+    if( !t2 )
+    {
+        EM_error2( cast->linepos,
+            "(type-checker): undefined type '%s' in cast...",
+            S_name( cast->type ) );
+        return NULL;
+    }
+    
+    // check if cast valid
+    if( !type_engine_check_cast_valid( env, t2, t ) )
+    {
+        EM_error2( cast->linepos,
+            "(type-checker): invalid cast to '%s' from '%s'...",
+            S_name( cast->type ), t->name.c_str() );
+        return NULL;
+    }
+    
+    return t2;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_cast_valid()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from )
+{
+    // down cast
+    if( isa( from, to ) ) return TRUE;
+
+    // up cast
+    if( isa( to, from ) ) return TRUE;
+
+    // TODO: dynamic type checking
+    
+    // int to float, float to int
+    if( isa( to, &t_float ) && isa( from, &t_int ) ) return TRUE;
+    if( isa( to, &t_int ) && isa( from, &t_float ) ) return TRUE;
+
+    return FALSE;
+}
+
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
 t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
