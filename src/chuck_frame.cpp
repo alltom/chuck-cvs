@@ -31,9 +31,8 @@
 // date: Autumn 2002
 //-----------------------------------------------------------------------------
 #include "chuck_frame.h"
-extern "C" {
-#include "chuck_symbol.h"
-}
+#include <vector>
+using namespace std;
 
 
 
@@ -48,6 +47,7 @@ struct F_Frame_
     F_Access_List tail;
     unsigned int num_access;
     unsigned int curr_offset;
+    vector<F_Access> stack;
 };
 
 
@@ -59,7 +59,7 @@ struct F_Frame_
 //-----------------------------------------------------------------------------
 F_Frame F_new_frame( Temp_Label name )
 {
-    F_Frame f = (F_Frame)checked_malloc( sizeof(struct F_Frame_) );
+    F_Frame f = new F_Frame_;
     f->label = name;
     // f->tail = f->head = (F_Access_List)checked_malloc( sizeof(F_Access_List_) );
     // f->head->head = NULL;
@@ -92,7 +92,7 @@ Temp_Label F_name( F_Frame f )
 F_Access_List F_formals( F_Frame f )
 {
     return NULL;
-    return f->head->tail;
+    // return f->head->tail;
 }
 
 
@@ -121,6 +121,7 @@ F_Access F_alloc_local( F_Frame f, unsigned int size, unsigned int is_global )
     a->global = is_global;
     a->size = size;
     f->curr_offset += size;
+    f->stack.push_back( a );
     //f->num_access++;
     //f->tail->tail = (F_Access_List)checked_malloc( sizeof( F_Access_List_ ) );
     //f->tail->head = a;
@@ -136,9 +137,9 @@ F_Access F_alloc_local( F_Frame f, unsigned int size, unsigned int is_global )
 // name: F_begin_scope()
 // desc: ...
 //-----------------------------------------------------------------------------
-void F_begin_scope( F_Frame f, S_table t )
+void F_begin_scope( F_Frame f )
 {
-    TAB_enter( t, insert_symbol("<mark>"), NULL );
+    f->stack.push_back( NULL );
 }
 
 
@@ -148,16 +149,13 @@ void F_begin_scope( F_Frame f, S_table t )
 // name: F_remove_locals()
 // desc: ....
 //-----------------------------------------------------------------------------
-void F_end_scope( F_Frame f, S_table t )
+void F_end_scope( F_Frame f )
 {
-    S_Symbol s = NULL;
-    S_Symbol mark = insert_symbol("<mark>");
     F_Access v = NULL;
     do {
-        v = (F_Access)TAB_topv(t);
-        s = (S_Symbol)TAB_pop(t);
-        if( s == mark ) break;
-        assert(v);
+        v = f->stack[f->stack.size()-1];
+        f->stack.pop_back();
+        if( !v ) break;
         f->curr_offset -= v->size;
         free(v);
     }while( TRUE );

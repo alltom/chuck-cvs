@@ -277,8 +277,11 @@ struct Chuck_Emmission
 
     void push( c_str scope_name = NULL )
     {
-        // S_beginScope( var2offset );
-        F_begin_scope( NULL, var2offset );
+        S_beginScope( var2offset );
+        if( this->is_global )
+            F_begin_scope( global->frame );
+        else
+            F_begin_scope( local->frame );
         count++;
     }
 
@@ -290,11 +293,11 @@ struct Chuck_Emmission
             return;
         }
 
-        // S_endScope( var2offset );
+        S_endScope( var2offset );
         if( is_global )
-            F_end_scope( global->frame, var2offset );
+            F_end_scope( global->frame );
         else
-            F_end_scope( local->frame, var2offset );
+            F_end_scope( local->frame );
         count--;
     }
 };
@@ -467,13 +470,13 @@ Chuck_Emmission * emit_engine_init( t_Env env )
         EM_error2( 0, "(emit): out of memory!" );
         return NULL;
     }
-    
+
     if( g_func2code == NULL )
         g_func2code = S_empty();
 
     // set the env
-    emit->push( "__system_scope__" );
     emit->global = new Chuck_Code( "__system_scope__" );
+    emit->push( "__system_scope__" );
 
     // push special
     //emit->alloc_local( insert_symbol("now"), lookup_value(env, insert_symbol("now") ) );

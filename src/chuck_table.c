@@ -211,7 +211,7 @@ int str_eq( void * lhs, void * rhs )
 int str_hash( void * str )
 {
     unsigned int h=0; char *s;
-    for(s=str; *s; s++)  
+    for(s=(char *)str; *s; s++)  
         h = h*65599 + *s;
     return h;
 }

@@ -1740,6 +1740,7 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( reg_sp, 2 );
     Chuck_VM_Code * func = (Chuck_VM_Code *)*reg_sp;
     uint local_depth = *(reg_sp+1);
+    local_depth = ( local_depth >> 2 ) + ( local_depth & 0x3 ? 1 : 0 );
     uint stack_depth = ( func->stack_depth >> 2 ) + ( func->stack_depth & 0x3 ? 1 : 0 );
     uint prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
 
@@ -1752,7 +1753,7 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // push the pc
     push_( mem_sp, (uint)(shred->pc + 1) );
     // push the stack depth
-    push_( mem_sp, func->stack_depth + local_depth );
+    push_( mem_sp, (func->stack_depth + local_depth) );
     // set the parent mem stack
     shred->parent = func->parent;
     // set the pc to 0
@@ -1761,7 +1762,7 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     shred->code = func;
     shred->instr = func->instr;
 
-    if( local_depth )
+    if( stack_depth )
     {
         BYTE__ *& mem_sp2 = (BYTE__ *&)mem_sp;
         BYTE__ *& reg_sp2 = (BYTE__ *&)reg_sp;
@@ -1789,7 +1790,8 @@ void Chuck_Instr_Func_Call2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
     uint stack_size = (*reg_sp) >> 2 + ( *reg_sp & 0x3 ? 1 : 0 );
-    uint push = (*(mem_sp-1)) >> 2 + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
+    uint local_depth = *(reg_sp+2) + *(mem_sp-1);
+    uint push = (local_depth) >> 2 + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
     uint * sp = reg_sp;
@@ -1820,7 +1822,8 @@ void Chuck_Instr_Func_Call3::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
     uint stack_size = (*reg_sp) >> 2 + ( *reg_sp & 0x3 ? 1 : 0 );
-    uint push = (*(mem_sp-1)) >> 2 + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
+    uint local_depth = *(reg_sp+2) + *(mem_sp-1);
+    uint push = local_depth >> 2 + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
     uint * sp = reg_sp;
@@ -1852,7 +1855,8 @@ void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( reg_sp, 3 );
     f_ck_func f = (f_ck_func)(*(reg_sp+1));
     uint stack_size = (*reg_sp) >> 2 + ( *reg_sp & 0x3 ? 1 : 0 );
-    uint push = (*(mem_sp-1)) >> 2 + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
+    uint local_depth = *(reg_sp+2) + *(mem_sp-1);
+    uint push = local_depth >> 2 + ( local_depth & 0x3 ? 1 : 0 );
     reg_sp -= stack_size;
     mem_sp += push;
     uint * sp = reg_sp;
