@@ -151,7 +151,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // copy output into local buffer
     if( m_go >= start )
     {
-        while( !m_out_ready && n-- ) usleep( 50 );
+        while( !m_out_ready && n-- ) usleep( 500 );
         // copy local buffer to be rendered
         if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
@@ -160,7 +160,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     else  // initial condition
     {
 #ifdef __MACOSX_CORE__
-        if( !m_go ) Chuck_VM::set_priority( 85, NULL );
+        if( !m_go ) Chuck_VM::set_priority( 80, NULL );
 #endif
         memset( buffer, 0, len );
         m_go++;
@@ -170,7 +170,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // 2nd buffer
     if( m_go == start )
     {
-        n = 20; while( !m_out_ready && n-- ) usleep( 50 );
+        n = 20; while( !m_out_ready && n-- ) usleep( 500 );
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
