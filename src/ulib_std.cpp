@@ -38,7 +38,6 @@
 
 #if __WINDOWS_DS__
 #include <windows.h>
-extern int round( double a );
 
 int setenv( char *n, char *v, int i )
 {
