@@ -200,6 +200,7 @@ struct Chuck_Env
     Chuck_Scope<t_CKUINT> scope;
     // control scope (for break, continue)
     vector<a_Stmt> loops;
+    vector<a_Stmt> swich;
 
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;

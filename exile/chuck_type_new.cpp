@@ -424,7 +424,7 @@ t_CKBOOL type_engine_check_for( Chuck_Env * env, a_Stmt_For stmt )
     // check the post
     if( stmt->c3 && !type_engine_check_exp( env, stmt->c3 ) )
         return FALSE;
-        
+
     // for break and continue statement
     env->loops.push_back( stmt->self );
 
@@ -454,12 +454,16 @@ t_CKBOOL type_engine_check_while( Chuck_Env * env, a_Stmt_While stmt )
         
     // TODO: same as if - ensure the type in conditional is valid
 
+    // for break and continue statement
+    env->loops.push_back( stmt->self );
+
     // check the body
     if( !type_engine_check_stmt( env, stmt->body ) )
-    {
-        // env->out() << "type checker: while statement does not type check" << endl;
         return FALSE;
-    }
+
+    // remove the loop from the stack
+    assert( env->loops.size() && env->loops.back() == stmt->self );
+    env->loops.pop_back();
 
     return TRUE;
 }
@@ -479,9 +483,16 @@ t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
         
     // TODO: same as if - ensure the type in conditional is valid
 
+    // for break and continue statement
+    env->loops.push_back( stmt->self );
+
     // check the body
     if( !type_engine_check_stmt( env, stmt->body ) )
         return FALSE;
+
+    // remove the loop from the stack
+    assert( env->loops.size() && env->loops.back() == stmt->self );
+    env->loops.pop_back();
 
     return TRUE;
 }
@@ -496,11 +507,26 @@ t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 
 t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
 {
+    // check to see if inside valid stmt
+    if( env->loops.size() <= 0 && env->swich.size() <= 0 )
+    {
+        EM_error2( br->linepos, "'break' found outside of for/while/until/switch..." );
+        return FALSE;
+    }
     
+    return TRUE;
 }
 
 t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
 {
+    // check to see if inside valid loop
+    if( env->loops.size() <= 0 )
+    {
+        EM_error2( cont->linepos, "'continue' found outside of for/while/until..." );
+        return FALSE;
+    }
+    
+    return TRUE;
 }
 
 t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
