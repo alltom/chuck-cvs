@@ -259,6 +259,7 @@ public:
     DWORD__ capture( );
 
 protected:
+    SAMPLE * m_data;
     SAMPLE * m_data_ptr_in;
     SAMPLE * m_data_max_in;
 
