@@ -36,6 +36,12 @@
 
 #include "chuck_def.h"
 
+
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
+
+
 extern t_CKBOOL EM_anyErrors;
 extern int EM_tokPos;
 extern int EM_lineNum;
@@ -46,6 +52,11 @@ void EM_error( int, c_str, ... );
 void EM_error2( int, c_str, ... );
 void EM_impossible( c_str, ... );
 void EM_reset( c_str filename );
+
+
+#if defined(_cplusplus) || defined(__cplusplus)
+}
+#endif
 
 
 #endif

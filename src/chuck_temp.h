@@ -39,6 +39,9 @@
 #include "chuck_utils.h"
 
 
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
 
 
 // Temp_Temp
@@ -76,6 +79,9 @@ void Temp_dump_map( FILE *out, Temp_Map m );
 Temp_Map Temp_name( void );
 
 
+#if defined(_cplusplus) || defined(__cplusplus)
+}
+#endif
 
 
 #endif

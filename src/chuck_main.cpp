@@ -36,19 +36,15 @@
 #include <fstream>
 using namespace std;
 
-extern "C"
-{
-#include "chuck_utils.h"
-#include "chuck_errormsg.h"
-
-extern int yyparse( void );
-}
+extern "C" int yyparse( void );
 
 #include "chuck_type.h"
 #include "chuck_emit.h"
 #include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_bbq.h"
+#include "chuck_utils.h"
+#include "chuck_errormsg.h"
 #include "util_network.h"
 
 #include <signal.h>

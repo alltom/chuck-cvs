@@ -34,9 +34,9 @@
 #ifndef __CHUCK_FRAME_H__
 #define __CHUCK_FRAME_H__
 
-extern "C" {
+
 #include "chuck_temp.h"
-}
+
 
 
 

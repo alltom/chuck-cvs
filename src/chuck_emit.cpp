@@ -40,10 +40,7 @@ using namespace std;
 #include "chuck_instr.h"
 #include "chuck_bbq.h"
 #include "chuck_vm.h"
-
-extern "C" {
-  #include "chuck_errormsg.h"
-}
+#include "chuck_errormsg.h"
 
 
 
