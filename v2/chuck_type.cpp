@@ -1495,6 +1495,18 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
 
     // allocate new type
     t_class = new Chuck_Type;
+    // init as vm object
+    t_class->init();
+    // set the fields
+    t_class->id = te_user;
+    t_class->name = S_name(class_def->name->id);
+    t_class->parent = t_parent;
+    t_class->size = 0; // to be filled in
+    t_class->owner = env->curr;
+    t_class->array_depth = 0;
+    t_class->info = new Chuck_Namespace;
+    t_class->func = NULL;
+
     // set the new type as current
 
     // type check the body

@@ -42,6 +42,7 @@
 using namespace std;
 
 #include "chuck_absyn.h"
+#include "chuck_oo.h"
 
 
 
