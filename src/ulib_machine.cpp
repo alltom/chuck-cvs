@@ -109,7 +109,7 @@ CK_DLL_FUNC( machine_add_impl )
 
     msg.type = MSG_ADD;
     strcpy( msg.buffer, v );
-    RETURN->v_int = (int)the_func( &msg, TRUE );
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }
 
 // remove
@@ -120,7 +120,7 @@ CK_DLL_FUNC( machine_remove_impl )
     
     msg.type = MSG_REMOVE;
     msg.param = v;
-    RETURN->v_int = (int)the_func( &msg, TRUE );
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }
 
 // replace
@@ -133,7 +133,7 @@ CK_DLL_FUNC( machine_replace_impl )
     msg.type = MSG_REPLACE;
     msg.param = v;
     strcpy( msg.buffer, v2 );
-    RETURN->v_int = (int)the_func( &msg, TRUE );
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }
 
 // status
@@ -142,5 +142,5 @@ CK_DLL_FUNC( machine_status_impl )
     Net_Msg msg;
     
     msg.type = MSG_STATUS;
-    RETURN->v_int = (int)the_func( &msg, TRUE );
+    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
 }

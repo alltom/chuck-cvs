@@ -41,7 +41,7 @@ class Chuck_VM;
 
 // query
 DLL_QUERY machine_query( Chuck_DL_Query * QUERY );
-typedef t_CKUINT (* proc_msg_func)( Net_Msg *, t_CKBOOL );
+typedef t_CKUINT (* proc_msg_func)( Net_Msg *, t_CKBOOL, void * );
 t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func func );
 
 

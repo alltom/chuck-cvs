@@ -38,6 +38,12 @@
 #include <memory.h>
 
 
+// defines
+#define NET_HEADER      0x8c8cc8c8
+// buffer size
+#define NET_BUFFER_SIZE 512
+
+
 //-----------------------------------------------------------------------------
 // name: struct Net_Msg()
 // desc: ...
@@ -50,16 +56,14 @@ struct Net_Msg
     t_CKUINT param2;
     t_CKUINT param3;
     t_CKUINT length;
-    char buffer[512];
+    char buffer[NET_BUFFER_SIZE];
     
     Net_Msg() { this->clear(); }
-    void clear() { header = type = param = param2 = param3 = length = 0;
+    void clear() { header = NET_HEADER; type = param = param2 = param3 = length = 0;
                    memset( buffer, 0, sizeof(buffer) ); }
 };
 
 
-// defines
-#define NET_HEADER     0x8c8cc8c8
 
 
 

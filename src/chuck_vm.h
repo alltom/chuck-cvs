@@ -350,7 +350,8 @@ enum Chuck_Msg_Type
     MSG_STATUS,
 	MSG_PAUSE,
     MSG_KILL,
-    MSG_TIME
+    MSG_TIME,
+    MSG_DONE
 };
 
 

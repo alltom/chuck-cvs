@@ -54,6 +54,8 @@ extern "C" int yyparse( void );
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #else 
 #define CHUCK_THREAD HANDLE
 #define usleep(x) Sleep(x/1000);
@@ -290,17 +292,121 @@ void usage()
 
 
 //-----------------------------------------------------------------------------
+// name: send_file()
+// desc: ...
+//-----------------------------------------------------------------------------
+int send_file( const char * filename, Net_Msg & msg, const char * op )
+{
+    FILE * fd = NULL;
+    struct stat fs;
+    
+    strcpy( msg.buffer, "" );
+    if( filename[0] != '/' )
+    { 
+        strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
+        strcat( msg.buffer, getenv("PWD") ? "/" : "" );
+    }
+    strcat( msg.buffer, filename );
+
+    // test it
+    fd = open_cat( (char *)msg.buffer );
+    if( !fd )
+    {
+        fprintf( stderr, "[chuck]: cannot open file '%s' for [%s]...\n", filename, op );
+        return FALSE;
+    }
+            
+    if( !parse( (char *)msg.buffer, fd ) )
+    {
+        fprintf( stderr, "[chuck]: skipping file '%s' for [%s]...\n", filename, op );
+        fclose( fd );
+        return FALSE;
+    }
+            
+    // stat it
+    fstat( (int)fd, &fs );
+
+    // send the first packet
+    msg.param2 = (t_CKUINT)fs.st_size;
+    msg.length = 0;
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+            
+    // send the whole thing
+    t_CKUINT left = (t_CKUINT)fs.st_size;
+    while( left )
+    {
+        // amount to send
+        msg.length = left > NET_BUFFER_SIZE ? NET_BUFFER_SIZE : left;
+        // read
+        msg.param3 = fread( msg.buffer, sizeof(char), msg.length, fd );
+        // amount left
+        left -= msg.param3 ? msg.param3 : 0;
+        msg.param2 = left;
+        // send it
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    
+    // close
+    fclose( fd );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: recv_file()
+// desc: ...
+//-----------------------------------------------------------------------------
+FILE * recv_file( const Net_Msg & msg, ck_socket sock )
+{
+    Net_Msg buf;
+    
+    // what is left
+    t_CKUINT left = msg.param2;
+    // make a temp file
+    FILE * fd = tmpfile();
+
+    do {
+        // msg
+        ck_recv( sock, (char *)&buf, sizeof(buf) );
+        // write
+        fwrite( buf.buffer, sizeof(char), buf.length, fd );
+    }while( buf.param2 );
+    
+    return fd;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: process_msg()
 // desc: ...
 //-----------------------------------------------------------------------------
-extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate )
+extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data )
 {
     Chuck_Msg * cmd = new Chuck_Msg;
+    FILE * fd = NULL;
     
     // fprintf( stderr, "UDP message recv...\n" );
     if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
     {
-        if( !parse( msg->buffer ) )
+        // see if entire file is on the way
+        if( msg->param2 )
+        {
+            fd = recv_file( *msg, (ck_socket)data );
+            if( !fd )
+            {
+                fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
+                    mini(msg->buffer) );
+                return 0;
+            }
+        }
+        
+        // parse
+        if( !parse( msg->buffer, fd ) )
             return 0;
 
         // type check
@@ -435,20 +541,33 @@ void * cb( void * p )
             ck_close( client );
             continue;
         }
-
-        if( g_vm )
+        
+        if( msg.header != NET_HEADER )
         {
-            if( !process_msg( &msg, FALSE ) )
+            fprintf( stderr, "[chuck]: header mismatch - possible endian lunacy...\n" );
+            ck_close( client );
+            continue;
+        }
+
+        while( msg.type != MSG_DONE )
+        {
+            if( g_vm )
             {
-                msg.param = FALSE;
-                strcpy( (char *)msg.buffer, EM_lasterror() );
-            }
-            else
-            {
-                msg.param = TRUE;
-                strcpy( (char *)msg.buffer, "success" );
+                if( !process_msg( &msg, FALSE, client ) )
+                {
+                    msg.param = FALSE;
+                    strcpy( (char *)msg.buffer, EM_lasterror() );
+                    break;
+                }
+                else
+                {
+                    msg.param = TRUE;
+                    strcpy( (char *)msg.buffer, "success" );
+                    n = ck_recv( client, (char *)&msg, sizeof(msg) );
+                }
             }
         }
+        
         ck_send( client, (char *)&msg, sizeof(msg) );
         ck_close( client );
     }
@@ -482,7 +601,6 @@ int send_cmd( int argc, char ** argv, int  & i )
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
-        FILE * fd;
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
@@ -490,27 +608,9 @@ int send_cmd( int argc, char ** argv, int  & i )
         }
 
         do {
-            strcpy( msg.buffer, "" );
-            if( argv[i][0] != '/' )
-            { 
-                strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
-                strcat( msg.buffer, getenv("PWD") ? "/" : "" );
-            }
-            strcat( msg.buffer, argv[i] );
-
-            // test it
-            fd = open_cat( (char *)msg.buffer );
-            if( !fd )
-            {
-                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
-                return 1;
-            }
-
-            // close it
-            if( fd ) fclose( fd );
-
             msg.type = MSG_ADD;
-            ck_send( g_sock, (char *)&msg, sizeof(msg) );
+            msg.param = 1;
+            send_file( argv[i], msg, "add" );
         } while( ++i < argc );
     }
     else if( !strcmp( argv[i], "--remove" ) || !strcmp( argv[i], "-" ) )
@@ -535,7 +635,6 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
     {
-        FILE * fd;
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
@@ -553,23 +652,8 @@ int send_cmd( int argc, char ** argv, int  & i )
             return 1;
         }
 
-        strcpy( msg.buffer, "" );
-        if( argv[i][0] != '/' )
-        { 
-            strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
-            strcat( msg.buffer, getenv("PWD") ? "/" : "" );
-        }
-        strcat( msg.buffer, argv[i] );
-        
-        fd = open_cat( (char *)msg.buffer );
-        if( !fd )
-        {
-            fprintf( stderr, "[chuck]: cannot open file '%s' for [replace]...\n", argv[i] );
-            return 1;
-        }
-
         msg.type = MSG_REPLACE;
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        send_file( argv[i], msg, "replace" );
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
     {
@@ -601,6 +685,10 @@ int send_cmd( int argc, char ** argv, int  & i )
     else
         return 0;
         
+    // send
+    msg.type = MSG_DONE;
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+
     // timer
     CHUCK_THREAD tid;
 #ifndef __PLATFORM_WIN32__
