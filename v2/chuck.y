@@ -342,7 +342,7 @@ chuck_operator
 
 conditional_expression
         : logical_or_expression             { $$ = $1; }
-        | logical_or_expression QUESTION expression COLON conditional_expression
+        | logical_or_expression QUESTION conditional_expression COLON conditional_expression
             { $$ = new_exp_from_if( $1, $3, $5, EM_lineNum ); }
         ;
 
