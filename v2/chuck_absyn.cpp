@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 #include "chuck_absyn.h"
 #include "chuck_utils.h"
 
@@ -314,7 +315,7 @@ a_Exp new_exp_from_unary( ae_Operator oper, a_Exp exp, int pos )
     return a;
 }
 
-a_Exp new_exp_from_cast( c_str type, a_Exp exp, int pos )
+a_Exp new_exp_from_cast( a_Id_List type, a_Exp exp, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_cast;
@@ -540,14 +541,21 @@ a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list
     return a;
 }
 
-a_Type_Decl new_type_decl( c_str type, a_Array_Sub array, int pos )
+a_Type_Decl new_type_decl( a_Id_List type, int pos )
 {
     a_Type_Decl a = (a_Type_Decl)checked_malloc(
         sizeof( struct a_Type_Decl_ ) );
-    a->id = insert_symbol( type );
-    a->array = array;
+    a->id = type;
     a->linepos = pos;
 
+    return a;
+}
+
+a_Type_Decl add_type_decl_array( a_Type_Decl, a_Array_Sub array, int pos )
+{
+    assert( a->array == NULL );
+    a->array = array;
+    
     return a;
 }
 

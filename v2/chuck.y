@@ -148,6 +148,7 @@ a_Program g_program = NULL;
 %type <var_decl_list> var_decl_list
 %type <var_decl> var_decl
 %type <type_decl> type_decl
+%type <type_decl> type_decl2
 %type <ival> function_decl
 %type <arg_list> arg_list
 %type <id_list> id_list
@@ -205,9 +206,9 @@ id_dot
         ;
         
 function_definition
-        : function_decl type_decl ID LPAREN arg_list RPAREN code_segment
+        : function_decl type_decl2 ID LPAREN arg_list RPAREN code_segment
             { $$ = new_func_def( $1, $2, $3, $5, $7, EM_lineNum ); }
-        | function_decl type_decl ID LPAREN RPAREN code_segment
+        | function_decl type_decl2 ID LPAREN RPAREN code_segment
             { $$ = new_func_def( $1, $2, $3, NULL, $6, EM_lineNum ); }
         ;
 
@@ -219,9 +220,12 @@ function_decl
         ;
 
 type_decl
-        : id_dot                            { $$ = new_type_decl( $1, NULL, EM_lineNum ); }
-        // | id_dot array_exp                  { $$ = new_type_decl( $2, $3, EM_lineNum ); }
-        // | id_dot array_empty                { $$ = new_type_decl( $2, $3, EM_lineNum ); }
+        : id_dot                            { $$ = new_type_decl( $1, EM_lineNum ); }
+        ;
+        
+type_decl2
+        : type_decl                         { $$ = $1; };
+        | type_decl array_empty             { $$ = add_type_decl_array( $1, $2, EM_lineNum ); }
         ;
 
 arg_list
@@ -427,7 +431,8 @@ tilda_expression
         
 cast_expression
         : unary_expression                  { $$ = $1; }
-        | LPAREN ID RPAREN cast_expression  { $$ = new_exp_from_cast( $2, $4, EM_lineNum ); }
+        | LPAREN id_dot RPAREN cast_expression
+            { $$ = new_exp_from_cast( $2, $4, EM_lineNum ); }
         ;
         
 unary_expression
