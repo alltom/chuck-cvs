@@ -7,7 +7,7 @@
 // our patch
 Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 // set the gain
-.85 => r.gain;
+.95 => r.gain;
 // set the reverb mix
 .2 => r.mix;
 // set max delay for echo
@@ -16,7 +16,6 @@ Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 750::ms => a.delay => b.delay => c.delay;
 // set the initial effect mix
 0.0 => a.mix => b.mix => c.mix;
-0.8 => c.gain;
 
 // shred to modulate the mix
 fun void echo_shred( )
@@ -56,13 +55,11 @@ while( true )
 {
     // position
     std.rand2f( 0.2, 0.8 ) => mand.pluckPos;
-
     // frequency...
     2 * std.rand2( 0, 4 ) => int freq;
     if( freq == 6 ) 7 => freq; if( freq == 8 ) 9 => freq;
-    freq + 57 + std.rand2(0,2) * 12 => freq; 
-    std.mtof ((float) freq ) => mand.freq;
-
+    220.0 * math.pow( 1.05946, (float)(std.rand2(0,2)*12)
+                      +(float)freq ) => mand.freq;
     // pluck it!
     std.rand2f( 0.2, 0.9 ) => mand.pluck;
 
