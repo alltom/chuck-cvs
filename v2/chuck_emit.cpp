@@ -135,7 +135,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     // make sure there is a context to emit
     assert( emit->env->context != NULL );
     // make sure no code
-    assert( emit->env->context->code == NULL );
+    assert( emit->env->context->nspc.code == NULL );
 
     // return
     t_CKBOOL ret = TRUE;
