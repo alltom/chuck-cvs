@@ -598,10 +598,8 @@ t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt )
 {
     // push
     env->context->nspc.value.push();
-    
     // do it
     t_CKBOOL t = type_engine_check_stmt_list( env, stmt->stmt_list );
-    
     // pop
     env->context->nspc.value.pop();
     
@@ -1001,7 +999,7 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
     {
         // variable
         case ae_primary_var:
-            t = env->curr->lookup_value( S_name(exp->var), env->dots == 0 );
+            t = env->curr->lookup_value( exp->var, env->dots == 0 );
             if( !t )
             {
                 // error
@@ -1065,7 +1063,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !t ) return NULL;
 
     // the type to cast to
-    t_CKTYPE t2 = env->curr->lookup_type( S_name( cast->type ), TRUE );
+    t_CKTYPE t2 = env->curr->lookup_type( cast->type, TRUE );
     if( !t2 )
     {
         EM_error2( cast->linepos,
@@ -1241,7 +1239,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     t_CKTYPE t = NULL, t2 = NULL;
     
     // look up the type
-    t = env->curr->lookup_type( S_name(decl->type), TRUE );
+    t = env->curr->lookup_type( decl->type, TRUE );
     if( !t )
     {
         EM_error2( decl->linepos,
@@ -1249,7 +1247,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             S_name(decl->type) );
         return NULL;
     }
-    
+
     // check if array
     if( var_decl->isarray )
     {
@@ -1257,7 +1255,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     else
     {
         // check if locally defined
-        if( env->context->nspc.value.lookup( S_name(var_decl->id), TRUE ) )
+        if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
         {
             EM_error2( decl->linepos,
                 "(type-checker): '%s' has already been defined in the same scope...",
@@ -1266,10 +1264,10 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         }
         
         // enter into value binding
-        
+        env->context->nspc.value.add( var_decl->id, t );
     }
-    
-    return NULL;
+
+    return t;
 }
 
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
