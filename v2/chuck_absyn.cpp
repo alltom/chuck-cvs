@@ -499,10 +499,10 @@ a_Exp new_exp_from_namespace( c_str name, int pos )
     return a;
 }
 
-a_Var_Decl new_var_decl( a_Id_List id, a_Array_Sub array, int pos )
+a_Var_Decl new_var_decl( c_str id, a_Array_Sub array, int pos )
 {
     a_Var_Decl a = (a_Var_Decl)checked_malloc( sizeof( struct a_Var_Decl_ ) );
-    a->id = id;
+    a->id = insert_symbol(id);
     a->array = array;
     a->linepos = pos;
     
