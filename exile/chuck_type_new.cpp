@@ -698,6 +698,23 @@ void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 //-----------------------------------------------------------------------------
 t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
 {
+     // check id
+     if( lhs.id != rhs.id ) return FALSE;
+     
+     // if user-defined type
+     if( lhs.id == te_user )
+     {
+         // check name
+         if( lhs.name != rhs.name ) return FALSE;
+         
+         // check array depth
+         if( lhs.array_depth != rhs.array_depth ) return FALSE;
+         
+         // check owner
+         if( lhs.owner != rhs.owner ) return FALSE;
+     }
+     
+     return TRUE;
 }
 
 
