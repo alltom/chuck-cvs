@@ -109,6 +109,7 @@ void signal_int( int sig_num )
 
 
 
+char filename[1024] = "";
 //-----------------------------------------------------------------------------
 // name: parse()
 // desc: ...
@@ -116,9 +117,23 @@ void signal_int( int sig_num )
 t_CKBOOL parse( c_str fname )
 {
     t_CKBOOL ret = FALSE;
-    
+    strcpy( filename, fname );
+    FILE * f = NULL;
+
+    // test it
+    if( !(f = fopen( filename, "r" )) )
+        if( !strstr( filename, ".ck" ) && !strstr( filename, ".CK" ) )
+        {
+            strcat( filename, ".ck" );
+            if( !(f = fopen( filename, "r" )) )
+                strcpy( filename, fname );
+        }
+
+    // close it
+    if( f ) fclose( f );
+
     // parse
-    EM_reset( fname );
+    EM_reset( filename );
     ret = (yyparse( ) == 0);
 
     return ret;
