@@ -145,8 +145,7 @@ sub open_ugen {
 
     print HTML "
 <div class=\"ugen\">
-<a name=\"$ugen_name\"> </a>
-<h3><span class=\"heading\">[ugen]</span>: <span class=\"name\">$ugen_name</span> $lib_note</h3>
+<h3><a class=\"heading\" name=\"$ugen_name\">[ugen]</a>: <span class=\"name\">$ugen_name</span> $lib_note</h3>
 <div class=\"comments\"><ul>
 ";
     foreach ( @comments ) { print HTML "<li> $_</li>\n"; } 
