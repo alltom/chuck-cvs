@@ -1,6 +1,6 @@
 Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 220.0 => mand.freq;
-.4 => r.gain;
+.8 => r.gain;
 .2 => r.mix;
 1000::ms => a.max => b.max => c.max;
 750::ms => a.delay => b.delay => c.delay;
