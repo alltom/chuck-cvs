@@ -32,6 +32,8 @@
 #ifndef __UTIL_RAW_H__
 #define __UTIL_RAW_H__
 
+#include "chuck_def.h"
+
 
 // begin the abuse of memory
 extern SAMPLE ahh_data[];
@@ -53,7 +55,7 @@ extern SAMPLE silence_data[];
 extern SAMPLE sineblnk_data[];
 extern SAMPLE sinewave_data[];
 extern SAMPLE snglpeak_data[];
-extern SAMLPE twopeaks_data[];
+extern SAMPLE twopeaks_data[];
 
 extern t_CKUINT ahh_size;
 extern t_CKUINT britestk_size;
@@ -74,7 +76,7 @@ extern t_CKUINT silence_size;
 extern t_CKUINT sineblnk_size;
 extern t_CKUINT sinewave_size;
 extern t_CKUINT snglpeak_size;
-extern t_CKTUIN twopeaks_size;
+extern t_CKUINT twopeaks_size;
 
 
 #endif
