@@ -44,11 +44,11 @@
 #endif
 
 // defaults
-#define BUFFER_SIZE_OUT_DEFAULT      512
-#define BUFFER_SIZE_IN_DEFAULT       512
-#define BUFFER_SIZE_DEFAULT          512
-#define NUM_OUT_BUFFERS_DEFAULT      4
-#define NUM_IN_BUFFERS_DEFAULT       4
+  #if defined(__MACOSX_CORE__)
+#define BUFFER_SIZE_DEFAULT          256
+  #else
+#define BUFFER_SIZE_DEFAULT          1024
+  #endif
 #define NUM_BUFFERS_DEFAULT          4
 #define NUM_CHANNELS_DEFAULT         2       // number of channels
   #if defined(__LINUX_ALSA__ ) || defined(__LINUX_OSS__)

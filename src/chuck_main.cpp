@@ -815,7 +815,7 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_audio = TRUE;
     t_CKBOOL vm_halt = TRUE;
     t_CKUINT srate = SAMPLING_RATE_DEFAULT;
-    t_CKUINT buffer_size = 256;
+    t_CKUINT buffer_size = BUFFER_SIZE_DEFAULT;
     t_CKUINT num_buffers = 8;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
