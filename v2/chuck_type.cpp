@@ -600,8 +600,8 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
     {
         EM_error2( stmt->linepos,
             "function '%s' was defined with return type '%s' -- but returning type '%s'",
-            env->func->name.c_str(), env->func->def->ret_type->name.c_str(),
-            ret_type->name.c_str() );
+            env->func->name.c_str(), env->func->def->ret_type->c_name(),
+            ret_type->c_name() );
         return FALSE;
     }
 
@@ -861,7 +861,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     // no match
     EM_error2( lhs->linepos,
         "no suitable resolution for binary operator '%s' on types '%s' and '%s'...",
-        op2str( op ), left->name.c_str(), right->name.c_str() );
+        op2str( op ), left->c_name(), right->c_name() );
     return NULL;
 }
 
@@ -898,7 +898,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             EM_error2( lhs->linepos,
                 "no suitable resolution for binary operator '=>' on types '%s' => '%s'...\n"
                 "    (right-side operand is not mutable)",
-                left->name.c_str(), right->name.c_str() );
+                left->c_name(), right->c_name() );
             return NULL;
         }
         // aggregate types
@@ -910,7 +910,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             EM_error2( lhs->linepos,
                 "no suitable resolution for binary operator '=>' on types '%s' => '%s...'\n"
                 "    (note: use @=> for assignment of objects)",
-                left->name.c_str(), right->name.c_str() );
+                left->c_name(), right->c_name() );
             return NULL;
         }
     }
@@ -920,7 +920,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     // no match
     EM_error2( lhs->linepos,
         "no suitable resolution for binary operator '=>' on types '%s' and '%s'...",
-        left->name.c_str(), right->name.c_str() );
+        left->c_name(), right->c_name() );
     return NULL;
 }
 
@@ -943,7 +943,7 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
     // no match
     EM_error2( lhs->linepos,
         "no suitable resolution for binary operator '=<' on types '%s' and '%s'...",
-        left->name.c_str(), right->name.c_str() );
+        left->c_name(), right->c_name() );
     return NULL;
 }
 
@@ -1004,7 +1004,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
     // no match
     EM_error2( unary->linepos,
         "no suitable resolution for prefix unary operator '%s' on type '%s...",
-        op2str( unary->op ), t->name.c_str() );
+        op2str( unary->op ), t->c_name() );
     return NULL;
 }
 
@@ -1104,7 +1104,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     {
         EM_error2( cast->linepos,
             "invalid cast to '%s' from '%s'...",
-            S_name( cast->type->id ), t->name.c_str() );
+            S_name( cast->type->id ), t->c_name() );
         return NULL;
     }
     
@@ -1156,7 +1156,7 @@ t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
     {
         EM_error2( dur->base->linepos,
             "invalid type '%s' in prefix of dur expression...\n"
-            "    (must be of type 'int' or 'float')", base->name.c_str() );
+            "    (must be of type 'int' or 'float')", base->c_name() );
         return NULL;
     }
     
@@ -1165,7 +1165,7 @@ t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
     {
         EM_error2( dur->unit->linepos,
             "invalid type '%s' in postfix of dur expression...\n"
-            "    (must be of type 'dur')", unit->name.c_str() );
+            "    (must be of type 'dur')", unit->c_name() );
         return NULL;
     }
     
@@ -1216,7 +1216,7 @@ t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
     // no match
     EM_error2( postfix->linepos,
         "no suitable resolutation for postfix operator '%s' on type '%s'...",
-        op2str( postfix->op ), t->name.c_str() );
+        op2str( postfix->op ), t->c_name() );
     return NULL;
 }
 
@@ -1241,11 +1241,12 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
     if( !isa( cond, &t_int ) ) return NULL;
     
     // make sure the if and else have compatible types
+    // TODO: the lesser of two types
     if( !( *if_exp == *else_exp ) )
     {
         EM_error2( exp_if->linepos,
             "incompatible types '%s' and '%s' in if expression...",
-            if_exp->name.c_str(), else_exp->name.c_str() );
+            if_exp->c_name(), else_exp->c_name() );
         return NULL;
     }
     
@@ -1374,7 +1375,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
         {
             EM_error2( func_call->linepos,
                 "extra argument(s) in function call '%s' %i %s",
-                func->name.c_str(), e->type->name.c_str() );
+                func->name.c_str(), e->type->c_name() );
             return NULL;
         }
 
@@ -1383,7 +1384,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
         {
             EM_error2( func_call->linepos,
                 "argument '%i' of function call '%s' has type '%s' -- expecting type '%s'",
-                count, func->name.c_str(), e->type->name.c_str(), e1->type->name.c_str() );
+                count, func->name.c_str(), e->type->c_name(), e1->type->c_name() );
             return NULL;
         }
 
@@ -1397,7 +1398,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     {
         EM_error2( func_call->linepos,
             "missing argument(s) in function call '%s', next arg type: '%s'",
-            func->name.c_str(), e1->type->name.c_str() );
+            func->name.c_str(), e1->type->c_name() );
         return NULL;
     }
 
@@ -1422,7 +1423,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
         // base type does not have members
         EM_error2( member->base->linepos,
             "type '%s' does not have members - invalid use in dot expression",
-            member->t_base->name.c_str() );
+            member->t_base->c_name() );
         return NULL;
     }
 
@@ -1433,7 +1434,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
         // can't find member
         EM_error2( member->base->linepos,
             "class '%s' has no member '%s'",
-            member->t_base->name.c_str(), S_name(member->id) );
+            member->t_base->c_name(), S_name(member->id) );
         return NULL;
     }
     
@@ -1481,7 +1482,7 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
             // not int or string
             EM_error2( e->linepos,
                 "array index %i must be of type 'int' or 'string', not '%s'",
-                depth, e->type->name.c_str() );
+                depth, e->type->c_name() );
             return NULL;
         }
 

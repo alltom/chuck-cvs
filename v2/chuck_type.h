@@ -296,6 +296,15 @@ public:
     Chuck_Type * copy( Chuck_Env * env ) const
     { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) );
       env->context->new_types.push_back( n ); return n; }
+    // to string
+    string ret;
+    const string & str()
+    { ret = name;
+      for( t_CKUINT i = 0; i < array_depth; i++ ) ret += string("[]");
+      return ret; }
+    // to c
+    const char * c_name()
+    { return str().c_str(); }
 };
 
 
