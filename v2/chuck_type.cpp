@@ -1533,6 +1533,29 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     env->curr = t_class->info;
 
     // type check the body
+    while( body && ret )
+    {
+        // check the section
+        switch( body->section->s_type )
+        {
+        case ae_section_stmt:
+            type_engine_check_stmt_list( env, body->section->stmt_list );
+            break;
+        
+        case ae_section_func:
+            type_engine_check_func_def( env, body->section->func_def );
+            break;
+        
+        case ae_section_class:
+            EM_error2( body->section->class_def->linepos,
+                "nested class definitions are not yet supported..." );
+            ret = FALSE;
+            break;
+        }
+        
+        // move to the next section
+        body = body->next;
+    }
 
     // pop the new type
     env->curr = env->stack.back();
