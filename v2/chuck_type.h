@@ -223,8 +223,7 @@ struct Chuck_Env
     Chuck_Context * context;
 
     // control scope (for break, continue)
-    vector<a_Stmt> loops;
-    vector<a_Stmt> swich;
+    vector<a_Stmt> breaks;
 
 	// VM reference
 	Chuck_VM * vm;

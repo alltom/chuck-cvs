@@ -223,6 +223,10 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     env->context = context;
     // push the context scope
     env->context->nspc.value.push();
+    // push the current namespaces
+    env->stack.push_back( env->curr );
+    // set the context's namespace as current
+    env->curr = &(context->nspc);
 
     // go through each of the program sections
     while( prog && ret )
@@ -251,14 +255,22 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
         prog = prog->next;
     }
     
+    // make sure we still have the same context
+    assert( env->contexts.size() != 0 );
+    assert( env->contexts.back() == context );
+    assert( env->stack.size() != 0 );
+    assert( env->stack.back() == &(context->nspc) );
+
     // pop the context scope
     env->context->nspc.value.pop();
+    // restore the current namespace
+    env->curr = env->stack.back();
+    // pop the namespace stack
+    env->stack.pop_back();
 
     // check to see if everything passed
     if( !ret )
     {
-        // make sure we still have the same context
-        assert( env->contexts.back() == context );
         // TODO: remove the effects of the context in the env
         // ---> insert code here <----
         // remove the context
@@ -426,15 +438,15 @@ t_CKBOOL type_engine_check_for( Chuck_Env * env, a_Stmt_For stmt )
         return FALSE;
 
     // for break and continue statement
-    env->loops.push_back( stmt->self );
+    env->breaks.push_back( stmt->self );
 
     // check body
     if( !type_engine_check_stmt( env, stmt->body ) )
         return FALSE;
         
     // remove the loop from the stack
-    assert( env->loops.size() && env->loops.back() == stmt->self );
-    env->loops.pop_back();
+    assert( env->breaks.size() && env->breaks.back() == stmt->self );
+    env->breaks.pop_back();
 
     return TRUE;
 }
@@ -455,15 +467,15 @@ t_CKBOOL type_engine_check_while( Chuck_Env * env, a_Stmt_While stmt )
     // TODO: same as if - ensure the type in conditional is valid
 
     // for break and continue statement
-    env->loops.push_back( stmt->self );
+    env->breaks.push_back( stmt->self );
 
     // check the body
     if( !type_engine_check_stmt( env, stmt->body ) )
         return FALSE;
 
     // remove the loop from the stack
-    assert( env->loops.size() && env->loops.back() == stmt->self );
-    env->loops.pop_back();
+    assert( env->breaks.size() && env->breaks.back() == stmt->self );
+    env->breaks.pop_back();
 
     return TRUE;
 }
@@ -484,15 +496,15 @@ t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
     // TODO: same as if - ensure the type in conditional is valid
 
     // for break and continue statement
-    env->loops.push_back( stmt->self );
+    env->breaks.push_back( stmt->self );
 
     // check the body
     if( !type_engine_check_stmt( env, stmt->body ) )
         return FALSE;
 
     // remove the loop from the stack
-    assert( env->loops.size() && env->loops.back() == stmt->self );
-    env->loops.pop_back();
+    assert( env->breaks.size() && env->breaks.back() == stmt->self );
+    env->breaks.pop_back();
 
     return TRUE;
 }
@@ -522,7 +534,7 @@ t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
 {
     // check to see if inside valid stmt
-    if( env->loops.size() <= 0 && env->swich.size() <= 0 )
+    if( env->breaks.size() <= 0 )
     {
         EM_error2( br->linepos, "'break' found outside of for/while/until/switch..." );
         return FALSE;
@@ -541,7 +553,7 @@ t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
 t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
 {
     // check to see if inside valid loop
-    if( env->loops.size() <= 0 )
+    if( env->breaks.size() <= 0 )
     {
         EM_error2( cont->linepos, "'continue' found outside of for/while/until..." );
         return FALSE;
@@ -1249,7 +1261,8 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     }
 
     // check if locally defined
-    if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
+    // if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
+    if( env->curr->lookup_value( var_decl->id, TRUE ) )
     {
         EM_error2( decl->linepos,
             "'%s' has already been defined in the same scope...",
@@ -1279,7 +1292,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     //}
 
     // enter into value binding
-    env->context->nspc.value.add( var_decl->id, 
+    // env->context->nspc.value.add( var_decl->id, 
+    //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
+    env->curr->value.add( var_decl->id,
         new Chuck_Value( t, S_name(var_decl->id), NULL ) );
 
     return t;
@@ -1508,8 +1523,16 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     t_class->func = NULL;
 
     // set the new type as current
+    env->stack.push_back( env->curr );
+    env->curr = t_class->info;
 
     // type check the body
+
+    // pop the new type
+    env->curr = env->stack.back();
+    env->stack.pop_back();
+    
+    return TRUE;
 }
 
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
