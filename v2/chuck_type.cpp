@@ -44,20 +44,20 @@
 //-----------------------------------------------------------------------------
 // default types
 //-----------------------------------------------------------------------------
-struct Chuck_Type t_void = { te_void, "void", NULL, 0 };
-struct Chuck_Type t_int = { te_int, "int", NULL, sizeof(t_CKINT) };
-struct Chuck_Type t_float = { te_float, "float", NULL, sizeof(t_CKFLOAT) };
-struct Chuck_Type t_time = { te_time, "time", NULL, sizeof(t_CKTIME) };
-struct Chuck_Type t_dur = { te_dur, "dur", NULL, sizeof(t_CKTIME) };
-struct Chuck_Type t_object = { te_object, "object", NULL, sizeof(void *) };
-struct Chuck_Type t_null = { te_null, "@null", NULL, 0 };
-struct Chuck_Type t_string = { te_string, "string", &t_object, sizeof(void *) };
-struct Chuck_Type t_shred = { te_shred, "shred", &t_object, sizeof(void *) };
-struct Chuck_Type t_thread = { te_thread, "thread", &t_object, sizeof(void *) };
-struct Chuck_Type t_function = { te_function, "function", &t_object, sizeof(void *) };
-struct Chuck_Type t_class = { te_class, "class", &t_object, sizeof(void *) };
-struct Chuck_Type t_event = { te_event, "event", &t_object, sizeof(void *) };
-struct Chuck_Type t_ugen = { te_ugen, "ugen", &t_object, sizeof(void *) };
+Chuck_Type t_void = { te_void, "void", NULL, 0 };
+Chuck_Type t_int = { te_int, "int", NULL, sizeof(t_CKINT) };
+Chuck_Type t_float = { te_float, "float", NULL, sizeof(t_CKFLOAT) };
+Chuck_Type t_time = { te_time, "time", NULL, sizeof(t_CKTIME) };
+Chuck_Type t_dur = { te_dur, "dur", NULL, sizeof(t_CKTIME) };
+Chuck_Type t_object = { te_object, "object", NULL, sizeof(void *) };
+Chuck_Type t_null = { te_null, "@null", NULL, 0 };
+Chuck_Type t_string = { te_string, "string", &t_object, sizeof(void *) };
+Chuck_Type t_shred = { te_shred, "shred", &t_object, sizeof(void *) };
+Chuck_Type t_thread = { te_thread, "thread", &t_object, sizeof(void *) };
+Chuck_Type t_function = { te_function, "function", &t_object, sizeof(void *) };
+Chuck_Type t_class = { te_class, "class", &t_object, sizeof(void *) };
+Chuck_Type t_event = { te_event, "event", &t_object, sizeof(void *) };
+Chuck_Type t_ugen = { te_ugen, "ugen", &t_object, sizeof(void *) };
 
 /* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
@@ -1579,8 +1579,26 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     return ret;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_func_def()
+// desc: ...
+//-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 {
+    Chuck_Value * value = NULL;
+    Chuck_Func * func = NULL;
+
+    // see if we are already in a function definition
+    if( env->func != NULL )
+    {
+        EM_error2( f->linepos,
+            "nested function definitions are not (yet) allowed" );
+        return FALSE;
+    }
+
     // look up the value
     if( env->curr->lookup_value( f->name, TRUE ) )
     {
@@ -1594,63 +1612,65 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // make sure a code segment is in stmt - else we should push scope
     assert( f->code.s_type == ae_stmt_code );
 
-    // enter the name into the value table
-    S_enter( env->value, f->name, &t_function );
-    env->scope_add( f->name );
-    // enter the name into the function table
-    S_enter( env->function, f->name, f );
+    // make a new func object
+    func = new Chuck_Func;
+    // set the name
+    func->name = S_name(f->name);
+    // reference the function definition
+    func->def = f;
+    // note whether the function is marked (so far) as instance
+    func->instance = f->static_decl != ae_key_static;
 
-    // push the scope
-    S_beginScope( env->value );
-    env->scope_push( );
-    // set global
-    env->is_global = FALSE;
-    // set the func def
-    env->func_def = f;
+    // set the current function to this
+    env->func = func;
+    // push the value stack
+    env->curr->value.push();
 
     // make room for return address and pc
-    S_enter( env->value, insert_symbol( "@__pc__" ), &t_uint );
-    S_enter( env->value, insert_symbol( "@__mem_sp__" ), &t_uint );
+    // S_enter( env->value, insert_symbol( "@__pc__" ), &t_uint );
+    // S_enter( env->value, insert_symbol( "@__mem_sp__" ), &t_uint );
 
     // look up the return type
-    f->ret_type = (t_Type)S_look( env->type, f->type_decl->id );
+    f->ret_type = env->curr->lookup_type( f->type_decl->id->id );
     // no return type
     if( !f->ret_type )
     {
         EM_error2( f->linepos, "for function '%s':", S_name(f->name) );
-        EM_error2( f->linepos, "undefined return type '%s'", S_name(f->type_decl->id) );
-        return FALSE;
+        EM_error2( f->linepos, "undefined return type '%s'", S_name(f->type_decl->id->id) );
+        goto error;
     }
-    // f->ret_type->array_depth = f->type_decl->array;
 
+    // TODO: deal with arrays
+
+    // look up types for the function arguments
     a_Arg_List arg_list = f->arg_list;
     unsigned int count = 1;
     f->stack_depth = 0;
-
     while( arg_list )
     {
         // look up in type table
-        arg_list->type = (t_Type)S_look( env->type, arg_list->type_decl->id );
+        arg_list->type = env->curr->lookup_type( arg_list->type_decl->id->id );
         if( !arg_list->type )
         {
             EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, "argument %i '%s' has undefined type '%s'", 
-                count, S_name(arg_list->id), S_name(arg_list->type_decl->id) );
-            return FALSE;
+                count, S_name(arg_list->id), S_name(arg_list->type_decl->id->id) );
+            goto error;
         }
-        
+
         // look up in scope
-        if( env->scope_lookup( arg_list->id ) )
+        if( env->curr->lookup_value( arg_list->id, FALSE ) )
         {
             EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
                 count, S_name(arg_list->id) );
-            return FALSE;
+            goto error;
         }
 
         // enter into value table
-        S_enter( env->value, arg_list->id, arg_list->type );
-        env->scope_add( arg_list->id );        
+        value = new Chuck_Value( 
+            arg_list->type, S_name(arg_list->id), NULL, FALSE, 0, NULL );
+        env->curr->value.add( arg_list->id, value );
 
         // stack
         f->stack_depth += arg_list->type->size;
@@ -1663,15 +1683,31 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     if( !type_engine_check_stmt( env, f->code ) )
     {
         EM_error2( 0, "...in function '%s'.", S_name(f->name) );
-        return FALSE;
+        goto error;
     }
 
-    // set global
-    env->is_global = TRUE;
-    // pop the scope
-    S_endScope( env->value );
+    // pop the value stack
+    env->curr->value.pop();
+    // enter the name into the value table
+    value = new Chuck_Value( func->def->ret_type, S_name(f->name), NULL, TRUE, 0, NULL );
+    env->curr->value.add( f->name, value );
+    // enter the name into the function table
+    env->curr->func.add( f->name, func );
+    // clear the env's function definition
+    env->func = NULL;
 
     return TRUE;
+
+error:
+
+    // clean up
+    if( func )
+    {
+        env->func = NULL;
+        delete func;
+    }
+
+    return FALSE;
 }
 
 // import

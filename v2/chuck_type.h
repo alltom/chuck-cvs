@@ -217,7 +217,7 @@ struct Chuck_Env
     // current class definition
     Chuck_Type * class_def;
     // current function definition
-    Chuck_Func * func_def;
+    Chuck_Func * func;
 	
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
@@ -336,7 +336,7 @@ struct Chuck_Func
     t_CKBOOL instance;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; instance = NULL; }
+    Chuck_Func() { def = NULL; code = NULL; instance = FALSE; }
 };
 
 
