@@ -117,6 +117,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
+t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * name );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
 
@@ -1877,8 +1878,131 @@ t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * u
     return TRUE;
 }
 
-t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
-										 const string & type, void * addr );
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_value_import()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name,
+										 const string & type, void * addr )
+{
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: do_make_args()
+// desc: ...
+//-----------------------------------------------------------------------------
+a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, unsigned int index )
+{
+    a_Arg_List args = NULL;
+    if( index >= params.size() )
+        return NULL;
+
+    if( index == (params.size()-1) )
+        args = new_arg_list( new_type_decl( (char*)params[index].type.c_str(), 0 ),
+                             (char*)params[index].name.c_str(), 0 );
+    else
+        args = prepend_arg_list(
+            new_type_decl( (char*)params[index].type.c_str(), 0 ),
+            (char*)params[index].name.c_str(),
+            do_make_args( params, index + 1 ), 0 );
+    return args;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_add_dll()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
+{    
+    // lookup the namesapce
+    t_Env info = (t_Env)S_look( env->name_space,
+                                insert_symbol( (char *)nspc ) );
+    // if not there
+    if( info && info->dlls[dll] )
+        return FALSE;
+
+    if( !info )
+    {
+        info = new_namespace( nspc, env, 211 );
+        S_enter( env->value, insert_symbol(nspc), &t_system_namespace );
+        env->scope_add( insert_symbol(nspc) );
+        S_enter( env->name_space, insert_symbol(nspc), info );
+    }
+
+    // add all the prototypes
+    Chuck_DL_Query * query = (Chuck_DL_Query *)dll->query();
+    for( unsigned int i = 0; i < query->dll_exports.size(); i++ )
+    {
+        // the prototype
+        Chuck_DL_Proto * proto = &query->dll_exports[i];
+
+        // add func
+        if( proto->is_func )
+        {
+            // type decl
+            a_Type_Decl rtype = new_type_decl( (char *)proto->type.c_str(), 0 );
+            // arg list
+            a_Arg_List args = NULL;
+            if( proto->params.size() )
+                args = do_make_args( proto->params, 0 );
+            // allocate a new function
+            a_Func_Def func = new_func_def( 
+                ae_func_func, rtype, (char*)proto->name.c_str(), args, NULL, 0 );
+            // set the pointer
+            func->builtin = (builtin_func_ptr)proto->addr;
+            func->linepos = query->linepos;
+            // type check it
+            if( !type_engine_check_func_def_import( info, func ) )
+            {
+                // clean up
+                info->dlls.erase( dll );
+                return FALSE;
+            }
+        }
+        else
+        {
+            // add value
+            if( !type_engine_check_value_import( info,
+                insert_symbol((char *)proto->name.c_str()),
+                insert_symbol((char *)proto->type.c_str()),
+                (void *)proto->addr ) )
+            {
+                info->dlls.erase( dll );
+                return FALSE;
+            }
+        }
+    }
+
+    // add the unit generators
+    for( unsigned int j = 0; j < query->ugen_exports.size(); j++ )
+    {
+        Chuck_UGen_Info * ugen = new Chuck_UGen_Info( query->ugen_exports[j] );
+        
+        if( !type_engine_check_ugen_def_import( env, ugen ) )
+        {
+            // clean up
+            // info->dlls.erase( dll );
+            return FALSE;
+        }
+    }
+
+    // flag
+    info->dlls[dll] = true;
+
+    return TRUE;
+}
+
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 
 
