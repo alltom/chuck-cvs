@@ -100,23 +100,23 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     QUERY->add_export( QUERY, "float", "mtof", mtof_impl, TRUE );
     QUERY->add_param( QUERY, "float", "value" );
 
-    // add mtof
+    // add ftom
     QUERY->add_export( QUERY, "float", "ftom", ftom_impl, TRUE );
     QUERY->add_param( QUERY, "float", "value" );
 
-    // add mtof
+    // add powtodb
     QUERY->add_export( QUERY, "float", "powtodb", powtodb_impl, TRUE );
     QUERY->add_param( QUERY, "float", "value" );
 
-    // add mtof
+    // add rmstodb
     QUERY->add_export( QUERY, "float", "rmstodb", rmstodb_impl, TRUE );
     QUERY->add_param( QUERY, "float", "value" );
 
-    // add mtof
+    // add dbtopow
     QUERY->add_export( QUERY, "float", "dbtopow", dbtopow_impl, TRUE );
     QUERY->add_param( QUERY, "float", "value" );
 
-    // add mtof
+    // add dptorms
     QUERY->add_export( QUERY, "float", "dbtorms", dbtorms_impl, TRUE );
     QUERY->add_param( QUERY, "float", "value" );
     
@@ -213,7 +213,7 @@ CK_DLL_FUNC( setenv_impl )
 
 #define LOGTEN 2.302585092994
 
-float mtof(float f)
+double mtof(double f)
 {
     if (f <= -1500) return(0);
     else if (f > 1499) return(mtof(1499));
@@ -226,7 +226,7 @@ CK_DLL_FUNC( mtof_impl )
     RETURN->v_float = mtof(v);
 }
 
-float ftom(float f)
+double ftom(double f)
 {
     return (f > 0 ? 17.3123405046 * log(.12231220585 * f) : -1500);
 }
