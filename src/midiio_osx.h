@@ -34,7 +34,7 @@
 #define __MIDI_IO_H__
 
 
-#include <CoreMidi/CoreMidi.h>
+#include <CoreMIDI/CoreMIDI.h>
 #include <pthread.h>
 #include "util_buffers.h"
 
