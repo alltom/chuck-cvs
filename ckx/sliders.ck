@@ -403,11 +403,16 @@ function void ricochet( float loud, float mfreq) {
 
 }
 
+sinosc bsin => dac;
+sinosc csin => dac;
+.5 => bsin.gain;
+.5 => csin.gain;
 function void audioshred( ) { 
 
 	while ( true ) { 
-		//do something!
-		5::ms => now;
+		ctlb_val * (ctlb_x + 1.0) * 1000.0 + (ctlb_y + 1.0) * 1000.0 => bsin.sfreq;
+		ctlc_val * (ctlc_x + 1.0) * 1000.0 + (ctlc_y + 1.0) * 1000.0 => csin.sfreq;
+		1::samp => now;
 	}
  
 }
@@ -430,7 +435,7 @@ function void controlshred() {
 						 ctlb_dv - ctlc_dv * ( 1.0 - ctla_val )  => ctlb_dv; 
 					}
 					ctlc_dv * -ctla_val => ctlc_dv; 
-					spork ~ ricochet( 0.1 + ctlc_dv * 0.1 , 880.0 );
+					spork ~ ricochet( 0.1 + ctlc_dv * 0.1 , (ctla_x + 1.0) * 1000.0 );
 					tm => tc;
 				}
 				else { 0.0 => ctlc_dv; }
@@ -453,7 +458,7 @@ function void controlshred() {
 						ctlc_dv - ctlb_dv *  ( 1.0 - ctla_val)  => ctlc_dv;
 					}
 					ctlb_dv * -ctla_val => ctlb_dv; 
-					spork ~ ricochet( 0.1 + ctlb_dv * 0.1, 1100.0 );
+					spork ~ ricochet( 0.1 + ctlb_dv * 0.1, ( ctla_y+1.0)*1000.0 );
 					tm => tb;
 				}
 				else { 0.0 => ctlb_dv; }
