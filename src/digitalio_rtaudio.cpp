@@ -60,7 +60,7 @@ SAMPLE ** Digitalio::m_read_ptr = NULL;
 BOOL__ Digitalio::m_out_ready = FALSE;
 BOOL__ Digitalio::m_in_ready = FALSE;
 BOOL__ Digitalio::m_use_cb = USE_CB_DEFAULT;
-BOOL__ Digitalio::m_go = FALSE;
+DWORD__ Digitalio::m_go = 0;
 DWORD__ Digitalio::m_dac_n = 0;
 DWORD__ Digitalio::m_adc_n = 0;
 
@@ -86,6 +86,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     m_num_buffers = num_buffers;
     m_start = 0;
     m_tick_count = 0;
+    m_go = 0;
 
     // allocate RtAudio
     try {
@@ -139,20 +140,34 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * Digitalio::num_channels_out();
     DWORD__ n = 200;
+
     // copy input to local buffer
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
-    while( !m_out_ready && n-- ) usleep( 25 );
-    // copy local buffer to be rendered
-    if( m_out_ready ) memcpy( buffer, m_buffer_out, len );
-    // set all elements of local buffer to silence
-    else memset( buffer, 0, len);
-    if( !m_go ) {
+    // copy output into local buffer
+    if( m_go )
+    {
+        while( !m_out_ready && n-- ) usleep( 25 );
+        // copy local buffer to be rendered
+        if( m_out_ready ) memcpy( buffer, m_buffer_out, len );
+        // set all elements of local buffer to silence
+        else memset( buffer, 0, len);
+    }
+    else  // initial condition
+    {
         Chuck_VM::set_priority( 95, NULL );
+        memset( buffer, 0, len );
+        m_go++; m_in_ready = FALSE;
+        return 0;
+    }
+
+    // 2nd buffer
+    if( m_go == 1 )
+    {
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
-        m_go = TRUE; n = 200;
+        m_go++; n = 200;
         while( !m_out_ready && n-- ) usleep( 25 );
     }
 

@@ -141,7 +141,7 @@ public: // data
     static BOOL__ m_out_ready;
     static BOOL__ m_in_ready;
     static BOOL__ m_use_cb;
-    static BOOL__ m_go;
+    static DWORD__ m_go;
     
     static DWORD__ m_dac_n;
     static DWORD__ m_adc_n;

@@ -97,7 +97,7 @@ void signal_int( int sig_num )
         g_vm = NULL;
         fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
-        usleep( 50000 );
+        usleep( 100000 );
         vm->shutdown();
         pthread_kill( g_tid, 2 );
         usleep( 100000 );
