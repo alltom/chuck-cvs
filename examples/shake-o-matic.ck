@@ -7,9 +7,9 @@
 // our patch
 Shakers shake => JCRev r => dac;
 // set the gain
-.95 => r.gain;
+//.95 => r.gain;
 // set the reverb mix
-.2 => r.mix;
+//.2 => r.mix;
 
 // our main loop
 while( true )
@@ -17,7 +17,7 @@ while( true )
     // frequency..
     if ( std.randf() > 0.25 )
     {
-        std.rand2( 0, 31 ) => shake.which;
+        std.rand2( 0, 22 ) => shake.which;
         std.rand2f( 0.0, 128.0 ) => shake.freq;
 	chout => "instrument (see docs): ";
 	shake.which => stdout;

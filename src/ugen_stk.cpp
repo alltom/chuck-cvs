@@ -14270,6 +14270,7 @@ int Shakers :: setupNum(int inst)
   int i, rv = 0;
   MY_FLOAT temp;
 
+  inst %= 23; // chuck hack
   if (inst == 1) { // Cabasa
     rv = inst;
     nObjects = CABA_NUM_BEADS;
