@@ -43,7 +43,6 @@
 //-----------------------------------------------------------------------------
 // function prototypes
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog );
 t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emitter * emit, a_Stmt_List list );
 t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt );
 t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt );
@@ -129,6 +128,8 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     assert( emit->stack.size() == 0 );
     // make sure there is a context to emit
     assert( emit->env->context != NULL );
+    // make sure no code
+    assert( emit->env->context->code == NULL );
 
     // return
     t_CKBOOL ret = TRUE;
@@ -177,7 +178,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
         emit->context->nspc.code = emit_to_code( emit );
     }  
 
-    return ret;
+    return emit->context->nspc.code;
 }
 
 
@@ -189,9 +190,14 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
 //-----------------------------------------------------------------------------
 Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump )
 {
+    // allocate the vm code
     Chuck_VM_Code * code = new Chuck_VM_Code;
-    code->num_instr = emit->code->size();
+    // size
+    code->num_instr = emit->code->code.size();
+    // allocate instruction pointers
     code->instr = new Chuck_Instr *[code->num_instr];
+    // set the stack depth
+    code->stack_depth = emit->code->stack_depth;
 
     // copy
     for( t_CKUINT i = 0; i < code->num_instr; i++ )
@@ -201,48 +207,16 @@ Chuck_VM_Code * emit_to_code( Chuck_Emitter * emit, t_CKBOOL dump )
     if( dump )
     {
         // name of what we are dumping
-        EM_error2( 0, "dumping %s", emit->code->name.c_str() );
+        EM_error2( 0, "dumping %s...", emit->code->name.c_str() );
         EM_error2( 0, "\n" );
 
         // uh
-        for( t_CKUINT i = 0; i < code2->num_instr; i++ )
-            EM_error2( 0, 
-                "'%i' %s( %s )\n",
-                i, 
-               code2->instr[i]->name(), code2->instr[i]->params() );
+        for( t_CKUINT i = 0; i < code->num_instr; i++ )
+            EM_error2( 0, "'%i' %s( %s )", i, 
+               code->instr[i]->name(), code->instr[i]->params() );
 
-        fprintf( stdout, "...\n\n" );
-    }
-
-        
-        // functions
-    for( unsigned int j = 0; j < emit->functions.size(); j++ )
-    {
-        Chuck_VM_Code * code2 = new Chuck_VM_Code;
-        Chuck_Code * c = emit->functions[j];
-        code2->num_instr = c->code.size();
-        code2->instr = new Chuck_Instr *[code2->num_instr];
-
-        // copy
-        for( unsigned int i = 0; i < code2->num_instr; i++ )
-            code2->instr[i] = c->code[i];
-
-        // set the parent
-        code2->stack_depth = c->stack_depth;
-        
-        if( dump )
-        {
-            fprintf( stderr, "[chuck]: dumping function %s( ... )\n\n", c->name.c_str() );
-
-            for( unsigned int i = 0; i < code2->num_instr; i++ )
-                fprintf( stdout, "'%i' %s( %s )\n", i, 
-                    code2->instr[i]->name(), code2->instr[i]->params() );
-
-            fprintf( stdout, "...\n\n" );
-        }
-
-        // put in table
-        S_enter( g_func2code, insert_symbol((char *)c->name.c_str()), code2 );
+        EM_error2( 0, "\n" );
+        EM_error2( 0, "\n" );
     }
 
     return code;
@@ -265,15 +239,6 @@ t_CKBOOL emit_engine_addr_map( Chuck_Emitter * emit, Chuck_VM_Shred * shred );
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_resolve( );
-
-
-
-
-//-----------------------------------------------------------------------------
-// name:
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog );
 
 
 
