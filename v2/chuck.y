@@ -342,7 +342,7 @@ chuck_operator
 
 conditional_expression
         : logical_or_expression             { $$ = $1; }
-        | logical_or_expression QUESTION conditional_expression COLON conditional_expression
+        | logical_or_expression QUESTION expression COLON conditional_expression
             { $$ = new_exp_from_if( $1, $3, $5, EM_lineNum ); }
         ;
 
@@ -442,24 +442,24 @@ unary_expression
             { $$ = new_exp_from_unary( ae_op_minusminus, $2, EM_lineNum ); }
         | unary_operator cast_expression
             { $$ = new_exp_from_unary( $1, $2, EM_lineNum ); }
+        | TYPEOF LT expression GT
+            { $$ = new_exp_from_unary( ae_op_typeof, $3, EM_lineNum ); }
+        | SIZEOF LT unary_expression GT
+            { $$ = new_exp_from_unary( ae_op_sizeof, $3, EM_lineNum ); }
         // | NEW type_decl
         //    { }
         // | NEW LT type_decl GT
         //    { }
-        // | SIZEOF LT unary_expression GT
-        //    { }
-        | TYPEOF LT expression GT
-            { $$ = new_exp_from_unary( ae_op_typeof, $3, EM_lineNum ); }
         ;
-        
+
 unary_operator
         : PLUS                              { $$ = ae_op_plus; }
         | MINUS                             { $$ = ae_op_minus; }
         | TILDA                             { $$ = ae_op_tilda; }
         | EXCLAMATION                       { $$ = ae_op_exclamation; }
-        | S_AND                             { $$ = ae_op_s_and; }
         | TIMES                             { $$ = ae_op_times; }
         | SPORK TILDA                       { $$ = ae_op_spork; }
+        // | S_AND                             { $$ = ae_op_s_and; }
         ;
 
 postfix_expression
@@ -489,4 +489,3 @@ primary_expression
         | L_NSPC ID R_NSPC                  { $$ = new_exp_from_namespace( $2, EM_lineNum ); }
         | LPAREN expression RPAREN          { $$ = $2; }
         ;
-
