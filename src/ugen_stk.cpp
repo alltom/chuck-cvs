@@ -8920,7 +8920,7 @@ FM :: FM(int operators)
 {
   if ( nOperators <= 0 ) {
     char msg[256];
-    sprintf(msg, "FM: Invalid number of operators (%d) argument to constructor!", operators);
+    sprintf(msg, "[chuck](via FM): Invalid number of operators (%d) argument to constructor!", operators);
     handleError(msg, StkError::FUNCTION_ARGUMENT);
   }
 
@@ -9337,12 +9337,12 @@ Filter :: Filter(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficient
 
   // Check the arguments.
   if ( nb < 1 || na < 1 ) {
-    sprintf(message, "Filter: nb (%d) and na (%d) must be >= 1!", nb, na);
+    sprintf(message, "[chuck](via Filter): nb (%d) and na (%d) must be >= 1!", nb, na);
     handleError( message, StkError::FUNCTION_ARGUMENT );
   }
 
   if ( aCoefficients[0] == 0.0 ) {
-    sprintf(message, "Filter: a[0] coefficient cannot == 0!");
+    sprintf(message, "[chuck](via Filter): a[0] coefficient cannot == 0!");
     handleError( message, StkError::FUNCTION_ARGUMENT );
   }
 
@@ -9383,12 +9383,12 @@ void Filter :: setCoefficients(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT
 
   // Check the arguments.
   if ( nb < 1 || na < 1 ) {
-    sprintf(message, "Filter: nb (%d) and na (%d) must be >= 1!", nb, na);
+    sprintf(message, "[chuck](via Filter): nb (%d) and na (%d) must be >= 1!", nb, na);
     handleError( message, StkError::FUNCTION_ARGUMENT );
   }
 
   if ( aCoefficients[0] == 0.0 ) {
-    sprintf(message, "Filter: a[0] coefficient cannot == 0!");
+    sprintf(message, "[chuck](via Filter): a[0] coefficient cannot == 0!");
     handleError( message, StkError::FUNCTION_ARGUMENT );
   }
 
@@ -9431,7 +9431,7 @@ void Filter :: setNumerator(int nb, MY_FLOAT *bCoefficients)
 
   // Check the arguments.
   if ( nb < 1 ) {
-    sprintf(message, "Filter: nb (%d) must be >= 1!", nb);
+    sprintf(message, "[chuck](via Filter): nb (%d) must be >= 1!", nb);
     handleError( message, StkError::FUNCTION_ARGUMENT );
   }
 
@@ -9455,12 +9455,12 @@ void Filter :: setDenominator(int na, MY_FLOAT *aCoefficients)
 
   // Check the arguments.
   if ( na < 1 ) {
-    sprintf(message, "Filter: na (%d) must be >= 1!", na);
+    sprintf(message, "[chuck](via Filter): na (%d) must be >= 1!", na);
     handleError( message, StkError::FUNCTION_ARGUMENT );
   }
 
   if ( aCoefficients[0] == 0.0 ) {
-    sprintf(message, "Filter: a[0] coefficient cannot == 0!");
+    sprintf(message, "[chuck](via Filter): a[0] coefficient cannot == 0!");
     handleError( message, StkError::FUNCTION_ARGUMENT );
   }
 
@@ -10748,7 +10748,7 @@ Modal :: Modal(int modes)
 {
   if ( nModes <= 0 ) {
     char msg[256];
-    sprintf(msg, "Modal: Invalid number of modes (%d) argument to constructor!", modes);
+    sprintf(msg, "[chuck](via Modal): Invalid number of modes (%d) argument to constructor!", modes);
     handleError(msg, StkError::FUNCTION_ARGUMENT);
   }
 
@@ -13053,7 +13053,7 @@ SKINI :: SKINI(char *fileName)
 
   myFile = fopen(fileName,"r");
   if ((int) myFile < 0) {
-    sprintf(msg, "SKINI: Could not open or find file (%s).", fileName);
+    sprintf(msg, "[chuck](via SKINI): Could not open or find file (%s).", fileName);
     handleError(msg, StkError::FILE_NOT_FOUND);
   }
 
@@ -15658,7 +15658,7 @@ Table :: Table(char *fileName)
   // Use the system call "stat" to determine the file length
   struct stat filestat;
   if ( stat(fileName, &filestat) == -1 ) {
-    sprintf(message, "Table: Couldn't stat or find file (%s).", fileName);
+    sprintf(message, "[chuck](via Table): Couldn't stat or find file (%s).", fileName);
     handleError( message, StkError::FILE_NOT_FOUND );
   }
   length = (long) filestat.st_size / 8;  // length in 8-byte samples
@@ -15667,7 +15667,7 @@ Table :: Table(char *fileName)
   FILE *fd;
   fd = fopen(fileName,"rb");
   if (!fd) {
-    sprintf(message, "Table: Couldn't open or find file (%s).", fileName);
+    sprintf(message, "[chuck](via Table): Couldn't open or find file (%s).", fileName);
     handleError( message, StkError::FILE_NOT_FOUND );
   }
 
@@ -17212,7 +17212,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
   // Try to open the file.
   fd = fopen(fileName, "rb");
   if (!fd) {
-    sprintf(msg, "WvIn: Could not open or find file (%s).", fileName);
+    sprintf(msg, "[chuck](via WvIn): Could not open or find file (%s).", fileName);
     handleError(msg, StkError::FILE_NOT_FOUND);
   }
 
@@ -17249,7 +17249,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     handleError(msg, StkError::FILE_ERROR);
 
   if ( fileSize == 0 ) {
-    sprintf(msg, "WvIn: File (%s) data size is zero!", fileName);
+    sprintf(msg, "[chuck](via WvIn): File (%s) data size is zero!", fileName);
     handleError(msg, StkError::FILE_ERROR);
   }
   }
@@ -17341,7 +17341,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
   return;
 
  error:
-  sprintf(msg, "WvIn: Error reading file (%s).", fileName);
+  sprintf(msg, "[chuck](via WvIn): Error reading file (%s).", fileName);
   handleError(msg, StkError::FILE_ERROR);
 }
 
@@ -17350,7 +17350,7 @@ bool WvIn :: getRawInfo( const char *fileName )
   // Use the system call "stat" to determine the file length.
   struct stat filestat;
   if ( stat(fileName, &filestat) == -1 ) {
-    sprintf(msg, "WvIn: Could not stat RAW file (%s).", fileName);
+    sprintf(msg, "[chuck](via WvIn): Could not stat RAW file (%s).", fileName);
     return false;
   }
 
@@ -17403,7 +17403,7 @@ bool WvIn :: getWavInfo( const char *fileName )
   swap32((unsigned char *)&chunkSize);
 #endif
   if (format_tag != 1 && format_tag != 3 ) { // PCM = 1, FLOAT = 3
-    sprintf(msg, "WvIn: %s contains an unsupported data format type (%d).", fileName, format_tag);
+    sprintf(msg, "[chuck](via WvIn): %s contains an unsupported data format type (%d).", fileName, format_tag);
     return false;
   }
 
@@ -17448,7 +17448,7 @@ bool WvIn :: getWavInfo( const char *fileName )
       dataType = MY_FLOAT64;
   }
   if ( dataType == 0 ) {
-    sprintf(msg, "WvIn: %d bits per sample with data format %d are not supported (%s).", temp, format_tag, fileName);
+    sprintf(msg, "[chuck](via WvIn): %d bits per sample with data format %d are not supported (%s).", temp, format_tag, fileName);
     return false;
   }
 
@@ -17489,7 +17489,7 @@ bool WvIn :: getWavInfo( const char *fileName )
   return true;
 
  error:
-  sprintf(msg, "WvIn: Error reading WAV file (%s).", fileName);
+  sprintf(msg, "[chuck](via WvIn): Error reading WAV file (%s).", fileName);
   return false;
 }
 
@@ -17508,7 +17508,7 @@ bool WvIn :: getSndInfo( const char *fileName )
   else if (format == 6) dataType = MY_FLOAT32;
   else if (format == 7) dataType = MY_FLOAT64;
   else {
-    sprintf(msg, "WvIn: data format in file %s is not supported.", fileName);
+    sprintf(msg, "[chuck](via WvIn): data format in file %s is not supported.", fileName);
     return false;
   }
 
@@ -17557,7 +17557,7 @@ bool WvIn :: getSndInfo( const char *fileName )
   return true;
 
  error:
-  sprintf(msg, "WvIn: Error reading SND file (%s).", fileName);
+  sprintf(msg, "[chuck](via WvIn): Error reading SND file (%s).", fileName);
   return false;
 }
 
@@ -17648,7 +17648,7 @@ bool WvIn :: getAifInfo( const char *fileName )
     else if ( (!strncmp(id, "fl64", 4) || !strncmp(id, "FL64", 4)) && temp == 64 ) dataType = MY_FLOAT64;
   }
   if ( dataType == 0 ) {
-    sprintf(msg, "WvIn: %d bits per sample in file %s are not supported.", temp, fileName);
+    sprintf(msg, "[chuck](via WvIn): %d bits per sample in file %s are not supported.", temp, fileName);
     return false;
   }
 
@@ -17678,7 +17678,7 @@ bool WvIn :: getAifInfo( const char *fileName )
   return true;
 
  error:
-  sprintf(msg, "WvIn: Error reading AIFF file (%s).", fileName);
+  sprintf(msg, "[chuck](via WvIn): Error reading AIFF file (%s).", fileName);
   return false;
 }
 
@@ -17691,7 +17691,7 @@ bool WvIn :: getMatInfo( const char *fileName )
   // If any of the first 4 characters of the header = 0, then this is
   // a Version 4 MAT-file.
   if ( strstr(head, "0") ) {
-    sprintf(msg, "WvIn: %s appears to be a Version 4 MAT-file, which is not currently supported.",
+    sprintf(msg, "[chuck](via WvIn): %s appears to be a Version 4 MAT-file, which is not currently supported.",
             fileName);
     return false;
   }
@@ -17717,7 +17717,7 @@ bool WvIn :: getMatInfo( const char *fileName )
   if ( fread(&datatype, 4, 1, fd) != 1 ) goto error;
   if ( byteswap ) swap32((unsigned char *)&datatype);
   if (datatype != 14) {
-    sprintf(msg, "WvIn: The file does not contain a single Matlab array (or matrix) data element.");
+    sprintf(msg, "[chuck](via WvIn): The file does not contain a single Matlab array (or matrix) data element.");
     return false;
   }
 
@@ -17744,7 +17744,7 @@ bool WvIn :: getMatInfo( const char *fileName )
   else if ( tmp == 7 ) dataType = MY_FLOAT32;
   else if ( tmp == 9 ) dataType = MY_FLOAT64;
   else {
-    sprintf(msg, "WvIn: The MAT-file array data format (%d) is not supported.", tmp);
+    sprintf(msg, "[chuck](via WvIn): The MAT-file array data format (%d) is not supported.", tmp);
     return false;
   }
 
@@ -17765,7 +17765,7 @@ bool WvIn :: getMatInfo( const char *fileName )
     fileSize = columns;
   }
   else {
-    sprintf(msg, "WvIn: Transpose the MAT-file array so that audio channels fill matrix rows (not columns).");
+    sprintf(msg, "[chuck](via WvIn): Transpose the MAT-file array so that audio channels fill matrix rows (not columns).");
     return false;
   }
   bufferSize = fileSize;
@@ -17792,7 +17792,7 @@ bool WvIn :: getMatInfo( const char *fileName )
   return true;
 
  error:
-  sprintf(msg, "WvIn: Error reading MAT-file (%s).", fileName);
+  sprintf(msg, "[chuck](via WvIn): Error reading MAT-file (%s).", fileName);
   return false;
 }
 
@@ -17896,7 +17896,7 @@ void WvIn :: readData( unsigned long index )
   return;
 
  error:
-  sprintf(msg, "WvIn: Error reading file data.");
+  sprintf(msg, "[chuck](via WvIn): Error reading file data.");
   handleError(msg, StkError::FILE_ERROR);
 }
 
@@ -18227,7 +18227,7 @@ void WvOut :: closeFile( void )
       closeMatFile();
     fd = 0;
 
-    printf("%f Seconds Computed\n\n", getTime() );
+    // printf("%f Seconds Computed\n\n", getTime() );
     totalCount = 0;
   }
 }
@@ -18237,7 +18237,7 @@ void WvOut :: openFile( const char *fileName, unsigned int nChannels, WvOut::FIL
   closeFile();
 
   if ( nChannels < 1 ) {
-    sprintf(msg, "WvOut: the channels argument must be greater than zero!");
+    sprintf(msg, "[chuck](via WvOut): the channels argument must be greater than zero!");
     handleError( msg, StkError::FUNCTION_ARGUMENT );
   }
 
@@ -18248,7 +18248,7 @@ void WvOut :: openFile( const char *fileName, unsigned int nChannels, WvOut::FIL
   if ( format != STK_SINT8 && format != STK_SINT16 &&
        format != STK_SINT32 && format != MY_FLOAT32 && 
        format != MY_FLOAT64 ) {
-    sprintf( msg, "WvOut: Unknown data type specified (%ld).", format );
+    sprintf( msg, "[chuck](via WvOut): Unknown data type specified (%ld).", format );
     handleError(msg, StkError::FUNCTION_ARGUMENT);
   } 
   dataType = format;
@@ -18256,7 +18256,7 @@ void WvOut :: openFile( const char *fileName, unsigned int nChannels, WvOut::FIL
   bool result = false;
   if ( fileType == WVOUT_RAW ) {
     if ( channels != 1 ) {
-      sprintf(msg, "WvOut: STK RAW files are, by definition, always monaural (channels = %d not supported)!", nChannels);
+      sprintf(msg, "[chuck](via WvOut): STK RAW files are, by definition, always monaural (channels = %d not supported)!", nChannels);
       handleError( msg, StkError::FUNCTION_ARGUMENT );
     }
     result = setRawFile( fileName );
@@ -18270,7 +18270,7 @@ void WvOut :: openFile( const char *fileName, unsigned int nChannels, WvOut::FIL
   else if ( fileType == WVOUT_MAT )
     result = setMatFile( fileName );
   else {
-    sprintf(msg, "WvOut: Unknown file type specified (%ld).", fileType);
+    sprintf(msg, "[chuck](via WvOut): Unknown file type specified (%ld).", fileType);
     handleError(msg, StkError::FUNCTION_ARGUMENT);
   }
 
@@ -18292,13 +18292,13 @@ bool WvOut :: setRawFile( const char *fileName )
   if ( strstr(name, ".raw") == NULL) strcat(name, ".raw");
   fd = fopen(name, "wb");
   if ( !fd ) {
-    sprintf(msg, "WvOut: Could not create RAW file: %s", name);
+    sprintf(msg, "[chuck](via WvOut): Could not create RAW file: %s", name);
     return false;
   }
 
   if ( dataType != STK_SINT16 ) {
     dataType = STK_SINT16;
-    sprintf(msg, "WvOut: Using 16-bit signed integer data format for file %s.", name);
+    sprintf(msg, "[chuck](via WvOut): Using 16-bit signed integer data format for file %s.", name);
     handleError(msg, StkError::WARNING);
   }
 
@@ -18318,7 +18318,7 @@ bool WvOut :: setWavFile( const char *fileName )
   if ( strstr(name, ".wav") == NULL) strcat(name, ".wav");
   fd = fopen(name, "wb");
   if ( !fd ) {
-    sprintf(msg, "WvOut: Could not create WAV file: %s", name);
+    sprintf(msg, "[chuck](via WvOut): Could not create WAV file: %s", name);
     return false;
   }
 
@@ -18362,7 +18362,7 @@ bool WvOut :: setWavFile( const char *fileName )
 #endif
 
   if ( fwrite(&hdr, 4, 11, fd) != 11 ) {
-    sprintf(msg, "WvOut: Could not write WAV header for file %s", name);
+    sprintf(msg, "[chuck](via WvOut): Could not write WAV header for file %s", name);
     return false;
   }
 
@@ -18403,7 +18403,7 @@ bool WvOut :: setSndFile( const char *fileName )
   if ( strstr(name, ".snd") == NULL) strcat(name, ".snd");
   fd = fopen(name, "wb");
   if ( !fd ) {
-    sprintf(msg, "WvOut: Could not create SND file: %s", name);
+    sprintf(msg, "[chuck](via WvOut): Could not create SND file: %s", name);
     return false;
   }
 
@@ -18431,7 +18431,7 @@ bool WvOut :: setSndFile( const char *fileName )
 #endif
 
   if ( fwrite(&hdr, 4, 10, fd) != 10 ) {
-    sprintf(msg, "WvOut: Could not write SND header for file %s", name);
+    sprintf(msg, "[chuck](via WvOut): Could not write SND header for file %s", name);
     return false;
   }
 
@@ -18467,7 +18467,7 @@ bool WvOut :: setAifFile( const char *fileName )
   if ( strstr(name, ".aif") == NULL) strcat(name, ".aif");
   fd = fopen(name, "wb");
   if ( !fd ) {
-    sprintf(msg, "WvOut: Could not create AIF file: %s", name);
+    sprintf(msg, "[chuck](via WvOut): Could not create AIF file: %s", name);
     return false;
   }
 
@@ -18562,7 +18562,7 @@ bool WvOut :: setAifFile( const char *fileName )
   return true;
 
  error:
-  sprintf(msg, "WvOut: Could not write AIF header for file %s", name);
+  sprintf(msg, "[chuck](via WvOut): Could not write AIF header for file %s", name);
   return false;
 }
 
@@ -18612,13 +18612,13 @@ bool WvOut :: setMatFile( const char *fileName )
   if ( strstr(name, ".mat") == NULL) strcat(name, ".mat");
   fd = fopen(name, "w+b");
   if ( !fd ) {
-    sprintf(msg, "WvOut: Could not create MAT file: %s", name);
+    sprintf(msg, "[chuck](via WvOut): Could not create MAT file: %s", name);
     return false;
   }
 
   if ( dataType != MY_FLOAT64 ) {
     dataType = MY_FLOAT64;
-    sprintf(msg, "WvOut: Using 64-bit floating-point data format for file %s", name);
+    sprintf(msg, "[chuck](via WvOut): Using 64-bit floating-point data format for file %s", name);
     handleError(msg, StkError::WARNING);
   }
 
@@ -18705,7 +18705,7 @@ bool WvOut :: setMatFile( const char *fileName )
   return true;
 
  error:
-  sprintf(msg, "WvOut: Could not write MAT-file header for file %s", name);
+  sprintf(msg, "[chuck](via WvOut): Could not write MAT-file header for file %s", name);
   return false;
 }
 
@@ -18796,7 +18796,7 @@ void WvOut :: writeData( unsigned long frames )
   return;
 
  error:
-  sprintf(msg, "WvOut: Error writing data to file.");
+  sprintf(msg, "[chuck](via WvOut): Error writing data to file.");
   handleError(msg, StkError::FILE_ERROR);
 }
 
