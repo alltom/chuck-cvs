@@ -21,9 +21,9 @@ T - (now % T) => now;
 T => now;
 
 // construct the patch
-sndbuf buf => dac;
+sndbuf buf => gain g => dac;
 "data/snare-hop.wav" => buf.read;
-.4 => buf.gain;
+.6 => g.gain;
 
 // where we actually want to start
 100 => int where;

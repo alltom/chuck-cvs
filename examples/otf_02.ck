@@ -18,9 +18,9 @@
 T - (now % T) => now;
 
 // construct the patch
-sndbuf buf => dac;
+sndbuf buf => gain g => dac;
 "data/hihat.wav" => buf.read;
-.125 => buf.gain;
+.25 => g.gain;
 
 // time loop
 while( true )

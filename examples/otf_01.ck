@@ -20,7 +20,7 @@ T - (now % T) => now;
 // construct the patch
 sndbuf buf => dac;
 "data/kick.wav" => buf.read;
-.5 => buf.gain;
+.25 => buf.gain;
 
 // time loop
 while( true )
