@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 33 shift/reduce conflicts
-%expect 33
+// expect 34 shift/reduce conflicts
+%expect 34
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -212,7 +212,7 @@ id_list
 
 id_dot
         : ID                                { $$ = new_id_list( $1, EM_lineNum ); }
-        // | ID DOT id_dot                     { $$ = prepend_id_list( $1, $3, EM_lineNum ); }
+        | ID DOT id_dot                     { $$ = prepend_id_list( $1, $3, EM_lineNum ); }
         ;
 
 function_definition

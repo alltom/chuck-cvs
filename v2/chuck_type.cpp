@@ -103,6 +103,7 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
 t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
+t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
 t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
@@ -1489,6 +1490,11 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
         case ae_primary_str:
             t = &t_string;
         break;
+
+        // array literal
+        case ae_primary_array:
+            t = type_engine_check_exp_array_lit( env, exp );
+        break;
         
         // expression
         case ae_primary_exp:
@@ -1502,6 +1508,30 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
         return NULL;
     }
     
+    return t;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_array_lit()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
+{
+    // make sure
+    assert( exp->s_type == ae_primary_array );
+
+    // type
+    t_CKTYPE t = NULL;
+
+    // go through the array and type check each
+
+    // treat static and dynamic separately
+
+    // create the new type
+
     return t;
 }
 
