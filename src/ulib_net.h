@@ -54,6 +54,10 @@ UGEN_CTRL netout_ctrl_size( t_CKTIME now, void * data, void * value );
 UGEN_CGET netout_cget_size( t_CKTIME now, void * data, void * out );
 UGEN_CTRL netout_ctrl_name( t_CKTIME now, void * data, void * value );
 UGEN_CGET netout_cget_name( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netout_ctrl_seqnum( t_CKTIME now, void * data, void * value );
+UGEN_CGET netout_cget_seqnum( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netout_ctrl_useseq( t_CKTIME now, void * data, void * value );
+UGEN_CGET netout_cget_useseq( t_CKTIME now, void * data, void * out );
 
 // netin
 UGEN_CTOR netin_ctor( t_CKTIME now );
@@ -63,6 +67,10 @@ UGEN_CTRL netin_ctrl_port( t_CKTIME now, void * data, void * value );
 UGEN_CGET netin_cget_port( t_CKTIME now, void * data, void * out );
 UGEN_CTRL netin_ctrl_name( t_CKTIME now, void * data, void * value );
 UGEN_CGET netin_cget_name( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netin_ctrl_seqnum( t_CKTIME now, void * data, void * value );
+UGEN_CGET netin_cget_seqnum( t_CKTIME now, void * data, void * out );
+UGEN_CTRL netin_ctrl_useseq( t_CKTIME now, void * data, void * value );
+UGEN_CGET netin_cget_useseq( t_CKTIME now, void * data, void * out );
 
 
 
