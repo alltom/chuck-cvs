@@ -24,7 +24,7 @@
 
 //-----------------------------------------------------------------------------
 // file: util_raw.cpp
-// desc: STK
+// desc: raw data from STK
 //
 // authors: Ge Wang (gewang@cs.princeton.edu)
 //          Perry R. Cook (prc@cs.princeton.edu)
