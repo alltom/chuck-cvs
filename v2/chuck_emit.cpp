@@ -1559,6 +1559,7 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
     }
 
     // TODO: check overloading of =>
+    // TODO: deal with const
 
     // no match
     EM_error2( lhs->linepos,
@@ -1645,6 +1646,7 @@ t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rh
     }
 
     // TODO: check overloading of =>
+    // TODO: deal with const
 
     // no match
     EM_error2( lhs->linepos,
@@ -1658,10 +1660,124 @@ t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rh
 
 
 //-----------------------------------------------------------------------------
-// name: 
+// name: emit_engine_emit_exp_unary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
+t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
+{
+    if( unary->op != ae_op_spork && !emit_engine_emit_exp( emit, unary->exp ) )
+        return FALSE;
+
+    // emit the operator
+    switch( unary->op )
+    {
+    case ae_op_plusplus:
+        // make sure assignment is legal
+        if( unary->self->s_meta != ae_meta_var )  // TODO: const
+        {
+            EM_error2( unary->self->linepos,
+                "(emit): target for '++' not mutable..." );
+            return FALSE;
+        }
+
+        // increment
+        if( unary->exp->type->id == te_int )
+            emit->append( new Chuck_Instr_Inc_int );
+        else
+        {
+            EM_error2( unary->linepos, 
+                "(emit): internal error: unhandled type '%s' for pre '++'' operator",
+                unary->exp->type->name );
+            return FALSE;
+        }
+        break;
+
+    case ae_op_minusminus:
+        // make sure assignment is legal
+        if( unary->self->s_meta != ae_meta_var )  // TODO: const
+        {
+            EM_error2( unary->self->linepos,
+                "(emit): target for '--' not mutable..." );
+            return FALSE;
+        }
+
+        // decrement
+        if( unary->exp->type->id == te_int )
+            emit->append( new Chuck_Instr_Dec_int );
+        else
+        {
+            EM_error2( unary->linepos, 
+                "(emit): internal error: unhandled type '%s' for pre '--' operator",
+                unary->exp->type->name );
+            return FALSE;
+        }
+        break;
+
+    case ae_op_tilda:
+        // complement
+        if( unary->exp->type->id == te_int )
+            emit->append( new Chuck_Instr_Complement_int );
+        else
+        {
+            EM_error2( unary->linepos, 
+                "(emit): internal error: unhandled type '%s' for '~' operator",
+                unary->exp->type->name );
+            return FALSE;
+        }
+        break;
+
+    case ae_op_exclamation:
+        // !
+        if( unary->exp->type->id == te_int )
+            emit->append( new Chuck_Instr_Not_int );
+        else
+        {
+            EM_error2( unary->linepos, 
+                "(emit): internal error: unhandled type '%s' for '!' operator",
+                unary->exp->type->name );
+            return FALSE;
+        }
+        break;
+        
+    case ae_op_minus:
+        // negate
+        if( unary->exp->type->id == te_int )
+            emit->append( new Chuck_Instr_Negate_int );
+        else if( unary->exp->type->id == te_float )
+            emit->append( new Chuck_Instr_Negate_double );
+        else
+        {
+            EM_error2( unary->linepos, 
+                "(emit): internal error: unhandled type '%s' for unary '-' operator",
+                unary->exp->type->name );
+            return FALSE;
+        }
+        break;
+
+    case ae_op_spork:
+        // spork ~ func()
+        if( unary->exp->s_type == ae_exp_func_call )
+        {
+            if( !emit_engine_emit_spork( emit, &unary->exp->func_call ) )
+                return FALSE;
+        }
+        else
+        {
+            EM_error2( unary->linepos,
+                "(emit): internal error: sporking non-function call..." );
+            return FALSE;
+        }
+        break;
+
+    default:
+        EM_error2( unary->linepos, 
+            "(emit): internal error: unhandled unary op '%s",
+            op2str( unary->op ) );
+        return FALSE;
+    }
+    
+    return TRUE;
+}
 
 
 
