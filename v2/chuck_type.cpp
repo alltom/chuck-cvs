@@ -1396,6 +1396,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     Chuck_Type * type = env->curr->lookup_type( t_base->name, FALSE );
     env->stack.push_back( env->curr );
     env->curr = type->info;
+
     if( !env->curr )
     {
         // can't find class
