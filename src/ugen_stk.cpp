@@ -17295,98 +17295,98 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
         // monophonic stream of 16-bit signed integers in big-endian byte
         // order with a sample rate of 22050 Hz.
         fileSize = bufferSize;
-	    dataOffset = 0;
+        dataOffset = 0;
         rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
-	    fileRate = 22050.0;
-	    interpolate = true;
+        fileRate = 22050.0;
+        interpolate = true;
         chunking = false;
-	    dataType = STK_SINT16;
-	    byteswap = false;
+        dataType = STK_SINT16;
+        byteswap = false;
 
         // which
         if( strstr(fileName, "special:sinewave") )
         {
-	        for (unsigned int j=0; j<bufferSize; j++)
-		        data[j] = (SHRT_MAX) * sin(2*PI*j/256);
+            for (unsigned int j=0; j<bufferSize; j++)
+                data[j] = (SHRT_MAX) * sin(2*PI*j/256);
         }
         else
         {
             SAMPLE * rawdata = NULL;
             int rawsize = 0;
 
-            if( strstr(fileName, "special:aah") ) { 
+            if( strstr(fileName, "special:aah") ) {
                 rawsize = ahh_size; rawdata = ahh_data;
             }
-            else if( strstr(fileName, "special:britestk") ) { 
+            else if( strstr(fileName, "special:britestk") ) {
                 rawsize = britestk_size; rawdata = britestk_data;
             }
-            else if( strstr(fileName, "special:dope") ) { 
+            else if( strstr(fileName, "special:dope") ) {
                 rawsize = dope_size; rawdata = dope_data;
             }
-            else if( strstr(fileName, "special:eee") ) { 
+            else if( strstr(fileName, "special:eee") ) {
                 rawsize = eee_size; rawdata = eee_data;
             }
-            else if( strstr(fileName, "special:fwavblnk") ) { 
+            else if( strstr(fileName, "special:fwavblnk") ) {
                 rawsize = fwavblnk_size; rawdata = fwavblnk_data;
             }
-            else if( strstr(fileName, "special:halfwave") ) { 
+            else if( strstr(fileName, "special:halfwave") ) {
                 rawsize = halfwave_size; rawdata = halfwave_data;
             }
-            else if( strstr(fileName, "special:impuls10") ) { 
+            else if( strstr(fileName, "special:impuls10") ) {
                 rawsize = impuls10_size; rawdata = impuls10_data;
             }
-            else if( strstr(fileName, "special:impuls20") ) { 
+            else if( strstr(fileName, "special:impuls20") ) {
                 rawsize = impuls20_size; rawdata = impuls20_data;
             }
-            else if( strstr(fileName, "special:impuls40") ) { 
+            else if( strstr(fileName, "special:impuls40") ) {
                 rawsize = impuls40_size; rawdata = impuls40_data;
             }
-            else if( strstr(fileName, "special:mand1") ) { 
+            else if( strstr(fileName, "special:mand1") ) {
                 rawsize = mand1_size; rawdata = mand1_data;
             }
-            else if( strstr(fileName, "special:mandpluk") ) { 
+            else if( strstr(fileName, "special:mandpluk") ) {
                 rawsize = mandpluk_size; rawdata = mandpluk_data;
             }
-            else if( strstr(fileName, "special:marmstk1") ) { 
+            else if( strstr(fileName, "special:marmstk1") ) {
                 rawsize = marmstk1_size; rawdata = marmstk1_data;
-	        }
-	        else if( strstr(fileName, "special:ooo") ) { 
-	            rawsize = ooo_size; rawdata = ooo_data;
-	        }
-            else if( strstr(fileName, "special:peksblnk") ) { 
+            }
+            else if( strstr(fileName, "special:ooo") ) {
+                rawsize = ooo_size; rawdata = ooo_data;
+            }
+            else if( strstr(fileName, "special:peksblnk") ) {
                 rawsize = peksblnk_size; rawdata = peksblnk_data;
             }
-            else if( strstr(fileName, "special:ppksblnk") ) { 
+            else if( strstr(fileName, "special:ppksblnk") ) {
                 rawsize = ppksblnk_size; rawdata = ppksblnk_data;
             }
-            else if( strstr(fileName, "special:silence") ) { 
+            else if( strstr(fileName, "special:silence") ) {
                 rawsize = silence_size; rawdata = silence_data;
             }
-            else if( strstr(fileName, "special:sineblnk") ) { 
+            else if( strstr(fileName, "special:sineblnk") ) {
                 rawsize = sineblnk_size; rawdata = sineblnk_data;
             }
-            else if( strstr(fileName, "special:sinewave") ) { 
+            else if( strstr(fileName, "special:sinewave") ) {
                 rawsize = sinewave_size; rawdata = sinewave_data;
             }
-            else if( strstr(fileName, "special:snglpeak") ) { 
+            else if( strstr(fileName, "special:snglpeak") ) {
                 rawsize = snglpeak_size; rawdata = snglpeak_data;
             }
-            else if( strstr(fileName, "special:twopeaks") ) { 
+            else if( strstr(fileName, "special:twopeaks") ) {
                 rawsize = twopeaks_size; rawdata = twopeaks_data;
             }
-	  
-            if ( rawdata ) {  
+
+            if ( rawdata ) {
                 if ( data ) delete [] data;
                 data = (MY_FLOAT *) new MY_FLOAT[rawsize+1];
                 bufferSize = rawsize;
-	            fileSize = bufferSize;
-	            for ( int j=0; j < rawsize; j++ ) {
-	                data[j] = (MY_FLOAT)(SHRT_MAX) * rawdata[j];
-	            }
-	        }
+                fileSize = bufferSize;
+                for ( int j=0; j < rawsize; j++ ) {
+                    data[j] = (MY_FLOAT)(SHRT_MAX) * rawdata[j];
+                }
+            }
             else
                 goto error;
-	    }
+        }
         data[bufferSize] = data[0];
     }
     else readData( 0 );  // Load file data.
