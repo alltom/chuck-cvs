@@ -716,7 +716,8 @@ int send_cmd( int argc, char ** argv, int  & i )
 
         if( !send_connect() ) return 0;
         msg.type = MSG_REPLACE;
-        send_file( argv[i], msg, "replace" );
+        if( !send_file( argv[i], msg, "replace" ) )
+            goto error;
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
     {
