@@ -281,6 +281,11 @@ struct Chuck_Type : public Chuck_VM_Object
     Chuck_Func * func;
 
 public:
+    // constructor
+    Chuck_Type( te_Type _id = te_null, const string & _n = "", Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
+    { id = _id; name = _n; parent = _p; size = _s; owner = NULL; array_depth = 0;
+      self_size = 0; info = NULL; func = NULL; }
+    // destructor
     ~Chuck_Type() { if( info ) delete info; reset(); }
     // reset
     void reset()
@@ -299,7 +304,7 @@ public:
 // name: struct Chuck_Value
 // desc: a variable in scope
 //-----------------------------------------------------------------------------
-struct Chuck_Value
+struct Chuck_Value : public Chuck_VM_Object
 {
     // type
     Chuck_Type * type;

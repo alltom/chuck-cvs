@@ -45,20 +45,20 @@
 //-----------------------------------------------------------------------------
 // default types
 //-----------------------------------------------------------------------------
-Chuck_Type t_void = { te_void, "void", NULL, 0 };
-Chuck_Type t_int = { te_int, "int", NULL, sizeof(t_CKINT) };
-Chuck_Type t_float = { te_float, "float", NULL, sizeof(t_CKFLOAT) };
-Chuck_Type t_time = { te_time, "time", NULL, sizeof(t_CKTIME) };
-Chuck_Type t_dur = { te_dur, "dur", NULL, sizeof(t_CKTIME) };
-Chuck_Type t_object = { te_object, "object", NULL, sizeof(void *) };
-Chuck_Type t_null = { te_null, "@null", NULL, 0 };
-Chuck_Type t_string = { te_string, "string", &t_object, sizeof(void *) };
-Chuck_Type t_shred = { te_shred, "shred", &t_object, sizeof(void *) };
-Chuck_Type t_thread = { te_thread, "thread", &t_object, sizeof(void *) };
-Chuck_Type t_function = { te_function, "function", &t_object, sizeof(void *) };
-Chuck_Type t_class = { te_class, "class", &t_object, sizeof(void *) };
-Chuck_Type t_event = { te_event, "event", &t_object, sizeof(void *) };
-Chuck_Type t_ugen = { te_ugen, "ugen", &t_object, sizeof(void *) };
+Chuck_Type t_void( te_void, "void", NULL, 0 );
+Chuck_Type t_int( te_int, "int", NULL, sizeof(t_CKINT) );
+Chuck_Type t_float( te_float, "float", NULL, sizeof(t_CKFLOAT) );
+Chuck_Type t_time( te_time, "time", NULL, sizeof(t_CKTIME) );
+Chuck_Type t_dur( te_dur, "dur", NULL, sizeof(t_CKTIME) );
+Chuck_Type t_object( te_object, "object", NULL, sizeof(void *) );
+Chuck_Type t_null( te_null, "@null", NULL, 0 );
+Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
+Chuck_Type t_shred( te_shred, "shred", &t_object, sizeof(void *) );
+Chuck_Type t_thread( te_thread, "thread", &t_object, sizeof(void *) );
+Chuck_Type t_function( te_function, "function", &t_object, sizeof(void *) );
+Chuck_Type t_class( te_class, "class", &t_object, sizeof(void *) );
+Chuck_Type t_event( te_event, "event", &t_object, sizeof(void *) );
+Chuck_Type t_ugen( te_ugen, "ugen", &t_object, sizeof(void *) );
 
 /* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
