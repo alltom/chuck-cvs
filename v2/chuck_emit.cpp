@@ -176,8 +176,9 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
 
         // converted to virtual machine code
         emit->context->nspc.code = emit_to_code( emit );
-    }  
+    }
 
+    // return the code
     return emit->context->nspc.code;
 }
 
