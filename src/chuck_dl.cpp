@@ -23,7 +23,7 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// name: chuck_dl.c
+// name: chuck_dl.cpp
 // desc: chuck dynamic linking
 //
 // authors: Ge Wang (gewang@cs.princeton.edu)
@@ -33,6 +33,7 @@
 // date: spring 2004
 //-----------------------------------------------------------------------------
 #include "chuck_dl.h"
+#include "chuck_bbq.h"
 
 
 
@@ -270,7 +271,22 @@ const char * Chuck_DLL::last_error() const
 
 
 
-    
+
+//-----------------------------------------------------------------------------
+// name: Chuck_DL_Query
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_DL_Query::Chuck_DL_Query()
+{ add_export = __ck_addexport; add_param = __ck_addparam;
+  ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func;
+  ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
+  dll_name = "[noname]"; reserved = NULL;
+  srate = Digitalio::sampling_rate(); bufsize = Digitalio::buffer_size();
+  linepos = 0; }
+
+
+
+
 // add proto
 extern "C" void CK_DLL_CALL __ck_addexport( Chuck_DL_Query * query, 
            const char * type, const char * name, f_ck_func addr,

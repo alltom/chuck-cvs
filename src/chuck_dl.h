@@ -38,7 +38,6 @@
 #include "chuck_def.h"
 #include "chuck_oo.h"
 #include "chuck_ugen.h"
-#include "chuck_bbq.h"
 #include <stdlib.h>
 #include <memory.h>
 #include <string>
@@ -211,13 +210,7 @@ public: // these should not be used directly by the DLL
     int linepos;
     
     // constructor
-    Chuck_DL_Query()
-    { add_export = __ck_addexport; add_param = __ck_addparam;
-      ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func; 
-      ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
-      dll_name = "[noname]"; reserved = NULL;
-      srate = Digitalio::sampling_rate(); bufsize = Digitalio::buffer_size();
-      linepos = 0; }
+    Chuck_DL_Query();
     
     // clear the query
     void clear() { dll_exports.clear(); ugen_exports.clear(); }
