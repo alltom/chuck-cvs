@@ -147,7 +147,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     // copy input to local buffer
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
-    if( m_go < start && m_go > 4 && m_out_ready ) m_go = start;
+    if( m_go < start && m_go > 5 && m_out_ready ) m_go = start;
     // copy output into local buffer
     if( m_go >= start )
     {
@@ -160,7 +160,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     else  // initial condition
     {
 #ifdef __MACOSX_CORE__
-        if( !m_go ) Chuck_VM::set_priority( 80, NULL );
+        if( !m_go ) Chuck_VM::set_priority( 85, NULL );
 #endif
         memset( buffer, 0, len );
         m_go++;
