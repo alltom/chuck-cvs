@@ -38,7 +38,6 @@
 #include <string>
 #include <vector>
 #include <map>
-using namespace std;
 
 
 // forward reference
@@ -67,13 +66,13 @@ typedef t_CKBOOL (* f_pmsg)( t_CKTIME now, void * data, const char * msg, void *
 //-----------------------------------------------------------------------------
 struct Chuck_Info_Param
 {
-    string type;  // see above
-    string name;  // name of param
+    std::string type;  // see above
+    std::string name;  // name of param
     f_ctrl ctrl_addr;  // set addr
     f_cget cget_addr;  // get addr
 
     // constructor
-    Chuck_Info_Param( const string & t = "", const string & n = "",
+    Chuck_Info_Param( const std::string & t = "", const std::string & n = "",
                       f_ctrl a = NULL, f_cget g = NULL )
     { type = t; name = n; ctrl_addr = a; cget_addr = g; }
     
@@ -92,16 +91,16 @@ struct Chuck_Info_Param
 struct Chuck_UGen_Info
 {
     // info
-    string name;
-    vector<Chuck_Info_Param> param_list;
-    map<string, Chuck_Info_Param> param_map;
+    std::string name;
+    std::vector<Chuck_Info_Param> param_list;
+    std::map<std::string, Chuck_Info_Param> param_map;
     f_ctor ctor;
     f_dtor dtor;
     f_tick tick;
     f_pmsg pmsg;
     
     // optional
-    string parent;
+    std::string parent;
     t_CKUINT min_src;
     t_CKUINT max_src;
     int linepos;
@@ -111,12 +110,12 @@ struct Chuck_UGen_Info
     { ctor = c; dtor = d; tick = t; pmsg = p; }
     
     // add
-    void add( f_ctrl c, f_cget g, const string & t, const string & n )
+    void add( f_ctrl c, f_cget g, const std::string & t, const std::string & n )
     { param_list.push_back( Chuck_Info_Param( t, n, c, g ) );
       param_map[n] = param_list[param_list.size()-1]; }
 
     // contructor
-    Chuck_UGen_Info( const string & n, t_CKUINT min = 0, t_CKUINT max = 0xffffffff )
+    Chuck_UGen_Info( const std::string & n, t_CKUINT min = 0, t_CKUINT max = 0xffffffff )
     {
         name = n;
         parent = "";
@@ -166,8 +165,8 @@ public: // interface
     f_pmsg pmsg;
 
 public: // data
-    vector<Chuck_UGen *> m_src_list;
-    vector<Chuck_UGen *> m_dest_list;
+    std::vector<Chuck_UGen *> m_src_list;
+    std::vector<Chuck_UGen *> m_dest_list;
     t_CKUINT m_num_src;
     t_CKUINT m_num_dest;
     t_CKUINT m_max_src;

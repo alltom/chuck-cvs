@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include "chuck_ugen.h"
 #include "chuck_vm.h"
+using namespace std;
 
 
 

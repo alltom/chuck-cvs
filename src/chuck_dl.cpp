@@ -36,6 +36,7 @@
 #ifndef __CKDL_NO_BBQ__
 #include "chuck_bbq.h"
 #endif
+using namespace std;
 
 
 

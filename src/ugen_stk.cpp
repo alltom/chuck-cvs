@@ -60,7 +60,7 @@
 // following user-definable floating-point type.  You
 // can change this to "float" if you prefer or perhaps
 // a "long double" in the future.
-typedef double MY_FLOAT;
+typedef SAMPLE MY_FLOAT;
 
 // The "MY_FLOAT" type will be deprecated in STK
 // versions higher than 4.1.2 and replaced with the variable
@@ -211,7 +211,7 @@ typedef double FLOAT64;
 #endif
 
 #define PI (MY_FLOAT) 3.14159265359
-#define TWO_PI (MY_FLOAT) (MY_FLOAT) (2 * PI)
+#define TWO_PI (MY_FLOAT) (2 * PI)
 
 #define ONE_OVER_128 (MY_FLOAT) 0.0078125
 
@@ -11006,7 +11006,7 @@ void ModalBar :: setStickHardness(MY_FLOAT hardness)
     stickHardness = 1.0;
   }
 
-  wave->setRate( (0.25 * (MY_FLOAT) pow(4.0, stickHardness)) );
+  wave->setRate( (0.25 * (MY_FLOAT)pow(4.0, stickHardness)) );
   masterGain = 0.1 + (1.8 * stickHardness);
 }
 

@@ -43,7 +43,6 @@
 #include <string>
 #include <vector>
 #include <map>
-using namespace std;
 
 
 // chuck dll export linkage and calling convention
@@ -163,10 +162,10 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 struct Chuck_DL_Proto
 {
 public: // these should not be used directly by the DLL
-    string name;       // name of the thing
-    string type;       // (return) type
+    std::string name;       // name of the thing
+    std::string type;       // (return) type
     t_CKBOOL is_func;  // is a func?
-    vector<Chuck_Info_Param> params;  // see Chuck_Info_Param in chuck_ugen.h
+    std::vector<Chuck_Info_Param> params;  // see Chuck_Info_Param in chuck_ugen.h
     f_ck_func addr;    // addr in the DLL
 
     // constructor
@@ -205,8 +204,8 @@ public: // call these from the DLL
     t_CKUINT bufsize;           // buffer size
 
 public: // these should not be used directly by the DLL
-    vector<Chuck_DL_Proto> dll_exports;
-    vector<Chuck_UGen_Info> ugen_exports;
+    std::vector<Chuck_DL_Proto> dll_exports;
+    std::vector<Chuck_UGen_Info> ugen_exports;
     int linepos;
     
     // constructor
@@ -265,16 +264,16 @@ public:
 
 protected:
     void * m_handle;
-    string m_last_error;
-    string m_filename;
-    string m_id;
-    string m_func;
+    std::string m_last_error;
+    std::string m_filename;
+    std::string m_id;
+    std::string m_func;
     t_CKBOOL m_done_query;
     
     f_ck_query m_query_func;
     Chuck_DL_Query m_query;
-    map<string, Chuck_DL_Proto *> m_name2proto;
-    map<string, Chuck_UGen_Info *> m_name2ugen;
+    std::map<std::string, Chuck_DL_Proto *> m_name2proto;
+    std::map<std::string, Chuck_UGen_Info *> m_name2ugen;
 };
 
 
