@@ -373,7 +373,6 @@ function void thedrawloop() {
 
 		gl.Flush();
 		gluck.SwapBuffers();
-
 }
 
 function void ricochet( float loud, float mfreq) { 
