@@ -1094,10 +1094,16 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
 t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs )
 {
     // get the types of the left and right
-    te_Type left = lhs->type->id;
-    te_Type right = rhs->type->id;
+    Chuck_Type * t_left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * t_right = rhs->cast_to ? rhs->cast_to : rhs->type;
 
-    // operator
+    te_Type left = t_left->id;
+    te_Type right = t_right->id;
+
+    // any implicit cast happens before this
+    assert( isa( t_left, t_right ) );
+    
+    // emit op
     switch( op )
     {    
     // ----------------------------- num --------------------------------------
@@ -1526,20 +1532,29 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
     }
     
     // more...
-    if( left->id == te_int )
+    if( left == te_int )
     {
         switch( op )
         {
-        case ae_op_add_chuck:
-        case ae_op_minus_chuck:
-        case ae_op_times_chuck:
-        case ae_op_divide_chuck:
-        case ae_op_s_or_chuck:
-        case ae_op_s_and_chuck:
-        case ae_op_shift_left_chuck:
-        case ae_op_shift_right_chuck:
-        case ae_op_xor_chuck:
+        case ae_op_plus_chuck: case ae_op_minus_chuck: 
+        case ae_op_times_chuck: case ae_op_divide_chuck:
+        case ae_op_s_or_chuck: case ae_op_s_and_chuck: case ae_op_shift_left_chuck:
+        case ae_op_shift_right_chuck: case ae_op_percent_chuck: case ae_op_s_xor_chuck:
+            // emit assignment
+            emit->append( new Chuck_Instr_Assign_Primitive );
+            break;
+        }
+    }
+    else if( left == te_float )
+    {
+        switch( op )
+        {
+        case ae_op_plus_chuck: case ae_op_minus_chuck:
+        case ae_op_times_chuck: case ae_op_divide_chuck:
         case ae_op_percent_chuck:
+            // emit assignment
+            emit->append( new Chuck_Instr_Assign_Primitive2 );
+            break;
         }
     }
         
