@@ -598,14 +598,12 @@ t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt )
 {
     // push
     env->context->nspc.value.push();
-    env->scope.push();
     
     // do it
     t_CKBOOL t = type_engine_check_stmt_list( env, stmt->stmt_list );
     
     // pop
     env->context->nspc.value.pop();
-    env->scope.pop();
     
     return t;
 }
@@ -1003,7 +1001,7 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
     {
         // variable
         case ae_primary_var:
-            t = env->curr->lookup_type( S_name(exp->var), env->dots == 0 );
+            t = env->curr->lookup_value( S_name(exp->var), env->dots == 0 );
             if( !t )
             {
                 // error
@@ -1242,12 +1240,33 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     
     t_CKTYPE t = NULL, t2 = NULL;
     
+    // look up the type
+    t = env->curr->lookup_type( S_name(decl->type), TRUE );
+    if( !t )
+    {
+        EM_error2( decl->linepos,
+            "(type-checker): undefined type '%s'...",
+            S_name(decl->type) );
+        return NULL;
+    }
+    
     // check if array
     if( var_decl->isarray )
     {
     }
     else
     {
+        // check if locally defined
+        if( env->context->nspc.value.lookup( S_name(var_decl->id), TRUE ) )
+        {
+            EM_error2( decl->linepos,
+                "(type-checker): '%s' has already been defined in the same scope...",
+                S_name(var_decl->id) );
+            return NULL;
+        }
+        
+        // enter into value binding
+        
     }
     
     return NULL;

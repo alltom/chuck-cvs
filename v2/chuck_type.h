@@ -205,19 +205,16 @@ struct Chuck_Env
 	// current location
 	ce_scope where;
 	
+	// current contexts in memory
+	vector<Chuck_Context *> contexts;
+    // current context
+    Chuck_Context * context;
 
-    // scope table
-    Chuck_Scope<t_CKUINT> scope;
     // control scope (for break, continue)
     vector<a_Stmt> loops;
     vector<a_Stmt> swich;
     // current function definition
     Chuck_Func * func;
-
-	// current contexts in memory
-	vector<Chuck_Context *> contexts;
-    // current context
-    Chuck_Context * context;
 
 	// VM reference
 	Chuck_VM * vm;
@@ -234,7 +231,7 @@ struct Chuck_Env
 	void reset( )
 	{ stack.clear(); stack.push_back( &global ); 
       curr = &global; context = NULL; func = NULL; 
-      scope.reset(); dots = 0; where = ce_global; }
+      dots = 0; where = ce_global; }
 
 	// top
 	Chuck_Namespace * top( )
