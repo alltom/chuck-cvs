@@ -237,6 +237,7 @@ struct a_Exp_
     ae_Exp_Meta s_meta;
     t_CKTYPE type;
     a_Exp next;
+    t_CKUINT group_size;
     
     union
     {
