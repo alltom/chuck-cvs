@@ -34,6 +34,22 @@
 #ifndef __CHUCK_EMIT_H__
 #define __CHUCK_EMIT_H__
 
+#include "chuck_def.h"
+#include "chuck_type.h"
+
+
+
+struct Chuck_Emmission;
+class Chuck_VM_Code;
+class Chuck_VM_Shred;
+
+Chuck_Emmission * emit_engine_init( t_Env env );
+t_CKBOOL emit_engine_shutdown( Chuck_Emmission *& emit );
+t_CKBOOL emit_engine_emit_prog( Chuck_Emmission * emit, a_Program prog );
+Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump_funcs = FALSE );
+t_CKBOOL emit_engine_addr_map( Chuck_Emmission * emit, Chuck_VM_Shred * shred );
+t_CKBOOL emit_engine_resolve( );
+
 
 
 
