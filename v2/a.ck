@@ -25,7 +25,7 @@ class Foo
 }
 
 
-class Bar extends Foo
+class Bar extends Fooa
 {
     int c;
 }
