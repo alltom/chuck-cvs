@@ -53,17 +53,9 @@ using namespace std;
 typedef enum {
     // general types
     te_int, te_uint, te_single, te_float, te_double, te_time, te_dur,
-    te_string, te_thread, te_shred, te_array, te_function, te_object,
-    te_ugen, te_null, te_event, te_tuple, te_midiin, te_midiout,
-    te_adc, te_dac, te_bunghole,
-
-    // system types (internal - cannot instantiate directly)
-    te_void,              // no type
-    te_system_out,        // stdout
-    te_system_err,        // stderr
-    te_system_namespace,  // namespace
-    te_system_class,      // class
-    te_system_user        // user-defined type
+    te_string, te_thread, te_shred, te_class, te_function, te_object,
+    te_ugen, te_event, te_void, te_stdout, te_stderr, te_user,
+	te_adc, te_dac, te_bunghole, te_midiin, te_midiout
 } te_Type;
 
 
@@ -120,8 +112,9 @@ struct Chuck_Type;
 struct Chuck_Value;
 struct Chuck_Func;
 struct Chuck_DLL;
-class  Chuck_VM;
-class  Chuck_VM_Code;
+typedef struct Chuck_Type * t_CKTYPE;
+class Chuck_VM;
+class Chuck_VM_Code;
 
 
 //-----------------------------------------------------------------------------
@@ -200,6 +193,8 @@ struct Chuck_Env
     Chuck_Scope<t_CKUINT> scope;
 	// VM reference
 	Chuck_VM * vm;
+	// chuck dlls in memory
+	map<Chuck_DLL *, t_CKUINT> dlls;
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
 
@@ -235,13 +230,13 @@ struct Chuck_Type
     Chuck_Type * parent;
     // size (in bytes)
     t_CKUINT size;
-    // self size (not including inherited data)
+    // self size (size in memory)
     t_CKUINT self_size;
     // array size (equals 0 means not array, else dimension of array)
     t_CKUINT array_depth;
     // type environment
     Chuck_Namespace * nspc;
-    
+
 public:
     // copy
     Chuck_Type * copy()
@@ -291,7 +286,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
 // type check a statement
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
 // type check an expression
-Chuck_Type * type_engine_check_exp( Chuck_Env * env, a_Exp exp );
+t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
 // add an chuck dll into the env
 t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & nspc );
 
