@@ -11,6 +11,8 @@
 0 => uint ml;
 now => time tstart;
 0.0 => float dtime;
+0 => int dmode;
+
 fun void gluckDraw() {
 	0.0 => float f;
 	1.0 / hz => float tspan;
@@ -18,18 +20,29 @@ fun void gluckDraw() {
 	gl.Clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 	gl.LineWidth(1.0);
 	gl.Color4f ( 0.5, 1.0, 0.5, 0.8 );
-	gl.Begin(gl.QUAD_STRIP);
+	
+	if		( dmode == 0 ) { gl.Begin(gl.QUAD_STRIP); } 
+	else if ( dmode == 1 ) { 
+		gl.Begin(gl.LINE_STRIP); 
+		gl.Normal3f ( 0.0, 0.0 , 0.0 );
+	}
+	else if ( dmode == 2 ) { gl.Begin(gl.LINES); }
+	 
 	for ( 0.0 => f; f <= refresh; f+res => f ) { 
 		( now - tstart ) / 1::second => dtime;
 		math.fmod ( dtime, tspan ) => scanx;
 		dac.last => float smp;
 		if ( scanx < wscanx ) {
 			gl.End();
-			gl.Begin(gl.QUAD_STRIP);
+			if		( dmode == 0 ) { gl.Begin(gl.QUAD_STRIP); } 
+			else if ( dmode == 1 ) { gl.Begin(gl.LINE_STRIP); } 
+			else if ( dmode == 2 ) { gl.Begin(gl.LINES); } 
 		} 
-		gl.Normal3f ( 0.0, 0.0, 1.0 );
-		gl.Vertex2f ( scanx / tspan, smp * 0.5 );
-		gl.Normal3f ( 0.0, -smp * 0.2, smp );
+		if ( dmode == 0 || dmode == 2 ) { 
+			gl.Normal3f ( 0.0, 0.0, 1.0 );
+			gl.Vertex2f ( scanx / tspan, 0.0 );
+			gl.Normal3f ( 0.0, -smp * 0.2, smp );
+		}
 		gl.Vertex2f ( scanx / tspan, smp );
 		scanx => wscanx;
 		1::second * res => now;
@@ -55,6 +68,9 @@ fun void keycode(uint key) {
 	if ( key == gluck.KEY_k ) { hz - 0.01 => hz; }
 	if ( key == gluck.KEY_o ) { hz + 0.001 => hz; }
 	if ( key == gluck.KEY_l ) { hz - 0.001 => hz; }
+	if ( key == gluck.KEY_c ) { 0 => dmode ; }
+	if ( key == gluck.KEY_v ) { 1 => dmode ; }
+	if ( key == gluck.KEY_b ) { 2 => dmode ; }
 	math.max ( 1.0, hz ) => hz;
 }
 

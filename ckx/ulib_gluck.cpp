@@ -41,6 +41,7 @@
 #else
 #ifdef WIN32
 #include <windows.h>
+#define FREEGLUT_STATIC
 #endif
 #include <GL/gl.h>
 #include <GL/glu.h>
