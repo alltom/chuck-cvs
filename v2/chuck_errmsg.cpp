@@ -128,8 +128,8 @@ void EM_error3( char * message, ... )
 {
     va_list ap;
     
-    sprintf( g_lasterror, "" );
-    sprintf( g_buffer, "" );
+    g_lasterror[0] = '\0';
+    g_buffer[0] = '\0';
 
     va_start( ap, message );
     vfprintf( stderr, message, ap );
