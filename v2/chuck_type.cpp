@@ -94,11 +94,12 @@ t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont );
 t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt );
 t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt );
 t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
-t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
-t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, 
-                               t_CKTYPE left, t_CKTYPE right );
 t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
+t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs );
+t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
+t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
 t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
@@ -685,12 +686,140 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
 
 
 
-//------------------------------------------------------------------
-t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
-t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
-t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, 
-                               t_CKTYPE left, t_CKTYPE right );
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_binary()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
+{
+    a_Exp cl = binary->lhs, cr = binary->rhs;
+    t_CKTYPE ret = NULL;
+
+    // type check the lhs and rhs
+    t_CKTYPE left = type_engine_check_exp( env, cl );
+    t_CKTYPE right = type_engine_check_exp( env, cr);
+    
+    // if either fails, then return NULL
+    if( !left || !right )
+        return NULL;
+
+    // cross chuck
+    while( cr )
+    {
+        // type check the pair
+        ret = type_engine_check_op( env, binary->op, cl, cr );
+        if( !ret )
+        {
+            EM_error2( binary->linepos, 
+                "no suitable resolution for binary operator '%s' on types '%s' and '%s'",
+                op2str(binary->op), cl->type->name.c_str(), cr->type->name.c_str() );
+                
+            return NULL;
+        }
+
+        cr = cr->next;
+    }
+        
+    return ret;
+}
+
+
+// helper macros
+#define LR( L, R )      if( (left->id == L) && (right->id == R) )
+#define COMMUTE( L, R ) if( ( (left->id == L) && (right->id == R) ) || \
+                            ( (left->id == R) && (right->id == L) ) )
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_op()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs )
+{
+    t_CKTYPE left = lhs->type, right = rhs->type;
+    assert( left && right );
+
+    // based on the op
+    switch( op )
+    {
+    case ae_op_chuck:
+        return type_engine_check_op_chuck( env, lhs, rhs );
+    
+    case ae_op_unchuck:
+        return type_engine_check_op_unchuck( env, lhs, rhs );
+    
+    case ae_op_plus_chuck:
+    case ae_op_plus:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
+        LR( te_dur, te_dur ) return &t_dur;
+        COMMUTE( te_dur, te_time ) return &t_time;
+    break;
+    
+    case ae_op_minus_chuck:
+    case ae_op_minus:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
+        LR( te_dur, te_dur ) return &t_dur;
+        LR( te_time, te_dur ) return &t_time;
+        LR( te_time, te_time ) return &t_dur;
+    break;
+    
+    case ae_op_times_chuck:
+    case ae_op_times:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
+        COMMUTE( te_float, te_dur ) return &t_dur;
+    break;
+    
+    case ae_op_divide_chuck:
+    case ae_op_divide:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_float;
+        LR( te_dur, te_dur ) return &t_float;
+        LR( te_dur, te_float ) return &t_dur;
+    break;
+    
+    case ae_op_lt:
+    case ae_op_gt:
+    case ae_op_le:
+    case ae_op_ge:
+    case ae_op_eq:
+    case ae_op_neq:
+        LR( te_int, te_int ) return &t_int;
+        LR( te_float, te_float ) return &t_int;
+        LR( te_dur, te_dur ) return &t_int;
+        LR( te_time, te_time ) return &t_int;
+    break;
+    
+    case ae_op_s_and_chuck:
+    case ae_op_s_or_chuck:
+    case ae_op_s_xor_chuck:
+    case ae_op_shift_right_chuck:
+    case ae_op_shift_left_chuck:
+    case ae_op_percent_chuck:
+    case ae_op_and:
+    case ae_op_or:
+    case ae_op_s_xor:
+    case ae_op_s_and:
+    case ae_op_s_or:
+    case ae_op_shift_left:
+    case ae_op_shift_right:
+    case ae_op_percent:
+        LR( te_int, te_int ) return &t_int;
+    break;
+
+    // TODO: implement this
+    case ae_op_at_chuck:
+    break;
+    }
+
+    return NULL;
+}
+
+t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
+t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
 t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
