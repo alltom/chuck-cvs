@@ -749,7 +749,7 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
     while( cr )
     {
         // type check the pair
-        if( !type_engine_check_op( env, binary->op, cl, cr ) )
+        if( !(ret = type_engine_check_op( env, binary->op, cl, cr )) )
             return NULL;
 
         cr = cr->next;
@@ -1529,8 +1529,6 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
 
     // allocate new type
     t_class = new Chuck_Type;
-    // init as vm object
-    // t_class->init();
     // set the fields
     t_class->id = te_user;
     t_class->name = S_name(class_def->name->id);
@@ -1555,11 +1553,11 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         switch( body->section->s_type )
         {
         case ae_section_stmt:
-            type_engine_check_stmt_list( env, body->section->stmt_list );
+            ret = type_engine_check_stmt_list( env, body->section->stmt_list );
             break;
         
         case ae_section_func:
-            type_engine_check_func_def( env, body->section->func_def );
+            ret = type_engine_check_func_def( env, body->section->func_def );
             break;
         
         case ae_section_class:
