@@ -4,6 +4,8 @@
   - now able to write audio files (wav, aiff, raw)
     (try rec.ck and rec2.ck concurrently with any other shreds
      to record to disk)
+  - STK file endian is now observed (more things should work
+    on little endian systems)
   - added 4 "special" built-in sound samples
     "special:glot_pop" - glottal pulse (flat)
     "special:glot_ahh" - glottal 'ahh' pop
@@ -18,8 +20,8 @@ new examples:
   - curly++.ck
   - rec.ck - run this concurrently to write audio to file
     (also try with -s flag for file out, no real-time audio)
-  - rec2.ck - same as rec, but writes to different file every time
-    for many sessions
+  - rec2.ck - same as rec, but writes to different file every time,
+    for sessions
 
 
 ---
