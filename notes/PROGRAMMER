@@ -2,7 +2,8 @@
 ChucK Programmers's Guide
 
 chuck home: http://chuck.cs.princeton.edu/
-current version of this document: http://chuck.cs.princeton.edu/doc/program/
+current version of this document: 
+http://chuck.cs.princeton.edu/doc/program/
 
 ---
 
@@ -10,490 +11,673 @@ related: the ChucK Tutorial | Developer's Guide | ChucK Home
 
 Introduction:
 
-If this is your first time programming ChucK, it might be useful to read the ChucK Tutorial 
+If this is your first time programming ChucK, it might be useful to read 
+the Ch$
 (QUICKSTART).
 
- ---
+---
 
 Overview:
 
-ChucK is a strongly-typed, 'strongly-timed', concurrent audio and multimedia programming language.  It is 
-compiled into virtual instructions, which is immediately run in the ChucK Virtual Machine.  This guide documents 
-the features of the Language, Compiler, and Virtual Machine for a ChucK programmer.  If you like to help develop 
+ChucK is a strongly-typed, 'strongly-timed', concurrent audio and 
+multimedia pr$
+compiled into virtual instructions, which is immediately run in the ChucK 
+Virtu$
+the features of the Language, Compiler, and Virtual Machine for a ChucK 
+program$
 ChucK (contribute to the project), visit the developer page (DEVELOPER).
 
 ---
 
-The ChucK Compiler + Virtual Machine
+The ChucK Compiler + Virtual Machine 
 
-Let's start with the compiler/virtual machine, both of which runs in the same process.  By now, you should have 
-built/installed ChucK (BUILD), and perhaps taken the tutorial (QUICKSTART).  This guide is intended to be more 
-complete and referential than the tutorial.
-
-(NOTE to OS X Users): we are experiencing occasional audio interruptions from the windowing system in OS X.  
-Until we find a better solution, you may want to run primary/listener VM's with 'nice' (you have to be root):
-
-     %> sudo nice -n -20 chuck [...]
-     password: (root/your password)
-
-This makes the audio much more solid...
+Let's start with the compiler/virtual machine, both of which runs 
+in the  same process.  By now, you should have built/installed 
+ChucK ( guide ), and perhaps taken the tutorial .  This guide is 
+intended to be more  complete and referential than the tutorial. 
 
 ---
 
-ChucK Compiler + Virtual Machine
+SYNAPOSIS (a man-esque page) 
 
-SYNAPOSIS
+usage :
 
-chuck [--(options|commands)] [+-=_] file1 file2 file3 ...
-
-[options] = halt | loop | audio | silent | dump | nodump | bufsize<N> | about
-[commands] = add | remove | replace | status | kill | time
-[+-=_] = shortcuts for (add, remove, replace, status)
-
-
-DESCRIPTION
-
-[source ChucK files]:
-ChucK can run 1 or more processes in parallel and interactively.  The programmer only needs to specify them all 
-on the command line, and they will be compiled and run in the VM.  Each input source file (.ck suffix by 
-convention) will be run as a separate 'shred' (user-level ChucK threads) in the VM.  They can 'spork' additional 
-shreds and interact with existing shreds.  Thanks to the ChucK timing mechanism, shreds don't necessarily need to 
-know about each other in order to be precisely 'shreduled' in time - they only need to keep track of they own 
-time, so to speak.
-
-Addtionally, more shreds can be added/removed/replaced manually at run-time, using on-the-fly programming [Wang 
-and Cook 2004] - (see below and http://on-the-fly.cs.princeton.edu/).
-
-[options]:
-
---halt / -h
-        (on by default) - tells the vm to halt and exit if there are no more shreds in the VM.
-
---loop / -l
-        tells the ChucK VM to continue executing even if there no shreds currently in the VM.
-        This is useful because shreds can be added later on-the-fly.  Furthermore, it is 
-        legal to specify this option without any input files.  For example:
-
-        > chuck --loop
-
-        the above will 'infinite time-loop' the VM, waiting for incoming shreds.
-
---audio / -a
-        (on by default) - enable real-time audio output
-
---silent / -s
-        disable real-time audio output - computations in the VM is not changed, except that
-        the actual timing is no longer clocked by the real-time audio engine.  Timing 
-        manipulations (such as operations on 'now') still function fully.  This is useful
-        for synthesizing audio to disk or network.  Also, it is handy for running a non-audio
-        program.
-
---dump / +d
-        dump the virtual instructions emitted to stderr, for all the files after this flag
-        on the command line, until a 'nodump' is encountered (see below).  For example:
-
-        > chuck foo.ck +d bar.ck
-
-        will dump the virtual ChucK instructions for bar.ck (only), with argument values,
-        to stderr.  --dump can be used in conjunction with --nodump to selectively dump files.
-
---nodump / -d
-        (default state) cease the dumping of virtual instructions for files that comes after
-        this flag on the command line, until a 'dump' is encountered (see above).  For 
-        example:
-        
-        > chuck +d foo.ck -d bar.ck +d doo.ck
-
-        will dump foo.ck, then doo.ck - but not bar.ck.
-
-        These are useful for debug ChucK itself, and for other entertainment purposes.
-
---bufsize<N>
-        set the internal audio buffer size to <N> sample frames.  larger buffer size
-        often reduce audio artifacts due to system/program timing.  smaller buffers reduce
-        audio latency.  The default is 512.  If <N> is not a power of 2, the next power
-        of 2 larger than <N> is used.  For example:
-
-        > chuck --bufsize950
-
-        sets the buffer size to 1024.
-
---about / --help
-        prints the usage message, with the ChucK URL (where info may be found)
+chuck [--(options|commands)] [+-=^] file1 file2 file3 ...
+    [options]  = halt | loop | audio | silent | dump | nodump | about |
+                 srate(N) | bufsize(N) | dac(N) | adc(N)
+    [commands] = add | remove | replace | status | kill | time
+    [+-=^]     = shortcuts for (add, remove, replace, status) 
 
 
-[commands]
+DESCRIPTION 
 
-These are used for on-the-fly programming.  By default, this requires that a ChucK virtual machine 
-be already running on the localhost.  It communicates via sockets to add/remove/replace shreds in
-the VM, and to query VM state.  The simplest way to set up a ChucK virtual machine to accept these
-commands is by starting an empty VM with --loop:
+[source ChucK files] :
+ChucK can run 1 or more processes in parallel and interactively.  
+The  programmer only needs to specify them all on the command 
+line, and they  will be compiled and run in the VM.  Each input 
+source file (.ck suffix by  convention) will be run as a separate 
+'shred' (user-level ChucK threads)  in the VM.  They can 'spork' 
+additional shreds and interact with  existing shreds.  Thanks to 
+the ChucK timing mechanism, shreds don't  necessarily need to 
+know about each other in order to be precisely  'shreduled' in 
+time - they only need to keep track of they own time, so  to 
+speak. 
 
-        > chuck --loop
+Addtionally, more shreds can be added/removed/replaced 
+manually at  run-time, using on-the-fly programming [Wang and 
+Cook 2004] - (see publications and http://on-the-
+fly.cs.princeton.edu/ ). 
 
-this will start a VM, looping (and advancing time), waiting for incoming commands.  Successive
-invocations of 'chuck' with the appropriate commands will communicate with this listener VM.
 
+[options]: 
 
---add / +
-        add new shreds from source files to the listener VM.
-        this process exits after sending the message to the looping VM.
+--halt /-h 
+(on by default) - tells the vm to halt and exit if there are no more  
+shreds in the VM. 
 
-        for example:
+--loop /-l 
+tells the ChucK VM to continue executing even if there no shreds          
+currently in the VM.  This is useful because shreds can be added          
+later on-the-fly.  Furthermore, it is legal to specify this          
+option without any input files.  For example: 
 
-          > chuck + foo.ck bar.ck
+    %> chuck --loop 
 
-        integrates foo.ck and bar.ck into the listener VM.  the shred is 
-        internally responsible for finding about the timing and other 
-        shreds via the timing mechanism and vm interface.
+the above will 'infinite time-loop' the VM, waiting for incoming  
+shreds. 
 
---remove / -
-        removes existing shreds from the VM by ID.  how to find out 
-        about the id?  (see --status below)  for example:
+--audio /-a 
+(on by default) - enable real-time audio output 
 
-        > chuck - 2 3 8
+--silent /-s 
+disable real-time audio output - computations in the VM is not          
+changed, except that the actual timing is no longer clocked by          
+the real-time audio engine.  Timing manipulations (such as          
+operations on 'now') still function fully.  This is useful for          
+synthesizing audio to disk or network.  Also, it is handy for          
+running a non-audio program. 
 
-        removes shred 2, 3, and 8.
+--dump /+d 
+dump the virtual instructions emitted to stderr, for all the          
+files after this flag on the command line, until a 'nodump' is          
+encountered (see below).  For example: 
 
---replace / =
-        replace existing shred with a new shred.  for example:
+    %> chuck foo.ck +d bar.ck 
 
-        > chuck = 2 foo.ck
+will dump the virtual ChucK instructions for bar.ck (only), with          
+argument values, to stderr.  --dump can be used in conjunction          
+with --nodump to selectively dump files. 
 
-        replaces shred 2 with foo.ck
+--nodump /-d 
+(default state) cease the dumping of virtual instructions for          
+files that comes after this flag on the command line, until a          
+'dump' is encountered (see above).  For example: 
 
---status / ^
-        queries the status of the VM - output on the listener VM.  for example:
+    %> chuck +d foo.ck -d bar.ck +d doo.ck 
 
-        > chuck ^
+will dump foo.ck, then doo.ck - but not bar.ck. 
 
-        this prints the internal shred start at the listener VM, 
-        something like:
+These are useful for debug ChucK itself, and for other          
+entertainment purposes. 
 
-        [chuck](VM): status (now == 0h:2m:34s)
-            [shred id]: 1  [source]: foo.ck  [sporked]: 21.43s ago
-            [shred id]: 2  [source]: bar.ck  [sporked]: 28.37s ago
+--srate(N) 
+set the internal sample rate to (N) Hz.  by default,
+ChucK runs at 44100Hz on OS X and Windows, and 48000Hz on          
+linux/ALSA.  even if the VM is running in --silent mode, the          
+sample rate is still used by some unit generaters to compute           
+audio, this is important for computing samples and writing to          
+file.  Not all sample rates are supported by all devices! 
 
---time
-        prints out value of now in the looping VM.  for example:
+--bufsize(N) 
+set the internal audio buffer size to (N) sample frames.  larger          
+buffer size often reduce audio artifacts due to system/program          
+timing.  smaller buffers reduce audio latency.  The default is          
+512.  If (N) is not a power of 2, the next power of 2 larger than          
+(N) is used.  For example: 
 
-        > chuck --time
+    %> chuck --bufsize950 
 
-        [chuck](VM): the value of now:
-            now = 403457 (samp)
-                = 9.148685 (second)
-                = 0.152478 (minute)
-                = 0.002541 (hour)
-                = 0.000106 (day)
-                = 0.000015 (week)
+sets the buffer size to 1024. 
 
---kill
-        semi-gracefully kills the looping VM - removes all shreds first
+--dac(N) 
+opens audio output device #(N) for real-time audio.  by default, 
+(N) is 0. 
+
+--adc(N) 
+opens audio input device #(N) for real-time audio input.  by          
+default, (N) is 0. 
+
+--about /--help 
+prints the usage message, with the ChucK URL 
 
 
 ---
-Unit Generators in ChucK
 
-- Unit generators (ugen's) can be connected using the ChucK operator (=>)
-  for example:
+On-the-fly Programming Commands 
 
-    adc => dac;
+These are used for on-the-fly programming (see http://on-the-
+fly.cs.princeton.edu ).   By default, this requires  that a ChucK 
+virtual machine be already running on the localhost.  It  
+communicates via sockets to add/remove/replace shreds in the 
+VM, and to  query VM state.  The simplest way to set up a ChucK 
+virtual machine to  accept these commands is by starting an 
+empty VM with --loop: 
 
-  the above connects the ugen 'adc' (a/d convertor, or audio input) to 'dac'
-  (d/a convertor, or audio output). 
-    
-- they can also unlinked (using =<) and relinked (see examples/unchuck.ck)
+    %> chuck --loop 
+
+this will start a VM, looping (and advancing time), waiting for 
+incoming  commands.  Successive invocations of 'chuck' with the 
+appropriate  commands will communicate with this listener VM. 
+
+--add /+
+adds new shreds from source files to the listener VM.  this          
+process then exits. for example: 
+
+    %> chuck + foo.ck bar.ck 
+
+integrates foo.ck and bar.ck into the listener VM.  the shreds are          
+internally responsible for finding about the timing and other          
+shreds via the timing mechanism and vm interface. 
+
+--remove /-
+removes existing shreds from the VM by ID.  how to find out          
+about the id?  (see --status below)  for example: 
+
+    %> chuck - 2 3 8 
+
+removes shred 2, 3, 8. 
+
+--replace /=
+replace existing shred with a new shred.  for example: 
+
+    %> chuck = 2 foo.ck 
+
+replaces shred 2 with foo.ck 
+
+--status /^
+queries the status of the VM - output on the listener VM.  for  
+example: 
+
+    %> chuck ^ 
+
+this prints the internal shred start at the listener VM,          
+something like: 
+
+
+[chuck](VM): status (now == 0h:2m:34s) ...
+   [shred id]: 1  [source]: foo.ck  [sporked]: 21.43s ago 
+   [shred id]: 2  [source]: bar.ck  [sporked]: 28.37s ago 
+
+--time 
+prints out the value of now on the listener VM.  for example: 
+
+    %> chuck --time 
+
+something like: 
+
+    [chuck](VM): the value of now:
+        now = 403457 (samp)
+            = 9.148685 (second)
+            = 0.152478 (minute)
+            = 0.002541 (hour)
+            = 0.000106 (day)
+            = 0.000015 (week) 
+
+--kill 
+semi-gracefully kills the listener VM - removes all shreds first. 
+
+---
+
+ChucK Standard Libraries API 
+
+these libraries are provide by default with ChucK - new ones 
+can also  be imported with ChucK dynamic linking (soon to be 
+documented...).  The  existing libraries are organized by 
+namespaces in ChucK.  They are as  follows. 
+
+---------
+*** namespace: std 
+
+the standard library in ChucK. 
+
+usage example: 
+
+    std.rand2f( 100.0, 1000.0 ) => stdout; 
+
+---------- 
+[function]: float abs ( float value ); 
+- floating point absolute value 
+
+---------- 
+[function]: int rand ( ); 
+- return between 0 and RAND_MAX 
+
+---------- 
+[function]: int rand2 ( int min, int max ); 
+- return integer between [min,max] 
+
+---------- 
+[function]: float randf ( ); 
+- return float between -1.0 and 1.0 
+
+---------- 
+[function]: float rand2f ( float min, float max ); 
+- return float between min and max 
+
+---------- 
+[function]: float sgn ( float value ); 
+- return sign of value (-1, 0, or 1) 
+
+---------- 
+[function]: int system ( string cmd ); 
+- issue system command to the shell (like in C) 
+
+example: 
+
+    std.system( "ls -l | grep moe" ); 
+
+----------
+[function]: int atoi ( string value ); 
+- convert string to integer 
+
+---------- 
+[function]: float atof ( string value ); 
+- convert string to float 
+
+---------- 
+[function]: string getenv ( string key ); 
+- get environment variable 
+
+---------- 
+[function]: int setenv ( string key, string value ); 
+- set environment variable 
+
+
+---------
+*** namespace: machine 
+
+ChucK runtime interface to the virtual machine.  this interface 
+can be  used to manage shreds.  They are similar to the On-the-
+fly Programming Commands , except these are  invoked from 
+within a ChucK program, and are accessible to the timing  
+mechanism. 
+
+---------- 
+[function]: int add ( string path ); 
+- compile and spork a new shred from file at 'path' in to the VM 
+right now 
+- returns the shred ID 
+
+example: 
+
+    machine.add( "osc.ck" ); 
+
+(see example/machine.ck) 
+
+---------- 
+[function]: int spork ( string path ); 
+- same as add 
+
+---------- 
+[function]: int remove ( int id ); 
+- remove shred from the VM by shred ID (returned by add/spork) 
+
+---------- 
+[function]: int replace ( int id, string path ); 
+- replace shred with new shred from file 
+- returns shred ID or 0 (if something failed) 
+
+---------- 
+[function]: int status ( ); 
+- display current status of VM 
+
+example/status.ck below is useful for monitoring: 
+
+  while( true )
+  {
+      machine.status();
+      2::second => now;
+  }
+
+
+---------
+*** namespace: math 
+
+standard math functions 
+
+example: 
+
+    math.sin( math.pi/2.0 ) => stdout; 
+
+----------
+[function]: float sin ( float x ); 
+[function]: float cos ( float x ); 
+[function]: float tan ( float x ); 
+[function]: float asin ( float x ); 
+[function]: float acos ( float x ); 
+[function]: float atan ( float x ); 
+[function]: float atan2 ( float x ); 
+[function]: float sinh ( float x ); 
+[function]: float cosh ( float x ); 
+[function]: float tanh ( float x ); 
+[function]: float hypot ( float x, float y ); 
+[function]: float pow ( float x, float y ); 
+[function]: float sqrt ( float x ); 
+[function]: float exp ( float x ); 
+[function]: float log ( float x ); 
+[function]: float log2 ( float x ); 
+[function]: float log10 ( float x ); 
+[function]: float floor ( float x ); 
+[function]: float ceil ( float x ); 
+[function]: float round ( float x ); 
+[function]: float trunc ( float x ); 
+[function]: float fmod ( float x, float y ); 
+[function]: float remainder ( float x, float y ); 
+[function]: float min ( float x, float y ); 
+[function]: float max ( float x, float y ); 
+
+
+---
+
+Unit Generators 
+
+Unit generators (ugen's) can be connected using the ChucK 
+operator (=>).  for example: 
+
+    adc => dac; 
+
+the above connects the ugen 'adc' (a/d convertor, or audio input) 
+to 'dac'   (d/a convertor, or audio output). 
+
+- they can also unlinked (using =<) and relinked 
+  (see examples/unchuck.ck) 
+
 - Each unit generator have 0 or more control parameters.
-  They can be set also using the ChucK operator (=>, or ->)
-  for example:
+They can be set also using the ChucK operator (=>, or ->) 
+for example: 
 
-  // connect sine oscillator to dac
-  sinosc osc => dac;
-  // set the osc's frequency to 60.0 hz
-  60.0 => osc.freq;
+    // connect sine oscillator to dac
+    sinosc osc => dac;
+    // set the osc's frequency to 60.0 hz
+    60.0 => osc.freq;
 
-  (see examples/osc.ck)
-
-- All ugen's have at least the following two parameters:
-  - 'op' (of type 'int')
-  - 'gain' (of type 'float')
-
-  'op' determines whether the ugen processes data or not while connected to other ugen's.
-      1 - normal processing (on)
-      0 - no processing - always output 0
-      -1 - pass-through - always returns its input if any
-
-  'gain' is the post gain for the ugen.
-
-- See ---[unit generators]--- for list of current Unit Generaters in ChucK.
+    (see examples/osc.ck) 
 
 
---- [ChucK standard API] ---
+- All ugen's have at least the following three parameters: 
+    'op' (of type 'int') 
+    'gain' (of type 'float') 
+    'last' (of type 'float') 
 
-provide by default with ChucK
-(can also import new with ChucK dynamic linking)
+'op' determines whether the ugen processes data or not while 
+connected  to other ugen's. 
+    1 - normal processing (on) 
+    0 - no processing - always output 0 
+    -1 - pass-through - always returns its input
 
+'gain' is the post gain for the ugen. 
+'last' is the last sample computed by the unit generator 
 
-***************** namespace: machine *****************
+useful : remember all unit generators implicitly have
+the control 'gain', 'op', and 'last' - not reflected 
+here. 
 
-ChucK VM runtime interface
-
-[function]: int add( string path );
-- compile and spork a new shred from file at 'path' in to the VM right now
-- returns the shred ID
-
-example:
-
-  machine.add( "osc.ck" );
-
-[function]: int spork( string path );
-- same as add
-
-[function]: int remove( int id );
-- remove shred from the VM by shred ID (returned by add/spork)
-
-[function]: int replace( int id, string path );
-- replace shred with new shred from file
-- returns shred ID or 0 (if something failed)
-
-[function]: int status( );
-- display current status of VM
-
-
-************** namespace: math ***************
-
-standard math functions
-
-example:
-
-    math.sin( pi/2 ) => stdout;
-
-[function]: float sin( float x );
-[function]: float cos( float x );
-[function]: float tan( float x );
-[function]: float asin( float x );
-[function]: float acos( float x );
-[function]: float atan( float x );
-[function]: float atan2( float x );
-[function]: float sinh( float x );
-[function]: float cosh( float x );
-[function]: float tanh( float x );
-[function]: float hypot( float x, float y );
-[function]: float pow( float x, float y );
-[function]: float sqrt( float x );
-[function]: float exp( float x );
-[function]: float log( float x );
-[function]: float log2( float x );
-[function]: float log10( float x );
-[function]: float floor( float x );
-[function]: float ceil( float x );
-[function]: float round( float x );
-[function]: float trunc( float x );
-[function]: float fmod( float x, float y );
-[function]: float remainder( float x, float y );
-[function]: float min( float x, float y );
-[function]: float max( float x, float y );
-
-
-**************** namespace: std ****************
-
-[function]: float abs( float value );
-floating point absolute avlue
-
-[function]: int rand( );
-return between 0 and RAND_MAX
-
-[function]: int rand2( int min, int max )
-return integer between [min,max]
-
-[function]: float randf( );
-return float between -1.0 and 1.0
-
-[function]: float rand2f( float min, float max )
-return float between min and max
-
-[function]: float sgn( float value );
-return sign of value (-1, 0, or 1)
-
-[function]: int system( string cmd );
-issue system command to the shell (like in C)
-
-example:
-
-    std.system( "ls -l | grep foo" );
-
-[function]: int atoi( string value );
-convert string to integer
-
-[function]: float atof( string value );
-convert string to float
-
-[function]: string getenv( string key );
-get environment variable
-
-[function]: int setenv( string key, string value );
-set environment variable
 
 ---
 
-
---- [unit generators] ---
-
-IMPORTANT: remember all unit generators implicitly have the control 
-'gain' and 'op' - not reflected here.
+Standard ChucK Unit Generators (so far) 
 
 
-******************** ugen group: xxx **********************
-
-some weird-ish standard ChucK unit generators
-
-----
-[ugen]: noise
-
-[ctrl params]: (none)
-
-example:
-
-   noise n => dac;
+[ugen] :dac 
+- digital/analog convertor 
+- this is the abstraction for the underlying audio output device 
 
 
-----
-[ugen]: impulse
-  pulse generator - can set the value of the current sample
-  default for each sample is 0 if not set
-
-[ctrl params]: ( float value ) - set the current sample
-
-example:
-
-   impulse i => dac;
-
-   while( true ) {
-      1.0 => i.value;
-      100::ms => now;
-   }
+[ugen] :adc 
+- analog/digital convertor 
+- this is the abstraction for the underlying audio input device 
 
 
-----
-[ugen]: step
-  step generator - like impulse, but once a value is set,
-  it is held for all following samples, until value is set again.
+[ugen] :noise 
+- white noise generator 
+example: 
 
-[ctrl params]: ( float value ) - set the step value
-
-example:
-
-   step s => dac;
-
-   1.0 => float amp;
-   // square wave using step
-   while( true ) {
-       amp => s.value;
-       -amp => amp;
-       800::samp => now;
-   }
-
-----
-[ugen]: gain
-  gain control
-  (NOTE - all unit generators can themselves change their gain)
-  (this is way to add N outputs together and scale them)
-
-[ctrl params]: ( float value ) - set the gain
-
-example:
-
-  noise n => gain => dac;
-  sinosc s => gain;
-  .3 => gain.value;
-
-  while( true ) { 100::ms => now; }
+    noise n => dac;
+    // don't forget to advance time
+    while( true ) 1::second => now; 
 
 
-----
-[ugen]: halfrect
-  half-wave rectifier
-  what for?  half-wave rectification
+[ugen] :impulse 
+- pulse generator - can set the value of the current sample 
+- default for each sample is 0 if not set 
+[ctrl param]: 
+.next - ( float, READ/WRITE ) --- set value of next sample 
 
-[ctrl params]: (none)
+example: 
 
+    impulse i => dac;
 
-----
-[ugen]: fullrect
-  full-wave rectifier
-
-[ctrl params]: (none)
-
-
----
-[ugen]: zerox
-  zero-crossing detector
-  emits a single pulse at the zero crossing in the direction of the
-  zero crossing.
-
-[ctrl params]: (none)
+    while( true ) {
+        1.0 => i.next;
+        100::ms => now;
+    }
 
 
-----
-[ugen]: sndbuf
-  sound buffer
+[ugen] :step 
+- step generator - like impulse, but once a value is set, 
+it is held for all following samples, until value is set again. 
+[ctrl param]: 
+.next - (float, READ/WRITE) --- set the step value
 
-[ctrl param]: ( string path ) - loads a 16-bit mono RAW file
-[ctrl parma]: ( int pos ) - set the playback pos - 0 is beginning
+example: 
 
-----
-[ugen]: biquad
-  BiQuad filter - two pole/zero zero filter
+    step s => dac;
+    -1.0 => float amp;
 
-[ctrl params]: ( float pfreq, float prad, float zfreq, float zrad, int 
-norm, float pregain, int eqzs, float b0, float b1, float b2, float a0, 
-float a1, float a2 )
-
-[ctrl param]: ( float pfreq ) - pole frequency (hz) - resonance position
-[ctrl param]: ( float prad ) - pole radius (must be less than 1)
-[ctrl param]: ( float zfreq ) - zero frequency (hz) - notch
-[ctrl param]: ( float zrad ) - zero radius
-[ctrl param]: ( float eqzs ) - set equal gain zeros
-[ctrl param]: ( float norm ) - normalize filter gain
-[ctrl param]: ( float b0,b1,b2,a0,a1,a2 ) - filter coefficients
-
-----
-[ugen]: sinosc
-  sine oscillator
-
-[ctrl param]: ( float freq ) - frequency (hz)
-[ctrl param]: ( float sfreq ) - frequency (hz) with phase adjustment
-[ctrl param]: ( float phase ) - phase
+    // square wave using step
+    while( true ) {
+        -amp => amp => s.next;
+        800::samp => now;
+    } 
 
 
-----
-[ugen]: ADSR  (STK import)
-  attack decay sustain release
+[ugen] :gain 
+- gain control 
+- (NOTE - all unit generators can themselves change their gain) 
+(this is way to add N outputs together and scale them) 
+[ctrl param]: 
+.gain - (float, READ/WRITE) --- set the gain (all ugen's have  this) 
+example: 
 
-[ctrl params]: ( int keyOn *0x104c62c*, int keyOff *0x104c688* )
+    noise n => gain g => dac;
+    sinosc s => g;
+    .3 => g.gain;
 
-[ctrl param]: ( int keyOn ) - turn on ADSR and start
-[ctrl param]: ( int keyOff ) - start the release
-
-
-----
-[ugen]: WaveLoop  (STK import)
-  interpolating wave loop
-
-[ctrl param]: ( string path ) - load from file
-[ctrl param]: ( float freq ) - frequency
-[ctrl param]: ( float rate ) - playback rate
-[ctrl param]: ( float addPhase ) - add phase
-[ctrl param]: ( float addPhaseOffset ) - phase offset
+    while( true ) { 100::ms => now; } 
 
 
-----
-[ugen]: JCRev  (STK import)
-John Chowning reverb
-
-[ctrl param]: (float mix) dry/wet mix
+[ugen] :halfrect 
+- half-wave rectifier 
+- what for?  half-wave rectification 
 
 
-----
- 
-more to come...
+[ugen] :fullrect 
+- full-wave rectifier 
+
+
+[ugen] :zerox 
+- zero-crossing detector 
+- emits a single pulse at the zero crossing in the direction of 
+  the zero crossing. 
+- (see examples/zerox) 
+
+
+[ugen] :sndbuf 
+sound buffer (now interpolating)
+[ctrl param]: 
+.read - (string, write ONLY for now) --- loads a file for reading 
+.write - (string, write ONLY for now) --- opens a file for writing 
+.interp - (int, READ/WRITE) --- set interpolation mode (0=drop, 1=linear, 2=sinc) 
+.rate - (float, READ/WRITE) --- set playback rate 
+.freq - (float, READ/WRITE) --- set playback frequency (Hz) 
+.phase - (float, READ/WRITE) --- set phase (0-1) 
+.phase_offset - (float, READ/WRITE) ---  offset phase by (0-1). returns .phase 
+.pos - (int, READ/WRITE) --- set playback position ( 0 < p < .samples )
+.channel - (int, READ/WRITE) --- select channel ( 0 < c < .channels )
+.samples - (int, read ONLY) --- returns the number of samples 
+.length - (int, read ONLY) --- returns the length of the buffer ( seconds ) 
+.channels - (int, read ONLY) --- returns the number of channels 
+
+
+[ugen] :biquad 
+- BiQuad filter - two pole/zero zero filter 
+- (see examples/wind.ck, examples/moe.ck) 
+[ctrl param]: 
+.pfreq - (float, write ONLY) --- set resonance frequency (poles) 
+.prad - (float, write ONLY) --- set pole radius (less than 1 to be stable) 
+.zfreq - (float, write ONLY) --- set notch frequency (zeroes) 
+.zrad - (float, write ONLY) --- set zero radius 
+.eqzs - (float, write ONLY) --- set equal gain zeroes 
+.norm - (float, write ONLY) --- set normalization 
+.b0, .b1, .b2, .a0, .a1, .a2 - (float, READ/WRITE) --- filter coefficients 
+
+
+[ugen] :sinosc 
+- sine oscillator 
+- (examples/osc.ck) 
+[ctrl param]: 
+.freq - ( float, READ/WRITE ) - frequency (hz) 
+.sfreq - ( float, READ/WRITE ) - frequency (hz), phase-preserving 
+.phase - ( float, READ/WRITE ) - set/get oscillator phase 
+.phase_offset - ( float, READ/WRITE ) - phase offset 
+.sync - ( int, READ/WRITE ) - sync (0=internal, 1=global) 
+
+
+[ugen] :ADSR (STK import) 
+- attack decay sustain release 
+- (see examples/adsr.ck) 
+[ctrl param]: 
+.keyOn - (int, write ONLY) --- start the attack for non-zero values 
+.keyOff - (int, write ONLY) --- start the release for non-zero values 
+.state - (int, read ONLY) --- attack=0, decay=1, sustain=2, release=3, done=4 
+.attackTime - (float, write ONLY) --- set attack time 
+.attackRate - (flaot, READ/WRITE) --- set/get attack rate 
+.decayTime - (float, write ONLY) --- set decay time 
+.decayRate - (float, READ/WRITE) --- set/get decay rate 
+.sustainLevel - (float, READ/WRITE) --- set/get sustain level 
+.releaseTime - (float, write ONLY) --- set release time 
+.releaseRate - (float, READ/WRITE) --- set/get release rate 
+.target - (float, READ/WRITE) --- set/get target 
+.value - (float, READ/WRITE) --- set/get value 
+
+
+[ugen] :BiQuad (STK import) 
+- BiQuad filter - two pole/zero zero filter 
+[ctrl param]: 
+.pfreq - (float, write ONLY) --- set resonance frequency (poles) 
+.prad - (float, write ONLY) --- set pole radius (less than 1 to be stable) 
+.zfreq - (float, write ONLY) --- set notch frequency (zeroes) 
+.zrad - (float, write ONLY) --- set zero radius 
+.eqzs - (float, write ONLY) --- set equal gain zeroes 
+.norm - (float, write ONLY) --- set normalization 
+.b0, .b1, .b2, .a0, .a1, .a2 - (float, READ/WRITE) --- filter coefficients 
+
+
+[ugen] :WaveLoop (STK import) 
+- interpolating wave loop 
+[ctrl param]: 
+.path - ( float, WRITE only ) - load from file 
+.freq - ( float, WRITE only ) - frequency (hz) 
+.rate - ( float, WRITE only ) - playback rate 
+.addPhase - ( float, WRITE only ) - as phase 
+.addPhaseOffset - ( int, WRITE only ) - phase offset 
+
+
+[ugen] :Delay (STK import) 
+- non-interpolating delay line class 
+[ctrl param]: 
+.delay - ( dur, READ/WRITE ) - length of delay 
+.max - ( dur, READ/WRITE ) - max delay (buffer size) 
+
+
+[ugen] :DelayL (STK import) 
+- linear interpolating delay line class 
+[ctrl param]: 
+.delay - ( dur, READ/WRITE ) - length of delay 
+.max - ( dur, READ/WRITE ) - max delay (buffer size) 
+
+
+[ugen] :DelayA (STK import) 
+- allpass interpolating delay line class 
+[ctrl param]: 
+.delay - ( dur, READ/WRITE ) - length of delay 
+.max - ( dur, READ/WRITE ) - max delay (buffer size) 
+
+
+[ugen] :Echo (STK import) 
+- Echo delay effect 
+[ctrl param]: 
+.delay - ( dur, READ/WRITE ) - length of delay 
+.max - ( dur, READ/WRITE ) - max delay (buffer size) 
+.mix - ( float, READ/WRITE ) - mix (0=dry < m < 1=wet) 
+
+
+[ugen] :JCRev (STK import) 
+- John Chowning reverb 
+[ctrl param]:
+.mix - (float, READ/WRITE) --- wet/dry mix
+
+
+[ugen] :Shakers (STK import) 
+PhISEM (Physically Informed Stochastic Event
+    Modeling) is an algorithmic approach for
+    simulating collisions of multiple independent
+    sound producing objects.  This class is a
+    meta-model that can simulate a Maraca, Sekere,
+    Cabasa, Bamboo Wind Chimes, Water Drops,
+    Tambourine, Sleighbells, and a Guiro.
+
+    PhOLIES (Physically-Oriented Library of
+    Imitated Environmental Sounds) is a similar
+    approach for the synthesis of environmental
+    sounds.  This class implements simulations of
+    breaking sticks, crunchy snow (or not), a
+    wrench, sandpaper, and more.
+
+    Control Change Numbers:
+      - Shake Energy = 2
+      - System Decay = 4
+      - Number Of Objects = 11
+      - Resonance Frequency = 1
+      - Shake Energy = 128
+      - Instrument Selection = 1071
+        - Maraca = 0
+        - Cabasa = 1
+        - Sekere = 2
+        - Guiro = 3
+        - Water Drops = 4
+        - Bamboo Chimes = 5
+        - Tambourine = 6
+        - Sleigh Bells = 7
+        - Sticks = 8
+        - Crunch = 9
+        - Wrench = 10
+        - Sand Paper = 11
+        - Coke Can = 12
+        - Next Mug = 13
+        - Penny + Mug = 14
+        - Nickle + Mug = 15
+        - Dime + Mug = 16
+        - Quarter + Mug = 17
+        - Franc + Mug = 18
+        - Peso + Mug = 19
+        - Big Rocks = 20
+        - Little Rocks = 21
+        - Tuned Bamboo Chimes = 22 
+[ctrl param]: 
+.noteon - ( float, READ/WRITE ) - note on 
+.noteoff - ( float, READ/WRITE ) - note off 
+.which - ( int, WRITE only ) - select instrument (above) 
+
+
+More to come!
