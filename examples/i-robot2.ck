@@ -2,8 +2,10 @@
 // gewang, prc
 
 // our patch - feedforward part
-adc => gain g => DelayL d => dac;
-adc => gain g2 => dac;
+impulse i => gain g => DelayL d => dac;
+i => gain g2 => dac;
+adc => gain g4 => dac;
+0.0 => g4.gain;
 // feedback
 d => gain g3 => d;
 // set parameters
@@ -13,4 +15,8 @@ d => gain g3 => d;
 0.95 => g3.gain;
 
 // time loop
-while( true ) 7::ms => now;
+while( true )
+{
+    3.0 * adc.last * adc.last => i.next;
+    1::samp => now;
+}

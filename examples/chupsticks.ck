@@ -1,7 +1,7 @@
 // dut dut dut dut dut dut doot doot doot doot doot doot doot
 
 Wurley left=> gain g => dac ;
-Rhodey right=> gain g => dac ;
+Rhodey right=> gain g2 => dac ;
 
 0.7 => left.gain;
 0.7 => right.gain;
@@ -41,10 +41,20 @@ while( true )
 	}
 
 	//6x d, b    62 71
-	for ( 0=>i ; i < 6 ; i++ ) { 
+	for ( 0=>i ; i < 4 ; i++ ) { 
 		fingers(62.0, 71.0 );
 		onebeat => now;
 	}
+
+        62.0 => float low;
+        if( std.randf() > 0.5 )
+            67.0 => low;
+        else if( std.randf() > 0.3 )
+            55.0 => low;
+        fingers(low, 69.0);
+        onebeat => now;
+        fingers(low, 71.0 );
+        onebeat => now;
 
 	//4x  c, c    60 72
 	for ( 0=>i  ; i < 4 ; i++ ) { 
