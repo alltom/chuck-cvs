@@ -2,19 +2,22 @@ CHUCK_DIR=../src/
 GL_PATH=/System/Library/Frameworks/OpenGL.Framework/
 GLUT_PATH=/System/Library/Frameworks/GLUT.Framework/
 
-GL_INCLUDE_FLAGS=-I$(GL_PATH)Headers/
+GL_INCLUDE_FLAGS=-I$(GL_PATH)Headers/ -D__MACOSX_CORE__
 GL_FRAMEWORK_FLAGS = -framework OpenGL
 
 GLUT_INCLUDE_FLAGS=$(GL_INCLUDE_FLAGS) -I$(GLUT_PATH)Headers/
 GLUT_FRAMEWORK_FLAGS=$(GL_FRAMEWORK_FLAGS) -framework GLUT -framework Foundation
 
 
-all: ckx
+all: ckdl ckx
+
+ckdl: ckdl.cpp
+	gcc -O3 -g -I$(CHUCK_DIR) $(CHUCK_DIR)chuck_dl.cpp -o ckdl ckdl.cpp -lstdc++
 
 ckx: foo.ckx gl 
 
-foo.ckx: foo_ckx.cpp
-	gcc -O3 -g -bundle -I$(CHUCK_DIR) foo_ckx.cpp -o foo.ckx -lstdc++
+foo.ckx: foo.cpp
+	gcc -O3 -g -bundle -I$(CHUCK_DIR) foo.cpp -o foo.ckx -lstdc++
 
 gl: gl.ckx glu.ckx gluck.ckx
 
