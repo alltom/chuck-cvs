@@ -9,4 +9,8 @@ fun int factorial ( int arg ) {
 	return r;
 }
 
-factorial ( 8 ) => int x;
+factorial ( 4 ) => int x;
+
+if ( x != 24 ) { 
+	while ( true );
+}

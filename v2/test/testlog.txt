@@ -19,14 +19,14 @@ Test		Status			Description
 15.ck		emitted			multi-dim array instantiation
 16.ck		emitted			multi-array assignment
 17.ck		emitted			partial array
-18.ck		vm:outofbounds		array out of bounds
-19.ck		type:exceeds dimension at 4	array passed to function
+18.ck		emitted			array out of bounds
+19.ck		emitted			array passed to function
 
 p01.ck		emitted			assignment from multi-array to a value
 p02.ck		emitted			array to array sub-assignment ( like 17.ck )
 p03.ck		parse at 9:9		function definition outside class decl
 p04.ck		emit,bus error		assignment to class members
-p05.ck		Obj undefined) at 6     member function taking class instance as argument
+p05.ck		undefined type error 6  member function taking class instance as argument
 p06.ck				
 p07.ck		emitted			array of a particular class
 p08.ck		undefined type at 7	class with self as member
@@ -40,16 +40,17 @@ p15.ck		emitted			cast subclass array to parent array
 p16.ck		emitted ( should fail type check ) cast parent class array to subclass array
 p17.ck		emitted		        array assignment - length mismatch ( large to small ) 
 p18.ck		emitted			array assignment - length mismatch ( small to large )
-p20.ck		emitted			for loop with decrement
-p21.ck		emit error at 5		for loop with -=>, *=> ( factorial ), modify argument in function
-p22.ck		emit error at 5		for loop with -=>, *=> ( factorial ), modify local variable..
-p23.ck		emit error at 5		function taking argument
-p24.ck		emit error at 5		function taking two arguments
-p25.ck		emit error at 5		test pass by value
+p19.ck		fail type ( correct )   array => array ( should fail ) 
+p20.ck		emitted			for loop with -=>, *=>
+p21.ck		emit, incorrect return	functional of p20 modify argument in function
+p22.ck		emit, incorrect return	functional of p20 modify local variable..
+p23.ck		emit			function taking argument
+p24.ck		emit, correct		function taking two arguments
+p25.ck		emit, correct		test pass by value
 p26.ck		emit error exceeds dimension ( see 19.ck ) array pass by reference
 p27.ck		emitted, correct	function calling second function
 p28.ck					recursive function
-p29.ck					
+p29.ck					variable access outside defining block
 
 --Notes--
 

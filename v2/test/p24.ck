@@ -5,4 +5,8 @@ fun float multiply( float arg1, float arg2 )
     return arg1*arg2;
 }
 
-multiply(3.2, 6.4) => float x;
+multiply(0.8, 1.6) => float x;
+
+if ( x != 1.28 ) { 
+	while (true);
+}

@@ -8,4 +8,8 @@ fun int factorial ( int a ) {
 	return r;
 }
 
-factorial ( 8 ) => int x;
+factorial ( 4 ) => int x;
+
+if ( x != 24 ) { 
+	while ( true );
+}

@@ -5,4 +5,8 @@ fun float squared( float arg )
     return arg*arg;
 }
 
-squared(3.2) => float x;
+squared(1.6) => float x;
+
+if ( x != 2.56 ) { 
+	while ( true );
+}

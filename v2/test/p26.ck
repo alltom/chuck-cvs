@@ -1,6 +1,6 @@
 // array pass by reference test - should change values?
 
-fun void mirror( int arg[2] )
+fun void mirror( int arg[] )
 {
 	arg[0] => arg[1];
 }
