@@ -7,7 +7,7 @@
   - new examples (see below)
   - chucking to oscillators now able to control phase
     (alternative to doing FM by hand (1::samp at a time),
-     see pwm.ck and sixty.ck)
+     see pwm.ck and sixty.ck) (thanks to Phil)
 
 new ugens:
   triosc - triangle wave
