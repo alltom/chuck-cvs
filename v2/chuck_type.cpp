@@ -411,7 +411,7 @@ t_CKBOOL type_engine_check_stmt_list( Chuck_Env * env, a_Stmt_List list )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
 {
-    t_CKBOOL ret = TRUE;
+    t_CKBOOL ret = FALSE;
 
     if( !stmt )
         return TRUE;
@@ -420,21 +420,30 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
     switch( stmt->s_type )
     {
         case ae_stmt_if:
+            // count scope to help determine class member
+            env->class_scope++;
             ret = type_engine_check_if( env, &stmt->stmt_if );
+            env->class_scope--;
             break;
 
         case ae_stmt_for:
+            env->class_scope++;
             ret = type_engine_check_for( env, &stmt->stmt_for );
+            env->class_scope--;
             break;
 
         case ae_stmt_while:
+            env->class_scope++;
             ret = type_engine_check_while( env, &stmt->stmt_while );
+            env->class_scope--;
             break;
             
         case ae_stmt_until:
+            env->class_scope++;
             ret = type_engine_check_until( env, &stmt->stmt_until );
+            env->class_scope--;
             break;
-            
+
         case ae_stmt_exp:
             ret = ( type_engine_check_exp( env, stmt->stmt_exp ) != NULL );
             break;
@@ -444,7 +453,9 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             break;
 
         case ae_stmt_code:
+            env->class_scope++;
             ret = type_engine_check_code_segment( env, &stmt->stmt_code );
+            env->class_scope--;
             break;
 
         case ae_stmt_break:
@@ -456,7 +467,9 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             break;
 
         case ae_stmt_switch:
+            env->class_scope++;
             ret = type_engine_check_switch( env, &stmt->stmt_switch );
+            env->class_scope--;
             break;
 
         case ae_stmt_case:
@@ -1787,8 +1800,10 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 
         // remember the owner
         value->owner = env->curr;
-        value->owner_class = env->class_def;
-        value->is_member = ( env->class_def != NULL );
+        value->owner_class = env->func ? NULL : env->class_def;
+        value->is_member = ( env->class_def != NULL && 
+                             env->class_scope == 0 && 
+                             env->func == NULL );
         value->is_context_global = ( env->class_def == NULL && env->func == NULL );
 
         // remember the value
@@ -1813,7 +1828,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     Chuck_Func * func = NULL;
 
     // type check the func
-    t_CKTYPE f = type_engine_check_exp( env, func_call->func );
+    t_CKTYPE f = func_call->func->type = type_engine_check_exp( env, func_call->func );
     if( !f ) return NULL;
 
     // void type for args
@@ -2117,6 +2132,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     env->stack.push_back( env->curr );
     env->curr = the_class->info;
     env->class_def = the_class;
+    // reset the nest list
+    env->class_scope = 0;
 
     // type check the body
     while( body && ret )
@@ -2337,7 +2354,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             arg_list->type, S_name(arg_list->var_decl->id) );
         // remember the owner
         value->owner = env->curr;
-        value->owner_class = env->class_def;
+        // function args not owned
+        value->owner_class = NULL;
         value->is_member = FALSE;
         // add as value
         env->curr->value.add( arg_list->var_decl->id, value );

@@ -1467,6 +1467,25 @@ void Chuck_Instr_Alloc_DWord::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 //-----------------------------------------------------------------------------
+// name: call_pre_constructor()
+// desc: ...
+//-----------------------------------------------------------------------------
+//void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred, 
+//                           Chuck_Object * object, Chuck_VM_Code * func )
+//{
+//    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+//
+//    // push the pointer on the stack
+//    push_( reg_sp, (t_CKUINT)object );
+//    // push the pre constructor on the stack
+//    push_( reg_sp, (t_CKUINT)func );
+//    // push the current stack depth
+//}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: instantiate object
 //-----------------------------------------------------------------------------

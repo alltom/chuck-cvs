@@ -227,6 +227,8 @@ struct Chuck_Env : public Chuck_VM_Object
     Chuck_Type * class_def;
     // current function definition
     Chuck_Func * func;
+    // how far nested in a class definition
+    t_CKUINT class_scope;
 
 	// current contexts in memory
 	vector<Chuck_Context *> contexts;
@@ -256,7 +258,8 @@ struct Chuck_Env : public Chuck_VM_Object
 	void reset( )
 	{ stack.clear(); stack.push_back( &global ); 
       if( context ) { contexts.pop_back(); context->release(); } 
-      curr = &global; class_def = NULL; func = NULL; context = NULL; }
+      curr = &global; class_def = NULL; func = NULL;
+      context = NULL; class_scope = 0; }
 
     // top
 	Chuck_Namespace * top( )

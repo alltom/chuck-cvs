@@ -2311,7 +2311,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
         else
         {
             // get the value
-            value = t_base->info->lookup_value( member->id, FALSE );
+            // value = t_base->info->lookup_value( member->id, FALSE );
+            value = type_engine_find_value( t_base, member->id );
             // make sure it's there
             assert( value != NULL );
 
@@ -2428,11 +2429,13 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                     }
                     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
                     emit->append( new Chuck_Instr_UGen_Alloc() );
+                    // TODO: constructor
                 }
                 else
                 {
                     // emit object instantiation code
                     emit->append( new Chuck_Instr_Instantiate_Object( type ) );
+                    // TODO: constructor
                 }
             }
         }
@@ -2468,8 +2471,6 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         {
             // assign the object
             emit->append( new Chuck_Instr_Assign_Object );
-            // TODO:
-            // constructor?
         }
         
         list = list->next;
@@ -2803,6 +2804,8 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
         // emit as this.v
         a_Exp base = new_exp_from_id( "this", linepos );
         a_Exp dot = new_exp_from_member_dot( base, (char *)v->name.c_str(), linepos );
+        base->type = v->owner_class;
+        dot->type = v->type;
         dot->dot_member.t_base = v->owner_class;
         // emit it
         if( !emit_engine_emit_exp_dot_member( emit, &dot->dot_member ) )
