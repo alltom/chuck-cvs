@@ -3,14 +3,16 @@
 
 // connect impulse generator
 impulse i => dac;
+.5 => i.gain;
 
 // emit impulse every so often
-1000 => int a;
-1.0 => float v;
+2000 => int a;
 while( 1 )
 {
+    // set the next sample
+    1.0 => i.next;
+
+    // advance time
     a::samp => now;
-    v => i.value;
-    a - 2 => a;
-    if( a <= 0 ) 1000 => a;
+    a - 8 => a; if( a <= 0 ) 2000 => a;
 }

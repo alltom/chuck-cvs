@@ -1,3 +1,4 @@
+// on-the-fly shred management
 
 while( true )
 {

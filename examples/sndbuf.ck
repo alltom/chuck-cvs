@@ -1,7 +1,8 @@
 // the patch 
 sndbuf buf => dac;
 "data/snare.wav" => buf.read;
-// play starting now
+
+// play starting the next sample in ChucK time
 1.0 => buf.play; 
 
 // time loop

@@ -1,5 +1,5 @@
 // run each stooge, or run three stooges concurrently
-//   %> chuck moe.ck larry.ck curly.ck
+// %> chuck moe larry curly
 
 // impulse to filter to dac
 impulse i => biquad f => dac;

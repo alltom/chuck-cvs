@@ -1,7 +1,5 @@
-//fm synth for the new osc..
-//to be legit, we should be polling another sinosc, but that's not here yet
-//so this is rough...
-
+// fm synth "by hand"
+// to be legit, we should be polling another sinosc (see sixty.ck, pwm.ck)
 // - pld  06/17/04
 
 440.0 => float fc;
@@ -10,13 +8,14 @@
 0.0 => float frq;
 0.0 => float t;
 
-
+// the patch
 sinosc modulation => sinosc carrier => dac;
 
 fm => modulation.sfreq;
 fc => carrier.sfreq;
 0.5 => carrier.gain;
 
+// shred
 fun void fmloop() {
     while ( true ) { 
         fc + ampM * modulation.last => carrier.sfreq;
@@ -26,8 +25,9 @@ fun void fmloop() {
 
 spork ~fmloop();
 
-while ( true ) {
-
+// time loop
+while ( true )
+{
     120.0 + 120.0 * math.sin( t * 0.2 ) => fm;  //modulate modulators
     fm => modulation.sfreq;
 
