@@ -33,11 +33,11 @@ x => sqrosc q    => Envelope qe => dac;
 0.1 => se.time => te.time => tse.time => tste.time => 
        pe.time => we.time => qe.time;
 
-0 => int c;
-
 // pulse width modulation
-fun void vary() { 
-    while ( true ) { 
+fun void vary()
+{
+    while ( true )
+    {
         modw.last => t.width;
         modw.last => p.width;
         modw.last => w.width;
@@ -49,7 +49,9 @@ fun void vary() {
 spork ~vary();
 
 // alternate the envelopes
-while ( true ) {
+0 => int c; 
+while ( true )
+{
     if ( c % 7 == 0 ) { 1.0 => se.target; 0.0 => qe.target;}
     if ( c % 7 == 1 ) { 1.0 => te.target; 0.0 => se.target;}
     if ( c % 7 == 2 ) { 1.0 => tse.target; 0.0 => te.target;} 
