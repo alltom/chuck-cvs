@@ -1645,7 +1645,7 @@ public:
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    virtual const char * params()
+    virtual const char * params() const
     { static char buffer[256];
       sprintf( buffer, "size=%d, emit_addr=%d istr=%d", 
                m_size, m_emit_addr, m_istr );
@@ -1672,7 +1672,7 @@ public:
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    virtual const char * params()
+    virtual const char * params() const
     { static char buffer[256];
       sprintf( buffer, "size=%d, emit_addr=%d", m_size, m_emit_addr );
       return buffer; }
@@ -1697,7 +1697,7 @@ public:
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    virtual const char * params()
+    virtual const char * params() const
     { static char buffer[256];
       sprintf( buffer, "depth=%d, size=%d, emit_addr=%d", m_depth, m_size, m_emit_addr );
       return buffer; }
@@ -1723,7 +1723,7 @@ public:
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    virtual const char * params()
+    virtual const char * params() const
     { static char buffer[256];
       sprintf( buffer, "offset=%d, size=%d, emit_addr=%d", m_offset, m_size, m_emit_addr );
       return buffer; }
@@ -1749,7 +1749,7 @@ public:
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    virtual const char * params()
+    virtual const char * params() const
     { static char buffer[256];
       sprintf( buffer, "offset=%d", m_offset );
       return buffer; }
@@ -1773,7 +1773,7 @@ public:
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    virtual const char * params()
+    virtual const char * params() const
     { static char buffer[256];
       sprintf( buffer, "offset=%d, size=%d, emit_addr=%d", m_offset, m_size, m_emit_addr );
       return buffer; }
@@ -1799,7 +1799,7 @@ public:
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    virtual const char * params()
+    virtual const char * params() const
     { static char buffer[256];
       sprintf( buffer, "func=%d", (t_CKUINT)m_func );
       return buffer; }
