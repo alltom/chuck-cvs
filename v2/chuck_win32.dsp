@@ -147,6 +147,10 @@ SOURCE=.\chuck_vm.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_win32.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\digiio_rtaudio.cpp
 # End Source File
 # Begin Source File

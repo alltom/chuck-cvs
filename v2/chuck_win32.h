@@ -91,36 +91,40 @@
      AT_SYM = 317,
      ATAT_SYM = 318,
      NEW = 319,
-     PLUS_CHUCK = 320,
-     MINUS_CHUCK = 321,
-     TIMES_CHUCK = 322,
-     DIVIDE_CHUCK = 323,
-     S_AND_CHUCK = 324,
-     S_OR_CHUCK = 325,
-     S_XOR_CHUCK = 326,
-     SHIFT_RIGHT_CHUCK = 327,
-     SHIFT_LEFT_CHUCK = 328,
-     PERCENT_CHUCK = 329,
-     SHIFT_RIGHT = 330,
-     SHIFT_LEFT = 331,
-     TILDA = 332,
-     CHUCK = 333,
-     COLONCOLON = 334,
-     S_CHUCK = 335,
-     AT_CHUCK = 336,
-     LEFT_S_CHUCK = 337,
-     UNCHUCK = 338,
-     CLASS = 339,
-     EXTENDS = 340,
-     IMPLEMENTS = 341,
-     PUBLIC = 342,
-     PROTECTED = 343,
-     PRIVATE = 344,
-     STATIC = 345,
-     CONST = 346,
-     SPORK = 347,
-     L_NSPC = 348,
-     R_NSPC = 349
+     SIZEOF = 320,
+     TYPEOF = 321,
+     SAME = 322,
+     PLUS_CHUCK = 323,
+     MINUS_CHUCK = 324,
+     TIMES_CHUCK = 325,
+     DIVIDE_CHUCK = 326,
+     S_AND_CHUCK = 327,
+     S_OR_CHUCK = 328,
+     S_XOR_CHUCK = 329,
+     SHIFT_RIGHT_CHUCK = 330,
+     SHIFT_LEFT_CHUCK = 331,
+     PERCENT_CHUCK = 332,
+     SHIFT_RIGHT = 333,
+     SHIFT_LEFT = 334,
+     TILDA = 335,
+     CHUCK = 336,
+     COLONCOLON = 337,
+     S_CHUCK = 338,
+     AT_CHUCK = 339,
+     LEFT_S_CHUCK = 340,
+     UNCHUCK = 341,
+     CLASS = 342,
+     INTERFACE = 343,
+     EXTENDS = 344,
+     IMPLEMENTS = 345,
+     PUBLIC = 346,
+     PROTECTED = 347,
+     PRIVATE = 348,
+     STATIC = 349,
+     CONST = 350,
+     SPORK = 351,
+     L_NSPC = 352,
+     R_NSPC = 353
    };
 #endif
 #define ID 258
@@ -185,36 +189,40 @@
 #define AT_SYM 317
 #define ATAT_SYM 318
 #define NEW 319
-#define PLUS_CHUCK 320
-#define MINUS_CHUCK 321
-#define TIMES_CHUCK 322
-#define DIVIDE_CHUCK 323
-#define S_AND_CHUCK 324
-#define S_OR_CHUCK 325
-#define S_XOR_CHUCK 326
-#define SHIFT_RIGHT_CHUCK 327
-#define SHIFT_LEFT_CHUCK 328
-#define PERCENT_CHUCK 329
-#define SHIFT_RIGHT 330
-#define SHIFT_LEFT 331
-#define TILDA 332
-#define CHUCK 333
-#define COLONCOLON 334
-#define S_CHUCK 335
-#define AT_CHUCK 336
-#define LEFT_S_CHUCK 337
-#define UNCHUCK 338
-#define CLASS 339
-#define EXTENDS 340
-#define IMPLEMENTS 341
-#define PUBLIC 342
-#define PROTECTED 343
-#define PRIVATE 344
-#define STATIC 345
-#define CONST 346
-#define SPORK 347
-#define L_NSPC 348
-#define R_NSPC 349
+#define SIZEOF 320
+#define TYPEOF 321
+#define SAME 322
+#define PLUS_CHUCK 323
+#define MINUS_CHUCK 324
+#define TIMES_CHUCK 325
+#define DIVIDE_CHUCK 326
+#define S_AND_CHUCK 327
+#define S_OR_CHUCK 328
+#define S_XOR_CHUCK 329
+#define SHIFT_RIGHT_CHUCK 330
+#define SHIFT_LEFT_CHUCK 331
+#define PERCENT_CHUCK 332
+#define SHIFT_RIGHT 333
+#define SHIFT_LEFT 334
+#define TILDA 335
+#define CHUCK 336
+#define COLONCOLON 337
+#define S_CHUCK 338
+#define AT_CHUCK 339
+#define LEFT_S_CHUCK 340
+#define UNCHUCK 341
+#define CLASS 342
+#define INTERFACE 343
+#define EXTENDS 344
+#define IMPLEMENTS 345
+#define PUBLIC 346
+#define PROTECTED 347
+#define PRIVATE 348
+#define STATIC 349
+#define CONST 350
+#define SPORK 351
+#define L_NSPC 352
+#define R_NSPC 353
 
 
 
@@ -241,9 +249,10 @@ typedef union YYSTYPE {
     a_Type_Decl type_decl;
     a_Arg_List arg_list;
     a_Id_List id_list;
+    a_Array_Sub array_sub;
 } YYSTYPE;
 /* Line 1252 of yacc.c.  */
-#line 247 "chuck.tab.h"
+#line 256 "chuck.tab.h"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
