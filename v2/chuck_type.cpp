@@ -58,7 +58,6 @@ struct Chuck_Type t_function = { te_function, "function", &t_object, sizeof(void
 struct Chuck_Type t_class = { te_class, "class", &t_object, sizeof(void *) };
 struct Chuck_Type t_event = { te_event, "event", &t_object, sizeof(void *) };
 struct Chuck_Type t_ugen = { te_ugen, "ugen", &t_object, sizeof(void *) };
-struct Chuck_Type t_multi = { te_multi, "@multi", NULL, sizeof(void *) };
 
 /* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
@@ -1412,19 +1411,48 @@ t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
     t_CKTYPE t_base = type_engine_check_exp( env, array->base );
     if( !t_base ) return NULL;
     
+    // dimension
+    if( array->indices->depth > t_base->array_depth )
+    {
+        EM_error2( array->linepos,
+            "dimension of array subscripts (%i) exceeds what is defined (%i)",
+            array->indices->depth, t_base->array_depth );
+        return NULL;
+    }
+    
     // type check the index
     t_CKTYPE t_index = type_engine_check_exp( env, array->indices->exp_list );
     if( !t_index ) return NULL;
     
-    // check if index is of valid type
-    if( !isa( t_index, &t_int ) && !isa( t_index, &t_string ) )
+    // cycle through each exp
+    a_Exp e = array->indices->exp_list;
+    // count the dimension
+    t_CKUINT depth = 0;
+    
+    while( e )
     {
-        // not int or string
-        EM_error2( array->indices->linepos,
-            "array index must be of type 'int' or 'string', not '%s'",
-            "HACK! - need name here" );
-        return NULL;
+        // increment
+        depth++;
+        // check if index is of valid type
+        if( !isa( e->type, &t_int ) && !isa( e->type, &t_string ) )
+        {
+            // not int or string
+            EM_error2( e->linepos,
+                "array index %i must be of type 'int' or 'string', not '%s'",
+                depth, e->type->name.c_str() );
+            return NULL;
+        }
     }
+
+    // sanity
+    assert( array->indices->depth == depth );
+    
+    // make sure depth <= max
+    t_CKTYPE t = t_base->copy();
+    if( depth == t_base->array_depth ) t->array_depth = 0;
+    else t->array_depth = t_base->array_depth - depth;
+
+    return t;
 }
 
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
