@@ -2827,7 +2827,7 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
         else if( rhs->s_type == ae_exp_dot_member )
         {
             EM_error2( rhs->linepos,
-                       "(emit): internal error: did not handle [namespace].[value]" );
+                       "(emit): cannot assign values to namespace constants" );
             return FALSE;
         }
         else
