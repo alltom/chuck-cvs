@@ -577,7 +577,7 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt )
         ret_type = &t_void;
 
     // check to see that return type matches the prototype
-    if( ret_type && !equals( ret_type, env->func->def->ret_type ) )
+    if( ret_type && !isa( ret_type, env->func->def->ret_type ) )
     {
         EM_error2( stmt->linepos,
             "function '%s' was defined with return type '%s' -- but returning type '%s'",
@@ -728,3 +728,26 @@ t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL equals( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) == (*rhs); }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: operator >>
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL operator >>( const Chuck_Type & lhs, const Chuck_Type & rhs )
+{
+    // check to see if type L == type R
+    if( lhs == rhs ) return TRUE;
+    
+    // if lhs is a child of rhs
+    Chuck_Type * curr = lhs.parent;
+    while( curr )
+    {
+        if( *curr == rhs ) return TRUE;
+        curr = curr->parent;
+    }
+    
+    return FALSE;
+}
