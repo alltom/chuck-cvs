@@ -55,6 +55,7 @@ CK_DLL_FUNC( gl_FrontFace_impl );
 CK_DLL_FUNC( gl_Frustum_impl );
 //genlists
 //gentextures
+CK_DLL_FUNC( gl_GetError_impl );
 CK_DLL_FUNC( gl_LineWidth_impl );
 CK_DLL_FUNC( gl_Lighti_impl );
 CK_DLL_FUNC( gl_Lightf_impl );

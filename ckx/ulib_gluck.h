@@ -48,15 +48,61 @@ CK_DLL_FUNC( gluck_BasicWindow_impl ); // -arg for name, - makes double buff, RG
 CK_DLL_FUNC( gluck_SizedWindow_impl ); // -arg for name, x, y, w,h - basicwindow with size
 CK_DLL_FUNC( gluck_FullScreenWindow_impl ); // -arg for name, x, y - fullscreen mode
 
+//functions to toggle what events we track
+CK_DLL_FUNC( gluck_CatchMouse_impl );
+CK_DLL_FUNC( gluck_CatchMotion_impl );
+CK_DLL_FUNC( gluck_CatchKeyboard_impl );
+
+//functions to help shred loops work while
+//we see about doing a callback-type thing 
+//in chucK..
+
+CK_DLL_FUNC( gluck_NeedDraw_impl );
+CK_DLL_FUNC( gluck_NeedIdle_impl );
+CK_DLL_FUNC( gluck_NeedEvent_impl );
+
 //map standard glut calls for completeness
 CK_DLL_FUNC( gluck_Init_impl );
-CK_DLL_FUNC( gluck_CreateWindow_impl );
+CK_DLL_FUNC( gluck_InitWindowPosition_impl );
+CK_DLL_FUNC( gluck_InitWindowSize_impl );
 CK_DLL_FUNC( gluck_InitDisplayMode_impl );
-CK_DLL_FUNC( gluck_Init_impl );
-CK_DLL_FUNC( gluck_Init_impl );
-CK_DLL_FUNC( gluck_Init_impl );
-CK_DLL_FUNC( gluck_Init_impl );
-CK_DLL_FUNC( gluck_Init_impl );
+CK_DLL_FUNC( gluck_InitDisplayString_impl );
+CK_DLL_FUNC( gluck_InitWindowPosition_impl );
 
+CK_DLL_FUNC( gluck_MainLoopEvent_impl );
+//CK_DLL_FUNC( gluck_MainLoop_impl );  //bad!
+
+CK_DLL_FUNC( gluck_CreateWindow_impl );
+CK_DLL_FUNC( gluck_DestroyWindow_impl );
+CK_DLL_FUNC( gluck_SetWindow_impl );
+CK_DLL_FUNC( gluck_SetWindowTitle_impl );
+CK_DLL_FUNC( gluck_ReshapeWindow_impl );
+CK_DLL_FUNC( gluck_PositionWindow_impl );
+CK_DLL_FUNC( gluck_ShowWindow_impl );
+CK_DLL_FUNC( gluck_HideWindow_impl );
+CK_DLL_FUNC( gluck_FullScreen_impl );
+
+//display calls...
+CK_DLL_FUNC( gluck_PostWindowRedisplay_impl );
+CK_DLL_FUNC( gluck_PostRedisplay_impl );
+CK_DLL_FUNC( gluck_SwapBuffers_impl );
+
+//pass on overlay
+
+//passing on the menu functions.. 
+
+//don't know what to do about assigning callback functions
+//those ought to be interior to gluck, who 
+//provides a more chuck-like exterior to the user..
+
+
+//font
+CK_DLL_FUNC ( gluck_StrokeCharacter_impl );
+CK_DLL_FUNC ( gluck_StrokeWidth_impl );
+CK_DLL_FUNC ( gluck_StrokeLength_impl );
+
+//shapes
+CK_DLL_FUNC ( gluck_WireTeapot_impl );
+CK_DLL_FUNC ( gluck_SolidTeapot_impl );
 
 #endif

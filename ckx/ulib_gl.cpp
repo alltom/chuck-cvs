@@ -33,12 +33,7 @@
 //-----------------------------------------------------------------------------
 #include "ulib_gl.h"
 
-#if defined(__MACOSX_CORE__)
-  #include <OpenGL/gl.h>
-#else
-  #include <GL/gl.h>
-#endif
-
+#include <GL/gl.h>
 
 // lazy phil's preprocessor functions
 // if these shouldn't be here, tell me
@@ -106,6 +101,7 @@ CK_DLL_QUERY
 
     //let's do gl gets... but we need arrays, and then pointers to them!
     //GL_CKADDEXPORT( void, GetBooleanv );
+    GL_CKADDEXPORT( uint, GetError );
 
     GL_CKADDEXPORT( void, Lighti );
     GL_CKADDPARAM ( uint, light );
@@ -306,6 +302,10 @@ CK_DLL_FUNC( gl_Frustum_impl )
     glFrustum(left,right,bottom,top,znear,zfar);
 }
 
+CK_DLL_FUNC( gl_GetError_impl )
+{
+    RETURN->v_uint = (uint) glGetError();
+}
 // 
 CK_DLL_FUNC( gl_Lighti_impl )
 {

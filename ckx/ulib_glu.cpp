@@ -33,13 +33,10 @@
 //-----------------------------------------------------------------------------
 #include "ulib_glu.h"
 
-#if defined(__MACOSX_CORE__)
-  #include <OpenGL/gl.h>
-  #include <OpenGL/glu.h>
-#else
-  #include <GL/gl.h>
-  #include <GL/glu.h>
-#endif
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 
 
 
