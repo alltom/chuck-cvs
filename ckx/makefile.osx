@@ -15,7 +15,7 @@ GLU_LIB_FLAGS   =$(GL_LIB_FLAGS) -lGLU
 GLUT_INC_FLAGS  =$(GL_INC_FLAGS) -I$(GLUT_PATH)include/
 GLUT_LIB_FLAGS  =$(GLU_LIB_FLAGS) -L$(GLUT_PATH)lib/ -lglut
 
-all: ckdl ckx
+all: ckx
 
 ckdl: ckdl.cpp
 	gcc -O3 -g -I$(CHUCK_DIR) $(CHUCK_DIR)chuck_dl.cpp -o ckdl ckdl.cpp -ldl -lstdc++

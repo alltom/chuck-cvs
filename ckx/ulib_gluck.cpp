@@ -285,7 +285,7 @@ CK_DLL_FUNC ( gluck_InitBasicWindow_impl ) {
     t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(640, 480);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     gluckstate->doubleBuffered = true;
 
     char title[] = "basicwindow";
@@ -302,7 +302,7 @@ CK_DLL_FUNC ( gluck_InitSizedWindow_impl ) {
     
     glutInitWindowPosition(x, y);
     glutInitWindowSize(w, h);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     gluckstate->doubleBuffered = true;
 
     char title[] = "sizedwindow";
@@ -316,7 +316,7 @@ CK_DLL_FUNC ( gluck_InitFullScreenWindow_impl ) {
     t_CKUINT ctitle = GET_CK_UINT_N (ARGS,0 );
     glutInitWindowPosition(0, 0);
     glutInitWindowSize(640, 480);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_ALPHA | GLUT_DOUBLE | GLUT_DEPTH);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
     gluckstate->doubleBuffered = true;
 
     char title[] = "fullscreenwindow";
@@ -507,10 +507,9 @@ CK_DLL_FUNC ( gluck_InitCallbacks_impl ) {
 //
 CK_DLL_FUNC( gluck_Init_impl )
 {
-  char base[] = "chuck";
-  int  num = 1;
   gluckstate = new gluckData;
-  glutInit(&num, (char**)&base);
+  int foo = 0;
+  glutInit(&foo, NULL);
 }
 
 CK_DLL_FUNC( gluck_InitWindowPosition_impl )
