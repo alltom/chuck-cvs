@@ -1029,7 +1029,7 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos)
     else
     {
         if( d->curf < 0 ) d->curf = 0;
-        else if( d->curf >= d->num_frames ) d->curf = d->num_frames;
+        else if( d->curf >= d->num_frames ) d->curf = d->num_frames-1;
     }
     //sets curr to correct position ( account for channels ) 
     d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
