@@ -953,6 +953,36 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         }
     }
     
+    // objects
+    switch( op )
+    {
+    case ae_op_plus:
+    case ae_op_minus:
+    case ae_op_times:
+    case ae_op_divide:
+    case ae_op_lt:
+    case ae_op_le:
+    case ae_op_gt:
+    case ae_op_ge:
+    case ae_op_percent:
+    case ae_op_plus_chuck:
+    case ae_op_minus_chuck:
+    case ae_op_times_chuck:
+    case ae_op_divide_chuck:
+    case ae_op_percent_chuck:
+        if( isa( left, &t_object ) ) {
+            EM_error2( lhs->linepos, "cannot perform '%s' on object references...",
+                op2str(op) );
+            return NULL;
+        }
+        if( isa( right, &t_object ) ) {
+            EM_error2( lhs->linepos, "cannot perform '%s' on object references...",
+                op2str(op) );
+            return NULL;
+        }
+    break;
+    }
+    
     // make sure
     switch( op )
     {
@@ -1051,6 +1081,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_float, te_float ) return &t_int;
         LR( te_dur, te_dur ) return &t_int;
         LR( te_time, te_time ) return &t_int;
+        if( isa( left, &t_object ) && isa( right, &t_object ) ) return &t_int;
     break;
     
     case ae_op_s_and_chuck:
