@@ -57,6 +57,8 @@ SAMPLE * Digitalio::m_buffer_out = NULL;
 SAMPLE * Digitalio::m_buffer_in = NULL;
 SAMPLE ** Digitalio::m_write_ptr = NULL;
 SAMPLE ** Digitalio::m_read_ptr = NULL;
+SAMPLE * Digitalio::m_extern_in = NULL;
+SAMPLE * Digitalio::m_extern_out = NULL;
 BOOL__ Digitalio::m_out_ready = FALSE;
 BOOL__ Digitalio::m_in_ready = FALSE;
 BOOL__ Digitalio::m_use_cb = USE_CB_DEFAULT;
@@ -146,7 +148,12 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 
     // copy input to local buffer
     if( m_num_channels_in )
+    {
         memcpy( m_buffer_in, buffer, len );
+        // copy to extern
+        if( m_extern_in ) memcpy( m_extern_in, buffer, len );
+    }
+    // out is ready early
     if( m_go < start && m_go > 5 && m_out_ready ) m_go = start;
     // copy output into local buffer
     if( m_go >= start )
@@ -176,6 +183,9 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
         while( i < len ) *s++ *= (SAMPLE)i++/len;
         m_go++;
     }
+
+    // copy to extern
+    if( m_extern_out ) memcpy( m_extern_out, buffer, len );
 
     // set pointer to the beginning - if not ready, then too late anyway
     //*m_write_ptr = (SAMPLE *)m_buffer_out;
