@@ -15,8 +15,10 @@ Shakers shake => JCRev r => dac;
 while( true )
 {
     // frequency..
-    if ( std.randf() > 0.95 ) 
-	{ std.rand2( 0, 31 ) => shake.which;
+    if ( std.randf() > 0.25 )
+    {
+        std.rand2( 0, 31 ) => shake.which;
+        std.rand2f( 110.0, 3000.0 ) => shake.freq;
 	chout => "instrument (see docs): ";
 	shake.which => stdout;
     }
