@@ -84,34 +84,29 @@ UGEN_CTOR sndbuf_ctor( t_CKTIME now );
 UGEN_DTOR sndbuf_dtor( t_CKTIME now, void * data );
 UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value );
+UGEN_CGET sndbuf_cget_read( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value );
-
+UGEN_CGET sndbuf_cget_write( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value );
-UGEN_CTRL sndbuf_cget_pos( t_CKTIME now, void * data, void * out );
-
+UGEN_CGET sndbuf_cget_pos( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_loop( t_CKTIME now, void * data, void * value );
 UGEN_CGET sndbuf_cget_loop( t_CKTIME now, void * data, void * out );
-
 UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value );
-UGEN_CTRL sndbuf_cget_interp( t_CKTIME now, void * data, void * out );
-
+UGEN_CGET sndbuf_cget_interp( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_rate( t_CKTIME now, void * data, void * value );
-UGEN_CTRL sndbuf_cget_rate( t_CKTIME now, void * data, void * out );
-
+UGEN_CGET sndbuf_cget_rate( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_freq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL sndbuf_cget_freq( t_CKTIME now, void * data, void * out );
-
+UGEN_CGET sndbuf_cget_freq( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_phase( t_CKTIME now, void * data, void * value );
-UGEN_CTRL sndbuf_cget_phase( t_CKTIME now, void * data, void * out );
-
+UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value );
-UGEN_CTRL sndbuf_cget_channel( t_CKTIME now, void * data, void * out );
-
+UGEN_CGET sndbuf_cget_channel( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value );
+UGEN_CGET sndbuf_cget_samples( t_CKTIME now, void * data, void * out );
+UGEN_CGET sndbuf_cget_length( t_CKTIME now, void * data, void * out );
+UGEN_CGET sndbuf_cget_channels( t_CKTIME now, void * data, void * out );
 
-UGEN_CTRL sndbuf_cget_samples( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_cget_length( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_cget_channels( t_CKTIME now, void * data, void * out );
+
 
 
 #endif
