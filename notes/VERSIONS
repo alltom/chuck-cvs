@@ -13,6 +13,7 @@
     "special:glot_ooo" - glottal 'ooo' pop
     (see/listen to moe++.ck, larry++.ck, curly++.ck)
   - all bulit-in sound samples now loadable from both WaveLoop and sndbuf
+  - sndbuf now works for win32 (wav, aiff, au, raw)
 
 new examples:
   - moe++.ck - stooges, evolved
