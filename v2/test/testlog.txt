@@ -33,7 +33,18 @@ p08.ck		undefined type at 7	class with self as member
 p09.ck		emitted			class with declared, defined class as member
 p10.ck		undefined type at 6	class with udeclared, undefined class as member
 p11.ck		parse at 3:16		class with declared, undefined class as member
-
+p12.ck		type fails(correct)	type mismatch in object assignment
+p13.ck		emitted			cast subclass to parent class
+p14.ck		type fails(correct)	assign parent class to subclass
+p15.ck		emitted			cast subclass array to parent array
+p16.ck		emitted ( should fail type check ) cast parent class array to subclass array
+p17.ck		emitted		        array assignment - length mismatch ( large to small ) 
+p18.ck		emitted			array assignment - length mismatch ( small to large )
+p20.ck		emitted			for loop with +=>
+p23.ck		emit error at 5		function taking argument
+p24.ck		emit error at 5		function taking two arguments
+p25.ck		emit error at 5		test pass by value
+p26.ck					array pass by reference
 --Notes--
 
 mar 29, 2:56 : changed p02.ck to a @=> instead of =>  : success!
