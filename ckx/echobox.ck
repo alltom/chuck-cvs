@@ -173,8 +173,8 @@ gain src => DelayL d_direct => gain g_direct => dac;
 //4 1st order reflections
 src => DelayL s_t => gain g_t => gain reft => DelayL t_d => gain t_r => dac;
 src => DelayL s_b => gain g_b => gain refb => DelayL b_d => gain b_r => dac;
-src => DelayL s_l => gain g_l => gain refl => DelayL l_d => gain l_r;// => dac;
-src => DelayL s_r => gain g_r => gain refr => DelayL r_d => gain r_r;// => dac;
+src => DelayL s_l => gain g_l => gain refl => DelayL l_d => gain l_r => dac;
+src => DelayL s_r => gain g_r => gain refr => DelayL r_d => gain r_r => dac;
 
 
 10::second => d_direct.max;
@@ -210,7 +210,7 @@ fun void refreshenv () {
 	setdistdelay ( t_d, t_r, rx, ry, recvx, recvy );
 
 	//wall l
-//	reflectwall ( l , t , l, b ); 
+	reflectwall ( l , t , l, b ); 
 	rx => rxl;
 	ry => ryl;
 	setdistdelay ( s_l, g_l, srcx, srcy, rx, ry );
@@ -218,7 +218,7 @@ fun void refreshenv () {
 	setdistdelay ( l_d, l_r, rx, ry, recvx, recvy );
 
 	//wall r
-//	reflectwall ( r , b , r, t ); 
+	reflectwall ( r , b , r, t ); 
 	rx => rxr;
 	ry => ryr;
 	setdistdelay ( s_r, g_r, srcx, srcy, rx, ry );
@@ -265,12 +265,12 @@ fun void gluckStartup ( ) {
 //THE FUN PART...
 
 fun void fiddlebox () { 
-	sinosc s => blackhole;
-	sinosc p => blackhole;
+	sinosc p => sinosc s => blackhole;
 	0.5 => s.sfreq;
 	0.5 => p.sfreq;
 	0.25 => p.phase_offset;
 	while ( true ) { 
+
 		0.8 * s.last => srcx;
 		0.8 * p.last => srcy;
 		
@@ -283,10 +283,10 @@ fun void fiddlebox () {
 	}
 }
 
-impulse i => src;
-sinosc m ;// => src;
-440.0 => m.sfreq;
-0.2 => m.gain;
+impulse i ;// x=> src;
+sinosc m => src;
+220.0 => m.sfreq;
+0.05 => m.gain;
 
 spork ~ gluckStartup();
 
