@@ -332,8 +332,8 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
     else
     {
         fprintf( stdout, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
-        // SAFE_DELETE(cmd);
-        // return 0;
+        SAFE_DELETE(cmd);
+        return 0;
     }
     
     // immediate
@@ -342,7 +342,7 @@ extern "C" t_CKUINT process_msg( t_CKUINT type, t_CKUINT param, const char * buf
 
     g_vm->queue_msg( cmd, 1 );
 
-    return 0;
+    return 1;
 }
 
 
@@ -426,6 +426,7 @@ int send_cmd( int argc, char ** argv, int  & i )
 
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
+        FILE * f;
         if( ++i >= argc )
         {
             fprintf( stderr, "[chuck]: not enough arguments following [add]\n" );
@@ -440,13 +441,20 @@ int send_cmd( int argc, char ** argv, int  & i )
             }
             strcat( msg.buffer, argv[i] );
 
-            ifstream fin;
-            fin.open( (char *)msg.buffer );
-            if( !fin.good() )
-            {
-                fprintf( stderr, "[chuck]: cannot open file '%s' for [add]\n", msg.buffer );
-                return 1;
-            }
+            // test it
+            if( !(f = fopen( (char *)msg.buffer, "r" )) )
+                if( !strstr( (char *)msg.buffer, ".ck" ) && !strstr( (char *)msg.buffer, ".CK" ) )
+                {
+                    strcat( (char *)msg.buffer, ".ck" );
+                    if( !(f = fopen( (char *)msg.buffer, "r" )) )
+                    {
+                        fprintf( stdout, "[chuck]: cannot open file '%s' for [add]...\n", argv[i] );
+                        return 1;
+                    }
+                }
+
+            // close it
+            if( f ) fclose( f );
 
             msg.type = MSG_ADD;
             ck_send( g_sock, (char *)&msg, sizeof(msg) );
@@ -532,12 +540,12 @@ int send_cmd( int argc, char ** argv, int  & i )
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else
-        return 1;
+        return 0;
 
     // close the sock
     ck_close( g_sock );
     
-    return 0;
+    return 1;
 }
 
 
