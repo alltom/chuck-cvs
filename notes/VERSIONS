@@ -6,8 +6,11 @@
   - shadowing now works
   - add 'blackhole' ugen for ticking ugens
   - added std.mtof (philipd)
-  - added std.ftom (philipd)
-  - added 
+  - added std.ftom
+  - added std.dbtorms
+  - added std.rmstodb
+  - added std.dbtopow
+  - added std.powtodb
 
 new ugens:
   - blackhole - the silent sample sucker
