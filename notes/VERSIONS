@@ -2,11 +2,12 @@
 ---
 1.1.5.4 - 2004.11.18
   - fixed clicks when using adc unit generator
+    (thanks to paul botelho for testing)
   - added 'maybe' keyword
     maybe == 0 or 1, with 50% probability each
 
 new examples:
-  - maybe.ck : the maybe keyword
+  - maybe.ck : the maybe keyword - bad idea? maybe.
   - maybecli.ck : maybe click, maybe not
 
 adc examples work better:
