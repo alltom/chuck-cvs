@@ -2495,7 +2495,6 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         }
 
         // update virtual table
-        func->vt_index = value->func_ref->vt_index;
         assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
         env->curr->obj_v_table.funcs[func->vt_index] = func;
     }
