@@ -35,8 +35,13 @@
 #define __CHUCK_EMIT_H__
 
 #include "chuck_def.h"
+#include "chuck_oo.h"
 #include "chuck_type.h"
-#include "chuck_vm.h"
+
+
+// forward references
+class Chuck_VM_Code;
+class Chuck_VM_Shred;
 
 
 
