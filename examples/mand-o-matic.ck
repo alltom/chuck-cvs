@@ -16,6 +16,7 @@ Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 750::ms => a.delay => b.delay => c.delay;
 // set the initial effect mix
 0.0 => a.mix => b.mix => c.mix;
+0.5 => c.gain;
 
 // shred to modulate the mix
 fun void echo_shred( )

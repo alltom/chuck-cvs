@@ -38,8 +38,8 @@ fun void sweep( float start, float inc, float end , int c)
 // time loop
 while ( true ) { 
     125::ms => dur d;
-    if ( std.rand2 ( 0, 10 ) > 3 ) d + 125::ms => d;
-    if ( std.rand2 ( 0, 10 ) > 6 ) d + 500::ms => d;
+    if ( std.rand2 ( 0, 10 ) > 3 ) d * 2.0 => d;
+    if ( std.rand2 ( 0, 10 ) > 6 ) d * 3.0 => d;
     spork ~ sweep( 220.0 * (float)std.rand2(1,8), 
         880.0 + std.rand2f(100.0, 880.0), t + std.rand2f(1.0, 3.0) , c);
     1 + c => c; 
