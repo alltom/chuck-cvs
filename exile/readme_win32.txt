@@ -4,6 +4,7 @@ ChucK for Microsoft Visual Studio ( VC6.0 , and C++ 2004 express edition )
 Getting Started:
 
 1.  checkout chuck from cvs
+	- move the "chuck_win32.*" files from 'exile' to the 'src' directory
 
 2. You will need to download some additional libraries and utilities 
 before compiling ChucK
