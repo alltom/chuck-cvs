@@ -163,14 +163,13 @@ a_Exp new_exp_decl( a_Type_Decl type_decl, a_Var_Decl_List var_decl_list, int po
 a_Exp new_exp_from_namespace( c_str name, int pos );
 a_Var_Decl_List new_var_decl_list( a_Var_Decl var_decl, int pos );
 a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list, int pos );
-a_Var_Decl new_var_decl( c_str id, int pos );
-a_Var_Decl new_var_decl2( a_Var_Decl, int isarray, a_Exp exp, int pos );
+a_Var_Decl new_var_decl( a_Id_List id, a_Array_Sub array, int pos );
 a_Type_Decl new_type_decl( a_Id_List id, a_Array_Sub array, int pos );
 a_Arg_List new_arg_list( a_Type_Decl type_decl, c_str name, int pos );
 a_Arg_List prepend_arg_list( a_Type_Decl type_decl, c_str name, a_Arg_List arg_list, int pos );
 a_Array_Sub new_array_sub( a_Exp exp, int pos );
 a_Array_Sub prepend_array_sub( a_Array_Sub array, a_Exp exp, int pos );
-a_Class_Def new_class_def( a_Var_Decl id, a_Class_Ext ext, a_Class_Body body, int pos );
+a_Class_Def new_class_def( c_str id, a_Class_Ext ext, a_Class_Body body, int pos );
 a_Class_Body new_class_body( a_Section section, int pos );
 a_Class_Body prepend_class_body( a_Section section, a_Class_Body body, int pos );
 a_Class_Ext new_class_ext( c_str extend_id, a_Id_List impl_list, int pos );
@@ -200,7 +199,7 @@ struct a_Exp_If_ { a_Exp cond; a_Exp if_exp; a_Exp else_exp; int linepos; a_Exp 
 struct a_Exp_Decl_ { a_Type_Decl type; a_Var_Decl_List var_decl_list; int linepos; a_Exp self; };
 struct a_Exp_Namespace_ { S_Symbol name; int linepos; a_Exp self; };
 struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos; a_Exp self; };
-struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; int isarray; a_Exp exp; int linepos; a_Exp self; };
+struct a_Var_Decl_ { a_Id_List id; a_Var_Decl var_decl; a_Array_Sub array; int linepos; a_Exp self; };
 struct a_Type_Decl_ { S_Symbol id; a_Array_Sub array; int linepos; a_Exp self; };
 struct a_Array_Sub_ { int depth; a_Exp exp_list; int linepos; a_Exp self; 
                       int errno; int err_pos; };
@@ -308,7 +307,7 @@ struct a_Stmt_
 };
 
 struct a_Stmt_List_ { a_Stmt stmt; a_Stmt_List next; int linepos; };
-struct a_Class_Def_ { a_Var_Decl name; a_Class_Ext ext; a_Class_Body body; int linepos; };
+struct a_Class_Def_ { S_Symbol name; a_Class_Ext ext; a_Class_Body body; int linepos; };
 struct a_Class_Ext_ { S_Symbol extend_id; a_Id_List impl_list; int linepos; };
 struct a_Class_Body_ { a_Section section; a_Class_Body next; int linepos; };
 struct a_Id_List_ { S_Symbol id; a_Id_List next; int linepos; };

@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 30 shift/reduce conflicts
-%expect 30
+// expect 32 shift/reduce conflicts
+%expect 32
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -97,8 +97,8 @@ a_Program g_program = NULL;
   PLUSPLUS MINUSMINUS
   SIMULT PATTERN CODE TRANSPORT HOST
   TIME WHENEVER NEXT UNTIL EVERY BEFORE
-  AFTER AT AT_SYM ATAT_SYM NEW TYPEOF SAME
-  PLUS_CHUCK MINUS_CHUCK TIMES_CHUCK
+  AFTER AT AT_SYM ATAT_SYM NEW SIZEOF TYPEOF
+  SAME PLUS_CHUCK MINUS_CHUCK TIMES_CHUCK
   DIVIDE_CHUCK S_AND_CHUCK S_OR_CHUCK
   S_XOR_CHUCK SHIFT_RIGHT_CHUCK
   SHIFT_LEFT_CHUCK PERCENT_CHUCK
@@ -140,14 +140,13 @@ a_Program g_program = NULL;
 %type <exp> tilda_expression
 %type <exp> cast_expression
 %type <exp> unary_expression
-%type <exp> postfix_expression
+%type <exp> postfix_expression  
 %type <exp> primary_expression
 %type <exp> decl_expression
 %type <ival> unary_operator
 %type <ival> chuck_operator
 %type <var_decl_list> var_decl_list
 %type <var_decl> var_decl
-%type <var_decl> id_decl
 %type <type_decl> type_decl
 %type <ival> function_decl
 %type <arg_list> arg_list
@@ -172,9 +171,9 @@ program_section
         ;
 
 class_definition
-        : CLASS id_decl LBRACE class_body RBRACE
+        : CLASS ID LBRACE class_body RBRACE
             { $$ = new_class_def( $2, NULL, $4, EM_lineNum ); }
-        | CLASS id_decl class_ext LBRACE class_body RBRACE 
+        | CLASS ID class_ext LBRACE class_body RBRACE 
             { $$ = new_class_def( $2, $3, $5, EM_lineNum ); }
         ;
 
@@ -220,9 +219,9 @@ function_decl
         ;
 
 type_decl
-        : id_dot                                { $$ = new_type_decl( $1, NULL, EM_lineNum ); }
-        | id_dot array_exp                      { $$ = new_type_decl( $1, $2, EM_lineNum ); }
-        | id_dot array_empty                    { $$ = new_type_decl( $1, $2, EM_lineNum ); }
+        : id_dot                            { $$ = new_type_decl( $1, NULL, EM_lineNum ); }
+//        | S_CHUCK id_dot array_exp                  { $$ = new_type_decl( $2, $3, EM_lineNum ); }
+//        | S_CHUCK id_dot array_empty                { $$ = new_type_decl( $2, $3, EM_lineNum ); }
         ;
 
 arg_list
@@ -317,15 +316,11 @@ var_decl_list
         ;
 
 var_decl
-        : ID                                { $$ = new_var_decl( $1, EM_lineNum ); }
-        // | var_decl LBRACK RBRACK            { $$ = new_var_decl2( $1, 1, NULL, EM_lineNum ); }
-        // | var_decl LBRACK expression RBRACK { $$ = new_var_decl2( $1, 1, $3, EM_lineNum ); }
+        : id_dot                            { $$ = new_var_decl( $1, NULL, EM_lineNum ); }
+        | id_dot array_exp                  { $$ = new_var_decl( $1, $2, EM_lineNum ); }
+        | id_dot array_empty                { $$ = new_var_decl( $1, $2, EM_lineNum ); }
         ;
 
-id_decl
-        : ID                                { $$ = new_var_decl( $1, EM_lineNum ); }
-        ;
-        
 chuck_operator
         : CHUCK                             { $$ = ae_op_chuck; }
         | S_CHUCK                           { $$ = ae_op_s_chuck; }
@@ -448,8 +443,10 @@ unary_expression
             { }
         | NEW LT type_decl GT
             { }
-        //| SIZEOF LT unary_expression GT         { }
-        //| TYPEOF LT unary_expression GT         { }
+        | SIZEOF LT unary_expression GT
+            { }
+        | TYPEOF LT unary_expression GT
+            { }
         ;
         
 unary_operator
@@ -465,7 +462,7 @@ unary_operator
 postfix_expression
         : primary_expression                { $$ = $1; }
         | postfix_expression array_exp
-            { $$ = new_exp_from_array( $1, NULL, EM_lineNum ); }
+            { $$ = new_exp_from_array( $1, $2, EM_lineNum ); }
         | postfix_expression LPAREN RPAREN
             { $$ = new_exp_from_func_call( $1, NULL, EM_lineNum ); }
         | postfix_expression LPAREN expression RPAREN

@@ -512,23 +512,12 @@ a_Exp new_exp_from_namespace( c_str name, int pos )
     return a;
 }
 
-a_Var_Decl new_var_decl( c_str name, int pos )
+a_Var_Decl new_var_decl( a_Id_List id, a_Array_Sub array, int pos )
 {
     a_Var_Decl a = (a_Var_Decl)checked_malloc( sizeof( struct a_Var_Decl_ ) );
-    a->id = insert_symbol( name );
+    a->id = id;
+    a->array = array;
     a->linepos = pos;
-    
-    return a;
-}
-
-a_Var_Decl new_var_decl2( a_Var_Decl var_decl, int isarray, a_Exp exp, int pos )
-{
-    a_Var_Decl a = (a_Var_Decl)checked_malloc( sizeof( struct a_Var_Decl_ ) );
-    a->var_decl = var_decl->var_decl;
-    a->exp = exp;
-    a->linepos = pos;
-    var_decl->isarray++;
-    var_decl->var_decl = a;
     
     return a;
 }
