@@ -112,6 +112,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
 t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
 t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
+t_CKBOOL type_engine_check_array_subscripts( Chuck_Env * env, a_Exp exp_list );
 t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
 t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
 t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
@@ -1293,7 +1294,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
         t = type_engine_check_exp( env, unary->exp );
         if( !t ) return NULL;
     }
-    
+
     // check the op
     switch( unary->op )
     {
@@ -1363,6 +1364,24 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                 EM_error2( unary->linepos,
                     "cannot instantiate/(new) single object references (@)..." );
                 return NULL;
+            }
+
+            // []
+            if( unary->array )
+            {
+                // if empty
+                if( !unary->array->exp_list )
+                {
+                    EM_error2( unary->linepos, "cannot use empty [] with 'new'..." );
+                    return NULL;
+                }
+
+                // type check the exp
+                if( !type_engine_check_exp( env, unary->array->exp_list ) )
+                    return NULL;
+                // make sure types are of int
+                if( !type_engine_check_array_subscripts( env, unary->array->exp_list ) )
+                    return NULL;
             }
 
             // return the type
