@@ -55,7 +55,7 @@ typedef enum {
     te_int, te_uint, te_single, te_float, te_double, te_time, te_dur,
     te_string, te_thread, te_shred, te_class, te_function, te_object,
     te_null, te_ugen, te_event, te_void, te_stdout, te_stderr, te_user,
-	te_adc, te_dac, te_bunghole, te_midiin, te_midiout
+	te_adc, te_dac, te_bunghole, te_midiin, te_midiout, te_multi
 } te_Type;
 
 
@@ -117,6 +117,7 @@ struct Chuck_Type;
 struct Chuck_Value;
 struct Chuck_Func;
 struct Chuck_DLL;
+struct Chuck_Multi;
 typedef struct Chuck_Type * t_CKTYPE;
 class Chuck_VM;
 class Chuck_VM_Code;
@@ -270,8 +271,15 @@ struct Chuck_Type
     Chuck_Namespace * info;
     // func info
     Chuck_Func * func;
+    // multi
+    vector<Chuck_Type *> * multi;
 
 public:
+    ~Chuck_Type() { reset(); }
+    // reset
+    void reset()
+    { id = te_void; parent = NULL; size = array_depth = self_size = 0;
+      owner = info = NULL; func = NULL; if( multi ) delete multi; multi = NULL; }
     // copy
     Chuck_Type * copy() const
     { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) ); }
@@ -290,12 +298,19 @@ struct Chuck_Value
     Chuck_Type * type;
     // name
     string name;
-	// addr
-	void * addr;
+    // addr
+    void * addr;
+    // const?
+    t_CKBOOL is_const;
+    // 0 = public, 1 = protected, 2 = private
+    t_CKBOOL access;
+    // owner
+    Chuck_Namespace * owner;
 
 	// constructor
-	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL )
-	{ type = t; name = n; addr = a; }
+	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
+                 t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL )
+	{ type = t; name = n; is_const = c; access = acc; owner = o; addr = a; }
 };
 
 

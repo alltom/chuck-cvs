@@ -161,22 +161,22 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_CKDUR week = day * 7.0;
 
 	// default global values
-	env->global.value.add( "null", new Chuck_Value( &t_null, "null" ) );
-	env->global.value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system) ) );
-	env->global.value.add( "tzero", new Chuck_Value( &t_time, "tzero" ) );
-    env->global.value.add( "dzero", new Chuck_Value( &t_dur, "dzero" ) );
-	env->global.value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp) ) );
-	env->global.value.add( "ms", new Chuck_Value( &t_dur, "ms", new t_CKDUR(ms) ) );
-	env->global.value.add( "second", new Chuck_Value( &t_dur, "second", new t_CKDUR(second) ) );
-	env->global.value.add( "minute", new Chuck_Value( &t_dur, "minute", new t_CKDUR(minute) ) );
-	env->global.value.add( "hour", new Chuck_Value( &t_dur, "hour", new t_CKDUR(hour) ) );
-	env->global.value.add( "day", new Chuck_Value( &t_dur, "day", new t_CKDUR(day) ) );
-	env->global.value.add( "week", new Chuck_Value( &t_dur, "week", new t_CKDUR(week) ) );
-	env->global.value.add( "true", new Chuck_Value( &t_int, "true", new t_CKINT(1) ) );
-	env->global.value.add( "false", new Chuck_Value( &t_int, "false", new t_CKINT(0) ) );
-	env->global.value.add( "maybe", new Chuck_Value( &t_int, "maybe" ) );
-	env->global.value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(3.14159265358979323846) ) );
-	env->global.value.add( "global", new Chuck_Value( &t_class, "global", &(env->global) ) );
+	env->global.value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
+	env->global.value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system), TRUE ) );
+	env->global.value.add( "tzero", new Chuck_Value( &t_time, "tzero", new t_CKDUR(0.0), TRUE ) );
+    env->global.value.add( "dzero", new Chuck_Value( &t_dur, "dzero", new t_CKDUR(0.0), TRUE ) );
+	env->global.value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp), TRUE ) );
+	env->global.value.add( "ms", new Chuck_Value( &t_dur, "ms", new t_CKDUR(ms), TRUE ) );
+	env->global.value.add( "second", new Chuck_Value( &t_dur, "second", new t_CKDUR(second), TRUE ) );
+	env->global.value.add( "minute", new Chuck_Value( &t_dur, "minute", new t_CKDUR(minute), TRUE ) );
+	env->global.value.add( "hour", new Chuck_Value( &t_dur, "hour", new t_CKDUR(hour), TRUE ) );
+	env->global.value.add( "day", new Chuck_Value( &t_dur, "day", new t_CKDUR(day), TRUE ) );
+	env->global.value.add( "week", new Chuck_Value( &t_dur, "week", new t_CKDUR(week), TRUE ) );
+	env->global.value.add( "true", new Chuck_Value( &t_int, "true", new t_CKINT(1), TRUE ) );
+	env->global.value.add( "false", new Chuck_Value( &t_int, "false", new t_CKINT(0), TRUE ) );
+	env->global.value.add( "maybe", new Chuck_Value( &t_int, "maybe", new t_CKFLOAT(.5), FALSE ) );
+	env->global.value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(3.14159265358979323846), TRUE ) );
+	env->global.value.add( "global", new Chuck_Value( &t_class, "global", &(env->global), TRUE ) );
 
 	/*
     S_enter( e->value, insert_symbol( "machine" ), &t_null );
@@ -1238,7 +1238,7 @@ t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl var_decl = decl->var_decl_list->var_decl;
-    
+
     // look up the type
     t_CKTYPE t = env->curr->lookup_type( decl->type->id, TRUE );
     if( !t )
@@ -1260,6 +1260,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     // check if array
     if( decl->type->array )
     {
+        // type check the exp
+        if( !type_engine_check_exp( env, decl->type->array->exp_list ) )
+            return NULL;        
         // make a copy of the type
         t = t->copy();
         // set the array depth
@@ -1270,7 +1273,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     if( var_decl->isarray )
     {
         EM_error2( decl->linepos,
-            "for declaration, array subscripts must be placed only with type" );
+            "for declaration, array subscripts must be placed after type" );
         return NULL;
     }
 
