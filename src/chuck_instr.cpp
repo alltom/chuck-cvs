@@ -1745,15 +1745,15 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     uint prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
 
     // jump the sp
-    mem_sp += prev_stack;
+    mem_sp += prev_stack + local_depth;
     // push the prev stack
-    push_( mem_sp, prev_stack );
+    push_( mem_sp, prev_stack + local_depth );
     // push the current function
     push_( mem_sp, (uint)shred->code );
     // push the pc
     push_( mem_sp, (uint)(shred->pc + 1) );
     // push the stack depth
-    push_( mem_sp, (stack_depth + local_depth) );
+    push_( mem_sp, stack_depth );
     // set the parent mem stack
     shred->parent = func->parent;
     // set the pc to 0
