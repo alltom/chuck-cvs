@@ -142,13 +142,13 @@ struct Chuck_Namespace : public Chuck_VM_Object
     string name;
     // top-level code
     Chuck_VM_Code * code;
-    // parent env
-    Chuck_Namespace * parent;
+    // type that contains this
+    Chuck_Type * parent;
     // address offset
     t_CKUINT offset;
 
     // constructor
-	Chuck_Namespace() { parent = NULL; offset = 0; }
+	Chuck_Namespace() { code = NULL; parent = NULL; offset = 0; }
     // destructor
 	~Chuck_Namespace() { }
 

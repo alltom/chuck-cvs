@@ -1010,17 +1010,17 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
 {
     t_CKTYPE t = NULL;
     Chuck_Value * v = NULL;
-    
+
     // check syntax
     switch( exp->s_type )
     {
         // variable
         case ae_primary_var:
-            v = env->curr->lookup_value( exp->var, env->dots == 0 );
+            v = env->curr->lookup_value( exp->var, TRUE );
             if( !v )
             {
                 // error
-                if( !env->dots )
+                if( !env->class_def )
                 {
                     EM_error2( exp->linepos,
                         "undefined variable '%s'...",
@@ -1030,7 +1030,7 @@ t_CKTYPE type_engine_check_primary( Chuck_Env * env, a_Exp_Primary exp )
                 {
                     EM_error2( exp->linepos,
                         "undefined member '%s' in class/namespace '%s'...",
-                        S_name(exp->var), env->curr->name.c_str() );
+                        S_name(exp->var), env->class_def->name.c_str() );
                 }
                 return NULL;
             }
@@ -1530,6 +1530,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     t_class->owner = env->curr;
     t_class->array_depth = 0;
     t_class->info = new Chuck_Namespace;
+    t_class->info->name = t_class->name;
+    t_class->info->parent = t_class;
     t_class->func = NULL;
 
     // set the new type as current
@@ -1899,18 +1901,18 @@ t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name,
 // name: do_make_args()
 // desc: ...
 //-----------------------------------------------------------------------------
-a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, unsigned int index )
+a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, t_CKUINT index )
 {
     a_Arg_List args = NULL;
     if( index >= params.size() )
         return NULL;
 
     if( index == (params.size()-1) )
-        args = new_arg_list( new_type_decl( (char*)params[index].type.c_str(), 0 ),
+        args = new_arg_list( new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0 ),
                              (char*)params[index].name.c_str(), 0 );
     else
         args = prepend_arg_list(
-            new_type_decl( (char*)params[index].type.c_str(), 0 ),
+            new_type_decl( new_id_list((char*)params[index].type.c_str(), 0), 0 ),
             (char*)params[index].name.c_str(),
             do_make_args( params, index + 1 ), 0 );
     return args;
@@ -1923,27 +1925,40 @@ a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, unsigned int i
 // name: type_engine_add_dll()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
+t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * name )
 {    
     // lookup the namesapce
-    Chuck_Type * type = env->global->
-    t_Env info = (t_Env)S_look( env->name_space,
-                                insert_symbol( (char *)nspc ) );
-    // if not there
-    if( info && info->dlls[dll] )
+    Chuck_Namespace * nspc = NULL;
+    Chuck_Type * type = NULL;
+    
+    // go through type - which is what namespaces are in ChucK
+    if( type = env->global.lookup_type( string(name) ) )
+        nspc = type->info;
+
+    // if already there
+    if( env->dlls[dll] )
         return FALSE;
 
-    if( !info )
+    // if not there
+    if( !nspc )
     {
-        info = new_namespace( nspc, env, 211 );
-        S_enter( env->value, insert_symbol(nspc), &t_system_namespace );
-        env->scope_add( insert_symbol(nspc) );
-        S_enter( env->name_space, insert_symbol(nspc), info );
+        // allocate new namespace
+        nspc = new Chuck_Namespace;
+        if( !type )
+        {
+            // add as new type/namespace
+            type = new Chuck_Type( te_user, name, NULL, 0 );
+            env->global.type.add( string(name), type );
+        }
+        // set the nspc
+        type->info = nspc;
+        nspc->name = type->name;
+        nspc->parent = type;
     }
 
     // add all the prototypes
     Chuck_DL_Query * query = (Chuck_DL_Query *)dll->query();
-    for( unsigned int i = 0; i < query->dll_exports.size(); i++ )
+    for( t_CKUINT i = 0; i < query->dll_exports.size(); i++ )
     {
         // the prototype
         Chuck_DL_Proto * proto = &query->dll_exports[i];
@@ -1952,41 +1967,39 @@ t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
         if( proto->is_func )
         {
             // type decl
-            a_Type_Decl rtype = new_type_decl( (char *)proto->type.c_str(), 0 );
+            a_Type_Decl rtype = new_type_decl( new_id_list((char *)proto->type.c_str(), 0), 0 );
             // arg list
             a_Arg_List args = NULL;
             if( proto->params.size() )
                 args = do_make_args( proto->params, 0 );
             // allocate a new function
             a_Func_Def func = new_func_def( 
-                ae_func_func, rtype, (char*)proto->name.c_str(), args, NULL, 0 );
+                ae_key_func, ae_key_public, rtype, (char*)proto->name.c_str(), args, NULL, 0 );
             // set the pointer
             func->builtin = (builtin_func_ptr)proto->addr;
             func->linepos = query->linepos;
             // type check it
-            if( !type_engine_check_func_def_import( info, func ) )
+            if( !type_engine_check_func_def_import( env, func ) )
             {
                 // clean up
-                info->dlls.erase( dll );
+                // env->dlls.erase( dll );
                 return FALSE;
             }
         }
         else
         {
             // add value
-            if( !type_engine_check_value_import( info,
-                insert_symbol((char *)proto->name.c_str()),
-                insert_symbol((char *)proto->type.c_str()),
-                (void *)proto->addr ) )
+            if( !type_engine_check_value_import( env,
+                proto->name, proto->type, (void *)proto->addr ) )
             {
-                info->dlls.erase( dll );
+                // info->dlls.erase( dll );
                 return FALSE;
             }
         }
     }
 
     // add the unit generators
-    for( unsigned int j = 0; j < query->ugen_exports.size(); j++ )
+    for( t_CKUINT j = 0; j < query->ugen_exports.size(); j++ )
     {
         Chuck_UGen_Info * ugen = new Chuck_UGen_Info( query->ugen_exports[j] );
         
@@ -1999,7 +2012,7 @@ t_CKBOOL type_engine_add_dll( t_Env env, Chuck_DLL * dll, const char * nspc )
     }
 
     // flag
-    info->dlls[dll] = true;
+    env->dlls[dll] = true;
 
     return TRUE;
 }
@@ -2016,8 +2029,8 @@ t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_
 Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 {
     Chuck_Type * t = type.lookup( name );
-    if( climb && !t && parent )
-        return parent->lookup_type( name, climb );
+    if( climb && !t && parent && parent->info )
+        return parent->info->lookup_type( name, climb );
     return t;
 }
 
@@ -2031,8 +2044,8 @@ Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb )
 {
     Chuck_Value * v = value.lookup( name );
-    if( climb && !v && parent )
-        return parent->lookup_value( name, climb );
+    if( climb && !v && parent && parent->info )
+        return parent->info->lookup_value( name, climb );
     return v;
 }
 
@@ -2046,8 +2059,8 @@ Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb
 Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_Value * v = value.lookup( name );
-    if( climb && !v && parent )
-        return parent->lookup_value( name, climb );
+    if( climb && !v && parent && parent->info )
+        return parent->info->lookup_value( name, climb );
     return v;
 }
 
@@ -2061,8 +2074,8 @@ Chuck_Value * Chuck_Namespace::lookup_value( S_Symbol name, t_CKBOOL climb )
 Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 {
     Chuck_Func * f = func.lookup( name );
-    if( climb && !f && parent )
-        return parent->lookup_func( name, climb );
+    if( climb && !f && parent && parent->info )
+        return parent->info->lookup_func( name, climb );
     return f;
 }
 
@@ -2076,8 +2089,8 @@ Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_Func * f = func.lookup( name );
-    if( climb && !f && parent )
-        return parent->lookup_func( name, climb );
+    if( climb && !f && parent && parent->info )
+        return parent->info->lookup_func( name, climb );
     return f;
 }
 
@@ -2091,8 +2104,8 @@ Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKBOOL climb )
 Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL climb )
 {
     Chuck_UGen_Info * u = ugen.lookup( name );
-    if( climb && !u && parent )
-        return parent->lookup_ugen( name, climb );
+    if( climb && !u && parent && parent->info )
+        return parent->info->lookup_ugen( name, climb );
     return u;
 }
 
@@ -2106,8 +2119,8 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( const string & name, t_CKBOOL cl
 Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 {
     Chuck_UGen_Info * u = ugen.lookup( name );
-    if( climb && !u && parent )
-        return parent->lookup_ugen( name, climb );
+    if( climb && !u && parent && parent->info )
+        return parent->info->lookup_ugen( name, climb );
     return u;
 }
 
@@ -2122,8 +2135,8 @@ Chuck_UGen_Info * Chuck_Namespace::lookup_ugen( S_Symbol name, t_CKBOOL climb )
 void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 {
     void * a = addr.lookup( name );
-    if( climb && !a && parent )
-        return parent->lookup_addr( name, climb );
+    if( climb && !a && parent && parent->info )
+        return parent->info->lookup_addr( name, climb );
     return a;
 }
 
@@ -2137,8 +2150,8 @@ void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 void * Chuck_Namespace::lookup_addr( S_Symbol name, t_CKBOOL climb )
 {
     void * a = addr.lookup( name );
-    if( climb && !a && parent )
-        return parent->lookup_addr( name, climb );
+    if( climb && !a && parent && parent->info )
+        return parent->info->lookup_addr( name, climb );
     return a;
 }
 
