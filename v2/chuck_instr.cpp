@@ -1058,6 +1058,43 @@ void Chuck_Instr_Alloc_DWord::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
+// desc: instantiate object
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_Object * object = NULL;
+
+    // sanity
+    assert( this->type != NULL );
+
+    // allocate the VM object
+    object = new Chuck_Object;
+    // init
+    object->init();
+    // allocate virtual table
+    object->vtable = new Chuck_VTable;
+    // set the type reference
+    // TODO: reference count
+    object->type_ref = this->type;
+    // get the size
+    object->size = type->obj_size;
+    // allocate memory
+    // TODO: check to ensure enough memory
+    object->data = new t_CKBYTE[object->size];
+    // zero it out
+    memset( object->data, 0, object->size );
+
+    // push the pointer on the operand stack
+    push_( reg_sp, (t_CKUINT)object );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
 // desc: assign primitive (word)
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Assign_Primitive::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )

@@ -188,7 +188,7 @@ struct filter_data
     
     SAMPLE tick( SAMPLE in )
     {
-        int i;
+        t_CKUINT i;
 
         output[0] = 0.0;
         input[0] = in;

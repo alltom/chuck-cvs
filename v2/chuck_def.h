@@ -49,6 +49,7 @@
 #define t_CKUINT                    t_CKDWORD
 #define t_CKBOOL                    t_CKDWORD
 #define t_CKBYTE                    unsigned char
+#define t_CKPVOID                   void *
 
 typedef char *                      c_str;
 typedef const char *                c_constr;

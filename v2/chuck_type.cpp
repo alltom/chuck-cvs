@@ -1627,7 +1627,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
 
     a_Exp e = func_call->args;
     a_Arg_List e1 = func->def->arg_list;
-    unsigned int count = 1;
+    t_CKUINT count = 1;
 
     // check arguments against the definition
     while( e )
@@ -2782,7 +2782,7 @@ t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) <= (*rhs); }
 Chuck_Context::~Chuck_Context()
 {
     // delete the types
-    for( int i = 0; i < new_types.size(); i++ )
+    for( t_CKINT i = 0; i < new_types.size(); i++ )
         new_types[i]->release();
 
     // TODO: delete abstract syntax tree * 
@@ -2898,7 +2898,7 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 
     a_Arg_List e1 = lhs->arg_list;
     a_Arg_List e2 = rhs->arg_list;
-    unsigned int count = 1;
+    t_CKUINT count = 1;
 
     // check arguments against the definition
     while( e1 && e2 )

@@ -543,7 +543,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_REMOVEALL )
     {
-        int id = m_shred_id;
+        t_CKUINT id = m_shred_id;
         EM_error3( "[chuck](VM): removing all (%i) shreds...", m_num_shreds );
         Chuck_VM_Shred * shred = NULL;
 
@@ -726,11 +726,11 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
     shred->is_done = TRUE;
 
     // free the children
-    int size = shred->children.size();
+    t_CKINT size = shred->children.size();
     if( size )
     {
         vector<Chuck_VM_Shred *> list; list.resize( size );
-        map<t_CKUINT, Chuck_VM_Shred *>::iterator iter; int i = 0;
+        map<t_CKUINT, Chuck_VM_Shred *>::iterator iter; t_CKINT i = 0;
         for( iter = shred->children.begin(); iter != shred->children.end(); iter++ )
             list[i++] = (*iter).second;
         for( i = 0; i < size; i++ )
@@ -1058,8 +1058,6 @@ t_CKBOOL Chuck_VM_Shred::run( Chuck_VM * vm )
     // get the code
     instr = code->instr;
     is_running = TRUE;
-
-    static int i = 0;
 
     // go!
     while( is_running )

@@ -130,7 +130,7 @@ public:
     // reference to type
     Chuck_Type * type_ref;
     // the size of the data region
-    t_CKUINT * size;
+    t_CKUINT size;
     // data for the object
     t_CKBYTE * data;
 };

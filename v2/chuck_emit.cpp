@@ -90,6 +90,9 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
 //-----------------------------------------------------------------------------
 Chuck_Emitter * emit_engine_init( Chuck_Env * env )
 {
+    // TODO: ensure this in a better way
+    assert( sizeof(t_CKUINT) == sizeof(void *) );
+
     // allocate new emit
     Chuck_Emitter * emit = new Chuck_Emitter;
     // set the reference
