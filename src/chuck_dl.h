@@ -204,7 +204,7 @@ public: // call these from the DLL
     f_ck_addexport add_export;  // call this to add export
     f_ck_addparam  add_param;   // call this to add parameter to last export
     f_ck_ugen_add  ugen_add;    // call this to add a ugen
-    f_ck_ugen_extends  ugen_extends;    //XXX - pld call this to extend another ugen 
+    f_ck_ugen_extends  ugen_extends;    // XXX - pld call this to extend another ugen 
     f_ck_ugen_func ugen_func;   // call this (once) to set functions for last ugen
     f_ck_ugen_ctrl ugen_ctrl;   // call this (>= 0 times) to add ctrl to last ugen
     f_ck_setname   set_name;    // call this to set name
