@@ -2132,16 +2132,9 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
     if( !emit_engine_emit_exp( emit, array->base ) )
         return FALSE;
 
-    // loop over the exp
-    while( exp )
-    {
-        // emit the exp
-        if( !emit_engine_emit_exp( emit, exp ) )
-            return FALSE;
-        
-        // move to the next
-        exp = exp->next;
-    }
+    // emit the exp list
+    if( !emit_engine_emit_exp( emit, exp ) )
+        return FALSE;
 
     // make sure
     if( type->size != 4 && type->size != 8 )
