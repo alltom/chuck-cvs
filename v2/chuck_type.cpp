@@ -1406,13 +1406,26 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
         env->curr->value.add( var_decl->id,
             value = new Chuck_Value( t, S_name(var_decl->id), NULL ) );
-        // assign the offset
-        value->offset = env->curr->offset;
+ 
+        // see if in function or not
+        if( env->func )
+        {
+            // assign the offset in the function
+            value->offset = env->func->offset;
+            // move the offset (TODO: check the size)
+            env->func->offset += t->size;
+        }
+        else
+        {
+            // assign the offset
+            value->offset = env->curr->offset;
+            // move the offset (TODO: check the size)
+            env->curr->offset += t->size;
+        }
+
         // remember the owner
         value->owner = env->curr;
         value->owner_class = env->class_def;
-        // move the offset (TODO: check the size)
-        env->curr->offset += t->size;
 
         // the next var decl
         list = list->next;
@@ -1791,7 +1804,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // look up types for the function arguments
     arg_list = f->arg_list;
     count = 1;
-    f->stack_depth = 0;
+    // make room (this)
+    f->stack_depth = sizeof(void *);
     while( arg_list )
     {
         // look up in type table
@@ -1830,6 +1844,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         env->curr->value.add( arg_list->var_decl->id, value );
 
         // stack
+        value->offset = f->stack_depth;
         f->stack_depth += arg_list->type->size;
 
         // next arg

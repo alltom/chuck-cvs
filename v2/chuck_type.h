@@ -312,6 +312,9 @@ public:
       this->parent = rhs.parent;
       this->self_size = rhs.self_size;
       this->size = rhs.size;
+      this->def = rhs.def;
+
+      // TODO: fix this reference counting mess
       // add references
       if( info ) rhs.info->add_ref();
       // return
@@ -383,9 +386,11 @@ struct Chuck_Func : public Chuck_VM_Object
     Chuck_VM_Code * code;
     // instance or static
     t_CKBOOL instance;
+    // offset
+    t_CKUINT offset;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; instance = FALSE; }
+    Chuck_Func() { def = NULL; code = NULL; instance = FALSE; offset = 0; }
 };
 
 
