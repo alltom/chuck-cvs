@@ -166,6 +166,7 @@ UGEN_CTRL OnePole_ctrl_a1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OnePole_ctrl_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL OnePole_ctrl_pole( t_CKTIME now, void * data, void * value );
 
+
 // TwoPole
 UGEN_CTOR TwoPole_ctor( t_CKTIME now );
 UGEN_DTOR TwoPole_dtor( t_CKTIME now, void * data );
@@ -174,6 +175,10 @@ UGEN_PMSG TwoPole_pmsg( t_CKTIME now, void * data, const char * msg, void * valu
 UGEN_CTRL TwoPole_ctrl_a1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoPole_ctrl_a2( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoPole_ctrl_b0( t_CKTIME now, void * data, void * value );
+UGEN_CTRL TwoPole_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL TwoPole_ctrl_radius( t_CKTIME now, void * data, void * value );
+UGEN_CTRL TwoPole_ctrl_norm( t_CKTIME now, void * data, void * value );
+
 
 // OneZero
 UGEN_CTOR OneZero_ctor( t_CKTIME now );
@@ -193,7 +198,7 @@ UGEN_CTRL TwoZero_ctrl_b0( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoZero_ctrl_b1( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoZero_ctrl_b2( t_CKTIME now, void * data, void * value );
 UGEN_CTRL TwoZero_ctrl_freq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL TWoZero_ctrl_radius( t_CKTIME now, void * data, void * value );
+UGEN_CTRL TwoZero_ctrl_radius( t_CKTIME now, void * data, void * value );
 
 // PoleZero
 UGEN_CTOR PoleZero_ctor( t_CKTIME now );

@@ -312,6 +312,41 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, OnePole_ctrl_b0, NULL,  "float", "b0" );
     QUERY->ugen_ctrl( QUERY, OnePole_ctrl_pole, NULL, "float", "pole" );
 
+    // add TwoPole
+    QUERY->ugen_add( QUERY, "TwoPole", NULL );
+    QUERY->ugen_func( QUERY, TwoPole_ctor, TwoPole_dtor, TwoPole_tick, TwoPole_pmsg );
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_a1 , NULL, "float", "a1" );
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_a2 , NULL, "float", "a2" );
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_b0, NULL,  "float", "b0" );
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_freq, NULL,  "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_radius, NULL,  "float", "radius" );
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_norm, NULL,  "int", "norm" );
+
+    // add OneZero
+    QUERY->ugen_add( QUERY, "OneZero", NULL );
+    QUERY->ugen_func( QUERY, OneZero_ctor, OneZero_dtor, OneZero_tick, OneZero_pmsg );
+    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_zero , NULL, "float", "zero" );
+    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_b0, NULL, "float", "b0" );
+    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_b1, NULL,  "float", "b1" );
+
+    // add TwoZero
+    QUERY->ugen_add( QUERY, "TwoZero", NULL );
+    QUERY->ugen_func( QUERY, TwoZero_ctor, TwoZero_dtor, TwoZero_tick, TwoZero_pmsg );
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b0, NULL, "float", "b0" );
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b1, NULL,  "float", "b1" );
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b2, NULL,  "float", "b2" );
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_freq , NULL, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_radius , NULL, "float", "radius" );
+
+    // add PoleZero
+    QUERY->ugen_add( QUERY, "PoleZero", NULL );
+    QUERY->ugen_func( QUERY, PoleZero_ctor, PoleZero_dtor, PoleZero_tick, PoleZero_pmsg );
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_a1, NULL,  "float", "a1" );
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_b0, NULL, "float", "b0" );
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_b1, NULL,  "float", "b1" );
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_blockZero , NULL, "float", "blockZero" );
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_allpass , NULL, "float", "allpass" );
+    
 
     // add WaveLoop
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
@@ -1501,6 +1536,14 @@ class TwoZero : protected Filter
     close to or equal to one), the narrower the resulting notch width.
   */
   void setNotch(MY_FLOAT frequency, MY_FLOAT radius);
+
+  void setNotchFreq ( MY_FLOAT freq ) { notchFreq = freq; setNotch (notchFreq, notchRad); }
+  void setNotchRad  ( MY_FLOAT rad  ) { notchRad = rad;   setNotch (notchFreq, notchRad); }
+
+
+  //chuck helper functions
+  MY_FLOAT notchFreq;
+  MY_FLOAT notchRad;
 
   //! Set the filter gain.
   /*!
@@ -5570,6 +5613,13 @@ class TwoPole : protected Filter
   */
   void setResonance(MY_FLOAT frequency, MY_FLOAT radius, bool normalize = FALSE);
 
+  bool resNorm;
+  MY_FLOAT resFreq;
+  MY_FLOAT resRad;
+
+  void setResNorm( bool n ) { resNorm = n; setResonance(resFreq, resRad, resNorm); } 
+  void setResFreq( MY_FLOAT n ) { resFreq = n; setResonance(resFreq, resRad, resNorm); } 
+  void setResRad( MY_FLOAT n ) { resRad = n; setResonance(resFreq, resRad, resNorm); } 
   //! Set the filter gain.
   /*!
     The gain is applied at the filter input and does not affect the
@@ -15911,6 +15961,9 @@ TwoPole :: TwoPole() : Filter()
 {
   MY_FLOAT B = 1.0;
   MY_FLOAT A[3] = {1.0, 0.0, 0.0};
+  resFreq = 440.0;
+  resRad = 0.0;
+  resNorm = false;
   Filter::setCoefficients( 1, &B, 3, A );
 }
 
@@ -16003,6 +16056,8 @@ TwoZero :: TwoZero() : Filter()
 {
   MY_FLOAT B[3] = {1.0, 0.0, 0.0};
   MY_FLOAT A = 1.0;
+  notchFreq = 440.0;
+  notchRad = 0.0;
   Filter::setCoefficients( 3, B, 1, &A );
 }
 
@@ -19882,5 +19937,242 @@ UGEN_CTRL OnePole_ctrl_pole( t_CKTIME now, void * data, void * value )
     OnePole * filter = (OnePole *)data;
     t_CKFLOAT f = GET_CK_FLOAT(value); 
     filter->setPole( f );
+}
+
+
+//TwoPole functions
+
+UGEN_CTOR TwoPole_ctor ( t_CKTIME now ) 
+{
+  return new TwoPole();
+}
+
+UGEN_DTOR TwoPole_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (TwoPole *)data;
+}
+
+UGEN_TICK TwoPole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    TwoPole * m = (TwoPole *)data;
+    *out = m->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG TwoPole_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL TwoPole_ctrl_a1( t_CKTIME now, void * data, void * value )
+{
+    TwoPole * filter = (TwoPole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setA1( f );
+}
+
+UGEN_CTRL TwoPole_ctrl_a2( t_CKTIME now, void * data, void * value )
+{
+    TwoPole * filter = (TwoPole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setA2( f );
+}
+
+UGEN_CTRL TwoPole_ctrl_b0( t_CKTIME now, void * data, void * value )
+{
+    TwoPole * filter = (TwoPole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB0( f );
+}
+
+UGEN_CTRL TwoPole_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    TwoPole * filter = (TwoPole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setResFreq( f );
+}
+
+UGEN_CTRL TwoPole_ctrl_radius( t_CKTIME now, void * data, void * value )
+{
+    TwoPole * filter = (TwoPole *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setResRad( f );
+}
+
+UGEN_CTRL TwoPole_ctrl_norm( t_CKTIME now, void * data, void * value )
+{
+    TwoPole * filter = (TwoPole *)data;
+    bool b = ( GET_CK_INT(value) != 0 ); 
+    filter->setResNorm( b );
+}
+
+//OneZero functions
+
+UGEN_CTOR OneZero_ctor ( t_CKTIME now ) 
+{
+  return new OneZero();
+}
+
+UGEN_DTOR OneZero_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (OneZero *)data;
+}
+
+UGEN_TICK OneZero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    OneZero * m = (OneZero *)data;
+    *out = m->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG OneZero_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL OneZero_ctrl_zero( t_CKTIME now, void * data, void * value )
+{
+    OneZero * filter = (OneZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setZero( f );
+}
+
+UGEN_CTRL OneZero_ctrl_b0( t_CKTIME now, void * data, void * value )
+{
+    OneZero * filter = (OneZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB0( f );
+}
+
+UGEN_CTRL OneZero_ctrl_b1( t_CKTIME now, void * data, void * value )
+{
+    OneZero * filter = (OneZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB1( f );
+}
+
+
+
+//TwoZero functions
+
+UGEN_CTOR TwoZero_ctor ( t_CKTIME now ) 
+{
+  return new TwoZero();
+}
+
+UGEN_DTOR TwoZero_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (TwoZero *)data;
+}
+
+UGEN_TICK TwoZero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    TwoZero * m = (TwoZero *)data;
+    *out = m->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG TwoZero_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+UGEN_CTRL TwoZero_ctrl_b0( t_CKTIME now, void * data, void * value )
+{
+    TwoZero * filter = (TwoZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB0( f );
+}
+
+UGEN_CTRL TwoZero_ctrl_b1( t_CKTIME now, void * data, void * value )
+{
+    TwoZero * filter = (TwoZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB1( f );
+}
+
+UGEN_CTRL TwoZero_ctrl_b2( t_CKTIME now, void * data, void * value )
+{
+    TwoZero * filter = (TwoZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB2( f );
+}
+
+
+UGEN_CTRL TwoZero_ctrl_freq( t_CKTIME now, void * data, void * value )
+{
+    TwoZero * filter = (TwoZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setNotchFreq( f );
+}
+
+
+UGEN_CTRL TwoZero_ctrl_radius( t_CKTIME now, void * data, void * value )
+{
+    TwoZero * filter = (TwoZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setNotchRad( f );
+}
+
+
+
+//PoleZero functions
+
+UGEN_CTOR PoleZero_ctor ( t_CKTIME now ) 
+{
+  return new PoleZero();
+}
+
+UGEN_DTOR PoleZero_dtor ( t_CKTIME now, void * data ) 
+{ 
+  delete (PoleZero *)data;
+}
+
+UGEN_TICK PoleZero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    PoleZero * m = (PoleZero *)data;
+    *out = m->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG PoleZero_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return TRUE;
+}
+
+
+UGEN_CTRL PoleZero_ctrl_a1( t_CKTIME now, void * data, void * value )
+{
+    PoleZero * filter = (PoleZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setA1( f );
+}
+
+UGEN_CTRL PoleZero_ctrl_b0( t_CKTIME now, void * data, void * value )
+{
+    PoleZero * filter = (PoleZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB0( f );
+}
+
+UGEN_CTRL PoleZero_ctrl_b1( t_CKTIME now, void * data, void * value )
+{
+    PoleZero * filter = (PoleZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setB1( f );
+}
+
+UGEN_CTRL PoleZero_ctrl_allpass( t_CKTIME now, void * data, void * value )
+{
+    PoleZero * filter = (PoleZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setAllpass( f );
+}
+
+UGEN_CTRL PoleZero_ctrl_blockZero( t_CKTIME now, void * data, void * value )
+{
+    PoleZero * filter = (PoleZero *)data;
+    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    filter->setBlockZero( f );
 }
 
