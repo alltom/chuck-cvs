@@ -13,7 +13,7 @@
 Shakers shake1 => JCRev r => Echo a => Echo b => Echo c => dac;
 Shakers shake2 => r;
 TubeBell t => r;
-0.2 => t.gain;
+0.1 => t.gain;
 r => dac;
 
 
@@ -45,19 +45,18 @@ r => dac;
 0 => int bouncex;
 0 => int bouncey;
 
-0 => int score1;
-0 => int score2;
-
 0 => int out1;
 0 => int out2;
 
 0 => int lastx;
 0 => int lasty;
 
+0 => int p1score;
+0 => int p2score;
+
 1 => int running;
 
 function void keycode ( uint k ) { 
-	k => stdout;
 
 	if ( k == 113 ) { 
 		0 => running;
@@ -87,12 +86,6 @@ function void keycode ( uint k ) {
 		std.rand2f( 1.0, 2.0 ) => float mag;
 		mag * math.cos(deg) => puckvx;
 		mag * math.sin(deg) => puckvy;
-//		0.0 => puckx;
-//		0.0 => pucky;
-		std.rand2(0,22) => shake1.which;
-		std.rand2(0,22) => shake2.which;
-		puckvx => stdout;
-		puckvy => stdout;
 	}
 }
 
@@ -105,7 +98,7 @@ function void motion ( int x, int y ) {
 function void drag ( int x, int y ) { 
 	x - lastx => int dx;
 	y - lasty => int dy;
-	if ( x > 300 ) { 
+	if ( x > gluck.GetViewDims(0) / 2 ) { 
 		-0.6 * (float)dy => pad2vy;
 	}
 	else { 
@@ -115,7 +108,7 @@ function void drag ( int x, int y ) {
 
 
 function void theeventpoll() { 
-	while ( gluck.HasEvents() ) { 
+	while ( gluck.HasEvents() && running == 1 ) { 
 
 		gluck.GetNextEvent() => int curid;
 		gluck.GetEventType(curid) => uint curtype;
@@ -144,6 +137,40 @@ function void thedrawloop() {
 		gl.Clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT );
 
 		gl.LineWidth(3.0);
+
+
+		0 => int ix;
+		gl.Color4f ( 0.5, 1.0, 0.5, 0.5 ) ;
+		gl.PushMatrix();
+		gl.Translatef( -0.1 , -boardh, 0.0 );
+		gl.Scalef( 0.1, 0.1, 1.0 );
+		for ( 0 => ix; ix < p1score ; ix + 1 => ix ) { 
+			gl.Begin(gl.QUADS);
+			gl.Vertex2f( 0.0, 0.0 );
+			gl.Vertex2f( 0.0, 0.9 );
+			gl.Vertex2f( 0.9, 0.9 );
+			gl.Vertex2f( 0.9, 0.0 );
+			gl.End();
+			gl.Translatef ( 0.0, 1.0 , 0.0 );
+		}
+		gl.PopMatrix();
+
+		gl.PushMatrix();
+		gl.Translatef( 0.01 , -boardh, 0.0 );
+		gl.Scalef( 0.1, 0.1, 1.0 );
+		
+		for ( 0 => ix; ix < p2score ; ix + 1 => ix ) { 
+			gl.Begin(gl.QUADS);
+			gl.Vertex2f( 0.0, 0.0 );
+			gl.Vertex2f( 0.0, 0.9 );
+			gl.Vertex2f( 0.9, 0.9 );
+			gl.Vertex2f( 0.9, 0.0 );
+			gl.End();
+			gl.Translatef ( 0.0, 1.0 , 0.0 );
+		}
+		gl.PopMatrix();
+
+
 		gl.Color4f ( 0.0, 1.0, 0.0, 0.5 ) ;
 
 		gl.Begin(gl.LINE_LOOP);
@@ -183,6 +210,15 @@ function void thedrawloop() {
 		gl.End();
 		gl.PopMatrix();
 
+		gl.Begin(gl.LINES);
+		gl.Vertex2f(0.0,  boardh );
+		gl.Vertex2f(0.0, -boardh );
+		gl.End();
+
+
+		
+		
+		
 		gl.Flush();
 		gluck.SwapBuffers();
 }
@@ -201,7 +237,7 @@ function void sndtrigger ( int which ) {
 		1.5 => shake2.noteOn;
 	}
 	else if ( which == 3 ) { 
-		440.0 => t.freq;
+		110.0 => t.freq;
 //		math.max ( 0.0, math.min ( 1.0 , std.abs( puckvx * 0.3))) => m.stringDetune;
 		0.9  + math.max ( 0.0, math.min ( 1.0 , std.abs( puckvy * 0.3 ))) => t.noteOn;
 	}
@@ -211,26 +247,42 @@ function void sndtrigger ( int which ) {
 0.0 => float p1f;
 0.0 => float p2f;
 
+
+function void score ( int which ) { 
+	if ( which == 1 ) { 
+		p1score + 1 => p1score;
+		p1score => shake1.which;
+	}
+
+	else if ( which == 2 ) { 
+		p2score + 1 => p2score;
+		p2score => shake2.which;
+	}
+	0.0 => puckx;
+	0.0 => pucky;
+	0.0 => puckvx;
+	0.0 => puckvy;
+}
 function void testcollisions() { 
 	
 	//pad1;
 	if ( pad1y + padh > boardh ) { 
-		pad1vy * -1.0 => pad1vy;
+		pad1vy * -0.1 => pad1vy;
 		boardh + (  boardh - ( pad1y + padh ) ) - padh => pad1y;
 	}
 	if ( pad1y - padh < -boardh ) { 
-		pad1vy * -1.0 => pad1vy;
+		pad1vy * -0.1 => pad1vy;
 		-boardh + ( -boardh - (pad1y-padh) ) + padh  => pad1y;
 	}
 
 
 	//pad2;
 	if ( pad2y + padh > boardh ) { 
-		pad2vy * -1.0 => pad2vy;
+		pad2vy * -0.1 => pad2vy;
 		boardh + (  boardh - ( pad2y + padh ) ) - padh => pad2y;
 	}
 	if ( pad2y - padh < -boardh ) { 
-		pad2vy * -1.0 => pad2vy;
+		pad2vy * -0.1 => pad2vy;
 		-boardh + ( -boardh - (pad2y-padh) ) + padh  => pad2y;
 	}
 
@@ -240,21 +292,27 @@ function void testcollisions() {
 
 	//sides
 	if ( pucky < -boardh || boardh < pucky) { 
-		puckvy * -1.0 => puckvy;
 		sndtrigger(3);
+		puckvy * -1.0 => puckvy;
 	}	
 
 	-boardw + padspace + padw => p1f;
 	boardw - ( padspace + padw ) => p2f;
 
-	if ( puckx < -boardw || puckx > boardw ) { 
+//	if ( puckx < -boardw || puckx > boardw ) { 
+//		math.fmod ( puckx + boardw , boardw * 2.0  ) - boardw => puckx;
+//		if ( puckx < -boardw ) puckx + boardw * 2.0 => puckx;
+//	}
 
-		math.fmod ( puckx + boardw , boardw * 2.0  ) - boardw => puckx;
-		if ( puckx < -boardw ) puckx + boardw * 2.0 => puckx;
 
+	if ( puckx < -boardw ) { 
+		score( 2 );
+	}
+	else if ( puckx > boardw ) { 
+		score( 1 );
 	}
 
-	else if ( puckx - puckrad < p1f && pucky < pad1y + padh && pucky > pad1y - padh ) { 
+	if ( puckx - puckrad < p1f && pucky < pad1y + padh && pucky > pad1y - padh ) { 
 		if ( puckx - puckrad + puckvx * -dt  > p1f ) { 
 			puckvx * -1.0 => puckvx;
 			p1f + ( p1f - ( puckx - puckrad )  ) + puckrad => puckx;
@@ -275,7 +333,7 @@ function void testcollisions() {
 
 function void actionshred() { 
 
-	while ( true ) { 
+	while ( running == 1 ) { 
 
 
 		std.sgn( pad1vy ) * math.max( 0.0, std.abs(pad1vy) - 0.2 * dt ) => pad1vy;
@@ -288,7 +346,6 @@ function void actionshred() {
 		pucky + puckvy * dt => pucky;
 
 		testcollisions();
-
 		1::ms => now;
 
  	}
@@ -296,7 +353,7 @@ function void actionshred() {
 
 function void eventshred() { 
 
-	while ( true ) { 
+	while ( running == 1 ) { 
 		theeventpoll();
 		30::ms => now;
 	}
