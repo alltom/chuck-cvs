@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 34 shift/reduce conflicts
-%expect 34
+// expect 33 shift/reduce conflicts
+%expect 33
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -291,7 +291,6 @@ expression
 
 chuck_expression
         : decl_expression                   { $$ = $1; }
-        // | rassign_expression                { $$ = $1; }
         | chuck_expression chuck_operator decl_expression
             { $$ = new_exp_from_binary( $1, $2, $3, EM_lineNum ); }
         ;
@@ -315,13 +314,13 @@ decl_expression
 
 var_decl_list
         : var_decl                          { $$ = new_var_decl_list( $1, EM_lineNum ); }
-        // | var_decl COMMA var_decl_list      { $$ = prepend_var_decl_list( $1, $3, EM_lineNum ); }
+        | var_decl COMMA var_decl_list      { $$ = prepend_var_decl_list( $1, $3, EM_lineNum ); }
         ;
 
 var_decl
         : id_dot                            { $$ = new_var_decl( $1, NULL, EM_lineNum ); }
-        | id_dot array_exp                  { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
-        | id_dot array_empty                { $$ = new_var_decl( NULL, $2, EM_lineNum ); }
+        | id_dot array_exp                  { $$ = new_var_decl( $1, $2, EM_lineNum ); }
+        | id_dot array_empty                { $$ = new_var_decl( $1, $2, EM_lineNum ); }
         ;
 
 chuck_operator
