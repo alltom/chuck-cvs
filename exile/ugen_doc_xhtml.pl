@@ -29,6 +29,7 @@ $export_param_num = 0;
     'stk' => '(STK Import)'
     );
 
+
 $lib_src = "";
 $lib_note = "";
 
@@ -36,6 +37,11 @@ $doc_class_name = "";
 $doc_info_open = 0;
 %doc_brief;
 %doc_data;
+
+$example_open = 0;
+$example_ready = 0;
+@example_lines = ();
+sub print_example;
 
 foreach ( @ARGV ) { 
 
@@ -84,6 +90,25 @@ foreach ( @ARGV ) {
 
     open ( SOURCE , $file ) || printf " cannot open file \n";
     while ( <SOURCE> ) { 
+
+	if ( /\/\*\! \\example\s*(\w*)/ ) { 
+	    $example_open = 1;
+	    @example_lines = ();
+	}
+	elsif ( $example_open ) { 
+	    if ( /(.*)\*\// ) { 
+		push ( @example_lines, $1 );
+		$example_open = 0;
+		$example_ready = 1;
+		if ( !$export_open && !$ugen_open ) { 
+		    print_example();
+		}
+	    }
+	    else { 
+		push ( @example_lines, $_ );
+	    }
+
+	}
 
 	if ( /\/\/\!(.*)$/ ) { 
 #	    print HTML "comment - $1\n";
@@ -155,7 +180,9 @@ sub open_ugen {
 }
 
 sub close_ugen { 
+
     if ( $flist_open ) { close_flist(); }
+    if ( $example_ready ) { print_example(); }
 
     print HTML "</div>\n";
 
@@ -204,6 +231,16 @@ sub print_function {
 
 }
 
+sub print_example { 
+    print HTML "
+<div class=\"example\">[example]<br />
+<div class=\"code\">";
+    foreach ( @example_lines )  { print HTML substr($_,5);}
+    print HTML "</div></div>";
+    @example_lines = ();
+    $example_ready = 0;
+}
+
 
 sub open_namespace { 
     my ( $query, $name ) = @_;
@@ -219,16 +256,26 @@ sub open_export {
     cleanup();
     @export_comments=@comments;
     
-    print HTML "[function]: $type <b>$name</b>( ";
+    print HTML "<div class=\"export\"><h3>
+<a class=\"heading\" name=\"$name\">[function]</a>: 
+$type <b class=\"name\">$name</b> ( ";
     $export_param_num = 0;
     $export_open = 1;
 }
 
 sub close_export { 
 
-    print HTML " );<br/>\n";
-    foreach ( @export_comments ) { print HTML "- $_<br />\n"; } 
+    print HTML " );</h3>\n";
+    if ( scalar( @export_comments ) > 0 ) { 
+	print HTML "<div class=\"comments\"><ul>";
+	foreach ( @export_comments ) { print HTML "<li>$_</li>\n"; } 
+	print HTML "</ul></div>";
+    }
+    if ( $example_ready ) { print_example(); }
+    print HTML "</div>";
     $export_open = 0;
+
+
 }
 
 sub add_param { 
@@ -236,6 +283,6 @@ sub add_param {
     push ( @export_comments, @comments );
     $sep = "";
     if ( $export_param_num ) { $sep = ", "; }
-    print HTML "$sep$type $name";
+    print HTML "$sep$type <b class=\"arg\">$name</b>";
     $export_param_num ++;
 }

@@ -24,9 +24,13 @@ body {
 
 
 .ugen { 
+	font-size: 10pt;
+	font-family: sans-serif;
 	border: 2px solid #808080;
 	background: #fdfdfd;
 	margin : 10px;
+	width : 500px;
+	padding : 0px;
 	margin-bottom: 30px;
 }
 
@@ -39,12 +43,12 @@ body {
 }
 
 
-.ugen h3 .name { 
+.name { 
 	font-size: 100%;
 	font-weight: 800;
 }	
 
-.ugen h3 .heading { 
+.heading { 
 	color: #40a040;
 }	
 
@@ -63,14 +67,14 @@ body {
 .comments { 
 	margin : 0px;
 	padding : 0.5em;
-	background : #e0e0e0;
-
+	background : #e8e8e8;
 }
 
 .comments ul { 
 	margin : 0px; 
-	margin-left : 2em;
+	margin-left : 1em;
 	padding : 0px;
+	list-style-type : square;
 }
 .comment, .comments li { 
 	margin-left: 0;
@@ -80,13 +84,14 @@ body {
 .members { 
 	margin: 0px;
 	padding: 0.5em;
-	background : #f0f0ff;
+	background : #f0f0f0;
 }
 
 .members ul { 
 	margin : 1em;
-	margin-left : 2em;
+	margin-left : 1em;
 }
+
 li.members { 
 	left : 10px;
 }
@@ -95,3 +100,38 @@ li.members b {
 	font-weight : 800;
 }
 
+.export { 
+	font-size: 10pt;
+	font-family: sans-serif;
+	border: 1px solid #808080;
+	background: #fdfdfd;
+	margin : 5px;
+	width : 500px;
+	padding : 0px;
+	margin-bottom: 15px;
+}
+
+.export h3 { 
+	font-weight: 400;
+	padding : 2px;
+	margin : 0.5em;
+	font-size: 110%;
+}
+.arg { 
+	font-weight: 800;
+}
+
+.example { 
+	padding: 0.5em;
+}
+.code { 
+	margin: 20px;
+	padding : 1em;
+	font-size: 90%;
+	margin-left : 100px;
+	width : 300px;
+	border : 1px solid grey;
+	background : white;
+	font-family : monospace;
+	white-space:pre;
+}
