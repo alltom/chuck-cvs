@@ -1,5 +1,13 @@
 
 ---
+1.1.4.7 - 2004.9.4
+  - improved performance (reduce cpu overhead)
+  - fixed bug that caused crash on ctrl-c
+  - added sndbuf.play (same as rate)
+  - corrected issues on some 64-bit systems
+  - sndbuf.ck now works
+
+---
 1.1.4.6 - 2004.8.26
   - added netin/netout unit generators (alpha version)
   - added a lot of STK unit generators (thanks to philipd)
