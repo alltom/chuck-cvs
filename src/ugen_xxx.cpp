@@ -56,22 +56,22 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, impulse_ctor, impulse_dtor, impulse_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, "float", "value" );
+    QUERY->ugen_ctrl( QUERY, impulse_ctrl_value, impulse_cget_value, "float", "value" );
     
     // add step
     QUERY->ugen_add( QUERY, "step", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, step_ctor, step_dtor, step_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, step_ctrl_value, "float", "value" );
-    
+    QUERY->ugen_ctrl( QUERY, step_ctrl_value, step_cget_value, "float", "value" );
+
     // add gain
     QUERY->ugen_add( QUERY, "gain", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, gain_ctor, gain_dtor, gain_tick, NULL );
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, gain_ctrl_value, "float", "value" );
-    
+    QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" );
+
     // add halfrect
     QUERY->ugen_add( QUERY, "halfrect", NULL );
     // set funcs
@@ -96,15 +96,15 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "adc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
-    
+
     // add sndbuf
     QUERY->ugen_add( QUERY, "sndbuf", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, sndbuf_ctor, sndbuf_dtor, sndbuf_tick, NULL );
     // set ctrl
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, "string", "read" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, "string", "write" );
-    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, "int", "pos" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_read, NULL, "string", "read" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_write, NULL, "string", "write" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_pos, sndbuf_cget_pos, "int", "pos" );
 
     return TRUE;
 }
@@ -118,7 +118,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 //-----------------------------------------------------------------------------
 UGEN_TICK noise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
-    *out = (float)rand() / RAND_MAX;
+    *out = (SAMPLE)rand() / RAND_MAX;
     return TRUE;
 }
 
@@ -132,7 +132,7 @@ UGEN_TICK noise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 struct Pulse_Data
 {
     SAMPLE value;
-    t_CKTIME when;
+    t_CKUINT when;
     Pulse_Data( ) { value = 1.0f; when = 0; }
 };
 
@@ -168,7 +168,14 @@ UGEN_DTOR impulse_dtor( t_CKTIME now, void * data )
 UGEN_TICK impulse_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     Pulse_Data * d = (Pulse_Data *)data;
-    *out = d->when == now ? d->value : 0.0f;
+    if( d->when )
+    {
+        *out = d->value;
+        d->value = 0;
+    }
+    else
+        *out = 0.0f;
+
     return TRUE;
 }
 
@@ -181,10 +188,20 @@ UGEN_TICK impulse_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_CTRL impulse_ctrl_value( t_CKTIME now, void * data, void * value )
 {
     Pulse_Data * d = (Pulse_Data *)data;
-    d->value = *(float *)value;
-    d->when = now + 1;
+    d->value = (SAMPLE)*(t_CKFLOAT *)value;
+    d->when = 1;
 }
 
+
+//-----------------------------------------------------------------------------
+// name: impulse_cget_value()
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_CGET impulse_cget_value( t_CKTIME now, void * data, void * out )
+{
+    Pulse_Data * d = (Pulse_Data *)data;
+    SET_NEXT_FLOAT( out, d->value );
+}
 
 
 
@@ -230,10 +247,19 @@ UGEN_TICK step_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_CTRL step_ctrl_value( t_CKTIME now, void * data, void * value )
 {
     SAMPLE * d = (SAMPLE *)data;
-    *d = *(float *)value;
+    *d = (SAMPLE)*(t_CKFLOAT *)value;
 }
 
 
+//-----------------------------------------------------------------------------
+// name: step_cget_value()
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_CGET step_cget_value( t_CKTIME now, void * data, void * out )
+{
+    SAMPLE * d = (SAMPLE *)data;
+    SET_NEXT_FLOAT( out, (t_CKFLOAT)*d );
+}
 
 
 //-----------------------------------------------------------------------------
@@ -278,10 +304,19 @@ UGEN_TICK gain_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 UGEN_CTRL gain_ctrl_value( t_CKTIME now, void * data, void * value )
 {
     SAMPLE * d = (SAMPLE *)data;
-    *d = *(float *)value;
+    *d = (SAMPLE)*(t_CKFLOAT *)value;
 }
 
 
+//-----------------------------------------------------------------------------
+// name: gain_cget_value()
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_CGET gain_cget_value( t_CKTIME now, void * data, void * out )
+{
+    SAMPLE * d = (SAMPLE *)data;
+    SET_NEXT_FLOAT( out, (t_CKFLOAT)*d );
+}
 
 
 //-----------------------------------------------------------------------------
@@ -494,4 +529,11 @@ UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value )
     }
     else
         d->curr = d->buffer + pos;
+}
+
+
+UGEN_CGET sndbuf_cget_pos( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_INT( out, d->curr - d->buffer );
 }

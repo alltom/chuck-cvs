@@ -351,12 +351,12 @@ a_Arg_List do_make_args( const vector<Chuck_Info_Param> & params, int index )
 
 
 // ctrl op
-UGEN_CTRL ugen_ctrl_op( t_CKTIME now, void * data, void * value )
-{ }
+UGEN_CTRL ugen_ctrl_op( t_CKTIME now, void * data, void * value ) { }
+UGEN_CGET ugen_cget_op( t_CKTIME now, void * data, void * out ) { }
 
 // ctrl gain
-UGEN_CTRL ugen_ctrl_gain( t_CKTIME now, void * data, void * value )
-{ }
+UGEN_CTRL ugen_ctrl_gain( t_CKTIME now, void * data, void * value ) { }
+UGEN_CGET ugen_cget_gain( t_CKTIME now, void * data, void * out ) { }
 
 
 //-----------------------------------------------------------------------------
@@ -666,8 +666,8 @@ t_CKBOOL type_engine_check_ugen_def_import( t_Env info, Chuck_UGen_Info * ugen )
     }
     
     // add default
-    ugen->add( ugen_ctrl_op, "int", "op" );
-    ugen->add( ugen_ctrl_gain, "float", "gain" );
+    ugen->add( ugen_ctrl_op, ugen_cget_op, "int", "op" );
+    ugen->add( ugen_ctrl_gain, ugen_cget_gain, "float", "gain" );
 
     // loop through ctrl parameters
     for( int i = 0; i < ugen->param_list.size(); i++ )
@@ -694,10 +694,10 @@ t_CKBOOL type_engine_check_ugen_def_import( t_Env info, Chuck_UGen_Info * ugen )
         }
 
         // make sure there is a function
-        if( !param->addr )
+        if( !param->ctrl_addr && !param->cget_addr )
         {
             EM_error2( ugen->linepos,
-                "imported ugen '%s.%s': no ctrl function defined for param '%s'",
+                "imported ugen '%s.%s': no ctrl or cget function defined for param '%s'",
                 S_name(info->name), ugen->name.c_str(), param->name.c_str() );
             return FALSE;
         }
@@ -1033,7 +1033,7 @@ t_Type type_engine_check_op_unchuck( t_Env env, t_Type left, t_Type right )
     if( left->parent && right->parent &&
         left->parent->type == te_ugen && right->parent->type == te_ugen )
         return &t_ugen;
-    
+
     return NULL;
 }
 
@@ -1582,11 +1582,12 @@ t_Type type_engine_check_exp_dot_member( t_Env env, a_Exp_Dot_Member member )
 
         t_Type t = dup_type( t_param );
         // copy the function pointer
-        t->data = member->data = (uint)param.addr;
-        if( !member->data )
+        member->data = (uint)param.ctrl_addr;
+        member->data2 = (uint)param.cget_addr;
+        if( !member->data && !member->data2 )
         {
             EM_error2( member->linepos,
-                       "type checker: internal error: cannot find ugen ctrl for '%s'",
+                       "type checker: internal error: cannot find ugen ctrl or cget for '%s'",
                        param.name.c_str() );
             return NULL;
         }

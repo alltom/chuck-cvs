@@ -2165,11 +2165,33 @@ void Chuck_Instr_UGen_Ctrl::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& sp = (uint *&)shred->reg->sp;
     
-    pop_( sp, 3 );
+    pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
     f_ctrl ctrl = (f_ctrl)*(sp+2);
+    f_cget cget = (f_cget)*(sp+3);
     // call ctrl
     ctrl( shred->now, ugen->state, (void *)sp );
+    if( cget ) cget( shred->now, ugen->state, (void *)sp );
+    // push the new value
+    push_( sp, *sp);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_UGen_CGet::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    uint *& sp = (uint *&)shred->reg->sp;
+
+    pop_( sp, 2 );
+    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
+    f_cget cget = (f_cget)*(sp+1);
+    // call cget
+    cget( shred->now, ugen->state, (void *)sp );
     // push the new value
     push_( sp, *sp);
 }
@@ -2185,15 +2207,37 @@ void Chuck_Instr_UGen_Ctrl2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& sp = (uint *&)shred->reg->sp;
     
-    pop_( sp, 3 );
+    pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
     f_ctrl ctrl = (f_ctrl)*(sp+2);
+    f_cget cget = (f_cget)*(sp+3);
     // call ctrl
     pop_( sp, 1 );
     ctrl( shred->now, ugen->state, (void *)sp );
+    if( cget ) cget( shred->now, ugen->state, (void *)sp );
     // push the new value
     double *& sp_double = (double *&)sp;
     push_( sp_double, *sp_double );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_UGen_CGet2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    uint *& sp = (uint *&)shred->reg->sp;
+
+    pop_( sp, 2 );
+    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
+    f_cget cget = (f_cget)*(sp+1);
+    // call cget
+    cget( shred->now, ugen->state, (void *)sp );
+    // push the new value
+    push_( (double *)sp, (double)*sp );
 }
 
 
@@ -2221,11 +2265,11 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_UGen_Ctrl_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& sp = (uint *&)shred->reg->sp;
     
-    pop_( sp, 3 );
+    pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
     ugen->m_op = *(int *)sp;
     // push the new value
@@ -2239,17 +2283,52 @@ void Chuck_Instr_UGen_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_UGen_CGet_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    int *& sp = (int *&)shred->reg->sp;
+
+    pop_( sp, 1 );
+    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
+    // push the new value
+    push_( sp, ugen->m_op );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     uint *& sp = (uint *&)shred->reg->sp;
     
-    pop_( sp, 3 );
+    pop_( sp, 4 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
     pop_( sp, 1 );
     ugen->m_gain = *(double *)sp;
     // push the new value
     double *& sp_double = (double *&)sp;
     push_( sp_double, *sp_double );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_UGen_CGet_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    uint *& sp = (uint *&)shred->reg->sp;
+
+    pop_( sp, 1 );
+    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
+    // push the new value
+    double *& sp_double = (double *&)sp;
+    push_( sp_double, ugen->m_gain );
 }
 
 

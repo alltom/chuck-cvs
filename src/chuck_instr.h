@@ -1967,10 +1967,36 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_UGen_CGet
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_UGen_CGet : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_UGen_Ctrl2
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_UGen_Ctrl2 : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_UGen_CGet2
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_UGen_CGet2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1993,10 +2019,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Op
+// name: class Chuck_Instr_UGen_Ctrl_Op
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Op : public Chuck_Instr
+class Chuck_Instr_UGen_Ctrl_Op : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2006,10 +2032,36 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Gain
+// name: class Chuck_Instr_UGen_CGet_Op
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Gain : public Chuck_Instr
+class Chuck_Instr_UGen_CGet_Op : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_UGen_CGet_Gain
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_UGen_CGet_Gain : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_UGen_Ctrl_Gain
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_UGen_Ctrl_Gain : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

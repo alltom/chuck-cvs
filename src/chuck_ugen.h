@@ -54,6 +54,7 @@ typedef void *   (* f_ctor)( t_CKTIME now );
 typedef void     (* f_dtor)( t_CKTIME now, void * data );
 typedef t_CKBOOL (* f_tick)( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 typedef void     (* f_ctrl)( t_CKTIME now, void * data, void * value );
+typedef f_ctrl   f_cget;
 typedef t_CKBOOL (* f_pmsg)( t_CKTIME now, void * data, const char * msg, void * value );
 }
 
@@ -68,15 +69,17 @@ struct Chuck_Info_Param
 {
     string type;  // see above
     string name;  // name of param
-    f_ctrl addr;  // addr
+    f_ctrl ctrl_addr;  // set addr
+    f_cget cget_addr;  // get addr
 
     // constructor
-    Chuck_Info_Param( const string & t = "", const string & n = "", f_ctrl a = NULL )
-    { type = t; name = n; addr = a; }
+    Chuck_Info_Param( const string & t = "", const string & n = "",
+                      f_ctrl a = NULL, f_cget g = NULL )
+    { type = t; name = n; ctrl_addr = a; cget_addr = g; }
     
     // copy constructor
     Chuck_Info_Param( const Chuck_Info_Param & p )
-        : type(p.type), name(p.name), addr(p.addr) { }
+        : type(p.type), name(p.name), ctrl_addr(p.ctrl_addr), cget_addr(p.cget_addr) { }
 };
 
 
@@ -108,8 +111,8 @@ struct Chuck_UGen_Info
     { ctor = c; dtor = d; tick = t; pmsg = p; }
     
     // add
-    void add( f_ctrl c, const string & t, const string & n )
-    { param_list.push_back( Chuck_Info_Param( t, n, c ) );
+    void add( f_ctrl c, f_cget g, const string & t, const string & n )
+    { param_list.push_back( Chuck_Info_Param( t, n, c, g ) );
       param_map[n] = param_list[param_list.size()-1]; }
 
     // contructor

@@ -124,6 +124,7 @@ struct Chuck_Emmission
     t_Env env;
     unsigned int is_global;
     unsigned int count;
+    unsigned int chuck_count;
     vector<Chuck_Instr_Branch_Op *> returns;
     vector<Chuck_Instr_Unary_Op *> addr_map;
 
@@ -143,6 +144,7 @@ struct Chuck_Emmission
         globals = S_empty();
         is_global = TRUE;
         count = 0;
+        chuck_count = 0;
         returns.clear();
         env = e;
         nspc = e;
@@ -422,7 +424,7 @@ t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emmission * emit, a_Exp_Dur exp );
 t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp );
 t_CKBOOL emit_engine_emit_exp_array( Chuck_Emmission * emit, a_Exp_Array exp );
 t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call exp, t_CKBOOL spork = FALSE );
-t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Member exp );
+t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Member exp, t_Type t );
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emmission * emit, a_Exp_If exp );
 t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emmission * emit, a_Exp_Decl exp );
 t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emmission * emit, a_Exp_Namespace nspc );
@@ -711,72 +713,72 @@ t_CKBOOL emit_engine_emit_exp( Chuck_Emmission * emit, a_Exp exp )
             if( !emit_engine_emit_exp_binary( emit, &exp->binary ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_unary:
             if( !emit_engine_emit_exp_unary( emit, &exp->unary ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_cast:
             if( !emit_engine_emit_exp_cast( emit, &exp->cast ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_postfix:
             if( !emit_engine_emit_exp_postfix( emit, &exp->postfix ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_dur:
             if( !emit_engine_emit_exp_dur( emit, &exp->dur ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_primary:
             if( !emit_engine_emit_exp_primary( emit, &exp->primary ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_array:
             if( !emit_engine_emit_exp_array( emit, &exp->array ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_func_call:
             if( !emit_engine_emit_exp_func_call( emit, &exp->func_call ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_dot_member:
-            if( !emit_engine_emit_exp_dot_member( emit, &exp->dot_member ) )
+            if( !emit_engine_emit_exp_dot_member( emit, &exp->dot_member, exp->type ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_if:
             if( !emit_engine_emit_exp_if( emit, &exp->exp_if ) )
                 return FALSE;
             break;
-        
+
         case ae_exp_decl:
             if( !emit_engine_emit_exp_decl( emit, &exp->decl ) )
                 return FALSE;
             break;
-            
+
         case ae_exp_namespace:
             if( !emit_engine_emit_exp_namespace( emit, &exp->name_space ) )
                 return FALSE;
             break;
-        
+
         default:
             EM_error2( exp->linepos, 
                        "(emit): internal error: unhandled expression '%i' in emission!",
                        exp->s_type );
             return FALSE;
         }
-        
+
         exp = exp->next;
     }
-    
+
     return TRUE;
 }
 
@@ -792,6 +794,13 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emmission * emit, a_Exp_Binary exp )
     t_CKBOOL left = FALSE;
     t_CKBOOL right = FALSE;
 
+    // hack for determining if a dot member comes first in chuck chain
+    if( exp->op == ae_op_chuck && ( exp->rhs->s_type == ae_exp_dot_member ) )
+    {
+        // set the flag
+        exp->rhs->dot_member.flag = TRUE;
+    }
+
     // ^ op should be reversed for midi
     if( exp->op == ae_op_s_xor && ( exp->lhs->type->type == te_midiin || exp->lhs->type->type == te_midiout ) )
     {
@@ -803,7 +812,8 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emmission * emit, a_Exp_Binary exp )
         left = emit_engine_emit_exp( emit, exp->lhs );
         right = emit_engine_emit_exp( emit, exp->rhs );
     }
-    
+
+
     // check
     if( !left || !right )
         return FALSE;
@@ -1426,7 +1436,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call
 // name: emit_engine_emit_exp_dot_member
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Member exp )
+t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Member exp, t_Type t )
 {
     t_Type t_base = exp->base->type;
     t_Env e = NULL;
@@ -1444,15 +1454,43 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Memb
         // emit the base
         emit_engine_emit_exp( emit, exp->base );
         // emit the member
-        if( !exp->data )
-        {
-            EM_error2( exp->linepos,
-                "(emit): internal error: no ctrl for '%s.%s'",
-                t_base->name, S_name(exp->id) );
-            return FALSE;
-        }
+        //if( !exp->data )
+        //{
+        //    EM_error2( exp->linepos,
+        //        "(emit): internal error: no ctrl for '%s.%s'",
+        //        t_base->name, S_name(exp->id) );
+        //    return FALSE;
+        //}
         // push the addr
-        emit->append( new Chuck_Instr_Reg_Push_Imm( exp->data ) );
+        //emit->append( new Chuck_Instr_Reg_Push_Imm( exp->data ) );
+
+        // cget
+        if( exp->flag == 0 )
+        {
+            // the cget function addr
+            emit->append( new Chuck_Instr_Reg_Push_Imm( exp->data2 ) );
+
+            // the ugen
+            if( !strcmp( S_name(exp->id), "op" ) )
+                emit->append( new Chuck_Instr_UGen_CGet_Op );
+            else if( !strcmp( S_name(exp->id), "gain" ) )
+                emit->append( new Chuck_Instr_UGen_CGet_Gain );
+            else
+            {
+                // cget passing to ugen
+                if( t->size == 4 )
+                    emit->append( new Chuck_Instr_UGen_CGet );
+                else if( t->size == 8 )
+                    emit->append( new Chuck_Instr_UGen_CGet2 );
+                else
+                {
+                    EM_error2( exp->linepos,
+                               "(emit): internal error: %i ugen cget not handled",
+                               t->size );
+                    return FALSE;
+                }
+            }
+        }
     }
     else
     {
@@ -2482,7 +2520,7 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
 {
     if( rhs->type->type == te_midiout || lhs->type->type == te_midiin )
         emit->pop_the_ops();
-
+    
     if( lhs->type->parent && rhs->type->parent &&
         lhs->type->parent->type == te_ugen &&
         rhs->type->parent->type == te_ugen )
@@ -2701,10 +2739,15 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
         }
         else if( rhs->s_type == ae_exp_dot_member && rhs->dot_member.data )
         {
+            // the function addr
+            emit->append( new Chuck_Instr_Reg_Push_Imm( rhs->dot_member.data ) );
+            emit->append( new Chuck_Instr_Reg_Push_Imm( rhs->dot_member.data2 ) );
+
+            // the ugen
             if( !strcmp( S_name(rhs->dot_member.id), "op" ) )
-                emit->append( new Chuck_Instr_UGen_Op );
+                emit->append( new Chuck_Instr_UGen_Ctrl_Op );
             else if( !strcmp( S_name(rhs->dot_member.id), "gain" ) )
-                emit->append( new Chuck_Instr_UGen_Gain );
+                emit->append( new Chuck_Instr_UGen_Ctrl_Gain );
             else
             {
                 // ctrl passing to ugen

@@ -47,18 +47,21 @@ UGEN_CTOR impulse_ctor( t_CKTIME now );
 UGEN_DTOR impulse_dtor( t_CKTIME now, void * data );
 UGEN_TICK impulse_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTRL impulse_ctrl_value( t_CKTIME now, void * data, void * value );
+UGEN_CGET impulse_cget_value( t_CKTIME now, void * data, void * out );
 
 // step
 UGEN_CTOR step_ctor( t_CKTIME now );
 UGEN_DTOR step_dtor( t_CKTIME now, void * data );
 UGEN_TICK step_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTRL step_ctrl_value( t_CKTIME now, void * data, void * value );
+UGEN_CGET step_cget_value( t_CKTIME now, void * data, void * out );
 
 // gain
 UGEN_CTOR gain_ctor( t_CKTIME now );
 UGEN_DTOR gain_dtor( t_CKTIME now, void * data );
 UGEN_TICK gain_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTRL gain_ctrl_value( t_CKTIME now, void * data, void * value );
+UGEN_CGET gain_cget_value( t_CKTIME now, void * data, void * out );
 
 // halfrect
 UGEN_TICK halfrect_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
@@ -81,6 +84,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value );
+UGEN_CTRL sndbuf_cget_pos( t_CKTIME now, void * data, void * out );
 
 
 #endif

@@ -48,9 +48,9 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // set funcs
     QUERY->ugen_func( QUERY, sinosc_ctor, sinosc_dtor, sinosc_tick, sinosc_pmsg );
     // add ctrl
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_freq, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sfreq, "float", "sfreq" );
-    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase, "float", "phase" );
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_freq, sinosc_cget_freq, "float", "freq" );
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_sfreq, NULL, "float", "sfreq" );
+    QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase, sinosc_cget_phase, "float", "phase" );
 
     return TRUE;
 }
@@ -75,10 +75,10 @@ struct Osc_Data
         t = 0.0;
         num = 0.0;
         freq = 220.0;
-	phase = 0;
+        phase = 0;
         srate = Digitalio::sampling_rate();
         float f = (float)freq;
-	float p = (float)phase;
+        float p = (float)phase;
         sinosc_ctrl_freq( 0, this, &f );
         sinosc_ctrl_phase( 0, this, &p );
     }
@@ -169,6 +169,26 @@ UGEN_CTRL sinosc_ctrl_phase( t_CKTIME now, void * data, void * value )
 }
 
 
+//-----------------------------------------------------------------------------
+// name: sinosc_cget_freq()
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_CGET sinosc_cget_freq( t_CKTIME now, void * data, void * out )
+{
+    Osc_Data * d = (Osc_Data *)data;
+    SET_NEXT_FLOAT( out, d->freq );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: sinosc_cget_phase()
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_CGET sinosc_cget_phase( t_CKTIME now, void * data, void * out )
+{
+    Osc_Data * d = (Osc_Data *)data;
+    SET_NEXT_FLOAT( out, d->phase );
+}
 
 
 //-----------------------------------------------------------------------------

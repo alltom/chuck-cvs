@@ -270,7 +270,6 @@ const char * Chuck_DLL::last_error() const
 
 
 
-
     
 // add proto
 extern "C" void CK_DLL_CALL __ck_addexport( Chuck_DL_Query * query, 
@@ -298,9 +297,9 @@ extern "C" void CK_DLL_CALL __ck_ugen_func( Chuck_DL_Query * query,
 
 // add ctrl
 extern "C" void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query,
-           f_ctrl c, const char * t, const char * n )
+           f_ctrl c, f_cget g, const char * t, const char * n )
 { if( query->ugen_exports.size() )
-    query->ugen_exports[query->ugen_exports.size()-1].add( c, t, n ); }
+    query->ugen_exports[query->ugen_exports.size()-1].add( c, g, t, n ); }
 
 // set name
 extern "C" void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query,

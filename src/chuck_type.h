@@ -87,8 +87,6 @@ struct t_Type_
     unsigned int size;
     // array depth
     unsigned int array_depth;
-    // data
-    unsigned int data;
     // dynamic
     unsigned int dyn;
 };

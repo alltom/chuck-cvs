@@ -38,6 +38,8 @@
 #include "chuck_def.h"
 #include "chuck_oo.h"
 #include "chuck_ugen.h"
+#include <stdlib.h>
+#include <memory.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -72,12 +74,14 @@ using namespace std;
 // example: UGEN_CTOR foo_ctor( t_CKTIME now )
 // example: UGEN_DTOR foo_dtor( t_CKTIME now, void * data )
 // example: UGEN_TICK foo_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-// example: UGEN_CTRL foo_a( t_CKTIME now, void * data, void * value )
+// example: UGEN_CTRL foo_ctrl_a( t_CKTIME now, void * data, void * value )
+// example: UGEN_CGET foo_cget_a( t_CKTIME now, void * data, void * out )
 // example: UGEN_PMSG foo_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 #define UGEN_CTOR CK_DLL_EXPORT(void *)
 #define UGEN_DTOR CK_DLL_EXPORT(void)
 #define UGEN_TICK CK_DLL_EXPORT(t_CKBOOL)
 #define UGEN_CTRL CK_DLL_EXPORT(void)
+#define UGEN_CGET CK_DLL_EXPORT(void)
 #define UGEN_PMSG CK_DLL_EXPORT(t_CKBOOL)
 
 
@@ -97,7 +101,7 @@ typedef void (* CK_DLL_CALL f_ck_addparam)( Chuck_DL_Query * query, const char *
 // functions for adding unit generators
 typedef void (* CK_DLL_CALL f_ck_ugen_add)( Chuck_DL_Query * query, const char * name, void * reserved );
 typedef void (* CK_DLL_CALL f_ck_ugen_func)( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
-typedef void (* CK_DLL_CALL f_ck_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, const char * type, const char * name );
+typedef void (* CK_DLL_CALL f_ck_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
 // set name
 typedef void (* CK_DLL_CALL f_ck_setname)( Chuck_DL_Query * query, const char * name );
 
@@ -107,7 +111,7 @@ void CK_DLL_CALL __ck_addexport( Chuck_DL_Query * query, const char * type, cons
 void CK_DLL_CALL __ck_addparam( Chuck_DL_Query * query, const char * type, const char * name );
 void CK_DLL_CALL __ck_ugen_add( Chuck_DL_Query * query, const char * name, void * reserved );
 void CK_DLL_CALL __ck_ugen_func( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
-void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ctrl, const char * type, const char * name );
+void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
 void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 }
 
@@ -130,6 +134,26 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define GET_NEXT_TIME(ptr)     (*((t_CKTIME *)ptr)++)
 #define GET_NEXT_DUR(ptr)      (*((t_CKDUR *)ptr)++)
 #define GET_NEXT_STRING(ptr)   (*((char * *)ptr)++)
+
+// param conversion
+#define SET_CK_FLOAT(ptr,v)      (*(t_CKFLOAT *)ptr=v)
+#define SET_CK_SINGLE(ptr,v)     (*(float *)ptr=v)
+#define SET_CK_DOUBLE(ptr,v)     (*(double *)ptr=v)
+#define SET_CK_INT(ptr,v)        (*(int *)ptr=v)
+#define SET_CK_UINT(ptr,v)       (*(t_CKUINT *)ptr=v)
+#define SET_CK_TIME(ptr,v)       (*(t_CKTIME *)ptr=v)
+#define SET_CK_DUR(ptr,v)        (*(t_CKDUR *)ptr=v)
+#define SET_CK_STRING(ptr,v)     (*(char *)ptr=v)
+
+// param conversion with pointer advance
+#define SET_NEXT_FLOAT(ptr,v)    (*((t_CKFLOAT *)ptr)++=v)
+#define SET_NEXT_SINGLE(ptr,v)   (*((float *)ptr)++=v)
+#define SET_NEXT_DOUBLE(ptr,v)   (*((double *)ptr)++=v)
+#define SET_NEXT_INT(ptr,v)      (*((int *)ptr)++=v)
+#define SET_NEXT_UINT(ptr,v)     (*((t_CKUINT *)ptr)++=v)
+#define SET_NEXT_TIME(ptr,v)     (*((t_CKTIME *)ptr)++=v)
+#define SET_NEXT_DUR(ptr,v)      (*((t_CKDUR *)ptr)++=v)
+#define SET_NEXT_STRING(ptr,v)   (*((char * *)ptr)++=v)
 
 
 //-----------------------------------------------------------------------------
@@ -179,16 +203,16 @@ public: // call these from the DLL
     void * reserved;
     
 public: // these should not be used directly by the DLL
-        vector<Chuck_DL_Proto> dll_exports;
+    vector<Chuck_DL_Proto> dll_exports;
     vector<Chuck_UGen_Info> ugen_exports;
     int linepos;
     
     // constructor
     Chuck_DL_Query()
     { add_export = __ck_addexport; add_param = __ck_addparam;
-    ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func; 
-    ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
-    dll_name = "[noname]"; reserved = NULL; linepos = 0; }
+      ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func; 
+      ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
+      dll_name = "[noname]"; reserved = NULL; linepos = 0; }
     
     // clear the query
     void clear() { dll_exports.clear(); ugen_exports.clear(); }
@@ -204,12 +228,12 @@ public: // these should not be used directly by the DLL
 union Chuck_DL_Return
 {
     int    v_int;
-    double  v_float;
+    t_CKUINT v_uint;
+    t_CKFLOAT v_float;
     char * v_string;
     void * v_user;
-    t_CKUINT v_uint;
     
-    Chuck_DL_Return() { v_int = 0; }
+    Chuck_DL_Return() { memset( this, 0, sizeof(*this) ); }
 };
 
 
