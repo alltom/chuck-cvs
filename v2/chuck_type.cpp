@@ -118,10 +118,14 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
 t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * name );
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
+
+// helpers
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
+Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
+Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
 
 
 
@@ -239,6 +243,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_values["global"] = TRUE;
 
     env->key_types["void"] = TRUE;
+    env->key_types["same"] = TRUE;
     env->key_types["int"] = TRUE;
     env->key_types["float"] = TRUE;
     env->key_types["dur"] = TRUE;
@@ -2443,4 +2448,33 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos )
 {
     return type_engine_check_reserved( env, string(S_name(id)), pos );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_find_value()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
+{
+    Chuck_Value * value = NULL;
+    if( !type ) return NULL;
+    if( !type->info ) return NULL;
+    if( value = type->info->lookup_value( id, FALSE ) ) return value;
+    if( type->parent ) return type_engine_find_value( type->parent, id );
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_find_value()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id )
+{
+    return type_engine_find_value( type, string(S_name(id)) );
 }
