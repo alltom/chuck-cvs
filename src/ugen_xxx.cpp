@@ -3,8 +3,8 @@ ChucK Concurrent, On-the-fly Audio Programming Language
 Compiler and Virtual Machine
 
 Copyright (c) 2004 Ge Wang and Perry R. Cook.  All rights reserved.
-http://chuck.cs.princeton.edu/
-http://soundlab.cs.princeton.edu/
+  http://chuck.cs.princeton.edu/
+  http://soundlab.cs.princeton.edu/
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
