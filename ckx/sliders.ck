@@ -311,21 +311,21 @@ function void thedrawloop() {
 		gl.Vertex3f ( tm - math.floor(tm), 1.0 , -0.2 );
 		gl.End();
 
-		gl.Color4f ( 0.0, 0.0 , 0.0, 0.5);
+		gl.Color4f ( 0.0, 1.0 , 0.0, 0.5);
 		gl.Begin(GL_LINES);
 
 		gl.Vertex3f ( tb - math.floor(tb), 0.0 ,  -0.2 );
 		gl.Vertex3f ( tb - math.floor(tb), 1.0 , -0.2 );
 		gl.End();
 
+		gl.Color4f ( 1.0, 0.0 , 0.0, 0.5);
 		gl.Begin(GL_LINES);
-
 		gl.Vertex3f ( tc - math.floor(tc), 0.0 ,  -0.2 );
 		gl.Vertex3f ( tc - math.floor(tc), 1.0 , -0.2 );
 		gl.End();
 
 		gl.Begin (GL_QUADS );
-		gl.Color4f ( 0.4, 0.0, 0.0, 0.75 - (tm - tb) );
+		gl.Color4f ( 0.8, 0.0, 0.0, 0.75 - (tm - tb) );
 		gl.Vertex3f ( tb - math.floor(tb) , 0.0, -0.1);
 		gl.Vertex3f ( tb - math.floor(tb) , 1.0, -0.1);
 		if ( tm - math.floor(tm) > tb - math.floor(tb)) { 
@@ -343,7 +343,7 @@ function void thedrawloop() {
 
 		}
 
-		gl.Color4f ( 0.0, 0.4, 0.0, 0.75 - (tm - tc) );
+		gl.Color4f ( 0.0, 0.8, 0.0, 0.75 - (tm - tc) );
 		gl.Vertex3f ( tc - math.floor(tc)  , 0.0, -0.08);
 		gl.Vertex3f ( tc - math.floor(tc)  , 1.0, -0.08);
 		if ( tm - math.floor(tm) > tc - math.floor(tc)) { 
@@ -419,7 +419,7 @@ function void controlshred() {
 					//0.1 + ctlc_dv * 0.3 => cbmag;
 					//cbmag=> stdout;
 					tm => tc;
-					spork ~ ricochet( 0.2 , 880.0 );
+					spork ~ ricochet( 0.1 + ctlc_dv * 0.1 , 880.0 );
 				}
 				else { 0.0 => ctlc_dv; }
 				0.0 => ctlc_val;
@@ -442,7 +442,7 @@ function void controlshred() {
 					}
 					ctlb_dv * -ctla_val => ctlb_dv; 
 					tm => tb;
-					spork ~ ricochet( 0.2, 1100.0 );
+					spork ~ ricochet( 0.1 + ctlb_dv * 0.1, 1100.0 );
 				}
 				else { 0.0 => ctlb_dv; }
 				0.0 => ctlb_val;
