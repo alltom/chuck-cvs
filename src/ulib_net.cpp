@@ -139,6 +139,7 @@ public:
     // data
     string m_hostname;
     int m_port;
+    string m_name;
 
 protected:
     ck_socket m_sock;
@@ -163,6 +164,7 @@ public:
     ~GigaRecv( );
 
     t_CKBOOL listen( int port );
+    t_CKBOOL disconnect( );
     t_CKBOOL recv( t_CKBYTE * buffer );
     t_CKBOOL expire();
     t_CKBOOL set_bufsize( t_CKUINT size );
@@ -175,6 +177,7 @@ public:
     
     // data
     int m_port;
+    string m_name;
 
 protected:
     ck_socket m_sock;
@@ -355,11 +358,7 @@ t_CKBOOL GigaRecv::good( ) { return m_sock != NULL; }
 //-----------------------------------------------------------------------------
 GigaRecv::~GigaRecv( )
 {
-    if( m_sock )
-    {
-        ck_close( m_sock );
-        m_sock = NULL;
-    }
+    this->disconnect( );
 }
 
 
@@ -384,6 +383,24 @@ t_CKBOOL GigaRecv::listen( int port )
     }
     
     m_port = port;
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: disconnect()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaRecv::disconnect( )
+{
+    if( !m_sock )
+        return FALSE;
+        
+    ck_close( m_sock );
+    m_sock = NULL;
     
     return TRUE;
 }
@@ -542,9 +559,24 @@ UGEN_CTRL netout_ctrl_size( t_CKTIME now, void * data, void * value )
     x->set_bufsize( (t_CKDWORD)size );
 }
 
-UGEN_CGET netout_cget_size( t_CKTIME now, void * data, void * out );
-UGEN_CTRL netout_ctrl_name( t_CKTIME now, void * data, void * value );
-UGEN_CGET netout_cget_name( t_CKTIME now, void * data, void * out );
+UGEN_CGET netout_cget_size( t_CKTIME now, void * data, void * out )
+{
+    GigaSend * x = (GigaSend *)data;
+    SET_NEXT_INT( out, x->get_bufsize() );
+}
+
+UGEN_CTRL netout_ctrl_name( t_CKTIME now, void * data, void * value )
+{
+    GigaSend * x = (GigaSend *)data;
+    char * str = GET_NEXT_STRING(value);
+    x->m_name = str;
+}
+
+UGEN_CGET netout_cget_name( t_CKTIME now, void * data, void * out )
+{
+    GigaSend * x = (GigaSend *)data;
+    SET_NEXT_STRING( out, (char *)x->m_name.c_str() );
+}
 
 
 
@@ -553,10 +585,53 @@ UGEN_CGET netout_cget_name( t_CKTIME now, void * data, void * out );
 // name: netin
 // desc: ...
 //-----------------------------------------------------------------------------
-UGEN_CTOR netin_ctor( t_CKTIME now );
-UGEN_DTOR netin_dtor( t_CKTIME now, void * data );
-UGEN_TICK netin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL netin_ctrl_port( t_CKTIME now, void * data, void * value );
-UGEN_CGET netin_cget_port( t_CKTIME now, void * data, void * out );
-UGEN_CTRL netin_ctrl_name( t_CKTIME now, void * data, void * value );
-UGEN_CGET netin_cget_name( t_CKTIME now, void * data, void * out );
+UGEN_CTOR netin_ctor( t_CKTIME now )
+{
+    GigaRecv * x = new GigaRecv;
+    return x;
+}
+
+UGEN_DTOR netin_dtor( t_CKTIME now, void * data )
+{
+    GigaRecv * x = (GigaRecv *)data;
+    delete x;
+}
+
+UGEN_TICK netin_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    GigaRecv * x = (GigaRecv *)data;
+    return x->tick_in( out );
+}
+
+UGEN_CTRL netin_ctrl_port( t_CKTIME now, void * data, void * value )
+{
+    GigaRecv * x = (GigaRecv *)data;
+    int port = GET_NEXT_INT(value);
+    
+    // check if same and already connected
+    if( x->good() && x->m_port == port )
+        return;
+    
+    // connect
+    x->disconnect( );
+    x->listen( port );
+}
+
+UGEN_CGET netin_cget_port( t_CKTIME now, void * data, void * out )
+{
+    GigaRecv * x = (GigaRecv *)data;
+    SET_NEXT_INT( out, x->m_port );
+}
+
+UGEN_CTRL netin_ctrl_name( t_CKTIME now, void * data, void * value )
+{
+    GigaRecv * x = (GigaRecv *)data;
+    char * str = GET_NEXT_STRING(value);
+    x->m_name = str;
+}
+
+UGEN_CGET netin_cget_name( t_CKTIME now, void * data, void * out )
+{
+    GigaRecv * x = (GigaRecv *)data;
+    SET_NEXT_STRING( out, (char *)x->m_name.c_str() );
+}
