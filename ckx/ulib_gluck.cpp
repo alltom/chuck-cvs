@@ -1080,6 +1080,7 @@ CK_DLL_FUNC( gluck_MainLoopEvent_impl )
 #else
   glutMainLoopEvent();
 #endif
+
   //hork;
 }
 
