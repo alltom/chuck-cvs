@@ -40,11 +40,18 @@ p15.ck		emitted			cast subclass array to parent array
 p16.ck		emitted ( should fail type check ) cast parent class array to subclass array
 p17.ck		emitted		        array assignment - length mismatch ( large to small ) 
 p18.ck		emitted			array assignment - length mismatch ( small to large )
-p20.ck		emitted			for loop with +=>
+p20.ck		emitted			for loop with decrement
+p21.ck		emit error at 5		for loop with -=>, *=> ( factorial ), modify argument in function
+p22.ck		emit error at 5		for loop with -=>, *=> ( factorial ), modify local variable..
 p23.ck		emit error at 5		function taking argument
 p24.ck		emit error at 5		function taking two arguments
 p25.ck		emit error at 5		test pass by value
-p26.ck					array pass by reference
+p26.ck		emit error exceeds dimension ( see 19.ck ) array pass by reference
+p27.ck		emitted, correct	function calling second function
+p28.ck					recursive function
+p29.ck					
+
 --Notes--
 
-mar 29, 2:56 : changed p02.ck to a @=> instead of =>  : success!
+mar 29, 7:55pm p21 - 25 all give an error from defining a function taking an argument.
+mar 29, 2:56am : changed p02.ck to a @=> instead of =>  : success!
