@@ -620,6 +620,7 @@ int send_cmd( int argc, char ** argv, int  & i )
     Net_Msg msg;
     g_sigpipe_mode = 1;
     int ret = 0;
+    int tasks_total = 0, tasks_done = 0;
 	
     g_sock = ck_tcp_create( 0 );
     if( !g_sock )
@@ -650,8 +651,12 @@ int send_cmd( int argc, char ** argv, int  & i )
         do {
             msg.type = MSG_ADD;
             msg.param = 1;
-            send_file( argv[i], msg, "add" );
+            tasks_done += send_file( argv[i], msg, "add" );
+            tasks_total++;
         } while( ++i < argc );
+        
+        if( !tasks_done )
+            goto error;
     }
     else if( !strcmp( argv[i], "--remove" ) || !strcmp( argv[i], "-" ) )
     {
