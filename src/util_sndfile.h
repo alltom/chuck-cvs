@@ -2523,8 +2523,8 @@ extern word gsm_FAC [8] ;
 
 #else
 	#ifndef __sgi
-	#warning "Don't have the functions lrint() and lrintf()."
-	#warning "Replacing these functions with a standard C cast."
+	// #warning "Don't have the functions lrint() and lrintf()."
+	// #warning "Replacing these functions with a standard C cast."
 	#endif
 
 
