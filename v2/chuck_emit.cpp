@@ -1561,7 +1561,7 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
                 return FALSE;
             }
 
-            // see if rhs is 'now'
+            // see if rhs is 'now' - time => now
             if( strcmp( "now", S_name(rhs->primary.var) ) == 0 )
             {
                 // pop the now value
