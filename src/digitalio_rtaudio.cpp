@@ -159,7 +159,9 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     }
     else  // initial condition
     {
-        if( !m_go ) Chuck_VM::set_priority( 95, NULL );
+#ifdef __MACOSX_CORE__
+        if( !m_go ) Chuck_VM::set_priority( 85, NULL );
+#endif
         memset( buffer, 0, len );
         m_go++;
         return 0;

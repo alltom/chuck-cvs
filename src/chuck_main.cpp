@@ -85,7 +85,7 @@ CHUCK_THREAD g_tid = 0;
 char g_host[256] = "127.0.0.1";
 int g_port = 8888;
 #if defined(__MACOSX_CORE__)
-t_CKUINT g_priority = 90;
+t_CKUINT g_priority = 95;
 #else
 t_CKUINT g_priority = 0xffffffff;
 #endif
