@@ -20,10 +20,12 @@ class BB extends AA
 	}
 }
 
-BB bb;
-bb.bar();
-bb @=> BB @ bbb;
+BB b1;
+b1.bar();
+
+bb @=> BB @ b2;
 bbb.foo();
+bb @=> BB @ bbbb;
 
 //adc => sndbuf => dac;
 

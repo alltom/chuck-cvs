@@ -1225,7 +1225,7 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                     {
                         EM_error2( exp->linepos,
                             "undefined variable '%s'...", S_name(exp->var) );
-
+                        return NULL;
                     }
                     else
                     {
@@ -1236,6 +1236,7 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                             EM_error2( exp->linepos,
                                 "undefined member '%s' in class/namespace '%s'...",
                                 S_name(exp->var), env->class_def->name.c_str() );
+                            return NULL;
                         }
                     }
                 }
