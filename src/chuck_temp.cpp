@@ -152,7 +152,7 @@ Temp_Map Temp_name( void )
 //-----------------------------------------------------------------------------
 Temp_Map new_map( TAB_table tab, Temp_Map under )
 {
-    Temp_Map m = checked_malloc( sizeof( *m ) );
+    Temp_Map m = (Temp_Map)checked_malloc( sizeof( *m ) );
     m->tab=tab;
     m->under=under;
 
@@ -210,7 +210,7 @@ c_str Temp_look( Temp_Map m, Temp_Temp t )
 {
     c_str s;
     assert( m && m->tab );
-    s = TAB_look( m->tab, t );
+    s = (c_str)TAB_look( m->tab, t );
     if ( s ) return s;
     else if ( m->under ) return Temp_look( m->under, t );
     else return NULL;

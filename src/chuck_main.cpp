@@ -44,7 +44,7 @@ extern "C" int yyparse( void );
 #include "chuck_vm.h"
 #include "chuck_bbq.h"
 #include "chuck_utils.h"
-#include "chuck_errormsg.h"
+#include "chuck_errmsg.h"
 #include "util_network.h"
 
 #include <signal.h>

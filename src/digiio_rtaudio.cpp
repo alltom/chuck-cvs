@@ -23,13 +23,13 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: digitalio_rtaudio.cpp
+// file: digiio_rtaudio.cpp
 // desc: digitalio over rtaudio (from Gary Scavone)
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
 //-----------------------------------------------------------------------------
-#include "digitalio_rtaudio.h"
+#include "digiio_rtaudio.h"
 #include "rtaudio.h"
 #include "chuck_vm.h"
 #if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)

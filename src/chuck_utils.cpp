@@ -23,40 +23,53 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: chuck_errormsg.h
-// desc: error msg
+// file: chuck_utils.c
+// desc: common utils
 //
 // author: Andrew Appel (appel@cs.princeton.edu)
-// modified: Ge Wang (gewang.cs.princeton.edu)
+// modified: Ge Wang (gewang@cs.princeton.edu)
 //           Perry R. Cook (prc@cs.princeton.edu)
 // date: Summer 2002
 //-----------------------------------------------------------------------------
-#ifndef __CHUCK_ERRORMSG_H__
-#define __CHUCK_ERRORMSG_H__
-
-#include "chuck_def.h"
-
-
-#if defined(_cplusplus) || defined(__cplusplus)
-extern "C" {
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "chuck_utils.h"
 
 
-extern t_CKBOOL EM_anyErrors;
-extern int EM_tokPos;
-extern int EM_lineNum;
-
-void EM_newline( );
-
-void EM_error( int, c_str, ... );
-void EM_error2( int, c_str, ... );
-void EM_impossible( c_str, ... );
-void EM_reset( c_str filename );
 
 
-#if defined(_cplusplus) || defined(__cplusplus)
+void *checked_malloc( int len )
+{
+    void *p = calloc( len, 1 );
+    if( !p )
+    {
+        fprintf( stderr, "\nRan out of memory!\n" );
+        exit( 1 );
+    }
+
+    return p;
 }
-#endif
 
 
-#endif
+
+
+c_str cc_str( char * s )
+{
+    c_str p = (c_str)checked_malloc( strlen(s)+1 );
+    strcpy( p, s );
+
+    return p;
+}
+
+
+
+
+U_boolList U_BoolList( t_CKBOOL head, U_boolList tail )
+{
+    U_boolList list = (U_boolList)checked_malloc( sizeof(*list) );
+    list->head = head;
+    list->tail = tail;
+
+    return list;
+}

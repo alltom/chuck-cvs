@@ -23,7 +23,7 @@
 -----------------------------------------------------------------------------*/
 
 /*
- * errormsg.c - functions used in all phases of the compiler to give
+ * errmsg.cpp - functions used in all phases of the compiler to give
  *              error messages about the Tiger program.
  *
  */
@@ -32,7 +32,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "chuck_utils.h"
-#include "chuck_errormsg.h"
+#include "chuck_errmsg.h"
 
 
 t_CKBOOL anyErrors= FALSE;
@@ -48,7 +48,7 @@ static IntList linePos=NULL;
 
 static IntList intList( int i, IntList rest )
 {
-    IntList l= checked_malloc(sizeof *l);
+    IntList l = (IntList)checked_malloc(sizeof *l);
     l->i=i; l->rest=rest;
     return l;
 }
@@ -101,7 +101,7 @@ void EM_error2( int line, char *message, ... )
 
 void EM_reset( c_str fname )
 {
-    anyErrors = FALSE; fileName = fname ? fname : ""; lineNum = 1;  EM_lineNum = 1;
+    anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
     linePos=intList(0, NULL);
 
     yyin = fopen(fname, "r");

@@ -39,7 +39,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "chuck_utils.h"
-#include "chuck_errormsg.h"
+#include "chuck_errmsg.h"
 #include "chuck_absyn.h"
 
 // function

@@ -43,8 +43,8 @@ struct S_Symbol_ { c_str name; S_Symbol next; };
 
 static S_Symbol mksymbol( c_constr name, S_Symbol next )
 {
-    S_Symbol s=checked_malloc(sizeof(*s));
-    s->name=checked_malloc(strlen(name)+1);
+    S_Symbol s = (S_Symbol)checked_malloc(sizeof(*s));
+    s->name = (c_str)checked_malloc(strlen(name)+1);
     strcpy(s->name, (c_str)name); s->next=next;
     return s;
 }
@@ -126,7 +126,7 @@ void S_beginScope( S_table t )
 void S_endScope( S_table t )
 {
     S_Symbol s;
-    do s = TAB_pop(t);
+    do s = (S_Symbol)TAB_pop(t);
     while (s != &marksym);
 }
 

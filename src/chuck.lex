@@ -49,7 +49,7 @@ IS          (u|U|l|L)*
 #include "chuck_utils.h"
 #include "chuck_absyn.h"
 #include "chuck.tab.h"
-#include "chuck_errormsg.h"
+#include "chuck_errmsg.h"
 
 // globals
 extern YYSTYPE yylval;

@@ -23,7 +23,7 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// name: digitalio_rtaudio.h
+// name: digiio_rtaudio.h
 // desc: digitalio over RtAudio (from Gary Scavone)
 //
 // author: Ge Wang (gewang@cs.princeton.edu)

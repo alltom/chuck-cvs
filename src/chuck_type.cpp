@@ -40,7 +40,7 @@ using namespace std;
 #include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_dl.h"
-#include "chuck_errormsg.h"
+#include "chuck_errmsg.h"
 #include "chuck_symbol.h"
 
 

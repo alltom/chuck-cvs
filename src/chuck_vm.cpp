@@ -33,7 +33,7 @@
 #include "chuck_vm.h"
 #include "chuck_instr.h"
 #include "chuck_bbq.h"
-#include "chuck_errormsg.h"
+#include "chuck_errmsg.h"
 
 #include <vector>
 using namespace std;

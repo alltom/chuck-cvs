@@ -35,26 +35,26 @@
 // currently ChucK uses RtAudio | __CHUCK_NATIVE_AUDIO__ not in use
 #if defined(__CHUCK_NATIVE_AUDIO__)
   #if defined(__LINUX_ALSA__)
-    #include "digitalio_alsa.h"
+    #include "digiio_alsa.h"
     #include "midiio_alsa.h"
   #elif defined(__LINUX_JACK__)
-    #include "digitalio_jack.h"
+    #include "digiio_jack.h"
     #include "midiio_alsa.h"
   #elif defined(__LINUX_OSS__)
-    #include "digitalio_oss.h"
+    #include "digiio_oss.h"
     #include "midiio_oss.h"
   #elif defined(__MACOSX_CORE__)
-    #include "digitalio_osx.h"
+    #include "digiio_osx.h"
     #include "midiio_osx.h"
   #elif defined(__WINDOWS_DS__)
-    #include "digitalio_win32.h"
+    #include "digiio_win32.h"
     #include "midiio_win32.h"
   #else
     #error "must define one:\
     __LINUX_ALSA__ __LINUX_JACK__ __LINUX_OSS__ __MACOSX_CORE__ __WINDOWS_DS__"
   #endif
 #else
-  #include "digitalio_rtaudio.h"
+  #include "digiio_rtaudio.h"
   #if defined(__LINUX_ALSA__)
     #include "midiio_alsa.h"
   #elif defined(__LINUX_JACK__)

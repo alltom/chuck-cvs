@@ -3,12 +3,13 @@ CC=gcc
 LEX=flex
 YACC=bison
 INCLUDES=
-FLAGS= -D__LINUX_ALSA__ -O3 -c
-LIBS= -lasound -lstdc++ -ldl -lm
-OBJS= chuck.tab.o chuck.yy.o chuck_main.o chuck_errormsg.o chuck_utils.o \
+FLAGS=-D__LINUX_ALSA__ -O3 -c
+LIBS=-lasound -lstdc++ -ldl -lm
+
+OBJS=chuck.tab.o chuck.yy.o chuck_main.o chuck_errmsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \
 	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_ugen.o \
-	chuck_bbq.o chuck_dl.o digitalio_rtaudio.o rtaudio.o midiio_alsa.o \
+	chuck_bbq.o chuck_dl.o digiio_rtaudio.o rtaudio.o midiio_alsa.o \
 	ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o ulib_machine.o \
 	ulib_math.o ulib_net.o ulib_std.o util_buffers.o util_math.o \
 	util_network.o util_raw.o util_sndfile.o util_xforms.o
@@ -16,7 +17,7 @@ OBJS= chuck.tab.o chuck.yy.o chuck_main.o chuck_errormsg.o chuck_utils.o \
 chuck: $(OBJS)
 	$(CC) -o chuck $(OBJS) $(LIBS)
 
-chuck_main.o: chuck_main.cpp chuck_errormsg.h chuck_utils.h
+chuck_main.o: chuck_main.cpp chuck_errmsg.h chuck_utils.h
 	$(CC) $(FLAGS) chuck_main.cpp
 
 chuck_emit.o: chuck_emit.cpp chuck_emit.h
@@ -25,11 +26,8 @@ chuck_emit.o: chuck_emit.cpp chuck_emit.h
 chuck_ugen.o: chuck_ugen.cpp chuck_ugen.h
 	$(CC) $(FLAGS) chuck_ugen.cpp
 
-chuck_osc.o: chuck_osc.cpp chuck_osc.h chuck_ugen.h
-	$(CC) $(FLAGS) chuck_osc.cpp
-
-chuck_temp.o: chuck_temp.h chuck_temp.c
-	$(CC) $(FLAGS) chuck_temp.c
+chuck_temp.o: chuck_temp.h chuck_temp.cpp
+	$(CC) $(FLAGS) chuck_temp.cpp
 
 chuck_frame.o: chuck_frame.h chuck_frame.cpp
 	$(CC) $(FLAGS) chuck_frame.cpp
@@ -43,14 +41,14 @@ chuck_instr.o: chuck_instr.h chuck_instr.cpp
 chuck_type.o: chuck_type.cpp chuck_type.h
 	$(CC) $(FLAGS) chuck_type.cpp
 
-chuck_absyn.o: chuck_absyn.c chuck_absyn.h chuck_utils.h
-	$(CC) $(FLAGS) chuck_absyn.c
+chuck_absyn.o: chuck_absyn.cpp chuck_absyn.h chuck_utils.h
+	$(CC) $(FLAGS) chuck_absyn.cpp
 
-chuck_symbol.o: chuck_symbol.c chuck_symbol.h
-	$(CC) $(FLAGS) chuck_symbol.c
+chuck_symbol.o: chuck_symbol.cpp chuck_symbol.h
+	$(CC) $(FLAGS) chuck_symbol.cpp
 
-chuck_table.o: chuck_table.c chuck_table.h
-	$(CC) $(FLAGS) chuck_table.c
+chuck_table.o: chuck_table.cpp chuck_table.h
+	$(CC) $(FLAGS) chuck_table.cpp
 
 chuck.tab.o: chuck.tab.c
 	$(CC) $(FLAGS) chuck.tab.c
@@ -61,30 +59,30 @@ chuck.tab.c: chuck.y
 chuck.tab.h: chuck.tab.c
 	echo "chuck.tab.h was created at the same time as chuck.tab.c"
 
-chuck_errormsg.o: chuck_errormsg.c chuck_errormsg.h chuck_utils.h
-	$(CC) $(FLAGS) chuck_errormsg.c
+chuck_errmsg.o: chuck_errmsg.cpp chuck_errmsg.h chuck_utils.h
+	$(CC) $(FLAGS) chuck_errmsg.cpp
 
-chuck.yy.o: chuck.yy.c chuck.tab.h chuck_errormsg.h chuck_utils.h
+chuck.yy.o: chuck.yy.c chuck.tab.h chuck_errmsg.h chuck_utils.h
 	$(CC) $(FLAGS) chuck.yy.c
 
 chuck.yy.c: chuck.lex
 	$(LEX) -ochuck.yy.c chuck.lex
 
-chuck_utils.o: chuck_utils.c chuck_utils.h
-	$(CC) $(FLAGS) chuck_utils.c
+chuck_utils.o: chuck_utils.cpp chuck_utils.h
+	$(CC) $(FLAGS) chuck_utils.cpp
 
 chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_alsa.h
 	$(CC) $(FLAGS) chuck_bbq.cpp
 
-digitalio_rtaudio.o: digitalio_rtaudio.h digitalio_rtaudio.cpp
-	$(CC) $(FLAGS) digitalio_rtaudio.cpp
+digiio_rtaudio.o: digiio_rtaudio.h digiio_rtaudio.cpp
+	$(CC) $(FLAGS) digiio_rtaudio.cpp
 
 rtaudio.o: rtaudio.h rtaudio.cpp rterror.h
 	$(CC) $(FLAGS) rtaudio.cpp
 
 midiio_alsa.o: midiio_alsa.cpp midiio_alsa.h
 	$(CC) $(FLAGS) midiio_alsa.cpp
-
+    
 chuck_dl.o: chuck_dl.h chuck_dl.cpp
 	$(CC) $(FLAGS) chuck_dl.cpp
 
@@ -93,7 +91,7 @@ ugen_osc.o: ugen_osc.h ugen_osc.cpp
 
 ugen_xxx.o: ugen_xxx.h ugen_xxx.cpp
 	$(CC) $(FLAGS) ugen_xxx.cpp
-
+    
 ugen_filter.o: ugen_filter.h ugen_filter.cpp
 	$(CC) $(FLAGS) ugen_filter.cpp
 
