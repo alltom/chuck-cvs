@@ -39,6 +39,7 @@
 
 // query
 DLL_QUERY stk_query( Chuck_DL_Query * QUERY );
+t_CKBOOL  stk_detach( t_CKUINT type, void * data );
 
 // ADSR
 UGEN_CTOR ADSR_ctor( t_CKTIME now );

@@ -115,6 +115,8 @@ void signal_int( int sig_num )
 #else
         CloseHandle( g_tid );
 #endif
+        // detach STK module
+        stk_detach( 0, NULL );
     }
 
 #ifndef __PLATFORM_WIN32__
