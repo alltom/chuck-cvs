@@ -55,6 +55,7 @@
 #define __STK_H
 
 #include <string>
+#include <map>
 
 // Most data in STK is passed and calculated with the
 // following user-definable floating-point type.  You
@@ -252,10 +253,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     Stk::setSampleRate( QUERY->srate );
 
     //! \sectionMain STK
-	
 
-	
-	    //! \section stk - instruments
+    //! \section stk - instruments
 
     // add BandedWG
     QUERY->ugen_add( QUERY, "BandedWG", NULL ); 
@@ -421,7 +420,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     // add StifKarp
     //! see \example stifkarp.ck
-
     QUERY->ugen_add( QUERY, "StifKarp", NULL );
     QUERY->ugen_func( QUERY, StifKarp_ctor, StifKarp_dtor, StifKarp_tick, StifKarp_pmsg );
     QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pluck, NULL, "float", "pluck" ); //! 
@@ -525,7 +523,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //end FM
 	
-
     //! \section stk - delay
 
     // add Delay
@@ -557,7 +554,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" ); //! max delay
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" ); //! mix level ( wet/dry ) 
 
-
     //! \section stk - envelopes
 
     // add Envelope
@@ -570,7 +566,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, Envelope_cget_time, "float", "time" ); //! time to reach target
     QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, Envelope_cget_rate, "float", "rate"); //! rate of change 
     QUERY->ugen_ctrl( QUERY, Envelope_ctrl_value, Envelope_cget_value, "float", "value" ); //! set immediate value
-
 
     // add ADSR
 	//! see \example adsr.ck
@@ -589,10 +584,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" ); //! attack=0, decay=1 , sustain=2, release=3, done=4
     //uhhh we are supposed to have target and value here as well..  d'oh
 
-
     //! \section stk - filters
 	
-	    // add BiQuad
+    // add BiQuad
     QUERY->ugen_add( QUERY, "BiQuad", NULL ); 
     QUERY->ugen_func( QUERY, BiQuad_ctor, BiQuad_dtor, BiQuad_tick, BiQuad_pmsg );
     QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b2, BiQuad_cget_b2, "float", "b2" ); //! b2 coefficient
@@ -622,7 +616,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, OnePole_ctrl_a1, OnePole_cget_a1, "float", "a1" ); //! filter coefficient
     QUERY->ugen_ctrl( QUERY, OnePole_ctrl_b0, OnePole_cget_b0, "float", "b0" ); //! filter coefficient 
     QUERY->ugen_ctrl( QUERY, OnePole_ctrl_pole, OnePole_cget_pole, "float", "pole" ); //! set pole position along real axis of z-plane
-
 
     // add TwoPole
 	//! see \example powerup.ck
@@ -662,9 +655,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //end Filters
 
-
-
-
     //! \section stk-reverbs
 
     // add JCRev
@@ -676,7 +666,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "NRev", NULL );
     QUERY->ugen_func( QUERY, NRev_ctor, NRev_dtor, NRev_tick, NRev_pmsg );
     QUERY->ugen_ctrl( QUERY, NRev_ctrl_mix, NRev_cget_mix, "float", "mix" ); // set effect mix
-
 
     // add PRCRev
     QUERY->ugen_add( QUERY, "PRCRev", NULL );
@@ -699,7 +688,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Modulate_ctrl_vibratoGain, Modulate_cget_vibratoGain, "float", "vibratoGain" ); //! gain for vibrato
     QUERY->ugen_ctrl( QUERY, Modulate_ctrl_randomGain, Modulate_cget_randomGain, "float", "randomGain" ); //!  gain for random contribution
 
-
     // add PitShift
     QUERY->ugen_add( QUERY, "PitShift", NULL );
     QUERY->ugen_func( QUERY, PitShift_ctor, PitShift_dtor, PitShift_tick, PitShift_pmsg );
@@ -710,7 +698,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "SubNoise", NULL );
     QUERY->ugen_func( QUERY, SubNoise_ctor, SubNoise_dtor, SubNoise_tick, SubNoise_pmsg );
     QUERY->ugen_ctrl( QUERY, SubNoise_ctrl_rate, SubNoise_cget_rate, "int", "rate" ); //! subsampling rate
-
 
     //! \section stk - file i/o
     
@@ -737,8 +724,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_wavFilename, NULL, "string", "wavFilename"); //!open WAVE file for writing
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_rawFilename, NULL, "string", "rawFilename"); //!open raw file for writing
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_aifFilename, NULL, "string", "aifFilename"); //!open AIFF file for writing
+    QUERY->ugen_ctrl( QUERY, NULL, WvOut_cget_filename, "string", "filename" ); //!get filename
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_record, WvOut_cget_record, "int", "record" ); // !start/stop output
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_closeFile, NULL, "string", "closeFile"); //! close file properly 
-    
     
     return TRUE;
 }
@@ -767,7 +755,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
 class Envelope : public Stk
 {
- public:
+public:
 
   //! Default constructor.
   Envelope(void);
@@ -5861,6 +5849,7 @@ class WvOut : public Stk
   unsigned long counter;
   unsigned long totalCount;
   char m_filename[256];
+  t_CKUINT start;
 };
 
 #endif // defined(__WVOUT_H)
@@ -18779,6 +18768,7 @@ void WvOut :: init()
   counter = 0;
   totalCount = 0;
   m_filename[0] = '\0';
+  start = TRUE;
 }
 
 void WvOut :: closeFile( void )
@@ -18885,7 +18875,7 @@ bool WvOut :: setRawFile( const char *fileName )
   byteswap = true;
 #endif
 
-  printf("\nCreating RAW file: %s\n", name);
+  // printf("\nCreating RAW file: %s\n", name);
   return true;
 }
 
@@ -18899,8 +18889,6 @@ bool WvOut :: setWavFile( const char *fileName )
     sprintf(msg, "[chuck](via WvOut): Could not create WAV file: %s", name);
     return false;
   }
-
-
 
   struct wavhdr hdr = {"RIF", 44, "WAV", "fmt", 16, 1, 1,
                         (SINT32) Stk::sampleRate(), 0, 2, 16, "dat", 0};
@@ -18944,7 +18932,7 @@ bool WvOut :: setWavFile( const char *fileName )
     return false;
   }
 
-  printf("\nCreating WAV file: %s\n", name);
+  // printf("\nCreating WAV file: %s\n", name);
   return true;
 }
 
@@ -19013,7 +19001,7 @@ bool WvOut :: setSndFile( const char *fileName )
     return false;
   }
 
-  printf("\nCreating SND file: %s\n", name);
+  // printf("\nCreating SND file: %s\n", name);
   return true;
 }
 
@@ -19136,7 +19124,7 @@ bool WvOut :: setAifFile( const char *fileName )
   
   if ( fwrite(&ssnd, 4, 4, fd) != 4 ) goto error;
 
-  printf("\nCreating AIF file: %s\n", name);
+  // printf("\nCreating AIF file: %s\n", name);
   return true;
 
  error:
@@ -19279,7 +19267,7 @@ bool WvOut :: setMatFile( const char *fileName )
   if ( fseek(fd, 0, SEEK_END) == -1 ) goto error;
 
   byteswap = false;
-  printf("\nCreating MAT-file (%s) containing MATLAB array: %s\n", name, arrayName);
+  fprintf( stderr, "[chuck]:(via STK): creating MAT-file (%s) containing MATLAB array: %s\n", name, arrayName);
   return true;
 
  error:
@@ -23136,6 +23124,7 @@ UGEN_CGET WaveLoop_cget_phaseOffset( t_CKTIME now, void * data, void * value )
     SET_NEXT_FLOAT ( value, w->phaseOffset );
 }
 
+std::map<WvOut *, WvOut *> g_wv;
 
 // WvOut
 UGEN_CTOR WvOut_ctor( t_CKTIME now )
@@ -23145,14 +23134,19 @@ UGEN_CTOR WvOut_ctor( t_CKTIME now )
 
 UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data )
 {
+    WvOut * w = (WvOut *)data;
+    w->closeFile();
+    std::map<WvOut *, WvOut *>::iterator iter;
+    iter = g_wv.find( w );
+    g_wv.erase( iter, iter );
     delete (WvOut *)data;
 }
 
 UGEN_TICK WvOut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     WvOut * w = (WvOut *)data;
-    w->tick( in );
-    *out = in; //pass samples downstream
+    if( w->start ) w->tick( in );
+    *out = in; // pass samples downstream
     return TRUE;
 }
 
@@ -23161,12 +23155,13 @@ UGEN_PMSG WvOut_pmsg( t_CKTIME now, void * data, const char * msg, void * value 
     return TRUE;
 }
 
-//XXX chuck got mono, so we have one channel. fix later.
+// XXX chuck got mono, so we have one channel. fix later.
 UGEN_CTRL WvOut_ctrl_matFilename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
     w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
+    g_wv[w] = w;
 }
 
 UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value )
@@ -23174,6 +23169,7 @@ UGEN_CTRL WvOut_ctrl_sndFilename( t_CKTIME now, void * data, void * value )
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
     w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
+    g_wv[w] = w;
 }
 
 UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value )
@@ -23181,6 +23177,7 @@ UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value )
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
     w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
+    g_wv[w] = w;
 }
 
 UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value )
@@ -23188,6 +23185,7 @@ UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value )
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
     w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
+    g_wv[w] = w;
 }
 
 UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value )
@@ -23195,16 +23193,50 @@ UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value )
     WvOut * w = (WvOut *)data;
     char *filename = * (char**) value;
     w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
+    g_wv[w] = w;
 }
 
 UGEN_CTRL WvOut_ctrl_closeFile( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     w->closeFile();
+    
+    std::map<WvOut *, WvOut *>::iterator iter;
+    iter = g_wv.find( w );
+    g_wv.erase( iter, iter );
+}
+
+UGEN_CTRL WvOut_ctrl_record( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    t_CKINT i = GET_NEXT_INT(value);
+    w->start = i ? 1 : 0;
 }
 
 UGEN_CGET WvOut_cget_filename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     SET_NEXT_STRING ( value, w->m_filename );
-}  
+}
+
+UGEN_CGET WvOut_cget_record( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    SET_NEXT_INT( value, w->start );
+}
+
+//-----------------------------------------------------------------------------
+// name: ck_detach()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL stk_detach( t_CKUINT type, void * data )
+{
+    std::map<WvOut *, WvOut *>::iterator iter;
+    
+    for( iter = g_wv.begin(); iter != g_wv.end(); iter++ )
+    {
+        (*iter).second->closeFile();
+    }
+    
+    return TRUE;
+}

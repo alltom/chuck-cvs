@@ -39,6 +39,7 @@
 
 // query
 DLL_QUERY stk_query( Chuck_DL_Query * QUERY );
+t_CKBOOL  stk_detach( t_CKUINT type, void * data );
 
 // ADSR
 UGEN_CTOR ADSR_ctor( t_CKTIME now );
@@ -320,7 +321,9 @@ UGEN_CTRL WvOut_ctrl_wavFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_rawFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_aifFilename( t_CKTIME now, void * data, void * value );
 UGEN_CTRL WvOut_ctrl_closeFile( t_CKTIME now, void * data, void * value );
+UGEN_CTRL WvOut_ctrl_record( t_CKTIME now, void * data, void * value );
 UGEN_CGET WvOut_cget_filename( t_CKTIME now, void * data, void * value );
+UGEN_CGET WvOut_cget_record( t_CKTIME now, void * data, void * value );
 
 // FM
 UGEN_CTOR FM_ctor( t_CKTIME now );

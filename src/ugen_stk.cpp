@@ -724,6 +724,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_wavFilename, NULL, "string", "wavFilename"); //!open WAVE file for writing
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_rawFilename, NULL, "string", "rawFilename"); //!open raw file for writing
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_aifFilename, NULL, "string", "aifFilename"); //!open AIFF file for writing
+    QUERY->ugen_ctrl( QUERY, NULL, WvOut_cget_filename, "string", "filename" ); //!get filename
+    QUERY->ugen_ctrl( QUERY, WvOut_ctrl_record, WvOut_cget_record, "int", "record" ); // !start/stop output
     QUERY->ugen_ctrl( QUERY, WvOut_ctrl_closeFile, NULL, "string", "closeFile"); //! close file properly 
     
     return TRUE;
@@ -5847,6 +5849,7 @@ class WvOut : public Stk
   unsigned long counter;
   unsigned long totalCount;
   char m_filename[256];
+  t_CKUINT start;
 };
 
 #endif // defined(__WVOUT_H)
@@ -18765,6 +18768,7 @@ void WvOut :: init()
   counter = 0;
   totalCount = 0;
   m_filename[0] = '\0';
+  start = TRUE;
 }
 
 void WvOut :: closeFile( void )
@@ -23132,13 +23136,16 @@ UGEN_DTOR WvOut_dtor( t_CKTIME now, void * data )
 {
     WvOut * w = (WvOut *)data;
     w->closeFile();
+    std::map<WvOut *, WvOut *>::iterator iter;
+    iter = g_wv.find( w );
+    g_wv.erase( iter, iter );
     delete (WvOut *)data;
 }
 
 UGEN_TICK WvOut_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     WvOut * w = (WvOut *)data;
-    w->tick( in );
+    if( w->start ) w->tick( in );
     *out = in; // pass samples downstream
     return TRUE;
 }
@@ -23199,11 +23206,24 @@ UGEN_CTRL WvOut_ctrl_closeFile( t_CKTIME now, void * data, void * value )
     g_wv.erase( iter, iter );
 }
 
+UGEN_CTRL WvOut_ctrl_record( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    t_CKINT i = GET_NEXT_INT(value);
+    w->start = i ? 1 : 0;
+}
+
 UGEN_CGET WvOut_cget_filename( t_CKTIME now, void * data, void * value )
 {
     WvOut * w = (WvOut *)data;
     SET_NEXT_STRING ( value, w->m_filename );
-}  
+}
+
+UGEN_CGET WvOut_cget_record( t_CKTIME now, void * data, void * value )
+{
+    WvOut * w = (WvOut *)data;
+    SET_NEXT_INT( value, w->start );
+}
 
 //-----------------------------------------------------------------------------
 // name: ck_detach()
