@@ -220,6 +220,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_num_adc_channels = 2;
     m_adc = new Chuck_UGen[2];
     m_bunghole = new Chuck_UGen;
+    m_dac[0].add_ref(); m_dac[1].add_ref();
+    m_adc[0].add_ref(); m_adc[1].add_ref();
+    m_bunghole->add_ref();
     m_shreduler->m_dac = m_dac;
     m_shreduler->m_adc = m_adc;
     m_shreduler->m_bunghole = m_bunghole;
