@@ -486,8 +486,10 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos)
         while ( d->curf < 0 ) d->curf += d->num_frames;
     } 
     else
-    { //invalid...
-        if( d->curf < 0 || d->curf >= d->num_frames ) d->curr = d->eob;
+    {
+        if( d->curf < 0 ) d->curf = pos = 0;
+        else if( d->curf >= d->num_frames ) d->curf = pos = d->num_frames-1;
+        d->curr = d->buffer + (int)round(pos);
         return;
     }
 
@@ -630,7 +632,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     //we're ticking once per sample ( system )
     //curf in samples;
     
-    if ( !d->loop && d->curr == d->eob ) return FALSE;
+    if ( !d->loop && d->curr >= d->eob ) return FALSE;
 
     //calculate frame
 
@@ -644,7 +646,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
         *out = (SAMPLE)( (*(d->curr)) ) ;
         *out += (float)alpha * ( *(d->curr + d->num_channels) - *out );
     }
-    else if ( d->interp == SNDBUF_SINC ) { 
+    else if ( d->interp == SNDBUF_SINC ) {
         //do that fancy sinc function!
         sndbuf_sinc_interpolate(d, out);
     }
