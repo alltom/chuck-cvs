@@ -106,6 +106,8 @@ struct Chuck_Emitter : public Chuck_VM_Object
     vector<Chuck_Instr_Goto *> stack_cont;
     // break stack
     vector<Chuck_Instr_Goto *> stack_break;
+    // locals
+    vector<Chuck_Local *> locals;
 
     // constructor
     Chuck_Emitter()
@@ -127,11 +129,10 @@ struct Chuck_Emitter : public Chuck_VM_Object
     void push_scope( )
     { assert( code != NULL ); code->frame->push_scope(); }
     // alloc local
-    Chuck_Local * alloc_local( t_CKUINT size, const string & name )
-    { assert( code != NULL ); return code->frame->alloc_local( size, name ); }
+    Chuck_Local * alloc_local( t_CKUINT size, const string & name, t_CKBOOL is_ref )
+    { assert( code != NULL ); return code->frame->alloc_local( size, name, is_ref ); }
     // pop scope
-    void pop_scope( )
-    { assert( code != NULL ); code->frame->pop_scope(); }
+    void pop_scope( );
 };
 
 

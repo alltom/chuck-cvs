@@ -607,7 +607,8 @@ t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br )
     // check to see if inside valid stmt
     if( env->breaks.size() <= 0 )
     {
-        EM_error2( br->linepos, "'break' found outside of for/while/until/switch..." );
+        EM_error2( br->linepos,
+            "'break' found outside of for/while/until/switch..." );
         return FALSE;
     }
     
@@ -626,7 +627,8 @@ t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont )
     // check to see if inside valid loop
     if( env->breaks.size() <= 0 )
     {
-        EM_error2( cont->linepos, "'continue' found outside of for/while/until..." );
+        EM_error2( cont->linepos,
+            "'continue' found outside of for/while/until..." );
         return FALSE;
     }
     

@@ -57,7 +57,8 @@ Chuck_Frame::Chuck_Frame()
 // name: alloc_local()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Local * Chuck_Frame::alloc_local( t_CKUINT size, const string & name )
+Chuck_Local * Chuck_Frame::alloc_local( t_CKUINT size, const string & name,
+                                        t_CKBOOL is_ref )
 {
     // alloc
     Chuck_Local * local = new Chuck_Local;
@@ -65,6 +66,8 @@ Chuck_Local * Chuck_Frame::alloc_local( t_CKUINT size, const string & name )
     local->size = size;
     // the offset
     local->offset = this->curr_offset;
+    // ref
+    local->is_ref = is_ref;
     // the next offset
     this->curr_offset += local->size;
     // name
@@ -94,22 +97,26 @@ void Chuck_Frame::push_scope( )
 // name: pop_scope()
 // desc: ....
 //-----------------------------------------------------------------------------
-void Chuck_Frame::pop_scope( )
+void Chuck_Frame::pop_scope( vector<Chuck_Local *> & out )
 {
     // sanity
     assert( this->stack.size() > 0 );
 
     Chuck_Local * local = NULL;
-    do {
+
+    // loop
+    while( this->stack.size() && this->stack.back() )
+    {
         // last thing
         local = stack.back();
         // free
         stack.pop_back();
-        // marker
-        if( !local ) break;
-        // offset
-        curr_offset -= local->size;
-        // free
-        delete local;
-    } while( TRUE );
+        if( local )
+        {
+            // offset
+            curr_offset -= local->size;
+            // copy out
+            out.push_back( local );
+        }
+    }
 }

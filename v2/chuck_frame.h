@@ -50,12 +50,14 @@ struct Chuck_Local
     std::string name;
     // the size of the local
     t_CKUINT size;
+    // is ref
+    t_CKBOOL is_ref;
     // the offset
     t_CKUINT offset;
 
     // constructor
     Chuck_Local()
-    { size = 0; offset = 0; }
+    { size = 0; is_ref = FALSE; offset = 0; }
 };
 
 
@@ -84,9 +86,9 @@ public:
     // push scope
     void push_scope();
     // add local
-    Chuck_Local * alloc_local( t_CKUINT size, const std::string & name );
+    Chuck_Local * alloc_local( t_CKUINT size, const std::string & name, t_CKBOOL is_ref );
     // pop scope
-    void pop_scope();
+    void pop_scope( std::vector<Chuck_Local *> & out );
 };
 
 

@@ -900,28 +900,51 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
 
 
 //-----------------------------------------------------------------------------
+// name: emit_engine_emit_break()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br )
+{
+    // append
+    emit->stack_break.push_back( new Chuck_Instr_Goto( 0 ) );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_continue()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont )
+{
+    // append
+    emit->stack_cont.push_back( new Chuck_Instr_Goto( 0 ) );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name:
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br );
+t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt )
+{
+    if( !emit_engine_emit_exp( emit, stmt->val ) )
+        return FALSE;
 
+    // determine where later
+    Chuck_Instr_Goto * instr = new Chuck_Instr_Goto( 0 );
+    emit->append( instr );
+//    emit->returns.push_back( instr );
 
-
-
-//-----------------------------------------------------------------------------
-// name:
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont );
-
-
-
-
-//-----------------------------------------------------------------------------
-// name:
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt );
+    return TRUE;
+}
 
 
 
@@ -1121,3 +1144,24 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
                                   t_CKBOOL offset, int linepos );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: pop_scope()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Emitter::pop_scope( )
+{
+    // sanity
+    assert( code != NULL );
+
+    // clear locals
+    locals.clear();
+
+    // get locals
+    code->frame->pop_scope( locals );
+
+    // TODO: free locals
+}
