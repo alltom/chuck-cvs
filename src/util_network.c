@@ -54,6 +54,9 @@
 //-----------------------------------------------------------------------------
 struct ck_socket_
 {
+#ifdef WIN32
+    WSADATA _wsd;
+#endif
     int sock;
     struct sockaddr_in sock_in;
 };
@@ -67,7 +70,14 @@ struct ck_socket_
 //-----------------------------------------------------------------------------
 ck_socket ck_udp_create( )
 {
+
+
     ck_socket sock = (ck_socket)calloc( 1, sizeof( struct ck_socket_ ) );
+
+#ifdef WIN32  //winsock init
+    WSAStartup(MAKEWORD(1,1), &(sock->_wsd));
+#endif
+
     sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
 
     return sock;
@@ -117,7 +127,7 @@ BOOL ck_connect( ck_socket sock, const char * hostname, int port )
     else
     {
 #ifdef WIN32
-        memset( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
+	    memcpy( (char *)&sock->sock_in.sin_addr, host->h_addr, host->h_length );
 #else
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #endif
@@ -215,4 +225,9 @@ void ck_close( ck_socket sock )
 {
     close( sock->sock );
     free( sock );
+
+#ifdef WIN32
+    WSACleanup();
+#endif
+
 }

@@ -38,11 +38,17 @@
 
 #ifdef WIN32
 
+#if defined (__cplusplus) || defined(_cplusplus)  
 extern "C" {
+#endif 
+
     double round(double a);
     double trunc(double a);
     double remainder(int a, int b);
+
+#if defined (__cplusplus) || defined(_cplusplus)  
 }
+#endif
 
 #endif
 
