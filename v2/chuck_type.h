@@ -297,9 +297,23 @@ public:
     void reset()
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
       owner = info = NULL; func = NULL; }
+    // assignment - this does not touch the Chuck_VM_Object
+    const Chuck_Type & operator =( const Chuck_Type & rhs )
+    {
+      this->array_depth = rhs.array_depth;
+      this->func = rhs.func;
+      this->id = rhs.id;
+      this->info = rhs.info;
+      this->name = rhs.name;
+      this->owner = rhs.owner;
+      this->parent = rhs.parent;
+      this->self_size = rhs.self_size;
+      this->size = rhs.size;
+      return *this;
+    }
     // copy
     Chuck_Type * copy( Chuck_Env * env ) const
-    { Chuck_Type * n = new Chuck_Type; memcpy( n, this, sizeof(*this) );
+    { Chuck_Type * n = new Chuck_Type; *n = *this;
       env->context->new_types.push_back( n ); return n; }
     // to string
     string ret;
