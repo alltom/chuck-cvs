@@ -31,3 +31,4 @@
 // date: Autumn 2002 - original
 //       Autumn 2004 - rewrite
 //-----------------------------------------------------------------------------
+#include "chuck_type_new.h"

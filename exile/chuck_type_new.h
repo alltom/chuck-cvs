@@ -69,7 +69,7 @@ typedef enum {
 // name: struct Chuck_Scope
 // desc: scoping structure
 //-----------------------------------------------------------------------------
-template class<T>
+template<class T>
 struct Chuck_Scope
 {
     vector<map<S_Symbol, t_CKUINT> *> scope;
@@ -149,7 +149,7 @@ public:
     // type name
     string name;
     // type parent (could be NULL)
-    Chuck_Type parent;
+    Chuck_Type * parent;
     // size (in bytes)
     t_CKUINT size;
     // self size (not including inherited data)
