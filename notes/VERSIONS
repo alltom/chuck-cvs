@@ -7,6 +7,7 @@
   - TCP replacing UDP for commands
   - endian observed (mac <-> win32/linux)
   - more sensible VM output for on-the-fly commands
+  - many on-the-fly bug fixes
 
 
 ---
