@@ -751,3 +751,12 @@ t_CKBOOL operator >>( const Chuck_Type & lhs, const Chuck_Type & rhs )
     
     return FALSE;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: isa()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) >> (*rhs); }
