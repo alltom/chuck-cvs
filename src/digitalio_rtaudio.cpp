@@ -145,7 +145,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     if( m_num_channels_in )
         memcpy( m_buffer_in, buffer, len );
     // copy output into local buffer
-    if( m_go )
+    if( m_go > 2 )
     {
         while( !m_out_ready && n-- ) usleep( 25 );
         // copy local buffer to be rendered
@@ -155,14 +155,14 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     }
     else  // initial condition
     {
-        Chuck_VM::set_priority( 95, NULL );
+        if( !m_go ) Chuck_VM::set_priority( 95, NULL );
         memset( buffer, 0, len );
         m_go++; m_in_ready = FALSE;
         return 0;
     }
 
     // 2nd buffer
-    if( m_go == 1 )
+    if( m_go == 3 )
     {
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
