@@ -1,5 +1,45 @@
 
 ---
+1.1.4.4 - 2004.8.2
+  - added special raw wav for WaveLoop (philipd, gewang)
+
+    (see examples/dope.ck)
+      "special:ahh"
+      "special:eee"
+      "special:ooo"
+      "special:britestk"
+      "special:dope"
+      "special:fwavblnk"
+      "special:halfwave"
+      "speical:impuls10"
+      "special:impuls20"
+      "special:impuls40"
+      "special:mand1"
+      "special:mandpluk"
+      "special:marmstk1"
+      "special:peksblnk"
+      "special:ppksblnk"
+      "special:slience"
+      "speical:sineblnk"
+      "special:sinewave"
+      "special:snglpeak"
+      "special:twopeaks"
+
+  - fixed shred shreduling (gewang)
+  - added math.npow2( int n ) (Niklas Werner, gewang)
+
+new STK ugens:
+  - Mandolin (see examples/mandolin.ck examples/mand-o-matic.ck)
+  - Moog (see examples/moogie.ck)
+
+new examples:
+  - mandolin.ck (use of STK mandolin)
+  - mand-o-matic (fire it up!)
+  - dope.ck (Homer's WaveLoop using internal STK sound)
+  - print_last.ck (prints last ugen output)
+
+
+---
 1.1.4.3 - 2004.7.4
   - add sndfile support (Ari Lazier)
   - add sndbuf file reading/writing (Ari Lazier)
