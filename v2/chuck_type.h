@@ -246,16 +246,17 @@ struct Chuck_Env : public Chuck_VM_Object
 
 	// constructor
 	Chuck_Env( )
-	{ this->reset(); vm = NULL; curr = NULL; class_def = NULL; func = NULL; }
+	{ vm = NULL; context = NULL; this->reset(); }
 	// destructor
 	~Chuck_Env() { }
 
 	// reset
 	void reset( )
 	{ stack.clear(); stack.push_back( &global ); 
-      curr = &global; context = NULL; func = NULL; }
+      if( context ) { contexts.pop_back(); context->release(); } 
+      curr = &global; class_def = NULL; func = NULL; context = NULL; }
 
-	// top
+    // top
 	Chuck_Namespace * top( )
 	{ assert( stack.size() > 0 ); return stack.back(); }
 };

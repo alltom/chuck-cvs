@@ -343,11 +343,9 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
         // remove the context
         env->contexts.pop_back();
         // release it
-        context->release();
+        env->context->release();
+        env->context = NULL;
     }
-
-    // reset the env
-    env->reset();
 
     return ret;
 }

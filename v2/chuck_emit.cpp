@@ -180,6 +180,9 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
             ret = FALSE;
             break;
         }
+
+        // the next
+        prog = prog->next;
     }
 
     if( ret )
@@ -1390,7 +1393,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         a_Exp cl = lhs, cr = rhs;
 
         // TODO: cross chuck
-        assert( cl->next == cr->next == NULL );
+        assert( cl->next == NULL && cr->next == NULL );
         while( cr )
         {
             cl = lhs;
@@ -1403,7 +1406,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             
             cr = cr->next;
         }
-        break;
+
+        return TRUE;
     }
     
     case ae_op_unchuck:
@@ -1411,7 +1415,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         a_Exp cl = lhs, cr = rhs;
         
         // TODO: cross chuck
-        assert( cl->next == cr->next == NULL );
+        assert( cl->next == NULL && cr->next == NULL );
         while( cr )
         {
             cl = lhs;
@@ -1424,7 +1428,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             
             cr = cr->next;
         }
-        break;
+
+        return TRUE;
     }
     
     case ae_op_at_chuck:
@@ -1432,7 +1437,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         a_Exp cl = lhs, cr = rhs;
         
         // TODO: cross chuck
-        assert( cl->next == cr->next == NULL );
+        assert( cl->next == NULL && cr->next == NULL );
         while( cr )
         {
             cl = lhs;
@@ -1445,7 +1450,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             
             cr = cr->next;
         }
-        break;
+
+        return TRUE;
     }
     
     case ae_op_s_chuck:
@@ -1582,7 +1588,9 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 {
-    t_CKTYPE left = lhs->type, right = rhs->type;
+    // any implicit cast happens before this
+    Chuck_Type * left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * right = rhs->cast_to ? rhs->cast_to : rhs->type;
     
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
@@ -1640,8 +1648,12 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 {
+    // any implicit cast happens before this
+    Chuck_Type * left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * right = rhs->cast_to ? rhs->cast_to : rhs->type;
+    
     // if ugen
-    if( isa( lhs->type, &t_ugen ) && isa( rhs->type, &t_ugen ) )
+    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
     {
         // no connect
         emit->append( new Chuck_Instr_UGen_UnLink );
@@ -1650,7 +1662,7 @@ t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs
     {
         EM_error2( lhs->linepos,
             "(emit): internal error: unhandled '=<' on types '%s' and '%s'",
-            lhs->type->c_name(), rhs->type->c_name() );
+            left->c_name(), right->c_name() );
         return FALSE;
     }
     
@@ -1666,7 +1678,9 @@ t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
 {
-    t_CKTYPE left = lhs->type, right = rhs->type;
+    // any implicit cast happens before this
+    Chuck_Type * left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * right = rhs->cast_to ? rhs->cast_to : rhs->type;
     
     // assignment or something else
     if( isa( left, right ) )

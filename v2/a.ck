@@ -1,4 +1,6 @@
 
+5 => float f;
+
 class AA
 {
     int x;
@@ -8,7 +10,6 @@ class AA
 
 //new AA @=> AA aaa;
 
-5 => float f;
 
 fun int ha( int a, float aa )
 { return 1; }
