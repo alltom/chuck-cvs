@@ -198,7 +198,7 @@ UGEN_DTOR osc_dtor( t_CKTIME now, void * data )
 
 
 //-----------------------------------------------------------------------------
-// name: sinosc_tick()
+// name: osc_tick()
 // desc: ...
 //-----------------------------------------------------------------------------
 UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )

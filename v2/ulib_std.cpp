@@ -135,12 +135,24 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     return TRUE;
 }
 
+#define RAND_INV_RANGE(r) (RAND_MAX / (r))
+
+int irand_exclusive ( int max ) { 
+  int x = ::rand();
+  
+  while (x >= max * RAND_INV_RANGE (max)) 
+    x = ::rand();
+
+  x /= RAND_INV_RANGE (max);
+  return x;
+}
+
 
 // abs
 CK_DLL_FUNC( abs_impl )
 {
-    t_CKFLOAT v = GET_CK_FLOAT(ARGS);
-    RETURN->v_float = v >= 0.0f ? v : -v;
+  t_CKFLOAT v = GET_CK_FLOAT(ARGS);
+  RETURN->v_float = v >= 0.0f ? v : -v;
 }
 
 // fabs
@@ -169,10 +181,24 @@ CK_DLL_FUNC( rand2f_impl )
 }
 
 // randi
-CK_DLL_FUNC( rand2_impl )
+CK_DLL_FUNC( rand2_impl ) // inclusive.
 {
     int min = *(int *)ARGS, max = *((int *)ARGS + 1);
-    RETURN->v_int = (int)round((t_CKFLOAT)min + (max-min)*(rand()/(t_CKFLOAT)RAND_MAX));
+    int range = max - min; 
+    if ( range == 0 ) { 
+     RETURN->v_int = min;
+    }
+    //else if ( range < RAND_MAX / 2 ) { 
+    //  RETURN->v_int = ( range > 0 ) ? min + irand_exclusive(1 + range) : max + irand_exclusive ( -range + 1 ) ;
+    //}
+    else { 
+      if ( range > 0 ) { 
+	RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
+      }
+      else { 
+	RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
+      }
+    }
 }
 
 // sgn

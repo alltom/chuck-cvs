@@ -34,6 +34,7 @@ U.S.A.
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <fstream>
@@ -221,12 +222,127 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 //-----------------------------------------------------------------------------
 UGEN_TICK noise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
-    *out = (SAMPLE)rand() / RAND_MAX;
+    *out = -1.0 + 2.0 * (SAMPLE)rand() / RAND_MAX;
     return TRUE;
 }
 
+/*
+enum { NOISE_WHITE, NOISE_PINK, NOISE_BROWN, NOISE_FBM, NOISE_FLIP, NOISE_XOR }
 
+class CNoise_Data { 
+  SAMPLE value;
+  t_CKUINT mode;
+  t_CKFLOAT fbmH;
+  int counter;
+  int* pink_array;
+  int  pink_depth;
+  bool pink_rand;
+  int rand_bits;
+  double scale;
+  double bias;
+  int last;
+  CNoise_Data() { 
+    value = 0; 
+    mode = NOISE_WHITE; 
+    pink_depth = 32;
+    pink_array = NULL;
+    counter = 1;
+    scale = 2.0 / (double) RAND_MAX ;
+    bias = -1.0;
+    pink_rand = false;
+    int randt = RAND_MAX;
+    rand_bits = 0;
+    while ( randt > 0 ) { 
+      rand_bits++;
+      randt = randt >> 1;
+    }
+  } 
+  ~CNoise_Data() {}
+  void tick( t_CKTIME now, SAMPLE * out );
+  void setcolor(char * c);
 
+  int pink_tick();
+  int brown_tick();
+  int xor_tick();
+  int flip_tick();
+  int fbm_tick();
+}
+
+UGEN_CTOR cnoise_ctor( t_CKTIME now ) { 
+  return new CNoise_Data();
+}
+
+UGEN_DTOR cnoise_dtor (  t_CKTIME now, void * data ) { 
+  delete ( CNoise_Data* data );
+}
+
+UGEN_TICK cnoise_tick ( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) { 
+  CNoise_Data d = ( CNoise_Data * ) data;
+  switch( mode ) { 
+  case NOISE_WHITE: 
+    noise_tick(now,data,in,out);
+    break;
+  case NOISE_PINK:
+    d->pink_tick(out);
+    break;
+  case NOISE_XOR:
+    d->xor_tick(out);
+    break;
+  case NOISE_FLIP:
+    d->flip_tick(out);
+    break;
+  case NOISE_FBM:
+    d->fbm_tick(out);
+    break;
+  }
+}
+
+CNoise_Data::pink_tick() { 
+
+  //based on Voss-McCartney
+
+  if ( pink_array == NULL ) { 
+    pink_array = malloc ( sizeof ( int ) * pink_depth );
+    last = 0;
+    for ( int i = 0 ; i < pink_depth ; i++ ) { pink_array[i] = rand(); last += pink_array[i]; } 
+    scale = 2.0 / (double)(RAND_MAX  * ( pink_depth + 1 ) );
+  }
+
+  int pind = 0;
+
+  //count trailing zeroes
+  while ( pind < pink_depth )
+    if ( counter & ( 1 << pind ) ) 
+      pind++;
+  
+  if ( pind < pink_depth ) { 
+    int diff = rand() - pink_array[pind];
+    pink_array[pind] += diff;
+    last += diff;
+  }
+
+  *out = bias + scale * (SAMPLE) ( rand() + last );
+  counter++;
+  if ( pink_rand ) counter = rand();
+}
+
+CNoise_Data::xor_tick() { 
+  last = last ^ rand();
+  *out = bias + scale * (SAMPLE)last;
+}
+
+CNoise_Data::flip_tick() { 
+  int ind = rand_bits * rand() / ( RAND_MAX + 1.0 );
+  last = last ^ ( 1 << ind );
+  *out = bias + scale * (SAMPLE)last;
+}
+
+CNoise_Data::fbm_tick() { 
+  //brownian noise function..later!
+  *out = 0;
+}
+
+*/
 
 //-----------------------------------------------------------------------------
 // name: struct Pulse_Data
@@ -860,12 +976,9 @@ UGEN_CGET sndbuf_cget_loop( t_CKTIME now, void * data, void * out )
 // http://www.cs.princeton.edu/courses/archive/spring03/cs325/src/TimeStuf/srconvrt.c
 //
 // there's probably a lot in there that could be optimized, if we care to..
-//
 
 #define PI 3.14159265358979323846
-
 //wow... we are sensitive.. 
-
 
 inline double sndbuf_linear_interp (double * first, double * second, double * frac);
 bool sinc_table_built = false;
@@ -974,7 +1087,7 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
         *out = (SAMPLE)( (*(d->curr)) ) ;
     }
     else if( d->interp == SNDBUF_INTERP )
-    { //samplewise linear interp
+    {   //samplewise linear interp
         double alpha = d->curf - floor(d->curf);
         *out = (SAMPLE)( (*(d->curr)) ) ;
         *out += (float)alpha * ( sndbuf_sampleAt(d, (long)d->curf+1 ) - *out );
@@ -987,9 +1100,9 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     //advance
     d->curf += d->rate;
     sndbuf_setpos(d, d->curf);
-    return TRUE;
-    
+    return TRUE;    
 }
+
 
 #if defined(__CK_SNDFILE_NATIVE__)
 #include <sndfile.h>
@@ -997,9 +1110,11 @@ UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 #include "util_sndfile.h"
 #endif
 
+#include "util_raw.h"
+
+
 UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
 {
-    
     sndbuf_data * d = (sndbuf_data *)data;
     char * filename = *(char **)value;
 	
@@ -1009,44 +1124,144 @@ UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value )
         d->buffer = NULL;
     }
     
-    struct stat s;
-    if( stat( filename, &s ) )
+    // built in
+    if( strstr(filename, "special:") )
     {
-        fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
-        return;
+        SAMPLE * rawdata = NULL;
+        t_CKUINT rawsize = 0;
+
+        // which
+        if( strstr(filename, "special:sinewave") ) {
+            rawsize = 256; rawdata = NULL;
+        }
+        else if( strstr(filename, "special:aah") ) {
+            rawsize = ahh_size; rawdata = ahh_data;
+        }
+        else if( strstr(filename, "special:britestk") ) {
+            rawsize = britestk_size; rawdata = britestk_data;
+        }
+        else if( strstr(filename, "special:dope") ) {
+            rawsize = dope_size; rawdata = dope_data;
+        }
+        else if( strstr(filename, "special:eee") ) {
+            rawsize = eee_size; rawdata = eee_data;
+        }
+        else if( strstr(filename, "special:fwavblnk") ) {
+            rawsize = fwavblnk_size; rawdata = fwavblnk_data;
+        }
+        else if( strstr(filename, "special:halfwave") ) {
+            rawsize = halfwave_size; rawdata = halfwave_data;
+        }
+        else if( strstr(filename, "special:impuls10") ) {
+            rawsize = impuls10_size; rawdata = impuls10_data;
+        }
+        else if( strstr(filename, "special:impuls20") ) {
+            rawsize = impuls20_size; rawdata = impuls20_data;
+        }
+        else if( strstr(filename, "special:impuls40") ) {
+            rawsize = impuls40_size; rawdata = impuls40_data;
+        }
+        else if( strstr(filename, "special:mand1") ) {
+            rawsize = mand1_size; rawdata = mand1_data;
+        }
+        else if( strstr(filename, "special:mandpluk") ) {
+            rawsize = mandpluk_size; rawdata = mandpluk_data;
+        }
+        else if( strstr(filename, "special:marmstk1") ) {
+            rawsize = marmstk1_size; rawdata = marmstk1_data;
+        }
+        else if( strstr(filename, "special:ooo") ) {
+            rawsize = ooo_size; rawdata = ooo_data;
+        }
+        else if( strstr(filename, "special:peksblnk") ) {
+            rawsize = peksblnk_size; rawdata = peksblnk_data;
+        }
+        else if( strstr(filename, "special:ppksblnk") ) {
+            rawsize = ppksblnk_size; rawdata = ppksblnk_data;
+        }
+        else if( strstr(filename, "special:silence") ) {
+            rawsize = silence_size; rawdata = silence_data;
+        }
+        else if( strstr(filename, "special:sineblnk") ) {
+            rawsize = sineblnk_size; rawdata = sineblnk_data;
+        }
+        else if( strstr(filename, "special:sinewave") ) {
+            rawsize = sinewave_size; rawdata = sinewave_data;
+        }
+        else if( strstr(filename, "special:snglpeak") ) {
+            rawsize = snglpeak_size; rawdata = snglpeak_data;
+        }
+        else if( strstr(filename, "special:twopeaks") ) {
+            rawsize = twopeaks_size; rawdata = twopeaks_data;
+        }
+
+        d->num_frames = rawsize;
+        d->num_channels = 1;
+        d->chan = 0;
+        d->samplerate = 22050;
+        d->num_samples = rawsize;
+
+        if( rawdata ) {
+            d->buffer = new SAMPLE[rawsize+1];
+            for( t_CKUINT j = 0; j < rawsize; j++ ) {
+                d->buffer[j] = (SAMPLE)rawdata[j]/(SAMPLE)SHRT_MAX;
+            }
+        }
+        else if( strstr(filename, "special:sinewave") ) {
+            d->buffer = new SAMPLE[rawsize+1];
+            for( t_CKUINT j = 0; j < rawsize; j++ )
+                d->buffer[j] = sin(2*PI*j/rawsize);
+        }
+        else {
+            fprintf( stderr, "[chuck](via sndbuf): cannot load '%s'\n", filename );
+            return;
+        }
+
+        d->buffer[rawsize] = d->buffer[0];
     }
-    
-    SF_INFO info;
-    info.format = 0;
-    char * format = strrchr ( filename, '.');
-    if ( format && strcmp ( format, ".raw" ) == 0 ) { 
-        fprintf(stderr, "%s :: type is '.raw'.  assuming 16 bit signed mono (PCM)\n", filename);
-        info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
-        info.channels = 1;
-        info.samplerate = 44100;
+    // read file
+    else
+    {
+        struct stat s;
+        if( stat( filename, &s ) )
+        {
+            fprintf( stderr, "[chuck](via sndbuf): cannot stat file '%s'...\n", filename );
+            return;
+        }
+
+        SF_INFO info;
+        info.format = 0;
+        char * format = strrchr ( filename, '.');
+        if ( format && strcmp ( format, ".raw" ) == 0 ) { 
+            fprintf( stderr, "[chuck](via sndbuf) %s :: type is '.raw'...\n    assuming 16 bit signed mono (PCM)\n", filename );
+            info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
+            info.channels = 1;
+            info.samplerate = 44100;
+        }
+
+        SNDFILE* file = sf_open(filename, SFM_READ, &info);
+        int er = sf_error(file);
+        if(er) fprintf( stderr, "[chuck](via sndbuf): sndfile error '%i' opening '%s'...\n", er, filename );
+        int size = info.channels * info.frames;
+        d->buffer = new SAMPLE[size+1];
+        d->chan = 0;
+        d->num_frames = info.frames;
+        d->num_channels = info.channels;
+        d->num_samples = sf_read_float(file, d->buffer, size) ;
+        // fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
+        d->samplerate = info.samplerate;
+
+        if( d->num_samples != size )
+        {
+            fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
+                     d->num_samples, size, filename );
+            return;
+        }
+        // fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
     }
-    SNDFILE* file = sf_open(filename, SFM_READ, &info);
-    int er = sf_error(file);
-    if(er) fprintf( stderr, "sndfile error %i\n", er );
-    int size = info.channels * info.frames;
-    d->buffer = new float[size];
-    d->chan = 0;
-    d->num_frames = info.frames;
-    d->num_channels = info.channels;
-    d->num_samples = sf_read_float(file, d->buffer, size) ;
-    //fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
-    d->samplerate = info.samplerate;
-    
+
+    // d->interp = SNDBUF_INTERP;
     d->sampleratio = (double)d->samplerate / (double)g_srate;
-    d->interp     = SNDBUF_INTERP;
-    
-    if( d->num_samples != size )
-    {
-        fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
-                 d->num_samples, size, filename );
-        return;
-    }
-    //    fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
 }
@@ -1116,7 +1331,8 @@ UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out )
 }
 
 
-UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = ( sndbuf_data * ) data;
     unsigned int chan = * (int *) value;
     if ( chan >= 0 && chan < d->num_channels ) { 
@@ -1130,7 +1346,8 @@ UGEN_CGET sndbuf_cget_channel( t_CKTIME now, void * data, void * out )
     SET_NEXT_INT( out, d->chan );
 }
 
-UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = ( sndbuf_data * ) data;
     int pos = * (int *) value;
     sndbuf_setpos(d, pos);
@@ -1142,7 +1359,8 @@ UGEN_CGET sndbuf_cget_pos( t_CKTIME now, void * data, void * out )
     SET_NEXT_INT( out, (int) sndbuf_getpos(d) );
 }
 
-UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = ( sndbuf_data * ) data;
     int interp = * (int *) value;
     d->interp = interp;
@@ -1155,7 +1373,8 @@ UGEN_CGET sndbuf_cget_interp( t_CKTIME now, void * data, void * out )
 }
 
 
-UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value ) { 
+UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value )
+{ 
     sndbuf_data * d = (sndbuf_data *)data;
     t_CKFLOAT phase_offset = * (t_CKFLOAT *) value;
     sndbuf_setpos(d, d->curf + phase_offset * (t_CKFLOAT)d->num_frames );

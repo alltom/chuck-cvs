@@ -252,76 +252,60 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     Stk::setSampleRate( QUERY->srate );
 
     //! \sectionMain STK
+	
+
+	
+	    //! \section stk - instruments
 
     // add BandedWG
     QUERY->ugen_add( QUERY, "BandedWG", NULL ); 
     QUERY->ugen_func( QUERY, BandedWG_ctor, BandedWG_dtor, BandedWG_tick, BandedWG_pmsg );
     QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_noteOn, NULL, "float", "noteOn" ); //! noteOn
     QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_noteOff, NULL, "float", "noteOff" ); //! noteOff
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_pluck, NULL, "float", "pluck" ); //! strike/pluck waveguide with amplitude
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_startBowing, NULL, "float", "startBowing" ); //! start bow excitation of waveguide ( amplitude ) 
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! stop bowing excitation ( at rate f ) 
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_freq, BandedWG_cget_freq, "float", "freq" ); //! set frequency ( will reset model ) 
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowRate, BandedWG_cget_bowRate, "float", "bowRate" ); //! set rate of bow 
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowPressure, BandedWG_cget_bowPressure, "float", "bowPressure" ); //! change bow pressure
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_preset, BandedWG_cget_preset, "int", "preset" ); //! select preset ( see comments above ) 
-    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_strikePosition, BandedWG_cget_strikePosition, "float", "strikePosition" ); //! strike/bow position
-    
-
-    // add BiQuad
-    QUERY->ugen_add( QUERY, "BiQuad", NULL ); 
-    QUERY->ugen_func( QUERY, BiQuad_ctor, BiQuad_dtor, BiQuad_tick, BiQuad_pmsg );
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b2, BiQuad_cget_b2, "float", "b2" ); //! b2 coefficient
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b1, BiQuad_cget_b1, "float", "b1" ); //! b1 coefficient
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b0, BiQuad_cget_b0, "float", "b0" ); //! b0 coefficient
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_a2, BiQuad_cget_a2, "float", "a2" ); //! a2 coefficient
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_a1, BiQuad_cget_a1, "float", "a1" ); //! a1 coefficient
-    QUERY->ugen_ctrl( QUERY, NULL, BiQuad_cget_a0, "float", "a0" ); //! a0 coefficient
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_pfreq, NULL, "float", "pfreq" );  //! set resonance frequency (poles)
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_prad, NULL, "float", "prad" ); //! pole radius (less than 1 to be stable)
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_zfreq, NULL, "float", "zfreq" ); //! notch frequency
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_zrad, NULL, "float", "zrad" ); //! zero radius
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_norm, NULL, "float", "norm" ); //! normalization
-    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_eqzs, NULL, "float", "eqzs" ); //! equal gain zeroes
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_pluck, NULL, "float", "pluck" ); //! pluck waveguide
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_startBowing, NULL, "float", "startBowing" ); //! pluck waveguide
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! pluck waveguide
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_freq, BandedWG_cget_freq, "float", "freq" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowRate, BandedWG_cget_bowRate, "float", "bowRate" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_bowPressure, BandedWG_cget_bowPressure, "float", "bowPressure" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_preset, BandedWG_cget_preset, "int", "preset" ); //! strike Position
+    QUERY->ugen_ctrl( QUERY, BandedWG_ctrl_strikePosition, BandedWG_cget_strikePosition, "float", "strikePosition" ); //! strike Position
 
     // add BlowBotl
-    //! STK blown bottle class
     QUERY->ugen_add( QUERY, "BlowBotl", NULL );
     QUERY->ugen_func( QUERY, BlowBotl_ctor, BlowBotl_dtor, BlowBotl_tick, BlowBotl_pmsg );
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOn, NULL, "float", "noteOn" ); //! blow note
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOff, NULL, "float", "noteOff" ); //! 
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! begin blowing
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! end blowing
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_freq, BlowBotl_cget_freq, "float", "freq" ); //! bottle freq
-    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_rate, BlowBotl_cget_rate, "float", "rate" ); //! rate used for startBlowing
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_freq, BlowBotl_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, BlowBotl_ctrl_rate, BlowBotl_cget_rate, "float", "rate" ); //! frequency
 
         // add BlowHole
-    //! STK blow hole class
     QUERY->ugen_add( QUERY, "BlowHole", NULL );
     QUERY->ugen_func( QUERY, BlowHole_ctor, BlowHole_dtor, BlowHole_tick, BlowHole_pmsg );
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOn, NULL, "float", "noteOn" ); //! 
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOff, NULL, "float", "noteOff" ); //! 
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! start breath excitation ( amplitude ) 
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! end breath excitation ( rate )
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_freq, BlowHole_cget_freq, "float", "freq" ); //! frequency parameter
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_vent, BlowHole_cget_vent, "float", "vent" ); //! register hole state
-    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_tonehole, BlowHole_cget_tonehole, "float", "tonehole" ); //! tonehole size ( closed - open )
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_freq, BlowHole_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_vent, BlowHole_cget_vent, "float", "vent" ); //! vent frequency
+    QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_tonehole, BlowHole_cget_tonehole, "float", "tonehole" ); //! tonehole size
     QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_reed, BlowHole_cget_reed, "float", "reed" ); //! reed stiffness
     QUERY->ugen_ctrl( QUERY, BlowHole_ctrl_rate, BlowHole_cget_rate, "float", "rate" ); //! rate of change
 
-    //! STK blow hole class
+	// add Bowed
     QUERY->ugen_add( QUERY, "Bowed", NULL );
     QUERY->ugen_func( QUERY, Bowed_ctor, Bowed_dtor, Bowed_tick, Bowed_pmsg );
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_noteOff, NULL, "float", "noteOff" ); //! note off
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_startBowing, NULL, "float", "startBowing" ); //! begin bowing instrument
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_stopBowing, NULL, "float", "stopBowing" ); //! stop bowing
-    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_freq, Bowed_cget_freq, "float", "freq" ); //! set string frequency
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_freq, Bowed_cget_freq, "float", "freq" ); //!
     QUERY->ugen_ctrl( QUERY, Bowed_ctrl_rate, Bowed_cget_rate, "float", "rate" ); //!
-    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_vibrato, Bowed_cget_vibrato, "float", "vibrato" ); //!
-
-            // add Brass
-    //! STK Brass class
+    QUERY->ugen_ctrl( QUERY, Bowed_ctrl_vibrato, Bowed_cget_vibrato, "float", "vibrato" ); //!    
+	
+	// add Brass
     QUERY->ugen_add( QUERY, "Brass", NULL );
     QUERY->ugen_func( QUERY, Brass_ctor, Brass_dtor, Brass_tick, Brass_pmsg );
     QUERY->ugen_ctrl( QUERY, Brass_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
@@ -333,154 +317,143 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Brass_ctrl_rate, Brass_cget_rate, "float", "rate" ); //! rate of change
     QUERY->ugen_ctrl( QUERY, Brass_ctrl_lip, Brass_cget_lip, "float", "lip" ); //! lip stiffness
 
-            // add Clarinet
-    //! STK Clarinet class
+	// add Clarinet
     QUERY->ugen_add( QUERY, "Clarinet", NULL );
     QUERY->ugen_func( QUERY, Clarinet_ctor, Clarinet_dtor, Clarinet_tick, Clarinet_pmsg );
     QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOff, NULL, "float", "noteOff" ); //! note off
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_clear, NULL, "float", "clear" ); //! clear the instrument 
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! breath excitation ( amp ) 
-    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! breath falloff ( rate ) 
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_clear, NULL, "float", "clear" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
     QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_freq, Clarinet_cget_freq, "float", "freq" ); //! frequency
     QUERY->ugen_ctrl( QUERY, Clarinet_ctrl_rate, Clarinet_cget_rate, "float", "rate" ); //! rate of change
 
-            // add Flute
-    //! STK Flute class
+	// add Flute
     QUERY->ugen_add( QUERY, "Flute", NULL );
     QUERY->ugen_func( QUERY, Flute_ctor, Flute_dtor, Flute_tick, Flute_pmsg );
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note ( required to start sound ? )
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOff, NULL, "float", "noteOff" ); //! 
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_clear, NULL, "float", "clear" ); //! note on
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! breath excitation ( amp ) 
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! breath falloff ( rate ) 
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
     QUERY->ugen_ctrl( QUERY, Flute_ctrl_freq, Flute_cget_freq, "float", "freq" ); //! frequency
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_rate, Flute_cget_rate, "float", "rate" ); //! rate for excitation 
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetReflection, Flute_cget_jetReflection, "float", "jetReflection" ); //! reflection coefficient for jet
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetDelay, Flute_cget_jetDelay, "float", "jetDelay" ); //! set ration of jet delay vs air column delay
-    QUERY->ugen_ctrl( QUERY, Flute_ctrl_endReflection, Flute_cget_endReflection, "float", "endReflection" ); //! reflection coefficient for air column
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_rate, Flute_cget_rate, "float", "rate" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetReflection, Flute_cget_jetReflection, "float", "jetReflection" ); //! rate of change
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_jetDelay, Flute_cget_jetDelay, "float", "jetDelay" ); //! rate of change
+    QUERY->ugen_ctrl( QUERY, Flute_ctrl_endReflection, Flute_cget_endReflection, "float", "endReflection" ); //! rate of change
 
-    // add Chorus
-    QUERY->ugen_add( QUERY, "Chorus", NULL );
-    QUERY->ugen_func( QUERY, Chorus_ctor, Chorus_dtor, Chorus_tick, Chorus_pmsg );
-    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modFreq, Chorus_cget_modFreq, "float", "modFreq" ); //! modulation frequency
-    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modDepth, Chorus_cget_modDepth, "float", "modDepth" ); //! modulation depth
-    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_mix, Chorus_cget_mix, "float", "mix" ); //! effect mix
-
-    //! \section delay
-
-    // add Delay
-    QUERY->ugen_add( QUERY, "Delay", NULL );
-    QUERY->ugen_func( QUERY, Delay_ctor, Delay_dtor, Delay_tick, Delay_pmsg );
-    QUERY->ugen_ctrl( QUERY, Delay_ctrl_delay, Delay_cget_delay, "dur", "delay" ); //! length of delay
-    QUERY->ugen_ctrl( QUERY, Delay_ctrl_max, Delay_cget_max, "dur", "max" ); //! max delay (buffer size) 
-
-    // delay 'subs' not actually extending . 
+    // add Mandolin
+    //! see \example mand-o-matic.ck
+    QUERY->ugen_add( QUERY, "Mandolin", NULL );
+    QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluck, NULL, "float", "pluck" );  //! pluck string with given amplitude 
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_freq, Mandolin_cget_freq, "float", "freq" ); //! string frequency 
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluckPos, Mandolin_cget_pluckPos, "float", "pluckPos" ); //! set pluck position ( 0-1) along string
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_bodySize, Mandolin_cget_bodySize, "float", "bodySize" ); //! modify instrument size
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDamping, Mandolin_cget_stringDamping, "float", "stringDamping" ); //! control string damping
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, Mandolin_cget_stringDetune, "float", "stringDetune" ); //! control detuning of string pair
+    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" ); //!aftertouch
     
-    // add DelayA
-    QUERY->ugen_add( QUERY, "DelayA", NULL );
-    QUERY->ugen_func( QUERY, DelayA_ctor, DelayA_dtor, DelayA_tick, DelayA_pmsg );
-    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_delay, DelayA_cget_delay, "dur", "delay" ); //! length of delay
-    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_max, DelayA_cget_max, "dur", "max" ); //! max delay ( buffer size ) 
 
-    // add DelayL
-    QUERY->ugen_add( QUERY, "DelayL", NULL );
-    QUERY->ugen_func( QUERY, DelayL_ctor, DelayL_dtor, DelayL_tick, DelayL_pmsg );
-    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_delay, DelayL_cget_delay, "dur", "delay" ); //! length of delay
-    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_max, DelayL_cget_max, "dur", "max" ); //! max delay ( buffer size ) 
+    // add ModalBar
+    //! see \example modalbot.ck
+    QUERY->ugen_add( QUERY, "ModalBar", NULL );
+    QUERY->ugen_func( QUERY, ModalBar_ctor, ModalBar_dtor, ModalBar_tick, ModalBar_pmsg );
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strike, NULL, "float", "strike" ); //! strike bar
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_damp, NULL, "float", "damp" ); //! damp bar
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop note
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_clear, NULL, "float", "clear" ); //! reset
 
-    // add Echo
-    QUERY->ugen_add( QUERY, "Echo", NULL );
-    QUERY->ugen_func( QUERY, Echo_ctor, Echo_dtor, Echo_tick, Echo_pmsg );
-    QUERY->ugen_ctrl( QUERY, Echo_ctrl_delay, Echo_cget_delay, "dur", "delay" ); //! length of echo
-    QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" ); //! max delay
-    QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" ); //! mix level ( wet/dry ) 
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_preset, ModalBar_cget_preset, "int", "preset" ); //! choose preset
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_freq, ModalBar_cget_freq, "float", "freq" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strikePosition, ModalBar_cget_strikePosition, "float", "strikePosition" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_stickHardness, ModalBar_cget_stickHardness, "float", "stickHardness" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_masterGain, ModalBar_cget_masterGain, "float", "masterGain" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_directGain, ModalBar_cget_directGain, "float", "directGain" ); //! set frequency
 
-    //! \section envelopes
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_mode, ModalBar_cget_mode, "int", "mode" ); //! choose mode
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRatio, ModalBar_cget_modeRatio, "float", "modeRatio" ); //! mode edit
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRadius, ModalBar_cget_modeRadius, "float", "modeRadius" ); //! mode dit
+    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeGain, ModalBar_cget_modeGain, "float", "modeGain" ); //! mode edit
 
-    // add Envelope
-    QUERY->ugen_add( QUERY, "Envelope", NULL );
-    QUERY->ugen_func( QUERY, Envelope_ctor, Envelope_dtor, Envelope_tick, Envelope_pmsg );
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOn, NULL, "int", "keyOn" ); //! start envelope
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOff, NULL, "int", "keyOff" );
-	QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, Envelope_cget_time, "float", "time" ); //! time to reach target
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, Envelope_cget_rate, "float", "rate"); //! rate of change 
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_target, Envelope_cget_target, "float", "target" ); //! set envelope target
-    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_value, Envelope_cget_value, "float", "value" ); //! set immediate value
-    // ZZZ finish
-    //Envelope subclasses
+    // add Moog
+    //! see \example moogie.ck
+    QUERY->ugen_add( QUERY, "Moog", NULL );
+    QUERY->ugen_func( QUERY, Moog_ctor, Moog_dtor, Moog_tick, Moog_pmsg );
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_freq, Moog_cget_freq, "float", "freq" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modSpeed, Moog_cget_modSpeed, "float", "modSpeed" ); //! modulation speed
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modDepth, Moog_cget_modDepth, "float", "modDepth" ); //! modulation depth
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterQ, Moog_cget_filterQ, "float", "filterQ" ); //! filter Q value
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterSweepRate, Moog_cget_filterSweepRate, "float", "filterSweepRate" ); //! filter sweep rate
+    QUERY->ugen_ctrl( QUERY, Moog_ctrl_afterTouch, NULL , "float", "afterTouch" ); // aftertouch
+        
+    // add Saxofony
+    QUERY->ugen_add( QUERY, "Saxofony", NULL );
+    QUERY->ugen_func( QUERY, Saxofony_ctor, Saxofony_dtor, Saxofony_tick, Saxofony_pmsg );
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOn, NULL, "float", "noteOn" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOff, NULL, "float", "noteOff" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_clear, NULL, "float", "clear" ); //! clear instrument
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! note on
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_freq, Saxofony_cget_freq, "float", "freq" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_rate, Saxofony_cget_rate, "float", "rate" ); //! frequency
+    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_blowPosition, Saxofony_cget_blowPosition, "float", "blowPosition" ); //! lip stiffness
 
-    // add ADSR
-    QUERY->ugen_add( QUERY, "ADSR", NULL );
-    QUERY->ugen_extends ( QUERY, "Envelope" );
-    QUERY->ugen_func( QUERY, ADSR_ctor, ADSR_dtor, ADSR_tick, ADSR_pmsg );
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" ); //! start the attack for non-zero values
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" ); //! start release for non-zero values
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, NULL, "float", "attackTime" ); //! attack time
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, ADSR_cget_attackRate, "float", "attackRate" ); //! attack rate
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayTime, NULL, "float", "decayTime" ); //! decay time 
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayRate, ADSR_cget_decayRate, "float", "decayRate" ); //! decay rate
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, ADSR_cget_sustainLevel, "float", "sustainLevel" ); //! sustain level
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, NULL, "float", "releaseTime" ); //! release time 
-    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, ADSR_cget_releaseRate, "float", "releaseRate" ); //! release rate
-    QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" ); //! attack=0, decay=1 , sustain=2, release=3, done=4
-    //uhhh we are supposed to have target and value here as well..  d'oh
-
-    //! \section filters
-    // add Filter
-    QUERY->ugen_add( QUERY, "Filter", NULL );
-    QUERY->ugen_func( QUERY, Filter_ctor, Filter_dtor, Filter_tick, Filter_pmsg );
-    QUERY->ugen_ctrl( QUERY, Filter_ctrl_coefs, NULL, "string", "coefs" );
-
-    // Filter subclasses
+    // add Shakers
+    //! see \example shake-o-matic.ck
+    QUERY->ugen_add( QUERY, "Shakers", NULL );
+    QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, Shakers_cget_freq, "float", "freq" ); //! set frequency
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, NULL, "float", "noteOn" ); //! start shake with given amplitude
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop shake
+    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, Shakers_cget_which, "int", "which" ); //! select instrument
     
-    // add OnePole
-    QUERY->ugen_add( QUERY, "OnePole", NULL );
-    QUERY->ugen_func( QUERY, OnePole_ctor, OnePole_dtor, OnePole_tick, OnePole_pmsg ); 
+    // add Sitar
+    QUERY->ugen_add( QUERY, "Sitar", NULL );
+    QUERY->ugen_func( QUERY, Sitar_ctor, Sitar_dtor, Sitar_tick, Sitar_pmsg );
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_pluck, NULL, "float", "pluck" ); //! 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOn, NULL, "float", "noteOn" ); 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOff, NULL, "float", "noteOff" ); 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_clear, NULL, "float", "clear" ); 
+    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_freq, Sitar_cget_freq, "float", "freq" ); 
+
+    // add StifKarp
+    //! see \example stifkarp.ck
+
+    QUERY->ugen_add( QUERY, "StifKarp", NULL );
+    QUERY->ugen_func( QUERY, StifKarp_ctor, StifKarp_dtor, StifKarp_tick, StifKarp_pmsg );
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pluck, NULL, "float", "pluck" ); //! 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOn, NULL, "float", "noteOn" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOff, NULL, "float", "noteOff" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_clear, NULL, "float", "clear" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_freq, StifKarp_cget_freq, "float", "freq" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pickupPosition, StifKarp_cget_pickupPosition, "float", "pickupPosition" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_stretch, StifKarp_cget_stretch, "float", "stretch" ); 
+    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_baseLoopGain, StifKarp_cget_baseLoopGain, "float", "baseLoopGain" ); 
     
-    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_a1, OnePole_cget_a1, "float", "a1" ); //! filter coefficient
-    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_b0, OnePole_cget_b0, "float", "b0" ); //! filter coefficient 
-    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_pole, OnePole_cget_pole, "float", "pole" ); //! set pole position along real axis of z-plane
 
+    // add VoicForm
+    //! see \example voic-o-form.ck
+    QUERY->ugen_add( QUERY, "VoicForm", NULL );
+    QUERY->ugen_func( QUERY, VoicForm_ctor, VoicForm_dtor, VoicForm_tick, VoicForm_pmsg );
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_freq, VoicForm_cget_freq, "float", "freq" ); //! frequency 
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_phoneme, VoicForm_cget_phoneme, "string", "phoneme" ); //! select phoneme  ( above ) 
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop note
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_speak, NULL, "float", "speak" ); //! start singing
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_quiet, NULL, "float", "quiet" ); //! stop singing
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiced, VoicForm_cget_voiced, "float", "voiced" ); //! set mix for voiced component
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_unVoiced, VoicForm_cget_unVoiced, "float", "unVoiced" ); //! set mix for unvoiced component
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_pitchSweepRate, VoicForm_cget_pitchSweepRate, "float", "pitchSweepRate" ); //! pitch sweep
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiceMix, VoicForm_cget_voiceMix, "float", "voiceMix" ); //! voiced/unvoiced mix
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_selPhoneme, VoicForm_cget_selPhoneme, "int", "setPhoneme" ); //! select phoneme by number
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoFreq, VoicForm_cget_vibratoFreq, "float", "vibratoFreq" );//! vibrato
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, VoicForm_cget_vibratoGain, "float", "vibratoGain" );//! vibrato depth
+    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, VoicForm_cget_loudness, "float", "loudness" ); //! 'loudness' of voicee
 
-    // add TwoPole
-    QUERY->ugen_add( QUERY, "TwoPole", NULL );
-    QUERY->ugen_func( QUERY, TwoPole_ctor, TwoPole_dtor, TwoPole_tick, TwoPole_pmsg );
-    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_a1, TwoPole_cget_a1, "float", "a1" ); //! filter coefficient
-    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_a2, TwoPole_cget_a2, "float", "a2" ); //! filter coefficient
-    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_b0, TwoPole_cget_b0, "float", "b0" ); //! filter coefficient
-    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_freq, TwoPole_cget_freq,   "float", "freq" ); //! filter resonance frequency
-    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_radius, TwoPole_cget_radius, "float", "radius" ); //! filter resonance radius
-    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_norm, TwoPole_cget_norm, "int", "norm" ); //! toggle filter normalization 
-
-    // add OneZero
-    QUERY->ugen_add( QUERY, "OneZero", NULL );
-    QUERY->ugen_func( QUERY, OneZero_ctor, OneZero_dtor, OneZero_tick, OneZero_pmsg );
-    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_zero, OneZero_cget_zero, "float", "zero" ); //! set zero position
-    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_b0, OneZero_cget_b0, "float", "b0" ); //! filter coefficient
-    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_b1, OneZero_cget_b1, "float", "b1" ); //! filter coefficient 
-
-    // add TwoZero
-    QUERY->ugen_add( QUERY, "TwoZero", NULL );
-    QUERY->ugen_func( QUERY, TwoZero_ctor, TwoZero_dtor, TwoZero_tick, TwoZero_pmsg );
-    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b0, TwoZero_cget_b0, "float", "b0" ); //! filter coefficient 
-    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b1, TwoZero_cget_b1, "float", "b1" ); //! filter coefficient 
-    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b2, TwoZero_cget_b2, "float", "b2" ); //! filter coefficient 
-    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_freq, TwoZero_cget_freq, "float", "freq" ); //! filter notch frequency
-    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_radius, TwoZero_cget_radius, "float", "radius" ); //! filter notch radius
-
-    // add PoleZero
-    QUERY->ugen_add( QUERY, "PoleZero", NULL );
-    QUERY->ugen_func( QUERY, PoleZero_ctor, PoleZero_dtor, PoleZero_tick, PoleZero_pmsg );
-    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_a1, PoleZero_cget_a1, "float", "a1" ); //! filter coefficient 
-    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_b0, PoleZero_cget_b0, "float", "b0" ); //! filter coefficient 
-    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_b1, PoleZero_cget_b1, "float", "b1" ); //! filter coefficient 
-    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_blockZero, PoleZero_cget_blockZero, "float", "blockZero" ); //! DC blocking filter with given pole position
-    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_allpass, PoleZero_cget_allpass, "float", "allpass" ); //!allpass filter with given coefficient
-
-    //end Filters
-
-    //! \section fm synthesis
+    //! \section2 stk - fm synths
 
     // add FM
     QUERY->ugen_add( QUERY, "FM", NULL );
@@ -551,11 +524,173 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Wurley_ctrl_noteOn, NULL, "float", "noteOn" ); //! trigger note
 
     //end FM
+	
+
+    //! \section stk - delay
+
+    // add Delay
+	//! see \example net_relay.ck
+    QUERY->ugen_add( QUERY, "Delay", NULL );
+    QUERY->ugen_func( QUERY, Delay_ctor, Delay_dtor, Delay_tick, Delay_pmsg );
+    QUERY->ugen_ctrl( QUERY, Delay_ctrl_delay, Delay_cget_delay, "dur", "delay" ); //! length of delay
+    QUERY->ugen_ctrl( QUERY, Delay_ctrl_max, Delay_cget_max, "dur", "max" ); //! max delay (buffer size) 
+
+    // delay 'subs' not actually extending . 
+    
+    // add DelayA
+    QUERY->ugen_add( QUERY, "DelayA", NULL );
+    QUERY->ugen_func( QUERY, DelayA_ctor, DelayA_dtor, DelayA_tick, DelayA_pmsg );
+    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_delay, DelayA_cget_delay, "dur", "delay" ); //! length of delay
+    QUERY->ugen_ctrl( QUERY, DelayA_ctrl_max, DelayA_cget_max, "dur", "max" ); //! max delay ( buffer size ) 
+
+    // add DelayL
+	//! see \example i-robot.ck
+    QUERY->ugen_add( QUERY, "DelayL", NULL );
+    QUERY->ugen_func( QUERY, DelayL_ctor, DelayL_dtor, DelayL_tick, DelayL_pmsg );
+    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_delay, DelayL_cget_delay, "dur", "delay" ); //! length of delay
+    QUERY->ugen_ctrl( QUERY, DelayL_ctrl_max, DelayL_cget_max, "dur", "max" ); //! max delay ( buffer size ) 
+
+    // add Echo
+    QUERY->ugen_add( QUERY, "Echo", NULL );
+    QUERY->ugen_func( QUERY, Echo_ctor, Echo_dtor, Echo_tick, Echo_pmsg );
+    QUERY->ugen_ctrl( QUERY, Echo_ctrl_delay, Echo_cget_delay, "dur", "delay" ); //! length of echo
+    QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" ); //! max delay
+    QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" ); //! mix level ( wet/dry ) 
 
 
-    // FormSwep - too many multi-arg calls..
+    //! \section stk - envelopes
 
-    // BandedWG - so big!
+    // add Envelope
+	//! see \example sixty.ck
+    QUERY->ugen_add( QUERY, "Envelope", NULL );
+    QUERY->ugen_func( QUERY, Envelope_ctor, Envelope_dtor, Envelope_tick, Envelope_pmsg );
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOn, NULL, "int", "keyOn" ); //! ramp to 1.0
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_keyOff, NULL, "int", "keyOff" ); //! ramp to 0.0
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_target, Envelope_cget_target, "float", "target" ); //! ramp to arbitrary value.
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_time, Envelope_cget_time, "float", "time" ); //! time to reach target
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_rate, Envelope_cget_rate, "float", "rate"); //! rate of change 
+    QUERY->ugen_ctrl( QUERY, Envelope_ctrl_value, Envelope_cget_value, "float", "value" ); //! set immediate value
+
+
+    // add ADSR
+	//! see \example adsr.ck
+    QUERY->ugen_add( QUERY, "ADSR", NULL );
+    QUERY->ugen_extends ( QUERY, "Envelope" );
+    QUERY->ugen_func( QUERY, ADSR_ctor, ADSR_dtor, ADSR_tick, ADSR_pmsg );
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOn, NULL, "int", "keyOn" ); //! start the attack for non-zero values
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_keyOff, NULL, "int", "keyOff" ); //! start release for non-zero values
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackTime, NULL, "float", "attackTime" ); //! attack time
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_attackRate, ADSR_cget_attackRate, "float", "attackRate" ); //! attack rate
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayTime, NULL, "float", "decayTime" ); //! decay time 
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_decayRate, ADSR_cget_decayRate, "float", "decayRate" ); //! decay rate
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_sustainLevel, ADSR_cget_sustainLevel, "float", "sustainLevel" ); //! sustain level
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseTime, NULL, "float", "releaseTime" ); //! release time 
+    QUERY->ugen_ctrl( QUERY, ADSR_ctrl_releaseRate, ADSR_cget_releaseRate, "float", "releaseRate" ); //! release rate
+    QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" ); //! attack=0, decay=1 , sustain=2, release=3, done=4
+    //uhhh we are supposed to have target and value here as well..  d'oh
+
+
+    //! \section stk - filters
+	
+	    // add BiQuad
+    QUERY->ugen_add( QUERY, "BiQuad", NULL ); 
+    QUERY->ugen_func( QUERY, BiQuad_ctor, BiQuad_dtor, BiQuad_tick, BiQuad_pmsg );
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b2, BiQuad_cget_b2, "float", "b2" ); //! b2 coefficient
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b1, BiQuad_cget_b1, "float", "b1" ); //! b1 coefficient
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_b0, BiQuad_cget_b0, "float", "b0" ); //! b0 coefficient
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_a2, BiQuad_cget_a2, "float", "a2" ); //! a2 coefficient
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_a1, BiQuad_cget_a1, "float", "a1" ); //! a1 coefficient
+    QUERY->ugen_ctrl( QUERY, NULL, BiQuad_cget_a0, "float", "a0" ); //! a0 coefficient
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_pfreq, NULL, "float", "pfreq" );  //! set resonance frequency (poles)
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_prad, NULL, "float", "prad" ); //! pole radius (less than 1 to be stable)
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_zfreq, NULL, "float", "zfreq" ); //! notch frequency
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_zrad, NULL, "float", "zrad" ); //! zero radius
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_norm, NULL, "float", "norm" ); //! normalization
+    QUERY->ugen_ctrl( QUERY, BiQuad_ctrl_eqzs, NULL, "float", "eqzs" ); //! equal gain zeroes
+
+    // add Filter
+    QUERY->ugen_add( QUERY, "Filter", NULL );
+    QUERY->ugen_func( QUERY, Filter_ctor, Filter_dtor, Filter_tick, Filter_pmsg );
+    QUERY->ugen_ctrl( QUERY, Filter_ctrl_coefs, NULL, "string", "coefs" );
+
+    // Filter subclasses
+    
+    // add OnePole
+    QUERY->ugen_add( QUERY, "OnePole", NULL );
+    QUERY->ugen_func( QUERY, OnePole_ctor, OnePole_dtor, OnePole_tick, OnePole_pmsg ); 
+    
+    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_a1, OnePole_cget_a1, "float", "a1" ); //! filter coefficient
+    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_b0, OnePole_cget_b0, "float", "b0" ); //! filter coefficient 
+    QUERY->ugen_ctrl( QUERY, OnePole_ctrl_pole, OnePole_cget_pole, "float", "pole" ); //! set pole position along real axis of z-plane
+
+
+    // add TwoPole
+	//! see \example powerup.ck
+    QUERY->ugen_add( QUERY, "TwoPole", NULL );
+    QUERY->ugen_func( QUERY, TwoPole_ctor, TwoPole_dtor, TwoPole_tick, TwoPole_pmsg );
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_a1, TwoPole_cget_a1, "float", "a1" ); //! filter coefficient
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_a2, TwoPole_cget_a2, "float", "a2" ); //! filter coefficient
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_b0, TwoPole_cget_b0, "float", "b0" ); //! filter coefficient
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_freq, TwoPole_cget_freq,   "float", "freq" ); //! filter resonance frequency
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_radius, TwoPole_cget_radius, "float", "radius" ); //! filter resonance radius
+    QUERY->ugen_ctrl( QUERY, TwoPole_ctrl_norm, TwoPole_cget_norm, "int", "norm" ); //! toggle filter normalization 
+
+    // add OneZero
+    QUERY->ugen_add( QUERY, "OneZero", NULL );
+    QUERY->ugen_func( QUERY, OneZero_ctor, OneZero_dtor, OneZero_tick, OneZero_pmsg );
+    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_zero, OneZero_cget_zero, "float", "zero" ); //! set zero position
+    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_b0, OneZero_cget_b0, "float", "b0" ); //! filter coefficient
+    QUERY->ugen_ctrl( QUERY, OneZero_ctrl_b1, OneZero_cget_b1, "float", "b1" ); //! filter coefficient 
+
+    // add TwoZero
+    QUERY->ugen_add( QUERY, "TwoZero", NULL );
+    QUERY->ugen_func( QUERY, TwoZero_ctor, TwoZero_dtor, TwoZero_tick, TwoZero_pmsg );
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b0, TwoZero_cget_b0, "float", "b0" ); //! filter coefficient 
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b1, TwoZero_cget_b1, "float", "b1" ); //! filter coefficient 
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_b2, TwoZero_cget_b2, "float", "b2" ); //! filter coefficient 
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_freq, TwoZero_cget_freq, "float", "freq" ); //! filter notch frequency
+    QUERY->ugen_ctrl( QUERY, TwoZero_ctrl_radius, TwoZero_cget_radius, "float", "radius" ); //! filter notch radius
+
+    // add PoleZero
+    QUERY->ugen_add( QUERY, "PoleZero", NULL );
+    QUERY->ugen_func( QUERY, PoleZero_ctor, PoleZero_dtor, PoleZero_tick, PoleZero_pmsg );
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_a1, PoleZero_cget_a1, "float", "a1" ); //! filter coefficient 
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_b0, PoleZero_cget_b0, "float", "b0" ); //! filter coefficient 
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_b1, PoleZero_cget_b1, "float", "b1" ); //! filter coefficient 
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_blockZero, PoleZero_cget_blockZero, "float", "blockZero" ); //! DC blocking filter with given pole position
+    QUERY->ugen_ctrl( QUERY, PoleZero_ctrl_allpass, PoleZero_cget_allpass, "float", "allpass" ); //!allpass filter with given coefficient
+
+    //end Filters
+
+
+
+
+    //! \section stk-reverbs
+
+    // add JCRev
+    QUERY->ugen_add( QUERY, "JCRev", NULL );
+    QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, JCRev_cget_mix, "float", "mix" ); //! mix level
+
+    // add NRev
+    QUERY->ugen_add( QUERY, "NRev", NULL );
+    QUERY->ugen_func( QUERY, NRev_ctor, NRev_dtor, NRev_tick, NRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, NRev_ctrl_mix, NRev_cget_mix, "float", "mix" ); // set effect mix
+
+
+    // add PRCRev
+    QUERY->ugen_add( QUERY, "PRCRev", NULL );
+    QUERY->ugen_func( QUERY, PRCRev_ctor, PRCRev_dtor, PRCRev_tick, PRCRev_pmsg );
+    QUERY->ugen_ctrl( QUERY, PRCRev_ctrl_mix, PRCRev_cget_mix, "float", "mix" ); //! mix level
+
+    //! \section components
+
+    // add Chorus
+    QUERY->ugen_add( QUERY, "Chorus", NULL );
+    QUERY->ugen_func( QUERY, Chorus_ctor, Chorus_dtor, Chorus_tick, Chorus_pmsg );
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modFreq, Chorus_cget_modFreq, "float", "modFreq" ); //! modulation frequency
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modDepth, Chorus_cget_modDepth, "float", "modDepth" ); //! modulation depth
+    QUERY->ugen_ctrl( QUERY, Chorus_ctrl_mix, Chorus_cget_mix, "float", "mix" ); //! effect mix
 
     // add Modulate
     QUERY->ugen_add( QUERY, "Modulate", NULL );
@@ -564,147 +699,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Modulate_ctrl_vibratoGain, Modulate_cget_vibratoGain, "float", "vibratoGain" ); //! gain for vibrato
     QUERY->ugen_ctrl( QUERY, Modulate_ctrl_randomGain, Modulate_cget_randomGain, "float", "randomGain" ); //!  gain for random contribution
 
-    // add JCRev
-    QUERY->ugen_add( QUERY, "JCRev", NULL );
-    QUERY->ugen_func( QUERY, JCRev_ctor, JCRev_dtor, JCRev_tick, JCRev_pmsg );
-    QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, JCRev_cget_mix, "float", "mix" ); //! mix level
-
-    // add Mandolin
-    //! see \example mand-o-matic.ck
-    QUERY->ugen_add( QUERY, "Mandolin", NULL );
-    QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluck, NULL, "float", "pluck" );  //! pluck string with given amplitude 
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_freq, Mandolin_cget_freq, "float", "freq" ); //! string frequency 
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluckPos, Mandolin_cget_pluckPos, "float", "pluckPos" ); //! set pluck position ( 0-1) along string
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_bodySize, Mandolin_cget_bodySize, "float", "bodySize" ); //! modify instrument size
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDamping, Mandolin_cget_stringDamping, "float", "stringDamping" ); //! control string damping
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_stringDetune, Mandolin_cget_stringDetune, "float", "stringDetune" ); //! control detuning of string pair
-    QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" ); //!aftertouch
-    
-
-    // add ModalBar
-    //! see \example ModalBarie.ck
-    QUERY->ugen_add( QUERY, "ModalBar", NULL );
-    QUERY->ugen_func( QUERY, ModalBar_ctor, ModalBar_dtor, ModalBar_tick, ModalBar_pmsg );
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strike, NULL, "float", "strike" ); //! strike bar
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_damp, NULL, "float", "damp" ); //! damp bar
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop note
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_clear, NULL, "float", "clear" ); //! reset
-
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_preset, ModalBar_cget_preset, "int", "preset" ); //! choose preset (see STK notes above)
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_freq, ModalBar_cget_freq, "float", "freq" ); //! set frequency for bar
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_strikePosition, ModalBar_cget_strikePosition, "float", "strikePosition" ); //! set strike location on bar
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_stickHardness, ModalBar_cget_stickHardness, "float", "stickHardness" ); //! hardness of strike implement
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_masterGain, ModalBar_cget_masterGain, "float", "masterGain" ); //! 
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_directGain, ModalBar_cget_directGain, "float", "directGain" ); //!
-
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_mode, ModalBar_cget_mode, "int", "mode" ); //! choose mode
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRatio, ModalBar_cget_modeRatio, "float", "modeRatio" ); //! mode filter ratio
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeRadius, ModalBar_cget_modeRadius, "float", "modeRadius" ); //! mode filter radius
-    QUERY->ugen_ctrl( QUERY, ModalBar_ctrl_modeGain, ModalBar_cget_modeGain, "float", "modeGain" ); //! mode filter gain
-
-
-
-
-    // add Moog
-    //! see \example moogie.ck
-    QUERY->ugen_add( QUERY, "Moog", NULL );
-    QUERY->ugen_func( QUERY, Moog_ctor, Moog_dtor, Moog_tick, Moog_pmsg );
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_freq, Moog_cget_freq, "float", "freq" ); //! set frequency
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modSpeed, Moog_cget_modSpeed, "float", "modSpeed" ); //! modulation speed
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_modDepth, Moog_cget_modDepth, "float", "modDepth" ); //! modulation depth
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterQ, Moog_cget_filterQ, "float", "filterQ" ); //! filter Q value
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_filterSweepRate, Moog_cget_filterSweepRate, "float", "filterSweepRate" ); //! filter sweep rate
-    QUERY->ugen_ctrl( QUERY, Moog_ctrl_afterTouch, NULL , "float", "afterTouch" ); // aftertouch
-
-    // add NRev
-    QUERY->ugen_add( QUERY, "NRev", NULL );
-    QUERY->ugen_func( QUERY, NRev_ctor, NRev_dtor, NRev_tick, NRev_pmsg );
-    QUERY->ugen_ctrl( QUERY, NRev_ctrl_mix, NRev_cget_mix, "float", "mix" ); // set effect mix
 
     // add PitShift
     QUERY->ugen_add( QUERY, "PitShift", NULL );
     QUERY->ugen_func( QUERY, PitShift_ctor, PitShift_dtor, PitShift_tick, PitShift_pmsg );
     QUERY->ugen_ctrl( QUERY, PitShift_ctrl_shift, PitShift_cget_shift, "float", "shift" ); //! degree of pitch shifting
     QUERY->ugen_ctrl( QUERY, PitShift_ctrl_effectMix, PitShift_cget_effectMix, "float", "effectMix" ); //! mix level
-    
-    // add PRCRev
-    QUERY->ugen_add( QUERY, "PRCRev", NULL );
-    QUERY->ugen_func( QUERY, PRCRev_ctor, PRCRev_dtor, PRCRev_tick, PRCRev_pmsg );
-    QUERY->ugen_ctrl( QUERY, PRCRev_ctrl_mix, PRCRev_cget_mix, "float", "mix" ); //! mix level
-    
-    // add Saxofony
-    //! STK Saxofony class
-    QUERY->ugen_add( QUERY, "Saxofony", NULL );
-    QUERY->ugen_func( QUERY, Saxofony_ctor, Saxofony_dtor, Saxofony_tick, Saxofony_pmsg );
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOn, NULL, "float", "noteOn" ); //! 
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_noteOff, NULL, "float", "noteOff" ); //!
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_clear, NULL, "float", "clear" ); //! clear instrument
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_startBlowing, NULL, "float", "startBlowing" ); //! breath excitation ( amp ) 
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_stopBlowing, NULL, "float", "stopBlowing" ); //! breath falloff ( rate )
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_freq, Saxofony_cget_freq, "float", "freq" ); //! freq
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_rate, Saxofony_cget_rate, "float", "rate" ); //! excitation rate
-    QUERY->ugen_ctrl( QUERY, Saxofony_ctrl_blowPosition, Saxofony_cget_blowPosition, "float", "blowPosition" ); //! lip position
 
-// add Sitar
-    //! STK Sitar class
-    QUERY->ugen_add( QUERY, "Sitar", NULL );
-    QUERY->ugen_func( QUERY, Sitar_ctor, Sitar_dtor, Sitar_tick, Sitar_pmsg );
-    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_pluck, NULL, "float", "pluck" );
-    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOn, NULL, "float", "noteOn" ); 
-    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_noteOff, NULL, "float", "noteOff" ); 
-    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_clear, NULL, "float", "clear" ); 
-    QUERY->ugen_ctrl( QUERY, Sitar_ctrl_freq, Sitar_cget_freq, "float", "freq" ); 
-
-// add StifKarp
-    //! STK StifKarp class
-    QUERY->ugen_add( QUERY, "StifKarp", NULL );
-    QUERY->ugen_func( QUERY, StifKarp_ctor, StifKarp_dtor, StifKarp_tick, StifKarp_pmsg );
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pluck, NULL, "float", "pluck" ); //! 
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOn, NULL, "float", "noteOn" ); 
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_noteOff, NULL, "float", "noteOff" ); 
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_clear, NULL, "float", "clear" ); //! clear instrument
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_freq, StifKarp_cget_freq, "float", "freq" ); 
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_pickupPosition, StifKarp_cget_pickupPosition, "float", "pickupPosition" );  //! string excitation position ( 0.0 - 1.0 )
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_stretch, StifKarp_cget_stretch, "float", "stretch" );  // stretch of string ( 0 - 1.0  )
-    QUERY->ugen_ctrl( QUERY, StifKarp_ctrl_baseLoopGain, StifKarp_cget_baseLoopGain, "float", "baseLoopGain" ); 
-    
-    // add Shakers
-    //! see \example shake-o-matic.ck
-    QUERY->ugen_add( QUERY, "Shakers", NULL );
-    QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, Shakers_cget_freq, "float", "freq" ); //! set frequency
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOn, NULL, "float", "noteOn" ); //! start shake with given amplitude
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop shake
-    QUERY->ugen_ctrl( QUERY, Shakers_ctrl_which, Shakers_cget_which, "int", "which" ); //! select instrument
-    
     // add SubNoise
     QUERY->ugen_add( QUERY, "SubNoise", NULL );
     QUERY->ugen_func( QUERY, SubNoise_ctor, SubNoise_dtor, SubNoise_tick, SubNoise_pmsg );
     QUERY->ugen_ctrl( QUERY, SubNoise_ctrl_rate, SubNoise_cget_rate, "int", "rate" ); //! subsampling rate
 
-    // add VoicForm
-    //! see \example voic-o-form.ck
-    QUERY->ugen_add( QUERY, "VoicForm", NULL );
-    QUERY->ugen_func( QUERY, VoicForm_ctor, VoicForm_dtor, VoicForm_tick, VoicForm_pmsg );
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_freq, VoicForm_cget_freq, "float", "freq" ); //! frequency 
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_phoneme, VoicForm_cget_phoneme, "string", "phoneme" ); //! select phoneme  ( above ) 
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_noteOff, NULL, "float", "noteOff" ); //! stop note
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_speak, NULL, "float", "speak" ); //! start singing
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_quiet, NULL, "float", "quiet" ); //! stop singing
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiced, VoicForm_cget_voiced, "float", "voiced" ); //! set mix for voiced component
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_unVoiced, VoicForm_cget_unVoiced, "float", "unVoiced" ); //! set mix for unvoiced component
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_pitchSweepRate, VoicForm_cget_pitchSweepRate, "float", "pitchSweepRate" ); //! pitch sweep
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_voiceMix, VoicForm_cget_voiceMix, "float", "voiceMix" ); //! voiced/unvoiced mix
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_selPhoneme, VoicForm_cget_selPhoneme, "int", "setPhoneme" ); //! select phoneme by number
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoFreq, VoicForm_cget_vibratoFreq, "float", "vibratoFreq" );//! vibrato
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, VoicForm_cget_vibratoGain, "float", "vibratoGain" );//! vibrato depth
-    QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, VoicForm_cget_loudness, "float", "loudness" ); //! 'loudness' of voicee
 
-    //! \section file interfaces
+    //! \section stk - file i/o
     
     // add WvIn
     QUERY->ugen_add( QUERY, "WvIn", NULL );
@@ -2482,8 +2490,7 @@ class OneZero : public Filter // formerly protected Filter
 
 /***************************************************/
 /*! \class BlowHole
-    \brief STK clarinet physical model with one
-           register hole and one tonehole.
+    \brief STK clarinet physical model with one register hole and one tonehole.
 
     This class is based on the clarinet model,
     with the addition of a two-port register hole
