@@ -186,13 +186,18 @@ CK_DLL_FUNC( rand2_impl ) // inclusive.
     int min = *(int *)ARGS, max = *((int *)ARGS + 1);
     int range = max - min; 
     if ( range == 0 ) { 
-      RETURN->v_int = min;
+     RETURN->v_int = min;
     }
-    else if ( range < RAND_MAX / 2 ) { 
-      RETURN->v_int = ( range > 0 ) ? min + irand_exclusive(1 + range) : max + irand_exclusive ( -range + 1 ) ;
-    }
+    //else if ( range < RAND_MAX / 2 ) { 
+    //  RETURN->v_int = ( range > 0 ) ? min + irand_exclusive(1 + range) : max + irand_exclusive ( -range + 1 ) ;
+    //}
     else { 
-      RETURN->v_int = (int) min + (1 + range) * ( ::rand()/(t_CKFLOAT)(RAND_MAX+1.0) );
+      if ( range > 0 ) { 
+	RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
+      }
+      else { 
+	RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
+      }
     }
 }
 
