@@ -37,6 +37,7 @@
 #include "chuck_def.h"
 #include "chuck_oo.h"
 #include "chuck_type.h"
+#include "chuck_frame.h"
 
 
 // forward references
@@ -55,20 +56,23 @@ struct Chuck_Code
 public:
     // name
     string name;
-    // code
-    vector<Chuck_Instr *> code;
     // stack depth
     t_CKUINT stack_depth;
+    // frame
+    Chuck_Frame * frame;
+    // code
+    vector<Chuck_Instr *> code;
 
     // constructor
     Chuck_Code( const string & scope_name )
     {
         name = scope_name;
         stack_depth = 0;
+        frame = new Chuck_Frame;
     }
 
     // destructor
-    ~Chuck_Code() { }
+    ~Chuck_Code() { delete frame; frame = NULL; }
 };
 
 
