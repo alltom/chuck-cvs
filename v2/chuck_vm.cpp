@@ -887,6 +887,7 @@ Chuck_VM_Code::~Chuck_VM_Code()
 
 
 
+#define VM_STACK_OFFSET 16
 //-----------------------------------------------------------------------------
 // name: initialize()
 // desc: ...
@@ -897,7 +898,7 @@ t_CKBOOL Chuck_VM_Stack::initialize( t_CKUINT size )
         return FALSE;
 
     // make room for header
-    size += 16;
+    size += VM_STACK_OFFSET;
     // allocate stack
     stack = new t_CKBYTE[size];
     if( !stack )
@@ -906,11 +907,11 @@ t_CKBOOL Chuck_VM_Stack::initialize( t_CKUINT size )
     // zero
     memset( stack, 0, size );
 
+    // advance stack after the header
+    stack += VM_STACK_OFFSET;
     // set the sp
     sp = stack;
     sp_max = sp + size;
-    // advance sp after the header
-    sp += 16;
 
     // set flag and return
     return m_is_init = TRUE;
@@ -929,6 +930,7 @@ t_CKBOOL Chuck_VM_Stack::shutdown()
         return FALSE;
 
     // free the stack
+    stack -= VM_STACK_OFFSET;
     SAFE_DELETE_ARRAY( stack );
     sp = sp_max = NULL;
 

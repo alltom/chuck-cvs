@@ -649,7 +649,7 @@ void Chuck_Instr_Reg_Push_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)(base?shred->mem->stack:shred->mem->sp);
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // push mem stack content into reg stack
@@ -665,7 +665,7 @@ void Chuck_Instr_Reg_Push_Mem::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Mem2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)(base?shred->mem->stack:shred->mem->sp);
     t_CKFLOAT *& reg_sp = (t_CKFLOAT *&)shred->reg->sp;
 
     // push mem stack content into reg stack
@@ -681,7 +681,7 @@ void Chuck_Instr_Reg_Push_Mem2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Mem_Addr::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKBYTE *& mem_sp = (t_CKBYTE *&)(base?shred->mem->stack:shred->mem->sp);
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // push mem stack addr into reg stack

@@ -1233,11 +1233,19 @@ public:
 class Chuck_Instr_Reg_Push_Mem : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Reg_Push_Mem( t_CKUINT src )
-    { this->set( src ); }
+    Chuck_Instr_Reg_Push_Mem( t_CKUINT src, t_CKBOOL use_base = FALSE )
+    { this->set( src ); base = use_base; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "src=%d, base=%d", m_val, base );
+      return buffer; }
+
+protected:
+    // use global stack base
+    t_CKBOOL base;
 };
 
 
@@ -1250,11 +1258,19 @@ public:
 class Chuck_Instr_Reg_Push_Mem2 : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Reg_Push_Mem2( t_CKUINT src )
-    { this->set( src ); }
+    Chuck_Instr_Reg_Push_Mem2( t_CKUINT src, t_CKBOOL use_base = FALSE )
+    { this->set( src ); base = use_base; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "src=%d, base=%d", m_val, base );
+      return buffer; }
+
+protected:
+    // use global stack base
+    t_CKBOOL base;
 };
 
 
@@ -1267,11 +1283,19 @@ public:
 class Chuck_Instr_Reg_Push_Mem_Addr : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Reg_Push_Mem_Addr( t_CKUINT src )
-    { this->set( src ); }
+    Chuck_Instr_Reg_Push_Mem_Addr( t_CKUINT src, t_CKBOOL use_base )
+    { this->set( src ); base = use_base; }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "src=%d, base=%d", m_val, base );
+      return buffer; }
+
+protected:
+    // use global stack base
+    t_CKBOOL base;
 };
 
 

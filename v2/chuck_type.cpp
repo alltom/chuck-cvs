@@ -1789,6 +1789,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         value->owner = env->curr;
         value->owner_class = env->class_def;
         value->is_member = ( env->class_def != NULL );
+        value->is_context_global = ( env->class_def == NULL && env->func == NULL );
 
         // remember the value
         var_decl->value = value;

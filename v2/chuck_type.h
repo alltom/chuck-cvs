@@ -382,8 +382,10 @@ struct Chuck_Value : public Chuck_VM_Object
     t_CKBOOL is_const;
     // member?
     t_CKBOOL is_member;
+    // is context-global?
+    t_CKBOOL is_context_global;
     // 0 = public, 1 = protected, 2 = private
-    t_CKBOOL access;
+    t_CKUINT access;
     // owner
     Chuck_Namespace * owner;
     // owner (class)
@@ -394,7 +396,8 @@ struct Chuck_Value : public Chuck_VM_Object
                  t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
 	{ type = t; name = n; offset = s; is_const = c; access = acc; 
-      owner = o; owner_class = oc; addr = a; is_member = FALSE; }
+      owner = o; owner_class = oc; addr = a; is_member = FALSE;
+      is_context_global = FALSE; }
 };
 
 

@@ -2820,15 +2820,15 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
     if( emit_var )
     {
         // emit as addr
-        emit->append( new Chuck_Instr_Reg_Push_Mem_Addr( v->offset ) );
+        emit->append( new Chuck_Instr_Reg_Push_Mem_Addr( v->offset, v->is_context_global ) );
     }
     else
     {
         // check size
         if( v->type->size == 4 )
-            emit->append( new Chuck_Instr_Reg_Push_Mem( v->offset ) );
+            emit->append( new Chuck_Instr_Reg_Push_Mem( v->offset, v->is_context_global ) );
         else if( v->type->size == 8 )
-            emit->append( new Chuck_Instr_Reg_Push_Mem2( v->offset ) );
+            emit->append( new Chuck_Instr_Reg_Push_Mem2( v->offset, v->is_context_global  ) );
         else
         {
             // internal error
