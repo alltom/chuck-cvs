@@ -7,8 +7,12 @@
 
 int a[10][23];
 
+class A
+{
+    int aaa;
+}
 
-class samp
+class Foo
 {
     int f;
     int a1;
@@ -25,6 +29,10 @@ class samp
     {
         return 0;
     }
+
+	int x[100];
+
+	A aa;
 }
 
 
@@ -36,4 +44,4 @@ class Bar extends Foo
 Foo foo;
 Bar bar;
 
-foo.f + bar.c => foo.a1;
+foo.f + bar.c + foo.x[1][2] => foo.a1;

@@ -140,6 +140,7 @@ int main( int argc, char ** argv )
     if( !test_type( env, g_program ) )
     {
         fprintf( stderr, "type check failed...\n" );
+        fprintf( stderr, "hmmm" );
         return 1;
     }
     
