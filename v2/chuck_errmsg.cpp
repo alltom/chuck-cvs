@@ -98,7 +98,7 @@ void EM_error( int pos, char *message, ... )
 }
 
 
-void EM_error2( int line, char *message, ... )
+void EM_error2( int line, char * message, ... )
 {
     va_list ap;
 
@@ -119,17 +119,33 @@ void EM_error2( int line, char *message, ... )
 }
 
 
+void EM_error3( char * message, ... )
+{
+    va_list ap;
+
+    va_start( ap, message );
+    vfprintf( stderr, message, ap );
+    vsprintf( g_buffer, message, ap );
+    va_end( ap );
+
+    strcat( g_lasterror, g_buffer );
+    fprintf( stderr, "\n" );
+}
+
+
 t_CKBOOL EM_reset( c_str fname, FILE * fd )
 {
     anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
     linePos = intList( 0, NULL );
 
-    if( yyin ) fclose( yyin );
+    // if( yyin ) fclose( yyin );
     if( fd ) yyin = fd;
     else yyin = fopen( fname, "r" );
     if (!yyin)
         EM_error2( 0, "no such file or directory" );
-        
+    else
+        fseek( yyin, 0, SEEK_SET );
+
     return (yyin != 0);
 }
 

@@ -41,6 +41,8 @@
 #define t_CKTIME                    double
 #define t_CKDUR                     double
 #define t_CKFLOAT                   double
+#define t_CKDOUBLE                  double
+#define t_CKSINGLE                  float
 #define t_CKINT                     long
 #define t_CKDWORD                   unsigned long
 #define t_CKUINT                    t_CKDWORD

@@ -453,7 +453,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         Chuck_VM_Shred * out = m_shreduler->lookup( msg->param );
         if( !out )
         {
-            fprintf( stderr, "[chuck](VM): error replacing shred: no shred with id %i...\n",
+            EM_error3( "[chuck](VM): error replacing shred: no shred with id %i...",
                 msg->param );
             retval = 0;
             goto done;
@@ -474,16 +474,16 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         // replace
         if( m_shreduler->replace( out, shred ) )
         {
-            fprintf( stderr, "[chuck](VM): replacing shred %i (%s) with %i (%s)...\n",
-                     out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
+            EM_error3( "[chuck](VM): replacing shred %i (%s) with %i (%s)...",
+                       out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
             delete out;
             retval = shred->id;
             goto done;
         }
         else
         {
-            fprintf( stderr, "[chuck](VM): shreduler ERROR replacing shred %i...\n",
-                     out->id );
+            EM_error3( "[chuck](VM): shreduler ERROR replacing shred %i...",
+                       out->id );
             delete shred;
             retval = 0;
             goto done;
@@ -501,13 +501,13 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             {
                 this->m_num_shreds--;
                 if( !this->m_num_shreds ) this->m_shred_id = 0;
-                fprintf( stderr, "[chuck](VM): removing recent shred: %i (%s)...\n", 
-                    id, mini(shred->name.c_str()) );
+                EM_error3( "[chuck](VM): removing recent shred: %i (%s)...", 
+                           id, mini(shred->name.c_str()) );
                 delete shred;
             }
             else
             {
-                fprintf( stderr, "[chuck](VM): no shreds removed...\n" );
+                EM_error3( "[chuck](VM): no shreds removed..." );
                 retval = 0;
                 goto done;
             }
@@ -517,21 +517,21 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             Chuck_VM_Shred * shred = m_shreduler->lookup( msg->param );
             if( !shred )
             {
-                fprintf( stderr, "[chuck](VM): cannot remove: no shred with id %i...\n",
-                         msg->param );
+                EM_error3( "[chuck](VM): cannot remove: no shred with id %i...",
+                           msg->param );
                 retval = 0;
                 goto done;
             }
             if( !m_shreduler->remove( m_shreduler->lookup( msg->param ) ) )
             {
-                fprintf( stderr, "[chuck](VM): shreduler: cannot remove shred %i...\n",
-                         msg->param );
+                EM_error3( "[chuck](VM): shreduler: cannot remove shred %i...",
+                           msg->param );
                 retval = 0;
                 goto done;
             }
             m_num_shreds--;
-            fprintf( stderr, "[chuck](VM): removing shred: %i (%s)...\n", 
-                msg->param, mini(shred->name.c_str()) );
+            EM_error3( "[chuck](VM): removing shred: %i (%s)...",
+                       msg->param, mini(shred->name.c_str()) );
             if( m_num_shreds == 0 ) m_shred_id = 0;
             delete shred;
         }
@@ -539,7 +539,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     else if( msg->type == MSG_REMOVEALL )
     {
         int id = m_shred_id;
-        fprintf( stderr, "[chuck](VM): removing all (%i) shreds...\n", m_num_shreds );
+        EM_error3( "[chuck](VM): removing all (%i) shreds...", m_num_shreds );
         Chuck_VM_Shred * shred = NULL;
 
         while( m_num_shreds && id >= 0 )
@@ -559,13 +559,13 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         else id = this->spork( msg->code )->id;
         
         const char * s = ( msg->shred ? msg->shred->name.c_str() : msg->code->name.c_str() );
-        fprintf( stderr, "[chuck](VM): sporking incoming shred: %i (%s)...\n", id, mini(s) );
+        EM_error3( "[chuck](VM): sporking incoming shred: %i (%s)...", id, mini(s) );
         retval = id;
         goto done;
     }
     else if( msg->type == MSG_KILL )
     {
-        fprintf( stderr, "[chuck](VM): KILL received....\n" );
+        EM_error3( "[chuck](VM): KILL received...." );
         exit( 1 );
     }
     else if( msg->type == MSG_STATUS )
