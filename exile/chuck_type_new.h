@@ -121,30 +121,30 @@ class  Chuck_VM_Code;
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_Env
-// desc: environment containing semantic information
+// name: struct Chuck_Namespace
+// desc: Chuck Namespace containing semantic information
 //-----------------------------------------------------------------------------
-struct Chuck_Env
+struct Chuck_Namespace
 {
     // maps
     Chuck_Scope<Chuck_Type *> type;
     Chuck_Scope<Chuck_Value *> value;
     Chuck_Scope<Chuck_Func *> func;
-    Chuck_Scope<Chuck_Env *> class_defs;
+    Chuck_Scope<Chuck_Namespace *> class_defs;
     Chuck_Scope<void *> addr;
 
     // name
     string name;
     // parent env
-    Chuck_Env * parent;
+    Chuck_Namespace * parent;
 
     // static scope table    
     static Chuck_Scope<t_CKUINT> scope;
     
     // constructor
-    Chuck_Env();
+	Chuck_Namespace() { parent = NULL; }
     // destructor
-    ~Chuck_Env();
+	~Chuck_Namespace() { }
     
     // look up type
     Chuck_Type * lookup_type( const string & name, t_CKBOOL climb = TRUE );
@@ -153,7 +153,7 @@ struct Chuck_Env
     // look up func
     Chuck_Func * lookup_func( const string & name, t_CKBOOL climb = TRUE );
     // look up class
-    Chuck_Env * lookup_class( const string & name, t_CKBOOL climb = TRUE );
+    Chuck_Namespace * lookup_class( const string & name, t_CKBOOL climb = TRUE );
     // look up addr
     void * lookup_addr( const string & name, t_CKBOOL climb = TRUE );
 };
@@ -167,12 +167,10 @@ struct Chuck_Env
 //-----------------------------------------------------------------------------
 struct Chuck_Context
 {
-    // current type scope
-    Chuck_Scope<Chuck_Env *> env;
-    // current exp env
-    Chuck_Env * exp_env;
     // src_name
-    string src_name;
+    string src;
+	// code
+	Chuck_VM_Code * code;
 
     // list of all context
     static vector<Chuck_Context *> all;
@@ -200,7 +198,7 @@ struct Chuck_Type
     // array size (equals 0 means not array, else dimension of array)
     t_CKUINT array_depth;
     // type environment
-    Chuck_Env * env;
+    Chuck_Namespace * nspc;
     
 public:
     // copy

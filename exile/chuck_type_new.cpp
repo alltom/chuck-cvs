@@ -38,7 +38,7 @@
 // name: lookup_type()
 // desc: lookup type in the env
 //-----------------------------------------------------------------------------
-Chuck_Type * Chuck_Env::lookup_type( const string & name, t_CKBOOL climb )
+Chuck_Type * Chuck_Namespace::lookup_type( const string & name, t_CKBOOL climb )
 {
     Chuck_Type * t = type.lookup( name );
     if( climb && !t && parent )
@@ -53,7 +53,7 @@ Chuck_Type * Chuck_Env::lookup_type( const string & name, t_CKBOOL climb )
 // name: lookup_value()
 // desc: lookup value in the env
 //-----------------------------------------------------------------------------
-Chuck_Value * Chuck_Env::lookup_value( const string & name, t_CKBOOL climb )
+Chuck_Value * Chuck_Namespace::lookup_value( const string & name, t_CKBOOL climb )
 {
     Chuck_Value * v = value.lookup( name );
     if( climb && !v && parent )
@@ -68,7 +68,7 @@ Chuck_Value * Chuck_Env::lookup_value( const string & name, t_CKBOOL climb )
 // name: lookup_func()
 // desc: lookup func in the env
 //-----------------------------------------------------------------------------
-Chuck_Func * Chuck_Env::lookup_func( const string & name, t_CKBOOL climb )
+Chuck_Func * Chuck_Namespace::lookup_func( const string & name, t_CKBOOL climb )
 {
     Chuck_Func * f = func.lookup( name );
     if( climb && !f && parent )
@@ -81,11 +81,11 @@ Chuck_Func * Chuck_Env::lookup_func( const string & name, t_CKBOOL climb )
 
 //-----------------------------------------------------------------------------
 // name: lookup_class()
-// desc: lookup class in the env
+// desc: lookup class in the namespace
 //-----------------------------------------------------------------------------
-Chuck_Env * Chuck_Env::lookup_class( const string & name, t_CKBOOL climb )
+Chuck_Namespace * Chuck_Namespace::lookup_class( const string & name, t_CKBOOL climb )
 {
-    Chuck_Env * e = class_defs.lookup( name );
+    Chuck_Namespace * e = class_defs.lookup( name );
     if( climb && !e && parent )
         return parent->lookup_class( name, climb );
     return e;
@@ -98,7 +98,7 @@ Chuck_Env * Chuck_Env::lookup_class( const string & name, t_CKBOOL climb )
 // name: lookup_addr()
 // desc: lookup addr in the env
 //-----------------------------------------------------------------------------
-void * Chuck_Env::lookup_addr( const string & name, t_CKBOOL climb )
+void * Chuck_Namespace::lookup_addr( const string & name, t_CKBOOL climb )
 {
     void * a = addr.lookup( name );
     if( climb && !a && parent )
