@@ -1861,7 +1861,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emmission * emit,
             cl = lhs;
             while( cl )
             {
-                emit_engine_emit_chuck( emit, cl, cr );
+                if( !emit_engine_emit_chuck( emit, cl, cr ) )
+                    return FALSE;
                 cl = cl->next;
             }
             
@@ -1879,7 +1880,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emmission * emit,
             cl = lhs;
             while( cl )
             {
-                emit_engine_emit_unchuck( emit, cl, cr );
+                if( !emit_engine_emit_unchuck( emit, cl, cr ) )
+                    return FALSE;
                 cl = cl->next;
             }
             
