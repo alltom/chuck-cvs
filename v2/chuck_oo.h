@@ -34,6 +34,7 @@
 #define __CHUCK_OO_H__
 
 #include "chuck_def.h"
+#include <string>
 #include <vector>
 #include <map>
 
@@ -150,8 +151,11 @@ public:
 
 public:
     t_CKUINT addr( t_CKINT i );
+    t_CKUINT addr( const std::string & key );
     t_CKINT get( t_CKINT i, t_CKUINT * val );
+    t_CKINT get( const std::string & key, t_CKUINT * val );
     t_CKINT set( t_CKINT i, t_CKUINT val );
+    t_CKINT set( const std::string & key, t_CKUINT val );
     t_CKINT push_back( t_CKUINT val );
     t_CKINT pop_back( );
     t_CKINT back( t_CKUINT * val ) const;
@@ -161,6 +165,7 @@ public:
 
 public:
     std::vector<t_CKUINT> m_vector;
+    std::map<std::string, t_CKUINT> m_map;
     t_CKINT m_size;
     t_CKINT m_capacity;
 };
@@ -180,8 +185,11 @@ public:
 
 public:
     t_CKUINT addr( t_CKINT i );
+    t_CKUINT addr( const std::string & key );
     t_CKINT get( t_CKINT i, t_CKFLOAT * val );
+    t_CKINT get( const std::string & key, t_CKFLOAT * val );
     t_CKINT set( t_CKINT i, t_CKFLOAT val );
+    t_CKINT set( const std::string & key, t_CKFLOAT val );
     t_CKINT push_back( t_CKFLOAT val );
     t_CKINT pop_back( );
     t_CKINT back( t_CKFLOAT * val ) const;
@@ -191,6 +199,7 @@ public:
 
 public:
     std::vector<t_CKFLOAT> m_vector;
+    std::map<std::string, t_CKFLOAT> m_map;
     t_CKINT m_size;
     t_CKINT m_capacity;
 };

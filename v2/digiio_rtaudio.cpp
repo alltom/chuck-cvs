@@ -30,8 +30,8 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 //-----------------------------------------------------------------------------
 #include "digiio_rtaudio.h"
-#include "rtaudio.h"
 #include "chuck_vm.h"
+#include "rtaudio.h"
 #if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
 #include <windows.h>
 #else

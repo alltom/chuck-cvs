@@ -34,16 +34,10 @@
 #ifndef __CHUCK_TYPE_H__
 #define __CHUCK_TYPE_H__
 
-#include <stdlib.h>
-#include <memory.h>
-#include <string>
-#include <vector>
-#include <map>
-using namespace std;
-
+#include "chuck_def.h"
 #include "chuck_absyn.h"
 #include "chuck_oo.h"
-
+using namespace std;
 
 
 

@@ -38,8 +38,6 @@
 #include "chuck_def.h"
 #include "chuck_oo.h"
 #include "chuck_ugen.h"
-#include <stdlib.h>
-#include <memory.h>
 #include <string>
 #include <vector>
 #include <map>

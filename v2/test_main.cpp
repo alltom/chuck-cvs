@@ -11,15 +11,14 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include <fstream>
-using namespace std;
-
 #include "chuck_type.h"
 #include "chuck_emit.h"
 #include "chuck_vm.h"
 #include "chuck_bbq.h"
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
+
+#include <fstream>
 
 
 // current version
