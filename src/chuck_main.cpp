@@ -619,6 +619,7 @@ int send_cmd( int argc, char ** argv, int  & i )
 {
     Net_Msg msg;
     g_sigpipe_mode = 1;
+    int ret = 0;
 	
     g_sock = ck_tcp_create( 0 );
     if( !g_sock )
@@ -729,7 +730,10 @@ int send_cmd( int argc, char ** argv, int  & i )
         ck_send( g_sock, (char *)&msg, sizeof(msg) );
     }
     else
+    {
+        ret = 1;
         goto error;
+    }
         
     // send
     msg.type = MSG_DONE;
@@ -757,17 +761,19 @@ int send_cmd( int argc, char ** argv, int  & i )
     // exit
     exit( msg.param );
 
-    return 0;
+    return 1;
     
 error:
     msg.type = MSG_DONE;
     otf_hton( &msg );
     ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    ck_close( g_sock );
     
-    // exit
-    exit( 1 );
+    if( !ret )
+        // exit
+        exit( 1 );
     
-    return 1;
+    return 0;
 }
 
 
@@ -858,7 +864,7 @@ int main( int argc, char ** argv )
                 exit( 2 );
             }
             else if( a = send_cmd( argc, argv, i ) )
-                exit( a );
+                exit( 0 );
 			else
             {
                 fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
