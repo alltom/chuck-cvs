@@ -145,23 +145,23 @@ char filename[1024] = "";
 // name: parse()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL parse( c_str fname )
+t_CKBOOL parse( c_str fname, FILE * fd = NULL )
 {
     t_CKBOOL ret = FALSE;
     strcpy( filename, fname );
-    FILE * f = NULL;
 
     // test it
-    if( !(f = fopen( filename, "r" )) )
-        if( !strstr( filename, ".ck" ) && !strstr( filename, ".CK" ) )
-        {
-            strcat( filename, ".ck" );
-            if( !(f = fopen( filename, "r" )) )
-                strcpy( filename, fname );
-        }
+    if( !fd )
+        if( !(fd = fopen( filename, "r" )) )
+            if( !strstr( filename, ".ck" ) && !strstr( filename, ".CK" ) )
+            {
+                strcat( filename, ".ck" );
+                if( !(fd = fopen( filename, "r" )) )
+                    strcpy( filename, fname );
+            }
 
     // parse
-    ret = EM_reset( filename, f );
+    ret = EM_reset( filename, fd );
     if( ret == FALSE ) return FALSE;
     ret = (yyparse( ) == 0);
 

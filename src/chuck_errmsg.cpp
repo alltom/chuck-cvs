@@ -28,7 +28,6 @@
  *
  */
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -99,7 +98,6 @@ void EM_error( int pos, char *message, ... )
 }
 
 
-
 void EM_error2( int line, char *message, ... )
 {
     va_list ap;
@@ -121,13 +119,14 @@ void EM_error2( int line, char *message, ... )
 }
 
 
-t_CKBOOL EM_reset( c_str fname )
+t_CKBOOL EM_reset( c_str fname, FILE * fd )
 {
     anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
-    linePos = intList(0, NULL);
+    linePos = intList( 0, NULL );
 
     if( yyin ) fclose( yyin );
-    yyin = fopen(fname, "r");
+    if( fd ) yyin = fd;
+    else yyin = fopen( fname, "r" );
     if (!yyin)
         EM_error2( 0, "no such file or directory" );
         
