@@ -55,8 +55,9 @@ typedef enum {
     // general types
     te_int, te_uint, te_single, te_float, te_double, te_time, te_dur,
     te_string, te_thread, te_shred, te_class, te_function, te_object,
-    te_null, te_ugen, te_event, te_void, te_stdout, te_stderr, te_user,
-	te_adc, te_dac, te_bunghole, te_midiin, te_midiout, te_multi
+    te_user, te_array, te_null, te_ugen, te_event, te_void, te_stdout, 
+    te_stderr, te_adc, te_dac, te_bunghole, te_midiin, te_midiout, 
+    te_multi
 } te_Type;
 
 
@@ -274,8 +275,12 @@ struct Chuck_Type : public Chuck_VM_Object
     Chuck_Type * parent;
     // size (in bytes)
     t_CKUINT size;
+    // reference
+    t_CKBOOL ref;
 	// owner of the type
 	Chuck_Namespace * owner;
+    // array type
+    Chuck_Type * array_type;
     // array size (equals 0 means not array, else dimension of array)
     t_CKUINT array_depth;
     // self size (size in memory)
@@ -292,17 +297,20 @@ public:
     Chuck_Type( te_Type _id = te_null, const string & _n = "", 
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
-      array_depth = 0; self_size = 0; info = NULL; func = NULL; def = NULL; }
+      array_type = NULL; array_depth = 0; self_size = 0; info = NULL;
+      func = NULL; def = NULL; ref = FALSE; }
     // destructor
-    ~Chuck_Type() { if( info ) info->release(); reset(); }
+    ~Chuck_Type() { reset(); }
     // reset
     void reset()
     { id = te_void; parent = NULL; size = array_depth = self_size = 0;
-      owner = info = NULL; func = NULL; }
+      array_type = NULL; if( info ) info->release(); 
+      owner = info = NULL; func = NULL; ref = FALSE; }
     // assignment - this does not touch the Chuck_VM_Object
     const Chuck_Type & operator =( const Chuck_Type & rhs )
     {
       // copy
+      this->array_type = rhs.array_type;
       this->array_depth = rhs.array_depth;
       this->func = rhs.func;
       this->id = rhs.id;
@@ -313,9 +321,11 @@ public:
       this->self_size = rhs.self_size;
       this->size = rhs.size;
       this->def = rhs.def;
+      this->ref = rhs.ref;
 
       // TODO: fix this reference counting mess
       // add references
+      if( array_type ) rhs.array_type->add_ref();
       if( info ) rhs.info->add_ref();
       // return
       return *this;

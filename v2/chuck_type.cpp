@@ -124,6 +124,7 @@ t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name,
 // helpers
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
+t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
 t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
@@ -927,8 +928,11 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 
     // no match
     EM_error2( lhs->linepos,
-        "no suitable resolution for binary operator '%s' on types '%s' and '%s'...",
-        op2str( op ), left->c_name(), right->c_name() );
+        "no suitable resolution for binary operator '%s'...",
+        op2str( op ) );
+    EM_error2( lhs->linepos,
+        "...on types '%s' and '%s'",
+        left->c_name(), right->c_name() );
     return NULL;
 }
 
@@ -954,9 +958,9 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     if( isa( left, right ) )
     {
         // basic types?
-        if( isa( left, &t_int ) || isa( left, &t_float ) || isa( left, &t_dur ) 
-            || isa( left, &t_time ) || isa( left, &t_string ) )
+        if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
         {
+            // TODO: const
             // assigment?
             if( rhs->s_meta == ae_meta_var )
                 return right;
@@ -964,7 +968,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
             // error
             EM_error2( lhs->linepos,
                 "cannot chuck/assign '=>' on types '%s' => '%s'...\n"
-                "(reason) --- right-side operand is not mutable",
+                "(reason): --- right-side operand is not mutable",
                 left->c_name(), right->c_name() );
             return NULL;
         }
@@ -975,9 +979,12 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
             // no match
             EM_error2( lhs->linepos,
-                "no suitable resolution for binary operator '=>' on types '%s' => '%s...'\n"
-                "(note) --- use @=> for assignment of object references",
+                "no suitable resolution for binary operator '=>'..." );
+            EM_error2( lhs->linepos,
+                "...on types '%s' => '%s'...",
                 left->c_name(), right->c_name() );
+            EM_error2( lhs->linepos,
+                "...(note: use '@=>' for assignment of object references)" );
             return NULL;
         }
     }
@@ -1009,7 +1016,9 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
     
     // no match
     EM_error2( lhs->linepos,
-        "no suitable resolution for binary operator '=<' on types '%s' and '%s'...",
+        "no suitable resolution for binary operator '=<'..." );
+    EM_error2( lhs->linepos, 
+        "...on types '%s' and '%s'",
         left->c_name(), right->c_name() );
     return NULL;
 }
@@ -1023,7 +1032,7 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * evn, a_Exp lhs, a_Exp rhs )
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 {
-    t_CKTYPE t = type_engine_check_exp( env, unary->exp );
+    Chuck_Type * t = type_engine_check_exp( env, unary->exp );
     if( !t ) return NULL;
     
     // check the op
@@ -1065,6 +1074,40 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                      "only function calls can be sporked..." );
                  return NULL;
             }
+        break;
+
+        case ae_op_new:
+            // look up the type
+            t = env->curr->lookup_type( unary->type->id->id, TRUE );
+            if( !t )
+            {
+                EM_error2( unary->linepos,
+                    "undefined type '%s'...", S_name(unary->type->id->id) );
+                return NULL;
+            }
+
+            // make sure the type is not a primitive
+            if( isa( t, &t_int ) || isa( t, &t_float ) || isa( t, &t_dur ) 
+                || isa( t, &t_time ) )
+            {
+                EM_error2( unary->linepos,
+                    "cannot instantiate/'new' primitive type '%s'...",
+                    t->c_name() );
+                EM_error2( unary->linepos,
+                    "...(primitive types: 'int', 'float', 'time', 'dur')" );
+                return FALSE;
+            }
+
+            // make sure the type is not a reference
+            if( unary->type->ref )
+            {
+                EM_error2( unary->linepos,
+                    "cannot 'new'/instantiate object references (@)..." );
+                return NULL;
+            }
+
+            // return the type
+            return t;
         break;
     }
     
@@ -1902,7 +1945,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name), 
                 value->owner_class->c_name(), S_name(f->name) );
             EM_error2( f->linepos,
-                "(reason) --- '%s.%s' is declared as 'static'",
+                "(reason): --- '%s.%s' is declared as 'static'",
                 value->owner_class->c_name(), S_name(f->name) );
             return FALSE;
         }
@@ -1915,7 +1958,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name), 
                 value->owner_class->c_name(), S_name(f->name) );
             EM_error2( f->linepos,
-                "(reason) --- '%s.%s' is declared as 'static'",
+                "(reason): --- '%s.%s' is declared as 'static'",
                 env->class_def->c_name(), S_name(f->name) );
             return FALSE;
         }
@@ -1928,7 +1971,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 env->class_def->c_name(), S_name(f->name), 
                 value->owner_class->c_name(), S_name(f->name) );
             EM_error2( f->linepos,
-                "(reason) --- '%s.%s' is declared as 'pure'",
+                "(reason): --- '%s.%s' is declared as 'pure'",
                 env->class_def->c_name(), S_name(f->name) );
             return FALSE;
         }
@@ -1941,7 +1984,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                 "function '%s.%s' resembles '%s.%s' but cannot override...",
                 env->class_def->c_name(), S_name(f->name),
                 value->owner_class->c_name(), S_name(f->name) );
-            if( err != "" ) EM_error2( f->linepos, "(reason) --- %s", err.c_str() );
+            if( err != "" ) EM_error2( f->linepos, "(reason): --- %s", err.c_str() );
             return FALSE;
         }
     
@@ -2608,6 +2651,19 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos )
 {
     return type_engine_check_reserved( env, string(S_name(id)), pos );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_primitive()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_primitive( Chuck_Type * type )
+{
+    return ( isa(type, &t_int) || isa(type, &t_float) || isa(type, &t_dur) ||
+             isa(type, &t_time) );
 }
 
 
