@@ -111,6 +111,9 @@ ulib_std.o: ulib_std.h ulib_std.cpp
 util_buffers.o: util_buffers.h util_buffers.cpp
 	$(CC) $(FLAGS) util_buffers.cpp
 
+util_network.o: util_network.h util_network.c
+	$(CC) $(FLAGS) util_network.c
+
 util_raw.o: util_raw.h util_raw.cpp
 	$(CC) $(FLAGS) util_raw.cpp
 
