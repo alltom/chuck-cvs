@@ -1,5 +1,15 @@
 
 ---
+1.1.5.1 - 2004.10.15
+  - on-the-fly chuck files to remote hosts!
+    > chuck @hostname + foo.ck
+    > chuck @hostname -p<N> + foo.ck
+  - TCP replacing UDP for commands
+  - endian observed (mac <-> win32/linux)
+  - more sensible VM output for on-the-fly commands
+
+
+---
 1.1.5.0 - 2004.9.29
   - now able to write audio files (wav, aiff, raw)
     (try rec.ck and rec2.ck concurrently with any other shreds
