@@ -99,6 +99,9 @@ UGEN_CTRL sndbuf_cget_freq( t_CKTIME now, void * data, void * out );
 UGEN_CTRL sndbuf_ctrl_phase( t_CKTIME now, void * data, void * value );
 UGEN_CTRL sndbuf_cget_phase( t_CKTIME now, void * data, void * out );
 
+UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value );
+UGEN_CTRL sndbuf_cget_channel( t_CKTIME now, void * data, void * out );
+
 UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value );
 
 UGEN_CTRL sndbuf_cget_samples( t_CKTIME now, void * data, void * out );

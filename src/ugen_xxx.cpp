@@ -111,6 +111,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_rate, sndbuf_cget_rate, "float", "rate" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_freq, sndbuf_cget_freq, "float", "freq" );
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase, sndbuf_cget_phase, "float", "phase" );
+    QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_channel, sndbuf_cget_channel, "int", "channel" );
     //set only
     QUERY->ugen_ctrl( QUERY, sndbuf_ctrl_phase_offset, sndbuf_cget_phase, "float", "phase_offset" );
     //get only
@@ -730,6 +731,22 @@ UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out )
     sndbuf_data * d = (sndbuf_data *)data;
     SET_NEXT_FLOAT( out, (t_CKFLOAT) d->curf / (t_CKFLOAT)d->num_frames );
 }
+
+
+UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value ) { 
+    sndbuf_data * d = ( sndbuf_data * ) data;
+    int chan = * (int *) value;
+    if ( chan >= 0 && chan < d->num_channels ) { 
+      d->chan = chan;
+    }
+}
+
+UGEN_CGET sndbuf_cget_channel( t_CKTIME now, void * data, void * out )
+{
+    sndbuf_data * d = (sndbuf_data *)data;
+    SET_NEXT_INT( out, d->chan );
+}
+
 
 
 UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value ) { 
