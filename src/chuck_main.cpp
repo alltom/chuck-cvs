@@ -540,8 +540,8 @@ int main( int argc, char ** argv )
                 dac = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--adc", 5) )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
-            else if( !strncmp(argv[i], "--priority", 10) )
-                g_priority = atoi( argv[i]+10 ) > 0 ? atoi( argv[i]+10 ) : 0xffffffff;
+            else if( !strncmp(argv[i], "--level", 7) )
+                g_priority = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : 0xffffffff;
             else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
                  || !strcmp(argv[i], "--about") )
             {
