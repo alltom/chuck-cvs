@@ -76,10 +76,11 @@ a_Program g_program = NULL;
     a_Type_Decl type_decl;
     a_Arg_List arg_list;
     a_Id_List id_list;
+    a_Array_Sub array_sub;
 };
 
-// expect 26 shift/reduce conflicts
-%expect 26
+// expect 30 shift/reduce conflicts
+%expect 30
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -150,6 +151,8 @@ a_Program g_program = NULL;
 %type <ival> function_decl
 %type <arg_list> arg_list
 %type <id_list> id_list
+%type <array_sub> array_exp
+%type <array_sub> array_empty
 
 %start program
 
@@ -210,8 +213,9 @@ function_decl
         ;
 
 type_decl
-        : ID                                    { $$ = new_type_decl( $1, EM_lineNum ); }
-        | type_decl LBRACK expression RBRACK    { $$ = new_type_decl_array( $1, NULL, EM_lineNum ); }
+        : ID                                { $$ = new_type_decl( $1, NULL, EM_lineNum ); }
+        | ID array_exp                      { $$ = new_type_decl( $1, $2, EM_lineNum ); }
+        | ID array_empty                    { $$ = new_type_decl( $1, $2, EM_lineNum ); }
         ;
 
 arg_list
@@ -281,11 +285,23 @@ chuck_expression
         | chuck_expression chuck_operator decl_expression
             { $$ = new_exp_from_binary( $1, $2, $3, EM_lineNum ); }
         ;
-        
+
+array_exp
+        : LBRACK expression RBRACK          { $$ = new_array_sub( $2, EM_lineNum ); }
+        | array_exp LBRACK expression RBRACK
+            { $$ = prepend_array_sub( $1, $3, EM_lineNum ); }
+        ;
+
+array_empty
+        : LBRACK RBRACK                     { $$ = new_array_sub( NULL, EM_lineNum ); }
+        | array_empty LBRACK RBRACK         { $$ = prepend_array_sub( $1, NULL, EM_lineNum ); }
+        ;
+
 decl_expression
         : conditional_expression            { $$ = $1; }
         | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
-        | type_decl var_decl_list           { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
+        | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, EM_lineNum ); }
+        //| ID array_exp var_decl_list        { $$ = new_exp_decl( $1, $2, $3, EM_lineNum ); }
         ;
 
 var_decl_list
@@ -437,8 +453,8 @@ unary_operator
 
 postfix_expression
         : primary_expression                { $$ = $1; }
-        | postfix_expression LBRACK expression RBRACK
-            { $$ = new_exp_from_array( $1, $3, EM_lineNum ); }
+        | postfix_expression array_exp
+            { $$ = new_exp_from_array( $1, NULL, EM_lineNum ); }
         | postfix_expression LPAREN RPAREN
             { $$ = new_exp_from_func_call( $1, NULL, EM_lineNum ); }
         | postfix_expression LPAREN expression RPAREN
