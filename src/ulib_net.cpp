@@ -122,9 +122,11 @@ public:
     GigaSend( );
     ~GigaSend( );
 
-    t_CKBOOL connect( const char * hostname, int port, t_CKUINT buffer_size );
+    t_CKBOOL connect( const char * hostname, int port );
     t_CKBOOL disconnect( );
     t_CKBOOL send( const t_CKBYTE * buffer );
+    t_CKBOOL set_bufsize( t_CKUINT buffer_size );
+    t_CKUINT get_bufsize( );
 
     t_CKBOOL tick_out( SAMPLE sample );
     t_CKBOOL tick_out( SAMPLE l, SAMPLE r );
@@ -132,6 +134,7 @@ public:
 
     void set_redundancy( t_CKUINT n );
     t_CKUINT get_redundancy( );
+
 protected:
     ck_socket m_sock;
     t_CKUINT m_red;
@@ -154,9 +157,11 @@ public:
     GigaRecv( );
     ~GigaRecv( );
 
-    t_CKBOOL listen( int port, t_CKUINT buffer_size );
+    t_CKBOOL listen( int port );
     t_CKBOOL recv( t_CKBYTE * buffer );
     t_CKBOOL expire();
+    t_CKBOOL set_bufsize( t_CKUINT size );
+    t_CKUINT get_bufsize( );
     
     t_CKBOOL tick_in( SAMPLE * sample );
     t_CKBOOL tick_in( SAMPLE * l, SAMPLE * r );
@@ -203,7 +208,7 @@ GigaSend::~GigaSend( )
 // name: connect()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL GigaSend::connect( const char * hostname, int port, t_CKUINT buffer_size )
+t_CKBOOL GigaSend::connect( const char * hostname, int port )
 {
     if( m_sock )
         return FALSE;
@@ -215,15 +220,28 @@ t_CKBOOL GigaSend::connect( const char * hostname, int port, t_CKUINT buffer_siz
 	         << port << "'" << endl;
         return FALSE;
     }
+    
+    return TRUE;
+}
 
-    m_buffer_size = buffer_size;
-    m_len = sizeof(GigaMsg) + buffer_size - sizeof( m_msg.payload );
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_bufsize()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaSend::set_bufsize( t_CKUINT bufsize )
+{
+    m_buffer_size = bufsize;
+    m_len = sizeof(GigaMsg) + bufsize - sizeof( m_msg.payload );
     m_msg.type = 0;
     m_msg.len = m_len;
     m_msg.seq_num = 0;
 
     return TRUE;
 }
+t_CKUINT GigaSend::get_bufsize() { return m_buffer_size; }
 
 
 
@@ -323,7 +341,7 @@ GigaRecv::~GigaRecv( )
 // name: listen()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL GigaRecv::listen( int port, t_CKUINT buffer_size )
+t_CKBOOL GigaRecv::listen( int port )
 {
     if( m_sock )
         return FALSE;
@@ -336,15 +354,28 @@ t_CKBOOL GigaRecv::listen( int port, t_CKUINT buffer_size )
         cerr << "[chuck](via netin): error: cannot bind to port '" << port << "'" << endl;
         return FALSE;
     }
+    
+    return TRUE;
+}
 
-    m_buffer_size = buffer_size;
-    m_len = sizeof(GigaMsg) + buffer_size - sizeof( m_msg.payload );
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_bufsize()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaRecv::set_bufsize( t_CKUINT bufsize )
+{
+    m_buffer_size = bufsize;
+    m_len = sizeof(GigaMsg) + bufsize - sizeof( m_msg.payload );
     m_msg.type = 0;
     m_msg.len = m_len;
     m_msg.seq_num = 1;
 
     return TRUE;
 }
+t_CKUINT GigaRecv::get_bufsize() { return m_buffer_size; }
 
 
 
