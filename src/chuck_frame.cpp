@@ -61,9 +61,9 @@ F_Frame F_new_frame( Temp_Label name )
 {
     F_Frame f = (F_Frame)checked_malloc( sizeof(struct F_Frame_) );
     f->label = name;
-    f->tail = f->head = (F_Access_List)checked_malloc( sizeof(F_Access_List_) );
-    f->head->head = NULL;
-    f->head->tail = NULL;
+    // f->tail = f->head = (F_Access_List)checked_malloc( sizeof(F_Access_List_) );
+    // f->head->head = NULL;
+    // f->head->tail = NULL;
     f->num_access = 0;
     f->curr_offset = 0;
 
@@ -91,6 +91,7 @@ Temp_Label F_name( F_Frame f )
 //-----------------------------------------------------------------------------
 F_Access_List F_formals( F_Frame f )
 {
+    return NULL;
     return f->head->tail;
 }
 

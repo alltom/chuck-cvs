@@ -53,7 +53,7 @@ struct TAB_table_ {
 
 static binder Binder(void *key, void *value, binder next, void *prevtop)
 {
-    binder b = checked_malloc(sizeof(*b));
+    binder b = checked_malloc(sizeof(struct binder_));
     b->key = key; b->value=value; b->next=next; b->prevtop = prevtop; 
     return b;
 }
@@ -67,11 +67,13 @@ TAB_table TAB_empty(void)
 
 TAB_table TAB_empty2( unsigned int s )
 {
-    TAB_table t = checked_malloc(sizeof(*t));
+    TAB_table t = checked_malloc(sizeof(struct TAB_table_));
     int i;
     t->table = checked_malloc(sizeof(binder)*s);
     t->size = s;
     t->top = NULL;
+    t->eq_func = NULL;
+    t->hash_func = NULL;
     for( i = 0; i < s; i++ )
         t->table[i] = NULL;
     return t;
@@ -127,7 +129,7 @@ void TAB_enter(TAB_table t, void *key, void *value)
     if( t->hash_func )
         hval = (unsigned)t->hash_func(key);
     index = ((unsigned)hval) % t->size;
-    t->table[index] = Binder(key, value,t->table[index], t->top);
+    t->table[index] = Binder(key, value, t->table[index], t->top);
     t->top = key;
 }
 
