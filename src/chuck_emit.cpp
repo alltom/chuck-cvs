@@ -1173,7 +1173,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol id,
                 emit->nspc_func = func;
                 emit->append( new Chuck_Instr_Reg_Push_Imm( func->stack_depth ) );
                 emit->append( new Chuck_Instr_Reg_Push_Imm( 
-                    (unsigned int)func->builtin ) );
+                    (uint)func->builtin ) );
             }
         }
         else if( t && t->type == __te_system_namespace__ )

@@ -43,7 +43,7 @@ class Chuck_VM;
 class Chuck_VM_Shred;
 
 // define
-#define uint unsigned int
+#define uint unsigned long
 
 
 
