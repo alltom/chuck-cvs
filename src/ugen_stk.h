@@ -93,8 +93,8 @@ UGEN_DTOR Chorus_dtor( t_CKTIME now, void * data );
 UGEN_TICK Chorus_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Chorus_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Chorus_ctrl_modDepth( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Chorus_ctrl_modFrequency( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Chorus_ctrl_effectMix( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Chorus_ctrl_modFreq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Chorus_ctrl_mix( t_CKTIME now, void * data, void * value );
 
 // Delay
 UGEN_CTOR Delay_ctor( t_CKTIME now );
@@ -103,6 +103,8 @@ UGEN_TICK Delay_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Delay_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Delay_ctrl_delay( t_CKTIME now, void * data, void * value );
 UGEN_CTRL Delay_ctrl_max( t_CKTIME now, void * data, void * value );
+UGEN_CGET Delay_cget_delay( t_CKTIME now, void * data, void * value );
+UGEN_CGET Delay_cget_max( t_CKTIME now, void * data, void * value );
 
 // DelayA
 UGEN_CTOR DelayA_ctor( t_CKTIME now );
@@ -111,6 +113,8 @@ UGEN_TICK DelayA_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG DelayA_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL DelayA_ctrl_delay( t_CKTIME now, void * data, void * value );
 UGEN_CTRL DelayA_ctrl_max( t_CKTIME now, void * data, void * value );
+UGEN_CGET DelayA_cget_delay( t_CKTIME now, void * data, void * value );
+UGEN_CGET DelayA_cget_max( t_CKTIME now, void * data, void * value );
 
 // DelayL
 UGEN_CTOR DelayL_ctor( t_CKTIME now );
@@ -119,6 +123,8 @@ UGEN_TICK DelayL_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG DelayL_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL DelayL_ctrl_delay( t_CKTIME now, void * data, void * value );
 UGEN_CTRL DelayL_ctrl_max( t_CKTIME now, void * data, void * value );
+UGEN_CGET DelayL_cget_delay( t_CKTIME now, void * data, void * value );
+UGEN_CGET DelayL_cget_max( t_CKTIME now, void * data, void * value );
 
 // Echo
 UGEN_CTOR Echo_ctor( t_CKTIME now );
@@ -126,7 +132,9 @@ UGEN_DTOR Echo_dtor( t_CKTIME now, void * data );
 UGEN_TICK Echo_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_PMSG Echo_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
 UGEN_CTRL Echo_ctrl_delay( t_CKTIME now, void * data, void * value );
-UGEN_CTRL Echo_ctrl_effectMix( t_CKTIME now, void * data, void * value );
+UGEN_CTRL Echo_ctrl_mix( t_CKTIME now, void * data, void * value );
+UGEN_CGET Echo_cget_delay( t_CKTIME now, void * data, void * value );
+UGEN_CGET Echo_cget_mix( t_CKTIME now, void * data, void * value );
 
 // Envelope
 UGEN_CTOR Envelope_ctor( t_CKTIME now );

@@ -696,9 +696,10 @@ public:
     The valid range for \e theDelay is from 0 to the maximum delay-line length.
   */
   void setDelay(long theDelay);
+  void set( long delay, long max );
 
   //! Return the current delay-line length.
-  long getDelay(void) const;
+  MY_FLOAT getDelay(void) const;
 
   //! Calculate and return the signal energy in the delay-line.
   MY_FLOAT energy(void) const;
@@ -726,7 +727,7 @@ public:
   //! Input \e vectorSize samples to the delay-line and return an equal number of outputs in \e vector.
   virtual MY_FLOAT *tick(MY_FLOAT *vector, unsigned int vectorSize);
 
-protected:
+public:
   long inPoint;
   long outPoint;
   long length;
@@ -785,9 +786,7 @@ public:
     The valid range for \e theDelay is from 0 to the maximum delay-line length.
   */
   void setDelay(MY_FLOAT theDelay);
-
-  //! Return the current delay-line length.
-  MY_FLOAT getDelay(void) const;
+  void set( MY_FLOAT delay, long max );
 
   //! Return the value which will be output by the next call to tick().
   /*!
@@ -2345,9 +2344,7 @@ public:
     The valid range for \e theDelay is from 0.5 to the maximum delay-line length.
   */
   void setDelay(MY_FLOAT theDelay);
-
-  //! Return the current delay-line length.
-  MY_FLOAT getDelay(void);
+  void set( MY_FLOAT delay, long max );
 
   //! Return the value which will be output by the next call to tick().
   /*!
@@ -8075,31 +8072,28 @@ void Clarinet :: controlChange(int number, MY_FLOAT value)
 
 Delay :: Delay()
 {
-  // Default max delay length set to 4095.
-  length = 4096;
-  delete [] inputs;
-  inputs = new MY_FLOAT[length];
-  this->clear();
-
-  inPoint = 0;
-  outPoint = 0;
-  delay = 0;
+    this->set( 0, 4096 );
 }
 
 Delay :: Delay(long theDelay, long maxDelay)
 {
-  // Writing before reading allows delays from 0 to length-1. 
-  // If we want to allow a delay of maxDelay, we need a
-  // delay-line of length = maxDelay+1.
-  length = maxDelay+1;
+    this->set( theDelay, maxDelay );
+}
 
-  // We need to delete the previously allocated inputs.
-  delete [] inputs;
-  inputs = new MY_FLOAT[length];
-  this->clear();
+void Delay :: set( long delay, long max )
+{
+    // Writing before reading allows delays from 0 to length-1.
+    // If we want to allow a delay of maxDelay, we need a
+    // delay-line of length = maxDelay+1.
+    length = max+1;
 
-  inPoint = 0;
-  this->setDelay(theDelay);
+    // We need to delete the previously allocated inputs.
+    if( inputs ) delete [] inputs;
+    inputs = new MY_FLOAT[length];
+    this->clear();
+
+    inPoint = 0;
+    this->setDelay(delay);
 }
 
 Delay :: ~Delay()
@@ -8134,9 +8128,9 @@ void Delay :: setDelay(long theDelay)
   while (outPoint < 0) outPoint += length;  // modulo maximum length
 }
 
-long Delay :: getDelay(void) const
+MY_FLOAT Delay :: getDelay(void) const
 {
-  return (long)delay;
+  return delay;
 }
 
 MY_FLOAT Delay :: energy(void) const
@@ -8265,6 +8259,24 @@ DelayA :: DelayA(MY_FLOAT theDelay, long maxDelay)
   doNextOut = true;
 }
 
+void DelayA :: set( MY_FLOAT delay, long max )
+{
+    // Writing before reading allows delays from 0 to length-1.
+    // If we want to allow a delay of maxDelay, we need a
+    // delay-line of length = maxDelay+1.
+    length = max+1;
+
+    // We need to delete the previously allocated inputs.
+    if( inputs ) delete [] inputs;
+    inputs = new MY_FLOAT[length];
+    this->clear();
+
+    inPoint = 0;
+    this->setDelay(delay);
+    apInput = 0.0;
+    doNextOut = true;
+}
+
 DelayA :: ~DelayA()
 {
 }
@@ -8371,7 +8383,7 @@ MY_FLOAT DelayA :: tick(MY_FLOAT sample)
 
 DelayL :: DelayL()
 {
-  doNextOut = true;
+    doNextOut = true;
 }
 
 DelayL :: DelayL(MY_FLOAT theDelay, long maxDelay)
@@ -8393,6 +8405,23 @@ DelayL :: DelayL(MY_FLOAT theDelay, long maxDelay)
 
 DelayL :: ~DelayL()
 {
+}
+
+void DelayL :: set( MY_FLOAT delay, long max )
+{
+    // Writing before reading allows delays from 0 to length-1.
+    // If we want to allow a delay of maxDelay, we need a
+    // delay-line of length = maxDelay+1.
+    length = max+1;
+
+    // We need to delete the previously allocated inputs.
+    if( inputs ) delete [] inputs;
+    inputs = new MY_FLOAT[length];
+    this->clear();
+
+    inPoint = 0;
+    this->setDelay(delay);
+    doNextOut = true;
 }
 
 void DelayL :: setDelay(MY_FLOAT theDelay)
@@ -8421,11 +8450,6 @@ void DelayL :: setDelay(MY_FLOAT theDelay)
   outPoint = (long) outPointer;  // integer part
   alpha = outPointer - outPoint; // fractional part
   omAlpha = (MY_FLOAT) 1.0 - alpha;
-}
-
-MY_FLOAT DelayL :: getDelay(void) const
-{
-  return delay;
 }
 
 MY_FLOAT DelayL :: nextOut(void)
@@ -18998,6 +19022,98 @@ UGEN_CGET BiQuad_cget_a0( t_CKTIME now, void * data, void * value )
 {
     BiQuad_ * f = (BiQuad_ *)data;
     SET_NEXT_FLOAT( value, f->biquad.a[0] );
+}
+
+
+// Delay
+UGEN_CTOR Delay_ctor( t_CKTIME now )
+{
+    return new Delay;
+}
+
+UGEN_DTOR Delay_dtor( t_CKTIME now, void * data )
+{
+    delete (Delay *)data;
+}
+
+UGEN_TICK Delay_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    *out = (SAMPLE)((Delay *)data)->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG Delay_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+UGEN_CTRL Delay_ctrl_delay( t_CKTIME now, void * data, void * value )
+{
+    ((Delay *)data)->setDelay( (long)(GET_NEXT_FLOAT(data)+.5) );
+}
+
+UGEN_CTRL Delay_ctrl_max( t_CKTIME now, void * data, void * value )
+{
+    Delay * delay = (Delay *)data;
+    t_CKFLOAT val = delay->getDelay();
+    t_CKINT max = GET_NEXT_INT(value);
+    delay->set( (long)(val+.5), max );
+}
+
+UGEN_CGET Delay_cget_delay( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_FLOAT( value, ((Delay *)data)->getDelay() );
+}
+
+UGEN_CGET Delay_cget_max( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_INT( value, ((Delay *)data)->length );
+}
+
+
+// DelayA
+UGEN_CTOR DelayA_ctor( t_CKTIME now )
+{
+    return new DelayA;
+}
+
+UGEN_DTOR DelayA_dtor( t_CKTIME now, void * data )
+{
+    delete (DelayA *)data;
+}
+
+UGEN_TICK DelayA_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    *out = (SAMPLE)((DelayA *)data)->tick( in );
+    return TRUE;
+}
+
+UGEN_PMSG DelayA_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+{
+    return FALSE;
+}
+
+UGEN_CTRL DelayA_ctrl_delay( t_CKTIME now, void * data, void * value )
+{
+    ((DelayA *)data)->setDelay( GET_NEXT_FLOAT(data) );
+}
+
+UGEN_CTRL DelayA_ctrl_max( t_CKTIME now, void * data, void * value )
+{
+    DelayA * delay = (DelayA *)data;
+    t_CKFLOAT val = delay->getDelay();
+    t_CKINT max = GET_NEXT_INT(value);
+    delay->set( val, max );
+}
+
+UGEN_CGET DelayA_cget_delay( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_FLOAT( value, ((DelayA *)data)->getDelay() );
+}
+
+UGEN_CGET DelayA_cget_max( t_CKTIME now, void * data, void * value )
+{
+    SET_NEXT_INT( value, ((DelayA *)data)->length );
 }
 
 
