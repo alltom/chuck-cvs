@@ -148,13 +148,13 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 	env->global.type.add( t_dur.name, &t_dur );
 	env->global.type.add( t_object.name, &t_object );
 	env->global.type.add( t_string.name, &t_string );
+	env->global.type.add( t_ugen.name, &t_ugen );
 	env->global.type.add( t_shred.name, &t_shred );
 	env->global.type.add( t_thread.name, &t_thread );
 	env->global.type.add( t_function.name, &t_function );
 	env->global.type.add( t_class.name, &t_class );
     env->global.type.add( t_array.name, &t_array );
 	env->global.type.add( t_event.name, &t_event );
-	env->global.type.add( t_ugen.name, &t_ugen );
 
 	// dur value
     t_CKDUR samp = 1.0;
@@ -170,8 +170,18 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // make sure Objects have namespaces
     t_object.info = new Chuck_Namespace;
     t_object.info->add_ref();
+    t_string.info = new Chuck_Namespace;
+    t_string.info->add_ref();
     t_ugen.info = new Chuck_Namespace;
     t_ugen.info->add_ref();
+    t_shred.info = new Chuck_Namespace;
+    t_shred.info->add_ref();
+    t_thread.info = new Chuck_Namespace;
+    t_thread.info->add_ref();
+    t_class.info = new Chuck_Namespace;
+    t_class.info->add_ref();
+    t_array.info = new Chuck_Namespace;
+    t_array.info->add_ref();
     t_event.info = new Chuck_Namespace;
     t_event.info->add_ref();
 
