@@ -54,7 +54,7 @@ typedef enum {
     // general types
     te_int, te_uint, te_single, te_float, te_double, te_time, te_dur,
     te_string, te_thread, te_shred, te_class, te_function, te_object,
-    te_ugen, te_event, te_void, te_stdout, te_stderr, te_user,
+    te_null, te_ugen, te_event, te_void, te_stdout, te_stderr, te_user,
 	te_adc, te_dac, te_bunghole, te_midiin, te_midiout
 } te_Type;
 
@@ -87,6 +87,8 @@ public:
     { assert( scope.size() != 0 ); (*scope.back())[id] = value; }
 
     // lookup id
+	T operator []( const string & id )
+	{ return this->lookup( id ) }
     T lookup( const string & id, t_CKBOOL local = FALSE )
     { return this->lookup( insert_symbol(id.c_str()), local ); }
     T lookup( S_Symbol id, t_CKBOOL local = FALSE )
@@ -199,8 +201,8 @@ struct Chuck_Env
 	vector<Chuck_Context *> contexts;
 
 	// constructor
-	Chuck_Env( Chuck_VM * _vm )
-	{ this->reset(); vm = _vm; global.name = "global"; }
+	Chuck_Env( )
+	{ this->reset(); vm = NULL; global.name = "global"; }
 	// destructor
 	~Chuck_Env() { }
 
@@ -258,6 +260,12 @@ struct Chuck_Value
     Chuck_Type * type;
     // name
     string name;
+	// addr
+	void * addr;
+
+	// constructor
+	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL )
+	{ type = t; name = n; addr = a; }
 };
 
 
@@ -283,6 +291,10 @@ struct Chuck_Func
 //-----------------------------------------------------------------------------
 // primary chuck type checker interface
 //-----------------------------------------------------------------------------
+// initialize the type engine
+Chuck_Env * type_engine_init( Chuck_VM * vm );
+// shutdown the type engine
+void type_engine_shutdown( Chuck_Env * env );
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
 // type check a statement

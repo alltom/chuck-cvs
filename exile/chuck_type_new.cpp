@@ -36,6 +36,7 @@
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
 #include "chuck_instr.h"
+#include "chuck_bbq.h"
 
 
 
@@ -49,14 +50,16 @@ struct Chuck_Type t_float = { te_float, "float", NULL, sizeof(double) };
 struct Chuck_Type t_time = { te_time, "time", NULL, sizeof(t_CKTIME) };
 struct Chuck_Type t_dur = { te_dur, "dur", NULL, sizeof(t_CKTIME) };
 struct Chuck_Type t_object = { te_object, "object", NULL, sizeof(void *) };
+struct Chuck_Type t_null = { te_null, "@null", NULL, 0 };
 struct Chuck_Type t_string = { te_string, "string", &t_object, sizeof(void *) };
 struct Chuck_Type t_shred = { te_shred, "shred", &t_object, sizeof(void *) };
 struct Chuck_Type t_thread = { te_thread, "thread", &t_object, sizeof(void *) };
 struct Chuck_Type t_function = { te_function, "function", NULL, sizeof(void *) };
 struct Chuck_Type t_class = { te_class, "class", NULL, sizeof(void *) };
-// higher level
 struct Chuck_Type t_event = { te_event, "event", &t_object, sizeof(void *) };
 struct Chuck_Type t_ugen = { te_ugen, "ugen", &t_object, sizeof(void *) };
+
+/* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
 struct Chuck_Type t_dac = { te_dac, "dac", &t_ugen, t_ugen.size };
 struct Chuck_Type t_bunghole = { te_bunghole, "bunghole", &t_ugen, t_ugen.size };
@@ -64,7 +67,7 @@ struct Chuck_Type t_midiout = { te_midiout, "midiout", &t_object, sizeof(void *)
 struct Chuck_Type t_midiin = { te_midiin, "midiin", &t_object, sizeof(void *) };
 struct Chuck_Type t_stdout = { te_stdout, "@stdout", &t_object, sizeof(void *) };
 struct Chuck_Type t_stderr ={ te_stdout, "@stderr", &t_object, sizeof(void *) };
-/* exile
+
 struct Chuck_Type t_uint = { te_uint, "uint", NULL, sizeof(t_CKUINT) };
 struct Chuck_Type t_single = { te_single, "single", NULL, sizeof(float) };
 struct Chuck_Type t_double = { te_double, "double", NULL, sizeof(double) };
@@ -113,6 +116,83 @@ t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_init()
+// desc: initialize a type engine
+//-----------------------------------------------------------------------------
+Chuck_Env * type_engine_init( Chuck_VM * vm )
+{
+    // allocate a new env
+    Chuck_Env * env = new Chuck_Env;
+	// set the VM reference
+    env->vm = vm;
+	// set the name of global namespace
+	env->global.name = "global";
+
+    // enter the default global type mapping
+	env->global.type.add( t_void.name, &t_void );
+	env->global.type.add( t_int.name, &t_int );
+	env->global.type.add( t_float.name, &t_float );
+	env->global.type.add( t_time.name, &t_time );
+	env->global.type.add( t_dur.name, &t_dur );
+	env->global.type.add( t_object.name, &t_object );
+	env->global.type.add( t_string.name, &t_string );
+	env->global.type.add( t_shred.name, &t_shred );
+	env->global.type.add( t_thread.name, &t_thread );
+	env->global.type.add( t_function.name, &t_function );
+	env->global.type.add( t_class.name, &t_class );
+	env->global.type.add( t_event.name, &t_event );
+	env->global.type.add( t_ugen.name, &t_ugen );
+
+	// dur value
+    t_CKDUR samp = 1.0;
+    t_CKDUR second = Digitalio::sampling_rate() * samp;
+    t_CKDUR ms = second / 1000.0;
+    t_CKDUR minute = second * 60.0;
+    t_CKDUR hour = minute * 60.0;
+    t_CKDUR day = hour * 24.0;
+    t_CKDUR week = day * 7.0;
+	
+	// default global values
+	env->global.value.add( "null", new Chuck_Value( &t_null, "null" ) );
+	env->global.value.add( "now", new Chuck_Value( &t_time, "now" ) );
+	env->global.value.add( "start", new Chuck_Value( &t_time, "start" ) );
+	env->global.value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp) ) );
+	env->global.value.add( "ms", new Chuck_Value( &t_dur, "ms", new t_CKDUR(ms) ) );
+	env->global.value.add( "second", new Chuck_Value( &t_dur, "second", new t_CKDUR(second) ) );
+	env->global.value.add( "minute", new Chuck_Value( &t_dur, "minute", new t_CKDUR(minute) ) );
+	env->global.value.add( "hour", new Chuck_Value( &t_dur, "hour", new t_CKDUR(hour) ) );
+	env->global.value.add( "day", new Chuck_Value( &t_dur, "day", new t_CKDUR(day) ) );
+	env->global.value.add( "week", new Chuck_Value( &t_dur, "week", new t_CKDUR(week) ) );
+	env->global.value.add( "true", new Chuck_Value( &t_int, "true", new t_CKINT(1) ) );
+	env->global.value.add( "false", new Chuck_Value( &t_int, "false", new t_CKINT(0) ) );
+	env->global.value.add( "maybe", new Chuck_Value( &t_int, "maybe" ) );
+	env->global.value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(3.14159265358979323846) ) );
+	env->global.value.add( "global", new Chuck_Value( &t_class, "global", &(env->global) ) );
+
+	/*
+    S_enter( e->value, insert_symbol( "language" ), &t_null );
+    S_enter( e->value, insert_symbol( "compiler" ), &t_null );
+    S_enter( e->value, insert_symbol( "machine" ), &t_null );
+    S_enter( e->value, insert_symbol( "chout" ), &t_system_out );
+    S_enter( e->value, insert_symbol( "cherr" ), &t_system_err );
+    S_enter( e->value, insert_symbol( "stdout" ), &t_system_out );
+    S_enter( e->value, insert_symbol( "stderr" ), &t_system_err );
+    S_enter( e->value, insert_symbol( "midiout" ), &t_midiout );
+    S_enter( e->value, insert_symbol( "midiin" ), &t_midiin );
+    S_enter( e->value, insert_symbol( "adc" ), &t_adc );
+    S_enter( e->value, insert_symbol( "dac" ), &t_dac );
+    S_enter( e->value, insert_symbol( "bunghole" ), &t_bunghole );
+    S_enter( e->value, insert_symbol( "blackhole" ), &t_bunghole );
+    S_enter( e->value, insert_symbol( "endl" ), &t_string );
+    */
+
+    return env;
+}
 
 
 
