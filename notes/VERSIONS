@@ -5,6 +5,9 @@
   - made functions local to shred by default
   - shadowing now works
   - add 'blackhole' ugen for ticking ugens
+  - added std.mtof (philipd)
+  - added std.ftom (philipd)
+  - added 
 
 new ugens:
   - blackhole - the silent sample sucker
