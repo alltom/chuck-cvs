@@ -2073,8 +2073,8 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds in shred [%s]: index='%d'\n", 
-             shred->name.c_str(), i );
+             "[chuck](VM): ArrayOutofBounds in shred=[%s], PC=[%d], index=[%d]\n", 
+             shred->name.c_str(), shred->pc, i );
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2151,8 +2151,8 @@ void Chuck_Instr_Array_Map_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): InternalArrayMap error in shred [%s]: index='%s'\n", 
-             shred->name.c_str(), key->str.c_str() );
+             "[chuck](VM): InternalArrayMap error in shred=[%s], PC=[%d], index=[%s]\n", 
+             shred->name.c_str(), shred->pc, key->str.c_str() );
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2248,8 +2248,8 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds in shred [%s]: index='%d'\n", 
-             shred->name.c_str(), i );
+             "[chuck](VM): ArrayOutofBounds in shred=[%s], PC=[%d], index=[%d]\n", 
+             shred->name.c_str(), shred->pc, i );
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2295,8 +2295,8 @@ void Chuck_Instr_Dot_Member_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): NullPointerException in shred [%s]\n", 
-             shred->name.c_str() );
+             "[chuck](VM): NullPointerException in shred=[%s], PC=[%d]\n", 
+             shred->name.c_str(), shred->pc );
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2331,8 +2331,8 @@ void Chuck_Instr_Dot_Member_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): NullPointerException in shred [%s]\n", 
-             shred->name.c_str() );
+             "[chuck](VM): NullPointerException in shred=[%s], PC=[%d]\n", 
+             shred->name.c_str(), shred->pc );
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
