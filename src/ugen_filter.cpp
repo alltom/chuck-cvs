@@ -31,9 +31,11 @@
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ugen_filter.h"
-#include "chuck_bbq.h"
 #include <math.h>
 #include <stdlib.h>
+
+
+static t_CKUINT g_srate = 0;
 
 
 //-----------------------------------------------------------------------------
@@ -42,6 +44,9 @@
 //-----------------------------------------------------------------------------
 DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 {
+    // set srate
+    g_srate = QUERY->srate;
+    
     // add filter
     QUERY->ugen_add( QUERY, "filter", NULL );
     // set funcs
@@ -262,7 +267,7 @@ struct biquad_data
         pfreq = zfreq = 0.0f;
         prad = zrad = 0.0f;
         norm = FALSE;
-        srate = Digitalio::sampling_rate();
+        srate = g_srate;
     }
 };
 
