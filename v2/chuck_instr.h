@@ -1363,6 +1363,56 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Mem_Set_Imm
+// desc: set a value unto mem stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Mem_Set_Imm : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Mem_Set_Imm( t_CKUINT offset, t_CKUINT val )
+    { m_offset = offset; m_val = val; }
+    
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "offset=%d, value=%d", m_offset, m_val );
+      return buffer; }
+
+protected:
+    t_CKUINT m_offset;
+    t_CKUINT m_val;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Mem_Set_Imm2
+// desc: set a value unto mem stack
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Mem_Set_Imm2 : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Mem_Set_Imm2( t_CKUINT offset, t_CKFLOAT val )
+    { m_offset = offset; m_val = val; }
+    
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "offset=%d, value=%f", m_offset, m_val );
+      return buffer; }
+
+protected:
+    t_CKUINT m_offset;
+    t_CKFLOAT m_val;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Mem_Push_Imm
 // desc: push a value unto mem stack
 //-----------------------------------------------------------------------------
@@ -1591,6 +1641,19 @@ public:
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_Chuck_Release_Object : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Func_To_Code
+// desc: Chuck_Func * to Chuck_VM_Code *
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Func_To_Code : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

@@ -2221,15 +2221,16 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     }
 
     // emit func
-    //if( !emit_engine_emit_exp( emit, func_call->func ) )
-    //{
-    //    EM_error2( func_call->linepos,
-    //               "(emit): internal error in evaluating function call..." );
-    //    return FALSE;
-    //}
+    if( !emit_engine_emit_exp( emit, func_call->func ) )
+    {
+        EM_error2( func_call->linepos,
+                   "(emit): internal error in evaluating function call..." );
+        return FALSE;
+    }
 
-    // call the func
-    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)func->code ) );
+    // translate to code
+    emit->append( new Chuck_Instr_Func_To_Code );
+    // emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)func->code ) );
     // push the local stack depth - local variables
     emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
 
@@ -2574,6 +2575,13 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
 {
     // get the func
     Chuck_Func * func = func_def->ck_func;
+    // get the value
+    Chuck_Value * value = func->value_ref;
+    // get the type
+    Chuck_Type * type = value->type;
+    // local
+    Chuck_Local * local = NULL;
+
     // make sure it's the same one
     //Chuck_Func * func2 = emit->env->context->nspc.lookup_func( func_def->name, FALSE );
     //if( func != func2 )
@@ -2583,6 +2591,7 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     //        S_name(func_def->name) );
     //    return FALSE;
     //}
+
     // make sure the code is empty
     if( func->code != NULL )
     {
@@ -2600,6 +2609,13 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
         return FALSE;
     }
 
+    // put function on stack
+    local = emit->alloc_local( value->type->size, value->name, TRUE );
+    // remember the offset
+    value->offset = local->offset;
+    // write to mem stack
+    emit->append( new Chuck_Instr_Mem_Set_Imm( value->offset, (t_CKUINT)func ) );
+
     // set the func
     emit->env->func = func;
     // push the current code
@@ -2611,9 +2627,6 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
 
     // go through the args
     a_Arg_List a = func_def->arg_list;
-    Chuck_Value * value = NULL;
-    Chuck_Type * type = NULL;
-    Chuck_Local * local = NULL;
     t_CKBOOL is_ref = FALSE;
 
     // loop through args
@@ -2636,6 +2649,8 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
                 value->name.c_str() );
             return FALSE;
         }
+        // remember the offset
+        value->offset = local->offset;
 
         // advance
         a = a->next;
@@ -2724,8 +2739,15 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     // name the code
     emit->code->name = string("class ") + type->name;
 
-    // make room for this 
+    // get the size
     emit->code->stack_depth += sizeof(t_CKUINT);
+    // add this
+    if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
+    {
+        EM_error2( class_def->linepos,
+            "(emit): internal error: cannot allocate local 'this'..." );
+        return FALSE;
+    }
 
     // emit the body
     while( body && ret )

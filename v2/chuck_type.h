@@ -424,9 +424,12 @@ struct Chuck_Func : public Chuck_VM_Object
     t_CKBOOL is_member;
     // virtual table index
     t_CKINT vt_index;
+    // rember value
+    Chuck_Value * value_ref;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = -1; }
+    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = -1; 
+                   value_ref = NULL; }
 };
 
 

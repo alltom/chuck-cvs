@@ -2523,6 +2523,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     value->is_member = !f->static_decl && (env->class_def != NULL);
     // remember the func
     value->func_ref = func;
+    // remember the value
+    func->value_ref = value;
     // add as value
     env->curr->value.add( f->name, value );
     // enter the name into the function table
