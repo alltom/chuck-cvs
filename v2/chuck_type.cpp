@@ -1358,10 +1358,10 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             }
 
             // make sure the type is not a reference
-            if( unary->type->ref )
+            if( unary->type->ref && !unary->array )
             {
                 EM_error2( unary->linepos,
-                    "cannot instantiate/(new) object references (@)..." );
+                    "cannot instantiate/(new) single object references (@)..." );
                 return NULL;
             }
 

@@ -149,7 +149,7 @@ a_Stmt new_stmt_from_case( a_Exp exp, int pos );
 a_Exp prepend_expression( a_Exp exp, a_Exp list, int pos );
 a_Exp new_exp_from_binary( a_Exp lhs, ae_Operator oper, a_Exp rhs, int pos );
 a_Exp new_exp_from_unary( ae_Operator oper, a_Exp exp, int pos );
-a_Exp new_exp_from_unary2( ae_Operator oper, a_Type_Decl type, int pos );
+a_Exp new_exp_from_unary2( ae_Operator oper, a_Type_Decl type, a_Array_Sub array, int pos );
 a_Exp new_exp_from_cast( a_Type_Decl type, a_Exp exp, int pos );
 a_Exp new_exp_from_array( a_Exp base, a_Array_Sub indices, int pos );
 a_Exp new_exp_from_array_lit( a_Array_Sub exp_list, int pos );
@@ -194,7 +194,8 @@ a_Func_Def new_func_def( ae_Keyword func_decl, ae_Keyword static_decl,
 //------------------------------------------------------------------------------
 struct a_Exp_Binary_ { a_Exp lhs; ae_Operator op; a_Exp rhs; int linepos; a_Exp self; };
 struct a_Exp_Cast_ { a_Type_Decl type; a_Exp exp; int linepos; a_Exp self; };
-struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; a_Type_Decl type; int linepos; a_Exp self; };
+struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; a_Type_Decl type; a_Array_Sub array;
+                      int linepos; a_Exp self; };
 struct a_Exp_Postfix_ { a_Exp exp; ae_Operator op; int linepos; a_Exp self; };
 struct a_Exp_Dur_ { a_Exp base; a_Exp unit; int linepos; a_Exp self; };
 struct a_Exp_Array_ { a_Exp base; a_Array_Sub indices; int linepos; a_Exp self; };

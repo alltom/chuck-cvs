@@ -1774,6 +1774,10 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
     if( unary->op != ae_op_spork && !emit_engine_emit_exp( emit, unary->exp ) )
         return FALSE;
 
+    // get type
+    Chuck_Type * t = unary->self->type;
+    assert( t != NULL );
+
     // emit the operator
     switch( unary->op )
     {
@@ -1873,6 +1877,10 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
                 "(emit): internal error: sporking non-function call..." );
             return FALSE;
         }
+        break;
+
+    case ae_op_new:
+
         break;
 
     default:
@@ -2453,7 +2461,7 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                     {
                         EM_error2( decl->linepos,
                             "(emit): internal error: undefined ugen type '%s'",
-                            value->name.c_str() );
+                            type->name.c_str() );
                         return FALSE;
                     }
                     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );

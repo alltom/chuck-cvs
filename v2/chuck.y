@@ -481,12 +481,14 @@ unary_expression
             { $$ = new_exp_from_unary( ae_op_minusminus, $2, EM_lineNum ); }
         | unary_operator unary_expression
             { $$ = new_exp_from_unary( $1, $2, EM_lineNum ); }
-        | TYPEOF type_decl_b
-            { $$ = new_exp_from_unary2( ae_op_typeof, $2, EM_lineNum ); }
-        | SIZEOF type_decl_b
-            { $$ = new_exp_from_unary2( ae_op_sizeof, $2, EM_lineNum ); }
+        | TYPEOF unary_expression
+            { $$ = new_exp_from_unary( ae_op_typeof, $2, EM_lineNum ); }
+        | SIZEOF unary_expression
+            { $$ = new_exp_from_unary( ae_op_sizeof, $2, EM_lineNum ); }
         | NEW type_decl
-            { $$ = new_exp_from_unary2( ae_op_new, $2, EM_lineNum ); }
+            { $$ = new_exp_from_unary2( ae_op_new, $2, NULL, EM_lineNum ); }
+        | NEW type_decl array_exp
+            { $$ = new_exp_from_unary2( ae_op_new, $2, $3, EM_lineNum ); }
         ;
 
 unary_operator
