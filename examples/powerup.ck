@@ -20,12 +20,12 @@ fun void sweep( float start, float inc, float end , int c)
 {
     n => TwoPole z => dac; 
     1  => z.norm;
-    0.2 => z.gain;
+    0.1 => z.gain;
     t => float st;
     start => float frq;
     std.rand2f ( 0.98, 0.99 ) => z.radius;
     while ( t < end ) {
-        math.max ( ( t - st ) * 4.0, 1.0 ) * 0.2  => z.gain; 
+        math.max ( ( t - st ) * 4.0, 1.0 ) * 0.1  => z.gain; 
         frq + inc * 0.01  => frq; 
         frq => z.freq;
         10::ms => now;
