@@ -150,6 +150,10 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_param( QUERY, "float", "x" );
     QUERY->add_param( QUERY, "float", "y" );
 
+    // nextpow2
+    QUERY->add_export( QUERY, "int", "nextpow2", nextpow2_impl, TRUE );
+    QUERY->add_param( QUERY, "int", "n" );
+
     // pi
     QUERY->add_export( QUERY, "float", "pi", (f_ck_func)&g_pi, FALSE );
 
@@ -324,4 +328,13 @@ CK_DLL_FUNC( max_impl )
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
     RETURN->v_float = x > y ? x : y;
+}
+
+// nextpow2 - thanks to Niklas Werner, via music-dsp
+CK_DLL_FUNC( nextpow2_impl )
+{
+    t_CKINT x = GET_CK_INT(ARGS);
+    t_CKINT xx = x;
+    for( ; x &= x-1; xx = x );
+    RETURN->v_int = xx * 2;
 }

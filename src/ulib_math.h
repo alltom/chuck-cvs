@@ -67,5 +67,6 @@ CK_DLL_FUNC( remainder_impl );
 CK_DLL_FUNC( min_impl );
 CK_DLL_FUNC( max_impl );
 
+CK_DLL_FUNC( nextpow2_impl );
 
 #endif

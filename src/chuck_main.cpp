@@ -496,23 +496,13 @@ int send_cmd( int argc, char ** argv, int  & i )
 //-----------------------------------------------------------------------------
 // name: next_power_2()
 // desc: ...
+// thanks: to Niklas Werner / music-dsp
 //-----------------------------------------------------------------------------
 t_CKUINT next_power_2( t_CKUINT n )
 {
-    if( n == 0 ) return 512;
-    
-    t_CKUINT count = 0;
-    t_CKUINT i = sizeof(n) * 8;
-    t_CKUINT x = 0;
-    t_CKUINT mask = 0x1 << (i-1);
-    while( i-- )
-    {
-        if( mask & n ) count++;
-        if( (mask & n) && !x ) x = mask;
-        mask >>= 1;
-    }
-    
-    return count > 1 ? x << 1 : n;
+    t_CKUINT nn = n;
+    for( ; n &= n-1; nn = n );
+    return nn * 2;
 }
 
 
