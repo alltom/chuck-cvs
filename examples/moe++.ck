@@ -13,7 +13,7 @@ i => biquad f3 => g;
 // set equal gain zeros
 1 => f.eqzs; 1 => f2.eqzs; 1 => f3.eqzs;
 // initialize float variable
-0.0 => float v;
+1.5 * math.pi => float v;
 // set filter gain
 .1 => f.gain; .1 => f2.gain; .1 => f3.gain;
 // load glottal pop
@@ -29,14 +29,14 @@ while( true )
     0 => i.pos;
 
     // sweep the filter resonant frequency
-    660.0 + std.rand2f( 0.0, 10.0 ) => f.pfreq;
-    1780.0 + std.rand2f( 0.0, 5.0 ) => f2.pfreq;
-    2410.0 + std.rand2f( 0.0, 40.0 ) => f3.pfreq;
+    660.0 + math.sin(v)*80.0 => f.pfreq;
+    1780.0 + math.sin(v*.5)*50.0 => f2.pfreq;
+    2410.0 + math.sin(v*.25)*150.0 => f3.pfreq;
 
     // increment v
     v + .05 => v;
     // gain
-    0.3 + math.sin(v)*.15 => g.gain;
+    0.2 + math.sin(v)*.2 => g.gain;
     // advance time
     (80.0 + math.sin(v*2.0)*10.0)::ms => now;
 }

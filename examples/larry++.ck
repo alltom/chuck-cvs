@@ -28,9 +28,9 @@ while( true )
     // set the current sample/impulse
     0 => i.pos;
     // sweep the filter resonant frequency
-    250.0 + std.rand2f( -10.0, 10.0 ) => v2 => f.pfreq;
-    2290.0 + v2*2.0 => f2.pfreq;
-    3010.0 + v2*2.0 => f3.pfreq;
+    250.0 + math.sin(v*100.0)*20.0 => v2 => f.pfreq;
+    2290.0 + math.sin(v*200.0)*50.0 => f2.pfreq;
+    3010.0 + math.sin(v*300.0)*80.0 => f3.pfreq;
     // increment v
     v + .05 => v;
     // gain
