@@ -127,6 +127,7 @@ public:
     t_CKBOOL send( const t_CKBYTE * buffer );
     t_CKBOOL set_bufsize( t_CKUINT buffer_size );
     t_CKUINT get_bufsize( );
+    t_CKBOOL good( );
 
     t_CKBOOL tick_out( SAMPLE sample );
     t_CKBOOL tick_out( SAMPLE l, SAMPLE r );
@@ -166,6 +167,7 @@ public:
     t_CKBOOL expire();
     t_CKBOOL set_bufsize( t_CKUINT size );
     t_CKUINT get_bufsize( );
+    t_CKBOOL good( );
     
     t_CKBOOL tick_in( SAMPLE * sample );
     t_CKBOOL tick_in( SAMPLE * l, SAMPLE * r );
@@ -197,6 +199,7 @@ GigaSend::GigaSend( )
     m_hostname = "127.0.0.1";
     m_port = 8890;
 }
+t_CKBOOL GigaSend::good( ) { return m_sock != NULL; }
 
 
 
@@ -321,6 +324,18 @@ t_CKBOOL GigaSend::send( const t_CKBYTE * buffer )
 
 
 //-----------------------------------------------------------------------------
+// name: tick_out()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaSend::tick_out( SAMPLE sample )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: GigaRecv()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -329,6 +344,7 @@ GigaRecv::GigaRecv( )
     m_sock = NULL;
     m_buffer_size = 0;
 }
+t_CKBOOL GigaRecv::good( ) { return m_sock != NULL; }
 
 
 
@@ -435,6 +451,18 @@ t_CKBOOL GigaRecv::expire()
 
 
 //-----------------------------------------------------------------------------
+// name: tick_in()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL GigaRecv::tick_in( SAMPLE * sample )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: netout
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -455,13 +483,19 @@ UGEN_TICK netout_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
      GigaSend * x = (GigaSend *)data;
      *out = NULL;
-     // return x->tick_out( in );
+     return x->tick_out( in );
 }
 
 UGEN_CTRL netout_ctrl_addr( t_CKTIME now, void * data, void * value )
 {
      GigaSend * x = (GigaSend *)data;
      char * str = GET_NEXT_STRING(value);
+
+     // check if the same and already good
+     if( x->good() && !strcmp( x->m_hostname.c_str(), str ) )
+         return;
+
+     // connect
      x->disconnect();
      x->connect( str, x->m_port );
 }
@@ -472,9 +506,42 @@ UGEN_CGET netout_cget_addr( t_CKTIME now, void * data, void * out )
     SET_NEXT_STRING( out, (char *)x->m_hostname.c_str() );
 }
 
-UGEN_CTRL netout_ctrl_port( t_CKTIME now, void * data, void * value );
-UGEN_CGET netout_cget_port( t_CKTIME now, void * data, void * out );
-UGEN_CTRL netout_ctrl_size( t_CKTIME now, void * data, void * value );
+UGEN_CTRL netout_ctrl_port( t_CKTIME now, void * data, void * value )
+{
+    GigaSend * x = (GigaSend *)data;
+    int port = GET_NEXT_INT(value);
+    
+    // check if the same and already connected
+    if( x->good() && port == x->m_port )
+        return;
+        
+    // connect
+    x->disconnect();
+    x->connect( x->m_hostname.c_str(), port );
+}
+
+UGEN_CGET netout_cget_port( t_CKTIME now, void * data, void * out )
+{
+    GigaSend * x = (GigaSend *)data;
+    SET_NEXT_INT( out, x->m_port );
+}
+
+UGEN_CTRL netout_ctrl_size( t_CKTIME now, void * data, void * value )
+{
+    GigaSend * x = (GigaSend *)data;
+    int size = GET_NEXT_INT(value);
+    
+    // sanity check
+    if( size < 1 || size > 0x8000 )
+    {
+        cerr << "[chuck](via netout): invalid buffer size '"
+             << size << "' (must be between 1 and 0x8000)" << endl;
+        return;
+    }
+    
+    x->set_bufsize( (t_CKDWORD)size );
+}
+
 UGEN_CGET netout_cget_size( t_CKTIME now, void * data, void * out );
 UGEN_CTRL netout_ctrl_name( t_CKTIME now, void * data, void * value );
 UGEN_CGET netout_cget_name( t_CKTIME now, void * data, void * out );
