@@ -88,7 +88,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "zerox", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, zerox_ctor, zerox_dtor, zerox_tick, NULL );
-
+/*
     // add dac
     QUERY->ugen_add( QUERY, "dac", NULL );
     // set funcs
@@ -98,7 +98,17 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_add( QUERY, "adc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
-
+    
+    // add bunghole
+    QUERY->ugen_add( QUERY, "bunghole", NULL );
+    // set funcs
+    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
+    
+    // add blackhole
+    QUERY->ugen_add( QUERY, "blackhole", NULL );
+    // set funcs
+    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
+*/
     // add sndbuf
     QUERY->ugen_add( QUERY, "sndbuf", NULL );
     // set funcs
@@ -404,6 +414,16 @@ UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 {
     // this is a placeholder - the real tick is the VM
 	return 0;
+}
+
+//-----------------------------------------------------------------------------
+// name: bunghole_tick
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_TICK bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+{
+    *out = 0.0f;
+    return 0;
 }
 
 enum { SNDBUF_DROP = 0, SNDBUF_INTERP, SNDBUF_SINC};
