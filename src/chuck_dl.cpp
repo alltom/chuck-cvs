@@ -119,7 +119,7 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     if( m_done_query )
         return &m_query;
     
-	fprintf ( stderr, "dl_query:: querying address of function '%s'\n", m_func.c_str() );
+	 //fprintf ( stderr, "dl_query:: querying address of function '%s'\n", m_func.c_str() );
     // get the address of the query function from the DLL
     if( !m_query_func )
         m_query_func = (f_ck_query)this->get_addr( m_func.c_str() );
