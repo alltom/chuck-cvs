@@ -66,37 +66,41 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     QUERY->add_param( QUERY, "float", "value" );
     
     // add rand
-    QUERY->add_export( QUERY, "int", "rand", rand_impl, TRUE );
-    QUERY->add_export( QUERY, "int", "rand2", rand2_impl, TRUE );
-    QUERY->add_param( QUERY, "int", "min" );
-    QUERY->add_param( QUERY, "int", "max" );
-    QUERY->add_export( QUERY, "float", "randf", randf_impl, TRUE );
-    QUERY->add_export( QUERY, "float", "rand2f", rand2f_impl, TRUE );
+    
+    QUERY->add_export( QUERY, "int", "rand", rand_impl, TRUE ); //! return int between 0 and RAND_MAX
+    
+    QUERY->add_export( QUERY, "int", "rand2", rand2_impl, TRUE ); //! integer between [min,max]
+    QUERY->add_param( QUERY, "int", "min" ); 
+    QUERY->add_param( QUERY, "int", "max" ); 
+    
+    QUERY->add_export( QUERY, "float", "randf", randf_impl, TRUE ); //! rand between -1.0,1.0
+    QUERY->add_export( QUERY, "float", "rand2f", rand2f_impl, TRUE ); //! rand between min and max
     QUERY->add_param( QUERY, "float", "min" );
     QUERY->add_param( QUERY, "float", "max" );
 
     // add sgn
-    QUERY->add_export( QUERY, "float", "sgn", sgn_impl, TRUE );
+    QUERY->add_export( QUERY, "float", "sgn", sgn_impl, TRUE ); //! return sign of value (-1, 0, 1)
     QUERY->add_param( QUERY, "float", "value" );
 
     // add system
-    QUERY->add_export( QUERY, "int", "system", system_impl, TRUE );
+    //! see \example std.ck
+    QUERY->add_export( QUERY, "int", "system", system_impl, TRUE ); //! issue system command
     QUERY->add_param( QUERY, "string", "cmd" );
 
     // add atoi
-    QUERY->add_export( QUERY, "int", "atoi", atoi_impl, TRUE );
+    QUERY->add_export( QUERY, "int", "atoi", atoi_impl, TRUE ); //! string to integer
     QUERY->add_param( QUERY, "string", "value" );
 
     // add atof
-    QUERY->add_export( QUERY, "float", "atof", atof_impl, TRUE );
+    QUERY->add_export( QUERY, "float", "atof", atof_impl, TRUE ); //! string to float
     QUERY->add_param( QUERY, "string", "value" );
 
     // add getenv
-    QUERY->add_export( QUERY, "string", "getenv", getenv_impl, TRUE );
+    QUERY->add_export( QUERY, "string", "getenv", getenv_impl, TRUE ); //! fetch environment variable
     QUERY->add_param( QUERY, "string", "value" );
 
     // add setenv
-    QUERY->add_export( QUERY, "int", "setenv", setenv_impl, TRUE );
+    QUERY->add_export( QUERY, "int", "setenv", setenv_impl, TRUE ); //! set environment variable
     QUERY->add_param( QUERY, "string", "key" );
     QUERY->add_param( QUERY, "string", "value" );
     
@@ -104,27 +108,28 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     srand( time( NULL ) );
 
     // add mtof
-    QUERY->add_export( QUERY, "float", "mtof", mtof_impl, TRUE );
+    //! see \example mand-o-matic.ck
+    QUERY->add_export( QUERY, "float", "mtof", mtof_impl, TRUE ); //! midi note to frequency
     QUERY->add_param( QUERY, "float", "value" );
 
     // add ftom
-    QUERY->add_export( QUERY, "float", "ftom", ftom_impl, TRUE );
+    QUERY->add_export( QUERY, "float", "ftom", ftom_impl, TRUE ); //! frequency to midi note
     QUERY->add_param( QUERY, "float", "value" );
 
     // add powtodb
-    QUERY->add_export( QUERY, "float", "powtodb", powtodb_impl, TRUE );
+    QUERY->add_export( QUERY, "float", "powtodb", powtodb_impl, TRUE ); //! linear power to decibel 
     QUERY->add_param( QUERY, "float", "value" );
 
     // add rmstodb
-    QUERY->add_export( QUERY, "float", "rmstodb", rmstodb_impl, TRUE );
+    QUERY->add_export( QUERY, "float", "rmstodb", rmstodb_impl, TRUE ); //! rms to decibel
     QUERY->add_param( QUERY, "float", "value" );
 
     // add dbtopow
-    QUERY->add_export( QUERY, "float", "dbtopow", dbtopow_impl, TRUE );
+    QUERY->add_export( QUERY, "float", "dbtopow", dbtopow_impl, TRUE ); //! decibel to linear
     QUERY->add_param( QUERY, "float", "value" );
 
-    // add dptorms
-    QUERY->add_export( QUERY, "float", "dbtorms", dbtorms_impl, TRUE );
+    // add dbtorms
+    QUERY->add_export( QUERY, "float", "dbtorms", dbtorms_impl, TRUE ); //! decibel to rms
     QUERY->add_param( QUERY, "float", "value" );
     
     return TRUE;

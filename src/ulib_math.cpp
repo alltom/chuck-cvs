@@ -50,6 +50,7 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
    */    
     
     // sin
+    //! see \example math.ck
     QUERY->add_export( QUERY, "float", "sin", sin_impl, TRUE );
     QUERY->add_param( QUERY, "float", "x" );
     
@@ -151,6 +152,7 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_param( QUERY, "float", "y" );
 
     // max
+    //! see \example powerup.ck
     QUERY->add_export( QUERY, "float", "max", max_impl, TRUE );
     QUERY->add_param( QUERY, "float", "x" );
     QUERY->add_param( QUERY, "float", "y" );
@@ -160,6 +162,7 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_param( QUERY, "int", "n" );
 
     // pi
+    //! see \example math.ck
     QUERY->add_export( QUERY, "float", "pi", (f_ck_func)&g_pi, FALSE );
 
     // twopi

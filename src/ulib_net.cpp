@@ -45,6 +45,7 @@ using namespace std;
 DLL_QUERY net_query( Chuck_DL_Query * QUERY )
 {
 
+    //! \sectionMain network
     /*! \nameinfo
     ChucK's network ugens
     */    

@@ -251,6 +251,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // set srate
     Stk::setSampleRate( QUERY->srate );
 
+    //! \sectionMain STK
+
     // add BiQuad
     QUERY->ugen_add( QUERY, "BiQuad", NULL ); 
     QUERY->ugen_func( QUERY, BiQuad_ctor, BiQuad_dtor, BiQuad_tick, BiQuad_pmsg );
@@ -280,6 +282,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Chorus_ctrl_modDepth, Chorus_cget_modDepth, "float", "modDepth" ); //! modulation depth
     QUERY->ugen_ctrl( QUERY, Chorus_ctrl_mix, Chorus_cget_mix, "float", "mix" ); //! effect mix
 
+    //! \section delay
+
     // add Delay
     QUERY->ugen_add( QUERY, "Delay", NULL );
     QUERY->ugen_func( QUERY, Delay_ctor, Delay_dtor, Delay_tick, Delay_pmsg );
@@ -306,7 +310,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_delay, Echo_cget_delay, "dur", "delay" ); //! length of echo
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_max, Echo_cget_max, "dur", "max" ); //! max delay
     QUERY->ugen_ctrl( QUERY, Echo_ctrl_mix, Echo_cget_mix, "float", "mix" ); //! mix level ( wet/dry ) 
-    
+
+    //! \section envelopes
+
     // add Envelope
     QUERY->ugen_add( QUERY, "Envelope", NULL );
     QUERY->ugen_func( QUERY, Envelope_ctor, Envelope_dtor, Envelope_tick, Envelope_pmsg );
@@ -335,6 +341,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, NULL, ADSR_cget_state, "int", "state" ); //! attack=0, decay=1 , sustain=2, release=3, done=4
     //uhhh we are supposed to have target and value here as well..  d'oh
 
+    //! \section filters
     // add Filter
     QUERY->ugen_add( QUERY, "Filter", NULL );
     QUERY->ugen_func( QUERY, Filter_ctor, Filter_dtor, Filter_tick, Filter_pmsg );
@@ -388,6 +395,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //end Filters
 
+    //! \section fm synthesis
+
     // add FM
     QUERY->ugen_add( QUERY, "FM", NULL );
     QUERY->ugen_func( QUERY, FM_ctor, FM_dtor, FM_tick, FM_pmsg );
@@ -434,6 +443,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, PercFlut_ctrl_noteOn, NULL, "float", "noteOn" ); //!trigger note
 
     // add Rhodey
+    //! see \examples rhodey.ck
     QUERY->ugen_add( QUERY, "Rhodey", NULL );
     QUERY->ugen_extends (QUERY, "FM");
     QUERY->ugen_func( QUERY, Rhodey_ctor, Rhodey_dtor, Rhodey_tick, Rhodey_pmsg );
@@ -448,6 +458,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, TubeBell_ctrl_noteOn, NULL, "float", "noteOn" ); //!  trigger note
     
     // add Wurley
+    //! see \examples wurley.ck
     QUERY->ugen_add( QUERY, "Wurley", NULL );
     QUERY->ugen_extends (QUERY, "FM");
     QUERY->ugen_func( QUERY, Wurley_ctor, Wurley_dtor, Wurley_tick, Wurley_pmsg ); 
@@ -474,6 +485,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, JCRev_ctrl_mix, JCRev_cget_mix, "float", "mix" ); //! mix level
 
     // add Mandolin
+    //! see \example mand-o-matic.ck
     QUERY->ugen_add( QUERY, "Mandolin", NULL );
     QUERY->ugen_func( QUERY, Mandolin_ctor, Mandolin_dtor, Mandolin_tick, Mandolin_pmsg );
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_pluck, NULL, "float", "pluck" );  //! pluck string with given amplitude 
@@ -485,6 +497,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, Mandolin_ctrl_afterTouch, NULL, "float", "afterTouch" ); //!aftertouch
     
     // add Moog
+    //! see \example moogie.ck
     QUERY->ugen_add( QUERY, "Moog", NULL );
     QUERY->ugen_func( QUERY, Moog_ctor, Moog_dtor, Moog_tick, Moog_pmsg );
     QUERY->ugen_ctrl( QUERY, Moog_ctrl_noteOn, NULL, "float", "noteOn" ); //! start note
@@ -512,6 +525,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, PRCRev_ctrl_mix, PRCRev_cget_mix, "float", "mix" ); //! mix level
     
     // add Shakers
+    //! see \example shake-o-matic.ck
     QUERY->ugen_add( QUERY, "Shakers", NULL );
     QUERY->ugen_func( QUERY, Shakers_ctor, Shakers_dtor, Shakers_tick, Shakers_pmsg );
     QUERY->ugen_ctrl( QUERY, Shakers_ctrl_freq, Shakers_cget_freq, "float", "freq" ); //! set frequency
@@ -525,6 +539,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, SubNoise_ctrl_rate, SubNoise_cget_rate, "int", "rate" ); //! subsampling rate
 
     // add VoicForm
+    //! see \example voic-o-form.ck
     QUERY->ugen_add( QUERY, "VoicForm", NULL );
     QUERY->ugen_func( QUERY, VoicForm_ctor, VoicForm_dtor, VoicForm_tick, VoicForm_pmsg );
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_freq, VoicForm_cget_freq, "float", "freq" ); //! frequency 
@@ -541,6 +556,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoFreq, VoicForm_cget_vibratoFreq, "float", "vibratoFreq" );//! vibrato
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_vibratoGain, VoicForm_cget_vibratoGain, "float", "vibratoGain" );//! vibrato depth
     QUERY->ugen_ctrl( QUERY, VoicForm_ctrl_loudness, VoicForm_cget_loudness, "float", "loudness" ); //! 'loudness' of voicee
+
+    //! \section file interfaces
     
     // add WvIn
     QUERY->ugen_add( QUERY, "WvIn", NULL );
@@ -549,6 +566,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, WvIn_ctrl_path, WvIn_cget_path, "string", "path" ); //! specifies file to be played
 
     // add WaveLoop
+    //! see \example dope.ck
     QUERY->ugen_add( QUERY, "WaveLoop", NULL );
     QUERY->ugen_extends ( QUERY, "WvIn" );
     QUERY->ugen_func( QUERY, WaveLoop_ctor, WaveLoop_dtor, WaveLoop_tick, WaveLoop_pmsg );

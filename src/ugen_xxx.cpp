@@ -50,9 +50,59 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 {
     g_srate = QUERY->srate;
 
-    // add noise
-    //! white noise generator
+    //! \section audio output
+
+    // add dac
+    //! digital/analog converter
+    //! abstraction for underlying audio output device
+    QUERY->ugen_add( QUERY, "dac", NULL );
+    // set funcs
+    QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
+
+    // add adc
+    //! analog/digital converter
+    //! abstraction for underlying audio input device
+    QUERY->ugen_add( QUERY, "adc", NULL );
+    // set funcs
+    QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
     
+    // add blackhole
+    //! sample rate sample sucker
+    //! ( like dac, ticks ugens, but no more )
+    //! see \example pwm.ck
+    QUERY->ugen_add( QUERY, "blackhole", NULL );
+    // set funcs
+    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
+
+    // add bunghole
+    //! sample rate sample sucker
+    //! ( like dac, ticks ugens, but no more )
+    QUERY->ugen_add( QUERY, "bunghole", NULL );
+    // set funcs
+    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );    
+
+    // add gain
+    //! gain control
+    //! (NOTE - all unit generators can themselves change their gain)
+    //! (this is a way to add N outputs together and scale them) 
+    //! used in \example i-robot.ck
+    QUERY->ugen_add( QUERY, "gain", NULL );
+    // set funcs
+    QUERY->ugen_func( QUERY, gain_ctor, gain_dtor, gain_tick, NULL );
+    // ctrl func
+    QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" ); //! set gain ( all ugen's have this ) 
+    /*! \example
+      noise n => gain g => dac;
+      sinosc s => g;
+      .3 => g.gain;
+      while( true ) { 100::ms => now; }
+    */
+
+    //! \section wave forms
+
+    // add noise
+    //! white noise generator 
+    //! see \example noise.ck \example powerup.ck
     QUERY->ugen_add( QUERY, "noise", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, NULL, NULL, noise_tick, NULL );
@@ -78,6 +128,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // add step
     //! step generator - like impulse, but once a value is set, 
     //! it is held for all following samples, until value is set again
+    //! see \example step.ck
     QUERY->ugen_add( QUERY, "step", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, step_ctor, step_dtor, step_tick, NULL );
@@ -95,23 +146,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
       }
     */
 
-
-    // add gain
-    //! gain control
-    //! (NOTE - all unit generators can themselves change their gain)
-    //! (this is a way to add N outputs together and scale them) 
-    QUERY->ugen_add( QUERY, "gain", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, gain_ctor, gain_dtor, gain_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" ); //! set gain ( all ugen's have this ) 
-    /*! \example
-      noise n => gain g => dac;
-      sinosc s => g;
-      .3 => g.gain;
-      while( true ) { 100::ms => now; }
-    */
-
+    //! \section filters
 
     // add halfrect
     //! half wave rectifier
@@ -129,43 +164,18 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // add zerox
     //! zero crossing detector
     //! emits a single pulse at the the zero crossing in the direction of the zero crossing.  
-    //! (see examples/zerox)
+    //! (see \example zerox.ck)
     QUERY->ugen_add( QUERY, "zerox", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, zerox_ctor, zerox_dtor, zerox_tick, NULL );
 
-    // add dac
-    //! digital/analog converter
-    //! abstraction for underlying audio output device
-    QUERY->ugen_add( QUERY, "dac", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
 
-    // add adc
-    //! analog/digital converter
-    //! abstraction for underlying audio input device
-    QUERY->ugen_add( QUERY, "adc", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
-    
-    // add bunghole
-    //! sample rate sample sucker
-    //! ( like dac, ticks ugens, but no more )
-    QUERY->ugen_add( QUERY, "bunghole", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
-    
-    // add blackhole
-    //! sample rate sample sucker
-    //! ( like dac, ticks ugens, but no more )
-    QUERY->ugen_add( QUERY, "blackhole", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
+    //! \section sound files
 
     // add sndbuf
     //! sound buffer ( now interpolating ) 
     //! reads from a variety of file formats
-
+    //! see \example sndbuf.ck
     QUERY->ugen_add( QUERY, "sndbuf", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, sndbuf_ctor, sndbuf_dtor, sndbuf_tick, NULL );

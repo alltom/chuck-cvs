@@ -40,8 +40,9 @@
 // query
 DLL_QUERY osc_query( Chuck_DL_Query * query );
 
-// sinosc
+// oscs
 UGEN_CTOR osc_ctor( t_CKTIME now );
+UGEN_CTOR phasor_ctor( t_CKTIME now );
 UGEN_DTOR osc_dtor( t_CKTIME now, void * data );
 UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 UGEN_TICK osc_pmsg( t_CKTIME now, void * data, const char * msg, void * value );

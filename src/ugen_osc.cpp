@@ -48,21 +48,24 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // srate
     g_srate = QUERY->srate;
 
-    //! phasor
+    //! \sectionMain oscillators
+
+    //! phasor - simple ramp generator ( 0 to 1 )
+    //! this can be fed into other oscillators ( with sync mode of 2 ) 
+    //! as a phase control.  see \example sixty.ck for an example
     QUERY->ugen_add( QUERY, "phasor", NULL );
     // set funcs
-    QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, osc_tick, osc_pmsg );
+    QUERY->ugen_func( QUERY, phasor_ctor, osc_dtor, osc_tick, osc_pmsg );
     // add ctrls / cgets
     QUERY->ugen_ctrl( QUERY, osc_ctrl_freq, osc_cget_freq, "float", "freq" );  //! oscillator frequency ( Hz ) 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sfreq, osc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase_offset, osc_cget_phase_offset, "float", "phase_offset" ); //! phase offset 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase, osc_cget_phase, "float", "phase" ); //! current phase
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
-
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! set duration of the ramp in each cycle. ( default 1.0) 
 
     //! sine oscillator
-    //! (examples/osc.ck)
+    //! (see \example osc.ck)
     QUERY->ugen_add( QUERY, "sinosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, sinosc_tick, osc_pmsg );
@@ -71,9 +74,10 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sfreq, osc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase_offset, osc_cget_phase_offset, "float", "phase_offset" ); //! phase offset 
     QUERY->ugen_ctrl( QUERY, sinosc_ctrl_phase, sinosc_cget_phase, "float", "phase" ); //! current phase
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to self(0), global(1), input(2)  
 
     //! pulse oscillators
+    //! a pulse wave oscillator with variable width.
     QUERY->ugen_add( QUERY, "pulseosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, pulseosc_tick, osc_pmsg );
@@ -82,10 +86,10 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sfreq, osc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase_offset, osc_cget_phase_offset, "float", "phase_offset" ); //! phase offset 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase, osc_cget_phase, "float", "phase" ); //! current phase
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to self(0), global(1), input(2)  
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! length of duty cycle ( 0-1 ) 
 
-    //! square wave oscillator ( secretly just pulse )
+    //! square wave oscillator ( pulse with fixed width of 0.5 )
     QUERY->ugen_add( QUERY, "sqrosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, sqrosc_tick, osc_pmsg );
@@ -94,9 +98,8 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sfreq, osc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase_offset, osc_cget_phase_offset, "float", "phase_offset" ); //! phase offset 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase, osc_cget_phase, "float", "phase" ); //! current phase
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
-
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to self(0), global(1), input(2)  
+ 
     //! triangle wave oscillator
     QUERY->ugen_add( QUERY, "triosc", NULL );
     // set funcs
@@ -106,10 +109,10 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sfreq, osc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase_offset, osc_cget_phase_offset, "float", "phase_offset" ); //! phase offset 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase, osc_cget_phase, "float", "phase" ); //! current phase
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to self(0), global(1), input(2)  
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! control midpoint of triangle ( 0 to 1 ) 
 	
-    //! sawtooth wave oscillator
+    //! sawtooth wave oscillator ( triangle, width forced to 0.0 or 1.0 )
     QUERY->ugen_add( QUERY, "sawosc", NULL );
     // set funcs
     QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, sawosc_tick, osc_pmsg );
@@ -118,8 +121,8 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     QUERY->ugen_ctrl( QUERY, osc_ctrl_sfreq, osc_cget_freq, "float", "sfreq" );  //! oscillator frequency ( Hz ) , phase-matched
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase_offset, osc_cget_phase_offset, "float", "phase_offset" ); //! phase offset 
     QUERY->ugen_ctrl( QUERY, osc_ctrl_phase, osc_cget_phase, "float", "phase" ); //! current phase
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to global ( 1 ) or self ( 0 ) 
-    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! sync to global ( 1 ) or self ( 0 ) 
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_sync, osc_cget_sync, "int", "sync" ); //! sync to self(0), global(1), input(2)  
+    QUERY->ugen_ctrl( QUERY, osc_ctrl_width, osc_cget_width, "float", "width" ); //! increasing ( w > 0.5 ) or decreasing ( w < 0.5 )
 
     return TRUE;
 }
@@ -166,6 +169,18 @@ UGEN_CTOR osc_ctor( t_CKTIME now )
     return new Osc_Data;
 }
 
+//-----------------------------------------------------------------------------
+// name: sinosc_ctor()
+// desc: ...
+//-----------------------------------------------------------------------------
+UGEN_CTOR phasor_ctor( t_CKTIME now )
+{
+    // return data to be used later
+    Osc_Data * d = new Osc_Data;
+    d->width = 1.0;
+    return d;
+}
+
 
 
 
@@ -195,7 +210,7 @@ UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     if ( d->sync == 1 )  d->t = (double) now;
     float ph = ( d->sync == 2 ) ? in : d->phase_offset + d->t * d->num;
     ph -= floor ( ph );
-    *out = (SAMPLE) ph;
+    *out = (SAMPLE) ( ph != 0.0 && ph <= width ) ? ph / width : 0.0 ;
  
     if ( !d->sync ) d->t += 1.0;
 
