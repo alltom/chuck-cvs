@@ -118,8 +118,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 t_CKBOOL type_engine_check_func_def_import( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_ugen_def_import( Chuck_Env * env, Chuck_UGen_Info * ugen );
 t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * name );
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id );
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
 
@@ -2371,5 +2371,5 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos )
 {
-    return type_engine_check_reserved( env, string(S_name(id)) );
+    return type_engine_check_reserved( env, string(S_name(id)), pos );
 }
