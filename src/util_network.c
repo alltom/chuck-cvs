@@ -40,6 +40,7 @@
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <netdb.h>
 
 
 
@@ -93,13 +94,23 @@ BOOL ck_connect2( ck_socket sock, const struct sockaddr * addr, int size )
 BOOL ck_connect( ck_socket sock, const char * hostname, int port )
 {
     int ret;
+    struct hostent * host;
 
     bzero( &sock->sock_in, sizeof(struct sockaddr_in) );
     sock->sock_in.sin_family = AF_INET;
     sock->sock_in.sin_port = htons( port );
-    ret = inet_aton( hostname, &sock->sock_in.sin_addr );
-    if( ret < 0 )
-        return FALSE;
+    // lookup name
+    host = gethostbyname( hostname );
+    if( !host )
+    {
+        sock->sock_in.sin_addr.s_addr = inet_addr( hostname );
+        if( sock->sock_in.sin_addr.s_addr == -1 )
+            return FALSE;
+    }
+    else
+    {
+        bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
+    }
 
     ret = ck_connect2( sock, (struct sockaddr *)&sock->sock_in, 
         sizeof( struct sockaddr_in ) );
