@@ -1777,8 +1777,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     func->name = S_name(f->name);
     // reference the function definition
     func->def = f;
-    // note whether the function is marked (so far) as instance
-    func->instance = f->static_decl != ae_key_static;
+    // note whether the function is marked (so far) as member
+    func->is_member = f->static_decl != ae_key_static;
 
     // set the current function to this
     env->func = func;

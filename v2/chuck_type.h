@@ -384,13 +384,13 @@ struct Chuck_Func : public Chuck_VM_Object
     a_Func_Def def;
     // VM code
     Chuck_VM_Code * code;
-    // instance or static
-    t_CKBOOL instance;
+    // member
+    t_CKBOOL is_member;
     // offset
     t_CKUINT offset;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; instance = FALSE; offset = 0; }
+    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; offset = 0; }
 };
 
 
