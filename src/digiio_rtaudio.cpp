@@ -142,7 +142,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * m_num_channels_out;
-    DWORD__ n = 5;
+    DWORD__ n = 8;
     DWORD__ start = 50;
 
     // copy input to local buffer
@@ -152,12 +152,14 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
         // copy to extern
         if( m_extern_in ) memcpy( m_extern_in, buffer, len );
     }
+    // flag ready
+    m_in_ready = TRUE;
     // out is ready early
-    if( m_go < start && m_go > 5 && m_out_ready ) m_go = start;
+    if( m_go < start && m_go > 1 && m_out_ready ) m_go = start;
     // copy output into local buffer
     if( m_go >= start )
     {
-        while( !m_out_ready && n-- ) usleep( 200 );
+        while( !m_out_ready && n-- ) usleep( 250 );
         // copy local buffer to be rendered
         if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
@@ -190,7 +192,6 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     //*m_write_ptr = (SAMPLE *)m_buffer_out;
     //*m_read_ptr = (SAMPLE *)m_buffer_in;
     m_out_ready = FALSE;
-    m_in_ready = TRUE;
 
     return 0;
 }
@@ -611,7 +612,7 @@ DWORD__ DigitalIn::capture( )
 {
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
-    t_CKUINT n = 6;
+    t_CKUINT n = 4;
     while( !Digitalio::m_in_ready && n-- )
         usleep( 250 );
 
