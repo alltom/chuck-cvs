@@ -157,10 +157,13 @@ void *TAB_look(TAB_table t, void *key)
 void *TAB_pop(TAB_table t)
 {
     void *k; binder b; int index;
+    unsigned hval;
     assert (t);
     k = t->top;
     assert (k);
-    index = ((unsigned)k) % t->size;
+    hval = (unsigned)k;
+    if(t->hash_func) hval = (unsigned)t->hash_func(k);
+    index = ((unsigned)hval) % t->size;
     b = t->table[index];
     assert(b);
     t->table[index] = b->next;
@@ -171,10 +174,13 @@ void *TAB_pop(TAB_table t)
 void *TAB_topv(TAB_table t)
 {
     void *k; binder b; int index;
+    unsigned hval;
     assert(t);
     k = t->top;
     assert(k);
-    index = ((unsigned)k) % t->size;
+    hval = (unsigned)k;
+    if(t->hash_func) hval = (unsigned)t->hash_func(k);
+    index = ((unsigned)hval) % t->size;
     b = t->table[index];
     assert(b);
     return b->value;

@@ -593,7 +593,7 @@ t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emmission * emit, a_Stmt_List list )
     }
     // emit->pop();
 
-    return ret;    
+    return ret;
 }
 
 
