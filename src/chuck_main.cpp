@@ -77,7 +77,7 @@ extern int yyparse( void );
 
 
 #ifdef WIN32
-	//'C' specification necessary for windows to link properly
+//'C' specification necessary for windows to link properly
 extern "C" a_Program g_program;
 #else
 extern a_Program g_program;
@@ -116,7 +116,7 @@ void signal_int( int sig_num )
 #ifndef __WINDOWS_DS__
         pthread_kill( g_tid, 2 );
 #else
-		CloseHandle( g_tid );
+        CloseHandle( g_tid );
 #endif
         usleep( 100000 );
         delete( vm );
@@ -689,7 +689,7 @@ int main( int argc, char ** argv )
 #ifndef __WINDOWS_DS__
         pthread_create( &g_tid, NULL, cb, NULL );
 #else
-		g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)cb, NULL, 0, 0);
+        g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)cb, NULL, 0, 0);
 #endif
     }
 
@@ -704,7 +704,7 @@ int main( int argc, char ** argv )
 #ifndef __WINDOWS_DS__
     pthread_kill( g_tid, 2 );
 #else
-	CloseHandle( g_tid );
+    CloseHandle( g_tid );
 #endif
     usleep( 100000 );
         
