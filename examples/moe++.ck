@@ -38,5 +38,5 @@ while( true )
     // gain
     0.3 + math.sin(v)*.15 => g.gain;
     // advance time
-    70.0::ms => now;
+    (80.0 + math.sin(v*2.0)*10.0)::ms => now;
 }
