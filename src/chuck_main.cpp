@@ -387,6 +387,21 @@ t_CKBOOL load_internal_modules( t_Env env )
 
 
 //-----------------------------------------------------------------------------
+// name: timer()
+// desc: ...
+//-----------------------------------------------------------------------------
+void * timer( void * p )
+{
+    t_CKUINT t = *(t_CKUINT *)p;
+    usleep( t );
+    fprintf( stderr, "[chuck]: operation timed out...\n" );
+    exit(1);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: cb()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -571,6 +586,14 @@ int send_cmd( int argc, char ** argv, int  & i )
     }
     else
         return 0;
+        
+    // timer
+    CHUCK_THREAD tid;
+#ifndef __PLATFORM_WIN32__
+    pthread_create( &tid, NULL, timer, new t_CKUINT(1000000) );
+#else
+    tid = (CHUCK_THREAD)CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)timer, NULL, 0, 0 );
+#endif
 
     // reply
     if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
@@ -583,7 +606,10 @@ int send_cmd( int argc, char ** argv, int  & i )
     // close the sock
     ck_close( g_sock );
     
-    return 1;
+    // exit
+    exit( msg.param );
+
+    return 0;
 }
 
 
@@ -617,6 +643,11 @@ int main( int argc, char ** argv )
     t_CKUINT num_buffers = 4;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
+
+    // catch SIGINT
+    signal( SIGINT, signal_int );
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
 
     for( i = 1; i < argc; i++ )
     {
@@ -659,7 +690,7 @@ int main( int argc, char ** argv )
                 exit( 2 );
             }
             else if( a = send_cmd( argc, argv, i ) )
-                exit( !(a < 0) );
+                exit( a );
 			else
             {
                 fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
@@ -689,11 +720,6 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-
-    // catch SIGINT
-    signal( SIGINT, signal_int );
-    // catch SIGPIPE
-    signal( SIGPIPE, signal_pipe );
     // allocate the type system
     g_env = type_engine_init( vm );
     // set the env
