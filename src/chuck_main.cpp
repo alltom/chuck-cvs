@@ -72,7 +72,7 @@ extern int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.4.4"
+#define CK_VERSION "1.1.4.5"
 
 
 extern a_Program g_program;
