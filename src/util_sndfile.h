@@ -1,124 +1,68 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
 // XXX philipd this might break things?
-
 // these defines were placed after the machine-dependent 
-
 // checks below...i'm not sure why
 
 #define COMPILER_IS_GCC 1
-
 #define CPU_CLIPS_NEGATIVE 1
-
 #define ENABLE_EXPERIMENTAL_CODE 0
-
 #define GCC_MAJOR_VERSION 3
-
 #define HAVE_CALLOC 1
-
 #define HAVE_CEIL 1
-
 #define HAVE_DECL_S_IRGRP 1
-
 #define HAVE_DLFCN_H 1
-
 #define HAVE_FLEXIBLE_ARRAY 1
-
 #define HAVE_FLOOR 1
-
 #define HAVE_FMOD 1
-
 #define HAVE_FREE 1
-
 #define HAVE_FSTAT 1
-
 #define HAVE_FSYNC 1
-
 #define HAVE_FTRUNCATE 1
-
 #define HAVE_GETPAGESIZE 1
-
 #define HAVE_GMTIME 1
-
 #define HAVE_GMTIME_R 1
-
 #define HAVE_INTTYPES_H 1
-
 #define HAVE_LIBM 1
-
 #define HAVE_LSEEK 1
-
 #define HAVE_MALLOC 1
-
 #define HAVE_MEMORY_H 1
-
 #define HAVE_MMAP 1
-
 #define HAVE_OPEN 1
-
 #define HAVE_READ 1
-
 #define HAVE_REALLOC 1
-
 #define HAVE_SNPRINTF 1
-
 #define HAVE_STDINT_H 1
-
 #define HAVE_STDLIB_H 1
-
 #define HAVE_STRINGS_H 1
-
 #define HAVE_STRING_H 1
-
 #define HAVE_SYS_STAT_H 1
-
 #define HAVE_SYS_TYPES_H 1
-
 #define HAVE_SYS_WAIT_H 1
-
 #define HAVE_VSNPRINTF 1
-
 #define HAVE_WRITE 1
-
 #define PACKAGE "libsndfile"
-
 #define PACKAGE_BUGREPORT "erikd@mega-nerd.com"
-
 #define PACKAGE_NAME "libsndfile"
-
 #define PACKAGE_STRING "libsndfile 1.0.10"
-
 #define PACKAGE_TARNAME "libsndfile"
-
 #define PACKAGE_VERSION "1.0.10"
 
-
-
 #define SIZEOF_DOUBLE 8
-
 #define SIZEOF_FLOAT 4
-
 #define SIZEOF_INT 4
-
 #define SIZEOF_LONG 4
-
 #define SIZEOF_OFF_T 8
-
 #define SIZEOF_SF_COUNT_T 8
-
 #define SIZEOF_SHORT 2
-
 #define SIZEOF_SIZE_T 4
-
 #define SIZEOF_SSIZE_T 4
-
 #define SIZEOF_VOIDP 4
-
 #define STDC_HEADERS 1
 
 #define VERSION "1.0.10"
-
 
 #ifdef __MACOSX_CORE__
 #define CPU_CLIPS_POSITIVE 1
@@ -181,11 +125,9 @@
 
 
 
-//XXX 'inline' is necessary for C compilation
-
-//in the microsoft vc6 compiler...
-
-//and other ms win32 specialteez. 
+// XXX 'inline' is necessary for C compilation
+// in the microsoft vc6 compiler...
+// and other ms win32 specialteez. 
 
 #ifdef __PLATFORM_WIN32__
 
@@ -200,7 +142,6 @@
 #define HAVE_SSIZE_T 1
 
 #endif
-
 
 /*
 ** sndfile.h -- system-wide definitions
