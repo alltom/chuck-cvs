@@ -8,10 +8,10 @@ LIBS= -lasound -lstdc++ -ldl -lm
 OBJS= chuck.tab.o chuck.yy.o chuck_main.o chuck_errormsg.o chuck_utils.o \
 	chuck_symbol.o chuck_table.o chuck_temp.o chuck_absyn.o chuck_type.o \
 	chuck_emit.o chuck_frame.o chuck_instr.o chuck_vm.o chuck_ugen.o \
-	chuck_bbq.o chuck_socket.o chuck_dl.o digitalio_rtaudio.o rtaudio.o \
-	midiio_alsa.o ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o \
-	ulib_machine.o ulib_math.o ulib_std.o util_buffers.o util_raw.o \
-	util_sndfile.o
+	chuck_bbq.o chuck_dl.o digitalio_rtaudio.o rtaudio.o midiio_alsa.o \
+	ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o ulib_machine.o \
+	ulib_math.o ulib_std.o util_buffers.o util_network.o util_raw.o \
+	util_sndfile.o util_xforms.o
 
 chuck: $(OBJS)
 	$(CC) -o chuck $(OBJS) $(LIBS)
@@ -121,11 +121,17 @@ ulib_std.o: ulib_std.h ulib_std.cpp
 util_buffers.o: util_buffers.h util_buffers.cpp
 	$(CC) $(FLAGS) util_buffers.cpp
 
+util_network.o: util_network.h util_network.c
+	$(CC) $(FLAGS) util_network.c
+
 util_raw.o: util_raw.h util_raw.cpp
 	$(CC) $(FLAGS) util_raw.cpp
 
 util_sndfile.o: util_sndfile.h util_sndfile.c
 	$(CC) $(FLAGS) util_sndfile.c
+
+util_xforms.o: util_xforms.h util_xforms.c
+	$(CC) $(FLAGS) util_xforms.c
 
 clean: 
 	rm -f chuck *~ *.o chuck.output chuck.tab.h chuck.tab.c chuck.yy.c
