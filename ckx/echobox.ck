@@ -1,33 +1,53 @@
-
 "gl.ckx" => (:gl:);
 "glu.ckx" => (:glu:);
 "gluck.ckx" => (:gluck:);
 
-//walls
+// walls
 -1.0 => float l;
 1.0 => float r;
 -1.0 => float b;
 1.0 => float t;
 
-//source pos
+l => float wx1;
+b => float wy1;
+
+r => float wx2;
+b => float wy2;
+
+r => float wx3;
+t => float wy3;
+
+l => float wx4;
+t => float wy4;
+
+// source pos
 0.5 => float srcx;
 0.5 => float srcy;
 
-//recv ( dac ) pos
+// source animation
+0.8 => float srcrad;
+1.0 => float srcfreq;
+
+// receive animation
+0.5 => float recvrad;
+1.0 => float recvfreq;
+
+
+// recv ( dac ) pos
 -0.25 => float recvx;
 -0.25 => float recvy;
 
-//audio constants
+// audio constants
 50.0 => float speedofsound;
 0.95 => float reflectance;
 
 
-//tmp reflection point
+// tmp reflection point
 0.0 => float rx;
 0.0 => float ry;
 
 
-//saved reflection points
+// saved reflection points
 0.0 => float rxl;
 0.0 => float ryl;
 0.0 => float rxr;
@@ -37,11 +57,11 @@
 0.0 => float rxb;
 0.0 => float ryb;
 
-//saved mirror points?
+// saved mirror points?
 
 
 
-//gluck pile
+// gluck pile
 
 
 fun void draw() { 
@@ -52,10 +72,10 @@ fun void draw() {
 
 
  	gl.Begin(gl.LINE_LOOP);
-	gl.Vertex2f ( l, t );
-	gl.Vertex2f ( r, t );
-	gl.Vertex2f ( r, b );
-	gl.Vertex2f ( l, b );
+	gl.Vertex2f ( wx1, wy1 );
+	gl.Vertex2f ( wx2, wy2 );
+	gl.Vertex2f ( wx3, wy3 );
+	gl.Vertex2f ( wx4, wy4 );
 	gl.End();
 
 
@@ -104,6 +124,11 @@ fun float dlen ( float x, float y ) {
 	return math.sqrt (x * x + y * y);
 }
 
+fun float dist ( float x, float y, float x1, float y1 ) { 
+	return dlen ( x-x1, y-y1 );
+}
+
+
 fun float dot ( float x, float y, float xp, float yp ) { 
 	return x*xp + y*yp;
 }
@@ -111,8 +136,8 @@ fun float dot ( float x, float y, float xp, float yp ) {
 
 //
 //                    t
-//	 ----------------------
-//	|                d     |
+//       ----------------------
+//		|                d     |
 //   l  |                      |  r
 //      |   s                  |
 //      |_______o______________|
@@ -168,14 +193,23 @@ fun void setdistdelay ( DelayL del, gain g, float x1, float y1, float x2, float 
 //	atten => stdout;
 }
 
+fun void setecho ( DelayL del, gain g, float len, float baseatten ) { 
+	len / speedofsound => float deltime;
+	1.0 / ( len*len ) => float atten;
+	1::second * deltime=> del.delay;
+	baseatten * atten => g.gain;
+//	"distdelay" => stdout;
+//	deltime => stdout;
+//	atten => stdout;
+}
+
 gain src => DelayL d_direct => gain g_direct => dac;
 
 //4 1st order reflections
-src => DelayL s_t => gain g_t => gain reft => DelayL t_d => gain t_r => dac;
-src => DelayL s_b => gain g_b => gain refb => DelayL b_d => gain b_r => dac;
-src => DelayL s_l => gain g_l => gain refl => DelayL l_d => gain l_r => dac;
-src => DelayL s_r => gain g_r => gain refr => DelayL r_d => gain r_r => dac;
-
+src => DelayL s_t => gain g_t => dac ; 
+src => DelayL s_b => gain g_b => dac ; 
+src => DelayL s_l => gain g_l => dac ; 
+src => DelayL s_r => gain g_r => dac ; 
 
 10::second => d_direct.max;
 
@@ -184,59 +218,77 @@ src => DelayL s_r => gain g_r => gain refr => DelayL r_d => gain r_r => dac;
 10::second => s_l.max;
 10::second => s_r.max;
 
-10::second => t_d.max;
-10::second => b_d.max;
-10::second => l_d.max;
-10::second => r_d.max;
-
 fun void refreshenv () { 
 //	"refresh" => stdout;
 	setdistdelay ( d_direct, g_direct, srcx, srcy, recvx, recvy );
 
 	//wall b
-	reflectwall ( l , b , r, b ); 
+	reflectwall ( wx1 , wy1 , wx2, wy2 ); 
 	rx => rxb;
 	ry => ryb;
-	setdistdelay ( s_b, g_b, srcx, srcy, rx, ry );
-	reflectance => refb.gain;
-	setdistdelay ( b_d, b_r, rx, ry, recvx, recvy );
-
+	setecho ( s_b, g_b, dist( srcx, srcy, rx, ry ) + dist ( rx, ry, recvx, recvy ), reflectance );
+	
 	//wall t
-	reflectwall ( r , t , l, t ); 
+	reflectwall ( wx3, wy3 , wx4, wy4 ); 
 	rx => rxt;
 	ry => ryt;
-	setdistdelay ( s_t, g_t, srcx, srcy, rx, ry );
-	reflectance => reft.gain;
-	setdistdelay ( t_d, t_r, rx, ry, recvx, recvy );
+	setecho ( s_t, g_t, dist( srcx, srcy, rx, ry ) + dist ( rx, ry, recvx, recvy ), reflectance );
 
 	//wall l
-	reflectwall ( l , t , l, b ); 
+	reflectwall ( wx4 , wy4 , wx1, wy1 ); 
 	rx => rxl;
 	ry => ryl;
-	setdistdelay ( s_l, g_l, srcx, srcy, rx, ry );
-	reflectance => refl.gain;
-	setdistdelay ( l_d, l_r, rx, ry, recvx, recvy );
+	setecho ( s_l, g_l, dist( srcx, srcy, rx, ry ) + dist ( rx, ry, recvx, recvy ), reflectance );
 
 	//wall r
-	reflectwall ( r , b , r, t ); 
+	reflectwall ( wx2 , wy2 , wx3, wy3 ); 
 	rx => rxr;
 	ry => ryr;
-	setdistdelay ( s_r, g_r, srcx, srcy, rx, ry );
-	reflectance => refr.gain;
-	setdistdelay ( r_d, r_r, rx, ry, recvx, recvy );
+	setecho ( s_r, g_r, dist( srcx, srcy, rx, ry ) + dist ( rx, ry, recvx, recvy ), reflectance );
 
 }
 
 
 refreshenv();
 
+fun void keycode(uint key) { 
+	if ( key == gluck.KEY_w ) { srcfreq * math.pow ( 2.0, 1.0/12.0) => srcfreq; }
+	if ( key == gluck.KEY_s ) { srcfreq * 1.0 / math.pow ( 2.0, 1.0/12.0) => srcfreq; }
+	if ( key == gluck.KEY_e ) { srcfreq * -1.0  => srcfreq; }
+	if ( key == gluck.KEY_d ) { srcrad + 0.01  => srcrad; }
+	if ( key == gluck.KEY_a ) { srcrad - 0.01  => srcrad; }
+
+	if ( key == gluck.KEY_i ) { recvfreq * math.pow ( 2.0, 1.0/12.0) => recvfreq; }
+	if ( key == gluck.KEY_k ) { recvfreq * 1.0 / math.pow ( 2.0, 1.0/12.0) => recvfreq; }
+	if ( key == gluck.KEY_o ) { recvfreq * -1.0  => recvfreq; }
+	if ( key == gluck.KEY_l ) { recvrad + 0.01  => recvrad; }
+	if ( key == gluck.KEY_j ) { recvrad - 0.01  => recvrad; }
+
+}
+
+fun void gluckEvents() { 
+	while ( true ) { 
+		while ( gluck.HasEvents() ) { 
+			gluck.GetNextEvent() => int curid;
+			gluck.GetEventType(curid) => uint curtype;
+		 	if ( curtype == gluck.EVENT_KEY ) { //keyboard
+				gluck.GetEventKey(curid) => uint k;
+				keycode(k);
+			}
+		}
+		30::ms => now;
+	}
+}
 
 
 fun void gluckStartup ( ) { 
 
 	gluck.Init();
 	gluck.InitSizedWindow( "echobox", 80,80, 640, 640);
-	gluck.InitCallbacks( 0,0,0 );
+	gluck.InitCallbacks( 0,0,1 );
+	
+	spork ~ gluckEvents();
+	
 	gl.MatrixMode(gl.PROJECTION); 
 	gl.LoadIdentity();
 	gl.Ortho(-2.0, 2.0, -2.0 , 2.0, -4.0 , 4.0 );
@@ -265,35 +317,52 @@ fun void gluckStartup ( ) {
 //THE FUN PART...
 
 fun void fiddlebox () { 
-	sinosc p => sinosc s => blackhole;
-	1.0 / 60.0  => s.sfreq;
-	1.0 / 60.0  => p.sfreq;
-	0.25 => p.phase_offset;
+	phasor sc => sinosc sx => blackhole;
+	sc => sinosc sy => blackhole; 
+	step bias => sx;
+	
+	phasor rc => sinosc rxo => blackhole;
+	rc => sinosc ryo => blackhole; 
+	bias => rxo;
+	
+	2 => sx.sync;
+	2 => sy.sync;
+	2 => rxo.sync;
+	2 => ryo.sync;
+	1.0  => sc.sfreq;
+	1.0  => rc.sfreq;
+	0.25 => bias.next;
+	
 	while ( true ) { 
+		srcrad * sx.last => srcx;
+		srcrad * sy.last => srcy;		
+		recvrad * rxo.last => recvx;
+		recvrad * ryo.last => recvy;		
 
-		0.8 * s.last => srcx;
-		0.8 * p.last => srcy;
-		
-//		l + std.rand2f(-0.001, 0.001 ) => l;
-//		r + std.rand2f(-0.001, 0.001 ) => r;
-//		b + std.rand2f(-0.001, 0.001 ) => b;
-//		t + std.rand2f(-0.001, 0.001 ) => t;
 		refreshenv();
-		5::samp => now;
+		srcfreq => sc.sfreq;
+		recvfreq => rc.sfreq;
+		10::samp => now;
 	}
 }
 
-impulse i ;// x=> src;
+impulse i ;// => src;
 sinosc m => src;
 220.0 => m.sfreq;
-0.05 => m.gain;
-
+0.00 => m.gain;
+sndbuf buf ;// => src;
+"puzzler.au" => buf.read;
+1.0 => buf.rate;
+1 => buf.loop;
+0.1 => buf.gain;
+noise n => src;
+0.02 => n.gain;
 spork ~ gluckStartup();
 
 spork ~ fiddlebox();
 while ( true ) {
 	0.3 => i.next; 
-	30::ms => now;
+	0.25::second => now;
 }
 
 
