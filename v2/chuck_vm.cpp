@@ -332,7 +332,7 @@ t_CKBOOL Chuck_VM::run( )
         while( shred = m_shreduler->get() )
         {
             // set the current time of the shred
-            shred->now = m_shreduler->now_system;
+            shred->now = shred->wake_time;
 
             // run the shred
             if( !shred->run( this ) )
@@ -663,6 +663,8 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
 {
     // set the current time
     shred->start = m_shreduler->now_system;
+    // set the now
+    shred->now = shred->wake_time = m_shreduler->now_system;
     // set the id
     shred->id = next_id();
     // shredule it
@@ -1178,7 +1180,7 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::get( )
         return NULL;
 
     // TODO: should this be <=?
-    if( shred->wake_time <= this->now_system )
+    if( shred->wake_time <= ( this->now_system + .5 ) )
     {
         // if( shred->wake_time < this->now_system )
         //    assert( false );
