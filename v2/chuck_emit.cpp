@@ -968,7 +968,7 @@ t_CKBOOL emit_engine_emit_switch( Chuck_Emitter * emit, a_Stmt_Switch stmt );
 t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp )
 {
     // for now...
-    assert( exp->next == NULL );
+    // assert( exp->next == NULL );
 
     // loop over 
     while( exp )
