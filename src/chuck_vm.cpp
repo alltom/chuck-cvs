@@ -264,13 +264,10 @@ t_CKBOOL Chuck_VM::shutdown()
         curr = curr->next;
         // delete prev;
     }
-
     m_shreds = NULL;
     m_num_shreds = 0;
 
-    // m_bbq->midi_out()->close();
-    // m_bbq->midi_in()->close();
-
+    // shutdown audio
     if( m_audio )
     {
         m_bbq->digi_out()->cleanup();
