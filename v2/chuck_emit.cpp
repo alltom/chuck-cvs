@@ -2631,7 +2631,8 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
     // make a new one
     emit->code = new Chuck_Code;
     // name the code
-    emit->code->name = func->name + "( ... )";
+    emit->code->name = emit->env->class_def ? emit->env->class_def->name + "." : "";
+    emit->code->name += func->name + "( ... )";
     // set whether need this
     emit->code->need_this = func->is_member;
 
