@@ -111,10 +111,10 @@ void signal_int( int sig_num )
         pthread_kill( g_tid, 2 );
         pthread_cancel( g_tid );
         usleep( 100000 );
+        delete( vm );
 #else
         CloseHandle( g_tid );
 #endif
-        delete( vm );
     }
 
 #ifndef __PLATFORM_WIN32__
