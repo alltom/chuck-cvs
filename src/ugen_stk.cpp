@@ -17251,6 +17251,11 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
             handleError(msg, StkError::FILE_ERROR);
         }
     }
+    else
+    {
+        bufferSize = 512;
+        channels = 1;
+    }
 
     // Allocate new memory if necessary.
     samples = (bufferSize+1)*channels;
@@ -17271,11 +17276,6 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     {
   	    fileSize = 256;  // length in 2-byte samples
 	    bufferSize = fileSize;
-	    if (fileSize > CHUNK_THRESHOLD) {
-		    chunking = true;
-		    bufferSize = CHUNK_SIZE;
-		    gain = 1.0 / 32768.0;
-	    }
 
 	    // STK rawwave files have no header and are assumed to contain a
 	    // monophonic stream of 16-bit signed integers in big-endian byte
@@ -17284,7 +17284,8 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
 	    dataOffset = 0;
 	    rate = (MY_FLOAT) 22050.0 / Stk::sampleRate();
 	    fileRate = 22050.0;
-	    interpolate = false;
+	    interpolate = true;
+        chunking = false;
 	    dataType = STK_SINT16;
 	    byteswap = false;
 	    #ifdef __LITTLE_ENDIAN__
@@ -17316,18 +17317,18 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
 	
 	    // Read samples into data[].  Use MY_FLOAT data structure
 	    // to store samples.
-	    SINT16 *buf = (SINT16 *)data;
+//	    SINT16 *buf = (SINT16 *)data;
 	    for (unsigned int j=0; j<length; j++)
 	    {
-		    buf[j] = (SINT16)(32768 * sin(2*PI*j/256));
+		    data[j] = (SHRT_MAX) * sin(2*PI*j/256);
 	    }	    
-	    if ( byteswap ) {
-		    SINT16 *ptr = buf;
-		    for (i=length*channels-1; i>=0; i--)
-			    swap16((unsigned char *)(ptr++));
-	    }
-	    for (i=length*channels-1; i>=0; i--)
-	        data[i] = buf[i];
+	    //if ( byteswap ) {
+		//    SINT16 *ptr = buf;
+		//    for (i=length*channels-1; i>=0; i--)
+		//	    swap16((unsigned char *)(ptr++));
+	    //}
+	    //for (i=length*channels-1; i>=0; i--)
+	    //    data[i] = buf[i];
 	    // If at end of file, repeat last sample frame for interpolation.
 	    if ( endfile ) {
 		    for (unsigned int j=0; j<channels; j++)
