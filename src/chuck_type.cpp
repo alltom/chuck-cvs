@@ -1617,7 +1617,7 @@ t_Type type_engine_check_exp_dot_member( t_Env env, a_Exp_Dot_Member member )
         {
             EM_error2( member->linepos,
                        "cannot find unit generator '%s'",
-                       S_name(env->nspc_name) );
+                       t_base->name );
             return NULL;
         }
         
@@ -1627,7 +1627,7 @@ t_Type type_engine_check_exp_dot_member( t_Env env, a_Exp_Dot_Member member )
         {
             EM_error2( member->linepos,
                        "cannot find control parameter '%s.%s'",
-                       S_name(env->nspc_name), S_name(member->id) );
+                       t_base->name, S_name(member->id) );
             return NULL;
         }
         
@@ -1659,14 +1659,14 @@ t_Type type_engine_check_exp_dot_member( t_Env env, a_Exp_Dot_Member member )
         {
             EM_error2( member->linepos,
                        "type checker: cannot chuck values to '%s.%s' - it is read-only",
-                       S_name(env->nspc_name), S_name(member->id) );
+                       t_base->name, S_name(member->id) );
             return NULL;
         }
         else if( !member->flag && !member->data2 )
         {
             EM_error2( member->linepos,
                        "type checker: cannot use value from '%s.%s' - it is write-only",
-                       S_name(env->nspc_name), S_name(member->id) );
+                       t_base->name, S_name(member->id) );
             return NULL;
         }
         
