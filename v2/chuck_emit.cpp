@@ -305,6 +305,9 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop 
             // need to pop the final value from stack
             if( ret && pop && stmt->stmt_exp->type->size > 0 )
             {
+                // sanity
+                assert( stmt->stmt_exp->cast_to == NULL );
+
                 // HACK!
                 if( stmt->stmt_exp->type->size == 4 )
                     emit->append( new Chuck_Instr_Reg_Pop_Word );
