@@ -1,4 +1,4 @@
-// connect sine oscillator to d/a convertor (audio output)
+// connect sine oscillator to audio output
 sinosc s => dac;
 
 // infinite time-loop

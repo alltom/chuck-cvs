@@ -566,13 +566,17 @@ int main( int argc, char ** argv )
             else if( !strcmp(argv[i], "--loop") || !strcmp(argv[i], "-l") )
                 vm_halt = FALSE;
             else if( !strncmp(argv[i], "--srate", 7) )
-                srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : SAMPLING_RATE_DEFAULT;
+                srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : srate;
             else if( !strncmp(argv[i], "-r", 2) )
-                srate = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : SAMPLING_RATE_DEFAULT;
+                srate = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : srate;
             else if( !strncmp(argv[i], "--bufsize", 9) )
-                buffer_size = atoi( argv[i]+9 ) > 0 ? atoi( argv[i]+9 ) : 512;
+                buffer_size = atoi( argv[i]+9 ) > 0 ? atoi( argv[i]+9 ) : buffer_size;
             else if( !strncmp(argv[i], "-b", 2) )
-                buffer_size = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : 512;
+                buffer_size = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : buffer_size;
+            else if( !strncmp(argv[i], "--bufnum", 8) )
+                num_buffers = atoi( argv[i]+8 ) > 0 ? atoi( argv[i]+8 ) : num_buffers;
+            else if( !strncmp(argv[i], "-n", 2) )
+                num_buffers = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : num_buffers;
             else if( !strncmp(argv[i], "--dac", 5) )
                 dac = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--adc", 5) )
