@@ -60,7 +60,6 @@ extern "C" int yyparse( void );
 #include <arpa/inet.h>
 #else 
 #define CHUCK_THREAD HANDLE
-// #define usleep(x) Sleep(x/1000);
 #endif
 
 #include "ugen_osc.h"
@@ -73,7 +72,7 @@ extern "C" int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.5.3"
+#define CK_VERSION "1.1.5.5"
 
 
 #ifdef __PLATFORM_WIN32__
@@ -543,11 +542,7 @@ void * cb( void * p )
         if( !client )
         {
             if( g_vm ) fprintf( stderr, "[chuck]: socket error during accept()...\n" );
-#ifndef __PLATFORM_WIN32__
             usleep( 40000 );
-#else
-            Sleep( 40 );
-#endif
             ck_close( client );
             continue;
         }
@@ -559,11 +554,7 @@ void * cb( void * p )
         if( n != sizeof(msg) )
         {
             fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
-#ifndef __PLATFORM_WIN32__
             usleep( 40000 );
-#else
-            Sleep( 40 );
-#endif
             ck_close( client );
             continue;
         }
@@ -825,7 +816,7 @@ int main( int argc, char ** argv )
     t_CKBOOL vm_halt = TRUE;
     t_CKUINT srate = SAMPLING_RATE_DEFAULT;
     t_CKUINT buffer_size = 1024;
-    t_CKUINT num_buffers = 4;
+    t_CKUINT num_buffers = 8;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
 
@@ -899,7 +890,9 @@ int main( int argc, char ** argv )
     
     // check buffer size
     buffer_size = next_power_2( buffer_size-1 );
-    
+    // set priority
+    Chuck_VM::our_priority = g_priority;
+
     if ( !files && vm_halt )
     {
         fprintf( stderr, "[chuck]: no input files... (try --help)\n" );

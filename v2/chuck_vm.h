@@ -336,7 +336,8 @@ protected:
     
 public:
     // priority
-    static t_CKBOOL set_priority( t_CKUINT priority, Chuck_VM * vm );
+    static t_CKBOOL set_priority( t_CKINT priority, Chuck_VM * vm );
+    static t_CKINT our_priority;
 };
 
 
