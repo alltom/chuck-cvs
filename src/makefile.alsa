@@ -9,7 +9,7 @@ SF_OBJ=util_sndfile.o
 
 #-----------------------------------------------------------------------------
 # by default, ChucK uses a pre-configured libsndfile...
-# uncomment the next line to use libsndfile on your system    
+# uncomment the next 3 lines to use libsndfile on your system    
 #-----------------------------------------------------------------------------
 #FLAGS+= -D__CK_SNDFILE_NATIVE__
 #LIBS+= -lsndfile
