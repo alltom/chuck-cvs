@@ -116,6 +116,7 @@ void signal_int( int sig_num )
 #else
         CloseHandle( g_tid );
 #endif
+        ck_close( g_sock );
     }
 
 #ifndef __PLATFORM_WIN32__
@@ -386,7 +387,7 @@ void * cb( void * p )
         client = ck_accept( g_sock );
         if( !client )
         {
-            fprintf( stdout, "[chuck]: socket error during accept()...\n" );
+            // fprintf( stdout, "[chuck]: socket error during accept()...\n" );
 #ifndef __PLATFORM_WIN32__
             usleep( 100000 );
 #else
@@ -395,7 +396,7 @@ void * cb( void * p )
             continue;
         }
         memset( &msg, 0, sizeof(msg) );
-        ck_recv( g_sock, (char *)&msg, sizeof(msg) );
+        ck_recv( client, (char *)&msg, sizeof(msg) );
         if( g_vm ) process_msg( msg.type, msg.param, msg.buffer, FALSE );
         ck_close( client );
     }
@@ -731,6 +732,7 @@ int main( int argc, char ** argv )
     CloseHandle( g_tid );
 #endif
     usleep( 100000 );
+    ck_close( g_sock );
         
     return 0;
 }

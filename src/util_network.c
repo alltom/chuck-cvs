@@ -315,6 +315,7 @@ int ck_recv( ck_socket sock, char * buffer, int len )
             togo -= ret;
             p += ret;
         }
+        return len;
     }
     else return recv( sock->sock, buffer, len, 0);
 }
