@@ -255,7 +255,7 @@ struct Chuck_Env
 // name: struct Chuck_Type
 // desc: class containing information about a type
 //-----------------------------------------------------------------------------
-struct Chuck_Type : public Chuck_VM_Object
+struct Chuck_Type //: public Chuck_VM_Object
 {
     // type id
     te_Type id;

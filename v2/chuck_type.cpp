@@ -1496,7 +1496,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // allocate new type
     t_class = new Chuck_Type;
     // init as vm object
-    t_class->init();
+    // t_class->init();
     // set the fields
     t_class->id = te_user;
     t_class->name = S_name(class_def->name->id);
