@@ -175,6 +175,7 @@ a_Class_Def new_class_def( c_str id, a_Class_Ext ext, a_Class_Body body, int pos
 a_Class_Body new_class_body( a_Section section, int pos );
 a_Class_Body prepend_class_body( a_Section section, a_Class_Body body, int pos );
 a_Class_Ext new_class_ext( c_str extend_id, a_Id_List impl_list, int pos );
+a_Class_Def new_iface_def( c_str id, a_Class_Ext ext, a_Class_Body body, int pos );
 a_Id_List new_id_list( c_str id, int pos );
 a_Id_List prepend_id_list( c_str id, a_Id_List list, int pos );
 void clean_exp( a_Exp exp );

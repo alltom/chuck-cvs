@@ -116,6 +116,7 @@ a_Program g_program = NULL;
 %type <class_def> class_definition
 %type <class_body> class_body
 %type <class_ext> class_ext
+%type <class_ext> iface_ext
 %type <program_section> class_section
 %type <stmt_list> statement_list
 %type <stmt> statement
@@ -176,6 +177,10 @@ class_definition
             { $$ = new_class_def( $2, NULL, $4, EM_lineNum ); }
         | CLASS ID class_ext LBRACE class_body RBRACE 
             { $$ = new_class_def( $2, $3, $5, EM_lineNum ); }
+        | INTERFACE ID LBRACE class_body RBRACE
+            { $$ = new_iface_def( $2, NULL, $4, EM_lineNum ); }
+        | INTERFACE ID iface_ext LBRACE class_body RBRACE
+            { $$ = new_iface_def( $2, $3, $5, EM_lineNum ); }
         ;
 
 class_ext
@@ -193,6 +198,10 @@ class_body
 class_section
         : statement_list                    { $$ = new_section_stmt( $1, EM_lineNum ); }
         | function_definition               { $$ = new_section_func_def( $1, EM_lineNum ); }
+        ;
+        
+iface_ext
+        : EXTENDS id_list                   { $$ = new_class_ext( NULL, $2, EM_lineNum ); }
         ;
 
 id_list
