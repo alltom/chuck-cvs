@@ -62,7 +62,7 @@ const char * op2str( ae_Operator op );
 // enum key words
 typedef enum {
     ae_key_this, ae_key_me, ae_key_func, ae_key_public, ae_key_protected,
-    ae_key_private, ae_key_static
+    ae_key_private, ae_key_static, ae_key_abstract
 } ae_Keyword;
 
 

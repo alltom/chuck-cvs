@@ -121,10 +121,11 @@
      PROTECTED = 347,
      PRIVATE = 348,
      STATIC = 349,
-     CONST = 350,
-     SPORK = 351,
-     L_NSPC = 352,
-     R_NSPC = 353
+     ABSTRACT = 350,
+     CONST = 351,
+     SPORK = 352,
+     L_NSPC = 353,
+     R_NSPC = 354
    };
 #endif
 #define ID 258
@@ -219,10 +220,11 @@
 #define PROTECTED 347
 #define PRIVATE 348
 #define STATIC 349
-#define CONST 350
-#define SPORK 351
-#define L_NSPC 352
-#define R_NSPC 353
+#define ABSTRACT 350
+#define CONST 351
+#define SPORK 352
+#define L_NSPC 353
+#define R_NSPC 354
 
 
 
@@ -252,7 +254,7 @@ typedef union YYSTYPE {
     a_Array_Sub array_sub;
 } YYSTYPE;
 /* Line 1252 of yacc.c.  */
-#line 256 "chuck.tab.h"
+#line 258 "chuck.tab.h"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

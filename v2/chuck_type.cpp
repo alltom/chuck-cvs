@@ -222,6 +222,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_words["protected"] = TRUE;
     env->key_words["private"] = TRUE;
     env->key_words["static"] = TRUE;
+    env->key_words["pure"] = TRUE;
 
     env->key_values["now"] = TRUE;
     env->key_values["beginning"] = TRUE;
@@ -231,6 +232,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_values["pi"] = TRUE;
     env->key_values["this"] = TRUE;
     env->key_values["super"] = TRUE;
+    env->key_values["me"] = TRUE;
     env->key_values["samp"] = TRUE;
     env->key_values["ms"] = TRUE;
     env->key_values["second"] = TRUE;
