@@ -1182,7 +1182,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol id,
         else if( t && t->type == __te_system_namespace__ )
         {
             // find the namespace
-            emit->nspc = lookup_namespace( emit->nspc, id, FALSE );
+            emit->nspc = lookup_namespace( emit->env, id, FALSE );
             if( !emit->nspc )
             {
                 EM_error2( linepos,
@@ -2823,6 +2823,18 @@ t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
                     return FALSE;
                 }
             }
+        }
+        else if( rhs->s_type == ae_exp_dot_member )
+        {
+            EM_error2( rhs->linepos,
+                       "(emit): internal error: did not handle [namespace].[value]" );
+            return FALSE;
+        }
+        else
+        {
+            EM_error2( rhs->linepos,
+                       "(emit): internal error: unhandled expression" );
+            return FALSE;
         }
     }
     else // if( rhs->s_type == ae_exp_decl )
