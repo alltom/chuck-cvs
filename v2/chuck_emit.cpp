@@ -2430,7 +2430,7 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
         emit->append( new Chuck_Instr_Array_Alloc( type->array_depth, type->array_type ) );
 
         // handle constructor
-        if( !is_ref )
+        if( isobj( type->array_type ) && !is_ref )
         {
             // TODO:
             EM_error2( array->linepos, "internal error: object array constructor not impl..." );
