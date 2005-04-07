@@ -1296,7 +1296,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
     // make sure
     if( unary->exp )
     {
-        assert( unary->op == ae_op_new );
+        // assert( unary->op == ae_op_new );
         t = type_engine_check_exp( env, unary->exp );
         if( !t ) return NULL;
     }
