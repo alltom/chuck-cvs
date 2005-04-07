@@ -77,6 +77,8 @@ t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
                                         t_CKBOOL push = TRUE );
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
 t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def );
+t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type,
+                                         a_Array_Sub array, t_CKBOOL is_ref );
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
 t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit, Chuck_Type * to, Chuck_Type * from );
 t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
@@ -1881,7 +1883,13 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
 
     case ae_op_new:
 
-
+        // if this is an object
+        if( isobj( t ) )
+        {
+            // instantiate object, including array
+            if( !emit_engine_instantiate_object( emit, t, unary->type->array, unary->type->ref ) )
+                return FALSE;
+        }
         break;
 
     default:
