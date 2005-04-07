@@ -310,6 +310,8 @@ struct Chuck_Type : public Chuck_VM_Object
     t_CKBOOL is_copy;
     // defined
     t_CKBOOL is_complete;
+    // has pre constructor
+    t_CKBOOL has_constructor;
 
 public:
     // constructor
@@ -318,7 +320,7 @@ public:
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
       array_type = NULL; array_depth = 0; obj_size = 0; self_size = 0;
       info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
-      ugen = NULL; is_complete = TRUE; }
+      ugen = NULL; is_complete = TRUE; has_constructor = FALSE; }
     // destructor
     ~Chuck_Type() { reset(); }
     

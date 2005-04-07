@@ -1256,6 +1256,12 @@ t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
         return NULL;
     }
 
+    // if the right is a decl, then make sure ref
+    if( rhs->s_type == ae_exp_decl )
+    {
+        rhs->decl.type->ref = TRUE;
+    }
+
     // implicit cast
     LR( te_int, te_float ) left = lhs->cast_to = &t_float;
 
@@ -2283,6 +2289,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         switch( body->section->s_type )
         {
         case ae_section_stmt:
+            // flag as having a constructor
+            env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
             ret = type_engine_check_stmt_list( env, body->section->stmt_list );
             break;
         

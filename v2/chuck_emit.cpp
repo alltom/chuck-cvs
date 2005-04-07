@@ -2463,8 +2463,10 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
         //}
         
         // constructor
-        if( type->info->code != NULL )
+        if( type->has_constructor )
         {
+            // make sure
+            assert( type->info->code != NULL );
             // push this
             emit->append( new Chuck_Instr_Reg_Dup_Last );
             // push pre-constructor
@@ -2802,6 +2804,8 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     emit->code->name = string("class ") + type->name;
     // whether code needs this
     emit->code->need_this = TRUE;
+    // if has constructor
+    if( type->has_constructor ) type->info->code = new Chuck_VM_Code;
 
     // get the size
     emit->code->stack_depth += sizeof(t_CKUINT);
@@ -2844,7 +2848,12 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         // emit return statement
         emit->append( new Chuck_Instr_Func_Return );
         // vm code
-        type->info->code = emit_to_code( emit->code, NULL, emit->dump );
+        type->info->code = emit_to_code( emit->code, type->info->code, emit->dump );
+    }
+    else
+    {
+        // clean
+        SAFE_DELETE( type->info->code );
     }
 
     // unset the class
