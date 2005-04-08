@@ -3326,15 +3326,7 @@ t_CKBOOL operator <=( const Chuck_Type & lhs, const Chuck_Type & rhs )
     }
 
     // if lhs is null and rhs is a object
-    if( lhs == t_null )
-    {
-        curr = &rhs;
-        while( curr )
-        {
-            if( *curr == t_object ) return TRUE;
-            curr = curr->parent;
-        }
-    }
+    if( lhs == t_null && (rhs <= t_object) ) return TRUE;
     
     return FALSE;
 }
