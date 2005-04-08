@@ -1548,13 +1548,82 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
     assert( exp->s_type == ae_primary_array );
 
     // type
-    t_CKTYPE t = NULL;
+    Chuck_Type * t = NULL, * type = NULL, * common = NULL;
+
+    // verify they are of same type - do this later?
+    a_Exp e = exp->array->exp_list;
+    
+    // can't be []
+    if( !e )
+    {
+        EM_error2( exp->linepos,
+                   "must provide values/expressions for array [...]" );
+        return NULL;
+    }
 
     // go through the array and type check each
+    if( !type_engine_check_exp( env, e ) )
+        return NULL;
+
+    // loop
+    while( e )
+    {
+        // get the type
+        t = e->type;
+
+        // compare
+        if( !type )
+        {
+            // first
+            type = t;
+        }
+        else
+        {
+            // find common ancestor
+            common = type_engine_find_common_anc( t, type );
+            // update type
+            if( common ) type = common;
+            // no common
+            else
+            {
+                // maybe one is int and other is float
+                if( isa( t, &t_int ) && isa( type, &t_float ) )
+                {
+                    // cast from int to float
+                    e->cast_to = type;
+                }
+                else
+                {
+                    // incompatible
+                    EM_error2( e->linepos, "array init [...] contains incompatible types..." );
+                    return NULL;
+                }
+            }
+        }
+    }
+
+    // make sure
+    assert( type != NULL );
 
     // treat static and dynamic separately
+    // exp->array->is_dynamic = !is_static_array_lit( env, exp->array->exp_list );
 
     // create the new type
+    t = env->context->new_Chuck_Type();
+    // set the id
+    t->id = te_array;
+    // set the name
+    t->name = type->name;
+    // set the parent
+    t->parent = &t_array;
+    // is a ref
+    t->size = t_array.size;
+    // set the array depth
+    t->array_depth = type->array_depth + 1;
+    // set the base type
+    t->array_type = type;
+    // set owner
+    t->owner = env->curr;
 
     return t;
 }
@@ -3202,7 +3271,9 @@ t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
     if( lhs.id != rhs.id ) return FALSE;
     // check array depth
     if( lhs.array_depth != rhs.array_depth ) return FALSE;
-     
+    // check array type
+    if( lhs.array_depth && (lhs.actual_type != rhs.actual_type) ) return FALSE;
+
     // if user-defined type
     if( lhs.id == te_user )
     {
@@ -3356,6 +3427,35 @@ t_CKBOOL isobj( Chuck_Type * type )
 {   return !type_engine_check_primitive( type ); }
 t_CKBOOL isfunc( Chuck_Type * type )
 {   return isa( type, &t_function ); }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_find_common_anc()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Type * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs )
+{
+    // check to see if either is child of other
+    if( isa( lhs, rhs ) ) return rhs;
+    if( isa( rhs, lhs ) ) return lhs;
+    
+    // move up
+    Chuck_Type * t = lhs->parent;
+
+    // not at root
+    while( t )
+    {
+        // check and see again
+        if( isa( rhs, t ) ) return t;
+        // move up
+        t = t->parent;
+    }
+
+    // didn't find
+    return NULL;
+}
 
 
 
