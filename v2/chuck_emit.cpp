@@ -580,7 +580,7 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
     while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
         emit->code->stack_break.back()->set( emit->next_index() );
-        emit->code->stack_cont.pop_back();
+        emit->code->stack_break.pop_back();
     }
 
     // pop stack
@@ -669,7 +669,7 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
         emit->code->stack_break.back()->set( emit->next_index() );
-        emit->code->stack_cont.pop_back();
+        emit->code->stack_break.pop_back();
     }
 
     // pop stack
@@ -753,7 +753,7 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
         emit->code->stack_break.back()->set( emit->next_index() );
-        emit->code->stack_cont.pop_back();
+        emit->code->stack_break.pop_back();
     }
 
     // pop stack
@@ -839,7 +839,7 @@ t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
         emit->code->stack_break.back()->set( emit->next_index() );
-        emit->code->stack_cont.pop_back();
+        emit->code->stack_break.pop_back();
     }
 
     // pop stack
@@ -924,7 +924,7 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     while( emit->code->stack_break.size() && emit->code->stack_break.back() )
     {
         emit->code->stack_break.back()->set( emit->next_index() );
-        emit->code->stack_cont.pop_back();
+        emit->code->stack_break.pop_back();
     }
 
     // pop stack
