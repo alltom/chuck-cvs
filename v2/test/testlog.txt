@@ -81,8 +81,28 @@ p59.ck		emit, correct		member set via function, access via function
 p60.ck		declaration must have code  function declaration, later definition
 p61.ck		function name already used  function overloading (not yet!)
 p62.ck		type fail assertion (unary->op = ae_op_new') spork function(void) that waits 10 sec
-p63.ck		"			       spork 10sec function and 5sec function
-p64.ck		"			       spork functions with wait time as argument
+p63.ck		"			 spork 10sec function and 5sec function
+p64.ck		"			 spork functions with wait time as argument
+
+p75.ck		emit, correct		 for loop
+p76.ck		redefinition of i (scope error )  scoping of for statements			 
+p77.ck		emit, correct		 while ( check for <  )
+p78.ck		emit, correct		 until ( check for >= )
+p79.ck		emit, correct		 until ( check for == )
+p80.ck		parse fail		 do-while
+p81.ck		parse fail	         do-while ( test initial execution )
+p82.ck		parse fail		 do-until
+p83.ck		parse fail		 do-until ( test initial execution )
+p84.ck		incorrect result	 while with post-increment
+p84_2.ck	incorrect result	 while with pre-increment
+p85.ck		parse: error ( on 'break' ) ?	    break;
+p86.ck		type: undef variable 'continue'	    continue;
+p87.ck		parse: error ( on 'break' ) ?	    break statement in nested loops;
+p88.ck		type: undef variable 'continue'	    continue statement in nested loops;
+p89.ck		correct				    'this' for member access
+p90.ck		correct				    fancy 'this' example;
+p91.ck		correct				    fancy 'this' test 2;
+
 
 --Notes--
 
