@@ -1375,6 +1375,20 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             // []
             if( unary->array )
             {
+                // verify there are no errors from the parser...
+                if( unary->array->err_num == 1 )
+                {
+                    EM_error2( unary->array->err_pos,
+                        "invalid format for array init [...][...]..." );
+                    return NULL;
+                }
+                else if( unary->array->err_num == 2 )
+                {
+                    EM_error2( unary->array->err_pos,
+                        "partially empty array init [...][]..." );
+                    return NULL;
+                }
+            
                 // if empty
                 if( !unary->array->exp_list )
                 {
@@ -1549,6 +1563,25 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
 
     // type
     Chuck_Type * t = NULL, * type = NULL, * common = NULL;
+
+    // verify there were no errors from the parser...
+    if( exp->array->err_num )
+    {
+        if( exp->array->err_num == 1 )
+        {
+            EM_error2( exp->array->linepos,
+                "invalid format for array init [...][...]..." );
+            return NULL;
+        }
+        else if( exp->array->err_num == 2 )
+        {
+            EM_error2( exp->array->linepos,
+                "partially empty array init [...][]..." );
+            return NULL;
+        }
+        else
+            assert( FALSE );
+    }
 
     // verify they are of same type - do this later?
     a_Exp e = exp->array->exp_list;
@@ -1935,6 +1968,20 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // check if array
         if( var_decl->array != NULL )
         {
+            // verify there are no errors from the parser...
+            if( var_decl->array->err_num == 1 )
+            {
+                EM_error2( var_decl->array->err_pos,
+                    "invalid format for array init [...][...]..." );
+                return NULL;
+            }
+            else if( var_decl->array->err_num == 2 )
+            {
+                EM_error2( var_decl->array->err_pos,
+                    "partially empty array init [...][]..." );
+                return NULL;
+            }
+
             Chuck_Type * t2 = t;
             // may be partial and empty []
             if( var_decl->array->exp_list )
@@ -2201,6 +2248,20 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
 {
+    // verify there are no errors from the parser...
+    if( array->indices->err_num == 1 )
+    {
+        EM_error2( array->indices->err_pos,
+            "invalid format for array init [...][...]..." );
+        return NULL;
+    }
+    else if( array->indices->err_num == 2 )
+    {
+        EM_error2( array->indices->err_pos,
+            "partially empty array init [...][]..." );
+        return NULL;
+    }
+
     // type check the base
     t_CKTYPE t_base = type_engine_check_exp( env, array->base );
     if( !t_base ) return NULL;
@@ -2570,6 +2631,20 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         // check if array
         if( arg_list->var_decl->array != NULL )
         {
+            // verify there are no errors from the parser...
+            if( arg_list->var_decl->array->err_num == 1 )
+            {
+                EM_error2( arg_list->var_decl->array->err_pos,
+                    "invalid format for array init [...][...]..." );
+                return NULL;
+            }
+            else if( arg_list->var_decl->array->err_num == 2 )
+            {
+                EM_error2( arg_list->var_decl->array->err_pos,
+                    "partially empty array init [...][]..." );
+                return NULL;
+            }
+            
             Chuck_Type * t = arg_list->type;
             Chuck_Type * t2 = t;
             // should be partial and empty []
