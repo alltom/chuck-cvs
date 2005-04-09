@@ -2033,12 +2033,9 @@ t_CKBOOL emit_engine_emit_array_lit( Chuck_Emitter * emit, a_Array_Sub array )
     t_CKUINT count = 0;
     // loop over
     while( e ) { count++; e = e->next; }
-
-    // the type
-    Chuck_Type * type = e->cast_to ? e->cast_to : e->type;
-
+    
     // construct array dynamically
-    // emit->append( new Chuck_Instr_Array_Init( type->size, count ) );
+    // emit->append( new Chuck_Instr_Array_Init( array
 
     return TRUE;
 }
