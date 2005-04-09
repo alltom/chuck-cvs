@@ -123,6 +123,9 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const char * nam
 t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name, 
 										 const string & type, void * addr );
 
+// helper
+t_CKBOOL verify_array( a_Array_Sub array );
+
 
 
 
@@ -1376,18 +1379,8 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             if( unary->array )
             {
                 // verify there are no errors from the parser...
-                if( unary->array->err_num == 1 )
-                {
-                    EM_error2( unary->array->err_pos,
-                        "invalid format for array init [...][...]..." );
+                if( !verify_array( unary->array ) )
                     return NULL;
-                }
-                else if( unary->array->err_num == 2 )
-                {
-                    EM_error2( unary->array->err_pos,
-                        "partially empty array init [...][]..." );
-                    return NULL;
-                }
             
                 // if empty
                 if( !unary->array->exp_list )
@@ -1564,24 +1557,9 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
     // type
     Chuck_Type * t = NULL, * type = NULL, * common = NULL;
 
-    // verify there were no errors from the parser...
-    if( exp->array->err_num )
-    {
-        if( exp->array->err_num == 1 )
-        {
-            EM_error2( exp->array->linepos,
-                "invalid format for array init [...][...]..." );
-            return NULL;
-        }
-        else if( exp->array->err_num == 2 )
-        {
-            EM_error2( exp->array->linepos,
-                "partially empty array init [...][]..." );
-            return NULL;
-        }
-        else
-            assert( FALSE );
-    }
+    // verify there are no errors from the parser...
+    if( !verify_array( exp->array ) )
+        return NULL;
 
     // verify they are of same type - do this later?
     a_Exp e = exp->array->exp_list;
@@ -1972,18 +1950,8 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         if( var_decl->array != NULL )
         {
             // verify there are no errors from the parser...
-            if( var_decl->array->err_num == 1 )
-            {
-                EM_error2( var_decl->array->err_pos,
-                    "invalid format for array init [...][...]..." );
+            if( !verify_array( var_decl->array ) )
                 return NULL;
-            }
-            else if( var_decl->array->err_num == 2 )
-            {
-                EM_error2( var_decl->array->err_pos,
-                    "partially empty array init [...][]..." );
-                return NULL;
-            }
 
             Chuck_Type * t2 = t;
             // may be partial and empty []
@@ -2252,18 +2220,8 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array )
 {
     // verify there are no errors from the parser...
-    if( array->indices->err_num == 1 )
-    {
-        EM_error2( array->indices->err_pos,
-            "invalid format for array init [...][...]..." );
+    if( !verify_array( array->indices ) )
         return NULL;
-    }
-    else if( array->indices->err_num == 2 )
-    {
-        EM_error2( array->indices->err_pos,
-            "partially empty array init [...][]..." );
-        return NULL;
-    }
 
     // type check the base
     t_CKTYPE t_base = type_engine_check_exp( env, array->base );
@@ -2635,18 +2593,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         if( arg_list->var_decl->array != NULL )
         {
             // verify there are no errors from the parser...
-            if( arg_list->var_decl->array->err_num == 1 )
-            {
-                EM_error2( arg_list->var_decl->array->err_pos,
-                    "invalid format for array init [...][...]..." );
+            if( !verify_array( arg_list->var_decl->array ) )
                 return NULL;
-            }
-            else if( arg_list->var_decl->array->err_num == 2 )
-            {
-                EM_error2( arg_list->var_decl->array->err_pos,
-                    "partially empty array init [...][]..." );
-                return NULL;
-            }
             
             Chuck_Type * t = arg_list->type;
             Chuck_Type * t2 = t;
@@ -3703,4 +3651,39 @@ Chuck_Namespace * Chuck_Context::new_Chuck_Namespace()
     init_special( nspc );
 
     return nspc;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: new_Chuck_Namespace()
+// desc: instantiate new chuck namespace
+//-----------------------------------------------------------------------------
+t_CKBOOL verify_array( a_Array_Sub array )
+{
+    // verify there were no errors from the parser...
+    if( array->err_num )
+    {
+        if( array->err_num == 1 )
+        {
+            EM_error2( array->linepos,
+                "invalid format for array init [...][...]..." );
+            return FALSE;
+        }
+        else if( array->err_num == 2 )
+        {
+            EM_error2( array->linepos,
+                "partially empty array init [...][]..." );
+            return FALSE;
+        }
+        else
+        {
+            EM_error2( array->linepos,
+                "internal error: unrecognized array error..." );
+            return FALSE;
+        }
+    }
+
+    return TRUE;
 }
