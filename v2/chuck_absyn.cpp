@@ -696,19 +696,28 @@ a_Array_Sub new_array_sub( a_Exp exp, int pos )
     a->linepos = pos;
     
     // make sure no multi
-    if( exp && exp->next )
+    /* if( exp && exp->next )
     {
-        a->err_num = 1;            // multi
-        a->err_pos = exp->linepos; // set error for type-checker
-        goto error;
-    }
+        // primary exp?
+        if( is_primary )
+        {
+            a->exp_list = NULL;
+            a->exp_multi = exp;
+        }
+        else
+        {
+            a->err_num = 1;            // multi
+            a->err_pos = exp->linepos; // set error for type-checker
+            goto error;
+        }
+    } */
     
     return a;
     
-error:
+/* error:
     clean_exp( exp );
     a->exp_list = NULL;
-    return a;
+    return a; */
 }
 
 a_Array_Sub prepend_array_sub( a_Array_Sub a, a_Exp exp, int pos )

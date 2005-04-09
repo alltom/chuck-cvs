@@ -1633,6 +1633,9 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
                 }
             }
         }
+
+        // next exp
+        e = e->next;
     }
 
     // make sure
