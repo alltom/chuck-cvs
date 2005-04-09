@@ -2110,6 +2110,8 @@ Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t , t_CKINT length 
     m_type_ref->add_ref();
     // type
     m_param_str = new char[64];
+    // obj
+    m_is_obj = isobj( m_type_ref );
     const char * str = m_type_ref->c_name();
     t_CKUINT len = strlen( str );
     // copy
@@ -2155,9 +2157,6 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // reg stack pointer
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-    // ref
-    t_CKUINT ref = 0;
-
 
     // allocate the array
     if( m_type_ref->size == 4 )
@@ -2165,7 +2164,7 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // pop the values
         pop_( reg_sp, m_length );
         // instantiate array
-        Chuck_Array4 * array = new Chuck_Array4( m_length );
+        Chuck_Array4 * array = new Chuck_Array4( m_is_obj, m_length );
         // problem
         if( !array ) goto out_of_memory;
         // fill array
@@ -2219,6 +2218,8 @@ Chuck_Instr_Array_Alloc::Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * t
     m_type_ref->add_ref();
     // type
     m_param_str = new char[64];
+    // obj
+    m_is_obj = isobj( m_type_ref );
     const char * str = m_type_ref->c_name();
     t_CKUINT len = strlen( str );
     // copy
@@ -2255,7 +2256,8 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
 // name: do_alloc_array()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top, t_CKUINT size )
+Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
+                               t_CKUINT size, t_CKBOOL is_obj )
 {
     // not top level
     Chuck_Array4 * base;
@@ -2268,7 +2270,7 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top, t_CKUINT
         // check size
         if( size == 4 )
         {
-            Chuck_Array4 * base = new Chuck_Array4( *capacity );
+            Chuck_Array4 * base = new Chuck_Array4( is_obj, *capacity );
             if( !base ) goto out_of_memory;
             return base;
         }
@@ -2284,14 +2286,14 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top, t_CKUINT
     }
 
     // not top level
-    base = new Chuck_Array4( *capacity );
+    base = new Chuck_Array4( TRUE, *capacity );
     if( !base ) goto out_of_memory;
 
     // allocate the next level
     for( i = 0; i < base->capacity(); i++ )
     {
         // the next
-        next = do_alloc_array( capacity+1, top, size );
+        next = do_alloc_array( capacity+1, top, size, is_obj );
         // error if NULL
         if( !next ) goto error;
         // set that
@@ -2334,7 +2336,8 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     ref = (t_CKUINT)do_alloc_array( 
         (t_CKINT *)reg_sp,
         (t_CKINT *)(reg_sp + m_depth - 1),
-        m_type_ref->size
+        m_type_ref->size,
+        m_is_obj
     );
 
     // problem

@@ -1772,6 +1772,7 @@ public:
 protected:
     Chuck_Type * m_type_ref;
     t_CKINT m_length;
+    t_CKBOOL m_is_obj;
     char * m_param_str;
 };
 
@@ -1795,6 +1796,7 @@ public:
 protected:
     t_CKUINT m_depth;
     Chuck_Type * m_type_ref;
+    t_CKBOOL m_is_obj;
     char * m_param_str;
 };
 
