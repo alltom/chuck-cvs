@@ -2551,9 +2551,13 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         // if this is an object
         if( is_obj )
         {
-            // instantiate object, including array
-            if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
-                return FALSE;
+            // if array, then check to see if empty []
+            if( !list->var_decl->array || list->var_decl->array->exp_list != NULL )
+            {
+                // instantiate object, including array
+                if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
+                    return FALSE;
+            }
         }
 
         // put in the value
