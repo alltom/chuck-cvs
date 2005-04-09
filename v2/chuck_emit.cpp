@@ -73,6 +73,7 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
 t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
 t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
+t_CKBOOL emit_engine_emit_array_lit( Chuck_Emitter * emit, a_Array_Sub array );
 t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
                                         t_CKBOOL push = TRUE );
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
@@ -1999,6 +2000,11 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         temp = (t_CKUINT)str;
         emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
         break;
+
+    case ae_primary_array:
+        if( !emit_engine_emit_array_lit( emit, exp->array ) )
+            return FALSE;
+        break;
         
     case ae_primary_exp:
         if( !emit_engine_emit_exp( emit, exp->exp ) )
@@ -2006,6 +2012,34 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         break;
     }
     
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_array_lit()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_array_lit( Chuck_Emitter * emit, a_Array_Sub array )
+{
+    // go through and emit the expressions
+    if( !emit_engine_emit_exp( emit, array->exp_list ) )
+        return FALSE;
+
+    // count the number
+    a_Exp e = array->exp_list;
+    t_CKUINT count = 0;
+    // loop over
+    while( e ) { count++; e = e->next; }
+
+    // the type
+    Chuck_Type * type = e->cast_to ? e->cast_to : e->type;
+
+    // construct array dynamically
+    // emit->append( new Chuck_Instr_Array_Init( type->size, count ) );
+
     return TRUE;
 }
 
