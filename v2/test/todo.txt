@@ -18,8 +18,10 @@ apr 9	       p85,87   parse error on 'break'
 apr 9	       p84,84_2 post-preincrement w comparison smells fishy...
 apr 9	       p80-p83 - "do" construction unrecognized
 apr 9	       p76 - scoping error in for statement 
-apr 5	       p71 class cannot return object of its own type ) parse error 
-apr 3 -        p16 - typing needs to be check for array comparisons. 
+apr 9	       p15.ck - cast from child to parent should be accepted ( unless we 
+		      want explicit casts
+apr 5	       FIXED p71 class cannot return object of its own type ) parse error 
+apr 3 -        FIXED p16 - typing needs to be check for array comparisons. 
 mar 31: 3pm    p16 bug still up - ( assigning parent array to subclass array )
 mar 31, 9:50am windows : p37, p30
 mar 31, 9:00am FIXEDfloat comparisions proper on Windows, error on OSX ( FIXED NOW );
