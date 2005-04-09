@@ -235,6 +235,8 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     for( t_CKUINT i = 0; i < code->num_instr; i++ )
         code->instr[i] = in->code[i];
 
+    Chuck_Instr_Goto * a = (Chuck_Instr_Goto *)in->code[22];
+
     // dump
     if( dump )
     {
@@ -583,6 +585,10 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
 
     // pop stack
     emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
 
     return ret;
 }
@@ -655,6 +661,7 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
         emit->code->stack_cont.back()->set( start_index );
+        Chuck_Instr_Goto * a = emit->code->stack_cont.back();
         emit->code->stack_cont.pop_back();
     }
 
@@ -667,6 +674,10 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
 
     // pop stack
     emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
 
     return ret;
 }
@@ -747,6 +758,10 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
 
     // pop stack
     emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
     
     return ret;
 }
@@ -829,6 +844,10 @@ t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
 
     // pop stack
     emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
     
     return ret;
 }
@@ -910,6 +929,10 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
 
     // pop stack
     emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
     
     return ret;
 }
@@ -924,7 +947,10 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
 t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br )
 {
     // append
-    emit->code->stack_break.push_back( new Chuck_Instr_Goto( 0 ) );
+    Chuck_Instr_Goto * op = new Chuck_Instr_Goto( 0 );
+    emit->append( op );
+    // remember
+    emit->code->stack_break.push_back( op );
     
     return TRUE;
 }
@@ -939,7 +965,10 @@ t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br )
 t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont )
 {
     // append
-    emit->code->stack_cont.push_back( new Chuck_Instr_Goto( 0 ) );
+    Chuck_Instr_Goto * op = new Chuck_Instr_Goto( 0 );
+    emit->append( op );
+    // remember
+    emit->code->stack_cont.push_back( op );
 
     return TRUE;
 }

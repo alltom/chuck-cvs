@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 30 shift/reduce conflicts
-%expect 30
+// expect 32 shift/reduce conflicts
+%expect 32
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -92,7 +92,7 @@ a_Program g_program = NULL;
   PLUS MINUS TIMES DIVIDE PERCENT
   EQ NEQ LT LE GT GE AND OR ASSIGN
   IF THEN ELSE WHILE FOR DO
-  BREAK NULL_TOK FUNCTION RETURN
+  BREAK CONTINUE NULL_TOK FUNCTION RETURN
   QUESTION EXCLAMATION S_OR S_AND S_XOR
   PLUSPLUS MINUSMINUS DOLLAR
   SIMULT PATTERN CODE TRANSPORT HOST
@@ -289,6 +289,8 @@ statement
 jump_statement
         : RETURN SEMICOLON                  { $$ = new_stmt_from_return( NULL, EM_lineNum ); }
         | RETURN expression SEMICOLON       { $$ = new_stmt_from_return( $2, EM_lineNum ); }
+        | BREAK SEMICOLON                   { $$ = new_stmt_from_break( EM_lineNum ); }
+        | CONTINUE SEMICOLON                { $$ = new_stmt_from_continue( EM_lineNum ); }
         ;
 
 selection_statement

@@ -65,68 +65,69 @@
      FOR = 291,
      DO = 292,
      BREAK = 293,
-     NULL_TOK = 294,
-     FUNCTION = 295,
-     RETURN = 296,
-     QUESTION = 297,
-     EXCLAMATION = 298,
-     S_OR = 299,
-     S_AND = 300,
-     S_XOR = 301,
-     PLUSPLUS = 302,
-     MINUSMINUS = 303,
-     DOLLAR = 304,
-     SIMULT = 305,
-     PATTERN = 306,
-     CODE = 307,
-     TRANSPORT = 308,
-     HOST = 309,
-     TIME = 310,
-     WHENEVER = 311,
-     NEXT = 312,
-     UNTIL = 313,
-     EVERY = 314,
-     BEFORE = 315,
-     AFTER = 316,
-     AT = 317,
-     AT_SYM = 318,
-     ATAT_SYM = 319,
-     NEW = 320,
-     SIZEOF = 321,
-     TYPEOF = 322,
-     SAME = 323,
-     PLUS_CHUCK = 324,
-     MINUS_CHUCK = 325,
-     TIMES_CHUCK = 326,
-     DIVIDE_CHUCK = 327,
-     S_AND_CHUCK = 328,
-     S_OR_CHUCK = 329,
-     S_XOR_CHUCK = 330,
-     SHIFT_RIGHT_CHUCK = 331,
-     SHIFT_LEFT_CHUCK = 332,
-     PERCENT_CHUCK = 333,
-     SHIFT_RIGHT = 334,
-     SHIFT_LEFT = 335,
-     TILDA = 336,
-     CHUCK = 337,
-     COLONCOLON = 338,
-     S_CHUCK = 339,
-     AT_CHUCK = 340,
-     LEFT_S_CHUCK = 341,
-     UNCHUCK = 342,
-     CLASS = 343,
-     INTERFACE = 344,
-     EXTENDS = 345,
-     IMPLEMENTS = 346,
-     PUBLIC = 347,
-     PROTECTED = 348,
-     PRIVATE = 349,
-     STATIC = 350,
-     ABSTRACT = 351,
-     CONST = 352,
-     SPORK = 353,
-     L_NSPC = 354,
-     R_NSPC = 355
+     CONTINUE = 294,
+     NULL_TOK = 295,
+     FUNCTION = 296,
+     RETURN = 297,
+     QUESTION = 298,
+     EXCLAMATION = 299,
+     S_OR = 300,
+     S_AND = 301,
+     S_XOR = 302,
+     PLUSPLUS = 303,
+     MINUSMINUS = 304,
+     DOLLAR = 305,
+     SIMULT = 306,
+     PATTERN = 307,
+     CODE = 308,
+     TRANSPORT = 309,
+     HOST = 310,
+     TIME = 311,
+     WHENEVER = 312,
+     NEXT = 313,
+     UNTIL = 314,
+     EVERY = 315,
+     BEFORE = 316,
+     AFTER = 317,
+     AT = 318,
+     AT_SYM = 319,
+     ATAT_SYM = 320,
+     NEW = 321,
+     SIZEOF = 322,
+     TYPEOF = 323,
+     SAME = 324,
+     PLUS_CHUCK = 325,
+     MINUS_CHUCK = 326,
+     TIMES_CHUCK = 327,
+     DIVIDE_CHUCK = 328,
+     S_AND_CHUCK = 329,
+     S_OR_CHUCK = 330,
+     S_XOR_CHUCK = 331,
+     SHIFT_RIGHT_CHUCK = 332,
+     SHIFT_LEFT_CHUCK = 333,
+     PERCENT_CHUCK = 334,
+     SHIFT_RIGHT = 335,
+     SHIFT_LEFT = 336,
+     TILDA = 337,
+     CHUCK = 338,
+     COLONCOLON = 339,
+     S_CHUCK = 340,
+     AT_CHUCK = 341,
+     LEFT_S_CHUCK = 342,
+     UNCHUCK = 343,
+     CLASS = 344,
+     INTERFACE = 345,
+     EXTENDS = 346,
+     IMPLEMENTS = 347,
+     PUBLIC = 348,
+     PROTECTED = 349,
+     PRIVATE = 350,
+     STATIC = 351,
+     ABSTRACT = 352,
+     CONST = 353,
+     SPORK = 354,
+     L_NSPC = 355,
+     R_NSPC = 356
    };
 #endif
 #define ID 258
@@ -165,68 +166,69 @@
 #define FOR 291
 #define DO 292
 #define BREAK 293
-#define NULL_TOK 294
-#define FUNCTION 295
-#define RETURN 296
-#define QUESTION 297
-#define EXCLAMATION 298
-#define S_OR 299
-#define S_AND 300
-#define S_XOR 301
-#define PLUSPLUS 302
-#define MINUSMINUS 303
-#define DOLLAR 304
-#define SIMULT 305
-#define PATTERN 306
-#define CODE 307
-#define TRANSPORT 308
-#define HOST 309
-#define TIME 310
-#define WHENEVER 311
-#define NEXT 312
-#define UNTIL 313
-#define EVERY 314
-#define BEFORE 315
-#define AFTER 316
-#define AT 317
-#define AT_SYM 318
-#define ATAT_SYM 319
-#define NEW 320
-#define SIZEOF 321
-#define TYPEOF 322
-#define SAME 323
-#define PLUS_CHUCK 324
-#define MINUS_CHUCK 325
-#define TIMES_CHUCK 326
-#define DIVIDE_CHUCK 327
-#define S_AND_CHUCK 328
-#define S_OR_CHUCK 329
-#define S_XOR_CHUCK 330
-#define SHIFT_RIGHT_CHUCK 331
-#define SHIFT_LEFT_CHUCK 332
-#define PERCENT_CHUCK 333
-#define SHIFT_RIGHT 334
-#define SHIFT_LEFT 335
-#define TILDA 336
-#define CHUCK 337
-#define COLONCOLON 338
-#define S_CHUCK 339
-#define AT_CHUCK 340
-#define LEFT_S_CHUCK 341
-#define UNCHUCK 342
-#define CLASS 343
-#define INTERFACE 344
-#define EXTENDS 345
-#define IMPLEMENTS 346
-#define PUBLIC 347
-#define PROTECTED 348
-#define PRIVATE 349
-#define STATIC 350
-#define ABSTRACT 351
-#define CONST 352
-#define SPORK 353
-#define L_NSPC 354
-#define R_NSPC 355
+#define CONTINUE 294
+#define NULL_TOK 295
+#define FUNCTION 296
+#define RETURN 297
+#define QUESTION 298
+#define EXCLAMATION 299
+#define S_OR 300
+#define S_AND 301
+#define S_XOR 302
+#define PLUSPLUS 303
+#define MINUSMINUS 304
+#define DOLLAR 305
+#define SIMULT 306
+#define PATTERN 307
+#define CODE 308
+#define TRANSPORT 309
+#define HOST 310
+#define TIME 311
+#define WHENEVER 312
+#define NEXT 313
+#define UNTIL 314
+#define EVERY 315
+#define BEFORE 316
+#define AFTER 317
+#define AT 318
+#define AT_SYM 319
+#define ATAT_SYM 320
+#define NEW 321
+#define SIZEOF 322
+#define TYPEOF 323
+#define SAME 324
+#define PLUS_CHUCK 325
+#define MINUS_CHUCK 326
+#define TIMES_CHUCK 327
+#define DIVIDE_CHUCK 328
+#define S_AND_CHUCK 329
+#define S_OR_CHUCK 330
+#define S_XOR_CHUCK 331
+#define SHIFT_RIGHT_CHUCK 332
+#define SHIFT_LEFT_CHUCK 333
+#define PERCENT_CHUCK 334
+#define SHIFT_RIGHT 335
+#define SHIFT_LEFT 336
+#define TILDA 337
+#define CHUCK 338
+#define COLONCOLON 339
+#define S_CHUCK 340
+#define AT_CHUCK 341
+#define LEFT_S_CHUCK 342
+#define UNCHUCK 343
+#define CLASS 344
+#define INTERFACE 345
+#define EXTENDS 346
+#define IMPLEMENTS 347
+#define PUBLIC 348
+#define PROTECTED 349
+#define PRIVATE 350
+#define STATIC 351
+#define ABSTRACT 352
+#define CONST 353
+#define SPORK 354
+#define L_NSPC 355
+#define R_NSPC 356
 
 
 
@@ -256,7 +258,7 @@ typedef union YYSTYPE {
     a_Array_Sub array_sub;
 } YYSTYPE;
 /* Line 1252 of yacc.c.  */
-#line 260 "chuck.tab.h"
+#line 262 "chuck.tab.h"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
