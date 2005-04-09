@@ -2097,6 +2097,115 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 //-----------------------------------------------------------------------------
+// name: Chuck_Instr_Array_Init()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t , t_CKINT length )
+{
+    // set
+    m_length = length;
+    // copy
+    m_type_ref = t;
+    // remember
+    m_type_ref->add_ref();
+    // type
+    m_param_str = new char[64];
+    const char * str = m_type_ref->c_name();
+    t_CKUINT len = strlen( str );
+    // copy
+    if( len < 48 )
+        strcpy( m_param_str, str );
+    else
+    {
+        strncpy( m_param_str, str, 48 );
+        strcpy( m_param_str + 48, "..." );
+    }
+
+    // append length
+    char buffer[16];
+    sprintf( buffer, "---%d", m_length );
+    strcat( m_param_str, buffer );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Instr_Array_Init()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Instr_Array_Init::~Chuck_Instr_Array_Init()
+{
+    // delete
+    delete [] m_param_str;
+    m_param_str = NULL;
+    // release
+    m_type_ref->release();
+    m_type_ref = NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // reg stack pointer
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    // ref
+    t_CKUINT ref = 0;
+
+
+    // allocate the array
+    if( m_type_ref->size == 4 )
+    {
+        // pop the values
+        pop_( reg_sp, m_length );
+        // instantiate array
+        Chuck_Array4 * array = new Chuck_Array4( m_length );
+        // problem
+        if( !array ) goto out_of_memory;
+        // fill array
+        for( t_CKINT i = 0; i < m_length; i++ )
+            array->set( i, *(reg_sp + i) );
+        // push the pointer
+        push_( reg_sp, (t_CKUINT)array );
+    }
+    else if( m_type_ref->size == 8 )
+    {
+        // pop the values
+        pop_( reg_sp, 2 * m_length );
+        // instantiate array
+        Chuck_Array8 * array = new Chuck_Array8( m_length );
+        // problem
+        if( !array ) goto out_of_memory;
+        // fill array
+        t_CKFLOAT * sp = (t_CKFLOAT *)reg_sp;
+        for( t_CKINT i = 0; i < m_length; i++ )
+            array->set( i, *(sp + i) );
+        // push the pointer
+        push_( reg_sp, (t_CKUINT)array );
+    }
+    else assert( FALSE );
+        
+    return;
+
+out_of_memory:
+
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): OutOfMemory: while initializing arrays\n" );
+
+    return;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: Chuck_Instr_Array_Alloc()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2240,8 +2349,6 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // push
     push_( reg_sp, ref );
 }
-
-
 
 
 //-----------------------------------------------------------------------------

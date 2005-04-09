@@ -1756,6 +1756,29 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Array_Init
+// desc: for [ ... ] values
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Array_Init : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Array_Init( Chuck_Type * the_type, t_CKINT length );
+    virtual ~Chuck_Instr_Array_Init();
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const { return m_param_str; }
+
+protected:
+    Chuck_Type * m_type_ref;
+    t_CKINT m_length;
+    char * m_param_str;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_Array_Alloc
 // desc: ...
 //-----------------------------------------------------------------------------
