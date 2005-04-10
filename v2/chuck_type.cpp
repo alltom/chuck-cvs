@@ -2602,7 +2602,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         {
             // verify there are no errors from the parser...
             if( !verify_array( arg_list->var_decl->array ) )
-                return NULL;
+                return FALSE;
             
             Chuck_Type * t = arg_list->type;
             Chuck_Type * t2 = t;
