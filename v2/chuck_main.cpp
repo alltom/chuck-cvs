@@ -1,17 +1,16 @@
 //-----------------------------------------------------------------------------
-// file: test_main.cpp
-// desc: ...
+// file: chuck_main.cpp
+// desc: chuck entry point
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
-// date: Autumn 2002
+// date: version 1.1.x.x - Autumn 2002
+//       version 1.2.x.x - Autumn 2004
 //-----------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-
-// #include <fstream>
 
 #include "chuck_type.h"
 #include "chuck_emit.h"
@@ -20,13 +19,47 @@
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
 
+#include "ugen_osc.h"
+#include "ugen_xxx.h"
+#include "ugen_filter.h"
+#include "ugen_stk.h"
+#include "ulib_machine.h"
+#include "ulib_math.h"
+#include "ulib_net.h"
+#include "ulib_std.h"
+
+#include <signal.h>
+#ifndef __PLATFORM_WIN32__
+  #define CHUCK_THREAD pthread_t
+  #include <pthread.h>
+  #include <unistd.h>
+  #include <netinet/in.h>
+  #include <arpa/inet.h>
+#else 
+  #define CHUCK_THREAD HANDLE
+#endif
 
 
 // current version
 #define CK_VERSION "1.2.0.0"
 
+// global variables
+#if defined(__MACOSX_CORE__)
+  t_CKINT g_priority = 95;
+#else
+  t_CKINT g_priority = 0x7fffffff;
+#endif
+Chuck_VM * g_vm = NULL;
+CHUCK_THREAD g_tid = 0;
+char g_host[256] = "127.0.0.1";
+int g_port = 8888;
+// ck_socket g_sock;
+Chuck_Env * g_env = NULL;
+t_CKBOOL g_error = FALSE;
+char g_filename[1024] = "";
 
-// C specification necessary for windows to link properly
+
+// 'C' specification necessary for windows to link properly
 #ifdef __PLATFORM_WIN32__
   extern "C" a_Program g_program;
 #else
@@ -36,15 +69,7 @@
 // link with the parser
 extern "C" int yyparse( void );
 
-// global variables
-char g_filename[1024] = "";
 
-// priority
-#if defined(__MACOSX_CORE__)
-t_CKUINT g_priority = 95;
-#else
-t_CKUINT g_priority = 0x7fffffff;
-#endif
 
 
 //-----------------------------------------------------------------------------
@@ -67,10 +92,10 @@ FILE * open_cat( c_str fname )
 
 
 //-----------------------------------------------------------------------------
-// name: test_parse()
+// name: parse()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL test_parse( c_constr fname, FILE * fd = NULL )
+t_CKBOOL parse( c_constr fname, FILE * fd = NULL )
 {
     strcpy( g_filename, fname );
 
@@ -96,11 +121,12 @@ t_CKBOOL test_parse( c_constr fname, FILE * fd = NULL )
 
 
 //-----------------------------------------------------------------------------
-// name: test_type()
+// name: type_check()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL test_type( Chuck_Env * env, a_Program prog )
+t_CKBOOL type_check( Chuck_Env * env, a_Program prog )
 {
+    // type check it
     if( !type_engine_check_prog( env, prog ) )
         return FALSE;
 
@@ -111,12 +137,47 @@ t_CKBOOL test_type( Chuck_Env * env, a_Program prog )
 
 
 //-----------------------------------------------------------------------------
-// name: test_emit()
+// name: emit()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL test_emit()
+Chuck_VM_Code * emit( Chuck_Emitter * emit, a_Program prog )
 {
-    return TRUE;
+    // emit to vm code
+    return emit_engine_emit_prog( emit, prog );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: next_power_2()
+// desc: ...
+// thanks: to Niklas Werner / music-dsp
+//-----------------------------------------------------------------------------
+t_CKUINT next_power_2( t_CKUINT n )
+{
+    t_CKUINT nn = n;
+    for( ; n &= n-1; nn = n );
+    return nn * 2;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+void usage()
+{
+    fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
+    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
+    fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
+    fprintf( stderr, "               remote<hostname>|port<N>\n" );
+    fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
+    fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
+    fprintf( stderr, "chuck version: %s\n", CK_VERSION );
+    fprintf( stderr, "   http://chuck.cs.princeton.edu/\n\n" );
 }
 
 
@@ -130,7 +191,7 @@ int main( int argc, char ** argv )
 {
     t_CKBOOL ret = TRUE;
     Chuck_Env * env = NULL;
-    Chuck_Emitter * emit = NULL;
+    Chuck_Emitter * emitter = NULL;
     Chuck_VM_Code * code = NULL;
     Chuck_VM_Shred * shred = NULL;
     
@@ -143,59 +204,137 @@ int main( int argc, char ** argv )
     t_CKUINT adc = 0;
     t_CKBOOL dump = TRUE;
 
+    t_CKUINT files = 0;
+
+    // parse command line args
+    for( int i = 1; i < argc; i++ )
+    {
+        if( argv[i][0] == '-' || argv[i][0] == '+' ||
+            argv[i][0] == '=' || argv[i][0] == '^' || argv[i][0] == '@' )
+        {
+            if( !strcmp(argv[i], "--dump") || !strcmp(argv[i], "+d")
+                || !strcmp(argv[i], "--nodump") || !strcmp(argv[i], "-d") )
+                continue;
+            else if( !strcmp(argv[i], "--audio") || !strcmp(argv[i], "-a") )
+                enable_audio = TRUE;
+            else if( !strcmp(argv[i], "--silent") || !strcmp(argv[i], "-s") )
+                enable_audio = FALSE;
+            else if( !strcmp(argv[i], "--halt") || !strcmp(argv[i], "-t") )
+                vm_halt = TRUE;
+            else if( !strcmp(argv[i], "--loop") || !strcmp(argv[i], "-l") )
+                vm_halt = FALSE;
+            else if( !strncmp(argv[i], "--srate", 7) )
+                srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : srate;
+            else if( !strncmp(argv[i], "-r", 2) )
+                srate = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : srate;
+            else if( !strncmp(argv[i], "--bufsize", 9) )
+                buffer_size = atoi( argv[i]+9 ) > 0 ? atoi( argv[i]+9 ) : buffer_size;
+            else if( !strncmp(argv[i], "-b", 2) )
+                buffer_size = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : buffer_size;
+            else if( !strncmp(argv[i], "--bufnum", 8) )
+                num_buffers = atoi( argv[i]+8 ) > 0 ? atoi( argv[i]+8 ) : num_buffers;
+            else if( !strncmp(argv[i], "-n", 2) )
+                num_buffers = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : num_buffers;
+            else if( !strncmp(argv[i], "--dac", 5) )
+                dac = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
+            else if( !strncmp(argv[i], "--adc", 5) )
+                adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
+            else if( !strncmp(argv[i], "--level", 7) )
+                g_priority = atoi( argv[i]+7 );
+            else if( !strncmp(argv[i], "--remote", 8) )
+                strcpy( g_host, argv[i]+8 );
+            else if( !strncmp(argv[i], "@", 1) )
+                strcpy( g_host, argv[i]+1 );
+            else if( !strncmp(argv[i], "--port", 6) )
+                g_port = atoi( argv[i]+6 );
+            else if( !strncmp(argv[i], "-p", 2) )
+                g_port = atoi( argv[i]+2 );
+            else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
+                 || !strcmp(argv[i], "--about") )
+            {
+                usage();
+                exit( 2 );
+            }
+            //else if( a = send_cmd( argc, argv, i ) )
+            //    exit( 0 );
+            else
+            {
+                fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
+                usage();
+                exit( 1 );
+            }
+        }
+        else
+            files++;
+    }
+
+    // check buffer size
+    buffer_size = next_power_2( buffer_size-1 );
+    // set priority
+    Chuck_VM::our_priority = g_priority;
+    
+    if ( !files && vm_halt )
+    {
+        fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
+        exit( 1 );
+    }
+
     // allocate the vm
-    Chuck_VM * vm = new Chuck_VM;
+    Chuck_VM * vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
                          num_buffers, dac, adc, g_priority ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
     }
-    
-    // test the parsing
-    if( !test_parse( argc > 1 ? argv[1] : "test/08.ck" ) )
-    {
-        fprintf( stderr, "parse failed...\n" );
-        return 1;
-    }
 
     // allocate the type checker
-    env = type_engine_init( NULL );
-
-    // test the type checker
-    if( !test_type( env, g_program ) )
-    {
-        fprintf( stderr, "type check failed...\n" );
-        return 1;
-    }
-    
-    fprintf( stderr, "type check success!\n" );
-
+    env = g_env = type_engine_init( NULL );
     // allocate the emitter
-    emit = emit_engine_init( env );
+    emitter = emit_engine_init( env );
     // enable dump
-    emit->dump = dump;
+    emitter->dump = dump;
 
-    // test the emitter
-    code = emit_engine_emit_prog( emit, g_program );
-    if( !code )
+    // loop through and process each file
+    for( i = 1; i < argc; i++ )
     {
-        fprintf( stderr, "emitter failed...\n" );
-        return 1;
-    }
-
-    fprintf( stderr, "emit success!\n" );
-
-    // unload the context from the type-checker
-    if( !type_engine_unload_context( env ) )
-    {
-        fprintf( stderr, "error unloading context...\n" );
-        return 1;
-    }
-
-    // spork the code into shred
-    shred = vm->spork( code, NULL );
+        // make sure
+        if( argv[i][0] == '-' || argv[i][0] == '+' )
+        {
+            if( !strcmp(argv[i], "--dump") || !strcmp(argv[i], "+d" ) )
+                emitter->dump = TRUE;
+            else if( !strcmp(argv[i], "--nodump") || !strcmp(argv[i], "-d" ) )
+                emitter->dump = FALSE;
+            
+            continue;
+        }
     
+        // parse
+        if( !parse( argv[i] ) )
+            return 1;
+
+        // type check
+        if( !type_check( g_env, g_program ) )
+            return 1;
+
+        // emit
+        if( !(code = emit( emitter, g_program )) )
+            return 1;
+
+        // name it
+        code->name += string("'") + argv[i] + "'";
+
+        // spork it
+        shred = vm->spork( code, NULL );
+
+        // unload the context from the type-checker
+        if( !type_engine_unload_context( env ) )
+        {
+            EM_error2( 0, "internal error unloading context...\n" );
+            return 1;
+        }    
+    }
+
     // run the vm
     vm->run();
 

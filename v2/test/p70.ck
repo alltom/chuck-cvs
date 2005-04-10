@@ -19,6 +19,6 @@ Point p2;
 p1.set( 0, 1, 2 );
 p2.set( 5, 6, 7 );
 p1.sum(p2) @=> Point p3;
-if ( p3.p[1] == 7 ) { 
+if ( p3.p[1] != 7 ) { 
 	10::second => now;
 }
