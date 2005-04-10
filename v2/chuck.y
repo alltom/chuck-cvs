@@ -314,7 +314,7 @@ loop_statement
         | DO statement UNTIL LPAREN expression RPAREN SEMICOLON
             { $$ = new_stmt_from_do_until( $5, $2, EM_lineNum ); }
         ;
-                
+
 code_segment
         : LBRACE RBRACE                     { $$ = new_stmt_from_code( NULL, EM_lineNum ); }
         | LBRACE statement_list RBRACE      { $$ = new_stmt_from_code( $2, EM_lineNum ); }

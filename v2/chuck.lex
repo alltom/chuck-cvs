@@ -178,15 +178,16 @@ int comment();
 "~"                     { adjust(); return TILDA; }
 for                     { adjust(); return FOR; }
 while                   { adjust(); return WHILE; }
+until                   { adjust(); return UNTIL; }
 continue                { adjust(); return CONTINUE; }
 break                   { adjust(); return BREAK; }
 if                      { adjust(); return IF; }
 else                    { adjust(); return ELSE; }
 then                    { adjust(); return THEN; }
+do                      { adjust(); return DO; }
 
 return                  { adjust(); return RETURN; }
 
-until                   { adjust(); return UNTIL; }
 function                { adjust(); return FUNCTION; }
 fun                     { adjust(); return FUNCTION; }
 new                     { adjust(); return NEW; }
