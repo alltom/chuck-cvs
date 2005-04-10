@@ -13,11 +13,14 @@ Test		Status			Description
 09.ck		emitted			+=>
 10.ck		emitted			void function
 
-apr 9          p86,88   type error for 'continue'
-apr 9	       p85,87   parse error on 'break'
-apr 9	       p84,84_2 post-preincrement w comparison smells fishy...
-apr 9	       p80-p83 - "do" construction unrecognized
-apr 9	       p76 - scoping error in for statement 
+
+
+apr 10	       p84 - postincrement is not 'post'
+apr 9          FIXED p86,88   type error for 'continue'
+apr 9	       FIXED p85,87   parse error on 'break'
+apr 9	       PREINC FIXED, 84,84_2 post-preincrement w comparison smells fishy...
+apr 9	       FIXED p80-p83 - "do" construction unrecognized
+apr 9	       FIXED p76 - scoping error in for statement 
 apr 9	       p15.ck - cast from child to parent should be accepted ( unless we 
 		      want explicit casts
 apr 5	       FIXED p71 class cannot return object of its own type ) parse error 
