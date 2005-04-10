@@ -206,9 +206,10 @@ int main( int argc, char ** argv )
     t_CKBOOL dump = TRUE;
 
     t_CKUINT files = 0;
+    t_CKINT i;
 
     // parse command line args
-    for( int i = 1; i < argc; i++ )
+    for( i = 1; i < argc; i++ )
     {
         if( argv[i][0] == '-' || argv[i][0] == '+' ||
             argv[i][0] == '=' || argv[i][0] == '^' || argv[i][0] == '@' )
