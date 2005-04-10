@@ -447,25 +447,33 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
         case ae_stmt_if:
             // count scope to help determine class member
             env->class_scope++;
+            env->curr->value.push();
             ret = type_engine_check_if( env, &stmt->stmt_if );
+            env->curr->value.pop();
             env->class_scope--;
             break;
 
         case ae_stmt_for:
             env->class_scope++;
+            env->curr->value.push();
             ret = type_engine_check_for( env, &stmt->stmt_for );
+            env->curr->value.pop();
             env->class_scope--;
             break;
 
         case ae_stmt_while:
             env->class_scope++;
+            env->curr->value.push();
             ret = type_engine_check_while( env, &stmt->stmt_while );
+            env->curr->value.pop();
             env->class_scope--;
             break;
             
         case ae_stmt_until:
             env->class_scope++;
+            env->curr->value.push();
             ret = type_engine_check_until( env, &stmt->stmt_until );
+            env->curr->value.pop();
             env->class_scope--;
             break;
 
