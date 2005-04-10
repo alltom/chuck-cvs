@@ -43,6 +43,7 @@
 // current version
 #define CK_VERSION "1.2.0.0"
 
+
 // global variables
 #if defined(__MACOSX_CORE__)
   t_CKINT g_priority = 95;
