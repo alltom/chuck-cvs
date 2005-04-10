@@ -15,7 +15,7 @@ Test		Status			Description
 
 
 
-apr 10	       p84 - postincrement is not 'post'
+apr 10	       p84,p84_4 - postincrement is not 'post'
 apr 9          FIXED p86,88   type error for 'continue'
 apr 9	       FIXED p85,87   parse error on 'break'
 apr 9	       PREINC FIXED, 84,84_2 post-preincrement w comparison smells fishy...
