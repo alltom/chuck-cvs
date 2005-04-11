@@ -1326,6 +1326,9 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                 return NULL;
             }
             
+            // assign
+            unary->exp->emit_var = TRUE;
+
             // check type
             if( isa( t, &t_int ) || isa( t, &t_float ) )
                 return t;
