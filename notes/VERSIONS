@@ -1,5 +1,10 @@
 
 ---
+1.1.5.6 - 2005.4.11
+  - last 1.1 release : contains all 1.1 changes
+
+
+---
 1.1.5.5 - 2005.2.10
   - FIFO to RR for audio and synthesis - improves stability on OS X
   - fixed stack underflow emitter bug with declarations
