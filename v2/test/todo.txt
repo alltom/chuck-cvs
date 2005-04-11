@@ -1,20 +1,8 @@
 --Information--
 
-Test		Status			Description
-
-01.ck		emitted			assignment (int)
-02.ck		emitted			assignment (float)
-03.ck		emitted			arithmetic ( addition )
-04.ck		emitted, loops		infinite loop ( while true )
-05.ck		emitted			time
-06.ck		emitted			durations
-07.ck		emitted			division
-08.ck		emitted			variable lookup
-09.ck		emitted			+=>
-10.ck		emitted			void function
 
 
-
+apr 11		SPORKING
 apr 10	       p84,p84_4 - postincrement is not 'post'
 apr 9          FIXED p86,88   type error for 'continue'
 apr 9	       FIXED p85,87   parse error on 'break'
