@@ -1155,7 +1155,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     if( isa( left, right ) )
     {
         // basic types?
-        if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
+        if( type_engine_check_primitive( left ) /*|| isa( left, &t_string )*/ )
         {
             // TODO: const
             // assigment?
