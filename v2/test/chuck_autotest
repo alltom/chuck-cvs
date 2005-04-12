@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/sh 
 
 # chuck_autotest [files...]
 
@@ -19,6 +19,18 @@ tmp_file="/tmp/chuck_test"
 
 # simple header
 
+while [ `echo $1 | cut -c1` = "-" ]
+do
+    if [ $1 = "--body" ] 
+    then
+      catbody="yes"
+    elif [ $1 = "--out" ]
+    then
+      shift
+      test_output=$1
+    fi
+    shift
+done
 
 
 echo '---chuck auto-test log---' > $test_output
@@ -27,28 +39,37 @@ echo host=$HOST >> $test_output
 echo machine=$HOSTTYPE:$VENDOR:$OSTYPE >> $test_output
 echo '-------------------------' >> $test_output
 
-
 #loop on all input files
 
 for file in $@
 do
 
-arg="../chuck $file 2> $tmp_file"
+echo "$file...";
 ./autotest_timer 60 $file & ../chuck $file 2> $tmp_file
+
 lastline=`tail -n 1 $tmp_file`
 comment=`head -n 1 $file`
-if [ "$lastline" = "success" ]
+failtrue=`echo $comment | grep -n 'fail-correct' | cut -c1`
+
+if [ "$lastline" = "success" ] && [ "$failtrue" = "" ]
 then 
-    echo "$file : test succeeded"
+    echo "     - test succeeded"
     echo "$file		success			$comment" >> $test_output
+elif [ $failtrue ]
+then
+    echo "     - test succeeded ( fail-correct )"
+    echo "$file		success (fail-correct)	$comment" >> $test_output
 else 
-    echo "$file : test failed"
+    echo "     - test failed"
     echo "$file		error			$comment" >> $test_output
     echo "  >>> $file test output" >> $test_output
     sed -e 's/^/	/' $tmp_file >> $test_output
-#    echo "  >>> $file contents" >> $test_output
-#    cat -n $file >> $test_output
-    echo "" >> $test_output
+    if [ $catbody ]
+    then
+	echo "  >>> $file contents" >> $test_output
+	cat -n $file >> $test_output
+        echo "" >> $test_output
+    fi
     echo "  >>> $file end error message" >> $test_output
 fi
 done
