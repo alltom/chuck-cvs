@@ -124,6 +124,7 @@ t_CKBOOL type_engine_check_value_import( Chuck_Env * env, const string & name,
 
 // helper
 t_CKBOOL verify_array( a_Array_Sub array );
+const char * type_path( a_Id_List path );
 
 
 
@@ -1351,11 +1352,12 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 
         case ae_op_new:
             // look up the type
-            t = env->curr->lookup_type( unary->type->id->id, TRUE );
+            // t = env->curr->lookup_type( unary->type->id->id, TRUE );
+            t = type_engine_find_type( env, unary->type->id );
             if( !t )
             {
                 EM_error2( unary->linepos,
-                    "undefined type '%s'...", S_name(unary->type->id->id) );
+                    "undefined type '%s'...", type_path(unary->type->id) );
                 return NULL;
             }
 
@@ -1665,11 +1667,12 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !t ) return NULL;
 
     // the type to cast to
-    t_CKTYPE t2 = env->curr->lookup_type( cast->type->id->id, TRUE );
+    // t_CKTYPE t2 = env->curr->lookup_type( cast->type->id->id, TRUE );
+    t_CKTYPE t2 = type_engine_find_type( env, cast->type->id );
     if( !t2 )
     {
         EM_error2( cast->linepos,
-            "undefined type '%s' in cast...", S_name( cast->type->id->id ) );
+            "undefined type '%s' in cast...", type_path( cast->type->id ) );
         return NULL;
     }
     
@@ -1873,11 +1876,12 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 
     // TODO: handle T a, b, c ...
     // look up the type
-    t_CKTYPE t = env->curr->lookup_type( decl->type->id->id, TRUE );
+    // t_CKTYPE t = env->curr->lookup_type( decl->type->id->id, TRUE );
+    t_CKTYPE t = type_engine_find_type( env, decl->type->id );
     if( !t )
     {
         EM_error2( decl->linepos,
-            "undefined type '%s'...", S_name(decl->type->id->id) );
+            "undefined type '%s'...", type_path(decl->type->id) );
         return NULL;
     }
 
@@ -2378,6 +2382,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // set the new type as current
     env->nspc_stack.push_back( env->curr );
     env->curr = the_class->info;
+    // push the class def
+    env->class_stack.push_back( env->class_def );
     env->class_def = the_class;
     // reset the nest list
     env->class_scope = 0;
@@ -2403,9 +2409,11 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
             break;
         
         case ae_section_class:
-            EM_error2( body->section->class_def->linepos,
-                "nested class definitions are not yet supported..." );
-            ret = FALSE;
+            // do the class
+            ret = type_engine_check_class_def( env, body->section->class_def );
+            //EM_error2( body->section->class_def->linepos,
+            //    "nested class definitions are not yet supported..." );
+            //ret = FALSE;
             break;
         }
         
@@ -2414,8 +2422,10 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     }
 
 
-    // pop the new type
-    env->class_def = NULL;
+    // pop the class
+    env->class_def = env->class_stack.back();
+    env->class_stack.pop_back();
+    // pop the namesapce
     env->curr = env->nspc_stack.back();
     env->nspc_stack.pop_back();
     
@@ -2546,12 +2556,13 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // S_enter( env->value, insert_symbol( "@__mem_sp__" ), &t_uint );
 
     // look up the return type
-    f->ret_type = env->curr->lookup_type( f->type_decl->id->id );
+    // f->ret_type = env->curr->lookup_type( f->type_decl->id->id );
+    f->ret_type = type_engine_find_type( env, f->type_decl->id );
     // no return type
     if( !f->ret_type )
     {
         EM_error2( f->linepos, "for function '%s':", S_name(f->name) );
-        EM_error2( f->linepos, "undefined return type '%s'", S_name(f->type_decl->id->id) );
+        EM_error2( f->linepos, "undefined return type '%s'", type_path(f->type_decl->id) );
         goto error;
     }
 
@@ -2565,12 +2576,13 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     while( arg_list )
     {
         // look up in type table
-        arg_list->type = env->curr->lookup_type( arg_list->type_decl->id->id );
+        // arg_list->type = env->curr->lookup_type( arg_list->type_decl->id->id );
+        arg_list->type = type_engine_find_type( env, arg_list->type_decl->id );
         if( !arg_list->type )
         {
             EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, "argument %i '%s' has undefined type '%s'", 
-                count, S_name(arg_list->var_decl->id), S_name(arg_list->type_decl->id->id) );
+                count, S_name(arg_list->var_decl->id), type_path(arg_list->type_decl->id) );
             goto error;
         }
 
@@ -3486,18 +3498,90 @@ Chuck_Type * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_find_value()
+// name: type_path()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
+const char * type_path( a_Id_List path )
 {
-    Chuck_Value * value = NULL;
-    if( !type ) return NULL;
-    if( !type->info ) return NULL;
+    static string str;
+
+    // clear it
+    str = "";
+    // loop over path
+    while( path )
+    {
+        // concatenate
+        str += S_name(path->id);
+        // add .
+        if( path->next ) str += ".";
+        // advance
+        path = path->next;
+    }
+
+    return str.c_str();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_find_type()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol id )
+{
+    Chuck_Type * type = NULL;
+    if( !nspc) return NULL;
     // -1 for base
-    if( value = type->info->lookup_value( id, -1 ) ) return value;
-    if( type->parent ) return type_engine_find_value( type->parent, id );
+    if( type = nspc->lookup_type( id, -1 ) ) return type;
     return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_find_type()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
+{
+    S_Symbol id = NULL;
+    Chuck_Type * type = env->curr->lookup_type( path->id, TRUE );
+    Chuck_Type * t = NULL;
+    // start the namespace
+    Chuck_Namespace * nspc = type->info;
+    path = path->next;
+
+    // loop
+    while( path != NULL )
+    {
+        // get the id
+        id = path->id;
+        // look for the type in the namespace
+        t = type_engine_find_type( nspc, id );
+        // look in parent
+        while( !t && type && type->parent )
+            t = type_engine_find_type( type->parent->info, id );
+        // can't find
+        if( !t )
+        {
+            // error
+            EM_error2( path->linepos, "undefined type '%s'...",
+                type_path( path ) );
+            EM_error2( path->linepos,
+                "...(note: cannot find class '%s' in namespace '%s')",
+                S_name(id), nspc->name.c_str() );
+            return NULL;
+        }
+
+        // set the type
+        type = t;
+        // advance
+        path = path->next;
+    }
+
+    return type;
 }
 
 
@@ -3510,6 +3594,24 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id )
 {
     return type_engine_find_value( type, string(S_name(id)) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_find_value()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
+{
+    Chuck_Value * value = NULL;
+    if( !type ) return NULL;
+    if( !type->info ) return NULL;
+    // -1 for base
+    if( value = type->info->lookup_value( id, -1 ) ) return value;
+    if( type->parent ) return type_engine_find_value( type->parent, id );
+    return NULL;
 }
 
 

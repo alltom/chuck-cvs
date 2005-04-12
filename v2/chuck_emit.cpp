@@ -2851,14 +2851,15 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     }
 
     // make sure we are not in a class already
-    if( emit->env->class_def != NULL )
-    {
-        EM_error2( class_def->linepos,
-            "(emit): internal error: nested class definition..." );
-        return FALSE;
-    }
+    //if( emit->env->class_def != NULL )
+    //{
+    //    EM_error2( class_def->linepos,
+    //        "(emit): internal error: nested class definition..." );
+    //    return FALSE;
+    //}
 
     // set the class
+    emit->env->class_stack.push_back( emit->env->class_def );
     emit->env->class_def = type;
     // push the current code
     emit->stack.push_back( emit->code );
@@ -2896,9 +2897,10 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
             break;
         
         case ae_section_class:
-            EM_error2( body->section->class_def->linepos,
-                "nested class definitions are not yet supported..." );
-            ret = FALSE;
+            ret = emit_engine_emit_class_def( emit, body->section->class_def );
+            //EM_error2( body->section->class_def->linepos,
+            //    "nested class definitions are not yet supported..." );
+            //ret = FALSE;
             break;
         }
         
@@ -2921,7 +2923,8 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     }
 
     // unset the class
-    emit->env->class_def = NULL;
+    emit->env->class_def = emit->env->class_stack.back();
+    emit->env->class_stack.pop_back();
     // delete the code
     SAFE_DELETE( emit->code );
     // pop the code

@@ -228,6 +228,8 @@ struct Chuck_Env : public Chuck_VM_Object
 	vector<Chuck_Namespace *> nspc_stack;
 	// expression namespace
 	Chuck_Namespace * curr;
+    // class stack
+    vector<Chuck_Type *> class_stack;
     // current class definition
     Chuck_Type * class_def;
     // current function definition
@@ -262,13 +264,16 @@ struct Chuck_Env : public Chuck_VM_Object
 	// reset
 	void reset( )
 	{ nspc_stack.clear(); nspc_stack.push_back( &global );
+      class_stack.clear(); class_stack.push_back( NULL );
       if( context ) { contexts.pop_back(); context->release(); } 
       curr = &global; class_def = NULL; func = NULL;
       context = NULL; class_scope = 0; }
 
     // top
-	Chuck_Namespace * top( )
+	Chuck_Namespace * nspc_top( )
 	{ assert( nspc_stack.size() > 0 ); return nspc_stack.back(); }
+	Chuck_Type * class_top( )
+	{ assert( class_stack.size() > 0 ); return class_stack.back(); }
 };
 
 
@@ -479,6 +484,7 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
 t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
 t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err );
 Chuck_Type  * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs );
+Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
 

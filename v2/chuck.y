@@ -201,6 +201,7 @@ class_body
 class_section
         : statement_list                    { $$ = new_section_stmt( $1, EM_lineNum ); }
         | function_definition               { $$ = new_section_func_def( $1, EM_lineNum ); }
+        | class_definition                  { $$ = new_section_class_def( $1, EM_lineNum ); }
         ;
         
 iface_ext
