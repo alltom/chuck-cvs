@@ -203,7 +203,7 @@ int main( int argc, char ** argv )
     t_CKUINT num_buffers = NUM_BUFFERS_DEFAULT;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
-    t_CKBOOL dump = TRUE;
+    t_CKBOOL dump = FALSE;
 
     t_CKUINT files = 0;
     t_CKINT i;
