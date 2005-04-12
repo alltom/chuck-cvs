@@ -12,4 +12,4 @@ class Y
 Y y;
 12.2 => y.x.x;
 
-if( y.foo().x != 12.2 ) while( true );
+if( y.foo().x == 12.2 ) <<<"success">>>;

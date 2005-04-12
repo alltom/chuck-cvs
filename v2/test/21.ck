@@ -21,5 +21,4 @@ foo( x );
 
 x.x @=> X @ y;
 
-if( y.f != 10.0 ) while( true );
-if( y.i != 1 ) while( true );
+if( y.f == 10.0 && y.i == 1 ) <<<"success">>>;

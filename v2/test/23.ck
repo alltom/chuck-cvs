@@ -11,4 +11,9 @@ class Y extends X
 Y y;
 10 => y.i;
 
-if( y.i == 10 && y.j != 0 ) while( true );
+if( y.i == 10 && y.j != 0 ) { 
+	<<<"test failed">>>;
+}
+else { 
+	<<<"success">>>;
+}

@@ -4,5 +4,5 @@ fun int foo( int x )
     return a;
 }
 
-if( foo( 3 ) != 3 )
-    while( true ) ;
+if( foo( 3 ) == 3 )
+    <<<"success">>>;

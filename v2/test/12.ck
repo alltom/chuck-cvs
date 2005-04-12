@@ -6,3 +6,4 @@ class X
     dur z;
 }
 X x;
+<<<"success">>>;

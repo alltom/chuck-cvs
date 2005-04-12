@@ -11,3 +11,5 @@ class X
 
 X x;
 x.foo( 2 );
+
+<<<"success">>>;

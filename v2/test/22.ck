@@ -5,4 +5,4 @@ class X
 
 10 => (X x).i;
 
-if( x.i != 10 ) while( true );
+if( x.i == 10 ) <<<"success">>>;

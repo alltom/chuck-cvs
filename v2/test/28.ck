@@ -11,4 +11,4 @@ class X
 X x;
 x.foo();
 
-if( z != 20 ) while( true );
+if( z == 20 ) <<<"success">>>;

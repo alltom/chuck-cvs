@@ -11,3 +11,4 @@ class Y extends X
 }
 X x;
 Y y;
+<<<"success">>>;

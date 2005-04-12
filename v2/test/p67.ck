@@ -2,7 +2,7 @@
 
 class ListItem { 
 	int data;
-	null => ListItem @ next;
+	null @=> ListItem @ next;
 	fun void push ( ListItem it ) { 
 		if ( next != null ) next.push(it);
 		else it @=> next;

@@ -16,6 +16,7 @@
 
 test_output="chuck_autotest_log.txt"
 tmp_file="/tmp/chuck_test"
+chuck_bin="../chuck"
 
 # simple header
 
@@ -28,6 +29,10 @@ do
     then
       shift
       test_output=$1
+    elif [ $1 = "--bin" ]
+    then
+      shift
+      chuck_bin=$1
     fi
     shift
 done
@@ -45,7 +50,7 @@ for file in $@
 do
 
 echo "$file...";
-./autotest_timer 60 $file & ../chuck $file 2> $tmp_file
+./autotest_timer --bin $chuck_bin 60 $file & $chuck_bin $file 2> $tmp_file
 
 lastline=`tail -n 1 $tmp_file`
 comment=`head -n 1 $file`

@@ -12,4 +12,9 @@ class Y
 Y y;
 1 => y.x.x;
 
-if( y.foo().x != 1 ) while( true );
+if( y.foo().x != 1 ) { 
+	<<<"fail">>>;
+}
+else { 
+	<<<"success">>>;
+}
