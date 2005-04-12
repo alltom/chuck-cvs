@@ -3548,6 +3548,7 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
 {
     S_Symbol id = NULL;
     Chuck_Type * type = env->curr->lookup_type( path->id, TRUE );
+    if( !type ) return NULL;
     Chuck_Type * t = NULL;
     // start the namespace
     Chuck_Namespace * nspc = type->info;
@@ -3570,8 +3571,8 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
         if( !t )
         {
             // error
-            EM_error2( path->linepos, "undefined type '%s'...",
-                type_path( path ) );
+            //EM_error2( path->linepos, "undefined type '%s'...",
+            //    type_path( path ) );
             EM_error2( path->linepos,
                 "...(note: cannot find class '%s' in namespace '%s')",
                 S_name(id), nspc->name.c_str() );
