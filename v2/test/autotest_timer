@@ -1,0 +1,26 @@
+#!/bin/sh
+
+#timeout of 60 seconds
+
+timer=$1
+
+while [ $timer -gt 0 ] 
+do 
+	sleep 3
+	#echo "here comes the $1 murderer!"
+	chuckid=`ps -o pid,command | grep "chuck $2" | grep -v "grep" | cut -f 1 -d" "`
+	#echo "the id is [$chuckid]"
+	if [ $chuckid ] 
+	then
+		timer=`expr $timer - 3`
+	else
+		timer=0
+	fi
+	#echo "killer : timer loop $timer"
+done	
+
+if [ $chuckid ] 
+then
+# echo "killing $chuckid"
+ kill -9 $chuckid
+fi

@@ -1,7 +1,25 @@
 #!/bin/sh
 
+# chuck_autotest [files...]
+
+# this will run chuck on every file passes as an argument
+# the "test" is whether the last line of output is the string "success"
+
+# on pass, it will print the filename, success message, and the first line
+# of the file as a comment
+
+# on fail, it prints an error message
+# then spits out the chuck output
+# and the body of the .ck file with numbered lines
+
+# note, any file not printing "success" fails
+
 test_output="chuck_autotest_log.txt"
 tmp_file="/tmp/chuck_test"
+
+# simple header
+
+
 
 echo '---chuck auto-test log---' > $test_output
 date >> $test_output
@@ -10,10 +28,13 @@ echo machine=$HOSTTYPE:$VENDOR:$OSTYPE >> $test_output
 echo '-------------------------' >> $test_output
 
 
+#loop on all input files
+
 for file in $@
 do
 
-../chuck $file 2> $tmp_file
+arg="../chuck $file 2> $tmp_file"
+./autotest_timer 60 $file & ../chuck $file 2> $tmp_file
 lastline=`tail -n 1 $tmp_file`
 comment=`head -n 1 $file`
 if [ "$lastline" = "success" ]
@@ -25,9 +46,9 @@ else
     echo "$file		error			$comment" >> $test_output
     echo "  >>> $file test output" >> $test_output
     sed -e 's/^/	/' $tmp_file >> $test_output
-    echo "  >>> $file contents" >> $test_output
-    cat -n $file >> $test_output
+#    echo "  >>> $file contents" >> $test_output
+#    cat -n $file >> $test_output
     echo "" >> $test_output
-    echo "  >>> $file end errors" >> $test_output
+    echo "  >>> $file end error message" >> $test_output
 fi
 done
