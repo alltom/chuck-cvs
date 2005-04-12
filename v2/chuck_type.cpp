@@ -371,7 +371,7 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
     // push the context scope
     env->context->nspc.value.push();
     // push the current namespaces
-    env->stack.push_back( env->curr );
+    env->nspc_stack.push_back( env->curr );
     // set the parent
     context->nspc.parent = env->curr;
     // set the context's namespace as current
@@ -392,12 +392,12 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env )
     // pop the context scope
     env->context->nspc.value.pop();
     // restore the current namespace
-    env->curr = env->stack.back();
+    env->curr = env->nspc_stack.back();
     // pop the namespace stack
-    env->stack.pop_back();
+    env->nspc_stack.pop_back();
 
     // make sure the nspc is ok
-    assert( env->stack.size() != 0 );
+    assert( env->nspc_stack.size() != 0 );
     // assert( env->stack.back() == &(context->nspc) );
     
     return TRUE;
@@ -2376,7 +2376,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->is_complete = FALSE;
 
     // set the new type as current
-    env->stack.push_back( env->curr );
+    env->nspc_stack.push_back( env->curr );
     env->curr = the_class->info;
     env->class_def = the_class;
     // reset the nest list
@@ -2416,8 +2416,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
 
     // pop the new type
     env->class_def = NULL;
-    env->curr = env->stack.back();
-    env->stack.pop_back();
+    env->curr = env->nspc_stack.back();
+    env->nspc_stack.pop_back();
     
     // if things checked out
     if( ret )

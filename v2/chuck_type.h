@@ -225,7 +225,7 @@ struct Chuck_Env : public Chuck_VM_Object
 	// global namespace
 	Chuck_Namespace global;
 	// namespace stack
-	vector<Chuck_Namespace *> stack;
+	vector<Chuck_Namespace *> nspc_stack;
 	// expression namespace
 	Chuck_Namespace * curr;
     // current class definition
@@ -261,14 +261,14 @@ struct Chuck_Env : public Chuck_VM_Object
 
 	// reset
 	void reset( )
-	{ stack.clear(); stack.push_back( &global ); 
+	{ nspc_stack.clear(); nspc_stack.push_back( &global );
       if( context ) { contexts.pop_back(); context->release(); } 
       curr = &global; class_def = NULL; func = NULL;
       context = NULL; class_scope = 0; }
 
     // top
 	Chuck_Namespace * top( )
-	{ assert( stack.size() > 0 ); return stack.back(); }
+	{ assert( nspc_stack.size() > 0 ); return nspc_stack.back(); }
 };
 
 
