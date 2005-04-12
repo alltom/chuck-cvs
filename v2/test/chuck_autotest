@@ -1,0 +1,33 @@
+#!/bin/sh
+
+test_output="chuck_autotest_log.txt"
+tmp_file="/tmp/chuck_test"
+
+echo '---chuck auto-test log---' > $test_output
+date >> $test_output
+echo host=$HOST >> $test_output
+echo machine=$HOSTTYPE:$VENDOR:$OSTYPE >> $test_output
+echo '-------------------------' >> $test_output
+
+
+for file in $@
+do
+
+../chuck $file 2> $tmp_file
+lastline=`tail -n 1 $tmp_file`
+comment=`head -n 1 $file`
+if [ "$lastline" = "success" ]
+then 
+    echo "$file : test succeeded"
+    echo "$file		success			$comment" >> $test_output
+else 
+    echo "$file : test failed"
+    echo "$file		error			$comment" >> $test_output
+    echo "  >>> $file test output" >> $test_output
+    sed -e 's/^/	/' $tmp_file >> $test_output
+    echo "  >>> $file contents" >> $test_output
+    cat -n $file >> $test_output
+    echo "" >> $test_output
+    echo "  >>> $file end errors" >> $test_output
+fi
+done
