@@ -126,8 +126,8 @@
      ABSTRACT = 352,
      CONST = 353,
      SPORK = 354,
-     L_NSPC = 355,
-     R_NSPC = 356
+     L_HACK = 355,
+     R_HACK = 356
    };
 #endif
 #define ID 258
@@ -227,8 +227,8 @@
 #define ABSTRACT 352
 #define CONST 353
 #define SPORK 354
-#define L_NSPC 355
-#define R_NSPC 356
+#define L_HACK 355
+#define R_HACK 356
 
 
 

@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 32 shift/reduce conflicts
-%expect 32
+// expect 33 shift/reduce conflicts
+%expect 33
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -106,7 +106,7 @@ a_Program g_program = NULL;
   COLONCOLON S_CHUCK AT_CHUCK LEFT_S_CHUCK
   UNCHUCK CLASS INTERFACE EXTENDS IMPLEMENTS
   PUBLIC PROTECTED PRIVATE STATIC ABSTRACT CONST 
-  SPORK L_NSPC R_NSPC
+  SPORK L_HACK R_HACK
 
 
 %type <program> program
@@ -527,7 +527,6 @@ primary_expression
         | FLOAT                             { $$ = new_exp_from_float( $1, EM_lineNum ); }
         | STRING_LIT                        { $$ = new_exp_from_str( $1, EM_lineNum ); }
         | array_exp                         { $$ = new_exp_from_array_lit( $1, EM_lineNum ); }
-        //| L_NSPC R_NSPC                     { $$ = new_exp_from_namespace( "", EM_lineNum ); }
-        //| L_NSPC ID R_NSPC                  { $$ = new_exp_from_namespace( $2, EM_lineNum ); }
+        | L_HACK expression R_HACK          { $$ = new_exp_from_hack( $2, EM_lineNum ); }
         | LPAREN expression RPAREN          { $$ = $2; }
         ;

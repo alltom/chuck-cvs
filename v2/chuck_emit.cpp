@@ -72,7 +72,6 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call f
 t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
 t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
-t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit, a_Exp_Namespace name_space );
 t_CKBOOL emit_engine_emit_array_lit( Chuck_Emitter * emit, a_Array_Sub array );
 t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
                                         t_CKBOOL push = TRUE );
@@ -2039,6 +2038,16 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         if( !emit_engine_emit_exp( emit, exp->exp ) )
             return FALSE;
         break;
+
+    case ae_primary_hack:
+        // emit the expression
+        if( !emit_engine_emit_exp( emit, exp->exp ) )
+            return FALSE;
+
+        // emit hack
+        emit->append( new Chuck_Instr_Hack( exp->self->type ) );
+        break;
+
     }
     
     return TRUE;
@@ -2647,19 +2656,6 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
     }
 
     return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_namespace
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emitter * emit,
-                                         a_Exp_Namespace name_space )
-{
-    return FALSE;
 }
 
 

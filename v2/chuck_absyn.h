@@ -91,7 +91,7 @@ typedef struct a_Exp_Func_Call_ * a_Exp_Func_Call;
 typedef struct a_Exp_Dot_Member_ * a_Exp_Dot_Member;
 typedef struct a_Exp_If_ * a_Exp_If;
 typedef struct a_Exp_Decl_ * a_Exp_Decl;
-typedef struct a_Exp_Namespace_ * a_Exp_Namespace;
+typedef struct a_Exp_Hack_ * a_Exp_Hack;
 typedef struct a_Stmt_Code_ * a_Stmt_Code;
 typedef struct a_Stmt_If_ * a_Stmt_If;
 typedef struct a_Stmt_While_ * a_Stmt_While;
@@ -164,7 +164,7 @@ a_Exp new_exp_from_float( double num, int pos );
 a_Exp new_exp_from_str( c_str str, int pos );
 a_Exp new_exp_from_if( a_Exp cond, a_Exp lhs, a_Exp rhs, int pos );
 a_Exp new_exp_decl( a_Type_Decl type_decl, a_Var_Decl_List var_decl_list, int pos );
-a_Exp new_exp_from_namespace( c_str name, int pos );
+a_Exp new_exp_from_hack( a_Exp exp, int pos );
 a_Var_Decl_List new_var_decl_list( a_Var_Decl var_decl, int pos );
 a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list, int pos );
 a_Var_Decl new_var_decl( c_str id, a_Array_Sub array, int pos );
@@ -204,7 +204,7 @@ struct a_Exp_Func_Call_ { a_Exp func; a_Exp args; t_CKTYPE ret_type;
 struct a_Exp_Dot_Member_ { a_Exp base; t_CKTYPE t_base; S_Symbol id; int linepos; a_Exp self; };
 struct a_Exp_If_ { a_Exp cond; a_Exp if_exp; a_Exp else_exp; int linepos; a_Exp self; };
 struct a_Exp_Decl_ { a_Type_Decl type; a_Var_Decl_List var_decl_list; int linepos; a_Exp self; };
-struct a_Exp_Namespace_ { S_Symbol name; int linepos; a_Exp self; };
+struct a_Exp_Hack_ { a_Exp exp; int linepos; a_Exp self; };
 struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos; a_Exp self; };
 struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; a_Array_Sub array; t_CKVALUE value;
                      int linepos; a_Exp self; };
@@ -216,7 +216,7 @@ struct a_Arg_List_ { a_Type_Decl type_decl; a_Var_Decl var_decl; t_CKTYPE type;
 
 // enum primary exp type
 typedef enum { ae_primary_var, ae_primary_num, ae_primary_float, 
-               ae_primary_str, ae_primary_array, ae_primary_exp
+               ae_primary_str, ae_primary_array, ae_primary_exp, ae_primary_hack
              } ae_Exp_Primary_Type;
 
 struct a_Exp_Primary_
@@ -241,7 +241,7 @@ struct a_Exp_Primary_
 // enum exp type
 typedef enum { ae_exp_binary = 0, ae_exp_unary, ae_exp_cast, ae_exp_postfix,
                ae_exp_dur, ae_exp_primary, ae_exp_array, ae_exp_func_call,
-               ae_exp_dot_member, ae_exp_if, ae_exp_decl, ae_exp_namespace
+               ae_exp_dot_member, ae_exp_if, ae_exp_decl
              } ae_Exp_Type;
 // type meta data
 typedef enum { ae_meta_value = 0, ae_meta_var } ae_Exp_Meta;
@@ -271,7 +271,7 @@ struct a_Exp_
         struct a_Exp_Dot_Member_ dot_member;
         struct a_Exp_If_ exp_if;
         struct a_Exp_Decl_ decl;
-        struct a_Exp_Namespace_ name_space;
+        struct a_Exp_Hack_ hack;
     };
 
     int linepos;

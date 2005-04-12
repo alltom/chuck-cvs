@@ -149,8 +149,6 @@ int comment();
 "#"                     { adjust(); return POUND; }
 "$"                     { adjust(); return DOLLAR; }
 
-"(:"                    { adjust(); return L_NSPC; }
-":)"                    { adjust(); return R_NSPC; }
 "::"                    { adjust(); return COLONCOLON; }
 "=="                    { adjust(); return EQ; }
 "!="                    { adjust(); return NEQ; }
@@ -184,6 +182,8 @@ break                   { adjust(); return BREAK; }
 if                      { adjust(); return IF; }
 else                    { adjust(); return ELSE; }
 do                      { adjust(); return DO; }
+"<<<"                    { adjust(); return L_HACK; }
+">>>"                    { adjust(); return R_HACK; }
 
 return                  { adjust(); return RETURN; }
 

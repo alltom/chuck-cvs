@@ -2973,6 +2973,35 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Cast_double2int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKINT *& sp_int = (t_CKINT *&)sp;
+    pop_( sp, 1 );
+    push_( sp_int, (t_CKINT)(*sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Cast_int2double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp;
+    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)sp;
+    pop_( sp, 1 );
+    push_( sp_double, (t_CKFLOAT)(*sp) );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_UGen_Ctrl_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
@@ -3105,29 +3134,44 @@ void Chuck_Instr_DLL_Unload::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_double2int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+// hack
+Chuck_Instr_Hack::Chuck_Instr_Hack( Chuck_Type * type )
 {
-    t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
-    t_CKINT *& sp_int = (t_CKINT *&)sp;
-    pop_( sp, 1 );
-    push_( sp_int, (t_CKINT)(*sp) );
+    this->m_type_ref = type;
+    this->m_type_ref->add_ref();
 }
 
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_int2double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+Chuck_Instr_Hack::~Chuck_Instr_Hack()
 {
-    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp;
-    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)sp;
-    pop_( sp, 1 );
-    push_( sp_double, (t_CKFLOAT)(*sp) );
+    this->m_type_ref->release();
+}
+
+void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // look at the type
+    if( m_type_ref->size == 4 )
+    {
+        t_CKINT * sp = (t_CKINT *)shred->reg->sp;
+        // print it
+        fprintf( stderr, "%d :(%s)\n", *(sp-1), m_type_ref->c_name() );
+    }
+    else if( m_type_ref->size == 8 )
+    {
+        t_CKFLOAT * sp = (t_CKFLOAT *)shred->reg->sp;
+        // print it
+        fprintf( stderr, "%f :(%s)\n", *(sp-1), m_type_ref->c_name() );
+    }
+    else if( m_type_ref->size == 0 )
+    {
+        fprintf( stderr, "... :(%s)\n", m_type_ref->c_name() );
+    }
+    else
+        assert( FALSE );
+}
+
+const char * Chuck_Instr_Hack::params() const
+{
+    static char buffer[256];
+     sprintf( buffer, "(%s)", m_type_ref->c_name() );
+     return buffer;
 }

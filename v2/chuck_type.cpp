@@ -111,7 +111,6 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
 t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
-t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 t_CKBOOL type_engine_check_array_subscripts( Chuck_Env * env, a_Exp exp_list );
 t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
 t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
@@ -835,12 +834,6 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
             curr->type = type_engine_check_exp_decl( env, &curr->decl );
         break;
 
-        case ae_exp_namespace:
-            //curr->type = type_engine_check_exp_namespace( env, &curr->name_space );
-            EM_error2( curr->linepos, "namespace expression not implemented!" );
-            return FALSE;
-        break;
-        
         default:
             EM_error2( curr->linepos,
                 "internal compiler error - no expression type '%i'...",
@@ -1540,6 +1533,11 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
         
         // expression
         case ae_primary_exp:
+            t = type_engine_check_exp( env, exp->exp );
+        break;
+
+        // hack
+        case ae_primary_hack:
             t = type_engine_check_exp( env, exp->exp );
         break;
 
@@ -3141,8 +3139,6 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & n
 
     return TRUE;
 }
-
-t_CKTYPE type_engine_check_exp_namespace( Chuck_Env * env, a_Exp_Namespace name_space );
 
 
 

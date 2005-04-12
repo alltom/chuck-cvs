@@ -2139,6 +2139,51 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Cast_double2int
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Cast_double2int : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Cast_int2double
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Cast_int2double : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Hack
+// desc: ...
+//-----------------------------------------------------------------------------
+class Chuck_Instr_Hack : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Hack( Chuck_Type * type );
+    virtual ~Chuck_Instr_Hack();
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const;
+
+protected:
+    Chuck_Type * m_type_ref;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_UGen_Ctrl_Op
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2221,32 +2266,6 @@ public:
 // desc: ...
 //-----------------------------------------------------------------------------
 class Chuck_Instr_DLL_Unload : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_double2int
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_double2int : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_int2double
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_int2double : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

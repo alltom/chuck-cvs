@@ -514,16 +514,16 @@ a_Exp new_exp_decl( a_Type_Decl type, a_Var_Decl_List var_decl_list, int pos )
     return a;
 }
 
-a_Exp new_exp_from_namespace( c_str name, int pos )
+a_Exp new_exp_from_hack( a_Exp exp, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
-    a->s_type = ae_exp_namespace;
+    a->s_type = ae_exp_primary;
     a->s_meta = ae_meta_value;
-    a->name_space.name = insert_symbol( name );
-    a->name_space.linepos = pos;
+    a->primary.s_type = ae_primary_hack;
+    a->primary.exp = exp;
+    a->primary.linepos = pos;
     a->linepos = pos;
-    a->name_space.linepos = pos;
-    a->name_space.self = a;
+    a->primary.self = a;
 
     return a;
 }
