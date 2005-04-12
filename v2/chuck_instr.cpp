@@ -3152,8 +3152,11 @@ void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     if( m_type_ref->size == 4 )
     {
         t_CKINT * sp = (t_CKINT *)shred->reg->sp;
-        // print it
-        fprintf( stderr, "%d :(%s)\n", *(sp-1), m_type_ref->c_name() );
+        if( !isa( m_type_ref, &t_string ) )
+            // print it
+            fprintf( stderr, "%d :(%s)\n", *(sp-1), m_type_ref->c_name() );
+        else
+            fprintf( stderr, "%s\n", ((Chuck_String *)*(sp-1))->str.c_str() );
     }
     else if( m_type_ref->size == 8 )
     {
