@@ -3562,7 +3562,10 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
         t = type_engine_find_type( nspc, id );
         // look in parent
         while( !t && type && type->parent )
+        {
             t = type_engine_find_type( type->parent->info, id );
+            type = type->parent;
+        }
         // can't find
         if( !t )
         {
