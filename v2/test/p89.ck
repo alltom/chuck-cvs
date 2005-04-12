@@ -10,4 +10,4 @@ class Piece {
 Piece p;
 p.set( 5 );
 
-if ( p.part != 5 ) 1::minute => now;
+if ( p.part == 5 ) <<<"success">>>;

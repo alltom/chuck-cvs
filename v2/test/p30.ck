@@ -19,4 +19,4 @@ Obj o;
 o.set(a);
 
 
-if( o.x != 10 ) while( true );
+if( o.x == 10 ) <<<"success">>>;

@@ -6,7 +6,7 @@ fun int factorial ( int x ) {
 }
 
 factorial ( 5 ) => int answer;
-if ( answer != 120 ) { 
-	while ( true );
+if ( answer == 120 ) { 
+	<<<"success">>>;
 }
 

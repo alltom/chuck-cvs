@@ -6,4 +6,4 @@ if ( true ) {
 	5 => int i;
 }
 
-if ( i != 0 ) 1::minute => now;
+if ( i == 0 ) <<<"success">>>;

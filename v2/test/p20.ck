@@ -7,6 +7,6 @@ for ( x ; x > 1 ; 1 -=> x ) {
 	x *=> fact;
 }
 
-if ( fact != 24 ) { 
-	while ( true );
+if ( fact == 24 ) { 
+	<<<"success">>>;
 }

@@ -9,4 +9,4 @@ while ( true ) {
 	1 +=> j;
 }
 
-if ( j != 5 ) 1::minute => now;
+if ( j == 5 ) <<<"success">>>;

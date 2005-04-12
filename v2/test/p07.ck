@@ -1,4 +1,4 @@
-// array of a class
+// array of a class error fail-correct
 
 class X
 {
@@ -8,3 +8,5 @@ class X
 }
 
 X x[8];
+
+<<<"success">>>;

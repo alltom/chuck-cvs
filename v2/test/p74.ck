@@ -4,5 +4,7 @@
 4 => int i;
 ++i => int j;
 
-if ( i != 5 ) 1::minute => now;
-if ( j != 5 ) 1::minute => now;
+<<<"printing i, j">>>;
+<<<i>>>;
+<<<j>>>;
+if ( i == 5 && j == 5 ) <<<"success">>>;

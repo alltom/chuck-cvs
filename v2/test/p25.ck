@@ -1,4 +1,4 @@
-// pass by value test - should NOT hang on infinite loop
+// pass by value test
 
 fun void fake_equals( float arg1, float arg2 )
 {
@@ -10,8 +10,8 @@ fun void fake_equals( float arg1, float arg2 )
 
 fake_equals( x, y );
 
-if ( x == y ) { 
-	while ( true );
+if ( x != y ) { 
+	<<<"success">>>;
 }
 
 

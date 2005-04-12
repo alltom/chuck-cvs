@@ -1,4 +1,4 @@
-// assign one class to another
+// assign one class to another ( fail-correct )
 
 class ListItem
 {
@@ -13,3 +13,5 @@ class ListValue {
 ListItem item;
 ListValue value;
 item @=> value;
+
+<<<"success">>>;

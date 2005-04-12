@@ -1,29 +1,30 @@
 // float comp
-// test this using "time ../chuck p51.ck"
-// ignore the fraction spent one the emitter
 
 1.0 => float x;
-
+0 => int ret;
 if ( x == 1.0 ) { 
-	1::second => now;
+	1 +=> ret;
 }
 
 if ( x != 1.0 ) { 
-	2::second => now;
+	2 +=> ret;
 }
 
 if ( x < 1.0 ) { 
-	4::second => now;
+	4 +=> ret;
 }
 
 if ( x > 1.0 ) { 
-	8::second => now;
+	8 +=> ret;
 }
 
 if ( x >= 1.0 ) { 
-	16::second => now;
+	16 +=> ret;
 }
 
 if ( x <= 1.0 ) { 
-	32::second => now;
+	32 +=> ret;
 }
+
+<<<ret>>>;
+if ( ret == 49 ) <<<"success">>>;

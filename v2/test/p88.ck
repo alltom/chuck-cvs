@@ -15,6 +15,6 @@ while ( j < 5 ) {
 }
 
 //this should make sure that continue does the right thing in the inner loop;
-if ( check != 10 ) 1::minute => now; 
+if ( check == 10 ) <<<"success">>>;
 
 

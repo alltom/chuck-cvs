@@ -7,7 +7,7 @@ fun float squared( float arg )
 
 squared(1.0) => float x;
 
-if ( x != 1.0 ) { 
-	while ( true );
+if ( x == 1.0 ) { 
+	<<<"success">>>;
 }
 

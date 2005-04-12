@@ -4,4 +4,6 @@
 
 i++ => int j;
 
-if ( i != 1 ) 1::minute => now;
+<<<"i should equal 1">>>;
+<<<i>>>;
+if ( i == 1 ) <<<"success">>>;

@@ -1,4 +1,4 @@
-// cast an array of one type to another
+// cast an array of one type to another ( fail-correct )
 
 int p[4];
 float c[4];

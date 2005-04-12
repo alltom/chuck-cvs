@@ -11,4 +11,4 @@ class Obj {
 Obj o;
 o.clear();
 
-
+<<<"success">>>;

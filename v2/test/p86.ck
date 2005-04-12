@@ -11,4 +11,5 @@ while ( j < 10 ) {
 	1 +=> i;
 }
 
-if ( i != 6 ) 1::minute => now;
+<<<i>>>;
+if ( i == 6 ) <<<"success">>>;

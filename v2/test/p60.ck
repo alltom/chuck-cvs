@@ -1,4 +1,4 @@
-// function declaration before definition
+// function declaration before definition ( fail-correct )
 
 fun int foo();
 
@@ -12,4 +12,4 @@ fun int foo() {
 
 bar() => int answer;
 
-if ( answer != 20 ) while( true );
+if ( answer == 20 ) <<<"success">>>; 

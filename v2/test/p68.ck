@@ -5,19 +5,20 @@ class ListItem {
 	ListItem @ next;
 	fun void push ( ListItem it ) { 
 		if ( next != null ) next.push(it);
-		else it => next;
+		else it @=> next;
 	} 
+	fun int isLast() { 
+		return ( next == null ) ? 1 : 0 ;
+	}
 	fun ListItem pop () { 
-		if ( next.isLast() ) {
-			next => ListItem @ n;
-			null => next; 
+		if ( next.isLast() != 0 ) {
+			next @=> ListItem @ n;
+			null @=> next; 
 			return n;
 		}
 		else return next.pop();
 	}
-	fun boolean isLast() { 
-		return ( next == null );
-	}
+
 }
 
 class Lifo { 
@@ -27,7 +28,7 @@ class Lifo {
 		root @=> it.next;
 		it @=> root;
 	}
-	ListItem pop() { 
+	fun ListItem pop() { 
 		if ( root == null ) return null;
 		root @=> ListItem @ ret;
 		root.next @=> root;
@@ -39,4 +40,6 @@ Lifo f;
 
 f.push( ListItem n );
 f.push( ListItem p );
-ListItem @ l = f.pop();
+f.pop() @=> ListItem @ l;
+
+<<<"success">>>;

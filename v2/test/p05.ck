@@ -7,5 +7,7 @@ class Obj {
 		a.x => x;
 		a.y => y;
 	}
-} 
+}
+
+<<<"success">>>;
 

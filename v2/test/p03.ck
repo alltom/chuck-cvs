@@ -1,4 +1,4 @@
-// class with function definition outside of class decl.
+// fail-correct class with function definition outside of class decl.
 
 class Obj { 
 	int x;
@@ -9,3 +9,5 @@ class Obj {
 void Obj::foo( int b ) { 
 	b => x;
 }
+
+<<<"success">>>;

@@ -1,4 +1,4 @@
-// class with a declared, undefined class as member
+// class with a declared, undefined class as member ( fail-correct )
 
 class ListValue;
 
@@ -14,3 +14,5 @@ class ListValue {
 }
 
 ListItem root;
+
+<<<"success">>>;

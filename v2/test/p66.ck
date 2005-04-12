@@ -16,7 +16,9 @@ class Sequence {
 
 Sequence root;
 
-0 => root.n;
+0 => root.note;
 0::second => root.hold;
 root.addNote ( 60, 0.25::second );
 root.addNote ( 0, 0.5::second );
+
+<<<"success">>>;

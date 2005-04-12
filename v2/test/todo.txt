@@ -2,6 +2,7 @@
 
 
 
+apr 12		scan functions to allow forward referencing, recursion, etc...	
 apr 11		SPORKING
 apr 10	       p84,p84_4 - postincrement is not 'post'
 apr 9          FIXED p86,88   type error for 'continue'

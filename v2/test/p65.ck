@@ -4,6 +4,12 @@ class Sequence {
 	int note;
 	dur hold;
 	Sequence @ next;
+
+	fun void setNote( int n, dur h ) {
+		n => note; 
+		h => hold;
+	}
+
 	fun void addNote( int n, dur h) { 
 		if ( next == null ) { 
 			Sequence nx @=> next;
@@ -11,10 +17,7 @@ class Sequence {
 		}	
 		else next.addNote( n, h );
 	}
-	fun void setNote( int n, dur h ) {
-		n => note; 
-		h => hold;
-	}
+
 	fun void play() { 
 		// blah play the note
 		hold => now;
@@ -29,8 +32,8 @@ class Sequence {
 //	fun Sequence getLast
 }
 
-1.0::second => beat;
-0.25::beat => quarter;
+1.0::second => dur beat;
+0.25::beat => dur quarter;
 
 Sequence root;
 
@@ -39,3 +42,5 @@ root.addNote ( 0, 2::quarter );
 root.addNote ( 64, quarter );
 
 root.play();
+
+<<<"success">>>;

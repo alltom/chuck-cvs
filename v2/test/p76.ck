@@ -6,4 +6,4 @@ for ( 0 => int i; i < 5; 1 +=> i ) {
 
 }
 
-if ( i != 0 ) 1::minute => now;
+if ( i == 0 ) <<<"success">>>;

@@ -1,4 +1,4 @@
-// class with a currently undeclared, undefined class as member
+// class with a currently undeclared, undefined class as member ( fail-correct )
 
 class ListItem
 {
@@ -12,3 +12,5 @@ class ListValue {
 }
 
 ListItem root;
+
+<<<"success">>>;

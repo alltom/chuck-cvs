@@ -1,4 +1,4 @@
-// cast parent class to subclass
+// cast parent class to subclass ( fail-correct )
 
 class Parent
 {
@@ -13,3 +13,5 @@ class Child extends Parent {
 Parent p;
 Child c;
 p @=> c;
+
+<<<"success">>>;

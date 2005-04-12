@@ -26,5 +26,5 @@ Part p;
 p.makeChild();
 b.setTail ( p );
 
-if ( b.tail.foo != 4 ) 1::minute => now;
+if ( b.tail.foo == 4 ) <<<"success">>>;
 

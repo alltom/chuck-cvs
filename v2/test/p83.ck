@@ -8,4 +8,4 @@ do {
 	1 +=> i;
 } until ( i >= 5 );
 
-if ( j != 1 ) 1::minute => now;
+if ( j == 1 ) <<<"success">>>;

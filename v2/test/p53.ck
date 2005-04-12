@@ -1,5 +1,5 @@
 // implicit casts between int and float
-// are we really this strict?
+// - test isn't proper just yet
 
 
 fun void takesInts ( int argI ) { 
@@ -33,4 +33,4 @@ a * 3 => float n;
 5.0 * a => float o;
 a * 5.0 => float p;
 
- 
+<<<"success">>>; 

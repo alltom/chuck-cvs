@@ -4,5 +4,7 @@
 
 ++i => int j;
 
-if ( i != 1 ) 1::minute => now;
-if ( j != 1 ) 1::minute => now;
+<<<"i and j should be 1">>>;
+<<<i>>>;
+<<<j>>>;
+if ( i == 1 && j == 1 ) <<<"success">>>;

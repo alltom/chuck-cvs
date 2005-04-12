@@ -1,29 +1,33 @@
 // int comp
-// test this using "time ../chuck p51.ck"
-// ignore the fraction spent one the emitter
 
 0 => int x;
 
+0 => int ret;
+
 if ( x == 1 ) { 
-	1::second => now;
+	1 +=> ret;
 }
 
 if ( x != 1 ) { 
-	2::second => now;
+	2 +=> ret;
 }
 
 if ( x <= 1 ) { 
-	4::second => now;
+	4 +=> ret;
 }
 
 if ( x >= 1 ) { 
-	8::second => now;
+	8 +=> ret;
 }
 
 if ( x > 1 ) { 
-	16::second => now;
+	16 +=> ret;
 }
 
 if ( x < 1 ) { 
-	32::second => now;
+	32 +=> ret;
 }
+
+<<<ret>>>;
+if ( ret == 38 ) <<<"success">>>;
+

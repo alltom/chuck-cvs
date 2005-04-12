@@ -4,3 +4,5 @@ int a[16];
 int b[12];
 
 a @=> b;
+
+<<<"success">>>;

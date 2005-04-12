@@ -18,5 +18,5 @@ o.set( 1 , 2 );
 Obj p;
 p.set( 3, 4 );
 
-if ( o.xval() == p.xval()  ) while( true );
+if ( o.xval() != p.xval()  ) <<<"success">>>;
 

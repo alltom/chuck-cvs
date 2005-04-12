@@ -16,6 +16,6 @@ Obj o;
 o.set( 1 , 2 );
 o.xval() => int out;
 
-if ( out != 1  ) while( true );
+if ( out == 1  ) <<<"success">>>;
 
 

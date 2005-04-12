@@ -6,3 +6,5 @@ class Obj {
 
 Obj o;
 o.nothing();
+
+<<<"success">>>;

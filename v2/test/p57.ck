@@ -14,6 +14,4 @@ o.set( 1, 2 );
 Obj p;
 p.set( 3, 4 );
 
-if ( o.x == p.x ) 10::second => now;
-
-
+if ( o.x != p.x ) <<<"success">>>;

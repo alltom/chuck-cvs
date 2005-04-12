@@ -11,6 +11,6 @@ fun int factorial ( int arg ) {
 
 factorial ( 4 ) => int x;
 
-if ( x != 24 ) { 
-	10::second => now; 
+if ( x == 24 ) { 
+	<<<"success">>>;
 }

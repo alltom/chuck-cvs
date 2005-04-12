@@ -24,5 +24,5 @@ p1.set( 0, 1, 2 );
 p2.set( 5, 6, 7 );
 p1.sum(p2, result);
 
-if ( result.p[2] != 9 ) 10::second => now;
+if ( result.p[2] == 9 ) <<<"success">>>;
 

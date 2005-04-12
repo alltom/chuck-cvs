@@ -6,3 +6,5 @@ class Sleeper {
 
 Sleeper s;
 s.waitafew();
+
+<<<"success">>>;

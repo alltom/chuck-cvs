@@ -2,3 +2,5 @@
 
 0.5::second => dur halfsec;
 10 * halfsec => now;
+
+<<<"success">>>;

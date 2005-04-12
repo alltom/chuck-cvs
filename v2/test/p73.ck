@@ -1,8 +1,9 @@
 // i++
 
-
 4 => int i;
 i++ => int j;
 
-if ( i != 5 ) 1::minute => now;
-if ( j != 4 ) 1::minute => now;
+<<<"printing i, then j">>>;
+<<<i>>>;
+<<<j>>>;
+if ( i == 5 && j == 4) <<<"success">>>;

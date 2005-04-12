@@ -24,5 +24,5 @@ Bunch b;
 Part p;
 2 => p.foo;
 b.setTail ( p );
-if ( b.tail.foo != 2 ) 1::minute => now;
 
+if ( b.tail.foo == 2 ) <<<"success">>>;

@@ -11,6 +11,6 @@ int foo[2];
 
 mirror( foo );
 
-if ( foo[0] != foo[1] ) { 
-	while ( true );
+if ( foo[0] == foo[1] ) { 
+	<<<"success">>>;
 }

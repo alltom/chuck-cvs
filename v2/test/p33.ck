@@ -9,6 +9,6 @@ class Obj {
 	}
 } 
 
-new Obj(1,2) => Obj o;
+new Obj(1,2) @=> Obj o;
 
-
+<<<"success">>>;

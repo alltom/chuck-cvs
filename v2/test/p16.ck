@@ -1,5 +1,4 @@
-// cast a parent class array to a subclass array
-// this should fail.
+// cast a parent class array to a subclass array ( fail-correct )
 
 class Parent
 {
@@ -14,3 +13,5 @@ class Child extends Parent {
 Parent p[4];
 Child c[4];
 p @=> c;
+
+<<<"success">>>;

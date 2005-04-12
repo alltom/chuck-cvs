@@ -10,7 +10,7 @@ fun int bar() {
 
 bar() => int answer;
 
-if ( answer != 20 ) { 
-	while ( true );
+if ( answer == 20 ) { 
+	<<<"success">>>;
 }
 

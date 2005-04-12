@@ -12,6 +12,6 @@ class Obj {
 Obj o;
 o.set( 1 , 2 );
 
-if ( o.x != 1 ) while( true ); 
+if ( o.x == 1 ) <<<"success">>>;
 
 

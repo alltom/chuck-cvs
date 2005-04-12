@@ -8,9 +8,9 @@ fun float squared( float arg )
 squared(1.6) => float x;
 
 if ( x != 2.56 ) { 
-	10::second => now;
+	<<<"this is due to double precision math:  1.6 x 1.6 != 2.56 ">>>;
 }
 
 if ( x == 2.56 ) { 
-	2::second => now;
+	<<<"success">>>;
 }

@@ -13,3 +13,5 @@ class Child extends Parent {
 Parent p[4];
 Child c[4];
 c @=> p;
+
+<<<"success">>>;
