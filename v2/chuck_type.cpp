@@ -3585,6 +3585,8 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
 
         // set the type
         type = t;
+        // update nspc
+        if( type ) nspc = type->info;
         // advance
         path = path->next;
     }
