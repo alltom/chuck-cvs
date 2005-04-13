@@ -3548,7 +3548,12 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
     Chuck_Type * t = NULL;
     // get base type
     Chuck_Type * type = env->curr->lookup_type( path->id, TRUE );
-    if( !type ) return NULL;
+    if( !type )
+    {
+        EM_error2( path->linepos, "undefined type '%s'...",
+            type_path( path ) );
+        return NULL;
+    }
     // start the namespace
     Chuck_Namespace * nspc = type->info;
     path = path->next;
