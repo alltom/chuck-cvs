@@ -1357,7 +1357,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             if( !t )
             {
                 EM_error2( unary->linepos,
-                    "undefined type '%s'...", type_path(unary->type->id) );
+                    "... in 'new' expression ..." );
                 return NULL;
             }
 
@@ -1671,8 +1671,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     t_CKTYPE t2 = type_engine_find_type( env, cast->type->id );
     if( !t2 )
     {
-        EM_error2( cast->linepos,
-            "undefined type '%s' in cast...", type_path( cast->type->id ) );
+        EM_error2( cast->linepos, "... in cast expression ..." );
         return NULL;
     }
     
@@ -1880,8 +1879,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     t_CKTYPE t = type_engine_find_type( env, decl->type->id );
     if( !t )
     {
-        EM_error2( decl->linepos,
-            "undefined type '%s'...", type_path(decl->type->id) );
+        EM_error2( decl->linepos, "... in declaration ..." );
         return NULL;
     }
 
@@ -2561,8 +2559,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // no return type
     if( !f->ret_type )
     {
-        EM_error2( f->linepos, "for function '%s':", S_name(f->name) );
-        EM_error2( f->linepos, "undefined return type '%s'", type_path(f->type_decl->id) );
+        EM_error2( f->linepos, "... in return type of function '%s' ...", S_name(f->name) );
         goto error;
     }
 
@@ -2580,9 +2577,10 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         arg_list->type = type_engine_find_type( env, arg_list->type_decl->id );
         if( !arg_list->type )
         {
-            EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
-            EM_error2( arg_list->linepos, "argument %i '%s' has undefined type '%s'", 
-                count, S_name(arg_list->var_decl->id), type_path(arg_list->type_decl->id) );
+            // EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
+            EM_error2( arg_list->linepos, 
+                "... in argument %i '%s' of function '%s(.)' ...", 
+                count, S_name(arg_list->var_decl->id), S_name(f->name) );
             goto error;
         }
 
@@ -3547,9 +3545,10 @@ Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol id )
 Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
 {
     S_Symbol id = NULL;
+    Chuck_Type * t = NULL;
+    // get base type
     Chuck_Type * type = env->curr->lookup_type( path->id, TRUE );
     if( !type ) return NULL;
-    Chuck_Type * t = NULL;
     // start the namespace
     Chuck_Namespace * nspc = type->info;
     path = path->next;
@@ -3571,10 +3570,10 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
         if( !t )
         {
             // error
-            //EM_error2( path->linepos, "undefined type '%s'...",
-            //    type_path( path ) );
+            EM_error2( path->linepos, "undefined type '%s'...",
+                type_path( path ) );
             EM_error2( path->linepos,
-                "...(note: cannot find class '%s' in namespace '%s')",
+                "...(cannot find class '%s' in namespace '%s')",
                 S_name(id), nspc->name.c_str() );
             return NULL;
         }
