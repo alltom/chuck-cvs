@@ -45,7 +45,7 @@
 
 // defaults
   #if defined(__MACOSX_CORE__)
-#define BUFFER_SIZE_DEFAULT          256
+#define BUFFER_SIZE_DEFAULT          1024
   #else
 #define BUFFER_SIZE_DEFAULT          1024
   #endif
