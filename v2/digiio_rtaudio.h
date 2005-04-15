@@ -110,6 +110,7 @@ public:
                               DWORD__ buffer_size = BUFFER_SIZE_DEFAULT,
                               DWORD__ num_buffers = NUM_BUFFERS_DEFAULT );
     static void shutdown();
+    static void probe();
 
 public:
     static DWORD__ sampling_rate( ) { return m_sampling_rate; }

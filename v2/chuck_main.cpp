@@ -196,9 +196,9 @@ t_CKUINT next_power_2( t_CKUINT n )
 void usage()
 {
     fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
-    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
+    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
-    fprintf( stderr, "               remote<hostname>|port<N>\n" );
+    fprintf( stderr, "               remote<hostname>|port<N>|probe\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
     fprintf( stderr, "chuck version: %s\n", CK_VERSION );
@@ -228,6 +228,7 @@ int main( int argc, char ** argv )
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
     t_CKBOOL dump = FALSE;
+    t_CKBOOL probe = FALSE;
 
     t_CKUINT files = 0;
     t_CKINT i;
@@ -275,6 +276,8 @@ int main( int argc, char ** argv )
                 g_port = atoi( argv[i]+6 );
             else if( !strncmp(argv[i], "-p", 2) )
                 g_port = atoi( argv[i]+2 );
+            else if( !strcmp( argv[i], "--probe" ) )
+                probe = TRUE;
             else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
                  || !strcmp(argv[i], "--about") )
             {
@@ -292,6 +295,14 @@ int main( int argc, char ** argv )
         }
         else
             files++;
+    }
+    
+    // probe
+    if( probe )
+    {
+        Digitalio::probe();
+        // exit
+        exit( 0 );
     }
 
     // check buffer size
