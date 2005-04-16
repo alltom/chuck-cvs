@@ -34,6 +34,7 @@
 #include "chuck_instr.h"
 #include "chuck_bbq.h"
 #include "chuck_errmsg.h"
+#include "chuck_dl.h"
 
 #include <vector>
 using namespace std;
