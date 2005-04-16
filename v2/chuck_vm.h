@@ -35,7 +35,6 @@
 
 #include "chuck_oo.h"
 #include "chuck_ugen.h"
-#include "chuck_dl.h"
 #include <string>
 #include <map>
 using namespace std;

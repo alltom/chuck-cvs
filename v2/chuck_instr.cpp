@@ -35,12 +35,12 @@
 #include <typeinfo>
 using namespace std;
 
+#include "chuck_type.h"
 #include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_ugen.h"
 #include "chuck_bbq.h"
 #include "chuck_dl.h"
-#include "chuck_type.h"
 
 
 
