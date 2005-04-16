@@ -2048,32 +2048,6 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Alloc
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Alloc : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_DeAlloc
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_DeAlloc : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Instr_UGen_Ctrl
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2178,97 +2152,6 @@ public:
 
 protected:
     Chuck_Type * m_type_ref;
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Ctrl_Op
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Ctrl_Op : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_CGet_Op
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_CGet_Op : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_CGet_Gain
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_CGet_Gain : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Ctrl_Gain
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Ctrl_Gain : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_CGet_Last
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_CGet_Last : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_DLL_Load
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_DLL_Load : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class Chuck_Instr_DLL_Unload
-// desc: ...
-//-----------------------------------------------------------------------------
-class Chuck_Instr_DLL_Unload : public Chuck_Instr
-{
-public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
 

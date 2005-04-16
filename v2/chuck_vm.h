@@ -282,9 +282,6 @@ public: // msg
     Chuck_Msg * get_reply( );
 
 public: // static/dynamic function table
-    Chuck_DLL * dll_load( const char * path, const char * id = NULL );
-    t_CKBOOL dll_unload( Chuck_DLL * & dll );
-    void dll_clear( );
     void set_env( void * env ) { m_env = env; }
     void * get_env( ) { return m_env; }
     
@@ -335,7 +332,6 @@ protected:
 
     // type information
     void * m_env;
-    map<string, Chuck_DLL *> m_dlls;
     
 public:
     // priority

@@ -278,9 +278,6 @@ t_CKBOOL Chuck_VM::shutdown()
     this->stop();
     usleep( 50000 );
     
-    // dll
-    this->dll_clear();
-
     // free the shreduler
     SAFE_DELETE( m_shreduler );
 
@@ -761,73 +758,6 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
     if( !m_num_shreds ) m_shred_id = 0;
     
     return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: dll_load()
-// desc: ...
-//-----------------------------------------------------------------------------
-Chuck_DLL * Chuck_VM::dll_load( const char * path, const char * id )
-{
-    Chuck_DLL * dll = m_dlls[path];
-    if( !dll )
-    {
-        dll = new Chuck_DLL(id);
-        if( !dll ) return NULL;
-
-        // load the dll
-        if( !dll->load( path ) )
-        {
-            m_last_error = dll->last_error();
-            delete dll;
-            return NULL;
-        }
-
-        m_dlls[path] = dll;
-    }
-
-    return dll;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: dll_unload()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_VM::dll_unload( Chuck_DLL *& dll )
-{
-    if( !dll ) return TRUE;
-
-    // deallocate
-    dll->unload();
-    delete dll;
-    dll = NULL;
-    
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: dll_clear()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_VM::dll_clear()
-{
-    map<string, Chuck_DLL *>::iterator iter;
-    for( iter = m_dlls.begin(); iter != m_dlls.end(); iter++ )
-    {
-        (*iter).second->unload();
-        delete (*iter).second;
-    }
-    
-    m_dlls.clear();
 }
 
 

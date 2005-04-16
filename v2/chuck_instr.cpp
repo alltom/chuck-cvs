@@ -2757,6 +2757,36 @@ void Chuck_Instr_Dot_Static_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Cast_double2int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
+    t_CKINT *& sp_int = (t_CKINT *&)sp;
+    pop_( sp, 1 );
+    push_( sp_int, (t_CKINT)(*sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Cast_int2double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp;
+    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)sp;
+    pop_( sp, 1 );
+    push_( sp_double, (t_CKFLOAT)(*sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_ADC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
@@ -2819,48 +2849,6 @@ void Chuck_Instr_UGen_UnLink::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( sp, 2 );
     (*(sp+1))->remove( *sp );
     push_( sp, *(sp + 1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-    Chuck_UGen_Info * info = NULL;
-    Chuck_UGen * ugen = NULL;
-
-    pop_( sp, 1 );
-    info = (Chuck_UGen_Info *)*(sp);
-    ugen = new Chuck_UGen;
-    // copy the info over
-    ugen->ctor = info->ctor;
-    ugen->dtor = info->dtor;
-    ugen->tick = info->tick;
-    ugen->pmsg = info->pmsg;
-    ugen->m_max_src = info->max_src;
-    // call the constructor
-    ugen->state = ugen->ctor ? ugen->ctor( shred->now ) : NULL ;
-
-    // setup the reference with the shred
-    ugen->shred = shred;
-    shred->add( ugen );
-    push_( sp, (t_CKUINT)ugen );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_DeAlloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
 }
 
 
@@ -2964,171 +2952,6 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // (*(sp + 1))->pmsg( shred->now, *sp );
     
     push_( sp, *(sp + 1) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_double2int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKFLOAT *& sp = (t_CKFLOAT *&)shred->reg->sp;
-    t_CKINT *& sp_int = (t_CKINT *&)sp;
-    pop_( sp, 1 );
-    push_( sp_int, (t_CKINT)(*sp) );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Cast_int2double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp;
-    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)sp;
-    pop_( sp, 1 );
-    push_( sp_double, (t_CKFLOAT)(*sp) );
-}
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_Ctrl_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-    
-    pop_( sp, 4 );
-    Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
-    ugen->m_op = *(t_CKINT *)sp;
-    // push the new value
-    push_( sp, *sp);
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_CGet_Op::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-
-    pop_( sp, 2 );
-    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
-    // push the new value
-    push_( sp, ugen->m_op );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_Ctrl_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-    
-    // HACK: this won't work for 64-bit long
-    ((Chuck_UGen *)*(sp-3))->m_gain = (float)*(t_CKFLOAT *)(sp-5);
-    pop_( sp, 5 );
-
-    // push the new value
-    ((t_CKFLOAT *&)shred->reg->sp)++;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_CGet_Gain::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-
-    pop_( sp, 2 );
-    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
-    // push the new value
-    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)shred->reg->sp;
-    push_( sp_double, (t_CKFLOAT)ugen->m_gain );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_UGen_CGet_Last::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-
-    pop_( sp, 2 );
-    Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
-    // push the new value
-    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)shred->reg->sp;
-    push_( sp_double, (t_CKFLOAT)ugen->m_current );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_DLL_Load::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-    t_CKINT retval = FALSE;
-    Chuck_DLL * dll = NULL;
-    pop_( sp, 2 );
-    
-    // load the DLL into the vm
-    dll = vm->dll_load( (const char *)(*sp) );
-    // load the DLL into the namespace
-    if( dll ) retval = type_engine_add_dll( (Chuck_Env *)vm->get_env(), dll,
-                                            (const char *)(*(sp+1)) );
-
-    // push the result
-    push_( sp, (t_CKUINT)dll );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Instr_DLL_Unload::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-    t_CKINT retval = FALSE;
-    Chuck_DLL * dll = NULL;
-    pop_( sp, 1 );
-
-    // unload the dll
-    dll = (Chuck_DLL *)(*sp);
-    if( dll ) retval = vm->dll_unload( dll );
-
-    // push the result
-    push_( sp, retval );
 }
 
 
