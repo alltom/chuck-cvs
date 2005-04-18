@@ -49,10 +49,10 @@ using namespace std;
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM_Frame
+// name: struct Chuck_VM_Frame
 // desc: func frame
 //-----------------------------------------------------------------------------
-class Chuck_VM_Frame
+struct Chuck_VM_Frame
 {
 public:
     t_CKUINT size;
@@ -66,10 +66,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM_Func
+// name: struct Chuck_VM_Func
 // desc: vm function
 //-----------------------------------------------------------------------------
-class Chuck_VM_Func
+struct Chuck_VM_Func
 {
 public:
     Chuck_VM_Code * code;
@@ -85,10 +85,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM_FTable
+// name: struct Chuck_VM_FTable
 // desc: function table
 //-----------------------------------------------------------------------------
-class Chuck_VM_FTable
+struct Chuck_VM_FTable
 {
 public:
     Chuck_VM_FTable();
