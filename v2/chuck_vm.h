@@ -50,11 +50,12 @@ using namespace std;
 
 
 // forward references
-class Chuck_Instr;
-class Chuck_VM;
-class Chuck_VM_Func;
-class Chuck_VM_FTable;
+struct Chuck_Instr;
+struct Chuck_VM;
+struct Chuck_VM_Func;
+struct Chuck_VM_FTable;
 struct Chuck_Msg;
+
 class BBQ;
 class CBuffer;
 class Digitalio;
@@ -63,10 +64,10 @@ class Digitalio;
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM_Stack
+// name: struct Chuck_VM_Stack
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_VM_Stack
+struct Chuck_VM_Stack
 {
 //-----------------------------------------------------------------------------
 // functions
@@ -99,10 +100,10 @@ public: // state
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM_Code
+// name: struct Chuck_VM_Code
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_VM_Code
+struct Chuck_VM_Code
 {
 public:
     Chuck_VM_Code();
@@ -123,10 +124,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM_Shred
+// name: struct Chuck_VM_Shred
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_VM_Shred : Chuck_Object
+struct Chuck_VM_Shred : Chuck_Object
 {
 //-----------------------------------------------------------------------------
 // functions
@@ -182,10 +183,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM_Shreduler
+// name: struct Chuck_VM_Shreduler
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_VM_Shreduler : Chuck_Object
+struct Chuck_VM_Shreduler : Chuck_Object
 {
 //-----------------------------------------------------------------------------
 // functions
@@ -233,10 +234,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_VM
+// name: struct Chuck_VM
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_VM : Chuck_Object
+struct Chuck_VM : Chuck_Object
 {
 //-----------------------------------------------------------------------------
 // functions

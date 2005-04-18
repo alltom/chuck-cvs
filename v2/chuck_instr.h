@@ -38,8 +38,8 @@
 
 
 // forward reference
-class Chuck_VM;
-class Chuck_VM_Shred;
+struct Chuck_VM;
+struct Chuck_VM_Shred;
 struct Chuck_Type;
 struct Chuck_Func;
 
@@ -47,10 +47,10 @@ struct Chuck_Func;
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr
+// name: struct Chuck_Instr
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr
+struct Chuck_Instr
 {
 public:
     virtual ~Chuck_Instr() { }
@@ -68,10 +68,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Op
+// name: struct Chuck_Instr_Branch_Op
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Op : public Chuck_Instr
+struct Chuck_Instr_Branch_Op : public Chuck_Instr
 {
 public:
     inline void set( t_CKUINT jmp ) { m_jmp = jmp; }
@@ -88,10 +88,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Unary_Op
+// name: struct Chuck_Instr_Unary_Op
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Unary_Op : public Chuck_Instr
+struct Chuck_Instr_Unary_Op : public Chuck_Instr
 {
 public:
     inline void set( t_CKUINT val ) { m_val = val; }
@@ -109,10 +109,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Unary_Op2
+// name: struct Chuck_Instr_Unary_Op2
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Unary_Op2 : public Chuck_Instr
+struct Chuck_Instr_Unary_Op2 : public Chuck_Instr
 {
 public:
     inline void set( t_CKFLOAT val ) { m_val = val; }
@@ -130,20 +130,20 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Op
+// name: struct Chuck_Instr_Binary_Op
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Op : public Chuck_Instr
+struct Chuck_Instr_Binary_Op : public Chuck_Instr
 { };
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_int
+// name: struct Chuck_Instr_Add_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Add_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Add_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -153,10 +153,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Inc_int
+// name: struct Chuck_Instr_Inc_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Inc_int : public Chuck_Instr
+struct Chuck_Instr_Inc_int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -166,10 +166,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dec_int
+// name: struct Chuck_Instr_Dec_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Dec_int : public Chuck_Instr
+struct Chuck_Instr_Dec_int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -179,10 +179,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Complement_int
+// name: struct Chuck_Instr_Complement_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Complement_int : public Chuck_Instr
+struct Chuck_Instr_Complement_int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -192,10 +192,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_int
+// name: struct Chuck_Instr_Mod_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Mod_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -205,10 +205,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_int_Reverse
+// name: struct Chuck_Instr_Mod_int_Reverse
 // desc: same as mod_int, operands reversed, for %=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_int_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Mod_int_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -218,10 +218,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_int
+// name: struct Chuck_Instr_Minus_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Minus_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -231,10 +231,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_int_Reverse
+// name: struct Chuck_Instr_Minus_int_Reverse
 // desc: same as minus_int, operands reversed, for -=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_int_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Minus_int_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -244,10 +244,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Times_int
+// name: struct Chuck_Instr_Times_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Times_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Times_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -257,10 +257,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_int
+// name: struct Chuck_Instr_Divide_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Divide_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -270,10 +270,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_int_Reverse
+// name: struct Chuck_Instr_Divide_int_Reverse
 // desc: same as divide_int, operands reversed, for /=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_int_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Divide_int_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -283,10 +283,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_double
+// name: struct Chuck_Instr_Add_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Add_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Add_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -296,10 +296,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_double
+// name: struct Chuck_Instr_Minus_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Minus_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -309,10 +309,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_double_Reverse
+// name: struct Chuck_Instr_Minus_double_Reverse
 // desc: same as minus_double, operands reversed, for -=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_double_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Minus_double_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -322,10 +322,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Times_double
+// name: struct Chuck_Instr_Times_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Times_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Times_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -335,10 +335,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_double
+// name: struct Chuck_Instr_Divide_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Divide_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -348,10 +348,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_double_Reverse
+// name: struct Chuck_Instr_Divide_double_Reverse
 // desc: same as divide_double, operands reversed, for /=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_double_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Divide_double_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -361,10 +361,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_double
+// name: struct Chuck_Instr_Mod_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Mod_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -374,10 +374,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_double_Reverse
+// name: struct Chuck_Instr_Mod_double_Reverse
 // desc: same as mod_double, operands reversed, for %=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_double_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Mod_double_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -387,10 +387,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_int_Assign
+// name: struct Chuck_Instr_Add_int_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Add_int_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Add_int_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -400,10 +400,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_int_Assign
+// name: struct Chuck_Instr_Mod_int_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_int_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Mod_int_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -413,10 +413,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_int_Assign
+// name: struct Chuck_Instr_Minus_int_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_int_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Minus_int_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -426,10 +426,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Times_int_Assign
+// name: struct Chuck_Instr_Times_int_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Times_int_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Times_int_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -439,10 +439,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_int_Assign
+// name: struct Chuck_Instr_Divide_int_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_int_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Divide_int_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -452,10 +452,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Add_double_Assign
+// name: struct Chuck_Instr_Add_double_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Add_double_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Add_double_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -465,10 +465,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Minus_double_Assign
+// name: struct Chuck_Instr_Minus_double_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Minus_double_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Minus_double_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -478,10 +478,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Times_double_Assign
+// name: struct Chuck_Instr_Times_double_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Times_double_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Times_double_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -491,10 +491,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Divide_double_Assign
+// name: struct Chuck_Instr_Divide_double_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Divide_double_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Divide_double_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -504,10 +504,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mod_double_Assign
+// name: struct Chuck_Instr_Mod_double_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mod_double_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Mod_double_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -517,10 +517,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Lt_int
+// name: struct Chuck_Instr_Branch_Lt_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Lt_int : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Lt_int : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Lt_int( t_CKUINT jmp ) { this->set( jmp ); }
@@ -531,10 +531,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Gt_int
+// name: struct Chuck_Instr_Branch_Gt_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Gt_int : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Gt_int : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Gt_int( t_CKUINT jmp ) { this->set( jmp ); }
@@ -545,10 +545,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Le_int
+// name: struct Chuck_Instr_Branch_Le_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Le_int : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Le_int : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Le_int( t_CKUINT jmp ) { this->set( jmp ); }
@@ -559,10 +559,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Ge_int
+// name: struct Chuck_Instr_Branch_Ge_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Ge_int : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Ge_int : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Ge_int( t_CKUINT jmp ) { this->set( jmp ); }
@@ -573,10 +573,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Eq_int
+// name: struct Chuck_Instr_Branch_Eq_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Eq_int : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Eq_int : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Eq_int( t_CKUINT jmp ) { this->set( jmp ); }
@@ -587,10 +587,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Neq_int
+// name: struct Chuck_Instr_Branch_Neq_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Neq_int : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Neq_int : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Neq_int( t_CKUINT jmp ) { this->set( jmp ); }
@@ -601,10 +601,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Lt_double
+// name: struct Chuck_Instr_Branch_Lt_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Lt_double : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Lt_double : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Lt_double( t_CKUINT jmp ) { this->set( jmp ); }
@@ -615,10 +615,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Gt_double
+// name: struct Chuck_Instr_Branch_Gt_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Gt_double : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Gt_double : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Gt_double( t_CKUINT jmp ) { this->set( jmp ); }
@@ -629,10 +629,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Le_double
+// name: struct Chuck_Instr_Branch_Le_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Le_double : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Le_double : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Le_double( t_CKUINT jmp ) { this->set( jmp ); }
@@ -643,10 +643,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Ge_double
+// name: struct Chuck_Instr_Branch_Ge_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Ge_double : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Ge_double : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Ge_double( t_CKUINT jmp ) { this->set( jmp ); }
@@ -657,10 +657,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Eq_double
+// name: struct Chuck_Instr_Branch_Eq_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Eq_double : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Eq_double : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Eq_double( t_CKUINT jmp ) { this->set( jmp ); }
@@ -671,10 +671,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Branch_Neq_double
+// name: struct Chuck_Instr_Branch_Neq_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Branch_Neq_double : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Branch_Neq_double : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Branch_Neq_double( t_CKUINT jmp ) { this->set( jmp ); }
@@ -685,10 +685,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Lt_int
+// name: struct Chuck_Instr_Lt_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Lt_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Lt_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -698,10 +698,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Gt_int
+// name: struct Chuck_Instr_Gt_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Gt_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Gt_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -711,10 +711,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Le_int
+// name: struct Chuck_Instr_Le_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Le_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Le_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -724,10 +724,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Ge_int
+// name: struct Chuck_Instr_Ge_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Ge_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Ge_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -737,10 +737,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Eq_int
+// name: struct Chuck_Instr_Eq_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Eq_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Eq_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -750,10 +750,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Neq_int
+// name: struct Chuck_Instr_Neq_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Neq_int : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Neq_int : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -763,10 +763,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Not_int
+// name: struct Chuck_Instr_Not_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Not_int : public Chuck_Instr
+struct Chuck_Instr_Not_int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -776,10 +776,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Negate_int
+// name: struct Chuck_Instr_Negate_int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Negate_int : public Chuck_Instr
+struct Chuck_Instr_Negate_int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -789,10 +789,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Negate_double
+// name: struct Chuck_Instr_Negate_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Negate_double : public Chuck_Instr
+struct Chuck_Instr_Negate_double : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -802,10 +802,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Lt_double
+// name: struct Chuck_Instr_Lt_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Lt_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Lt_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -815,10 +815,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Gt_double
+// name: struct Chuck_Instr_Gt_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Gt_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Gt_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -828,10 +828,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Le_double
+// name: struct Chuck_Instr_Le_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Le_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Le_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -841,10 +841,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Ge_double
+// name: struct Chuck_Instr_Ge_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Ge_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Ge_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -854,10 +854,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Eq_double
+// name: struct Chuck_Instr_Eq_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Eq_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Eq_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -867,10 +867,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Neq_double
+// name: struct Chuck_Instr_Neq_double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Neq_double : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Neq_double : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -880,10 +880,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_And
+// name: struct Chuck_Instr_Binary_And
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_And : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_And : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -893,10 +893,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Or
+// name: struct Chuck_Instr_Binary_Or
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Or : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Or : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -906,10 +906,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Xor
+// name: struct Chuck_Instr_Binary_Xor
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Xor : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Xor : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -919,10 +919,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Shift_Right
+// name: struct Chuck_Instr_Binary_Shift_Right
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Shift_Right : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Shift_Right : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -932,10 +932,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Shift_Right_Reverse
+// name: struct Chuck_Instr_Binary_Shift_Right_Reverse
 // desc: same as shift_right, operands reversed, for >>=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Shift_Right_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Shift_Right_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -945,10 +945,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Shift_Left
+// name: struct Chuck_Instr_Binary_Shift_Left
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Shift_Left : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Shift_Left : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -958,10 +958,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Shift_Left_Reverse
+// name: struct Chuck_Instr_Binary_Shift_Left_Reverse
 // desc: same as shift_left, operands reversed, for <<=>
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Shift_Left_Reverse : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Shift_Left_Reverse : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -971,10 +971,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_And_Assign
+// name: struct Chuck_Instr_Binary_And_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_And_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_And_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -984,10 +984,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Or_Assign
+// name: struct Chuck_Instr_Binary_Or_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Or_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Or_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -997,10 +997,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Xor_Assign
+// name: struct Chuck_Instr_Binary_Xor_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Xor_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Xor_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1010,10 +1010,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Shift_Right_Assign
+// name: struct Chuck_Instr_Binary_Shift_Right_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Shift_Right_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Shift_Right_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1023,10 +1023,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Binary_Shift_Left_Assign
+// name: struct Chuck_Instr_Binary_Shift_Left_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Binary_Shift_Left_Assign : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Binary_Shift_Left_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1036,10 +1036,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_And
+// name: struct Chuck_Instr_And
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_And : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_And : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1049,10 +1049,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Or
+// name: struct Chuck_Instr_Or
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Or : public Chuck_Instr_Binary_Op
+struct Chuck_Instr_Or : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1062,10 +1062,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Goto
+// name: struct Chuck_Instr_Goto
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Goto : public Chuck_Instr_Branch_Op
+struct Chuck_Instr_Goto : public Chuck_Instr_Branch_Op
 {
 public:
     Chuck_Instr_Goto( t_CKUINT jmp ) { this->set( jmp ); }
@@ -1076,10 +1076,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Pop_Word
+// name: struct Chuck_Instr_Reg_Pop_Word
 // desc: pop word from reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Pop_Word : public Chuck_Instr
+struct Chuck_Instr_Reg_Pop_Word : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1089,10 +1089,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Pop_Word2
+// name: struct Chuck_Instr_Reg_Pop_Word2
 // desc: pop t_CKFLOAT word from reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Pop_Word2 : public Chuck_Instr
+struct Chuck_Instr_Reg_Pop_Word2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1102,10 +1102,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Pop_Mem
+// name: struct Chuck_Instr_Reg_Pop_Mem
 // desc: pop word, and copy it to the mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Pop_Mem: public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Pop_Mem: public Chuck_Instr_Unary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1115,10 +1115,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Pop_Mem2
+// name: struct Chuck_Instr_Reg_Pop_Mem2
 // desc: pop t_CKFLOAT word, and copy it to the mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Pop_Mem2: public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Pop_Mem2: public Chuck_Instr_Unary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1128,10 +1128,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Imm
+// name: struct Chuck_Instr_Reg_Push_Imm
 // desc: push immediate to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Imm : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Push_Imm : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Reg_Push_Imm( t_CKUINT val )
@@ -1145,10 +1145,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Imm2
+// name: struct Chuck_Instr_Reg_Push_Imm2
 // desc: push t_CKFLOAT immediate to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Imm2 : public Chuck_Instr_Unary_Op2
+struct Chuck_Instr_Reg_Push_Imm2 : public Chuck_Instr_Unary_Op2
 {
 public:
     Chuck_Instr_Reg_Push_Imm2( t_CKFLOAT val )
@@ -1162,10 +1162,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Dup_Last
+// name: struct Chuck_Instr_Reg_Dup_Last
 // desc: duplicate last value on reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Dup_Last : public Chuck_Instr
+struct Chuck_Instr_Reg_Dup_Last : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1175,10 +1175,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Dup_Last2
+// name: struct Chuck_Instr_Reg_Dup_Last2
 // desc: duplicate last float on reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Dup_Last2 : public Chuck_Instr
+struct Chuck_Instr_Reg_Dup_Last2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1188,10 +1188,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Now
+// name: struct Chuck_Instr_Reg_Push_Now
 // desc: push value of now to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Now : public Chuck_Instr
+struct Chuck_Instr_Reg_Push_Now : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1201,10 +1201,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Me
+// name: struct Chuck_Instr_Reg_Push_Me
 // desc: push value of me to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Me : public Chuck_Instr
+struct Chuck_Instr_Reg_Push_Me : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1214,10 +1214,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_This
+// name: struct Chuck_Instr_Reg_Push_This
 // desc: push value of now to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_This : public Chuck_Instr
+struct Chuck_Instr_Reg_Push_This : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1227,10 +1227,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Start
+// name: struct Chuck_Instr_Reg_Push_Start
 // desc: push value of start to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Start : public Chuck_Instr
+struct Chuck_Instr_Reg_Push_Start : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1240,10 +1240,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Maybe
+// name: struct Chuck_Instr_Reg_Push_Maybe
 // desc: push immediate to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Maybe : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Push_Maybe : public Chuck_Instr_Unary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1253,10 +1253,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Mem
+// name: struct Chuck_Instr_Reg_Push_Mem
 // desc: push a variable from mem stack to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Mem : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Push_Mem : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Reg_Push_Mem( t_CKUINT src, t_CKBOOL use_base = FALSE )
@@ -1278,10 +1278,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Mem2
+// name: struct Chuck_Instr_Reg_Push_Mem2
 // desc: push a t_CKFLOAT variable from mem stack to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Mem2 : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Push_Mem2 : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Reg_Push_Mem2( t_CKUINT src, t_CKBOOL use_base = FALSE )
@@ -1303,10 +1303,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Mem_Addr
+// name: struct Chuck_Instr_Reg_Push_Mem_Addr
 // desc: push addr from mem stack to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Mem_Addr : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Push_Mem_Addr : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Reg_Push_Mem_Addr( t_CKUINT src, t_CKBOOL use_base )
@@ -1328,10 +1328,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Deref
+// name: struct Chuck_Instr_Reg_Push_Deref
 // desc: push value from pointer
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Deref : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Reg_Push_Deref : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Reg_Push_Deref( t_CKUINT src, t_CKUINT size )
@@ -1346,10 +1346,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Reg_Push_Deref
+// name: struct Chuck_Instr_Reg_Push_Deref
 // desc: push a t_CKFLOAT variable from main memory to reg stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Reg_Push_Deref2 : public Chuck_Instr_Unary_Op2
+struct Chuck_Instr_Reg_Push_Deref2 : public Chuck_Instr_Unary_Op2
 {
 public:
     Chuck_Instr_Reg_Push_Deref2( t_CKFLOAT src )
@@ -1363,10 +1363,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mem_Set_Imm
+// name: struct Chuck_Instr_Mem_Set_Imm
 // desc: set a value unto mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mem_Set_Imm : public Chuck_Instr
+struct Chuck_Instr_Mem_Set_Imm : public Chuck_Instr
 {
 public:
     Chuck_Instr_Mem_Set_Imm( t_CKUINT offset, t_CKUINT val )
@@ -1388,10 +1388,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mem_Set_Imm2
+// name: struct Chuck_Instr_Mem_Set_Imm2
 // desc: set a value unto mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mem_Set_Imm2 : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Mem_Set_Imm2 : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Mem_Set_Imm2( t_CKUINT offset, t_CKFLOAT val )
@@ -1413,10 +1413,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mem_Push_Imm
+// name: struct Chuck_Instr_Mem_Push_Imm
 // desc: push a value unto mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mem_Push_Imm : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Mem_Push_Imm : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Mem_Push_Imm( t_CKUINT src )
@@ -1429,10 +1429,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mem_Push_Imm2
+// name: struct Chuck_Instr_Mem_Push_Imm2
 // desc: push a t_CKFLOAT value unto mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mem_Push_Imm2 : public Chuck_Instr_Unary_Op2
+struct Chuck_Instr_Mem_Push_Imm2 : public Chuck_Instr_Unary_Op2
 {
 public:
     Chuck_Instr_Mem_Push_Imm2( t_CKFLOAT src )
@@ -1445,10 +1445,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mem_Pop_Word
+// name: struct Chuck_Instr_Mem_Pop_Word
 // desc: pop a value from mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mem_Pop_Word : public Chuck_Instr
+struct Chuck_Instr_Mem_Pop_Word : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1458,10 +1458,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Mem_Pop_Word2
+// name: struct Chuck_Instr_Mem_Pop_Word2
 // desc: pop a value from mem stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Mem_Pop_Word2 : public Chuck_Instr
+struct Chuck_Instr_Mem_Pop_Word2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1471,10 +1471,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Nop
+// name: struct Chuck_Instr_Nop
 // desc: no op
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Nop : public Chuck_Instr
+struct Chuck_Instr_Nop : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1484,10 +1484,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_EOC
+// name: struct Chuck_Instr_EOC
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_EOC : public Chuck_Instr
+struct Chuck_Instr_EOC : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1497,10 +1497,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Alloc_Word
+// name: struct Chuck_Instr_Alloc_Word
 // desc: alloc local - leaves addr on operand stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Alloc_Word : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Alloc_Word : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Alloc_Word( t_CKUINT offset  )
@@ -1513,10 +1513,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Alloc_Word2
+// name: struct Chuck_Instr_Alloc_Word2
 // desc: alloc local - leaves addr on operand stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Alloc_Word2 : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Alloc_Word2 : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Alloc_Word2( t_CKUINT offset  )
@@ -1529,10 +1529,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Alloc_Member_Word
+// name: struct Chuck_Instr_Alloc_Member_Word
 // desc: alloc member - leaves addr on operand stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Alloc_Member_Word : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Alloc_Member_Word : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Alloc_Member_Word( t_CKUINT offset  )
@@ -1545,10 +1545,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Alloc_Member_Word2
+// name: struct Chuck_Instr_Alloc_Member_Word2
 // desc: alloc member - leaves addr on operand stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Alloc_Member_Word2 : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Alloc_Member_Word2 : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Alloc_Member_Word2( t_CKUINT offset  )
@@ -1561,10 +1561,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Instantiate_Object
+// name: struct Chuck_Instr_Instantiate_Object
 // desc: instantiate object - leaves reference value on operand stack
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Instantiate_Object : public Chuck_Instr
+struct Chuck_Instr_Instantiate_Object : public Chuck_Instr
 {
 public:
     Chuck_Instr_Instantiate_Object( Chuck_Type * type )
@@ -1581,10 +1581,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Primitive
+// name: struct Chuck_Instr_Assign_Primitive
 // desc: assign primitive (word)
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Primitive : public Chuck_Instr
+struct Chuck_Instr_Assign_Primitive : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1594,10 +1594,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Primitive2
+// name: struct Chuck_Instr_Assign_Primitive2
 // desc: assign primitive (2 word)
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Primitive2 : public Chuck_Instr
+struct Chuck_Instr_Assign_Primitive2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1607,10 +1607,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Object
+// name: struct Chuck_Instr_Assign_Object
 // desc: assign object with reference counting and releasing previous reference
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Object : public Chuck_Instr
+struct Chuck_Instr_Assign_Object : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1620,10 +1620,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Assign_Object
+// name: struct Chuck_Instr_Assign_Object
 // desc: map object with reference counting and releasing previous reference
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Assign_Object_To_Map : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Assign_Object_To_Map : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Assign_Object_To_Map( t_CKUINT size )
@@ -1637,10 +1637,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Chuck_Release_Object
+// name: struct Chuck_Instr_Chuck_Release_Object
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Chuck_Release_Object : public Chuck_Instr
+struct Chuck_Instr_Chuck_Release_Object : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1650,10 +1650,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_To_Code
+// name: struct Chuck_Instr_Func_To_Code
 // desc: Chuck_Func * to Chuck_VM_Code *
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Func_To_Code : public Chuck_Instr
+struct Chuck_Instr_Func_To_Code : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1663,10 +1663,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_Call
+// name: struct Chuck_Instr_Func_Call
 // desc: user-defined function call
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Func_Call : public Chuck_Instr
+struct Chuck_Instr_Func_Call : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1676,10 +1676,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_Call0
+// name: struct Chuck_Instr_Func_Call0
 // desc: builtin function call with void return type
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Func_Call0 : public Chuck_Instr
+struct Chuck_Instr_Func_Call0 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1689,10 +1689,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_Call4
+// name: struct Chuck_Instr_Func_Call4
 // desc: builtin function call with 4-byte return type
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Func_Call4 : public Chuck_Instr
+struct Chuck_Instr_Func_Call4 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1702,10 +1702,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_Call8
+// name: struct Chuck_Instr_Func_Call8
 // desc: builtin function call with 8-byte return type
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Func_Call8 : public Chuck_Instr
+struct Chuck_Instr_Func_Call8 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1715,10 +1715,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Func_Return
+// name: struct Chuck_Instr_Func_Return
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Func_Return : public Chuck_Instr
+struct Chuck_Instr_Func_Return : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1728,10 +1728,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Spork
+// name: struct Chuck_Instr_Spork
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Spork : public Chuck_Instr_Unary_Op
+struct Chuck_Instr_Spork : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Spork( t_CKUINT v = 0 ) { this->set( v ); }
@@ -1743,10 +1743,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Time_Advance
+// name: struct Chuck_Instr_Time_Advance
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Time_Advance : public Chuck_Instr
+struct Chuck_Instr_Time_Advance : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1756,10 +1756,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Array_Init
+// name: struct Chuck_Instr_Array_Init
 // desc: for [ ... ] values
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Init : public Chuck_Instr
+struct Chuck_Instr_Array_Init : public Chuck_Instr
 {
 public:
     Chuck_Instr_Array_Init( Chuck_Type * the_type, t_CKINT length );
@@ -1780,10 +1780,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Array_Alloc
+// name: struct Chuck_Instr_Array_Alloc
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Alloc : public Chuck_Instr
+struct Chuck_Instr_Array_Alloc : public Chuck_Instr
 {
 public:
     Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * the_type );
@@ -1804,10 +1804,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Array_Access
+// name: struct Chuck_Instr_Array_Access
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Access : public Chuck_Instr
+struct Chuck_Instr_Array_Access : public Chuck_Instr
 {
 public:
     Chuck_Instr_Array_Access( t_CKUINT size, t_CKUINT emit_addr, 
@@ -1832,10 +1832,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Array_Map_Access
+// name: struct Chuck_Instr_Array_Map_Access
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Map_Access : public Chuck_Instr
+struct Chuck_Instr_Array_Map_Access : public Chuck_Instr
 {
 public:
     Chuck_Instr_Array_Map_Access( t_CKUINT size, t_CKUINT emit_addr )
@@ -1857,10 +1857,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Array_Access_Multi
+// name: struct Chuck_Instr_Array_Access_Multi
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Array_Access_Multi : public Chuck_Instr
+struct Chuck_Instr_Array_Access_Multi : public Chuck_Instr
 {
 public:
     Chuck_Instr_Array_Access_Multi( t_CKUINT depth, t_CKUINT size, t_CKUINT emit_addr )
@@ -1883,10 +1883,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dot_Member_Data
+// name: struct Chuck_Instr_Dot_Member_Data
 // desc: access the member data of object by offset
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Dot_Member_Data : public Chuck_Instr
+struct Chuck_Instr_Dot_Member_Data : public Chuck_Instr
 {
 public:
     Chuck_Instr_Dot_Member_Data( t_CKUINT offset, t_CKUINT size, t_CKUINT emit_addr )
@@ -1909,10 +1909,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dot_Member_Func
+// name: struct Chuck_Instr_Dot_Member_Func
 // desc: access the member function of object by offset
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Dot_Member_Func : public Chuck_Instr
+struct Chuck_Instr_Dot_Member_Func : public Chuck_Instr
 {
 public:
     Chuck_Instr_Dot_Member_Func( t_CKUINT offset )
@@ -1933,10 +1933,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dot_Static_Data
+// name: struct Chuck_Instr_Dot_Static_Data
 // desc: access the static data of object by offset
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Dot_Static_Data : public Chuck_Instr
+struct Chuck_Instr_Dot_Static_Data : public Chuck_Instr
 {
 public:
     Chuck_Instr_Dot_Static_Data( t_CKUINT offset, t_CKUINT size, t_CKUINT emit_addr )
@@ -1959,10 +1959,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dot_Static_Func
+// name: struct Chuck_Instr_Dot_Static_Func
 // desc: access the static function of object
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Dot_Static_Func : public Chuck_Instr
+struct Chuck_Instr_Dot_Static_Func : public Chuck_Instr
 {
 public:
     Chuck_Instr_Dot_Static_Func( Chuck_Func * func )
@@ -1983,10 +1983,10 @@ protected:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_ADC
+// name: struct Chuck_Instr_ADC
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_ADC : public Chuck_Instr
+struct Chuck_Instr_ADC : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1996,10 +1996,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_DAC
+// name: struct Chuck_Instr_DAC
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_DAC : public Chuck_Instr
+struct Chuck_Instr_DAC : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2009,10 +2009,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Bunghole
+// name: struct Chuck_Instr_Bunghole
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Bunghole : public Chuck_Instr
+struct Chuck_Instr_Bunghole : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2022,10 +2022,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Link
+// name: struct Chuck_Instr_UGen_Link
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Link : public Chuck_Instr
+struct Chuck_Instr_UGen_Link : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2035,10 +2035,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_UnLink
+// name: struct Chuck_Instr_UGen_UnLink
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_UnLink : public Chuck_Instr
+struct Chuck_Instr_UGen_UnLink : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2048,10 +2048,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Ctrl
+// name: struct Chuck_Instr_UGen_Ctrl
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Ctrl : public Chuck_Instr
+struct Chuck_Instr_UGen_Ctrl : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2061,10 +2061,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_CGet
+// name: struct Chuck_Instr_UGen_CGet
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_CGet : public Chuck_Instr
+struct Chuck_Instr_UGen_CGet : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2074,10 +2074,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_Ctrl2
+// name: struct Chuck_Instr_UGen_Ctrl2
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_Ctrl2 : public Chuck_Instr
+struct Chuck_Instr_UGen_Ctrl2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2087,10 +2087,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_CGet2
+// name: struct Chuck_Instr_UGen_CGet2
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_CGet2 : public Chuck_Instr
+struct Chuck_Instr_UGen_CGet2 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2100,10 +2100,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_UGen_PMsg
+// name: struct Chuck_Instr_UGen_PMsg
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_UGen_PMsg : public Chuck_Instr
+struct Chuck_Instr_UGen_PMsg : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2113,10 +2113,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_double2int
+// name: struct Chuck_Instr_Cast_double2int
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_double2int : public Chuck_Instr
+struct Chuck_Instr_Cast_double2int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2126,10 +2126,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Cast_int2double
+// name: struct Chuck_Instr_Cast_int2double
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Cast_int2double : public Chuck_Instr
+struct Chuck_Instr_Cast_int2double : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2139,10 +2139,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Hack
+// name: struct Chuck_Instr_Hack
 // desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Instr_Hack : public Chuck_Instr
+struct Chuck_Instr_Hack : public Chuck_Instr
 {
 public:
     Chuck_Instr_Hack( Chuck_Type * type );

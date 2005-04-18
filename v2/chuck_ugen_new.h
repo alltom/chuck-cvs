@@ -23,35 +23,20 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: ulib_machine.h
-// desc: ...
+// name: chuck_ugen.h
+// desc: chuck unit generator interface
 //
-// author: Ge Wang (gewang@cs.princeton.edu)
-//         Perry R. Cook (prc@cs.princeton.edu)
-// date: Spring 2004
+// authors: Ge Wang (gewang@cs.princeton.edu)
+//          Perry R. Cook (prc@cs.princeton.edu)
+// date: Spring 2004 - 1.1
+//       Spring 2005 - 1.2
 //-----------------------------------------------------------------------------
-#ifndef __ULIB_MACHINE_H__
-#define __ULIB_MACHINE_H__
+#ifndef __CHUCK_UGEN_H__
+#define __CHUCK_UGEN_H__
 
-#include "chuck_dl.h"
-#include "chuck_otf.h"
+#include "chuck_def.h"
+#include "chuck_oo.h"
 
-// forward reference
-struct Chuck_VM;
-
-
-// query
-DLL_QUERY machine_query( Chuck_DL_Query * QUERY );
-typedef t_CKUINT (* proc_msg_func)( Net_Msg *, t_CKBOOL, void * );
-t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func func );
-
-
-// exports
-CK_DLL_FUNC( machine_add_impl );
-CK_DLL_FUNC( machine_spork_impl );
-CK_DLL_FUNC( machine_remove_impl );
-CK_DLL_FUNC( machine_replace_impl );
-CK_DLL_FUNC( machine_status_impl );
 
 
 #endif

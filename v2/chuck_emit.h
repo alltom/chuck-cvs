@@ -41,10 +41,10 @@
 
 
 // forward references
-class Chuck_Instr;
-class Chuck_Instr_Goto;
-class Chuck_VM_Code;
-class Chuck_VM_Shred;
+struct Chuck_Instr;
+struct Chuck_Instr_Goto;
+struct Chuck_VM_Code;
+struct Chuck_VM_Shred;
 
 
 

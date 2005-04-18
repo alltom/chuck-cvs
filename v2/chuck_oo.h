@@ -46,7 +46,7 @@ struct Chuck_Func;
 struct Chuck_Namespace;
 struct Chuck_Context;
 struct Chuck_Env;
-class Chuck_VM_Code;
+struct  Chuck_VM_Code;
 
 
 //-----------------------------------------------------------------------------

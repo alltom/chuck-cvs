@@ -117,12 +117,12 @@ protected:
 struct Chuck_Type;
 struct Chuck_Value;
 struct Chuck_Func;
-struct Chuck_DLL;
 struct Chuck_Multi;
-struct Chuck_UGen_Info;
+struct Chuck_VM;
+struct Chuck_VM_Code;
 
-class Chuck_VM;
-class Chuck_VM_Code;
+struct Chuck_DLL;
+struct Chuck_UGen_Info;
 
 
 //-----------------------------------------------------------------------------

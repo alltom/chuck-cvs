@@ -67,9 +67,6 @@ Chuck_UGen::~Chuck_UGen()
 //-----------------------------------------------------------------------------
 void Chuck_UGen::init()
 {
-    // super init
-    Chuck_VM_Object::init();
-    
     ctor = NULL;
     dtor = NULL;
     tick = NULL;
