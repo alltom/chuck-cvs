@@ -45,6 +45,7 @@
 
 // forward references
 struct Chuck_DL_Query;
+struct Chuck_DL_Return;
 struct Chuck_UGen;
 
 
@@ -136,15 +137,17 @@ struct Chuck_UGen;
 //-----------------------------------------------------------------------------
 extern "C" {
 // query
-typedef CK_DLL_EXPORT(t_CKBOOL) (* f_ck_query)( Chuck_DL_Query * QUERY );
+typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
 // object
-typedef CK_DLL_EXPORT(void) (* f_ctor)( Chuck_Object * self, void * ARGS );
-typedef CK_DLL_EXPORT(void) (* f_dtor)( Chuck_Object * self );
-typedef CK_DLL_EXPORT(void) (* f_mfun)( Chuck_Object * self, void * ARGS, Chuck_DL_Return & RETURN );
-typedef CK_DLL_EXPORT(void) (* f_sfun)( void * ARGS, Chuck_DL_Return & RETURN );
+typedef t_CKVOID (CK_DLL_CALL * f_ctor)( Chuck_Object * self, void * ARGS );
+typedef t_CKVOID (CK_DLL_CALL * f_dtor)( Chuck_Object * self );
+typedef t_CKVOID (CK_DLL_CALL * f_mfun)( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN );
+typedef t_CKVOID (CK_DLL_CALL * f_sfun)( void * ARGS, Chuck_DL_Return & RETURN );
 // ugen specific
-typedef CK_DLL_EXPORT(t_CKBOOL) (* f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
-typedef CK_DLL_EXPORT(t_CKBOOL) (* f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
+typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
+typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_UGen * self, void * ARGS );
+typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_UGen * self, void * OUT );
+typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
 }
 
 
