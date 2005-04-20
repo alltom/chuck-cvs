@@ -197,6 +197,32 @@ typedef t_CKBOOL (CK_DLL_CALL * f_end_class)( Chuck_DL_Query * query );
 //-----------------------------------------------------------------------------
 struct Chuck_DL_Query
 {
+    // function pointers - to be called from client module
+    //   QUERY->setname( QUERY, ... );
+    //
+    // set the name of the module
+    f_setname setname;
+    // begin class/namespace, can be nexted
+    f_begin_class begin_class;
+    // add constructor, can be followed by add_arg
+    f_add_ctor add_ctor;
+    // add destructor, no args allowed
+    f_add_dtor add_dtor;
+    // add member function, can be followed by add_arg
+    f_add_mfun add_mfun;
+    // add static function, can be followed by add_arg
+    f_add_sfun add_sfun;
+    // add var - can be static or member
+    f_add_var add_var;
+    // add argument to function
+    f_add_arg add_arg;
+    // (ugen only) add tick and pmsg functions
+    f_add_ugen_func add_ugen_func;
+    // (ugen only) add ctrl parameters
+    f_add_ugen_ctrl add_ugen_ctrl;
+    // end class/namespace, compile it
+    f_end_class end_class;
+
     // name
     std::string name;
     // current class
