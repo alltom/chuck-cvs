@@ -46,6 +46,10 @@
 // forward references
 struct Chuck_DL_Query;
 struct Chuck_DL_Return;
+struct Chuck_DL_Class;
+struct Chuck_DL_Func;
+struct Chuck_DL_Value;
+struct Chuck_DL_Ctrl;
 struct Chuck_UGen;
 
 
@@ -169,12 +173,12 @@ typedef void (CK_DLL_CALL * f_add_ctor)( Chuck_DL_Query * query, f_ctor ctor );
 // add destructor - cannot have args
 typedef void (CK_DLL_CALL * f_add_dtor)( Chuck_DL_Query * query, f_dtor dtor );
 // add member function - args to follow
-typedef void (CK_DLL_CALL * f_add_mfun)( Chuck_DL_Query * query, f_mfun mfun, const char * name );
+typedef void (CK_DLL_CALL * f_add_mfun)( Chuck_DL_Query * query, f_mfun mfun, const char * type, const char * name );
 // add static function - args to follow
-typedef void (CK_DLL_CALL * f_add_sfun)( Chuck_DL_Query * query, f_sfun sfun, const char * name );
+typedef void (CK_DLL_CALL * f_add_sfun)( Chuck_DL_Query * query, f_sfun sfun, const char * type, const char * name );
 // add member/static variable
 typedef void (CK_DLL_CALL * f_add_var)( Chuck_DL_Query * query, const char * type, const char * name,
-              t_CKBOOL is_const ); // TODO: public/protected/private
+              t_CKBOOL is_const, void * static_addr ); // TODO: public/protected/private
 // add arg - follows ctor mfun sfun
 typedef void (CK_DLL_CALL * f_add_arg)( Chuck_DL_Query * query, const char * type, const char * name );
 // ** functions for adding unit generators, must extend ugen
@@ -204,7 +208,7 @@ struct Chuck_DL_Class
     // mfun
     std::vector<Chuck_DL_Func *> mfuns;
     // sfun
-    std::vector<ChcuK_DL_Func *> sfuns;
+    std::vector<Chuck_DL_Func *> sfuns;
     // mdata
     std::vector<Chuck_DL_Value *> mvars;
     // sdata
@@ -215,6 +219,53 @@ struct Chuck_DL_Class
     f_pmsg ugen_pmsg;
     // ugen_ctrl/cget
     std::vector<Chuck_DL_Ctrl *> ugen_ctrl;
+};
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Func
+// desc: function from module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Func
+{
+    // the name of the function
+    std::string name;
+    // the return type
+    std::string type;
+    // arguments
+    std::vector<Chuck_DL_Value *> args;
+};
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Value
+// desc: value from module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Value
+{
+    // the name of the value
+    std::string name;
+    // the type of the value
+    std::string type;
+    // is const
+    t_CKBOOL is_const;
+    // addr static
+    void * static_addr;
+};
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Ctrl
+// desc: ctrl for ugen
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Ctrl
+{
+    // the name of the ctrl
+    std::string name;
+    // the first type
+    std::string type;
+    // the types of the value
+    std::vector<std::string> types;
 };
 
 
