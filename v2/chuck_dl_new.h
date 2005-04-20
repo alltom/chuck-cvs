@@ -164,7 +164,7 @@ typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_UGen * self, const char * msg, vo
 //-----------------------------------------------------------------------------
 extern "C" {
 // set name of ckx
-typedef void ( CK_DLL_CALL * f_ck_setname)( Chuck_DL_Query * query, const char * name );
+typedef void ( CK_DLL_CALL * f_setname)( Chuck_DL_Query * query, const char * name );
 
 // begin class/namespace, can be nested
 typedef void (CK_DLL_CALL * f_begin_class)( Chuck_DL_Query * query, const char * name, const char * parent );
@@ -189,6 +189,21 @@ typedef void (CK_DLL_CALL * f_add_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctr
 // end class/namespace - must correspondent with begin_class.  returns false on error
 typedef t_CKBOOL (CK_DLL_CALL * f_end_class)( Chuck_DL_Query * query );
 }
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Query
+// desc: passed to module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Query
+{
+    // name
+    std::string name;
+    // current class
+    Chuck_DL_Class * curr;
+    // collection of class
+    std::vector<Chuck_DL_Class *> classes;
+};
 
 
 //-----------------------------------------------------------------------------
@@ -219,6 +234,8 @@ struct Chuck_DL_Class
     f_pmsg ugen_pmsg;
     // ugen_ctrl/cget
     std::vector<Chuck_DL_Ctrl *> ugen_ctrl;
+    // collection of recursive classes
+    std::vector<Chuck_DL_Class *> classes;
 };
 
 
@@ -268,6 +285,10 @@ struct Chuck_DL_Ctrl
     std::vector<std::string> types;
 };
 
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Func
+//-----------------------------------------------------------------------------
 
 
 
