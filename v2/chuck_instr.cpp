@@ -1601,8 +1601,6 @@ void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 
     // allocate the VM object
     object = new Chuck_Object;
-    // init
-    object->init();
     // allocate virtual table
     object->vtable = new Chuck_VTable;
     // copy the object's virtual table

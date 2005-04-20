@@ -3343,8 +3343,6 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 //-----------------------------------------------------------------------------
 void init_special( Chuck_VM_Object * obj )
 {
-    // init
-    obj->init();
     // reference
     obj->add_ref();
     // add to vector

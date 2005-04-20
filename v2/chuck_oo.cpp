@@ -37,10 +37,10 @@
 
 
 //-----------------------------------------------------------------------------
-// name: init()
+// name: init_ref()
 // desc: initialize vm object
 //-----------------------------------------------------------------------------
-void Chuck_VM_Object::init()
+void Chuck_VM_Object::init_ref()
 {
     // set reference count
     m_ref_count = 0;

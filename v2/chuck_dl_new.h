@@ -355,8 +355,6 @@ protected:
     t_CKBOOL m_done_query;
     
     f_ck_query m_query_func;
-    f_ck_attach m_attach_func;
-    f_ck_detach m_detach_func;
     Chuck_DL_Query m_query;
 };
 

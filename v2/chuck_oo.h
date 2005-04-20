@@ -56,11 +56,11 @@ struct Chuck_VM_Code;
 struct Chuck_VM_Object
 {
 public:
-    Chuck_VM_Object() { this->init(); }
+    Chuck_VM_Object() { this->init_ref(); }
     virtual ~Chuck_VM_Object() { }
 
 public:
-    void init();
+    void init_ref();
     void add_ref();
     void release();
 
