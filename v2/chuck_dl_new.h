@@ -229,6 +229,11 @@ struct Chuck_DL_Query
     Chuck_DL_Class * curr;
     // collection of class
     std::vector<Chuck_DL_Class *> classes;
+    
+    // constructor
+    Chuck_DL_Query();
+    // clear function
+    void clear();
 };
 
 
@@ -262,6 +267,9 @@ struct Chuck_DL_Class
     std::vector<Chuck_DL_Ctrl *> ugen_ctrl;
     // collection of recursive classes
     std::vector<Chuck_DL_Class *> classes;
+    
+    // constructor
+    Chuck_DL_Class() { dtor = NULL; ugen_tick = NULL; ugen_pmsg = NULL; }
 };
 
 
@@ -294,6 +302,9 @@ struct Chuck_DL_Value
     t_CKBOOL is_const;
     // addr static
     void * static_addr;
+    
+    // constructor
+    Chuck_DL_Value() { is_const = FALSE; static_addr = NULL; }
 };
 
 
@@ -312,9 +323,64 @@ struct Chuck_DL_Ctrl
 };
 
 
-//-----------------------------------------------------------------------------
-// name: struct Chuck_DL_Func
-//-----------------------------------------------------------------------------
+
+
+// dlfcn interface
+#if defined(__MACOSX_CORE__)
+
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+
+  void * dlopen( const char * path, int mode );
+  void * dlsym( void * handle, const char * symbol );
+  const char * dlerror( void );
+  int dlclose( void * handle );
+
+  #define RTLD_LAZY         0x1
+  #define RTLD_NOW          0x2
+  #define RTLD_LOCAL        0x4
+  #define RTLD_GLOBAL       0x8
+  #define RTLD_NOLOAD       0x10
+  #define RTLD_SHARED       0x20	/* not used, the default */
+  #define RTLD_UNSHARED     0x40
+  #define RTLD_NODELETE     0x80
+  #define RTLD_LAZY_UNDEF   0x100
+
+  #ifdef __cplusplus
+  }
+  #endif
+
+#elif defined(__WINDOWS_DS__)
+
+  #ifdef __cplusplus
+  extern "C" {
+  #endif
+
+  #define RTLD_LAZY         0x1
+  #define RTLD_NOW          0x2
+  #define RTLD_LOCAL        0x4
+  #define RTLD_GLOBAL       0x8
+  #define RTLD_NOLOAD       0x10
+  #define RTLD_SHARED       0x20	/* not used, the default */
+  #define RTLD_UNSHARED     0x40
+  #define RTLD_NODELETE     0x80
+  #define RTLD_LAZY_UNDEF   0x100
+
+  void * dlopen( const char * path, int mode );
+  void * dlsym( void * handle, const char * symbol );
+  const char * dlerror( void );
+  int dlclose( void * handle );
+  static char dlerror_buffer[128];
+
+  #ifdef __cplusplus
+  }
+  #endif
+
+#else
+  #include "dlfcn.h"
+#endif
+
 
 
 
