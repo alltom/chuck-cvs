@@ -36,6 +36,7 @@
 
 #include "chuck_def.h"
 #include "chuck_oo.h"
+#include "chuck_dl_new.h"
 
 
 // forward reference
@@ -71,6 +72,9 @@ public: // src
 protected:
     t_CKVOID add_by( Chuck_UGen * dest );
     t_CKVOID remove_by( Chuck_UGen * dest );
+
+public:
+    f_tick tick;
 
 public: // data
     std::vector<Chuck_UGen *> m_src_list;
