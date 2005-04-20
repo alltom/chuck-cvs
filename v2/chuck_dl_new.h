@@ -48,7 +48,7 @@ struct Chuck_DL_Query;
 struct Chuck_UGen;
 
 
-// param conversion
+// param conversion - to extract values from ARGS to functions
 #define GET_CK_FLOAT(ptr)      (*(t_CKFLOAT *)ptr)
 #define GET_CK_SINGLE(ptr)     (*(float *)ptr)
 #define GET_CK_DOUBLE(ptr)     (*(double *)ptr)
@@ -87,8 +87,6 @@ struct Chuck_UGen;
 #define SET_NEXT_TIME(ptr,v)     (*((t_CKTIME *&)ptr)++=v)
 #define SET_NEXT_DUR(ptr,v)      (*((t_CKDUR *&)ptr)++=v)
 #define SET_NEXT_STRING(ptr,v)   (*((char * *&)ptr)++=v)
-
-
 
 
 // chuck dll export linkage and calling convention
@@ -131,8 +129,6 @@ struct Chuck_UGen;
 #define DLL_QUERY   CK_DLL_EXPORT(t_CKBOOL)
 #define DLL_FUNC    CK_DLL_EXPORT(void)
 #define DLL_UGEN_F  CK_DLL_EXPORT(t_CKBOOL)
-
-
 
 
 // dynamic linking class interface prototypes
