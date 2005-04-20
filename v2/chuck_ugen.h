@@ -44,7 +44,7 @@
 struct Chuck_UGen;
 struct Chuck_UGen_Info;
 struct Chuck_Info_Param;
-struct  Chuck_VM_Shred;
+struct Chuck_VM_Shred;
 
 
 // dynamic linking unit generator interface prototypes
