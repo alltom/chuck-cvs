@@ -343,8 +343,7 @@ public:
     Chuck_DLL( const char * id = NULL ) {
         m_handle = NULL; m_done_query = FALSE;
         m_id = id ? id : ""; m_query_func = NULL; }
-    ~Chuck_DLL() {
-        this->unload(); }
+    ~Chuck_DLL() { this->unload(); }
 
 protected:
     void * m_handle;
@@ -353,7 +352,7 @@ protected:
     std::string m_id;
     std::string m_func;
     t_CKBOOL m_done_query;
-    
+
     f_ck_query m_query_func;
     Chuck_DL_Query m_query;
 };
