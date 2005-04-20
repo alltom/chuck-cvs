@@ -45,6 +45,7 @@
 
 // forward references
 struct Chuck_DL_Query;
+struct Chuck_UGen;
 
 
 // param conversion
@@ -124,10 +125,12 @@ struct Chuck_DL_Query;
 #define CK_DLL_SFUN(name) CK_DLL_EXPORT(void) name( void * ARGS, Chuck_DL_Return * RETURN )
 
 // macros for DLL exports
-// example: DLL_QUERY query( Chuck_DL_Query * QUERY )
-// example: DLL_FUNC  foo( void * ARGS, Chuck_DL_Return * RETURN )
-#define DLL_QUERY CK_DLL_EXPORT(t_CKBOOL)
-#define DLL_FUNC  CK_DLL_EXPORT(void)
+// example: DLL_QUERY  query( Chuck_DL_Query * QUERY )
+// example: DLL_FUNC   foo( void * ARGS, Chuck_DL_Return * RETURN )
+// example: DLL_UGEN_F foo_tick( Chuck_UGen * self, SAMPLE, SAMPLE * out );
+#define DLL_QUERY   CK_DLL_EXPORT(t_CKBOOL)
+#define DLL_FUNC    CK_DLL_EXPORT(void)
+#define DLL_UGEN_F  CK_DLL_EXPORT(t_CKBOOL)
 
 
 
