@@ -174,7 +174,7 @@ typedef void (CK_DLL_CALL * f_add_mfun)( Chuck_DL_Query * query, f_mfun mfun, co
 typedef void (CK_DLL_CALL * f_add_sfun)( Chuck_DL_Query * query, f_sfun sfun, const char * name );
 // add member/static variable
 typedef void (CK_DLL_CALL * f_add_var)( Chuck_DL_Query * query, const char * type, const char * name,
-               t_CKBOOL is_const ); // TODO: public/protected/private
+              t_CKBOOL is_const ); // TODO: public/protected/private
 // add arg - follows ctor mfun sfun
 typedef void (CK_DLL_CALL * f_add_arg)( Chuck_DL_Query * query, const char * type, const char * name );
 // ** functions for adding unit generators, must extend ugen
@@ -185,6 +185,37 @@ typedef void (CK_DLL_CALL * f_add_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctr
 // end class/namespace - must correspondent with begin_class.  returns false on error
 typedef t_CKBOOL (CK_DLL_CALL * f_end_class)( Chuck_DL_Query * query );
 }
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Class
+// desc: class built from module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Class
+{
+    // the name of the class
+    std::string name;
+    // the name of the parent
+    std::string parent;
+    // ctor
+    std::vector<Chuck_DL_Func *> ctors;
+    // dtor
+    Chuck_DL_Func * dtor;
+    // mfun
+    std::vector<Chuck_DL_Func *> mfuns;
+    // sfun
+    std::vector<ChcuK_DL_Func *> sfuns;
+    // mdata
+    std::vector<Chuck_DL_Value *> mvars;
+    // sdata
+    std::vector<Chuck_DL_Value *> svars;
+    // ugen_tick
+    f_tick ugen_tick;
+    // ugen_pmsg
+    f_pmsg ugen_pmsg;
+    // ugen_ctrl/cget
+    std::vector<Chuck_DL_Ctrl *> ugen_ctrl;
+};
 
 
 
