@@ -43,17 +43,107 @@
 #include <map>
 
 
+// forward references
+struct Chuck_DL_Query;
+
+
+// param conversion
+#define GET_CK_FLOAT(ptr)      (*(t_CKFLOAT *)ptr)
+#define GET_CK_SINGLE(ptr)     (*(float *)ptr)
+#define GET_CK_DOUBLE(ptr)     (*(double *)ptr)
+#define GET_CK_INT(ptr)        (*(t_CKINT *)ptr)
+#define GET_CK_UINT(ptr)       (*(t_CKUINT *)ptr)
+#define GET_CK_TIME(ptr)       (*(t_CKTIME *)ptr)
+#define GET_CK_DUR(ptr)        (*(t_CKDUR *)ptr)
+#define GET_CK_STRING(ptr)     (*(char **)ptr)
+
+// param conversion with pointer advance
+#define GET_NEXT_FLOAT(ptr)    (*((t_CKFLOAT *&)ptr)++)
+#define GET_NEXT_SINGLE(ptr)   (*((float *&)ptr)++)
+#define GET_NEXT_DOUBLE(ptr)   (*((double *&)ptr)++)
+#define GET_NEXT_INT(ptr)      (*((t_CKINT *&)ptr)++)
+#define GET_NEXT_UINT(ptr)     (*((t_CKUINT *&)ptr)++)
+#define GET_NEXT_TIME(ptr)     (*((t_CKTIME *&)ptr)++)
+#define GET_NEXT_DUR(ptr)      (*((t_CKDUR *&)ptr)++)
+#define GET_NEXT_STRING(ptr)   (*((char * *&)ptr)++)
+
+// param conversion
+#define SET_CK_FLOAT(ptr,v)      (*(t_CKFLOAT *&)ptr=v)
+#define SET_CK_SINGLE(ptr,v)     (*(float *&)ptr=v)
+#define SET_CK_DOUBLE(ptr,v)     (*(double *&)ptr=v)
+#define SET_CK_INT(ptr,v)        (*(t_CKINT *&)ptr=v)
+#define SET_CK_UINT(ptr,v)       (*(t_CKUINT *&)ptr=v)
+#define SET_CK_TIME(ptr,v)       (*(t_CKTIME *&)ptr=v)
+#define SET_CK_DUR(ptr,v)        (*(t_CKDUR *&)ptr=v)
+#define SET_CK_STRING(ptr,v)     (*(char *&)ptr=v)
+
+// param conversion with pointer advance
+#define SET_NEXT_FLOAT(ptr,v)    (*((t_CKFLOAT *&)ptr)++=v)
+#define SET_NEXT_SINGLE(ptr,v)   (*((float *&)ptr)++=v)
+#define SET_NEXT_DOUBLE(ptr,v)   (*((double *&)ptr)++=v)
+#define SET_NEXT_INT(ptr,v)      (*((t_CKINT *&)ptr)++=v)
+#define SET_NEXT_UINT(ptr,v)     (*((t_CKUINT *&)ptr)++=v)
+#define SET_NEXT_TIME(ptr,v)     (*((t_CKTIME *&)ptr)++=v)
+#define SET_NEXT_DUR(ptr,v)      (*((t_CKDUR *&)ptr)++=v)
+#define SET_NEXT_STRING(ptr,v)   (*((char * *&)ptr)++=v)
+
+
+
+
+// chuck dll export linkage and calling convention
+#if defined (__PLATFORM_WIN32__) 
+  #define CK_DLL_LINKAGE extern "C" __declspec( dllexport )
+#else
+  #define CK_DLL_LINKAGE extern "C" 
+#endif 
+
+// calling convention of functions provided by chuck to the dll
+#if defined(__WINDOWS_DS__)
+  #define CK_DLL_CALL    _cdecl
+#else
+  #define CK_DLL_CALL
+#endif
+
+// macro for defining ChucK DLL export functions
+// example: CK_DLL_EXPORT(int) foo() { return 1; }
+#define CK_DLL_EXPORT(type) CK_DLL_LINKAGE type CK_DLL_CALL
+// macro for defining ChucK DLL export query-functions
+// example: CK_DLL_QUERY
+#define CK_DLL_QUERY CK_DLL_EXPORT(t_CKBOOL) ck_query( Chuck_DL_Query * QUERY )
+// macro for defining ChucK DLL export constructors
+// example: CK_DLL_CTOR(foo)
+#define CK_DLL_CTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS )
+// macro for defining ChucK DLL export destructors
+// example: CK_DLL_DTOR(foo)
+#define CK_DLL_DTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * self )
+// macro for defining ChucK DLL export member functions
+// example: CK_DLL_MFUN(foo)
+#define CK_DLL_MFUN(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN )
+// macro for defining ChucK DLL export static functions
+// example: CK_DLL_SFUN(foo)
+#define CK_DLL_SFUN(name) CK_DLL_EXPORT(void) name( void * ARGS, Chuck_DL_Return * RETURN )
+
+// macros for DLL exports
+// example: DLL_QUERY query( Chuck_DL_Query * QUERY )
+// example: DLL_FUNC  foo( void * ARGS, Chuck_DL_Return * RETURN )
+#define DLL_QUERY CK_DLL_EXPORT(t_CKBOOL)
+#define DLL_FUNC  CK_DLL_EXPORT(void)
+
+
+
+
 // dynamic linking class interface prototypes
 extern "C" {
 // object
-typedef Chuck_Object * (* f_ctor)( Chuck_Object * self );
-typedef t_CKVOID       (* f_dtor)( Chuck_Object * self );
-typedef t_CKVOID       (* f_mfun)( Chuck_Object * self, void * ARGS, Chuck_DL_Return & RETURN );
-typedef t_CKVOID       (* f_sfun)( void * ARGS, Chuck_DL_Return & RETURN );
+typedef CK_DLL_EXPORT(void) (* f_ctor)( Chuck_Object * self, void * ARGS );
+typedef CK_DLL_EXPORT(void) (* f_dtor)( Chuck_Object * self );
+typedef CK_DLL_EXPORT(void) (* f_mfun)( Chuck_Object * self, void * ARGS, Chuck_DL_Return & RETURN );
+typedef CK_DLL_EXPORT(void) (* f_sfun)( void * ARGS, Chuck_DL_Return & RETURN );
 // ugen specific
-typedef t_CKBOOL       (* f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
-typedef t_CKBOOL       (* f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
+typedef CK_DLL_EXPORT(t_CKBOOL) (* f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
+typedef CK_DLL_EXPORT(t_CKBOOL) (* f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
 }
+
 
 
 
