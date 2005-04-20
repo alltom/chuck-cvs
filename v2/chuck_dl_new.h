@@ -131,8 +131,12 @@ struct Chuck_UGen;
 #define DLL_UGEN_F  CK_DLL_EXPORT(t_CKBOOL)
 
 
+//-----------------------------------------------------------------------------
 // dynamic linking class interface prototypes
+//-----------------------------------------------------------------------------
 extern "C" {
+// query
+typedef CK_DLL_EXPORT(t_CKBOOL) (* f_ck_query)( Chuck_DL_Query * QUERY );
 // object
 typedef CK_DLL_EXPORT(void) (* f_ctor)( Chuck_Object * self, void * ARGS );
 typedef CK_DLL_EXPORT(void) (* f_dtor)( Chuck_Object * self );
@@ -141,6 +145,42 @@ typedef CK_DLL_EXPORT(void) (* f_sfun)( void * ARGS, Chuck_DL_Return & RETURN );
 // ugen specific
 typedef CK_DLL_EXPORT(t_CKBOOL) (* f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
 typedef CK_DLL_EXPORT(t_CKBOOL) (* f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
+}
+
+
+// default name in DLL/ckx to look for
+#define CK_QUERY_FUNC        "ck_query"
+
+
+//-----------------------------------------------------------------------------
+// chuck DLL query functions, implemented on chuck side for portability
+//-----------------------------------------------------------------------------
+extern "C" {
+// set name of ckx
+typedef void ( CK_DLL_CALL * f_ck_setname)( Chuck_DL_Query * query, const char * name );
+
+// begin class/namespace, can be nested
+typedef void (CK_DLL_CALL * f_begin_class)( Chuck_DL_Query * query, const char * name, const char * parent );
+// add constructor, must be betwen begin/end_class : use f_add_arg to add arguments immediately after
+typedef void (CK_DLL_CALL * f_add_ctor)( Chuck_DL_Query * query, f_ctor ctor );
+// add destructor - cannot have args
+typedef void (CK_DLL_CALL * f_add_dtor)( Chuck_DL_Query * query, f_dtor dtor );
+// add member function - args to follow
+typedef void (CK_DLL_CALL * f_add_mfun)( Chuck_DL_Query * query, f_mfun mfun, const char * name );
+// add static function - args to follow
+typedef void (CK_DLL_CALL * f_add_sfun)( Chuck_DL_Query * query, f_sfun sfun, const char * name );
+// add member/static variable
+typedef void (CK_DLL_CALL * f_add_var)( Chuck_DL_Query * query, const char * type, const char * name,
+               t_CKBOOL is_const ); // TODO: public/protected/private
+// add arg - follows ctor mfun sfun
+typedef void (CK_DLL_CALL * f_add_arg)( Chuck_DL_Query * query, const char * type, const char * name );
+// ** functions for adding unit generators, must extend ugen
+typedef void (CK_DLL_CALL * f_add_ugen_func)( Chuck_DL_Query * query, f_tick tick, f_pmsg pmsg );
+// ** add a ugen control
+typedef void (CK_DLL_CALL * f_add_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, 
+                                              const char * type, const char * name );
+// end class/namespace - must correspondent with begin_class.  returns false on error
+typedef t_CKBOOL (CK_DLL_CALL * f_end_class)( Chuck_DL_Query * query );
 }
 
 
