@@ -323,6 +323,42 @@ struct Chuck_DL_Ctrl
 };
 
 
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DLL
+// desc: dynamic link library
+//-----------------------------------------------------------------------------
+struct Chuck_DLL : public Chuck_VM_Object
+{
+public:
+    t_CKBOOL load( const char * filename, const char * func = CK_QUERY_FUNC,
+                   t_CKBOOL lazy = FALSE );
+    t_CKBOOL load( f_ck_query query_func, t_CKBOOL lazy = FALSE );
+    void * get_addr( const char * symbol );
+    const char * last_error() const;
+    t_CKBOOL unload( );
+
+    t_CKBOOL good() const;
+    const Chuck_DL_Query * query( );
+
+    Chuck_DLL( const char * id = NULL ) {
+        m_handle = NULL; m_done_query = FALSE;
+        m_id = id ? id : ""; m_query_func = NULL; }
+    ~Chuck_DLL() {
+        this->unload(); }
+
+protected:
+    void * m_handle;
+    std::string m_last_error;
+    std::string m_filename;
+    std::string m_id;
+    std::string m_func;
+    t_CKBOOL m_done_query;
+    
+    f_ck_query m_query_func;
+    f_ck_attach m_attach_func;
+    f_ck_detach m_detach_func;
+    Chuck_DL_Query m_query;
+};
 
 
 // dlfcn interface
