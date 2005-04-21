@@ -288,6 +288,34 @@ void CK_DLL_CALL ck_add_arg( Chuck_DL_Query * query, const char * type, const ch
 //-----------------------------------------------------------------------------
 void CK_DLL_CALL ck_add_ugen_func( Chuck_DL_Query * query, f_tick ugen_tick, f_pmsg ugen_pmsg )
 {
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_ugen_func invoked without begin_class..." );
+        return;
+    }
+    
+    // make sure tick not defined already
+    if( query->curr_class->ugen_tick && ugen_tick )
+    {
+        // error
+        EM_error2( 0, "class import: ugen_tick already defined..." );
+        return;
+    }
+    
+    // make sure pmsg not defined already
+    if( query->curr_class->ugen_pmsg && ugen_pmsg )
+    {
+        // error
+        EM_error2( 0, "class import: ugen_pmsg already defined..." );
+        return;
+    }
+    
+    // set
+    if( ugen_tick ) query->curr_class->ugen_tick = ugen_tick;
+    if( ugen_pmsg ) query->curr_class->ugen_pmsg = ugen_pmsg;
+    query->curr_func = NULL;
 }
 
 
@@ -298,6 +326,20 @@ void CK_DLL_CALL ck_add_ugen_func( Chuck_DL_Query * query, f_tick ugen_tick, f_p
 void CK_DLL_CALL ck_add_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ugen_ctrl, f_cget ugen_cget,
                                    const char * type, const char * name )
 {
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_ugen_func invoked without begin_class..." );
+        return;
+    }
+    
+    // allocate
+    Chuck_DL_Ctrl * c = new Chuck_DL_Ctrl;
+    c->name = name;
+    c->type = type;
+    c->ugen_ctrl = ugen_ctrl;
+    c->ugen_cget = ugen_cget;
 }
 
 
