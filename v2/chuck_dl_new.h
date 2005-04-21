@@ -233,7 +233,9 @@ struct Chuck_DL_Query
     // name
     std::string name;
     // current class
-    Chuck_DL_Class * curr;
+    Chuck_DL_Class * curr_class;
+    // current function
+    Chuck_DL_Func * curr_func;
     // collection of class
     std::vector<Chuck_DL_Class *> classes;
     // stack

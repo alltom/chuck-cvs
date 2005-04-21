@@ -62,20 +62,21 @@ void CK_DLL_CALL ck_setname( Chuck_DL_Query * query, const char * name )
 void CK_DLL_CALL ck_begin_class( Chuck_DL_Query * query, const char * name, const char * parent )
 {
     // push
-    query->stack.push_back( query->curr );
+    query->stack.push_back( query->curr_class );
     // allocate
     Chuck_DL_Class * c = new Chuck_DL_Class;
 
     // add class
-    if( query->curr )
+    if( query->curr_class )
         // recursive
-        query->curr->classes.push_back( c );
+        query->curr_class->classes.push_back( c );
     else
         // first level
         query->classes.push_back( c );
 
     // curr
-    query->curr = c;
+    query->curr_class = c;
+    query->curr_func = NULL;
 }
 
 
@@ -86,7 +87,7 @@ void CK_DLL_CALL ck_begin_class( Chuck_DL_Query * query, const char * name, cons
 void CK_DLL_CALL ck_add_ctor( Chuck_DL_Query * query, f_ctor ctor )
 {
     // make sure there is class
-    if( !query->curr )
+    if( !query->curr_class )
     {
         // error
         EM_error2( 0, "class import: add_ctor invoked without begin_class..." );
@@ -100,7 +101,8 @@ void CK_DLL_CALL ck_add_ctor( Chuck_DL_Query * query, f_ctor ctor )
     f->ctor = ctor;
     
     // add
-    query->curr->ctors.push_back( f );
+    query->curr_class->ctors.push_back( f );
+    query->curr_func = f;
 }
 
 
@@ -111,7 +113,7 @@ void CK_DLL_CALL ck_add_ctor( Chuck_DL_Query * query, f_ctor ctor )
 void CK_DLL_CALL ck_add_dtor( Chuck_DL_Query * query, f_dtor dtor )
 {
     // make sure there is class
-    if( !query->curr )
+    if( !query->curr_class )
     {
         // error
         EM_error2( 0, "class import: add_dtor invoked without begin_class..." );
@@ -119,7 +121,7 @@ void CK_DLL_CALL ck_add_dtor( Chuck_DL_Query * query, f_dtor dtor )
     }
 
     // make sure there are no duplicates
-    if( query->curr->dtor )
+    if( query->curr_class->dtor )
     {
         // error
         EM_error2( 0, "class import: multiple dtor added ..." );
@@ -133,7 +135,9 @@ void CK_DLL_CALL ck_add_dtor( Chuck_DL_Query * query, f_dtor dtor )
     f->dtor = dtor;
     
     // add
-    query->curr->dtor = f;
+    query->curr_class->dtor = f;
+    // set
+    query->curr_func = NULL;
 }
 
 
@@ -145,7 +149,7 @@ void CK_DLL_CALL ck_add_mfun( Chuck_DL_Query * query, f_mfun addr,
                               const char * type, const char * name )
 {
     // make sure there is class
-    if( !query->curr )
+    if( !query->curr_class )
     {
         // error
         EM_error2( 0, "class import: add_mfun invoked without begin_class..." );
@@ -159,7 +163,8 @@ void CK_DLL_CALL ck_add_mfun( Chuck_DL_Query * query, f_mfun addr,
     f->mfun = addr;
     
     // add
-    query->curr->mfuns.push_back( f );
+    query->curr_class->mfuns.push_back( f );
+    query->curr_func = f;
 }
 
 
@@ -171,7 +176,7 @@ void CK_DLL_CALL ck_add_sfun( Chuck_DL_Query * query, f_sfun addr,
                               const char * type, const char * name )
 {
     // make sure there is class
-    if( !query->curr )
+    if( !query->curr_class )
     {
         // error
         EM_error2( 0, "class import: add_sfun invoked without begin_class..." );
@@ -185,7 +190,8 @@ void CK_DLL_CALL ck_add_sfun( Chuck_DL_Query * query, f_sfun addr,
     f->sfun = addr;
     
     // add
-    query->curr->sfuns.push_back( f );
+    query->curr_class->sfuns.push_back( f );
+    query->curr_func = f;
 }
 
 
@@ -197,7 +203,7 @@ void CK_DLL_CALL ck_add_mvar( Chuck_DL_Query * query, const char * type, const c
                               t_CKBOOL is_const )
 {
     // make sure there is class
-    if( !query->curr )
+    if( !query->curr_class )
     {
         // error
         EM_error2( 0, "class import: add_mvar invoked without begin_class..." );
@@ -211,7 +217,8 @@ void CK_DLL_CALL ck_add_mvar( Chuck_DL_Query * query, const char * type, const c
     v->is_const = is_const;
 
     // add
-    query->curr->mvars.push_back( v );
+    query->curr_class->mvars.push_back( v );
+    query->curr_func = NULL;
 }
 
 
@@ -223,7 +230,7 @@ void CK_DLL_CALL ck_add_svar( Chuck_DL_Query * query, const char * type, const c
                               t_CKBOOL is_const, void * addr )
 {
     // make sure there is class
-    if( !query->curr )
+    if( !query->curr_class )
     {
         // error
         EM_error2( 0, "class import: add_svar invoked without begin_class..." );
@@ -238,7 +245,8 @@ void CK_DLL_CALL ck_add_svar( Chuck_DL_Query * query, const char * type, const c
     v->static_addr = addr;
     
     // add
-    query->curr->mvars.push_back( v );
+    query->curr_class->mvars.push_back( v );
+    query->curr_func = NULL;
 }
 
 
@@ -248,6 +256,29 @@ void CK_DLL_CALL ck_add_svar( Chuck_DL_Query * query, const char * type, const c
 //-----------------------------------------------------------------------------
 void CK_DLL_CALL ck_add_arg( Chuck_DL_Query * query, const char * type, const char * name )
 {
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_arg invoked without begin_class..." );
+        return;
+    }
+    
+    // make sure there is function
+    if( !query->curr_func )
+    {
+        // error
+        EM_error2( 0, "class import: add_arg can only follow 'ctor', 'mfun', 'sfun', 'arg'..." );
+        return;
+    }
+    
+    // allocate
+    Chuck_DL_Value * v = new Chuck_DL_Value;
+    v->name = name;
+    v->type = type;
+    
+    // add
+    query->curr_func->args.push_back( v );
 }
 
 
@@ -525,6 +556,8 @@ Chuck_DL_Query::Chuck_DL_Query( )
     end_class = ck_end_class;
     dll_name = "[noname]";
     reserved = NULL;
+    curr_class = NULL;
+    curr_func = NULL;
   
 #ifndef __CKDL_NO_BBQ__
     srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
