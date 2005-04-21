@@ -340,6 +340,9 @@ void CK_DLL_CALL ck_add_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ugen_ctrl, f_c
     c->type = type;
     c->ctrl = ugen_ctrl;
     c->cget = ugen_cget;
+    
+    // set
+    query->curr_func = NULL;
 }
 
 
@@ -349,6 +352,21 @@ void CK_DLL_CALL ck_add_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ugen_ctrl, f_c
 //-----------------------------------------------------------------------------
 t_CKBOOL CK_DLL_CALL ck_end_class( Chuck_DL_Query * query )
 {
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: end_class invoked without begin_class..." );
+        return FALSE;
+    }
+    
+    // type check the class?
+    
+    // pop
+    assert( query->stack.size() );
+    query->curr_class = query->stack.back();
+    query->stack.pop_back();
+    
     return TRUE;
 }
 
