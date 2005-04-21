@@ -50,6 +50,7 @@ struct Chuck_DL_Class;
 struct Chuck_DL_Func;
 struct Chuck_DL_Value;
 struct Chuck_DL_Ctrl;
+struct Chuck_DLL;
 struct Chuck_UGen;
 
 
@@ -235,9 +236,13 @@ struct Chuck_DL_Query
     Chuck_DL_Class * curr;
     // collection of class
     std::vector<Chuck_DL_Class *> classes;
+    // stack
+    std::vector<Chuck_DL_Class * >stack;
     
     // name of dll
-    const char * dll_name;
+    std::string dll_name;
+    // dll
+    Chuck_DLL * dll_ref;
     // reserved
     void * reserved;
     // sample rate
@@ -304,6 +309,8 @@ struct Chuck_DL_Func
     std::string name;
     // the return type
     std::string type;
+    // the pointer
+    union { f_ctor ctor; f_dtor dtor; f_mfun mfun; f_sfun sfun; };
     // arguments
     std::vector<Chuck_DL_Value *> args;
     
