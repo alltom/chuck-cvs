@@ -236,6 +236,17 @@ struct Chuck_DL_Query
     // collection of class
     std::vector<Chuck_DL_Class *> classes;
     
+    // name of dll
+    const char * dll_name;
+    // reserved
+    void * reserved;
+    // sample rate
+    t_CKUINT srate;
+    // bsize
+    t_CKUINT bufsize;
+    // line pos
+    int linepos;
+    
     // constructor
     Chuck_DL_Query();
     // clear function
