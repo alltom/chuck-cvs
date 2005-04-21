@@ -118,6 +118,14 @@ void CK_DLL_CALL ck_add_dtor( Chuck_DL_Query * query, f_dtor dtor )
         return;
     }
 
+    // make sure there are no duplicates
+    if( query->curr->dtor )
+    {
+        // error
+        EM_error2( 0, "class import: multiple dtor added ..." );
+        return;
+    }
+
     // allocate
     Chuck_DL_Func * f = new Chuck_DL_Func;
     f->name = "[dtor]";
