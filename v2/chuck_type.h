@@ -434,6 +434,8 @@ struct Chuck_Func : public Chuck_VM_Object
     a_Func_Def def;
     // code
     Chuck_VM_Code * code;
+    // imported code
+    Chuck_DL_Func * dl_code;
     // member
     t_CKBOOL is_member;
     // virtual table index
@@ -443,7 +445,7 @@ struct Chuck_Func : public Chuck_VM_Object
 
     // constructor
     Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = -1; 
-                   value_ref = NULL; }
+                   value_ref = NULL; dl_code = NULL; }
 };
 
 
