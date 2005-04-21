@@ -353,6 +353,10 @@ struct Chuck_DL_Ctrl
     std::string type;
     // the types of the value
     std::vector<std::string> types;
+    // ctrl
+    f_ctrl ctrl;
+    // cget
+    f_cget cget;
 };
 
 

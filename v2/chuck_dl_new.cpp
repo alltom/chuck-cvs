@@ -338,8 +338,8 @@ void CK_DLL_CALL ck_add_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ugen_ctrl, f_c
     Chuck_DL_Ctrl * c = new Chuck_DL_Ctrl;
     c->name = name;
     c->type = type;
-    c->ugen_ctrl = ugen_ctrl;
-    c->ugen_cget = ugen_cget;
+    c->ctrl = ugen_ctrl;
+    c->cget = ugen_cget;
 }
 
 
