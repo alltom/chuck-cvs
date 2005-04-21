@@ -249,7 +249,9 @@ struct Chuck_DL_Query
     
     // constructor
     Chuck_DL_Query();
-    // clear function
+    // desctructor
+    ~Chuck_DL_Query() { this->clear(); }
+    // clear
     void clear();
 };
 
@@ -287,6 +289,8 @@ struct Chuck_DL_Class
     
     // constructor
     Chuck_DL_Class() { dtor = NULL; ugen_tick = NULL; ugen_pmsg = NULL; }
+    // destructor
+    ~Chuck_DL_Class();
 };
 
 
@@ -302,6 +306,9 @@ struct Chuck_DL_Func
     std::string type;
     // arguments
     std::vector<Chuck_DL_Value *> args;
+    
+    // destructor
+    ~Chuck_DL_Func();
 };
 
 

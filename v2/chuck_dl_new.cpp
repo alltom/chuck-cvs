@@ -413,6 +413,51 @@ Chuck_DL_Query::Chuck_DL_Query( )
 }
 
 
+//-----------------------------------------------------------------------------
+// name: clear()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_DL_Query::clear()
+{
+    // set to 0
+    dll_name = "[noname]";
+    // line pos
+    linepos = 0;
+    // delete classes
+    for( t_CKINT i = 0; i < classes.size(); i++ ) delete classes[i];
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_DL_Class()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_DL_Class::~Chuck_DL_Class()
+{
+    t_CKINT i;
+
+    // delete mfuns
+    for( i = 0; i < mfuns.size(); i++ ) delete mfuns[i];
+    // delete sfuns
+    for( i = 0; i < sfuns.size(); i++ ) delete sfuns[i];
+    // delete mvars
+    for( i = 0; i < mvars.size(); i++ ) delete mvars[i];
+    // delete svars
+    for( i = 0; i < svars.size(); i++ ) delete svars[i];
+    // delete classes
+    for( i = 0; i < classes.size(); i++ ) delete classes[i];
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_DL_Func()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_DL_Func::~Chuck_DL_Func()
+{
+    for( t_CKINT i = 0; i < args.size(); i++ )
+        delete args[i];
+}
 
 
 // windows
