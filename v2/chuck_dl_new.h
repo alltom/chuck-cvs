@@ -330,22 +330,32 @@ struct Chuck_DL_Ctrl
 struct Chuck_DLL : public Chuck_VM_Object
 {
 public:
-    t_CKBOOL load( const char * filename, const char * func = CK_QUERY_FUNC,
+    // load dynamic ckx/dll from filename
+    t_CKBOOL load( const char * filename, 
+                   const char * func = CK_QUERY_FUNC,
                    t_CKBOOL lazy = FALSE );
     t_CKBOOL load( f_ck_query query_func, t_CKBOOL lazy = FALSE );
+    // get address in loaded ckx
     void * get_addr( const char * symbol );
+    // get last error
     const char * last_error() const;
+    // unload the ckx
     t_CKBOOL unload( );
-
-    t_CKBOOL good() const;
+    // query the content of the dll
     const Chuck_DL_Query * query( );
+    // is good
+    t_CKBOOL good() const;
 
+public:
+    // constructor
     Chuck_DLL( const char * id = NULL ) {
         m_handle = NULL; m_done_query = FALSE;
         m_id = id ? id : ""; m_query_func = NULL; }
+    // destructor
     ~Chuck_DLL() { this->unload(); }
 
 protected:
+    // data
     void * m_handle;
     std::string m_last_error;
     std::string m_filename;
