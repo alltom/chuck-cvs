@@ -176,9 +176,13 @@ typedef void (CK_DLL_CALL * f_add_dtor)( Chuck_DL_Query * query, f_dtor dtor );
 typedef void (CK_DLL_CALL * f_add_mfun)( Chuck_DL_Query * query, f_mfun mfun, const char * type, const char * name );
 // add static function - args to follow
 typedef void (CK_DLL_CALL * f_add_sfun)( Chuck_DL_Query * query, f_sfun sfun, const char * type, const char * name );
-// add member/static variable
-typedef void (CK_DLL_CALL * f_add_var)( Chuck_DL_Query * query, const char * type, const char * name,
-              t_CKBOOL is_const, void * static_addr ); // TODO: public/protected/private
+// add member variable
+typedef void (CK_DLL_CALL * f_add_mvar)( Chuck_DL_Query * query,
+             const char * type, const char * name, t_CKBOOL is_const ); // TODO: public/protected/private
+// add static variable
+typedef void (CK_DLL_CALL * f_add_svar)( Chuck_DL_Query * query,
+             const char * type, const char * name,
+             t_CKBOOL is_const, void * static_addr ); // TODO: public/protected/private
 // add arg - follows ctor mfun sfun
 typedef void (CK_DLL_CALL * f_add_arg)( Chuck_DL_Query * query, const char * type, const char * name );
 // ** functions for adding unit generators, must extend ugen
@@ -212,8 +216,10 @@ struct Chuck_DL_Query
     f_add_mfun add_mfun;
     // add static function, can be followed by add_arg
     f_add_sfun add_sfun;
-    // add var - can be static or member
-    f_add_var add_var;
+    // add member variable
+    f_add_mvar add_mvar;
+    // add static variable
+    f_add_svar add_svar;
     // add argument to function
     f_add_arg add_arg;
     // (ugen only) add tick and pmsg functions
