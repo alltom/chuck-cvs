@@ -39,25 +39,25 @@
 DLL_QUERY libstd_query( Chuck_DL_Query * QUERY );
 
 // exports
-CK_DLL_FUNC( abs_impl );
-CK_DLL_FUNC( fabs_impl );
-CK_DLL_FUNC( rand_impl );
-CK_DLL_FUNC( randf_impl );
-CK_DLL_FUNC( rand2f_impl );
-CK_DLL_FUNC( rand2_impl );
-CK_DLL_FUNC( sgn_impl );
-CK_DLL_FUNC( system_impl );
-CK_DLL_FUNC( atoi_impl );
-CK_DLL_FUNC( atof_impl );
-CK_DLL_FUNC( getenv_impl );
-CK_DLL_FUNC( setenv_impl );
+CK_DLL_SFUN( abs_impl );
+CK_DLL_SFUN( fabs_impl );
+CK_DLL_SFUN( rand_impl );
+CK_DLL_SFUN( randf_impl );
+CK_DLL_SFUN( rand2f_impl );
+CK_DLL_SFUN( rand2_impl );
+CK_DLL_SFUN( sgn_impl );
+CK_DLL_SFUN( system_impl );
+CK_DLL_SFUN( atoi_impl );
+CK_DLL_SFUN( atof_impl );
+CK_DLL_SFUN( getenv_impl );
+CK_DLL_SFUN( setenv_impl );
 
-CK_DLL_FUNC( mtof_impl );
-CK_DLL_FUNC( ftom_impl );
-CK_DLL_FUNC( powtodb_impl );
-CK_DLL_FUNC( rmstodb_impl );
-CK_DLL_FUNC( dbtopow_impl );
-CK_DLL_FUNC( dbtorms_impl );
+CK_DLL_SFUN( mtof_impl );
+CK_DLL_SFUN( ftom_impl );
+CK_DLL_SFUN( powtodb_impl );
+CK_DLL_SFUN( rmstodb_impl );
+CK_DLL_SFUN( dbtopow_impl );
+CK_DLL_SFUN( dbtorms_impl );
 
 
 #endif

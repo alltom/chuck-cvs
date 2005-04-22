@@ -373,6 +373,7 @@ union Chuck_DL_Return
     t_CKUINT v_uint;
     t_CKFLOAT v_float;
     Chuck_Object * v_object;
+    char * v_string;
     
     Chuck_DL_Return() { v_float = 0.0; }
 };

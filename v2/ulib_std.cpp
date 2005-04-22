@@ -53,85 +53,90 @@ int setenv( char *n, char *v, int i )
 //-----------------------------------------------------------------------------
 DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 {
+    // set name
+    QUERY->setname( QUERY, "std" );
 
-
-    QUERY->set_name( QUERY, "std" );
-
-   /*! \example
-     std.rand2f( 100.0, 1000.0 ) => stdout;
-   */    
+    /*! \example
+    std.rand2f( 100.0, 1000.0 ) => stdout;
+    */    
 
     // add abs
-    QUERY->add_export( QUERY, "float", "abs", abs_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, abs_impl, "float", "abs" );
+    QUERY->add_arg( QUERY, "float", "value" );
     
     // add rand
+    QUERY->add_sfun( QUERY, rand_impl, "int", "rand"); //! return int between 0 and RAND_MAX
     
-    QUERY->add_export( QUERY, "int", "rand", rand_impl, TRUE ); //! return int between 0 and RAND_MAX
+    // add rand2
+    QUERY->add_sfun( QUERY, rand2_impl, "int", "rand2" ); //! integer between [min,max]
+    QUERY->add_arg( QUERY, "int", "min" ); 
+    QUERY->add_arg( QUERY, "int", "max" ); 
     
-    QUERY->add_export( QUERY, "int", "rand2", rand2_impl, TRUE ); //! integer between [min,max]
-    QUERY->add_param( QUERY, "int", "min" ); 
-    QUERY->add_param( QUERY, "int", "max" ); 
-    
-    QUERY->add_export( QUERY, "float", "randf", randf_impl, TRUE ); //! rand between -1.0,1.0
-    QUERY->add_export( QUERY, "float", "rand2f", rand2f_impl, TRUE ); //! rand between min and max
-    QUERY->add_param( QUERY, "float", "min" );
-    QUERY->add_param( QUERY, "float", "max" );
+    // add rand
+    QUERY->add_sfun( QUERY, randf_impl, "float", "randf" ); //! rand between -1.0,1.0
+
+    // add rand2
+    QUERY->add_sfun( QUERY, rand2f_impl, "float", "rand2f" ); //! rand between min and max
+    QUERY->add_arg( QUERY, "float", "min" );
+    QUERY->add_arg( QUERY, "float", "max" );
 
     // add sgn
-    QUERY->add_export( QUERY, "float", "sgn", sgn_impl, TRUE ); //! return sign of value (-1, 0, 1)
-    QUERY->add_param( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, sgn_impl, "float", "sgn" ); //! return sign of value (-1, 0, 1)
+    QUERY->add_arg( QUERY, "float", "value" );
 
     // add system
     //! see \example std.ck
-    QUERY->add_export( QUERY, "int", "system", system_impl, TRUE ); //! issue system command
-    QUERY->add_param( QUERY, "string", "cmd" );
+    QUERY->add_sfun( QUERY, system_impl, "int", "system" ); //! issue system command
+    QUERY->add_arg( QUERY, "string", "cmd" );
 
     // add atoi
-    QUERY->add_export( QUERY, "int", "atoi", atoi_impl, TRUE ); //! string to integer
-    QUERY->add_param( QUERY, "string", "value" );
+    QUERY->add_sfun( QUERY, atoi_impl, "int", "atoi" ); //! string to integer
+    QUERY->add_arg( QUERY, "string", "value" );
 
     // add atof
-    QUERY->add_export( QUERY, "float", "atof", atof_impl, TRUE ); //! string to float
-    QUERY->add_param( QUERY, "string", "value" );
+    QUERY->add_sfun( QUERY, atof_impl, "float", "atof" ); //! string to float
+    QUERY->add_arg( QUERY, "string", "value" );
 
     // add getenv
-    QUERY->add_export( QUERY, "string", "getenv", getenv_impl, TRUE ); //! fetch environment variable
-    QUERY->add_param( QUERY, "string", "value" );
+    QUERY->add_sfun( QUERY, getenv_impl, "string", "getenv" ); //! fetch environment variable
+    QUERY->add_arg( QUERY, "string", "value" );
 
     // add setenv
-    QUERY->add_export( QUERY, "int", "setenv", setenv_impl, TRUE ); //! set environment variable
-    QUERY->add_param( QUERY, "string", "key" );
-    QUERY->add_param( QUERY, "string", "value" );
-    
-    // seed the rand
-    srand( time( NULL ) );
+    QUERY->add_sfun( QUERY, setenv_impl, "int", "setenv" ); //! set environment variable
+    QUERY->add_arg( QUERY, "string", "key" );
+    QUERY->add_arg( QUERY, "string", "value" );
 
     // add mtof
     //! see \example mand-o-matic.ck
-    QUERY->add_export( QUERY, "float", "mtof", mtof_impl, TRUE ); //! midi note to frequency
-    QUERY->add_param( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, mtof_impl, "float", "mtof" ); //! midi note to frequency
+    QUERY->add_arg( QUERY, "float", "value" );
 
     // add ftom
-    QUERY->add_export( QUERY, "float", "ftom", ftom_impl, TRUE ); //! frequency to midi note
-    QUERY->add_param( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, ftom_impl, "float", "ftom" ); //! frequency to midi note
+    QUERY->add_arg( QUERY, "float", "value" );
 
     // add powtodb
-    QUERY->add_export( QUERY, "float", "powtodb", powtodb_impl, TRUE ); //! linear power to decibel 
-    QUERY->add_param( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, powtodb_impl, "float", "powtodb" ); //! linear power to decibel 
+    QUERY->add_arg( QUERY, "float", "value" );
 
     // add rmstodb
-    QUERY->add_export( QUERY, "float", "rmstodb", rmstodb_impl, TRUE ); //! rms to decibel
-    QUERY->add_param( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, rmstodb_impl, "float", "rmstodb" ); //! rms to decibel
+    QUERY->add_arg( QUERY, "float", "value" );
 
     // add dbtopow
-    QUERY->add_export( QUERY, "float", "dbtopow", dbtopow_impl, TRUE ); //! decibel to linear
-    QUERY->add_param( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, dbtopow_impl, "float", "dbtopow" ); //! decibel to linear
+    QUERY->add_arg( QUERY, "float", "value" );
 
     // add dbtorms
-    QUERY->add_export( QUERY, "float", "dbtorms", dbtorms_impl, TRUE ); //! decibel to rms
-    QUERY->add_param( QUERY, "float", "value" );
-    
+    QUERY->add_sfun( QUERY, dbtorms_impl, "float", "dbtorms" ); //! decibel to rms
+    QUERY->add_arg( QUERY, "float", "value" );
+
+    // finish class
+    QUERY->end_class( QUERY );
+
+    // seed the rand
+    srand( time( NULL ) );
+
     return TRUE;
 }
 
@@ -149,39 +154,39 @@ int irand_exclusive ( int max ) {
 
 
 // abs
-CK_DLL_FUNC( abs_impl )
+CK_DLL_SFUN( abs_impl )
 {
   t_CKFLOAT v = GET_CK_FLOAT(ARGS);
   RETURN->v_float = v >= 0.0f ? v : -v;
 }
 
 // fabs
-CK_DLL_FUNC( fabs_impl )
+CK_DLL_SFUN( fabs_impl )
 {
     RETURN->v_float = ::fabs( GET_CK_FLOAT(ARGS) );
 }
 
 // rand
-CK_DLL_FUNC( rand_impl )
+CK_DLL_SFUN( rand_impl )
 {
     RETURN->v_int = ::rand();
 }
 
 // randf
-CK_DLL_FUNC( randf_impl )
+CK_DLL_SFUN( randf_impl )
 {
     RETURN->v_float = ( 2.0 * ::rand() / (t_CKFLOAT)RAND_MAX - 1.0 );
 }
 
 // randf
-CK_DLL_FUNC( rand2f_impl )
+CK_DLL_SFUN( rand2f_impl )
 {
     t_CKFLOAT min = GET_CK_FLOAT(ARGS), max = *((t_CKFLOAT *)ARGS + 1);
     RETURN->v_float = min + (max-min)*(::rand()/(t_CKFLOAT)RAND_MAX);
 }
 
 // randi
-CK_DLL_FUNC( rand2_impl ) // inclusive.
+CK_DLL_SFUN( rand2_impl ) // inclusive.
 {
     int min = *(int *)ARGS, max = *((int *)ARGS + 1);
     int range = max - min; 
@@ -202,42 +207,42 @@ CK_DLL_FUNC( rand2_impl ) // inclusive.
 }
 
 // sgn
-CK_DLL_FUNC( sgn_impl )
+CK_DLL_SFUN( sgn_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = v == 0.0f ? 0.0f : ( v > 0.0f ? 1.0f : -1.0f );
 }
 
 // system
-CK_DLL_FUNC( system_impl )
+CK_DLL_SFUN( system_impl )
 {
     char * cmd = *(char **)ARGS;
     RETURN->v_int = system( cmd );
 }
 
 // aoti
-CK_DLL_FUNC( atoi_impl )
+CK_DLL_SFUN( atoi_impl )
 {
     char * v = *(char **)ARGS;
     RETURN->v_int = atoi( v );
 }
 
 // atof
-CK_DLL_FUNC( atof_impl )
+CK_DLL_SFUN( atof_impl )
 {
     char * v = *(char **)ARGS;
     RETURN->v_float = atof( v );
 }
 
 // getenv
-CK_DLL_FUNC( getenv_impl )
+CK_DLL_SFUN( getenv_impl )
 {
     char * v = *(char **)ARGS;
     RETURN->v_string = getenv( v );
 }
 
 // setenv
-CK_DLL_FUNC( setenv_impl )
+CK_DLL_SFUN( setenv_impl )
 {
     char * v1 = *(char **)ARGS;
     char * v2 = *( (char **)ARGS + 1 );
@@ -258,7 +263,7 @@ double mtof(double f)
     else return (float)(8.17579891564 * exp(.0577622650 * (double)f));
 }
 
-CK_DLL_FUNC( mtof_impl )
+CK_DLL_SFUN( mtof_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = mtof(v);
@@ -269,7 +274,7 @@ double ftom(double f)
     return (f > 0 ? 17.3123405046 * log(.12231220585 * f) : -1500);
 }
 
-CK_DLL_FUNC( ftom_impl )
+CK_DLL_SFUN( ftom_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = ftom(v);
@@ -287,7 +292,7 @@ float powtodb(float f)
 }
 
 
-CK_DLL_FUNC( powtodb_impl )
+CK_DLL_SFUN( powtodb_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = powtodb(v);
@@ -304,7 +309,7 @@ float rmstodb(float f)
     }
 }
 
-CK_DLL_FUNC( rmstodb_impl )
+CK_DLL_SFUN( rmstodb_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = rmstodb(v);
@@ -323,7 +328,7 @@ float dbtopow(float f)
     }
 }
 
-CK_DLL_FUNC( dbtopow_impl )
+CK_DLL_SFUN( dbtopow_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = dbtopow(v);
@@ -341,7 +346,7 @@ float dbtorms(float f)
     return (exp((LOGTEN * 0.05) * (f-100.)));
 }
 
-CK_DLL_FUNC( dbtorms_impl )
+CK_DLL_SFUN( dbtorms_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = dbtorms(v);

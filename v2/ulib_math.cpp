@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include "ulib_math.h"
 #include "util_math.h"
+#include "ulib_std.h"
 
 
 static double g_pi = 3.14159265358979323846;
@@ -164,6 +165,47 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_sfun( QUERY, nextpow2_impl, "int", "nextpow2" );
     QUERY->add_arg( QUERY, "int", "n" );
 
+    // rand
+    QUERY->add_sfun( QUERY, rand_impl, "int", "rand" ); //! return int between 0 and RAND_MAX
+    
+    // rand2
+    QUERY->add_sfun( QUERY, rand2_impl, "int", "rand2" ); //! integer between [min,max]
+    QUERY->add_arg( QUERY, "int", "min" ); 
+    QUERY->add_arg( QUERY, "int", "max" ); 
+    
+    // randf
+    QUERY->add_sfun( QUERY, randf_impl, "float", "randf" ); //! rand between -1.0,1.0
+
+    // rand2f
+    QUERY->add_sfun( QUERY, rand2f_impl, "float", "rand2f" ); //! rand between min and max
+    QUERY->add_arg( QUERY, "float", "min" );
+    QUERY->add_arg( QUERY, "float", "max" );
+
+    // add mtof
+    //! see \example mand-o-matic.ck
+    QUERY->add_sfun( QUERY, mtof_impl, "float", "mtof" ); //! midi note to frequency
+    QUERY->add_arg( QUERY, "float", "value" );
+
+    // add ftom
+    QUERY->add_sfun( QUERY, ftom_impl, "float", "ftom" ); //! frequency to midi note
+    QUERY->add_arg( QUERY, "float", "value" );
+
+    // add powtodb
+    QUERY->add_sfun( QUERY, powtodb_impl, "float", "powtodb" ); //! linear power to decibel 
+    QUERY->add_arg( QUERY, "float", "value" );
+
+    // add rmstodb
+    QUERY->add_sfun( QUERY, rmstodb_impl, "float", "rmstodb" ); //! rms to decibel
+    QUERY->add_arg( QUERY, "float", "value" );
+
+    // add dbtopow
+    QUERY->add_sfun( QUERY, dbtopow_impl, "float", "dbtopow" ); //! decibel to linear
+    QUERY->add_arg( QUERY, "float", "value" );
+
+    // add dbtorms
+    QUERY->add_sfun( QUERY, dbtorms_impl, "float", "dbtorms" ); //! decibel to rms
+    QUERY->add_arg( QUERY, "float", "value" );
+    
     // pi
     //! see \example math.ck
     QUERY->add_svar( QUERY, "float", "pi", TRUE, &g_pi );
