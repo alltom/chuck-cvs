@@ -95,6 +95,7 @@ public: // data
 
 public: // dynamic linking client data
     void * state;
+    t_CKTIME now;
 };
 
 

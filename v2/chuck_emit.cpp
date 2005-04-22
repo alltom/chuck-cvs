@@ -2345,19 +2345,22 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
 
     // TODO: member functions and static functions
     // call the function
+    t_CKUINT size = func_call->ret_type->size;
     if( func_call->ck_func->def->s_type == ae_func_builtin )
     {
-        if( func_call->ret_type->size == 0 )
-            emit->append( new Chuck_Instr_Func_Call0 );
-        else if( func_call->ret_type->size == 4 )
-            emit->append( new Chuck_Instr_Func_Call4 );
-        else if( func_call->ret_type->size == 8 )
-            emit->append( new Chuck_Instr_Func_Call8 );
+        if( size == 0 || size == 4 || size == 8 )
+        {
+            // is member
+            if( is_member )
+                emit->append( new Chuck_Instr_Func_Call_Member( size ) );
+            else
+                emit->append( new Chuck_Instr_Func_Call_Static( size ) );
+        }
         else
         {
             EM_error2( func_call->linepos,
                        "(emit): internal error: %i func call not handled",
-                       func_call->ret_type->size );
+                       size );
             return FALSE;
         }
     }

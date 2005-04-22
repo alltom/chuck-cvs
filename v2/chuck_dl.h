@@ -147,7 +147,7 @@ typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
 typedef t_CKVOID (CK_DLL_CALL * f_ctor)( Chuck_Object * self, void * ARGS );
 typedef t_CKVOID (CK_DLL_CALL * f_dtor)( Chuck_Object * self );
 typedef t_CKVOID (CK_DLL_CALL * f_mfun)( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN );
-typedef t_CKVOID (CK_DLL_CALL * f_sfun)( void * ARGS, Chuck_DL_Return & RETURN );
+typedef t_CKVOID (CK_DLL_CALL * f_sfun)( void * ARGS, Chuck_DL_Return * RETURN );
 // ugen specific
 typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
 typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_UGen * self, void * ARGS );
@@ -367,6 +367,7 @@ struct Chuck_DL_Ctrl
 union Chuck_DL_Return
 {
     t_CKINT v_int;
+    t_CKUINT v_uint;
     t_CKFLOAT v_float;
     Chuck_Object * v_object;
     

@@ -1814,9 +1814,9 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: builtin function call with void return type
+// desc: imported member function call with return
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
@@ -1827,7 +1827,7 @@ void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // get the function to be called as code
     Chuck_VM_Code * func = (Chuck_VM_Code *)*reg_sp;
     // get the function to be called
-    f_ck_func f = (f_ck_func)func->native_func;
+    f_mfun f = (f_mfun)func->native_func;
     // get the local stack depth - caller local variables
     t_CKUINT local_depth = *(reg_sp+1);
     // convert to number of 4-byte words, extra partial word counts as additional word
@@ -1867,10 +1867,23 @@ void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     }
 
     // call the function
-    f( mem_sp, &retval );
+    f( (Chuck_Object *)mem_sp, mem_sp + 1, &retval );
     mem_sp -= push;
-    // push the return args
-    // push_( reg_sp, retval.v_uint );
+    
+    // push the return
+    if( m_val == 4 )
+    {
+        // push the return args
+        push_( reg_sp, retval.v_uint );
+    }
+    else if( m_val == 8 )
+    {
+        // push the return args
+        t_CKFLOAT *& sp_double = (t_CKFLOAT *&)reg_sp;
+        push_( sp_double, retval.v_float );
+    }
+    else if( m_val == 0 ) { }
+    else assert( FALSE );
 }
 
 
@@ -1878,9 +1891,9 @@ void Chuck_Instr_Func_Call0::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
-// desc: builtin function call with 4-byte return type
+// desc: imported static function call with return
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Func_Call4::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_Func_Call_Static::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
@@ -1891,7 +1904,7 @@ void Chuck_Instr_Func_Call4::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // get the function to be called as code
     Chuck_VM_Code * func = (Chuck_VM_Code *)*reg_sp;
     // get the function to be called
-    f_ck_func f = (f_ck_func)func->native_func;
+    f_sfun f = (f_sfun)func->native_func;
     // get the local stack depth - caller local variables
     t_CKUINT local_depth = *(reg_sp+1);
     // convert to number of 4-byte words, extra partial word counts as additional word
@@ -1933,73 +1946,21 @@ void Chuck_Instr_Func_Call4::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // call the function
     f( mem_sp, &retval );
     mem_sp -= push;
-    // push the return args
-    push_( reg_sp, retval.v_uint );
-}
 
-
-
-
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: builtin function call with 8-byte return type
-//-----------------------------------------------------------------------------
-void Chuck_Instr_Func_Call8::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
-{
-    t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-    Chuck_DL_Return retval;
-
-    // pop word
-    pop_( reg_sp, 2 );
-    // get the function to be called as code
-    Chuck_VM_Code * func = (Chuck_VM_Code *)*reg_sp;
-    // get the function to be called
-    f_ck_func f = (f_ck_func)func->native_func;
-    // get the local stack depth - caller local variables
-    t_CKUINT local_depth = *(reg_sp+1);
-    // convert to number of 4-byte words, extra partial word counts as additional word
-    local_depth = ( local_depth >> 2 ) + ( local_depth & 0x3 ? 1 : 0 );
-    // get the stack depth of the callee function args
-    t_CKUINT stack_depth = ( func->stack_depth >> 2 ) + ( func->stack_depth & 0x3 ? 1 : 0 );
-    // get the previous stack depth - caller function args
-    t_CKUINT prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );    
-    // the amount to push in 4-byte words
-    t_CKUINT push = local_depth;
-    // push the mem stack passed the current function variables and arguments
-    mem_sp += push;
-
-    // pass args
-    if( stack_depth )
+    // push the return
+    if( m_val == 4 )
     {
-        // pop the arguments for pass to callee function
-        reg_sp -= stack_depth;
-
-        // make copies
-        t_CKUINT * reg_sp2 = reg_sp;
-        t_CKUINT * mem_sp2 = mem_sp;
-        
-        // need this
-        if( func->need_this )
-        {
-            // copy this from end of arguments to the front
-            *mem_sp2++ = *(reg_sp2 + stack_depth - 1);
-            // advance reg pointer
-            reg_sp2++;
-            // one less word to copy
-            stack_depth--;
-        }
-        // copy to args
-        for( t_CKUINT i = 0; i < stack_depth; i++ )
-            *mem_sp2++ = *reg_sp2++;
+        // push the return args
+        push_( reg_sp, retval.v_uint );
     }
-
-    // call the function
-    f( mem_sp, &retval );
-    mem_sp -= push;
-    // push the return args
-    t_CKFLOAT *& sp_double = (t_CKFLOAT *&)reg_sp;
-    push_( sp_double, retval.v_float );
+    else if( m_val == 8 )
+    {
+        // push the return args
+        t_CKFLOAT *& sp_double = (t_CKFLOAT *&)reg_sp;
+        push_( sp_double, retval.v_float );
+    }
+    else if( m_val == 0 ) { }
+    else assert( FALSE );
 }
 
 
@@ -2864,9 +2825,11 @@ void Chuck_Instr_UGen_Ctrl::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
     f_ctrl ctrl = (f_ctrl)*(sp+2);
     f_cget cget = (f_cget)*(sp+3);
+    // set now
+    ugen->now = shred->now;
     // call ctrl
-    ctrl( shred->now, ugen->state, (void *)sp );
-    if( cget ) cget( shred->now, ugen->state, (void *)sp );
+    ctrl( ugen, (void *)sp );
+    if( cget ) cget( ugen, (void *)sp );
     // push the new value
     push_( sp, *sp);
 }
@@ -2885,8 +2848,10 @@ void Chuck_Instr_UGen_CGet::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
     f_cget cget = (f_cget)*(sp+1);
+    // set now
+    ugen->now = shred->now;
     // call cget
-    cget( shred->now, ugen->state, (void *)sp );
+    cget( ugen, (void *)sp );
     // push the new value
     push_( sp, *sp);
 }
@@ -2906,10 +2871,12 @@ void Chuck_Instr_UGen_Ctrl2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp+1);
     f_ctrl ctrl = (f_ctrl)*(sp+2);
     f_cget cget = (f_cget)*(sp+3);
+    // set now
+    ugen->now = shred->now;
     // call ctrl
     pop_( sp, 1 );
-    ctrl( shred->now, ugen->state, (void *)sp );
-    if( cget ) cget( shred->now, ugen->state, (void *)sp );
+    ctrl( ugen, (void *)sp );
+    if( cget ) cget( ugen, (void *)sp );
     // push the new value
     ((t_CKFLOAT *&)shred->reg->sp)++;
 }
@@ -2928,8 +2895,10 @@ void Chuck_Instr_UGen_CGet2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( sp, 2 );
     Chuck_UGen * ugen = (Chuck_UGen *)*(sp);
     f_cget cget = (f_cget)*(sp+1);
+    // set now
+    ugen->now = shred->now;
     // call cget
-    cget( shred->now, ugen->state, (void *)sp );
+    cget( ugen, (void *)sp );
     // push the new value
     ((t_CKFLOAT *&)shred->reg->sp)++;
 }

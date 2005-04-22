@@ -1676,11 +1676,15 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_Instr_Func_Call0
-// desc: builtin function call with void return type
+// name: struct Chuck_Instr_Func_Call_Member
+// desc: imported member function call with return
 //-----------------------------------------------------------------------------
-struct Chuck_Instr_Func_Call0 : public Chuck_Instr
+struct Chuck_Instr_Func_Call_Member : public Chuck_Instr_Unary_Op
 {
+public:
+    Chuck_Instr_Func_Call_Member( t_CKUINT ret_size )
+    { this->set( ret_size ); }
+
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
@@ -1689,24 +1693,15 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_Instr_Func_Call4
-// desc: builtin function call with 4-byte return type
+// name: struct Chuck_Instr_Func_Call_Static
+// desc: imported static function call with return
 //-----------------------------------------------------------------------------
-struct Chuck_Instr_Func_Call4 : public Chuck_Instr
+struct Chuck_Instr_Func_Call_Static : public Chuck_Instr_Unary_Op
 {
 public:
-    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-};
+    Chuck_Instr_Func_Call_Static( t_CKUINT ret_size )
+    { this->set( ret_size ); }
 
-
-
-
-//-----------------------------------------------------------------------------
-// name: struct Chuck_Instr_Func_Call8
-// desc: builtin function call with 8-byte return type
-//-----------------------------------------------------------------------------
-struct Chuck_Instr_Func_Call8 : public Chuck_Instr
-{
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
