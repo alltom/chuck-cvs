@@ -174,6 +174,9 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     // e
     QUERY->add_svar( QUERY, "float", "e", TRUE, &g_e );
 
+    // done
+    QUERY->end_class( QUERY );
+
     return TRUE;
 }
 

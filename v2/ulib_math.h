@@ -39,34 +39,34 @@
 DLL_QUERY libmath_query( Chuck_DL_Query * QUERY );
 
 // impl
-CK_DLL_FUNC( sin_impl );
-CK_DLL_FUNC( cos_impl );
-CK_DLL_FUNC( tan_impl );
-CK_DLL_FUNC( cot_impl );
-CK_DLL_FUNC( asin_impl );
-CK_DLL_FUNC( acos_impl );
-CK_DLL_FUNC( atan_impl );
-CK_DLL_FUNC( atan2_impl );
-CK_DLL_FUNC( sinh_impl );
-CK_DLL_FUNC( cosh_impl );
-CK_DLL_FUNC( tanh_impl );
-CK_DLL_FUNC( hypot_impl );
+CK_DLL_SFUN( sin_impl );
+CK_DLL_SFUN( cos_impl );
+CK_DLL_SFUN( tan_impl );
+CK_DLL_SFUN( cot_impl );
+CK_DLL_SFUN( asin_impl );
+CK_DLL_SFUN( acos_impl );
+CK_DLL_SFUN( atan_impl );
+CK_DLL_SFUN( atan2_impl );
+CK_DLL_SFUN( sinh_impl );
+CK_DLL_SFUN( cosh_impl );
+CK_DLL_SFUN( tanh_impl );
+CK_DLL_SFUN( hypot_impl );
 
-CK_DLL_FUNC( pow_impl );
-CK_DLL_FUNC( sqrt_impl );
-CK_DLL_FUNC( exp_impl );
-CK_DLL_FUNC( log_impl );
-CK_DLL_FUNC( log2_impl );
-CK_DLL_FUNC( log10_impl );
-CK_DLL_FUNC( floor_impl );
-CK_DLL_FUNC( ceil_impl );
-CK_DLL_FUNC( round_impl );
-CK_DLL_FUNC( trunc_impl );
-CK_DLL_FUNC( fmod_impl );
-CK_DLL_FUNC( remainder_impl );
-CK_DLL_FUNC( min_impl );
-CK_DLL_FUNC( max_impl );
+CK_DLL_SFUN( pow_impl );
+CK_DLL_SFUN( sqrt_impl );
+CK_DLL_SFUN( exp_impl );
+CK_DLL_SFUN( log_impl );
+CK_DLL_SFUN( log2_impl );
+CK_DLL_SFUN( log10_impl );
+CK_DLL_SFUN( floor_impl );
+CK_DLL_SFUN( ceil_impl );
+CK_DLL_SFUN( round_impl );
+CK_DLL_SFUN( trunc_impl );
+CK_DLL_SFUN( fmod_impl );
+CK_DLL_SFUN( remainder_impl );
+CK_DLL_SFUN( min_impl );
+CK_DLL_SFUN( max_impl );
 
-CK_DLL_FUNC( nextpow2_impl );
+CK_DLL_SFUN( nextpow2_impl );
 
 #endif
