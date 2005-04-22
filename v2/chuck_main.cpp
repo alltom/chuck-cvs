@@ -43,14 +43,14 @@
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
 
-#include "ugen_osc.h"
-#include "ugen_xxx.h"
-#include "ugen_filter.h"
-#include "ugen_stk.h"
-#include "ulib_machine.h"
-#include "ulib_math.h"
-#include "ulib_net.h"
-#include "ulib_std.h"
+//#include "ugen_osc.h"
+//#include "ugen_xxx.h"
+//#include "ugen_filter.h"
+//#include "ugen_stk.h"
+//#include "ulib_machine.h"
+//#include "ulib_math.h"
+//#include "ulib_net.h"
+//#include "ulib_std.h"
 
 #include <signal.h>
 #ifndef __PLATFORM_WIN32__

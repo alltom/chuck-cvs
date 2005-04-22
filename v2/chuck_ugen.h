@@ -75,6 +75,7 @@ protected:
 
 public:
     f_tick tick;
+    f_pmsg pmsg;
 
 public: // data
     std::vector<Chuck_UGen *> m_src_list;

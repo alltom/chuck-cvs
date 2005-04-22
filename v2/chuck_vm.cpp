@@ -138,9 +138,9 @@ Chuck_VM::~Chuck_VM()
 
 
 // dac tick
-UGEN_TICK __dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out ) 
+UGEN_TICK __dac_tick( Chuck_UGen * ugen, SAMPLE in, SAMPLE * out ) 
 { *out = in; return TRUE; }
-UGEN_TICK __bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+UGEN_TICK __bunghole_tick( Chuck_UGen * ugen, SAMPLE in, SAMPLE * out )
 { *out = 0.0f; return TRUE; }
 
 
