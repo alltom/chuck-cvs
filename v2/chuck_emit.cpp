@@ -2410,7 +2410,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
         if( isfunc( member->self->type ) )
         {
             // get the func
-            func = t_base->info->lookup_func( member->id, FALSE );
+            value = type_engine_find_value( t_base, member->id );
+            func = value->func_ref;
             // make sure it's there
             assert( func != NULL );
 

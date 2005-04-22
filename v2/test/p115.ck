@@ -23,8 +23,6 @@ b @=> Top @ b2t;
 
 <<<"Top Class">>>;
 <<<t.topValue()>>>;
-<<<t.bottomValue()>>>; //error!
 
 <<<"Bottom Cast to Top">>>;
 <<<b2t.topValue()>>>;
-<<<b2t.bottomValue()>>>; //error!
