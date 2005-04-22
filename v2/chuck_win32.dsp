@@ -167,6 +167,18 @@ SOURCE=.\rtaudio.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ulib_machine.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ulib_math.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ulib_std.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\util_buffers.cpp
 # End Source File
 # Begin Source File
