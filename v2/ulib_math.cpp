@@ -43,175 +43,178 @@ static double g_e = ::exp( 1.0 );
 DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 {
     // name
-    QUERY->set_name( QUERY, "math" );
+    QUERY->setname( QUERY, "math" );
 
-   /*! \example
-     math.sin( math.pi /2.0 ) => stdout;
-   */    
+    /*! \example
+    math.sin( math.pi /2.0 ) => stdout;
+    */
+
+    // add class
+    QUERY->begin_class( QUERY, "Math", "Object" );
     
     // sin
     //! see \example math.ck
-    QUERY->add_export( QUERY, "float", "sin", sin_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, sin_impl, "float", "sin" );
+    QUERY->add_arg( QUERY, "float", "x" );
     
     // cos
-    QUERY->add_export( QUERY, "float", "cos", cos_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, cos_impl, "float", "cos" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // tan
-    QUERY->add_export( QUERY, "float", "tan", tan_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, tan_impl, "float", "tan" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // asin
-    QUERY->add_export( QUERY, "float", "asin", asin_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, asin_impl, "float", "asin" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // acos
-    QUERY->add_export( QUERY, "float", "acos", acos_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, acos_impl, "float", "acos" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // atan
-    QUERY->add_export( QUERY, "float", "atan", atan_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, atan_impl, "float", "atan" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // atan2
-    QUERY->add_export( QUERY, "float", "atan2", atan2_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, atan2_impl, "float", "atan2" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // sinh
-    QUERY->add_export( QUERY, "float", "sinh", sinh_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, sinh_impl, "float", "sinh" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // cosh
-    QUERY->add_export( QUERY, "float", "cosh", cosh_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, cosh_impl, "float", "cosh" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // tanh
-    QUERY->add_export( QUERY, "float", "tanh", tanh_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, tanh_impl, "float", "tanh" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // hypot
-    QUERY->add_export( QUERY, "float", "hypot", hypot_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
-    QUERY->add_param( QUERY, "float", "y" );
+    QUERY->add_sfun( QUERY, hypot_impl, "float", "hypot" );
+    QUERY->add_arg( QUERY, "float", "x" );
+    QUERY->add_arg( QUERY, "float", "y" );
 
     // pow
-    QUERY->add_export( QUERY, "float", "pow", pow_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
-    QUERY->add_param( QUERY, "float", "y" );
+    QUERY->add_sfun( QUERY, pow_impl, "float", "pow" );
+    QUERY->add_arg( QUERY, "float", "x" );
+    QUERY->add_arg( QUERY, "float", "y" );
 
     // sqrt
-    QUERY->add_export( QUERY, "float", "sqrt", sqrt_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, sqrt_impl, "float", "sqrt" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // exp
-    QUERY->add_export( QUERY, "float", "exp", exp_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, exp_impl, "float", "exp" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // log
-    QUERY->add_export( QUERY, "float", "log", log_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, log_impl, "float", "log" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // log2
-    QUERY->add_export( QUERY, "float", "log2", log2_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, log2_impl, "float", "log2" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // log10
-    QUERY->add_export( QUERY, "float", "log10", log10_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, log10_impl, "float", "log10" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // floor
-    QUERY->add_export( QUERY, "float", "floor", floor_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, floor_impl, "float", "floor" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // ceil
-    QUERY->add_export( QUERY, "float", "ceil", ceil_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, ceil_impl, "float", "ceil" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // round
-    QUERY->add_export( QUERY, "float", "round", round_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, round_impl, "float", "round" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // trunc
-    QUERY->add_export( QUERY, "float", "trunc", trunc_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
+    QUERY->add_sfun( QUERY, trunc_impl, "float", "trunc" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // fmod
-    QUERY->add_export( QUERY, "float", "fmod", fmod_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
-    QUERY->add_param( QUERY, "float", "y" );
+    QUERY->add_sfun( QUERY, fmod_impl, "float", "fmod" );
+    QUERY->add_arg( QUERY, "float", "x" );
+    QUERY->add_arg( QUERY, "float", "y" );
 
     // remainder
-    QUERY->add_export( QUERY, "float", "remainder", remainder_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
-    QUERY->add_param( QUERY, "float", "y" );
+    QUERY->add_sfun( QUERY, remainder_impl, "float", "remainder" );
+    QUERY->add_arg( QUERY, "float", "x" );
+    QUERY->add_arg( QUERY, "float", "y" );
 
     // min
-    QUERY->add_export( QUERY, "float", "min", min_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
-    QUERY->add_param( QUERY, "float", "y" );
+    QUERY->add_sfun( QUERY, min_impl, "float", "min" );
+    QUERY->add_arg( QUERY, "float", "x" );
+    QUERY->add_arg( QUERY, "float", "y" );
 
     // max
     //! see \example powerup.ck
-    QUERY->add_export( QUERY, "float", "max", max_impl, TRUE );
-    QUERY->add_param( QUERY, "float", "x" );
-    QUERY->add_param( QUERY, "float", "y" );
+    QUERY->add_sfun( QUERY, max_impl, "float", "max" );
+    QUERY->add_arg( QUERY, "float", "x" );
+    QUERY->add_arg( QUERY, "float", "y" );
 
     // nextpow2
-    QUERY->add_export( QUERY, "int", "nextpow2", nextpow2_impl, TRUE );
-    QUERY->add_param( QUERY, "int", "n" );
+    QUERY->add_sfun( QUERY, nextpow2_impl, "int", "nextpow2" );
+    QUERY->add_arg( QUERY, "int", "n" );
 
     // pi
     //! see \example math.ck
-    QUERY->add_export( QUERY, "float", "pi", (f_ck_func)&g_pi, FALSE );
+    QUERY->add_svar( QUERY, "float", "pi", TRUE, &g_pi );
 
     // twopi
-    QUERY->add_export( QUERY, "float", "twopi", (f_ck_func)&g_twopi, FALSE );
+    QUERY->add_svar( QUERY, "float", "twopi", TRUE, &g_twopi );
 
     // e
-    QUERY->add_export( QUERY, "float", "e", (f_ck_func)&g_e, FALSE );
+    QUERY->add_svar( QUERY, "float", "e", TRUE, &g_e );
 
     return TRUE;
 }
 
 // sin
-CK_DLL_FUNC( sin_impl )
+CK_DLL_SFUN( sin_impl )
 {
     RETURN->v_float = ::sin( GET_CK_FLOAT(ARGS) );
 }
 
 // cos
-CK_DLL_FUNC( cos_impl )
+CK_DLL_SFUN( cos_impl )
 {
     RETURN->v_float = ::cos( GET_CK_FLOAT(ARGS) );
 }
 
 // tan
-CK_DLL_FUNC( tan_impl )
+CK_DLL_SFUN( tan_impl )
 {
     RETURN->v_float = ::tan( GET_CK_FLOAT(ARGS) );
 }
 
 // asin
-CK_DLL_FUNC( asin_impl )
+CK_DLL_SFUN( asin_impl )
 {
     RETURN->v_float = ::asin( GET_CK_FLOAT(ARGS) );
 }
 
 // acos
-CK_DLL_FUNC( acos_impl )
+CK_DLL_SFUN( acos_impl )
 {
     RETURN->v_float = ::acos( GET_CK_FLOAT(ARGS) );
 }
 
 // atan
-CK_DLL_FUNC( atan_impl )
+CK_DLL_SFUN( atan_impl )
 {
     RETURN->v_float = ::atan( GET_CK_FLOAT(ARGS) );
 }
 
 // atan2
-CK_DLL_FUNC( atan2_impl )
+CK_DLL_SFUN( atan2_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1 );
@@ -219,25 +222,25 @@ CK_DLL_FUNC( atan2_impl )
 }
 
 // sinh
-CK_DLL_FUNC( sinh_impl )
+CK_DLL_SFUN( sinh_impl )
 {
     RETURN->v_float = ::sinh( GET_CK_FLOAT(ARGS) );
 }
 
 // cosh
-CK_DLL_FUNC( cosh_impl )
+CK_DLL_SFUN( cosh_impl )
 {
     RETURN->v_float = ::cosh( GET_CK_FLOAT(ARGS) );
 }
 
 // tanh
-CK_DLL_FUNC( tanh_impl )
+CK_DLL_SFUN( tanh_impl )
 {
     RETURN->v_float = ::tanh( GET_CK_FLOAT(ARGS) );
 }
 
 // hypot
-CK_DLL_FUNC( hypot_impl )
+CK_DLL_SFUN( hypot_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
@@ -245,7 +248,7 @@ CK_DLL_FUNC( hypot_impl )
 }
 
 // pow
-CK_DLL_FUNC( pow_impl )
+CK_DLL_SFUN( pow_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
@@ -253,61 +256,61 @@ CK_DLL_FUNC( pow_impl )
 }
 
 // sqrt
-CK_DLL_FUNC( sqrt_impl )
+CK_DLL_SFUN( sqrt_impl )
 {
     RETURN->v_float = ::sqrt( GET_CK_FLOAT(ARGS) );
 }
 
 // exp
-CK_DLL_FUNC( exp_impl )
+CK_DLL_SFUN( exp_impl )
 {
     RETURN->v_float = ::exp( GET_CK_FLOAT(ARGS) );
 }
 
 // log
-CK_DLL_FUNC( log_impl )
+CK_DLL_SFUN( log_impl )
 {
     RETURN->v_float = ::log( GET_CK_FLOAT(ARGS) );
 }
 
 // log2
-CK_DLL_FUNC( log2_impl )
+CK_DLL_SFUN( log2_impl )
 {
     RETURN->v_float = ::log( GET_CK_FLOAT(ARGS) )/::log( 2.0 );
 }
 
 // log10
-CK_DLL_FUNC( log10_impl )
+CK_DLL_SFUN( log10_impl )
 {
     RETURN->v_float = ::log10( GET_CK_FLOAT(ARGS) );
 }
 
 // floor
-CK_DLL_FUNC( floor_impl )
+CK_DLL_SFUN( floor_impl )
 {
     RETURN->v_float = ::floor( GET_CK_FLOAT(ARGS) );
 }
 
 // ceil
-CK_DLL_FUNC( ceil_impl )
+CK_DLL_SFUN( ceil_impl )
 {
     RETURN->v_float = ::ceil( GET_CK_FLOAT(ARGS) );
 }
 
 // round
-CK_DLL_FUNC( round_impl )
+CK_DLL_SFUN( round_impl )
 {
     RETURN->v_float = round( GET_CK_FLOAT(ARGS) );
 }
 
 // trunc
-CK_DLL_FUNC( trunc_impl )
+CK_DLL_SFUN( trunc_impl )
 {
     RETURN->v_float = trunc( GET_CK_FLOAT(ARGS) );
 }
 
 // fmod
-CK_DLL_FUNC( fmod_impl )
+CK_DLL_SFUN( fmod_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
@@ -315,7 +318,7 @@ CK_DLL_FUNC( fmod_impl )
 }
 
 // remainder
-CK_DLL_FUNC( remainder_impl )
+CK_DLL_SFUN( remainder_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
@@ -323,7 +326,7 @@ CK_DLL_FUNC( remainder_impl )
 }
 
 // min
-CK_DLL_FUNC( min_impl )
+CK_DLL_SFUN( min_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
@@ -331,7 +334,7 @@ CK_DLL_FUNC( min_impl )
 }
 
 // max
-CK_DLL_FUNC( max_impl )
+CK_DLL_SFUN( max_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
@@ -339,7 +342,7 @@ CK_DLL_FUNC( max_impl )
 }
 
 // nextpow2 - thanks to Niklas Werner, via music-dsp
-CK_DLL_FUNC( nextpow2_impl )
+CK_DLL_SFUN( nextpow2_impl )
 {
     t_CKINT x = GET_CK_INT(ARGS);
     t_CKINT xx = x;
