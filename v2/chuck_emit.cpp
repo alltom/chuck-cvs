@@ -2398,8 +2398,6 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
     //               to get the actual type use actual_type
     t_base = base_static ? member->t_base->actual_type : member->t_base;
 
-    // emit the base
-    emit_engine_emit_exp( emit, member->base );
     // make sure that the base type is object
     assert( t_base->info != NULL );
 
@@ -2418,6 +2416,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             // is the func static?
             if( func->is_member )
             {
+                // emit the base
+                emit_engine_emit_exp( emit, member->base );
                 // dup the base pointer
                 emit->append( new Chuck_Instr_Reg_Dup_Last );
                 // find the offset for virtual table
@@ -2427,6 +2427,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             }
             else
             {
+                // emit the type
+                emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
                 // emit the static function
                 emit->append( new Chuck_Instr_Dot_Static_Func( func ) );
             }
@@ -2441,13 +2443,29 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
 
             // find the offset for data
             offset = value->offset;
-            // lookup the member
-            emit->append( new Chuck_Instr_Dot_Member_Data( 
-                offset, member->self->type->size, emit_addr ) );
+
+            // is the value static?
+            if( value->is_member )
+            {
+                // lookup the member
+                emit->append( new Chuck_Instr_Dot_Member_Data( 
+                    offset, member->self->type->size, emit_addr ) );
+            }
+            else
+            {
+                // emit the type
+                emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
+                // emit the static value
+                emit->append( new Chuck_Instr_Dot_Static_Data(
+                    offset, member->self->type->size, emit_addr ) );
+            }
         }
     }
     else // static
     {
+        // emit the type
+        emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
+
         // if is a func
         if( isfunc( member->self->type ) )
         {

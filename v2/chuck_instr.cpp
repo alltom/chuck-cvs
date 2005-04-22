@@ -2706,7 +2706,7 @@ void Chuck_Instr_Dot_Static_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     pop_( sp, 1 );
     
     // push the address
-    push_( sp, (t_CKUINT)(m_func->code) );
+    push_( sp, (t_CKUINT)(m_func) );
 }
 
 
