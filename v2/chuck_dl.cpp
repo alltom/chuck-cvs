@@ -28,16 +28,347 @@
 //
 // authors: Ge Wang (gewang@cs.princeton.edu)
 //          Perry R. Cook (prc@cs.princeton.edu)
-// mac code from apple
+// mac os code based on apple's open source
 //
-// date: spring 2004
+// date: spring 2004 - 1.1
+//       spring 2005 - 1.2
 //-----------------------------------------------------------------------------
-#include "chuck_dl.h"
-#ifndef __CKDL_NO_BBQ__
-#include "chuck_bbq.h"
-#endif
+#include "chuck_dl_new.h"
+#include "chuck_errmsg.h"
+#include "digiio_rtaudio.h"
 using namespace std;
 
+
+//-----------------------------------------------------------------------------
+// internal implementation of query functions
+//-----------------------------------------------------------------------------
+
+
+//-----------------------------------------------------------------------------
+// name: ck_setname()
+// desc: set the name of the module
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_setname( Chuck_DL_Query * query, const char * name )
+{
+    // set the name
+    query->dll_name = name;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_begin_class()
+// desc: begin class/namespace, can be nexted
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_begin_class( Chuck_DL_Query * query, const char * name, const char * parent )
+{
+    // push
+    query->stack.push_back( query->curr_class );
+    // allocate
+    Chuck_DL_Class * c = new Chuck_DL_Class;
+
+    // add class
+    if( query->curr_class )
+        // recursive
+        query->curr_class->classes.push_back( c );
+    else
+        // first level
+        query->classes.push_back( c );
+
+    // curr
+    query->curr_class = c;
+    query->curr_func = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_ctor()
+// desc: add constructor, can be followed by add_arg
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_ctor( Chuck_DL_Query * query, f_ctor ctor )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_ctor invoked without begin_class..." );
+        return;
+    }
+
+    // allocate
+    Chuck_DL_Func * f = new Chuck_DL_Func;
+    f->name = "[ctor]";
+    f->type = "void";
+    f->ctor = ctor;
+    
+    // add
+    query->curr_class->ctors.push_back( f );
+    query->curr_func = f;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_dtor()
+// add destructor, no args allowed
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_dtor( Chuck_DL_Query * query, f_dtor dtor )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_dtor invoked without begin_class..." );
+        return;
+    }
+
+    // make sure there are no duplicates
+    if( query->curr_class->dtor )
+    {
+        // error
+        EM_error2( 0, "class import: multiple dtor added ..." );
+        return;
+    }
+
+    // allocate
+    Chuck_DL_Func * f = new Chuck_DL_Func;
+    f->name = "[dtor]";
+    f->type = "void";
+    f->dtor = dtor;
+    
+    // add
+    query->curr_class->dtor = f;
+    // set
+    query->curr_func = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_mfun()
+// desc: add member function, can be followed by add_arg
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_mfun( Chuck_DL_Query * query, f_mfun addr, 
+                              const char * type, const char * name )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_mfun invoked without begin_class..." );
+        return;
+    }
+
+    // allocate
+    Chuck_DL_Func * f = new Chuck_DL_Func;
+    f->name = name;
+    f->type = type;
+    f->mfun = addr;
+    
+    // add
+    query->curr_class->mfuns.push_back( f );
+    query->curr_func = f;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_sfun()
+// desc: add static function, can be followed by add_arg
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_sfun( Chuck_DL_Query * query, f_sfun addr,
+                              const char * type, const char * name )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_sfun invoked without begin_class..." );
+        return;
+    }
+
+    // allocate
+    Chuck_DL_Func * f = new Chuck_DL_Func;
+    f->name = name;
+    f->type = type;
+    f->sfun = addr;
+    
+    // add
+    query->curr_class->sfuns.push_back( f );
+    query->curr_func = f;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_mvar()
+// desc: add member var
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_mvar( Chuck_DL_Query * query, const char * type, const char * name,
+                              t_CKBOOL is_const )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_mvar invoked without begin_class..." );
+        return;
+    }
+
+    // allocate
+    Chuck_DL_Value * v = new Chuck_DL_Value;
+    v->name = name;
+    v->type = type;
+    v->is_const = is_const;
+
+    // add
+    query->curr_class->mvars.push_back( v );
+    query->curr_func = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_svar()
+// desc: add static var
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_svar( Chuck_DL_Query * query, const char * type, const char * name,
+                              t_CKBOOL is_const, void * addr )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_svar invoked without begin_class..." );
+        return;
+    }
+
+    // allocate
+    Chuck_DL_Value * v = new Chuck_DL_Value;
+    v->name = name;
+    v->type = type;
+    v->is_const = is_const;
+    v->static_addr = addr;
+    
+    // add
+    query->curr_class->mvars.push_back( v );
+    query->curr_func = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_arg()
+// desc: add argument to function
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_arg( Chuck_DL_Query * query, const char * type, const char * name )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_arg invoked without begin_class..." );
+        return;
+    }
+    
+    // make sure there is function
+    if( !query->curr_func )
+    {
+        // error
+        EM_error2( 0, "class import: add_arg can only follow 'ctor', 'mfun', 'sfun', 'arg'..." );
+        return;
+    }
+    
+    // allocate
+    Chuck_DL_Value * v = new Chuck_DL_Value;
+    v->name = name;
+    v->type = type;
+    
+    // add
+    query->curr_func->args.push_back( v );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_ugen_func()
+// desc: (ugen only) add tick and pmsg functions
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_ugen_func( Chuck_DL_Query * query, f_tick ugen_tick, f_pmsg ugen_pmsg )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_ugen_func invoked without begin_class..." );
+        return;
+    }
+    
+    // make sure tick not defined already
+    if( query->curr_class->ugen_tick && ugen_tick )
+    {
+        // error
+        EM_error2( 0, "class import: ugen_tick already defined..." );
+        return;
+    }
+    
+    // make sure pmsg not defined already
+    if( query->curr_class->ugen_pmsg && ugen_pmsg )
+    {
+        // error
+        EM_error2( 0, "class import: ugen_pmsg already defined..." );
+        return;
+    }
+    
+    // set
+    if( ugen_tick ) query->curr_class->ugen_tick = ugen_tick;
+    if( ugen_pmsg ) query->curr_class->ugen_pmsg = ugen_pmsg;
+    query->curr_func = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_add_ugen_ctrl()
+// desc: (ugen only) add ctrl parameters
+//-----------------------------------------------------------------------------
+void CK_DLL_CALL ck_add_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ugen_ctrl, f_cget ugen_cget,
+                                   const char * type, const char * name )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: add_ugen_func invoked without begin_class..." );
+        return;
+    }
+    
+    // allocate
+    Chuck_DL_Ctrl * c = new Chuck_DL_Ctrl;
+    c->name = name;
+    c->type = type;
+    c->ctrl = ugen_ctrl;
+    c->cget = ugen_cget;
+    
+    // set
+    query->curr_func = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ck_end_class()
+// desc: end class/namespace, compile it
+//-----------------------------------------------------------------------------
+t_CKBOOL CK_DLL_CALL ck_end_class( Chuck_DL_Query * query )
+{
+    // make sure there is class
+    if( !query->curr_class )
+    {
+        // error
+        EM_error2( 0, "class import: end_class invoked without begin_class..." );
+        return FALSE;
+    }
+    
+    // type check the class?
+    
+    // pop
+    assert( query->stack.size() );
+    query->curr_class = query->stack.back();
+    query->stack.pop_back();
+    
+    return TRUE;
+}
 
 
 //-----------------------------------------------------------------------------
@@ -132,7 +463,7 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     }
 
     // get the address of the attach function from the DLL
-    if( !m_attach_func )
+    /* if( !m_attach_func )
         m_attach_func = (f_ck_attach)this->get_addr( "ck_attach" );
     if( !m_attach_func )
         m_attach_func = (f_ck_attach)this->get_addr( "_ck_attach" );
@@ -141,7 +472,7 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     if( !m_detach_func )
         m_detach_func = (f_ck_detach)this->get_addr( "ck_detach" );
     if( !m_detach_func )
-        m_detach_func = (f_ck_detach)this->get_addr( "_ck_detach" );
+        m_detach_func = (f_ck_detach)this->get_addr( "_ck_detach" ); */
 
     // do the query
     m_query.clear();
@@ -153,7 +484,7 @@ const Chuck_DL_Query * Chuck_DLL::query( )
     }
     
     // load the proto table
-    Chuck_DL_Proto * proto;
+    /* Chuck_DL_Proto * proto;
     m_name2proto.clear();
     for( t_CKUINT i = 0; i < m_query.dll_exports.size(); i++ )
     {
@@ -194,12 +525,12 @@ const Chuck_DL_Query * Chuck_DLL::query( )
         
         // put in the lookup table
         m_name2ugen[info->name] = info;
-    }
+    }*/
 
     m_done_query = TRUE;
     
     // call attach
-    if( m_attach_func ) m_attach_func( 0, NULL );
+    // if( m_attach_func ) m_attach_func( 0, NULL );
 
     return &m_query;
 }
@@ -219,7 +550,7 @@ t_CKBOOL Chuck_DLL::unload()
         return FALSE;
     }
 
-    if( m_detach_func ) m_detach_func( 0, NULL );
+    // if( m_detach_func ) m_detach_func( 0, NULL );
 
     if( m_handle )
     {
@@ -254,33 +585,6 @@ void * Chuck_DLL::get_addr( const char * symbol )
 
 
 //-----------------------------------------------------------------------------
-// name: proto()
-// desc: ...
-//-----------------------------------------------------------------------------
-const Chuck_DL_Proto * Chuck_DLL::proto( const char * symbol )
-{
-    if( !m_handle && !m_query_func )
-    {
-        m_last_error = "cannot find proto from dynamic library - nothing open...";
-        return NULL;
-    }
-
-    // get the proto from the hash
-    Chuck_DL_Proto * proto = m_name2proto[symbol];
-    if( !proto )
-    {
-        m_last_error = string("no prototype function '") + string(symbol)
-                       + string("' found");
-        return NULL;
-    }
-    
-    return proto;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: last_error()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -297,73 +601,80 @@ const char * Chuck_DLL::last_error() const
 // desc: ...
 //-----------------------------------------------------------------------------
 Chuck_DL_Query::Chuck_DL_Query( )
-{ add_export = __ck_addexport; add_param = __ck_addparam;
-  ugen_add = __ck_ugen_add; ugen_func = __ck_ugen_func;
-  ugen_ctrl = __ck_ugen_ctrl; set_name = __ck_setname;
-  ugen_extends = __ck_ugen_extends;  // XXX - pld
-  dll_name = "[noname]"; reserved = NULL;
+{
+    // set the pointers to functions so the module can call
+    begin_class = ck_begin_class;
+    add_ctor = ck_add_ctor;
+    add_dtor = ck_add_dtor;
+    add_mfun = ck_add_mfun;
+    add_sfun = ck_add_sfun;
+    add_mvar = ck_add_mvar;
+    add_svar = ck_add_svar;
+    add_arg = ck_add_arg;
+    add_ugen_func = ck_add_ugen_func;
+    add_ugen_ctrl = ck_add_ugen_ctrl;
+    end_class = ck_end_class;
+    dll_name = "[noname]";
+    reserved = NULL;
+    curr_class = NULL;
+    curr_func = NULL;
   
 #ifndef __CKDL_NO_BBQ__
-  srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
+    srate = Digitalio::sampling_rate() ; bufsize = Digitalio::buffer_size();
 #else
-  srate = 0; bufsize = 0;
+    srate = 0; bufsize = 0;
 #endif
 
-  linepos = 0;
+    linepos = 0;
 }
 
 
-
-
-// add proto
-extern "C" void CK_DLL_CALL __ck_addexport( Chuck_DL_Query * query, 
-           const char * type, const char * name, f_ck_func addr,
-           t_CKBOOL is_func )
-{ query->dll_exports.push_back( Chuck_DL_Proto( type, name, (void *)addr, is_func ) ); }
-
-// add param
-extern "C" void CK_DLL_CALL __ck_addparam( Chuck_DL_Query * query,
-           const char * type, const char * name )
-{ if( query->dll_exports.size() ) 
-    query->dll_exports[query->dll_exports.size()-1].add_param( type, name ); }
-
-// add ugen
-extern "C" void CK_DLL_CALL __ck_ugen_add( Chuck_DL_Query * query,
-           const char * name, void * reserved )
-{ query->ugen_exports.push_back( Chuck_UGen_Info( name ) );
-  query->reserved = reserved; }
-
-// set funcs
-extern "C" void CK_DLL_CALL __ck_ugen_func( Chuck_DL_Query * query,
-           f_ctor c, f_dtor d, f_tick t, f_pmsg p )
-{ if( query->ugen_exports.size() )
-    query->ugen_exports[query->ugen_exports.size()-1].set( c, d, t, p ); }
-
-// add ctrl
-extern "C" void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query,
-           f_ctrl c, f_cget g, const char * t, const char * n )
-{ if( query->ugen_exports.size() )
-    query->ugen_exports[query->ugen_exports.size()-1].add( c, g, t, n ); }
-
-//XXX - pld  inherit functions from 'parent' ugen
-extern "C" void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query,
-           const char * parent )
+//-----------------------------------------------------------------------------
+// name: clear()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_DL_Query::clear()
 {
-    if( query->ugen_exports.size() > 1 )
-        for( t_CKINT i= 0 ; i < query->ugen_exports.size() - 1 ; i++ )
-            if( strcmp ( parent, query->ugen_exports[i].name.c_str() ) == 0 )
-            {
-                query->ugen_exports[query->ugen_exports.size()-1].inherit( 
-                    &(query->ugen_exports[i]) );
-                return;					     
-            }
+    // set to 0
+    dll_name = "[noname]";
+    // line pos
+    linepos = 0;
+    // delete classes
+    for( t_CKINT i = 0; i < classes.size(); i++ ) delete classes[i];
 }
 
 
-// set name
-extern "C" void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query,
-           const char * name )
-{ query->dll_name = name; }
+//-----------------------------------------------------------------------------
+// name: ~Chuck_DL_Class()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_DL_Class::~Chuck_DL_Class()
+{
+    t_CKINT i;
+
+    // delete mfuns
+    for( i = 0; i < mfuns.size(); i++ ) delete mfuns[i];
+    // delete sfuns
+    for( i = 0; i < sfuns.size(); i++ ) delete sfuns[i];
+    // delete mvars
+    for( i = 0; i < mvars.size(); i++ ) delete mvars[i];
+    // delete svars
+    for( i = 0; i < svars.size(); i++ ) delete svars[i];
+    // delete classes
+    for( i = 0; i < classes.size(); i++ ) delete classes[i];
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_DL_Func()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_DL_Func::~Chuck_DL_Func()
+{
+    for( t_CKINT i = 0; i < args.size(); i++ )
+        delete args[i];
+}
+
 
 // windows
 #if defined(__WINDOWS_DS__)
@@ -893,7 +1204,5 @@ void * handle)
 }
 
 #else
-
-// do nothing, it's all in dlfcn
-
+    // do nothing, it's all in dlfcn
 #endif

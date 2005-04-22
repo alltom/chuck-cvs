@@ -30,100 +30,31 @@
 //          Perry R. Cook (prc@cs.princeton.edu)
 // mac os code based on apple's open source
 //
-// date: spring 2004
+// date: spring 2004 - 1.1
+//       spring 2005 - 1.2
 //-----------------------------------------------------------------------------
 #ifndef __CHUCK_DL_H__
 #define __CHUCK_DL_H__
 
 #include "chuck_def.h"
 #include "chuck_oo.h"
-#include "chuck_ugen.h"
 #include <string>
 #include <vector>
 #include <map>
 
 
-// chuck dll export linkage and calling convention
-
-#if defined (__PLATFORM_WIN32__) 
-#define CK_DLL_LINKAGE       extern "C" __declspec( dllexport )
-#else
-#define CK_DLL_LINKAGE       extern "C" 
-#endif 
-
-#if defined(__WINDOWS_DS__)
-#define CK_DLL_CALL          _cdecl
-#else
-#define CK_DLL_CALL
-#endif
-
-// macro for defining ChucK DLL export functions
-// example: CK_DLL_EXPORT(int) foo() { return 1; }
-#define CK_DLL_EXPORT(type)  CK_DLL_LINKAGE type CK_DLL_CALL
-// macro for defining ChucK DLL export query-functions
-// example: CK_DLL_QUERY
-#define CK_DLL_QUERY CK_DLL_EXPORT(t_CKBOOL) ck_query( Chuck_DL_Query * QUERY )
-// macro for defining ChucK DLL export functions
-// example: CK_DLL_FUNC(foo)
-#define CK_DLL_FUNC(name) CK_DLL_EXPORT(void) name( void * ARGS, Chuck_DL_Return * RETURN )
-
-// macros for DLL exports
-// example: DLL_QUERY query( Chuck_DL_Query * QUERY )
-// example: DLL_FUNC  foo( void * ARGS, Chuck_DL_Return * RETURN )
-#define DLL_QUERY CK_DLL_EXPORT(t_CKBOOL)
-#define DLL_FUNC CK_DLL_EXPORT(void)
-
-// macros for unit generator export functions
-// example: UGEN_CTOR foo_ctor( t_CKTIME now )
-// example: UGEN_DTOR foo_dtor( t_CKTIME now, void * data )
-// example: UGEN_TICK foo_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-// example: UGEN_CTRL foo_ctrl_a( t_CKTIME now, void * data, void * value )
-// example: UGEN_CGET foo_cget_a( t_CKTIME now, void * data, void * out )
-// example: UGEN_PMSG foo_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
-#define UGEN_CTOR CK_DLL_EXPORT(void *)
-#define UGEN_DTOR CK_DLL_EXPORT(void)
-#define UGEN_TICK CK_DLL_EXPORT(t_CKBOOL)
-#define UGEN_CTRL CK_DLL_EXPORT(void)
-#define UGEN_CGET CK_DLL_EXPORT(void)
-#define UGEN_PMSG CK_DLL_EXPORT(t_CKBOOL)
-
-
-// forward reference
+// forward references
 struct Chuck_DL_Query;
-struct Chuck_DL_Proto;
+struct Chuck_DL_Class;
+struct Chuck_DL_Func;
+struct Chuck_DL_Value;
+struct Chuck_DL_Ctrl;
 union  Chuck_DL_Return;
+struct Chuck_DLL;
+struct Chuck_UGen;
 
-// chuck DLL interface
-#define CK_QUERY_FUNC        "ck_query"
-typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
-typedef void ( CK_DLL_CALL * f_ck_func)( void * ARGS, Chuck_DL_Return * RETURN );
-typedef void ( CK_DLL_CALL * f_ck_attach)( t_CKUINT type, void * data );
-typedef void ( CK_DLL_CALL * f_ck_detach)( t_CKUINT type, void * data );
 
-// chuck DLL query
-typedef void ( CK_DLL_CALL * f_ck_addexport)( Chuck_DL_Query * query, const char * type, const char * name, f_ck_func addr, t_CKBOOL is_func );
-typedef void ( CK_DLL_CALL * f_ck_addparam)( Chuck_DL_Query * query, const char * type, const char * name );
-// functions for adding unit generators
-typedef void ( CK_DLL_CALL * f_ck_ugen_add)( Chuck_DL_Query * query, const char * name, void * reserved );
-typedef void ( CK_DLL_CALL * f_ck_ugen_extends)( Chuck_DL_Query * query, const char * parent ); //XXX - pld 
-typedef void ( CK_DLL_CALL * f_ck_ugen_func)( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
-typedef void ( CK_DLL_CALL * f_ck_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
-// set name
-typedef void ( CK_DLL_CALL * f_ck_setname)( Chuck_DL_Query * query, const char * name );
-
-// internal implementation header
-extern "C" {
-void CK_DLL_CALL __ck_addexport( Chuck_DL_Query * query, const char * type, const char * name, f_ck_func addr, t_CKBOOL is_func );
-void CK_DLL_CALL __ck_addparam( Chuck_DL_Query * query, const char * type, const char * name );
-void CK_DLL_CALL __ck_ugen_add( Chuck_DL_Query * query, const char * name, void * reserved );
-void CK_DLL_CALL __ck_ugen_extends( Chuck_DL_Query * query, const char * parent); //XXX - pld 
-void CK_DLL_CALL __ck_ugen_func( Chuck_DL_Query * query, f_ctor ctor, f_dtor dtor, f_tick tick, f_pmsg pmsg );
-void CK_DLL_CALL __ck_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, const char * type, const char * name );
-void CK_DLL_CALL __ck_ugen_inherit( Chuck_DL_Query * query, const char * parent );
-void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
-}
-
-// param conversion
+// param conversion - to extract values from ARGS to functions
 #define GET_CK_FLOAT(ptr)      (*(t_CKFLOAT *)ptr)
 #define GET_CK_SINGLE(ptr)     (*(float *)ptr)
 #define GET_CK_DOUBLE(ptr)     (*(double *)ptr)
@@ -164,69 +95,269 @@ void CK_DLL_CALL __ck_setname( Chuck_DL_Query * query, const char * name );
 #define SET_NEXT_STRING(ptr,v)   (*((char * *&)ptr)++=v)
 
 
+// chuck dll export linkage and calling convention
+#if defined (__PLATFORM_WIN32__) 
+  #define CK_DLL_LINKAGE extern "C" __declspec( dllexport )
+#else
+  #define CK_DLL_LINKAGE extern "C" 
+#endif 
+
+// calling convention of functions provided by chuck to the dll
+#if defined(__WINDOWS_DS__)
+  #define CK_DLL_CALL    _cdecl
+#else
+  #define CK_DLL_CALL
+#endif
+
+// macro for defining ChucK DLL export functions
+// example: CK_DLL_EXPORT(int) foo() { return 1; }
+#define CK_DLL_EXPORT(type) CK_DLL_LINKAGE type CK_DLL_CALL
+// macro for defining ChucK DLL export query-functions
+// example: CK_DLL_QUERY
+#define CK_DLL_QUERY CK_DLL_EXPORT(t_CKBOOL) ck_query( Chuck_DL_Query * QUERY )
+// macro for defining ChucK DLL export constructors
+// example: CK_DLL_CTOR(foo)
+#define CK_DLL_CTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS )
+// macro for defining ChucK DLL export destructors
+// example: CK_DLL_DTOR(foo)
+#define CK_DLL_DTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * self )
+// macro for defining ChucK DLL export member functions
+// example: CK_DLL_MFUN(foo)
+#define CK_DLL_MFUN(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN )
+// macro for defining ChucK DLL export static functions
+// example: CK_DLL_SFUN(foo)
+#define CK_DLL_SFUN(name) CK_DLL_EXPORT(void) name( void * ARGS, Chuck_DL_Return * RETURN )
+
+// macros for DLL exports
+// example: DLL_QUERY  query( Chuck_DL_Query * QUERY )
+// example: DLL_FUNC   foo( void * ARGS, Chuck_DL_Return * RETURN )
+// example: DLL_UGEN_F foo_tick( Chuck_UGen * self, SAMPLE, SAMPLE * out );
+#define DLL_QUERY   CK_DLL_EXPORT(t_CKBOOL)
+#define DLL_FUNC    CK_DLL_EXPORT(void)
+#define DLL_UGEN_F  CK_DLL_EXPORT(t_CKBOOL)
+
+
 //-----------------------------------------------------------------------------
-// name: struct Chuck_DL_Proto
-// desc: dynamic link proto
+// dynamic linking class interface prototypes
 //-----------------------------------------------------------------------------
-struct Chuck_DL_Proto
-{
-public: // these should not be used directly by the DLL
-    std::string name;       // name of the thing
-    std::string type;       // (return) type
-    t_CKBOOL is_func;  // is a func?
-    std::vector<Chuck_Info_Param> params;  // see Chuck_Info_Param in chuck_ugen.h
-    f_ck_func addr;    // addr in the DLL
-
-    // constructor
-    Chuck_DL_Proto( const char * t = "", const char * n = "", 
-                    void * a = NULL, t_CKBOOL f = TRUE )
-    { type = t; name = n; addr = (f_ck_func)a, is_func = f; }
-
-    // clear proto
-    void clear()
-    { type = ""; name = ""; addr = NULL; params.clear(); }
-
-    // add a param
-    void add_param( const char * t, const char * n )
-    { params.push_back( Chuck_Info_Param( t, n ) ); }
-};
+extern "C" {
+// query
+typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
+// object
+typedef t_CKVOID (CK_DLL_CALL * f_ctor)( Chuck_Object * self, void * ARGS );
+typedef t_CKVOID (CK_DLL_CALL * f_dtor)( Chuck_Object * self );
+typedef t_CKVOID (CK_DLL_CALL * f_mfun)( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN );
+typedef t_CKVOID (CK_DLL_CALL * f_sfun)( void * ARGS, Chuck_DL_Return & RETURN );
+// ugen specific
+typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
+typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_UGen * self, void * ARGS );
+typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_UGen * self, void * OUT );
+typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
+}
 
 
+// default name in DLL/ckx to look for
+#define CK_QUERY_FUNC        "ck_query"
+
+
+//-----------------------------------------------------------------------------
+// chuck DLL query functions, implemented on chuck side for portability
+//-----------------------------------------------------------------------------
+extern "C" {
+// set name of ckx
+typedef void ( CK_DLL_CALL * f_setname)( Chuck_DL_Query * query, const char * name );
+
+// begin class/namespace, can be nested
+typedef void (CK_DLL_CALL * f_begin_class)( Chuck_DL_Query * query, const char * name, const char * parent );
+// add constructor, must be betwen begin/end_class : use f_add_arg to add arguments immediately after
+typedef void (CK_DLL_CALL * f_add_ctor)( Chuck_DL_Query * query, f_ctor ctor );
+// add destructor - cannot have args
+typedef void (CK_DLL_CALL * f_add_dtor)( Chuck_DL_Query * query, f_dtor dtor );
+// add member function - args to follow
+typedef void (CK_DLL_CALL * f_add_mfun)( Chuck_DL_Query * query, f_mfun mfun, const char * type, const char * name );
+// add static function - args to follow
+typedef void (CK_DLL_CALL * f_add_sfun)( Chuck_DL_Query * query, f_sfun sfun, const char * type, const char * name );
+// add member variable
+typedef void (CK_DLL_CALL * f_add_mvar)( Chuck_DL_Query * query,
+             const char * type, const char * name, t_CKBOOL is_const ); // TODO: public/protected/private
+// add static variable
+typedef void (CK_DLL_CALL * f_add_svar)( Chuck_DL_Query * query,
+             const char * type, const char * name,
+             t_CKBOOL is_const, void * static_addr ); // TODO: public/protected/private
+// add arg - follows ctor mfun sfun
+typedef void (CK_DLL_CALL * f_add_arg)( Chuck_DL_Query * query, const char * type, const char * name );
+// ** functions for adding unit generators, must extend ugen
+typedef void (CK_DLL_CALL * f_add_ugen_func)( Chuck_DL_Query * query, f_tick tick, f_pmsg pmsg );
+// ** add a ugen control
+typedef void (CK_DLL_CALL * f_add_ugen_ctrl)( Chuck_DL_Query * query, f_ctrl ctrl, f_cget cget, 
+                                              const char * type, const char * name );
+// end class/namespace - must correspondent with begin_class.  returns false on error
+typedef t_CKBOOL (CK_DLL_CALL * f_end_class)( Chuck_DL_Query * query );
+}
 
 
 //-----------------------------------------------------------------------------
 // name: struct Chuck_DL_Query
-// desc: dynamic link query
+// desc: passed to module
 //-----------------------------------------------------------------------------
 struct Chuck_DL_Query
 {
-public: // call these from the DLL
-    f_ck_addexport add_export;  // call this to add export
-    f_ck_addparam  add_param;   // call this to add parameter to last export
-    f_ck_ugen_add  ugen_add;    // call this to add a ugen
-    f_ck_ugen_extends  ugen_extends;    // XXX - pld call this to extend another ugen 
-    f_ck_ugen_func ugen_func;   // call this (once) to set functions for last ugen
-    f_ck_ugen_ctrl ugen_ctrl;   // call this (>= 0 times) to add ctrl to last ugen
-    f_ck_setname   set_name;    // call this to set name
+    // function pointers - to be called from client module
+    //   QUERY->setname( QUERY, ... );
+    //
+    // set the name of the module
+    f_setname setname;
+    // begin class/namespace, can be nexted
+    f_begin_class begin_class;
+    // add constructor, can be followed by add_arg
+    f_add_ctor add_ctor;
+    // add destructor, no args allowed
+    f_add_dtor add_dtor;
+    // add member function, can be followed by add_arg
+    f_add_mfun add_mfun;
+    // add static function, can be followed by add_arg
+    f_add_sfun add_sfun;
+    // add member variable
+    f_add_mvar add_mvar;
+    // add static variable
+    f_add_svar add_svar;
+    // add argument to function
+    f_add_arg add_arg;
+    // (ugen only) add tick and pmsg functions
+    f_add_ugen_func add_ugen_func;
+    // (ugen only) add ctrl parameters
+    f_add_ugen_ctrl add_ugen_ctrl;
+    // end class/namespace, compile it
+    f_end_class end_class;
 
-    const char * dll_name;      // name of the DLL
+    // name
+    std::string name;
+    // current class
+    Chuck_DL_Class * curr_class;
+    // current function
+    Chuck_DL_Func * curr_func;
+    // collection of class
+    std::vector<Chuck_DL_Class *> classes;
+    // stack
+    std::vector<Chuck_DL_Class * >stack;
+    
+    // name of dll
+    std::string dll_name;
+    // dll
+    Chuck_DLL * dll_ref;
+    // reserved
     void * reserved;
-    t_CKUINT srate;             // sample rate
-    t_CKUINT bufsize;           // buffer size
-
-public: // these should not be used directly by the DLL
-    std::vector<Chuck_DL_Proto> dll_exports;
-    std::vector<Chuck_UGen_Info> ugen_exports;
+    // sample rate
+    t_CKUINT srate;
+    // bsize
+    t_CKUINT bufsize;
+    // line pos
     int linepos;
     
     // constructor
-    Chuck_DL_Query( );
-    
-    // clear the query
-    void clear() { dll_exports.clear(); ugen_exports.clear(); }
+    Chuck_DL_Query();
+    // desctructor
+    ~Chuck_DL_Query() { this->clear(); }
+    // clear
+    void clear();
 };
 
 
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Class
+// desc: class built from module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Class
+{
+    // the name of the class
+    std::string name;
+    // the name of the parent
+    std::string parent;
+    // ctor
+    std::vector<Chuck_DL_Func *> ctors;
+    // dtor
+    Chuck_DL_Func * dtor;
+    // mfun
+    std::vector<Chuck_DL_Func *> mfuns;
+    // sfun
+    std::vector<Chuck_DL_Func *> sfuns;
+    // mdata
+    std::vector<Chuck_DL_Value *> mvars;
+    // sdata
+    std::vector<Chuck_DL_Value *> svars;
+    // ugen_tick
+    f_tick ugen_tick;
+    // ugen_pmsg
+    f_pmsg ugen_pmsg;
+    // ugen_ctrl/cget
+    std::vector<Chuck_DL_Ctrl *> ugen_ctrl;
+    // collection of recursive classes
+    std::vector<Chuck_DL_Class *> classes;
+    
+    // constructor
+    Chuck_DL_Class() { dtor = NULL; ugen_tick = NULL; ugen_pmsg = NULL; }
+    // destructor
+    ~Chuck_DL_Class();
+};
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Func
+// desc: function from module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Func
+{
+    // the name of the function
+    std::string name;
+    // the return type
+    std::string type;
+    // the pointer
+    union { f_ctor ctor; f_dtor dtor; f_mfun mfun; f_sfun sfun; };
+    // arguments
+    std::vector<Chuck_DL_Value *> args;
+    
+    // destructor
+    ~Chuck_DL_Func();
+};
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Value
+// desc: value from module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Value
+{
+    // the name of the value
+    std::string name;
+    // the type of the value
+    std::string type;
+    // is const
+    t_CKBOOL is_const;
+    // addr static
+    void * static_addr;
+    
+    // constructor
+    Chuck_DL_Value() { is_const = FALSE; static_addr = NULL; }
+};
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Ctrl
+// desc: ctrl for ugen
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Ctrl
+{
+    // the name of the ctrl
+    std::string name;
+    // the first type
+    std::string type;
+    // the types of the value
+    std::vector<std::string> types;
+    // ctrl
+    f_ctrl ctrl;
+    // cget
+    f_cget cget;
+};
 
 
 //------------------------------------------------------------------------------
@@ -236,15 +367,11 @@ public: // these should not be used directly by the DLL
 union Chuck_DL_Return
 {
     t_CKINT v_int;
-    t_CKUINT v_uint;
     t_CKFLOAT v_float;
-    char * v_string;
-    void * v_user;
+    Chuck_Object * v_object;
     
-    Chuck_DL_Return() { memset( this, 0, sizeof(*this) ); }
+    Chuck_DL_Return() { v_float = 0.0; }
 };
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -254,42 +381,42 @@ union Chuck_DL_Return
 struct Chuck_DLL : public Chuck_VM_Object
 {
 public:
-    t_CKBOOL load( const char * filename, const char * func = CK_QUERY_FUNC,
+    // load dynamic ckx/dll from filename
+    t_CKBOOL load( const char * filename, 
+                   const char * func = CK_QUERY_FUNC,
                    t_CKBOOL lazy = FALSE );
     t_CKBOOL load( f_ck_query query_func, t_CKBOOL lazy = FALSE );
+    // get address in loaded ckx
     void * get_addr( const char * symbol );
+    // get last error
     const char * last_error() const;
+    // unload the ckx
     t_CKBOOL unload( );
-
-    t_CKBOOL good() const;
+    // query the content of the dll
     const Chuck_DL_Query * query( );
-    const Chuck_DL_Proto * proto( const char * symbol );
-    const Chuck_UGen_Info * ugen( const char * symbol );
+    // is good
+    t_CKBOOL good() const;
 
+public:
+    // constructor
     Chuck_DLL( const char * id = NULL ) {
         m_handle = NULL; m_done_query = FALSE;
-        m_id = id ? id : ""; m_query_func = NULL;
-        m_attach_func = NULL; m_detach_func = NULL; }
-    ~Chuck_DLL() {
-        this->unload(); }
+        m_id = id ? id : ""; m_query_func = NULL; }
+    // destructor
+    ~Chuck_DLL() { this->unload(); }
 
 protected:
+    // data
     void * m_handle;
     std::string m_last_error;
     std::string m_filename;
     std::string m_id;
     std::string m_func;
     t_CKBOOL m_done_query;
-    
+
     f_ck_query m_query_func;
-    f_ck_attach m_attach_func;
-    f_ck_detach m_detach_func;
     Chuck_DL_Query m_query;
-    std::map<std::string, Chuck_DL_Proto *> m_name2proto;
-    std::map<std::string, Chuck_UGen_Info *> m_name2ugen;
 };
-
-
 
 
 // dlfcn interface
@@ -345,9 +472,7 @@ protected:
   #endif
 
 #else
-
   #include "dlfcn.h"
-
 #endif
 
 
