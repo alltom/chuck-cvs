@@ -42,7 +42,7 @@
 //-----------------------------------------------------------------------------
 DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
 {
-    QUERY->set_name( QUERY, "machine" );
+    QUERY->setname( QUERY, "machine" );
 
     /*! \nameinfo
       ChucK runtime interface to the virtual machine.  
@@ -51,36 +51,39 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
       On-the-fly Programming Commands</a>, except these are 
       invoked from within a ChucK program, and are accessible 
       to the timing mechanism.
-   */    
+    */
+
+    // class
+    QUERY->begin_class( QUERY, "machine", "object" );
 
     // add add
     //! compile and spork a new shred from file at 'path' into the VM now
     //! returns the shred ID
     //! (see example/machine.ck)
-    QUERY->add_export( QUERY, "int", "add", machine_add_impl, TRUE );
-    QUERY->add_param( QUERY, "string", "path" );
+    QUERY->add_sfun( QUERY, machine_add_impl, "int", "add" );
+    QUERY->add_arg( QUERY, "string", "path" );
     
     // add spork
     //! same as add
-    QUERY->add_export( QUERY, "int", "spork", machine_add_impl, TRUE );
-    QUERY->add_param( QUERY, "string", "path" );
+    QUERY->add_sfun( QUERY, machine_add_impl, "int", "spork" );
+    QUERY->add_arg( QUERY, "string", "path" );
     
     // add remove
     //! remove shred from VM by shred ID (returned by add/spork)
-    QUERY->add_export( QUERY, "int", "remove", machine_remove_impl, TRUE );
-    QUERY->add_param( QUERY, "int", "id" );
+    QUERY->add_sfun( QUERY, machine_remove_impl, "int", "remove" );
+    QUERY->add_arg( QUERY, "int", "id" );
 
     // add replace
     //! replace shred with new shred from file
     //! returns shred ID , or 0 on error 
-    QUERY->add_export( QUERY, "int", "replace", machine_replace_impl, TRUE );
-    QUERY->add_param( QUERY, "int", "id" );
-    QUERY->add_param( QUERY, "string", "path" );
+    QUERY->add_sfun( QUERY, machine_replace_impl, "int", "replace" );
+    QUERY->add_arg( QUERY, "int", "id" );
+    QUERY->add_arg( QUERY, "string", "path" );
 
     // add status
     //! display current status of VM
     //! (see example/status.ck)
-    QUERY->add_export( QUERY, "int", "status", machine_status_impl, TRUE );
+    QUERY->add_sfun( QUERY, machine_status_impl, "int", "status" );
 
     return TRUE;
 }
@@ -102,7 +105,7 @@ t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func proc_msg )
 
 
 // add
-CK_DLL_FUNC( machine_add_impl )
+CK_DLL_SFUN( machine_add_impl )
 {
     const char * v = *(const char **)ARGS;
     Net_Msg msg;
@@ -113,7 +116,7 @@ CK_DLL_FUNC( machine_add_impl )
 }
 
 // remove
-CK_DLL_FUNC( machine_remove_impl )
+CK_DLL_SFUN( machine_remove_impl )
 {
     t_CKUINT v = *(t_CKUINT *)ARGS;
     Net_Msg msg;
@@ -124,7 +127,7 @@ CK_DLL_FUNC( machine_remove_impl )
 }
 
 // replace
-CK_DLL_FUNC( machine_replace_impl )
+CK_DLL_SFUN( machine_replace_impl )
 {
     t_CKUINT v = *(t_CKUINT *)ARGS;
     const char * v2 = *((const char **)ARGS+1);
@@ -137,7 +140,7 @@ CK_DLL_FUNC( machine_replace_impl )
 }
 
 // status
-CK_DLL_FUNC( machine_status_impl )
+CK_DLL_SFUN( machine_status_impl )
 {
     Net_Msg msg;
     
