@@ -248,7 +248,7 @@ int comment()
 {
     char c;
 
-    while ((c = input()) != '\n' && c != '\r' && c != 0);
+    while ((c = input()) != '\n' && c != '\r' && c != 0 && c != EOF );
 
     if (c != 0) { 
        adjust(); 
