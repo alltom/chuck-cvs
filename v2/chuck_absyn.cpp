@@ -500,7 +500,7 @@ a_Exp new_exp_from_if( a_Exp cond, a_Exp if_exp, a_Exp else_exp, int pos )
     return a;
 }
 
-a_Exp new_exp_decl( a_Type_Decl type, a_Var_Decl_List var_decl_list, int pos )
+a_Exp new_exp_decl( a_Type_Decl type, a_Var_Decl_List var_decl_list, int is_static, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_decl;
@@ -508,6 +508,7 @@ a_Exp new_exp_decl( a_Type_Decl type, a_Var_Decl_List var_decl_list, int pos )
     a->decl.type = type;
     a->decl.var_decl_list = var_decl_list;
     a->linepos = pos;
+    a->decl.is_static = is_static;
     a->decl.linepos = pos;
     a->decl.self = a;
 

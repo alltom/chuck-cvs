@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 33 shift/reduce conflicts
-%expect 33
+// expect 34 shift/reduce conflicts
+%expect 34
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -350,8 +350,10 @@ array_empty
 
 decl_expression
         : conditional_expression            { $$ = $1; }
-        | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, EM_lineNum ); }
-        | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, EM_lineNum ); }
+        | type_decl var_decl_list           { $$ = new_exp_decl( $1, $2, 0, EM_lineNum ); }
+        | STATIC type_decl var_decl_list    { $$ = new_exp_decl( $2, $3, 1, EM_lineNum ); }
+        | SAME var_decl_list                { $$ = new_exp_decl( NULL, $2, 0, EM_lineNum ); }
+        | STATIC SAME var_decl_list         { $$ = new_exp_decl( NULL, $3, 1, EM_lineNum ); }
         ;
 
 var_decl_list
