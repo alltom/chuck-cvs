@@ -47,10 +47,10 @@
 //#include "ugen_xxx.h"
 //#include "ugen_filter.h"
 //#include "ugen_stk.h"
-//#include "ulib_machine.h"
-//#include "ulib_math.h"
+#include "ulib_machine.h"
+#include "ulib_math.h"
+#include "ulib_std.h"
 //#include "ulib_net.h"
-//#include "ulib_std.h"
 
 #include <signal.h>
 #ifndef __PLATFORM_WIN32__
@@ -184,6 +184,61 @@ t_CKUINT next_power_2( t_CKUINT n )
     t_CKUINT nn = n;
     for( ; n &= n-1; nn = n );
     return nn * 2;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: load_module()
+// desc: load a dll and add it
+//-----------------------------------------------------------------------------
+t_CKBOOL load_module( Chuck_Env * env, f_ck_query query, 
+                      const char * name, const char * nspc )
+{
+    Chuck_DLL * dll = NULL;
+    
+    // load osc
+    dll = new Chuck_DLL( name );
+    dll->load( query );
+    if( !dll->query() || !type_engine_add_dll( env, dll, nspc ) )
+    {
+        fprintf( stderr, 
+                 "[chuck]: internal error loading module '%s.%s'...\n", 
+                 nspc, name );
+        if( !dll->query() )
+            fprintf( stderr, "       %s\n", dll->last_error() );
+
+        g_error = TRUE;
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: load_internal_modules()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL load_internal_modules( Chuck_Env * env )
+{
+    // load
+    // load_module( env, osc_query, "osc", "global" );
+    // load_module( env, xxx_query, "xxx", "global" );
+    // load_module( env, filter_query, "filter", "global" );
+    // load_module( env, stk_query, "stk", "global" );
+
+    // load
+    load_module( env, machine_query, "machine", "machine" );
+    // machine_init( g_vm, process_msg );
+    load_module( env, libstd_query, "std", "std" );
+    load_module( env, libmath_query, "math", "math" );
+    // load_module( env, net_query, "net", "net" );
+    
+    return TRUE;
 }
 
 

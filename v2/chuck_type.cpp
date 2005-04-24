@@ -3288,6 +3288,22 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_find_nspc()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path )
+{
+    Chuck_Namespace * nspc = NULL;
+    // global namespace
+    if( path == NULL ) return &env->global;
+
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_compat_func()
 // desc: see if two function signatures are compatible
 //-----------------------------------------------------------------------------
@@ -3461,6 +3477,24 @@ t_CKBOOL verify_array( a_Array_Sub array )
             return FALSE;
         }
     }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_add_dll()
+// desc: add an chuck dll into the env
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & dest )
+{
+    // which namespace
+    string where = ( dest == "" ? "global" : dest );
+
+    // find the namespace
+    Chuck_Namespace * nspc = type_
 
     return TRUE;
 }

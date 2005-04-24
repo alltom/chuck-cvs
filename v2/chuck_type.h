@@ -490,6 +490,10 @@ Chuck_Type  * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs );
 Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
+Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path );
+
+// conversion
+a_Id_List str2list( const string & path );
 
 // default types
 extern Chuck_Type t_void;

@@ -2447,6 +2447,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             // is the value static?
             if( value->is_member )
             {
+                // emit the base
+                emit_engine_emit_exp( emit, member->base );
                 // lookup the member
                 emit->append( new Chuck_Instr_Dot_Member_Data( 
                     offset, member->self->type->size, emit_addr ) );
