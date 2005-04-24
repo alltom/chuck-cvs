@@ -3492,9 +3492,15 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
 {
     // which namespace
     string where = ( dest == "" ? "global" : dest );
+    
+    // convert to id list
+    a_Id_List path = str2list( dest );
 
     // find the namespace
-    Chuck_Namespace * nspc = type_
+    Chuck_Namespace * nspc = type_engine_find_nspc( env, path );
+    
+    // free the path
+    
 
     return TRUE;
 }
