@@ -3485,6 +3485,71 @@ t_CKBOOL verify_array( a_Array_Sub array )
 
 
 //-----------------------------------------------------------------------------
+// name: str2list()
+// desc: convert str to list
+//-----------------------------------------------------------------------------
+a_Id_List str2list( const string & path )
+{
+    t_CKINT len = path.length();
+    t_CKINT i;
+    string curr;
+    a_Id_List list = NULL;
+    char last = '\0';
+
+    // loop backwards
+    for( i = len - 1; i >= 0; i-- )
+    {
+        char c = path[i];
+        // if not .
+        if( c != '.' )
+        {
+            // check to make sure valid
+            if( ( c >= 'A' && c <= 'Z' ) || ( c >= 'a' && c <= 'z' )
+                || ( c == '_' ) || ( c >= '0' && c <= '9' ) )
+            {
+                // add
+                curr += c;
+            }
+            else
+            {
+                // error
+                EM_error2( 0, "object import: malformed path '%s'...",
+                    path.c_str() );
+                // delete
+                delete_id_list( list );
+                return NULL;
+            }
+        }
+        else
+        {
+            // make sure valid
+            if( last != '.' && last != '\0' )
+            {
+                // make a new id and put in list
+                list = prepend_id_list( (char *)curr.c_str(), list, 0 );
+            }
+            else
+            {
+                // error
+                EM_error2( 0, "object import: path '%s' must not begin or end with '.'",
+                    path.c_str() );
+                // delete
+                delete_id_list( list );
+                return NULL;
+            }
+        }
+
+        // remember last
+        last = c;
+    }
+
+    return list;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_add_dll()
 // desc: add an chuck dll into the env
 //-----------------------------------------------------------------------------
@@ -3500,7 +3565,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
     Chuck_Namespace * nspc = type_engine_find_nspc( env, path );
     
     // free the path
-    
+    delete_id_list( path );
 
     return TRUE;
 }
