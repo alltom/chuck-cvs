@@ -3527,6 +3527,8 @@ a_Id_List str2list( const string & path )
             {
                 // make a new id and put in list
                 list = prepend_id_list( (char *)curr.c_str(), list, 0 );
+                // clear
+                curr = "";
             }
             else
             {

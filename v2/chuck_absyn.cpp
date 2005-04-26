@@ -758,6 +758,21 @@ error:
     return a;
 }
 
+void delete_id_list( a_Id_List x )
+{
+    if( !x ) return;
+
+    a_Id_List curr = x, next = x->next, temp;
+
+    while( curr )
+    {
+        temp = curr;
+        curr = next;
+        next = temp->next;
+        free( temp );
+    }
+}
+
 
 static const char * op_str[] = {
   "+",

@@ -186,6 +186,8 @@ a_Func_Def new_func_def( ae_Keyword func_decl, ae_Keyword static_decl,
                          a_Type_Decl type_decl, c_str name,
                          a_Arg_List arg_list, a_Stmt code, int pos );
 
+void delete_id_list( a_Id_List x );
+
 
 
 
