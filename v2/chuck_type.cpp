@@ -3297,6 +3297,7 @@ Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path )
     // global namespace
     if( path == NULL ) return &env->global;
 
+
     return NULL;
 }
 
@@ -3513,8 +3514,8 @@ a_Id_List str2list( const string & path )
             else
             {
                 // error
-                EM_error2( 0, "object import: malformed path '%s'...",
-                    path.c_str() );
+                EM_error2( 0, "illegal character '%c' in path '%s'...",
+                    c, path.c_str() );
                 // delete
                 delete_id_list( list );
                 return NULL;
@@ -3546,7 +3547,7 @@ a_Id_List str2list( const string & path )
             else
             {
                 // error
-                EM_error2( 0, "object import: path '%s' must not begin or end with '.'",
+                EM_error2( 0, "path '%s' must not begin or end with '.'",
                     path.c_str() );
                 // delete
                 delete_id_list( list );
@@ -3575,6 +3576,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
     
     // convert to id list
     a_Id_List path = str2list( dest );
+    if( !path ) return FALSE;
 
     // find the namespace
     Chuck_Namespace * nspc = type_engine_find_nspc( env, path );
