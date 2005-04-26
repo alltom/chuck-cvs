@@ -3491,7 +3491,7 @@ t_CKBOOL verify_array( a_Array_Sub array )
 a_Id_List str2list( const string & path )
 {
     t_CKINT len = path.length();
-    t_CKINT i;
+    t_CKINT i, j;
     string curr;
     a_Id_List list = NULL;
     char last = '\0';
@@ -3520,11 +3520,24 @@ a_Id_List str2list( const string & path )
                 return NULL;
             }
         }
-        else
+
+        // add
+        if( c == '.' || i == 0 )
         {
             // make sure valid
-            if( last != '.' && last != '\0' )
+            if( (i != 0 && last != '.' && last != '\0') ||
+                (i == 0 && c != '.') )
             {
+                char s;
+                t_CKINT size = curr.length();
+                // reverse
+                for( j = 0; j < size/2; j++ )
+                {
+                    // swap
+                    s = curr[j];
+                    curr[j] = curr[size-j-1];
+                    curr[size-j-1] = s;
+                }
                 // make a new id and put in list
                 list = prepend_id_list( (char *)curr.c_str(), list, 0 );
                 // clear
