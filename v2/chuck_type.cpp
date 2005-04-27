@@ -2331,12 +2331,12 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // if extend
         if( class_def->ext->extend_id )
         {
-            t_parent = env->curr->lookup_type( class_def->ext->extend_id, TRUE );
+            t_parent = type_engine_find_type( env, class_def->ext->extend_id );
             if( !t_parent )
             {
                 EM_error2( class_def->ext->linepos,
                     "undefined super class '%s' in definition of class '%s'",
-                    S_name(class_def->ext->extend_id), S_name(class_def->name->id) );
+                    type_path(class_def->ext->extend_id), S_name(class_def->name->id) );
                 return FALSE;
             }
         }
@@ -3596,15 +3596,46 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
     // which namespace
     string where = ( dest == "" ? "global" : dest );
     Chuck_Namespace * nspc = NULL;
+    Chuck_Type * parent = NULL;
+    const Chuck_DL_Query * query = NULL;
+    t_CKINT i, j;
     
     // convert to id list
     a_Id_List path = str2list( dest );
     if( !path ) goto error;
 
-    // find the namespace
+    // find the namespace to put the import
     nspc = type_engine_find_nspc( env, path );
     if( !nspc ) goto error;
-    
+
+    // get the query
+    query = dll->query();
+
+    // loop
+    for( i = 0; i < query->classes.size(); i++ )
+    {
+        a_Class_Def def = NULL;
+        a_Class_Ext ext = NULL;
+        a_Class_Body body = NULL;
+        a_Section sec = NULL;
+        a_Func_Def fun = NULL;
+        a_Id_List name;
+        a_Id_List parent;
+        Chuck_DL_Class * cl = query->classes[i];
+        assert( cl != NULL );
+        
+        // get name
+        name = str2list( cl->name );
+        if( !name ) goto error;
+        // get parent
+        parent = str2list( cl->parent );
+        if( !parent ) goto error;
+
+        // construct class
+        // a_Class_Def def = new_class_def( 
+    }
+
+
     // free the path
     delete_id_list( path );
 

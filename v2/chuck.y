@@ -188,9 +188,9 @@ class_definition
 
 class_ext
         : IMPLEMENTS id_list                { $$ = new_class_ext( NULL, $2, EM_lineNum ); }
-        | IMPLEMENTS id_list EXTENDS ID     { $$ = new_class_ext( $4, $2, EM_lineNum ); }
-        | EXTENDS ID                        { $$ = new_class_ext( $2, NULL, EM_lineNum ); }
-        | EXTENDS ID IMPLEMENTS id_list     { $$ = new_class_ext( $2, $4, EM_lineNum ); }
+        | IMPLEMENTS id_list EXTENDS id_dot { $$ = new_class_ext( $4, $2, EM_lineNum ); }
+        | EXTENDS id_dot                    { $$ = new_class_ext( $2, NULL, EM_lineNum ); }
+        | EXTENDS id_dot IMPLEMENTS id_list { $$ = new_class_ext( $2, $4, EM_lineNum ); }
         ;
 
 class_body
