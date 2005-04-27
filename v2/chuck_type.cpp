@@ -3595,16 +3595,27 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
 {
     // which namespace
     string where = ( dest == "" ? "global" : dest );
+    Chuck_Namespace * nspc = NULL;
     
     // convert to id list
     a_Id_List path = str2list( dest );
-    if( !path ) return FALSE;
+    if( !path ) goto error;
 
     // find the namespace
-    Chuck_Namespace * nspc = type_engine_find_nspc( env, path );
+    nspc = type_engine_find_nspc( env, path );
+    if( !nspc ) goto error;
     
     // free the path
     delete_id_list( path );
 
     return TRUE;
+
+error:
+    // error
+    EM_error2( 0, "...(in object import '%s')", "need name" );
+
+    // free the path
+    delete_id_list( path );
+
+    return FALSE;
 }
