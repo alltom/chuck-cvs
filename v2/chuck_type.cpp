@@ -3296,9 +3296,31 @@ Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path )
     Chuck_Namespace * nspc = NULL;
     // global namespace
     if( path == NULL ) return &env->global;
+    // find the type
+    Chuck_Type * type = type_engine_find_type( env, path );
+    if( type == NULL ) return NULL;
+    // copy the nspc
+    nspc = type->info;
+    if( nspc == NULL )
+    {
+        // primitive
+        if( isprim( type ) )
+        {
+            // error
+            EM_error2( 0, "object import: cannot extend primitive type '%s'...",
+                type->c_name() );
+            return NULL;
+        }
+        else
+        {
+            // internal error
+            EM_error2( 0, "internal error: type '%s' without namespace...",
+                type->c_name() );
+            return NULL;
+        }
+    }
 
-
-    return NULL;
+    return nspc;
 }
 
 
