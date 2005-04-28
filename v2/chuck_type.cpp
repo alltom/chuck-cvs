@@ -3621,6 +3621,9 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         a_Func_Def fun = NULL;
         a_Id_List name;
         a_Id_List parent;
+        Chuck_DL_Func * dl_fun = NULL;
+        Chuck_DL_Value * dl_val = NULL;
+        Chuck_DL_Ctrl * dl_ctrl = NULL;
         Chuck_DL_Class * cl = query->classes[i];
         assert( cl != NULL );
         
@@ -3630,6 +3633,26 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         // get parent
         parent = str2list( cl->parent );
         if( !parent ) goto error;
+
+        // loop over member functions
+        for( j = 0; j < cl->mfuns.size(); j++ )
+        {
+        }
+
+        // loop over static functions
+        for( j = 0; j < cl->sfuns.size(); j++ )
+        {
+        }
+
+        // loop over member data
+        for( j = 0; j < cl->mvars.size(); j++ )
+        {
+        }
+
+        // loop over static data
+        for( j = 0; j < cl->svars.size(); j++ )
+        {
+        }
 
         // construct class
         // a_Class_Def def = new_class_def( 
