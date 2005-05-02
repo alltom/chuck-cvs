@@ -277,6 +277,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["language"] = TRUE;
     env->key_types["compiler"] = TRUE;
 
+    env->context = NULL;
+
     return env;
 }
 
@@ -334,7 +336,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     
     // make sure we still have the same context
     assert( env->contexts.size() != 0 );
-    assert( env->contexts.back() == context );
+    // assert( env->contexts.back() == context );
 
     // check to see if everything passed
     if( !ret )
@@ -361,7 +363,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
 t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
 {
     // append the context to the env
-    env->contexts.push_back( context );
+    env->contexts.push_back( env->context );
     // make the context current
     env->context = context;
     // push the context scope
@@ -385,12 +387,21 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_unload_context( Chuck_Env * env )
 {
+    // make sure
+    assert( env->context != NULL );
+    assert( env->contexts.size() != 0 );
     // pop the context scope
     env->context->nspc.value.pop();
     // restore the current namespace
     env->curr = env->nspc_stack.back();
     // pop the namespace stack
     env->nspc_stack.pop_back();
+    // release the context
+    env->context->release();
+    // restore context
+    env->context = env->contexts.back();
+    // pop the context
+    env->contexts.pop_back();
 
     // make sure the nspc is ok
     assert( env->nspc_stack.size() != 0 );
@@ -2348,6 +2359,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     if( !t_parent ) t_parent = &t_object;
 
     // allocate new type
+    assert( env->context != NULL );
     the_class = env->context->new_Chuck_Type();
     // set the fields
     the_class->id = te_user;
