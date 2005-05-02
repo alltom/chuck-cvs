@@ -3294,6 +3294,8 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
 Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path )
 {
     Chuck_Namespace * nspc = NULL;
+    // if the first if global, move to the next
+    if( path && !strcmp( S_name(path->id), "global" ) ) path = path->next;
     // global namespace
     if( path == NULL ) return &env->global;
     // find the type

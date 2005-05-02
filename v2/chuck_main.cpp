@@ -232,11 +232,11 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     // load_module( env, stk_query, "stk", "global" );
 
     // load
-    load_module( env, machine_query, "machine", "machine" );
+    load_module( env, machine_query, "machine", "global" );
     // machine_init( g_vm, process_msg );
-    load_module( env, libstd_query, "std", "std" );
-    load_module( env, libmath_query, "math", "math" );
-    // load_module( env, net_query, "net", "net" );
+    load_module( env, libstd_query, "std", "global" );
+    load_module( env, libmath_query, "math", "global" );
+    // load_module( env, net_query, "net", "global" );
     
     return TRUE;
 }
