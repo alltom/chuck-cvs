@@ -347,7 +347,7 @@ struct a_Func_Def_ {
 };
 
 // enum values for section types
-typedef enum { ae_section_stmt, ae_section_func, ae_section_class 
+typedef enum { ae_section_stmt, ae_section_func, ae_section_class
              } ae_Section_Type;
 
 struct a_Section_

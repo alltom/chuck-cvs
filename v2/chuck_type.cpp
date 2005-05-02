@@ -3613,6 +3613,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
     Chuck_Type * parent = NULL;
     const Chuck_DL_Query * query = NULL;
     t_CKINT i, j;
+    vector<a_Func_Def> the_funs;
     
     // convert to id list
     a_Id_List path = str2list( dest );
@@ -3648,12 +3649,17 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         parent = str2list( cl->parent );
         if( !parent ) goto error;
 
+        // clear the funs vector
+        the_funs.clear();
+
         // loop over member functions
         for( j = 0; j < cl->mfuns.size(); j++ )
         {
             // get the function from the dll
             fun = make_dll_as_fun( cl->mfuns[j] );
             if( !fun ) goto error;
+            // add to vector
+            the_funs.push_back( fun );
         }
 
         // loop over static functions
@@ -3662,6 +3668,8 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
             // get the function from the dll
             fun = make_dll_as_fun( cl->sfuns[j] );
             if( !fun ) goto error;
+            // add to vector
+            the_funs.push_back( fun );
         }
 
         // loop over member data
@@ -3673,9 +3681,16 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         for( j = 0; j < cl->svars.size(); j++ )
         {
         }
+        
+        // go through funs backwards, and prepend
+        for( j = the_funs.size() - 1; j >= 0; j-- )
+        {
+            // add to body
+            body = prepend_class_body( new_section_func_def( the_funs[j], 0 ), body, 0 );
+        }
 
         // construct class
-        // a_Class_Def def = new_class_def( 
+        def = new_class_def( name, ext, body, 0 );
     }
 
 
@@ -3690,6 +3705,8 @@ error:
 
     // free the path
     delete_id_list( path );
+    
+    // TODO: free the absyn stuff?
 
     return FALSE;
 }
