@@ -3595,6 +3595,12 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun )
 {
     a_Func_Def func_def = NULL;
 
+    // mark the function as imported (instead of defined in ChucK)
+    func_def->s_type = ae_func_builtin;
+    // copy the function pointer - the type doesn't matter here
+    // ... since we copying into a void * - so mfun is used
+    func_def->dl_func_ptr = (void *)dl_fun->mfun;
+
     return func_def;
 }
 
@@ -3691,6 +3697,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
 
         // construct class
         def = new_class_def( name, ext, body, 0 );
+        // TODO: mark the class as dll import?
         
         // type check it
         if( !type_engine_check_class_def( env, def ) ) goto error;
