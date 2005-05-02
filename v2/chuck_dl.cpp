@@ -80,6 +80,10 @@ void CK_DLL_CALL ck_begin_class( Chuck_DL_Query * query, const char * name, cons
         // first level
         query->classes.push_back( c );
 
+    // remember info
+    c->name = name;
+    c->parent = parent;
+
     // curr
     query->curr_class = c;
     query->curr_func = NULL;

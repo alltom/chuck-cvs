@@ -2524,7 +2524,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // remember the owner
     value->owner = env->curr;
     value->owner_class = env->class_def;
-    value->is_member = !f->static_decl && (env->class_def != NULL);
+    value->is_member = func->is_member;
     // is global context
     value->is_context_global = env->class_def == NULL;
     // remember the func
@@ -3590,13 +3590,78 @@ a_Id_List str2list( const string & path )
 
 
 //-----------------------------------------------------------------------------
+// name: make_dll_arg_list()
+// desc: make an chuck dll function into arg list
+//-----------------------------------------------------------------------------
+a_Arg_List make_dll_arg_list( Chuck_DL_Func * dl_fun )
+{
+    a_Arg_List arg_list = NULL;
+
+    return arg_list;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: make_dll_as_fun()
 // desc: make an chuck dll function into absyn function
 //-----------------------------------------------------------------------------
-a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun )
+a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static )
 {
     a_Func_Def func_def = NULL;
+    ae_Keyword func_decl = ae_key_func;
+    ae_Keyword static_decl = ae_key_instance;
+    a_Id_List type_path = NULL;
+    a_Type_Decl type_decl = NULL;
+    const char * name = NULL;
+    a_Arg_List arg_list = NULL;
 
+    // fun decl TODO: fix this
+    func_decl = ae_key_func;
+    // static decl TODO: allow abstract
+    static_decl = is_static ? ae_key_static : ae_key_instance;
+    // path
+    type_path = str2list( dl_fun->type );
+    if( !type_path )
+    {
+        // error
+        EM_error2( 0, "...during function import '%s' (type)...", 
+            dl_fun->name.c_str() );
+        goto error;
+    }
+
+    // type decl
+    type_decl = new_type_decl( type_path, 1, 0 );
+    if( !type_decl )
+    {
+        // error
+        EM_error2( 0, "...during function import '%s' (type2)...",
+            dl_fun->name.c_str() );
+        // delete list
+        delete_id_list( type_path );
+        type_path = NULL;
+        goto error;
+    }
+
+    // name of the function
+    name = dl_fun->name.c_str();
+    // arg list
+    arg_list = make_dll_arg_list( dl_fun );
+    if( !arg_list )
+    {
+        // error
+        EM_error2( 0, "...during function import '%s' (arg_list)...",
+            dl_fun->name.c_str() );
+        // delete type_decl
+        // delete_type_decl( type_decl );
+        type_decl = NULL;
+        goto error;
+    }
+
+    // make a func_def
+    func_def = new_func_def( func_decl, static_decl, type_decl, (char *)name,
+                             arg_list, NULL, 0 );
     // mark the function as imported (instead of defined in ChucK)
     func_def->s_type = ae_func_builtin;
     // copy the function pointer - the type doesn't matter here
@@ -3604,6 +3669,14 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun )
     func_def->dl_func_ptr = (void *)dl_fun->mfun;
 
     return func_def;
+
+error:
+
+    // clean up
+    // if( !func_def ) delete_type_decl( type_decl );
+    // else delete_func_def( func_def );
+
+    return NULL;
 }
 
 
@@ -3664,7 +3737,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         for( j = 0; j < cl->mfuns.size(); j++ )
         {
             // get the function from the dll
-            fun = make_dll_as_fun( cl->mfuns[j] );
+            fun = make_dll_as_fun( cl->mfuns[j], FALSE );
             if( !fun ) goto error;
             // add to vector
             the_funs.push_back( fun );
@@ -3674,7 +3747,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         for( j = 0; j < cl->sfuns.size(); j++ )
         {
             // get the function from the dll
-            fun = make_dll_as_fun( cl->sfuns[j] );
+            fun = make_dll_as_fun( cl->sfuns[j], TRUE );
             if( !fun ) goto error;
             // add to vector
             the_funs.push_back( fun );

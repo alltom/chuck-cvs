@@ -239,7 +239,7 @@ function_decl
 static_decl
         : STATIC                            { $$ = ae_key_static; }
         | ABSTRACT                          { $$ = ae_key_abstract; }
-        |                                   { $$ = 0; }
+        |                                   { $$ = ae_key_instance; }
         ;
 
 type_decl_a
