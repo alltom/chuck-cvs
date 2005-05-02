@@ -39,9 +39,13 @@
 using namespace std;
 
 
+
+
 //-----------------------------------------------------------------------------
 // internal implementation of query functions
 //-----------------------------------------------------------------------------
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -53,6 +57,8 @@ void CK_DLL_CALL ck_setname( Chuck_DL_Query * query, const char * name )
     // set the name
     query->dll_name = name;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -80,6 +86,8 @@ void CK_DLL_CALL ck_begin_class( Chuck_DL_Query * query, const char * name, cons
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: ck_add_ctor()
 // desc: add constructor, can be followed by add_arg
@@ -104,6 +112,8 @@ void CK_DLL_CALL ck_add_ctor( Chuck_DL_Query * query, f_ctor ctor )
     query->curr_class->ctors.push_back( f );
     query->curr_func = f;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -141,6 +151,8 @@ void CK_DLL_CALL ck_add_dtor( Chuck_DL_Query * query, f_dtor dtor )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: ck_add_mfun()
 // desc: add member function, can be followed by add_arg
@@ -166,6 +178,8 @@ void CK_DLL_CALL ck_add_mfun( Chuck_DL_Query * query, f_mfun addr,
     query->curr_class->mfuns.push_back( f );
     query->curr_func = f;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -195,6 +209,8 @@ void CK_DLL_CALL ck_add_sfun( Chuck_DL_Query * query, f_sfun addr,
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: ck_add_mvar()
 // desc: add member var
@@ -220,6 +236,8 @@ void CK_DLL_CALL ck_add_mvar( Chuck_DL_Query * query, const char * type, const c
     query->curr_class->mvars.push_back( v );
     query->curr_func = NULL;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -248,6 +266,8 @@ void CK_DLL_CALL ck_add_svar( Chuck_DL_Query * query, const char * type, const c
     query->curr_class->mvars.push_back( v );
     query->curr_func = NULL;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -280,6 +300,8 @@ void CK_DLL_CALL ck_add_arg( Chuck_DL_Query * query, const char * type, const ch
     // add
     query->curr_func->args.push_back( v );
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -319,6 +341,8 @@ void CK_DLL_CALL ck_add_ugen_func( Chuck_DL_Query * query, f_tick ugen_tick, f_p
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: ck_add_ugen_ctrl()
 // desc: (ugen only) add ctrl parameters
@@ -346,6 +370,8 @@ void CK_DLL_CALL ck_add_ugen_ctrl( Chuck_DL_Query * query, f_ctrl ugen_ctrl, f_c
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: ck_end_class()
 // desc: end class/namespace, compile it
@@ -369,6 +395,8 @@ t_CKBOOL CK_DLL_CALL ck_end_class( Chuck_DL_Query * query )
     
     return TRUE;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -603,6 +631,7 @@ const char * Chuck_DLL::last_error() const
 Chuck_DL_Query::Chuck_DL_Query( )
 {
     // set the pointers to functions so the module can call
+    setname = ck_setname;
     begin_class = ck_begin_class;
     add_ctor = ck_add_ctor;
     add_dtor = ck_add_dtor;
@@ -629,6 +658,8 @@ Chuck_DL_Query::Chuck_DL_Query( )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: clear()
 // desc: ...
@@ -641,7 +672,11 @@ void Chuck_DL_Query::clear()
     linepos = 0;
     // delete classes
     for( t_CKINT i = 0; i < classes.size(); i++ ) delete classes[i];
+    // clear
+    classes.clear();
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -665,6 +700,8 @@ Chuck_DL_Class::~Chuck_DL_Class()
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: ~Chuck_DL_Func()
 // desc: ...
@@ -674,6 +711,8 @@ Chuck_DL_Func::~Chuck_DL_Func()
     for( t_CKINT i = 0; i < args.size(); i++ )
         delete args[i];
 }
+
+
 
 
 // windows

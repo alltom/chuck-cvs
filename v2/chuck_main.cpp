@@ -386,6 +386,8 @@ int main( int argc, char ** argv )
     emitter = emit_engine_init( env );
     // enable dump
     emitter->dump = dump;
+    // load internal libs
+    load_internal_modules( env );
 
     // loop through and process each file
     for( i = 1; i < argc; i++ )
