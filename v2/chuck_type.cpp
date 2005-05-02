@@ -273,9 +273,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["shred"] = TRUE;
     env->key_types["event"] = TRUE;
     env->key_types["ugen"] = TRUE;
-    env->key_types["machine"] = TRUE;
-    env->key_types["language"] = TRUE;
-    env->key_types["compiler"] = TRUE;
+    //env->key_types["machine"] = TRUE;
+    //env->key_types["language"] = TRUE;
+    //env->key_types["compiler"] = TRUE;
 
     return env;
 }
@@ -3062,9 +3062,9 @@ t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) <= (*rhs); }
 //-----------------------------------------------------------------------------
 Chuck_Context::~Chuck_Context()
 {
-    // delete the types
-    for( t_CKINT i = 0; i < new_types.size(); i++ )
-        new_types[i]->release();
+    // delete the types - can't do this since the type system and vm still use
+    // for( t_CKINT i = 0; i < new_types.size(); i++ )
+    //    new_types[i]->release();
 
     // TODO: delete abstract syntax tree * 
 }

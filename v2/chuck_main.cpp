@@ -239,16 +239,23 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     // load_module( env, stk_query, "stk", "global" );
 
     // load
-    load_module( env, machine_query, "machine", "global" );
+    if( !load_module( env, machine_query, "machine", "global" ) ) goto error;
     // machine_init( g_vm, process_msg );
-    load_module( env, libstd_query, "std", "global" );
-    load_module( env, libmath_query, "math", "global" );
-    // load_module( env, net_query, "net", "global" );
+    if( !load_module( env, libstd_query, "std", "global" ) ) goto error;
+    if( !load_module( env, libmath_query, "math", "global" ) ) goto error;
+    // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 
     // clear context
     type_engine_unload_context( env );
     
     return TRUE;
+
+error:
+
+    // clear context
+    type_engine_unload_context( env );
+
+    return FALSE;
 }
 
 
@@ -397,7 +404,8 @@ int main( int argc, char ** argv )
     // enable dump
     emitter->dump = dump;
     // load internal libs
-    load_internal_modules( env );
+    if( !load_internal_modules( env ) ) 
+        exit( 1 );
 
     // loop through and process each file
     for( i = 1; i < argc; i++ )

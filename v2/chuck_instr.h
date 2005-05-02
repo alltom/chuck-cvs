@@ -1567,8 +1567,8 @@ public:
 struct Chuck_Instr_Instantiate_Object : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Instantiate_Object( Chuck_Type * type )
-    { this->type = type; }
+    Chuck_Instr_Instantiate_Object( Chuck_Type * t )
+    { this->type = t; }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
     virtual const char * params() const;
