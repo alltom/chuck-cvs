@@ -327,9 +327,9 @@ struct a_Class_Body_ { a_Section section; a_Class_Body next; int linepos; };
 struct a_Id_List_ { S_Symbol id; a_Id_List next; int linepos; };
 
 typedef enum { ae_func_user, ae_func_builtin } ae_Func_Type;
-struct t_Func_User_ { int linepos; };
-typedef unsigned int (* builtin_func_ptr)( unsigned int arg );
-struct t_Func_BuiltIn_ { builtin_func_ptr func_ptr; int linepos; };
+// struct t_Func_User_ { int linepos; };
+// typedef unsigned int (* builtin_func_ptr)( unsigned int arg );
+// struct t_Func_BuiltIn_ { builtin_func_ptr func_ptr; int linepos; };
 struct a_Func_Def_ {
     ae_Keyword func_decl;
     ae_Keyword static_decl; 
@@ -342,7 +342,7 @@ struct a_Func_Def_ {
     unsigned int global;
     unsigned int s_type;
     unsigned int stack_depth;
-    union { struct t_Func_User_ user; builtin_func_ptr builtin; };
+    void * dl_func_ptr;  // should be not NULL iff s_type == ae_func_builtin
     int linepos;
 };
 
