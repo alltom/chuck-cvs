@@ -3307,7 +3307,7 @@ Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path )
         if( isprim( type ) )
         {
             // error
-            EM_error2( 0, "object import: cannot extend primitive type '%s'...",
+            EM_error2( 0, "primitive type '%s' has no namespace and cannot be extended...",
                 type->c_name() );
             return NULL;
         }
@@ -3588,6 +3588,20 @@ a_Id_List str2list( const string & path )
 
 
 //-----------------------------------------------------------------------------
+// name: make_dll_as_fun()
+// desc: make an chuck dll function into absyn function
+//-----------------------------------------------------------------------------
+a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun )
+{
+    a_Func_Def func_def = NULL;
+
+    return func_def;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_add_dll()
 // desc: add an chuck dll into the env
 //-----------------------------------------------------------------------------
@@ -3637,11 +3651,17 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         // loop over member functions
         for( j = 0; j < cl->mfuns.size(); j++ )
         {
+            // get the function from the dll
+            fun = make_dll_as_fun( cl->mfuns[j] );
+            if( !fun ) goto error;
         }
 
         // loop over static functions
         for( j = 0; j < cl->sfuns.size(); j++ )
         {
+            // get the function from the dll
+            fun = make_dll_as_fun( cl->sfuns[j] );
+            if( !fun ) goto error;
         }
 
         // loop over member data
