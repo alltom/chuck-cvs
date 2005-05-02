@@ -277,8 +277,6 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["language"] = TRUE;
     env->key_types["compiler"] = TRUE;
 
-    env->context = NULL;
-
     return env;
 }
 

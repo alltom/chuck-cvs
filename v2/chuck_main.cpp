@@ -225,6 +225,13 @@ t_CKBOOL load_module( Chuck_Env * env, f_ck_query query,
 //-----------------------------------------------------------------------------
 t_CKBOOL load_internal_modules( Chuck_Env * env )
 {
+    // make context
+    Chuck_Context * context = new Chuck_Context;
+    // add ref
+    context->add_ref();
+    // load it
+    type_engine_load_context( env, context );
+
     // load
     // load_module( env, osc_query, "osc", "global" );
     // load_module( env, xxx_query, "xxx", "global" );
@@ -237,6 +244,9 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     load_module( env, libstd_query, "std", "global" );
     load_module( env, libmath_query, "math", "global" );
     // load_module( env, net_query, "net", "global" );
+
+    // clear context
+    type_engine_unload_context( env );
     
     return TRUE;
 }

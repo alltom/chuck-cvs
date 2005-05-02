@@ -266,7 +266,8 @@ struct Chuck_Env : public Chuck_VM_Object
 	void reset( )
 	{ nspc_stack.clear(); nspc_stack.push_back( &global );
       class_stack.clear(); class_stack.push_back( NULL );
-      if( context ) { contexts.pop_back(); context->release(); } 
+      assert( context == NULL );
+      // if( context ) { contexts.pop_back(); context->release(); } 
       curr = &global; class_def = NULL; func = NULL;
       context = NULL; class_scope = 0; }
 
