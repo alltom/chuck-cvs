@@ -3596,6 +3596,41 @@ a_Id_List str2list( const string & path )
 a_Arg_List make_dll_arg_list( Chuck_DL_Func * dl_fun )
 {
     a_Arg_List arg_list = NULL;
+    a_Type_Decl type_decl = NULL;
+    a_Var_Decl var_decl = NULL;
+    a_Id_List type_path = NULL;
+    Chuck_DL_Value * arg = NULL;
+    t_CKINT i = 0;
+
+    // loop backwards
+    for( i = dl_fun->args.size() - 1; i >= 0; i-- )
+    {
+        // copy into variable
+        arg = dl_fun->args[i];
+
+        // path
+        type_path = str2list( arg->type );
+        if( !type_path )
+        {
+            // error
+            EM_error2( 0, "...at argument '%i'...", i+1 );
+            // delete the arg list
+            // delete_arg_list( arg_list );
+            return NULL;
+        }
+
+        // type
+        type_decl = new_type_decl( type_path, TRUE, 0 );
+        // TODO: fix this
+        assert( type_decl );
+
+        // var
+        // TODO: arrays
+        var_decl = new_var_decl( (char *)arg->name.c_str(), NULL, 0 );
+
+        // make new arg
+        arg_list = prepend_arg_list( type_decl, var_decl, arg_list, 0 );
+    }
 
     return arg_list;
 }
@@ -3633,6 +3668,7 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static )
 
     // type decl
     type_decl = new_type_decl( type_path, 1, 0 );
+    assert( type_decl );
     if( !type_decl )
     {
         // error
@@ -3648,7 +3684,7 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static )
     name = dl_fun->name.c_str();
     // arg list
     arg_list = make_dll_arg_list( dl_fun );
-    if( !arg_list )
+    if( dl_fun->args.size() > 0 && !arg_list )
     {
         // error
         EM_error2( 0, "...during function import '%s' (arg_list)...",

@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "chuck_utils.h"
+#include "chuck_errmsg.h"
 
 
 
@@ -46,7 +47,7 @@ void *checked_malloc( int len )
     void *p = calloc( len, 1 );
     if( !p )
     {
-        fprintf( stderr, "\nRan out of memory!\n" );
+        EM_error2( 0, "out of memory!\n" );
         exit( 1 );
     }
 
