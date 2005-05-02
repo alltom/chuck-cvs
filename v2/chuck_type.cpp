@@ -3698,9 +3698,11 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         // construct class
         def = new_class_def( name, ext, body, 0 );
         // TODO: mark the class as dll import?
-        
+
         // type check it
         if( !type_engine_check_class_def( env, def ) ) goto error;
+        
+        // TODO: clean up?
     }
 
 
