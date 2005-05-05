@@ -71,6 +71,8 @@
 // global variables
 #if defined(__MACOSX_CORE__)
   t_CKINT g_priority = 95;
+#elif defined(__WINDOWS_DS__)
+  t_CKINT g_priority = 1;
 #else
   t_CKINT g_priority = 0x7fffffff;
 #endif
@@ -239,16 +241,23 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     // load_module( env, stk_query, "stk", "global" );
 
     // load
-    //load_module( env, machine_query, "machine", "global" );
+    if( !load_module( env, machine_query, "machine", "global" ) ) goto error;
     // machine_init( g_vm, process_msg );
-    //load_module( env, libstd_query, "std", "global" );
-    //load_module( env, libmath_query, "math", "global" );
-    // load_module( env, net_query, "net", "global" );
+    if( !load_module( env, libstd_query, "std", "global" ) ) goto error;
+    if( !load_module( env, libmath_query, "math", "global" ) ) goto error;
+    // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 
     // clear context
     type_engine_unload_context( env );
     
     return TRUE;
+
+error:
+
+    // clear context
+    type_engine_unload_context( env );
+
+    return FALSE;
 }
 
 
@@ -294,6 +303,7 @@ int main( int argc, char ** argv )
     t_CKUINT adc = 0;
     t_CKBOOL dump = FALSE;
     t_CKBOOL probe = FALSE;
+    t_CKBOOL set_priority = FALSE;
 
     t_CKUINT files = 0;
     t_CKINT i;
@@ -332,7 +342,7 @@ int main( int argc, char ** argv )
             else if( !strncmp(argv[i], "--adc", 5) )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--level", 7) )
-                g_priority = atoi( argv[i]+7 );
+            {   g_priority = atoi( argv[i]+7 ); set_priority = TRUE; }
             else if( !strncmp(argv[i], "--remote", 8) )
                 strcpy( g_host, argv[i]+8 );
             else if( !strncmp(argv[i], "@", 1) )
@@ -372,6 +382,8 @@ int main( int argc, char ** argv )
 
     // check buffer size
     buffer_size = next_power_2( buffer_size-1 );
+    // audio, boost
+    if( !set_priority && !enable_audio ) g_priority = 0x7fffffff;
     // set priority
     Chuck_VM::our_priority = g_priority;
     
@@ -397,7 +409,8 @@ int main( int argc, char ** argv )
     // enable dump
     emitter->dump = dump;
     // load internal libs
-    // load_internal_modules( env );
+    if( !load_internal_modules( env ) ) 
+        exit( 1 );
 
     // loop through and process each file
     for( i = 1; i < argc; i++ )

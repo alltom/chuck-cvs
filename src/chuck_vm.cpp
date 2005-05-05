@@ -165,7 +165,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     if( pthread_getschedparam( tid, &policy, &param) ) 
     {
         if( vm )
-        vm->m_last_error = "could not get current scheduling parameters";
+            vm->m_last_error = "could not get current scheduling parameters";
         return FALSE;
     }
 
@@ -177,10 +177,31 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     if( pthread_setschedparam( tid, policy, &param ) )
     {
         if( vm )
-        vm->m_last_error = "could not get set new scheduling parameters";
+            vm->m_last_error = "could not set new scheduling parameters";
         return FALSE;
     }
     
+    return TRUE;
+}
+#else
+//-----------------------------------------------------------------------------
+// name: set_priority()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
+{
+    // set the priority class of the process
+    // if( !SetPriorityClass( GetCurrentProcess(), HIGH_PRIORITY_CLASS ) )
+    //     return FALSE;
+
+    // set the priority the thread
+    if( !SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL ) )
+    {
+        if( vm )
+            vm->m_last_error = "could not set new scheduling parameters";
+        return FALSE;
+    }
+
     return TRUE;
 }
 #endif
@@ -202,11 +223,11 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         return FALSE;
     }
 
-#ifndef __WINDOWS_DS__
+//#ifndef __WINDOWS_DS__
     // boost thread priority
     if( priority != 0x7fffffff && !set_priority( priority, this ) )
         return FALSE;
-#endif
+//#endif
 
     // allocate bbq
     m_bbq = new BBQ;

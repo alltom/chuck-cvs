@@ -90,9 +90,11 @@ CHUCK_THREAD g_tid = 0;
 char g_host[256] = "127.0.0.1";
 int g_port = 8888;
 #if defined(__MACOSX_CORE__)
-t_CKINT g_priority = 95;
+  t_CKINT g_priority = 95;
+#elif defined(__WINDOWS_DS__)
+  t_CKINT g_priority = 1;
 #else
-t_CKINT g_priority = 0x7fffffff;
+  t_CKINT g_priority = 0x7fffffff;
 #endif
 
 
@@ -819,6 +821,7 @@ int main( int argc, char ** argv )
     t_CKUINT num_buffers = 8;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
+    t_CKBOOL set_priority = FALSE;
 
     // catch SIGINT
     signal( SIGINT, signal_int );
@@ -860,7 +863,7 @@ int main( int argc, char ** argv )
             else if( !strncmp(argv[i], "--adc", 5) )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--level", 7) )
-                g_priority = atoi( argv[i]+7 );
+            {   g_priority = atoi( argv[i]+7 ); set_priority = TRUE; }
             else if( !strncmp(argv[i], "--remote", 8) )
                 strcpy( g_host, argv[i]+8 );
             else if( !strncmp(argv[i], "@", 1) )
@@ -890,6 +893,8 @@ int main( int argc, char ** argv )
     
     // check buffer size
     buffer_size = next_power_2( buffer_size-1 );
+    // if audio then boost priority
+    if( !set_priority && !enable_audio ) g_priority = 0x7fffffff;
     // set priority
     Chuck_VM::our_priority = g_priority;
 
