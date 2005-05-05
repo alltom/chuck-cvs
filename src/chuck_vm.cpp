@@ -190,6 +190,10 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
 {
+    // if priority is 0, then do nothing
+    if( !priority )
+        return TRUE;
+
     // set the priority class of the process
     // if( !SetPriorityClass( GetCurrentProcess(), HIGH_PRIORITY_CLASS ) )
     //     return FALSE;
