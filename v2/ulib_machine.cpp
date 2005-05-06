@@ -65,8 +65,8 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
     
     // add spork
     //! same as add
-    QUERY->add_sfun( QUERY, machine_add_impl, "int", "spork" );
-    QUERY->add_arg( QUERY, "string", "path" );
+    // QUERY->add_sfun( QUERY, machine_add_impl, "int", "spork" );
+    // QUERY->add_arg( QUERY, "string", "path" );
     
     // add remove
     //! remove shred from VM by shred ID (returned by add/spork)

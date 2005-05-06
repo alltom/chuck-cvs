@@ -72,7 +72,7 @@
 #if defined(__MACOSX_CORE__)
   t_CKINT g_priority = 95;
 #elif defined(__WINDOWS_DS__)
-  t_CKINT g_priority = 1;
+  t_CKINT g_priority = 0;
 #else
   t_CKINT g_priority = 0x7fffffff;
 #endif
@@ -243,8 +243,8 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     // load
     if( !load_module( env, machine_query, "machine", "global" ) ) goto error;
     // machine_init( g_vm, process_msg );
-    if( !load_module( env, libstd_query, "std", "global" ) ) goto error;
-    if( !load_module( env, libmath_query, "math", "global" ) ) goto error;
+    // if( !load_module( env, libstd_query, "std", "global" ) ) goto error;
+    // if( !load_module( env, libmath_query, "math", "global" ) ) goto error;
     // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 
     // clear context

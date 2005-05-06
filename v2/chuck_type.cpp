@@ -2481,6 +2481,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     Chuck_Func * func = NULL;
     a_Arg_List arg_list = NULL;
     t_CKUINT count = 0;
+    t_CKBOOL has_code = FALSE;  // use this for both user and imported
 
     // see if we are already in a function definition
     if( env->func != NULL )
@@ -2490,13 +2491,17 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         return FALSE;
     }
 
-    // check if reserved
-    if( type_engine_check_reserved( env, f->name, f->linepos ) )
-    {
-        EM_error2( f->linepos, "...in function definition '%s'",
-            S_name(f->name) );
-        return FALSE;
-    }
+    // if not imported, then check to make sure no reserved word conflict
+    //if( f->s_type != ae_func_builtin )  // TODO: fix this
+    //{
+        // check if reserved
+        if( type_engine_check_reserved( env, f->name, f->linepos ) )
+        {
+            EM_error2( f->linepos, "...in function definition '%s'",
+                S_name(f->name) );
+            return FALSE;
+        }
+    //}
 
     // look up the value
     if( env->curr->lookup_value( f->name, TRUE ) )
@@ -2681,22 +2686,27 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         goto error;
     }
+
+    // figure out if the function has code associated with it
+    if( f->s_type == ae_func_user ) has_code = ( f->code != NULL );
+    else has_code = (f->dl_func_ptr != NULL); // imported
+
     // if interface, then cannot have code
-    if( env->class_def && env->class_def->def->iface && f->code )
+    if( env->class_def && env->class_def->def->iface && has_code )
     {
         EM_error2( f->linepos, "interface function signatures cannot contain code..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         goto error;
     }
     // if pure, then cannot have code
-    if( f->static_decl == ae_key_abstract && f->code )
+    if( f->static_decl == ae_key_abstract && has_code )
     {
         EM_error2( f->linepos, "'pure' function signatures cannot contain code..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
         goto error;
     }
     // yeah
-    if( f->static_decl != ae_key_abstract && !f->code )
+    if( f->static_decl != ae_key_abstract && !has_code )
     {
         EM_error2( f->linepos, "function declaration must contain code..." );
         EM_error2( f->linepos, "(unless in interface, or is declared 'pure')" );
