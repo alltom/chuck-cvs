@@ -72,11 +72,11 @@ extern "C" int yyparse( void );
 #include "ulib_std.h"
 
 // current version
-#define CK_VERSION "1.1.5.6b"
+#define CK_VERSION "1.1.5.6c"
 
 
 #ifdef __PLATFORM_WIN32__
-//'C' specification necessary for windows to link properly
+// 'C' specification necessary for windows to link properly
 extern "C" a_Program g_program;
 #else
 extern a_Program g_program;
@@ -92,7 +92,7 @@ int g_port = 8888;
 #if defined(__MACOSX_CORE__)
   t_CKINT g_priority = 95;
 #elif defined(__WINDOWS_DS__)
-  t_CKINT g_priority = 1;
+  t_CKINT g_priority = 0;
 #else
   t_CKINT g_priority = 0x7fffffff;
 #endif
