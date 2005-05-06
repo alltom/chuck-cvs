@@ -85,6 +85,9 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
     //! (see example/status.ck)
     QUERY->add_sfun( QUERY, machine_status_impl, "int", "status" );
 
+    // end class
+    QUERY->end_class( QUERY );
+
     return TRUE;
 }
 
@@ -142,6 +145,9 @@ CK_DLL_SFUN( machine_replace_impl )
 // status
 CK_DLL_SFUN( machine_status_impl )
 {
+    fprintf( stderr, "status\n" );
+    return;
+
     Net_Msg msg;
     
     msg.type = MSG_STATUS;

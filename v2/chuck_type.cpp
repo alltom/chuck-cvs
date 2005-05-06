@@ -2317,12 +2317,21 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // the class body
     a_Class_Body body = class_def->body;
 
+    // if nspc is attached to class_def, that means the class_def is to be
+    // put in that namespace.  this is usually the case when doing import
+    if( class_def->home != NULL )
+    {
+        // set the new type as current
+        env->nspc_stack.push_back( env->curr );
+        env->curr = class_def->home;
+    }
+
     // make sure class not already in namespace
     if( env->curr->lookup_type( class_def->name->id, TRUE ) )
     {
         EM_error2( class_def->name->linepos,
-            "class/type '%s' is already defined in current context",
-            S_name(class_def->name->id) );
+            "class/type '%s' is already defined in namespace '%s'",
+            S_name(class_def->name->id), env->curr->name.c_str() );
         return FALSE;
     }
 
@@ -2431,7 +2440,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // pop the namesapce
     env->curr = env->nspc_stack.back();
     env->nspc_stack.pop_back();
-    
+
     // if things checked out
     if( ret )
     {
@@ -2456,12 +2465,24 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // remember
         class_def->type = the_class;
 
+
+    
         // TODO: clean up if the context failed
     }
     else
     {
         // delete the class definition
         the_class->release();
+    }
+
+    // if nspc is attached to class_def, that means the class_def is to be
+    // put in that namespace.  this is usually the case when doing import
+    // we undo that extra namespace layer here...
+    if( class_def->home != NULL )
+    {
+        // pop the namesapce
+        env->curr = env->nspc_stack.back();
+        env->nspc_stack.pop_back();
     }
 
     return ret;
@@ -2520,6 +2541,14 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     func->name = S_name(f->name);
     // reference the function definition
     func->def = f;
+    // copy the native code, for imported functions
+    if( f->s_type == ae_func_builtin )
+    {
+        // we can emit code now
+        func->code = new Chuck_VM_Code;
+        // set the function pointer
+        func->code->native_func = (t_CKUINT)func->def->dl_func_ptr;
+    }
     // note whether the function is marked as member
     func->is_member = (f->static_decl != ae_key_static) && 
                       (env->class_def != NULL);
@@ -3828,6 +3857,8 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
 
         // construct class
         def = new_class_def( name, ext, body, 0 );
+        // set where to add
+        def->home = nspc;
         // TODO: mark the class as dll import?
 
         // type check it
