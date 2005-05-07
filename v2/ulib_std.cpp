@@ -54,11 +54,14 @@ int setenv( char *n, char *v, int i )
 DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 {
     // set name
-    QUERY->setname( QUERY, "std" );
+    QUERY->setname( QUERY, "Std" );
 
     /*! \example
     std.rand2f( 100.0, 1000.0 ) => stdout;
-    */    
+    */
+
+    // begin class
+    QUERY->begin_class( QUERY, "Stk", "Object" );
 
     // add abs
     QUERY->add_sfun( QUERY, abs_impl, "float", "abs" );

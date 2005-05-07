@@ -2839,6 +2839,15 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         goto error;
     }
 
+    // if imported, add the stack depth
+    if( f->s_type == ae_func_builtin )
+    {
+        // set the stack depth?
+        func->code->stack_depth = f->stack_depth;
+        // if member add room for this
+        if( func->is_member ) func->code->stack_depth += sizeof(t_CKUINT);
+    }
+
     // pop the value stack
     env->curr->value.pop();
     

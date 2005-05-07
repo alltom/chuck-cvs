@@ -244,7 +244,7 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     if( !load_module( env, machine_query, "machine", "global" ) ) goto error;
     // machine_init( g_vm, process_msg );
     // if( !load_module( env, libstd_query, "std", "global" ) ) goto error;
-    // if( !load_module( env, libmath_query, "math", "global" ) ) goto error;
+    if( !load_module( env, libmath_query, "math", "global" ) ) goto error;
     // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 
     // clear context

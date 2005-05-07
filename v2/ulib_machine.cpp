@@ -42,7 +42,7 @@
 //-----------------------------------------------------------------------------
 DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
 {
-    QUERY->setname( QUERY, "machine" );
+    QUERY->setname( QUERY, "Machine" );
 
     /*! \nameinfo
       ChucK runtime interface to the virtual machine.  
@@ -54,7 +54,7 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
     */
 
     // class
-    QUERY->begin_class( QUERY, "machine", "object" );
+    QUERY->begin_class( QUERY, "Machine", "Object" );
 
     // add add
     //! compile and spork a new shred from file at 'path' into the VM now
