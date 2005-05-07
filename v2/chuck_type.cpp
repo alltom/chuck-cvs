@@ -3884,7 +3884,8 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
 
 error:
     // error
-    EM_error2( 0, "...(in object import '%s')", "need name" );
+    EM_error2( 0, "...(in object import '%s' in DLL '%s')", 
+        query ? ( query->dll_name.c_str() == "" ? query->dll_name.c_str() : "[empty]" ) : "[null]", dll->name() );
 
     // free the path
     delete_id_list( path );

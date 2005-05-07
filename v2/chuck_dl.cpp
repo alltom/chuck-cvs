@@ -33,7 +33,7 @@
 // date: spring 2004 - 1.1
 //       spring 2005 - 1.2
 //-----------------------------------------------------------------------------
-#include "chuck_dl_new.h"
+#include "chuck_dl.h"
 #include "chuck_errmsg.h"
 #include "digiio_rtaudio.h"
 using namespace std;
@@ -623,6 +623,18 @@ void * Chuck_DLL::get_addr( const char * symbol )
 const char * Chuck_DLL::last_error() const
 {
     return m_last_error.c_str();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: name()
+// desc: ...
+//-----------------------------------------------------------------------------
+const char * Chuck_DLL::name() const
+{
+    return m_id.c_str();
 }
 
 

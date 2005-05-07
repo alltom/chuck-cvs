@@ -401,6 +401,8 @@ public:
     const Chuck_DL_Query * query( );
     // is good
     t_CKBOOL good() const;
+    // name
+    const char * name() const;
 
 public:
     // constructor
