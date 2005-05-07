@@ -2822,6 +2822,9 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
         a = a->next;
     }
 
+    // TODO: make sure the calculated stack depth is the same as func_def->stack depth
+    // taking into account member function
+
     // emit the code
     if( !emit_engine_emit_stmt( emit, func_def->code, FALSE ) )
         return FALSE;
