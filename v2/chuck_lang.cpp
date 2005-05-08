@@ -30,5 +30,57 @@
 //          Perry R. Cook (prc@cs.princeton.edu)
 //    date: spring 2005
 //-----------------------------------------------------------------------------
-
 #include "chuck_lang.h"
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lang_query()
+// desc: query entry point
+//-----------------------------------------------------------------------------
+DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
+{
+    QUERY->setname( QUERY, "Lang" );
+
+    /*! \nameinfo
+    basic classes for ChucK class library
+    */
+
+    // class
+    QUERY->begin_class( QUERY, "Object", "" );
+
+    // add setTestID
+    QUERY->add_mfun( QUERY, object_setTestID, "void", "setTestID" );
+    QUERY->add_arg( QUERY, "int", "value" );
+
+    // add getTestID
+    QUERY->add_mfun( QUERY, object_getTestID, "int", "getTestID" );
+
+    // add toString
+    //! return string that represents the value of the object
+    // QUERY->add_mfun( QUERY, object_toString, "string", "toString" );
+
+    // end class
+    QUERY->end_class( QUERY );
+
+    return TRUE;
+}
+
+
+
+
+// setTestID
+CK_DLL_MFUN( object_setTestID )
+{
+    t_CKINT v = GET_NEXT_INT(ARGS);
+//    RETURN->v_int = self->m_test_id;
+}
+
+
+// getTestID
+CK_DLL_MFUN( object_getTestID )
+{
+//    Lang_Object * THIS = (Lang_Object *)
+//    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
+}

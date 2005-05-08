@@ -35,61 +35,98 @@
 
 #include "chuck_def.h"
 #include "chuck_oo.h"
+#include "chuck_dl.h"
 
 
-// forward reference
-struct Lang_String;
+// query
+DLL_QUERY lang_query( Chuck_DL_Query * QUERY );
+
+
 
 
 //-----------------------------------------------------------------------------
-// name: Lang_Object
-// desc: base for all imported objects to extend, directly or indirectly
+// object API
 //-----------------------------------------------------------------------------
-struct Lang_Object
+CK_DLL_MFUN( object_setTestID );
+CK_DLL_MFUN( object_getTestID );
+CK_DLL_MFUN( object_toString );
+
+
+
+
+//-----------------------------------------------------------------------------
+// array API
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( array_capacity );
+CK_DLL_MFUN( array_size );
+CK_DLL_MFUN( array_push_back );
+CK_DLL_MFUN( array_pop_back );
+CK_DLL_MFUN( array_push_front );
+CK_DLL_MFUN( array_pop_font );
+CK_DLL_MFUN( array_clear );
+CK_DLL_MFUN( array_set_capacity );
+CK_DLL_MFUN( array_set_size );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_String
+// desc: base Chuck string class
+//-----------------------------------------------------------------------------
+struct Chuck_String
 {
 public:
-    // nothing for now
+    Chuck_String( const std::string & s = "" ) { str = s; }
+    ~Chuck_String() { }
+
+public:
+    std::string str;
 };
+//-----------------------------------------------------------------------------
+// string API
+//-----------------------------------------------------------------------------
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: Lang_Array
-// desc: chuck.lang.array
+// name: Chuck_Event
+// desc: base Chuck Event class
 //-----------------------------------------------------------------------------
-struct Lang_Array : public Lang_Object
+struct Chuck_Event
 {
 public:
-    // nothing either
+    Chuck_Event();
+    ~Chuck_Event();
+
+public:
+    t_CKUINT signal();
+    t_CKUINT broadcast();
+    t_CKUINT wait();
 };
+//-----------------------------------------------------------------------------
+// Event API
+//-----------------------------------------------------------------------------
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: Lang_String
-// desc: chuck.lang.string
+// name: Chuck_Exception
+// desc: base Chuck Exception class
 //-----------------------------------------------------------------------------
-struct Lang_String : public Lang_Object
+struct Chuck_Exception
 {
 public:
-    // the string
-    std::string * m_string;
-};
+    Chuck_Exception();
+    ~Chuck_Exception();
 
-
-
-
-//-----------------------------------------------------------------------------
-// name: Lang_Event
-// desc: chuck.lang.event
-//-----------------------------------------------------------------------------
-struct Lang_Event : public Lang_Object
-{
 public:
-    // nothing
 };
+//-----------------------------------------------------------------------------
+// Exception API
+//-----------------------------------------------------------------------------
 
 
 
