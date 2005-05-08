@@ -2541,17 +2541,19 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     func->name = S_name(f->name);
     // reference the function definition
     func->def = f;
+    // note whether the function is marked as member
+    func->is_member = (f->static_decl != ae_key_static) && 
+                      (env->class_def != NULL);
     // copy the native code, for imported functions
     if( f->s_type == ae_func_builtin )
     {
         // we can emit code now
         func->code = new Chuck_VM_Code;
+        // whether the function needs 'this'
+        func->code->need_this = func->is_member;
         // set the function pointer
         func->code->native_func = (t_CKUINT)func->def->dl_func_ptr;
     }
-    // note whether the function is marked as member
-    func->is_member = (f->static_decl != ae_key_static) && 
-                      (env->class_def != NULL);
 
     // make a new type for the function
     type = env->context->new_Chuck_Type();

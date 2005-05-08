@@ -110,11 +110,16 @@ public:
     ~Chuck_VM_Code();
 
 public:
+    // array of Chuck_Instr *, should always end with Chuck_Instr_EOF
     Chuck_Instr ** instr;
+    // size of the array
     t_CKUINT num_instr;
 
+    // name of this code
     string name;
+    // the depth of any function arguments
     t_CKUINT stack_depth;
+    // whether the function needs 'this' pointer or not
     t_CKBOOL need_this;
     // native
     t_CKUINT native_func;
