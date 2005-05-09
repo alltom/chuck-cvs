@@ -390,7 +390,7 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env )
     // make sure
     assert( env->context != NULL );
     assert( env->contexts.size() != 0 );
-    assert( env->context->has_error == FALSE );
+    // assert( env->context->has_error == FALSE );
     // pop the context scope
     env->context->nspc->value.pop();
     // restore the current namespace
