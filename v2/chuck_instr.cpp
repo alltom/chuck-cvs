@@ -1611,13 +1611,26 @@ void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
     // get the size
     object->size = type->obj_size;
     // allocate memory
-    // TODO: check to ensure enough memory
-    object->data = new t_CKBYTE[object->size];
-    // zero it out
-    memset( object->data, 0, object->size );
+    if( object->size )
+    {
+        // check to ensure enough memory
+        object->data = new t_CKBYTE[object->size];
+        if( !object->data ) goto out_of_memory;
+        // zero it out
+        memset( object->data, 0, object->size );
+    }
 
     // push the pointer on the operand stack
     push_( reg_sp, (t_CKUINT)object );
+
+    return;
+
+out_of_memory:
+
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): OutOfMemory: while instantiating object '%s'\n",
+        this->type->c_name() );
 }
 
 
@@ -2156,8 +2169,6 @@ out_of_memory:
     // we have a problem
     fprintf( stderr, 
         "[chuck](VM): OutOfMemory: while initializing arrays\n" );
-
-    return;
 }
 
 
