@@ -215,7 +215,7 @@ struct Chuck_Context : public Chuck_VM_Object
 
 
 // where we are
-enum ce_scope{ ce_global = 0, ce_class }; 
+// enum ce_scope{ ce_global = 0, ce_class }; 
 
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Env
@@ -366,7 +366,7 @@ public:
 
     // copy
     Chuck_Type * copy( Chuck_Env * env ) const
-    { Chuck_Type * n = env->context->new_Chuck_Type(); 
+    { Chuck_Type * n = env->context->new_Chuck_Type();
       *n = *this; return n; }
     
     // to string

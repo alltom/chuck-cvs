@@ -140,6 +140,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->vm = vm;
 	// set the name of global namespace
 	env->global.name = "global";
+    // set the current namespace to global
+    env->curr = &env->global;
 
     // enter the default global type mapping
 	env->global.type.add( t_void.name, &t_void );
