@@ -31,6 +31,8 @@
 //    date: spring 2005
 //-----------------------------------------------------------------------------
 #include "chuck_lang.h"
+#include "chuck_type.h"
+#include "chuck_vm.h"
 
 
 
@@ -73,6 +75,33 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
     return TRUE;
 }
 
+
+//-----------------------------------------------------------------------------
+// name: init_class_object()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_class_object( Chuck_Type * type )
+{
+    // make sure there is a namesapce
+    assert( type->info != NULL );
+    // make sure no pre_ctor is already there
+    assert( type->info->pre_ctor == NULL );
+
+    // allocate vm code for pre_ctor
+    type->info->pre_ctor = new Chuck_VM_Code;
+    // add pre_ctor
+    type->info->pre_ctor->native_func = (t_CKUINT)object_ctor;
+    // specify that we need this
+    type->info->pre_ctor->need_this = TRUE;
+    // no arguments to preconstructor other than self
+    type->info->pre_ctor->stack_depth = sizeof(t_CKUINT);
+}
+
+void init_class_string( Chuck_Type * type );
+void init_class_event( Chuck_Type * type );
+void init_class_ugen( Chuck_Type * type );
+void init_class_shred( Chuck_Type * type );
+void init_class_thread( Chuck_Type * type );
 
 // Object ctor
 CK_DLL_CTOR( object_ctor )

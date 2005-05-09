@@ -34,6 +34,7 @@
 #include "chuck_type.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
+#include "chuck_lang.h"
 // #include "chuck_instr.h"
 // #include "chuck_ugen.h"
 // #include "chuck_dl.h"
@@ -49,16 +50,16 @@ Chuck_Type t_int( te_int, "int", NULL, sizeof(t_CKINT) );
 Chuck_Type t_float( te_float, "float", NULL, sizeof(t_CKFLOAT) );
 Chuck_Type t_time( te_time, "time", NULL, sizeof(t_CKTIME) );
 Chuck_Type t_dur( te_dur, "dur", NULL, sizeof(t_CKTIME) );
-Chuck_Type t_object( te_object, "object", NULL, sizeof(void *) );
 Chuck_Type t_null( te_null, "@null", NULL, sizeof(void *) );
-Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
-Chuck_Type t_shred( te_shred, "shred", &t_object, sizeof(void *) );
-Chuck_Type t_thread( te_thread, "thread", &t_object, sizeof(void *) );
-Chuck_Type t_function( te_function, "function", &t_object, sizeof(void *) );
+Chuck_Type t_function( te_function, "@function", &t_object, sizeof(void *) );
 Chuck_Type t_array( te_array, "@array", NULL, sizeof(void *) );
-Chuck_Type t_class( te_class, "class", &t_object, sizeof(void *) );
-Chuck_Type t_event( te_event, "event", &t_object, sizeof(void *) );
-Chuck_Type t_ugen( te_ugen, "ugen", &t_object, sizeof(void *) );
+Chuck_Type t_object( te_object, "Object", NULL, sizeof(void *) );
+Chuck_Type t_string( te_string, "String", &t_object, sizeof(void *) );
+Chuck_Type t_event( te_event, "Event", &t_object, sizeof(void *) );
+Chuck_Type t_ugen( te_ugen, "UGen", &t_object, sizeof(void *) );
+Chuck_Type t_shred( te_shred, "Shred", &t_object, sizeof(void *) );
+Chuck_Type t_thread( te_thread, "Thread", &t_object, sizeof(void *) );
+Chuck_Type t_class( te_class, "Class", &t_object, sizeof(void *) );
 
 /* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
@@ -120,6 +121,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 // helper
 t_CKBOOL verify_array( a_Array_Sub array );
 const char * type_path( a_Id_List path );
+
 
 
 
