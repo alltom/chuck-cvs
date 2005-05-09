@@ -1566,21 +1566,42 @@ void Chuck_Instr_Alloc_Member_Word2::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 
 
 
+static Chuck_Instr_Func_Call g_func_call;
+static Chuck_Instr_Func_Call_Member g_func_call_member( 0 );
 //-----------------------------------------------------------------------------
 // name: call_pre_constructor()
 // desc: ...
 //-----------------------------------------------------------------------------
-//void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred, 
-//                           Chuck_Object * object, Chuck_VM_Code * func )
-//{
-//    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-//
-//    // push the pointer on the stack
-//    push_( reg_sp, (t_CKUINT)object );
-//    // push the pre constructor on the stack
-//    push_( reg_sp, (t_CKUINT)func );
-//    // push the current stack depth
-//}
+void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred, 
+                           Chuck_Object * object, Chuck_Type * type,
+                           t_CKUINT stack_offset )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // sanity
+    assert( type != NULL );
+    assert( type->info != NULL );
+
+    // let the parent call first
+    if( type->parent != NULL )
+        call_pre_constructor( vm, shred, object, type->parent, stack_offset );
+    
+    // a type can have no pre ctor
+    if( type->info->pre_ctor != NULL )
+    {
+        // push the pointer on the stack
+        push_( reg_sp, (t_CKUINT)object );
+        // push the pre constructor on the stack
+        push_( reg_sp, (t_CKUINT)type->info->pre_ctor );
+        // push the current stack depth
+        push_( reg_sp, stack_offset );
+        // call the function
+        if( type->info->pre_ctor->native_func != NULL )
+            g_func_call_member.execute( vm, shred );
+        else
+            g_func_call.execute( vm, shred );
+    }
+}
 
 
 
@@ -1632,6 +1653,10 @@ out_of_memory:
     fprintf( stderr, 
         "[chuck](VM): OutOfMemory: while instantiating object '%s'\n",
         this->type->c_name() );
+
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
@@ -2170,6 +2195,10 @@ out_of_memory:
     // we have a problem
     fprintf( stderr, 
         "[chuck](VM): OutOfMemory: while initializing arrays\n" );
+
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
@@ -2473,6 +2502,7 @@ error:
     fprintf( stderr, 
              "[chuck](VM): InternalArrayMap error in shred=[%s], PC=[%d], index=[%s]\n", 
              shred->name.c_str(), shred->pc, key->str.c_str() );
+
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2570,6 +2600,7 @@ error:
     fprintf( stderr, 
              "[chuck](VM): ArrayOutofBounds in shred=[%s], PC=[%d], index=[%d]\n", 
              shred->name.c_str(), shred->pc, i );
+
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2619,6 +2650,7 @@ error:
     fprintf( stderr, 
              "[chuck](VM): NullPointerException in shred=[%s], PC=[%d]\n", 
              shred->name.c_str(), shred->pc );
+
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2659,6 +2691,7 @@ error:
     fprintf( stderr, 
              "[chuck](VM): NullPointerException in shred=[%s], PC=[%d]\n", 
              shred->name.c_str(), shred->pc );
+
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
