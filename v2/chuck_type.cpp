@@ -54,12 +54,12 @@ Chuck_Type t_null( te_null, "@null", NULL, sizeof(void *) );
 Chuck_Type t_function( te_function, "@function", &t_object, sizeof(void *) );
 Chuck_Type t_array( te_array, "@array", NULL, sizeof(void *) );
 Chuck_Type t_object( te_object, "Object", NULL, sizeof(void *) );
-Chuck_Type t_string( te_string, "String", &t_object, sizeof(void *) );
-Chuck_Type t_event( te_event, "Event", &t_object, sizeof(void *) );
-Chuck_Type t_ugen( te_ugen, "UGen", &t_object, sizeof(void *) );
-Chuck_Type t_shred( te_shred, "Shred", &t_object, sizeof(void *) );
-Chuck_Type t_thread( te_thread, "Thread", &t_object, sizeof(void *) );
-Chuck_Type t_class( te_class, "Class", &t_object, sizeof(void *) );
+Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
+Chuck_Type t_event( te_event, "event", &t_object, sizeof(void *) );
+Chuck_Type t_ugen( te_ugen, "ugen", &t_object, sizeof(void *) );
+Chuck_Type t_shred( te_shred, "shred", &t_object, sizeof(void *) );
+Chuck_Type t_thread( te_thread, "thread", &t_object, sizeof(void *) );
+Chuck_Type t_class( te_class, "class", &t_object, sizeof(void *) );
 
 /* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };

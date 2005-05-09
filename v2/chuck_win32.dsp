@@ -115,6 +115,10 @@ SOURCE=.\chuck_instr.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_lang.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_main.cpp
 # End Source File
 # Begin Source File
@@ -236,6 +240,10 @@ SOURCE=.\chuck_frame.h
 # Begin Source File
 
 SOURCE=.\chuck_instr.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\chuck_lang.h
 # End Source File
 # Begin Source File
 
