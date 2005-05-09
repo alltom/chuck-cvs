@@ -49,6 +49,12 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
 
     // class
     QUERY->begin_class( QUERY, "Object", "" );
+    
+    // add ctor
+    QUERY->add_ctor( QUERY, object_ctor );
+
+    // add dtor
+    QUERY->add_dtor( QUERY, object_dtor );
 
     // add setTestID
     QUERY->add_mfun( QUERY, object_setTestID, "void", "setTestID" );
@@ -60,7 +66,7 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
     // add toString
     //! return string that represents the value of the object
     // QUERY->add_mfun( QUERY, object_toString, "string", "toString" );
-
+    
     // end class
     QUERY->end_class( QUERY );
 
@@ -68,19 +74,31 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
 }
 
 
+// Object ctor
+CK_DLL_CTOR( object_ctor )
+{
+    fprintf( stderr, "object ctor\n" );
+}
+
+
+// Object dtor
+CK_DLL_DTOR( object_dtor )
+{
+    fprintf( stderr, "object dtor\n" );
+}
 
 
 // setTestID
 CK_DLL_MFUN( object_setTestID )
 {
     t_CKINT v = GET_NEXT_INT(ARGS);
-//    RETURN->v_int = self->m_test_id;
+    fprintf( stderr, "setTestID( %i )\n", v );
 }
 
 
 // getTestID
 CK_DLL_MFUN( object_getTestID )
 {
-//    Lang_Object * THIS = (Lang_Object *)
-//    RETURN->v_int = (int)the_func( &msg, TRUE, NULL );
+    fprintf( stderr, "getTestID()\n" );
+    RETURN->v_int = 2;
 }

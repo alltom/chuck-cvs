@@ -47,9 +47,14 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY );
 //-----------------------------------------------------------------------------
 // object API
 //-----------------------------------------------------------------------------
+CK_DLL_CTOR( object_ctor );
+CK_DLL_DTOR( object_dtor );
+CK_DLL_MFUN( object_equals );
+CK_DLL_MFUN( object_getType );
+CK_DLL_MFUN( object_hashCode );
+CK_DLL_MFUN( object_toString );
 CK_DLL_MFUN( object_setTestID );
 CK_DLL_MFUN( object_getTestID );
-CK_DLL_MFUN( object_toString );
 
 
 
@@ -71,14 +76,14 @@ CK_DLL_MFUN( array_set_size );
 
 
 //-----------------------------------------------------------------------------
-// name: Chuck_String
-// desc: base Chuck string class
+// name: Data_String
+// desc: data for base Chuck string class
 //-----------------------------------------------------------------------------
-struct Chuck_String
+struct Data_String
 {
 public:
-    Chuck_String( const std::string & s = "" ) { str = s; }
-    ~Chuck_String() { }
+    Data_String( const std::string & s = "" ) { str = s; }
+    ~Data_String() { }
 
 public:
     std::string str;
@@ -91,14 +96,14 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: Chuck_Event
-// desc: base Chuck Event class
+// name: Data_Event
+// desc: data for base Chuck Event class
 //-----------------------------------------------------------------------------
-struct Chuck_Event
+struct Data_Event
 {
 public:
-    Chuck_Event();
-    ~Chuck_Event();
+    Data_Event();
+    ~Data_Event();
 
 public:
     t_CKUINT signal();
@@ -106,26 +111,26 @@ public:
     t_CKUINT wait();
 };
 //-----------------------------------------------------------------------------
-// Event API
+// event API
 //-----------------------------------------------------------------------------
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: Chuck_Exception
-// desc: base Chuck Exception class
+// name: Data_Exception
+// desc: data for base Chuck Exception class
 //-----------------------------------------------------------------------------
-struct Chuck_Exception
+struct Data_Exception
 {
 public:
-    Chuck_Exception();
-    ~Chuck_Exception();
+    Data_Exception();
+    ~Data_Exception();
 
 public:
 };
 //-----------------------------------------------------------------------------
-// Exception API
+// exception API
 //-----------------------------------------------------------------------------
 
 

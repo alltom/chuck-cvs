@@ -3822,9 +3822,18 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         // get name
         name = str2list( cl->name );
         if( !name ) goto error;
-        // get parent
-        parent = str2list( cl->parent );
-        if( !parent ) goto error;
+        // if parent is specified
+        if( cl->parent != "" )
+        {
+            // get parent
+            parent = str2list( cl->parent );
+            if( !parent ) goto error;
+        }
+        else // if no parent specified, then extend Object
+        {
+            parent = str2list( "Object" );
+            assert( parent != NULL );
+        }
 
         // clear the funs vector
         the_funs.clear();
