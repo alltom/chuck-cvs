@@ -138,7 +138,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     // make sure there is a context to emit
     assert( emit->env->context != NULL );
     // make sure no code
-    assert( emit->env->context->nspc.code == NULL );
+    assert( emit->env->context->nspc.pre_ctor == NULL );
 
     // return
     t_CKBOOL ret = TRUE;
@@ -193,7 +193,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
         emit->append( new Chuck_Instr_EOC );
 
         // converted to virtual machine code
-        emit->context->nspc.code = emit_to_code( emit->code, NULL, emit->dump );
+        emit->context->nspc.pre_ctor = emit_to_code( emit->code, NULL, emit->dump );
     }
 
     // clear the code
@@ -201,7 +201,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     emit->code = NULL;
 
     // return the code
-    return emit->context->nspc.code;
+    return emit->context->nspc.pre_ctor;
 }
 
 
@@ -2563,11 +2563,11 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
         if( type->has_constructor )
         {
             // make sure
-            assert( type->info->code != NULL );
+            assert( type->info->pre_ctor != NULL );
             // push this
             emit->append( new Chuck_Instr_Reg_Dup_Last );
             // push pre-constructor
-            emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->code ) );
+            emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->pre_ctor ) );
             // push frame offset
             emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
             // call the function
@@ -2869,7 +2869,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     a_Class_Body body = class_def->body;
     
     // make sure the code is empty
-    if( type->info->code != NULL )
+    if( type->info->pre_ctor != NULL )
     {
         EM_error2( class_def->linepos,
             "(emit): class '%s' already emitted...",
@@ -2897,7 +2897,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     // whether code needs this
     emit->code->need_this = TRUE;
     // if has constructor
-    if( type->has_constructor ) type->info->code = new Chuck_VM_Code;
+    if( type->has_constructor ) type->info->pre_ctor = new Chuck_VM_Code;
 
     // get the size
     emit->code->stack_depth += sizeof(t_CKUINT);
@@ -2941,12 +2941,12 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         // emit return statement
         emit->append( new Chuck_Instr_Func_Return );
         // vm code
-        type->info->code = emit_to_code( emit->code, type->info->code, emit->dump );
+        type->info->pre_ctor = emit_to_code( emit->code, type->info->pre_ctor, emit->dump );
     }
     else
     {
         // clean
-        SAFE_DELETE( type->info->code );
+        SAFE_DELETE( type->info->pre_ctor );
     }
 
     // unset the class

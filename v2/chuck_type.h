@@ -137,7 +137,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
     Chuck_Scope<Chuck_Value *> value;
     Chuck_Scope<Chuck_Func *> func;
     Chuck_Scope<Chuck_UGen_Info *> ugen;
-    Chuck_Scope<void *> addr;    
+    Chuck_Scope<void *> addr;
 
     // virtual table
     Chuck_VTable obj_v_table;
@@ -149,14 +149,14 @@ struct Chuck_Namespace : public Chuck_VM_Object
     // name
     string name;
     // top-level code
-    Chuck_VM_Code * code;
+    Chuck_VM_Code * pre_ctor;
     // type that contains this
     Chuck_Namespace * parent;
     // address offset
     t_CKUINT offset;
 
     // constructor
-	Chuck_Namespace() { code = NULL; parent = NULL; offset = 0; 
+	Chuck_Namespace() { pre_ctor = NULL; parent = NULL; offset = 0; 
                         class_data = NULL; class_data_size = 0; }
     // destructor
 	~Chuck_Namespace() { }
