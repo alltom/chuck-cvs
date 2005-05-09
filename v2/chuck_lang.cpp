@@ -77,6 +77,7 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
 
 
 
+
 //-----------------------------------------------------------------------------
 // name: init_base_class()
 // desc: initialize base class (such as object, string, etc...)
@@ -136,6 +137,8 @@ void init_base_class( Chuck_Env * env, Chuck_Type * type,
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: init_class_object()
 // desc: ...
@@ -146,11 +149,47 @@ void init_class_object( Chuck_Env * env, Chuck_Type * type )
     init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
 }
 
-void init_class_string( Chuck_Type * type );
-void init_class_event( Chuck_Type * type );
-void init_class_ugen( Chuck_Type * type );
-void init_class_shred( Chuck_Type * type );
-void init_class_thread( Chuck_Type * type );
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_string()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_class_string( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+//    init_base_class( env, type, env->global(), (t_CKUINT)string_ctor );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_event()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_class_event( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+//    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_class_shred( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+//    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+}
+
+
+
 
 // Object ctor
 CK_DLL_CTOR( object_ctor )
