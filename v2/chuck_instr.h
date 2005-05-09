@@ -1567,14 +1567,15 @@ public:
 struct Chuck_Instr_Instantiate_Object : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Instantiate_Object( Chuck_Type * t )
-    { this->type = t; }
+    Chuck_Instr_Instantiate_Object( Chuck_Type * t, t_CKUINT offset )
+    { this->type = t; this->stack_offset = offset; }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
     virtual const char * params() const;
 
 public:
     Chuck_Type * type;
+    t_CKUINT stack_offset;
 };
 
 
@@ -1781,7 +1782,8 @@ protected:
 struct Chuck_Instr_Array_Alloc : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * the_type );
+    Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * the_type,
+        t_CKUINT offset, t_CKBOOL ref );
     virtual ~Chuck_Instr_Array_Alloc();
 
 public:
@@ -1793,6 +1795,8 @@ protected:
     Chuck_Type * m_type_ref;
     t_CKBOOL m_is_obj;
     char * m_param_str;
+    t_CKUINT m_stack_offset;
+    t_CKBOOL m_is_ref;
 };
 
 

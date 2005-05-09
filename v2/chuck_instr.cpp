@@ -1607,28 +1607,29 @@ void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred,
 
 
 //-----------------------------------------------------------------------------
-// name: execute()
-// desc: instantiate object
+// name: instantiate_object()
+// desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
+                         Chuck_Type * type, t_CKUINT stack_offset )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_Object * object = NULL;
 
     // sanity
-    assert( this->type != NULL );
-    assert( this->type->info != NULL );
+    assert( type != NULL );
+    assert( type->info != NULL );
 
     // allocate the VM object
     object = new Chuck_Object;
     // allocate virtual table
     object->vtable = new Chuck_VTable;
     // copy the object's virtual table
-    object->vtable->funcs = this->type->info->obj_v_table.funcs;
+    object->vtable->funcs = type->info->obj_v_table.funcs;
     // set the type reference
     // TODO: reference count
-    object->type_ref = this->type;
+    object->type_ref = type;
     // get the size
     object->size = type->obj_size;
     // allocate memory
@@ -1645,6 +1646,9 @@ void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
     // push the pointer on the operand stack
     push_( reg_sp, (t_CKUINT)object );
 
+    // call preconstructor
+    call_pre_constructor( vm, shred, object, type, stack_offset );
+
     return;
 
 out_of_memory:
@@ -1652,11 +1656,23 @@ out_of_memory:
     // we have a problem
     fprintf( stderr, 
         "[chuck](VM): OutOfMemory: while instantiating object '%s'\n",
-        this->type->c_name() );
+        type->c_name() );
 
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: instantiate object
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    instantiate_object( vm, shred, this->type, this->stack_offset );
 }
 
 
@@ -2208,7 +2224,8 @@ out_of_memory:
 // name: Chuck_Instr_Array_Alloc()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Instr_Array_Alloc::Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * t )
+Chuck_Instr_Array_Alloc::Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * t,
+                                                  t_CKUINT offset, t_CKBOOL is_ref )
 {
     // set
     m_depth = depth;
@@ -2220,6 +2237,10 @@ Chuck_Instr_Array_Alloc::Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * t
     m_param_str = new char[64];
     // obj
     m_is_obj = isobj( m_type_ref );
+    // offset for pre constructor
+    m_stack_offset = offset;
+    // is object ref
+    m_is_ref = is_ref;
     const char * str = m_type_ref->c_name();
     t_CKUINT len = strlen( str );
     // copy
@@ -2256,14 +2277,20 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
 // name: do_alloc_array()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
-                               t_CKUINT size, t_CKBOOL is_obj )
+Chuck_Object * do_alloc_array( Chuck_VM * vm, Chuck_VM_Shred * shred,
+                               Chuck_Type * type, t_CKINT * capacity,
+                               const t_CKINT * top, t_CKUINT size, 
+                               t_CKUINT stack_offset, t_CKBOOL is_obj,
+                               t_CKBOOL is_ref )
 {
     // not top level
     Chuck_Array4 * base;
     Chuck_Object * next;
     t_CKINT i;
 
+    // reg stack pointer
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    
     // see if top level
     if( capacity >= top )
     {
@@ -2272,6 +2299,21 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
         {
             Chuck_Array4 * base = new Chuck_Array4( is_obj, *capacity );
             if( !base ) goto out_of_memory;
+
+            // if object
+            if( is_obj && !is_ref )
+            // loop
+            for( i = 0; i < *capacity; i++ )
+            {
+                fprintf( stderr, "." );
+                // make and construct
+                instantiate_object( vm, shred, type, stack_offset );
+                // pop object pointer off of stack
+                pop_( reg_sp, 1 );
+                // assign to element
+                base->set( i, (t_CKUINT)(*reg_sp) );
+            }
+
             return base;
         }
         else
@@ -2293,7 +2335,7 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
     for( i = 0; i < base->capacity(); i++ )
     {
         // the next
-        next = do_alloc_array( capacity+1, top, size, is_obj );
+        next = do_alloc_array( vm, shred, type, capacity+1, top, size, stack_offset, is_obj, is_ref );
         // error if NULL
         if( !next ) goto error;
         // set that
@@ -2330,15 +2372,22 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // ref
     t_CKUINT ref = 0;
 
-    // pop the indices
-    pop_( reg_sp, m_depth );
     // recursively allocate
     ref = (t_CKUINT)do_alloc_array( 
-        (t_CKINT *)reg_sp,
-        (t_CKINT *)(reg_sp + m_depth - 1),
+        vm,
+        shred,
+        m_type_ref,
+        (t_CKINT *)(reg_sp - m_depth),
+        (t_CKINT *)(reg_sp - 1),
         m_type_ref->size,
-        m_is_obj
+        m_stack_offset,
+        m_is_obj,
+        m_is_ref
     );
+
+    // pop the indices - this protects the contents of the stack
+    // do_alloc_array writes stuff to the stack
+    pop_( reg_sp, m_depth );
 
     // problem
     if( !ref )

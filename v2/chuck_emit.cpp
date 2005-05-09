@@ -2524,15 +2524,17 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
         // emit indices
         emit_engine_emit_exp( emit, array->exp_list );
         // emit array allocation
-        emit->append( new Chuck_Instr_Array_Alloc( type->array_depth, type->array_type ) );
+        emit->append( new Chuck_Instr_Array_Alloc( 
+            type->array_depth, type->array_type, emit->code->frame->curr_offset,
+            is_ref ) );
 
         // handle constructor
-        if( isobj( type->array_type ) && !is_ref )
-        {
-            // TODO:
-            EM_error2( array->linepos, "internal error: object array constructor not impl..." );
-            return FALSE;
-        }
+        //if( isobj( type->array_type ) && !is_ref )
+        //{
+        //    // TODO:
+        //    EM_error2( array->linepos, "internal error: object array constructor not impl..." );
+        //    return FALSE;
+        //}
     }
     else if( !is_ref ) // not array
     {
@@ -2554,28 +2556,28 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
         //else
         //{
 
-        // emit object instantiation code
-        emit->append( new Chuck_Instr_Instantiate_Object( type ) );
+        // emit object instantiation code, include pre constructor
+        emit->append( new Chuck_Instr_Instantiate_Object( type, emit->code->frame->curr_offset ) );
 
         //}
         
         // constructor
-        if( type->has_constructor )
-        {
-            // make sure
-            assert( type->info->pre_ctor != NULL );
-            // push this
-            emit->append( new Chuck_Instr_Reg_Dup_Last );
-            // push pre-constructor
-            emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->pre_ctor ) );
-            // push frame offset
-            emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
-            // call the function
-            if( type->info->pre_ctor->native_func != NULL )
-                emit->append( new Chuck_Instr_Func_Call_Member( 0 ) );
-            else
-                emit->append( new Chuck_Instr_Func_Call );
-        }
+        //if( type->has_constructor )
+        //{
+        //    // make sure
+        //    assert( type->info->pre_ctor != NULL );
+        //    // push this
+        //    emit->append( new Chuck_Instr_Reg_Dup_Last );
+        //    // push pre-constructor
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->pre_ctor ) );
+        //    // push frame offset
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
+        //    // call the function
+        //    if( type->info->pre_ctor->native_func != NULL )
+        //        emit->append( new Chuck_Instr_Func_Call_Member( 0 ) );
+        //    else
+        //        emit->append( new Chuck_Instr_Func_Call );
+        //}
     }
 
     return TRUE;

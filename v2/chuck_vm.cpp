@@ -824,6 +824,7 @@ Chuck_VM_Code::Chuck_VM_Code()
     num_instr = 0;
     stack_depth = 0;
     need_this = FALSE;
+    native_func = NULL;
 }
 
 
