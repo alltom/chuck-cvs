@@ -153,19 +153,6 @@ void init_class_object( Chuck_Env * env, Chuck_Type * type )
 
 
 //-----------------------------------------------------------------------------
-// name: init_class_string()
-// desc: ...
-//-----------------------------------------------------------------------------
-void init_class_string( Chuck_Env * env, Chuck_Type * type )
-{
-    // init as base class
-//    init_base_class( env, type, env->global(), (t_CKUINT)string_ctor );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: init_class_event()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -186,6 +173,32 @@ void init_class_shred( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
 //    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_string()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_class_string( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+//    init_base_class( env, type, env->global(), (t_CKUINT)string_ctor );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_array()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_class_array( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+//    init_base_array( env, type, env->global(), (t_CKUINT)string_ctor );
 }
 
 

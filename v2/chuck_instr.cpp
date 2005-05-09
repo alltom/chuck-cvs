@@ -1619,6 +1619,7 @@ void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
         // zero it out
         memset( object->data, 0, object->size );
     }
+    else object->data = NULL;
 
     // push the pointer on the operand stack
     push_( reg_sp, (t_CKUINT)object );

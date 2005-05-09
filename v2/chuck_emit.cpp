@@ -2571,7 +2571,10 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
             // push frame offset
             emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
             // call the function
-            emit->append( new Chuck_Instr_Func_Call );
+            if( type->info->pre_ctor->native_func != NULL )
+                emit->append( new Chuck_Instr_Func_Call_Member( 0 ) );
+            else
+                emit->append( new Chuck_Instr_Func_Call );
         }
     }
 
