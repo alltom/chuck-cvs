@@ -1,5 +1,35 @@
+
 todo
 ---
+- add pre_ctor for all types, imports or user
+- add ability to add member variables, and get back something to look 
+them up, such as index of data segment.
+- release objects from all scopes
+- overload functions
+- array initialization
+  - multi-type [ 1, "foo" ]
+  - optimize reduce if static
+
+class library:
+- object
+- string
+- array
+- event
+  - OSC
+  - MIDI
+  - other shreds
+- exception
+- ugen
+  - make it work
+  - stereo
+  - multichannel
+- IO
+  - file input
+  - file output
+  - OSC (also events)
+  - MIDI (also events)
+
+
 check binary operators
 string
 
@@ -13,5 +43,5 @@ objects
   - constructors
   - destructor
 
-dot member
-arrays
+done - dot member
+done - arrays
