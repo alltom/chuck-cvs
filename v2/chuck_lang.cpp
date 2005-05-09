@@ -82,7 +82,7 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
 // desc: initialize base class (such as object, string, etc...)
 //-----------------------------------------------------------------------------
 void init_base_class( Chuck_Env * env, Chuck_Type * type, 
-                      Chuck_Namespace * nspc, t_CKUINT ctor )
+                      Chuck_Namespace * nspc, t_CKUINT pre_ctor )
 {
     Chuck_Value * value = NULL;
     Chuck_Type * type_type = NULL;
@@ -101,7 +101,7 @@ void init_base_class( Chuck_Env * env, Chuck_Type * type,
     // allocate vm code for pre_ctor
     type->info->pre_ctor = new Chuck_VM_Code;
     // add pre_ctor
-    type->info->pre_ctor->native_func = ctor;
+    type->info->pre_ctor->native_func = pre_ctor;
     // specify that we need this
     type->info->pre_ctor->need_this = TRUE;
     // no arguments to preconstructor other than self
