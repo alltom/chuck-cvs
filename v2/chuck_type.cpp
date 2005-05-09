@@ -344,6 +344,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     {
         // TODO: remove the effects of the context in the env
         // ---> insert code here <----
+        // flag the context with error, so more stuff gets deleted
+        env->context->has_error = TRUE;
         // remove the context
         type_engine_unload_context( env );
     }
@@ -388,6 +390,7 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env )
     // make sure
     assert( env->context != NULL );
     assert( env->contexts.size() != 0 );
+    assert( env->context->has_error == FALSE );
     // pop the context scope
     env->context->nspc->value.pop();
     // restore the current namespace
@@ -3110,9 +3113,19 @@ t_CKBOOL isa( Chuck_Type * lhs, Chuck_Type * rhs ) { return (*lhs) <= (*rhs); }
 //-----------------------------------------------------------------------------
 Chuck_Context::~Chuck_Context()
 {
-    // delete the types - can't do this since the type system and vm still use
-    // for( t_CKINT i = 0; i < new_types.size(); i++ )
-    //    new_types[i]->release();
+    // if has error, then delete nspc.  otherwise, the nspc stays as part of
+    // the type system, since many things have been added to it
+    if( has_error )
+    {
+        SAFE_DELETE( nspc );
+
+        // delete the types - can't do this since the type system and vm still use
+        for( t_CKINT i = 0; i < new_types.size(); i++ )
+            new_types[i]->release();
+
+        // clear it
+        new_types.clear();
+    }
 
     // TODO: delete abstract syntax tree * 
 }

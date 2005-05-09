@@ -193,6 +193,8 @@ struct Chuck_Context : public Chuck_VM_Object
 	a_Program parse_tree;
     // context namespace
     Chuck_Namespace * nspc;
+    // error - means to free nspc too
+    t_CKBOOL has_error;  
 
     // things to release with the context
     std::vector<Chuck_VM_Object *> new_types;
@@ -201,7 +203,8 @@ struct Chuck_Context : public Chuck_VM_Object
     std::vector<Chuck_VM_Object *> new_nspc;
 
     // constructor
-	Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; }
+	Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; 
+                      has_error = FALSE; }
 	// destructor
 	~Chuck_Context();
 
