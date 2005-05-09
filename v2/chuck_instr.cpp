@@ -2338,10 +2338,8 @@ Chuck_Object * do_alloc_array( Chuck_VM * vm, Chuck_VM_Shred * shred,
         next = do_alloc_array( vm, shred, type, capacity+1, top, size, stack_offset, is_obj, is_ref );
         // error if NULL
         if( !next ) goto error;
-        // set that
+        // set that, with ref count
         base->set( i, (t_CKUINT)next );
-        // ref count it
-        next->add_ref();
     }
 
     return base;
