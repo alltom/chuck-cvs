@@ -143,7 +143,7 @@ void init_base_class( Chuck_Env * env, Chuck_Type * type,
 void init_class_object( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
-    init_base_class( env, type, &env->global, (t_CKUINT)object_ctor );
+    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
 }
 
 void init_class_string( Chuck_Type * type );

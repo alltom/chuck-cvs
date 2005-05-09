@@ -192,7 +192,7 @@ struct Chuck_Context : public Chuck_VM_Object
 	// parse tree
 	a_Program parse_tree;
     // context namespace
-    Chuck_Namespace nspc;
+    Chuck_Namespace * nspc;
 
     // things to release with the context
     std::vector<Chuck_VM_Object *> new_types;
@@ -201,7 +201,7 @@ struct Chuck_Context : public Chuck_VM_Object
     std::vector<Chuck_VM_Object *> new_nspc;
 
     // constructor
-	Chuck_Context() { parse_tree = NULL; }
+	Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; }
 	// destructor
 	~Chuck_Context();
 
@@ -223,8 +223,15 @@ struct Chuck_Context : public Chuck_VM_Object
 //-----------------------------------------------------------------------------
 struct Chuck_Env : public Chuck_VM_Object
 {
+protected:
 	// global namespace
-	Chuck_Namespace global;
+	Chuck_Namespace * global_nspc;
+    // global context
+    Chuck_Context global_context;
+
+public:
+    // global namespace
+    Chuck_Namespace * global() { return global_nspc; }
 	// namespace stack
 	vector<Chuck_Namespace *> nspc_stack;
 	// expression namespace
@@ -257,19 +264,20 @@ struct Chuck_Env : public Chuck_VM_Object
     map<string, t_CKBOOL> key_values;
 
 	// constructor
-	Chuck_Env( )
-	{ vm = NULL; context = NULL; this->reset(); }
+    Chuck_Env( )
+	{ vm = NULL; context = &global_context; 
+      global_nspc = global_context.nspc; this->reset(); }
 	// destructor
 	~Chuck_Env() { }
 
 	// reset
 	void reset( )
-	{ nspc_stack.clear(); nspc_stack.push_back( &global );
+	{ nspc_stack.clear(); nspc_stack.push_back( this->global() );
       class_stack.clear(); class_stack.push_back( NULL );
-      assert( context == NULL );
+      assert( context == &global_context );
       // if( context ) { contexts.pop_back(); context->release(); } 
-      curr = &global; class_def = NULL; func = NULL;
-      context = NULL; class_scope = 0; }
+      curr = this->global(); class_def = NULL; func = NULL;
+      class_scope = 0; }
 
     // top
 	Chuck_Namespace * nspc_top( )

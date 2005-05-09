@@ -138,7 +138,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     // make sure there is a context to emit
     assert( emit->env->context != NULL );
     // make sure no code
-    assert( emit->env->context->nspc.pre_ctor == NULL );
+    assert( emit->env->context->nspc->pre_ctor == NULL );
 
     // return
     t_CKBOOL ret = TRUE;
@@ -147,7 +147,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     // set the current context
     emit->context = emit->env->context;
     // set the namespace
-    emit->nspc = &(emit->context->nspc);
+    emit->nspc = emit->context->nspc;
     // reset the class
     emit->class_def = NULL;
     // reset the func
@@ -193,7 +193,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
         emit->append( new Chuck_Instr_EOC );
 
         // converted to virtual machine code
-        emit->context->nspc.pre_ctor = emit_to_code( emit->code, NULL, emit->dump );
+        emit->context->nspc->pre_ctor = emit_to_code( emit->code, NULL, emit->dump );
     }
 
     // clear the code
@@ -201,7 +201,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     emit->code = NULL;
 
     // return the code
-    return emit->context->nspc.pre_ctor;
+    return emit->context->nspc->pre_ctor;
 }
 
 
@@ -3122,7 +3122,7 @@ t_CKBOOL Chuck_Emitter::find_dur( const string & name, t_CKDUR * out )
     // zero
     *out = 0.0;
     // get value from env
-    Chuck_Value * value = env->global.lookup_value( name, FALSE );
+    Chuck_Value * value = env->global()->lookup_value( name, FALSE );
     if( !value || !equals( value->type, &t_dur ) ) return FALSE;
     // copy
     *out = *( (t_CKDUR *)value->addr );
