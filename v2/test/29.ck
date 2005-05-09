@@ -1,3 +1,13 @@
+class X
+{
+    1 => int x;
+
+	fun void foo()
+	{
+	    2 => x;
+	}
+}
+
 
 Machine.status();
 

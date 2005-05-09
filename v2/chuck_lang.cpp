@@ -76,25 +76,74 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
 }
 
 
+
 //-----------------------------------------------------------------------------
-// name: init_class_object()
-// desc: ...
+// name: init_base_class()
+// desc: initialize base class (such as object, string, etc...)
 //-----------------------------------------------------------------------------
-void init_class_object( Chuck_Type * type )
+void init_base_class( Chuck_Env * env, Chuck_Type * type, 
+                      Chuck_Namespace * nspc, t_CKUINT ctor )
 {
-    // make sure there is a namesapce
-    assert( type->info != NULL );
-    // make sure no pre_ctor is already there
-    assert( type->info->pre_ctor == NULL );
+    Chuck_Value * value = NULL;
+    Chuck_Type * type_type = NULL;
+
+    // make sure there is not namesapce
+    assert( type->info == NULL );
+
+    // allocate namespace for type
+    type->info = new Chuck_Namespace;
+    type->info->add_ref();
+    // name it
+    type->info->name = type->name;
+    // set the parent namespace
+    type->info->parent = nspc;
 
     // allocate vm code for pre_ctor
     type->info->pre_ctor = new Chuck_VM_Code;
     // add pre_ctor
-    type->info->pre_ctor->native_func = (t_CKUINT)object_ctor;
+    type->info->pre_ctor->native_func = ctor;
     // specify that we need this
     type->info->pre_ctor->need_this = TRUE;
     // no arguments to preconstructor other than self
     type->info->pre_ctor->stack_depth = sizeof(t_CKUINT);
+
+    // set the beginning of the data segment after parent
+    if( type->parent ) type->info->offset = type->parent->obj_size;
+    // duplicate parent's virtual table
+    type->info->obj_v_table = type->info->obj_v_table;
+
+    // set the owner namespace
+    type->owner = nspc;
+    // set the size, which is always the width of a pointer
+    type->size = sizeof(t_CKUINT);
+    // set the object size
+    type->obj_size = 0; // TODO
+
+    // flag as complete
+    type->is_complete = TRUE;
+    // make type
+    type_type = t_class.copy( env );
+    type_type->actual_type = type;
+    // make value
+    value = new Chuck_Value( type_type, type->name );
+    value->add_ref();
+    value->owner = nspc;
+    value->is_const = TRUE;
+    value->is_member = FALSE;
+
+    // add to env
+    nspc->value.add( value->name, value );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_object()
+// desc: ...
+//-----------------------------------------------------------------------------
+void init_class_object( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+    init_base_class( env, type, &env->global, (t_CKUINT)object_ctor );
 }
 
 void init_class_string( Chuck_Type * type );

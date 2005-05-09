@@ -169,8 +169,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_CKDUR week = day * 7.0;
 
     // make sure Objects have namespaces
-    t_object.info = new Chuck_Namespace;
-    t_object.info->add_ref();
+    init_class_object( env, &t_object );
     t_string.info = new Chuck_Namespace;
     t_string.info->add_ref();
     t_ugen.info = new Chuck_Namespace;
@@ -2389,7 +2388,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->func = NULL;
     the_class->def = class_def;
     // add to env
-    env->curr->type.add( the_class->name, the_class );
+    env->curr->type.add( the_class->name, the_class );  // URGENT: make this global
     // incomplete
     the_class->is_complete = FALSE;
 
@@ -2467,8 +2466,6 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // remember
         class_def->type = the_class;
 
-
-    
         // TODO: clean up if the context failed
     }
     else
