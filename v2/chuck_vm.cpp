@@ -981,6 +981,10 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
 
     SAFE_DELETE( mem );
     SAFE_DELETE( reg );
+    
+    // delete temp pointer space
+    SAFE_DELETE_ARRAY( obj_array );
+    obj_array_size = 0;
 
     // TODO: is this right?
     code = NULL;

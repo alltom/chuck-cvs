@@ -77,6 +77,7 @@ t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
                                         t_CKBOOL push = TRUE );
 t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
 t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def );
+t_CKBOOL emit_engine_pre_constructor( Chuck_Emitter * emit, Chuck_Type * type );
 t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type,
                                          a_Array_Sub array, t_CKBOOL is_ref );
 t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
@@ -2512,6 +2513,61 @@ t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if )
 
 
 //-----------------------------------------------------------------------------
+// name: emit_engine_pre_constructor()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_pre_constructor( Chuck_Emitter * emit, Chuck_Type * type )
+{
+    // parent first pre constructor
+    if( type->parent != NULL )
+        emit_engine_pre_constructor( emit, type->parent );
+
+    // pre constructor
+    if( type->has_constructor )
+    {
+        // make sure
+        assert( type->info->pre_ctor != NULL );
+        // append instruction
+        emit->append( new Chuck_Instr_Pre_Constructor( type->info->pre_ctor,
+            emit->code->frame->curr_offset ) );
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_pre_constructor_array()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_pre_constructor_array( Chuck_Emitter * emit, Chuck_Type * type )
+{
+    // alloc should have put all objects to made in linear list, on stack
+    Chuck_Instr_Pre_Ctor_Array_Top * top = NULL;
+    Chuck_Instr_Pre_Ctor_Array_Bottom * bottom = NULL;
+    // get start index
+    t_CKUINT start_index = emit->next_index();
+    // append first part of pre ctor
+    emit->append( top = new Chuck_Instr_Pre_Ctor_Array_Top( type ) );
+    // call pre constructor
+    emit_engine_pre_constructor( emit, type );
+    // append second part of the pre ctor
+    emit->append( bottom = new Chuck_Instr_Pre_Ctor_Array_Bottom );
+    // set the goto of the first one
+    top->set( emit->next_index() );
+    // set the goto for the second one
+    bottom->set( start_index );
+    // clean up code
+    emit->append( new Chuck_Instr_Pre_Ctor_Array_Post );
+
+    return TRUE;
+}
+
+
+
+//-----------------------------------------------------------------------------
 // name: emit_engine_instantiate_object()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2529,55 +2585,19 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
             is_ref ) );
 
         // handle constructor
-        //if( isobj( type->array_type ) && !is_ref )
-        //{
-        //    // TODO:
-        //    EM_error2( array->linepos, "internal error: object array constructor not impl..." );
-        //    return FALSE;
-        //}
+        if( isobj( type->array_type ) && !is_ref )
+        {
+            // call pre constructor for array
+            emit_engine_pre_constructor_array( emit, type->array_type );
+        }
     }
     else if( !is_ref ) // not array
     {
-        // if ugen
-        //if( isa( type, &t_ugen ) )
-        //{
-        //    // get the ugen info
-        //    Chuck_UGen_Info * info = decl->self->type->ugen;
-        //    if( !info )
-        //    {
-        //        EM_error2( decl->linepos,
-        //            "(emit): internal error: undefined ugen type '%s'",
-        //            type->name.c_str() );
-        //        return FALSE;
-        //    }
-        //    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
-        //    emit->append( new Chuck_Instr_UGen_Alloc() );
-        //}
-        //else
-        //{
-
         // emit object instantiation code, include pre constructor
-        emit->append( new Chuck_Instr_Instantiate_Object( type, emit->code->frame->curr_offset ) );
-
-        //}
+        emit->append( new Chuck_Instr_Instantiate_Object( type ) );
         
-        // constructor
-        //if( type->has_constructor )
-        //{
-        //    // make sure
-        //    assert( type->info->pre_ctor != NULL );
-        //    // push this
-        //    emit->append( new Chuck_Instr_Reg_Dup_Last );
-        //    // push pre-constructor
-        //    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->pre_ctor ) );
-        //    // push frame offset
-        //    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
-        //    // call the function
-        //    if( type->info->pre_ctor->native_func != NULL )
-        //        emit->append( new Chuck_Instr_Func_Call_Member( 0 ) );
-        //    else
-        //        emit->append( new Chuck_Instr_Func_Call );
-        //}
+        // call pre constructor
+        emit_engine_pre_constructor( emit, type );
     }
 
     return TRUE;
@@ -3134,3 +3154,82 @@ t_CKBOOL Chuck_Emitter::find_dur( const string & name, t_CKDUR * out )
     
     return TRUE;
 }
+
+
+
+
+/*
+//-----------------------------------------------------------------------------
+// name: emit_engine_instantiate_object()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type,
+                                         a_Array_Sub array, t_CKBOOL is_ref )
+{
+    // if array
+    if( type->array_depth )
+    {
+        // emit indices
+        emit_engine_emit_exp( emit, array->exp_list );
+        // emit array allocation
+        emit->append( new Chuck_Instr_Array_Alloc( 
+            type->array_depth, type->array_type, emit->code->frame->curr_offset,
+            is_ref ) );
+
+        // handle constructor
+        //if( isobj( type->array_type ) && !is_ref )
+        //{
+        //    // TODO:
+        //    EM_error2( array->linepos, "internal error: object array constructor not impl..." );
+        //    return FALSE;
+        //}
+    }
+    else if( !is_ref ) // not array
+    {
+        // if ugen
+        //if( isa( type, &t_ugen ) )
+        //{
+        //    // get the ugen info
+        //    Chuck_UGen_Info * info = decl->self->type->ugen;
+        //    if( !info )
+        //    {
+        //        EM_error2( decl->linepos,
+        //            "(emit): internal error: undefined ugen type '%s'",
+        //            type->name.c_str() );
+        //        return FALSE;
+        //    }
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
+        //    emit->append( new Chuck_Instr_UGen_Alloc() );
+        //}
+        //else
+        //{
+
+        // emit object instantiation code, include pre constructor
+        emit->append( new Chuck_Instr_Instantiate_Object( type ) );
+
+        //}
+        
+        // call pre constructor
+        emit_engine_pre_constructor( emit, type );
+
+        // constructor
+        //if( type->has_constructor )
+        //{
+        //    // make sure
+        //    assert( type->info->pre_ctor != NULL );
+        //    // push this
+        //    emit->append( new Chuck_Instr_Reg_Dup_Last );
+        //    // push pre-constructor
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->pre_ctor ) );
+        //    // push frame offset
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
+        //    // call the function
+        //    if( type->info->pre_ctor->native_func != NULL )
+        //        emit->append( new Chuck_Instr_Func_Call_Member( 0 ) );
+        //    else
+        //        emit->append( new Chuck_Instr_Func_Call );
+        //}
+    }
+
+    return TRUE;
+}*/

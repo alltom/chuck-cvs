@@ -1567,15 +1567,81 @@ public:
 struct Chuck_Instr_Instantiate_Object : public Chuck_Instr
 {
 public:
-    Chuck_Instr_Instantiate_Object( Chuck_Type * t, t_CKUINT offset )
-    { this->type = t; this->stack_offset = offset; }
+    Chuck_Instr_Instantiate_Object( Chuck_Type * t )
+    { this->type = t; }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
     virtual const char * params() const;
 
 public:
     Chuck_Type * type;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Pre_Constructor
+// desc: preconstruct object
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Pre_Constructor : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Pre_Constructor( Chuck_VM_Code * pre, t_CKUINT offset )
+    { pre_ctor = pre; this->stack_offset = offset; }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    // virtual const char * params() const;
+
+public:
+    Chuck_VM_Code * pre_ctor;
     t_CKUINT stack_offset;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Pre_Ctor_Array_Top
+// desc: preconstruct object in array (top)
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Pre_Ctor_Array_Top : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Pre_Ctor_Array_Top( Chuck_Type * t )
+    { this->type = t; }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    // virtual const char * params() const;
+
+public:
+    Chuck_Type * type;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Pre_Ctor_Array_Bottom
+// desc: preconstruct object in array (bottom)
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Pre_Ctor_Array_Bottom : public Chuck_Instr_Unary_Op
+{
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    // virtual const char * params() const;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Pre_Ctor_Array_Post
+// desc: preconstruct object in array (clean up)
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Pre_Ctor_Array_Post : public Chuck_Instr
+{
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    // virtual const char * params() const;
 };
 
 

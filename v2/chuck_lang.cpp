@@ -99,14 +99,20 @@ void init_base_class( Chuck_Env * env, Chuck_Type * type,
     // set the parent namespace
     type->info->parent = nspc;
 
-    // allocate vm code for pre_ctor
-    type->info->pre_ctor = new Chuck_VM_Code;
-    // add pre_ctor
-    type->info->pre_ctor->native_func = pre_ctor;
-    // specify that we need this
-    type->info->pre_ctor->need_this = TRUE;
-    // no arguments to preconstructor other than self
-    type->info->pre_ctor->stack_depth = sizeof(t_CKUINT);
+    // if pre constructor
+    if( pre_ctor != NULL )
+    {
+        // flag it
+        type->has_constructor = TRUE;
+        // allocate vm code for pre_ctor
+        type->info->pre_ctor = new Chuck_VM_Code;
+        // add pre_ctor
+        type->info->pre_ctor->native_func = pre_ctor;
+        // specify that we need this
+        type->info->pre_ctor->need_this = TRUE;
+        // no arguments to preconstructor other than self
+        type->info->pre_ctor->stack_depth = sizeof(t_CKUINT);
+    }
 
     // set the beginning of the data segment after parent
     if( type->parent ) type->info->offset = type->parent->obj_size;

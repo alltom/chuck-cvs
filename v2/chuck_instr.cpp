@@ -1573,35 +1573,38 @@ static Chuck_Instr_Func_Call_Member g_func_call_member( 0 );
 // name: call_pre_constructor()
 // desc: ...
 //-----------------------------------------------------------------------------
-void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred, 
-                           Chuck_Object * object, Chuck_Type * type,
-                           t_CKUINT stack_offset )
+inline void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred, 
+                                  Chuck_VM_Code * pre_ctor, t_CKUINT stack_offset )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // sanity
-    assert( type != NULL );
-    assert( type->info != NULL );
+    assert( pre_ctor != NULL );
 
-    // let the parent call first
-    if( type->parent != NULL )
-        call_pre_constructor( vm, shred, object, type->parent, stack_offset );
-    
-    // a type can have no pre ctor
-    if( type->info->pre_ctor != NULL )
-    {
-        // push the pointer on the stack
-        push_( reg_sp, (t_CKUINT)object );
-        // push the pre constructor on the stack
-        push_( reg_sp, (t_CKUINT)type->info->pre_ctor );
-        // push the current stack depth
-        push_( reg_sp, stack_offset );
-        // call the function
-        if( type->info->pre_ctor->native_func != NULL )
-            g_func_call_member.execute( vm, shred );
-        else
-            g_func_call.execute( vm, shred );
-    }
+    // first duplicate the top of the stack, which should be object pointer
+    push_( reg_sp, *(reg_sp-1) );
+    // push the pre constructor
+    push_( reg_sp, (t_CKUINT)pre_ctor );
+    // push the stack offset
+    push_( reg_sp, stack_offset );
+
+    // call the function
+    if( pre_ctor->native_func != NULL )
+        g_func_call_member.execute( vm, shred );
+    else
+        g_func_call.execute( vm, shred );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: object pre construct
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Pre_Constructor::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    call_pre_constructor( vm, shred, pre_ctor, stack_offset );
 }
 
 
@@ -1611,8 +1614,8 @@ void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred,
 // name: instantiate_object()
 // desc: ...
 //-----------------------------------------------------------------------------
-void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
-                         Chuck_Type * type, t_CKUINT stack_offset )
+inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
+                                Chuck_Type * type )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
@@ -1648,7 +1651,7 @@ void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
     push_( reg_sp, (t_CKUINT)object );
 
     // call preconstructor
-    call_pre_constructor( vm, shred, object, type, stack_offset );
+    // call_pre_constructor( vm, shred, object, type, stack_offset );
 
     return;
 
@@ -1673,7 +1676,7 @@ out_of_memory:
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Instantiate_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    instantiate_object( vm, shred, this->type, this->stack_offset );
+    instantiate_object( vm, shred, this->type  );
 }
 
 
@@ -1688,6 +1691,74 @@ const char * Chuck_Instr_Instantiate_Object::params() const
     static char buffer[256];
     sprintf( buffer, "%s", this->type->c_name() );
     return buffer;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: object pre construct top
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Pre_Ctor_Array_Top::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // see if we are done with all elements in the array
+    if( *(reg_sp-2) >= *(reg_sp-1) )
+        shred->next_pc = m_val;
+    else
+    {
+        // instantiate
+        instantiate_object( vm, shred, type );
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: object pre construct bottom
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Pre_Ctor_Array_Bottom::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // pop the object
+    pop_( reg_sp, 1 );
+    
+    // cast the object
+    Chuck_Object * obj = (Chuck_Object *)(*(reg_sp));
+
+    // assign object
+    t_CKUINT * array = (t_CKUINT *)(*(reg_sp-3));
+    // get the object pointer
+    Chuck_Object ** dest = (Chuck_Object **)(array[*(reg_sp-2)]);
+    // copy
+    *dest = obj;
+    // ref count
+    obj->add_ref();
+    // increment the index
+    (*(reg_sp-2))++;
+
+    // goto top
+    shred->next_pc = m_val;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: object pre construct post
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Pre_Ctor_Array_Post::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // pop the array, index, and size
+    pop_( reg_sp, 3 );
 }
 
 
@@ -2422,7 +2493,11 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // push array
     push_( reg_sp, ref );
     // push objects to instantiate
-    // push_( reg_sp, (t_CKUINT)objs );
+    push_( reg_sp, (t_CKUINT)shred->obj_array );
+    // push index to use
+    push_( reg_sp, 0 );
+    // push size
+    push_( reg_sp, (t_CKUINT)num_obj );
 
     return;
 
