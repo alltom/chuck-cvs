@@ -2278,20 +2278,15 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
 // name: do_alloc_array()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Object * do_alloc_array( Chuck_VM * vm, Chuck_VM_Shred * shred,
-                               Chuck_Type * type, t_CKINT * capacity,
-                               const t_CKINT * top, t_CKUINT size, 
-                               t_CKUINT stack_offset, t_CKBOOL is_obj,
-                               t_CKBOOL is_ref )
+Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
+                               t_CKUINT size, t_CKBOOL is_obj,
+                               t_CKUINT * objs, t_CKINT & index )
 {
     // not top level
     Chuck_Array4 * base;
     Chuck_Object * next;
     t_CKINT i;
 
-    // reg stack pointer
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-    
     // see if top level
     if( capacity >= top )
     {
@@ -2302,17 +2297,14 @@ Chuck_Object * do_alloc_array( Chuck_VM * vm, Chuck_VM_Shred * shred,
             if( !base ) goto out_of_memory;
 
             // if object
-            if( is_obj && !is_ref )
-            // loop
-            for( i = 0; i < *capacity; i++ )
+            if( is_obj && objs )
             {
-                fprintf( stderr, "." );
-                // make and construct
-                instantiate_object( vm, shred, type, stack_offset );
-                // pop object pointer off of stack
-                pop_( reg_sp, 1 );
-                // assign to element
-                base->set( i, (t_CKUINT)(*reg_sp) );
+                // loop
+                for( i = 0; i < *capacity; i++ )
+                {
+                    // add to array for later allocation
+                    objs[index++] = base->addr( i );
+                }
             }
 
             return base;
@@ -2336,7 +2328,7 @@ Chuck_Object * do_alloc_array( Chuck_VM * vm, Chuck_VM_Shred * shred,
     for( i = 0; i < base->capacity(); i++ )
     {
         // the next
-        next = do_alloc_array( vm, shred, type, capacity+1, top, size, stack_offset, is_obj, is_ref );
+        next = do_alloc_array( capacity+1, top, size, is_obj, objs, index );
         // error if NULL
         if( !next ) goto error;
         // set that, with ref count
@@ -2370,35 +2362,80 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     // ref
     t_CKUINT ref = 0;
+    // the total number of objects to allocate
+    t_CKUINT num_obj = 0;
+    // the object array
+    t_CKUINT * objs = NULL;
+    // the index to pass to the arrays
+    t_CKINT index = 0;
+    // number
+    t_CKFLOAT num = 1.0;
+
+    // if need instantiation
+    if( m_is_obj && !m_is_ref )
+    {
+        t_CKINT * curr = (t_CKINT *)(reg_sp - m_depth);
+        t_CKINT * top = (t_CKINT *)(reg_sp - 1);
+
+        num_obj = 1;
+        num = 1.0;
+        // product of all dims
+        while( curr <= top )
+        {
+            num_obj *= *(curr);
+
+            // overflow
+            num *= (t_CKFLOAT)(*(curr));
+            if( num > (t_CKFLOAT)INT_MAX ) goto overflow;
+
+            curr++;
+        }
+
+        // allocate array - for later instantiation
+        objs = new t_CKUINT[num_obj];
+        if( !objs ) goto out_of_memory;
+    }
 
     // recursively allocate
     ref = (t_CKUINT)do_alloc_array( 
-        vm,
-        shred,
-        m_type_ref,
         (t_CKINT *)(reg_sp - m_depth),
         (t_CKINT *)(reg_sp - 1),
         m_type_ref->size,
-        m_stack_offset,
         m_is_obj,
-        m_is_ref
+        objs, index
     );
 
     // pop the indices - this protects the contents of the stack
     // do_alloc_array writes stuff to the stack
     pop_( reg_sp, m_depth );
 
-    // problem
-    if( !ref )
-    {
-        // done
-        shred->is_running = FALSE;
-        shred->is_done = TRUE;
-        return;
-    }
+    // make sure
+    assert( index == num_obj );
 
-    // push
+    // problem
+    if( !ref ) goto error;
+
+    // push array
     push_( reg_sp, ref );
+    // push objects to instantiate
+    // push_( reg_sp, (t_CKUINT)objs );
+
+    return;
+
+overflow:
+    // we have a problem
+    fprintf( stderr,
+        "[chuck](VM): OverFlow: requested array size too big\n" );
+
+out_of_memory:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): OutOfMemory: while allocating arrays\n" );
+
+error:
+    // done
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
@@ -2472,6 +2509,7 @@ error:
     fprintf( stderr, 
              "[chuck](VM): ArrayOutofBounds in shred=[%s], PC=[%d], index=[%d]\n", 
              shred->name.c_str(), shred->pc, i );
+
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
