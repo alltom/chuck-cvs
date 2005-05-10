@@ -213,7 +213,7 @@ void init_class_array( Chuck_Env * env, Chuck_Type * type )
 // Object ctor
 CK_DLL_CTOR( object_ctor )
 {
-//    fprintf( stderr, "object ctor\n" );
+    fprintf( stderr, "object ctor\n" );
 }
 
 
