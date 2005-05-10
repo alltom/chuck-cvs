@@ -913,6 +913,8 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     next = prev = NULL;
     instr = NULL;
     parent = NULL;
+    obj_array = NULL;
+    obj_array_size = 0;
 }
 
 

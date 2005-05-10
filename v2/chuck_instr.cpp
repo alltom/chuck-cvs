@@ -2364,8 +2364,6 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     t_CKUINT ref = 0;
     // the total number of objects to allocate
     t_CKUINT num_obj = 0;
-    // the object array
-    t_CKUINT * objs = NULL;
     // the index to pass to the arrays
     t_CKINT index = 0;
     // number
@@ -2391,9 +2389,15 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             curr++;
         }
 
-        // allocate array - for later instantiation
-        objs = new t_CKUINT[num_obj];
-        if( !objs ) goto out_of_memory;
+        // check to see if we need to allocate
+        if( num > shred->obj_array_size )
+        {
+            SAFE_DELETE( shred->obj_array );
+            shred->obj_array_size = 0;
+            shred->obj_array = new t_CKUINT[num_obj];
+            if( !shred->obj_array ) goto out_of_memory;
+            shred->obj_array_size = num_obj;
+        }
     }
 
     // recursively allocate
@@ -2402,7 +2406,7 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         (t_CKINT *)(reg_sp - 1),
         m_type_ref->size,
         m_is_obj,
-        objs, index
+        shred->obj_array, index 
     );
 
     // pop the indices - this protects the contents of the stack
