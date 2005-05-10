@@ -2492,12 +2492,17 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     // push array
     push_( reg_sp, ref );
-    // push objects to instantiate
-    push_( reg_sp, (t_CKUINT)shred->obj_array );
-    // push index to use
-    push_( reg_sp, 0 );
-    // push size
-    push_( reg_sp, (t_CKUINT)num_obj );
+
+    // if need to instantiate
+    if( m_is_obj && !m_is_ref )
+    {
+        // push objects to instantiate
+        push_( reg_sp, (t_CKUINT)shred->obj_array );
+        // push index to use
+        push_( reg_sp, 0 );
+        // push size
+        push_( reg_sp, (t_CKUINT)num_obj );
+    }
 
     return;
 
