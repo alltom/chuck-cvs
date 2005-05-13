@@ -38,47 +38,6 @@
 
 
 //-----------------------------------------------------------------------------
-// name: lang_query()
-// desc: query entry point
-//-----------------------------------------------------------------------------
-DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
-{
-    QUERY->setname( QUERY, "Lang" );
-
-    /*! \nameinfo
-    basic classes for ChucK class library
-    */
-
-    // class
-    QUERY->begin_class( QUERY, "Object", "" );
-    
-    // add ctor
-    QUERY->add_ctor( QUERY, object_ctor );
-
-    // add dtor
-    QUERY->add_dtor( QUERY, object_dtor );
-
-    // add setTestID
-    QUERY->add_mfun( QUERY, object_setTestID, "void", "setTestID" );
-    QUERY->add_arg( QUERY, "int", "value" );
-
-    // add getTestID
-    QUERY->add_mfun( QUERY, object_getTestID, "int", "getTestID" );
-
-    // add toString
-    //! return string that represents the value of the object
-    // QUERY->add_mfun( QUERY, object_toString, "string", "toString" );
-    
-    // end class
-    QUERY->end_class( QUERY );
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: init_base_class()
 // desc: initialize base class (such as object, string, etc...)
 //-----------------------------------------------------------------------------
@@ -151,8 +110,17 @@ void init_base_class( Chuck_Env * env, Chuck_Type * type,
 //-----------------------------------------------------------------------------
 void init_class_object( Chuck_Env * env, Chuck_Type * type )
 {
+    Chuck_Func * func = NULL;
+
     // init as base class
     init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+    // add a function
+//    func = add_mfun( env, type, object_setTestID, "void", "setTestID" );
+//    if( !func ) return FALSE;
+    // add args
+//    add 
+
+    // add 
 }
 
 
@@ -238,3 +206,42 @@ CK_DLL_MFUN( object_getTestID )
     fprintf( stderr, "getTestID()\n" );
     RETURN->v_int = 2;
 }
+
+
+
+
+/*
+//-----------------------------------------------------------------------------
+// name: lang_query()
+// desc: query entry point
+//-----------------------------------------------------------------------------
+DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
+{
+    QUERY->setname( QUERY, "Lang" );
+
+    // class
+    QUERY->begin_class( QUERY, "Object", "" );
+    
+    // add ctor
+    QUERY->add_ctor( QUERY, object_ctor );
+
+    // add dtor
+    QUERY->add_dtor( QUERY, object_dtor );
+
+    // add setTestID
+    QUERY->add_mfun( QUERY, object_setTestID, "void", "setTestID" );
+    QUERY->add_arg( QUERY, "int", "value" );
+
+    // add getTestID
+    QUERY->add_mfun( QUERY, object_getTestID, "int", "getTestID" );
+
+    // add toString
+    //! return string that represents the value of the object
+    // QUERY->add_mfun( QUERY, object_toString, "string", "toString" );
+    
+    // end class
+    QUERY->end_class( QUERY );
+
+    return TRUE;
+}
+*/
