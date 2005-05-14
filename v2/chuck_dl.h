@@ -304,24 +304,7 @@ struct Chuck_DL_Class
 };
 
 
-//-----------------------------------------------------------------------------
-// name: struct Chuck_DL_Func
-// desc: function from module
-//-----------------------------------------------------------------------------
-struct Chuck_DL_Func
-{
-    // the name of the function
-    std::string name;
-    // the return type
-    std::string type;
-    // the pointer
-    union { f_ctor ctor; f_dtor dtor; f_mfun mfun; f_sfun sfun; };
-    // arguments
-    std::vector<Chuck_DL_Value *> args;
-    
-    // destructor
-    ~Chuck_DL_Func();
-};
+
 
 
 //-----------------------------------------------------------------------------
@@ -341,6 +324,35 @@ struct Chuck_DL_Value
     
     // constructor
     Chuck_DL_Value() { is_const = FALSE; static_addr = NULL; }
+    Chuck_DL_Value( const char * t, const char * n, t_CKBOOL c = FALSE, void * a = NULL )
+    { name = n; type = t; is_const = c; static_addr = a; }
+};
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_DL_Func
+// desc: function from module
+//-----------------------------------------------------------------------------
+struct Chuck_DL_Func
+{
+    // the name of the function
+    std::string name;
+    // the return type
+    std::string type;
+    // the pointer
+    union { f_ctor ctor; f_dtor dtor; f_mfun mfun; f_sfun sfun; t_CKUINT addr; };
+    // arguments
+    std::vector<Chuck_DL_Value *> args;
+    
+    // constructor
+    Chuck_DL_Func() { ctor = NULL; }
+    Chuck_DL_Func( const char * t, const char * n, t_CKUINT a )
+    { name = n; type = t; addr = a; }
+    // destructor
+    ~Chuck_DL_Func();
+    // add arg
+    void add_arg( const char * t, const char * n )
+    { args.push_back( new Chuck_DL_Value( t, n ) ); }
 };
 
 
@@ -361,6 +373,16 @@ struct Chuck_DL_Ctrl
     // cget
     f_cget cget;
 };
+
+
+//------------------------------------------------------------------------------
+// alternative functions to make stuff
+//------------------------------------------------------------------------------
+Chuck_DL_Func * make_new_mfun( const char * t, const char * n, f_mfun mfun );
+Chuck_DL_Func * make_new_sfun( const char * t, const char * n, f_sfun sfun );
+Chuck_DL_Value * make_new_arg( const char * t, const char * n );
+Chuck_DL_Value * make_new_mvar( const char * t, const char * n, t_CKBOOL c );
+Chuck_DL_Value * make_new_svar( const char * t, const char * n, t_CKBOOL c, void * a );
 
 
 //------------------------------------------------------------------------------

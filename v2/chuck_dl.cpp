@@ -403,6 +403,23 @@ t_CKBOOL CK_DLL_CALL ck_end_class( Chuck_DL_Query * query )
 
 
 
+//------------------------------------------------------------------------------
+// alternative functions to make stuff
+//------------------------------------------------------------------------------
+Chuck_DL_Func * make_new_mfun( const char * t, const char * n, f_mfun mfun )
+{   return new Chuck_DL_Func( t, n, (t_CKUINT)mfun ); }
+Chuck_DL_Func * make_new_sfun( const char * t, const char * n, f_sfun sfun )
+{   return new Chuck_DL_Func( t, n, (t_CKUINT)sfun ); }
+Chuck_DL_Value * make_new_arg( const char * t, const char * n )
+{   return new Chuck_DL_Value( t, n ); }
+Chuck_DL_Value * make_new_mvar( const char * t, const char * n, t_CKBOOL c )
+{   return new Chuck_DL_Value( t, n, c ); }
+Chuck_DL_Value * make_new_svar( const char * t, const char * n, t_CKBOOL c, void * a )
+{   return new Chuck_DL_Value( t, n, c, a ); }
+
+
+
+
 //-----------------------------------------------------------------------------
 // name: load()
 // desc: load dynamic link library

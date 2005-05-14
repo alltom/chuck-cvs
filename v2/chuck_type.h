@@ -493,6 +493,18 @@ t_CKBOOL isprim( Chuck_Type * type );
 t_CKBOOL isobj( Chuck_Type * type );
 t_CKBOOL isfunc( Chuck_Type * type );
 
+// import
+t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
+                                         Chuck_Namespace * where, t_CKUINT pre_ctor );
+t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun );
+t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun );
+t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 
+                                  const char * name, t_CKUINT is_const );
+t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
+                                  const char * name, t_CKUINT is_const,
+                                  t_CKUINT addr );
+t_CKBOOL type_engine_import_class_end( Chuck_Env * env );
+
 // helpers
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );

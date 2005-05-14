@@ -41,7 +41,7 @@
 // name: init_base_class()
 // desc: initialize base class (such as object, string, etc...)
 //-----------------------------------------------------------------------------
-void init_base_class( Chuck_Env * env, Chuck_Type * type, 
+void _class( Chuck_Env * env, Chuck_Type * type, 
                       Chuck_Namespace * nspc, t_CKUINT pre_ctor )
 {
     Chuck_Value * value = NULL;
@@ -108,19 +108,26 @@ void init_base_class( Chuck_Env * env, Chuck_Type * type,
 // name: init_class_object()
 // desc: ...
 //-----------------------------------------------------------------------------
-void init_class_object( Chuck_Env * env, Chuck_Type * type )
+t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
 {
-    Chuck_Func * func = NULL;
+    Chuck_DL_Func * func = NULL;
 
     // init as base class
-    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
-    // add a function
-//    func = add_mfun( env, type, object_setTestID, "void", "setTestID" );
-//    if( !func ) return FALSE;
-    // add args
-//    add 
+    type_engine_import_class_begin( env, type, env->global(), (t_CKUINT)object_ctor );
 
-    // add 
+    // add setTestID()
+    func = make_new_mfun( "void", "setTestID", object_setTestID );
+    func->add_arg( "int", "id" );
+    if( !type_engine_import_mfun( env, func ) ) return FALSE;
+    
+    // add getTestID()
+    func = make_new_mfun( "int", "getTestID", object_getTestID );
+    if( !type_engine_import_mfun( env, func ) ) return FALSE;
+
+    // add member variable
+
+    // end the class import
+    type_engine_import_class_end( env );
 }
 
 
@@ -130,10 +137,11 @@ void init_class_object( Chuck_Env * env, Chuck_Type * type )
 // name: init_class_event()
 // desc: ...
 //-----------------------------------------------------------------------------
-void init_class_event( Chuck_Env * env, Chuck_Type * type )
+t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
 //    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+    return TRUE;
 }
 
 
@@ -143,10 +151,11 @@ void init_class_event( Chuck_Env * env, Chuck_Type * type )
 // name: init_class_shred()
 // desc: ...
 //-----------------------------------------------------------------------------
-void init_class_shred( Chuck_Env * env, Chuck_Type * type )
+t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
 //    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+    return TRUE;
 }
 
 
@@ -156,10 +165,11 @@ void init_class_shred( Chuck_Env * env, Chuck_Type * type )
 // name: init_class_string()
 // desc: ...
 //-----------------------------------------------------------------------------
-void init_class_string( Chuck_Env * env, Chuck_Type * type )
+t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
 //    init_base_class( env, type, env->global(), (t_CKUINT)string_ctor );
+    return TRUE;
 }
 
 
@@ -169,10 +179,11 @@ void init_class_string( Chuck_Env * env, Chuck_Type * type )
 // name: init_class_array()
 // desc: ...
 //-----------------------------------------------------------------------------
-void init_class_array( Chuck_Env * env, Chuck_Type * type )
+t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
 //    init_base_array( env, type, env->global(), (t_CKUINT)string_ctor );
+    return TRUE;
 }
 
 

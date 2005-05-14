@@ -42,11 +42,11 @@
 DLL_QUERY lang_query( Chuck_DL_Query * QUERY );
 
 // base class initialization
-void init_class_object( Chuck_Env * env, Chuck_Type * type );
-void init_class_event( Chuck_Env * env, Chuck_Type * type );
-void init_class_shred( Chuck_Env * env, Chuck_Type * type );
-void init_class_string( Chuck_Env * env, Chuck_Type * type );
-void init_class_array( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type );
 
 
 

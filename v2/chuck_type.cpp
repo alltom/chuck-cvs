@@ -3450,6 +3450,72 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 
 
 //-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
+                                         Chuck_Namespace * where, t_CKUINT pre_ctor )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 
+                                  const char * name, t_CKUINT is_const )
+{
+    t_CKUINT offset = 0;
+    
+    return offset;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
+                                  const char * name, t_CKUINT is_const,
+                                  t_CKUINT addr )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: init_special()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -3897,7 +3963,6 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         
         // TODO: clean up?
     }
-
 
     // free the path
     delete_id_list( path );
