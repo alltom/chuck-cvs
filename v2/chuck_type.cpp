@@ -3450,9 +3450,82 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_import_class_begin()
+// desc: import existing base class, such as Object or Event
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
                                          Chuck_Namespace * where, t_CKUINT pre_ctor )
+{
+    Chuck_Value * value = NULL;
+    Chuck_Type * type_type = NULL;
+
+    // make sure there is not namesapce
+    if( type->info != NULL )
+    {
+        // error
+        EM_error2( 0, "during import: class '%s' already imported...", type->c_name() );
+        return FALSE;
+    }
+
+    // allocate namespace for type
+    type->info = new Chuck_Namespace;
+    type->info->add_ref();
+    // name it
+    type->info->name = type->name;
+    // set the parent namespace
+    type->info->parent = where;
+
+    // if pre constructor
+    if( pre_ctor != NULL )
+    {
+        // flag it
+        type->has_constructor = TRUE;
+        // allocate vm code for pre_ctor
+        type->info->pre_ctor = new Chuck_VM_Code;
+        // add pre_ctor
+        type->info->pre_ctor->native_func = pre_ctor;
+        // specify that we need this
+        type->info->pre_ctor->need_this = TRUE;
+        // no arguments to preconstructor other than self
+        type->info->pre_ctor->stack_depth = sizeof(t_CKUINT);
+    }
+
+    // set the beginning of the data segment after parent
+    if( type->parent ) type->info->offset = type->parent->obj_size;
+    // duplicate parent's virtual table
+    type->info->obj_v_table = type->info->obj_v_table;
+
+    // set the owner namespace
+    type->owner = where;
+    // set the size, which is always the width of a pointer
+    type->size = sizeof(t_CKUINT);
+    // set the object size
+    type->obj_size = 0; // TODO
+
+    // flag as complete
+    type->is_complete = TRUE;
+    // make type
+    type_type = t_class.copy( env );
+    type_type->actual_type = type;
+    // make value
+    value = new Chuck_Value( type_type, type->name );
+    value->add_ref();
+    value->owner = where;
+    value->is_const = TRUE;
+    value->is_member = FALSE;
+
+    // add to env
+    where->value.add( value->name, value );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 {
     return TRUE;
 }
@@ -3498,16 +3571,6 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
 t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
                                   const char * name, t_CKUINT is_const,
                                   t_CKUINT addr )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 {
     return TRUE;
 }
