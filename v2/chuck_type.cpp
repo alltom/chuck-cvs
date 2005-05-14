@@ -121,7 +121,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 // helper
 t_CKBOOL verify_array( a_Array_Sub array );
 const char * type_path( a_Id_List path );
-
+a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static );
 
 
 
@@ -3452,6 +3452,7 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 //-----------------------------------------------------------------------------
 // name: type_engine_import_class_begin()
 // desc: import existing base class, such as Object or Event
+//       must be completed by type_engine_import_class_end()
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
                                          Chuck_Namespace * where, t_CKUINT pre_ctor )
@@ -3517,6 +3518,13 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     // add to env
     where->value.add( value->name, value );
     
+    // make the type current
+    env->nspc_stack.push_back( env->curr );
+    env->curr = type->info;
+    // push the class def
+    env->class_stack.push_back( env->class_def );
+    env->class_def = type;
+
     return TRUE;
 }
 
@@ -3527,6 +3535,13 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 {
+    // pop the class
+    env->class_def = env->class_stack.back();
+    env->class_stack.pop_back();
+    // pop the namesapce
+    env->curr = env->nspc_stack.back();
+    env->nspc_stack.pop_back();
+        
     return TRUE;
 }
 
@@ -3537,6 +3552,14 @@ t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
 {
+    a_Func_Def func_def = NULL;
+    
+    // make into func_def
+    func_def = make_dll_as_fun( mfun, FALSE );
+    
+    // add the function to class
+    type_engine_check_func_def( env, func_def );
+
     return TRUE;
 }
 

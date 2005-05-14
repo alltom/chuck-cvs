@@ -35,73 +35,8 @@
 #include "chuck_vm.h"
 
 
-
-
-//-----------------------------------------------------------------------------
-// name: init_base_class()
-// desc: initialize base class (such as object, string, etc...)
-//-----------------------------------------------------------------------------
-void _class( Chuck_Env * env, Chuck_Type * type, 
-                      Chuck_Namespace * nspc, t_CKUINT pre_ctor )
-{
-    Chuck_Value * value = NULL;
-    Chuck_Type * type_type = NULL;
-
-    // make sure there is not namesapce
-    assert( type->info == NULL );
-
-    // allocate namespace for type
-    type->info = new Chuck_Namespace;
-    type->info->add_ref();
-    // name it
-    type->info->name = type->name;
-    // set the parent namespace
-    type->info->parent = nspc;
-
-    // if pre constructor
-    if( pre_ctor != NULL )
-    {
-        // flag it
-        type->has_constructor = TRUE;
-        // allocate vm code for pre_ctor
-        type->info->pre_ctor = new Chuck_VM_Code;
-        // add pre_ctor
-        type->info->pre_ctor->native_func = pre_ctor;
-        // specify that we need this
-        type->info->pre_ctor->need_this = TRUE;
-        // no arguments to preconstructor other than self
-        type->info->pre_ctor->stack_depth = sizeof(t_CKUINT);
-    }
-
-    // set the beginning of the data segment after parent
-    if( type->parent ) type->info->offset = type->parent->obj_size;
-    // duplicate parent's virtual table
-    type->info->obj_v_table = type->info->obj_v_table;
-
-    // set the owner namespace
-    type->owner = nspc;
-    // set the size, which is always the width of a pointer
-    type->size = sizeof(t_CKUINT);
-    // set the object size
-    type->obj_size = 0; // TODO
-
-    // flag as complete
-    type->is_complete = TRUE;
-    // make type
-    type_type = t_class.copy( env );
-    type_type->actual_type = type;
-    // make value
-    value = new Chuck_Value( type_type, type->name );
-    value->add_ref();
-    value->owner = nspc;
-    value->is_const = TRUE;
-    value->is_member = FALSE;
-
-    // add to env
-    nspc->value.add( value->name, value );
-}
-
-
+// offset for member variable
+static t_CKUINT object_offset_m_testID = CK_INVALID_OFFSET;
 
 
 //-----------------------------------------------------------------------------
@@ -113,21 +48,33 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
 
     // init as base class
-    type_engine_import_class_begin( env, type, env->global(), (t_CKUINT)object_ctor );
+    if( !type_engine_import_class_begin( env, type, env->global(), (t_CKUINT)object_ctor ) )
+        return FALSE;
 
     // add setTestID()
     func = make_new_mfun( "void", "setTestID", object_setTestID );
     func->add_arg( "int", "id" );
-    if( !type_engine_import_mfun( env, func ) ) return FALSE;
-    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add getTestID()
     func = make_new_mfun( "int", "getTestID", object_getTestID );
-    if( !type_engine_import_mfun( env, func ) ) return FALSE;
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add member variable
+    object_offset_m_testID = type_engine_import_mvar( env, "int", "m_testID", FALSE );
+    if( object_offset_m_testID == CK_INVALID_OFFSET ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
+    
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
 }
 
 

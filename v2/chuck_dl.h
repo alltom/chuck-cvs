@@ -161,6 +161,8 @@ typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_UGen * self, const char * msg, vo
 
 // default name in DLL/ckx to look for
 #define CK_QUERY_FUNC        "ck_query"
+// bad object data offset
+#define CK_INVALID_OFFSET    0xffffffff
 
 
 //-----------------------------------------------------------------------------
@@ -381,7 +383,7 @@ struct Chuck_DL_Ctrl
 Chuck_DL_Func * make_new_mfun( const char * t, const char * n, f_mfun mfun );
 Chuck_DL_Func * make_new_sfun( const char * t, const char * n, f_sfun sfun );
 Chuck_DL_Value * make_new_arg( const char * t, const char * n );
-Chuck_DL_Value * make_new_mvar( const char * t, const char * n, t_CKBOOL c );
+Chuck_DL_Value * make_new_mvar( const char * t, const char * n, t_CKBOOL c = FALSE );
 Chuck_DL_Value * make_new_svar( const char * t, const char * n, t_CKBOOL c, void * a );
 
 
