@@ -305,8 +305,10 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     context->add_ref();
     // save a reference to the parse tree
     context->parse_tree = prog;
+    fprintf( stderr, "b: %i\n", (t_CKUINT)context );
     // load the context
     type_engine_load_context( env, context );
+    fprintf( stderr, "b: %i\n", (t_CKUINT)env->context );
 
     // go through each of the program sections
     while( prog && ret )
@@ -364,8 +366,10 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
 {
     // append the context to the env
     env->contexts.push_back( env->context );
+    fprintf( stderr, "a: %i\n", (t_CKUINT)env->context );
     // make the context current
     env->context = context;
+    fprintf( stderr, "a: %i\n", (t_CKUINT)env->context );
     // push the context scope
     env->context->nspc->value.push();
     // push the current namespaces
@@ -387,6 +391,7 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_unload_context( Chuck_Env * env )
 {
+    fprintf( stderr, "here\n" );
     // make sure
     assert( env->context != NULL );
     assert( env->contexts.size() != 0 );
@@ -397,10 +402,12 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env )
     env->curr = env->nspc_stack.back();
     // pop the namespace stack
     env->nspc_stack.pop_back();
+    fprintf( stderr, "%i\n", (t_CKUINT)env->context );
     // release the context
     env->context->release();
     // restore context
     env->context = env->contexts.back();
+    fprintf( stderr, "%i\n", (t_CKUINT)env->context );
     // pop the context
     env->contexts.pop_back();
 

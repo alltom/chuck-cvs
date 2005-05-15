@@ -9,7 +9,7 @@ class X
 }
 
 X x;
-x.setTestID( 3, 3 );
+x.setTestID( );
 <<<x.getTestID()>>>;
 Machine.status();
 <<<Math.sin( 1.0 )>>>;
