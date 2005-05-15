@@ -3535,6 +3535,8 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_import_class_end()
+// desc: finish import of a class
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 {
@@ -3552,6 +3554,8 @@ t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_import_mfun()
+// desc: import member function (must be between class_begin/end)
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
 {
@@ -3571,6 +3575,8 @@ t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_import_sfun()
+// desc: import static function (must be between class_begin/end)
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun )
 {
@@ -3590,6 +3596,8 @@ t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_import_mvar()
+// desc: import member variable (must be between class_begin/end)
 //-----------------------------------------------------------------------------
 t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 
                                   const char * name, t_CKUINT is_const )
@@ -3603,6 +3611,8 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_import_svar()
+// desc: import static variable (must be between class_begin/end)
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
                                   const char * name, t_CKUINT is_const,
