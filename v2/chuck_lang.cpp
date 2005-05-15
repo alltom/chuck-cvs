@@ -61,7 +61,7 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add getTest()
-    func = make_new_sfun( "int", "getTest", object_getTest );
+    func = make_new_sfun( "int", "testStatic", object_testStatic );
     func->add_arg( "float", "i" );
     if( !type_engine_import_sfun( env, func ) ) goto error;
 
@@ -172,10 +172,10 @@ CK_DLL_MFUN( object_getTestID )
 
 
 // getTest
-CK_DLL_SFUN( object_getTest )
+CK_DLL_SFUN( object_testStatic )
 {
     t_CKFLOAT v = GET_NEXT_FLOAT(ARGS);
-    fprintf( stderr, "getTest %f\n", v );
+    fprintf( stderr, "testStatic %f\n", v );
 }
 
 

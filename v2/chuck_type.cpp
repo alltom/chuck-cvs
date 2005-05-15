@@ -3480,7 +3480,7 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     type->info->parent = where;
 
     // if pre constructor
-    if( pre_ctor != NULL )
+    if( pre_ctor != 0 )
     {
         // flag it
         type->has_constructor = TRUE;
