@@ -9,9 +9,9 @@ class X
 }
 
 X x;
-x.setTestID( );
+x.setTestID( 3 );
 
 //<<<x.getTestID()>>>;
-//Machine.status();
+Machine.status();
 //<<<Math.sin( 1.0 )>>>;
 //<<<Std.rand2f( 30.0, 1000.0 )>>>;

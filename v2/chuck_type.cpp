@@ -3130,8 +3130,8 @@ Chuck_Context::~Chuck_Context()
         SAFE_DELETE( nspc );
 
         // delete the types - can't do this since the type system and vm still use
-        for( t_CKINT i = 0; i < new_types.size(); i++ )
-            new_types[i]->release();
+        // for( t_CKINT i = 0; i < new_types.size(); i++ )
+        //    new_types[i]->release();
 
         // clear it
         new_types.clear();
