@@ -144,14 +144,14 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
 // Object ctor
 CK_DLL_CTOR( object_ctor )
 {
-    fprintf( stderr, "object ctor\n" );
+//    fprintf( stderr, "object ctor\n" );
 }
 
 
 // Object dtor
 CK_DLL_DTOR( object_dtor )
 {
-    fprintf( stderr, "object dtor\n" );
+//    fprintf( stderr, "object dtor\n" );
 }
 
 
@@ -159,15 +159,14 @@ CK_DLL_DTOR( object_dtor )
 CK_DLL_MFUN( object_setTestID )
 {
     t_CKINT v = GET_NEXT_INT(ARGS);
-    fprintf( stderr, "setTestID( %i )\n", v );
+    *(t_CKINT *)(self->data + object_offset_m_testID ) = v;
 }
 
 
 // getTestID
 CK_DLL_MFUN( object_getTestID )
 {
-    fprintf( stderr, "getTestID()\n" );
-    RETURN->v_int = 2;
+    RETURN->v_int = *(t_CKINT *)(self->data + object_offset_m_testID );
 }
 
 

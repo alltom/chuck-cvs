@@ -3540,6 +3540,9 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 {
+    // set the object size
+    env->class_def->obj_size = env->class_def->info->offset;
+
     // pop the class
     env->class_def = env->class_stack.back();
     env->class_stack.pop_back();
@@ -3561,6 +3564,16 @@ t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
 {
     a_Func_Def func_def = NULL;
     
+    // make sure we are in class
+    if( !env->class_def )
+    {
+        // error
+        EM_error2( 0, 
+            "import error: import_mfun '%s' invoked between begin/end",
+            mfun->name.c_str() );
+        return FALSE;
+    }
+
     // make into func_def
     func_def = make_dll_as_fun( mfun, FALSE );
     
@@ -3582,6 +3595,16 @@ t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun )
 {
     a_Func_Def func_def = NULL;
     
+    // make sure we are in class
+    if( !env->class_def )
+    {
+        // error
+        EM_error2( 0, 
+            "import error: import_sfun '%s' invoked between begin/end",
+            sfun->name.c_str() );
+        return FALSE;
+    }
+
     // make into func_def
     func_def = make_dll_as_fun( sfun, TRUE );
     
@@ -3603,8 +3626,40 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
                                   const char * name, t_CKUINT is_const )
 {
     t_CKUINT offset = 0;
-    
-    return offset;
+
+    // make sure we are in class
+    if( !env->class_def )
+    {
+        // error
+        EM_error2( 0, 
+            "import error: import_mvar '%s' invoked between begin/end",
+            name );
+        return CK_INVALID_OFFSET;
+    }
+
+    // make path
+    a_Id_List path = str2list( type );
+    if( !path )
+    {
+        // error
+        EM_error2( 0, "... during mvar import '%s.%s'...", 
+            env->class_def->c_name(), name );
+        return CK_INVALID_OFFSET;
+    }
+    // make type decl
+    a_Type_Decl type_decl = new_type_decl( path, FALSE, 0 );
+    // make var decl
+    a_Var_Decl var_decl = new_var_decl( (char *)name, NULL, 0 );
+    // make var decl list
+    a_Var_Decl_List var_decl_list = new_var_decl_list( var_decl, 0 );
+    // make exp decl
+    a_Exp exp_decl = new_exp_decl( type_decl, var_decl_list, FALSE, 0 );
+    // add it
+    if( !type_engine_check_exp_decl( env, &exp_decl->decl ) )
+        return CK_INVALID_OFFSET;
+
+    // return the offset
+    return var_decl->value->offset;
 }
 
 
@@ -3618,6 +3673,16 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
                                   const char * name, t_CKUINT is_const,
                                   t_CKUINT addr )
 {
+    // make sure we are in class
+    if( !env->class_def )
+    {
+        // error
+        EM_error2( 0, 
+            "import error: import_svar '%s' invoked between begin/end",
+            name );
+        return FALSE;
+    }
+
     return TRUE;
 }
 

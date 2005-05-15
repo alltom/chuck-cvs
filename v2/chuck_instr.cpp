@@ -1994,7 +1994,7 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     }
 
     // call the function
-    f( (Chuck_Object *)mem_sp, mem_sp + 1, &retval );
+    f( (Chuck_Object *)(*mem_sp), mem_sp + 1, &retval );
     mem_sp -= push;
     
     // push the return

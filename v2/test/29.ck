@@ -7,14 +7,17 @@ class X
 //	    2 => x;
 //	}
 
-    fun void setTestID( int id )
-    {   <<< id + 1 >>>;
-    }
+//    fun void setTestID( int id )
+//    {   <<< id + 1 >>>;
+//    }
 }
 
 X x;
 x.setTestID( 3 );
 x.testStatic( 2 );
+
+//2 => x.m_testID;
+<<< x.m_testID >>>;
 
 //<<<x.getTestID()>>>;
 Machine.status();
