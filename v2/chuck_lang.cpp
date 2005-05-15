@@ -60,6 +60,11 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "int", "getTestID", object_getTestID );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add getTest()
+    func = make_new_sfun( "int", "getTest", object_getTest );
+    func->add_arg( "float", "i" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
     // add member variable
     object_offset_m_testID = type_engine_import_mvar( env, "int", "m_testID", FALSE );
     if( object_offset_m_testID == CK_INVALID_OFFSET ) goto error;
@@ -163,6 +168,14 @@ CK_DLL_MFUN( object_getTestID )
 {
     fprintf( stderr, "getTestID()\n" );
     RETURN->v_int = 2;
+}
+
+
+// getTest
+CK_DLL_SFUN( object_getTest )
+{
+    t_CKFLOAT v = GET_NEXT_FLOAT(ARGS);
+    fprintf( stderr, "getTest %f\n", v );
 }
 
 

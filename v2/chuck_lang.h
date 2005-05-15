@@ -62,6 +62,7 @@ CK_DLL_MFUN( object_hashCode );
 CK_DLL_MFUN( object_toString );
 CK_DLL_MFUN( object_setTestID );
 CK_DLL_MFUN( object_getTestID );
+CK_DLL_SFUN( object_getTest );
 
 
 

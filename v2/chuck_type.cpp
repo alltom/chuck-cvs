@@ -3561,7 +3561,8 @@ t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
     func_def = make_dll_as_fun( mfun, FALSE );
     
     // add the function to class
-    type_engine_check_func_def( env, func_def );
+    if( !type_engine_check_func_def( env, func_def ) )
+        return FALSE;
 
     return TRUE;
 }
@@ -3573,6 +3574,15 @@ t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun )
 {
+    a_Func_Def func_def = NULL;
+    
+    // make into func_def
+    func_def = make_dll_as_fun( sfun, TRUE );
+    
+    // add the function to class
+    if( !type_engine_check_func_def( env, func_def ) )
+        return FALSE;
+
     return TRUE;
 }
 
