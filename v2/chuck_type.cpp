@@ -851,7 +851,7 @@ t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp )
 
         // error
         if( !curr->type )
-            return FALSE;
+            return NULL;
 
         // advance to next expression
         curr = curr->next;
@@ -1377,7 +1377,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                     t->c_name() );
                 EM_error2( unary->linepos,
                     "...(primitive types: 'int', 'float', 'time', 'dur')" );
-                return FALSE;
+                return NULL;
             }
 
             // make sure the type is not a reference
@@ -1940,7 +1940,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         {
             EM_error2( var_decl->linepos, 
                 "...in variable declaration", S_name(var_decl->id) );
-            return FALSE;
+            return NULL;
         }
 
         // check if locally defined
@@ -2141,8 +2141,11 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     if( e1 != NULL )
     {
         EM_error2( func_call->linepos,
-            "missing argument(s) in function call '%s', next arg type: '%s'",
-            func->name.c_str(), e1->type->c_name() );
+            "missing argument(s) in function call '%s'...",
+            func->name.c_str() );
+        EM_error2( func_call->linepos,
+            "...(next arg type: '%s')",
+            e1->type->c_name() );
         return NULL;
     }
 
@@ -2191,7 +2194,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
         {
             EM_error2( member->linepos,
                 "keyword 'this' must be associated with object instance..." );
-            return FALSE;
+            return NULL;
         }
         // in member func
         if( env->func && !env->func->is_member )
