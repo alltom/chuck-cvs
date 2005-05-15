@@ -10,6 +10,7 @@ class X
 
 X x;
 x.setTestID( 3 );
+x.getTest( 2 );
 
 //<<<x.getTestID()>>>;
 Machine.status();
