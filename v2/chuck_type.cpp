@@ -2724,7 +2724,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     else has_code = (f->dl_func_ptr != NULL); // imported
 
     // if interface, then cannot have code
-    if( env->class_def && env->class_def->def->iface && has_code )
+    if( env->class_def && env->class_def->def && env->class_def->def->iface && has_code )
     {
         EM_error2( f->linepos, "interface function signatures cannot contain code..." );
         EM_error2( f->linepos, "...at function '%s'", S_name(f->name) );
