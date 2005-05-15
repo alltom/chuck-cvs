@@ -2106,8 +2106,8 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
         if( e1 == NULL )
         {
             EM_error2( func_call->linepos,
-                "extra argument(s) in function call '%s' %i %s",
-                func->name.c_str(), e->type->c_name() );
+                "extra argument(s) in function call '%s' (arg %i)",
+                func->name.c_str(), count );
             return NULL;
         }
 
