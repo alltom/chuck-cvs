@@ -345,7 +345,7 @@ public:
     // reset
     void reset()
     { id = te_void; parent = NULL; ugen = NULL;
-      size = array_depth = obj_size = self_size = 0; fprintf( stderr, "type: %s\n", c_name() );
+      size = array_depth = obj_size = self_size = 0; fprintf( stderr, "type: %s %i\n", c_name(), (t_CKUINT)this );
       array_type = NULL; if( info ) info->release(); 
       owner = info = NULL; func = NULL; is_copy = FALSE; }
     
