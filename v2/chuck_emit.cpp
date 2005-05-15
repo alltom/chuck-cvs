@@ -2456,11 +2456,21 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             }
             else
             {
-                // emit the type
-                emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
-                // emit the static value
-                emit->append( new Chuck_Instr_Dot_Static_Data(
-                    offset, member->self->type->size, emit_addr ) );
+                // if builtin or not
+                if( value->addr )
+                {
+                    // emit builtin
+                    emit->append( new Chuck_Instr_Dot_Static_Import_Data(
+                        value->addr, member->self->type->size, emit_addr ) );
+                }
+                else
+                {
+                    // emit the type
+                    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
+                    // emit the static value
+                    emit->append( new Chuck_Instr_Dot_Static_Data(
+                        offset, member->self->type->size, emit_addr ) );
+                }
             }
         }
     }
@@ -2486,11 +2496,21 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             // make sure it's there
             assert( value != NULL );
 
-            // find the offset for data
-            offset = value->offset;
-            // emit the member
-            emit->append( new Chuck_Instr_Dot_Static_Data(
-                offset, member->self->type->size, emit_addr ) );
+            // if builtin
+            if( value->addr )
+            {
+                // emit
+                emit->append( new Chuck_Instr_Dot_Static_Import_Data(
+                    value->addr, member->self->type->size, emit_addr ) );
+            }
+            else
+            {
+                // find the offset for data
+                offset = value->offset;
+                // emit the member
+                emit->append( new Chuck_Instr_Dot_Static_Data(
+                    offset, member->self->type->size, emit_addr ) );
+            }
         }
     }
     

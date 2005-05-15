@@ -2022,8 +2022,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         value->owner_class = env->func ? NULL : env->class_def;
         value->is_member = ( env->class_def != NULL && 
                              env->class_scope == 0 && 
-                             env->func == NULL );
+                             env->func == NULL && !decl->is_static );
         value->is_context_global = ( env->class_def == NULL && env->func == NULL );
+        value->addr = var_decl->addr;
 
         // remember the value
         var_decl->value = value;
@@ -3625,8 +3626,6 @@ t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun )
 t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 
                                   const char * name, t_CKUINT is_const )
 {
-    t_CKUINT offset = 0;
-
     // make sure we are in class
     if( !env->class_def )
     {
@@ -3682,6 +3681,30 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
             name );
         return FALSE;
     }
+
+    // make path
+    a_Id_List path = str2list( type );
+    if( !path )
+    {
+        // error
+        EM_error2( 0, "... during mvar import '%s.%s'...", 
+            env->class_def->c_name(), name );
+        return FALSE;
+    }
+
+    // make type decl
+    a_Type_Decl type_decl = new_type_decl( path, FALSE, 0 );
+    // make var decl
+    a_Var_Decl var_decl = new_var_decl( (char *)name, NULL, 0 );
+    // make var decl list
+    a_Var_Decl_List var_decl_list = new_var_decl_list( var_decl, 0 );
+    // make exp decl
+    a_Exp exp_decl = new_exp_decl( type_decl, var_decl_list, TRUE, 0 );
+    // add addr
+    var_decl->addr = (void *)addr;
+    // add it
+    if( !type_engine_check_exp_decl( env, &exp_decl->decl ) )
+        return FALSE;
 
     return TRUE;
 }

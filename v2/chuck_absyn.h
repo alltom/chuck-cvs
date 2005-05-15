@@ -209,7 +209,7 @@ struct a_Exp_Decl_ { a_Type_Decl type; a_Var_Decl_List var_decl_list; int is_sta
 struct a_Exp_Hack_ { a_Exp exp; int linepos; a_Exp self; };
 struct a_Var_Decl_List_ { a_Var_Decl var_decl; a_Var_Decl_List next; int linepos; a_Exp self; };
 struct a_Var_Decl_ { S_Symbol id; a_Var_Decl var_decl; a_Array_Sub array; t_CKVALUE value;
-                     int linepos; a_Exp self; };
+                     void * addr; int linepos; a_Exp self; };
 struct a_Type_Decl_ { a_Id_List id; a_Array_Sub array; int ref; int linepos; /*a_Exp self;*/ };
 struct a_Array_Sub_ { int depth; a_Exp exp_list; int linepos; a_Exp self; 
                       int err_num; int err_pos; };

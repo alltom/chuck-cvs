@@ -2024,6 +2024,32 @@ protected:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Dot_Static_Import_Data
+// desc: access the static data of object by pointer
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Dot_Static_Import_Data : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Dot_Static_Import_Data( void * addr, t_CKUINT size, t_CKUINT emit_addr )
+    { m_addr = addr; m_size = size; m_emit_addr = emit_addr; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "addr=%d, size=%d, emit_addr=%d", (t_CKUINT)m_addr, m_size, m_emit_addr );
+      return buffer; }
+
+protected:
+    void * m_addr;
+    t_CKUINT m_size;
+    t_CKUINT m_emit_addr;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Dot_Static_Func
 // desc: access the static function of object
 //-----------------------------------------------------------------------------

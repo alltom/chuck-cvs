@@ -38,6 +38,9 @@
 // offset for member variable
 static t_CKUINT object_offset_m_testID = CK_INVALID_OFFSET;
 
+// storage for static variable
+static t_CKINT object_our_testID = 0;
+
 
 //-----------------------------------------------------------------------------
 // name: init_class_object()
@@ -68,6 +71,10 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     // add member variable
     object_offset_m_testID = type_engine_import_mvar( env, "int", "m_testID", FALSE );
     if( object_offset_m_testID == CK_INVALID_OFFSET ) goto error;
+
+    // add static variable
+    if( !type_engine_import_svar( env, "int", "our_testID", FALSE, (t_CKUINT)&object_our_testID ) )
+        goto error;
 
     // end the class import
     type_engine_import_class_end( env );

@@ -2912,6 +2912,33 @@ void Chuck_Instr_Dot_Static_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Dot_Static_Import_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // register stack pointer
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    
+    // emit addr or value
+    if( m_emit_addr )
+    {
+        // push the address
+        push_( sp, (t_CKUINT)m_addr );
+    }
+    else
+    {
+        // 4 or 8
+        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)m_addr) ); }
+        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)m_addr) ); }
+        else assert( FALSE );
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Dot_Static_Func::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // register stack pointer
