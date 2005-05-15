@@ -358,6 +358,7 @@ public:
       this->func = rhs.func;
       this->id = rhs.id;
       this->info = rhs.info;
+      this->info->add_ref(); // HACK:
       this->name = rhs.name;
       this->owner = rhs.owner;
       this->parent = rhs.parent;
