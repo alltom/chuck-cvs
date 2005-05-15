@@ -6,6 +6,10 @@ class X
 //	{
 //	    2 => x;
 //	}
+
+    fun void setTestID( int id )
+    {   <<< id + 1 >>>;
+    }
 }
 
 X x;

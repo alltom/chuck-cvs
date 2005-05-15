@@ -1589,7 +1589,7 @@ inline void call_pre_constructor( Chuck_VM * vm, Chuck_VM_Shred * shred,
     push_( reg_sp, stack_offset );
 
     // call the function
-    if( pre_ctor->native_func != NULL )
+    if( pre_ctor->native_func != 0 )
         g_func_call_member.execute( vm, shred );
     else
         g_func_call.execute( vm, shred );
