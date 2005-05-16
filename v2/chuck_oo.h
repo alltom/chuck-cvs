@@ -60,7 +60,6 @@ public:
     virtual ~Chuck_VM_Object() { }
 
 public:
-    void init_ref();
     void add_ref();
     void release();
 
@@ -71,6 +70,9 @@ public:
 public:
     // where
     std::vector<Chuck_VM_Object *> * m_v_ref;
+    
+private:
+    void init_ref();
 };
 
 

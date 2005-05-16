@@ -48,6 +48,8 @@ void Chuck_VM_Object::init_ref()
     m_pooled = FALSE;
     // set v ref
     m_v_ref = NULL;
+    // add to vm allocator
+    Chuck_VM_Alloc::instance()->add_object( this );
 }
 
 
@@ -61,12 +63,13 @@ void Chuck_VM_Object::add_ref()
 {
     // increment reference count
     m_ref_count++;
+
     // if going from 0 to 1
-    if( m_ref_count == 1 )
-    {
-        // add to vm allocator
-        Chuck_VM_Alloc::instance()->add_object( this );
-    }
+    //if( m_ref_count == 1 )
+    //{
+    //    // add to vm allocator
+    //    Chuck_VM_Alloc::instance()->add_object( this );
+    //}
 }
 
 
@@ -178,6 +181,9 @@ Chuck_Object::Chuck_Object()
     size = 0;
     // zero data
     data = NULL;
+
+    // add to vm allocator
+    Chuck_VM_Alloc::instance()->add_object( this );
 }
 
 
