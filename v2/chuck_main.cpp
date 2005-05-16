@@ -455,5 +455,10 @@ int main( int argc, char ** argv )
     // run the vm
     vm->run();
 
+    // free vm
+    SAFE_DELETE( vm );
+    // TODO: clean env
+    // TODO: clean emitter
+
     return 0;
 }
