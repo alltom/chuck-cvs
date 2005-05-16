@@ -393,15 +393,6 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-    // allocate the vm
-    Chuck_VM * vm = g_vm = new Chuck_VM;
-    if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
-                         num_buffers, dac, adc, g_priority ) )
-    {
-        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
-        exit( 1 );
-    }
-
     // allocate the type checker
     env = g_env = type_engine_init( NULL );
     // allocate the emitter
@@ -411,6 +402,15 @@ int main( int argc, char ** argv )
     // load internal libs
     if( !load_internal_modules( env ) ) 
         exit( 1 );
+
+    // allocate the vm - needs the type system
+    Chuck_VM * vm = g_vm = new Chuck_VM;
+    if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
+                         num_buffers, dac, adc, g_priority ) )
+    {
+        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+        exit( 1 );
+    }
 
     // loop through and process each file
     for( i = 1; i < argc; i++ )

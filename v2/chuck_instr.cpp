@@ -1614,26 +1614,11 @@ void Chuck_Instr_Pre_Constructor::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 // name: instantiate_object()
 // desc: ...
 //-----------------------------------------------------------------------------
-inline Chuck_Object * instantiate_object( Chuck_Type * type )
+t_CKBOOL initialize_object( Chuck_Object * object, Chuck_Type * type )
 {
-    Chuck_Object * object = NULL;
-
     // sanity
     assert( type != NULL );
     assert( type->info != NULL );
-
-    // allocate the VM object
-    if( !type->ugen_info ) object = new Chuck_Object;
-    else
-    {
-        // ugen
-        Chuck_UGen * ugen = new Chuck_UGen;
-        ugen->tick = type->ugen_info->tick;
-        ugen->pmsg = type->ugen_info->pmsg;
-        // copy as object
-        object = ugen;
-    }
-    if( !object ) goto out_of_memory;
 
     // allocate virtual table
     object->vtable = new Chuck_VTable;
@@ -1656,7 +1641,16 @@ inline Chuck_Object * instantiate_object( Chuck_Type * type )
     }
     else object->data = NULL;
 
-    return object;
+    // special
+    if( type->ugen_info )
+    {
+        // ugen
+        Chuck_UGen * ugen = ( Chuck_UGen * )object;
+        if( type->ugen_info->tick ) ugen->tick = type->ugen_info->tick;
+        if( type->ugen_info->pmsg ) ugen->pmsg = type->ugen_info->pmsg;
+    }
+
+    return TRUE;
 
 out_of_memory:
 
@@ -1667,6 +1661,47 @@ out_of_memory:
 
     // delete
     if( object ) SAFE_DELETE( object->vtable );
+
+    // return FALSE
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: instantiate_and_initialize_object()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type )
+{
+    Chuck_Object * object = NULL;
+
+    // sanity
+    assert( type != NULL );
+    assert( type->info != NULL );
+
+    // allocate the VM object
+    if( !type->ugen_info ) object = new Chuck_Object;
+    else object = new Chuck_UGen;
+    
+    // check to see enough memory
+    if( !object ) goto out_of_memory;
+
+    // initialize
+    if( !initialize_object( object, type ) ) goto error;
+
+    return object;
+
+out_of_memory:
+
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): OutOfMemory: while instantiating object '%s'\n",
+        type->c_name() );
+
+error:
+
     // delete
     SAFE_DELETE( object );
 
@@ -1687,7 +1722,7 @@ inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // allocate the VM object
-    Chuck_Object * object = instantiate_object( type );
+    Chuck_Object * object = instantiate_and_initialize_object( type );
     if( !object ) goto error;
 
     // push the pointer on the operand stack

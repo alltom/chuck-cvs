@@ -176,6 +176,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_string.info->add_ref();
     t_ugen.info = new Chuck_Namespace;
     t_ugen.info->add_ref();
+    t_ugen.ugen_info = new Chuck_UGen_Info;
+    t_ugen.ugen_info->add_ref();
     t_shred.info = new Chuck_Namespace;
     t_shred.info->add_ref();
     t_thread.info = new Chuck_Namespace;

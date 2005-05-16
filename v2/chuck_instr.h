@@ -2249,7 +2249,9 @@ protected:
 
 
 // runtime functions
-inline Chuck_Object * instantiate_object( Chuck_Type * type );
+Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type );
+// initialize object using Type
+t_CKBOOL initialize_object( Chuck_Object * obj, Chuck_Type * type );
 
 
 

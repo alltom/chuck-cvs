@@ -35,6 +35,7 @@
 #include "chuck_bbq.h"
 #include "chuck_errmsg.h"
 #include "chuck_dl.h"
+#include "chuck_type.h"
 
 #include <vector>
 using namespace std;
@@ -233,6 +234,8 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         return FALSE;
 //#endif
 
+    t_CKINT i;
+
     // allocate bbq
     m_bbq = new BBQ;
     m_halt = halt;
@@ -250,14 +253,27 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 
     // allocate dac and adc
     m_num_dac_channels = 2;
-    m_dac = new Chuck_UGen[2];
-    m_dac[0].tick = __dac_tick;
-    m_dac[1].tick = __dac_tick;
+    m_dac = new Chuck_UGen[m_num_dac_channels];
+    // initialize them
+    for( i = 0; i < m_num_dac_channels; i++ )
+    {
+        // initialize as object
+        initialize_object( &m_dac[i], &t_ugen );
+        // manually set the tick
+        m_dac[i].tick = __dac_tick;
+        // add ref
+        m_dac[i].add_ref();
+    }
     m_num_adc_channels = 2;
-    m_adc = new Chuck_UGen[2];
+    m_adc = new Chuck_UGen[m_num_adc_channels];
+    for( i = 0; i < m_num_adc_channels; i++ )
+    {
+        // initialize as object
+        initialize_object( &m_adc[i], &t_ugen );
+        // add ref
+        m_adc[i].add_ref();
+    }
     m_bunghole = new Chuck_UGen;
-    m_dac[0].add_ref(); m_dac[1].add_ref();
-    m_adc[0].add_ref(); m_adc[1].add_ref();
     m_bunghole->add_ref();
     m_shreduler->m_dac = m_dac;
     m_shreduler->m_adc = m_adc;
