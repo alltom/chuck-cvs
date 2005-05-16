@@ -293,6 +293,25 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_UGen_Info
+// desc: ugen info stored with ugen types
+//-----------------------------------------------------------------------------
+struct Chuck_UGen_Info : public Chuck_VM_Object
+{
+    // tick function pointer
+    f_tick tick;
+    // pmsg function pointer
+    f_pmsg pmsg;
+    
+    // constructor
+    Chuck_UGen_Info()
+    { tick = NULL; pmsg = NULL; }
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Type
 // desc: class containing information about a type
 //-----------------------------------------------------------------------------
@@ -323,7 +342,7 @@ struct Chuck_Type : public Chuck_VM_Object
     // def
     a_Class_Def def;
     // ugen
-    Chuck_UGen_Info * ugen;
+    Chuck_UGen_Info * ugen_info;
     // copy
     t_CKBOOL is_copy;
     // defined
@@ -338,17 +357,18 @@ public:
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
       array_type = NULL; array_depth = 0; obj_size = 0; self_size = 0;
       info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
-      ugen = NULL; is_complete = TRUE; has_constructor = FALSE; }
+      ugen_info = NULL; is_complete = TRUE; has_constructor = FALSE; }
     // destructor
     ~Chuck_Type() { reset(); }
     
     // reset
     void reset()
-    { id = te_void; parent = NULL; ugen = NULL;
+    { id = te_void; parent = NULL;
       size = array_depth = obj_size = self_size = 0;
       // fprintf( stderr, "type: %s %i\n", c_name(), (t_CKUINT)this );
       array_type = NULL; if( info ) info->release(); 
-      owner = info = NULL; func = NULL; is_copy = FALSE; }
+      owner = info = NULL; func = NULL; is_copy = FALSE;
+      if( ugen_info ) ugen_info->release(); }
     
     // assignment - this does not touch the Chuck_VM_Object
     const Chuck_Type & operator =( const Chuck_Type & rhs )

@@ -1614,11 +1614,8 @@ void Chuck_Instr_Pre_Constructor::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 // name: instantiate_object()
 // desc: ...
 //-----------------------------------------------------------------------------
-inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
-                                Chuck_Type * type )
+inline Chuck_Object * instantiate_object( Chuck_Type * type )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_Object * object = NULL;
 
     // sanity
@@ -1626,9 +1623,21 @@ inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
     assert( type->info != NULL );
 
     // allocate the VM object
-    object = new Chuck_Object;
+    if( !type->ugen_info ) object = new Chuck_Object;
+    else
+    {
+        // ugen
+        Chuck_UGen * ugen = new Chuck_UGen;
+        ugen->tick = type->ugen_info->tick;
+        ugen->pmsg = type->ugen_info->pmsg;
+        // copy as object
+        object = ugen;
+    }
+    if( !object ) goto out_of_memory;
+
     // allocate virtual table
     object->vtable = new Chuck_VTable;
+    if( !object->vtable ) goto out_of_memory;
     // copy the object's virtual table
     object->vtable->funcs = type->info->obj_v_table.funcs;
     // set the type reference
@@ -1647,6 +1656,40 @@ inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
     }
     else object->data = NULL;
 
+    return object;
+
+out_of_memory:
+
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): OutOfMemory: while instantiating object '%s'\n",
+        type->c_name() );
+
+    // delete
+    if( object ) SAFE_DELETE( object->vtable );
+    // delete
+    SAFE_DELETE( object );
+
+    // return NULL
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: instantiate_object()
+// desc: ...
+//-----------------------------------------------------------------------------
+inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
+                                Chuck_Type * type )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+
+    // allocate the VM object
+    Chuck_Object * object = instantiate_object( type );
+    if( !object ) goto error;
+
     // push the pointer on the operand stack
     push_( reg_sp, (t_CKUINT)object );
 
@@ -1655,12 +1698,7 @@ inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
 
     return;
 
-out_of_memory:
-
-    // we have a problem
-    fprintf( stderr, 
-        "[chuck](VM): OutOfMemory: while instantiating object '%s'\n",
-        type->c_name() );
+error:
 
     // do something!
     shred->is_running = FALSE;

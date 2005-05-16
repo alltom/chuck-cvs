@@ -2248,4 +2248,10 @@ protected:
 
 
 
+// runtime functions
+inline Chuck_Object * instantiate_object( Chuck_Type * type );
+
+
+
+
 #endif
