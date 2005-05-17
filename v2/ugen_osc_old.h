@@ -41,16 +41,32 @@
 DLL_QUERY osc_query( Chuck_DL_Query * query );
 
 // oscs
-CK_DLL_CTOR( osc_ctor );
-CK_DLL_DTOR( osc_dtor );
-CK_DLL_TICK( osc_tick );
-CK_DLL_CTRL( osc_ctrl_freq );
-CK_DLL_CGET( osc_cget_freq );
+UGEN_CTOR osc_ctor( t_CKTIME now );
+UGEN_CTOR phasor_ctor( t_CKTIME now );
+UGEN_DTOR osc_dtor( t_CKTIME now, void * data );
+UGEN_TICK osc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_TICK osc_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+UGEN_CTRL osc_ctrl_freq( t_CKTIME now, void * data, void * value );
+UGEN_CGET osc_cget_freq( t_CKTIME now, void * data, void * out );
+// sfreq &  phase controls  - pld
+UGEN_CTRL osc_ctrl_sfreq( t_CKTIME now, void * data, void * value );
+UGEN_CTRL osc_ctrl_phase( t_CKTIME now, void * data, void * value );
+UGEN_CGET osc_cget_phase( t_CKTIME now, void * data, void * out );
+UGEN_CTRL osc_ctrl_phase_offset( t_CKTIME now, void * data, void * value );
+UGEN_CGET osc_cget_phase_offset( t_CKTIME now, void * data, void * out );
+UGEN_CTRL osc_ctrl_sync( t_CKTIME now, void * data, void * value );
+UGEN_CGET osc_cget_sync( t_CKTIME now, void * data, void * out );
+UGEN_CTRL osc_ctrl_width( t_CKTIME now, void * data, void * value );
+UGEN_CGET osc_cget_width( t_CKTIME now, void * data, void * out );
 
-// sinosc
-CK_DLL_TICK( sinosc_tick );
+UGEN_TICK sinosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_CTRL sinosc_ctrl_phase( t_CKTIME now, void * data, void * value );
+UGEN_CGET sinosc_cget_phase( t_CKTIME now, void * data, void * out );
 
-
+UGEN_TICK triosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_TICK sawosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_TICK pulseosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+UGEN_TICK sqrosc_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
 
 
 #endif

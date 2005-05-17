@@ -94,6 +94,18 @@ struct Chuck_UGen;
 #define SET_NEXT_DUR(ptr,v)      (*((t_CKDUR *&)ptr)++=v)
 #define SET_NEXT_STRING(ptr,v)   (*((char * *&)ptr)++=v)
 
+// param conversion - to extract values from object's data segment
+#define OBJ_MEMBER_DATA(obj,offset)     (obj->data + offset)
+#define OBJ_MEMBER_FLOAT(obj,offset)    (*(t_CKFLOAT *)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_SINGLE(obj,offset)   (*(float *)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_DOUBLE(obj,offset)   (*(double *)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_INT(obj,offset)      (*(t_CKINT *)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_UINT(obj,offset)     (*(t_CKUINT *)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_TIME(obj,offset)     (*(t_CKTIME *)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_DUR(obj,offset)      (*(t_CKDUR *)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_OBJECT(obj,offset)   (*(Chuck_Object **)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_STRING(obj,offset)   (*(char **)OBJ_MEMBER_DATA(obj,offset))
+
 
 // chuck dll export linkage and calling convention
 #if defined (__PLATFORM_WIN32__) 
@@ -127,6 +139,19 @@ struct Chuck_UGen;
 // macro for defining ChucK DLL export static functions
 // example: CK_DLL_SFUN(foo)
 #define CK_DLL_SFUN(name) CK_DLL_EXPORT(void) name( void * ARGS, Chuck_DL_Return * RETURN )
+// macro for defining ChucK DLL export ugen tick functions
+// example: CK_DLL_TICK(foo)
+#define CK_DLL_TICK(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * self, void * ARGS, SAMPLE in, SAMPLE * out )
+// macro for defining ChucK DLL export ugen ctrl functions
+// example: CK_DLL_CTRL(foo)
+#define CK_DLL_CTRL(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN )
+// macro for defining ChucK DLL export ugen cget functions
+// example: CK_DLL_CGET(foo)
+#define CK_DLL_CGET(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN )
+// macro for defining ChucK DLL export ugen pmsg functions
+// example: CK_DLL_PMSG(foo)
+#define CK_DLL_PMSG(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * self, const char * MSG, void * ARGS )
+
 
 // macros for DLL exports
 // example: DLL_QUERY  query( Chuck_DL_Query * QUERY )
@@ -153,8 +178,8 @@ typedef t_CKVOID (CK_DLL_CALL * f_mfun)( Chuck_Object * self, void * ARGS, Chuck
 typedef t_CKVOID (CK_DLL_CALL * f_sfun)( void * ARGS, Chuck_DL_Return * RETURN );
 // ugen specific
 typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
-typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_UGen * self, void * ARGS );
-typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_UGen * self, void * OUT );
+typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_UGen * self, void * ARGS, Chuck_DL_Return * RETURN );
+typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_UGen * self, void * ARGS, Chuck_DL_Return * RETURN );
 typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
 }
 
