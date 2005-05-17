@@ -83,7 +83,7 @@ void Chuck_VM_Object::release()
 {
     // make sure there is at least one reference
     assert( m_ref_count > 0 );
-    // de
+    // decrement
     m_ref_count--;
     
     // if no more references
