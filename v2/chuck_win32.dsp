@@ -171,6 +171,10 @@ SOURCE=.\rtaudio.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ugen_osc.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ulib_machine.cpp
 # End Source File
 # Begin Source File
