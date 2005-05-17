@@ -194,7 +194,7 @@ void delete_id_list( a_Id_List x );
 //------------------------------------------------------------------------------
 // structs
 //------------------------------------------------------------------------------
-struct a_Exp_Binary_ { a_Exp lhs; ae_Operator op; a_Exp rhs; int linepos; a_Exp self; };
+struct a_Exp_Binary_ { a_Exp lhs; ae_Operator op; a_Exp rhs; t_CKFUNC ck_func; int linepos; a_Exp self; };
 struct a_Exp_Cast_ { a_Type_Decl type; a_Exp exp; int linepos; a_Exp self; };
 struct a_Exp_Unary_ { ae_Operator op; a_Exp exp; a_Type_Decl type; a_Array_Sub array;
                       int linepos; a_Exp self; };

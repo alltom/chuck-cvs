@@ -57,8 +57,8 @@ t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt );
 t_CKBOOL emit_engine_emit_switch( Chuck_Emitter * emit, a_Stmt_Switch stmt );
 t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
 t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary );
-t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
-t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
 t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
 t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
@@ -67,6 +67,8 @@ t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
 t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
 t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
 t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, Chuck_Func * func,
+                                         Chuck_Type * type, int linepos, t_CKBOOL spork = FALSE );
 t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call,
                                          t_CKBOOL spork = FALSE );
 t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
@@ -1124,7 +1126,7 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
         return FALSE;
 
     // emit the op
-    if( !emit_engine_emit_op( emit, binary->op, binary->lhs, binary->rhs ) )
+    if( !emit_engine_emit_op( emit, binary->op, binary->lhs, binary->rhs, binary ) )
         return FALSE;
 
     return TRUE;
@@ -1137,7 +1139,7 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
 // name: emit_engine_emit_op()
 // desc: emit binary operator
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs )
+t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary )
 {
     // any implicit cast happens before this
     Chuck_Type * t_left = lhs->cast_to ? lhs->cast_to : lhs->type;
@@ -1435,20 +1437,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
     {
         a_Exp cl = lhs, cr = rhs;
 
-        // TODO: cross chuck
-        assert( cl->next == NULL && cr->next == NULL );
-        while( cr )
-        {
-            cl = lhs;
-            while( cl )
-            {
-                if( !emit_engine_emit_op_chuck( emit, cl, cr ) )
-                    return FALSE;
-                cl = cl->next;
-            }
-            
-            cr = cr->next;
-        }
+        if( !emit_engine_emit_op_chuck( emit, cl, cr, binary ) )
+            return FALSE;
 
         return TRUE;
     }
@@ -1639,7 +1629,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
 // name: emit_engine_emit_op_chuck()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
+t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary )
 {
     // any implicit cast happens before this
     Chuck_Type * left = lhs->cast_to ? lhs->cast_to : lhs->type;
@@ -1668,6 +1658,15 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
         }
 
         return TRUE;
+    }
+    
+    // func call
+    if( isa( right, &t_function ) )
+    {
+        assert( binary->ck_func != NULL );
+        
+        // emit
+        return emit_engine_emit_exp_func_call( emit, binary->ck_func, binary->self->type, binary->linepos );
     }
 
     // assignment or something else
@@ -2303,11 +2302,11 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
-                                         a_Exp_Func_Call func_call,
+                                         Chuck_Func * func,
+                                         Chuck_Type * type,
+                                         int linepos,
                                          t_CKBOOL spork )
 {
-    // chuck function
-    Chuck_Func * func = func_call->ck_func;
     // is a member?
     t_CKBOOL is_member = func->is_member;
 
@@ -2318,6 +2317,52 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
     //    emit->append( new Chuck_Instr_Reg_Push_This );
     //}
 
+    // translate to code
+    emit->append( new Chuck_Instr_Func_To_Code );
+    // emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)func->code ) );
+    // push the local stack depth - local variables
+    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
+
+    // TODO: member functions and static functions
+    // call the function
+    t_CKUINT size = type->size;
+    if( func->def->s_type == ae_func_builtin )
+    {
+        if( size == 0 || size == 4 || size == 8 )
+        {
+            // is member
+            if( is_member )
+                emit->append( new Chuck_Instr_Func_Call_Member( size ) );
+            else
+                emit->append( new Chuck_Instr_Func_Call_Static( size ) );
+        }
+        else
+        {
+            EM_error2( linepos,
+                       "(emit): internal error: %i func call not handled",
+                       size );
+            return FALSE;
+        }
+    }
+    else
+    {
+        emit->append( new Chuck_Instr_Func_Call );
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_func_call()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
+                                         a_Exp_Func_Call func_call,
+                                         t_CKBOOL spork )
+{
     // make sure there are args
     if( func_call->args )
     {
@@ -2337,40 +2382,10 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
                    "(emit): internal error in evaluating function call..." );
         return FALSE;
     }
-
-    // translate to code
-    emit->append( new Chuck_Instr_Func_To_Code );
-    // emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)func->code ) );
-    // push the local stack depth - local variables
-    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
-
-    // TODO: member functions and static functions
-    // call the function
-    t_CKUINT size = func_call->ret_type->size;
-    if( func_call->ck_func->def->s_type == ae_func_builtin )
-    {
-        if( size == 0 || size == 4 || size == 8 )
-        {
-            // is member
-            if( is_member )
-                emit->append( new Chuck_Instr_Func_Call_Member( size ) );
-            else
-                emit->append( new Chuck_Instr_Func_Call_Static( size ) );
-        }
-        else
-        {
-            EM_error2( func_call->linepos,
-                       "(emit): internal error: %i func call not handled",
-                       size );
-            return FALSE;
-        }
-    }
-    else
-    {
-        emit->append( new Chuck_Instr_Func_Call );
-    }
-
-    return TRUE;
+    
+    // the rest
+    return emit_engine_emit_exp_func_call( emit, func_call->ck_func, func_call->ret_type,
+                                           func_call->linepos, spork );
 }
 
 

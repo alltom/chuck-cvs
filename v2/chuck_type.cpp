@@ -97,8 +97,8 @@ t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt );
 t_CKBOOL type_engine_check_switch( Chuck_Env * env, a_Stmt_Switch stmt );
 t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
 t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
-t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs );
-t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
@@ -109,6 +109,8 @@ t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
 t_CKTYPE type_engine_check_exp_array( Chuck_Env * env, a_Exp_Array array );
 t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
+t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
+                                          t_CKFUNC & ck_func, int linepos );
 t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
 t_CKTYPE type_engine_check_exp_if( Chuck_Env * env, a_Exp_If exp_if );
 t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
@@ -887,7 +889,7 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
     while( cr )
     {
         // type check the pair
-        if( !(ret = type_engine_check_op( env, binary->op, cl, cr )) )
+        if( !(ret = type_engine_check_op( env, binary->op, cl, cr, binary )) )
             return NULL;
 
         cr = cr->next;
@@ -906,13 +908,14 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
 // name: type_engine_check_op()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs )
+t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, 
+                               a_Exp_Binary binary )
 {
     t_CKTYPE left = lhs->type, right = rhs->type;
     assert( left && right );
     
     // if lhs is multi-value, then check separately
-    if( lhs->next )
+    if( (lhs->next && op != ae_op_chuck && !isa( right, &t_function)) || rhs->next )
     {
         // TODO: implement this
         EM_error2( lhs->linepos, 
@@ -1032,7 +1035,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     switch( op )
     {
     case ae_op_chuck:
-        return type_engine_check_op_chuck( env, lhs, rhs );
+        return type_engine_check_op_chuck( env, lhs, rhs, binary );
     
     case ae_op_unchuck:
         return type_engine_check_op_unchuck( env, lhs, rhs );
@@ -1144,7 +1147,8 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 // name: type_engine_check_op_chuck()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
+                                     a_Exp_Binary binary )
 {
     t_CKTYPE left = lhs->type, right = rhs->type;
     
@@ -1161,7 +1165,8 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     // chuck to function
     if( isa( right, &t_function ) )
     {
-        
+        // treat this function call
+        return type_engine_check_exp_func_call( env, rhs, lhs, binary->ck_func, binary->linepos );
     }
 
     // implicit cast
@@ -1244,7 +1249,7 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_check_op_chuck()
+// name: type_engine_check_op_at_chuck()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
