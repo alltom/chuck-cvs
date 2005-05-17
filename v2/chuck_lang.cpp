@@ -166,14 +166,14 @@ CK_DLL_DTOR( object_dtor )
 CK_DLL_MFUN( object_setTestID )
 {
     t_CKINT v = GET_NEXT_INT(ARGS);
-    *(t_CKINT *)(SELF->data + object_offset_m_testID ) = v;
+    OBJ_MEMBER_INT(SELF, object_offset_m_testID) = v;
 }
 
 
 // getTestID
 CK_DLL_MFUN( object_getTestID )
 {
-    RETURN->v_int = *(t_CKINT *)(SELF->data + object_offset_m_testID );
+    RETURN->v_int = OBJ_MEMBER_INT(SELF, object_offset_m_testID);
 }
 
 

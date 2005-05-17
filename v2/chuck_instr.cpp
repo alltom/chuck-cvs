@@ -3127,7 +3127,7 @@ void Chuck_Instr_UGen_UnLink::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 
-
+/*
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
@@ -3217,7 +3217,7 @@ void Chuck_Instr_UGen_CGet2::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // push the new value
     ((t_CKFLOAT *&)shred->reg->sp)++;
 }
-
+*/
 
 
 

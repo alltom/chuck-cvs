@@ -129,34 +129,34 @@ struct Chuck_UGen;
 #define CK_DLL_QUERY CK_DLL_EXPORT(t_CKBOOL) ck_query( Chuck_DL_Query * QUERY )
 // macro for defining ChucK DLL export constructors
 // example: CK_DLL_CTOR(foo)
-#define CK_DLL_CTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS )
+#define CK_DLL_CTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * SELF, void * ARGS )
 // macro for defining ChucK DLL export destructors
 // example: CK_DLL_DTOR(foo)
-#define CK_DLL_DTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * self )
+#define CK_DLL_DTOR(name) CK_DLL_EXPORT(void) name( Chuck_Object * SELF )
 // macro for defining ChucK DLL export member functions
 // example: CK_DLL_MFUN(foo)
-#define CK_DLL_MFUN(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN )
+#define CK_DLL_MFUN(name) CK_DLL_EXPORT(void) name( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN )
 // macro for defining ChucK DLL export static functions
 // example: CK_DLL_SFUN(foo)
 #define CK_DLL_SFUN(name) CK_DLL_EXPORT(void) name( void * ARGS, Chuck_DL_Return * RETURN )
 // macro for defining ChucK DLL export ugen tick functions
 // example: CK_DLL_TICK(foo)
-#define CK_DLL_TICK(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * self, void * ARGS, SAMPLE in, SAMPLE * out )
+#define CK_DLL_TICK(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * SELF, void * ARGS, SAMPLE in, SAMPLE * out )
 // macro for defining ChucK DLL export ugen ctrl functions
 // example: CK_DLL_CTRL(foo)
-#define CK_DLL_CTRL(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN )
+#define CK_DLL_CTRL(name) CK_DLL_EXPORT(void) name( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN )
 // macro for defining ChucK DLL export ugen cget functions
 // example: CK_DLL_CGET(foo)
-#define CK_DLL_CGET(name) CK_DLL_EXPORT(void) name( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN )
+#define CK_DLL_CGET(name) CK_DLL_EXPORT(void) name( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN )
 // macro for defining ChucK DLL export ugen pmsg functions
 // example: CK_DLL_PMSG(foo)
-#define CK_DLL_PMSG(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * self, const char * MSG, void * ARGS )
+#define CK_DLL_PMSG(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * SELF, const char * MSG, void * ARGS )
 
 
 // macros for DLL exports
 // example: DLL_QUERY  query( Chuck_DL_Query * QUERY )
 // example: DLL_FUNC   foo( void * ARGS, Chuck_DL_Return * RETURN )
-// example: DLL_UGEN_F foo_tick( Chuck_UGen * self, SAMPLE, SAMPLE * out );
+// example: DLL_UGEN_F foo_tick( Chuck_UGen * SELF, SAMPLE, SAMPLE * out );
 #define DLL_QUERY   CK_DLL_EXPORT(t_CKBOOL)
 #define DLL_FUNC    CK_DLL_EXPORT(void)
 #define UGEN_TICK   CK_DLL_EXPORT(t_CKBOOL)
@@ -172,15 +172,15 @@ extern "C" {
 // query
 typedef t_CKBOOL (CK_DLL_CALL * f_ck_query)( Chuck_DL_Query * QUERY );
 // object
-typedef t_CKVOID (CK_DLL_CALL * f_ctor)( Chuck_Object * self, void * ARGS );
-typedef t_CKVOID (CK_DLL_CALL * f_dtor)( Chuck_Object * self );
-typedef t_CKVOID (CK_DLL_CALL * f_mfun)( Chuck_Object * self, void * ARGS, Chuck_DL_Return * RETURN );
+typedef t_CKVOID (CK_DLL_CALL * f_ctor)( Chuck_Object * SELF, void * ARGS );
+typedef t_CKVOID (CK_DLL_CALL * f_dtor)( Chuck_Object * SELF );
+typedef t_CKVOID (CK_DLL_CALL * f_mfun)( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN );
 typedef t_CKVOID (CK_DLL_CALL * f_sfun)( void * ARGS, Chuck_DL_Return * RETURN );
 // ugen specific
-typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_UGen * self, SAMPLE in, SAMPLE * out );
-typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_UGen * self, void * ARGS, Chuck_DL_Return * RETURN );
-typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_UGen * self, void * ARGS, Chuck_DL_Return * RETURN );
-typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_UGen * self, const char * msg, void * ARGS );
+typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_UGen * SELF, SAMPLE in, SAMPLE * out );
+typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_UGen * SELF, void * ARGS, Chuck_DL_Return * RETURN );
+typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_UGen * SELF, void * ARGS, Chuck_DL_Return * RETURN );
+typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_UGen * SELF, const char * msg, void * ARGS );
 }
 
 

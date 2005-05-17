@@ -108,7 +108,7 @@ struct Osc_Data
 CK_DLL_CTOR( sinosc_ctor )
 {
     // return data to be used later
-    OBJ_MEMBER_UINT(self, osc_offset_data) = (t_CKUINT)new Osc_Data( self );
+    OBJ_MEMBER_UINT(SELF, osc_offset_data) = (t_CKUINT)new Osc_Data( SELF );
 }
 
 
@@ -121,11 +121,11 @@ CK_DLL_CTOR( sinosc_ctor )
 CK_DLL_DTOR( osc_dtor )
 {
     // get the data
-    Osc_Data * data = (Osc_Data *)OBJ_MEMBER_UINT(self, osc_offset_data );
+    Osc_Data * data = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     // delete
     delete data;
     // set to NULL
-    OBJ_MEMBER_UINT(self, osc_offset_data) = 0;
+    OBJ_MEMBER_UINT(SELF, osc_offset_data) = 0;
 }
 
 
@@ -138,7 +138,7 @@ CK_DLL_DTOR( osc_dtor )
 CK_DLL_TICK( sinosc_tick )
 {
     // get the data
-    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(self, osc_offset_data );
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     // sync to now
     // if( d->sync == 1 ) d->phase = now * d->num;
     // compute
@@ -160,7 +160,7 @@ CK_DLL_TICK( sinosc_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( osc_ctrl_freq )
 {
-    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(self, osc_offset_data );
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     d->freq = GET_CK_FLOAT(ARGS);
     d->num = d->freq / d->srate;
     d->phase = 0.0;
@@ -175,6 +175,26 @@ CK_DLL_CTRL( osc_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( osc_cget_freq )
 {
-    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(self, osc_offset_data );
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     RETURN->v_float = (t_CKFLOAT)d->freq;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: osc_pmsg()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( osc_pmsg )
+{
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    if( !strcmp( MSG, "print" ) )
+    {
+        fprintf( stdout, "sinosc: (freq=%f)", d->freq );
+        return TRUE;
+    }
+    
+    // didn't handle
+    return FALSE;
 }
