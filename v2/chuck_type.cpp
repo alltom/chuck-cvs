@@ -1157,6 +1157,12 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     {
         return right;
     }
+    
+    // chuck to function
+    if( isa( right, &t_function ) )
+    {
+        
+    }
 
     // implicit cast
     LR( te_int, te_float ) left = lhs->cast_to = &t_float;
@@ -2070,12 +2076,13 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 // name: type_engine_check_exp_func_call()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call )
+t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
+                                          t_CKFUNC & ck_func, int linepos )
 {
     Chuck_Func * func = NULL;
 
     // type check the func
-    t_CKTYPE f = func_call->func->type = type_engine_check_exp( env, func_call->func );
+    t_CKTYPE f = exp_func->type = type_engine_check_exp( env, exp_func );
     if( !f ) return NULL;
 
     // void type for args
@@ -2084,22 +2091,22 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     // make sure we have a function
     if( !isa( f, &t_function ) )
     {
-        EM_error2( func_call->linepos,
+        EM_error2( exp_func->linepos,
             "function call using a non-function value" );
         return NULL;
     }
-
-    // get the function and set it in the func_call
-    func_call->ck_func = func = f->func;
+    
+    // copy the func
+    ck_func = func = f->func;
 
     // check the arguments
-    if( func_call->args )
+    if( args )
     {
-        a = type_engine_check_exp( env, func_call->args );
+        a = type_engine_check_exp( env, args );
         if( !a ) return NULL;
     }
 
-    a_Exp e = func_call->args;
+    a_Exp e = args;
     a_Arg_List e1 = func->def->arg_list;
     t_CKUINT count = 1;
 
@@ -2108,7 +2115,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     {
         if( e1 == NULL )
         {
-            EM_error2( func_call->linepos,
+            EM_error2( linepos,
                 "extra argument(s) in function call '%s' (arg %i)",
                 func->name.c_str(), count );
             return NULL;
@@ -2143,16 +2150,30 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_
     // anything left
     if( e1 != NULL )
     {
-        EM_error2( func_call->linepos,
+        EM_error2( linepos,
             "missing argument(s) in function call '%s'...",
             func->name.c_str() );
-        EM_error2( func_call->linepos,
+        EM_error2( linepos,
             "...(next arg type: '%s')",
             e1->type->c_name() );
         return NULL;
     }
 
     return func->def->ret_type;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_func_call()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call )
+{
+    // type check it
+    return type_engine_check_exp_func_call( env, func_call->func, func_call->args,
+                                            func_call->ck_func, func_call->linepos );
 }
 
 
