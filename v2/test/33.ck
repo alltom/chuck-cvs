@@ -5,12 +5,12 @@ sinosc s => dac;
 
 while( true )
 {
-    2000 => int i;
-    while( i > 0 )
-    {
+//    2000 => int i;
+//    while( i > 0 )
+//    {
         Std.mtof( f[Math.rand2( 0, 4 )] + 60 ) => s.freq;
-        1 -=> i;
-    }
+//        1 -=> i;
+//    }
     100::ms => now;
 }
 
