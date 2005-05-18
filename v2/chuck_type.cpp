@@ -193,12 +193,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 
     // make sure Objects have namespaces
     init_class_object( env, &t_object );
+    init_class_ugen( env, &t_ugen );
     t_string.info = new Chuck_Namespace;
     t_string.info->add_ref();
-    t_ugen.info = new Chuck_Namespace;
-    t_ugen.info->add_ref();
-    t_ugen.ugen_info = new Chuck_UGen_Info;
-    t_ugen.ugen_info->add_ref();
     t_shred.info = new Chuck_Namespace;
     t_shred.info->add_ref();
     t_thread.info = new Chuck_Namespace;
@@ -1511,6 +1508,20 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 exp->self->s_meta = ae_meta_var;
                 // time
                 t = &t_time;
+            }
+            else if( str == "dac" ) // dac
+            {
+                // not assignable
+                exp->self->s_meta = ae_meta_value;
+                // ugen
+                t = &t_ugen;
+            }
+            else if( str == "adc" ) // adc
+            {
+                // not assignable
+                exp->self->s_meta = ae_meta_value;
+                // ugen
+                t = &t_ugen;
             }
             else if( str == "null" || str == "NULL" ) // null / NULL
             {
@@ -3543,9 +3554,13 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     }
 
     // set the beginning of the data segment after parent
-    if( type->parent ) type->info->offset = type->parent->obj_size;
-    // duplicate parent's virtual table
-    type->info->obj_v_table = type->info->obj_v_table;
+    if( type->parent )
+    {
+        type->info->offset = type->parent->obj_size;
+        // duplicate parent's virtual table
+        assert( type->parent->info != NULL );
+        type->info->obj_v_table = type->parent->info->obj_v_table;
+    }
 
     // set the owner namespace
     type->owner = where;
@@ -3559,6 +3574,7 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     // make type
     type_type = t_class.copy( env );
     type_type->actual_type = type;
+    
     // make value
     value = new Chuck_Value( type_type, type->name );
     value->add_ref();
@@ -3599,7 +3615,7 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name,
     a_Id_List parent_list = NULL;
     
     // if parent is specified
-    if( !strcmp( parent_str, "") )
+    if( strcmp( parent_str, "") )
     {
         // get parent
         parent_list = str2list( parent_str );
@@ -3655,11 +3671,26 @@ Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name,
     if( !(type = type_engine_import_class_begin( env, name, parent, where, pre_ctor ) ) )
         return FALSE;
 
+    // make sure parent is ugen
+    assert( type->parent != NULL );
+    if( !isa( type->parent, &t_ugen ) )
+    {
+        // error
+        EM_error2( 0,
+            "imported class '%s' does not have a ugen as parent",
+            type->c_name() );
+        return FALSE;
+    }
+
     // do the ugen part
     info = new Chuck_UGen_Info;
     info->add_ref();
-    info->tick = tick;
-    info->pmsg = pmsg;
+    info->tick = type->parent->ugen_info->tick;
+    info->pmsg = type->parent->ugen_info->pmsg;
+    if( tick ) info->tick = tick;
+    if( pmsg ) info->pmsg = pmsg;
+    // set in type
+    type->ugen_info = info;
 
     return type;
 }

@@ -93,6 +93,36 @@ error:
 
 
 //-----------------------------------------------------------------------------
+// name: init_class_ugen()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
+{
+    // add ugen info
+    t_ugen.ugen_info = new Chuck_UGen_Info;
+    t_ugen.ugen_info->add_ref();
+
+    // init as base class
+    if( !type_engine_import_class_begin( env, type, env->global(), (t_CKUINT)object_ctor ) )
+        return FALSE;
+
+    // end
+    type_engine_import_class_end( env );
+
+    return TRUE;
+
+/*error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    return FALSE;*/
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: init_class_event()
 // desc: ...
 //-----------------------------------------------------------------------------

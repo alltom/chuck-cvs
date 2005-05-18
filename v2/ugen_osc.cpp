@@ -103,7 +103,7 @@ struct Osc_Data
     
     double phase;
     
-    Osc_Data( Chuck_Object * obj )
+    Osc_Data()
     {
         t = 0.0;
         num = 0.0;
@@ -112,8 +112,6 @@ struct Osc_Data
         width = 0.5;
         phase_offset = 0.0;
         srate = g_srate;
-        osc_ctrl_freq( obj, &freq, NULL );
-        //osc_ctrl_phase_offset( obj, &phase_offset, NULL );
         
         phase = 0.0;
     }
@@ -128,8 +126,11 @@ struct Osc_Data
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( osc_ctor )
 {
+    Osc_Data * d = new Osc_Data;
     // return data to be used later
-    OBJ_MEMBER_UINT(SELF, osc_offset_data) = (t_CKUINT)new Osc_Data( SELF );
+    OBJ_MEMBER_UINT(SELF, osc_offset_data) = (t_CKUINT)d;
+    osc_ctrl_freq( SELF, &(d->freq), NULL );
+    //osc_ctrl_phase_offset( obj, &phase_offset, NULL );
 }
 
 
