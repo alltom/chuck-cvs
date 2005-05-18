@@ -227,7 +227,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 	env->global()->value.add( "true", new Chuck_Value( &t_int, "true", new t_CKINT(1), TRUE ) );
 	env->global()->value.add( "false", new Chuck_Value( &t_int, "false", new t_CKINT(0), TRUE ) );
 	env->global()->value.add( "maybe", new Chuck_Value( &t_int, "maybe", new t_CKFLOAT(.5), FALSE ) );
-	env->global()->value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(3.14159265358979323846), TRUE ) );
+	env->global()->value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(ONE_PI), TRUE ) );
 	env->global()->value.add( "global", new Chuck_Value( &t_class, "global", env->global(), TRUE ) );
 
 	/*
