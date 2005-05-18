@@ -523,13 +523,13 @@ t_CKBOOL isobj( Chuck_Type * type );
 t_CKBOOL isfunc( Chuck_Type * type );
 
 // import
-t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
-                                         Chuck_Namespace * where, t_CKUINT pre_ctor );
-t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
-                                         Chuck_Namespace * where, t_CKUINT pre_ctor );
-t_CKBOOL type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
-                                        Chuck_Namespace * where, t_CKUINT pre_ctor,
-                                        t_CKUINT tick, t_CKUINT pmsg );
+Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
+                                             Chuck_Namespace * where, t_CKUINT pre_ctor );
+Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
+                                             Chuck_Namespace * where, t_CKUINT pre_ctor );
+Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
+                                            Chuck_Namespace * where, t_CKUINT pre_ctor,
+                                            f_tick tick, f_pmsg pmsg );
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun );
 t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun );
 t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 

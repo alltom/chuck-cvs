@@ -59,8 +59,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
     // init as base class
     if( !type_engine_import_ugen_begin( env, "sinosc", "ugen", env->global(), 
-                                        (t_CKUINT)osc_ctor, (t_CKUINT)sinosc_tick,
-                                        (t_CKUINT)osc_pmsg ) )
+                                        (t_CKUINT)osc_ctor, sinosc_tick, osc_pmsg ) )
         return FALSE;
 
     // add member variable

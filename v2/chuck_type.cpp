@@ -3505,8 +3505,8 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 // desc: import existing base class, such as Object or Event
 //       must be completed by type_engine_import_class_end()
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
-                                         Chuck_Namespace * where, t_CKUINT pre_ctor )
+Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
+                                             Chuck_Namespace * where, t_CKUINT pre_ctor )
 {
     Chuck_Value * value = NULL;
     Chuck_Type * type_type = NULL;
@@ -3516,7 +3516,7 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     {
         // error
         EM_error2( 0, "during import: class '%s' already imported...", type->c_name() );
-        return FALSE;
+        return NULL;
     }
 
     // allocate namespace for type
@@ -3576,7 +3576,10 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     env->class_stack.push_back( env->class_def );
     env->class_def = type;
 
-    return TRUE;
+    // ref count
+    type->add_ref();
+
+    return type;
 }
 
 
@@ -3586,10 +3589,52 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 // name: type_engine_import_class_begin()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
-                                         Chuck_Namespace * where, t_CKUINT pre_ctor )
+Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, 
+                                           const char * parent_str,
+                                           Chuck_Namespace * where, t_CKUINT pre_ctor )
 {
-    return TRUE;
+    // which namespace
+    Chuck_Type * parent = NULL;
+    Chuck_Type * type = NULL;
+    a_Id_List parent_list = NULL;
+    
+    // if parent is specified
+    if( !strcmp( parent_str, "") )
+    {
+        // get parent
+        parent_list = str2list( parent_str );
+        parent = type_engine_find_type( env, parent_list );
+        if( !parent ) goto error;
+    }
+    else // if no parent specified, then extend Object
+    {
+        parent = &t_object;
+    }
+
+    // allocate type
+    type = new Chuck_Type( te_user, name, parent, sizeof(void *) );
+
+    // add to namespace - TODO: handle failure, remove from where
+    where->type.add( name, type );
+
+    // do the rest
+    if( !type_engine_import_class_begin( env, type, where, pre_ctor ) )
+        goto error;
+
+    // done
+    goto cleanup;
+
+error:
+    // error
+    EM_error2( 0, "... during import of class '%s'", name );
+    // free
+    SAFE_DELETE( type );
+
+cleanup:
+    // cleanup
+    delete_id_list( parent_list );
+    
+    return type;
 }
 
 
@@ -3599,11 +3644,24 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, const char * name, con
 // name: type_engine_import_ugen_begin()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
-                                        Chuck_Namespace * where, t_CKUINT pre_ctor,
-                                        t_CKUINT tick, t_CKUINT pmsg )
+Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, 
+                                            const char * parent, Chuck_Namespace * where,
+                                            t_CKUINT pre_ctor, f_tick tick, f_pmsg pmsg )
 {
-    return TRUE;
+    Chuck_Type * type = NULL;
+    Chuck_UGen_Info * info = NULL;
+
+    // construct class
+    if( !(type = type_engine_import_class_begin( env, name, parent, where, pre_ctor ) ) )
+        return FALSE;
+
+    // do the ugen part
+    info = new Chuck_UGen_Info;
+    info->add_ref();
+    info->tick = tick;
+    info->pmsg = pmsg;
+
+    return type;
 }
 
 
@@ -3729,7 +3787,13 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
     a_Exp exp_decl = new_exp_decl( type_decl, var_decl_list, FALSE, 0 );
     // add it
     if( !type_engine_check_exp_decl( env, &exp_decl->decl ) )
+    {
+        delete_id_list( path );
         return CK_INVALID_OFFSET;
+    }
+
+    // cleanup
+    delete_id_list( path );
 
     // return the offset
     return var_decl->value->offset;
@@ -3778,7 +3842,13 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
     var_decl->addr = (void *)addr;
     // add it
     if( !type_engine_check_exp_decl( env, &exp_decl->decl ) )
+    {
+        delete_id_list( path );
         return FALSE;
+    }
+
+    // cleanup
+    delete_id_list( path );
 
     return TRUE;
 }
