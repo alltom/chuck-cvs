@@ -226,6 +226,17 @@ struct Chuck_Context : public Chuck_VM_Object
 //-----------------------------------------------------------------------------
 struct Chuck_Env : public Chuck_VM_Object
 {
+
+public:
+    static Chuck_Env * instance();
+
+private:
+    static Chuck_Env * our_instance;
+	// constructor
+    Chuck_Env( )
+	{ vm = NULL; context = &global_context; 
+      global_nspc = global_context.nspc; this->reset(); }
+
 protected:
 	// global namespace
 	Chuck_Namespace * global_nspc;
@@ -266,10 +277,6 @@ public:
     map<string, t_CKBOOL> key_types;
     map<string, t_CKBOOL> key_values;
 
-	// constructor
-    Chuck_Env( )
-	{ vm = NULL; context = &global_context; 
-      global_nspc = global_context.nspc; this->reset(); }
 	// destructor
 	~Chuck_Env() { }
 
@@ -518,6 +525,11 @@ t_CKBOOL isfunc( Chuck_Type * type );
 // import
 t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
                                          Chuck_Namespace * where, t_CKUINT pre_ctor );
+t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
+                                         Chuck_Namespace * where, t_CKUINT pre_ctor );
+t_CKBOOL type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
+                                        Chuck_Namespace * where, t_CKUINT pre_ctor,
+                                        t_CKUINT tick, t_CKUINT pmsg );
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun );
 t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun );
 t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 
@@ -525,6 +537,8 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
 t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
                                   const char * name, t_CKUINT is_const,
                                   t_CKUINT addr );
+t_CKBOOL type_engine_import_ugen_ctrl( Chuck_Env * env, const char * type, const char * name,
+                                       f_ctrl ctrl, t_CKBOOL write, t_CKBOOL read );
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env );
 
 // helpers

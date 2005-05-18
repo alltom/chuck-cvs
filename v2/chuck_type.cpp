@@ -125,6 +125,25 @@ t_CKBOOL verify_array( a_Array_Sub array );
 const char * type_path( a_Id_List path );
 a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static );
 
+// static
+Chuck_Env * Chuck_Env::our_instance = NULL;
+
+
+//-----------------------------------------------------------------------------
+// name: instance()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Env * Chuck_Env::instance()
+{
+    if( !our_instance )
+    {
+        our_instance = new Chuck_Env;
+        assert( our_instance != NULL );
+    }
+
+    return our_instance;
+}
+
 
 
 
@@ -135,7 +154,7 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static );
 Chuck_Env * type_engine_init( Chuck_VM * vm )
 {
     // allocate a new env
-    Chuck_Env * env = new Chuck_Env;
+    Chuck_Env * env = Chuck_Env::instance();
     // add
     env->add_ref();
 	// set the VM reference
@@ -3557,6 +3576,33 @@ t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     env->class_stack.push_back( env->class_def );
     env->class_def = type;
 
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_import_class_begin()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
+                                         Chuck_Namespace * where, t_CKUINT pre_ctor )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_import_ugen_begin()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
+                                        Chuck_Namespace * where, t_CKUINT pre_ctor,
+                                        t_CKUINT tick, t_CKUINT pmsg )
+{
     return TRUE;
 }
 

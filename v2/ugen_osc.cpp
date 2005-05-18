@@ -32,6 +32,7 @@
 // date: Summer 2004
 //-----------------------------------------------------------------------------
 #include "ugen_osc.h"
+#include "chuck_type.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -51,16 +52,37 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 {
     // srate
     g_srate = QUERY->srate;
+    // get the env
+    Chuck_Env * env = Chuck_Env::instance();
 
-    //! sine oscillator
-    //! (see \example osc.ck)
-    //QUERY->ugen_add( QUERY, "sinosc", NULL );
-    // set funcs
-    //QUERY->ugen_func( QUERY, osc_ctor, osc_dtor, sinosc_tick, osc_pmsg );
-    // add ctrls / cgets
-    //QUERY->ugen_ctrl( QUERY, osc_ctrl_freq, osc_cget_freq, "float", "freq" );  //! oscillator frequency ( Hz ) 
+    Chuck_DL_Func * func = NULL;
+
+    // init as base class
+    if( !type_engine_import_ugen_begin( env, "sinosc", "ugen", env->global(), 
+                                        (t_CKUINT)osc_ctor, (t_CKUINT)sinosc_tick,
+                                        (t_CKUINT)osc_pmsg ) )
+        return FALSE;
+
+    // add member variable
+    osc_offset_data = type_engine_import_mvar( env, "int", "@osc_data", FALSE );
+    if( osc_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add ctrl: freq
+    func = make_new_mfun( "float", "freq", osc_ctrl_freq );
+    func->add_arg( "float", "hz" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
 
     return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
 }
 
 
@@ -105,7 +127,7 @@ struct Osc_Data
 // name: sinosc_ctor()
 // desc: ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTOR( sinosc_ctor )
+CK_DLL_CTOR( osc_ctor )
 {
     // return data to be used later
     OBJ_MEMBER_UINT(SELF, osc_offset_data) = (t_CKUINT)new Osc_Data( SELF );

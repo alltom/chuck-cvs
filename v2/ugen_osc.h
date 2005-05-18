@@ -44,6 +44,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * query );
 CK_DLL_CTOR( osc_ctor );
 CK_DLL_DTOR( osc_dtor );
 CK_DLL_TICK( osc_tick );
+CK_DLL_PMSG( osc_pmsg );
 CK_DLL_CTRL( osc_ctrl_freq );
 CK_DLL_CGET( osc_cget_freq );
 
