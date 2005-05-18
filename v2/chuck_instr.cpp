@@ -2056,8 +2056,6 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
         {
             // copy this from end of arguments to the front
             *mem_sp2++ = *(reg_sp2 + stack_depth - 1);
-            // advance reg pointer
-            reg_sp2++;
             // one less word to copy
             stack_depth--;
         }
@@ -2604,6 +2602,7 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // reg stack pointer
     t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKUINT *& reg_sp = sp;
     t_CKINT i = 0;
     t_CKUINT val = 0;
     t_CKFLOAT fval = 0;
