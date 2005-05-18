@@ -83,6 +83,8 @@ void Chuck_UGen::init()
     m_last = 0.0f;
     m_op = UGEN_OP_TICK;
     m_gain = 1.0f;
+    m_next = 0.0f;
+    m_use_next = FALSE;
     
     state = NULL;
 }

@@ -98,6 +98,8 @@ error:
 //-----------------------------------------------------------------------------
 t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
 {
+    Chuck_DL_Func * func = NULL;
+
     // add ugen info
     t_ugen.ugen_info = new Chuck_UGen_Info;
     t_ugen.ugen_info->add_ref();
@@ -106,17 +108,36 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_class_begin( env, type, env->global(), (t_CKUINT)object_ctor ) )
         return FALSE;
 
+    // gain
+    func = make_new_mfun( "float", "gain", ugen_gain );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // next
+    func = make_new_mfun( "float", "next", ugen_next );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // last
+    func = make_new_mfun( "float", "last", ugen_last );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // op
+    func = make_new_mfun( "int", "op", ugen_op );
+    func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end
     type_engine_import_class_end( env );
 
     return TRUE;
 
-/*error:
+error:
 
     // end the class import
     type_engine_import_class_end( env );
 
-    return FALSE;*/
+    return FALSE;
 }
 
 
@@ -214,6 +235,64 @@ CK_DLL_SFUN( object_testStatic )
     fprintf( stderr, "testStatic %f\n", v );
 }
 
+
+
+
+CK_DLL_CTOR( ugen_ctor )
+{
+}
+
+CK_DLL_DTOR( ugen_dtor )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+
+}
+
+CK_DLL_MFUN( ugen_op )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // get arg
+    t_CKINT op = GET_CK_INT( ARGS );
+    // set op
+    ugen->m_op = op;
+    // set return
+    RETURN->v_int = ugen->m_op;
+}
+
+CK_DLL_MFUN( ugen_last )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // set return
+    RETURN->v_float = (t_CKFLOAT)ugen->m_last;
+}
+
+CK_DLL_MFUN( ugen_next )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // get arg
+    t_CKFLOAT next = GET_CK_FLOAT( ARGS );
+    // set op
+    ugen->m_next = (SAMPLE)next;
+    ugen->m_use_next = TRUE;
+    // set return
+    RETURN->v_float = (t_CKFLOAT)ugen->m_next;
+}
+
+CK_DLL_MFUN( ugen_gain )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // get arg
+    t_CKFLOAT gain = GET_CK_FLOAT( ARGS );
+    // set op
+    ugen->m_gain = (SAMPLE)gain;
+    // set return
+    RETURN->v_float = (t_CKFLOAT)ugen->m_gain;
+}
 
 
 

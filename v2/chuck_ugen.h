@@ -85,8 +85,10 @@ public: // data
     t_CKUINT m_max_src;
     t_CKTIME m_time;
     t_CKBOOL m_valid;
+    t_CKBOOL m_use_next;
     SAMPLE m_sum;
     SAMPLE m_current;
+    SAMPLE m_next;
     SAMPLE m_last;
     SAMPLE m_gain;
     t_CKINT m_op;
