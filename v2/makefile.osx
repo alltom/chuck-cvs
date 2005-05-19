@@ -3,7 +3,7 @@ CC=gcc
 LEX=flex
 YACC=bison
 INCLUDES=
-FLAGS=-D__MACOSX_CORE__ -c -O3
+FLAGS=-D__MACOSX_CORE__ -g -c
 LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation -lstdc++ -lm
 SF_OBJ=util_sndfile.o
 
