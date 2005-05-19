@@ -40,18 +40,33 @@
 // query
 DLL_QUERY osc_query( Chuck_DL_Query * query );
 
-// oscs
+// osc - base
+
 CK_DLL_CTOR( osc_ctor );
 CK_DLL_DTOR( osc_dtor );
 CK_DLL_TICK( osc_tick );
 CK_DLL_PMSG( osc_pmsg );
 CK_DLL_CTRL( osc_ctrl_freq );
 CK_DLL_CGET( osc_cget_freq );
+CK_DLL_CTRL( osc_ctrl_phase );
+CK_DLL_CTRL( osc_ctrl_width );
 
 // sinosc
 CK_DLL_TICK( sinosc_tick );
 
+// pulseosc
+CK_DLL_TICK( pulseosc_tick );
 
+// triosc
+CK_DLL_TICK( triosc_tick );
+
+// sawosc 
+CK_DLL_CTOR( sawosc_ctor );
+CK_DLL_CTRL( sawosc_ctrl_width );
+
+// sqrosc 
+CK_DLL_CTOR( sqrosc_ctor );
+CK_DLL_CTRL( sqrosc_ctrl_width );
 
 
 #endif
