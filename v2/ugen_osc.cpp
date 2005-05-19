@@ -57,14 +57,32 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
     Chuck_DL_Func * func = NULL;
 
-    // init as base class
-    if( !type_engine_import_ugen_begin( env, "sinosc", "ugen", env->global(), 
-                                        (t_CKUINT)osc_ctor, sinosc_tick, osc_pmsg ) )
+    //---------------------------------------------------------------------
+    // init as base class: osc
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "osc", "ugen", env->global(), 
+                                        (t_CKUINT)osc_ctor, osc_tick, osc_pmsg ) )
         return FALSE;
 
     // add member variable
     osc_offset_data = type_engine_import_mvar( env, "int", "@osc_data", FALSE );
     if( osc_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add ctrl: freq
+    func = make_new_mfun( "float", "freq", osc_ctrl_freq );
+    func->add_arg( "float", "hz" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //---------------------------------------------------------------------
+    // sinosc
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "sinosc", "osc", env->global(), 
+                                        NULL, sinosc_tick, NULL ) )
+        return FALSE;
 
     // add ctrl: freq
     func = make_new_mfun( "float", "freq", osc_ctrl_freq );
@@ -127,9 +145,10 @@ struct Osc_Data
 CK_DLL_CTOR( osc_ctor )
 {
     Osc_Data * d = new Osc_Data;
+    Chuck_DL_Return r;
     // return data to be used later
     OBJ_MEMBER_UINT(SELF, osc_offset_data) = (t_CKUINT)d;
-    osc_ctrl_freq( SELF, &(d->freq), NULL );
+    osc_ctrl_freq( SELF, &(d->freq), &r );
     //osc_ctrl_phase_offset( obj, &phase_offset, NULL );
 }
 
@@ -154,6 +173,32 @@ CK_DLL_DTOR( osc_dtor )
 
 
 //-----------------------------------------------------------------------------
+// name: osc_tick()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( osc_tick )
+{
+    // get the data
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    // sync to now
+    // if( d->sync == 1 ) d->phase = now * d->num;
+    // compute
+    *out = (SAMPLE) ( d->sync == 2 ) ? ::sin( TWO_PI * in ) : ::sin( d->phase );
+    // move phase
+    if( d->sync == 0 )
+    {
+        d->phase += d->num;
+        // keep the phase between 0 and TWO_PI
+        if( d->phase > TWO_PI ) d->phase -= TWO_PI;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: sinosc_tick()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -164,11 +209,14 @@ CK_DLL_TICK( sinosc_tick )
     // sync to now
     // if( d->sync == 1 ) d->phase = now * d->num;
     // compute
-    *out = (SAMPLE) ( d->sync == 2 ) ? sin( TWO_PI * in ) : sin( TWO_PI * d->phase );
+    *out = (SAMPLE) ( d->sync == 2 ) ? ::sin( TWO_PI * in ) : ::sin( d->phase );
     // move phase
-    if( d->sync == 0 ) d->phase += d->num;
-    // unwrap
-    if( d->phase > TWO_PI ) fmod( d->phase, TWO_PI );
+    if( d->sync == 0 )
+    {
+        d->phase += d->num;
+        // keep the phase between 0 and TWO_PI
+        if( d->phase > TWO_PI ) d->phase -= TWO_PI;
+    }
 
     return TRUE;
 }
@@ -182,22 +230,15 @@ CK_DLL_TICK( sinosc_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( osc_ctrl_freq )
 {
+    // get data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    // set freq
     d->freq = GET_CK_FLOAT(ARGS);
-    d->num = d->freq / d->srate;
-    d->phase = 0.0;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: sinosc_cget_freq()
-// desc: ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( osc_cget_freq )
-{
-    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    // phase increment
+    d->num = TWO_PI * d->freq / d->srate;
+    // bound it
+    if( d->num > TWO_PI ) d->num = ::fmod( d->num, TWO_PI );
+    // return
     RETURN->v_float = (t_CKFLOAT)d->freq;
 }
 

@@ -105,7 +105,7 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     t_ugen.ugen_info->add_ref();
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), (t_CKUINT)object_ctor ) )
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
         return FALSE;
 
     // gain
