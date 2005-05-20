@@ -80,6 +80,10 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "phase" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "int", "sync", osc_ctrl_sync );
+    func->add_arg( "int", "type" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
 
