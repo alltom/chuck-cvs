@@ -188,7 +188,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //----------------------------------
     // begin twozero ugen
     //----------------------------------
-    if ( !type_engine_import_ugen_begin( env, "twozero", "ugen", env->global(),
+    if ( !type_engine_import_ugen_begin( env, "twozero", "biquad", env->global(),
                                          NULL, twozero_tick, NULL ) ) return FALSE;
     // ctrl func
     func = make_new_mfun ( "float", "freq", twozero_ctrl_freq );
