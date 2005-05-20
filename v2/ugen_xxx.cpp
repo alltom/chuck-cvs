@@ -56,42 +56,46 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // add dac
     //! digital/analog converter
     //! abstraction for underlying audio output device
-    QUERY->ugen_add( QUERY, "dac", NULL );
+    //QUERY->ugen_add( QUERY, "dac", NULL );
     // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
+    //QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
     
     // add adc
     //! analog/digital converter
     //! abstraction for underlying audio input device
-    QUERY->ugen_add( QUERY, "adc", NULL );
+    //QUERY->ugen_add( QUERY, "adc", NULL );
     // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
+    //QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
     
     // add blackhole
     //! sample rate sample sucker
     //! ( like dac, ticks ugens, but no more )
     //! see \example pwm.ck
-    QUERY->ugen_add( QUERY, "blackhole", NULL );
+    //QUERY->ugen_add( QUERY, "blackhole", NULL );
     // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
+    //QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
     
     // add bunghole
     //! sample rate sample sucker
     //! ( like dac, ticks ugens, but no more )
-    QUERY->ugen_add( QUERY, "bunghole", NULL );
+    //QUERY->ugen_add( QUERY, "bunghole", NULL );
     // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );    
+    //QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );    
     
     // add gain
     //! gain control
     //! (NOTE - all unit generators can themselves change their gain)
     //! (this is a way to add N outputs together and scale them) 
     //! used in \example i-robot.ck
-    QUERY->ugen_add( QUERY, "gain", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, gain_ctor, gain_dtor, gain_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, gain_ctrl_value, gain_cget_value, "float", "value" ); //! set gain ( all ugen's have this ) 
+    //---------------------------------------------------------------------
+    // init as base class: osc
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "gain", "ugen", env->global(), 
+                                        NULL, NULL, NULL ) )
+        return FALSE;
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
     /*! \example
         noise n => gain g => dac;
     sinosc s => g;
@@ -104,10 +108,13 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // add noise
     //! white noise generator 
     //! see \example noise.ck \example powerup.ck
-    QUERY->ugen_add( QUERY, "noise", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, NULL, NULL, noise_tick, NULL );
-    
+    //---------------------------------------------------------------------
+    // init as base class: osc
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "osc", "ugen", env->global(), 
+                                        osc_ctor, osc_tick, osc_pmsg ) )
+        return FALSE;
+
     // add cnoise 
     QUERY->ugen_add( QUERY, "cnoise", NULL );
     QUERY->ugen_func( QUERY, cnoise_ctor, cnoise_dtor, cnoise_tick, NULL );

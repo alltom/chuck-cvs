@@ -39,89 +39,93 @@
 // query
 DLL_QUERY xxx_query( Chuck_DL_Query * query );
 
+
 // noise
-UGEN_TICK noise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTOR cnoise_ctor( t_CKTIME now );
-UGEN_DTOR cnoise_dtor( t_CKTIME now, void * data );
-UGEN_TICK cnoise_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL cnoise_ctrl_mode( t_CKTIME now, void * data, void * value );
-UGEN_CTRL cnoise_ctrl_fprob( t_CKTIME now, void * data, void * value );
+CK_DLL_TICK( noise_tick )
+
+// cnoise
+CK_DLL_CTOR( cnoise_ctor );
+CK_DLL_DTOR( cnoise_dtor );
+CK_DLL_TICK( cnoise_tick );
+CK_DLL_CTRL( cnoise_ctrl_mode );
+CK_DLL_CTRL( cnoise_ctrl_fprob );
+
 // impulse
-UGEN_CTOR impulse_ctor( t_CKTIME now );
-UGEN_DTOR impulse_dtor( t_CKTIME now, void * data );
-UGEN_TICK impulse_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL impulse_ctrl_value( t_CKTIME now, void * data, void * value );
-UGEN_CGET impulse_cget_value( t_CKTIME now, void * data, void * out );
+CK_DLL_CTOR( impulse_ctor );
+CK_DLL_DTOR( impulse_dtor );
+CK_DLL_TICK( impulse_tick );
+CK_DLL_CTRL( impulse_ctrl_next );
+CK_DLL_CGET( impulse_cget_next );
 
 // step
-UGEN_CTOR step_ctor( t_CKTIME now );
-UGEN_DTOR step_dtor( t_CKTIME now, void * data );
-UGEN_TICK step_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL step_ctrl_value( t_CKTIME now, void * data, void * value );
-UGEN_CGET step_cget_value( t_CKTIME now, void * data, void * out );
+CK_DLL_CTOR( step_ctor );
+CK_DLL_DTOR( step_dtor );
+CK_DLL_TICK( step_tick );
+CK_DLL_CTRL( step_ctrl_value );
+CK_DLL_CGET( step_cget_value );
 
 // gain
-UGEN_CTOR gain_ctor( t_CKTIME now );
-UGEN_DTOR gain_dtor( t_CKTIME now, void * data );
-UGEN_TICK gain_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL gain_ctrl_value( t_CKTIME now, void * data, void * value );
-UGEN_CGET gain_cget_value( t_CKTIME now, void * data, void * out );
+CK_DLL_CTOR( gain_ctor );
+CK_DLL_DTOR( gain_dtor );
+CK_DLL_TICK( gain_tick );
+CK_DLL_CTRL( gain_ctrl_value );
+CK_DLL_CGET( gain_cget_value );
 
 // halfrect
-UGEN_TICK halfrect_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+CK_DLL_TICK( halfrect_tick );
 
 // fullrect
-UGEN_TICK fullrect_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+CK_DLL_TICK( fullrect_tick );
 
 // zerox
-UGEN_CTOR zerox_ctor( t_CKTIME now );
-UGEN_DTOR zerox_dtor( t_CKTIME now, void * data );
-UGEN_TICK zerox_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+CK_DLL_CTOR( zerox_ctor );
+CK_DLL_DTOR( zerox_dtor );
+CK_DLL_TICK( zerox_tick );
 
 // DAC and ADC
-UGEN_TICK dac_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_TICK bunghole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+CK_DLL_TICK( dac_tick );
+CK_DLL_TICK( bunghole_tick );
 
-
-UGEN_CTOR delayp_ctor( t_CKTIME now );
-UGEN_DTOR delayp_dtor( t_CKTIME now, void * data );
-UGEN_PMSG delayp_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
-UGEN_TICK delayp_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL delayp_ctrl_delay( t_CKTIME now, void * data, void * value );
-UGEN_CGET delayp_cget_delay( t_CKTIME now, void * data, void * out );
-UGEN_CTRL delayp_ctrl_window( t_CKTIME now, void * data, void * value );
-UGEN_CGET delayp_cget_window( t_CKTIME now, void * data, void * out );
-UGEN_CTRL delayp_ctrl_max( t_CKTIME now, void * data, void * value );
-UGEN_CGET delayp_cget_max( t_CKTIME now, void * data, void * out );
+// delayp
+CK_DLL_CTOR( delayp_ctor );
+CK_DLL_DTOR( delayp_dtor );
+CK_DLL_PMSG( delayp_pmsg );
+CK_DLL_TICK( delayp_tick );
+CK_DLL_CTRL( delayp_ctrl_delay );
+CK_DLL_CGET( delayp_cget_delay );
+CK_DLL_CTRL( delayp_ctrl_window );
+CK_DLL_CGET( delayp_cget_window );
+CK_DLL_CTRL( delayp_ctrl_max );
+CK_DLL_CGET( delayp_cget_max );
 
 // sndbuf
-UGEN_CTOR sndbuf_ctor( t_CKTIME now );
-UGEN_DTOR sndbuf_dtor( t_CKTIME now, void * data );
-UGEN_TICK sndbuf_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL sndbuf_ctrl_read( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_read( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_write( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_write( t_CKTIME now, void * data, void * value );
-UGEN_CTRL sndbuf_ctrl_pos( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_pos( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_loop( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_loop( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_interp( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_interp( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_rate( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_rate( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_play( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_play( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_freq( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_freq( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_phase( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_phase( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_channel( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_channel( t_CKTIME now, void * data, void * out );
-UGEN_CTRL sndbuf_ctrl_phase_offset( t_CKTIME now, void * data, void * value );
-UGEN_CGET sndbuf_cget_samples( t_CKTIME now, void * data, void * out );
-UGEN_CGET sndbuf_cget_length( t_CKTIME now, void * data, void * out );
-UGEN_CGET sndbuf_cget_channels( t_CKTIME now, void * data, void * out );
+CK_DLL_CTOR( sndbuf_ctor );
+CK_DLL_DTOR( sndbuf_dtor );
+CK_DLL_TICK( sndbuf_tick );
+CK_DLL_CTRL( sndbuf_ctrl_read );
+CK_DLL_CGET( sndbuf_cget_read );
+CK_DLL_CTRL( sndbuf_ctrl_write );
+CK_DLL_CGET( sndbuf_cget_write );
+CK_DLL_CTRL( sndbuf_ctrl_pos );
+CK_DLL_CGET( sndbuf_cget_pos );
+CK_DLL_CTRL( sndbuf_ctrl_loop );
+CK_DLL_CGET( sndbuf_cget_loop );
+CK_DLL_CTRL( sndbuf_ctrl_interp );
+CK_DLL_CGET( sndbuf_cget_interp );
+CK_DLL_CTRL( sndbuf_ctrl_rate );
+CK_DLL_CGET( sndbuf_cget_rate );
+CK_DLL_CTRL( sndbuf_ctrl_play );
+CK_DLL_CGET( sndbuf_cget_play );
+CK_DLL_CTRL( sndbuf_ctrl_freq );
+CK_DLL_CGET( sndbuf_cget_freq );
+CK_DLL_CTRL( sndbuf_ctrl_phase );
+CK_DLL_CGET( sndbuf_cget_phase );
+CK_DLL_CTRL( sndbuf_ctrl_channel );
+CK_DLL_CGET( sndbuf_cget_channel );
+CK_DLL_CTRL( sndbuf_ctrl_phase_offset );
+CK_DLL_CGET( sndbuf_cget_samples );
+CK_DLL_CGET( sndbuf_cget_length );
+CK_DLL_CGET( sndbuf_cget_channels );
 
 
 
