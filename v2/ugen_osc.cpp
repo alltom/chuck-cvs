@@ -80,12 +80,18 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "hz" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add ctrl: phase
     func = make_new_mfun( "float", "phase", osc_ctrl_phase );
     func->add_arg( "float", "phase" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "phase", osc_cget_phase );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add ctrl: sync
     func = make_new_mfun( "int", "sync", osc_ctrl_sync );
     func->add_arg( "int", "type" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "sync", osc_cget_sync );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
@@ -393,7 +399,7 @@ CK_DLL_CTRL( osc_ctrl_freq )
 // name: osc_cget_freq()
 // desc: get oscillator frequency
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( osc_cget_freq )
+CK_DLL_CGET( osc_cget_freq )
 {
     // get data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
@@ -424,6 +430,21 @@ CK_DLL_CTRL( osc_ctrl_phase )
 
 
 //-----------------------------------------------------------------------------
+// name: osc_cget_phase()
+// desc: get oscillator phase wrapped to ( 0 - 1 )
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( osc_cget_phase )
+{
+    // get data
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    // return
+    RETURN->v_float = (t_CKFLOAT)d->phase;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: osc_ctrl_width()
 // desc: set width of active phase ( bound 0.0 - 1.0 );
 //-----------------------------------------------------------------------------
@@ -435,6 +456,21 @@ CK_DLL_CTRL( osc_ctrl_width )
     d->width = GET_CK_FLOAT(ARGS);
     //bound ( this could be set arbitrarily high or low ) 
     d->width = ck_max( 0.0, ck_min( 1.0, d->width ) );
+    // return
+    RETURN->v_float = (t_CKFLOAT)d->width;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: osc_cget_width()
+// desc: get width of active phase ( bound 0.0 - 1.0 );
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( osc_cget_width )
+{
+    // get data
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     // return
     RETURN->v_float = (t_CKFLOAT)d->width;
 }
@@ -530,6 +566,22 @@ CK_DLL_CTRL( osc_ctrl_sync )
     // return
     RETURN->v_int = (t_CKINT)d->sync;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: osc_cget_sync()
+// desc: get sync mode for oscillator
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( osc_cget_sync )
+{
+    // get data
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    // return
+    RETURN->v_int = (t_CKINT)d->sync;
+}
+
 
 
 
