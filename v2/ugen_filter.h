@@ -40,107 +40,107 @@
 DLL_QUERY filter_query( Chuck_DL_Query * query );
 
 // filter
-UGEN_CTOR filter_ctor( t_CKTIME now );
-UGEN_DTOR filter_dtor( t_CKTIME now, void * data );
-UGEN_TICK filter_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL filter_ctrl_coefs( t_CKTIME now, void * data, void * value );
-UGEN_CGET filter_cget_coefs( t_CKTIME now, void * data, void * out );
-UGEN_PMSG filter_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+CK_DLL_CTOR( filter_ctor );
+CK_DLL_DTOR( filter_dtor );
+CK_DLL_TICK( filter_tick );
+CK_DLL_CTRL( filter_ctrl_coefs );
+CK_DLL_CGET( filter_cget_coefs );
+CK_DLL_PMSG( filter_pmsg );
 
 // biquad
-UGEN_CTOR biquad_ctor( t_CKTIME now );
-UGEN_DTOR biquad_dtor( t_CKTIME now, void * data );
-UGEN_TICK biquad_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
+CK_DLL_CTOR( biquad_ctor );
+CK_DLL_DTOR( biquad_dtor );
+CK_DLL_TICK( biquad_tick );
 
-UGEN_CTRL biquad_ctrl_pfreq( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_pfreq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_prad( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_prad( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_zfreq( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_zfreq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_zrad( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_zrad( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_norm( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_norm( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_pregain( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_pregain( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_eqzs( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_eqzs( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_b0( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_b0( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_b1( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_b1( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_b2( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_b2( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_a0( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_a0( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_a1( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_a1( t_CKTIME now, void * data, void * value );
-UGEN_CTRL biquad_ctrl_a2( t_CKTIME now, void * data, void * value );
-UGEN_CGET biquad_cget_a2( t_CKTIME now, void * data, void * value );
+CK_DLL_CTRL( biquad_ctrl_pfreq );
+CK_DLL_CGET( biquad_cget_pfreq );
+CK_DLL_CTRL( biquad_ctrl_prad );
+CK_DLL_CGET( biquad_cget_prad );
+CK_DLL_CTRL( biquad_ctrl_zfreq );
+CK_DLL_CGET( biquad_cget_zfreq );
+CK_DLL_CTRL( biquad_ctrl_zrad );
+CK_DLL_CGET( biquad_cget_zrad );
+CK_DLL_CTRL( biquad_ctrl_norm );
+CK_DLL_CGET( biquad_cget_norm );
+CK_DLL_CTRL( biquad_ctrl_pregain );
+CK_DLL_CGET( biquad_cget_pregain );
+CK_DLL_CTRL( biquad_ctrl_eqzs );
+CK_DLL_CGET( biquad_cget_eqzs );
+CK_DLL_CTRL( biquad_ctrl_b0 );
+CK_DLL_CGET( biquad_cget_b0 );
+CK_DLL_CTRL( biquad_ctrl_b1 );
+CK_DLL_CGET( biquad_cget_b1 );
+CK_DLL_CTRL( biquad_ctrl_b2 );
+CK_DLL_CGET( biquad_cget_b2 );
+CK_DLL_CTRL( biquad_ctrl_a0 );
+CK_DLL_CGET( biquad_cget_a0 );
+CK_DLL_CTRL( biquad_ctrl_a1 );
+CK_DLL_CGET( biquad_cget_a1 );
+CK_DLL_CTRL( biquad_ctrl_a2 );
+CK_DLL_CGET( biquad_cget_a2 );
 
 // onepole
-UGEN_CTOR onepole_ctor( t_CKTIME now );
-UGEN_DTOR onepole_dtor( t_CKTIME now, void * data );
-UGEN_TICK onepole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL onepole_ctrl_pole( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( onepole_ctor );
+CK_DLL_DTOR( onepole_dtor );
+CK_DLL_TICK( onepole_tick );
+CK_DLL_CTRL( onepole_ctrl_pole );
 
 // onezero
-UGEN_CTOR onezero_ctor( t_CKTIME now );
-UGEN_DTOR onezero_dtor( t_CKTIME now, void * data );
-UGEN_TICK onezero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL onezero_ctrl_zero( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( onezero_ctor );
+CK_DLL_DTOR( onezero_dtor );
+CK_DLL_TICK( onezero_tick );
+CK_DLL_CTRL( onezero_ctrl_zero );
 
 // twopole
-UGEN_CTOR twopole_ctor( t_CKTIME now );
-UGEN_DTOR twopole_dtor( t_CKTIME now, void * data );
-UGEN_TICK twopole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL twopole_ctrl_freq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL twopole_ctrl_rad( t_CKTIME now, void * data, void * value );
-UGEN_CTRL twopole_ctrl_norm( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( twopole_ctor );
+CK_DLL_DTOR( twopole_dtor );
+CK_DLL_TICK( twopole_tick );
+CK_DLL_CTRL( twopole_ctrl_freq );
+CK_DLL_CTRL( twopole_ctrl_rad );
+CK_DLL_CTRL( twopole_ctrl_norm );
 
 // twozero
-UGEN_CTOR twozero_ctor( t_CKTIME now );
-UGEN_DTOR twozero_dtor( t_CKTIME now, void * data );
-UGEN_TICK twozero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL twozero_ctrl_freq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL twozero_ctrl_rad( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( twozero_ctor );
+CK_DLL_DTOR( twozero_dtor );
+CK_DLL_TICK( twozero_tick );
+CK_DLL_CTRL( twozero_ctrl_freq );
+CK_DLL_CTRL( twozero_ctrl_rad );
 
 // gQ
-UGEN_CTOR gQ_ctor( t_CKTIME now );
-UGEN_DTOR gQ_dtor( t_CKTIME now, void * data );
-UGEN_TICK gQ_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL gQ_ctrl_freq( t_CKTIME now, void * data, void * value );
-UGEN_CTRL gQ_ctrl_rad( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( gQ_ctor );
+CK_DLL_DTOR( gQ_dtor );
+CK_DLL_TICK( gQ_tick );
+CK_DLL_CTRL( gQ_ctrl_freq );
+CK_DLL_CTRL( gQ_ctrl_rad );
 
 // allpass
-UGEN_CTOR allpass_ctor( t_CKTIME now );
-UGEN_DTOR allpass_dtor( t_CKTIME now, void * data );
-UGEN_TICK allpass_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_PMSG allpass_pmsg( t_CKTIME now, void * data, const char * msg, void * value );
+CK_DLL_CTOR( allpass_ctor );
+CK_DLL_DTOR( allpass_dtor );
+CK_DLL_TICK( allpass_tick );
+CK_DLL_PMSG( allpass_pmsg );
 
 // delay
-UGEN_CTOR delay_ctor( t_CKTIME now );
-UGEN_DTOR delay_dtor( t_CKTIME now, void * data );
-UGEN_TICK delay_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL delay_ctrl_delay( t_CKTIME now, void * data, void * value );
-UGEN_CTRL delay_ctrl_max( t_CKTIME now, void * data, void * value );
-UGEN_CTRL delay_ctrl_tap( t_CKTIME now, void * data, void * value );
-UGEN_CTRL delay_ctrl_energy( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( delay_ctor );
+CK_DLL_DTOR( delay_dtor );
+CK_DLL_TICK( delay_tick );
+CK_DLL_CTRL( delay_ctrl_delay );
+CK_DLL_CTRL( delay_ctrl_max );
+CK_DLL_CTRL( delay_ctrl_tap );
+CK_DLL_CTRL( delay_ctrl_energy );
 
 // delayA
-UGEN_CTOR delayA_ctor( t_CKTIME now );
-UGEN_DTOR delayA_dtor( t_CKTIME now, void * data );
-UGEN_TICK delayA_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL delayA_ctrl_delay( t_CKTIME now, void * data, void * value );
-UGEN_CTRL delayA_ctrl_max( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( delayA_ctor );
+CK_DLL_DTOR( delayA_dtor );
+CK_DLL_TICK( delayA_tick );
+CK_DLL_CTRL( delayA_ctrl_delay );
+CK_DLL_CTRL( delayA_ctrl_max );
 
 // delayL
-UGEN_CTOR delayL_ctor( t_CKTIME now );
-UGEN_DTOR delayL_dtor( t_CKTIME now, void * data );
-UGEN_TICK delayL_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out );
-UGEN_CTRL delayL_ctrl_delay( t_CKTIME now, void * data, void * value );
-UGEN_CTRL delayL_ctrl_max( t_CKTIME now, void * data, void * value );
+CK_DLL_CTOR( delayL_ctor );
+CK_DLL_DTOR( delayL_dtor );
+CK_DLL_TICK( delayL_tick );
+CK_DLL_CTRL( delayL_ctrl_delay );
+CK_DLL_CTRL( delayL_ctrl_max );
 
 
 

@@ -22,6 +22,7 @@
     U.S.A.
 -----------------------------------------------------------------------------*/
 
+#define TWO_PI 3.14159265358979323846
 //-----------------------------------------------------------------------------
 // file: ugen_filter.cpp
 // desc: ...
@@ -31,12 +32,15 @@
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ugen_filter.h"
+#include "chuck_type.h"
 #include <math.h>
 #include <stdlib.h>
 
 
 static t_CKUINT g_srate = 0;
-
+//filter member data offset
+static t_CKUINT filter_offset_data = 0;
+static t_CKUINT biquad_offset_data = 0;
 
 //-----------------------------------------------------------------------------
 // name: filter_query()
@@ -47,107 +51,226 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // set srate
     g_srate = QUERY->srate;
     
-    // add filter
-    QUERY->ugen_add( QUERY, "filter", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, filter_ctor, filter_dtor, filter_tick, filter_pmsg );
-    // ctrl func
-    // QUERY->ugen_ctrl( QUERY, filter_ctrl_top, "float", "value" );
-    // QUERY->ugen_ctrl( QUERY, filter_ctrl_bottom, "float", "value" );
+    Chuck_Env * env = Chuck_Env::instance();
 
-    // add biquad
-    QUERY->ugen_add( QUERY, "biquad", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, biquad_ctor, biquad_dtor, biquad_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_pfreq, NULL, "float", "pfreq" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_prad, NULL, "float", "prad" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_zfreq, NULL, "float", "zfreq" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_zrad, NULL, "float", "zrad" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_norm, NULL, "int", "norm" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_pregain, NULL, "float", "pregain" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_eqzs, NULL, "int", "eqzs" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b0, NULL, "float", "b0" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b1, NULL, "float", "b1" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_b2, NULL, "float", "b2" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a0, NULL, "float", "a0" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a1, NULL, "float", "a1" );
-    QUERY->ugen_ctrl( QUERY, biquad_ctrl_a2, NULL, "float", "a2" );
-    
-    // add onepole
-    QUERY->ugen_add( QUERY, "onepole", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, onepole_ctor, onepole_dtor, onepole_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, onepole_ctrl_pole, NULL, "float", "pole" );
-    
-    // add onezero
-    QUERY->ugen_add( QUERY, "onezero", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, onezero_ctor, onezero_dtor, onezero_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, onezero_ctrl_zero, NULL,"float", "zero" );
+    Chuck_DL_Func * func = NULL;
 
-    // add twopole
-    QUERY->ugen_add( QUERY, "twopole", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, twopole_ctor, twopole_dtor, twopole_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, twopole_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, twopole_ctrl_rad, NULL, "float", "rad" );
-    QUERY->ugen_ctrl( QUERY, twopole_ctrl_norm, NULL, "int", "norm" );
+    //---------------------------------------------------------------------
+    // init as base class: filter
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "filter", "ugen", env->global(), 
+                                        filter_ctor, filter_tick, filter_pmsg ) )
+        return FALSE;
 
-    // add twozero
-    QUERY->ugen_add( QUERY, "twozero", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, twozero_ctor, twozero_dtor, twozero_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, twozero_ctrl_freq, NULL, "float", "freq" );
-    QUERY->ugen_ctrl( QUERY, twozero_ctrl_rad, NULL, "float", "rad" );
+    // member variable
+    filter_offset_data = type_engine_import_mvar ( env, "int", "@filter_data", FALSE );
+    if ( filter_offset_data == CK_INVALID_OFFSET ) goto error;
 
-    // add gQ
-    // QUERY->ugen_add( QUERY, "gQ", NULL );
-    // set funcs
-    // QUERY->ugen_func( QUERY, gQ_ctor, gQ_dtor, gQ_tick, NULL );
-    // ctrl func
-    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_freq, NULL, "float", "freq" );
-    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_rad, NULL, "float", "rad" );
-    // QUERY->ugen_ctrl( QUERY, gQ_ctrl_norm, NULL, "int", "norm" );
+    // end the class import
+    type_engine_import_class_end( env );
 
-    // add allpass
-    // QUERY->ugen_add( QUERY, "allpass", NULL );
-    // set funcs
-    // QUERY->ugen_func( QUERY, allpass_ctor, allpass_dtor, allpass_tick, allpass_pmsg );
 
-    // add delay
-    QUERY->ugen_add( QUERY, "delay", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, delay_ctor, delay_dtor, delay_tick, NULL );
+    //---------------------------------------------------------------------
+    // init as base class: biquad
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "biquad", "ugen", env->global(), 
+                                        biquad_ctor, biquad_tick, NULL ) )
+        return FALSE;
+
+    // member variable
+    biquad_offset_data = type_engine_import_mvar ( env, "int", "@biquad_data", FALSE );
+    if ( biquad_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    func = make_new_mfun ( "float", "pfreq", biquad_ctrl_pfreq );
+    func->add_arg ( "float", "freq" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "prad", biquad_ctrl_prad );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "zfreq", biquad_ctrl_zfreq );
+    func->add_arg ( "float", "freq" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "zrad", biquad_ctrl_zrad );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "int", "norm", biquad_ctrl_norm );
+    func->add_arg ( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "pregain", biquad_ctrl_pregain );
+    func->add_arg ( "float", "level" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "int", "eqzs", biquad_ctrl_eqzs );
+    func->add_arg ( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "b0", biquad_ctrl_b0 );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "b1", biquad_ctrl_b1 );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "b2", biquad_ctrl_b2 );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "a0", biquad_ctrl_a0 );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "a1", biquad_ctrl_a1 );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "a2", biquad_ctrl_a2 );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    	//----------------------------------
+	// begin onepole ugen
+	//----------------------------------
+    if ( !type_engine_import_ugen_begin( env, "onepole", "biquad", env->global(),
+                                         NULL, onepole_tick, NULL ) ) return FALSE;
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, delay_ctrl_delay, NULL, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, delay_ctrl_max, NULL, "float", "max" );
+    func = make_new_mfun ( "float", "pole", onepole_ctrl_pole );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    	//----------------------------------
+	// begin onezero ugen
+	//----------------------------------
+    if ( !type_engine_import_ugen_begin( env, "onezero", "biquad", env->global(),
+                                         NULL, onezero_tick, NULL ) ) return FALSE;
+    // ctrl func
+    func = make_new_mfun ( "float", "zero", onezero_ctrl_zero );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //----------------------------------
+    // begin twopole ugen
+    //----------------------------------
+    if ( !type_engine_import_ugen_begin( env, "twopole", "biquad", env->global(),
+                                         NULL, twopole_tick, NULL ) ) return FALSE;
+    // ctrl func
+    func = make_new_mfun ( "float", "freq", twopole_ctrl_freq );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "rad", twopole_ctrl_rad );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "int", "norm", twopole_ctrl_norm );
+    func->add_arg ( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    //----------------------------------
+    // begin twozero ugen
+    //----------------------------------
+    if ( !type_engine_import_ugen_begin( env, "twozero", "ugen", env->global(),
+                                         NULL, twozero_tick, NULL ) ) return FALSE;
+    // ctrl func
+    func = make_new_mfun ( "float", "freq", twozero_ctrl_freq );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "rad",  twozero_ctrl_rad );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    //----------------------------------
+    // begin delay ugen
+    //----------------------------------
+    if ( !type_engine_import_ugen_begin( env, "delay", "ugen", env->global(),
+                                         delay_ctor, delay_tick, NULL ) ) return FALSE;
+
+    // ctrl func
+    func = make_new_mfun ( "float", "delay", delay_ctrl_delay );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "max", delay_ctrl_max );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+
     // QUERY->ugen_ctrl( QUERY, delay_ctrl_energy, NULL,"int", "energy" );
     // QUERY->ugen_ctrl( QUERY, delay_ctrl_tap, NULL, "int", "tap" );
     // QUERY->ugen_ctrl( QUERY, delay_ctrl_ftap, NULL, "float", "ftap" );
 
-    // add delayA
-    QUERY->ugen_add( QUERY, "delayA", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, delayA_ctor, delayA_dtor, delayA_tick, NULL );
-    // ctrl func
-    QUERY->ugen_ctrl( QUERY, delayA_ctrl_delay, NULL,  "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, delayA_ctrl_max, NULL, "float", "max" );
+    // end the class import
+    type_engine_import_class_end( env );
 
-    // add one
-    QUERY->ugen_add( QUERY, "delayL", NULL );
-    // set funcs
-    QUERY->ugen_func( QUERY, delayL_ctor, delayL_dtor, delayL_tick, NULL );
+    //----------------------------------
+    // begin delayA ugen
+    //----------------------------------
+    if ( !type_engine_import_ugen_begin( env, "delayA", "ugen", env->global(),
+                                         delayA_ctor, delayA_tick, NULL ) ) return FALSE;
+
     // ctrl func
-    QUERY->ugen_ctrl( QUERY, delayL_ctrl_delay, NULL, "float", "delay" );
-    QUERY->ugen_ctrl( QUERY, delayL_ctrl_max, NULL, "float", "max" );
+    func = make_new_mfun ( "float", "delay", delayA_ctrl_delay ); 
+    func->add_arg ( "float", "length" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "max", delayA_ctrl_max );
+    func->add_arg ( "float", "max" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    //----------------------------------
+    // begin one ugen
+    //----------------------------------
+    if ( !type_engine_import_ugen_begin( env, "delayL", "ugen", env->global(),
+                                         delayL_ctor, delayL_tick, NULL ) ) return FALSE;
+    // ctrl func
+    func = make_new_mfun ( "float", "delay", delayL_ctrl_delay );
+    func->add_arg ( "float", "length" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "max", delayL_ctrl_max );
+    func->add_arg ( "float", "max" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    // end the class import
+    type_engine_import_class_end( env );
 
 
     return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    return FALSE;
 }
 
 
@@ -209,32 +332,44 @@ struct filter_data
     }
 };
 
-UGEN_CTOR filter_ctor( t_CKTIME now )
+//-----------------------------------------------------------------------------
+// name: filter_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( filter_ctor )
 {
-    return new filter_data;
+    filter_data * f =  new filter_data;
+    OBJ_MEMBER_UINT( SELF, filter_offset_data ) = (t_CKUINT) f;
 }
 
-UGEN_DTOR filter_dtor( t_CKTIME now, void * data )
-{
-    delete (filter_data *)data;
-}
 
-UGEN_TICK filter_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+//-----------------------------------------------------------------------------
+// name: filter_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( filter_tick )
 {
-    filter_data * d = (filter_data *)data;
+    filter_data * d = (filter_data *)OBJ_MEMBER_UINT(SELF, filter_offset_data );
     *out = d->tick( in );
     return TRUE;
 }
 
-UGEN_CTRL filter_ctrl_coefs( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: filter_ctrl_coefs()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( filter_ctrl_coefs )
 {
 }
 
-UGEN_PMSG filter_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+//-----------------------------------------------------------------------------
+// name: filter_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( filter_pmsg )
 {
     return FALSE;
 }
-
 
 
 
@@ -250,8 +385,8 @@ struct biquad_data
     SAMPLE m_input0, m_input1, m_input2;
     SAMPLE m_output0, m_output1, m_output2;
 
-    float pfreq, zfreq;
-    float prad, zrad;
+    t_CKFLOAT pfreq, zfreq;
+    t_CKFLOAT prad, zrad;
     t_CKBOOL norm;
     t_CKUINT srate;
 
@@ -271,19 +406,23 @@ struct biquad_data
     }
 };
 
-UGEN_CTOR biquad_ctor( t_CKTIME now )
-{
-    return new biquad_data;
+//-----------------------------------------------------------------------------
+// name: biquad_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( biquad_ctor )
+{    
+    biquad_data* d = new biquad_data;
+    OBJ_MEMBER_UINT ( SELF, biquad_offset_data ) = ( t_CKUINT ) d;
 }
 
-UGEN_DTOR biquad_dtor( t_CKTIME now, void * data )
+//-----------------------------------------------------------------------------
+// name: biquad_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( biquad_tick )
 {
-    delete (biquad_data *)data;
-}
-
-UGEN_TICK biquad_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    biquad_data * d = (biquad_data *)data;
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     
     d->m_input0 = d->m_a0 * in;
     d->m_output0 = d->m_b0 * d->m_input0 + d->m_b1 * d->m_input1 + d->m_b2 * d->m_input2;
@@ -293,7 +432,7 @@ UGEN_TICK biquad_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     d->m_output2 = d->m_output1;
     d->m_output1 = d->m_output0;
 
-    *out = d->m_output0;
+    *out = (SAMPLE) d->m_output0;
 
     return TRUE;
 }
@@ -301,7 +440,7 @@ UGEN_TICK biquad_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
 void biquad_set_reson( biquad_data * d )
 {
     d->m_a2 = d->prad * d->prad;
-    d->m_a1 = -2.0f * d->prad * (float)cos(2.0 * 3.141592653590 * (double)d->pfreq / (double)d->srate);
+    d->m_a1 = -2.0f * d->prad * (float)cos(2.0 * TWO_PI * (double)d->pfreq / (double)d->srate);
 
     if ( d->norm ) {
         // Use zeros at +- 1 and normalize the filter peak gain.
@@ -311,120 +450,166 @@ void biquad_set_reson( biquad_data * d )
     }    
 }
 
-UGEN_CTRL biquad_ctrl_pfreq( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_pfreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_pfreq )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->pfreq = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->pfreq = (float)GET_CK_FLOAT(ARGS);
     biquad_set_reson( d ); 
 }
 
-UGEN_CTRL biquad_ctrl_prad( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_prad()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_prad )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->prad = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->prad = (float)GET_CK_FLOAT(ARGS);
     biquad_set_reson( d );
 }
 
 void biquad_set_notch( biquad_data * d )
 {
     d->m_b2 = d->zrad * d->zrad;
-    d->m_b1 = -2.0f * d->zrad * (float)cos(2.0 * 3.141592653590 * (double)d->zfreq / (double)d->srate);
+    d->m_b1 = -2.0f * d->zrad * (float)cos(2.0 * TWO_PI * (double)d->zfreq / (double)d->srate);
 }
 
-UGEN_CTRL biquad_ctrl_zfreq( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_zfreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_zfreq )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->zfreq = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->zfreq = (float)GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
 }
 
-UGEN_CTRL biquad_ctrl_zrad( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_zrad()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_zrad )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->zrad = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->zrad = (float)GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
 }
 
-UGEN_CTRL biquad_ctrl_norm( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_norm()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_norm )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->norm = *(t_CKBOOL *)value;
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->norm = *(t_CKBOOL *)ARGS;
     biquad_set_reson( d );
 }
 
-UGEN_CTRL biquad_ctrl_pregain( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_pregain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_pregain )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->m_a0 = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->m_a0 = (float)GET_CK_FLOAT(ARGS);
 }
 
-UGEN_CTRL biquad_ctrl_eqzs( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_eqzs()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_eqzs )
 {
-    if( *(t_CKUINT *)value )
+    if( *(t_CKUINT *)ARGS )
     {
-        biquad_data * d = (biquad_data *)data;
+        biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
         d->m_b0 = 1.0f;
         d->m_b1 = 0.0f;
         d->m_b2 = -1.0f;
     }
 }
 
-UGEN_CTRL biquad_ctrl_b0( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_b0()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_b0 )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->m_b0 = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->m_b0 = (float)GET_CK_FLOAT(ARGS);
 }
 
-UGEN_CTRL biquad_ctrl_b1( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_b1()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_b1 )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->m_b1 = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->m_b1 = (float)GET_CK_FLOAT(ARGS);
 }
 
-UGEN_CTRL biquad_ctrl_b2( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_b2()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_b2 )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->m_b2 = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->m_b2 = (float)GET_CK_FLOAT(ARGS);
 }
 
-UGEN_CTRL biquad_ctrl_a0( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_a0()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_a0 )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->m_a0 = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->m_a0 = (float)GET_CK_FLOAT(ARGS);
 }
 
-UGEN_CTRL biquad_ctrl_a1( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_a1()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_a1 )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->m_a1 = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->m_a1 = (float)GET_CK_FLOAT(ARGS);
 }
 
-UGEN_CTRL biquad_ctrl_a2( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: biquad_ctrl_a2()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_ctrl_a2 )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->m_a2 = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->m_a2 = (float)GET_CK_FLOAT(ARGS);
 }
-
-
 
 
 //-----------------------------------------------------------------------------
 // name: onepole
 // desc: onepole filter
 //-----------------------------------------------------------------------------
-UGEN_CTOR onepole_ctor( t_CKTIME now )
-{
-    return new biquad_data;
-}
 
-UGEN_DTOR onepole_dtor( t_CKTIME now, void * data )
-{
-    delete (biquad_data *)data;
-}
 
-UGEN_TICK onepole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+//-----------------------------------------------------------------------------
+// name: onepole_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( onepole_tick )
 {
-    biquad_data * d = (biquad_data *)data;
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
 
     d->m_input0 = in;
     d->m_output0 = d->m_b0 * d->m_input0 - d->m_a1 * d->m_output1;
@@ -435,10 +620,14 @@ UGEN_TICK onepole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     return TRUE;
 }
 
-UGEN_CTRL onepole_ctrl_pole( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: onepole_ctrl_pole()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( onepole_ctrl_pole )
 {
-    float f = (float)GET_CK_FLOAT(value);
-    biquad_data * d = (biquad_data *)data;
+    float f = (float)GET_CK_FLOAT(ARGS);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     
     if( f > 0.0f )
         d->m_b0 = 1.0f - f;
@@ -455,19 +644,14 @@ UGEN_CTRL onepole_ctrl_pole( t_CKTIME now, void * data, void * value )
 // name: onezero
 // desc: onezero filter
 //-----------------------------------------------------------------------------
-UGEN_CTOR onezero_ctor( t_CKTIME now )
-{
-    return new biquad_data;
-}
 
-UGEN_DTOR onezero_dtor( t_CKTIME now, void * data )
+//-----------------------------------------------------------------------------
+// name: onezero_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( onezero_tick )
 {
-    delete (biquad_data *)data;
-}
-
-UGEN_TICK onezero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    biquad_data * d = (biquad_data *)data;
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     
     d->m_input0 = in;
     d->m_output0 = d->m_b1 * d->m_input1 + d->m_b0 * d->m_input0;
@@ -478,10 +662,14 @@ UGEN_TICK onezero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     return TRUE;
 }
 
-UGEN_CTRL onezero_ctrl_zero( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: onezero_ctrl_zero()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( onezero_ctrl_zero )
 {
-    float f = (float)GET_CK_FLOAT(value);
-    biquad_data * d = (biquad_data *)data;
+    float f = (float)GET_CK_FLOAT(ARGS);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     
     if( f > 0.0f )
         d->m_b0 = 1.0f / ( 1.0f + f );
@@ -498,19 +686,14 @@ UGEN_CTRL onezero_ctrl_zero( t_CKTIME now, void * data, void * value )
 // name: twopole
 // desc: twopole filter
 //-----------------------------------------------------------------------------
-UGEN_CTOR twopole_ctor( t_CKTIME now )
-{
-    return new biquad_data;
-}
 
-UGEN_DTOR twopole_dtor( t_CKTIME now, void * data )
+//-----------------------------------------------------------------------------
+// name: twopole_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( twopole_tick )
 {
-    delete (biquad_data *)data;
-}
-
-UGEN_TICK twopole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    biquad_data * d = (biquad_data *)data;
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     
     d->m_input0 = in;
     d->m_output0 = d->m_b0 * d->m_input0 - d->m_a2 * d->m_output2 - d->m_a1 * d->m_output1;
@@ -522,46 +705,58 @@ UGEN_TICK twopole_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     return TRUE;
 }
 
-UGEN_CTRL twopole_ctrl_freq( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: twopole_ctrl_freq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( twopole_ctrl_freq )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->pfreq = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->pfreq = (float)GET_CK_FLOAT(ARGS);
     biquad_set_reson( d );
     
     if( d->norm )
     {
         // Normalize the filter gain ... not terribly efficient.
-        double real = 1.0 - d->prad + (d->m_a2 - d->prad) * cos( 2.0 * 3.14159265358979323846 * d->pfreq / d->srate );
-        double imag = (d->m_a2 - d->prad) * sin( 2.0 * 3.14159265358979323846 * d->pfreq / d->srate );
+        double real = 1.0 - d->prad + (d->m_a2 - d->prad) * cos( 2.0 * TWO_PI * d->pfreq / d->srate );
+        double imag = (d->m_a2 - d->prad) * sin( 2.0 * TWO_PI * d->pfreq / d->srate );
         d->m_b0 = sqrt( real*real + imag*imag );
     }
 }
 
-UGEN_CTRL twopole_ctrl_rad( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: twopole_ctrl_rad()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( twopole_ctrl_rad )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->prad = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->prad = (float)GET_CK_FLOAT(ARGS);
     biquad_set_reson( d );
     
     if( d->norm )
     {
         // Normalize the filter gain ... not terrbly efficient
-        double real = 1.0 - d->prad + (d->m_a2 - d->prad) * cos( 2.0 * 3.14159265358979323846 * d->pfreq / d->srate );
-        double imag = (d->m_a2 - d->prad) * sin( 2.0 * 3.14159265358979323846 * d->pfreq / d->srate );
+        double real = 1.0 - d->prad + (d->m_a2 - d->prad) * cos( 2.0 * TWO_PI * d->pfreq / d->srate );
+        double imag = (d->m_a2 - d->prad) * sin( 2.0 * TWO_PI * d->pfreq / d->srate );
         d->m_b0 = sqrt( real*real + imag*imag );
     }
 }
 
-UGEN_CTRL twopole_ctrl_norm( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: twopole_ctrl_norm()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( twopole_ctrl_norm )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->norm = *(t_CKBOOL *)value;
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->norm = *(t_CKBOOL *)ARGS;
     
     if( d->norm )
     {
         // Normalize the filter gain ... not terribly efficient
-        double real = 1.0 - d->prad + (d->m_a2 - d->prad) * cos( 2.0 * 3.14159265358979323846 * d->pfreq / d->srate );
-        double imag = (d->m_a2 - d->prad) * sin( 2.0 * 3.14159265358979323846 * d->pfreq / d->srate );
+        double real = 1.0 - d->prad + (d->m_a2 - d->prad) * cos( 2.0 * TWO_PI * d->pfreq / d->srate );
+        double imag = (d->m_a2 - d->prad) * sin( 2.0 * TWO_PI * d->pfreq / d->srate );
         d->m_b0 = sqrt( real*real + imag*imag );
     }
 }
@@ -573,19 +768,14 @@ UGEN_CTRL twopole_ctrl_norm( t_CKTIME now, void * data, void * value )
 // name: twozero
 // desc: twozero filter
 //-----------------------------------------------------------------------------
-UGEN_CTOR twozero_ctor( t_CKTIME now )
-{
-    return new biquad_data;
-}
 
-UGEN_DTOR twozero_dtor( t_CKTIME now, void * data )
+//-----------------------------------------------------------------------------
+// name: twozero_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( twozero_tick )
 {
-    delete (biquad_data *)data;
-}
-
-UGEN_TICK twozero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
-{
-    biquad_data * d = (biquad_data *)data;
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     
     d->m_input0 = in;
     d->m_output0 = d->m_b0 * d->m_input0 + d->m_b1 * d->m_input1 + d->m_b2 * d->m_input2;
@@ -597,10 +787,14 @@ UGEN_TICK twozero_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
     return TRUE;
 }
 
-UGEN_CTRL twozero_ctrl_freq( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: twozero_ctrl_freq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( twozero_ctrl_freq )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->zfreq = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->zfreq = (float)GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
     
     // normalize the filter gain
@@ -612,10 +806,14 @@ UGEN_CTRL twozero_ctrl_freq( t_CKTIME now, void * data, void * value )
     d->m_b2 *= d->m_b0;
 }
 
-UGEN_CTRL twozero_ctrl_rad( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: twozero_ctrl_rad()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( twozero_ctrl_rad )
 {
-    biquad_data * d = (biquad_data *)data;
-    d->zrad = (float)GET_CK_FLOAT(value);
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    d->zrad = (float)GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
 
     // normalize the filter gain
@@ -634,25 +832,29 @@ UGEN_CTRL twozero_ctrl_rad( t_CKTIME now, void * data, void * value )
 // name: gQ
 // desc: gQ filter - a la Dan Trueman
 //-----------------------------------------------------------------------------
-UGEN_CTOR gQ_ctor( t_CKTIME now )
-{
-    return NULL;
-}
 
-UGEN_DTOR gQ_dtor( t_CKTIME now, void * data )
-{
-}
-
-UGEN_TICK gQ_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+//-----------------------------------------------------------------------------
+// name: gQ_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( gQ_tick )
 {
     return TRUE;
 }
 
-UGEN_CTRL gQ_ctrl_freq( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: gQ_ctrl_freq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( gQ_ctrl_freq )
 {
 }
 
-UGEN_CTRL gQ_ctrl_rad( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: gQ_ctrl_rad()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( gQ_ctrl_rad )
 {
 }
 
@@ -663,21 +865,21 @@ UGEN_CTRL gQ_ctrl_rad( t_CKTIME now, void * data, void * value )
 // name: allpass
 // desc: allpass filter
 //-----------------------------------------------------------------------------
-UGEN_CTOR allpass_ctor( t_CKTIME now )
-{
-    return NULL;
-}
 
-UGEN_DTOR allpass_dtor( t_CKTIME now, void * data )
-{
-}
-
-UGEN_TICK allpass_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+//-----------------------------------------------------------------------------
+// name: allpass_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( allpass_tick )
 {
     return TRUE;
 }
 
-UGEN_PMSG allpass_pmsg( t_CKTIME now, void * data, const char * msg, void * value )
+//-----------------------------------------------------------------------------
+// name: allpass_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( allpass_pmsg )
 {
     return TRUE;
 }
@@ -689,33 +891,54 @@ UGEN_PMSG allpass_pmsg( t_CKTIME now, void * data, const char * msg, void * valu
 // name: delay
 // desc: ...
 //-----------------------------------------------------------------------------
-UGEN_CTOR delay_ctor( t_CKTIME now )
+
+//-----------------------------------------------------------------------------
+// name: delay_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( delay_ctor )
 {
-    return NULL;
 }
 
-UGEN_DTOR delay_dtor( t_CKTIME now, void * data )
-{
-}
 
-UGEN_TICK delay_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+//-----------------------------------------------------------------------------
+// name: delay_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( delay_tick )
 {
     return TRUE;
 }
 
-UGEN_CTRL delay_ctrl_delay( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delay_ctrl_delay()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delay_ctrl_delay )
 {
 }
 
-UGEN_CTRL delay_ctrl_max( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delay_ctrl_max()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delay_ctrl_max )
 {
 }
 
-UGEN_CTRL delay_ctrl_tap( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delay_ctrl_tap()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delay_ctrl_tap )
 {
 }
 
-UGEN_CTRL delay_ctrl_energy( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delay_ctrl_energy()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delay_ctrl_energy )
 {
 }
 
@@ -726,53 +949,75 @@ UGEN_CTRL delay_ctrl_energy( t_CKTIME now, void * data, void * value )
 // name: delayA
 // desc: delay - allpass interpolation
 //-----------------------------------------------------------------------------
-UGEN_CTOR delayA_ctor( t_CKTIME now )
+
+//-----------------------------------------------------------------------------
+// name: delayA_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( delayA_ctor )
 {
-    return NULL;
 }
 
-UGEN_DTOR delayA_dtor( t_CKTIME now, void * data )
-{
-}
-
-UGEN_TICK delayA_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+//-----------------------------------------------------------------------------
+// name: delayA_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( delayA_tick )
 {
     return TRUE;
 }
 
-UGEN_CTRL delayA_ctrl_delay( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delayA_ctrl_delay()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delayA_ctrl_delay )
 {
 }
 
-UGEN_CTRL delayA_ctrl_max( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delayA_ctrl_max()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delayA_ctrl_max )
 {
 }
-
-
 
 
 //-----------------------------------------------------------------------------
 // name: delayL
 // desc: delay - linear interpolation
 //-----------------------------------------------------------------------------
-UGEN_CTOR delayL_ctor( t_CKTIME now )
+
+//-----------------------------------------------------------------------------
+// name: delayL_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( delayL_ctor )
 {
-    return NULL;
 }
 
-UGEN_DTOR delayL_dtor( t_CKTIME now, void * data )
-{
-}
-
-UGEN_TICK delayL_tick( t_CKTIME now, void * data, SAMPLE in, SAMPLE * out )
+//-----------------------------------------------------------------------------
+// name: delayL_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( delayL_tick )
 {
     return TRUE;
 }
 
-UGEN_CTRL delayL_ctrl_delay( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delayL_ctrl_delay()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delayL_ctrl_delay )
 {
 }
 
-UGEN_CTRL delayL_ctrl_max( t_CKTIME now, void * data, void * value )
+//-----------------------------------------------------------------------------
+// name: delayL_ctrl_max()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( delayL_ctrl_max )
 {
 }

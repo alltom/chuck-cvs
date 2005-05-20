@@ -45,7 +45,7 @@
 
 #include "ugen_osc.h"
 //#include "ugen_xxx.h"
-//#include "ugen_filter.h"
+#include "ugen_filter.h"
 //#include "ugen_stk.h"
 #include "ulib_machine.h"
 #include "ulib_math.h"
@@ -237,7 +237,7 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     // load
     load_module( env, osc_query, "osc", "global" );
     // load_module( env, xxx_query, "xxx", "global" );
-    // load_module( env, filter_query, "filter", "global" );
+    load_module( env, filter_query, "filter", "global" );
     // load_module( env, stk_query, "stk", "global" );
 
     // load
