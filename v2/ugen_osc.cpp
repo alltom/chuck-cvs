@@ -71,6 +71,9 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "freq", osc_ctrl_freq );
     func->add_arg( "float", "hz" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    // add ctrl: freq
+    func = make_new_mfun( "float", "freq", osc_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add ctrl: sfreq ( == freq ) 
     func = make_new_mfun( "float", "sfreq", osc_ctrl_freq );
@@ -379,6 +382,21 @@ CK_DLL_CTRL( osc_ctrl_freq )
     d->num = d->freq / d->srate;
     // bound it
     if ( d->num >= 1.0 ) d->num -= floor( d->num );
+    // return
+    RETURN->v_float = (t_CKFLOAT)d->freq;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: osc_cget_freq()
+// desc: get oscillator frequency
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( osc_cget_freq )
+{
+    // get data
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     // return
     RETURN->v_float = (t_CKFLOAT)d->freq;
 }

@@ -549,7 +549,7 @@ t_CKBOOL type_engine_import_class_end( Chuck_Env * env );
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
 t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
-t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err );
+t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err, t_CKBOOL print = TRUE );
 Chuck_Type  * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs );
 Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );

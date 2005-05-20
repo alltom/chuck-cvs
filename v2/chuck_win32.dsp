@@ -207,6 +207,10 @@ SOURCE=.\util_sndfile.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\util_string.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\util_xforms.c
 # End Source File
 # End Group
@@ -352,6 +356,10 @@ SOURCE=.\util_raw.h
 # Begin Source File
 
 SOURCE=.\util_sndfile.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util_string.h
 # End Source File
 # Begin Source File
 

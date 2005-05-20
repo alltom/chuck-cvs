@@ -2684,8 +2684,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     string func_name = S_name(f->name);
     Chuck_Value * v = NULL;
     vector<Chuck_Value *> values;
-    vector<S_Symbol> symbols;
+    vector<a_Arg_List> symbols;
     t_CKINT i;
+    Chuck_Type * parent = NULL;
 
     // see if we are already in a function definition
     if( env->func != NULL )
@@ -2782,11 +2783,6 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // remember the value
     func->value_ref = value;
 
-    // add as value
-    env->curr->value.add( value->name, value );
-    // enter the name into the function table
-    env->curr->func.add( func->name, func );
-
     // set the func
     f->ck_func = func;
 
@@ -2797,11 +2793,6 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         func->next = overload->next;
         overload->next = func;
     }
-
-    // set the current function to this
-    env->func = func;
-    // push the value stack
-    env->curr->value.push();
 
     // look up the return type
     // f->ret_type = env->curr->lookup_type( f->type_decl->id->id );
@@ -2849,14 +2840,14 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             goto error;
         }
 
-        // look up in scope
-        if( env->curr->lookup_value( arg_list->var_decl->id, FALSE ) )
-        {
-            EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
-            EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
-                count, S_name(arg_list->var_decl->id) );
-            goto error;
-        }
+        // look up in scope: later
+        //if( env->curr->lookup_value( arg_list->var_decl->id, FALSE ) )
+        //{
+        //    EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
+        //    EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
+        //        count, S_name(arg_list->var_decl->id) );
+        //    goto error;
+        //}
 
         // check if array
         if( arg_list->var_decl->array != NULL )
@@ -2906,7 +2897,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         v->owner_class = NULL;
         v->is_member = FALSE;
         // add as value
-        symbols.push_back( arg_list->var_decl->id );
+        symbols.push_back( arg_list );
         values.push_back( v );
         // later: env->curr->value.add( arg_list->var_decl->id, v );
 
@@ -2957,103 +2948,113 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // if overriding super class function, then check signatures
-    if( env->class_def && ( v =
-        type_engine_find_value( env->class_def->parent, f->name ) ) )
+    if( env->class_def )
     {
-        // see if the target is a function
-        if( !isa( v->type, &t_function ) )
+        // get parent
+        parent = env->class_def->parent;
+        while( parent && !parent_match )
         {
-            EM_error2( f->linepos, "function name '%s' conflicts with previously defined value...",
-                S_name(f->name) );
-            EM_error2( f->linepos, "from super class '%s'...", v->owner_class->c_name() );
-            goto error;
-        }
-
-        // parent func
-        parent_func = v->func_ref;
-
-        // go through all overloading
-        while( parent_func && !parent_match )
-        {
-            // match the prototypes
-            string err;
-            if( !type_engine_compat_func( f, parent_func->def, f->linepos, err ) )\
+            if( v = type_engine_find_value( env->class_def->parent, f->name ) )
             {
-                // next
-                parent_func = parent_func->next;
-                // move on
-                continue;
+                // see if the target is a function
+                if( !isa( v->type, &t_function ) )
+                {
+                    EM_error2( f->linepos, "function name '%s' conflicts with previously defined value...",
+                        S_name(f->name) );
+                    EM_error2( f->linepos, "from super class '%s'...", v->owner_class->c_name() );
+                    goto error;
+                }
+
+                // parent func
+                parent_func = v->func_ref;
+
+                // go through all overloading
+                while( parent_func && !parent_match )
+                {
+                    // match the prototypes
+                    string err;
+                    if( !type_engine_compat_func( f, parent_func->def, f->linepos, err, FALSE ) )
+                    {
+                        // next
+                        parent_func = parent_func->next;
+                        // move on
+                        continue;
+                    }
+                    /*{
+                        EM_error2( f->linepos,
+                            "function '%s.%s' resembles '%s.%s' but cannot override...",
+                            env->class_def->c_name(), S_name(f->name),
+                            value->owner_class->c_name(), S_name(f->name) );
+                        if( err != "" ) EM_error2( f->linepos, "...(reason: %s)", err.c_str() );
+                        goto error;
+                    }*/
+
+                    // see if parent function is static
+                    if( parent_func->def->static_decl == ae_key_static )
+                    {
+                        EM_error2( f->linepos,
+                            "function '%s.%s' resembles '%s.%s' but cannot override...",
+                            env->class_def->c_name(), S_name(f->name), 
+                            v->owner_class->c_name(), S_name(f->name) );
+                        EM_error2( f->linepos,
+                            "...(reason: '%s.%s' is declared as 'static')",
+                            v->owner_class->c_name(), S_name(f->name) );
+                        goto error;
+                    }
+
+                    // see if function is static
+                    if( f->static_decl == ae_key_static )
+                    {
+                        EM_error2( f->linepos,
+                            "function '%s.%s' resembles '%s.%s' but cannot override...",
+                            env->class_def->c_name(), S_name(f->name), 
+                            v->owner_class->c_name(), S_name(f->name) );
+                        EM_error2( f->linepos,
+                            "...(reason: '%s.%s' is declared as 'static')",
+                            env->class_def->c_name(), S_name(f->name) );
+                        goto error;
+                    }
+
+                    // see if function is pure
+                    if( f->static_decl == ae_key_abstract )
+                    {
+                        EM_error2( f->linepos,
+                            "function '%s.%s' resembles '%s.%s' but cannot override...",
+                            env->class_def->c_name(), S_name(f->name), 
+                            v->owner_class->c_name(), S_name(f->name) );
+                        EM_error2( f->linepos,
+                            "...(reason: '%s.%s' is declared as 'pure')",
+                            env->class_def->c_name(), S_name(f->name) );
+                        goto error;
+                    }
+
+                    // make sure returns are equal
+                    if( *(f->ret_type) != *(parent_func->def->ret_type) )
+                    {
+                        EM_error2( f->linepos, "function signatures differ in return type..." );
+                        EM_error2( f->linepos,
+                            "function '%s.%s' matches '%s.%s' but cannot override...",
+                            env->class_def->c_name(), S_name(f->name),
+                            v->owner_class->c_name(), S_name(f->name) );
+                        goto error;
+                    }
+
+                    // match
+                    parent_match = TRUE;
+
+                    // update virtual table
+                    func->vt_index = v->func_ref->vt_index;
+                    assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
+                    env->curr->obj_v_table.funcs[func->vt_index] = func;
+                    // update name
+                    func_name = parent_func->name;
+                    func->name = func_name;
+                    value->name = func_name;
+                }
             }
-            /*{
-                EM_error2( f->linepos,
-                    "function '%s.%s' resembles '%s.%s' but cannot override...",
-                    env->class_def->c_name(), S_name(f->name),
-                    value->owner_class->c_name(), S_name(f->name) );
-                if( err != "" ) EM_error2( f->linepos, "...(reason: %s)", err.c_str() );
-                goto error;
-            }*/
 
-            // see if parent function is static
-            if( parent_func->def->static_decl == ae_key_static )
-            {
-                EM_error2( f->linepos,
-                    "function '%s.%s' resembles '%s.%s' but cannot override...",
-                    env->class_def->c_name(), S_name(f->name), 
-                    v->owner_class->c_name(), S_name(f->name) );
-                EM_error2( f->linepos,
-                    "...(reason: '%s.%s' is declared as 'static')",
-                    v->owner_class->c_name(), S_name(f->name) );
-                goto error;
-            }
-
-            // see if function is static
-            if( f->static_decl == ae_key_static )
-            {
-                EM_error2( f->linepos,
-                    "function '%s.%s' resembles '%s.%s' but cannot override...",
-                    env->class_def->c_name(), S_name(f->name), 
-                    v->owner_class->c_name(), S_name(f->name) );
-                EM_error2( f->linepos,
-                    "...(reason: '%s.%s' is declared as 'static')",
-                    env->class_def->c_name(), S_name(f->name) );
-                goto error;
-            }
-
-            // see if function is pure
-            if( f->static_decl == ae_key_abstract )
-            {
-                EM_error2( f->linepos,
-                    "function '%s.%s' resembles '%s.%s' but cannot override...",
-                    env->class_def->c_name(), S_name(f->name), 
-                    v->owner_class->c_name(), S_name(f->name) );
-                EM_error2( f->linepos,
-                    "...(reason: '%s.%s' is declared as 'pure')",
-                    env->class_def->c_name(), S_name(f->name) );
-                goto error;
-            }
-
-            // make sure returns are equal
-            if( *(f->ret_type) != *(parent_func->def->ret_type) )
-            {
-                EM_error2( f->linepos, "function signatures differ in return type..." );
-                EM_error2( f->linepos,
-                    "function '%s.%s' matches '%s.%s' but cannot override...",
-                    env->class_def->c_name(), S_name(f->name),
-                    v->owner_class->c_name(), S_name(f->name) );
-                goto error;
-            }
-
-            // match
-            parent_match = TRUE;
-
-            // update virtual table
-            func->vt_index = v->func_ref->vt_index;
-            assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
-            env->curr->obj_v_table.funcs[func->vt_index] = func;
-            // update name
-            func_name = parent_func->name;
-            func->name = func_name;
-            value->name = func_name;
+            // move to next parent
+            parent = parent->parent;        
         }
     }
 
@@ -3065,10 +3066,30 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         env->curr->obj_v_table.funcs.push_back( func );
     }
 
+    // add as value
+    env->curr->value.add( value->name, value );
+    // enter the name into the function table
+    env->curr->func.add( func->name, func );
+
+    // set the current function to this
+    env->func = func;
+    // push the value stack
+    env->curr->value.push();
     
     // add args in the new scope
     for( i = 0; i < values.size(); i++ )
-        env->curr->value.add( symbols[i], values[i] );
+    {
+        // look up in scope
+        if( env->curr->lookup_value( symbols[i]->var_decl->id, FALSE ) )
+        {
+            EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
+            EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
+                count, S_name(arg_list->var_decl->id) );
+            goto error;
+        }
+
+        env->curr->value.add( symbols[i]->var_decl->id, values[i] );
+    }
 
     // type check the code
     assert( f->code == NULL || f->code->s_type == ae_stmt_code );
@@ -3654,13 +3675,16 @@ Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path )
 // name: type_engine_compat_func()
 // desc: see if two function signatures are compatible
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err )
+t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err, t_CKBOOL print )
 {
     // make sure public/private/protected/function match
     if( lhs->func_decl != rhs->func_decl )
     {
-        EM_error2( pos, "function signatures differ in access modifiers..." );
-        EM_error2( pos, "(both must be one of public/private/protected/function)..." );
+        if( print )
+        {
+            EM_error2( pos, "function signatures differ in access modifiers..." );
+            EM_error2( pos, "(both must be one of public/private/protected/function)..." );
+        }
         return FALSE;
     }
 
@@ -3677,7 +3701,7 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
         // match types
         if( *e1->type != *e2->type )
         {
-            EM_error2( pos, "function signatures differ in argument %i's type...", count );
+            if( print ) EM_error2( pos, "function signatures differ in argument %i's type...", count );
             return FALSE;
         }
 
@@ -3689,7 +3713,7 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
     // anything left
     if( e1 != NULL || e2 != NULL )
     {
-        EM_error2( pos,
+        if( print ) EM_error2( pos,
             "function signatures differ in number of arguments..." );
         return FALSE;
     }

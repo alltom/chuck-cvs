@@ -34,4 +34,5 @@ while( true )
     Std.mtof( 21.0 + (Std.rand2(0,3)*12 + freq) ) => s.freq;
     // advance time
     .25::T => now;
+    <<<s.freq()>>>;
 }
