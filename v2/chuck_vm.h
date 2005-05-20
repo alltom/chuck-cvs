@@ -156,7 +156,10 @@ public: // machine components
     // stacks
     Chuck_VM_Stack * mem;
     Chuck_VM_Stack * reg;
-    
+
+    // ref to base stack - if this is the root, then base is mem
+    Chuck_VM_Stack * base_ref;
+
     // code
     Chuck_VM_Code * code;
     Chuck_Instr ** instr;

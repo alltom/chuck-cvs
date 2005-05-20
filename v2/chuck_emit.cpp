@@ -3040,6 +3040,8 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     emit->code = new Chuck_Code;
     // handle need this
     emit->code->need_this = exp->ck_func->is_member;
+    // name it
+    emit->code->name = "spork ~ exp";
     // push op
     op = new Chuck_Instr_Mem_Push_Imm( 0 );
     // emit the stack depth - we don't know this yet
@@ -3056,7 +3058,7 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 
     // emit it
     Chuck_VM_Code * code = emit_to_code( emit->code, NULL, emit->dump );
-    code->name = string("spork ~ exp");
+    //code->name = string("spork ~ exp");
 
     // restore the code
     assert( emit->stack.size() > 0 );

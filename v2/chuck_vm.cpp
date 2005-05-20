@@ -727,6 +727,9 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code, Chuck_VM_Shred * parent 
     shred->name = code->name;
     // set the parent
     shred->parent = parent;
+    // set the base ref for global
+    if( parent ) shred->base_ref = shred->parent->base_ref;
+    else shred->base_ref = shred->mem;
     // spork it
     this->spork( shred );
 
@@ -931,6 +934,7 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     parent = NULL;
     obj_array = NULL;
     obj_array_size = 0;
+    base_ref = NULL;
 }
 
 
@@ -997,6 +1001,7 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
 
     SAFE_DELETE( mem );
     SAFE_DELETE( reg );
+    base_ref = NULL;
     
     // delete temp pointer space
     SAFE_DELETE_ARRAY( obj_array );
