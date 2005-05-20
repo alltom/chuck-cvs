@@ -2708,7 +2708,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
     //}
 
-    // look up the value
+    // look up the value (can shadow?)
     if( value = env->curr->lookup_value( f->name, FALSE ) )
     {
         // if value
