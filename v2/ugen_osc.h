@@ -41,7 +41,6 @@
 DLL_QUERY osc_query( Chuck_DL_Query * query );
 
 // osc - base
-
 CK_DLL_CTOR( osc_ctor );
 CK_DLL_DTOR( osc_dtor );
 CK_DLL_TICK( osc_tick );
@@ -68,6 +67,8 @@ CK_DLL_CTRL( sawosc_ctrl_width );
 // sqrosc 
 CK_DLL_CTOR( sqrosc_ctor );
 CK_DLL_CTRL( sqrosc_ctrl_width );
+
+
 
 
 #endif

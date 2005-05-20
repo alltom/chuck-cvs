@@ -55,6 +55,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
     Chuck_DL_Func * func = NULL;
 
+
     //---------------------------------------------------------------------
     // init as base class: osc
     //---------------------------------------------------------------------
@@ -97,6 +98,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+
 
     //---------------------------------------------------------------------
     // triosc - triangle oscillator
@@ -141,6 +143,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+
 
     //---------------------------------------------------------------------
     // sqrosc - square_wave oscillator ( 0.5 pulse ) 
@@ -211,6 +214,8 @@ CK_DLL_CTOR( osc_ctor )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: osc_dtor()
 // desc: ...
@@ -265,6 +270,8 @@ CK_DLL_TICK( osc_tick )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: sinosc_tick()
 // desc: ...
@@ -291,6 +298,8 @@ CK_DLL_TICK( sinosc_tick )
 
     return TRUE;
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -320,6 +329,7 @@ CK_DLL_TICK( triosc_tick )
 
     return TRUE;
 }
+
 
 //sawosc_tick is tri_osc tick with width=0.0 or width=1.0  -pld 
 
@@ -351,7 +361,9 @@ CK_DLL_TICK( pulseosc_tick )
     return TRUE;
 }
 
+
 //sqrosc_tick is pulseosc_tick at width=0.5 -pld;
+
 
 //-----------------------------------------------------------------------------
 // name: osc_ctrl_freq()
@@ -371,6 +383,9 @@ CK_DLL_CTRL( osc_ctrl_freq )
     RETURN->v_float = (t_CKFLOAT)d->freq;
 }
 
+
+
+
 //-----------------------------------------------------------------------------
 // name: osc_ctrl_phase()
 // desc: set oscillator phase wrapped to ( 0 - 1 )
@@ -386,6 +401,9 @@ CK_DLL_CTRL( osc_ctrl_phase )
     // return
     RETURN->v_float = (t_CKFLOAT)d->phase;
 }
+
+
+
 
 //-----------------------------------------------------------------------------
 // name: osc_ctrl_width()
@@ -404,6 +422,8 @@ CK_DLL_CTRL( osc_ctrl_width )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: sqrosc_ctor()
 // desc: ...
@@ -414,6 +434,9 @@ CK_DLL_CTOR( sqrosc_ctor )
     Chuck_DL_Return r;
     sqrosc_ctrl_width( SELF, &(d->width), &r );
 }
+
+
+
 
 //-----------------------------------------------------------------------------
 // name: sqrosc_ctrl_width()
@@ -430,6 +453,8 @@ CK_DLL_CTRL( sqrosc_ctrl_width )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: sawosc_ctor()
 // desc: ...
@@ -440,6 +465,8 @@ CK_DLL_CTOR( sawosc_ctor )
     Chuck_DL_Return r;
     sawosc_ctrl_width( SELF, &(d->width), &r );
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -457,6 +484,8 @@ CK_DLL_CTRL( sawosc_ctrl_width )
     // return
     RETURN->v_float = (t_CKFLOAT)d->width;
 }
+
+
 
 
 //-----------------------------------------------------------------------------

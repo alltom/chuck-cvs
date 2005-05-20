@@ -44,7 +44,7 @@ static double g_e = ::exp( 1.0 );
 DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 {
     // name
-    QUERY->setname( QUERY, "math" );
+    QUERY->setname( QUERY, "Math" );
 
     /*! \example
     math.sin( math.pi /2.0 ) => stdout;
