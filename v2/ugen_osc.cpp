@@ -398,7 +398,7 @@ CK_DLL_CTRL( osc_ctrl_width )
     // set freq
     d->width = GET_CK_FLOAT(ARGS);
     //bound ( this could be set arbitrarily high or low ) 
-    d->width = max ( 0.0, min ( 1.0, d->width ) );
+    d->width = ck_max( 0.0, ck_min( 1.0, d->width ) );
     // return
     RETURN->v_float = (t_CKFLOAT)d->width;
 }

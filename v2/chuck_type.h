@@ -451,6 +451,8 @@ struct Chuck_Value : public Chuck_VM_Object
     Chuck_Type * owner_class;
     // remember function pointer - if this is a function
     Chuck_Func * func_ref;
+    // overloads
+    t_CKINT func_num_overloads;
 
 	// constructor
 	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
@@ -458,7 +460,7 @@ struct Chuck_Value : public Chuck_VM_Object
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
 	{ type = t; name = n; offset = s; is_const = c; access = acc; 
       owner = o; owner_class = oc; addr = a; is_member = FALSE;
-      is_context_global = FALSE; func_ref = NULL; }
+      is_context_global = FALSE; func_ref = NULL; func_num_overloads = 0; }
 };
 
 
@@ -484,10 +486,12 @@ struct Chuck_Func : public Chuck_VM_Object
     t_CKINT vt_index;
     // rember value
     Chuck_Value * value_ref;
+    // for overloading
+    Chuck_Func * next;
 
     // constructor
     Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = -1; 
-                   value_ref = NULL; }//dl_code = NULL; }
+                   value_ref = NULL; dl_code = NULL; next = NULL; }
 };
 
 
@@ -524,11 +528,11 @@ t_CKBOOL isfunc( Chuck_Type * type );
 
 // import
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
-                                             Chuck_Namespace * where, t_CKUINT pre_ctor );
+                                             Chuck_Namespace * where, f_ctor pre_ctor );
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
-                                             Chuck_Namespace * where, t_CKUINT pre_ctor );
+                                             Chuck_Namespace * where, f_ctor pre_ctor );
 Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
-                                            Chuck_Namespace * where, t_CKUINT pre_ctor,
+                                            Chuck_Namespace * where, f_ctor pre_ctor,
                                             f_tick tick, f_pmsg pmsg );
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun );
 t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun );

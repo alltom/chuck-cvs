@@ -88,6 +88,9 @@ typedef const char *                c_constr;
 #define SAFE_DELETE_ARRAY(x)        { if(x){ delete [] x; x = NULL; } }
 #endif
 
+#define ck_max(x,y)                 ( x >= y ? x : y )
+#define ck_min(x,y)                 ( x <= y ? x : y )
+
 #ifdef __MACOSX_CORE__
 #define __PLATFORM_MACOSX__
 #endif

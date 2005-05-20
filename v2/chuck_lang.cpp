@@ -51,7 +51,7 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), (t_CKUINT)object_ctor ) )
+    if( !type_engine_import_class_begin( env, type, env->global(), object_ctor ) )
         return FALSE;
 
     // add setTestID()

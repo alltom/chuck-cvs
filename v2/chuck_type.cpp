@@ -35,9 +35,7 @@
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
 #include "chuck_lang.h"
-// #include "chuck_instr.h"
-// #include "chuck_ugen.h"
-// #include "chuck_dl.h"
+#include "util_string.h"
 
 
 
@@ -2132,7 +2130,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
     }
     
     // copy the func
-    ck_func = func = f->func;
+    func = f->func;
 
     // check the arguments
     if( args )
@@ -2141,58 +2139,172 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
         if( !a ) return NULL;
     }
 
-    a_Exp e = args;
-    a_Arg_List e1 = func->def->arg_list;
-    t_CKUINT count = 1;
-
-    // check arguments against the definition
-    while( e )
+    a_Exp e;
+    a_Arg_List e1;
+    t_CKUINT count;
+    // loop
+    while( func )
     {
-        if( e1 == NULL )
-        {
-            EM_error2( linepos,
-                "extra argument(s) in function call '%s' (arg %i)",
-                func->name.c_str(), count );
-            return NULL;
-        }
+        e = args;
+        e1 = func->def->arg_list;
+        count = 1;
 
-        // no match
-        if( !isa( e->type, e1->type ) )
+        // check arguments against the definition
+        while( e )
         {
-            // implicit cast
-            if( *e->type == t_int && *e1->type == t_float )
-            {
-                // int to float
-                e->cast_to = &t_float;
-            }
-            else
-            {
-                EM_error2( e->linepos,
-                    "argument '%i' of function call '%s(...)' has type '%s'...",
-                    count, func->name.c_str(), e->type->c_name() );
-                EM_error2( e->linepos,
-                    "...(expecting: type '%s')",
-                    e1->type->c_name() );
+            if( e1 == NULL ) goto moveon;
+            /*{
+                EM_error2( linepos,
+                    "extra argument(s) in function call '%s' (arg %i)",
+                    func->name.c_str(), count );
                 return NULL;
+            }*/
+
+            // no match
+            if( !isa( e->type, e1->type ) ) goto moveon;
+            {
+                // TODO: fix this for overload implicit cast
+                if( *e->type == t_int && *e1->type == t_float )
+                {
+                    // int to float
+                    e->cast_to = &t_float;
+                }
+                else goto moveon;
+                /*{
+                    EM_error2( e->linepos,
+                        "argument '%i' of function call '%s(...)' has type '%s'...",
+                        count, func->name.c_str(), e->type->c_name() );
+                    EM_error2( e->linepos,
+                        "...(expecting: type '%s')",
+                        e1->type->c_name() );
+                    return NULL;
+                }*/
             }
+
+            e = e->next;
+            e1 = e1->next;
+            count++;
         }
 
-        e = e->next;
-        e1 = e1->next;
-        count++;
+        // anything left
+        if( e1 != NULL ) goto moveon;
+        else
+        {
+            // found match
+            break;
+        }
+        /*{
+            EM_error2( linepos,
+                "missing argument(s) in function call '%s'...",
+                func->name.c_str() );
+            EM_error2( linepos,
+                "...(next arg type: '%s')",
+                e1->type->c_name() );
+            return NULL;
+        }*/
+
+moveon:
+        // next func
+        func = func->next;
     }
 
-    // anything left
-    if( e1 != NULL )
+    // check
+    if( !func )
     {
-        EM_error2( linepos,
-            "missing argument(s) in function call '%s'...",
-            func->name.c_str() );
-        EM_error2( linepos,
-            "...(next arg type: '%s')",
-            e1->type->c_name() );
+        // check again
+        func = f->func;
+        // loop
+        while( func )
+        {
+            e = args;
+            e1 = func->def->arg_list;
+            count = 1;
+
+            // check arguments against the definition
+            while( e )
+            {
+                if( e1 == NULL ) goto moveon2;
+                // no match
+                if( !isa( e->type, e1->type ) )
+                {
+                    // TODO: fix this for overload implicit cast
+                    if( *e->type == t_int && *e1->type == t_float )
+                    {
+                        // int to float
+                        e->cast_to = &t_float;
+                    }
+                    else goto moveon2;
+                }
+
+                e = e->next;
+                e1 = e1->next;
+                count++;
+            }
+
+            // anything left
+            if( e1 != NULL ) goto moveon2;
+            else break;
+
+moveon2:
+            // next func
+            func = func->next;
+        }
+    }
+
+    // no func
+    if( !func )
+    {
+        // if primary
+        if( exp_func->s_type == ae_exp_primary && exp_func->primary.s_type == ae_primary_var )
+        {
+            EM_error2( exp_func->linepos,
+                "no matching function for '%s(...)' ...",
+                S_name(exp_func->primary.var) );
+        }
+        else
+        {
+            EM_error2( exp_func->linepos,
+                "no matching function call ..." );
+        }
+
+        EM_error2( exp_func->linepos,
+            "...(please check the function arguments)" );
+
         return NULL;
     }
+    
+    // recheck the type with new name
+    if( exp_func->s_type == ae_exp_primary && exp_func->primary.s_type == ae_primary_var )
+    {
+        // set the new name
+        // TODO: clear old
+        exp_func->primary.var = insert_symbol(func->name.c_str());
+        // make sure the type is still the name
+        if( *exp_func->type != *type_engine_check_exp( env, exp_func ) )
+        {
+            // error
+            EM_error2( exp_func->linepos,
+                "internal error: function type different on second check..." );
+            return NULL;
+        }
+    }
+    else if( exp_func->s_type == ae_exp_dot_member )
+    {
+        // set the new name
+        // TODO: clear old
+        exp_func->dot_member.id = insert_symbol(func->name.c_str());
+        // make sure the type is still the name
+        if( *exp_func->type != *type_engine_check_exp( env, exp_func ) )
+        {
+            // error
+            EM_error2( exp_func->linepos,
+                "internal error: function type different on second check..." );
+            return NULL;
+        }
+    }
+    else assert( FALSE );
+
+    ck_func = func;
 
     return func->def->ret_type;
 }
@@ -2566,6 +2678,14 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     a_Arg_List arg_list = NULL;
     t_CKUINT count = 0;
     t_CKBOOL has_code = FALSE;  // use this for both user and imported
+    Chuck_Func * overload = NULL;
+    t_CKBOOL parent_match = FALSE;
+    Chuck_Func * parent_func = NULL;
+    string func_name = S_name(f->name);
+    Chuck_Value * v = NULL;
+    vector<Chuck_Value *> values;
+    vector<S_Symbol> symbols;
+    t_CKINT i;
 
     // see if we are already in a function definition
     if( env->func != NULL )
@@ -2578,21 +2698,42 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // if not imported, then check to make sure no reserved word conflict
     //if( f->s_type != ae_func_builtin )  // TODO: fix this
     //{
-        // check if reserved
-        if( type_engine_check_reserved( env, f->name, f->linepos ) )
-        {
-            EM_error2( f->linepos, "...in function definition '%s'",
-                S_name(f->name) );
-            return FALSE;
-        }
+    // check if reserved
+    if( type_engine_check_reserved( env, f->name, f->linepos ) )
+    {
+        EM_error2( f->linepos, "...in function definition '%s'",
+            S_name(f->name) );
+        return FALSE;
+    }
     //}
 
     // look up the value
-    if( env->curr->lookup_value( f->name, TRUE ) )
+    if( value = env->curr->lookup_value( f->name, TRUE ) )
     {
-        EM_error2( f->linepos, 
-            "function name '%s' is already used by another value", S_name(f->name) );
-        return FALSE;
+        // if value
+        if( !isa( value->type, &t_function ) )
+        {
+            EM_error2( f->linepos, 
+                "function name '%s' is already used by another value", S_name(f->name) );
+            return FALSE;
+        }
+        else 
+        {
+            // overload
+            if( !value->func_ref )
+            {
+                // error
+                EM_error2( f->linepos,
+                    "internal error: missing function '%s'",
+                    value->name.c_str() );
+                return FALSE;
+            }
+
+            // remember it
+            overload = value->func_ref;
+            // make the new name
+            func_name += "@" + itoa( ++value->func_num_overloads );
+        }
     }
 
     // make sure a code segment is in stmt - else we should push scope
@@ -2601,7 +2742,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // make a new func object
     func = env->context->new_Chuck_Func();
     // set the name
-    func->name = S_name(f->name);
+    func->name = func_name;
     // reference the function definition
     func->def = f;
     // note whether the function is marked as member
@@ -2626,8 +2767,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     type->size = sizeof(void *);
     type->func = func;
 
-    // make new value
-    value = env->context->new_Chuck_Value( type, S_name(f->name) );
+    // make new value, with potential overloaded name
+    value = env->context->new_Chuck_Value( type, func_name );
     // it is const
     value->is_const = TRUE;
     // remember the owner
@@ -2640,22 +2781,27 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     value->func_ref = func;
     // remember the value
     func->value_ref = value;
+
     // add as value
-    env->curr->value.add( f->name, value );
+    env->curr->value.add( value->name, value );
     // enter the name into the function table
-    env->curr->func.add( f->name, func );
+    env->curr->func.add( func->name, func );
 
     // set the func
     f->ck_func = func;
+
+    // if overload
+    if( overload )
+    {
+        // add somewhere
+        func->next = overload->next;
+        overload->next = func;
+    }
 
     // set the current function to this
     env->func = func;
     // push the value stack
     env->curr->value.push();
-
-    // make room for return address and pc
-    // S_enter( env->value, insert_symbol( "@__pc__" ), &t_uint );
-    // S_enter( env->value, insert_symbol( "@__mem_sp__" ), &t_uint );
 
     // look up the return type
     // f->ret_type = env->curr->lookup_type( f->type_decl->id->id );
@@ -2752,22 +2898,24 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         }
         
         // make new value
-        value = env->context->new_Chuck_Value( 
+        v = env->context->new_Chuck_Value( 
             arg_list->type, S_name(arg_list->var_decl->id) );
         // remember the owner
-        value->owner = env->curr;
+        v->owner = env->curr;
         // function args not owned
-        value->owner_class = NULL;
-        value->is_member = FALSE;
+        v->owner_class = NULL;
+        v->is_member = FALSE;
         // add as value
-        env->curr->value.add( arg_list->var_decl->id, value );
+        symbols.push_back( arg_list->var_decl->id );
+        values.push_back( v );
+        // later: env->curr->value.add( arg_list->var_decl->id, v );
 
         // stack
-        value->offset = f->stack_depth;
+        v->offset = f->stack_depth;
         f->stack_depth += arg_list->type->size;
 
         // remember
-        arg_list->var_decl->value = value;
+        arg_list->var_decl->value = v;
 
         // next arg
         arg_list = arg_list->next;
@@ -2809,92 +2957,118 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // if overriding super class function, then check signatures
-    if( env->class_def && ( value =
+    if( env->class_def && ( v =
         type_engine_find_value( env->class_def->parent, f->name ) ) )
     {
         // see if the target is a function
-        if( !isa( value->type, &t_function ) )
+        if( !isa( v->type, &t_function ) )
         {
             EM_error2( f->linepos, "function name '%s' conflicts with previously defined value...",
                 S_name(f->name) );
-            EM_error2( f->linepos, "from super class '%s'...", value->owner_class->c_name() );
+            EM_error2( f->linepos, "from super class '%s'...", v->owner_class->c_name() );
             goto error;
         }
 
-        // see if parent function is static
-        if( value->type->func->def->static_decl == ae_key_static )
-        {
-            EM_error2( f->linepos,
-                "function '%s.%s' resembles '%s.%s' but cannot override...",
-                env->class_def->c_name(), S_name(f->name), 
-                value->owner_class->c_name(), S_name(f->name) );
-            EM_error2( f->linepos,
-                "...(reason: '%s.%s' is declared as 'static')",
-                value->owner_class->c_name(), S_name(f->name) );
-            goto error;
-        }
+        // parent func
+        parent_func = v->func_ref;
 
-        // see if function is static
-        if( f->static_decl == ae_key_static )
+        // go through all overloading
+        while( parent_func && !parent_match )
         {
-            EM_error2( f->linepos,
-                "function '%s.%s' resembles '%s.%s' but cannot override...",
-                env->class_def->c_name(), S_name(f->name), 
-                value->owner_class->c_name(), S_name(f->name) );
-            EM_error2( f->linepos,
-                "...(reason: '%s.%s' is declared as 'static')",
-                env->class_def->c_name(), S_name(f->name) );
-            goto error;
-        }
+            // match the prototypes
+            string err;
+            if( !type_engine_compat_func( f, parent_func->def, f->linepos, err ) )\
+            {
+                // next
+                parent_func = parent_func->next;
+                // move on
+                continue;
+            }
+            /*{
+                EM_error2( f->linepos,
+                    "function '%s.%s' resembles '%s.%s' but cannot override...",
+                    env->class_def->c_name(), S_name(f->name),
+                    value->owner_class->c_name(), S_name(f->name) );
+                if( err != "" ) EM_error2( f->linepos, "...(reason: %s)", err.c_str() );
+                goto error;
+            }*/
 
-        // see if function is pure
-        if( f->static_decl == ae_key_abstract )
-        {
-            EM_error2( f->linepos,
-                "function '%s.%s' resembles '%s.%s' but cannot override...",
-                env->class_def->c_name(), S_name(f->name), 
-                value->owner_class->c_name(), S_name(f->name) );
-            EM_error2( f->linepos,
-                "...(reason: '%s.%s' is declared as 'pure')",
-                env->class_def->c_name(), S_name(f->name) );
-            goto error;
-        }
+            // see if parent function is static
+            if( parent_func->def->static_decl == ae_key_static )
+            {
+                EM_error2( f->linepos,
+                    "function '%s.%s' resembles '%s.%s' but cannot override...",
+                    env->class_def->c_name(), S_name(f->name), 
+                    v->owner_class->c_name(), S_name(f->name) );
+                EM_error2( f->linepos,
+                    "...(reason: '%s.%s' is declared as 'static')",
+                    v->owner_class->c_name(), S_name(f->name) );
+                goto error;
+            }
 
-        // match the prototypes
-        string err;
-        if( !type_engine_compat_func( f, value->type->func->def, f->linepos, err ) )
-        {
-            EM_error2( f->linepos,
-                "function '%s.%s' resembles '%s.%s' but cannot override...",
-                env->class_def->c_name(), S_name(f->name),
-                value->owner_class->c_name(), S_name(f->name) );
-            if( err != "" ) EM_error2( f->linepos, "...(reason: %s)", err.c_str() );
-            goto error;
-        }
-    
-        // make sure returns are equal
-        if( *(f->ret_type) != *(value->type->func->def->ret_type) )
-        {
-            EM_error2( f->linepos, "function signatures differ in return type..." );
-            EM_error2( f->linepos,
-                "function '%s.%s' matches '%s.%s' but cannot override...",
-                env->class_def->c_name(), S_name(f->name),
-                value->owner_class->c_name(), S_name(f->name) );
-            goto error;
-        }
+            // see if function is static
+            if( f->static_decl == ae_key_static )
+            {
+                EM_error2( f->linepos,
+                    "function '%s.%s' resembles '%s.%s' but cannot override...",
+                    env->class_def->c_name(), S_name(f->name), 
+                    v->owner_class->c_name(), S_name(f->name) );
+                EM_error2( f->linepos,
+                    "...(reason: '%s.%s' is declared as 'static')",
+                    env->class_def->c_name(), S_name(f->name) );
+                goto error;
+            }
 
-        // update virtual table
-        func->vt_index = value->func_ref->vt_index;
-        assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
-        env->curr->obj_v_table.funcs[func->vt_index] = func;
+            // see if function is pure
+            if( f->static_decl == ae_key_abstract )
+            {
+                EM_error2( f->linepos,
+                    "function '%s.%s' resembles '%s.%s' but cannot override...",
+                    env->class_def->c_name(), S_name(f->name), 
+                    v->owner_class->c_name(), S_name(f->name) );
+                EM_error2( f->linepos,
+                    "...(reason: '%s.%s' is declared as 'pure')",
+                    env->class_def->c_name(), S_name(f->name) );
+                goto error;
+            }
+
+            // make sure returns are equal
+            if( *(f->ret_type) != *(parent_func->def->ret_type) )
+            {
+                EM_error2( f->linepos, "function signatures differ in return type..." );
+                EM_error2( f->linepos,
+                    "function '%s.%s' matches '%s.%s' but cannot override...",
+                    env->class_def->c_name(), S_name(f->name),
+                    v->owner_class->c_name(), S_name(f->name) );
+                goto error;
+            }
+
+            // match
+            parent_match = TRUE;
+
+            // update virtual table
+            func->vt_index = v->func_ref->vt_index;
+            assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
+            env->curr->obj_v_table.funcs[func->vt_index] = func;
+            // update name
+            func_name = parent_func->name;
+            func->name = func_name;
+            value->name = func_name;
+        }
     }
-    else if( func->is_member )
+
+    if( func->is_member && !parent_match )
     {
         // remember virtual table index
         func->vt_index = env->curr->obj_v_table.funcs.size();
         // append to virtual table
         env->curr->obj_v_table.funcs.push_back( func );
     }
+
+    
+    // add args in the new scope
+    for( i = 0; i < values.size(); i++ )
+        env->curr->value.add( symbols[i], values[i] );
 
     // type check the code
     assert( f->code == NULL || f->code->s_type == ae_stmt_code );
@@ -2911,6 +3085,21 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         func->code->stack_depth = f->stack_depth;
         // if member add room for this
         // done: if( func->is_member ) func->code->stack_depth += sizeof(t_CKUINT);
+    }
+
+    // if overload
+    if( overload )
+    {
+        // make sure returns are equal
+        if( *(f->ret_type) != *(overload->def->ret_type) )
+        {
+            EM_error2( f->linepos, "function signatures differ in return type..." );
+            EM_error2( f->linepos,
+                "function '%s.%s' matches '%s.%s' but cannot overload...",
+                env->class_def->c_name(), S_name(f->name),
+                value->owner_class->c_name(), S_name(f->name) );
+            goto error;
+        }
     }
 
     // pop the value stack
@@ -3517,7 +3706,7 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 //       must be completed by type_engine_import_class_end()
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
-                                             Chuck_Namespace * where, t_CKUINT pre_ctor )
+                                             Chuck_Namespace * where, f_ctor pre_ctor )
 {
     Chuck_Value * value = NULL;
     Chuck_Type * type_type = NULL;
@@ -3546,7 +3735,7 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
         // allocate vm code for pre_ctor
         type->info->pre_ctor = new Chuck_VM_Code;
         // add pre_ctor
-        type->info->pre_ctor->native_func = pre_ctor;
+        type->info->pre_ctor->native_func = (t_CKUINT)pre_ctor;
         // specify that we need this
         type->info->pre_ctor->need_this = TRUE;
         // no arguments to preconstructor other than self
@@ -3607,7 +3796,7 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, 
                                            const char * parent_str,
-                                           Chuck_Namespace * where, t_CKUINT pre_ctor )
+                                           Chuck_Namespace * where, f_ctor pre_ctor )
 {
     // which namespace
     Chuck_Type * parent = NULL;
@@ -3662,7 +3851,7 @@ cleanup:
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, 
                                             const char * parent, Chuck_Namespace * where,
-                                            t_CKUINT pre_ctor, f_tick tick, f_pmsg pmsg )
+                                            f_ctor pre_ctor, f_tick tick, f_pmsg pmsg )
 {
     Chuck_Type * type = NULL;
     Chuck_UGen_Info * info = NULL;

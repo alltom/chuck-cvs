@@ -23,7 +23,7 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// name: util_math.h
+// name: util_math.c
 // desc: ...
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
@@ -63,9 +63,9 @@ double trunc( double a )
 // name: remainder()
 // desc: ...
 //-----------------------------------------------------------------------------
-double remainder( int a, int b )
+double remainder( long a, long b )
 {
-    int div = a/b;
+    long div = a/b;
     return a - b*div;
 }
 

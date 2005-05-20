@@ -35,7 +35,6 @@
 
 #include <math.h>
 
-
 #ifdef __PLATFORM_WIN32__
 
 #if defined (__cplusplus) || defined(_cplusplus)  
@@ -44,7 +43,7 @@ extern "C" {
 
     double round(double a);
     double trunc(double a);
-    double remainder(int a, int b);
+    double remainder(long a, long b);
 
 #if defined (__cplusplus) || defined(_cplusplus)  
 }
