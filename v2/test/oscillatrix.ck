@@ -1,7 +1,7 @@
 // oscillator demo
 // - philipd
 
-[ 0, 2, 4, 7, 9 ] @=> int f[];
+[0, 2, 4, 7, 9] @=> int f[];
 
 sinosc s => dac;
 sawosc saw => dac;
@@ -11,7 +11,7 @@ sqrosc sqr => dac;
 
 triosc trictrl => sinosc sintri => dac;
 
-[ s, saw, tri, pul, sqr ] @=> osc oscillators[];
+[s, saw, tri, pul, sqr] @=> osc oscillators[];
 
 0.2 => s.gain;
 0.1 => saw.gain;
@@ -22,10 +22,8 @@ triosc trictrl => sinosc sintri => dac;
 
 
 while ( true ) { 
-
-	Math.rand2(0,4) => int select;
-	Std.mtof( f[Math.rand2( 0, 4 )] + 60 ) => float newnote;
-	newnote => oscillators[select].freq;
-	0.25::second => now;
-
+    Math.rand2(0,4) => int select;
+    Std.mtof( f[Math.rand2( 0, 4 )] + 60 ) => float newnote;
+    newnote => oscillators[select].freq;
+    0.25::second => now;
 }
