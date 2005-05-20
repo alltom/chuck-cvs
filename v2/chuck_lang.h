@@ -74,9 +74,13 @@ CK_DLL_SFUN( object_testStatic );
 CK_DLL_CTOR( ugen_ctor );
 CK_DLL_DTOR( ugen_dtor );
 CK_DLL_MFUN( ugen_op );
+CK_DLL_MFUN( ugen_cget_op );
 CK_DLL_MFUN( ugen_last );
+CK_DLL_MFUN( ugen_cget_last );
 CK_DLL_MFUN( ugen_next );
+CK_DLL_MFUN( ugen_cget_next );
 CK_DLL_MFUN( ugen_gain );
+CK_DLL_MFUN( ugen_cget_gain );
 
 
 

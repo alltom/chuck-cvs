@@ -112,10 +112,14 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "float", "gain", ugen_gain );
     func->add_arg( "float", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "gain", ugen_cget_gain );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // next
     func = make_new_mfun( "float", "next", ugen_next );
     func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "next", ugen_cget_next );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // last
@@ -125,6 +129,8 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     // op
     func = make_new_mfun( "int", "op", ugen_op );
     func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "op", ugen_cget_op );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end
@@ -261,6 +267,14 @@ CK_DLL_MFUN( ugen_op )
     RETURN->v_int = ugen->m_op;
 }
 
+CK_DLL_MFUN( ugen_cget_op )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // set return
+    RETURN->v_int = ugen->m_op;
+}
+
 CK_DLL_MFUN( ugen_last )
 {
     // get as ugen
@@ -282,6 +296,14 @@ CK_DLL_MFUN( ugen_next )
     RETURN->v_float = (t_CKFLOAT)ugen->m_next;
 }
 
+CK_DLL_MFUN( ugen_cget_next )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // set return
+    RETURN->v_float = ugen->m_use_next ? (t_CKFLOAT)ugen->m_next : 0.0f;
+}
+
 CK_DLL_MFUN( ugen_gain )
 {
     // get as ugen
@@ -290,6 +312,14 @@ CK_DLL_MFUN( ugen_gain )
     t_CKFLOAT gain = GET_CK_FLOAT( ARGS );
     // set op
     ugen->m_gain = (SAMPLE)gain;
+    // set return
+    RETURN->v_float = (t_CKFLOAT)ugen->m_gain;
+}
+
+CK_DLL_MFUN( ugen_cget_gain )
+{
+    // get as ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
     // set return
     RETURN->v_float = (t_CKFLOAT)ugen->m_gain;
 }
