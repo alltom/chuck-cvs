@@ -3326,8 +3326,8 @@ public: // SWAP formerly protected
   bool getMatInfo( const char *fileName );
 
   char msg[256];
-  char m_filename[256]; // chuck data
-  Chuck_String * str_filename; // chuck data
+  // char m_filename[256]; // chuck data
+  Chuck_String str_filename; // chuck data
   FILE *fd;
   MY_FLOAT *data;
   MY_FLOAT *lastOutput;
@@ -7474,8 +7474,8 @@ class WvOut : public Stk
   unsigned int channels;
   unsigned long counter;
   unsigned long totalCount;
-  char m_filename[1024];
-  Chuck_String * str_filename;
+  // char m_filename[1024];
+  Chuck_String str_filename;
   t_CKUINT start;
   char autoPrefix[1024];
   t_CKUINT flush;
@@ -7720,7 +7720,7 @@ public: // SWAP formerly protected
   FormSwep  *filters[4];
   OnePole  *onepole;
   OneZero  *onezero;
-  Chuck_String * str_phoneme; // chuck data
+  Chuck_String str_phoneme; // chuck data
 };
 
 #endif
@@ -18271,8 +18271,6 @@ VoicForm :: VoicForm() : Instrmnt()
 	noiseEnv = new Envelope;
 	noiseEnv->setRate( 0.001 );
 	noiseEnv->setTarget( 0.0 );
-    // hack
-    str_phoneme = new Chuck_String;
     
 	m_phonemeNum = 0;
 	this->setPhoneme( "eee" );
@@ -18286,7 +18284,6 @@ VoicForm :: ~VoicForm()
 	delete onezero;
 	delete onepole;
 	delete noiseEnv;
-    delete str_phoneme;
   for ( int i=0; i<4; i++ ) {
     delete filters[i];
   }
@@ -18336,7 +18333,7 @@ bool VoicForm :: setPhoneme(const char *phoneme )
 	if( !found )
         std::cerr << "[chuck](via STK): VoicForm: phoneme " << phoneme << " not found!" << std::endl;
     else
-        str_phoneme->str = Phonemes::name( m_phonemeNum );
+        str_phoneme.str = Phonemes::name( m_phonemeNum );
 
 	return found;
 }
@@ -19329,16 +19326,13 @@ WvIn :: ~WvIn()
         delete [] lastOutput;
 
     m_loaded = false;
-    
-    delete str_filename;
 }
 
 void WvIn :: init( void )
 {
     fd = 0;
     m_loaded = false;
-    str_filename = new Chuck_String;
-    strcpy ( m_filename, "" );
+    // strcpy ( m_filename, "" );
     data = 0;
     lastOutput = 0;
     chunking = false;
@@ -19353,14 +19347,14 @@ void WvIn :: closeFile( void )
 {
     if ( fd ) fclose( fd );
     finished = true;
-    str_filename->str = "";
+    str_filename.str = "";
 }
 
 void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool generate )
 {
     unsigned long lastChannels = channels;
     unsigned long samples, lastSamples = (bufferSize+1)*channels;
-    str_filename->str = fileName;
+    str_filename.str = fileName;
     //strncpy ( m_filename, fileName, 255 );
     //m_filename[255] = '\0';
     if(!generate || !strstr(fileName, "special:"))
@@ -20411,8 +20405,6 @@ WvOut :: ~WvOut()
 
   if (data)
     delete [] data;
-    
-  delete str_filename;
 }
 
 void WvOut :: init()
@@ -20424,8 +20416,7 @@ void WvOut :: init()
   channels = 0;
   counter = 0;
   totalCount = 0;
-  str_filename = new Chuck_String;
-  m_filename[0] = '\0';
+  //m_filename[0] = '\0';
   start = TRUE;
   flush = 0;
 }
@@ -20452,15 +20443,15 @@ void WvOut :: closeFile( void )
     totalCount = 0;
   }
 
-  str_filename->str = "";
-  m_filename[0] = '\0';
+  str_filename.str = "";
+  //m_filename[0] = '\0';
 
 }
 
 void WvOut :: openFile( const char *fileName, unsigned int nChannels, WvOut::FILE_TYPE type, Stk::STK_FORMAT format )
 {
   closeFile();
-  str_filename->str = fileName;
+  str_filename.str = fileName;
   //strncpy( m_filename, fileName, 255);
   //if ( strlen( fileName ) > 255 ) 
   //  m_filename[255] = '\0';
@@ -27213,7 +27204,7 @@ CK_DLL_CTRL( VoicForm_ctrl_phoneme )
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     const char * c = GET_CK_STRING(ARGS)->str.c_str(); 
     v->setPhoneme( c );
-    RETURN->v_string = v->str_phoneme;
+    RETURN->v_string = &(v->str_phoneme);
 }
 
 
@@ -27224,7 +27215,7 @@ CK_DLL_CTRL( VoicForm_ctrl_phoneme )
 CK_DLL_CGET( VoicForm_cget_phoneme )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    RETURN->v_string = v->str_phoneme;
+    RETURN->v_string = &(v->str_phoneme);
 }
 
 
@@ -27520,7 +27511,7 @@ CK_DLL_CTRL( WvIn_ctrl_path )
         const char * s = e.getMessage();
         // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
     }
-    RETURN->v_string = w->str_filename;
+    RETURN->v_string = &(w->str_filename);
 }
 
 
@@ -27542,7 +27533,7 @@ CK_DLL_CGET( WvIn_cget_rate )
 CK_DLL_CGET( WvIn_cget_path )
 {
     WvIn * w = (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
-    RETURN->v_string = w->str_filename ;
+    RETURN->v_string = &(w->str_filename) ;
 }
 
 
@@ -27740,7 +27731,7 @@ CK_DLL_CTRL( WvOut_ctrl_matFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = w->str_filename ;
+    RETURN->v_string = &(w->str_filename) ;
 }
 
 
@@ -27768,7 +27759,7 @@ CK_DLL_CTRL( WvOut_ctrl_sndFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = w->str_filename ;
+    RETURN->v_string = &(w->str_filename) ;
 }
 
 
@@ -27796,7 +27787,7 @@ CK_DLL_CTRL( WvOut_ctrl_wavFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = w->str_filename ;
+    RETURN->v_string = &(w->str_filename) ;
 }
 
 
@@ -27824,7 +27815,7 @@ CK_DLL_CTRL( WvOut_ctrl_rawFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = w->str_filename ;
+    RETURN->v_string = &(w->str_filename) ;
 }
 
 
@@ -27852,7 +27843,7 @@ CK_DLL_CTRL( WvOut_ctrl_aifFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = w->str_filename ;
+    RETURN->v_string = &(w->str_filename) ;
 }
 
 
@@ -27863,7 +27854,7 @@ CK_DLL_CTRL( WvOut_ctrl_aifFilename )
 CK_DLL_CGET( WvOut_cget_filename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    RETURN->v_string = (Chuck_String *) w->m_filename ;
+    RETURN->v_string = &(w->str_filename) ;
 }
 
 
