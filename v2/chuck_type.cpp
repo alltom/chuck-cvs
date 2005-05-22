@@ -287,13 +287,13 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["same"] = TRUE;
     env->key_types["int"] = TRUE;
     env->key_types["float"] = TRUE;
-    env->key_types["dur"] = TRUE;
-    env->key_types["time"] = TRUE;
+    //env->key_types["dur"] = TRUE;
+    //env->key_types["time"] = TRUE;
     env->key_types["object"] = TRUE;
     env->key_types["string"] = TRUE;
-    env->key_types["shred"] = TRUE;
-    env->key_types["event"] = TRUE;
-    env->key_types["ugen"] = TRUE;
+    //env->key_types["shred"] = TRUE;
+    //env->key_types["event"] = TRUE;
+    //env->key_types["ugen"] = TRUE;
     //env->key_types["machine"] = TRUE;
     //env->key_types["language"] = TRUE;
     //env->key_types["compiler"] = TRUE;
@@ -3917,6 +3917,13 @@ Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name,
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env )
 {
+    if( !env->class_def )
+    {
+        // error
+        EM_error2( 0, "import: too many class_end called..." );
+        return FALSE;
+    }
+
     // set the object size
     env->class_def->obj_size = env->class_def->info->offset;
 

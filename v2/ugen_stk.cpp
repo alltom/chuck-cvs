@@ -434,9 +434,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "rate", BlowBotl_cget_rate ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
-
     // end the class import
     type_engine_import_class_end( env );
+
 
 
     //------------------------------------------------------------------------
@@ -781,7 +781,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1251,6 +1250,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //member variable
     FM_offset_data = type_engine_import_mvar ( env, "int", "@FM_data", FALSE );
     if ( FM_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "freq", FM_ctrl_freq ); //!set frequency
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1287,15 +1287,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     
-    // end the class import
-    type_engine_import_class_end( env );
-
-
-    //------------------------------------------------------------------------
-    // begin FM ugen
-    //------------------------------------------------------------------------
-
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -2116,7 +2107,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     type_engine_import_class_end( env );
 
     //! \section components
-
 
     //------------------------------------------------------------------------
     // begin Chorus ugen
