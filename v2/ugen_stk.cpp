@@ -28,6 +28,9 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Ananya Misra (amisra@cs.princeton.edu)
+//         Ari Lazier (alazier@cs.princeton.edu)
+//         Philip Davidson (philipd@cs.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ugen_stk.h"
