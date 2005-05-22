@@ -39,7 +39,7 @@
 #if __WINDOWS_DS__
 #include <windows.h>
 
-int setenv( char *n, char *v, int i )
+int setenv( const char *n, const char *v, int i )
 {
     return SetEnvironmentVariable(n, v);
 }

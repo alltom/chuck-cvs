@@ -36,7 +36,6 @@
 #include <math.h>
 #include <stdio.h>
 
-
 static t_CKUINT g_srate = 0;
 // for member data offset
 static t_CKUINT osc_offset_data = 0;

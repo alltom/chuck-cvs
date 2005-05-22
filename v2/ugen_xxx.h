@@ -41,7 +41,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * query );
 
 
 // noise
-CK_DLL_TICK( noise_tick )
+CK_DLL_TICK( noise_tick );
 
 // cnoise
 CK_DLL_CTOR( cnoise_ctor );
@@ -61,8 +61,8 @@ CK_DLL_CGET( impulse_cget_next );
 CK_DLL_CTOR( step_ctor );
 CK_DLL_DTOR( step_dtor );
 CK_DLL_TICK( step_tick );
-CK_DLL_CTRL( step_ctrl_value );
-CK_DLL_CGET( step_cget_value );
+CK_DLL_CTRL( step_ctrl_next );
+CK_DLL_CGET( step_cget_next );
 
 // gain
 CK_DLL_CTOR( gain_ctor );

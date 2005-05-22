@@ -8459,12 +8459,12 @@ MY_FLOAT ADSR :: tick()
   return value;
 }
 
-MY_FLOAT *ADSR :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *ADSR :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick();
+    vec[i] = tick();
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class BandedWG
@@ -9060,12 +9060,12 @@ MY_FLOAT BiQuad :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *BiQuad :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *BiQuad :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class BlowBotl
@@ -9540,12 +9540,12 @@ MY_FLOAT BowTabl :: tick(MY_FLOAT input)
   return lastOutput;
 }
 
-MY_FLOAT *BowTabl :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *BowTabl :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class Bowed
@@ -10003,12 +10003,12 @@ MY_FLOAT Chorus :: tick(MY_FLOAT input)
   return (lastOutput[0] + lastOutput[1]) * (MY_FLOAT) 0.5;
 }
 
-MY_FLOAT *Chorus :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Chorus :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class Clarinet
@@ -10324,12 +10324,12 @@ MY_FLOAT Delay :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *Delay :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Delay :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class DelayA
@@ -10870,12 +10870,12 @@ MY_FLOAT Echo :: tick(MY_FLOAT input)
   return lastOutput;
 }
 
-MY_FLOAT *Echo :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Echo :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class Envelope
@@ -10977,12 +10977,12 @@ MY_FLOAT Envelope :: tick(void)
   return value;
 }
 
-MY_FLOAT *Envelope :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Envelope :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick();
+    vec[i] = tick();
 
-  return vector;
+  return vec;
 }
 
 MY_FLOAT Envelope :: lastOut(void) const
@@ -11623,12 +11623,12 @@ MY_FLOAT Filter :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *Filter :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Filter :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class Flute
@@ -11939,12 +11939,12 @@ MY_FLOAT FormSwep :: tick(MY_FLOAT sample)
   return BiQuad::tick( sample );
 }
 
-MY_FLOAT *FormSwep :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *FormSwep :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class HevyMetl
@@ -12088,12 +12088,12 @@ MY_FLOAT Instrmnt :: lastOutRight(void) const
   return 0.5 * lastOutput;
 }
 
-MY_FLOAT *Instrmnt :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Instrmnt :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick();
+    vec[i] = tick();
 
-  return vector;
+  return vec;
 }
 
 void Instrmnt :: controlChange(int number, MY_FLOAT value)
@@ -12264,12 +12264,12 @@ MY_FLOAT JetTabl :: tick( MY_FLOAT input )
   return lastOutput;
 }
 
-MY_FLOAT *JetTabl :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *JetTabl :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class Mandolin
@@ -13302,12 +13302,12 @@ MY_FLOAT Modulate :: tick()
   return lastOutput;                        
 }
 
-MY_FLOAT *Modulate :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Modulate :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick();
+    vec[i] = tick();
 
-  return vector;
+  return vec;
 }
 
 MY_FLOAT Modulate :: lastOut() const
@@ -13620,12 +13620,12 @@ MY_FLOAT Noise :: tick()
   return lastOutput;
 }
 
-MY_FLOAT *Noise :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Noise :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick();
+    vec[i] = tick();
 
-  return vector;
+  return vec;
 }
 
 MY_FLOAT Noise :: lastOut() const
@@ -13724,12 +13724,12 @@ MY_FLOAT OnePole :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *OnePole :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *OnePole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class OneZero
@@ -13822,12 +13822,12 @@ MY_FLOAT OneZero :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *OneZero :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *OneZero :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class PRCRev
@@ -14391,12 +14391,12 @@ MY_FLOAT PitShift :: tick(MY_FLOAT input)
   return lastOutput;
 }
 
-MY_FLOAT *PitShift :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *PitShift :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 
 /***************************************************/
@@ -14729,12 +14729,12 @@ MY_FLOAT PoleZero :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *PoleZero :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *PoleZero :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 
 /***************************************************/
@@ -14799,12 +14799,12 @@ MY_FLOAT ReedTabl :: tick(MY_FLOAT input)
   return lastOutput;
 }
 
-MY_FLOAT *ReedTabl :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *ReedTabl :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 
 /***************************************************/
@@ -14996,12 +14996,12 @@ MY_FLOAT Reverb :: lastOutRight() const
   return lastOutput[1];
 }
 
-MY_FLOAT *Reverb :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Reverb :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 
 bool Reverb :: isPrime(int number)
@@ -17851,12 +17851,12 @@ MY_FLOAT Table :: tick(MY_FLOAT index)
   return lastOutput;
 }
 
-MY_FLOAT *Table :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Table :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class TubeBell
@@ -18047,12 +18047,12 @@ MY_FLOAT TwoPole :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *TwoPole :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *TwoPole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class TwoZero
@@ -18142,12 +18142,12 @@ MY_FLOAT TwoZero :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *TwoZero :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *TwoZero :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick(vector[i]);
+    vec[i] = tick(vec[i]);
 
-  return vector;
+  return vec;
 }
 /***************************************************/
 /*! \class Vector3D
@@ -18713,12 +18713,12 @@ MY_FLOAT Voicer :: tick()
   return lastOutput / nVoices;
 }
 
-MY_FLOAT *Voicer :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *Voicer :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
-    vector[i] = tick();
+    vec[i] = tick();
 
-  return vector;
+  return vec;
 }
 
 MY_FLOAT Voicer :: lastOut() const
@@ -20222,12 +20222,12 @@ MY_FLOAT WvIn :: tick(void)
   return lastOut();
 }
 
-MY_FLOAT *WvIn :: tick(MY_FLOAT *vector, unsigned int vectorSize)
+MY_FLOAT *WvIn :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for ( unsigned int i=0; i<vectorSize; i++ )
-    vector[i] = tick();
+    vec[i] = tick();
 
-  return vector;
+  return vec;
 }
 
 const MY_FLOAT *WvIn :: tickFrame(void)
@@ -21044,12 +21044,12 @@ void WvOut :: tick(const MY_FLOAT sample)
   }
 }
 
-void WvOut :: tick(const MY_FLOAT *vector, unsigned int vectorSize)
+void WvOut :: tick(const MY_FLOAT *vec, unsigned int vectorSize)
 {
   if ( !fd ) return;
 
   for (unsigned int i=0; i<vectorSize; i++)
-    tick( vector[i] );
+    tick( vec[i] );
 }
 
 void WvOut :: tickFrame(const MY_FLOAT *frameVector, unsigned int frames)

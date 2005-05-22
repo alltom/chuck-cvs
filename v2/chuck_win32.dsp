@@ -171,7 +171,15 @@ SOURCE=.\rtaudio.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ugen_filter.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ugen_osc.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\ugen_xxx.cpp
 # End Source File
 # Begin Source File
 
