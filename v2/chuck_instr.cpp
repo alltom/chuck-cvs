@@ -1682,7 +1682,12 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type )
     assert( type->info != NULL );
 
     // allocate the VM object
-    if( !type->ugen_info ) object = new Chuck_Object;
+    if( !type->ugen_info )
+    {
+        // check type TODO: make this faster
+        if( isa( type, &t_string ) ) object = new Chuck_String;
+        else object = new Chuck_Object;
+    }
     else object = new Chuck_UGen;
     
     // check to see enough memory

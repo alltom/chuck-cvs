@@ -217,8 +217,8 @@ typedef double FLOAT64;
   #define RAWWAVE_PATH "../../rawwaves/"
 #endif
 
-#define PI (MY_FLOAT) 3.14159265359
-#define TWO_PI (MY_FLOAT) (2 * PI)
+//#define PI (MY_FLOAT) 3.14159265359
+//#define TWO_PI (MY_FLOAT) (2 * PI)
 
 #define ONE_OVER_128 (MY_FLOAT) 0.0078125
 
@@ -255,7 +255,7 @@ static t_CKUINT g_srate = 0;
 //filter member data offset
 
 static t_CKUINT BandedWG_offset_data = 0;
-static t_CKUINT BandedWG_offset_data = 0;
+//static t_CKUINT BandedWG_offset_data = 0;
 static t_CKUINT BlowBotl_offset_data = 0;
 static t_CKUINT BlowHole_offset_data = 0;
 static t_CKUINT Bowed_offset_data = 0;
@@ -277,6 +277,7 @@ static t_CKUINT PercFlut_offset_data = 0;
 static t_CKUINT Rhodey_offset_data = 0;
 static t_CKUINT TubeBell_offset_data = 0;
 static t_CKUINT Wurley_offset_data = 0;
+static t_CKUINT FormSwep_offset_data = 0;
 static t_CKUINT Delay_offset_data = 0;
 static t_CKUINT DelayA_offset_data = 0;
 static t_CKUINT DelayL_offset_data = 0;
@@ -3336,6 +3337,7 @@ public: // SWAP formerly protected
 
   char msg[256];
   char m_filename[256]; // chuck data
+  Chuck_String * str_filename; // chuck data
   FILE *fd;
   MY_FLOAT *data;
   MY_FLOAT *lastOutput;
@@ -7483,6 +7485,7 @@ class WvOut : public Stk
   unsigned long counter;
   unsigned long totalCount;
   char m_filename[1024];
+  Chuck_String * str_filename;
   t_CKUINT start;
   char autoPrefix[1024];
   t_CKUINT flush;
@@ -7727,7 +7730,7 @@ public: // SWAP formerly protected
   FormSwep  *filters[4];
   OnePole  *onepole;
   OneZero  *onezero;
-
+  Chuck_String * str_phoneme; // chuck data
 };
 
 #endif
@@ -8679,7 +8682,7 @@ void BandedWG :: setFrequency(MY_FLOAT frequency)
     //	std::cerr << std::endl;
 
     // Set the bandpass filter resonances
-    radius = 1.0 - PI * 32 / Stk::sampleRate(); //freakency * modes[i] / Stk::sampleRate()/32;
+    radius = 1.0 - ONE_PI * 32 / Stk::sampleRate(); //freakency * modes[i] / Stk::sampleRate()/32;
     if ( radius < 0.0 ) radius = 0.0;
     bandpass[i].setResonance(freakency * modes[i], radius, true);
 
@@ -9305,8 +9308,8 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
   double r_rh = 0.0015;    // register vent radius
   te = 1.4 * r_rh;       // effective length of the open hole
   double xi = 0.0;         // series resistance term
-  double zeta = 347.23 + 2*PI*pow(r_b,2)*xi/1.1769;
-  double psi = 2*PI*pow(r_b,2)*te / (PI*pow(r_rh,2));
+  double zeta = 347.23 + 2*ONE_PI*pow(r_b,2)*xi/1.1769;
+  double psi = 2*ONE_PI*pow(r_b,2)*te / (ONE_PI*pow(r_rh,2));
   rh_coeff = (zeta - 2 * Stk::sampleRate() * psi) / (zeta + 2 * Stk::sampleRate() * psi);
   rh_gain = -347.23 / (zeta + 2 * Stk::sampleRate() * psi);
   vent = new PoleZero;
@@ -13138,7 +13141,7 @@ void ModalBar :: setStrikePosition(MY_FLOAT position)
   }
 
   // Hack only first three modes.
-  MY_FLOAT temp2 = position * PI;
+  MY_FLOAT temp2 = position * ONE_PI;
   MY_FLOAT temp = sin(temp2);                                       
   this->setModeGain(0, 0.12 * temp);
 
@@ -18278,10 +18281,12 @@ VoicForm :: VoicForm() : Instrmnt()
 	noiseEnv = new Envelope;
 	noiseEnv->setRate( 0.001 );
 	noiseEnv->setTarget( 0.0 );
+    // hack
+    str_phoneme = new Chuck_String;
     
 	m_phonemeNum = 0;
 	this->setPhoneme( "eee" );
-	this->clear();
+	this->clear();    
 }  
 
 VoicForm :: ~VoicForm()
@@ -18291,6 +18296,7 @@ VoicForm :: ~VoicForm()
 	delete onezero;
 	delete onepole;
 	delete noiseEnv;
+    delete str_phoneme;
   for ( int i=0; i<4; i++ ) {
     delete filters[i];
   }
@@ -18339,6 +18345,8 @@ bool VoicForm :: setPhoneme(const char *phoneme )
 
 	if( !found )
         std::cerr << "[chuck](via STK): VoicForm: phoneme " << phoneme << " not found!" << std::endl;
+    else
+        str_phoneme->str = Phonemes::name( m_phonemeNum );
 
 	return found;
 }
@@ -19331,12 +19339,15 @@ WvIn :: ~WvIn()
         delete [] lastOutput;
 
     m_loaded = false;
+    
+    delete str_filename;
 }
 
 void WvIn :: init( void )
 {
     fd = 0;
     m_loaded = false;
+    str_filename = new Chuck_String;
     strcpy ( m_filename, "" );
     data = 0;
     lastOutput = 0;
@@ -19352,14 +19363,16 @@ void WvIn :: closeFile( void )
 {
     if ( fd ) fclose( fd );
     finished = true;
+    str_filename->str = "";
 }
 
 void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool generate )
 {
     unsigned long lastChannels = channels;
     unsigned long samples, lastSamples = (bufferSize+1)*channels;
-    strncpy ( m_filename, fileName, 255 );
-    m_filename[0] = '0';
+    str_filename->str = fileName;
+    //strncpy ( m_filename, fileName, 255 );
+    //m_filename[255] = '\0';
     if(!generate || !strstr(fileName, "special:"))
     {
         closeFile();
@@ -19448,7 +19461,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
         if( strstr(fileName, "special:sinewave") )
         {
             for (unsigned int j=0; j<bufferSize; j++)
-                data[j] = (SHRT_MAX) * sin(2*PI*j/256);
+                data[j] = (SHRT_MAX) * sin(2*ONE_PI*j/256);
         }
         else
         {
@@ -20408,6 +20421,8 @@ WvOut :: ~WvOut()
 
   if (data)
     delete [] data;
+    
+  delete str_filename;
 }
 
 void WvOut :: init()
@@ -20419,6 +20434,7 @@ void WvOut :: init()
   channels = 0;
   counter = 0;
   totalCount = 0;
+  str_filename = new Chuck_String;
   m_filename[0] = '\0';
   start = TRUE;
   flush = 0;
@@ -20446,6 +20462,7 @@ void WvOut :: closeFile( void )
     totalCount = 0;
   }
 
+  str_filename->str = "";
   m_filename[0] = '\0';
 
 }
@@ -20453,9 +20470,10 @@ void WvOut :: closeFile( void )
 void WvOut :: openFile( const char *fileName, unsigned int nChannels, WvOut::FILE_TYPE type, Stk::STK_FORMAT format )
 {
   closeFile();
-  strncpy( m_filename, fileName, 255);
-  if ( strlen( fileName ) > 255 ) 
-    m_filename[255] = '\0';
+  str_filename->str = fileName;
+  //strncpy( m_filename, fileName, 255);
+  //if ( strlen( fileName ) > 255 ) 
+  //  m_filename[255] = '\0';
 
   if ( nChannels < 1 ) {
     sprintf(msg, "[chuck](via WvOut): the channels argument must be greater than zero!");
@@ -21128,7 +21146,7 @@ CK_DLL_CTOR( BandedWG_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( BandedWG_dtor )
 {
-//   delete (BandedWG *)data;
+    delete (BandedWG *)OBJ_MEMBER_UINT(SELF, BandedWG_offset_data);
 }
 
 //-----------------------------------------------------------------------------
@@ -21137,8 +21155,8 @@ CK_DLL_DTOR( BandedWG_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( BandedWG_tick )
 {
-  *out = ((BandedWG *)OBJ_MEMBER_UINT(SELF, BandedWG_offset_data ))->tick();
-   return TRUE;
+    *out = ((BandedWG *)OBJ_MEMBER_UINT(SELF, BandedWG_offset_data ))->tick();
+    return TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -21147,7 +21165,7 @@ CK_DLL_TICK( BandedWG_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_PMSG( BandedWG_pmsg )
 {
-  return FALSE;
+    return FALSE;
 }
 
 
@@ -21269,7 +21287,6 @@ CK_DLL_CTRL( BandedWG_ctrl_bowPressure )
 // name: BandedWG_cget_bowPressure()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BandedWG_cget_bowPressure )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, BandedWG_offset_data );
@@ -21294,7 +21311,6 @@ CK_DLL_CTRL( BandedWG_ctrl_preset )
 // name: BandedWG_cget_preset()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BandedWG_cget_preset )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, BandedWG_offset_data );
@@ -21311,6 +21327,8 @@ CK_DLL_CTRL( BandedWG_ctrl_startBowing )
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, BandedWG_offset_data );
     f->startBowing( GET_NEXT_FLOAT(ARGS), f->m_rate );
 }
+
+
 //-----------------------------------------------------------------------------
 // name: BandedWG_ctrl_stopBowing()
 // desc: CTRL function ...
@@ -21334,6 +21352,7 @@ struct BiQuad_
     t_CKBOOL norm;
 };
 
+
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctor()
 // desc: CTOR function ...
@@ -21350,6 +21369,7 @@ CK_DLL_CTOR( BiQuad_ctor )
     OBJ_MEMBER_UINT(SELF, BiQuad_offset_data ) = (t_CKUINT)d;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BiQuad_dtor()
 // desc: DTOR function ...
@@ -21358,6 +21378,7 @@ CK_DLL_DTOR( BiQuad_dtor )
 {
     delete (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_tick()
@@ -21370,6 +21391,7 @@ CK_DLL_TICK( BiQuad_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BiQuad_pmsg()
 // desc: PMSG function ...
@@ -21378,6 +21400,7 @@ CK_DLL_PMSG( BiQuad_pmsg )
 {
     return FALSE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_b2()
@@ -21389,6 +21412,7 @@ CK_DLL_CTRL( BiQuad_ctrl_b2 )
     f->biquad.setB2( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT) f->biquad.b[2] ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_cget_b2()
@@ -21412,6 +21436,7 @@ CK_DLL_CTRL( BiQuad_ctrl_b1 )
     RETURN->v_float = (t_CKFLOAT) f->biquad.b[1] ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BiQuad_cget_b1()
 // desc: CGET function ...
@@ -21433,6 +21458,7 @@ CK_DLL_CTRL( BiQuad_ctrl_b0 )
     f->biquad.setB0( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT) f->biquad.b[0] ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_cget_b0()
@@ -21456,6 +21482,7 @@ CK_DLL_CTRL( BiQuad_ctrl_a2 )
     RETURN->v_float = (t_CKFLOAT) f->biquad.a[2] ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BiQuad_cget_a2()
 // desc: CGET function ...
@@ -21465,6 +21492,7 @@ CK_DLL_CGET( BiQuad_cget_a2 )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     RETURN->v_float = (t_CKFLOAT) f->biquad.a[2] ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_a1()
@@ -21509,7 +21537,9 @@ CK_DLL_CTRL( BiQuad_ctrl_pfreq )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     f->pfreq = GET_NEXT_FLOAT(ARGS);
     f->biquad.setResonance( f->pfreq, f->prad, f->norm != 0 );
+    RETURN->v_float = (t_CKFLOAT)f->pfreq;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_prad()
@@ -21520,7 +21550,9 @@ CK_DLL_CTRL( BiQuad_ctrl_prad )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     f->prad = GET_NEXT_FLOAT(ARGS);
     f->biquad.setResonance( f->pfreq, f->prad, f->norm != 0 );
+    RETURN->v_float = (t_CKFLOAT)f->prad;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_zfreq()
@@ -21531,7 +21563,9 @@ CK_DLL_CTRL( BiQuad_ctrl_zfreq )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     f->zfreq = GET_NEXT_FLOAT(ARGS);
     f->biquad.setNotch( f->zfreq, f->zrad );
+    RETURN->v_float = (t_CKFLOAT)f->zfreq;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_zrad()
@@ -21542,7 +21576,9 @@ CK_DLL_CTRL( BiQuad_ctrl_zrad )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     f->zrad = GET_NEXT_FLOAT(ARGS);
     f->biquad.setNotch( f->zfreq, f->zrad );
+    RETURN->v_float = f->zrad;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_norm()
@@ -21553,7 +21589,9 @@ CK_DLL_CTRL( BiQuad_ctrl_norm )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     f->norm = GET_NEXT_UINT(ARGS) != 0;
     f->biquad.setResonance( f->pfreq, f->prad, f->norm != 0 );
+    RETURN->v_int = f->norm;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_eqzs()
@@ -21577,6 +21615,7 @@ CK_DLL_CTOR( BlowBotl_ctor )
     OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data) = (t_CKUINT) new BlowBotl();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BlowBotl_dtor()
 // desc: DTOR function ...
@@ -21585,6 +21624,7 @@ CK_DLL_DTOR( BlowBotl_dtor )
 {
     delete (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowBotl_tick()
@@ -21597,6 +21637,7 @@ CK_DLL_TICK( BlowBotl_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BlowBotl_pmsg()
 // desc: PMSG function ...
@@ -21606,6 +21647,7 @@ CK_DLL_PMSG( BlowBotl_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BlowBotl_ctrl_noteOn()
 // desc: CTRL function ...
@@ -21613,7 +21655,7 @@ CK_DLL_PMSG( BlowBotl_pmsg )
 CK_DLL_CTRL( BlowBotl_ctrl_noteOn )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->noteOn ( f );
 }
 
@@ -21625,9 +21667,10 @@ CK_DLL_CTRL( BlowBotl_ctrl_noteOn )
 CK_DLL_CTRL( BlowBotl_ctrl_noteOff )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowBotl_ctrl_startBlowing()
@@ -21636,9 +21679,10 @@ CK_DLL_CTRL( BlowBotl_ctrl_noteOff )
 CK_DLL_CTRL( BlowBotl_ctrl_startBlowing )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->startBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowBotl_ctrl_stopBlowing()
@@ -21647,9 +21691,10 @@ CK_DLL_CTRL( BlowBotl_ctrl_startBlowing )
 CK_DLL_CTRL( BlowBotl_ctrl_stopBlowing )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->stopBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowBotl_ctrl_freq()
@@ -21658,7 +21703,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_stopBlowing )
 CK_DLL_CTRL( BlowBotl_ctrl_freq )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) p->baseFrequency ;
 }
@@ -21668,13 +21713,11 @@ CK_DLL_CTRL( BlowBotl_ctrl_freq )
 // name: BlowBotl_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BlowBotl_cget_freq )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
     RETURN->v_float = (t_CKFLOAT) p->baseFrequency ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -21684,7 +21727,7 @@ CK_DLL_CGET( BlowBotl_cget_freq )
 CK_DLL_CTRL( BlowBotl_ctrl_rate )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) p->m_rate ;
 }
@@ -21694,7 +21737,6 @@ CK_DLL_CTRL( BlowBotl_ctrl_rate )
 // name: BlowBotl_cget_rate ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BlowBotl_cget_rate )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
@@ -21713,6 +21755,7 @@ CK_DLL_CTOR( BlowHole_ctor )
     OBJ_MEMBER_UINT(SELF, BlowHole_offset_data) = (t_CKUINT) new BlowHole( 44100 );
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BlowHole_dtor()
 // desc: DTOR function ...
@@ -21721,6 +21764,7 @@ CK_DLL_DTOR( BlowHole_dtor )
 {
     delete (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowHole_tick()
@@ -21733,6 +21777,7 @@ CK_DLL_TICK( BlowHole_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BlowHole_pmsg()
 // desc: PMSG function ...
@@ -21742,6 +21787,7 @@ CK_DLL_PMSG( BlowHole_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BlowHole_ctrl_noteOn()
 // desc: CTRL function ...
@@ -21749,7 +21795,7 @@ CK_DLL_PMSG( BlowHole_pmsg )
 CK_DLL_CTRL( BlowHole_ctrl_noteOn )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->noteOn ( f );
 }
 
@@ -21761,9 +21807,10 @@ CK_DLL_CTRL( BlowHole_ctrl_noteOn )
 CK_DLL_CTRL( BlowHole_ctrl_noteOff )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowHole_ctrl_startBlowing()
@@ -21772,9 +21819,10 @@ CK_DLL_CTRL( BlowHole_ctrl_noteOff )
 CK_DLL_CTRL( BlowHole_ctrl_startBlowing )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->startBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowHole_ctrl_stopBlowing()
@@ -21783,9 +21831,10 @@ CK_DLL_CTRL( BlowHole_ctrl_startBlowing )
 CK_DLL_CTRL( BlowHole_ctrl_stopBlowing )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->stopBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BlowHole_ctrl_freq()
@@ -21794,7 +21843,7 @@ CK_DLL_CTRL( BlowHole_ctrl_stopBlowing )
 CK_DLL_CTRL( BlowHole_ctrl_freq )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) p->m_frequency ;
 }
@@ -21804,7 +21853,6 @@ CK_DLL_CTRL( BlowHole_ctrl_freq )
 // name: BlowHole_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BlowHole_cget_freq )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
@@ -21820,7 +21868,7 @@ CK_DLL_CGET( BlowHole_cget_freq )
 CK_DLL_CTRL( BlowHole_ctrl_rate )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) p->m_rate ;
 }
@@ -21830,7 +21878,6 @@ CK_DLL_CTRL( BlowHole_ctrl_rate )
 // name: BlowHole_cget_rate ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BlowHole_cget_rate )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
@@ -21845,7 +21892,7 @@ CK_DLL_CGET( BlowHole_cget_rate )
 CK_DLL_CTRL( BlowHole_ctrl_tonehole )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setTonehole( f );
     RETURN->v_float = (t_CKFLOAT) p->m_tonehole ;
 }
@@ -21855,7 +21902,6 @@ CK_DLL_CTRL( BlowHole_ctrl_tonehole )
 // name: BlowHole_cget_tonehole ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BlowHole_cget_tonehole )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
@@ -21870,7 +21916,7 @@ CK_DLL_CGET( BlowHole_cget_tonehole )
 CK_DLL_CTRL( BlowHole_ctrl_vent )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setVent( f );
     RETURN->v_float = (t_CKFLOAT) p->m_vent ;
 }
@@ -21880,7 +21926,6 @@ CK_DLL_CTRL( BlowHole_ctrl_vent )
 // name: BlowHole_cget_vent ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BlowHole_cget_vent )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
@@ -21895,7 +21940,7 @@ CK_DLL_CGET( BlowHole_cget_vent )
 CK_DLL_CTRL( BlowHole_ctrl_reed )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->controlChange(__SK_ReedStiffness_, f * 128.0);
     RETURN->v_float = (t_CKFLOAT) p->m_reed ;
 }
@@ -21905,7 +21950,6 @@ CK_DLL_CTRL( BlowHole_ctrl_reed )
 // name: BlowHole_cget_reed ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( BlowHole_cget_reed )
 {
     BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
@@ -21925,6 +21969,7 @@ CK_DLL_CTOR( Bowed_ctor )
     OBJ_MEMBER_UINT(SELF, Bowed_offset_data) = (t_CKUINT) new Bowed(40.0);
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Bowed_dtor()
 // desc: DTOR function ...
@@ -21933,6 +21978,7 @@ CK_DLL_DTOR( Bowed_dtor )
 {
     delete (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Bowed_tick()
@@ -21945,6 +21991,7 @@ CK_DLL_TICK( Bowed_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Bowed_pmsg()
 // desc: PMSG function ...
@@ -21954,6 +22001,7 @@ CK_DLL_PMSG( Bowed_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Bowed_ctrl_noteOn()
 // desc: CTRL function ...
@@ -21961,9 +22009,10 @@ CK_DLL_PMSG( Bowed_pmsg )
 CK_DLL_CTRL( Bowed_ctrl_noteOn )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->noteOn ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Bowed_ctrl_noteOff()
@@ -21972,9 +22021,10 @@ CK_DLL_CTRL( Bowed_ctrl_noteOn )
 CK_DLL_CTRL( Bowed_ctrl_noteOff )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Bowed_ctrl_startBowing()
@@ -21983,9 +22033,10 @@ CK_DLL_CTRL( Bowed_ctrl_noteOff )
 CK_DLL_CTRL( Bowed_ctrl_startBowing )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->startBowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Bowed_ctrl_stopBowing()
@@ -21994,9 +22045,10 @@ CK_DLL_CTRL( Bowed_ctrl_startBowing )
 CK_DLL_CTRL( Bowed_ctrl_stopBowing )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->stopBowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Bowed_ctrl_freq()
@@ -22005,7 +22057,7 @@ CK_DLL_CTRL( Bowed_ctrl_stopBowing )
 CK_DLL_CTRL( Bowed_ctrl_freq )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) p->m_frequency ;
 }
@@ -22015,7 +22067,6 @@ CK_DLL_CTRL( Bowed_ctrl_freq )
 // name: Bowed_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Bowed_cget_freq )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
@@ -22030,7 +22081,7 @@ CK_DLL_CGET( Bowed_cget_freq )
 CK_DLL_CTRL( Bowed_ctrl_vibrato )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setVibrato( f );
     RETURN->v_float = (t_CKFLOAT) p->vibratoGain ;
 }
@@ -22055,7 +22106,7 @@ CK_DLL_CGET( Bowed_cget_vibrato )
 CK_DLL_CTRL( Bowed_ctrl_rate )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) p->m_rate ;
 }
@@ -22065,13 +22116,11 @@ CK_DLL_CTRL( Bowed_ctrl_rate )
 // name: Bowed_cget_rate ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Bowed_cget_rate )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
     RETURN->v_float = (t_CKFLOAT) p->m_rate ;
 }
-
 
 
 
@@ -22087,6 +22136,7 @@ CK_DLL_CTOR( Chorus_ctor )
     OBJ_MEMBER_UINT(SELF, Chorus_offset_data) = (t_CKUINT) new Chorus( 44100 );
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Chorus_dtor()
 // desc: DTOR function ...
@@ -22095,6 +22145,7 @@ CK_DLL_DTOR( Chorus_dtor )
 {
     delete (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Chorus_tick()
@@ -22106,6 +22157,7 @@ CK_DLL_TICK( Chorus_tick )
     *out = p->tick(in);
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Chorus_pmsg()
@@ -22124,7 +22176,7 @@ CK_DLL_PMSG( Chorus_pmsg )
 CK_DLL_CTRL( Chorus_ctrl_mix )
 {
     Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setEffectMix( f );
     RETURN->v_float = (t_CKFLOAT) p->effectMix ;
 }
@@ -22137,10 +22189,11 @@ CK_DLL_CTRL( Chorus_ctrl_mix )
 CK_DLL_CTRL( Chorus_ctrl_modDepth )
 {
     Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setModDepth( f );
     RETURN->v_float = (t_CKFLOAT) p->modDepth ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Chorus_ctrl_modFreq()
@@ -22149,10 +22202,11 @@ CK_DLL_CTRL( Chorus_ctrl_modDepth )
 CK_DLL_CTRL( Chorus_ctrl_modFreq )
 {
     Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setModFrequency( f );
     RETURN->v_float = (t_CKFLOAT) p->mods[0]->m_freq ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Chorus_cget_mix()
@@ -22176,6 +22230,7 @@ CK_DLL_CGET( Chorus_cget_modDepth )
     RETURN->v_float = (t_CKFLOAT) p->modDepth ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Chorus_cget_modFreq()
 // desc: CGET function ...
@@ -22185,6 +22240,7 @@ CK_DLL_CGET( Chorus_cget_modFreq )
     Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data );
     RETURN->v_float = (t_CKFLOAT) p->mods[0]->m_freq ;
 }
+
 
 //Brass
 struct Brass_ { 
@@ -22208,8 +22264,9 @@ struct Brass_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Brass_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, osc_offset_data) = (t_CKUINT) new Brass_( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Brass_offset_data) = (t_CKUINT) new Brass_( 30.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Brass_dtor()
@@ -22217,9 +22274,11 @@ CK_DLL_CTOR( Brass_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Brass_dtor )
 {
+    delete (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
 //    delete (    (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data ))->imp;
 //    delete (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Brass_tick()
@@ -22232,6 +22291,7 @@ CK_DLL_TICK( Brass_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Brass_pmsg()
 // desc: PMSG function ...
@@ -22241,6 +22301,7 @@ CK_DLL_PMSG( Brass_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Brass_ctrl_noteOn()
 // desc: CTRL function ...
@@ -22248,7 +22309,7 @@ CK_DLL_PMSG( Brass_pmsg )
 CK_DLL_CTRL( Brass_ctrl_noteOn )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOn ( b->m_frequency, f );
 }
 
@@ -22260,9 +22321,10 @@ CK_DLL_CTRL( Brass_ctrl_noteOn )
 CK_DLL_CTRL( Brass_ctrl_noteOff )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Brass_ctrl_startBlowing()
@@ -22271,9 +22333,10 @@ CK_DLL_CTRL( Brass_ctrl_noteOff )
 CK_DLL_CTRL( Brass_ctrl_startBlowing )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->startBlowing ( f, b->m_rate );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Brass_ctrl_stopBlowing()
@@ -22282,9 +22345,10 @@ CK_DLL_CTRL( Brass_ctrl_startBlowing )
 CK_DLL_CTRL( Brass_ctrl_stopBlowing )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->stopBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Brass_ctrl_clear()
@@ -22296,6 +22360,7 @@ CK_DLL_CTRL( Brass_ctrl_clear )
     b->imp->clear();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Brass_ctrl_freq()
 // desc: CTRL function ...
@@ -22303,7 +22368,7 @@ CK_DLL_CTRL( Brass_ctrl_clear )
 CK_DLL_CTRL( Brass_ctrl_freq )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_frequency = f;
     b->imp->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
@@ -22314,7 +22379,6 @@ CK_DLL_CTRL( Brass_ctrl_freq )
 // name: Brass_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Brass_cget_freq )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
@@ -22329,7 +22393,7 @@ CK_DLL_CGET( Brass_cget_freq )
 CK_DLL_CTRL( Brass_ctrl_rate )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
@@ -22339,7 +22403,6 @@ CK_DLL_CTRL( Brass_ctrl_rate )
 // name: Brass_cget_rate ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Brass_cget_rate )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
@@ -22354,7 +22417,7 @@ CK_DLL_CGET( Brass_cget_rate )
 CK_DLL_CTRL( Brass_ctrl_lip )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_lip = f;
     b->imp->setLip(f);
     RETURN->v_float = (t_CKFLOAT) b->m_lip ;
@@ -22365,7 +22428,6 @@ CK_DLL_CTRL( Brass_ctrl_lip )
 // name: Brass_cget_lip ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Brass_cget_lip )
 {
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
@@ -22395,8 +22457,10 @@ struct Clarinet_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Clarinet_ctor )
 {
-    return new Clarinet_( 40.0 );
+    OBJ_MEMBER_UINT(SELF, Clarinet_offset_data) = (t_CKUINT)new Clarinet_( 30.0 );
+//    return new Clarinet_( 40.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Clarinet_dtor()
@@ -22404,8 +22468,9 @@ CK_DLL_CTOR( Clarinet_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Clarinet_dtor )
 {
-    delete ((Clarinet_ *)data)->imp;
-    delete (Clarinet_ *)data;
+    delete (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+//    delete ((Clarinet_ *)data)->imp;
+//    delete (Clarinet_ *)data;
 }
 
 //-----------------------------------------------------------------------------
@@ -22414,10 +22479,11 @@ CK_DLL_DTOR( Clarinet_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Clarinet_tick )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     *out = b->imp->tick();
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Clarinet_pmsg()
@@ -22428,14 +22494,15 @@ CK_DLL_PMSG( Clarinet_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Clarinet_ctrl_noteOn()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_noteOn )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOn ( b->m_frequency, f );
 }
 
@@ -22446,10 +22513,11 @@ CK_DLL_CTRL( Clarinet_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_noteOff )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Clarinet_ctrl_startBlowing()
@@ -22457,10 +22525,11 @@ CK_DLL_CTRL( Clarinet_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_startBlowing )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->startBlowing ( f, b->m_rate );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Clarinet_ctrl_stopBlowing()
@@ -22468,10 +22537,11 @@ CK_DLL_CTRL( Clarinet_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_stopBlowing )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->stopBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Clarinet_ctrl_clear()
@@ -22479,9 +22549,10 @@ CK_DLL_CTRL( Clarinet_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_clear )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     b->imp->clear();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Clarinet_ctrl_freq()
@@ -22489,8 +22560,8 @@ CK_DLL_CTRL( Clarinet_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_freq )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_frequency = f;
     b->imp->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
@@ -22501,10 +22572,9 @@ CK_DLL_CTRL( Clarinet_ctrl_freq )
 // name: Clarinet_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Clarinet_cget_freq )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
 }
 
@@ -22515,8 +22585,8 @@ CK_DLL_CGET( Clarinet_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_rate )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
@@ -22526,10 +22596,9 @@ CK_DLL_CTRL( Clarinet_ctrl_rate )
 // name: Clarinet_cget_rate ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Clarinet_cget_rate )
 {
-    Clarinet_ * b = (Clarinet_ *)data;
+    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
 
@@ -22554,14 +22623,17 @@ struct Flute_ {
    }
 };
 
+
 //-----------------------------------------------------------------------------
 // name: Flute_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Flute_ctor )
 {
-    return new Flute_( 40.0 );
+    OBJ_MEMBER_UINT(SELF, Flute_offset_data) = (t_CKUINT) new Flute_( 40.0 );
+//    return new Flute_( 40.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Flute_dtor()
@@ -22569,9 +22641,11 @@ CK_DLL_CTOR( Flute_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Flute_dtor )
 {
-    delete ((Flute_ *)data)->imp;
-    delete (Flute_ *)data;
+    Flute_ * f = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    delete f->imp;
+    delete f;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Flute_tick()
@@ -22579,7 +22653,7 @@ CK_DLL_DTOR( Flute_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Flute_tick )
 {
-    Flute_ * b = (Flute_ *)data;
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     *out = b->imp->tick();
     return TRUE;
 }
@@ -22593,14 +22667,15 @@ CK_DLL_PMSG( Flute_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Flute_ctrl_noteOn()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_noteOn )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOn ( b->m_frequency, f );
 }
 
@@ -22611,10 +22686,11 @@ CK_DLL_CTRL( Flute_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_noteOff )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Flute_ctrl_startBlowing()
@@ -22622,8 +22698,8 @@ CK_DLL_CTRL( Flute_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_startBlowing )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->startBlowing ( f, b->m_rate );
 }
 
@@ -22633,10 +22709,11 @@ CK_DLL_CTRL( Flute_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_stopBlowing )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->stopBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Flute_ctrl_clear()
@@ -22644,9 +22721,10 @@ CK_DLL_CTRL( Flute_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_clear )
 {
-    Flute_ * b = (Flute_ *)data;
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     b->imp->clear();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Flute_ctrl_freq()
@@ -22654,8 +22732,8 @@ CK_DLL_CTRL( Flute_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_freq )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_frequency = f;
     b->imp->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
@@ -22666,10 +22744,9 @@ CK_DLL_CTRL( Flute_ctrl_freq )
 // name: Flute_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Flute_cget_freq )
 {
-    Flute_ * b = (Flute_ *)data;
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
 }
 
@@ -22680,8 +22757,8 @@ CK_DLL_CGET( Flute_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_rate )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
@@ -22691,10 +22768,9 @@ CK_DLL_CTRL( Flute_ctrl_rate )
 // name: Flute_cget_rate ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Flute_cget_rate )
 {
-    Flute_ * b = (Flute_ *)data;
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
 
@@ -22705,8 +22781,8 @@ CK_DLL_CGET( Flute_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_jetDelay )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_jetDelay = f;
     b->imp->setJetDelay( f);
     RETURN->v_float = (t_CKFLOAT) b->m_jetDelay ;
@@ -22717,10 +22793,9 @@ CK_DLL_CTRL( Flute_ctrl_jetDelay )
 // name: Flute_cget_jetDelay ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Flute_cget_jetDelay )
 {
-    Flute_ * b = (Flute_ *)data;
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->m_jetDelay ;
 }
 
@@ -22731,8 +22806,8 @@ CK_DLL_CGET( Flute_cget_jetDelay )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_jetReflection )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_jetReflection = f;
     b->imp->setJetReflection( f);
     RETURN->v_float = (t_CKFLOAT) b->m_jetReflection ;
@@ -22743,10 +22818,9 @@ CK_DLL_CTRL( Flute_ctrl_jetReflection )
 // name: Flute_cget_jetReflection ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Flute_cget_jetReflection )
 {
-    Flute_ * b = (Flute_ *)data;
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->m_jetReflection ;
 }
 
@@ -22757,8 +22831,8 @@ CK_DLL_CGET( Flute_cget_jetReflection )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_endReflection )
 {
-    Flute_ * b = (Flute_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_endReflection = f;
     b->imp->setEndReflection(f);
     RETURN->v_float = (t_CKFLOAT) b->m_endReflection ;
@@ -22769,10 +22843,9 @@ CK_DLL_CTRL( Flute_ctrl_endReflection )
 // name: Flute_cget_endReflection ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Flute_cget_endReflection )
 {
-    Flute_ * b = (Flute_ *)data;
+    Flute_ * b = (Flute_ *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->m_endReflection ;
 }
 
@@ -22793,14 +22866,16 @@ struct ModalBar_ {
    }
 };
 
+
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( ModalBar_ctor )
 {
-    return new ModalBar_();
+    OBJ_MEMBER_UINT(SELF, ModalBar_offset_data) = (t_CKUINT)new ModalBar_();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_dtor()
@@ -22808,8 +22883,9 @@ CK_DLL_CTOR( ModalBar_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( ModalBar_dtor )
 {
-    delete (ModalBar *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data );
+    delete (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_tick()
@@ -22817,10 +22893,11 @@ CK_DLL_DTOR( ModalBar_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( ModalBar_tick )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
     *out = b->modalbar.tick();
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_pmsg()
@@ -22831,16 +22908,18 @@ CK_DLL_PMSG( ModalBar_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_noteOn()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_noteOn )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    b->modalbar.noteOn ( b->modalbar.baseFrequency , f );
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->modalbar.noteOn( b->modalbar.baseFrequency , f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_strike()
@@ -22848,10 +22927,11 @@ CK_DLL_CTRL( ModalBar_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_strike )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    b->modalbar.strike ( f );
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->modalbar.strike( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_damp()
@@ -22859,10 +22939,11 @@ CK_DLL_CTRL( ModalBar_ctrl_strike )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_damp )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    b->modalbar.damp ( f );
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->modalbar.damp( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_clear()
@@ -22870,10 +22951,11 @@ CK_DLL_CTRL( ModalBar_ctrl_damp )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_clear )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    b->modalbar.clear ();
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->modalbar.clear();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_noteOff()
@@ -22881,10 +22963,11 @@ CK_DLL_CTRL( ModalBar_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_noteOff )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    b->modalbar.noteOn ( b->modalbar.baseFrequency, f);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->modalbar.noteOn( b->modalbar.baseFrequency, f);
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_freq()
@@ -22892,10 +22975,10 @@ CK_DLL_CTRL( ModalBar_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_freq )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->modalbar.setFrequency ( f );
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.baseFrequency ;
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.baseFrequency ;
 }
 
 
@@ -22903,13 +22986,11 @@ CK_DLL_CTRL( ModalBar_ctrl_freq )
 // name: ModalBar_cget_freq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_freq )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.baseFrequency ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.baseFrequency ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -22918,11 +22999,11 @@ CK_DLL_CGET( ModalBar_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_preset )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    int f = GET_CK_INT(value);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    int f = GET_CK_INT(ARGS);
     b->m_preset = f;
     b->modalbar.setPreset ( f );
-    RETURN->v_int = (t_CKINT) b->m_preset ;
+    RETURN->v_int = (t_CKINT)b->m_preset ;
 }
 
 
@@ -22930,11 +23011,10 @@ CK_DLL_CTRL( ModalBar_ctrl_preset )
 // name: ModalBar_cget_preset()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_preset )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_int = (t_CKINT) b->m_preset ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_int = (t_CKINT)b->m_preset ;
 }
 
 
@@ -22944,10 +23024,10 @@ CK_DLL_CGET( ModalBar_cget_preset )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_strikePosition )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->modalbar.setStrikePosition ( f );
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.strikePosition ;
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.strikePosition ;
 }
 
 
@@ -22955,11 +23035,10 @@ CK_DLL_CTRL( ModalBar_ctrl_strikePosition )
 // name: ModalBar_cget_strikePosition()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_strikePosition )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.strikePosition ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.strikePosition ;
 }
 
 
@@ -22969,10 +23048,10 @@ CK_DLL_CGET( ModalBar_cget_strikePosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_stickHardness )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->modalbar.setStickHardness ( f );
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.stickHardness ;
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.stickHardness ;
 }
 
 
@@ -22980,12 +23059,12 @@ CK_DLL_CTRL( ModalBar_ctrl_stickHardness )
 // name: ModalBar_cget_stickHardness()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_stickHardness )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.stickHardness ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.stickHardness ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_masterGain()
@@ -22993,10 +23072,10 @@ CK_DLL_CGET( ModalBar_cget_stickHardness )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_masterGain )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    b->modalbar.setMasterGain ( f );
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.masterGain ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->modalbar.setMasterGain( f );
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.masterGain ;
 }
 
 
@@ -23004,11 +23083,10 @@ CK_DLL_CTRL( ModalBar_ctrl_masterGain )
 // name: ModalBar_cget_masterGain()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_masterGain )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.masterGain ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.masterGain ;
 }
 
 
@@ -23018,9 +23096,9 @@ CK_DLL_CGET( ModalBar_cget_masterGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_directGain )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    b->modalbar.setDirectGain ( f );
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->modalbar.setDirectGain( f );
     RETURN->v_float = (t_CKFLOAT) b->modalbar.directGain ;
 }
 
@@ -23029,11 +23107,10 @@ CK_DLL_CTRL( ModalBar_ctrl_directGain )
 // name: ModalBar_cget_directGain()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_directGain )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.directGain ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.directGain ;
 }
 
 
@@ -23044,25 +23121,26 @@ CK_DLL_CGET( ModalBar_cget_directGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_mode )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    int i = GET_CK_INT(value);
-    if ( i >= 0 && i < b->modalbar.nModes ) { 
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    int i = GET_CK_INT(ARGS);
+    if ( i >= 0 && i < b->modalbar.nModes )
+    { 
         b->m_modeIndex = i;
         b->m_modeRatio = b->modalbar.ratios[i];
         b->m_modeRadius = b->modalbar.radii[i];
-        RETURN->v_float = (t_CKFLOAT) b->m_modeIndex ;
-} 
+        RETURN->v_float = (t_CKFLOAT)b->m_modeIndex ;
+    } 
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_cget_mode()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_mode )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->m_modeIndex ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_modeIndex ;
 }
 
 
@@ -23072,10 +23150,10 @@ CK_DLL_CGET( ModalBar_cget_mode )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_modeGain )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->modalbar.setModeGain ( b->m_modeIndex, f );
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.filters[b->m_modeIndex]->getGain() ;
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.filters[b->m_modeIndex]->getGain() ;
 }
 
 
@@ -23083,11 +23161,10 @@ CK_DLL_CTRL( ModalBar_ctrl_modeGain )
 // name: ModalBar_cget_modeGain()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_modeGain )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->modalbar.filters[b->m_modeIndex]->getGain() ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->modalbar.filters[b->m_modeIndex]->getGain() ;
 }
 
 
@@ -23097,24 +23174,25 @@ CK_DLL_CGET( ModalBar_cget_modeGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_modeRatio )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    if ( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes ) { 
-      b->modalbar.setRatioAndRadius ( b->m_modeIndex, f , b->m_modeRadius );
-      b->m_modeRatio = b->modalbar.ratios[b->m_modeIndex];
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    if ( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes )
+    {
+        b->modalbar.setRatioAndRadius ( b->m_modeIndex, f , b->m_modeRadius );
+        b->m_modeRatio = b->modalbar.ratios[b->m_modeIndex];
         RETURN->v_float = (t_CKFLOAT) b->m_modeRatio ;
-} 
+    }
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_cget_modeRatio()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_modeRatio )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->m_modeRatio ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_modeRatio ;
 }
 
 
@@ -23124,24 +23202,25 @@ CK_DLL_CGET( ModalBar_cget_modeRatio )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_modeRadius )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
-    if ( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes ) { 
-      b->modalbar.setRatioAndRadius ( b->m_modeIndex, b->m_modeRatio, f );
-      b->m_modeRadius = b->modalbar.radii[b->m_modeIndex];
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    if( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes )
+    {
+        b->modalbar.setRatioAndRadius ( b->m_modeIndex, b->m_modeRatio, f );
+        b->m_modeRadius = b->modalbar.radii[b->m_modeIndex];
         RETURN->v_float = (t_CKFLOAT) b->m_modeRadius ;
-} 
+    }
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ModalBar_cget_modeRadius()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ModalBar_cget_modeRadius )
 {
-    ModalBar_ * b = (ModalBar_ *)data;
-    RETURN->v_float = (t_CKFLOAT) b->m_modeRadius ;
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_modeRadius ;
 }
 
 
@@ -23157,6 +23236,7 @@ struct Sitar_ {
    }
 };
 
+
 //-----------------------------------------------------------------------------
 // name: Sitar_ctor()
 // desc: CTOR function ...
@@ -23165,6 +23245,7 @@ CK_DLL_CTOR( Sitar_ctor )
 {
      OBJ_MEMBER_UINT(SELF, Sitar_offset_data) = (t_CKUINT) new Sitar_( 30.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Sitar_dtor()
@@ -23175,6 +23256,7 @@ CK_DLL_DTOR( Sitar_dtor )
     delete ((Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data ))->imp;
     delete (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Sitar_tick()
@@ -23187,6 +23269,7 @@ CK_DLL_TICK( Sitar_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Sitar_pmsg()
 // desc: PMSG function ...
@@ -23196,6 +23279,7 @@ CK_DLL_PMSG( Sitar_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Sitar_ctrl_pluck()
 // desc: CTRL function ...
@@ -23203,9 +23287,10 @@ CK_DLL_PMSG( Sitar_pmsg )
 CK_DLL_CTRL( Sitar_ctrl_pluck )
 {
     Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->pluck ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Sitar_ctrl_noteOn()
@@ -23214,9 +23299,10 @@ CK_DLL_CTRL( Sitar_ctrl_pluck )
 CK_DLL_CTRL( Sitar_ctrl_noteOn )
 {
     Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOn ( b->m_frequency, f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Sitar_ctrl_noteOff()
@@ -23225,9 +23311,10 @@ CK_DLL_CTRL( Sitar_ctrl_noteOn )
 CK_DLL_CTRL( Sitar_ctrl_noteOff )
 {
     Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Sitar_ctrl_clear()
@@ -23239,6 +23326,7 @@ CK_DLL_CTRL( Sitar_ctrl_clear )
     b->imp->clear();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Sitar_ctrl_freq()
 // desc: CTRL function ...
@@ -23246,11 +23334,12 @@ CK_DLL_CTRL( Sitar_ctrl_clear )
 CK_DLL_CTRL( Sitar_ctrl_freq )
 {
     Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_frequency = f;
     b->imp->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Sitar_cget_freq ()
@@ -23278,14 +23367,16 @@ struct Saxofony_ {
    }
 };
 
+
 //-----------------------------------------------------------------------------
 // name: Saxofony_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Saxofony_ctor )
 {
-    return new Saxofony_( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Saxofony_offset_data) = (t_CKUINT)new Saxofony_( 30.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Saxofony_dtor()
@@ -23293,9 +23384,11 @@ CK_DLL_CTOR( Saxofony_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Saxofony_dtor )
 {
-    delete ((Saxofony_ *)data)->imp;
-    delete (Saxofony_ *)data;
+    Saxofony_ * d = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    delete d->imp;
+    delete d;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Saxofony_tick()
@@ -23303,10 +23396,11 @@ CK_DLL_DTOR( Saxofony_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Saxofony_tick )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     *out = b->imp->tick();
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Saxofony_pmsg()
@@ -23317,14 +23411,15 @@ CK_DLL_PMSG( Saxofony_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Saxofony_ctrl_noteOn()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_noteOn )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOn ( b->m_frequency, f );
 }
 
@@ -23335,10 +23430,11 @@ CK_DLL_CTRL( Saxofony_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_noteOff )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Saxofony_ctrl_startBlowing()
@@ -23346,10 +23442,11 @@ CK_DLL_CTRL( Saxofony_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_startBlowing )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->startBlowing ( f, b->m_rate );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Saxofony_ctrl_stopBlowing()
@@ -23357,10 +23454,11 @@ CK_DLL_CTRL( Saxofony_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_stopBlowing )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->stopBlowing ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Saxofony_ctrl_clear()
@@ -23368,9 +23466,10 @@ CK_DLL_CTRL( Saxofony_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_clear )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     b->imp->clear();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Saxofony_ctrl_freq()
@@ -23378,8 +23477,8 @@ CK_DLL_CTRL( Saxofony_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_freq )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_frequency = f;
     b->imp->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
@@ -23390,10 +23489,9 @@ CK_DLL_CTRL( Saxofony_ctrl_freq )
 // name: Saxofony_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Saxofony_cget_freq )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
 }
 
@@ -23404,8 +23502,8 @@ CK_DLL_CGET( Saxofony_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_rate )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
@@ -23415,10 +23513,9 @@ CK_DLL_CTRL( Saxofony_ctrl_rate )
 // name: Saxofony_cget_rate ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Saxofony_cget_rate )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
 
@@ -23429,8 +23526,8 @@ CK_DLL_CGET( Saxofony_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_blowPosition )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->imp->setBlowPosition(f);
     RETURN->v_float = (t_CKFLOAT) b->imp->position ;
 }
@@ -23440,10 +23537,9 @@ CK_DLL_CTRL( Saxofony_ctrl_blowPosition )
 // name: Saxofony_cget_blowPosition ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Saxofony_cget_blowPosition )
 {
-    Saxofony_ * b = (Saxofony_ *)data;
+    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     RETURN->v_float = (t_CKFLOAT) b->imp->position ;
 }
 
@@ -23459,8 +23555,9 @@ CK_DLL_CGET( Saxofony_cget_blowPosition )
 CK_DLL_CTOR( StifKarp_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, StifKarp_offset_data) = (t_CKUINT) new StifKarp( 30.0 );
+    OBJ_MEMBER_UINT(SELF, StifKarp_offset_data) = (t_CKUINT)new StifKarp( 30.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: StifKarp_dtor()
@@ -23470,6 +23567,7 @@ CK_DLL_DTOR( StifKarp_dtor )
 {
     delete (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: StifKarp_tick()
@@ -23482,6 +23580,7 @@ CK_DLL_TICK( StifKarp_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: StifKarp_pmsg()
 // desc: PMSG function ...
@@ -23491,6 +23590,7 @@ CK_DLL_PMSG( StifKarp_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: StifKarp_ctrl_pluck()
 // desc: CTRL function ...
@@ -23498,9 +23598,10 @@ CK_DLL_PMSG( StifKarp_pmsg )
 CK_DLL_CTRL( StifKarp_ctrl_pluck )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->pluck ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: StifKarp_ctrl_noteOn()
@@ -23509,9 +23610,10 @@ CK_DLL_CTRL( StifKarp_ctrl_pluck )
 CK_DLL_CTRL( StifKarp_ctrl_noteOn )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->noteOn ( b->lastFrequency, f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: StifKarp_ctrl_noteOff()
@@ -23520,9 +23622,10 @@ CK_DLL_CTRL( StifKarp_ctrl_noteOn )
 CK_DLL_CTRL( StifKarp_ctrl_noteOff )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->noteOff ( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: StifKarp_ctrl_clear()
@@ -23534,6 +23637,7 @@ CK_DLL_CTRL( StifKarp_ctrl_clear )
     b->clear();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: StifKarp_ctrl_freq()
 // desc: CTRL function ...
@@ -23541,7 +23645,7 @@ CK_DLL_CTRL( StifKarp_ctrl_clear )
 CK_DLL_CTRL( StifKarp_ctrl_freq )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) b->lastFrequency ;
 }
@@ -23551,7 +23655,6 @@ CK_DLL_CTRL( StifKarp_ctrl_freq )
 // name: StifKarp_cget_freq ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( StifKarp_cget_freq )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
@@ -23566,7 +23669,7 @@ CK_DLL_CGET( StifKarp_cget_freq )
 CK_DLL_CTRL( StifKarp_ctrl_pickupPosition )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->setPickupPosition( f );
     RETURN->v_float = (t_CKFLOAT) b->pickupPosition ;
 }
@@ -23576,7 +23679,6 @@ CK_DLL_CTRL( StifKarp_ctrl_pickupPosition )
 // name: StifKarp_cget_pickupPosition()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( StifKarp_cget_pickupPosition )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
@@ -23591,7 +23693,7 @@ CK_DLL_CGET( StifKarp_cget_pickupPosition )
 CK_DLL_CTRL( StifKarp_ctrl_stretch )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->setStretch( f );
     RETURN->v_float = (t_CKFLOAT) b->stretching ;
 }
@@ -23601,7 +23703,6 @@ CK_DLL_CTRL( StifKarp_ctrl_stretch )
 // name: StifKarp_cget_stretch()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( StifKarp_cget_stretch )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
@@ -23616,7 +23717,7 @@ CK_DLL_CGET( StifKarp_cget_stretch )
 CK_DLL_CTRL( StifKarp_ctrl_baseLoopGain )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->setBaseLoopGain( f );
     RETURN->v_float = (t_CKFLOAT) b->baseLoopGain ;
 }
@@ -23626,7 +23727,6 @@ CK_DLL_CTRL( StifKarp_ctrl_baseLoopGain )
 // name: StifKarp_cget_baseLoopGain ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( StifKarp_cget_baseLoopGain )
 {
     StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
@@ -23642,8 +23742,9 @@ CK_DLL_CGET( StifKarp_cget_baseLoopGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Delay_ctor )
 {
-    return new Delay;
+    OBJ_MEMBER_UINT(SELF, Delay_offset_data) = (t_CKUINT)new Delay;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Delay_dtor()
@@ -23653,6 +23754,7 @@ CK_DLL_DTOR( Delay_dtor )
 {
     delete (Delay *)OBJ_MEMBER_UINT(SELF, Delay_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Delay_tick()
@@ -23664,6 +23766,7 @@ CK_DLL_TICK( Delay_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Delay_pmsg()
 // desc: PMSG function ...
@@ -23673,6 +23776,7 @@ CK_DLL_PMSG( Delay_pmsg )
     return FALSE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Delay_ctrl_delay()
 // desc: CTRL function ...
@@ -23681,7 +23785,6 @@ CK_DLL_CTRL( Delay_ctrl_delay )
 {
     ((Delay *)OBJ_MEMBER_UINT(SELF, Delay_offset_data ))->setDelay( (long)(GET_NEXT_DUR(ARGS)+.5) );
     RETURN->v_dur = (t_CKDUR)((Delay *)OBJ_MEMBER_UINT(SELF, Delay_offset_data ))->getDelay() ;
-
 }
 
 
@@ -23689,14 +23792,10 @@ CK_DLL_CTRL( Delay_ctrl_delay )
 // name: Delay_cget_delay()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
-
-
 CK_DLL_CGET( Delay_cget_delay )
 {
     RETURN->v_dur = (t_CKDUR)((Delay *)OBJ_MEMBER_UINT(SELF, Delay_offset_data ))->getDelay() ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -23713,12 +23812,10 @@ CK_DLL_CTRL( Delay_ctrl_max )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: Delay_cget_max()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Delay_cget_max )
 {
     RETURN->v_dur = (t_CKDUR)((Delay *)OBJ_MEMBER_UINT(SELF, Delay_offset_data ))->length-1.0 ;
@@ -23734,8 +23831,9 @@ CK_DLL_CGET( Delay_cget_max )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( DelayA_ctor )
 {
-    return new DelayA;
+    OBJ_MEMBER_UINT(SELF, DelayA_offset_data ) = (t_CKUINT)new DelayA;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: DelayA_dtor()
@@ -23745,6 +23843,7 @@ CK_DLL_DTOR( DelayA_dtor )
 {
     delete (DelayA *)OBJ_MEMBER_UINT(SELF, DelayA_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: DelayA_tick()
@@ -23756,6 +23855,7 @@ CK_DLL_TICK( DelayA_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: DelayA_pmsg()
 // desc: PMSG function ...
@@ -23765,6 +23865,7 @@ CK_DLL_PMSG( DelayA_pmsg )
     return FALSE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: DelayA_ctrl_delay()
 // desc: CTRL function ...
@@ -23773,23 +23874,17 @@ CK_DLL_CTRL( DelayA_ctrl_delay )
 {
     ((DelayA *)OBJ_MEMBER_UINT(SELF, DelayA_offset_data ))->setDelay( GET_NEXT_DUR(ARGS) );
     RETURN->v_dur = (t_CKDUR)((DelayA *)OBJ_MEMBER_UINT(SELF, DelayA_offset_data ))->getDelay() ;
-
-
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: DelayA_cget_delay()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( DelayA_cget_delay )
 {
     RETURN->v_dur = (t_CKDUR)((DelayA *)OBJ_MEMBER_UINT(SELF, DelayA_offset_data ))->getDelay() ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -23806,19 +23901,14 @@ CK_DLL_CTRL( DelayA_ctrl_max )
 }
 
 
-
-
-
 //-----------------------------------------------------------------------------
 // name: DelayA_cget_max()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( DelayA_cget_max )
 {
     RETURN->v_dur = (t_CKDUR)((DelayA *)OBJ_MEMBER_UINT(SELF, DelayA_offset_data ))->length-1.0 ;
 }
-
 
 
 
@@ -23830,8 +23920,9 @@ CK_DLL_CGET( DelayA_cget_max )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( DelayL_ctor )
 {
-    return new DelayL;
+    OBJ_MEMBER_UINT(SELF, DelayL_offset_data ) = (t_CKUINT)new DelayL;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: DelayL_dtor()
@@ -23841,6 +23932,7 @@ CK_DLL_DTOR( DelayL_dtor )
 {
     delete (DelayL *)OBJ_MEMBER_UINT(SELF, DelayL_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: DelayL_tick()
@@ -23852,6 +23944,7 @@ CK_DLL_TICK( DelayL_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: DelayL_pmsg()
 // desc: PMSG function ...
@@ -23861,6 +23954,7 @@ CK_DLL_PMSG( DelayL_pmsg )
     return FALSE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: DelayL_ctrl_delay()
 // desc: CTRL function ...
@@ -23869,7 +23963,6 @@ CK_DLL_CTRL( DelayL_ctrl_delay )
 {
     ((DelayL *)OBJ_MEMBER_UINT(SELF, DelayL_offset_data ))->setDelay( GET_NEXT_DUR(ARGS) );
     RETURN->v_dur = (t_CKDUR)((DelayL *)OBJ_MEMBER_UINT(SELF, DelayL_offset_data ))->getDelay() ;
-
 }
 
 
@@ -23877,14 +23970,10 @@ CK_DLL_CTRL( DelayL_ctrl_delay )
 // name: DelayL_cget_delay()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
-
-
 CK_DLL_CGET( DelayL_cget_delay )
 {
     RETURN->v_dur = (t_CKDUR)((DelayL *)OBJ_MEMBER_UINT(SELF, DelayL_offset_data ))->getDelay() ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -23901,17 +23990,14 @@ CK_DLL_CTRL( DelayL_ctrl_max )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: DelayL_cget_max()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( DelayL_cget_max )
 {
     RETURN->v_dur = (t_CKDUR)((DelayL *)OBJ_MEMBER_UINT(SELF, DelayL_offset_data ))->length-1.0 ;
 }
-
 
 
 // Echo
@@ -23922,8 +24008,9 @@ CK_DLL_CGET( DelayL_cget_max )
 CK_DLL_CTOR( Echo_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Echo_offset_data) = (t_CKUINT) new Echo( Stk::sampleRate() / 2.0 );
+    OBJ_MEMBER_UINT(SELF, Echo_offset_data) = (t_CKUINT)new Echo( Stk::sampleRate() / 2.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Echo_dtor()
@@ -23933,6 +24020,7 @@ CK_DLL_DTOR( Echo_dtor )
 {
     delete (Echo *)OBJ_MEMBER_UINT(SELF, Echo_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Echo_tick()
@@ -23944,6 +24032,7 @@ CK_DLL_TICK( Echo_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Echo_pmsg()
 // desc: PMSG function ...
@@ -23952,6 +24041,7 @@ CK_DLL_PMSG( Echo_pmsg )
 {
     return FALSE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Echo_ctrl_delay()
@@ -23968,13 +24058,10 @@ CK_DLL_CTRL( Echo_ctrl_delay )
 // name: Echo_cget_delay()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
-
 CK_DLL_CGET( Echo_cget_delay )
 {
     RETURN->v_dur = (t_CKDUR)((Echo *)OBJ_MEMBER_UINT(SELF, Echo_offset_data ))->getDelay() ; 
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -23986,6 +24073,7 @@ CK_DLL_CTRL( Echo_ctrl_max )
     ((Echo *)OBJ_MEMBER_UINT(SELF, Echo_offset_data ))->set( GET_NEXT_DUR(ARGS) );
     RETURN->v_dur = (t_CKDUR)((Echo *)OBJ_MEMBER_UINT(SELF, Echo_offset_data ))->length ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Echo_cget_max()
@@ -24007,6 +24095,7 @@ CK_DLL_CTRL( Echo_ctrl_mix )
     RETURN->v_float = (t_CKFLOAT)((Echo *)OBJ_MEMBER_UINT(SELF, Echo_offset_data ))->effectMix ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Echo_cget_mix()
 // desc: CGET function ...
@@ -24027,8 +24116,9 @@ CK_DLL_CGET( Echo_cget_mix )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Envelope_ctor )
 {
-    return new Envelope;
+    OBJ_MEMBER_UINT(SELF, Envelope_offset_data ) = (t_CKUINT)new Envelope;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Envelope_dtor()
@@ -24038,6 +24128,7 @@ CK_DLL_DTOR( Envelope_dtor )
 {
     delete (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Envelope_tick()
@@ -24049,6 +24140,7 @@ CK_DLL_TICK( Envelope_tick )
     *out = in * d->tick();
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Envelope_pmsg()
@@ -24077,7 +24169,6 @@ CK_DLL_CTRL( Envelope_ctrl_time )
 // name: Envelope_cget_time()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Envelope_cget_time )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
@@ -24097,18 +24188,15 @@ CK_DLL_CTRL( Envelope_ctrl_rate )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: Envelope_cget_rate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Envelope_cget_rate )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->rate ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24127,13 +24215,11 @@ CK_DLL_CTRL( Envelope_ctrl_target )
 // name: Envelope_cget_target()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Envelope_cget_target )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->target ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24152,13 +24238,11 @@ CK_DLL_CTRL( Envelope_ctrl_value )
 // name: Envelope_cget_value()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Envelope_cget_value )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->value ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24174,6 +24258,7 @@ CK_DLL_CTRL( Envelope_ctrl_keyOn )
         d->keyOff();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Envelope_ctrl_keyOff()
 // desc: CTRL function ...
@@ -24188,7 +24273,6 @@ CK_DLL_CTRL( Envelope_ctrl_keyOff )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: ADSR - import
 // desc: ..
@@ -24199,8 +24283,9 @@ CK_DLL_CTRL( Envelope_ctrl_keyOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( ADSR_ctor )
 {
-    return new ADSR;
+    OBJ_MEMBER_UINT(SELF, ADSR_offset_data ) = (t_CKUINT)new ADSR;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ADSR_dtor()
@@ -24210,6 +24295,7 @@ CK_DLL_DTOR( ADSR_dtor )
 {
     delete (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ADSR_tick()
@@ -24222,6 +24308,7 @@ CK_DLL_TICK( ADSR_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: ADSR_pmsg()
 // desc: PMSG function ...
@@ -24230,6 +24317,7 @@ CK_DLL_PMSG( ADSR_pmsg )
 {
     return FALSE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ADSR_ctrl_attackTime()
@@ -24240,6 +24328,7 @@ CK_DLL_CTRL( ADSR_ctrl_attackTime )
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     d->setAttackTime( GET_NEXT_FLOAT(ARGS) );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ADSR_ctrl_attackRate()
@@ -24257,13 +24346,11 @@ CK_DLL_CTRL( ADSR_ctrl_attackRate )
 // name: ADSR_cget_attackRate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ADSR_cget_attackRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->attackRate ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24275,6 +24362,7 @@ CK_DLL_CTRL( ADSR_ctrl_decayTime )
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     d->setDecayTime( GET_NEXT_FLOAT(ARGS) );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ADSR_ctrl_decayRate()
@@ -24292,14 +24380,11 @@ CK_DLL_CTRL( ADSR_ctrl_decayRate )
 // name: ADSR_cget_decayRate()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ADSR_cget_decayRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->decayRate ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -24318,13 +24403,11 @@ CK_DLL_CTRL( ADSR_ctrl_sustainLevel )
 // name: ADSR_cget_sustainLevel()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ADSR_cget_sustainLevel )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->sustainLevel ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24336,6 +24419,7 @@ CK_DLL_CTRL( ADSR_ctrl_releaseTime )
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     d->setReleaseTime( GET_NEXT_FLOAT(ARGS) );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ADSR_ctrl_releaseRate()
@@ -24353,13 +24437,11 @@ CK_DLL_CTRL( ADSR_ctrl_releaseRate )
 // name: ADSR_cget_releaseRate()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ADSR_cget_releaseRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->releaseRate ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24378,13 +24460,11 @@ CK_DLL_CTRL( ADSR_ctrl_target )
 // name: ADSR_cget_target()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ADSR_cget_target )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->target ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24403,13 +24483,11 @@ CK_DLL_CTRL( ADSR_ctrl_value )
 // name: ADSR_cget_value()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( ADSR_cget_value )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     RETURN->v_float = (t_CKFLOAT) d->value ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24436,6 +24514,7 @@ CK_DLL_CTRL( ADSR_ctrl_keyOn )
         d->keyOff();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: ADSR_ctrl_keyOff()
 // desc: CTRL function ...
@@ -24459,8 +24538,9 @@ CK_DLL_CTRL( ADSR_ctrl_keyOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Filter_ctor )
 {
-    return new Filter;
+    OBJ_MEMBER_UINT(SELF, Filter_offset_data ) = (t_CKUINT)new Filter;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Filter_dtor()
@@ -24470,6 +24550,7 @@ CK_DLL_DTOR( Filter_dtor )
 {
     delete (Filter *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Filter_tick()
@@ -24481,6 +24562,7 @@ CK_DLL_TICK( Filter_tick )
     *out = d->tick( in );
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Filter_pmsg()
@@ -24503,7 +24585,6 @@ CK_DLL_CTRL( Filter_ctrl_coefs )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: OnePole_ctor ()
 // desc: CTOR function ...
@@ -24511,8 +24592,9 @@ CK_DLL_CTRL( Filter_ctrl_coefs )
 CK_DLL_CTOR( OnePole_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, OnePole_offset_data) = (t_CKUINT) new OnePole();
+    OBJ_MEMBER_UINT(SELF, OnePole_offset_data) = (t_CKUINT)new OnePole();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: OnePole_dtor ()
@@ -24520,8 +24602,9 @@ CK_DLL_CTOR( OnePole_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( OnePole_dtor  )
 { 
-  delete (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
+    delete (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: OnePole_tick()
@@ -24534,6 +24617,7 @@ CK_DLL_TICK( OnePole_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: OnePole_pmsg()
 // desc: PMSG function ...
@@ -24543,6 +24627,7 @@ CK_DLL_PMSG( OnePole_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: OnePole_ctrl_a1()
 // desc: CTRL function ...
@@ -24550,18 +24635,16 @@ CK_DLL_PMSG( OnePole_pmsg )
 CK_DLL_CTRL( OnePole_ctrl_a1 )
 {
     OnePole * filter = (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setA1( f );
     RETURN->v_float = (t_CKFLOAT) filter->a[1] ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: OnePole_cget_a1()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( OnePole_cget_a1 )
 {
     OnePole * filter = (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
@@ -24576,7 +24659,7 @@ CK_DLL_CGET( OnePole_cget_a1 )
 CK_DLL_CTRL( OnePole_ctrl_b0 )
 {
     OnePole * filter = (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB0( f );
     RETURN->v_float = (t_CKFLOAT) filter->b[0] ;
 }
@@ -24586,7 +24669,6 @@ CK_DLL_CTRL( OnePole_ctrl_b0 )
 // name: OnePole_cget_b0()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( OnePole_cget_b0 )
 {
     OnePole * filter = (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
@@ -24601,18 +24683,16 @@ CK_DLL_CGET( OnePole_cget_b0 )
 CK_DLL_CTRL( OnePole_ctrl_pole )
 {
     OnePole * filter = (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setPole( f );
     RETURN->v_float = (t_CKFLOAT) -filter->a[1] ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: OnePole_cget_pole()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( OnePole_cget_pole )
 {
     OnePole * filter = (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data );
@@ -24630,8 +24710,9 @@ CK_DLL_CGET( OnePole_cget_pole )
 CK_DLL_CTOR( TwoPole_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, TwoPole_offset_data) = (t_CKUINT) new TwoPole();
+    OBJ_MEMBER_UINT(SELF, TwoPole_offset_data) = (t_CKUINT)new TwoPole();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: TwoPole_dtor ()
@@ -24641,6 +24722,7 @@ CK_DLL_DTOR( TwoPole_dtor  )
 { 
   delete (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: TwoPole_tick()
@@ -24653,6 +24735,7 @@ CK_DLL_TICK( TwoPole_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: TwoPole_pmsg()
 // desc: PMSG function ...
@@ -24662,6 +24745,7 @@ CK_DLL_PMSG( TwoPole_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: TwoPole_ctrl_a1()
 // desc: CTRL function ...
@@ -24669,7 +24753,7 @@ CK_DLL_PMSG( TwoPole_pmsg )
 CK_DLL_CTRL( TwoPole_ctrl_a1 )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setA1( f );
     RETURN->v_float = (t_CKFLOAT) filter->a[1] ;
 }
@@ -24679,14 +24763,11 @@ CK_DLL_CTRL( TwoPole_ctrl_a1 )
 // name: TwoPole_cget_a1()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( TwoPole_cget_a1 )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
     RETURN->v_float = (t_CKFLOAT) filter->a[1] ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -24696,25 +24777,21 @@ CK_DLL_CGET( TwoPole_cget_a1 )
 CK_DLL_CTRL( TwoPole_ctrl_a2 )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setA2( f );
     RETURN->v_float = (t_CKFLOAT) filter->a[2] ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: TwoPole_cget_a2()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( TwoPole_cget_a2 )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
     RETURN->v_float = (t_CKFLOAT) filter->a[2] ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -24724,24 +24801,21 @@ CK_DLL_CGET( TwoPole_cget_a2 )
 CK_DLL_CTRL( TwoPole_ctrl_b0 )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB0( f );
     RETURN->v_float = (t_CKFLOAT) filter->b[0] ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: TwoPole_cget_b0()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( TwoPole_cget_b0 )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
     RETURN->v_float = (t_CKFLOAT) filter->b[0] ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24751,7 +24825,7 @@ CK_DLL_CGET( TwoPole_cget_b0 )
 CK_DLL_CTRL( TwoPole_ctrl_freq )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->ck_setResFreq( f );
     RETURN->v_float = (t_CKFLOAT) filter->m_resFreq ;
 }
@@ -24761,13 +24835,11 @@ CK_DLL_CTRL( TwoPole_ctrl_freq )
 // name: TwoPole_cget_freq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( TwoPole_cget_freq )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
     RETURN->v_float = (t_CKFLOAT) filter->m_resFreq ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24777,25 +24849,21 @@ CK_DLL_CGET( TwoPole_cget_freq )
 CK_DLL_CTRL( TwoPole_ctrl_radius )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->ck_setResRad( f );
     RETURN->v_float = (t_CKFLOAT) filter->m_resRad ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
 // name: TwoPole_cget_radius()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( TwoPole_cget_radius )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
     RETURN->v_float = (t_CKFLOAT) filter->m_resRad ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -24805,25 +24873,20 @@ CK_DLL_CGET( TwoPole_cget_radius )
 CK_DLL_CTRL( TwoPole_ctrl_norm )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
-    bool b = ( GET_CK_INT(value) != 0 ); 
+    bool b = ( GET_CK_INT(ARGS) != 0 ); 
     filter->ck_setResNorm( b );
     RETURN->v_int = (t_CKINT) filter->m_resNorm ;
-
 }
-
-
 
 
 //-----------------------------------------------------------------------------
 // name: TwoPole_cget_norm()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( TwoPole_cget_norm )
 {
     TwoPole * filter = (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data );
     RETURN->v_int = (t_CKINT) filter->m_resNorm ;
-
 }
 
 
@@ -24841,14 +24904,16 @@ CK_DLL_CTOR( OneZero_ctor  )
     OBJ_MEMBER_UINT(SELF, OneZero_offset_data) = (t_CKUINT) new OneZero();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: OneZero_dtor ()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( OneZero_dtor  )
 { 
-  delete (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data );
+    delete (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: OneZero_tick()
@@ -24861,6 +24926,7 @@ CK_DLL_TICK( OneZero_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: OneZero_pmsg()
 // desc: PMSG function ...
@@ -24870,6 +24936,7 @@ CK_DLL_PMSG( OneZero_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: OneZero_ctrl_zero()
 // desc: CTRL function ...
@@ -24877,7 +24944,7 @@ CK_DLL_PMSG( OneZero_pmsg )
 CK_DLL_CTRL( OneZero_ctrl_zero )
 {
     OneZero * filter = (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setZero( f );
     double zeeroo = ( filter->b[0] == 0 ) ? 0 : -filter->b[1] / filter->b[0]; 
     RETURN->v_float = (t_CKFLOAT) zeeroo; 
@@ -24891,7 +24958,7 @@ CK_DLL_CTRL( OneZero_ctrl_zero )
 CK_DLL_CGET( OneZero_cget_zero )
 {
     OneZero * filter = (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     double zeeroo = ( filter->b[0] == 0 ) ? 0 : -filter->b[1] / filter->b[0]; 
     RETURN->v_float = (t_CKFLOAT) zeeroo; 
 }
@@ -24904,8 +24971,8 @@ CK_DLL_CGET( OneZero_cget_zero )
 CK_DLL_CTRL( OneZero_ctrl_b0 )
 {
     OneZero * filter = (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
-    filter->setB0( f )
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
+    filter->setB0( f );
     RETURN->v_float = (t_CKFLOAT) filter->b[0] ;
 }
 
@@ -24920,6 +24987,7 @@ CK_DLL_CGET( OneZero_cget_b0 )
     RETURN->v_float = (t_CKFLOAT) filter->b[0] ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: OneZero_ctrl_b1()
 // desc: CTRL function ...
@@ -24927,10 +24995,11 @@ CK_DLL_CGET( OneZero_cget_b0 )
 CK_DLL_CTRL( OneZero_ctrl_b1 )
 {
     OneZero * filter = (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB1( f );
     RETURN->v_float = (t_CKFLOAT) filter->b[1] ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: OneZero_cget_b1()
@@ -24953,8 +25022,9 @@ CK_DLL_CGET( OneZero_cget_b1 )
 CK_DLL_CTOR( TwoZero_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, TwoZero_offset_data) = (t_CKUINT) new TwoZero();
+    OBJ_MEMBER_UINT(SELF, TwoZero_offset_data) = (t_CKUINT)new TwoZero();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: TwoZero_dtor ()
@@ -24962,8 +25032,9 @@ CK_DLL_CTOR( TwoZero_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( TwoZero_dtor  )
 { 
-  delete (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data );
+    delete (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: TwoZero_tick()
@@ -24976,6 +25047,7 @@ CK_DLL_TICK( TwoZero_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: TwoZero_pmsg()
 // desc: PMSG function ...
@@ -24985,6 +25057,7 @@ CK_DLL_PMSG( TwoZero_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: TwoZero_ctrl_b0()
 // desc: CTRL function ...
@@ -24992,9 +25065,10 @@ CK_DLL_PMSG( TwoZero_pmsg )
 CK_DLL_CTRL( TwoZero_ctrl_b0 )
 {
     TwoZero * filter = (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB0( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: TwoZero_cget_b0()
@@ -25014,7 +25088,7 @@ CK_DLL_CGET( TwoZero_cget_b0 )
 CK_DLL_CTRL( TwoZero_ctrl_b1 )
 {
     TwoZero * filter = (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB1( f );
 }
 
@@ -25035,7 +25109,7 @@ CK_DLL_CGET( TwoZero_cget_b1 )
 CK_DLL_CTRL( TwoZero_ctrl_b2 )
 {
     TwoZero * filter = (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB2( f );
 }
 
@@ -25058,7 +25132,7 @@ CK_DLL_CGET( TwoZero_cget_b2 )
 CK_DLL_CTRL( TwoZero_ctrl_freq )
 {
     TwoZero * filter = (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->ck_setNotchFreq( f );
 }
 
@@ -25081,7 +25155,7 @@ CK_DLL_CGET( TwoZero_cget_freq )
 CK_DLL_CTRL( TwoZero_ctrl_radius )
 {
     TwoZero * filter = (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->ck_setNotchRad( f );
 }
 
@@ -25109,14 +25183,16 @@ CK_DLL_CTOR( PoleZero_ctor  )
     OBJ_MEMBER_UINT(SELF, PoleZero_offset_data) = (t_CKUINT) new PoleZero();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PoleZero_dtor ()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( PoleZero_dtor  )
 { 
-  delete (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
+    delete (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PoleZero_tick()
@@ -25128,6 +25204,7 @@ CK_DLL_TICK( PoleZero_tick )
     *out = m->tick( in );
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PoleZero_pmsg()
@@ -25146,25 +25223,21 @@ CK_DLL_PMSG( PoleZero_pmsg )
 CK_DLL_CTRL( PoleZero_ctrl_a1 )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setA1( f );
     RETURN->v_float = (t_CKFLOAT) filter->a[1] ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: PoleZero_cget_a1()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PoleZero_cget_a1 )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
     RETURN->v_float = (t_CKFLOAT) filter->a[1] ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -25174,7 +25247,7 @@ CK_DLL_CGET( PoleZero_cget_a1 )
 CK_DLL_CTRL( PoleZero_ctrl_b0 )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB0( f );
     RETURN->v_float = (t_CKFLOAT) filter->b[0] ;
 }
@@ -25184,7 +25257,6 @@ CK_DLL_CTRL( PoleZero_ctrl_b0 )
 // name: PoleZero_cget_b0()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PoleZero_cget_b0 )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
@@ -25200,7 +25272,7 @@ CK_DLL_CGET( PoleZero_cget_b0 )
 CK_DLL_CTRL( PoleZero_ctrl_b1 )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setB1( f );
     RETURN->v_float = (t_CKFLOAT) filter->b[1] ;
 }
@@ -25210,7 +25282,6 @@ CK_DLL_CTRL( PoleZero_ctrl_b1 )
 // name: PoleZero_cget_b1()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PoleZero_cget_b1 )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
@@ -25225,7 +25296,7 @@ CK_DLL_CGET( PoleZero_cget_b1 )
 CK_DLL_CTRL( PoleZero_ctrl_allpass )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setAllpass( f );
     RETURN->v_float = (t_CKFLOAT) filter->b[0] ;
 }
@@ -25235,7 +25306,6 @@ CK_DLL_CTRL( PoleZero_ctrl_allpass )
 // name: PoleZero_cget_allpass()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PoleZero_cget_allpass )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
@@ -25250,7 +25320,7 @@ CK_DLL_CGET( PoleZero_cget_allpass )
 CK_DLL_CTRL( PoleZero_ctrl_blockZero )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     filter->setBlockZero( f );
     RETURN->v_float = (t_CKFLOAT) -filter->a[1] ;
 }
@@ -25260,7 +25330,6 @@ CK_DLL_CTRL( PoleZero_ctrl_blockZero )
 // name: PoleZero_cget_blockZero()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PoleZero_cget_blockZero )
 {
     PoleZero * filter = (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data );
@@ -25278,10 +25347,10 @@ CK_DLL_CGET( PoleZero_cget_blockZero )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( FM_ctor  )
 {
-  //  return new FM(4);
-  fprintf(stderr,"error : FM is virtual - not for use! \n");
-  return 0;
+    // return new FM(4);
+    fprintf(stderr,"error : FM is virtual - not for use! \n");
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_dtor ()
@@ -25289,9 +25358,10 @@ CK_DLL_CTOR( FM_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( FM_dtor  )
 { 
-  //  delete (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    // delete (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     fprintf(stderr,"error : FM is virtual!\n");
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_tick()
@@ -25305,6 +25375,7 @@ CK_DLL_TICK( FM_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: FM_pmsg()
 // desc: PMSG function ...
@@ -25314,6 +25385,7 @@ CK_DLL_PMSG( FM_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: FM_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25321,9 +25393,10 @@ CK_DLL_PMSG( FM_pmsg )
 CK_DLL_CTRL( FM_ctrl_noteOn )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->keyOn();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_ctrl_noteOff()
@@ -25332,9 +25405,10 @@ CK_DLL_CTRL( FM_ctrl_noteOn )
 CK_DLL_CTRL( FM_ctrl_noteOff )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->noteOff( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_ctrl_freq()
@@ -25343,16 +25417,16 @@ CK_DLL_CTRL( FM_ctrl_noteOff )
 CK_DLL_CTRL( FM_ctrl_freq )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) fm->baseFrequency ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_cget_freq()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( FM_cget_freq )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
@@ -25367,9 +25441,10 @@ CK_DLL_CGET( FM_cget_freq )
 CK_DLL_CTRL( FM_ctrl_modDepth )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->setModulationDepth( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_ctrl_modSpeed()
@@ -25378,9 +25453,10 @@ CK_DLL_CTRL( FM_ctrl_modDepth )
 CK_DLL_CTRL( FM_ctrl_modSpeed )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->setModulationSpeed( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_ctrl_control1()
@@ -25389,9 +25465,10 @@ CK_DLL_CTRL( FM_ctrl_modSpeed )
 CK_DLL_CTRL( FM_ctrl_control1 )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->setControl1( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_ctrl_control2()
@@ -25400,9 +25477,10 @@ CK_DLL_CTRL( FM_ctrl_control1 )
 CK_DLL_CTRL( FM_ctrl_control2 )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->setControl2( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FM_ctrl_afterTouch()
@@ -25411,7 +25489,7 @@ CK_DLL_CTRL( FM_ctrl_control2 )
 CK_DLL_CTRL( FM_ctrl_afterTouch )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
 
@@ -25431,6 +25509,7 @@ CK_DLL_CTOR( BeeThree_ctor  )
     OBJ_MEMBER_UINT(SELF, BeeThree_offset_data) = (t_CKUINT) new BeeThree();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BeeThree_dtor ()
 // desc: DTOR function ...
@@ -25439,6 +25518,7 @@ CK_DLL_DTOR( BeeThree_dtor  )
 { 
   delete (BeeThree *)OBJ_MEMBER_UINT(SELF, BeeThree_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: BeeThree_tick()
@@ -25451,6 +25531,7 @@ CK_DLL_TICK( BeeThree_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BeeThree_pmsg()
 // desc: PMSG function ...
@@ -25460,6 +25541,7 @@ CK_DLL_PMSG( BeeThree_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: BeeThree_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25467,7 +25549,7 @@ CK_DLL_PMSG( BeeThree_pmsg )
 CK_DLL_CTRL( BeeThree_ctrl_noteOn )
 {
     BeeThree * bee= (BeeThree *)OBJ_MEMBER_UINT(SELF, BeeThree_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     bee->noteOn( f );
 }
 
@@ -25484,6 +25566,7 @@ CK_DLL_CTOR( FMVoices_ctor  )
     OBJ_MEMBER_UINT(SELF, FMVoices_offset_data) = (t_CKUINT) new FMVoices();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: FMVoices_dtor ()
 // desc: DTOR function ...
@@ -25492,6 +25575,7 @@ CK_DLL_DTOR( FMVoices_dtor  )
 { 
   delete (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FMVoices_tick()
@@ -25504,6 +25588,7 @@ CK_DLL_TICK( FMVoices_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: FMVoices_pmsg()
 // desc: PMSG function ...
@@ -25513,6 +25598,7 @@ CK_DLL_PMSG( FMVoices_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25520,9 +25606,10 @@ CK_DLL_PMSG( FMVoices_pmsg )
 CK_DLL_CTRL( FMVoices_ctrl_noteOn )
 {
     FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->noteOn( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_freq()
@@ -25531,10 +25618,11 @@ CK_DLL_CTRL( FMVoices_ctrl_noteOn )
 CK_DLL_CTRL( FMVoices_ctrl_freq )
 { 
     FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) voc->baseFrequency  ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FMVoices_cget_freq()
@@ -25546,6 +25634,7 @@ CK_DLL_CGET( FMVoices_cget_freq )
     RETURN->v_float = (t_CKFLOAT) voc->baseFrequency  ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_vowel()
 // desc: CTRL function ...
@@ -25553,9 +25642,10 @@ CK_DLL_CGET( FMVoices_cget_freq )
 CK_DLL_CTRL( FMVoices_ctrl_vowel )
 {
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_Breath_, f * 128.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_spectralTilt()
@@ -25564,7 +25654,7 @@ CK_DLL_CTRL( FMVoices_ctrl_vowel )
 CK_DLL_CTRL( FMVoices_ctrl_spectralTilt )
 {
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_FootControl_, f * 128.0);
 }
 
@@ -25575,7 +25665,7 @@ CK_DLL_CTRL( FMVoices_ctrl_spectralTilt )
 CK_DLL_CTRL( FMVoices_ctrl_lfoSpeed )
 {
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_ModFrequency_, f * 128.0);
 }
 
@@ -25586,9 +25676,10 @@ CK_DLL_CTRL( FMVoices_ctrl_lfoSpeed )
 CK_DLL_CTRL( FMVoices_ctrl_lfoDepth )
 {
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_ModWheel_, f * 128.0);
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_adsrTarget()
@@ -25597,7 +25688,7 @@ CK_DLL_CTRL( FMVoices_ctrl_lfoDepth )
 CK_DLL_CTRL( FMVoices_ctrl_adsrTarget )
 {
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_AfterTouch_Cont_, f * 128.0);
 }
 
@@ -25615,14 +25706,16 @@ CK_DLL_CTOR( HevyMetl_ctor  )
     OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data) = (t_CKUINT) new HevyMetl();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: HevyMetl_dtor ()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( HevyMetl_dtor  )
 { 
-  delete (HevyMetl *)OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data );
+    delete (HevyMetl *)OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: HevyMetl_tick()
@@ -25635,6 +25728,7 @@ CK_DLL_TICK( HevyMetl_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: HevyMetl_pmsg()
 // desc: PMSG function ...
@@ -25644,6 +25738,7 @@ CK_DLL_PMSG( HevyMetl_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: HevyMetl_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25651,7 +25746,7 @@ CK_DLL_PMSG( HevyMetl_pmsg )
 CK_DLL_CTRL( HevyMetl_ctrl_noteOn )
 {
     HevyMetl * hevy= (HevyMetl *)OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     hevy->noteOn( f );
 }
 
@@ -25668,14 +25763,16 @@ CK_DLL_CTOR( PercFlut_ctor  )
     OBJ_MEMBER_UINT(SELF, PercFlut_offset_data) = (t_CKUINT) new PercFlut();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PercFlut_dtor ()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( PercFlut_dtor  )
 { 
-  delete (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
+    delete (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PercFlut_tick()
@@ -25688,6 +25785,7 @@ CK_DLL_TICK( PercFlut_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PercFlut_pmsg()
 // desc: PMSG function ...
@@ -25697,6 +25795,7 @@ CK_DLL_PMSG( PercFlut_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PercFlut_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25704,9 +25803,10 @@ CK_DLL_PMSG( PercFlut_pmsg )
 CK_DLL_CTRL( PercFlut_ctrl_noteOn )
 {
     PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     perc->noteOn( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PercFlut_ctrl_freq()
@@ -25715,10 +25815,11 @@ CK_DLL_CTRL( PercFlut_ctrl_noteOn )
 CK_DLL_CTRL( PercFlut_ctrl_freq )
 {
     PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     perc->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) perc->baseFrequency  ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PercFlut_cget_freq()
@@ -25743,6 +25844,7 @@ CK_DLL_CTOR( Rhodey_ctor  )
     OBJ_MEMBER_UINT(SELF, Rhodey_offset_data) = (t_CKUINT) new Rhodey();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Rhodey_dtor ()
 // desc: DTOR function ...
@@ -25751,6 +25853,7 @@ CK_DLL_DTOR( Rhodey_dtor  )
 { 
   delete (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Rhodey_tick()
@@ -25763,6 +25866,7 @@ CK_DLL_TICK( Rhodey_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Rhodey_pmsg()
 // desc: PMSG function ...
@@ -25772,6 +25876,7 @@ CK_DLL_PMSG( Rhodey_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Rhodey_ctrl_freq()
 // desc: CTRL function ...
@@ -25779,10 +25884,11 @@ CK_DLL_PMSG( Rhodey_pmsg )
 CK_DLL_CTRL( Rhodey_ctrl_freq )
 {
     Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     rhod->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) rhod->baseFrequency * 0.5  ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Rhodey_cget_freq()
@@ -25794,6 +25900,7 @@ CK_DLL_CGET( Rhodey_cget_freq )
     RETURN->v_float = (t_CKFLOAT) rhod->baseFrequency * 0.5  ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Rhodey_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25801,9 +25908,10 @@ CK_DLL_CGET( Rhodey_cget_freq )
 CK_DLL_CTRL( Rhodey_ctrl_noteOn )
 {
     Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     rhod->noteOn( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Rhodey_ctrl_noteOff()
@@ -25812,7 +25920,7 @@ CK_DLL_CTRL( Rhodey_ctrl_noteOn )
 CK_DLL_CTRL( Rhodey_ctrl_noteOff )
 {
     Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     rhod->noteOff( f );
 }
 
@@ -25828,14 +25936,16 @@ CK_DLL_CTOR( TubeBell_ctor  )
     OBJ_MEMBER_UINT(SELF, TubeBell_offset_data) = (t_CKUINT) new TubeBell();
 }
 
+
 //-----------------------------------------------------------------------------
 // name: TubeBell_dtor ()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( TubeBell_dtor  )
 { 
-  delete (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
+    delete (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: TubeBell_tick()
@@ -25848,6 +25958,7 @@ CK_DLL_TICK( TubeBell_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: TubeBell_pmsg()
 // desc: PMSG function ...
@@ -25857,6 +25968,7 @@ CK_DLL_PMSG( TubeBell_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: TubeBell_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25864,9 +25976,10 @@ CK_DLL_PMSG( TubeBell_pmsg )
 CK_DLL_CTRL( TubeBell_ctrl_noteOn )
 {
     TubeBell * tube = (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     tube->noteOn( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: TubeBell_ctrl_freq()
@@ -25875,7 +25988,7 @@ CK_DLL_CTRL( TubeBell_ctrl_noteOn )
 CK_DLL_CTRL( TubeBell_ctrl_freq )
 { 
     TubeBell * tube= (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     tube->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) tube->baseFrequency ;
 }
@@ -25902,8 +26015,9 @@ CK_DLL_CGET( TubeBell_cget_freq )
 CK_DLL_CTOR( Wurley_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Wurley_offset_data) = (t_CKUINT) new Wurley();
+    OBJ_MEMBER_UINT(SELF, Wurley_offset_data) = (t_CKUINT)new Wurley();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Wurley_dtor ()
@@ -25911,8 +26025,9 @@ CK_DLL_CTOR( Wurley_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Wurley_dtor  )
 { 
-  delete (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
+    delete (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Wurley_tick()
@@ -25925,6 +26040,7 @@ CK_DLL_TICK( Wurley_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Wurley_pmsg()
 // desc: PMSG function ...
@@ -25934,6 +26050,7 @@ CK_DLL_PMSG( Wurley_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Wurley_ctrl_freq()
 // desc: CTRL function ...
@@ -25941,7 +26058,7 @@ CK_DLL_PMSG( Wurley_pmsg )
 CK_DLL_CTRL( Wurley_ctrl_freq )
 {
     Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     wurl->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) wurl->baseFrequency ;
 }
@@ -25957,6 +26074,7 @@ CK_DLL_CGET( Wurley_cget_freq )
     RETURN->v_float = (t_CKFLOAT) wurl->baseFrequency ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Wurley_ctrl_noteOn()
 // desc: CTRL function ...
@@ -25964,9 +26082,10 @@ CK_DLL_CGET( Wurley_cget_freq )
 CK_DLL_CTRL( Wurley_ctrl_noteOn )
 {
     Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     wurl->noteOn( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Wurley_ctrl_noteOff()
@@ -25975,7 +26094,7 @@ CK_DLL_CTRL( Wurley_ctrl_noteOn )
 CK_DLL_CTRL( Wurley_ctrl_noteOff )
 {
     Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     wurl->noteOff( f );
 }
 
@@ -25988,8 +26107,9 @@ CK_DLL_CTRL( Wurley_ctrl_noteOff )
 CK_DLL_CTOR( FormSwep_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, FormSwep_offset_data) = (t_CKUINT) new FormSwep();
+    OBJ_MEMBER_UINT(SELF, FormSwep_offset_data) = (t_CKUINT)new FormSwep();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FormSwep_dtor ()
@@ -25997,8 +26117,9 @@ CK_DLL_CTOR( FormSwep_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( FormSwep_dtor  )
 { 
-  delete (FormSwep *)OBJ_MEMBER_UINT(SELF, FormSwep_offset_data );
+    delete (FormSwep *)OBJ_MEMBER_UINT(SELF, FormSwep_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FormSwep_tick()
@@ -26010,6 +26131,7 @@ CK_DLL_TICK( FormSwep_tick )
     *out = m->tick(in);
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FormSwep_pmsg()
@@ -26032,8 +26154,9 @@ CK_DLL_PMSG( FormSwep_pmsg )
 CK_DLL_CTOR( JCRev_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, JCRev_offset_data) = (t_CKUINT) new JCRev( 4.0f );
+    OBJ_MEMBER_UINT(SELF, JCRev_offset_data) = (t_CKUINT)new JCRev( 4.0f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: JCRev_dtor()
@@ -26043,6 +26166,7 @@ CK_DLL_DTOR( JCRev_dtor )
 {
     delete (JCRev *)OBJ_MEMBER_UINT(SELF, JCRev_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: JCRev_tick()
@@ -26055,6 +26179,7 @@ CK_DLL_TICK( JCRev_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: JCRev_pmsg()
 // desc: PMSG function ...
@@ -26064,6 +26189,7 @@ CK_DLL_PMSG( JCRev_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: JCRev_ctrl_mix()
 // desc: CTRL function ...
@@ -26071,10 +26197,11 @@ CK_DLL_PMSG( JCRev_pmsg )
 CK_DLL_CTRL( JCRev_ctrl_mix )
 {
     JCRev * j = (JCRev *)OBJ_MEMBER_UINT(SELF, JCRev_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setEffectMix( f );
     RETURN->v_float = (t_CKFLOAT) j->effectMix ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: JCRev_cget_mix()
@@ -26097,6 +26224,7 @@ CK_DLL_CTOR( Mandolin_ctor  )
     OBJ_MEMBER_UINT(SELF, Mandolin_offset_data) = (t_CKUINT) new Mandolin( 50.0f );
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Mandolin_dtor ()
 // desc: DTOR function ...
@@ -26105,6 +26233,7 @@ CK_DLL_DTOR( Mandolin_dtor  )
 { 
   delete (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Mandolin_tick()
@@ -26117,6 +26246,7 @@ CK_DLL_TICK( Mandolin_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Mandolin_pmsg()
 // desc: PMSG function ...
@@ -26126,6 +26256,7 @@ CK_DLL_PMSG( Mandolin_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Mandolin_ctrl_pluck()
 // desc: CTRL function ...
@@ -26133,9 +26264,10 @@ CK_DLL_PMSG( Mandolin_pmsg )
 CK_DLL_CTRL( Mandolin_ctrl_pluck )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     m->pluck( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Mandolin_ctrl_freq()
@@ -26144,7 +26276,7 @@ CK_DLL_CTRL( Mandolin_ctrl_pluck )
 CK_DLL_CTRL( Mandolin_ctrl_freq )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     m->setFrequency( f );
 
 }
@@ -26161,7 +26293,6 @@ CK_DLL_CGET( Mandolin_cget_freq )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: Mandolin_ctrl_pluckPos()
 // desc: CTRL function ...
@@ -26169,7 +26300,7 @@ CK_DLL_CGET( Mandolin_cget_freq )
 CK_DLL_CTRL( Mandolin_ctrl_pluckPos )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     m->setPluckPosition( f );
 }
 
@@ -26192,9 +26323,10 @@ CK_DLL_CGET( Mandolin_cget_pluckPos )
 CK_DLL_CTRL( Mandolin_ctrl_bodySize )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     m->setBodySize( f * 2.0 );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Mandolin_cget_bodySize()
@@ -26214,7 +26346,7 @@ CK_DLL_CGET( Mandolin_cget_bodySize )
 CK_DLL_CTRL( Mandolin_ctrl_stringDamping )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     m->setBaseLoopGain( 0.97f + f * 0.03f );
 }
 
@@ -26229,6 +26361,7 @@ CK_DLL_CGET( Mandolin_cget_stringDamping )
     RETURN->v_float = (t_CKFLOAT) m->m_stringDamping ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Mandolin_ctrl_stringDetune()
 // desc: CTRL function ...
@@ -26236,9 +26369,10 @@ CK_DLL_CGET( Mandolin_cget_stringDamping )
 CK_DLL_CTRL( Mandolin_ctrl_stringDetune )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     m->setDetune( 1.0f - 0.1f * f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Mandolin_cget_stringDetune()
@@ -26250,6 +26384,7 @@ CK_DLL_CGET( Mandolin_cget_stringDetune )
     RETURN->v_float = (t_CKFLOAT) m->m_stringDetune ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Mandolin_ctrl_afterTouch()
 // desc: CTRL function ...
@@ -26257,7 +26392,7 @@ CK_DLL_CGET( Mandolin_cget_stringDetune )
 CK_DLL_CTRL( Mandolin_ctrl_afterTouch )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     //not sure what this does in stk version so we'll just call controlChange
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
@@ -26277,6 +26412,7 @@ CK_DLL_CTOR( Modulate_ctor )
     OBJ_MEMBER_UINT(SELF, Modulate_offset_data) = (t_CKUINT) new Modulate( );
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Modulate_dtor()
 // desc: DTOR function ...
@@ -26285,6 +26421,7 @@ CK_DLL_DTOR( Modulate_dtor )
 {
     delete (Modulate *)OBJ_MEMBER_UINT(SELF, Modulate_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Modulate_tick()
@@ -26297,6 +26434,7 @@ CK_DLL_TICK( Modulate_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Modulate_pmsg()
 // desc: PMSG function ...
@@ -26306,6 +26444,7 @@ CK_DLL_PMSG( Modulate_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Modulate_ctrl_vibratoRate()
 // desc: CTRL function ...
@@ -26313,7 +26452,7 @@ CK_DLL_PMSG( Modulate_pmsg )
 CK_DLL_CTRL( Modulate_ctrl_vibratoRate )
 {
     Modulate * j = (Modulate *)OBJ_MEMBER_UINT(SELF, Modulate_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setVibratoRate( f );
     RETURN->v_float = (t_CKFLOAT) j->vibrato->m_freq ;
 }
@@ -26323,7 +26462,6 @@ CK_DLL_CTRL( Modulate_ctrl_vibratoRate )
 // name: Modulate_cget_vibratoRate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Modulate_cget_vibratoRate )
 {
     Modulate * j = (Modulate *)OBJ_MEMBER_UINT(SELF, Modulate_offset_data );
@@ -26338,12 +26476,10 @@ CK_DLL_CGET( Modulate_cget_vibratoRate )
 CK_DLL_CTRL( Modulate_ctrl_vibratoGain )
 {
     Modulate * j = (Modulate *)OBJ_MEMBER_UINT(SELF, Modulate_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setVibratoGain( f );
     RETURN->v_float = (t_CKFLOAT) j->vibratoGain ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -26365,18 +26501,16 @@ CK_DLL_CGET( Modulate_cget_vibratoGain )
 CK_DLL_CTRL( Modulate_ctrl_randomGain )
 {
     Modulate * j = (Modulate *)OBJ_MEMBER_UINT(SELF, Modulate_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setRandomGain(f );
     RETURN->v_float = (t_CKFLOAT) j->randomGain ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: Modulate_cget_randomGain()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Modulate_cget_randomGain )
 {
     Modulate * j = (Modulate *)OBJ_MEMBER_UINT(SELF, Modulate_offset_data );
@@ -26391,8 +26525,9 @@ CK_DLL_CGET( Modulate_cget_randomGain )
 CK_DLL_CTOR( Moog_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Moog_offset_data) = (t_CKUINT) new Moog();
+    OBJ_MEMBER_UINT(SELF, Moog_offset_data) = (t_CKUINT)new Moog();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Moog_dtor ()
@@ -26402,6 +26537,7 @@ CK_DLL_DTOR( Moog_dtor  )
 { 
   delete (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Moog_tick()
@@ -26413,6 +26549,7 @@ CK_DLL_TICK( Moog_tick )
     *out = m->tick();
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Moog_pmsg()
@@ -26431,7 +26568,7 @@ CK_DLL_PMSG( Moog_pmsg )
 CK_DLL_CTRL( Moog_ctrl_noteOn )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     m->noteOn( f );
 }
 
@@ -26443,24 +26580,21 @@ CK_DLL_CTRL( Moog_ctrl_noteOn )
 CK_DLL_CTRL( Moog_ctrl_freq )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     m->setFrequency ( f );
     RETURN->v_float = (t_CKFLOAT) m->baseFrequency ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: Moog_cget_freq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Moog_cget_freq )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
     RETURN->v_float = (t_CKFLOAT) m->baseFrequency ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -26470,25 +26604,22 @@ CK_DLL_CGET( Moog_cget_freq )
 CK_DLL_CTRL( Moog_ctrl_modSpeed )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     m->setModulationSpeed(f);
     RETURN->v_float = (t_CKFLOAT) m->loops[1]->m_freq ;
 }
  
 
-
 //-----------------------------------------------------------------------------
 // name: Moog_cget_modSpeed()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Moog_cget_modSpeed )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
     RETURN->v_float = (t_CKFLOAT) m->loops[1]->m_freq ;
 }
  
-
 
 //-----------------------------------------------------------------------------
 // name: Moog_ctrl_modDepth()
@@ -26497,7 +26628,7 @@ CK_DLL_CGET( Moog_cget_modSpeed )
 CK_DLL_CTRL( Moog_ctrl_modDepth )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     m->setModulationDepth(f);
     RETURN->v_float = (t_CKFLOAT) m->modDepth * 2.0 ;
 }
@@ -26507,13 +26638,11 @@ CK_DLL_CTRL( Moog_ctrl_modDepth )
 // name: Moog_cget_modDepth()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Moog_cget_modDepth )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
     RETURN->v_float = (t_CKFLOAT) m->modDepth * 2.0 ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -26523,18 +26652,16 @@ CK_DLL_CGET( Moog_cget_modDepth )
 CK_DLL_CTRL( Moog_ctrl_filterQ )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     m->controlChange( __SK_FilterQ_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)  10.0 * ( m->filterQ - 0.80 ) ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: Moog_cget_filterQ()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Moog_cget_filterQ )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
@@ -26549,7 +26676,7 @@ CK_DLL_CGET( Moog_cget_filterQ )
 CK_DLL_CTRL( Moog_ctrl_filterSweepRate )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     m->controlChange( __SK_FilterSweepRate_, f * 128.0 );
 
     RETURN->v_float = (t_CKFLOAT)  m->filterRate * 5000 ;
@@ -26560,7 +26687,6 @@ CK_DLL_CTRL( Moog_ctrl_filterSweepRate )
 // name: Moog_cget_filterSweepRate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Moog_cget_filterSweepRate )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
@@ -26575,10 +26701,9 @@ CK_DLL_CGET( Moog_cget_filterSweepRate )
 CK_DLL_CTRL( Moog_ctrl_afterTouch )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
-
 
 
 
@@ -26591,8 +26716,9 @@ CK_DLL_CTRL( Moog_ctrl_afterTouch )
 CK_DLL_CTOR( NRev_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, NRev_offset_data) = (t_CKUINT) new NRev( 4.0f );
+    OBJ_MEMBER_UINT(SELF, NRev_offset_data) = (t_CKUINT)new NRev( 4.0f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: NRev_dtor()
@@ -26602,6 +26728,7 @@ CK_DLL_DTOR( NRev_dtor )
 {
     delete (NRev *)OBJ_MEMBER_UINT(SELF, NRev_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: NRev_tick()
@@ -26614,6 +26741,7 @@ CK_DLL_TICK( NRev_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: NRev_pmsg()
 // desc: PMSG function ...
@@ -26623,6 +26751,7 @@ CK_DLL_PMSG( NRev_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: NRev_ctrl_mix()
 // desc: CTRL function ...
@@ -26630,10 +26759,11 @@ CK_DLL_PMSG( NRev_pmsg )
 CK_DLL_CTRL( NRev_ctrl_mix )
 {
     NRev * j = (NRev *)OBJ_MEMBER_UINT(SELF, NRev_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setEffectMix( f );
     RETURN->v_float = (t_CKFLOAT) j->effectMix ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: NRev_cget_mix()
@@ -26655,8 +26785,9 @@ CK_DLL_CGET( NRev_cget_mix )
 CK_DLL_CTOR( PitShift_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, PitShift_offset_data) = (t_CKUINT) new PitShift( );
+    OBJ_MEMBER_UINT(SELF, PitShift_offset_data) = (t_CKUINT)new PitShift( );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PitShift_dtor()
@@ -26666,6 +26797,7 @@ CK_DLL_DTOR( PitShift_dtor )
 {
     delete (PitShift *)OBJ_MEMBER_UINT(SELF, PitShift_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PitShift_tick()
@@ -26678,6 +26810,7 @@ CK_DLL_TICK( PitShift_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PitShift_pmsg()
 // desc: PMSG function ...
@@ -26687,6 +26820,7 @@ CK_DLL_PMSG( PitShift_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PitShift_ctrl_shift()
 // desc: CTRL function ...
@@ -26694,7 +26828,7 @@ CK_DLL_PMSG( PitShift_pmsg )
 CK_DLL_CTRL( PitShift_ctrl_shift )
 {
     PitShift * p = (PitShift *)OBJ_MEMBER_UINT(SELF, PitShift_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setShift( f );
     RETURN->v_float = (t_CKFLOAT)  1.0 - p->rate ;
 }
@@ -26704,13 +26838,11 @@ CK_DLL_CTRL( PitShift_ctrl_shift )
 // name: PitShift_cget_shift()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PitShift_cget_shift )
 {
     PitShift * p = (PitShift *)OBJ_MEMBER_UINT(SELF, PitShift_offset_data );
     RETURN->v_float = (t_CKFLOAT)  1.0 - p->rate ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -26720,19 +26852,16 @@ CK_DLL_CGET( PitShift_cget_shift )
 CK_DLL_CTRL( PitShift_ctrl_effectMix )
 {
     PitShift * p = (PitShift *)OBJ_MEMBER_UINT(SELF, PitShift_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setEffectMix( f );
     RETURN->v_float = (t_CKFLOAT)  p->effectMix ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
 // name: PitShift_cget_effectMix()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PitShift_cget_effectMix )
 {
     PitShift * p = (PitShift *)OBJ_MEMBER_UINT(SELF, PitShift_offset_data );
@@ -26749,8 +26878,9 @@ CK_DLL_CGET( PitShift_cget_effectMix )
 CK_DLL_CTOR( PRCRev_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, PRCRev_offset_data) = (t_CKUINT) new PRCRev( 4.0f );
+    OBJ_MEMBER_UINT(SELF, PRCRev_offset_data) = (t_CKUINT)new PRCRev( 4.0f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PRCRev_dtor()
@@ -26760,6 +26890,7 @@ CK_DLL_DTOR( PRCRev_dtor )
 {
     delete (PRCRev *)OBJ_MEMBER_UINT(SELF, PRCRev_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: PRCRev_tick()
@@ -26772,6 +26903,7 @@ CK_DLL_TICK( PRCRev_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PRCRev_pmsg()
 // desc: PMSG function ...
@@ -26781,6 +26913,7 @@ CK_DLL_PMSG( PRCRev_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: PRCRev_ctrl_mix()
 // desc: CTRL function ...
@@ -26788,9 +26921,9 @@ CK_DLL_PMSG( PRCRev_pmsg )
 CK_DLL_CTRL( PRCRev_ctrl_mix )
 {
     PRCRev * j = (PRCRev *)OBJ_MEMBER_UINT(SELF, PRCRev_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setEffectMix( f );
-    RETURN->v_float = (t_CKFLOAT) j->effectMix ;
+    RETURN->v_float = (t_CKFLOAT)j->effectMix ;
 }
 
 
@@ -26798,13 +26931,11 @@ CK_DLL_CTRL( PRCRev_ctrl_mix )
 // name: PRCRev_cget_mix()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( PRCRev_cget_mix )
 {
     PRCRev * j = (PRCRev *)OBJ_MEMBER_UINT(SELF, PRCRev_offset_data );
-    RETURN->v_float = (t_CKFLOAT) j->effectMix ;
+    RETURN->v_float = (t_CKFLOAT)j->effectMix ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -26813,8 +26944,9 @@ CK_DLL_CGET( PRCRev_cget_mix )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Shakers_ctor )
 {
-    return new Shakers;
+    OBJ_MEMBER_UINT(SELF, Shakers_offset_data ) = (t_CKUINT)new Shakers;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Shakers_dtor()
@@ -26824,6 +26956,7 @@ CK_DLL_DTOR( Shakers_dtor )
 {
     delete (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Shakers_tick()
@@ -26835,6 +26968,7 @@ CK_DLL_TICK( Shakers_tick )
     *out = s->tick();
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Shakers_pmsg()
@@ -26853,9 +26987,10 @@ CK_DLL_PMSG( Shakers_pmsg )
 CK_DLL_CTRL( Shakers_ctrl_noteOn )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     s->ck_noteOn( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Shakers_ctrl_noteOff()
@@ -26864,9 +26999,10 @@ CK_DLL_CTRL( Shakers_ctrl_noteOn )
 CK_DLL_CTRL( Shakers_ctrl_noteOff )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     s->noteOff( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: Shakers_ctrl_which()
@@ -26875,7 +27011,7 @@ CK_DLL_CTRL( Shakers_ctrl_noteOff )
 CK_DLL_CTRL( Shakers_ctrl_which )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
-    t_CKINT c = GET_CK_INT(value);
+    t_CKINT c = GET_CK_INT(ARGS);
     s->setupNum( c );
     RETURN->v_int = (t_CKINT) s->m_noteNum ;
 }
@@ -26885,7 +27021,6 @@ CK_DLL_CTRL( Shakers_ctrl_which )
 // name: Shakers_cget_which()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Shakers_cget_which )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
@@ -26900,7 +27035,7 @@ CK_DLL_CGET( Shakers_cget_which )
 CK_DLL_CTRL( Shakers_ctrl_freq )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
-    s->freq = GET_CK_FLOAT(value);
+    s->freq = GET_CK_FLOAT(ARGS);
     s->controlChange( __SK_ModWheel_, s->freq );
     RETURN->v_float = (t_CKFLOAT) s->freq;
 }
@@ -26910,7 +27045,6 @@ CK_DLL_CTRL( Shakers_ctrl_freq )
 // name: Shakers_cget_freq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Shakers_cget_freq )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
@@ -26926,8 +27060,9 @@ CK_DLL_CGET( Shakers_cget_freq )
 CK_DLL_CTOR( SubNoise_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, SubNoise_offset_data) = (t_CKUINT) new SubNoise( );
+    OBJ_MEMBER_UINT(SELF, SubNoise_offset_data) = (t_CKUINT)new SubNoise( );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: SubNoise_dtor()
@@ -26937,6 +27072,7 @@ CK_DLL_DTOR( SubNoise_dtor )
 {
     delete (SubNoise *)OBJ_MEMBER_UINT(SELF, SubNoise_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: SubNoise_tick()
@@ -26949,6 +27085,7 @@ CK_DLL_TICK( SubNoise_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: SubNoise_pmsg()
 // desc: PMSG function ...
@@ -26956,10 +27093,11 @@ CK_DLL_TICK( SubNoise_tick )
 CK_DLL_PMSG( SubNoise_pmsg )
 {
     NRev * j = (NRev *)OBJ_MEMBER_UINT(SELF, NRev_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setEffectMix( f );
 	return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: SubNoise_ctrl_rate()
@@ -26968,7 +27106,7 @@ CK_DLL_PMSG( SubNoise_pmsg )
 CK_DLL_CTRL( SubNoise_ctrl_rate )
 {
     SubNoise * p = (SubNoise *)OBJ_MEMBER_UINT(SELF, SubNoise_offset_data );
-    int i = GET_CK_INT(value);
+    int i = GET_CK_INT(ARGS);
     p->setRate( i );
     RETURN->v_int = (t_CKINT) (int)((SubNoise *)OBJ_MEMBER_UINT(SELF, SubNoise_offset_data ))->subRate() ;
 }
@@ -26978,7 +27116,6 @@ CK_DLL_CTRL( SubNoise_ctrl_rate )
 // name: SubNoise_cget_rate()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( SubNoise_cget_rate )
 {
     RETURN->v_int = (t_CKINT) (int)((SubNoise *)OBJ_MEMBER_UINT(SELF, SubNoise_offset_data ))->subRate() ;
@@ -26995,8 +27132,9 @@ CK_DLL_CGET( SubNoise_cget_rate )
 CK_DLL_CTOR( VoicForm_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, VoicForm_offset_data) = (t_CKUINT) new VoicForm();
+    OBJ_MEMBER_UINT(SELF, VoicForm_offset_data) = (t_CKUINT)new VoicForm();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_dtor()
@@ -27004,8 +27142,9 @@ CK_DLL_CTOR( VoicForm_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( VoicForm_dtor )
 { 
-  delete (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    delete (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_tick()
@@ -27017,6 +27156,7 @@ CK_DLL_TICK( VoicForm_tick )
     *out = m->tick();
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_pmsg()
@@ -27035,9 +27175,10 @@ CK_DLL_PMSG( VoicForm_pmsg )
 CK_DLL_CTRL( VoicForm_ctrl_noteOn )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->noteOn( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_ctrl_noteOff()
@@ -27046,9 +27187,10 @@ CK_DLL_CTRL( VoicForm_ctrl_noteOn )
 CK_DLL_CTRL( VoicForm_ctrl_noteOff )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->noteOff( f );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_ctrl_speak()
@@ -27059,6 +27201,7 @@ CK_DLL_CTRL( VoicForm_ctrl_speak )
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     v->speak();
 }
+
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_ctrl_quiet()
@@ -27078,9 +27221,9 @@ CK_DLL_CTRL( VoicForm_ctrl_quiet )
 CK_DLL_CTRL( VoicForm_ctrl_phoneme )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    char *c = GET_CK_STRING(value); 
+    const char * c = GET_CK_STRING(ARGS)->str.c_str(); 
     v->setPhoneme( c );
-    RETURN->v_string = (t_CKSTRING) (char*)Phonemes::name(v->m_phonemeNum); //cast away const!
+    RETURN->v_string = v->str_phoneme;
 }
 
 
@@ -27088,13 +27231,11 @@ CK_DLL_CTRL( VoicForm_ctrl_phoneme )
 // name: VoicForm_cget_phoneme()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_phoneme )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    RETURN->v_string = (t_CKSTRING) (char*)Phonemes::name(v->m_phonemeNum); //cast away const!
+    RETURN->v_string = v->str_phoneme;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27104,7 +27245,7 @@ CK_DLL_CGET( VoicForm_cget_phoneme )
 CK_DLL_CTRL( VoicForm_ctrl_freq )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) v->voiced->m_freq ;
 }
@@ -27114,13 +27255,11 @@ CK_DLL_CTRL( VoicForm_ctrl_freq )
 // name: VoicForm_cget_freq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_freq )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->m_freq ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27130,7 +27269,7 @@ CK_DLL_CGET( VoicForm_cget_freq )
 CK_DLL_CTRL( VoicForm_ctrl_voiced )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->setVoiced( f );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
@@ -27140,14 +27279,12 @@ CK_DLL_CTRL( VoicForm_ctrl_voiced )
 // name: VoicForm_cget_voiced()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_voiced )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
 
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27157,7 +27294,7 @@ CK_DLL_CGET( VoicForm_cget_voiced )
 CK_DLL_CTRL( VoicForm_ctrl_unVoiced )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->setUnVoiced( f ); //not sure if this should be multiplied
     RETURN->v_float = (t_CKFLOAT) v->noiseEnv->value;
 }
@@ -27167,13 +27304,11 @@ CK_DLL_CTRL( VoicForm_ctrl_unVoiced )
 // name: VoicForm_cget_unVoiced()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_unVoiced )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->noiseEnv->value;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27183,24 +27318,21 @@ CK_DLL_CGET( VoicForm_cget_unVoiced )
 CK_DLL_CTRL( VoicForm_ctrl_voiceMix )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->controlChange(__SK_Breath_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_cget_voiceMix()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_voiceMix )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27210,25 +27342,21 @@ CK_DLL_CGET( VoicForm_cget_voiceMix )
 CK_DLL_CTRL( VoicForm_ctrl_selPhoneme )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    int i = GET_CK_INT(value); 
+    int i = GET_CK_INT(ARGS); 
     v->controlChange(__SK_FootControl_, i );
     RETURN->v_float = (t_CKFLOAT) v->m_phonemeNum ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_cget_selPhoneme()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_selPhoneme )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->m_phonemeNum ;
 }
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -27238,7 +27366,7 @@ CK_DLL_CGET( VoicForm_cget_selPhoneme )
 CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->controlChange( __SK_ModFrequency_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibrato->m_freq ;
 }
@@ -27248,13 +27376,11 @@ CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq )
 // name: VoicForm_cget_vibratoFreq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_vibratoFreq )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibrato->m_freq ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27264,18 +27390,16 @@ CK_DLL_CGET( VoicForm_cget_vibratoFreq )
 CK_DLL_CTRL( VoicForm_ctrl_vibratoGain )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->controlChange(__SK_ModWheel_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibratoGain ;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_cget_vibratoGain()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_vibratoGain )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
@@ -27290,24 +27414,21 @@ CK_DLL_CGET( VoicForm_cget_vibratoGain )
 CK_DLL_CTRL( VoicForm_ctrl_loudness )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->controlChange(__SK_AfterTouch_Cont_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
-
 
 
 //-----------------------------------------------------------------------------
 // name: VoicForm_cget_loudness()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_loudness )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27317,7 +27438,7 @@ CK_DLL_CGET( VoicForm_cget_loudness )
 CK_DLL_CTRL( VoicForm_ctrl_pitchSweepRate )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->setPitchSweepRate( f );
     RETURN->v_float = (t_CKFLOAT) v->voiced->m_freq ;
 }
@@ -27327,7 +27448,6 @@ CK_DLL_CTRL( VoicForm_ctrl_pitchSweepRate )
 // name: VoicForm_cget_pitchSweepRate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( VoicForm_cget_pitchSweepRate )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
@@ -27344,8 +27464,9 @@ CK_DLL_CGET( VoicForm_cget_pitchSweepRate )
 CK_DLL_CTOR( WvIn_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, WvIn_offset_data) = (t_CKUINT) new WvIn;
+    OBJ_MEMBER_UINT(SELF, WvIn_offset_data) = (t_CKUINT)new WvIn;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvIn_dtor()
@@ -27355,6 +27476,7 @@ CK_DLL_DTOR( WvIn_dtor )
 {
     delete (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvIn_tick()
@@ -27367,6 +27489,7 @@ CK_DLL_TICK( WvIn_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WvIn_pmsg()
 // desc: PMSG function ...
@@ -27374,10 +27497,11 @@ CK_DLL_TICK( WvIn_tick )
 CK_DLL_PMSG( WvIn_pmsg )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->controlChange(__SK_ModWheel_, f * 128.0 );
 	return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvIn_ctrl_rate()
@@ -27386,7 +27510,7 @@ CK_DLL_PMSG( WvIn_pmsg )
 CK_DLL_CTRL( WvIn_ctrl_rate )
 {
     WvIn * w = (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     w->setRate( f );
     RETURN->v_float = (t_CKFLOAT) w->rate ;
 }
@@ -27399,14 +27523,14 @@ CK_DLL_CTRL( WvIn_ctrl_rate )
 CK_DLL_CTRL( WvIn_ctrl_path )
 {
     WvIn * w = (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
-    char * c = *(char **)value;
+    const char * c = GET_CK_STRING(ARGS)->str.c_str();
     try { w->openFile( c, FALSE, FALSE ); }
     catch( StkError & e )
     {
-
         const char * s = e.getMessage();
         // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
     }
+    RETURN->v_string = w->str_path;
 }
 
 
@@ -27414,7 +27538,6 @@ CK_DLL_CTRL( WvIn_ctrl_path )
 // name: WvIn_cget_rate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( WvIn_cget_rate )
 {
     WvIn * w = (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
@@ -27429,8 +27552,9 @@ CK_DLL_CGET( WvIn_cget_rate )
 CK_DLL_CGET( WvIn_cget_path )
 {
     WvIn * w = (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
-    RETURN->v_string = (t_CKSTRING) w->m_filename ;
+    RETURN->v_string = w->m_filename ;
 }
+
 
 // WaveLoop
 //-----------------------------------------------------------------------------
@@ -27440,8 +27564,9 @@ CK_DLL_CGET( WvIn_cget_path )
 CK_DLL_CTOR( WaveLoop_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data) = (t_CKUINT) new WaveLoop;
+    OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data) = (t_CKUINT)new WaveLoop;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WaveLoop_dtor()
@@ -27451,6 +27576,7 @@ CK_DLL_DTOR( WaveLoop_dtor )
 {
     delete (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WaveLoop_tick()
@@ -27463,6 +27589,7 @@ CK_DLL_TICK( WaveLoop_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WaveLoop_pmsg()
 // desc: PMSG function ...
@@ -27472,6 +27599,7 @@ CK_DLL_PMSG( WaveLoop_pmsg )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WaveLoop_ctrl_freq()
 // desc: CTRL function ...
@@ -27479,7 +27607,7 @@ CK_DLL_PMSG( WaveLoop_pmsg )
 CK_DLL_CTRL( WaveLoop_ctrl_freq )
 {
     WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     w->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) w->m_freq ;
 }
@@ -27489,7 +27617,6 @@ CK_DLL_CTRL( WaveLoop_ctrl_freq )
 // name: WaveLoop_cget_freq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( WaveLoop_cget_freq )
 {
     WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
@@ -27504,7 +27631,7 @@ CK_DLL_CGET( WaveLoop_cget_freq )
 CK_DLL_CTRL( WaveLoop_ctrl_phase )
 {
     WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
-    float f = (float)GET_CK_FLOAT(value);
+    float f = (float)GET_CK_FLOAT(ARGS);
     w->addPhase( f );
     RETURN->v_float = (t_CKFLOAT) w->time / w->fileSize ;
 }
@@ -27514,13 +27641,11 @@ CK_DLL_CTRL( WaveLoop_ctrl_phase )
 // name: WaveLoop_cget_phase()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( WaveLoop_cget_phase )
 {
     WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
     RETURN->v_float = (t_CKFLOAT) w->time / w->fileSize ;
 }
-
 
 
 //-----------------------------------------------------------------------------
@@ -27530,7 +27655,7 @@ CK_DLL_CGET( WaveLoop_cget_phase )
 CK_DLL_CTRL( WaveLoop_ctrl_phaseOffset )
 {
     WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(value);
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     w->addPhaseOffset( f );
     RETURN->v_float = (t_CKFLOAT) w->phaseOffset ;
 }
@@ -27540,7 +27665,6 @@ CK_DLL_CTRL( WaveLoop_ctrl_phaseOffset )
 // name: WaveLoop_cget_phaseOffset()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( WaveLoop_cget_phaseOffset )
 {
     WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
@@ -27562,6 +27686,7 @@ CK_DLL_CTOR( WvOut_ctor )
     OBJ_MEMBER_UINT(SELF, WvOut_offset_data) = (t_CKUINT)yo;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WvOut_dtor()
 // desc: DTOR function ...
@@ -27576,6 +27701,7 @@ CK_DLL_DTOR( WvOut_dtor )
     delete (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WvOut_tick()
 // desc: TICK function ...
@@ -27588,6 +27714,7 @@ CK_DLL_TICK( WvOut_tick )
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WvOut_pmsg()
 // desc: PMSG function ...
@@ -27597,6 +27724,7 @@ CK_DLL_PMSG( WvOut_pmsg )
     return TRUE;
 }
 
+
 // XXX chuck got mono, so we have one channel. fix later.
 //-----------------------------------------------------------------------------
 // name: WvOut_ctrl_matFilename()
@@ -27605,7 +27733,7 @@ CK_DLL_PMSG( WvOut_pmsg )
 CK_DLL_CTRL( WvOut_ctrl_matFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = * (char**) value;
+    char *filename = GET_CK_STRING(ARGS);
     char buffer[1024];
     
     // special
@@ -27622,8 +27750,9 @@ CK_DLL_CTRL( WvOut_ctrl_matFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (t_CKSTRING) w->m_filename ;
+    RETURN->v_string = (Chuck_String *) w->m_filename ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvOut_ctrl_sndFilename()
@@ -27632,7 +27761,7 @@ CK_DLL_CTRL( WvOut_ctrl_matFilename )
 CK_DLL_CTRL( WvOut_ctrl_sndFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = * (char**) value;
+    char *filename = GET_CK_STRING(ARGS);
     char buffer[1024];
 
     // special
@@ -27649,8 +27778,9 @@ CK_DLL_CTRL( WvOut_ctrl_sndFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (t_CKSTRING) w->m_filename ;
+    RETURN->v_string = (Chuck_String *) w->m_filename ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvOut_ctrl_wavFilename()
@@ -27659,7 +27789,7 @@ CK_DLL_CTRL( WvOut_ctrl_sndFilename )
 CK_DLL_CTRL( WvOut_ctrl_wavFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = * (char**) value;
+    char *filename = GET_CK_STRING(ARGS);
     char buffer[1024];
 
     // special
@@ -27676,8 +27806,9 @@ CK_DLL_CTRL( WvOut_ctrl_wavFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (t_CKSTRING) w->m_filename ;
+    RETURN->v_string = (Chuck_String *) w->m_filename ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvOut_ctrl_rawFilename()
@@ -27686,7 +27817,7 @@ CK_DLL_CTRL( WvOut_ctrl_wavFilename )
 CK_DLL_CTRL( WvOut_ctrl_rawFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = * (char**) value;
+    char *filename = GET_CK_STRING(ARGS);
     char buffer[1024];
 
     // special
@@ -27703,8 +27834,9 @@ CK_DLL_CTRL( WvOut_ctrl_rawFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (t_CKSTRING) w->m_filename ;
+    RETURN->v_string = (Chuck_String *) w->m_filename ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvOut_ctrl_aifFilename()
@@ -27713,7 +27845,7 @@ CK_DLL_CTRL( WvOut_ctrl_rawFilename )
 CK_DLL_CTRL( WvOut_ctrl_aifFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = * (char**) value;
+    char * filename = GET_CK_STRING(ARGS);
     char buffer[1024];
 
     // special
@@ -27730,7 +27862,7 @@ CK_DLL_CTRL( WvOut_ctrl_aifFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (t_CKSTRING) w->m_filename ;
+    RETURN->v_string = (Chuck_String *) w->m_filename ;
 }
 
 
@@ -27741,7 +27873,7 @@ CK_DLL_CTRL( WvOut_ctrl_aifFilename )
 CK_DLL_CGET( WvOut_cget_filename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    RETURN->v_string = (t_CKSTRING) w->m_filename ;
+    RETURN->v_string = (Chuck_String *) w->m_filename ;
 }
 
 
@@ -27759,6 +27891,7 @@ CK_DLL_CTRL( WvOut_ctrl_closeFile )
     g_wv.erase( iter, iter );
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WvOut_ctrl_record()
 // desc: CTRL function ...
@@ -27771,15 +27904,17 @@ CK_DLL_CTRL( WvOut_ctrl_record )
     RETURN->v_int = (t_CKINT) w->start ;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: WvOut_cget_record()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( WvOut_cget_record )
 {
-    WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data )
+    WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
     RETURN->v_int = (t_CKINT) w->start ;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvOut_ctrl_autoPrefix()
@@ -27788,9 +27923,10 @@ CK_DLL_CGET( WvOut_cget_record )
 CK_DLL_CTRL( WvOut_ctrl_autoPrefix )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    strcpy( w->autoPrefix, GET_NEXT_STRING(ARGS) )
-    RETURN->v_string = (t_CKSTRING) w->autoPrefix;
+    strcpy( w->autoPrefix, GET_NEXT_STRING(ARGS) );
+    RETURN->v_string = (Chuck_String *) w->autoPrefix;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: WvOut_cget_autoPrefix()
@@ -27799,8 +27935,9 @@ CK_DLL_CTRL( WvOut_ctrl_autoPrefix )
 CK_DLL_CGET( WvOut_cget_autoPrefix )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    RETURN->v_string = (t_CKSTRING) w->autoPrefix;
+    RETURN->v_string = (Chuck_String *) w->autoPrefix;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: ck_detach()

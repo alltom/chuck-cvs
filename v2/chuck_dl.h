@@ -62,7 +62,7 @@ struct Chuck_UGen;
 #define GET_CK_UINT(ptr)       (*(t_CKUINT *)ptr)
 #define GET_CK_TIME(ptr)       (*(t_CKTIME *)ptr)
 #define GET_CK_DUR(ptr)        (*(t_CKDUR *)ptr)
-#define GET_CK_STRING(ptr)     (*(char **)ptr)
+#define GET_CK_STRING(ptr)     (*(Chuck_String **)ptr)
 
 // param conversion with pointer advance
 #define GET_NEXT_FLOAT(ptr)    (*((t_CKFLOAT *&)ptr)++)
@@ -72,7 +72,7 @@ struct Chuck_UGen;
 #define GET_NEXT_UINT(ptr)     (*((t_CKUINT *&)ptr)++)
 #define GET_NEXT_TIME(ptr)     (*((t_CKTIME *&)ptr)++)
 #define GET_NEXT_DUR(ptr)      (*((t_CKDUR *&)ptr)++)
-#define GET_NEXT_STRING(ptr)   (*((char * *&)ptr)++)
+#define GET_NEXT_STRING(ptr)   (*((Chuck_String **&)ptr)++)
 
 // param conversion
 #define SET_CK_FLOAT(ptr,v)      (*(t_CKFLOAT *&)ptr=v)
@@ -82,7 +82,7 @@ struct Chuck_UGen;
 #define SET_CK_UINT(ptr,v)       (*(t_CKUINT *&)ptr=v)
 #define SET_CK_TIME(ptr,v)       (*(t_CKTIME *&)ptr=v)
 #define SET_CK_DUR(ptr,v)        (*(t_CKDUR *&)ptr=v)
-#define SET_CK_STRING(ptr,v)     (*(char *&)ptr=v)
+#define SET_CK_STRING(ptr,v)     (*(Chuck_String **&)ptr=v)
 
 // param conversion with pointer advance
 #define SET_NEXT_FLOAT(ptr,v)    (*((t_CKFLOAT *&)ptr)++=v)
@@ -92,7 +92,7 @@ struct Chuck_UGen;
 #define SET_NEXT_UINT(ptr,v)     (*((t_CKUINT *&)ptr)++=v)
 #define SET_NEXT_TIME(ptr,v)     (*((t_CKTIME *&)ptr)++=v)
 #define SET_NEXT_DUR(ptr,v)      (*((t_CKDUR *&)ptr)++=v)
-#define SET_NEXT_STRING(ptr,v)   (*((char * *&)ptr)++=v)
+#define SET_NEXT_STRING(ptr,v)   (*((Chuck_String **&)ptr)++=v)
 
 // param conversion - to extract values from object's data segment
 #define OBJ_MEMBER_DATA(obj,offset)     (obj->data + offset)
@@ -104,7 +104,7 @@ struct Chuck_UGen;
 #define OBJ_MEMBER_TIME(obj,offset)     (*(t_CKTIME *)OBJ_MEMBER_DATA(obj,offset))
 #define OBJ_MEMBER_DUR(obj,offset)      (*(t_CKDUR *)OBJ_MEMBER_DATA(obj,offset))
 #define OBJ_MEMBER_OBJECT(obj,offset)   (*(Chuck_Object **)OBJ_MEMBER_DATA(obj,offset))
-#define OBJ_MEMBER_STRING(obj,offset)   (*(char **)OBJ_MEMBER_DATA(obj,offset))
+#define OBJ_MEMBER_STRING(obj,offset)   (*(Chuck_String **)OBJ_MEMBER_DATA(obj,offset))
 
 
 // chuck dll export linkage and calling convention
@@ -180,7 +180,7 @@ typedef t_CKVOID (CK_DLL_CALL * f_sfun)( void * ARGS, Chuck_DL_Return * RETURN )
 typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_Object * SELF, SAMPLE in, SAMPLE * out );
 typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN );
 typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN );
-typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_Object * SELF, const char * msg, void * ARGS );
+typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_Object * SELF, const char * MSG, void * ARGS );
 }
 
 
@@ -331,9 +331,6 @@ struct Chuck_DL_Class
 };
 
 
-
-
-
 //-----------------------------------------------------------------------------
 // name: struct Chuck_DL_Value
 // desc: value from module
@@ -421,8 +418,10 @@ union Chuck_DL_Return
     t_CKINT v_int;
     t_CKUINT v_uint;
     t_CKFLOAT v_float;
+    t_CKDUR v_dur;
+    t_CKTIME v_time;
     Chuck_Object * v_object;
-    char * v_string;
+    Chuck_String * v_string;
     
     Chuck_DL_Return() { v_float = 0.0; }
 };
