@@ -179,6 +179,10 @@ SOURCE=.\ugen_osc.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ugen_stk.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ugen_xxx.cpp
 # End Source File
 # Begin Source File
