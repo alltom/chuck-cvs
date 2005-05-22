@@ -27530,7 +27530,7 @@ CK_DLL_CTRL( WvIn_ctrl_path )
         const char * s = e.getMessage();
         // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
     }
-    RETURN->v_string = w->str_path;
+    RETURN->v_string = w->str_filename;
 }
 
 
@@ -27552,7 +27552,7 @@ CK_DLL_CGET( WvIn_cget_rate )
 CK_DLL_CGET( WvIn_cget_path )
 {
     WvIn * w = (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
-    RETURN->v_string = w->m_filename ;
+    RETURN->v_string = w->str_filename ;
 }
 
 
@@ -27733,7 +27733,7 @@ CK_DLL_PMSG( WvOut_pmsg )
 CK_DLL_CTRL( WvOut_ctrl_matFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = GET_CK_STRING(ARGS);
+    const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     char buffer[1024];
     
     // special
@@ -27750,7 +27750,7 @@ CK_DLL_CTRL( WvOut_ctrl_matFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_MAT, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (Chuck_String *) w->m_filename ;
+    RETURN->v_string = w->str_filename ;
 }
 
 
@@ -27761,7 +27761,7 @@ CK_DLL_CTRL( WvOut_ctrl_matFilename )
 CK_DLL_CTRL( WvOut_ctrl_sndFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = GET_CK_STRING(ARGS);
+    const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     char buffer[1024];
 
     // special
@@ -27778,7 +27778,7 @@ CK_DLL_CTRL( WvOut_ctrl_sndFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_SND, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (Chuck_String *) w->m_filename ;
+    RETURN->v_string = w->str_filename ;
 }
 
 
@@ -27789,7 +27789,7 @@ CK_DLL_CTRL( WvOut_ctrl_sndFilename )
 CK_DLL_CTRL( WvOut_ctrl_wavFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = GET_CK_STRING(ARGS);
+    const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     char buffer[1024];
 
     // special
@@ -27806,7 +27806,7 @@ CK_DLL_CTRL( WvOut_ctrl_wavFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_WAV, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (Chuck_String *) w->m_filename ;
+    RETURN->v_string = w->str_filename ;
 }
 
 
@@ -27817,7 +27817,7 @@ CK_DLL_CTRL( WvOut_ctrl_wavFilename )
 CK_DLL_CTRL( WvOut_ctrl_rawFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char *filename = GET_CK_STRING(ARGS);
+    const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     char buffer[1024];
 
     // special
@@ -27834,7 +27834,7 @@ CK_DLL_CTRL( WvOut_ctrl_rawFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_RAW, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (Chuck_String *) w->m_filename ;
+    RETURN->v_string = w->str_filename ;
 }
 
 
@@ -27845,7 +27845,7 @@ CK_DLL_CTRL( WvOut_ctrl_rawFilename )
 CK_DLL_CTRL( WvOut_ctrl_aifFilename )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    char * filename = GET_CK_STRING(ARGS);
+    const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     char buffer[1024];
 
     // special
@@ -27862,7 +27862,7 @@ CK_DLL_CTRL( WvOut_ctrl_aifFilename )
     }
     w->openFile( filename, 1, WvOut::WVOUT_AIF, Stk::STK_SINT16 );
     g_wv[w] = w;
-    RETURN->v_string = (Chuck_String *) w->m_filename ;
+    RETURN->v_string = w->str_filename ;
 }
 
 
@@ -27923,7 +27923,7 @@ CK_DLL_CGET( WvOut_cget_record )
 CK_DLL_CTRL( WvOut_ctrl_autoPrefix )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    strcpy( w->autoPrefix, GET_NEXT_STRING(ARGS) );
+    strcpy( w->autoPrefix, GET_NEXT_STRING(ARGS)->str.c_str() );
     RETURN->v_string = (Chuck_String *) w->autoPrefix;
 }
 

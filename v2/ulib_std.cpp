@@ -219,36 +219,38 @@ CK_DLL_SFUN( sgn_impl )
 // system
 CK_DLL_SFUN( system_impl )
 {
-    char * cmd = *(char **)ARGS;
+    const char * cmd = GET_CK_STRING(ARGS)->str.c_str();
     RETURN->v_int = system( cmd );
 }
 
 // aoti
 CK_DLL_SFUN( atoi_impl )
 {
-    char * v = *(char **)ARGS;
+    const char * v = GET_CK_STRING(ARGS)->str.c_str();
     RETURN->v_int = atoi( v );
 }
 
 // atof
 CK_DLL_SFUN( atof_impl )
 {
-    char * v = *(char **)ARGS;
+    const char * v = GET_CK_STRING(ARGS)->str.c_str();
     RETURN->v_float = atof( v );
 }
 
 // getenv
+static Chuck_String g_str; // PROBLEM: not thread friendly
 CK_DLL_SFUN( getenv_impl )
 {
-    char * v = *(char **)ARGS;
-    RETURN->v_string = getenv( v );
+    const char * v = GET_CK_STRING(ARGS)->str.c_str();
+    g_str.str = getenv( v );
+    RETURN->v_string = &g_str;
 }
 
 // setenv
 CK_DLL_SFUN( setenv_impl )
 {
-    char * v1 = *(char **)ARGS;
-    char * v2 = *( (char **)ARGS + 1 );
+    const char * v1 = GET_NEXT_STRING(ARGS)->str.c_str();
+    const char * v2 = GET_NEXT_STRING(ARGS)->str.c_str();
     RETURN->v_int = setenv( v1, v2, 1 );
 }
 
