@@ -108,11 +108,13 @@ extern "C" int yyparse( void );
 //-----------------------------------------------------------------------------
 void signal_int( int sig_num )
 {
-    if( g_vm )
+    fprintf( stderr, "[chuck]: cleaning up...\n" );
+    usleep( 100000 );
+
+    if( g_vm && g_vm->has_init() )
     {
         Chuck_VM * vm = g_vm;
         g_vm = NULL;
-        fprintf( stderr, "[chuck]: cleaning up...\n" );
         vm->stop();
         stk_detach( 0, NULL );
 #ifndef __PLATFORM_WIN32__
@@ -364,13 +366,6 @@ int main( int argc, char ** argv )
     t_CKUINT files = 0;
     t_CKINT i;
 
-    // catch SIGINT
-    signal( SIGINT, signal_int );
-#ifndef __PLATFORM_WIN32__
-    // catch SIGPIPE
-    signal( SIGPIPE, signal_pipe );
-#endif
-    
 	// parse command line args
     for( i = 1; i < argc; i++ )
     {
@@ -442,7 +437,7 @@ int main( int argc, char ** argv )
         // exit
         exit( 0 );
     }
-
+    
     // check buffer size
     buffer_size = next_power_2( buffer_size-1 );
     // audio, boost
@@ -468,12 +463,20 @@ int main( int argc, char ** argv )
 
     // allocate the vm - needs the type system
     Chuck_VM * vm = g_vm = new Chuck_VM;
+
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
                          num_buffers, dac, adc, g_priority ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
     }
+
+    // catch SIGINT
+    signal( SIGINT, signal_int );
+#ifndef __PLATFORM_WIN32__
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
+#endif
 
     // loop through and process each file
     for( i = 1; i < argc; i++ )

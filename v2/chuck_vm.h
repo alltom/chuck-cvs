@@ -296,6 +296,7 @@ public: // msg
 public: // static/dynamic function table
     void set_env( void * env ) { m_env = env; }
     void * get_env( ) { return m_env; }
+    t_CKBOOL has_init() { return m_init; }
     
 public: // get error
     const char * last_error() const
