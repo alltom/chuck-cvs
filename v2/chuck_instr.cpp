@@ -1693,8 +1693,11 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
 		// make ugen
 		Chuck_UGen * ugen;
 		object = ugen = new Chuck_UGen;
-		ugen->shred = shred;
-		shred->add( ugen );
+		if( shred )
+		{
+			ugen->shred = shred;
+		    shred->add( ugen );
+		}
 	}
     
     // check to see enough memory

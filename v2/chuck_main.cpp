@@ -54,6 +54,7 @@
 //#include "ulib_net.h"
 
 #include "util_thread.h"
+#include "util_network.h"
 
 #include <signal.h>
 #ifndef __PLATFORM_WIN32__
@@ -85,8 +86,10 @@ char g_host[256] = "127.0.0.1";
 int g_port = 8888;
 // ck_socket g_sock;
 Chuck_Env * g_env = NULL;
+Chuck_Emitter * g_emitter = NULL;
 t_CKBOOL g_error = FALSE;
 char g_filename[1024] = "";
+ck_socket g_sock;
 
 
 // 'C' specification necessary for windows to link properly
@@ -234,6 +237,458 @@ Chuck_VM_Code * emit( Chuck_Emitter * emit, a_Program prog )
 
 
 //-----------------------------------------------------------------------------
+// name: send_file()
+// desc: ...
+//-----------------------------------------------------------------------------
+int send_file( const char * filename, Net_Msg & msg, const char * op )
+{
+    FILE * fd = NULL;
+    struct stat fs;
+    
+    strcpy( msg.buffer, "" );
+    //if( filename[0] != '/' )
+    //{ 
+    //    strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
+    //    strcat( msg.buffer, getenv("PWD") ? "/" : "" );
+    //}
+    strcat( msg.buffer, filename );
+
+    // test it
+    fd = open_cat( (char *)msg.buffer );
+    if( !fd )
+    {
+        fprintf( stderr, "[chuck]: cannot open file '%s' for [%s]...\n", filename, op );
+        return FALSE;
+    }
+            
+    if( !parse( (char *)msg.buffer, fd ) )
+    {
+        fprintf( stderr, "[chuck]: skipping file '%s' for [%s]...\n", filename, op );
+        fclose( fd );
+        return FALSE;
+    }
+            
+    // stat it
+    stat( msg.buffer, &fs );
+    fseek( fd, 0, SEEK_SET );
+
+    //fprintf(stderr, "sending TCP file %s\n", msg.buffer );
+    // send the first packet
+    msg.param2 = (t_CKUINT)fs.st_size;
+    msg.length = 0;
+    otf_hton( &msg );
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+
+    // send the whole thing
+    t_CKUINT left = (t_CKUINT)fs.st_size;
+    while( left )
+    {
+        //fprintf(stderr,"file %03d bytes left ... ", left);
+        // amount to send
+        msg.length = left > NET_BUFFER_SIZE ? NET_BUFFER_SIZE : left;
+        // read
+        msg.param3 = fread( msg.buffer, sizeof(char), msg.length, fd );
+        // amount left
+        left -= msg.param3 ? msg.param3 : 0;
+        msg.param2 = left;
+        //fprintf(stderr, "sending fread %03d length %03d...\n", msg.param3, msg.length );
+        // send it
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    
+    // close
+    fclose( fd );
+    //fprintf(stderr, "done.\n", msg.buffer );
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: recv_file()
+// desc: ...
+//-----------------------------------------------------------------------------
+FILE * recv_file( const Net_Msg & msg, ck_socket sock )
+{
+    Net_Msg buf;
+    
+    // what is left
+    t_CKUINT left = msg.param2;
+    // make a temp file
+    FILE * fd = tmpfile();
+
+    do {
+        // msg
+        if( !ck_recv( sock, (char *)&buf, sizeof(buf) ) )
+            goto error;
+        otf_ntoh( &buf );
+        // write
+        fwrite( buf.buffer, sizeof(char), buf.length, fd );
+    }while( buf.param2 );
+    
+    return fd;
+
+error:
+    fclose( fd );
+    fd = NULL;
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: send_connect()
+// desc: ...
+//-----------------------------------------------------------------------------
+int send_connect()
+{
+    g_sock = ck_tcp_create( 0 );
+    if( !g_sock )
+    {
+        fprintf( stderr, "[chuck]: cannot open socket to send command...\n" );
+        return FALSE;
+    }
+
+    if( strcmp( g_host, "127.0.0.1" ) )
+        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
+    
+    if( !ck_connect( g_sock, g_host, g_port ) )
+    {
+        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
+        return FALSE;
+    }
+    
+    ck_send_timeout( g_sock, 0, 2000000 );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: send_cmd()
+// desc: ...
+//-----------------------------------------------------------------------------
+int send_cmd( int argc, char ** argv, t_CKINT & i )
+{
+    Net_Msg msg;
+    g_sigpipe_mode = 1;
+    int ret = 0;
+    int tasks_total = 0, tasks_done = 0;
+	
+    if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
+    {
+        if( ++i >= argc )
+        {
+            fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
+            goto error;
+        }
+
+        if( !send_connect() ) return 0;
+        do {
+            msg.type = MSG_ADD;
+            msg.param = 1;
+            tasks_done += send_file( argv[i], msg, "add" );
+            tasks_total++;
+        } while( ++i < argc );
+        
+        if( !tasks_done )
+            goto error;
+    }
+    else if( !strcmp( argv[i], "--remove" ) || !strcmp( argv[i], "-" ) )
+    {
+        if( ++i >= argc )
+        {
+            fprintf( stderr, "[chuck]: not enough arguments following [remove]...\n" );
+            goto error;
+        }
+
+        if( !send_connect() ) return 0;
+        do {
+            msg.param = atoi( argv[i] );
+            msg.type = MSG_REMOVE;
+            otf_hton( &msg );
+            ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        } while( ++i < argc );
+    }
+    else if( !strcmp( argv[i], "--" ) )
+    {
+        if( !send_connect() ) return 0;
+        msg.param = 0xffffffff;
+        msg.type = MSG_REMOVE;
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
+    {
+        if( ++i >= argc )
+        {
+            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
+            goto error;
+        }
+
+        if( i <= 0 )
+            msg.param = 0xffffffff;
+        else
+            msg.param = atoi( argv[i] );
+
+        if( ++i >= argc )
+        {
+            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
+            goto error;
+        }
+
+        if( !send_connect() ) return 0;
+        msg.type = MSG_REPLACE;
+        if( !send_file( argv[i], msg, "replace" ) )
+            goto error;
+    }
+    else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
+    {
+        if( !send_connect() ) return 0;
+        msg.type = MSG_REMOVEALL;
+        msg.param = 0;
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    else if( !strcmp( argv[i], "--kill" ) )
+    {
+        if( !send_connect() ) return 0;
+        msg.type = MSG_REMOVEALL;
+        msg.param = 0;
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        msg.type = MSG_KILL;
+        msg.param = (i+1)<argc ? atoi(argv[++i]) : 0;
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    else if( !strcmp( argv[i], "--time" ) )
+    {
+        if( !send_connect() ) return 0;
+        msg.type = MSG_TIME;
+        msg.param = 0;
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
+    {
+        if( !send_connect() ) return 0;
+        msg.type = MSG_STATUS;
+        msg.param = 0;
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    }
+    else
+        return 0;
+        
+    // send
+    msg.type = MSG_DONE;
+    otf_hton( &msg );
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+
+    // set timeout
+    ck_recv_timeout( g_sock, 0, 2000000 );
+    // reply
+    if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
+    {
+        otf_ntoh( &msg );
+        fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
+        if( !msg.param )
+            fprintf( stderr, "(reason): %s\n", 
+                ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) ) ;
+    }
+    else
+    {
+        fprintf( stderr, "[chuck]: remote operation timed out...\n" );
+    }
+    // close the sock
+    ck_close( g_sock );
+    
+    // exit
+    exit( msg.param );
+
+    return 1;
+    
+error:
+    msg.type = MSG_DONE;
+    otf_hton( &msg );
+    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    ck_close( g_sock );
+    
+    exit( 1 );
+
+    return 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: process_msg()
+// desc: ...
+//-----------------------------------------------------------------------------
+extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data )
+{
+    Chuck_Msg * cmd = new Chuck_Msg;
+	Chuck_VM_Code * code = NULL;
+    FILE * fd = NULL;
+    
+    // fprintf( stderr, "UDP message recv...\n" );
+    if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
+    {
+        // see if entire file is on the way
+        if( msg->param2 )
+        {
+            fd = recv_file( *msg, (ck_socket)data );
+            if( !fd )
+            {
+                fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
+                    mini(msg->buffer) );
+                return 0;
+            }
+        }
+        
+        // parse
+        if( !parse( msg->buffer, fd ) )
+            return 1;
+
+        // type check
+        if( !type_check( g_env, g_program ) )
+            return 1;
+
+        // emit
+        if( !(code = emit( g_emitter, g_program )) )
+            return 1;
+
+        // name it
+        code->name += string(msg->buffer);
+
+        // unload the context from the type-checker
+        if( !type_engine_unload_context( g_env ) )
+        {
+            EM_error2( 0, "internal error unloading context...\n" );
+            return 1;
+        }
+        
+		// set the flags for the command
+        cmd->type = msg->type;
+        cmd->code = code;
+        if( msg->type == MSG_REPLACE )
+            cmd->param = msg->param;
+    }
+    else if( msg->type == MSG_STATUS || msg->type == MSG_REMOVE || msg->type == MSG_REMOVEALL
+             || msg->type == MSG_KILL || msg->type == MSG_TIME )
+    {
+        cmd->type = msg->type;
+        cmd->param = msg->param;
+    }
+    else
+    {
+        fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
+        SAFE_DELETE(cmd);
+        return 0;
+    }
+    
+    // immediate
+    if( immediate )
+        return g_vm->process_msg( cmd );
+
+    g_vm->queue_msg( cmd, 1 );
+
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: cb()
+// desc: ...
+//-----------------------------------------------------------------------------
+void * cb( void * p )
+{
+    Net_Msg msg;
+    Net_Msg ret;
+    ck_socket client;
+    int n;
+
+#ifndef __PLATFORM_WIN32__
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
+#endif
+
+    while( true )
+    {
+        client = ck_accept( g_sock );
+        if( !client )
+        {
+            if( g_vm ) fprintf( stderr, "[chuck]: socket error during accept()...\n" );
+            usleep( 40000 );
+            ck_close( client );
+            continue;
+        }
+        msg.clear();
+        // set time out
+        ck_recv_timeout( client, 0, 5000000 );
+        n = ck_recv( client, (char *)&msg, sizeof(msg) );
+        otf_ntoh( &msg );
+        if( n != sizeof(msg) )
+        {
+            fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
+            usleep( 40000 );
+            ck_close( client );
+            continue;
+        }
+        
+        if( msg.header != NET_HEADER )
+        {
+            fprintf( stderr, "[chuck]: header mismatch - possible endian lunacy...\n" );
+            ck_close( client );
+            continue;
+        }
+
+        while( msg.type != MSG_DONE )
+        {
+            if( g_vm )
+            {
+                if( !process_msg( &msg, FALSE, client ) )
+                {
+                    ret.param = FALSE;
+                    strcpy( (char *)ret.buffer, EM_lasterror() );
+                    while( msg.type != MSG_DONE && n )
+                    {
+                        n = ck_recv( client, (char *)&msg, sizeof(msg) );
+                        otf_ntoh( &msg );
+                    }
+                    break;
+                }
+                else
+                {
+                    ret.param = TRUE;
+                    strcpy( (char *)ret.buffer, "success" );
+                    n = ck_recv( client, (char *)&msg, sizeof(msg) );
+                    otf_ntoh( &msg );
+                }
+            }
+        }
+        
+        otf_hton( &ret );
+        ck_send( client, (char *)&ret, sizeof(ret) );
+        ck_close( client );
+    }
+    
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: next_power_2()
 // desc: ...
 // thanks: to Niklas Werner / music-dsp
@@ -365,6 +820,7 @@ int main( int argc, char ** argv )
 
     t_CKUINT files = 0;
     t_CKINT i;
+	t_CKINT a;
 
 	// parse command line args
     for( i = 1; i < argc; i++ )
@@ -417,8 +873,8 @@ int main( int argc, char ** argv )
                 usage();
                 exit( 2 );
             }
-            //else if( a = send_cmd( argc, argv, i ) )
-            //    exit( 0 );
+            else if( a = send_cmd( argc, argv, i ) )
+                exit( 0 );
             else
             {
                 fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
@@ -461,7 +917,7 @@ int main( int argc, char ** argv )
     // allocate the type checker
     env = g_env = type_engine_init( NULL );
     // allocate the emitter
-    emitter = emit_engine_init( env );
+    emitter = g_emitter = emit_engine_init( env );
     // enable dump
     emitter->dump = dump;
     // load internal libs
@@ -522,7 +978,24 @@ int main( int argc, char ** argv )
         {
             EM_error2( 0, "internal error unloading context...\n" );
             return 1;
-        }    
+        }
+    }
+
+	// start tcp server
+    g_sock = ck_tcp_create( 1 );
+    if( !g_sock || !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
+    {
+        fprintf( stderr, "[chuck]: cannot bind to tcp port %i...\n", g_port );
+        ck_close( g_sock );
+        g_sock = NULL;
+    }
+    else
+    {
+#ifndef __PLATFORM_WIN32__
+        pthread_create( &g_tid, NULL, cb, NULL );
+#else
+        g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)cb, NULL, 0, 0);
+#endif
     }
 
     // run the vm
