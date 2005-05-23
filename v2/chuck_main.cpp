@@ -42,6 +42,7 @@
 #include "chuck_bbq.h"
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
+#include "chuck_lang.h"
 
 #include "ugen_osc.h"
 #include "ugen_xxx.h"
@@ -97,6 +98,58 @@ char g_filename[1024] = "";
 
 // link with the parser
 extern "C" int yyparse( void );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: signal_int()
+// desc: ...
+//-----------------------------------------------------------------------------
+void signal_int( int sig_num )
+{
+    if( g_vm )
+    {
+        Chuck_VM * vm = g_vm;
+        g_vm = NULL;
+        fprintf( stderr, "[chuck]: cleaning up...\n" );
+        vm->stop();
+        stk_detach( 0, NULL );
+#ifndef __PLATFORM_WIN32__
+        // pthread_kill( g_tid, 2 );
+        if( g_tid ) pthread_cancel( g_tid );
+        if( g_tid ) usleep( 50000 );
+        delete( vm );
+#else
+        CloseHandle( g_tid );
+#endif
+//        ck_close( g_sock );
+    }
+
+#ifndef __PLATFORM_WIN32__
+//    pthread_join( g_tid, NULL );
+#endif
+    
+    exit(2);
+}
+
+
+
+
+t_CKUINT g_sigpipe_mode = 0;
+//-----------------------------------------------------------------------------
+// name: signal_pipe()
+// desc: ...
+//-----------------------------------------------------------------------------
+void signal_pipe( int sig_num )
+{
+    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (no connection)...\n" );
+    if( g_sigpipe_mode )
+	{
+        stk_detach( 0, NULL );
+        exit( 1 );
+	}
+}
 
 
 
@@ -248,6 +301,7 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     if( !load_module( env, libstd_query, "Std", "global" ) ) goto error;
     if( !load_module( env, libmath_query, "Math", "global" ) ) goto error;
     // if( !load_module( env, net_query, "net", "global" ) ) goto error;
+	if( !init_class_Midi( env ) ) goto error;
 
     // clear context
     type_engine_unload_context( env );
@@ -310,7 +364,14 @@ int main( int argc, char ** argv )
     t_CKUINT files = 0;
     t_CKINT i;
 
-    // parse command line args
+    // catch SIGINT
+    signal( SIGINT, signal_int );
+#ifndef __PLATFORM_WIN32__
+    // catch SIGPIPE
+    signal( SIGPIPE, signal_pipe );
+#endif
+    
+	// parse command line args
     for( i = 1; i < argc; i++ )
     {
         if( argv[i][0] == '-' || argv[i][0] == '+' ||

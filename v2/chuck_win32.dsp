@@ -163,11 +163,15 @@ SOURCE=.\digiio_rtaudio.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\midiio_win32.cpp
+SOURCE=.\midiio_rtmidi.cpp
 # End Source File
 # Begin Source File
 
 SOURCE=.\rtaudio.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\rtmidi.cpp
 # End Source File
 # Begin Source File
 
@@ -307,7 +311,7 @@ SOURCE=.\digiio_rtaudio.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\midiio_win32.h
+SOURCE=.\midiio_rtmidi.h
 # End Source File
 # Begin Source File
 
@@ -316,6 +320,10 @@ SOURCE=.\rtaudio.h
 # Begin Source File
 
 SOURCE=.\rterror.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\rtmidi.h
 # End Source File
 # Begin Source File
 

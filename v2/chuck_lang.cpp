@@ -33,6 +33,7 @@
 #include "chuck_lang.h"
 #include "chuck_type.h"
 #include "chuck_vm.h"
+#include "midiio_rtmidi.h"
 
 
 // offset for member variable
@@ -204,6 +205,100 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
 
 
 
+// static
+static t_CKUINT MidiIn_offset_data = 0;
+static t_CKUINT MidiMsg_offset_data1 = 0;
+static t_CKUINT MidiMsg_offset_data2 = 0;
+static t_CKUINT MidiMsg_offset_data3 = 0;
+static t_CKUINT MidiOut_offset_data = 0;
+
+//-----------------------------------------------------------------------------
+// name: init_class_Midi()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_Midi( Chuck_Env * env )
+{
+    Chuck_DL_Func * func = NULL;
+
+	// init base class
+    if( !type_engine_import_class_begin( env, "MidiMsg", "Object",
+                                         env->global(), NULL ) )
+		return FALSE;
+
+    // add member variable
+    MidiMsg_offset_data1 = type_engine_import_mvar( env, "int", "data1", FALSE );
+    if( MidiMsg_offset_data1 == CK_INVALID_OFFSET ) goto error;
+
+	// add member variable
+    MidiMsg_offset_data2 = type_engine_import_mvar( env, "int", "data2", FALSE );
+    if( MidiMsg_offset_data2 == CK_INVALID_OFFSET ) goto error;
+
+	// add member variable
+    MidiMsg_offset_data3 = type_engine_import_mvar( env, "int", "data3", FALSE );
+    if( MidiMsg_offset_data3 == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    
+	// init base class
+    if( !type_engine_import_class_begin( env, "MidiIn", "Object",
+                                         env->global(), MidiIn_ctor ) )
+		return FALSE;
+
+	// add open()
+    func = make_new_mfun( "int", "open", MidiIn_open );
+    func->add_arg( "int", "port" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add recv()
+    func = make_new_mfun( "int", "recv", MidiIn_recv );
+	func->add_arg( "MidiMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    MidiIn_offset_data = type_engine_import_mvar( env, "int", "@MidiIn_data", FALSE );
+    if( MidiIn_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return TRUE;
+
+	// init base class
+    if( !type_engine_import_class_begin( env, "MidiOut", "Object",
+                                         env->global(), MidiOut_ctor ) )
+		return FALSE;
+
+	// add open()
+    func = make_new_mfun( "int", "open", MidiOut_open );
+    func->add_arg( "int", "port" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add recv()
+    func = make_new_mfun( "int", "recv", MidiOut_recv );
+	func->add_arg( "MidiMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    MidiOut_offset_data = type_engine_import_mvar( env, "int", "@MidiOut_data", FALSE );
+    if( MidiOut_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
+}
+
+
+
 
 // Object ctor
 CK_DLL_CTOR( object_ctor )
@@ -324,6 +419,63 @@ CK_DLL_MFUN( ugen_cget_gain )
     RETURN->v_float = (t_CKFLOAT)ugen->m_gain;
 }
 
+
+//-----------------------------------------------------------------------------
+// MidiIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiIn_ctor )
+{
+	OBJ_MEMBER_INT(SELF, MidiIn_offset_data) = (t_CKINT)new MidiIn;
+}
+
+CK_DLL_DTOR( MidiIn_dtor )
+{
+	delete (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+}
+
+CK_DLL_MFUN( MidiIn_open )
+{
+	MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+	t_CKINT port = GET_CK_INT(ARGS);
+	RETURN->v_int = min->open( port );
+}
+
+CK_DLL_MFUN( MidiIn_recv )
+{
+	MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+	Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
+	MidiMsg * real_msg = (MidiMsg *)&OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
+	RETURN->v_int = min->recv( real_msg );
+}
+
+
+//-----------------------------------------------------------------------------
+// MidiOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiOut_ctor )
+{
+	OBJ_MEMBER_INT(SELF, MidiOut_offset_data) = (t_CKUINT)new MidiOut;
+}
+
+CK_DLL_DTOR( MidiOut_dtor )
+{
+	delete (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+}
+
+CK_DLL_MFUN( MidiOut_open )
+{
+	MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+	t_CKINT port = GET_CK_INT(ARGS);
+	RETURN->v_int = mout->open( port );
+}
+
+CK_DLL_MFUN( MidiOut_recv )
+{
+	MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+	Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
+	MidiMsg * real_msg = (MidiMsg *)&OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
+	RETURN->v_int = mout->send( real_msg);
+}
 
 
 /*

@@ -48,6 +48,7 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_Midi( Chuck_Env * env );
 
 
 
@@ -158,6 +159,36 @@ public:
 //-----------------------------------------------------------------------------
 // exception API
 //-----------------------------------------------------------------------------
+
+
+
+
+//-----------------------------------------------------------------------------
+// MidiMsg API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiMsg_ctor );
+
+
+
+
+//-----------------------------------------------------------------------------
+// MidiIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiIn_ctor );
+CK_DLL_DTOR( MidiIn_dtor );
+CK_DLL_MFUN( MidiIn_open );
+CK_DLL_MFUN( MidiIn_recv );
+
+
+
+
+//-----------------------------------------------------------------------------
+// MidiOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiOut_ctor );
+CK_DLL_DTOR( MidiOut_dtor );
+CK_DLL_MFUN( MidiOut_open );
+CK_DLL_MFUN( MidiOut_recv );
 
 
 

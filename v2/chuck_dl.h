@@ -62,6 +62,7 @@ struct Chuck_UGen;
 #define GET_CK_UINT(ptr)       (*(t_CKUINT *)ptr)
 #define GET_CK_TIME(ptr)       (*(t_CKTIME *)ptr)
 #define GET_CK_DUR(ptr)        (*(t_CKDUR *)ptr)
+#define GET_CK_OBJECT(ptr)     (*(Chuck_Object **)ptr)
 #define GET_CK_STRING(ptr)     (*(Chuck_String **)ptr)
 
 // param conversion with pointer advance
@@ -72,6 +73,7 @@ struct Chuck_UGen;
 #define GET_NEXT_UINT(ptr)     (*((t_CKUINT *&)ptr)++)
 #define GET_NEXT_TIME(ptr)     (*((t_CKTIME *&)ptr)++)
 #define GET_NEXT_DUR(ptr)      (*((t_CKDUR *&)ptr)++)
+#define GET_NEXT_OBJECT(ptr)   (*((Chuck_Object **&)ptr)++)
 #define GET_NEXT_STRING(ptr)   (*((Chuck_String **&)ptr)++)
 
 // param conversion
