@@ -96,7 +96,7 @@ public:
     t_CKUINT  pitchbend( t_CKUINT  channel, t_CKUINT  bend_val );
     t_CKUINT  allnotesoff( t_CKUINT  channel );
 
-protected:
+public:
 	RtMidiOut * mout;
 	std::vector<unsigned char> m_msg;
 	t_CKUINT m_device_num;
@@ -159,7 +159,7 @@ protected:
 class MidiOutManager
 {
 public:
-	static MidiOut * open( t_CKUINT device_num );
+	static t_CKBOOL open( MidiOut * mout, t_CKINT device_num );
 	static t_CKBOOL close( MidiOut * mout );
 
 protected:

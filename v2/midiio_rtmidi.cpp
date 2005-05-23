@@ -155,23 +155,7 @@ t_CKBOOL MidiOut::open( t_CKUINT device_num )
     if( m_valid )
         this->close();
 
-    // copy
-    m_device_num = device_num;
-
-	// open the port
-	try {
-		mout->openPort( m_device_num );
-		m_valid = TRUE;
-	} catch( RtError & err )
-	{
-        // print it
-		EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", m_device_num );
-		EM_error2( 0, "...(%s)", err.getMessage().c_str() );
-		return FALSE;
-	}
-
-    // open the midi out
-    return TRUE;
+	return m_valid = MidiOutManager::open( this, (t_CKINT)device_num );
 }
 
 
@@ -187,7 +171,7 @@ t_CKBOOL MidiOut::close( )
         return FALSE;
 
     // close
-	mout->closePort();
+	//MidiOutManager::close( this );
 
 	m_valid = FALSE;
 
@@ -366,7 +350,7 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
 			rtmin->setCallback( cb_midi_input, cbuf );
 		} catch( RtError & err ) {
 			// print it
-			EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
+			EM_error2( 0, "MidiIn: couldn't open MIDI port %i...", device_num );
 			EM_error2( 0, "...(%s)", err.getMessage().c_str() );
 			delete cbuf;
 			return FALSE;
@@ -515,3 +499,53 @@ void probeMidiOut()
 		EM_error2b( 0, "    [%i] : \"%s\"", i, s.c_str() );
 	}
 }
+
+
+MidiOutManager::MidiOutManager()
+{
+	the_mouts.resize( 1024 );
+}
+
+
+MidiOutManager::~MidiOutManager()
+{
+	// yeah right
+}
+
+
+t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
+{
+    // see if port not already open
+	if( device_num >= the_mouts.capacity() || !the_mouts[device_num] )
+	{
+		// allocate
+		RtMidiOut * rtmout = new RtMidiOut;
+		try {
+			rtmout->openPort( device_num );
+		} catch( RtError & err ) {
+			// print it
+			EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
+			EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+			return FALSE;
+		}
+
+		// resize?
+		if( device_num >= the_mouts.capacity() )
+		{
+			t_CKINT size = the_mouts.capacity() * 2;
+			if( device_num >= size ) size = device_num + 1;
+			the_mouts.resize( size );
+		}
+
+		// put rtmout in vector for future generations
+        the_mouts[device_num] = rtmout;
+	}
+
+	// found (always) (except when it doesn't get here)
+	mout->mout = the_mouts[device_num];
+    mout->m_device_num = (t_CKUINT)device_num;
+
+	// done
+	return TRUE;
+}
+
