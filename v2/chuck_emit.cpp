@@ -151,8 +151,6 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     emit->context = emit->env->context;
     // set the namespace
     emit->nspc = emit->context->nspc;
-    // reset the class
-    emit->class_def = NULL;
     // reset the func
     emit->func = NULL;
     // clear the code stack
@@ -2702,31 +2700,39 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         }
         else // not member
         {
-            // allocate a place on the local stack
-            local = emit->alloc_local( type->size, value->name, is_ref );
-            if( !local )
-            {
-                EM_error2( decl->linepos,
-                    "(emit): internal error: cannot allocate local '%s'...",
-                    value->name.c_str() );
-                return FALSE;
-            }
+			// not in class
+			if( !emit->env->class_def )
+			{
+				// allocate a place on the local stack
+				local = emit->alloc_local( type->size, value->name, is_ref );
+				if( !local )
+				{
+					EM_error2( decl->linepos,
+						"(emit): internal error: cannot allocate local '%s'...",
+						value->name.c_str() );
+					return FALSE;
+				}
 
-            // put in the value
-            value->offset = local->offset;
+				// put in the value
+				value->offset = local->offset;
 
-            // zero out location in memory, and leave addr on operand stack
-            if( type->size == 4 )
-                emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
-            else if( type->size == 8 )
-                emit->append( new Chuck_Instr_Alloc_Word2( local->offset ) );
-            else
-            {
-                EM_error2( decl->linepos,
-                    "(emit): unhandle decl size of '%i'...",
-                    type->size );
-                return FALSE;
-            }
+				// zero out location in memory, and leave addr on operand stack
+				// TODO: this is wrong for static
+				// BAD:
+				// FIX:
+				if( type->size == 4 )
+					emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
+				else if( type->size == 8 )
+					emit->append( new Chuck_Instr_Alloc_Word2( local->offset ) );
+				else
+				{
+					EM_error2( decl->linepos,
+						"(emit): unhandle decl size of '%i'...",
+						type->size );
+					return FALSE;
+				}
+			}
+			// static
         }
 
         // if object, assign
@@ -3002,6 +3008,8 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         emit->append( new Chuck_Instr_Func_Return );
         // vm code
         type->info->pre_ctor = emit_to_code( emit->code, type->info->pre_ctor, emit->dump );
+		// allocate static
+		type->info->class_data = new t_CKBYTE[type->info->class_data_size];
     }
     else
     {

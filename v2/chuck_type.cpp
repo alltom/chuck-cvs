@@ -2096,6 +2096,13 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             // move the offset (TODO: check the size)
             env->curr->offset += t->size;
         }
+		else if( env->class_def != NULL ) // static
+		{
+			// offset
+			value->offset = env->class_def->info->class_data_size;
+			// move the size
+			env->class_def->info->class_data_size += t->size;
+		}
 
         // the next var decl
         list = list->next;
