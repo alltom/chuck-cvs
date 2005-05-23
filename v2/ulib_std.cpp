@@ -61,7 +61,7 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     */
 
     // begin class
-    QUERY->begin_class( QUERY, "Std", "Object" );
+    QUERY->begin_class( QUERY, "std", "Object" );
 
     // add abs
     QUERY->add_sfun( QUERY, abs_impl, "float", "abs" );

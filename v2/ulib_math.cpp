@@ -51,7 +51,7 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     */
 
     // add class
-    QUERY->begin_class( QUERY, "Math", "Object" );
+    QUERY->begin_class( QUERY, "math", "Object" );
     
     // sin
     //! see \example math.ck
