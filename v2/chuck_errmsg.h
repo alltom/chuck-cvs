@@ -51,6 +51,7 @@ void EM_newline( );
 
 void EM_error( int, c_str, ... );
 void EM_error2( int, c_str, ... );
+void EM_error2b( int, c_str, ... );
 void EM_error3( c_str, ... );
 void EM_impossible( c_str, ... );
 t_CKBOOL EM_reset( c_str filename, FILE * fd );

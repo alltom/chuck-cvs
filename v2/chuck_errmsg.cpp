@@ -124,6 +124,27 @@ void EM_error2( int line, char * message, ... )
 }
 
 
+void EM_error2b( int line, char * message, ... )
+{
+    va_list ap;
+
+    fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
+    sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
+    if(line) fprintf( stderr, "line(%d):", line );
+    if(line) { sprintf( g_buffer, "line(%d):", line ); strcat( g_lasterror, g_buffer ); }
+    fprintf( stderr, " " );
+    strcat( g_lasterror, " " );
+
+    va_start( ap, message );
+    vfprintf( stderr, message, ap );
+    vsprintf( g_buffer, message, ap );
+    va_end( ap );
+
+    strcat( g_lasterror, g_buffer );
+    fprintf( stdout, "\n" );
+}
+
+
 void EM_error3( char * message, ... )
 {
     va_list ap;
