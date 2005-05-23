@@ -444,8 +444,14 @@ CK_DLL_MFUN( MidiIn_recv )
 {
 	MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
 	Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
-	MidiMsg * real_msg = (MidiMsg *)&OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
-	RETURN->v_int = min->recv( real_msg );
+	MidiMsg the_msg;
+	RETURN->v_int = min->recv( &the_msg );
+	if( RETURN->v_int )
+	{
+        OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1) = the_msg.data[0];
+		OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2) = the_msg.data[1];
+		OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3) = the_msg.data[2];
+	}
 }
 
 

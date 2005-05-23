@@ -149,7 +149,7 @@ t_CKUINT MidiOut::send( const MidiMsg * msg )
 t_CKBOOL MidiOut::open( t_CKUINT device_num )
 {
     // close if already opened
-    if( mout )
+    if( m_valid )
         this->close();
 
     // copy
@@ -317,7 +317,7 @@ MidiIn::~MidiIn( )
 t_CKBOOL MidiIn::open( t_CKUINT device_num )
 {
     // close if already opened
-    if( min )
+    if( m_valid )
         this->close();
 
     // copy
@@ -335,6 +335,13 @@ t_CKBOOL MidiIn::open( t_CKUINT device_num )
 		return FALSE;
 	}
 
+    // allocate the buffer
+    if( !m_buffer.initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
+    {
+        this->close();
+        return FALSE;
+    }
+
     // open the midi out
     return TRUE;
 }
@@ -348,7 +355,7 @@ t_CKBOOL MidiIn::open( t_CKUINT device_num )
 //-----------------------------------------------------------------------------
 t_CKBOOL MidiIn::close()
 {
-    if( !min )
+    if( !m_valid )
         return FALSE;
 
 	// close
@@ -356,6 +363,8 @@ t_CKBOOL MidiIn::close()
 
     // deallocate the buffer
     m_buffer.cleanup();
+
+	m_valid = FALSE;
 
     return TRUE;
 }
