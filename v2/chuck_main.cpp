@@ -537,6 +537,7 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
     Chuck_Msg * cmd = new Chuck_Msg;
 	Chuck_VM_Code * code = NULL;
     FILE * fd = NULL;
+	t_CKBOOL error = FALSE;
     
     // fprintf( stderr, "UDP message recv...\n" );
     if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
@@ -559,14 +560,22 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
 
         // type check
         if( !type_check( g_env, g_program ) )
-            return 1;
+		{
+			error = TRUE;
+            goto unload;
+		}
 
         // emit
         if( !(code = emit( g_emitter, g_program )) )
-            return 1;
+		{
+			error = TRUE;
+			goto unload;
+		}
 
         // name it
         code->name += string(msg->buffer);
+
+unload:
 
         // unload the context from the type-checker
         if( !type_engine_unload_context( g_env ) )
@@ -574,6 +583,9 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
             EM_error2( 0, "internal error unloading context...\n" );
             return 1;
         }
+
+		if( error )
+			return 1;
         
 		// set the flags for the command
         cmd->type = msg->type;
