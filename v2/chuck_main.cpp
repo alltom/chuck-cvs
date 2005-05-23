@@ -560,10 +560,7 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
 
         // type check
         if( !type_check( g_env, g_program ) )
-		{
-			error = TRUE;
-            goto unload;
-		}
+			return 1;
 
         // emit
         if( !(code = emit( g_emitter, g_program )) )
