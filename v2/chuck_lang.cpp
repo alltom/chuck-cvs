@@ -263,8 +263,6 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     // end the class import
     type_engine_import_class_end( env );
     
-    return TRUE;
-
 	// init base class
     if( !type_engine_import_class_begin( env, "MidiOut", "Object",
                                          env->global(), MidiOut_ctor ) )
@@ -276,7 +274,7 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add recv()
-    func = make_new_mfun( "int", "recv", MidiOut_recv );
+    func = make_new_mfun( "int", "send", MidiOut_recv );
 	func->add_arg( "MidiMsg", "msg" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -479,8 +477,11 @@ CK_DLL_MFUN( MidiOut_recv )
 {
 	MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
 	Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
-	MidiMsg * real_msg = (MidiMsg *)&OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
-	RETURN->v_int = mout->send( real_msg);
+	MidiMsg the_msg;
+	the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
+	the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2);
+	the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3);
+	RETURN->v_int = mout->send( &the_msg );
 }
 
 
