@@ -137,6 +137,8 @@ protected:
 };
 
 
+void probeMidiIn();
+void probeMidiOut();
 
 
 #endif

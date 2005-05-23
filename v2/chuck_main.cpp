@@ -434,7 +434,14 @@ int main( int argc, char ** argv )
     if( probe )
     {
         Digitalio::probe();
-        // exit
+
+		EM_error2b( 0, "" );
+		probeMidiIn();
+		EM_error2b( 0, "" );
+		probeMidiOut();
+		EM_error2b( 0, "" );
+	
+	    // exit
         exit( 0 );
     }
     

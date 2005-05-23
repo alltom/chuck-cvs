@@ -53,15 +53,15 @@ RtMidi :: RtMidi()
 void RtMidi :: error( RtError::Type type )
 {
   if (type == RtError::WARNING) {
-    std::cerr << '\n' << errorString_ << "\n\n";
+    std::cerr << "[chuck](via RtMidi): " << errorString_ << "\n";
   }
   else if (type == RtError::DEBUG_WARNING) {
 #if defined(__RTMIDI_DEBUG__)
-    std::cerr << '\n' << errorString_ << "\n\n";
+    std::cerr << "[chuck](via RtMidi): " << errorString_ << "\n";
 #endif
   }
   else {
-    std::cerr << '\n' << errorString_ << "\n\n";
+    // std::cerr << "[chuck](via RtMidi): " << errorString_ << "\n";
     throw RtError( errorString_, type );
   }
 }
@@ -78,7 +78,7 @@ RtMidiIn :: RtMidiIn() : RtMidi()
 void RtMidiIn :: setCallback( RtMidiCallback callback, void *userData )
 {
   if ( inputData_.usingCallback ) {
-    errorString_ = "RtMidiIn::setCallback: a callback function is already set!";
+    errorString_ = "RtMidiIn::setCallback: callback function is already set!";
     error( RtError::WARNING );
     return;
   }
@@ -125,7 +125,7 @@ double RtMidiIn :: getMessage( std::vector<unsigned char> *message )
   message->clear();
 
   if ( inputData_.usingCallback ) {
-    errorString_ = "RtMidiIn::getNextMessage: a user callback is currently set for this port.";
+    errorString_ = "RtMidiIn::getNextMessage: user callback is currently set for this port.";
     error( RtError::WARNING );
     return 0.0;
   }
@@ -338,7 +338,7 @@ void RtMidiIn :: openPort( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nSrc ) {
-    ost << "RtMidiIn::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -426,7 +426,7 @@ std::string RtMidiIn :: getPortName( unsigned int portNumber )
   char name[128];
 
   if ( portNumber >= MIDIGetNumberOfSources() ) {
-    ost << "RtMidiIn::getPortName: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::getPortName: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -457,7 +457,7 @@ std::string RtMidiOut :: getPortName( unsigned int portNumber )
   char name[128];
 
   if ( portNumber >= MIDIGetNumberOfDestinations() ) {
-    ost << "RtMidiOut::getPortName: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiOut::getPortName: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -503,7 +503,7 @@ void RtMidiOut :: openPort( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nDest ) {
-    ost << "RtMidiOut::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiOut::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -849,7 +849,7 @@ void RtMidiIn :: openPort( unsigned int portNumber )
   std::ostringstream ost;
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ, (int) portNumber ) == 0 ) {
-    ost << "RtMidiIn::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1078,7 +1078,7 @@ void RtMidiOut :: openPort( unsigned int portNumber )
   std::ostringstream ost;
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE, (int) portNumber ) == 0 ) {
-    ost << "RtMidiOut::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiOut::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1374,7 +1374,7 @@ void RtMidiIn :: openPort( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nPorts ) {
-    ost << "RtMidiIn::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1450,7 +1450,7 @@ std::string RtMidiIn :: getPortName( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nPorts ) {
-    ost << "RtMidiIn::getPortName: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::getPortName: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1477,7 +1477,7 @@ std::string RtMidiOut :: getPortName( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nPorts ) {
-    ost << "RtMidiIn::getPortName: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::getPortName: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1514,7 +1514,7 @@ void RtMidiOut :: openPort( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nPorts ) {
-    ost << "RtMidiOut::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiOut::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1726,7 +1726,7 @@ void RtMidiIn :: openPort( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nDevices ) {
-    ost << "RtMidiIn::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1790,7 +1790,7 @@ std::string RtMidiIn :: getPortName( unsigned int portNumber )
   unsigned int nDevices = midiInGetNumDevs();
   if ( portNumber >= nDevices ) {
     std::ostringstream ost;
-    ost << "RtMidiIn::getPortName: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiIn::getPortName: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1817,7 +1817,7 @@ std::string RtMidiOut :: getPortName( unsigned int portNumber )
   unsigned int nDevices = midiOutGetNumDevs();
   if ( portNumber >= nDevices ) {
     std::ostringstream ost;
-    ost << "RtMidiOut::getPortName: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiOut::getPortName: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }
@@ -1860,7 +1860,7 @@ void RtMidiOut :: openPort( unsigned int portNumber )
 
   std::ostringstream ost;
   if ( portNumber >= nDevices ) {
-    ost << "RtMidiOut::openPort: the 'portNumber' argument (" << portNumber << ") is invalid.";
+    ost << "RtMidiOut::openPort: 'portNumber' argument (" << portNumber << ") is invalid.";
     errorString_ = ost.str();
     error( RtError::INVALID_PARAMETER );
   }

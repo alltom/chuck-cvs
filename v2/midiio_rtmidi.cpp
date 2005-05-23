@@ -162,8 +162,8 @@ t_CKBOOL MidiOut::open( t_CKUINT device_num )
 	} catch( RtError & err )
 	{
         // print it
-		EM_error2( 0, "MidiOut: couldn't open port %i", m_device_num );
-		EM_error2( 0, "...(reason: %s)", err.getMessage().c_str() );
+		EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", m_device_num );
+		EM_error2( 0, "...(%s)", err.getMessage().c_str() );
 		return FALSE;
 	}
 
@@ -330,8 +330,8 @@ t_CKBOOL MidiIn::open( t_CKUINT device_num )
 		m_valid = TRUE;
 	} catch( RtError & err ) {
         // print it
-		EM_error2( 0, "MidiOut: couldn't open port %i", m_device_num );
-		EM_error2( 0, "...(reason: %s)", err.getMessage().c_str() );
+		EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", m_device_num );
+		EM_error2( 0, "...(%s)", err.getMessage().c_str() );
 		return FALSE;
 	}
 
@@ -403,4 +403,66 @@ void MidiIn::cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
     {
         min->m_buffer.put( &m, 1 );
     }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: probeMidiIn()
+// desc: ...
+//-----------------------------------------------------------------------------
+void probeMidiIn()
+{
+	RtMidiIn * min = NULL;
+
+	try {
+		min = new RtMidiIn;;
+	} catch( RtError & err ) {
+		EM_error2b( 0, "%s", err.getMessageString() );
+		return;
+	}
+
+	// get num
+	t_CKUINT num = min->getPortCount();
+	EM_error2b( 0, "------( chuck -- %i MIDI inputs )------", num );
+	std::string s;
+	for( t_CKUINT i = 0; i < num; i++ )
+	{
+		try { s = min->getPortName( i ); }
+		catch( RtError & err )
+		{ err.printMessage(); return; }
+		EM_error2b( 0, "    [%i] : \"%s\"", i, s.c_str() );
+	}
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: probeMidiOut()
+// desc: ...
+//-----------------------------------------------------------------------------
+void probeMidiOut()
+{
+	RtMidiOut * mout =  NULL;
+
+	try {
+		mout = new RtMidiOut;
+	} catch( RtError & err ) {
+		EM_error2b( 0, "%s", err.getMessageString() );
+		return;
+    }
+
+	// get num
+	t_CKUINT num = mout->getPortCount();
+	EM_error2b( 0, "------( chuck -- %i MIDI outputs )-----", num );
+	std::string s;
+	for( t_CKUINT i = 0; i < num; i++ )
+	{
+		try { s = mout->getPortName( i ); }
+		catch( RtError & err )
+		{ err.printMessage(); return; }
+		EM_error2b( 0, "    [%i] : \"%s\"", i, s.c_str() );
+	}
 }

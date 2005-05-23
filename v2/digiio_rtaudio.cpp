@@ -113,68 +113,6 @@ void print( const RtAudioDeviceInfo & info )
 
 
 //-----------------------------------------------------------------------------
-// name: probeMidiIn()
-// desc: ...
-//-----------------------------------------------------------------------------
-void probeMidiIn()
-{
-	RtMidiIn * min = NULL;
-
-	try {
-		min = new RtMidiIn;;
-	} catch( RtError & err ) {
-		EM_error2b( 0, "%s", err.getMessageString() );
-		return;
-	}
-
-	// get num
-	t_CKUINT num = min->getPortCount();
-	EM_error2b( 0, "------( chuck -- %i MIDI inputs )------", num );
-	std::string s;
-	for( t_CKUINT i = 0; i < num; i++ )
-	{
-		try { s = min->getPortName( i ); }
-		catch( RtError & err )
-		{ err.printMessage(); return; }
-		EM_error2b( 0, "    [%i] : \"%s\"", i + 1, s.c_str() );
-	}
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: probeMidiOut()
-// desc: ...
-//-----------------------------------------------------------------------------
-void probeMidiOut()
-{
-	RtMidiOut * mout =  NULL;
-
-	try {
-		mout = new RtMidiOut;
-	} catch( RtError & err ) {
-		EM_error2b( 0, "%s", err.getMessageString() );
-		return;
-    }
-
-	// get num
-	t_CKUINT num = mout->getPortCount();
-	EM_error2b( 0, "------( chuck -- %i MIDI outputs )-----", num );
-	std::string s;
-	for( t_CKUINT i = 0; i < num; i++ )
-	{
-		try { s = mout->getPortName( i ); }
-		catch( RtError & err )
-		{ err.printMessage(); return; }
-		EM_error2b( 0, "    [%i] : \"%s\"", i + 1, s.c_str() );
-	}
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: probe()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -215,12 +153,6 @@ void Digitalio::probe()
     }
 
     delete rta;
-
-	EM_error2b( 0, "" );
-	probeMidiIn();
-	EM_error2b( 0, "" );
-	probeMidiOut();
-	EM_error2b( 0, "" );
 
     return;
 }
