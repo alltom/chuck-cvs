@@ -192,6 +192,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // make sure Objects have namespaces
     init_class_object( env, &t_object );
     init_class_ugen( env, &t_ugen );
+	init_class_event( env, &t_event );
     t_string.info = new Chuck_Namespace;
     t_string.info->add_ref();
     t_shred.info = new Chuck_Namespace;
@@ -202,8 +203,6 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_class.info->add_ref();
     t_array.info = new Chuck_Namespace;
     t_array.info->add_ref();
-    t_event.info = new Chuck_Namespace;
-    t_event.info->add_ref();
 
 	// default global values
 	env->global()->value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
@@ -1177,7 +1176,14 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
     {
         return right;
     }
-    
+
+    // event wait ( Event => now )
+    if( isa( left, &t_event ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var
+        && rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
+    {
+        return right;
+    }
+
     // chuck to function
     if( isa( right, &t_function ) )
     {

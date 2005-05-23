@@ -1658,6 +1658,17 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, 
         return TRUE;
     }
     
+    // time advance
+    if( isa( left, &t_event ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var &&
+		rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
+    {
+		// pop now
+		emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+		emit->append( new Chuck_Instr_Event_Wait );
+
+        return TRUE;
+    }
+
     // func call
     if( isa( right, &t_function ) )
     {

@@ -1818,6 +1818,19 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Event_Wait
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Event_Wait : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Array_Init
 // desc: for [ ... ] values
 //-----------------------------------------------------------------------------
@@ -2252,6 +2265,14 @@ protected:
 Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Shred * shred );
 // initialize object using Type
 t_CKBOOL initialize_object( Chuck_Object * obj, Chuck_Type * type );
+
+
+
+// define SP offset
+#define push_( sp, val )         *(sp) = (val); (sp)++
+#define push_float( sp, val )    *((t_CKFLOAT *&)sp) = (val); ((t_CKFLOAT *&)sp)++
+#define pop_( sp, n )            sp -= (n)
+#define val_( sp )               *(sp)
 
 
 

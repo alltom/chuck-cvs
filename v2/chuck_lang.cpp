@@ -150,15 +150,47 @@ error:
 
 
 
+static t_CKUINT event_offset_data = 0;
 //-----------------------------------------------------------------------------
 // name: init_class_event()
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
 {
+    Chuck_DL_Func * func = NULL;
+
     // init as base class
-//    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+    if( !type_engine_import_class_begin( env, type, env->global(), object_ctor ) )
+        return FALSE;
+
+    // add signal()
+    func = make_new_mfun( "void", "signal", event_signal );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add broadcast()
+    func = make_new_mfun( "void", "broadcast", event_broadcast );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add wait()
+    func = make_new_mfun( "void", "wait", event_wait );
+	func->add_arg( "shred", "me" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
+    // add member variable
+    //= type_engine_import_mvar( env, "int", "m_testID", FALSE );
+    //if( object_offset_m_testID == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
     return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
 }
 
 
@@ -417,6 +449,34 @@ CK_DLL_MFUN( ugen_cget_gain )
     RETURN->v_float = (t_CKFLOAT)ugen->m_gain;
 }
 
+CK_DLL_CTOR( event_ctor )
+{
+//	OBJ_MEMBER_INT(SELF, event_offset_data) = (t_CKUINT)new Data_Event;
+}
+
+
+CK_DLL_DTOR( event_dtor )
+{
+//	delete (Data_Event *)OBJ_MEMBER_INT(SELF, event_offset_data);
+}
+
+CK_DLL_MFUN( event_signal )
+{
+	Chuck_Event * d = (Chuck_Event *)SELF;
+    d->signal();
+}
+
+CK_DLL_MFUN( event_broadcast )
+{
+	Chuck_Event * d = (Chuck_Event *)SELF;
+	d->broadcast();
+}
+
+CK_DLL_MFUN( event_wait )
+{
+	Chuck_Event * d = (Chuck_Event *)SELF;
+	assert( FALSE );
+}
 
 //-----------------------------------------------------------------------------
 // MidiIn API

@@ -753,6 +753,8 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
     shred->now = shred->wake_time = m_shreduler->now_system;
     // set the id
     shred->id = next_id();
+	// set the vm
+	shred->vm_ref = this;
     // add it to the parent
     if( shred->parent )
         shred->parent->children[shred->id] = shred;
@@ -937,6 +939,7 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     obj_array = NULL;
     obj_array_size = 0;
     base_ref = NULL;
+	vm_ref = NULL;
 }
 
 

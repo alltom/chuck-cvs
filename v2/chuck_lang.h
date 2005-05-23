@@ -36,6 +36,7 @@
 #include "chuck_def.h"
 #include "chuck_oo.h"
 #include "chuck_dl.h"
+#include <queue>
 
 
 // query
@@ -103,6 +104,17 @@ CK_DLL_MFUN( array_set_size );
 
 
 //-----------------------------------------------------------------------------
+// event API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( event_ctor );
+CK_DLL_DTOR( event_dtor );
+CK_DLL_MFUN( event_signal );
+CK_DLL_MFUN( event_broadcast );
+CK_DLL_MFUN( event_wait );
+
+
+
+//-----------------------------------------------------------------------------
 // name: Data_String
 // desc: data for base Chuck string class
 //-----------------------------------------------------------------------------
@@ -121,7 +133,9 @@ public:
 
 
 
-
+/*
+struct Chuck_VM;
+struct Chuck_VM_Shred;
 //-----------------------------------------------------------------------------
 // name: Data_Event
 // desc: data for base Chuck Event class
@@ -135,13 +149,14 @@ public:
 public:
     t_CKUINT signal();
     t_CKUINT broadcast();
-    t_CKUINT wait();
+    t_CKUINT wait( Chuck_VM_Shred * shred, Chuck_VM * vm );
+
+	std::queue<Chuck_VM_Shred *> m_queue;
 };
 //-----------------------------------------------------------------------------
 // event API
 //-----------------------------------------------------------------------------
-
-
+*/
 
 
 //-----------------------------------------------------------------------------

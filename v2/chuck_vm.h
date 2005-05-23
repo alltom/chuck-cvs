@@ -167,6 +167,9 @@ public: // machine components
     map<t_CKUINT, Chuck_VM_Shred *> children;
     t_CKUINT pc;
 
+	// vm
+	Chuck_VM * vm_ref;
+
     // time
     t_CKTIME now;
     t_CKTIME start;

@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <queue>
 
 
 // forward reference
@@ -47,6 +48,10 @@ struct Chuck_Namespace;
 struct Chuck_Context;
 struct Chuck_Env;
 struct Chuck_VM_Code;
+struct Chuck_VM_Shred;
+struct Chuck_VM;
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -220,13 +225,11 @@ public:
 struct Chuck_Event : Chuck_Object
 {
 public:
-    Chuck_Event();
-    ~Chuck_Event();
+    void signal();
+    void broadcast();
+    void wait( Chuck_VM_Shred * shred, Chuck_VM * vm );
 
-public:
-    t_CKUINT signal();
-    t_CKUINT broadcast();
-    t_CKUINT wait();
+	std::queue<Chuck_VM_Shred *> m_queue;
 };
 
 

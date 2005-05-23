@@ -32,6 +32,8 @@
 //-----------------------------------------------------------------------------
 #include "chuck_oo.h"
 #include "chuck_type.h"
+#include "chuck_vm.h"
+#include "chuck_instr.h"
 
 
 
@@ -684,4 +686,67 @@ void Chuck_Array8::clear( )
 
     // set size
     m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: signal()
+// desc: signal a event/condition variable, shreduling the next waiting shred
+//       (if there is one or more)
+//-----------------------------------------------------------------------------
+void Chuck_Event::signal()
+{
+	if( !m_queue.empty() )
+	{
+        Chuck_VM_Shred * shred = m_queue.front();
+		m_queue.pop();
+		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
+		shreduler->shredule( shred );
+		// push the current time
+        t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+		push_( sp, shreduler->now_system );
+	}
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: broadcast()
+// desc: broadcast a event/condition variable, shreduling all waiting shreds
+//-----------------------------------------------------------------------------
+void Chuck_Event::broadcast()
+{
+	while( !m_queue.empty() )
+	{
+        Chuck_VM_Shred * shred = m_queue.front();
+		m_queue.pop();
+		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
+		shreduler->shredule( shred );
+		// push the current time
+        t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+		push_( sp, shreduler->now_system );
+	}
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: wait()
+// desc: cause event/condition variable to block the current shred, putting it
+//       on its waiting list, and suspennd the shred from the VM.
+//-----------------------------------------------------------------------------
+void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
+{
+	// make sure the shred info matches the vm
+	assert( shred->vm_ref == vm );
+
+    // suspend
+    shred->is_running = FALSE;
+
+	// add to waiting list
+	m_queue.push( shred );
 }

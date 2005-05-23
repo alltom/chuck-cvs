@@ -45,15 +45,6 @@ using namespace std;
 
 
 
-// define SP offset
-#define push_( sp, val )         *(sp) = (val); (sp)++
-#define push_float( sp, val )    *((t_CKFLOAT *&)sp) = (val); ((t_CKFLOAT *&)sp)++
-#define pop_( sp, n )            sp -= (n)
-#define val_( sp )               *(sp)
-
-
-
-
 //-----------------------------------------------------------------------------
 // name: name()
 // desc: ...
@@ -1685,7 +1676,8 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
     if( !type->ugen_info )
     {
         // check type TODO: make this faster
-        if( isa( type, &t_string ) ) object = new Chuck_String;
+		if( isa( type, &t_event ) ) object = new Chuck_Event;
+        else if( isa( type, &t_string ) ) object = new Chuck_String;
         else object = new Chuck_Object;
     }
     else
@@ -2265,6 +2257,27 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     push_( sp, *sp );
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Event_Wait::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+
+    // pop word from reg stack
+    pop_( sp, 1 );
+
+	Chuck_Event * event = (Chuck_Event *)(*sp);
+	
+	// wait
+	event->wait( shred, vm );
+}
+
 
 
 
