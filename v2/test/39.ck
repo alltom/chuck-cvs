@@ -14,7 +14,7 @@ while( true )
 	if( msg.data1 == 144 ) // note on
 	{
 		<<<msg.data1>>>;
-		Std.mtof(msg.data2) => s.freq;
+		std.mtof(msg.data2) => s.freq;
 		msg.data3 / 128.0 => s.gain;
 	}
     }

@@ -108,15 +108,44 @@ void CBuffer::cleanup()
 UINT__ CBuffer::join()
 {
 	// index of new pointer that will be pushed back
-	UINT__ read_offset_index = m_read_offsets.size();
+	UINT__ read_offset_index;
 	
 	// add new pointer pointing (as pointers do) to current write offset
 	// (shreds don't get interrupted, so m_write_offset will always be correct, right?)
 	// (uh, hope so...)
-	m_read_offsets.push_back( (SINT__)m_write_offset );
-	
+	if( !m_free.empty() )
+	{
+		read_offset_index = m_free.front();
+		m_free.pop();
+		//assert( read_offset_index < m_read_offsets.size() );
+		m_read_offsets[read_offset_index] = (SINT__)m_write_offset;
+	}
+	else
+	{
+		read_offset_index = m_read_offsets.size();
+		m_read_offsets.push_back( (SINT__)m_write_offset );
+	}
+
 	// return index
 	return read_offset_index;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: resign
+// desc: shred quits buffer; frees its index
+//-----------------------------------------------------------------------------
+void CBuffer::resign( UINT__ read_offset_index )
+{
+	// make sure read_offset_index passed in is valid
+	if( read_offset_index < 0 || read_offset_index >= m_read_offsets.size() )
+		return;
+	
+	// add this index to free queue
+	m_free.push( read_offset_index );
+
+	// "invalidate" the pointer at that index
+	m_read_offsets[read_offset_index] = -1;
 }
 
 

@@ -33,6 +33,7 @@
 #define __UTIL_BUFFERS_H__
 
 #include <vector>
+#include <queue>
 
 #define DWORD__                unsigned long
 #define SINT__                 long
@@ -65,12 +66,14 @@ public:
     UINT__ get( void * data, UINT__ num_elem, UINT__ read_offset_index );
     void put( void * data, UINT__ num_elem );
 	UINT__ join( );
+	void resign( UINT__ read_offset_index );
 
 protected:
     BYTE__ * m_data;
     UINT__   m_data_width;
     //UINT__   m_read_offset;
 	std::vector<SINT__> m_read_offsets;
+	std::queue<UINT__> m_free;
     UINT__   m_write_offset;
     UINT__   m_max_elem;
 };
