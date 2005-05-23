@@ -597,7 +597,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         EM_error3( "[chuck](VM): removing all (%i) shreds...", m_num_shreds );
         Chuck_VM_Shred * shred = NULL;
 
-        while( m_num_shreds && id >= 0 )
+        while( m_num_shreds && id > 0 )
         {
             if( m_shreduler->remove( shred = m_shreduler->lookup( id ) ) )
                 delete shred;
