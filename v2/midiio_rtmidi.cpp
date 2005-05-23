@@ -42,6 +42,9 @@
 //-----------------------------------------------------------------------------
 #define BUFFER_SIZE 8192
 
+std::vector<RtMidiIn *> MidiInManager::the_mins;
+std::vector<CBuffer *> MidiInManager::the_bufs;
+std::vector<RtMidiOut *> MidiOutManager::the_mouts;
 
 
 
@@ -289,9 +292,10 @@ t_CKUINT MidiOut::allnotesoff( t_CKUINT channel )
 //-----------------------------------------------------------------------------
 MidiIn::MidiIn()
 {
-	min = new RtMidiIn;
 	m_device_num = 0;
 	m_valid = FALSE;
+	m_read_index = 0;
+	m_buffer = NULL;
 }
 
 
@@ -304,7 +308,7 @@ MidiIn::MidiIn()
 MidiIn::~MidiIn( )
 {
     this->close();
-	SAFE_DELETE( min );
+	// SAFE_DELETE( min );
 }
 
 
@@ -320,30 +324,77 @@ t_CKBOOL MidiIn::open( t_CKUINT device_num )
     if( m_valid )
         this->close();
 
-    // copy
-    m_device_num = device_num;
+	// open
+	return m_valid = MidiInManager::open( this, (t_CKINT)device_num );
+}
 
-	// open the port
-	try {
-		min->openPort( m_device_num );
-		min->setCallback( cb_midi_input, this );
-		m_valid = TRUE;
-	} catch( RtError & err ) {
-        // print it
-		EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", m_device_num );
-		EM_error2( 0, "...(%s)", err.getMessage().c_str() );
-		return FALSE;
+
+
+
+MidiInManager::MidiInManager()
+{
+	the_mins.resize( 1024 );
+	the_bufs.resize( 1024 );
+}
+
+
+MidiInManager::~MidiInManager()
+{
+	// yeah right
+}
+
+
+t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
+{
+    // see if port not already open
+	if( device_num >= the_mins.capacity() || !the_mins[device_num] )
+	{
+
+		// allocate the buffer
+		CBuffer * cbuf = new CBuffer;
+		if( !cbuf->initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
+		{
+			EM_error2( 0, "MidiIn: couldn't allocate CBuffer for port %i...", device_num );
+			delete cbuf;
+			return FALSE;
+		}
+
+		// allocate
+		RtMidiIn * rtmin = new RtMidiIn;
+		try {
+			rtmin->openPort( device_num );
+			rtmin->setCallback( cb_midi_input, cbuf );
+		} catch( RtError & err ) {
+			// print it
+			EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
+			EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+			delete cbuf;
+			return FALSE;
+		}
+
+		// resize?
+		if( device_num >= the_mins.capacity() )
+		{
+			t_CKINT size = the_mins.capacity() * 2;
+			if( device_num >= size ) size = device_num + 1;
+			the_mins.resize( size );
+			the_bufs.resize( size );
+		}
+
+		// put cbuf and rtmin in vector for future generations
+        the_mins[device_num] = rtmin;
+		the_bufs[device_num] = cbuf;
 	}
 
-    // allocate the buffer
-    if( !m_buffer.initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
-    {
-        this->close();
-        return FALSE;
-    }
+	// found
+	min->m_buffer = the_bufs[device_num];
+	// get an index into your (you are min here) own buffer, 
+	// and a free ticket to your own workshop
+	min->m_read_index = min->m_buffer->join();
+    min->m_device_num = (t_CKUINT)device_num;
 
-    // open the midi out
-    return TRUE;
+	// done
+	return TRUE;
 }
 
 
@@ -359,10 +410,7 @@ t_CKBOOL MidiIn::close()
         return FALSE;
 
 	// close
-	min->closePort();
-
-    // deallocate the buffer
-    m_buffer.cleanup();
+	// MidiInManager::close( this );
 
 	m_valid = FALSE;
 
@@ -378,7 +426,8 @@ t_CKBOOL MidiIn::close()
 //-----------------------------------------------------------------------------
 t_CKUINT MidiIn::recv( MidiMsg * msg )
 {
-    return m_buffer.get( msg, 1 );
+	if( !m_valid ) return FALSE;
+    return m_buffer->get( msg, 1, m_read_index );
 }
 
 
@@ -388,11 +437,11 @@ t_CKUINT MidiIn::recv( MidiMsg * msg )
 // name: cb_midi_output
 // desc: call back
 //-----------------------------------------------------------------------------
-void MidiIn::cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
-		                    void * userData )
+void MidiInManager::cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
+		                           void * userData )
 {
 	unsigned int nBytes = msg->size();
-	MidiIn * min = (MidiIn *)userData;
+	CBuffer * cbuf = (CBuffer *)userData;
 	MidiMsg m;
 	if( nBytes >= 1 ) m.data[0] = msg->at(0);
 	if( nBytes >= 2 ) m.data[1] = msg->at(1);
@@ -401,7 +450,7 @@ void MidiIn::cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
     // put in the buffer, make sure not active sensing
     if( m.data[2] != 0xfe )
     {
-        min->m_buffer.put( &m, 1 );
+        cbuf->put( &m, 1 );
     }
 }
 

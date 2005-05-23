@@ -42,7 +42,7 @@
 CBuffer::CBuffer()
 {
     m_data = NULL;
-    m_data_width = m_read_offset = m_write_offset = m_max_elem = 0;
+    m_data_width = m_write_offset = m_max_elem = 0; // = m_read_offset
 }
 
 
@@ -75,7 +75,7 @@ BOOL__ CBuffer::initialize( UINT__ num_elem, UINT__ width )
         return false;
 
     m_data_width = width;
-    m_read_offset = 0;
+    //m_read_offset = 0;
     m_write_offset = 0;
     m_max_elem = num_elem;
 
@@ -97,17 +97,34 @@ void CBuffer::cleanup()
     free( m_data );
 
     m_data = NULL;
-    m_data_width = m_read_offset = m_write_offset = m_max_elem = 0;
+    m_data_width = m_write_offset = m_max_elem = 0; // = m_read_offset
 }
 
 
+//-----------------------------------------------------------------------------
+// name: UINT__ join()
+// desc: shred can call this to get an index into the vector of read pointers
+//-----------------------------------------------------------------------------
+UINT__ CBuffer::join()
+{
+	// index of new pointer that will be pushed back
+	UINT__ read_offset_index = m_read_offsets.size();
+	
+	// add new pointer pointing (as pointers do) to current write offset
+	// (shreds don't get interrupted, so m_write_offset will always be correct, right?)
+	// (uh, hope so...)
+	m_read_offsets.push_back( (SINT__)m_write_offset );
+	
+	// return index
+	return read_offset_index;
+}
 
 
 //-----------------------------------------------------------------------------
 // name: put()
 // desc: put
 //-----------------------------------------------------------------------------
-void CBuffer::put( void * data, UINT__ num_elem )
+/*void CBuffer::put( void * data, UINT__ num_elem )
 {
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
@@ -127,6 +144,39 @@ void CBuffer::put( void * data, UINT__ num_elem )
         if( m_write_offset >= m_max_elem )
             m_write_offset = 0;
     }
+}*/
+
+void CBuffer::put( void * data, UINT__ num_elem )
+{
+	UINT__ i, j;
+    BYTE__ * d = (BYTE__ *)data;
+
+    // copy
+    for( i = 0; i < num_elem; i++ )
+    {
+        for( j = 0; j < m_data_width; j++ )
+        {
+            m_data[m_write_offset*m_data_width+j] = d[i*m_data_width+j];
+        }
+
+        // move the write
+        m_write_offset++;
+
+		// possibility of expelling evil shreds
+		for( j = 0; j < m_read_offsets.size(); j++ )
+		{
+			if( m_write_offset == m_read_offsets[j] )
+			{
+				// inform shred with index j that it has lost its privileges?
+				// invalidate its read_offset
+				m_read_offsets[j] = -1;
+			}
+		}
+
+        // wrap
+        if( m_write_offset >= m_max_elem )
+            m_write_offset = 0;
+    }
 }
 
 
@@ -136,7 +186,7 @@ void CBuffer::put( void * data, UINT__ num_elem )
 // name: get()
 // desc: get
 //-----------------------------------------------------------------------------
-UINT__ CBuffer::get( void * data, UINT__ num_elem )
+/*UINT__ CBuffer::get( void * data, UINT__ num_elem )
 {
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
@@ -170,4 +220,51 @@ UINT__ CBuffer::get( void * data, UINT__ num_elem )
 
     // return number of elems
     return 1;
+}*/
+
+UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
+{
+    UINT__ i, j;
+    BYTE__ * d = (BYTE__ *)data;
+
+	// make sure index is valid
+	if( read_offset_index >= m_read_offsets.size() )
+		return 0;
+	if( m_read_offsets[read_offset_index] < 0 )
+		return 0;
+
+	SINT__ m_read_offset = m_read_offsets[read_offset_index];
+
+    // read catch up with write
+    if( m_read_offset == m_write_offset )
+        return 0;
+
+    // copy
+    for( i = 0; i < num_elem; i++ )
+    {
+        for( j = 0; j < m_data_width; j++ )
+        {
+            d[i*m_data_width+j] = m_data[m_read_offset*m_data_width+j];
+        }
+
+        // move read
+        m_read_offset++;
+        
+        // catch up
+        if( m_read_offset == m_write_offset )
+        {
+            i++;
+            break;
+        }
+
+        // wrap
+        if( m_read_offset >= m_max_elem )
+            m_read_offset = 0;
+    }
+
+	// update read offset at given index
+	m_read_offsets[read_offset_index] = m_read_offset;
+
+    // return number of elems
+    return i;
 }

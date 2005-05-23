@@ -124,21 +124,52 @@ public:
     t_CKUINT  recv( MidiMsg * msg );
 
 public:
-    // static void CALLBACK cb_midi_input( HMIDIIN hm_in, t_CKUINT  msg,
-    //                  DWORD instance, DWORD param1, DWORD param2 );
-    static void cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
-		                       void *userData );
-
-protected:
+    CBuffer * m_buffer;
+	t_CKUINT m_read_index;
 	RtMidiIn * min;
-    CBuffer m_buffer;
 	t_CKBOOL m_valid;
 	t_CKUINT m_device_num;
+	t_CKUINT m_ref_count;
+    // static void CALLBACK cb_midi_input( HMIDIIN hm_in, t_CKUINT  msg,
+    //                  DWORD instance, DWORD param1, DWORD param2 );
 };
 
 
 void probeMidiIn();
 void probeMidiOut();
+
+
+class MidiInManager
+{
+public:
+	static t_CKBOOL open( MidiIn * min, t_CKINT device_num );
+	static t_CKBOOL close( MidiIn * min );
+
+    static void cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
+		                       void *userData );
+protected:
+	MidiInManager();
+	~MidiInManager();
+
+    static std::vector<RtMidiIn *> the_mins;
+    static std::vector<CBuffer *> the_bufs;
+};
+
+
+class MidiOutManager
+{
+public:
+	static MidiOut * open( t_CKUINT device_num );
+	static t_CKBOOL close( MidiOut * mout );
+
+protected:
+	MidiOutManager();
+	~MidiOutManager();
+
+	static std::vector<RtMidiOut *> the_mouts;
+};
+
+
 
 
 #endif

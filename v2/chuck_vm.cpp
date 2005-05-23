@@ -248,8 +248,10 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     // allocate msg buffer
     m_msg_buffer = new CBuffer;
     m_msg_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
+	m_msg_buffer->join(); // this should return 0
     m_reply_buffer = new CBuffer;
     m_reply_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
+	m_reply_buffer->join(); // this should return 0 too
 
     // allocate dac and adc
     m_num_dac_channels = 2;
@@ -396,7 +398,7 @@ t_CKBOOL Chuck_VM::run( )
         m_shreduler->advance();
 
         // process messages
-        while( m_msg_buffer->get( &msg, 1 ) )
+        while( m_msg_buffer->get( &msg, 1, 0 ) )
             process_msg( msg );
     }
 
@@ -481,7 +483,7 @@ t_CKBOOL Chuck_VM::queue_msg( Chuck_Msg * msg, int count )
 Chuck_Msg * Chuck_VM::get_reply( )
 {
     Chuck_Msg * msg = NULL;
-    m_reply_buffer->get( &msg, 1 );
+    m_reply_buffer->get( &msg, 1, 0 );
     return msg;
 }
 

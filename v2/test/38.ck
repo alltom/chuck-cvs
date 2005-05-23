@@ -2,7 +2,7 @@
 MidiOut mout;
 MidiMsg msg;
 
-if( !mout.open( 0 ) )
+if( !mout.open( 1 ) )
     <<<"bad">>>;
 
 while( true )

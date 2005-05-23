@@ -32,6 +32,7 @@
 #ifndef __UTIL_BUFFERS_H__
 #define __UTIL_BUFFERS_H__
 
+#include <vector>
 
 #define DWORD__                unsigned long
 #define SINT__                 long
@@ -61,17 +62,18 @@ public:
     void cleanup();
 
 public:
-    UINT__ get( void * data, UINT__ num_elem );
+    UINT__ get( void * data, UINT__ num_elem, UINT__ read_offset_index );
     void put( void * data, UINT__ num_elem );
+	UINT__ join( );
 
 protected:
     BYTE__ * m_data;
     UINT__   m_data_width;
-    UINT__   m_read_offset;
+    //UINT__   m_read_offset;
+	std::vector<SINT__> m_read_offsets;
     UINT__   m_write_offset;
     UINT__   m_max_elem;
 };
-
 
 
 
