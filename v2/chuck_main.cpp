@@ -52,6 +52,8 @@
 #include "ulib_std.h"
 //#include "ulib_net.h"
 
+#include "util_thread.h"
+
 #include <signal.h>
 #ifndef __PLATFORM_WIN32__
   #define CHUCK_THREAD pthread_t

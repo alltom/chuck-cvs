@@ -55,16 +55,13 @@
   #endif
 #else
   #include "digiio_rtaudio.h"
+  #include "midiio_rtmidi.h"
+
   #if defined(__LINUX_ALSA__)
-    #include "midiio_alsa.h"
   #elif defined(__LINUX_JACK__)
-    #include "midiio_alsa.h"
   #elif defined(__LINUX_OSS__)
-    #include "midiio_oss.h"
   #elif defined(__MACOSX_CORE__)
-    #include "midiio_osx.h"
   #elif defined(__WINDOWS_DS__)
-    #include "midiio_win32.h"
   #else
     #error "must define one:\
     __LINUX_ALSA__ __LINUX_JACK__ __LINUX_OSS__ __MACOSX_CORE__ __WINDOWS_DS__"
