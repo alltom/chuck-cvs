@@ -1673,7 +1673,7 @@ out_of_memory:
 // name: instantiate_and_initialize_object()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type )
+Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Shred * shred )
 {
     Chuck_Object * object = NULL;
 
@@ -1688,7 +1688,14 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type )
         if( isa( type, &t_string ) ) object = new Chuck_String;
         else object = new Chuck_Object;
     }
-    else object = new Chuck_UGen;
+    else
+	{
+		// make ugen
+		Chuck_UGen * ugen;
+		object = ugen = new Chuck_UGen;
+		ugen->shred = shred;
+		shred->add( ugen );
+	}
     
     // check to see enough memory
     if( !object ) goto out_of_memory;
@@ -1727,7 +1734,7 @@ inline void instantiate_object( Chuck_VM * vm, Chuck_VM_Shred * shred,
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // allocate the VM object
-    Chuck_Object * object = instantiate_and_initialize_object( type );
+    Chuck_Object * object = instantiate_and_initialize_object( type, shred );
     if( !object ) goto error;
 
     // push the pointer on the operand stack
