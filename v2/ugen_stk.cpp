@@ -7480,7 +7480,8 @@ class WvOut : public Stk
   // char m_filename[1024];
   Chuck_String str_filename;
   t_CKUINT start;
-  char autoPrefix[1024];
+  // char autoPrefix[1024];
+  Chuck_String autoPrefix;
   t_CKUINT flush;
 };
 
@@ -27666,7 +27667,7 @@ std::map<WvOut *, WvOut *> g_wv;
 CK_DLL_CTOR( WvOut_ctor )
 {
     WvOut * yo = new WvOut;
-    strcpy( yo->autoPrefix, "chuck-session" );
+    yo->autoPrefix.str = "chuck-session";
     OBJ_MEMBER_UINT(SELF, WvOut_offset_data) = (t_CKUINT)yo;
 }
 
@@ -27724,11 +27725,11 @@ CK_DLL_CTRL( WvOut_ctrl_matFilename )
     if( strstr( filename, "special:auto" ) )
     {
         time_t t; time(&t);
-        strcpy( buffer, w->autoPrefix );
+        strcpy( buffer, w->autoPrefix.str.c_str() );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
-        buffer[strlen(w->autoPrefix)+14] = 'h';
-        buffer[strlen(w->autoPrefix)+17] = 'm';
+        buffer[strlen(w->autoPrefix.str.c_str())+14] = 'h';
+        buffer[strlen(w->autoPrefix.str.c_str())+17] = 'm';
         strcat( buffer, ").mat" );
         filename = buffer;
     }
@@ -27752,11 +27753,11 @@ CK_DLL_CTRL( WvOut_ctrl_sndFilename )
     if( strstr( filename, "special:auto" ) )
     {
         time_t t; time(&t);
-        strcpy( buffer, w->autoPrefix );
+        strcpy( buffer, w->autoPrefix.str.c_str() );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
-        buffer[strlen(w->autoPrefix)+14] = 'h';
-        buffer[strlen(w->autoPrefix)+17] = 'm';
+        buffer[strlen(w->autoPrefix.str.c_str())+14] = 'h';
+        buffer[strlen(w->autoPrefix.str.c_str())+17] = 'm';
         strcat( buffer, ").snd" );
         filename = buffer;
     }
@@ -27780,11 +27781,11 @@ CK_DLL_CTRL( WvOut_ctrl_wavFilename )
     if( strstr( filename, "special:auto" ) )
     {
         time_t t; time(&t);
-        strcpy( buffer, w->autoPrefix );
+        strcpy( buffer, w->autoPrefix.str.c_str() );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
-        buffer[strlen(w->autoPrefix)+14] = 'h';
-        buffer[strlen(w->autoPrefix)+17] = 'm';
+        buffer[strlen(w->autoPrefix.str.c_str())+14] = 'h';
+        buffer[strlen(w->autoPrefix.str.c_str())+17] = 'm';
         strcat( buffer, ").wav" );
         filename = buffer;
     }
@@ -27808,11 +27809,11 @@ CK_DLL_CTRL( WvOut_ctrl_rawFilename )
     if( strstr( filename, "special:auto" ) )
     {
         time_t t; time(&t);
-        strcpy( buffer, w->autoPrefix );
+        strcpy( buffer, w->autoPrefix.str.c_str() );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
-        buffer[strlen(w->autoPrefix)+14] = 'h';
-        buffer[strlen(w->autoPrefix)+17] = 'm';
+        buffer[strlen(w->autoPrefix.str.c_str())+14] = 'h';
+        buffer[strlen(w->autoPrefix.str.c_str())+17] = 'm';
         strcat( buffer, ").raw" );
         filename = buffer;
     }
@@ -27836,11 +27837,11 @@ CK_DLL_CTRL( WvOut_ctrl_aifFilename )
     if( strstr( filename, "special:auto" ) )
     {
         time_t t; time(&t);
-        strcpy( buffer, w->autoPrefix );
+        strcpy( buffer, w->autoPrefix.str.c_str() );
         strcat( buffer, "(" );
         strncat( buffer, ctime(&t), 24 );
-        buffer[strlen(w->autoPrefix)+14] = 'h';
-        buffer[strlen(w->autoPrefix)+17] = 'm';
+        buffer[strlen(w->autoPrefix.str.c_str())+14] = 'h';
+        buffer[strlen(w->autoPrefix.str.c_str())+17] = 'm';
         strcat( buffer, ").aiff" );
         filename = buffer;
     }
@@ -27907,8 +27908,8 @@ CK_DLL_CGET( WvOut_cget_record )
 CK_DLL_CTRL( WvOut_ctrl_autoPrefix )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    strcpy( w->autoPrefix, GET_NEXT_STRING(ARGS)->str.c_str() );
-    RETURN->v_string = (Chuck_String *) w->autoPrefix;
+    w->autoPrefix.str = GET_NEXT_STRING(ARGS)->str.c_str();
+    RETURN->v_string = &w->autoPrefix;
 }
 
 
@@ -27919,7 +27920,7 @@ CK_DLL_CTRL( WvOut_ctrl_autoPrefix )
 CK_DLL_CGET( WvOut_cget_autoPrefix )
 {
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
-    RETURN->v_string = (Chuck_String *) w->autoPrefix;
+    RETURN->v_string = &w->autoPrefix;
 }
 
 
