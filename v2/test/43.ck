@@ -3,8 +3,8 @@ sinosc s => DelayL z => dac;
 MidiIn min;
 MidiMsg msg;
 
-//0.0::second => z.delay;
-0.02::second => z.max => z.delay;
+0.0::second => z.delay;
+//0.02::second => z.max => z.delay;
 
 if( !min.open( 0 ) )
     me.exit();
