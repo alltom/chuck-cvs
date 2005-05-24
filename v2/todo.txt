@@ -1,23 +1,14 @@
-
 todo
 ---
-- add pre_ctor for all types, imports or user
-- add ability to add member variables, and get back something to look 
-them up, such as index of data segment.
 - release objects from all scopes
-- overload functions
 - array initialization
   - multi-type [ 1, "foo" ]
   - optimize reduce if static
 
 class library:
-- object
 - string
 - array
-- event
-  - OSC
-  - MIDI
-  - other shreds
+- OSC event
 - exception
 - ugen
   - make it work
@@ -43,5 +34,31 @@ objects
   - constructors
   - destructor
 
+Bugs
+- <<<Adam>>>;
+- Ajay$int
+
+- Midi files (Miaiy!be)
+- string
+- Wvout
+- shred
+- update todo (doing) //(done)
+
 done - dot member
 done - arrays
+done - add pre_ctor for all types, imports or user
+done - add ability to add member variables, and get back something to look 
+them up, such as index of data segment.
+done - overload functions
+
+class library
+done - object
+done -   -Event
+	  - MIDI
+	  - other shreds
+
+done - MidiIn and MidiOut classes 
+done - multimidi
+done - on the fly programming
+
+bye.
