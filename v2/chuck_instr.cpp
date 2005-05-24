@@ -41,6 +41,7 @@ using namespace std;
 #include "chuck_ugen.h"
 #include "chuck_bbq.h"
 #include "chuck_dl.h"
+#include "chuck_errmsg.h"
 
 
 
@@ -1915,6 +1916,58 @@ void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 //-----------------------------------------------------------------------------
 // name: execute()
+// desc: assign string
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Assign_String::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_String * lhs = NULL;
+	Chuck_String ** rhs_ptr = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 2 );
+    // the previous reference
+    rhs_ptr = (Chuck_String **)(*(reg_sp+1));
+    // copy popped value into memory
+    lhs = (Chuck_String *)(*(reg_sp));
+    // release any previous reference
+    if( *rhs_ptr )
+	{
+		if( lhs ) (*rhs_ptr)->str = lhs->str;
+		else
+		{
+			// release reference
+			(*rhs_ptr)->release();
+			(*rhs_ptr) = NULL;
+		}
+	}
+	else
+	{
+		// if left is not null, yes
+		if( lhs != NULL )
+		{
+			(*rhs_ptr) = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
+			// add ref
+			(*rhs_ptr)->add_ref();
+			(*rhs_ptr)->str = lhs->str;
+		}
+		//EM_error2( 0, "internal error: somehow the type checker has allowed NULL strings" );
+		//EM_error2( 0, "we are sorry for the inconvenience but..." );
+		//EM_error2( 0, "we have to crash now.  Thanks." );
+		//assert( FALSE );
+	}
+
+    // copy
+    // memcpy( (void *)*(reg_sp+1), *obj, sizeof(t_CKUINT) );
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)*rhs_ptr );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
 // desc: release one reference on object
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Chuck_Release_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
@@ -3289,7 +3342,7 @@ void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             // print it
             fprintf( stderr, "%d :(%s)\n", *(sp-1), m_type_ref->c_name() );
         else
-            fprintf( stderr, "%s\n", ((Chuck_String *)*(sp-1))->str.c_str() );
+            fprintf( stderr, "\"%s\" : (%s)\n", ((Chuck_String *)*(sp-1))->str.c_str(), m_type_ref->c_name() );
     }
     else if( m_type_ref->size == 8 )
     {

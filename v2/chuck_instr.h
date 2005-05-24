@@ -1648,6 +1648,19 @@ struct Chuck_Instr_Pre_Ctor_Array_Post : public Chuck_Instr
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Assign_String
+// desc: assign primitive (string)
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Assign_String : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Assign_Primitive
 // desc: assign primitive (word)
 //-----------------------------------------------------------------------------

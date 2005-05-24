@@ -1196,7 +1196,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
     if( isa( left, right ) )
     {
         // basic types?
-        if( type_engine_check_primitive( left ) /*|| isa( left, &t_string )*/ )
+        if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
         {
             // TODO: const
             // assigment?
@@ -1966,7 +1966,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     }
 
     // primitive
-    if( isprim( t ) && decl->type->ref )  // TODO: string
+    if( (isprim( t ) || isa( t, &t_string )) && decl->type->ref )  // TODO: string
     {
         EM_error2( decl->linepos,
             "cannot declare references (@) of primitive type '%s'...",

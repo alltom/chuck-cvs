@@ -1765,6 +1765,11 @@ t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rh
                 // advance time
                 emit->append( new Chuck_Instr_Time_Advance );
             }
+			else if( isa( left, &t_string ) ) // string
+			{
+				// assign string
+				emit->append( new Chuck_Instr_Assign_String );
+			}
             else
             {
                 // assign primitive
