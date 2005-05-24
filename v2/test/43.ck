@@ -7,7 +7,7 @@ MidiMsg msg;
 0.02::second => z.max => z.delay;
 
 if( !min.open( 0 ) )
-    <<<"bad">>>;
+    me.exit();
 
 while( true )
 {
