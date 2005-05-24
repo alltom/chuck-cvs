@@ -1619,6 +1619,7 @@ t_CKBOOL initialize_object( Chuck_Object * object, Chuck_Type * type )
     // set the type reference
     // TODO: reference count
     object->type_ref = type;
+	object->type_ref->add_ref();
     // get the size
     object->size = type->obj_size;
     // allocate memory

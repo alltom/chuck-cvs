@@ -176,10 +176,6 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
 	func->add_arg( "shred", "me" );
     if( !type_engine_import_sfun( env, func ) ) goto error;
 
-    // add member variable
-    //= type_engine_import_mvar( env, "int", "m_testID", FALSE );
-    //if( object_offset_m_testID == CK_INVALID_OFFSET ) goto error;
-
     // end the class import
     type_engine_import_class_end( env );
     
@@ -203,8 +199,34 @@ error:
 t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
-//    init_base_class( env, type, env->global(), (t_CKUINT)object_ctor );
+    Chuck_DL_Func * func = NULL;
+
+    // init as base class
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
+        return FALSE;
+	
+	// add dtor
+	// not
+
+	// add clone()
+	func = make_new_mfun( "void", "clone", shred_clone );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add exit()
+    func = make_new_mfun( "void", "exit", shred_exit );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
     return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
 }
 
 
@@ -478,6 +500,30 @@ CK_DLL_MFUN( event_wait )
 	Chuck_Event * d = (Chuck_Event *)SELF;
 	assert( FALSE );
 }
+
+
+//-----------------------------------------------------------------------------
+// Shred API
+//-----------------------------------------------------------------------------
+
+//CK_DLL_CTOR( shred_ctor );
+//CK_DLL_DTOR( shred_dtor ); //
+
+CK_DLL_MFUN( shred_exit )
+{
+	Chuck_VM_Shred * derhs = (Chuck_VM_Shred *)SELF;
+    // end the shred
+    derhs->is_done = TRUE;
+    derhs->is_running = FALSE;
+// return; // thanks
+}
+
+CK_DLL_MFUN( shred_clone )
+{
+}
+
+
+
 
 //-----------------------------------------------------------------------------
 // MidiIn API

@@ -192,11 +192,10 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // make sure Objects have namespaces
     init_class_object( env, &t_object );
     init_class_ugen( env, &t_ugen );
+	init_class_shred( env, &t_shred );
 	init_class_event( env, &t_event );
     t_string.info = new Chuck_Namespace;
     t_string.info->add_ref();
-    t_shred.info = new Chuck_Namespace;
-    t_shred.info->add_ref();
     t_thread.info = new Chuck_Namespace;
     t_thread.info->add_ref();
     t_class.info = new Chuck_Namespace;

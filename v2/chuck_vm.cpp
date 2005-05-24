@@ -515,6 +515,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             shred = new Chuck_VM_Shred;
             shred->initialize( msg->code );
             shred->name = msg->code->name;
+			shred->add_ref();
         }
         // set the current time
         shred->start = m_shreduler->now_system;
@@ -729,6 +730,8 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code, Chuck_VM_Shred * parent 
     shred->name = code->name;
     // set the parent
     shred->parent = parent;
+	// add ref
+	shred->add_ref();
     // set the base ref for global
     if( parent ) shred->base_ref = shred->parent->base_ref;
     else shred->base_ref = shred->mem;
@@ -801,7 +804,8 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
 
     // free!
     m_shreduler->remove( shred );
-    SAFE_DELETE( shred );
+    shred->release();
+	shred = NULL;
     if( dec ) m_num_shreds--;
     if( !m_num_shreds ) m_shred_id = 0;
     
@@ -983,6 +987,9 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     // zero out the id
     id = 0;
 
+	// initialize
+	initialize_object( this, &t_shred );
+
     return TRUE;
 }
 
@@ -995,7 +1002,7 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM_Shred::shutdown()
 {
-    // get iterator to our map
+/*    // get iterator to our map
     map<Chuck_UGen *, Chuck_UGen *>::iterator iter = m_ugen_map.begin();
     while( iter != m_ugen_map.end() )
     {
@@ -1015,7 +1022,7 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
     // TODO: is this right?
     code = NULL;
     // what to do with next and prev?
-
+*/
     return TRUE;
 }
 
