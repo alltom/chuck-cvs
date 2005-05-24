@@ -1374,7 +1374,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
     case ae_op_percent:
         if( ( left == te_time && right == te_dur ) ) // time % dur = dur
         {
-            emit->append( instr = new Chuck_Instr_Divide_double );
+            emit->append( instr = new Chuck_Instr_Mod_double );
         }
         else // other types
         {
@@ -1395,7 +1395,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         // reverse
         if( ( left == te_dur && right == te_time ) ) // time % dur = dur
         {
-            emit->append( instr = new Chuck_Instr_Divide_double_Reverse );
+            emit->append( instr = new Chuck_Instr_Mod_double_Reverse );
         }
         else // other types
         {
