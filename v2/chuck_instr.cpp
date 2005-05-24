@@ -80,13 +80,14 @@ void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
+	t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
 
 	// pointer
 	pop_( reg_sp, 1 );
     // increment value
     (**(reg_sp))++;
 	// value
-	push_( (t_CKINT *&)reg_sp, **(reg_sp) );
+	push_( the_sp, **(reg_sp) );
 }
 
 
@@ -101,13 +102,14 @@ void Chuck_Instr_Dec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
+	t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
 
 	// pointer
 	pop_( reg_sp, 1 );
     // decrement value
     (**(reg_sp))--;
 	// value
-	push_( (t_CKUINT *&)reg_sp, **(reg_sp) );
+	push_( the_sp, **(reg_sp) );
 }
 
 
