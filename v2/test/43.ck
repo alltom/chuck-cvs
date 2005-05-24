@@ -3,13 +3,16 @@ sinosc s => DelayL z => dac;
 MidiIn min;
 MidiMsg msg;
 
-0.2::second => z.max => z.delay;
+//0.0::second => z.delay;
+0.02::second => z.max => z.delay;
 
 if( !min.open( 0 ) )
     <<<"bad">>>;
 
 while( true )
 {
+    min => now;
+
     while( min.recv( msg ) )
     {
         <<<msg.data3>>>;
@@ -20,8 +23,5 @@ while( true )
 		msg.data3 / 128.0 => s.gain;
 	}
     }
-
-    // wait
-    5::ms => now;
 }
 

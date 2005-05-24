@@ -110,7 +110,7 @@ public:
 // name: class MidiIn
 // desc: midi
 //-----------------------------------------------------------------------------
-class MidiIn
+class MidiIn : public Chuck_Event
 {
 public:
     MidiIn();
@@ -130,6 +130,7 @@ public:
 	t_CKBOOL m_valid;
 	t_CKUINT m_device_num;
 	t_CKUINT m_ref_count;
+	Chuck_Object * SELF;
     // static void CALLBACK cb_midi_input( HMIDIIN hm_in, t_CKUINT  msg,
     //                  DWORD instance, DWORD param1, DWORD param2 );
 };

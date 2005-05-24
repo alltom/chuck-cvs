@@ -280,6 +280,7 @@ MidiIn::MidiIn()
 	m_valid = FALSE;
 	m_read_index = 0;
 	m_buffer = NULL;
+	SELF = NULL;
 }
 
 
@@ -374,7 +375,7 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
 	min->m_buffer = the_bufs[device_num];
 	// get an index into your (you are min here) own buffer, 
 	// and a free ticket to your own workshop
-	min->m_read_index = min->m_buffer->join();
+	min->m_read_index = min->m_buffer->join( (Chuck_Event *)min->SELF );
     min->m_device_num = (t_CKUINT)device_num;
 
 	// done

@@ -160,7 +160,7 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), object_ctor ) )
+    if( !type_engine_import_class_begin( env, type, env->global(), event_ctor ) )
         return FALSE;
 
     // add signal()
@@ -274,7 +274,7 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
 
     
 	// init base class
-    if( !type_engine_import_class_begin( env, "MidiIn", "Object",
+    if( !type_engine_import_class_begin( env, "MidiIn", "event",
                                          env->global(), MidiIn_ctor ) )
 		return FALSE;
 
@@ -452,6 +452,7 @@ CK_DLL_MFUN( ugen_cget_gain )
 CK_DLL_CTOR( event_ctor )
 {
 //	OBJ_MEMBER_INT(SELF, event_offset_data) = (t_CKUINT)new Data_Event;
+	Chuck_Event * event = (Chuck_Event *)SELF;
 }
 
 
@@ -483,7 +484,9 @@ CK_DLL_MFUN( event_wait )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( MidiIn_ctor )
 {
-	OBJ_MEMBER_INT(SELF, MidiIn_offset_data) = (t_CKINT)new MidiIn;
+	MidiIn * min = new MidiIn;
+	min->SELF = SELF;
+	OBJ_MEMBER_INT(SELF, MidiIn_offset_data) = (t_CKINT)min;
 }
 
 CK_DLL_DTOR( MidiIn_dtor )
