@@ -30,14 +30,14 @@ sinosc s => JCRev r => dac;
 while( true )
 {
     // get note class
-    scale[ Math.rand2(0,4) ] => float freq;
+    scale[ math.rand2(0,4) ] => float freq;
     // get the final freq
-    Std.mtof( 69 + (Std.rand2(0,3)*12 + freq) ) => s.freq;
+    std.mtof( 69 + (std.rand2(0,3)*12 + freq) ) => s.freq;
     // reset phase for extra bandwidth
     0 => s.phase;
 
     // advance time
-    if( Std.randf() > -.5 ) .25::T => now;
+    if( std.randf() > -.5 ) .25::T => now;
     else .5::T => now;
 }
 

@@ -112,9 +112,8 @@ extern "C" int yyparse( void );
 void signal_int( int sig_num )
 {
     fprintf( stderr, "[chuck]: cleaning up...\n" );
-    usleep( 100000 );
 
-    if( g_vm && g_vm->has_init() )
+    if( g_vm )
     {
         Chuck_VM * vm = g_vm;
         g_vm = NULL;
@@ -123,7 +122,7 @@ void signal_int( int sig_num )
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
         if( g_tid ) pthread_cancel( g_tid );
-        if( g_tid ) usleep( 50000 );
+        // if( g_tid ) usleep( 50000 );
         delete( vm );
 #else
         CloseHandle( g_tid );
@@ -1012,6 +1011,7 @@ int main( int argc, char ** argv )
 
     // free vm
     SAFE_DELETE( vm );
+    stk_detach( 0, NULL );
     // TODO: clean env
     // TODO: clean emitter
 

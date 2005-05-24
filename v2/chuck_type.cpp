@@ -276,6 +276,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_values["week"] = TRUE;
     env->key_values["adc"] = TRUE;
     env->key_values["dac"] = TRUE;
+	env->key_values["blackhole"] = TRUE;
     env->key_values["global"] = TRUE;
     env->key_values["null"] = TRUE;
     env->key_values["NULL"] = TRUE;
@@ -1527,6 +1528,13 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 // ugen
                 t = &t_ugen;
             }
+			else if( str == "blackhole" ) // blackhole
+			{
+				// non assignable
+				exp->self->s_meta = ae_meta_value;
+				// ugen
+				t = &t_ugen;
+			}
             else if( str == "null" || str == "NULL" ) // null / NULL
             {
                 // not assignable
