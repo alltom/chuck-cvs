@@ -703,11 +703,39 @@ void Chuck_Event::signal()
         Chuck_VM_Shred * shred = m_queue.front();
 		m_queue.pop();
 		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
+		shred->event = NULL;
 		shreduler->shredule( shred );
 		// push the current time
         t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
 		push_( sp, shreduler->now_system );
 	}
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: remove()
+// desc: remove a shred from the event queue.
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Event::remove( Chuck_VM_Shred * shred )
+{
+	std::queue<Chuck_VM_Shred *> temp;
+	t_CKBOOL removed = FALSE;
+
+	while( !m_queue.empty() )
+	{
+		if( m_queue.front() != shred )
+			temp.push( m_queue.front() );
+		else {
+			shred->event = NULL;
+			removed = TRUE;
+		}
+		m_queue.pop();
+	}
+
+	m_queue = temp;
+	return removed;
 }
 
 
@@ -724,6 +752,7 @@ void Chuck_Event::broadcast()
         Chuck_VM_Shred * shred = m_queue.front();
 		m_queue.pop();
 		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
+		shred->event = NULL;
 		shreduler->shredule( shred );
 		// push the current time
         t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
@@ -749,4 +778,8 @@ void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
 
 	// add to waiting list
 	m_queue.push( shred );
+
+	// add event to shred
+	assert( shred->event == NULL );
+	shred->event = this;
 }

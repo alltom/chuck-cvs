@@ -183,6 +183,7 @@ public:
     t_CKUINT next_pc;
     t_CKBOOL is_done;
     t_CKBOOL is_running;
+	Chuck_Event * event;  // event shred is waiting on
     map<Chuck_UGen *, Chuck_UGen *> m_ugen_map;
 
 public: // id

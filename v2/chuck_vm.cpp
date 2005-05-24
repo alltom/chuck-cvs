@@ -409,7 +409,10 @@ vm_stop:
     return TRUE;
 }
 
-
+/*should we comment out what we just did?
+i can't think of why it might be affecting this part of the vm
+you never know
+true*/
 
 
 //-----------------------------------------------------------------------------
@@ -803,8 +806,9 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
         shred->parent->children.erase( shred->id );
 
     // free!
-    m_shreduler->remove( shred );
-    shred->release();
+    if( shred->event ) shred->event->remove( shred );
+	m_shreduler->remove( shred );
+	shred->release();
 	shred = NULL;
     if( dec ) m_num_shreds--;
     if( !m_num_shreds ) m_shred_id = 0;
@@ -944,6 +948,7 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     obj_array_size = 0;
     base_ref = NULL;
 	vm_ref = NULL;
+	event = NULL;
 }
 
 
@@ -1002,7 +1007,7 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM_Shred::shutdown()
 {
-/*    // get iterator to our map
+    // get iterator to our map
     map<Chuck_UGen *, Chuck_UGen *>::iterator iter = m_ugen_map.begin();
     while( iter != m_ugen_map.end() )
     {
@@ -1022,7 +1027,7 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
     // TODO: is this right?
     code = NULL;
     // what to do with next and prev?
-*/
+
     return TRUE;
 }
 
