@@ -35,13 +35,13 @@ objects
   - destructor
 
 Bugs
-- <<<Adam>>>;
-- Ajay$int
+- none
 
 - Midi files (Miaiy!be)
 - string
 - Wvout
 - shred
+- boost cb priority
 - update todo (doing) //(done)
 
 done - dot member
@@ -60,5 +60,8 @@ done -   -Event
 done - MidiIn and MidiOut classes 
 done - multimidi
 done - on the fly programming
+
+done - <<<Adam>>>;
+done - Ajay$int
 
 bye.

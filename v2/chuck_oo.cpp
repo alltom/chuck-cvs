@@ -705,7 +705,7 @@ void Chuck_Event::signal()
 		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
 		shreduler->shredule( shred );
 		// push the current time
-        t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+        t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
 		push_( sp, shreduler->now_system );
 	}
 }
