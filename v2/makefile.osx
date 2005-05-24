@@ -22,7 +22,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_errmsg.o chuck_frame.o \
 	midiio_rtmidi.o rtaudio.o rtmidi.o ugen_osc.o ugen_filter.o \
 	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o \
 	util_buffers.o util_math.o util_network.o util_raw.o util_string.o \
-	util_thread.o util_xforms.o \
+	util_thread.o util_xforms.o util_opensoundcontrol.o \
 	$(SF_OBJ)
 
 chuck: $(OBJS)
@@ -138,6 +138,9 @@ util_math.o: util_math.h util_math.c
 
 util_network.o: util_network.h util_network.c
 	$(CC) $(FLAGS) util_network.c
+
+util_opensoundcontrol.o: util_opensoundcontrol.h util_opensoundcontrol.cpp
+	$(CC) $(FLAGS) util_opensoundcontrol.cpp
 
 util_raw.o: util_raw.h util_raw.c
 	$(CC) $(FLAGS) util_raw.c
