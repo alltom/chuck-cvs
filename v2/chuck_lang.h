@@ -122,22 +122,11 @@ CK_DLL_MFUN( event_wait );
 
 
 //-----------------------------------------------------------------------------
-// name: Data_String
-// desc: data for base Chuck string class
-//-----------------------------------------------------------------------------
-struct Data_String
-{
-public:
-    Data_String( const std::string & s = "" ) { str = s; }
-    ~Data_String() { }
-
-public:
-    std::string str;
-};
-//-----------------------------------------------------------------------------
 // string API
 //-----------------------------------------------------------------------------
-
+CK_DLL_MFUN( string_length );
+CK_DLL_MFUN( string_set_at );
+CK_DLL_MFUN( string_get_at );
 
 
 /*

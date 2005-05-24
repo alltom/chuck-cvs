@@ -42,6 +42,10 @@ static t_CKUINT object_offset_m_testID = CK_INVALID_OFFSET;
 // storage for static variable
 static t_CKINT object_our_testID = 0;
 
+// dac tick
+UGEN_TICK __ugen_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
+{ *out = in; return TRUE; }
+
 
 //-----------------------------------------------------------------------------
 // name: init_class_object()
@@ -104,6 +108,7 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     // add ugen info
     t_ugen.ugen_info = new Chuck_UGen_Info;
     t_ugen.ugen_info->add_ref();
+	t_ugen.ugen_info->tick = __ugen_tick;
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
@@ -239,8 +244,37 @@ error:
 t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
-//    init_base_class( env, type, env->global(), (t_CKUINT)string_ctor );
+    Chuck_DL_Func * func = NULL;
+
+    // init as base class
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
+        return FALSE;
+	
+	// add dtor
+	// not
+
+	// add length()
+	func = make_new_mfun( "int", "length", string_length );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
+/*    // add at()
+    func = make_new_mfun( "int", "at", string_set_at );
+	func->add_arg( "int", "ch" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	func = make_new_mfun( "int", "at", string_get_at );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+*/
+    // end the class import
+    type_engine_import_class_end( env );
+    
     return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
 }
 
 
@@ -524,6 +558,26 @@ CK_DLL_MFUN( shred_clone )
 
 
 
+CK_DLL_MFUN( string_length )
+{
+	Chuck_String * s = (Chuck_String *)SELF;
+	RETURN->v_int = s->str.length();
+}
+
+/*
+CK_DLL_MFUN( string_set_at )
+{
+	Chuck_String * s = (Chuck_String *)SELF;
+	t_CKINT c = GET_CK_INT(
+	RETURN->v_int = s->str.length();
+}
+
+CK_DLL_MFUN( string_get_at )
+{
+	Chuck_String * s = (Chuck_String *)SELF;
+	RETURN->v_int = s->str.length();
+}
+*/
 
 //-----------------------------------------------------------------------------
 // MidiIn API
