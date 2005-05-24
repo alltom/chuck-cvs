@@ -1837,6 +1837,7 @@ t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
                 return NULL;
             }
             
+			postfix->exp->emit_var = TRUE;
             // TODO: mark somewhere we need to post increment
             
             // check type

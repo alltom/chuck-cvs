@@ -30,9 +30,9 @@ sinosc s => dac;
 while( true )
 {
     // get note class
-    scale[ Math.rand2(0,4) ] => float freq;
+    scale[ math.rand2(0,4) ] => float freq;
     // get the final freq    
-    Std.mtof( 21.0 + (Std.rand2(0,3)*12 + freq) ) => s.freq;
+    std.mtof( 21.0 + (std.rand2(0,3)*12 + freq) ) => s.freq;
 
     // advance time
     .25::T => now;
