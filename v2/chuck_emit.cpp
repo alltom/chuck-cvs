@@ -2753,7 +2753,14 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
 					return FALSE;
 				}
 			}
-			// static
+			else
+			{
+				// push something on the stack to pop...
+			    // static
+				// HACK
+				// TODO
+				emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+			}
         }
 
         // if object, assign
