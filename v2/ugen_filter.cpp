@@ -338,7 +338,7 @@ struct filter_data
 CK_DLL_CTOR( filter_ctor )
 {
     filter_data * f =  new filter_data;
-    OBJ_MEMBER_UINT( SELF, filter_offset_data ) = (t_CKUINT) f;
+    OBJ_MEMBER_UINT( SELF, filter_offset_data ) = (t_CKUINT)f;
 }
 
 
@@ -438,8 +438,8 @@ CK_DLL_TICK( biquad_tick )
 
 void biquad_set_reson( biquad_data * d )
 {
-    d->m_a2 = d->prad * d->prad;
-    d->m_a1 = -2.0f * d->prad * (float)cos(2.0 * TWO_PI * (double)d->pfreq / (double)d->srate);
+    d->m_a2 = (SAMPLE)(d->prad * d->prad);
+    d->m_a1 = (SAMPLE)(-2.0 * d->prad * cos(2.0 * TWO_PI * d->pfreq / (double)d->srate));
 
     if ( d->norm ) {
         // Use zeros at +- 1 and normalize the filter peak gain.
@@ -456,7 +456,8 @@ void biquad_set_reson( biquad_data * d )
 CK_DLL_CTRL( biquad_ctrl_pfreq )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->pfreq = (float)GET_CK_FLOAT(ARGS);
+    d->pfreq = GET_CK_FLOAT(ARGS);
+	fprintf( stderr, "%f\n", d->pfreq );
     biquad_set_reson( d ); 
 }
 
@@ -467,14 +468,14 @@ CK_DLL_CTRL( biquad_ctrl_pfreq )
 CK_DLL_CTRL( biquad_ctrl_prad )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->prad = (float)GET_CK_FLOAT(ARGS);
+    d->prad = GET_CK_FLOAT(ARGS);
     biquad_set_reson( d );
 }
 
 void biquad_set_notch( biquad_data * d )
 {
-    d->m_b2 = d->zrad * d->zrad;
-    d->m_b1 = -2.0f * d->zrad * (float)cos(2.0 * TWO_PI * (double)d->zfreq / (double)d->srate);
+    d->m_b2 = (SAMPLE)(d->zrad * d->zrad);
+    d->m_b1 = (SAMPLE)(-2.0 * d->zrad * cos(2.0 * TWO_PI * d->zfreq / (double)d->srate));
 }
 
 //-----------------------------------------------------------------------------
@@ -484,7 +485,7 @@ void biquad_set_notch( biquad_data * d )
 CK_DLL_CTRL( biquad_ctrl_zfreq )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->zfreq = (float)GET_CK_FLOAT(ARGS);
+    d->zfreq = GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
 }
 
@@ -495,7 +496,7 @@ CK_DLL_CTRL( biquad_ctrl_zfreq )
 CK_DLL_CTRL( biquad_ctrl_zrad )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->zrad = (float)GET_CK_FLOAT(ARGS);
+    d->zrad = GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
 }
 
@@ -517,7 +518,7 @@ CK_DLL_CTRL( biquad_ctrl_norm )
 CK_DLL_CTRL( biquad_ctrl_pregain )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->m_a0 = (float)GET_CK_FLOAT(ARGS);
+    d->m_a0 = (SAMPLE)GET_CK_FLOAT(ARGS);
 }
 
 //-----------------------------------------------------------------------------
@@ -542,7 +543,7 @@ CK_DLL_CTRL( biquad_ctrl_eqzs )
 CK_DLL_CTRL( biquad_ctrl_b0 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->m_b0 = (float)GET_CK_FLOAT(ARGS);
+    d->m_b0 = (SAMPLE)GET_CK_FLOAT(ARGS);
 }
 
 //-----------------------------------------------------------------------------
@@ -552,7 +553,7 @@ CK_DLL_CTRL( biquad_ctrl_b0 )
 CK_DLL_CTRL( biquad_ctrl_b1 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->m_b1 = (float)GET_CK_FLOAT(ARGS);
+    d->m_b1 = (SAMPLE)GET_CK_FLOAT(ARGS);
 }
 
 //-----------------------------------------------------------------------------
@@ -562,7 +563,7 @@ CK_DLL_CTRL( biquad_ctrl_b1 )
 CK_DLL_CTRL( biquad_ctrl_b2 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->m_b2 = (float)GET_CK_FLOAT(ARGS);
+    d->m_b2 = (SAMPLE)GET_CK_FLOAT(ARGS);
 }
 
 //-----------------------------------------------------------------------------
@@ -572,7 +573,7 @@ CK_DLL_CTRL( biquad_ctrl_b2 )
 CK_DLL_CTRL( biquad_ctrl_a0 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->m_a0 = (float)GET_CK_FLOAT(ARGS);
+    d->m_a0 = (SAMPLE)GET_CK_FLOAT(ARGS);
 }
 
 //-----------------------------------------------------------------------------
@@ -582,7 +583,7 @@ CK_DLL_CTRL( biquad_ctrl_a0 )
 CK_DLL_CTRL( biquad_ctrl_a1 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->m_a1 = (float)GET_CK_FLOAT(ARGS);
+    d->m_a1 = (SAMPLE)GET_CK_FLOAT(ARGS);
 }
 
 //-----------------------------------------------------------------------------
@@ -592,7 +593,7 @@ CK_DLL_CTRL( biquad_ctrl_a1 )
 CK_DLL_CTRL( biquad_ctrl_a2 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
-    d->m_a2 = (float)GET_CK_FLOAT(ARGS);
+    d->m_a2 = (SAMPLE)GET_CK_FLOAT(ARGS);
 }
 
 
