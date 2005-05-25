@@ -457,7 +457,6 @@ CK_DLL_CTRL( biquad_ctrl_pfreq )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->pfreq = GET_CK_FLOAT(ARGS);
-	fprintf( stderr, "%f\n", d->pfreq );
     biquad_set_reson( d ); 
 }
 
