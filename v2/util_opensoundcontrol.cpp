@@ -1,4 +1,38 @@
 
+/*----------------------------------------------------------------------------
+    ChucK Concurrent, On-the-fly Audio Programming Language
+      Compiler and Virtual Machine
+
+    Copyright (c) 2004 Ge Wang and Perry R. Cook.  All rights reserved.
+      http://chuck.cs.princeton.edu/
+      http://soundlab.cs.princeton.edu/
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+    U.S.A.
+-----------------------------------------------------------------------------*/
+
+//-----------------------------------------------------------------------------
+// file: util_opensoundcontrol.cpp
+// desc: ...
+//
+// author: Philip L. Davidson (philipd@alumni.princeton.edu)
+//         Ge Wang (gewang@cs.princeton.edu)
+//         Perry R. Cook (prc@cs.princeton.edu)
+// date: Spring 2005
+//-----------------------------------------------------------------------------
+
 #include "util_opensoundcontrol.h"
 
 // squeeze the whole wad of OSC-Kit code in here. 
@@ -675,7 +709,7 @@ int OSC_writeAddressAndTypes(OSCbuf *buf, char *name, char *types) {
 
     buf->typeStringPtr = buf->bufptr + 1; /* skip comma */
     buf->bufptr += OSC_padString(buf->bufptr, types);
-
+    
     buf->gettingFirstUntypedArg = 0;
     return 0;
 }
@@ -704,7 +738,6 @@ static int CheckTypeTag(OSCbuf *buf, char expectedType) {
 
 int OSC_writeFloatArg(OSCbuf *buf, float arg) {
     int4byte *intp;
-
 
     CheckOverflow(buf, 4);
 
@@ -969,7 +1002,7 @@ UDP_Transmitter::set_host(char * hostaddress, int port) {
    // Fill in the interface information
 
    struct hostent * host;
-   printf("gathering host information...");
+//   printf("gathering host information...");
    _host_addr.sin_family = AF_INET;
    _host_addr.sin_port = htons(port);
    _host_addr.sin_addr.s_addr = inet_addr(hostaddress);
@@ -981,12 +1014,13 @@ UDP_Transmitter::set_host(char * hostaddress, int port) {
       if(host == NULL)
       {
          printf("UDP_Transmitter::error\nUnknown host: %s\n", hostaddress);
+         _status = UDP_ERROR;
          return;
       }
       memcpy(&_host_addr.sin_addr, host->h_addr_list[0], host->h_length);
-      printf("OK\n");
+//        printf("   ...set\n");
    } 
-   else printf("   ...set\n");
+//   else printf("   ...set\n");
    _status = UDP_READY;
 }
 
@@ -1010,11 +1044,13 @@ UDP_Transmitter::close_sock() {
 
 OSC_Transmitter::OSC_Transmitter()  { 
     _out = new UDP_Transmitter();
+    _holdMessage = false;
     init();
 }
 
 OSC_Transmitter::OSC_Transmitter( UDP_Transmitter * out ) { 
     _out = out;
+    _holdMessage = false;
 }
 
 OSC_Transmitter::~OSC_Transmitter() { delete _out; } 
@@ -1026,7 +1062,7 @@ OSC_Transmitter::init() {
 }
 
 void 
-OSC_Transmitter::sethost( char * hadd, int p ) { 
+OSC_Transmitter::setHost( char * hadd, int p ) { 
    _out->set_host(hadd, p);
 }
 
@@ -1036,19 +1072,20 @@ OSC_Transmitter::presend( char * buf, int sz ) {
 }
 
 void
-OSC_Transmitter::openbundle( OSCTimeTag t) { 
+OSC_Transmitter::openBundle( OSCTimeTag t) { 
    OSC_openBundle( &_osc, t);
 }
 
 
 void
-OSC_Transmitter::closebundle() { 
+OSC_Transmitter::closeBundle() { 
    OSC_closeBundle( &_osc );
+   tryMessage();
 }
 
 
 void
-OSC_Transmitter::addmessage( char *address, char * args, ...) { 
+OSC_Transmitter::addMessage( char *address, char * args, ...) { 
 
    if (args == NULL || args[0] == '\0')	 { 					   // If There's No Text
        OSC_writeAddress( &_osc, address );				           //  Nothing
@@ -1076,51 +1113,79 @@ OSC_Transmitter::addmessage( char *address, char * args, ...) {
       }
    }
    if ( osc_err ) { 
-       fprintf ( stderr, "osc:  error writing OSC packet: %d \n", osc_err );
+       fprintf ( stderr, "osc:  error writing OSC packet: %d %s\n", osc_err, OSC_errorMessage );
        //failure action???
    }
    va_end(tags);     // Results Are Stored In Text
+   tryMessage();
 }
 
 void
 OSC_Transmitter::startMessage( char * address, char* args ) { 
-  OSC_writeAddressAndTypes( &_osc, address, args );
+    OSC_writeAddressAndTypes( &_osc, address, args );
+    tryMessage();
 }
 
 void
 OSC_Transmitter::addInt ( int i ) { 
     int osc_err = OSC_writeIntArg ( &_osc, i );
     if ( osc_err ) { 
-       fprintf ( stderr, "osc:  error writing OSC packet: %d \n", osc_err );
+       fprintf ( stderr, "osc:  error writing OSC packet: %d %s\n", osc_err, OSC_errorMessage );
        //failure action???
-   }    
+    }    
+    tryMessage();
 }
 
 void
 OSC_Transmitter::addFloat ( float f ) { 
     int osc_err = OSC_writeFloatArg ( &_osc, f );
     if ( osc_err ) { 
-        fprintf ( stderr, "osc:  error writing OSC packet: %d \n", osc_err );
+       fprintf ( stderr, "osc:  error writing OSC packet: %d %s\n", osc_err, OSC_errorMessage );
         //failure action???
     }    
+    tryMessage();
 }
 
 void
 OSC_Transmitter::addString ( char * s ) { 
     int osc_err = OSC_writeStringArg ( &_osc, s );
     if ( osc_err ) { 
-        fprintf ( stderr, "osc:  error writing OSC packet: %d \n", osc_err );
+       fprintf ( stderr, "osc:  error writing OSC packet: %d %s\n", osc_err, OSC_errorMessage );
         //failure action???
-    }    
+    }  
+    tryMessage();
+}
+
+bool
+OSC_Transmitter::packetReady() { 
+    if ( _holdMessage ) return false; //message hold is on
+    if ( _osc.typeStringPtr ) {       //if it's been typed, check that type is complete
+        if ( CheckTypeTag(&_osc, '\0' ) ) return false;
+    } 
+    return OSC_isBufferDone(&_osc);
 }
 
 void
-OSC_Transmitter::kickmessage() { 
+OSC_Transmitter::tryMessage() { 
+    if ( !packetReady() ) return;
+
+    fprintf(stderr, "sending message\n");
+    _out->send( OSC_getPacket(&_osc), OSC_packetSize(&_osc) );
+    OSC_resetBuffer(&_osc);
+}
+
+void
+OSC_Transmitter::holdMessage(bool b) { 
+    _holdMessage  = b;
+}
+
+void
+OSC_Transmitter::kickMessage() { 
     if ( !OSC_isBufferDone(&_osc) ) { 
         fprintf(stderr, "OSC: error - sending incomplete packet!");
     }
-   _out->send( OSC_getPacket(&_osc), OSC_packetSize(&_osc) );
-   OSC_resetBuffer(&_osc);
+    _out->send( OSC_getPacket(&_osc), OSC_packetSize(&_osc) );
+    OSC_resetBuffer(&_osc);
 }
 
 

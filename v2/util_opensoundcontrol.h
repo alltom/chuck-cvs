@@ -23,12 +23,12 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: ugen_osc.cpp
+// file: util_opensoundcontrol.h
 // desc: ...
 //
-// author: Ge Wang (gewang@cs.princeton.edu)
+// author: Philip L. Davidson (philipd@alumni.princeton.edu)
+//         Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
-//         Philip L. Davidson (philipd@alumni.princeton.edu)
 // date: Spring 2005
 //-----------------------------------------------------------------------------
 
@@ -391,7 +391,7 @@ protected:
     char              _buffer[2048];
     OSCbuf            _osc;
     UDP_Transmitter * _out;
-    
+    bool              _holdMessage;
 public:
 
     OSC_Transmitter();
@@ -400,18 +400,21 @@ public:
     
     ~OSC_Transmitter();
     void init();
-    void sethost( char * host, int port);
-    void addmessage( char * address, char * args, ...);
+    void setHost( char * host, int port);
+    void addMessage( char * address, char * args, ...);
     
-    void openbundle( OSCTimeTag t);
-    void closebundle();
+    void openBundle( OSCTimeTag t);
+    void closeBundle();
     
     void startMessage( char * address, char * args );
     void addInt( int i );
     void addFloat( float f );
     void addString( char * s);
-    
-    void kickmessage();
+    bool packetReady();
+    void holdMessage( bool arg );
+    void tryMessage();
+    void kickMessage();
+
     void presend( char * buffer , int size );
     
 };
