@@ -34,7 +34,7 @@
 #include "chuck_type.h"
 #include "chuck_vm.h"
 #include "midiio_rtmidi.h"
-#include "skiniio_skini.h"
+// #include "skiniio_skini.h"
 
 
 // offset for member variable
@@ -446,7 +446,7 @@ error:
 
 
 
-// static
+/*// static
 static t_CKUINT SkiniIn_offset_data = 0;
 static t_CKUINT SkiniOut_offset_data = 0;
 static t_CKUINT SkiniMsg_offset_type = 0;
@@ -546,7 +546,7 @@ error:
     
     return FALSE;
 }
-
+*/
 
 
 // Object ctor
@@ -865,7 +865,7 @@ CK_DLL_MFUN( MidiRW_write )
 
 
 
-//-----------------------------------------------------------------------------
+/*//-----------------------------------------------------------------------------
 // SkiniIn API
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( SkiniIn_ctor )
@@ -942,7 +942,7 @@ CK_DLL_MFUN( SkiniOut_send )
 	
 	RETURN->v_int = sout->send( &the_msg );
 }
-
+*/
 
 /*
 //-----------------------------------------------------------------------------
