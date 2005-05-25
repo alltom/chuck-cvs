@@ -121,13 +121,13 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "float", "gain", ugen_cget_gain );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    // next
+/*    // next
     func = make_new_mfun( "float", "next", ugen_next );
     func->add_arg( "float", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     func = make_new_mfun( "float", "next", ugen_cget_next );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
+*/
     // last
     func = make_new_mfun( "float", "last", ugen_last );
     if( !type_engine_import_mfun( env, func ) ) goto error;

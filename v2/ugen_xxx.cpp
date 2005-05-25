@@ -829,6 +829,8 @@ CK_DLL_CTRL( impulse_ctrl_next )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: impulse_cget_next()
 // desc: ...
@@ -841,6 +843,7 @@ CK_DLL_CGET( impulse_cget_next )
 
 
 
+
 //-----------------------------------------------------------------------------
 // name: step_ctor()
 // desc: ...
@@ -850,6 +853,8 @@ CK_DLL_CTOR( step_ctor )
     // return data to be used later
     OBJ_MEMBER_UINT( SELF, step_offset_data ) = (t_CKUINT)new SAMPLE( 1.0f );
 }
+
+
 
 
 //-----------------------------------------------------------------------------
