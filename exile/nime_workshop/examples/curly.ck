@@ -15,7 +15,7 @@ impulse i => biquad f => dac;
 while( true )
 {
     // set the current sample/impulse
-    1.0 => i.value;
+    1.0 => i.next;
     // sweep the filter resonant frequency
     std.abs(math.sin(v)) * 800.0 => f.pfreq;
     // increment v

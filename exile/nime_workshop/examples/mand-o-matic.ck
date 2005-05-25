@@ -58,8 +58,8 @@ while( true )
     // frequency...
     2 * std.rand2( 0, 4 ) => int freq;
     if( freq == 6 ) 7 => freq; if( freq == 8 ) 9 => freq;
-    220.0 * math.pow( 1.05946, (float)(std.rand2(0,2)*12)
-                      +(float)freq ) => mand.freq;
+    220.0 * math.pow( 1.05946, (std.rand2(0,2)*12)
+                      +freq ) => mand.freq;
     // pluck it!
     std.rand2f( 0.2, 0.9 ) => mand.pluck;
 
@@ -75,13 +75,13 @@ while( true )
         // how many times
         4 * std.rand2( 1, 5 ) => int pick;
         0.0 => float pluck;
-        0.7 / (float)pick => float inc;
+        0.7 / pick => float inc;
         // time loop
         for( ; i < pick; i++ )
         {
             75::ms => now;
-            std.rand2f(.2,.3) + (float)i*inc => pluck;
-            pluck + -.2 * (float)pick_dir => mand.pluck;
+            std.rand2f(.2,.3) + i*inc => pluck;
+            pluck + -.2 * pick_dir => mand.pluck;
             // simulate pluck direction
             !pick_dir => pick_dir;
         }

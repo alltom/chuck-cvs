@@ -13,7 +13,7 @@ i => biquad f3 => g;
 // set equal gain zeros
 1 => f.eqzs; 1 => f2.eqzs; 1 => f3.eqzs;
 // initialize float variable
-1.5 * math.pi => float v;
+1.5 * 3.14 => float v;
 // set filter gain
 .2 => f.gain; .04 => f2.gain; .01 => f3.gain;
 // load glottal pop
