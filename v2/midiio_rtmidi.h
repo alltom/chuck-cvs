@@ -172,5 +172,26 @@ protected:
 
 
 
+//-----------------------------------------------------------------------------
+// name: class MidiRW
+// desc: reads and writes midi messages from file
+//-----------------------------------------------------------------------------
+class MidiRW
+{
+public:
+	MidiRW();
+	~MidiRW();
+
+public:
+	t_CKBOOL open( const char * filename );
+	t_CKBOOL close();
+
+public:
+	t_CKBOOL read( MidiMsg * msg, t_CKTIME * time );
+	t_CKBOOL write( MidiMsg * msg, t_CKTIME * time );
+
+protected:
+	FILE * file;
+};
 
 #endif

@@ -175,6 +175,14 @@ SOURCE=.\rtmidi.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\skini.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\skiniio_skini.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ugen_filter.cpp
 # End Source File
 # Begin Source File
@@ -324,6 +332,14 @@ SOURCE=.\rterror.h
 # Begin Source File
 
 SOURCE=.\rtmidi.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\skini.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\skiniio_skini.h
 # End Source File
 # Begin Source File
 

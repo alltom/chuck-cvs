@@ -34,6 +34,7 @@
 #include "chuck_type.h"
 #include "chuck_vm.h"
 #include "midiio_rtmidi.h"
+#include "skiniio_skini.h"
 
 
 // offset for member variable
@@ -298,6 +299,7 @@ static t_CKUINT MidiIn_offset_data = 0;
 static t_CKUINT MidiMsg_offset_data1 = 0;
 static t_CKUINT MidiMsg_offset_data2 = 0;
 static t_CKUINT MidiMsg_offset_data3 = 0;
+static t_CKUINT MidiMsg_offset_when = 0;
 static t_CKUINT MidiOut_offset_data = 0;
 
 //-----------------------------------------------------------------------------
@@ -324,6 +326,10 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
 	// add member variable
     MidiMsg_offset_data3 = type_engine_import_mvar( env, "int", "data3", FALSE );
     if( MidiMsg_offset_data3 == CK_INVALID_OFFSET ) goto error;
+
+	// add member variable
+	MidiMsg_offset_when = type_engine_import_mvar( env, "time", "when", FALSE );
+	if( MidiMsg_offset_when == CK_INVALID_OFFSET ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -361,8 +367,8 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     func->add_arg( "int", "port" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    // add recv()
-    func = make_new_mfun( "int", "send", MidiOut_recv );
+    // add send()
+    func = make_new_mfun( "int", "send", MidiOut_send );
 	func->add_arg( "MidiMsg", "msg" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -383,6 +389,163 @@ error:
     return FALSE;
 }
 
+
+
+// static
+static t_CKUINT MidiRW_offset_data = 0;
+//-----------------------------------------------------------------------------
+// name: init_class_MidiRW()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_MidiRW( Chuck_Env * env )
+{
+    Chuck_DL_Func * func = NULL;
+
+	// init base class
+    if( !type_engine_import_class_begin( env, "MidiRW", "event",
+                                         env->global(), MidiRW_ctor ) )
+		return FALSE;
+
+	// add open()
+    func = make_new_mfun( "int", "open", MidiRW_open );
+    func->add_arg( "string", "filename" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add close()
+    func = make_new_mfun( "int", "close", MidiRW_close );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add write()
+    func = make_new_mfun( "int", "write", MidiRW_write );
+	func->add_arg( "MidiMsg", "msg" );
+	func->add_arg( "time", "t" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+	// add read()
+	func = make_new_mfun( "int", "read", MidiRW_read );
+	func->add_arg( "MidiMsg", "msg" );
+	//func->add_arg( "time", "t" );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    MidiRW_offset_data = type_engine_import_mvar( env, "int", "@MidiRW_data", FALSE );
+    if( MidiRW_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
+}
+
+
+
+// static
+static t_CKUINT SkiniIn_offset_data = 0;
+static t_CKUINT SkiniOut_offset_data = 0;
+static t_CKUINT SkiniMsg_offset_type = 0;
+static t_CKUINT SkiniMsg_offset_time = 0;
+static t_CKUINT SkiniMsg_offset_channel = 0;
+static t_CKUINT SkiniMsg_offset_data1 = 0;
+static t_CKUINT SkiniMsg_offset_data2 = 0;
+
+//-----------------------------------------------------------------------------
+// name: init_class_Skini()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_Skini( Chuck_Env * env )
+{
+    Chuck_DL_Func * func = NULL;
+
+	// init base class
+    if( !type_engine_import_class_begin( env, "SkiniMsg", "Object",
+                                         env->global(), NULL ) )
+		return FALSE;
+
+    // add member variable
+    SkiniMsg_offset_type = type_engine_import_mvar( env, "int", "type", FALSE );
+    if( SkiniMsg_offset_type == CK_INVALID_OFFSET ) goto error;
+
+	// add member variable
+    SkiniMsg_offset_time = type_engine_import_mvar( env, "float", "time", FALSE );
+    if( SkiniMsg_offset_time == CK_INVALID_OFFSET ) goto error;
+
+	// add member variable
+    SkiniMsg_offset_channel = type_engine_import_mvar( env, "int", "channel", FALSE );
+    if( SkiniMsg_offset_channel == CK_INVALID_OFFSET ) goto error;
+
+	// add member variable
+    SkiniMsg_offset_data1 = type_engine_import_mvar( env, "float", "data1", FALSE );
+    if( SkiniMsg_offset_data1 == CK_INVALID_OFFSET ) goto error;
+
+	// add member variable
+    SkiniMsg_offset_data2 = type_engine_import_mvar( env, "float", "data2", FALSE );
+    if( SkiniMsg_offset_data2 == CK_INVALID_OFFSET ) goto error;
+
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    
+	// init base class
+    if( !type_engine_import_class_begin( env, "SkiniIn", "event",
+                                         env->global(), SkiniIn_ctor ) )
+		return FALSE;
+
+	// add open()
+    func = make_new_mfun( "int", "open", SkiniIn_open );
+    func->add_arg( "const char *", "filename" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add recv()
+    func = make_new_mfun( "int", "recv", SkiniIn_recv );
+	func->add_arg( "SkiniMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    SkiniIn_offset_data = type_engine_import_mvar( env, "int", "@SkiniIn_data", FALSE );
+    if( SkiniIn_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+	// init base class
+    if( !type_engine_import_class_begin( env, "SkiniOut", "Object",
+                                         env->global(), SkiniOut_ctor ) )
+		return FALSE;
+
+	// add open()
+    func = make_new_mfun( "int", "open", MidiOut_open );
+    func->add_arg( "const char *", "filename" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add send()
+    func = make_new_mfun( "int", "send", SkiniOut_send );
+	func->add_arg( "SkiniMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    SkiniOut_offset_data = type_engine_import_mvar( env, "int", "@SkiniOut_data", FALSE );
+    if( SkiniOut_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
+}
 
 
 
@@ -636,7 +799,7 @@ CK_DLL_MFUN( MidiOut_open )
 	RETURN->v_int = mout->open( port );
 }
 
-CK_DLL_MFUN( MidiOut_recv )
+CK_DLL_MFUN( MidiOut_send )
 {
 	MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
 	Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
@@ -645,6 +808,139 @@ CK_DLL_MFUN( MidiOut_recv )
 	the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2);
 	the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3);
 	RETURN->v_int = mout->send( &the_msg );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// MidiRW API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiRW_ctor )
+{
+	OBJ_MEMBER_INT(SELF, MidiRW_offset_data) = (t_CKUINT)new MidiRW;
+}
+
+CK_DLL_DTOR( MidiRW_dtor )
+{
+	delete (MidiRW *)OBJ_MEMBER_INT(SELF, MidiRW_offset_data);
+}
+
+CK_DLL_MFUN( MidiRW_open )
+{
+	MidiRW * mrw = (MidiRW *)OBJ_MEMBER_INT(SELF, MidiRW_offset_data);
+	const char * filename = GET_CK_STRING(ARGS)->str.c_str();
+	RETURN->v_int = mrw->open( filename );
+}
+
+CK_DLL_MFUN( MidiRW_close )
+{
+	MidiRW * mrw = (MidiRW *)OBJ_MEMBER_INT(SELF, MidiRW_offset_data);
+	RETURN->v_int = mrw->close();
+}
+
+CK_DLL_MFUN( MidiRW_read )
+{
+	MidiRW * mrw = (MidiRW *)OBJ_MEMBER_INT(SELF, MidiRW_offset_data);
+	Chuck_Object * fake_msg = GET_NEXT_OBJECT(ARGS);
+	MidiMsg the_msg;
+	t_CKTIME time;
+	RETURN->v_int = mrw->read( &the_msg, &time );
+	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1) = the_msg.data[0];
+	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2) = the_msg.data[1];
+	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3) = the_msg.data[2];
+	OBJ_MEMBER_TIME(fake_msg, MidiMsg_offset_when) = time;
+}
+
+CK_DLL_MFUN( MidiRW_write )
+{
+	MidiRW * mrw = (MidiRW *)OBJ_MEMBER_INT(SELF, MidiRW_offset_data);
+	Chuck_Object * fake_msg = GET_NEXT_OBJECT(ARGS);
+	t_CKTIME time = GET_NEXT_TIME(ARGS);
+	MidiMsg the_msg;
+	the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
+	the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2);
+	the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3);
+	RETURN->v_int = mrw->write( &the_msg, &time );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// SkiniIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( SkiniIn_ctor )
+{
+	SkiniIn * skin = new SkiniIn;
+//	skin->SELF = SELF;
+	OBJ_MEMBER_INT(SELF, SkiniIn_offset_data) = (t_CKINT)skin;
+}
+
+CK_DLL_DTOR( SkiniIn_dtor )
+{
+	delete (SkiniIn *)OBJ_MEMBER_INT(SELF, SkiniIn_offset_data);
+}
+
+CK_DLL_MFUN( SkiniIn_open )
+{
+	SkiniIn * skin = (SkiniIn *)OBJ_MEMBER_INT(SELF, SkiniIn_offset_data);
+	const char * filename = GET_CK_STRING(ARGS)->str.c_str();
+	RETURN->v_int = skin->open( filename );
+}
+
+CK_DLL_MFUN( SkiniIn_recv )
+{
+	SkiniIn * skin = (SkiniIn *)OBJ_MEMBER_INT(SELF, SkiniIn_offset_data);
+	Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
+	SkiniMsg the_msg;
+	RETURN->v_int = skin->recv( &the_msg );
+	if( RETURN->v_int )
+	{
+		OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_type ) = the_msg.type;
+		OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_time ) = the_msg.time;
+		OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_channel ) = the_msg.channel;
+		OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data1 ) = the_msg.data1;
+		OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data2 ) = the_msg.data2;
+	}
+}
+
+
+//-----------------------------------------------------------------------------
+// SkiniOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( SkiniOut_ctor )
+{
+	OBJ_MEMBER_INT(SELF, SkiniOut_offset_data) = (t_CKUINT)new SkiniOut;
+}
+
+CK_DLL_DTOR( SkiniOut_dtor )
+{
+	delete (SkiniOut *)OBJ_MEMBER_INT(SELF, SkiniOut_offset_data);
+}
+
+CK_DLL_MFUN( SkiniOut_open )
+{
+	SkiniOut * sout = (SkiniOut *)OBJ_MEMBER_INT(SELF, SkiniOut_offset_data);
+	const char * filename = GET_CK_STRING(ARGS)->str.c_str();
+	RETURN->v_int = sout->open( filename );
+}
+
+CK_DLL_MFUN( SkiniOut_send )
+{
+	SkiniOut * sout = (SkiniOut *)OBJ_MEMBER_INT(SELF, SkiniOut_offset_data);
+	Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
+	SkiniMsg the_msg;
+	
+	the_msg.type = OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_type );
+	the_msg.time = OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_time );
+	the_msg.channel = OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_channel );
+	the_msg.data1 = OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data1 );
+	the_msg.data2 = OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data2 );
+
+	//the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, SkiniMsg_offset_data1);
+	//the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, SkiniMsg_offset_data2);
+	//the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, SkiniMsg_offset_data3);
+	
+	RETURN->v_int = sout->send( &the_msg );
 }
 
 

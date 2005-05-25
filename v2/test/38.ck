@@ -8,8 +8,8 @@ if( !mout.open( 1 ) )
 while( true )
 {
     144 => msg.data1;
-    Std.rand2( 10, 80 ) => msg.data2;
-    Std.rand2( 40, 100 ) => msg.data3;
+    std.rand2( 10, 80 ) => msg.data2;
+    std.rand2( 40, 100 ) => msg.data3;
 
     mout.send( msg );
 

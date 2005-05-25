@@ -550,3 +550,58 @@ t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
 	return TRUE;
 }
 
+
+//-----------------------------------------------------------------------------
+// name: class MidiRW
+// desc: reads and writes midi messages from file
+//-----------------------------------------------------------------------------
+MidiRW::MidiRW() { file = NULL; }
+
+MidiRW::~MidiRW() { file = NULL; }
+
+t_CKBOOL MidiRW::open( const char * filename )
+{
+	file = fopen( filename, "r+" );
+	if( file == NULL )
+	{
+		file = fopen( filename, "w+" );
+	}
+
+	return ( file != NULL );
+}
+
+t_CKBOOL MidiRW::close()
+{
+	return fclose( file ) == 0;
+}
+
+t_CKBOOL MidiRW::read( MidiMsg * msg, t_CKTIME * time )
+{
+	if( !file )
+		return FALSE;
+
+	// is it open? i don't know...
+	
+	t_CKBOOL m, t;
+	
+	// wouldn't it be cool if this worked?
+	m = fread( msg, sizeof(MidiMsg), 1, file );
+	t = fread( time, sizeof(t_CKTIME), 1, file );
+	
+	return m && t;
+}
+
+
+t_CKBOOL MidiRW::write( MidiMsg * msg, t_CKTIME * time )
+{
+	if( !file )
+		return FALSE;
+
+	t_CKBOOL m, t;
+
+	m = fwrite( msg, sizeof(MidiMsg), 1, file );
+	t = fwrite( time, sizeof(t_CKTIME), 1, file );
+	fflush( file );
+
+	return m && t;
+}

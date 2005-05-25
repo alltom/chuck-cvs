@@ -50,7 +50,7 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_Midi( Chuck_Env * env );
-
+t_CKBOOL init_class_MidiRW( Chuck_Env * env );
 
 
 
@@ -181,6 +181,16 @@ CK_DLL_CTOR( MidiMsg_ctor );
 
 
 
+//-----------------------------------------------------------------------------
+// MidiRW API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiRW_ctor );
+CK_DLL_DTOR( MidiRW_dtor );
+CK_DLL_MFUN( MidiRW_open );
+CK_DLL_MFUN( MidiRW_close );
+CK_DLL_MFUN( MidiRW_read );
+CK_DLL_MFUN( MidiRW_write );
+
 
 //-----------------------------------------------------------------------------
 // MidiIn API
@@ -199,9 +209,36 @@ CK_DLL_MFUN( MidiIn_recv );
 CK_DLL_CTOR( MidiOut_ctor );
 CK_DLL_DTOR( MidiOut_dtor );
 CK_DLL_MFUN( MidiOut_open );
-CK_DLL_MFUN( MidiOut_recv );
+CK_DLL_MFUN( MidiOut_send );
 
 
+
+//-----------------------------------------------------------------------------
+// SkiniMMsg API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( SkiniMsg_ctor );
+
+
+
+
+//-----------------------------------------------------------------------------
+// SkiniIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( SkiniIn_ctor );
+CK_DLL_DTOR( SkiniIn_dtor );
+CK_DLL_MFUN( SkiniIn_open );
+CK_DLL_MFUN( SkiniIn_recv );
+
+
+
+
+//-----------------------------------------------------------------------------
+// SkiniOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( SkiniOut_ctor );
+CK_DLL_DTOR( SkiniOut_dtor );
+CK_DLL_MFUN( SkiniOut_open );
+CK_DLL_MFUN( SkiniOut_send );
 
 
 #endif

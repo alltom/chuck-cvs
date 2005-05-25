@@ -961,6 +961,14 @@ CK_DLL_CTRL( Vector3D_ctrl_x );
 CK_DLL_CTRL( Vector3D_ctrl_y );
 CK_DLL_CTRL( Vector3D_ctrl_z );  
 
+// SKINI
+/*
+SkiniIn SkiniMessage => while(skin.getnextmessage(msg))
+msg - type, data parameters, time stamp
+SkiniOut.send( midi message )
+horn ok please -> written at the back of trucks, always, makes no sense.
+*/
+
 
 
 

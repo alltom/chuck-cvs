@@ -776,6 +776,7 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     if( !load_module( env, opensoundcontrol_query, "opensoundcontrol", "global" ) ) goto error;
 #endif
 	if( !init_class_Midi( env ) ) goto error;
+	if( !init_class_MidiRW( env ) ) goto error;
 
 
     // clear context
