@@ -272,6 +272,8 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     {
         // initialize as object
         initialize_object( &m_adc[i], &t_ugen );
+		// manually set the tick
+		m_adc[i].tick = NULL;
         // add ref
         m_adc[i].add_ref();
     }
