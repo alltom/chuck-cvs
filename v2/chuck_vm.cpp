@@ -117,6 +117,8 @@ Chuck_VM::Chuck_VM()
     m_num_shreds = 0;
     m_shreduler = NULL;
     m_msg_buffer = NULL;
+	m_reply_buffer = NULL;
+	m_event_buffer = NULL;
     m_shred_id = 0;
     m_halt = TRUE;
     m_env = NULL;
@@ -252,6 +254,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_reply_buffer = new CBuffer;
     m_reply_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
 	m_reply_buffer->join(); // this should return 0 too
+    m_event_buffer = new CBuffer;
+    m_event_buffer->initialize( 1024, sizeof(Chuck_Event *) );
+	m_event_buffer->join(); // this should also return 0
 
     // allocate dac and adc
     m_num_dac_channels = 2;
@@ -364,7 +369,8 @@ t_CKBOOL Chuck_VM::run( )
     m_running = TRUE;
     Chuck_VM_Shred * shred = NULL;
     Chuck_Msg * msg = NULL;
-    
+	Chuck_Event * event = NULL;
+
     // audio
     if( m_audio )
     {
@@ -402,6 +408,10 @@ t_CKBOOL Chuck_VM::run( )
         // process messages
         while( m_msg_buffer->get( &msg, 1, 0 ) )
             process_msg( msg );
+
+        // broadcast queued events
+        while( m_event_buffer->get( &event, 1, 0 ) )
+            event->broadcast();
     }
 
 // vm stop here
@@ -474,7 +484,22 @@ void Chuck_VM::gc( )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::queue_msg( Chuck_Msg * msg, int count )
 {
+	assert( count == 1 );
     m_msg_buffer->put( &msg, count );
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: queue_event()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::queue_event( Chuck_Event * event, int count )
+{
+	assert( count == 1 );
+    m_event_buffer->put( &event, count );
     return TRUE;
 }
 

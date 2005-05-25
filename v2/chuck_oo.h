@@ -230,6 +230,9 @@ public:
     void wait( Chuck_VM_Shred * shred, Chuck_VM * vm );
 	t_CKBOOL remove( Chuck_VM_Shred * shred );
 
+public: // internal
+	void queue_broadcast();
+
 	std::queue<Chuck_VM_Shred *> m_queue;
 };
 

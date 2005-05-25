@@ -2722,7 +2722,7 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         else // not member
         {
 			// not in class
-			if( !emit->env->class_def )
+			if( !emit->env->class_def || !decl->is_static )
 			{
 				// allocate a place on the local stack
 				local = emit->alloc_local( type->size, value->name, is_ref );

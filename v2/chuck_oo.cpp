@@ -742,6 +742,24 @@ t_CKBOOL Chuck_Event::remove( Chuck_VM_Shred * shred )
 
 
 //-----------------------------------------------------------------------------
+// name: queue_broadcast()
+// desc: queue the event to broadcast a event/condition variable, by the owner
+//       of the queue
+//-----------------------------------------------------------------------------
+void Chuck_Event::queue_broadcast()
+{
+	while( !m_queue.empty() )
+	{
+        Chuck_VM_Shred * shred = m_queue.front();
+		m_queue.pop();
+		shred->vm_ref->queue_event( this, 1 );
+	}
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: broadcast()
 // desc: broadcast a event/condition variable, shreduling all waiting shreds
 //-----------------------------------------------------------------------------

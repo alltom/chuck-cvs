@@ -294,6 +294,7 @@ public: // garbage collection
 
 public: // msg
     t_CKBOOL queue_msg( Chuck_Msg * msg, int num_msg );
+    t_CKBOOL queue_event( Chuck_Event * event, int num_msg );
     t_CKUINT process_msg( Chuck_Msg * msg );
     Chuck_Msg * get_reply( );
 
@@ -346,6 +347,7 @@ protected:
     // message queue
     CBuffer * m_msg_buffer;
     CBuffer * m_reply_buffer;
+    CBuffer * m_event_buffer;
 
     // type information
     void * m_env;
