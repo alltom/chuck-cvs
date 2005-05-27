@@ -180,7 +180,7 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
     // add wait()
     func = make_new_mfun( "void", "wait", event_wait );
 	func->add_arg( "shred", "me" );
-    if( !type_engine_import_sfun( env, func ) ) goto error;
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
