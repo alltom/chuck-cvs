@@ -1197,22 +1197,29 @@ OSC_Receiver::OSC_Receiver():
     _inbox_size(2),
     _started(false),
     _in_read(0),
-    _in_write(1)
+    _in_write(1),
+    _listening(false)
 { 
 
     _inbox = (OSCMesg*) malloc (sizeof(OSCMesg) * _inbox_size);
     for ( int i = 0; i < _inbox_size; i++ ) _inbox[i].payload = NULL;
     
-    _io_mutex = new XMutex();
-    
     _in = new UDP_Receiver();
     
+    _io_mutex = new XMutex();
+    _io_thread = new XThread();
+
     init();
     
 }
 
 OSC_Receiver::OSC_Receiver(UDP_Receiver* in) {
     _in   = in;
+}
+
+void 
+OSC_Receiver::init(){ 
+   _in->init();
 }
 
 OSC_Receiver::~OSC_Receiver() {
@@ -1226,16 +1233,27 @@ OSC_Receiver::~OSC_Receiver() {
     delete _in;
 }
 
+THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data )  { 
+    OSC_Receiver * oscar = (OSC_Receiver * ) data;
+    do { 
+        oscar->recv_mesg();
+    } while ( true );
+}
+
+bool
+OSC_Receiver::listen() { 
+    if ( !_listening ) { 
+        _listening = true;
+        _io_thread->start( osc_recv_thread, (void*)this );
+    }
+    return _listening;
+}
 
 void
 OSC_Receiver::bind_to_port(int port ) { 
-   _in->bind_to_port(port);
+    _in->bind_to_port(port);
 }
 
-void 
-OSC_Receiver::init(){ 
-   _in->init();
-}
 
 void
 OSC_Receiver::close_sock() { 
@@ -1245,9 +1263,13 @@ OSC_Receiver::close_sock() {
 void
 OSC_Receiver::recv_mesg() { 
    _mesglen = _in->recv_next( _inbuf, _inbufsize );
-   if ( _mesglen > 0 ) parse();
+   if ( _mesglen > 0 ) { 
+       //parse();
+       handle_mesg(_inbuf, _mesglen);
+   }
 }
  
+
 bool 
 OSC_Receiver::has_mesg()  { 
     return ( _started && ( _in_read+1 ) % _inbox_size != _in_write ); 
@@ -1274,13 +1296,14 @@ OSC_Receiver::get_mesg(OSCMesg* bucket)   {
 
 void
 OSC_Receiver::parse() { 
-   //dump straight data out...
 
+    //unpack bundles, dump all messages
    //any local prep we need here?
 
-   /*   //de-buggering
+    uint i = 0;
+   //de-buggering
    fprintf(stderr, "OSC_Receiver: parsing message length %d\n", _mesglen);
-   for ( uint i = 0 ; i < _mesglen; i++ ) { 
+   for ( i = 0 ; i < _mesglen; i++ ) { 
       fprintf(stderr, "%c :", _inbuf[i] );
    }
    fprintf(stderr, "\n");
@@ -1288,9 +1311,6 @@ OSC_Receiver::parse() {
       fprintf(stderr, "%0x:", _inbuf[i] );
    }
    fprintf(stderr, "\n");
-   */
-
-   handle_mesg(_inbuf, _mesglen);
 
 }
 
@@ -1300,7 +1320,6 @@ OSC_Receiver::next_write() {
    //called by the UDP client ( blocks ) 
 
    if ( !_started ) { 
-      fprintf(stderr, "started");
       _started = true; 
    } 
 
@@ -1370,6 +1389,7 @@ OSC_Receiver::next_write() {
             }
 
             else err = true;
+
          }
 
          
@@ -1405,7 +1425,6 @@ OSC_Receiver::next_write() {
    _in_write = next;
                                         
 }
-
 
 OSCMesg*
 OSC_Receiver::next_read() { 
@@ -1455,12 +1474,12 @@ OSC_Receiver::handle_mesg( char* buf, int len ) {
       //fprintf(stderr, "oscrecv:mallocing %d bytes\n", OSCINBUFSIZE);
    }
 
-   memcpy( (void*)mrp->payload, (const void*)buf, len ); 
+   memcpy( (void*)mrp->payload, (const void*)buf, len ); //copy data from buffer to message payload
+   set_mesg( mrp, mrp->payload, len ); //set pointers for the message to its own payload
+   mrp->recvtime = 0.000; //GetTime(); //set message time
 
-   set_mesg( mrp, mrp->payload, len );
-
-   mrp->recvtime = 0.000; //GetTime();
-
+   distribute_message( mrp );  //send message to any waiting addresses
+   
    next_write();
    
 }
@@ -1488,6 +1507,13 @@ OSC_Receiver::handle_bundle(char*b, int len) {
    }
 }
 
+OSCSrc * 
+OSC_Receiver::new_event ( char * spec) { 
+    OSCSrc * event = new OSCSrc ( spec );
+    add_address ( event );
+    return event;
+}
+
 void
 OSC_Receiver::add_address ( OSCSrc * src ) { 
     if ( _address_num == _address_size ) { 
@@ -1495,6 +1521,7 @@ OSC_Receiver::add_address ( OSCSrc * src ) {
         _address_space = (OSCSrc **) realloc ( _address_space, _address_size * sizeof( OSCSrc **));
     }
     _address_space[_address_num++] = src;
+    src->setReceiver(this);
 }
 
 void
@@ -1506,10 +1533,20 @@ OSC_Receiver::remove_address ( OSCSrc *odd ) {
     }
 }
 
+/*
+  This function distributes each message to a matching address inside the 
+  chuck shred.  There are some issues with this.
+  bundle simultaneity might be solved via mutex?
+  
+*/
+
 void 
 OSC_Receiver::distribute_message ( OSCMesg * msg ) { 
     for ( int i = 0 ; i < _address_num ; i++ ) { 
-        _address_space[i]->check_mesg ( msg );
+        if ( _address_space[i]->check_mesg ( msg ) ) {
+//            fprintf ( stderr, "broadcasting %x from %x\n", (uint)_address_space[i]->SELF, (uint)_address_space[i] );
+            ( (Chuck_Event *) _address_space[i]->SELF )->broadcast(); //if the event has any shreds queued, fire them off..
+        }
     }
 }
 
@@ -1524,6 +1561,42 @@ OSC_Receiver::distribute_message ( OSCMesg * msg ) {
 // OSCMesg may still have pointers to a mysterious void.
 // we should copy values locally for string and blob.
 
+// public for of inherited chuck_event mfunc.  
+
+OSCSrc::OSCSrc() { 
+    init();
+    setSpec("/undefined/default,i");
+}
+
+OSCSrc::OSCSrc( char * spec ) { 
+    init();
+    setSpec( spec );
+}
+
+void
+OSCSrc::init() { 
+    _receiver = NULL;
+    SELF = NULL;
+    _qz = 64;
+    _cur_mesg = NULL;
+}
+
+OSCSrc::~OSCSrc() { 
+    if ( _queue ) free ( _queue ); 
+}
+
+void
+OSCSrc::setReceiver(OSC_Receiver * recv) { 
+    _receiver = recv;
+}
+
+void   
+OSCSrc::setSpec( char *c ) { 
+    strncpy ( _spec, c, 512); 
+    _needparse = true; 
+    parseSpec(); 
+}
+ 
 void
 OSCSrc::parseSpec() { 
 
@@ -1538,10 +1611,13 @@ OSCSrc::parseSpec() {
    strcpy ( _address, _spec );
    strcpy ( _type , type );
 
-   fprintf(stderr," parsing spec- address %s :: type %s\n", _address, _type);
+//   fprintf(stderr," parsing spec- address %s :: type %s\n", _address, _type);
 
    int n = strlen ( type );
-   resize(n);
+   _noArgs = ( n == 0 );
+   resize( ( n < 1 ) ? 1 : n );
+   _qread = 0;
+   _qwrite = 1;
 
    _needparse = false;
 }
@@ -1568,21 +1644,44 @@ OSCSrc::message_matches( OSCMesg * m ) {
 
     char * type = m->types+1;
     if ( m->types == NULL || strcmp( _type , type ) != 0 ) { 
-        if ( type )
-            fprintf(stderr, "error, mismatched type string( %s ) vs ( %s ) \n", _type, type ) ;
-        else 
-            fprintf( stderr, "error, missing type string (expecting %s) \n", _type );
+//        if ( type )
+//            fprintf(stderr, "error, mismatched type string( %s ) vs ( %s ) \n", _type, type ) ;
+//        else 
+//            fprintf( stderr, "error, missing type string (expecting %s) \n", _type );
         return false;
     }
     return true;
 }
 
-void
+bool
 OSCSrc::check_mesg( OSCMesg * m ) 
 { 
-    if ( !message_matches ( m ) ) return;
+    if ( !message_matches ( m ) ) return false;
     queue_mesg( m );
+    return true;
 }
+
+#include "chuck_vm.h";
+
+//-----------------------------------------------------------------------------
+// name: wait()
+// desc: cause event/condition variable to block the current shred, putting it
+//       on its waiting list, and suspennd the shred from the VM.
+//       we override the parent class because we don't want to wait
+//       if there are any messages queued.
+//-----------------------------------------------------------------------------
+void 
+OSCSrc::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
+{    
+    // make sure the shred info matches the vm
+    assert( shred->vm_ref == vm ); 
+    //only wait if mesg queue is empty...
+    if ( !has_mesg() ) { 
+        ((Chuck_Event*)SELF)->wait ( shred, vm );
+    }
+}
+
+
 
 bool
 OSCSrc::has_mesg() { 
@@ -1612,7 +1711,6 @@ OSCSrc::vcheck( osc_datatype tt ) {
         return false;
     }
     return true;
-
 }
 
 int
@@ -1643,56 +1741,62 @@ OSCSrc::queue_mesg ( OSCMesg* m )
         _vals = _queue + _qwrite * _nv;
     }
     else { 
-        fprintf( stderr, "OSCSrc:: mesg buffer full, dropping message" );
+        fprintf( stderr, "OSCSrc::( %s )  mesg buffer full ( r:%d , w:%d ), dropping message \n", _address, _qread, _qwrite );
+        fprintf( stderr, "--- hasMesg ( %d ) nextMesg ( %d )", (int) has_mesg(), (int)next_mesg()  );
         return;
     }
 
-    char * type = m->types+1;
-    char * data = m->data;
-
-    uint endy;
-    int i=0;
-    
-    float *fp;
-    int   *ip;
-    int   clen;
-    
-    while ( *type != '\0' ) { 
-        switch ( *type ) { 
-        case 'f':
-            endy = ntohl(*((unsigned long*)data));
-            fp = (float*)(&endy);
-            _vals[i].t = OSC_FLOAT;
-            _vals[i].f = *fp; 
-            data += 4;
+    if ( _noArgs ) { // if address takes no arguments, 
+        _vals[0].t = OSC_NOARGS;
+    }
+    else { 
+        char * type = m->types+1;
+        char * data = m->data;
+        
+        uint endy;
+        int i=0;
+        
+        float *fp;
+        int   *ip;
+        int   clen;
+        while ( *type != '\0' ) { 
+            switch ( *type ) { 
+            case 'f':
+                endy = ntohl(*((unsigned long*)data));
+                fp = (float*)(&endy);
+                _vals[i].t = OSC_FLOAT;
+                _vals[i].f = *fp; 
+                data += 4;
+                break;
+            case 'i':
+                endy = ntohl(*((unsigned long*)data));
+                ip = (int*)(&endy);
+                _vals[i].t = OSC_INT;
+                _vals[i].i = *ip; 
+                data += 4;
+                break;
+            case 's':
+                //string
+                clen = strlen(data);
+                _vals[i].t = OSC_STRING;
+                _vals[i].s = (char *) realloc ( _vals[i].s, clen * sizeof(char) );
+                memcpy ( _vals[i].s, data, clen );
+                fprintf(stderr, "add string |%s|\n", _vals[i].s );
+                data += clen + 4 - clen % 4;
             break;
-        case 'i':
-            endy = ntohl(*((unsigned long*)data));
-            ip = (int*)(&endy);
-            _vals[i].t = OSC_INT;
-            _vals[i].i = *ip; 
-            data += 4;
-            break;
-        case 's':
-            //string
-            clen = strlen(data);
-            _vals[i].t = OSC_STRING;
-            _vals[i].s = (char *) realloc ( _vals[i].s, clen * sizeof(char) );
-            memcpy ( _vals[i].s, data, clen );
-            data += clen + 4 - clen % 4;
-            break;
-        case 'b':
-            // blobs
-            endy = ntohl(*((unsigned long*)data));
-            clen = *((int*)(&endy));
-            _vals[i].t = OSC_BLOB;
-            _vals[i].s = (char* ) realloc ( _vals[i].s, clen * sizeof(char) );
-            memcpy ( _vals[i].s, data, clen );
-            data += clen + 4 - clen % 4;
-            break;
+            case 'b':
+                // blobs
+                endy = ntohl(*((unsigned long*)data));
+                clen = *((int*)(&endy));
+                _vals[i].t = OSC_BLOB;
+                _vals[i].s = (char* ) realloc ( _vals[i].s, clen * sizeof(char) );
+                memcpy ( _vals[i].s, data, clen );
+                data += clen + 4 - clen % 4;
+                break;
+            }
+            i++;
+            type++;
         }
-        i++;
-        type++;
     }
     
     _qwrite = nqw;

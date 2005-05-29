@@ -381,6 +381,8 @@ int OSC_effectiveStringLength(char *string);
 
 // from veldt:platform.h - UDP Transmitter / Receiver Pair
 
+#include "chuck_oo.h"
+
 class OSCSrc;
 class UDP_Transmitter;
 class UDP_Receiver; 
@@ -438,12 +440,18 @@ struct OSCMesg {
 };
 
 class XMutex;
+class XThread;
 
 class OSC_Receiver { 
     
 protected:
     
     UDP_Receiver*  _in;
+
+    XMutex*        _io_mutex;
+    XThread*       _io_thread;
+    bool           _listening;
+
     char           _inbuf[OSCINBUFSIZE];
     int            _inbufsize;
     int            _mesglen;
@@ -453,10 +461,11 @@ protected:
     bool           _started;
     int            _in_read;   //space that is being read
     int            _in_write;  //space that is being written
-    XMutex*         _io_mutex;
+
     OSCSrc **      _address_space;
     int            _address_size;
     int            _address_num;
+
 public:
     
     OSC_Receiver();
@@ -469,6 +478,9 @@ public:
     void close_sock();
     
     void recv_mesg();
+
+    bool listen();
+
     void parse();
     void handle_mesg(char *, int len);
     void handle_bundle(char *, int len);
@@ -477,22 +489,26 @@ public:
     OSCMesg *write()  { return _inbox + _in_write;}
     void next_write();
     
-    OSCMesg *read()  { return _inbox + _in_read;}
-    
+    OSCMesg *read()  { return _inbox + _in_read;}    
     OSCMesg *next_read();
+
+
+
     bool has_mesg();
     bool get_mesg(OSCMesg* bucket);
 
     void add_address ( OSCSrc * o );
     void remove_address ( OSCSrc * o ); 
+    OSCSrc * new_event ( char * spec );
     void distribute_message( OSCMesg * msg);
 };
 
 
-enum osc_datatype { OSC_UNTYPED, OSC_INT, OSC_FLOAT, OSC_STRING, OSC_BLOB, OSC_NTYPE };
+enum osc_datatype { OSC_UNTYPED, OSC_NOARGS, OSC_INT, OSC_FLOAT, OSC_STRING, OSC_BLOB, OSC_NTYPE };
 
 struct osc_data { 
-    osc_datatype t;
+
+    osc_datatype t;    
     OSCTimeTag timetag;
     int i;
     uint u;
@@ -505,17 +521,20 @@ struct osc_data {
     ~osc_data() { 
         s = NULL;
     }
+
 };
 
-class OSCSrc { 
+
+class OSCSrc : public Chuck_Event { 
 
 protected:
 
     OSC_Receiver * _receiver;
-    char _spec[512];
-    bool _needparse;
-    char _address[512];
-    char _type[512];
+
+    char  _spec[512];
+    bool  _needparse;
+    char  _address[512];
+    char  _type[512];
     osc_data * _queue;
     int   _qread;
     int   _qwrite;
@@ -524,32 +543,33 @@ protected:
     osc_data *_cur_mesg;
     osc_data *_vals;
     int   _nv;
+    bool  _noArgs;
     void resize(int n);
     void parseSpec();
 
 public:
 
-    OSCSrc::OSCSrc() { 
-        _receiver = NULL;
-        _qz = 64;
-        setSpec("/live/foo,ff");
-        _cur_mesg = NULL;
-    }
+    Chuck_Object * SELF; 
 
+    OSCSrc();
+    OSCSrc( char * spec );
     ~OSCSrc();
 
     // initialization
-    void   setReceiver( OSC_Receiver * recv ) { _receiver = recv; } 
-    void   setSpec(char *c ) { strncpy ( _spec, c, 512); _needparse = true; parseSpec(); } 
+    void   init();
+    void   setSpec(char *c );
+    void   setReceiver( OSC_Receiver * recv );
 
     //distribution
-    void   check_mesg ( OSCMesg * o );
+    bool   check_mesg ( OSCMesg * o );
     bool   message_matches ( OSCMesg * o );
     void   queue_mesg ( OSCMesg * o );
 
     //loop functions
     bool   has_mesg();
     bool   next_mesg();
+
+    void   wait ( Chuck_VM_Shred * shred, Chuck_VM * vm );
 
     //
     bool   vcheck( osc_datatype tt );

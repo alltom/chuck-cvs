@@ -7,6 +7,10 @@ FLAGS=-D__MACOSX_CORE__ -O3 -c
 LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation -lstdc++ -lm
 SF_OBJ=util_sndfile.o
 
+ifneq ($(CHUCK_DEBUG),)
+FLAGS+= -g
+endif
+
 #-----------------------------------------------------------------------------
 # by default, ChucK uses a pre-configured libsndfile...
 # uncomment the next 3 lines to use libsndfile on your system

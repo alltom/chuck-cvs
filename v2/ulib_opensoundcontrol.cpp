@@ -35,11 +35,13 @@
 
 #include "ulib_opensoundcontrol.h"
 #include "chuck_type.h"
-
+#include "chuck_vm.h"
+#include "chuck_dl.h"
 #include "util_opensoundcontrol.h"
 
 static t_CKUINT osc_send_offset_data = 0;
-
+static t_CKUINT osc_recv_offset_data = 0;
+static t_CKUINT osc_address_offset_data = 0;
 
 DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) { 
 
@@ -92,10 +94,80 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func = make_new_mfun( "int", "kick", osc_send_kickMesg );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    type_engine_import_class_end( env );
+
+    // init base class
+    if( !type_engine_import_class_begin( env, "OSC_Addr", "event",
+                                         env->global(), osc_address_ctor ) )
+		return FALSE;
+
+    // add member variable  - OSCAddress object
+
+    osc_address_offset_data = type_engine_import_mvar( env, "int", "@OSC_Address_data", FALSE );
+    if( osc_recv_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    func = make_new_mfun( "int", "set", osc_address_set );
+    func->add_arg( "string" , "addr" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "hasMesg", osc_address_has_mesg );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "nextMesg", osc_address_next_mesg );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "getInt", osc_address_next_int );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "getFloat", osc_address_next_float );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "string", "getString", osc_address_next_string );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "void", "wait", osc_address_wait );
+    func->add_arg( "shred", "myshred" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    type_engine_import_class_end( env );
+
+    // init base class
+    if( !type_engine_import_class_begin( env, "OSC_Recv", "Object",
+                                         env->global(), osc_recv_ctor ) )
+		return FALSE;
+
+    // add member variable  - OSCReceiver object
+    osc_recv_offset_data = type_engine_import_mvar( env, "int", "@OSC_Recv_data", FALSE );
+    if( osc_recv_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    func = make_new_mfun( "int", "port", osc_recv_port );
+    func->add_arg( "int" , "port" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "listen", osc_recv_listen );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "add_address", osc_recv_add_address );
+    func->add_arg( "OSC_Addr" , "addr" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "remove_address", osc_recv_remove_address );
+    func->add_arg( "OSC_Addr" , "addr" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "OSC_Addr", "event", osc_recv_new_address );
+    func->add_arg( "string" , "spec" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    type_engine_import_class_end( env );
+    return TRUE;
+
 error:
 
+    fprintf( stderr, "class import error!\n" );
     // end the class import
     type_engine_import_class_end( env );
+    return FALSE;
 }
 
 //----------------------------------------------
@@ -203,6 +275,163 @@ CK_DLL_MFUN( osc_send_kickMesg ) {
     xmit->kickMessage();
 }
 
+//----------------------------------------------
+// name :  osc_address_ctor  
+// desc : CTOR function 
+//-----------------------------------------------
+CK_DLL_CTOR( osc_address_ctor ) { 
+    OSCSrc * addr = new OSCSrc();
+    addr->SELF = SELF;
+//    fprintf(stderr,"address:ptr %x\n", (uint)addr);
+//    fprintf(stderr,"self:ptr %x\n", (uint)SELF);
+    OBJ_MEMBER_INT( SELF, osc_address_offset_data ) = (t_CKINT)addr;
+}
 
-#include "chuck_dl.h"
+CK_DLL_MFUN( osc_address_set ) { 
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
+    addr->setSpec ( (char*)(GET_NEXT_STRING(ARGS))->str.c_str() );
+    RETURN->v_int = 0;
+}
+
+//----------------------------------------------
+// name :  osc_address_wait   
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN(  osc_address_wait  ) { 
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
+    Chuck_Object * shred_obj = GET_NEXT_OBJECT(ARGS);
+    Chuck_VM_Shred * shred = ( Chuck_VM_Shred* ) shred_obj ;
+//    Chuck_VM * vm = ...
+    addr->wait ( shred, shred->vm_ref );
+
+}
+   
+//----------------------------------------------
+// name :  osc_address_has_mesg   
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN(  osc_address_has_mesg  ) { 
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
+    RETURN->v_int = ( addr->has_mesg() ) ? 1 : 0 ;
+}
+
+//----------------------------------------------
+// name :  osc_address_next_mesg   
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN(  osc_address_next_mesg  ) { 
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
+    RETURN->v_int = ( addr->next_mesg() ) ? 1 : 0 ;
+}
+
+//----------------------------------------------
+// name :  osc_address_next_int   
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN(  osc_address_next_int  ) { 
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
+    RETURN->v_int = addr->next_int();
+}
+
+//----------------------------------------------
+// name :  osc_address_next_float   
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN(  osc_address_next_float  ) { 
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
+    RETURN->v_float = addr->next_float();
+}
+
+//----------------------------------------------
+// name :  osc_address_next_string   
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN(  osc_address_next_string  ) { 
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
+    char * cs = addr->next_string();
+    std::string cstr = cs;
+    Chuck_String * ckstr = new Chuck_String ( cstr );
+    fprintf(stderr, "fetch string (%s)-(%s)-(%s)\n", cs, cstr.c_str(), ckstr->str.c_str() );
+    RETURN->v_string = ckstr;
+    
+}
+
+// OSC_Recv functions 
+
+
+//----------------------------------------------
+// name :  osc_recv_ctor  
+// desc : CTOR function 
+//-----------------------------------------------
+CK_DLL_CTOR( osc_recv_ctor ) { 
+    OSC_Receiver * recv = new OSC_Receiver();
+    OBJ_MEMBER_INT( SELF, osc_send_offset_data ) = (t_CKINT)recv;
+}
+
+//----------------------------------------------
+// name :  osc_recv_dtor  
+// desc : DTOR function 
+//-----------------------------------------------
+CK_DLL_DTOR( osc_recv_dtor ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    delete recv;
+}
+
+//----------------------------------------------
+// name :  osc_recv_port  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_port ) { 
+
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    recv->bind_to_port( (int)GET_NEXT_INT(ARGS) );
+}
+
+//----------------------------------------------
+// name :  osc_recv_add_listener  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_add_address ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    Chuck_Object* addr_obj = GET_NEXT_OBJECT(ARGS); //address object class...
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( addr_obj, osc_address_offset_data ); 
+    recv->add_address( addr );
+}
+
+//----------------------------------------------
+// name :  osc_recv_remove_listener  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_remove_address ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    Chuck_Object* addr_obj = GET_NEXT_OBJECT(ARGS); //listener object class...
+    OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( addr_obj, osc_address_offset_data ); 
+    recv->remove_address( addr );
+}
+
+//----------------------------------------------
+// name :  osc_recv_new_address  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_new_address ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    Chuck_String* spec_obj = (Chuck_String*) GET_NEXT_STRING(ARGS); //listener object class...
+    RETURN->v_object = recv->new_event ( (char*)spec_obj->str.c_str() );
+}
+
+
+
+// need to add a listen function in Receiver which opens up a recv loop on another thread.
+// address then subscribe to a receiver to take in events. 
+
+//----------------------------------------------
+// name :  osc_recv_listen  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_listen ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    recv->listen();
+}
+
+
 

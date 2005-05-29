@@ -53,5 +53,23 @@ CK_DLL_MFUN ( osc_send_closeBundle );
 CK_DLL_MFUN ( osc_send_holdMesg );
 CK_DLL_MFUN ( osc_send_kickMesg );
 
+CK_DLL_CTOR ( osc_address_ctor );
+CK_DLL_DTOR ( osc_address_dtor );
+CK_DLL_MFUN ( osc_address_set );
+CK_DLL_MFUN ( osc_address_wait );
+CK_DLL_MFUN ( osc_address_has_mesg );
+CK_DLL_MFUN ( osc_address_next_mesg );
+CK_DLL_MFUN ( osc_address_next_int );
+CK_DLL_MFUN ( osc_address_next_float );
+CK_DLL_MFUN ( osc_address_next_string );
+
+CK_DLL_CTOR ( osc_recv_ctor );
+CK_DLL_DTOR ( osc_recv_dtor );
+CK_DLL_MFUN ( osc_recv_port );
+CK_DLL_MFUN ( osc_recv_new_address );
+CK_DLL_MFUN ( osc_recv_add_address );
+CK_DLL_MFUN ( osc_recv_remove_address );
+CK_DLL_MFUN ( osc_recv_listen );
+
 #endif
 
