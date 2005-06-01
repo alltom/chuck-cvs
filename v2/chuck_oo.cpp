@@ -691,6 +691,9 @@ void Chuck_Array8::clear( )
 
 
 
+// static
+t_CKUINT Chuck_Event::our_can_wait = 0;
+
 //-----------------------------------------------------------------------------
 // name: signal()
 // desc: signal a event/condition variable, shreduling the next waiting shred
@@ -792,9 +795,9 @@ void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
 	assert( shred->vm_ref == vm );
     
     Chuck_DL_Return RETURN;
-    //f_mfun canwaitplease = (f_mfun)this->canwait;
-    //canwaitplease( this, NULL, &RETURN );
-    RETURN.v_int = 1;
+    f_mfun canwaitplease = (f_mfun)this->vtable->funcs[our_can_wait]->code->native_func;
+    canwaitplease( this, NULL, &RETURN );
+    // RETURN.v_int = 1;
 
     // see if we can wait
     if( RETURN.v_int )

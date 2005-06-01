@@ -164,6 +164,7 @@ static t_CKUINT event_offset_data = 0;
 t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
 {
     Chuck_DL_Func * func = NULL;
+    Chuck_Value * value = NULL;
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), event_ctor ) )
@@ -182,12 +183,19 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
 	func->add_arg( "shred", "me" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    // add  canwait()
-    func = make_new_mfun( "int", "canwait", event_canwait );
+    // add can_wait()
+    func = make_new_mfun( "int", "can_wait", event_can_wait );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
+
+    // find the offset for can_wait
+    value = type_engine_find_value( type, "can_wait" );
+    assert( value != NULL );
+    assert( value->func_ref != NULL );
+    // remember it
+    Chuck_Event::our_can_wait = value->func_ref->vt_index;
     
     return TRUE;
 
@@ -352,6 +360,10 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     // add recv()
     func = make_new_mfun( "int", "recv", MidiIn_recv );
 	func->add_arg( "MidiMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add can_wait()
+    func = make_new_mfun( "int", "can_wait", MidiIn_can_wait );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add member variable
@@ -702,9 +714,9 @@ CK_DLL_MFUN( event_wait )
 	assert( FALSE );
 }
 
-CK_DLL_MFUN( event_canwait )
+CK_DLL_MFUN( event_can_wait )
 {
-	// Chuck_Event * d = (Chuck_Event *)SELF;
+    fprintf( stderr, "can wait\n" );
     RETURN->v_int = TRUE;
 }
 
@@ -786,6 +798,13 @@ CK_DLL_MFUN( MidiIn_recv )
 		OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2) = the_msg.data[1];
 		OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3) = the_msg.data[2];
 	}
+}
+
+
+CK_DLL_MFUN( MidiIn_can_wait )
+{
+	MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+	RETURN->v_int = min->empty();
 }
 
 

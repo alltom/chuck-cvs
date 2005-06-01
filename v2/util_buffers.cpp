@@ -256,6 +256,22 @@ void CBuffer::put( void * data, UINT__ num_elem )
     return 1;
 }*/
 
+
+BOOL__ CBuffer::empty( UINT__ read_offset_index )
+{
+	// make sure index is valid
+	if( read_offset_index >= m_read_offsets.size() )
+		return TRUE;
+	if( m_read_offsets[read_offset_index].read_offset < 0 )
+		return TRUE;
+
+    SINT__ m_read_offset = m_read_offsets[read_offset_index].read_offset;
+
+    // see if caught up
+    return m_read_offset == m_write_offset;
+}
+
+
 UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
 {
     UINT__ i, j;

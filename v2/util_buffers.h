@@ -66,6 +66,7 @@ public:
 public:
     UINT__ get( void * data, UINT__ num_elem, UINT__ read_offset_index );
     void put( void * data, UINT__ num_elem );
+    BOOL__ empty( UINT__ read_offset_index );
 	UINT__ join( Chuck_Event * event = NULL );
 	void resign( UINT__ read_offset_index );
 

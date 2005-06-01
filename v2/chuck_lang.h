@@ -118,7 +118,7 @@ CK_DLL_DTOR( event_dtor );
 CK_DLL_MFUN( event_signal );
 CK_DLL_MFUN( event_broadcast );
 CK_DLL_MFUN( event_wait );
-CK_DLL_MFUN( event_canwait );
+CK_DLL_MFUN( event_can_wait );
 
 
 
@@ -200,6 +200,7 @@ CK_DLL_CTOR( MidiIn_ctor );
 CK_DLL_DTOR( MidiIn_dtor );
 CK_DLL_MFUN( MidiIn_open );
 CK_DLL_MFUN( MidiIn_recv );
+CK_DLL_MFUN( MidiIn_can_wait );
 
 
 
