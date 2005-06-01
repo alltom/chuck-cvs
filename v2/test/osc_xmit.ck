@@ -1,6 +1,5 @@
 
 OSC_Send xmit;
-
 xmit.setHost("localhost", 6999 );
 
 xmit.openBundle(now);
