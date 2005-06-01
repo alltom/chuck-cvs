@@ -54,7 +54,7 @@
 #include "ulib_std.h"
 
 #ifdef __MACOSX_CORE__
-#include "ulib_opensoundcontrol.h"
+#include "ulib_opsc.h"
 #endif
 
 //#include "ulib_net.h"
@@ -774,7 +774,7 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     if( !load_module( env, libmath_query, "Math", "global" ) ) goto error;
     // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 #ifdef __MACOSX_CORE__
-    if( !load_module( env, opensoundcontrol_query, "opensoundcontrol", "global" ) ) goto error;
+    if( !load_module( env, opensoundcontrol_query, "opsc", "global" ) ) goto error;
 #endif
 	if( !init_class_Midi( env ) ) goto error;
 	if( !init_class_MidiRW( env ) ) goto error;

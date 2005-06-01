@@ -28,9 +28,9 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_errmsg.o chuck_frame.o \
 	chuck_type.o chuck_emit.o chuck_dl.o chuck_oo.o chuck_lang.o \
 	chuck_ugen.o chuck_main.o chuck_otf.o chuck_bbq.o digiio_rtaudio.o \
 	midiio_rtmidi.o rtaudio.o rtmidi.o ugen_osc.o ugen_filter.o \
-	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o ulib_opensoundcontrol.o \
+	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o ulib_opsc.o \
 	util_buffers.o util_math.o util_network.o util_raw.o util_string.o \
-	util_thread.o util_xforms.o util_opensoundcontrol.o \
+	util_thread.o util_xforms.o util_opsc.o \
 	$(SF_OBJ)
 
 chuck: $(OBJS)
@@ -138,8 +138,8 @@ ulib_net.o: ulib_net.h ulib_net.cpp
 ulib_std.o: ulib_std.h ulib_std.cpp
 	$(CC) $(FLAGS) ulib_std.cpp
 
-ulib_opensoundcontrol.o: ulib_opensoundcontrol.h ulib_opensoundcontrol.cpp
-	$(CC) $(FLAGS) ulib_opensoundcontrol.cpp
+ulib_opsc.o: ulib_opsc.h ulib_opsc.cpp
+	$(CC) $(FLAGS) ulib_opsc.cpp
 
 util_buffers.o: util_buffers.h util_buffers.cpp
 	$(CC) $(FLAGS) util_buffers.cpp
@@ -150,8 +150,8 @@ util_math.o: util_math.h util_math.c
 util_network.o: util_network.h util_network.c
 	$(CC) $(FLAGS) util_network.c
 
-util_opensoundcontrol.o: util_opensoundcontrol.h util_opensoundcontrol.cpp
-	$(CC) $(FLAGS) util_opensoundcontrol.cpp
+util_opsc.o: util_opsc.h util_opsc.cpp
+	$(CC) $(FLAGS) util_opsc.cpp
 
 util_raw.o: util_raw.h util_raw.c
 	$(CC) $(FLAGS) util_raw.c
