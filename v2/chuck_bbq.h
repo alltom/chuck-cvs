@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+// date: Spring 2004
 //-----------------------------------------------------------------------------
 #ifndef __CHUCK_BBQ_H__
 #define __CHUCK_BBQ_H__

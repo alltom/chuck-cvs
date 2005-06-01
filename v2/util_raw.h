@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+// date: Spring 2004
 //-----------------------------------------------------------------------------
 #ifndef __UTIL_RAW_H__
 #define __UTIL_RAW_H__

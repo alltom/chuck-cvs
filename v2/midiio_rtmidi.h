@@ -23,11 +23,13 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: midiio.h
+// file: midiio_rtmidi.h
 // desc: midi io header
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Ananya Misra (amisra@cs.princeton.edu)
+// date: Summer 2005
 //-----------------------------------------------------------------------------
 #ifndef __MIDI_IO_H__
 #define __MIDI_IO_H__

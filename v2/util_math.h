@@ -29,6 +29,7 @@
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
 //         Philip Davidson (philipd@alumni.princeton.edu)
+// date: Spring 2004
 //-----------------------------------------------------------------------------
 #ifndef __UTIL_MATH_H__
 #define __UTIL_MATH_H__

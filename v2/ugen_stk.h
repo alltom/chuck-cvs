@@ -28,7 +28,9 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
-//   also: Ari Lazier (alazier@cs.princeton.edu)
+//         Ananya Misra (amisra@cs.princeton.edu)
+//         Ari Lazier (alazier@cs.princeton.edu)
+//         Philip L. Davidson (philipd@cs.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #ifndef __UGEN_STK_H__

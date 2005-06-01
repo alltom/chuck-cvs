@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Ananya Misra (amisra@cs.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #ifndef __UGEN_XXX_H__

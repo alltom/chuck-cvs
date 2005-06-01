@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+// date: Summer 2005
 //-----------------------------------------------------------------------------
 #ifndef __UTIL_STRING_H__
 #define __UTIL_STRING_H__

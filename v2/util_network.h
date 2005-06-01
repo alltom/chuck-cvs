@@ -32,6 +32,7 @@
 // originally 'randy_socket'
 // author: Peng Bi (pbi@cs.princeton.edu)
 //         Ge Wang (gewang@cs.princeton.edu)
+// date: Winter 2003
 //-----------------------------------------------------------------------------
 #ifndef __UTIL_NETWORK_H__
 #define __UTIL_NETWORK_H__

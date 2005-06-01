@@ -28,6 +28,9 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Ananya Misra (amisra@cs.princeton.edu)
+// date: Spring 2004
+//       Summer 2005 - allow multiple readers
 //-----------------------------------------------------------------------------
 #ifndef __UTIL_BUFFERS_H__
 #define __UTIL_BUFFERS_H__

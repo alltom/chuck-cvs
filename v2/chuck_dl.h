@@ -28,6 +28,7 @@
 //
 // authors: Ge Wang (gewang@cs.princeton.edu)
 //          Perry R. Cook (prc@cs.princeton.edu)
+//          Ari Lazier (alazier@cs.princeton.edu)
 // mac os code based on apple's open source
 //
 // date: spring 2004 - 1.1
