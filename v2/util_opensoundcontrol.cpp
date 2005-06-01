@@ -1169,7 +1169,6 @@ void
 OSC_Transmitter::tryMessage() { 
     if ( !packetReady() ) return;
 
-    fprintf(stderr, "sending message\n");
     _out->send( OSC_getPacket(&_osc), OSC_packetSize(&_osc) );
     OSC_resetBuffer(&_osc);
 }

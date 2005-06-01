@@ -56,7 +56,7 @@ CK_DLL_MFUN ( osc_send_kickMesg );
 CK_DLL_CTOR ( osc_address_ctor );
 CK_DLL_DTOR ( osc_address_dtor );
 CK_DLL_MFUN ( osc_address_set );
-CK_DLL_MFUN ( osc_address_wait );
+CK_DLL_MFUN ( osc_address_can_wait );
 CK_DLL_MFUN ( osc_address_has_mesg );
 CK_DLL_MFUN ( osc_address_next_mesg );
 CK_DLL_MFUN ( osc_address_next_int );

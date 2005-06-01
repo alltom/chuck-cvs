@@ -125,8 +125,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func = make_new_mfun( "string", "getString", osc_address_next_string );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "void", "wait", osc_address_wait );
-    func->add_arg( "shred", "myshred" );
+    func = make_new_mfun( "int", "can_wait", osc_address_can_wait );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     type_engine_import_class_end( env );
@@ -294,16 +293,12 @@ CK_DLL_MFUN( osc_address_set ) {
 }
 
 //----------------------------------------------
-// name :  osc_address_wait   
+// name :  osc_address_can_wait   
 // desc : MFUN function 
 //-----------------------------------------------
-CK_DLL_MFUN(  osc_address_wait  ) { 
+CK_DLL_MFUN(  osc_address_can_wait  ) { 
     OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
-    Chuck_Object * shred_obj = GET_NEXT_OBJECT(ARGS);
-    Chuck_VM_Shred * shred = ( Chuck_VM_Shred* ) shred_obj ;
-//    Chuck_VM * vm = ...
-    addr->wait ( shred, shred->vm_ref );
-
+    RETURN->v_int = ( addr->has_mesg() ) ? 0 : 1;
 }
    
 //----------------------------------------------

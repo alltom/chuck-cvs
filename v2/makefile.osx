@@ -11,6 +11,10 @@ ifneq ($(CHUCK_DEBUG),)
 FLAGS+= -g
 endif
 
+ifneq ($(CHUCK_STRICT),)
+FLAGS+= -Wall
+endif
+
 #-----------------------------------------------------------------------------
 # by default, ChucK uses a pre-configured libsndfile...
 # uncomment the next 3 lines to use libsndfile on your system
