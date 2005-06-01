@@ -327,14 +327,6 @@ SOURCE=.\rtmidi.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\skini.h
-# End Source File
-# Begin Source File
-
-SOURCE=.\skiniio_skini.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ugen_filter.h
 # End Source File
 # Begin Source File
