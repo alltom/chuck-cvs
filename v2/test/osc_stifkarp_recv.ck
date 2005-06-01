@@ -28,7 +28,7 @@ function void play_trigger() {
 	"/voice/Stif/noteOn,ii" => oscev.set;
 	oscev => recv.add_address;
 	while ( true  ) { 
-		oscev.wait(me);
+		oscev => now;
 		while ( oscev.nextMesg() != 0 ) { 
 			hitnote( oscev.getInt() , oscev.getInt() ); 
 		}
@@ -41,7 +41,7 @@ function void stretch_listener() {
 	"/voice/Stif/stretch,f" => oscv.set;
 	oscv => recv.add_address;
 	while ( true  ) { 
-		oscv.wait(me);
+		oscv => now;
 		while ( oscv.nextMesg() != 0 ) { 
 			oscv.getFloat() => float stf;
 			stf => stif.stretch ; 

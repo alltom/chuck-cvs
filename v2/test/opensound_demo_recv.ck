@@ -14,7 +14,7 @@ function void ratecontroller() {
 	"/sndbuf/buf/play,f" => ratemesg.set;
 	ratemesg => orec.add_address;
 	while ( true ) { 
-		ratemesg.wait(me);
+		ratemesg => now;
 		while ( ratemesg.nextMesg() != 0 ) { 
 			buf.play( ratemesg.getFloat() );
 		}

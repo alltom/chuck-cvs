@@ -22,8 +22,8 @@ triosc trictrl => sinosc sintri => dac;
 
 
 while ( true ) { 
-    Math.rand2(0,4) => int select;
-    Std.mtof( f[Math.rand2( 0, 4 )] + 60 ) => float newnote;
+    math.rand2(0,4) => int select;
+    std.mtof( f[math.rand2( 0, 4 )] + 60 ) => float newnote;
     newnote => oscillators[select].freq;
     0.25::second => now;
 }
