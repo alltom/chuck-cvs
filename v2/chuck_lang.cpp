@@ -716,7 +716,6 @@ CK_DLL_MFUN( event_wait )
 
 CK_DLL_MFUN( event_can_wait )
 {
-    fprintf( stderr, "can wait\n" );
     RETURN->v_int = TRUE;
 }
 
