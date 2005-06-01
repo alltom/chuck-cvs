@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include "ulib_machine.h"
 #include "chuck_vm.h"
+#include "chuck_errmsg.h"
 
 
 
@@ -80,6 +81,11 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
     QUERY->add_arg( QUERY, "int", "id" );
     QUERY->add_arg( QUERY, "string", "path" );
 
+    // add replace
+    //! replace shred with new shred from file
+    //! returns shred ID , or 0 on error 
+    QUERY->add_sfun( QUERY, machine_crash_impl, "void", "crash" );
+
     // add status
     //! display current status of VM
     //! (see example/status.ck)
@@ -104,6 +110,14 @@ t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func proc_msg )
     the_vm = vm;
     the_func = proc_msg;
     return TRUE;
+}
+
+
+// add
+CK_DLL_SFUN( machine_crash_impl )
+{
+    fprintf( stderr, "[chuck]: crashing..." );
+    *(int *)0 = 0;
 }
 
 

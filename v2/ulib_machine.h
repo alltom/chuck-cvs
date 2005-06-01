@@ -47,6 +47,7 @@ t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func func );
 
 
 // exports
+CK_DLL_SFUN( machine_crash_impl );
 CK_DLL_SFUN( machine_add_impl );
 CK_DLL_SFUN( machine_spork_impl );
 CK_DLL_SFUN( machine_remove_impl );
