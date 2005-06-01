@@ -22,12 +22,16 @@
     U.S.A.
 -----------------------------------------------------------------------------*/
 
-/*
- * errmsg.cpp - functions used in all phases of the compiler to give
- *              error messages about the Tiger program.
- *
- */
-
+//-----------------------------------------------------------------------------
+// file: errmsg.cpp
+// desc: functions used in all phases of the compiler to give error messages 
+//       about the Tiger program.  (now ChucK)
+//
+// author: Andrew Appel (appel@cs.princeton.edu)
+// modified: Ge Wang (gewang@cs.princeton.edu)
+//           Perry R. Cook (prc@cs.princeton.edu)
+// date: Autumn 2002
+//-----------------------------------------------------------------------------
 #include <stdlib.h>
 #include <stdarg.h>
 #include <string.h>
@@ -43,9 +47,12 @@ int EM_lineNum = 1;
 static char g_buffer[1024] = "";
 static char g_lasterror[1024] = "[chuck]: (no error)";
 
+
 extern "C" { 
 	extern FILE *yyin;
 }
+
+
 typedef struct intList {int i; struct intList *rest;} *IntList;
 static IntList linePos=NULL;
 

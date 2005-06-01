@@ -23,7 +23,7 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: chuck_symbol.c
+// file: chuck_symbol.cpp
 // desc: ...
 //
 // author:   Andrew Appel (appel@cs.princeton.edu)
@@ -141,4 +141,3 @@ void S_dump( S_table t, void (*show)(S_Symbol sym, void *binding) )
 }
 
 /* the str->whatever table */
-

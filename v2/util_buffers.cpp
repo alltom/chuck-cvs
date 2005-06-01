@@ -28,6 +28,9 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Ananya Misra (amisra@cs.princeton.edu)
+// date: Spring 2004
+//       Summer 2005 - updated to allow many readers
 //-----------------------------------------------------------------------------
 #include "util_buffers.h"
 #include <stdlib.h>

@@ -28,6 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+// date: Summer 2005
 //-----------------------------------------------------------------------------
 #include "util_string.h"
 using namespace std;

@@ -23,11 +23,13 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: midiio_win32.cpp
+// file: midiio_rtmidi.cpp
 // desc: midi io
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+//         Ananya Misra (amisra@cs.princeton.edu)
+// date: summer 2005
 //-----------------------------------------------------------------------------
 #include <stdlib.h>
 #include <vector>

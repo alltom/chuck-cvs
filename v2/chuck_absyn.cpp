@@ -35,6 +35,7 @@
 #include "chuck_absyn.h"
 #include "chuck_utils.h"
 
+
 a_Program new_program( a_Section section, int pos )
 {
     a_Program a = (a_Program)checked_malloc( sizeof( struct a_Program_ ) );

@@ -41,6 +41,7 @@ static t_CKUINT g_srate = 0;
 static t_CKUINT filter_offset_data = 0;
 static t_CKUINT biquad_offset_data = 0;
 
+
 //-----------------------------------------------------------------------------
 // name: filter_query()
 // desc: ...
@@ -135,9 +136,9 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
-    	//----------------------------------
-	// begin onepole ugen
-	//----------------------------------
+    //----------------------------------
+    // begin onepole ugen
+    //----------------------------------
     if ( !type_engine_import_ugen_begin( env, "onepole", "biquad", env->global(),
                                          NULL, onepole_tick, NULL ) ) return FALSE;
     // ctrl func
@@ -149,9 +150,9 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     type_engine_import_class_end( env );
 
 
-    	//----------------------------------
-	// begin onezero ugen
-	//----------------------------------
+    //----------------------------------
+    // begin onezero ugen
+    //----------------------------------
     if ( !type_engine_import_ugen_begin( env, "onezero", "biquad", env->global(),
                                          NULL, onezero_tick, NULL ) ) return FALSE;
     // ctrl func
