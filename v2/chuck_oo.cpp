@@ -790,14 +790,29 @@ void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
 {
 	// make sure the shred info matches the vm
 	assert( shred->vm_ref == vm );
+    
+    Chuck_DL_Return RETURN;
+    //f_mfun canwaitplease = (f_mfun)this->canwait;
+    //canwaitplease( this, NULL, &RETURN );
+    RETURN.v_int = 1;
 
-    // suspend
-    shred->is_running = FALSE;
+    // see if we can wait
+    if( RETURN.v_int )
+    {
+        // suspend
+        shred->is_running = FALSE;
 
-	// add to waiting list
-	m_queue.push( shred );
+	    // add to waiting list
+	    m_queue.push( shred );
 
-	// add event to shred
-	assert( shred->event == NULL );
-	shred->event = this;
+	    // add event to shred
+	    assert( shred->event == NULL );
+	    shred->event = this;
+    }
+    else // can't wait
+    {
+		// push the current time
+        t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
+		push_( sp, shred->now );
+    }
 }

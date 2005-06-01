@@ -225,6 +225,7 @@ public:
 struct Chuck_Event : Chuck_Object
 {
 public:
+//    Chuck_Event() { canwait = 0; }
     void signal();
     void broadcast();
     void wait( Chuck_VM_Shred * shred, Chuck_VM * vm );
@@ -232,6 +233,7 @@ public:
 
 public: // internal
 	void queue_broadcast();
+    // static t_CKUINT canwait;
 
 	std::queue<Chuck_VM_Shred *> m_queue;
 };

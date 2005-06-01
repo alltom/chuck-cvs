@@ -182,6 +182,10 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
 	func->add_arg( "shred", "me" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add  canwait()
+    func = make_new_mfun( "int", "canwait", event_canwait );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
     
@@ -671,7 +675,7 @@ CK_DLL_MFUN( ugen_cget_gain )
 CK_DLL_CTOR( event_ctor )
 {
 //	OBJ_MEMBER_INT(SELF, event_offset_data) = (t_CKUINT)new Data_Event;
-	Chuck_Event * event = (Chuck_Event *)SELF;
+//	Chuck_Event * event = (Chuck_Event *)SELF;
 }
 
 
@@ -696,6 +700,12 @@ CK_DLL_MFUN( event_wait )
 {
 	Chuck_Event * d = (Chuck_Event *)SELF;
 	assert( FALSE );
+}
+
+CK_DLL_MFUN( event_canwait )
+{
+	// Chuck_Event * d = (Chuck_Event *)SELF;
+    RETURN->v_int = TRUE;
 }
 
 
