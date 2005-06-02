@@ -11,6 +11,7 @@ OSC_Recv orec;
 orec.listen();
 function void ratecontroller() { 
 	orec.event("/sndbuf/buf/play,f") @=> OSC_Addr ratemesg;
+	OSC_Addr xfoo;
 	while ( true ) { 
 		ratemesg => now;
 		while ( ratemesg.nextMesg() != 0 ) { 

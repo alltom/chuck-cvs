@@ -415,14 +415,22 @@ CK_DLL_MFUN( osc_recv_remove_address ) {
 CK_DLL_MFUN( osc_recv_new_address ) { 
     OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
     Chuck_String* spec_obj = (Chuck_String*) GET_NEXT_STRING(ARGS); //listener object class...
+
     OSCSrc* new_addr_obj = recv->new_event ( (char*)spec_obj->str.c_str() );
 
+    /* wolf in sheep's clothing
     initialize_object( new_addr_obj , osc_addr_type_ptr ); //initialize in vm
-    
     new_addr_obj->SELF = new_addr_obj;
     OBJ_MEMBER_INT( new_addr_obj, osc_address_offset_data ) = (t_CKINT)new_addr_obj;
-    
-    RETURN->v_object = new_addr_obj;
+    */
+
+    // more correct...?
+    Chuck_Event* new_event_obj = new Chuck_Event();
+    initialize_object( new_event_obj, osc_addr_type_ptr );
+    new_addr_obj->SELF = new_event_obj;
+    OBJ_MEMBER_INT( new_event_obj, osc_address_offset_data ) = (t_CKINT)new_addr_obj;
+
+    RETURN->v_object = new_event_obj;
 }
 
 
