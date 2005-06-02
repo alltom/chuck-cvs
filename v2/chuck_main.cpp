@@ -52,10 +52,7 @@
 #include "ulib_machine.h"
 #include "ulib_math.h"
 #include "ulib_std.h"
-
-//#ifdef __MACOSX_CORE__
 #include "ulib_opsc.h"
-//#endif
 
 //#include "ulib_net.h"
 
@@ -766,19 +763,16 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     load_module( env, filter_query, "filter", "global" );
     load_module( env, stk_query, "stk", "global" );
 
-
     // load
     if( !load_module( env, machine_query, "Machine", "global" ) ) goto error;
     machine_init( g_vm, process_msg );
     if( !load_module( env, libstd_query, "Std", "global" ) ) goto error;
     if( !load_module( env, libmath_query, "Math", "global" ) ) goto error;
-    // if( !load_module( env, net_query, "net", "global" ) ) goto error;
-//#ifdef __MACOSX_CORE__
     if( !load_module( env, opensoundcontrol_query, "opsc", "global" ) ) goto error;
-//#endif
-	if( !init_class_Midi( env ) ) goto error;
-	if( !init_class_MidiRW( env ) ) goto error;
+    // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 
+    if( !init_class_Midi( env ) ) goto error;
+	if( !init_class_MidiRW( env ) ) goto error;
 
     // clear context
     type_engine_unload_context( env );

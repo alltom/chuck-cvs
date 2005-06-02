@@ -125,7 +125,7 @@ bool XThread::wait( long milliseconds )
 void XThread :: test( )
 {
 #if ( defined(__PLATFORM_MACOSX__) || defined(__PLATFORM_LINUX__) || defined(__WINDOWS_PTHREAD__) )
-  pthread_testcancel();
+    pthread_testcancel();
 #endif
 }
 
