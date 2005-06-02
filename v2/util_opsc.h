@@ -444,8 +444,8 @@ struct OSCMesg {
     long int timetag;
 };
 
-class XMutex;
-class XThread;
+struct XMutex;
+struct XThread;
 
 class OSC_Receiver { 
     

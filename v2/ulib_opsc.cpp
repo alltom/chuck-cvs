@@ -262,7 +262,7 @@ CK_DLL_MFUN( osc_send_closeBundle ) {
 //-----------------------------------------------
 CK_DLL_MFUN( osc_send_holdMesg ) { 
     OSC_Transmitter* xmit = (OSC_Transmitter *)OBJ_MEMBER_INT(SELF, osc_send_offset_data);
-    xmit->holdMessage( (bool)GET_NEXT_INT(ARGS) );
+    xmit->holdMessage( GET_NEXT_INT(ARGS) != 0 );
 }
 
 //----------------------------------------------

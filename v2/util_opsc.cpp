@@ -1162,7 +1162,7 @@ OSC_Transmitter::packetReady() {
     if ( _osc.typeStringPtr ) {       //if it's been typed, check that type is complete
         if ( CheckTypeTag(&_osc, '\0' ) ) return false;
     } 
-    return OSC_isBufferDone(&_osc);
+    return ( OSC_isBufferDone(&_osc) != 0 );
 }
 
 void
