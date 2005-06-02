@@ -1212,7 +1212,7 @@ OSC_Receiver::OSC_Receiver():
     _io_thread = new XThread();
 
     _in = new UDP_Receiver();
-    
+
     init();
 
 }
@@ -1666,26 +1666,6 @@ OSCSrc::check_mesg( OSCMesg * m )
     return true;
 }
 
-#include "chuck_vm.h";
-
-//-----------------------------------------------------------------------------
-// name: wait()
-// desc: cause event/condition variable to block the current shred, putting it
-//       on its waiting list, and suspennd the shred from the VM.
-//       we override the parent class because we don't want to wait
-//       if there are any messages queued.
-//-----------------------------------------------------------------------------
-void 
-OSCSrc::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
-{    
-    // make sure the shred info matches the vm
-    assert( shred->vm_ref == vm ); 
-    //only wait if mesg queue is empty...
-    if ( !has_mesg() ) { 
-        ((Chuck_Event*)SELF)->wait ( shred, vm );
-    }
-}
-
 
 
 bool
@@ -1731,6 +1711,15 @@ OSCSrc::next_float() {
 char *
 OSCSrc::next_string() { 
     return ( vcheck(OSC_STRING) ) ?  _cur_mesg[_cur_value++].s : NULL ;
+}
+
+char * 
+OSCSrc::next_string_dup() { 
+    if ( !vcheck(OSC_STRING) ) return NULL;
+    char * alt_c = _cur_mesg[_cur_value++].s;
+    char * dup_c = (char * ) malloc ( (strlen ( alt_c )+1 ) * sizeof(char) );
+    strcpy ( dup_c, alt_c );
+    return dup_c;
 }
 
 char *
@@ -1782,7 +1771,7 @@ OSCSrc::queue_mesg ( OSCMesg* m )
                 break;
             case 's':
                 //string
-                clen = strlen(data);
+                clen = strlen(data) + 1; //terminating!
                 _vals[i].t = OSC_STRING;
                 _vals[i].s = (char *) realloc ( _vals[i].s, clen * sizeof(char) );
                 memcpy ( _vals[i].s, data, clen );

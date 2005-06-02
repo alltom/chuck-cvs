@@ -534,7 +534,7 @@ class OSCSrc : public Chuck_Event {
 protected:
 
     OSC_Receiver * _receiver;
-
+    
     char  _spec[512];
     bool  _needparse;
     char  _address[512];
@@ -554,7 +554,7 @@ protected:
 public:
 
     Chuck_Object * SELF; 
-
+    Chuck_String p_str;
     OSCSrc();
     OSCSrc( char * spec );
     ~OSCSrc();
@@ -580,6 +580,7 @@ public:
     int    next_int();
     float  next_float();
     char * next_string();
+    char * next_string_dup();
     char * next_blob();
 
 };

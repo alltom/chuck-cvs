@@ -199,6 +199,10 @@ SOURCE=.\ulib_math.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\ulib_opsc.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ulib_std.cpp
 # End Source File
 # Begin Source File
@@ -215,6 +219,10 @@ SOURCE=.\util_network.c
 # End Source File
 # Begin Source File
 
+SOURCE=.\util_opsc.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\util_raw.c
 # End Source File
 # Begin Source File
@@ -224,6 +232,10 @@ SOURCE=.\util_sndfile.c
 # Begin Source File
 
 SOURCE=.\util_string.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\util_thread.cpp
 # End Source File
 # Begin Source File
 
@@ -355,6 +367,10 @@ SOURCE=.\ulib_net.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\ulib_opsc.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\ulib_std.h
 # End Source File
 # Begin Source File
@@ -371,6 +387,10 @@ SOURCE=.\util_network.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\util_opsc.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\util_raw.h
 # End Source File
 # Begin Source File
@@ -380,6 +400,10 @@ SOURCE=.\util_sndfile.h
 # Begin Source File
 
 SOURCE=.\util_string.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util_thread.h
 # End Source File
 # Begin Source File
 

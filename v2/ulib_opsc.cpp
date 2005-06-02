@@ -344,12 +344,8 @@ CK_DLL_MFUN(  osc_address_next_float  ) {
 CK_DLL_MFUN(  osc_address_next_string  ) { 
     OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
     char * cs = addr->next_string();
-    //std::string cstr = cs;
-    //Chuck_String * ckstr = new Chuck_String ( cstr );
-    //fprintf(stderr, "fetch string (%s)-(%s)-(%s)\n", cs, cstr.c_str(), ckstr->str.c_str() );
-    Chuck_String ckstr;
-    ckstr.str = cs;
-    RETURN->v_string = &(ckstr);
+    addr->p_str.str = "fuzzybunnies";//cs;
+    RETURN->v_string = &(addr->p_str);
     
 }
 
@@ -413,6 +409,7 @@ CK_DLL_MFUN( osc_recv_remove_address ) {
 CK_DLL_MFUN( osc_recv_new_address ) { 
     OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
     Chuck_String* spec_obj = (Chuck_String*) GET_NEXT_STRING(ARGS); //listener object class...
+
     RETURN->v_object = recv->new_event ( (char*)spec_obj->str.c_str() );
 }
 
