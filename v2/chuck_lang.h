@@ -197,6 +197,26 @@ CK_DLL_MFUN( MidiRW_write );
 
 
 //-----------------------------------------------------------------------------
+// MidiMsgOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiMsgOut_ctor );
+CK_DLL_DTOR( MidiMsgOut_dtor );
+CK_DLL_MFUN( MidiMsgOut_open );
+CK_DLL_MFUN( MidiMsgOut_close );
+CK_DLL_MFUN( MidiMsgOut_write );
+
+
+//-----------------------------------------------------------------------------
+// MidiMsgIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiMsgIn_ctor );
+CK_DLL_DTOR( MidiMsgIn_dtor );
+CK_DLL_MFUN( MidiMsgIn_open );
+CK_DLL_MFUN( MidiMsgIn_close );
+CK_DLL_MFUN( MidiMsgIn_read );
+
+
+//-----------------------------------------------------------------------------
 // MidiIn API
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( MidiIn_ctor );

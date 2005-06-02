@@ -418,6 +418,8 @@ error:
 
 // static
 static t_CKUINT MidiRW_offset_data = 0;
+static t_CKUINT MidiMsgOut_offset_data = 0;
+static t_CKUINT MidiMsgIn_offset_data = 0;
 //-----------------------------------------------------------------------------
 // name: init_class_MidiRW()
 // desc: ...
@@ -427,7 +429,7 @@ t_CKBOOL init_class_MidiRW( Chuck_Env * env )
     Chuck_DL_Func * func = NULL;
 
 	// init base class
-    if( !type_engine_import_class_begin( env, "MidiRW", "event",
+    if( !type_engine_import_class_begin( env, "MidiRW", "Object",
                                          env->global(), MidiRW_ctor ) )
 		return FALSE;
 
@@ -459,6 +461,59 @@ t_CKBOOL init_class_MidiRW( Chuck_Env * env )
     // end the class import
     type_engine_import_class_end( env );
     
+    	// init base class
+    if( !type_engine_import_class_begin( env, "MidiMsgOut", "Object",
+                                         env->global(), MidiMsgOut_ctor ) )
+		return FALSE;
+
+	// add open()
+    func = make_new_mfun( "int", "open", MidiMsgOut_open );
+    func->add_arg( "string", "filename" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add close()
+    func = make_new_mfun( "int", "close", MidiMsgOut_close );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add write()
+    func = make_new_mfun( "int", "write", MidiMsgOut_write );
+	func->add_arg( "MidiMsg", "msg" );
+	func->add_arg( "time", "t" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    MidiMsgOut_offset_data = type_engine_import_mvar( env, "int", "@MidiMsgOut_data", FALSE );
+    if( MidiMsgOut_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    	// init base class
+    if( !type_engine_import_class_begin( env, "MidiMsgIn", "Object",
+                                         env->global(), MidiMsgIn_ctor ) )
+		return FALSE;
+
+	// add open()
+    func = make_new_mfun( "int", "open", MidiMsgIn_open );
+    func->add_arg( "string", "filename" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add close()
+    func = make_new_mfun( "int", "close", MidiMsgIn_close );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
+	// add read()
+	func = make_new_mfun( "int", "read", MidiMsgIn_read );
+	func->add_arg( "MidiMsg", "msg" );
+	//func->add_arg( "time", "t" );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    MidiMsgIn_offset_data = type_engine_import_mvar( env, "int", "@MidiMsgIn_data", FALSE );
+    if( MidiMsgIn_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
     return TRUE;
 
 error:
@@ -921,6 +976,84 @@ CK_DLL_MFUN( MidiRW_write )
 	RETURN->v_int = mrw->write( &the_msg, &time );
 }
 
+
+//-----------------------------------------------------------------------------
+// MidiMsgOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiMsgOut_ctor )
+{
+	OBJ_MEMBER_INT(SELF, MidiMsgOut_offset_data) = (t_CKUINT)new MidiMsgOut;
+}
+
+CK_DLL_DTOR( MidiMsgOut_dtor )
+{
+	delete (MidiMsgOut *)OBJ_MEMBER_INT(SELF, MidiMsgOut_offset_data);
+}
+
+CK_DLL_MFUN( MidiMsgOut_open )
+{
+	MidiMsgOut * mrw = (MidiMsgOut *)OBJ_MEMBER_INT(SELF, MidiMsgOut_offset_data);
+	const char * filename = GET_CK_STRING(ARGS)->str.c_str();
+	RETURN->v_int = mrw->open( filename );
+}
+
+CK_DLL_MFUN( MidiMsgOut_close )
+{
+	MidiMsgOut * mrw = (MidiMsgOut *)OBJ_MEMBER_INT(SELF, MidiMsgOut_offset_data);
+	RETURN->v_int = mrw->close();
+}
+
+CK_DLL_MFUN( MidiMsgOut_write )
+{
+	MidiMsgOut * mrw = (MidiMsgOut *)OBJ_MEMBER_INT(SELF, MidiMsgOut_offset_data);
+	Chuck_Object * fake_msg = GET_NEXT_OBJECT(ARGS);
+	t_CKTIME time = GET_NEXT_TIME(ARGS);
+	MidiMsg the_msg;
+	the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
+	the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2);
+	the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3);
+	RETURN->v_int = mrw->write( &the_msg, &time );
+}
+
+
+//-----------------------------------------------------------------------------
+// MidiMsgIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( MidiMsgIn_ctor )
+{
+	OBJ_MEMBER_INT(SELF, MidiMsgIn_offset_data) = (t_CKUINT)new MidiMsgIn;
+}
+
+CK_DLL_DTOR( MidiMsgIn_dtor )
+{
+	delete (MidiMsgIn *)OBJ_MEMBER_INT(SELF, MidiMsgIn_offset_data);
+}
+
+CK_DLL_MFUN( MidiMsgIn_open )
+{
+	MidiMsgIn * mrw = (MidiMsgIn *)OBJ_MEMBER_INT(SELF, MidiMsgIn_offset_data);
+	const char * filename = GET_CK_STRING(ARGS)->str.c_str();
+	RETURN->v_int = mrw->open( filename );
+}
+
+CK_DLL_MFUN( MidiMsgIn_close )
+{
+	MidiMsgIn * mrw = (MidiMsgIn *)OBJ_MEMBER_INT(SELF, MidiMsgIn_offset_data);
+	RETURN->v_int = mrw->close();
+}
+
+CK_DLL_MFUN( MidiMsgIn_read )
+{
+	MidiMsgIn * mrw = (MidiMsgIn *)OBJ_MEMBER_INT(SELF, MidiMsgIn_offset_data);
+	Chuck_Object * fake_msg = GET_NEXT_OBJECT(ARGS);
+	MidiMsg the_msg;
+	t_CKTIME time = 0.0;
+	RETURN->v_int = mrw->read( &the_msg, &time );
+	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1) = the_msg.data[0];
+	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2) = the_msg.data[1];
+	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3) = the_msg.data[2];
+	OBJ_MEMBER_TIME(fake_msg, MidiMsg_offset_when) = time;
+}
 
 
 /*//-----------------------------------------------------------------------------

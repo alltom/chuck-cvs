@@ -573,8 +573,9 @@ t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
 // desc: reads and writes midi messages from file
 //-----------------------------------------------------------------------------
 
-std::map<MidiRW *, MidiRW *> g_rw;
+static std::map<MidiRW *, MidiRW *> g_rw;
 
+t_CKBOOL out_detach( );
 t_CKBOOL midirw_detach( )
 {
     std::map<MidiRW *, MidiRW *>::iterator iter;
@@ -583,8 +584,8 @@ t_CKBOOL midirw_detach( )
     {
         (*iter).second->close();
     }
-    
-    return TRUE;
+
+    return out_detach( );
 }
 
 MidiRW::MidiRW() { file = NULL; }
@@ -651,5 +652,121 @@ t_CKBOOL MidiRW::write( MidiMsg * msg, t_CKTIME * time )
 	t = fwrite( time, sizeof(t_CKTIME), 1, file );
 	fflush( file );
 
+	return m && t;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class MidiMsgOut
+// desc: writes midi messages from file
+//-----------------------------------------------------------------------------
+
+static std::map<MidiMsgOut *, MidiMsgOut *> g_out;
+
+t_CKBOOL out_detach( )
+{
+    std::map<MidiMsgOut *, MidiMsgOut *>::iterator iter;
+    
+    for( iter = g_out.begin(); iter != g_out.end(); iter++ )
+    {
+        (*iter).second->close();
+    }
+    
+    return TRUE;
+}
+
+MidiMsgOut::MidiMsgOut() { file = NULL; }
+
+MidiMsgOut::~MidiMsgOut() { this->close(); }
+
+t_CKBOOL MidiMsgOut::open( const char * filename )
+{
+    this->close();
+
+	file = fopen( filename, "wb" );
+
+    // add to hash
+    g_out[this] = this;
+
+	return ( file != NULL );
+}
+
+t_CKBOOL MidiMsgOut::close()
+{
+    if( !file ) return FALSE;
+
+	t_CKBOOL value = fclose( file ) == 0;
+    
+    // remove from hash
+    std::map<MidiMsgOut *, MidiMsgOut *>::iterator iter;
+    iter = g_out.find( this );
+    g_out.erase( iter, iter );
+
+    file = NULL;
+
+    return value;
+}
+
+t_CKBOOL MidiMsgOut::write( MidiMsg * msg, t_CKTIME * time )
+{
+	if( !file )
+		return FALSE;
+
+	t_CKBOOL m, t;
+
+	m = fwrite( msg, sizeof(MidiMsg), 1, file );
+	t = fwrite( time, sizeof(t_CKTIME), 1, file );
+	fflush( file );
+
+	return m && t;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class MidiMsgIn
+// desc: reads midi messages from file
+//-----------------------------------------------------------------------------
+
+MidiMsgIn::MidiMsgIn() { file = NULL; }
+
+MidiMsgIn::~MidiMsgIn() { this->close(); }
+
+t_CKBOOL MidiMsgIn::open( const char * filename )
+{
+    this->close();
+
+	file = fopen( filename, "rb" );
+
+	return ( file != NULL );
+}
+
+t_CKBOOL MidiMsgIn::close()
+{
+    if( !file ) return FALSE;
+
+	t_CKBOOL value = fclose( file ) == 0;
+    
+    file = NULL;
+
+    return value;
+}
+
+t_CKBOOL MidiMsgIn::read( MidiMsg * msg, t_CKTIME * time )
+{
+	if( !file )
+		return FALSE;
+
+	// is it open? i don't know...
+	
+	t_CKBOOL m, t;
+	
+	// wouldn't it be cool if this worked?
+	m = fread( msg, sizeof(MidiMsg), 1, file );
+	t = fread( time, sizeof(t_CKTIME), 1, file );
+	
 	return m && t;
 }

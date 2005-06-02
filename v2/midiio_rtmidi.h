@@ -172,7 +172,6 @@ protected:
 };
 
 
-
 //-----------------------------------------------------------------------------
 // name: class MidiRW
 // desc: reads and writes midi messages from file
@@ -197,5 +196,50 @@ protected:
 
 // closes all MidiRW file handles
 t_CKBOOL midirw_detach( );
+
+
+//-----------------------------------------------------------------------------
+// name: class MidiMsgOut
+// desc: reads midi messages from file
+//-----------------------------------------------------------------------------
+class MidiMsgOut
+{
+public:
+	MidiMsgOut();
+	~MidiMsgOut();
+
+public:
+	t_CKBOOL open( const char * filename );
+	t_CKBOOL close();
+
+public:
+	t_CKBOOL write( MidiMsg * msg, t_CKTIME * time );
+
+protected:
+	FILE * file;
+};
+
+
+//-----------------------------------------------------------------------------
+// name: class MidiMsgIn
+// desc: reads midi messages from file
+//-----------------------------------------------------------------------------
+class MidiMsgIn
+{
+public:
+	MidiMsgIn();
+	~MidiMsgIn();
+
+public:
+	t_CKBOOL open( const char * filename );
+	t_CKBOOL close();
+
+public:
+	t_CKBOOL read( MidiMsg * msg, t_CKTIME * time );
+
+protected:
+	FILE * file;
+};
+
 
 #endif
