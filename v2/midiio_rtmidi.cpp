@@ -31,10 +31,12 @@
 //         Ananya Misra (amisra@cs.princeton.edu)
 // date: summer 2005
 //-----------------------------------------------------------------------------
-#include <stdlib.h>
-#include <vector>
 #include "midiio_rtmidi.h"
 #include "chuck_errmsg.h"
+#include <stdlib.h>
+#include <vector>
+#include <map>
+#include <fstream>
 
 
 
@@ -570,24 +572,55 @@ t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
 // name: class MidiRW
 // desc: reads and writes midi messages from file
 //-----------------------------------------------------------------------------
+
+std::map<MidiRW *, MidiRW *> g_rw;
+
+t_CKBOOL midirw_detach( )
+{
+    std::map<MidiRW *, MidiRW *>::iterator iter;
+    
+    for( iter = g_rw.begin(); iter != g_rw.end(); iter++ )
+    {
+        (*iter).second->close();
+    }
+    
+    return TRUE;
+}
+
 MidiRW::MidiRW() { file = NULL; }
 
-MidiRW::~MidiRW() { file = NULL; }
+MidiRW::~MidiRW() { this->close(); }
 
 t_CKBOOL MidiRW::open( const char * filename )
 {
-	file = fopen( filename, "r+" );
+    this->close();
+
+	file = fopen( filename, "rb+" );
 	if( file == NULL )
 	{
-		file = fopen( filename, "w+" );
+		file = fopen( filename, "wb+" );
 	}
+
+    // add to hash
+    g_rw[this] = this;
 
 	return ( file != NULL );
 }
 
 t_CKBOOL MidiRW::close()
 {
-	return fclose( file ) == 0;
+    if( !file ) return FALSE;
+
+	t_CKBOOL value = fclose( file ) == 0;
+    
+    // remove from hash
+    std::map<MidiRW *, MidiRW *>::iterator iter;
+    iter = g_rw.find( this );
+    g_rw.erase( iter, iter );
+
+    file = NULL;
+
+    return value;
 }
 
 t_CKBOOL MidiRW::read( MidiMsg * msg, t_CKTIME * time )

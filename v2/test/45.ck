@@ -4,10 +4,12 @@ MidiIn min;
 MidiMsg msg;
 MidiRW mrw;
 
-if( !min.open( 0 ) )
+if( !min.open( 1 ) )
     <<<"bad">>>;
 
 mrw.open( "z.txt" );
+
+int count;
 
 while( true )
 {
@@ -24,9 +26,9 @@ while( true )
 		std.mtof(msg.data2) => s.freq;
 		msg.data3 / 128.0 => s.gain;
 		mrw.write( msg, now );
+		<<<count + 1 => count>>>;
 	}
     }
-
     // wait
     //5::ms => now;
 }

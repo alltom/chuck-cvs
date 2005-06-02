@@ -901,7 +901,7 @@ CK_DLL_MFUN( MidiRW_read )
 	MidiRW * mrw = (MidiRW *)OBJ_MEMBER_INT(SELF, MidiRW_offset_data);
 	Chuck_Object * fake_msg = GET_NEXT_OBJECT(ARGS);
 	MidiMsg the_msg;
-	t_CKTIME time;
+	t_CKTIME time = 0.0;
 	RETURN->v_int = mrw->read( &the_msg, &time );
 	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1) = the_msg.data[0];
 	OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2) = the_msg.data[1];

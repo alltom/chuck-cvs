@@ -62,7 +62,7 @@
 union MidiMsg
 {
     t_CKBYTE data[4];
-    t_CKUINT dw;
+//    t_CKUINT dw;
 };
 
 
@@ -194,5 +194,8 @@ public:
 protected:
 	FILE * file;
 };
+
+// closes all MidiRW file handles
+t_CKBOOL midirw_detach( );
 
 #endif

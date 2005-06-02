@@ -122,6 +122,7 @@ void signal_int( int sig_num )
         g_vm = NULL;
         vm->stop();
         stk_detach( 0, NULL );
+        midirw_detach( );
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
         if( g_tid ) pthread_cancel( g_tid );
