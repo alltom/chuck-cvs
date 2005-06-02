@@ -1199,6 +1199,11 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
         // basic types?
         if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
         {
+            // if the right is a decl, then make sure ref
+            if( isa( left, &t_string ) && rhs->s_type == ae_exp_decl )
+            {
+                rhs->decl.type->ref = TRUE;
+            }
             // TODO: const
             // assigment?
             if( rhs->s_meta == ae_meta_var )
