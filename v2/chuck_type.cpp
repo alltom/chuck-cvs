@@ -2183,7 +2183,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
             }*/
 
             // no match
-            if( !isa( e->type, e1->type ) ) goto moveon;
+            if( !isa( e->type, e1->type ) )
             {
                 // TODO: fix this for overload implicit cast
                 if( *e->type == t_int && *e1->type == t_float )
@@ -2228,49 +2228,6 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
 moveon:
         // next func
         func = func->next;
-    }
-
-    // check
-    if( !func )
-    {
-        // check again
-        func = f->func;
-        // loop
-        while( func )
-        {
-            e = args;
-            e1 = func->def->arg_list;
-            count = 1;
-
-            // check arguments against the definition
-            while( e )
-            {
-                if( e1 == NULL ) goto moveon2;
-                // no match
-                if( !isa( e->type, e1->type ) )
-                {
-                    // TODO: fix this for overload implicit cast
-                    if( *e->type == t_int && *e1->type == t_float )
-                    {
-                        // int to float
-                        e->cast_to = &t_float;
-                    }
-                    else goto moveon2;
-                }
-
-                e = e->next;
-                e1 = e1->next;
-                count++;
-            }
-
-            // anything left
-            if( e1 != NULL ) goto moveon2;
-            else break;
-
-moveon2:
-            // next func
-            func = func->next;
-        }
     }
 
     // no func
@@ -2757,7 +2714,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             // remember it
             overload = value->func_ref;
             // make the new name
-            func_name += "@" + itoa( ++value->func_num_overloads );
+            func_name += "@" + itoa( ++value->func_num_overloads ) + "@" + env->curr->name;
         }
     }
 
@@ -4597,3 +4554,50 @@ error:
 
     return FALSE;
 }
+
+
+
+/*
+    // check
+    if( !func )
+    {
+        // check again
+        func = f->func;
+        // loop
+        while( func )
+        {
+            e = args;
+            e1 = func->def->arg_list;
+            count = 1;
+
+            // check arguments against the definition
+            while( e )
+            {
+                if( e1 == NULL ) goto moveon2;
+                // no match
+                if( !isa( e->type, e1->type ) )
+                {
+                    // TODO: fix this for overload implicit cast
+                    if( *e->type == t_int && *e1->type == t_float )
+                    {
+                        // int to float
+                        e->cast_to = &t_float;
+                    }
+                    else goto moveon2;
+                }
+
+                e = e->next;
+                e1 = e1->next;
+                count++;
+            }
+
+            // anything left
+            if( e1 != NULL ) goto moveon2;
+            else break;
+
+moveon2:
+            // next func
+            func = func->next;
+        }
+    }
+*/

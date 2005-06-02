@@ -61,14 +61,14 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
         return FALSE;
 
     // add setTestID()
-    func = make_new_mfun( "void", "setTestID", object_setTestID );
+    func = make_new_mfun( "int", "testID", object_setTestID );
     func->add_arg( "int", "id" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add getTestID()
-    func = make_new_mfun( "int", "getTestID", object_getTestID );
+    func = make_new_mfun( "int", "testID", object_getTestID );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
+    
     // add getTest()
     func = make_new_sfun( "int", "testStatic", object_testStatic );
     func->add_arg( "float", "i" );
@@ -114,6 +114,15 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
         return FALSE;
+
+    // add setTestID()
+    //func = make_new_mfun( "int", "testID", ugen_setTestID );
+    //func->add_arg( "int", "id" );
+    //if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add getTestID()
+    func = make_new_mfun( "int", "testID", ugen_getTestID );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // gain
     func = make_new_mfun( "float", "gain", ugen_gain );
@@ -582,14 +591,35 @@ CK_DLL_DTOR( object_dtor )
 // setTestID
 CK_DLL_MFUN( object_setTestID )
 {
+    fprintf( stderr, "object set test id\n" );
     t_CKINT v = GET_NEXT_INT(ARGS);
     OBJ_MEMBER_INT(SELF, object_offset_m_testID) = v;
+    RETURN->v_int = v;
 }
 
 
 // getTestID
 CK_DLL_MFUN( object_getTestID )
 {
+    fprintf( stderr, "object get test id\n" );
+    RETURN->v_int = OBJ_MEMBER_INT(SELF, object_offset_m_testID);
+}
+
+
+// setTestID
+CK_DLL_MFUN( ugen_setTestID )
+{
+    fprintf( stderr, "ugen set test id\n" );
+    t_CKINT v = GET_NEXT_INT(ARGS);
+    OBJ_MEMBER_INT(SELF, object_offset_m_testID) = v;
+    RETURN->v_int = v;
+}
+
+
+// getTestID
+CK_DLL_MFUN( ugen_getTestID )
+{
+    fprintf( stderr, "ugen get test id\n" );
     RETURN->v_int = OBJ_MEMBER_INT(SELF, object_offset_m_testID);
 }
 
