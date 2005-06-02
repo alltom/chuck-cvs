@@ -3,7 +3,7 @@ OSC_Recv recv;
 6448 => recv.port;
 recv.listen();
 
-<<<"drugs">>>;
+<<<"string receive test started">>>;
 function void trigger_s () { 
 	<<<"function started">>>;
 	OSC_Addr oscev;
