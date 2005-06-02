@@ -14,7 +14,8 @@ function void trigger_s () {
 		<<<"event occurred">>>;
 		while ( oscev.nextMesg() != 0 ) { 
 			<<<"fetching string">>>;
-			oscev.getString() => string c;	
+			string c;
+			oscev.getString() => c;	
 			<<<"zoop">>>;	
 			<<<c>>>;
 		}

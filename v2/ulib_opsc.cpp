@@ -38,10 +38,12 @@
 #include "chuck_vm.h"
 #include "chuck_dl.h"
 #include "util_opsc.h"
+#include "chuck_instr.h"
 
 static t_CKUINT osc_send_offset_data = 0;
 static t_CKUINT osc_recv_offset_data = 0;
 static t_CKUINT osc_address_offset_data = 0;
+static Chuck_Type * osc_addr_type_ptr = 0;
 
 DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) { 
 
@@ -106,6 +108,10 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     osc_address_offset_data = type_engine_import_mvar( env, "int", "@OSC_Address_data", FALSE );
     if( osc_recv_offset_data == CK_INVALID_OFFSET ) goto error;
 
+    // keep type around for initialization ( so other classes can return it )
+
+    osc_addr_type_ptr = env->class_def;
+
     func = make_new_mfun( "int", "set", osc_address_set );
     func->add_arg( "string" , "addr" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -138,7 +144,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     // add member variable  - OSCReceiver object
     osc_recv_offset_data = type_engine_import_mvar( env, "int", "@OSC_Recv_data", FALSE );
     if( osc_recv_offset_data == CK_INVALID_OFFSET ) goto error;
-
+    
     func = make_new_mfun( "int", "port", osc_recv_port );
     func->add_arg( "int" , "port" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -344,8 +350,8 @@ CK_DLL_MFUN(  osc_address_next_float  ) {
 CK_DLL_MFUN(  osc_address_next_string  ) { 
     OSCSrc * addr = (OSCSrc *)OBJ_MEMBER_INT( SELF, osc_address_offset_data );
     char * cs = addr->next_string();
-    addr->p_str.str = "fuzzybunnies";//cs;
-    RETURN->v_string = &(addr->p_str);
+    Chuck_String * ckstr = new Chuck_String ( cs );
+    RETURN->v_string = ckstr;
     
 }
 
@@ -409,8 +415,14 @@ CK_DLL_MFUN( osc_recv_remove_address ) {
 CK_DLL_MFUN( osc_recv_new_address ) { 
     OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
     Chuck_String* spec_obj = (Chuck_String*) GET_NEXT_STRING(ARGS); //listener object class...
+    OSCSrc* new_addr_obj = recv->new_event ( (char*)spec_obj->str.c_str() );
 
-    RETURN->v_object = recv->new_event ( (char*)spec_obj->str.c_str() );
+    initialize_object( new_addr_obj , osc_addr_type_ptr ); //initialize in vm
+    
+    new_addr_obj->SELF = new_addr_obj;
+    OBJ_MEMBER_INT( new_addr_obj, osc_address_offset_data ) = (t_CKINT)new_addr_obj;
+    
+    RETURN->v_object = new_addr_obj;
 }
 
 

@@ -10,9 +10,7 @@ OSC_Recv orec;
 6449 => orec.port;
 orec.listen();
 function void ratecontroller() { 
-	OSC_Addr ratemesg;
-	"/sndbuf/buf/play,f" => ratemesg.set;
-	ratemesg => orec.add_address;
+	orec.event("/sndbuf/buf/play,f") @=> OSC_Addr ratemesg;
 	while ( true ) { 
 		ratemesg => now;
 		while ( ratemesg.nextMesg() != 0 ) { 
