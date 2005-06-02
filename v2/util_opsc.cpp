@@ -1211,10 +1211,10 @@ OSC_Receiver::OSC_Receiver():
     _io_mutex = new XMutex();
     _io_thread = new XThread();
 
-    init();
-
     _in = new UDP_Receiver();
     
+    init();
+
 }
 
 OSC_Receiver::OSC_Receiver(UDP_Receiver* in) {
