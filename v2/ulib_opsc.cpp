@@ -352,7 +352,6 @@ CK_DLL_MFUN(  osc_address_next_string  ) {
     char * cs = addr->next_string();
     Chuck_String * ckstr = new Chuck_String ( cs );
     RETURN->v_string = ckstr;
-    
 }
 
 // OSC_Recv functions 

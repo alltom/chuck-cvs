@@ -6,9 +6,7 @@ recv.listen();
 <<<"string receive test started">>>;
 function void trigger_s () { 
 	<<<"function started">>>;
-	OSC_Addr oscev;
-	oscev => recv.add_address;
-	"/foo/zoop,s" => oscev.set;
+	recv.event( "/foo/zoop,s" ) @=> OSC_Addr oscev;
 	while ( true  ) { 
 		oscev => now;	
 		<<<"event occurred">>>;

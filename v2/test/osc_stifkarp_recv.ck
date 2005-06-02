@@ -24,9 +24,7 @@ function void hitnote( int note, int vel ) {
 }
 
 function void play_trigger() { 
-	OSC_Addr oscev;
-	"/voice/Stif/noteOn,ii" => oscev.set;
-	oscev => recv.add_address;
+	recv.event ( "/voice/Stif/noteOn,ii" ) @=> OSC_Addr oscev;
 	while ( true  ) { 
 		oscev => now;
 		while ( oscev.nextMesg() != 0 ) { 
@@ -37,9 +35,7 @@ function void play_trigger() {
 
 
 function void stretch_listener() { 
-	OSC_Addr oscv;
-	"/voice/Stif/stretch,f" => oscv.set;
-	oscv => recv.add_address;
+	recv.event( "/voice/Stif/stretch,f" ) @=> OSC_Addr oscv;
 	while ( true  ) { 
 		oscv => now;
 		while ( oscv.nextMesg() != 0 ) { 
