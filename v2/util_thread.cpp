@@ -60,7 +60,7 @@ XThread::~XThread( )
     pthread_join(thread, NULL);
 #elif defined(__PLATFORM_WIN32__)
     if( thread )
-        TerminateXThread((HANDLE)thread, 0);
+        TerminateThread((HANDLE)thread, 0);
 #endif
 }
 

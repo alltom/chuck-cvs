@@ -1193,6 +1193,9 @@ OSC_Transmitter::kickMessage() {
 OSC_Receiver::OSC_Receiver():
     _inbufsize(OSCINBUFSIZE),
     _inbox(NULL),
+    _address_space (NULL),
+    _address_size ( 2 ),
+    _address_num ( 0 ), 
     _inbox_size(2),
     _started(false),
     _in_read(0),
@@ -1202,13 +1205,15 @@ OSC_Receiver::OSC_Receiver():
 
     _inbox = (OSCMesg*) malloc (sizeof(OSCMesg) * _inbox_size);
     for ( int i = 0; i < _inbox_size; i++ ) _inbox[i].payload = NULL;
-    
-    _in = new UDP_Receiver();
-    
+
+    _address_space = (OSCSrc **) realloc ( _address_space, _address_size * sizeof ( OSCSrc * ) );
+
     _io_mutex = new XMutex();
     _io_thread = new XThread();
 
     init();
+
+    _in = new UDP_Receiver();
     
 }
 
@@ -1299,7 +1304,7 @@ OSC_Receiver::parse() {
     //unpack bundles, dump all messages
    //any local prep we need here?
 
-    uint i = 0;
+   unsigned int i = 0;
    //de-buggering
    fprintf(stderr, "OSC_Receiver: parsing message length %d\n", _mesglen);
    for ( i = 0 ; i < _mesglen; i++ ) { 
@@ -1578,6 +1583,7 @@ OSCSrc::init() {
     SELF = NULL;
     _qz = 64;
     _cur_mesg = NULL;
+    _queue = NULL;
 }
 
 OSCSrc::~OSCSrc() { 
@@ -1752,7 +1758,7 @@ OSCSrc::queue_mesg ( OSCMesg* m )
         char * type = m->types+1;
         char * data = m->data;
         
-        uint endy;
+        unsigned int endy;
         int i=0;
         
         float *fp;

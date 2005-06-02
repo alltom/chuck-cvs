@@ -41,6 +41,11 @@
 // keep that bubble gum in your hair.
 
 // the included files were from the CNMAT OSC-Kit distrib. 
+
+#ifdef __PLATFORM_WIN32__
+#include <Winsock2.h>
+#endif
+
 //#include "OSC-pattern-match.h"
 // OSC-pattern-match.h
 
@@ -503,7 +508,6 @@ public:
     void distribute_message( OSCMesg * msg);
 };
 
-
 enum osc_datatype { OSC_UNTYPED, OSC_NOARGS, OSC_INT, OSC_FLOAT, OSC_STRING, OSC_BLOB, OSC_NTYPE };
 
 struct osc_data { 
@@ -511,7 +515,7 @@ struct osc_data {
     osc_datatype t;    
     OSCTimeTag timetag;
     int i;
-    uint u;
+    unsigned int u;
     float f;
     char * s;
     osc_data() { 

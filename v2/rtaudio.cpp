@@ -5206,7 +5206,7 @@ void RtApiAsio :: callbackEvent(long bufferIndex)
 #endif
 
 #if defined(__WINDOWS_DS__) // Windows DirectSound API
-
+#define DIRECTSOUND_VERSION 0x0500
 #include <dsound.h>
 
 // A structure to hold various information related to the DirectSound
