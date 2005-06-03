@@ -812,6 +812,9 @@ void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
 	    // add event to shred
 	    assert( shred->event == NULL );
 	    shred->event = this;
+
+        // add shred to shreduler
+        vm->shreduler()->add_blocked( shred );
     }
     else // can't wait
     {

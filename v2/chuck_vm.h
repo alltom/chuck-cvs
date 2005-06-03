@@ -227,6 +227,10 @@ public: // high-level shred interface
     Chuck_VM_Shred * lookup( t_CKUINT id );
     void status( );
 
+public: // for event related shred queue
+    t_CKBOOL add_blocked( Chuck_VM_Shred * shred );
+    t_CKBOOL remove_blocked( Chuck_VM_Shred * shred );
+
 //-----------------------------------------------------------------------------
 // data
 //-----------------------------------------------------------------------------
@@ -235,8 +239,10 @@ public:
     t_CKTIME now_system;
     BBQ * bbq;
     
-    // shreds
+    // shreds to be shreduled
     Chuck_VM_Shred * shred_list;
+    // shreds waiting on events
+    std::map<Chuck_VM_Shred *, Chuck_VM_Shred *> blocked;
 
     // ugen
     Chuck_UGen * m_dac;

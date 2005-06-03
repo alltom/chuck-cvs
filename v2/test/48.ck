@@ -12,6 +12,9 @@ Mandolin m => JCRev r => dac;
 
 mrw.open( "z.txt" );
 //"foo.wav" => s.read;
+
+8.0 => float scale;
+
 time t;
 now => t;
 
@@ -20,7 +23,7 @@ int count;
 while( mrw.read( mg ) != 0 )
 {
     <<<"ha">>>;
-    mg.when - t => now;
+    scale * (mg.when - t) => now;
     mg.when => t;
     //mg.when => now;
     mout.send( mg );

@@ -609,7 +609,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 retval = 0;
                 goto done;
             }
-            if( !m_shreduler->remove( m_shreduler->lookup( msg->param ) ) )
+            if( !m_shreduler->remove( shred ) )  // was lookup
             {
                 EM_error3( "[chuck](VM): shreduler: cannot remove shred %i...",
                            msg->param );
@@ -1172,6 +1172,38 @@ t_CKBOOL Chuck_VM_Shreduler::shutdown()
 
 
 //-----------------------------------------------------------------------------
+// name: add_blocked()
+// desc: add shred to the shreduler's blocked list
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM_Shreduler::add_blocked( Chuck_VM_Shred * shred )
+{
+    // add shred to map, using pointer
+    blocked[shred] = shred;
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: remove_blocked()
+// desc: remove shred from the shreduler's blocked list
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM_Shreduler::remove_blocked( Chuck_VM_Shred * shred )
+{
+    // remove from hash
+    std::map<Chuck_VM_Shred *, Chuck_VM_Shred *>::iterator iter;
+    iter = blocked.find( shred );
+    blocked.erase( iter, iter );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: shredule()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -1432,6 +1464,23 @@ void Chuck_VM_Shreduler::status( )
         
         fprintf( stdout, 
             "    [shred id]: %i  [source]: %s  [spork time]: %.2fs ago\n",
+            shred->id, mini( shred->name.c_str() ),
+            (now_system-shred->start)/(float)Digitalio::sampling_rate() );
+        shred = shred->next;
+    }
+
+    // blocked
+    std::map<Chuck_VM_Shred *, Chuck_VM_Shred *>::iterator iter;
+    
+    for( iter = blocked.begin(); iter != blocked.end(); iter++ )
+    {
+        shred = (*iter).second;
+        char * s = buffer, * ss = buffer;
+        strcpy( buffer, shred->name.c_str() );
+        while( *s++ ) if( *s == '/' ) { ss = s+1; }
+        
+        fprintf( stdout, 
+            "    [shred id]: %i [source]: %s  [spork time]: %.2fs ago (blocked)\n",
             shred->id, mini( shred->name.c_str() ),
             (now_system-shred->start)/(float)Digitalio::sampling_rate() );
         shred = shred->next;
