@@ -3326,12 +3326,12 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 Chuck_Instr_Hack::Chuck_Instr_Hack( Chuck_Type * type )
 {
     this->m_type_ref = type;
-    this->m_type_ref->add_ref();
+//    this->m_type_ref->add_ref();
 }
 
 Chuck_Instr_Hack::~Chuck_Instr_Hack()
 {
-    this->m_type_ref->release();
+//    this->m_type_ref->release();
 }
 
 void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
@@ -3386,6 +3386,13 @@ Chuck_Instr_Gack::~Chuck_Instr_Gack()
 void Chuck_Instr_Gack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKBYTE * the_sp = (t_CKBYTE *)shred->reg->sp;
+
+    if( m_type_refs.size() == 1 )
+    {
+        Chuck_Instr_Hack hack( m_type_refs[0] );
+        hack.execute( vm, shred );
+        return;
+    }
 
     // loop over types
     long i;
