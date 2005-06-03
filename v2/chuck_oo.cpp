@@ -708,6 +708,7 @@ void Chuck_Event::signal()
 		m_queue.pop();
 		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
 		shred->event = NULL;
+        shreduler->remove_blocked( shred );
 		shreduler->shredule( shred );
 		// push the current time
         t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
@@ -771,14 +772,7 @@ void Chuck_Event::broadcast()
 {
 	while( !m_queue.empty() )
 	{
-        Chuck_VM_Shred * shred = m_queue.front();
-		m_queue.pop();
-		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
-		shred->event = NULL;
-		shreduler->shredule( shred );
-		// push the current time
-        t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
-		push_( sp, shreduler->now_system );
+        this->signal();
 	}
 }
 

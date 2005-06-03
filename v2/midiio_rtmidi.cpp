@@ -617,7 +617,7 @@ t_CKBOOL MidiRW::close()
     // remove from hash
     std::map<MidiRW *, MidiRW *>::iterator iter;
     iter = g_rw.find( this );
-    g_rw.erase( iter, iter );
+    g_rw.erase( iter );
 
     file = NULL;
 
@@ -702,7 +702,7 @@ t_CKBOOL MidiMsgOut::close()
     // remove from hash
     std::map<MidiMsgOut *, MidiMsgOut *>::iterator iter;
     iter = g_out.find( this );
-    g_out.erase( iter, iter );
+    g_out.erase( iter );
 
     file = NULL;
 

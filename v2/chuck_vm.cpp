@@ -551,9 +551,16 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         shred->start = m_shreduler->now_system;
         // set the id
         shred->id = msg->param;
+        // set the now
+        shred->now = shred->wake_time = m_shreduler->now_system;
+	    // set the vm
+	    shred->vm_ref = this;
+        // add it to the parent
+        if( shred->parent )
+            shred->parent->children[shred->id] = shred;
 
         // replace
-        if( m_shreduler->replace( out, shred ) )
+        if( m_shreduler->remove( out ) && m_shreduler->shredule( shred ) )
         {
             EM_error3( "[chuck](VM): replacing shred %i (%s) with %i (%s)...",
                        out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
@@ -662,7 +669,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     {
         float srate = (float)Digitalio::sampling_rate();
         fprintf( stderr, "[chuck](VM): the values of now:\n" );
-        fprintf( stderr, "  now = %i (samp)\n", m_shreduler->now_system );
+        fprintf( stderr, "  now = %.6f (samp)\n", m_shreduler->now_system );
         fprintf( stderr, "      = %.6f (second)\n", m_shreduler->now_system / srate );
         fprintf( stderr, "      = %.6f (minute)\n", m_shreduler->now_system / srate / 60.0f );
         fprintf( stderr, "      = %.6f (hour)\n", m_shreduler->now_system / srate / 60.0f / 60.0f );
@@ -833,8 +840,8 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
         shred->parent->children.erase( shred->id );
 
     // free!
-    if( shred->event ) shred->event->remove( shred );
 	m_shreduler->remove( shred );
+    // if( shred->event ) shred->event->remove( shred );
 	shred->release();
 	shred = NULL;
     if( dec ) m_num_shreds--;
@@ -1195,7 +1202,10 @@ t_CKBOOL Chuck_VM_Shreduler::remove_blocked( Chuck_VM_Shred * shred )
     // remove from hash
     std::map<Chuck_VM_Shred *, Chuck_VM_Shred *>::iterator iter;
     iter = blocked.find( shred );
-    blocked.erase( iter, iter );
+    blocked.erase( iter );
+
+    // remove from event
+    if( shred->event != NULL ) shred->event->remove( shred );
     
     return TRUE;
 }
@@ -1357,10 +1367,12 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::get( )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM_Shreduler::replace( Chuck_VM_Shred * out, Chuck_VM_Shred * in )
 {
+    assert( FALSE );
+
     // sanity check
     if( !out || !in )
         return FALSE;
-    
+
     if( !out->prev )
         shred_list = in;
     else
@@ -1373,7 +1385,7 @@ t_CKBOOL Chuck_VM_Shreduler::replace( Chuck_VM_Shred * out, Chuck_VM_Shred * in 
     in->prev = out->prev;
     
     out->next = out->prev = NULL;
-    
+
     in->wake_time = out->wake_time;
     in->start = in->wake_time;
     
@@ -1389,8 +1401,16 @@ t_CKBOOL Chuck_VM_Shreduler::replace( Chuck_VM_Shred * out, Chuck_VM_Shred * in 
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM_Shreduler::remove( Chuck_VM_Shred * out )
 {
+    if( !out ) return FALSE;
+
+    // if blocked
+    if( out->event != NULL )
+    {
+        return remove_blocked( out );
+    }
+
     // sanity check
-    if( !out || ( !out->prev && !out->prev && out != shred_list ) )
+    if( !out->prev && !out->prev && out != shred_list )
         return FALSE;
     
     if( !out->prev )
@@ -1417,16 +1437,22 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT id )
 {
     Chuck_VM_Shred * shred = shred_list;
     
-    // list empty
-    if( !shred )
-        return NULL;
-    
     while( shred )
     {
         if( shred->id == id )
             return shred;
 
         shred = shred->next;
+    }
+
+    // blocked
+    std::map<Chuck_VM_Shred *, Chuck_VM_Shred *>::iterator iter;
+    
+    for( iter = blocked.begin(); iter != blocked.end(); iter++ )
+    {
+        shred = (*iter).second;
+        if( shred->id == id )
+            return shred;
     }
     
     return NULL;
@@ -1483,6 +1509,5 @@ void Chuck_VM_Shreduler::status( )
             "    [shred id]: %i [source]: %s  [spork time]: %.2fs ago (blocked)\n",
             shred->id, mini( shred->name.c_str() ),
             (now_system-shred->start)/(float)Digitalio::sampling_rate() );
-        shred = shred->next;
     }
 }

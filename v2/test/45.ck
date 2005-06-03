@@ -7,7 +7,7 @@ MidiRW mrw;
 if( !min.open( 1 ) )
     <<<"bad">>>;
 
-mrw.open( "z.txt" );
+mrw.open( "y.txt" );
 
 int count;
 
