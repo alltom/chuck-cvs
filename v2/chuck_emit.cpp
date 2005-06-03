@@ -2055,14 +2055,24 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         break;
 
     case ae_primary_hack:
-        // emit the expression
-        if( !emit_engine_emit_exp( emit, exp->exp ) )
-            return FALSE;
+        {
+            a_Exp e = exp->exp;
+            // emit the expression
+            if( !emit_engine_emit_exp( emit, e ) )
+                return FALSE;
+            std::vector<Chuck_Type *> types;
 
-        // emit hack
-        emit->append( new Chuck_Instr_Hack( exp->self->type ) );
-        break;
+            while( e != NULL )
+            {
+                types.push_back( e->type );
+                e = e->next;
+            }
+            
+            // emit hack
+            emit->append( new Chuck_Instr_Gack( types ) );
 
+            break;
+        }
     }
     
     return TRUE;

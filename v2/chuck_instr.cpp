@@ -3366,3 +3366,82 @@ const char * Chuck_Instr_Hack::params() const
      sprintf( buffer, "(%s)", m_type_ref->c_name() );
      return buffer;
 }
+
+
+
+
+// gack
+Chuck_Instr_Gack::Chuck_Instr_Gack( const std::vector<Chuck_Type *> & types )
+{
+    m_type_refs = types;
+
+    // add refs
+}
+
+Chuck_Instr_Gack::~Chuck_Instr_Gack()
+{
+    // release refs
+}
+
+void Chuck_Instr_Gack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKBYTE * the_sp = (t_CKBYTE *)shred->reg->sp;
+
+    // loop over types
+    long i;
+
+    // find the start of the expression
+    for( i = 0; i < m_type_refs.size(); i++ )
+    {
+        Chuck_Type * type = m_type_refs[i];
+        the_sp -= type->size;
+    }
+
+    // print
+    for( i = 0; i < m_type_refs.size(); i++ )
+    {
+        Chuck_Type * type = m_type_refs[i];
+
+        // look at the type
+        if( type->size == 4 )
+        {
+            t_CKINT * sp = (t_CKINT *)the_sp;
+            if( !isa( type, &t_string ) )
+            {
+                if( isa( type, &t_object ) )
+                    // print it
+                    fprintf( stderr, "0x%x ", *(sp) );
+                else
+                    // print it
+                    fprintf( stderr, "%d ", *(sp) );
+            }
+            else
+                fprintf( stderr, "\"%s\" ", ((Chuck_String *)*(sp))->str.c_str() );
+
+            the_sp += 4;
+        }
+        else if( type->size == 8 )
+        {
+            t_CKFLOAT * sp = (t_CKFLOAT *)the_sp;
+            // print it
+            fprintf( stderr, "%f ", *(sp) );
+
+            the_sp += 8;
+        }
+        else if( type->size == 0 )
+        {
+            fprintf( stderr, "... " );
+        }
+        else
+            assert( FALSE );
+    }
+
+    fprintf( stderr, "\n" );
+}
+
+const char * Chuck_Instr_Gack::params() const
+{
+    static char buffer[256];
+    sprintf( buffer, "( many types )" );
+    return buffer;
+}

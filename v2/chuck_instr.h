@@ -35,6 +35,7 @@
 
 #include <stdio.h>
 #include "chuck_def.h"
+#include <vector>
 
 
 // forward reference
@@ -2269,6 +2270,25 @@ public:
 
 protected:
     Chuck_Type * m_type_ref;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Gack
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Gack : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Gack( const std::vector<Chuck_Type *> & types );
+    virtual ~Chuck_Instr_Gack();
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const;
+
+protected:
+    std::vector<Chuck_Type *> m_type_refs;
 };
 
 
