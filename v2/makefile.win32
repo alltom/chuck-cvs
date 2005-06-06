@@ -8,22 +8,31 @@ FLAGS=-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ $(INCLUDES) -O3 -c
 LIBS=-ldsound -ldxguid -lwinmm -lstdc++ -lm
 SF_OBJ=util_sndfile.o
 
+ifneq ($(CHUCK_DEBUG),)
+FLAGS+= -g
+endif
+
+ifneq ($(CHUCK_STRICT),)
+FLAGS+= -Wall
+endif
+
 #-----------------------------------------------------------------------------
 # by default, ChucK uses a pre-configured libsndfile...
-# uncomment the next 3 lines to use libsndfile on your system    
+# uncomment the next 3 lines to use libsndfile on your system
 #-----------------------------------------------------------------------------
 #FLAGS+= -D__CK_SNDFILE_NATIVE__
 #LIBS+= -lsndfile
-#SF_OBJ= 
+#SF_OBJ=
 
-OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_type.o chuck_emit.o \
-	chuck_symbol.o chuck_frame.o chuck_errmsg.o chuck_utils.o \
-	chuck_table.o chuck_instr.o chuck_vm.o chuck_oo.o chuck_ugen.o \
-	chuck_dl.o chuck_otf.o chuck_bbq.o digiio_rtaudio.o rtaudio.o \
-	midiio_win32.o ugen_osc.o ugen_xxx.o ugen_filter.o ugen_stk.o \
-	ulib_machine.o ulib_math.o ulib_net.o ulib_std.o util_buffers.o \
-	util_math.o util_network.o util_raw.o util_thread.o util_xforms.o \
-	$(SF_OBJ) chuck_main.o
+OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_errmsg.o chuck_frame.o \
+	chuck_symbol.o chuck_table.o chuck_utils.o chuck_vm.o chuck_instr.o \
+	chuck_type.o chuck_emit.o chuck_dl.o chuck_oo.o chuck_lang.o \
+	chuck_ugen.o chuck_main.o chuck_otf.o chuck_bbq.o digiio_rtaudio.o \
+	midiio_rtmidi.o rtaudio.o rtmidi.o ugen_osc.o ugen_filter.o \
+	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o ulib_opsc.o \
+	util_buffers.o util_math.o util_network.o util_raw.o util_string.o \
+	util_thread.o util_xforms.o util_opsc.o \
+	$(SF_OBJ)
 
 chuck: $(OBJS)
 	$(CC) -o chuck $(OBJS) $(LIBS)
@@ -42,9 +51,6 @@ chuck.yy.o: chuck.yy.c chuck.tab.h chuck_errmsg.h chuck_utils.h
 
 chuck.yy.c: chuck.lex
 	$(LEX) -ochuck.yy.c chuck.lex
-
-chuck_win32.c: chuck.tab.c chuck.tab.h chuck.yy.c
-	cat chuck.tab.c chuck.yy.c > chuck_win32.c; cp chuck.tab.h chuck_win32.h
 
 chuck_absyn.o: chuck_absyn.cpp chuck_absyn.h chuck_utils.h chuck_symbol.h
 	$(CC) $(FLAGS) chuck_absyn.cpp
@@ -79,6 +85,9 @@ chuck_vm.o: chuck_vm.h chuck_vm.cpp chuck_instr.h chuck_oo.h chuck_type.h
 chuck_oo.o: chuck_oo.h chuck_oo.cpp
 	$(CC) $(FLAGS) chuck_oo.cpp
 
+chuck_lang.o: chuck_lang.h chuck_lang.cpp chuck_oo.h
+	$(CC) $(FLAGS) chuck_lang.cpp
+
 chuck_ugen.o: chuck_ugen.cpp chuck_ugen.h chuck_def.h
 	$(CC) $(FLAGS) chuck_ugen.cpp
 
@@ -88,7 +97,7 @@ chuck_dl.o: chuck_dl.h chuck_dl.cpp
 chuck_otf.o: chuck_otf.h chuck_otf.cpp
 	$(CC) $(FLAGS) chuck_otf.cpp
 
-chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_win32.h
+chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_rtmidi.h
 	$(CC) $(FLAGS) chuck_bbq.cpp
 
 chuck_main.o: chuck_main.cpp chuck_absyn.h chuck_type.h chuck_emit.h chuck_vm.h chuck_errmsg.h chuck_utils.h
@@ -97,12 +106,15 @@ chuck_main.o: chuck_main.cpp chuck_absyn.h chuck_type.h chuck_emit.h chuck_vm.h 
 digiio_rtaudio.o: digiio_rtaudio.h digiio_rtaudio.cpp rtaudio.h
 	$(CC) $(FLAGS) digiio_rtaudio.cpp
 
+midiio_rtmidi.o: midiio_rtmidi.h midiio_rtmidi.cpp
+	$(CC) $(FLAGS) midiio_rtmidi.cpp
+
 rtaudio.o: rtaudio.h rtaudio.cpp rterror.h
 	$(CC) $(FLAGS) rtaudio.cpp
 
-midiio_win32.o: midiio_win32.cpp midiio_win32.h
-	$(CC) $(FLAGS) midiio_win32.cpp
-    
+rtmidi.o: rtmidi.h rtmidi.cpp
+	$(CC) $(FLAGS) rtmidi.cpp
+
 ugen_osc.o: ugen_osc.h ugen_osc.cpp
 	$(CC) $(FLAGS) ugen_osc.cpp
 
@@ -127,6 +139,9 @@ ulib_net.o: ulib_net.h ulib_net.cpp
 ulib_std.o: ulib_std.h ulib_std.cpp
 	$(CC) $(FLAGS) ulib_std.cpp
 
+ulib_opsc.o: ulib_opsc.h ulib_opsc.cpp
+	$(CC) $(FLAGS) ulib_opsc.cpp
+
 util_buffers.o: util_buffers.h util_buffers.cpp
 	$(CC) $(FLAGS) util_buffers.cpp
 
@@ -136,8 +151,14 @@ util_math.o: util_math.h util_math.c
 util_network.o: util_network.h util_network.c
 	$(CC) $(FLAGS) util_network.c
 
+util_opsc.o: util_opsc.h util_opsc.cpp
+	$(CC) $(FLAGS) util_opsc.cpp
+
 util_raw.o: util_raw.h util_raw.c
 	$(CC) $(FLAGS) util_raw.c
+
+util_string.o: util_string.h util_string.cpp
+	$(CC) $(FLAGS) util_string.cpp
 
 util_thread.o: util_thread.h util_thread.cpp
 	$(CC) $(FLAGS) util_thread.cpp
@@ -149,4 +170,4 @@ util_sndfile.o: util_sndfile.h util_sndfile.c
 	$(CC) $(FLAGS) util_sndfile.c
 
 clean: 
-	rm -f chuck *~ *.o chuck.output chuck.tab.h chuck.tab.c chuck.yy.c
+	rm -f chuck.exe *~ *.o chuck.output chuck.tab.h chuck.tab.c chuck.yy.c
