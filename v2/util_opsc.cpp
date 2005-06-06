@@ -32,8 +32,34 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Spring 2005
 //-----------------------------------------------------------------------------
-
 #include "util_opsc.h"
+
+//chuck networking code
+#include "util_network.h"
+#include "util_thread.h"
+
+// FROM PLATFORM.H -UDP TRANSMITTER / RECEIVER 
+
+#if defined(__PLATFORM_WIN32__)
+#include <winsock.h>
+#else
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/time.h>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#endif
+
+#if defined(__MACOSX_CORE__)
+#define SOCKET int
+#define SOCKADDR_IN struct sockaddr_in
+#elif !defined(SOCKADDR_IN)
+#define SOCKET int
+#define SOCKADDR_IN struct sockaddr_in
+#endif
 
 // squeeze the whole wad of OSC-Kit code in here. 
 
@@ -870,7 +896,7 @@ static int OSC_WritePadding(char *dest, int i) {
 
 // ACTUAL CODE
 
-
+/*
 //chuck networking code
 #include "util_network.h"
 #include "util_thread.h"
@@ -894,7 +920,7 @@ static int OSC_WritePadding(char *dest, int i) {
 #define SOCKET int
 #define SOCKADDR_IN struct sockaddr_in
 #endif
-
+*/
 #include "stdarg.h"
 
 enum udp_stat { UDP_NOINIT, UDP_UNBOUND, UDP_BOUND, UDP_READY, UDP_ERROR, UDP_NUM };

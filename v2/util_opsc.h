@@ -31,8 +31,6 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Spring 2005
 //-----------------------------------------------------------------------------
-
-
 #ifndef _OSC_H_INCLUDED_
 #define _OSC_H_INCLUDED_
 
@@ -43,7 +41,7 @@
 // the included files were from the CNMAT OSC-Kit distrib. 
 
 #ifdef __PLATFORM_WIN32__
-#include <Winsock2.h>
+#include <winsock2.h>
 #endif
 
 //#include "OSC-pattern-match.h"
