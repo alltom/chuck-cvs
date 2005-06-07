@@ -1,0 +1,196 @@
+\chapter{Standard Libraries API}
+
+ChucK Standard Libraries API 
+these libraries are provide by default with ChucK - new ones can also be 
+imported with ChucK dynamic linking (soon to be documented...). 
+The existing libraries are organized by namespaces in ChucK. 
+They are as follows. 
+
+
+\chucknamespace{std}
+
+the standard library in ChucK. \\
+\example
+
+\begin{verbatim}
+        std.rand2f( 100.0, 1000.0 ) => stdout;
+\end{verbatim}
+
+\chuckfunction{ float abs ( float value );}
+
+
+\chuckfunction{ int rand ( );}
+
+
+\chuckfunction{ int rand2 ( int min, int max );}
+
+
+\chuckfunction{ float randf ( );}
+
+
+\chuckfunction{ float rand2f ( float min, float max );}
+
+
+\chuckfunction{ float sgn ( float value );}
+
+
+\chuckfunction{ int system ( string cmd );}
+
+
+\chuckfunction{ int atoi ( string value );}
+
+
+\chuckfunction{ float atof ( string value );}
+
+
+\chuckfunction{ string getenv ( string value );}
+
+
+\chuckfunction{ int setenv ( string key, string value );}
+
+
+\chuckfunction{ float mtof ( float value );}
+
+
+\chuckfunction{ float ftom ( float value );}
+
+
+\chuckfunction{ float powtodb ( float value );}
+
+
+\chuckfunction{ float rmstodb ( float value );}
+
+
+\chuckfunction{ float dbtopow ( float value );}
+
+
+\chuckfunction{ float dbtorms ( float value );}
+
+
+\chucknamespace{ machine }
+
+ChucK runtime interface to the virtual machine. this interface can be used to manage shreds. 
+They are similar to the On-the-fly Programming Commands, except these are invoked from 
+within a ChucK program, and are accessible to the timing mechanism. 
+
+\chuckmultifunction{ int add ( string path );}{
+compile and spork a new shred from file at 'path' into the VM now\\
+returns the shred ID\\
+(see example/machine.ck)
+}
+
+\chuckmultifunction{ int spork ( string path );}{
+same as add
+}
+
+\chuckmultifunction{ int remove ( int id );}{
+
+remove shred from VM by shred ID (returned by add/spork)
+}
+
+\chuckmultifunction{ int replace ( int id, string path );}{
+replace shred with new shred from file\\
+returns shred ID , or 0 on error
+}
+
+\chuckmultifunction{ int status ( );}{
+display current status of VM\\
+(see example/status.ck)
+}
+
+\chucknamespace{ math }
+
+standard math functions 
+
+
+\example
+
+\begin{verbatim}
+        math.sin( math.pi /2.0 ) => stdout;
+\end{verbatim}
+
+\chuckfunction{ float sin ( float x );}
+
+
+\chuckfunction{ float cos ( float x );}
+
+
+\chuckfunction{ float tan ( float x );}
+
+
+\chuckfunction{ float asin ( float x );}
+
+
+\chuckfunction{ float acos ( float x );}
+
+
+\chuckfunction{ float atan ( float x );}
+
+
+\chuckfunction{ float atan2 ( float x );}
+
+
+\chuckfunction{ float sinh ( float x );}
+
+
+\chuckfunction{ float cosh ( float x );}
+
+
+\chuckfunction{ float tanh ( float x );}
+
+
+\chuckfunction{ float hypot ( float x, float y );}
+
+
+\chuckfunction{ float pow ( float x, float y );}
+
+
+\chuckfunction{ float sqrt ( float x );}
+
+
+\chuckfunction{ float exp ( float x );}
+
+
+\chuckfunction{ float log ( float x );}
+
+
+\chuckfunction{ float log2 ( float x );}
+
+
+\chuckfunction{ float log10 ( float x );}
+
+
+\chuckfunction{ float floor ( float x );}
+
+
+\chuckfunction{ float ceil ( float x );}
+
+
+\chuckfunction{ float round ( float x );}
+
+
+\chuckfunction{ float trunc ( float x );}
+
+
+\chuckfunction{ float fmod ( float x, float y );}
+
+
+\chuckfunction{ float remainder ( float x, float y );}
+
+
+\chuckfunction{ float min ( float x, float y );}
+
+
+\chuckfunction{ float max ( float x, float y );}
+
+
+\chuckfunction{ int nextpow2 ( int n );}
+
+
+\chuckfunction{ float pi ( );}
+
+
+\chuckfunction{ float twopi ( );}
+
+
+\chuckfunction{ float e ( );}

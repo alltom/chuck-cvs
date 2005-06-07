@@ -1,0 +1,1162 @@
+\chapter{Unit Generators}
+
+Unit generators (ugens) can be connected using the ChucK operator (~\chuckop)
+
+\example
+\begin{verbatim}
+        adc => dac;
+\end{verbatim}
+
+the above connects the ugen `adc' (a/d convertor, or audio input) to `dac'  
+(d/a convertor, or audio output).
+
+Ugens can also unlinked (using =\textless) and relinked (see examples/unchuck.ck). 
+
+A unit generator may have 0 or more control parameters.  
+A Ugen's parameters can be set also using the ChucK operator (\chuckop, or -\textgreater) 
+
+\example
+
+\begin{verbatim}
+        //connect sine oscillator to dac
+        sinosc osc => dac;
+        // set the osc's frequency to 60.0 hz
+        60.0 => osc.freq;
+\end{verbatim}
+  (see examples/osc.ck)
+
+\newpage
+
+All ugen's have at least the following three parameters:
+
+\control
+\begin{chuckitemize}
+\item {\bf .gain} - (float, READ/WRITE) - {\it set gain} 
+\item {\bf .op} - (int, READ/WRITE) - {\it set operation type }
+  \begin{chuckitemize}
+    \item -1 passthrough 
+    \item 0 no processing 
+    \item 1 normal processing
+  \end{chuckitemize}
+\item {\bf .last} - (float, READ/WRITE) - {\it the last sample computed by the unit generator}
+\end{chuckitemize}
+
+
+\newpage
+%\bigugenheading{Standard Ugens}
+\ugenheading{audio output}
+
+\chuckugen{
+\ugen{ dac}
+\begin{chuckitemize}
+\item digital/analog converter 
+\item abstraction for underlying audio output device 
+\end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{ adc}
+\begin{chuckitemize}
+\item analog/digital converter 
+\item abstraction for underlying audio input device 
+\end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{ blackhole}
+\begin{chuckitemize}
+\item sample rate sample sucker
+\item ( like dac, ticks ugens, but no more ) 
+\item see examples/pwm.ck 
+\end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{ gain}
+\begin{chuckitemize}
+\item gain control 
+\item (NOTE - all unit generators can themselves change their gain) 
+\item (this is a way to add N outputs together and scale them) 
+\item used in examples/i-robot.ck 
+\end{chuckitemize}
+
+\control
+\begin{chuckitemize}
+\item {\bf .gain} - (float, READ/WRITE) - {\it set gain} ( all ugen's have this)
+\item {\bf .op} - (int, READ/WRITE) - {\it set operation type}
+  \begin{chuckitemize}
+    \item -1 passthrough 
+    \item 0 no processing 
+    \item 1 adds inputs 
+    \item 2 subtracts inputs 
+    \item 3 multiplies inputs (default)
+    \item  4 divides inputs
+  \end{chuckitemize}
+\end{chuckitemize}
+\example
+\verbatiminput{examples/gain_example.ck}
+}
+
+\ugenheading{wave forms}
+
+\chuckugen{
+\ugen{ noise}
+\begin{chuckitemize}
+\item white noise generator
+\item see examples/noise.ck examples/powerup.ck
+\end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{ impulse}
+\begin{chuckitemize}
+\item pulse generator - can set the value of the current sample
+\item default for each sample is 0 if not set
+\end{chuckitemize}
+
+\control
+\begin{chuckitemize}
+\item {\bf .value} - (float, READ/WRITE) - {\it set the current value}
+\item {\bf .next} - (float, READ/WRITE) - {\it set value of next sample}
+\end{chuckitemize}
+\example
+\chuckexample{\verbatiminput{examples/impulse_example.ck}}
+}
+
+\chuckugen{
+\ugen{ step}
+\begin{chuckitemize}
+\item step generator - like impulse, but once a value is set, it is held for all following samples, until value is set again 
+\item see examples/step.ck 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .value} - (float, READ/WRITE) - {\it set the current value}
+\item {\bf .next} - (float, READ/WRITE) - {\it set the step value}
+\end{chuckitemize}
+\example
+\chuckexample{\verbatiminput{examples/step_example.ck}}
+
+}
+
+\ugenheading{filters}
+
+\chuckugen{
+\ugen{ halfrect}
+\begin{chuckitemize}
+\item half wave rectifier 
+\item for half-wave rectification 
+\end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{ fullrect}
+\begin{chuckitemize}
+\item full wave rectifier 
+\end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{ zerox}
+\begin{chuckitemize}
+\item zero crossing detector 
+\item emits a single pulse at the the zero crossing in the direction of the zero crossing
+\item (see examples/zerox.ck) 
+\end{chuckitemize}
+}
+
+\ugenheading{delays}
+
+\chuckugen{
+\ugen{ delayp}
+\begin{chuckitemize}
+\item variable write delay
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .delay} - (dur, READ/WRITE) - {\it delay before subsequent values emerge }
+\item {\bf .window} - (dur, READ/WRITE) - {\it time for 'write head' to move}
+\item {\bf .max} - (dur, READ/WRITE) - {\it max delay possible. trashes buffer, so do it first!}
+\end{chuckitemize}
+}
+
+\ugenheading{sound files}
+
+\chuckugen{
+\ugen{ sndbuf}
+\begin{chuckitemize}
+\item sound buffer ( now interpolating ) 
+\item reads from a variety of file formats 
+\item see examples/sndbuf.ck 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .read} - (string, WRITE only) - {\it loads file for reading}
+\item {\bf .write} - (string, WRITE only) - {\it loads a file for writing (or not)}
+\item {\bf .pos} - (int, READ/WRITE) - {\it set position (0 \textless p \textless .samples)}
+\item {\bf .loop} - (int, READ/WRITE) - {\it toggle looping }
+\item {\bf .interp} - (int, READ/WRITE) - {\it set interpolation (0=drop, 1=linear, 2=sinc)}
+\item {\bf .rate} - (float, READ/WRITE) - {\it playback rate (relative to the file's natural speed)}
+\item {\bf .play} - (float, READ/WRITE) - {\it play (same as rate) }
+\item {\bf .freq} - (float, READ/WRITE) - {\it playback rate (file loops/second)}
+\item {\bf .phase} - (float, READ/WRITE) - {\it set phase position (0-1)}
+\item {\bf .channel} - (int, READ/WRITE) - {\it select channel (0 \textless x \textless .channels) }
+\item {\bf .phase\underline{ }offset} - (float, READ/WRITE) - {\it set a phase offset}
+\item {\bf .samples} - (int, READ only) - {\it fetch number of samples}
+\item {\bf .length} - (float, READ only) - {\it fetch length in seconds}
+\item {\bf .channels} - (int, READ only) - {\it fetch number of channels}
+\end{chuckitemize}
+}
+
+\ugenheading{oscillators}
+
+
+\chuckugen{ 
+\ugen{ phasor}
+\begin{chuckitemize}
+\item simple ramp generator ( 0 to 1 ) 
+\item this can be fed into other oscillators ( with sync mode of 2 ) 
+\item as a phase control. see examples/sixty.ck for an example 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
+\item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
+\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
+\item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
+\item {\bf .sync}  (int, READ/WRITE)  {\it sync to global (1) or self (0)}
+\item {\bf .width}  (float, READ/WRITE)  {\it set duration of the ramp in each cycle. (default 1.0)}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ sinosc}
+\begin{chuckitemize}
+\item sine oscillator  
+\item (see examples/osc.ck)  
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
+\item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
+\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
+\item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it sync to self (0), global(1), input(2)}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ pulseosc}
+\begin{chuckitemize}
+\item pulse oscillators 
+\item a pulse wave oscillator with variable width. 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
+\item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
+\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
+\item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it sync to self (0), global(1), input(2)}
+\item {\bf .width}  (float, READ/WRITE)  {\it length of duty cycle (0 - 1)}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ sqrosc}
+\begin{chuckitemize}
+\item square wave oscillator ( pulse with fixed width of 0.5 ) 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
+\item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
+\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
+\item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
+\item {\bf .sync}  (int, READ/WRITE)  {\it sync to self (0), global(1), input(2)}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ triosc}
+\begin{chuckitemize}
+\item triangle wave oscillator 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
+\item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
+\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
+\item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it sync to self (0), global(1), input(2)}
+\item {\bf .width}  (float, READ/WRITE)  {\it control midpoint of triangle (0 - 1)}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ sawosc}
+\begin{chuckitemize}
+\item sawtooth wave oscillator ( triangle, width forced to 0.0 or 1.0 ) 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
+\item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
+\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
+\item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it sync to self (0), global(1), input(2)}
+\item {\bf .width}  (float, READ/WRITE)  {\it increasing ( w \textgreater 0.5 ) or decreasing ( w \textless 0.5 ) }
+\end{chuckitemize}
+}
+
+\ugenheading{network}
+
+\chuckugen{ 
+\ugen{ netout}
+\begin{chuckitemize}
+\item UDP-based network audio transmitter 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .addr} (string, READ/WRITE) {\it target address}
+\item {\bf .port} (int, READ/WRITE) {\it target port}
+\item {\bf .size} (int, READ/WRITE) {\it packet size} 
+\item {\bf .name} (string, READ/WRITE) {\it name}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ netin}
+\begin{chuckitemize}
+\item UDP-based network audio receiver 
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .port} (int, READ/WRITE) {\it set port to receive}
+\item {\bf .name} (string, READ/WRITE) {\it name}
+\end{chuckitemize}
+}
+
+\newpage
+%\bigugenheading{STK}
+\ugenheading{STK - Instruments}
+
+
+\chuckugen{ 
+\ugen{ BandedWG}
+\begin{chuckitemize}
+\item Banded waveguide modeling class
+\verbatiminput{examples/ugen/BandedWG.txt}
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .pluck} (float, READ/WRITE) {\it pluck waveguide}
+\item {\bf .startBowing} (float, READ/WRITE) {\it pluck waveguide}
+\item {\bf .stopBowing} (float, READ/WRITE) {\it pluck waveguide}
+\item {\bf .freq} (float, READ/WRITE) {\it strike Position}
+\item {\bf .bowRate} (float, READ/WRITE) {\it strike Position}
+\item {\bf .bowPressure} (float, READ/WRITE) {\it strike Position}
+\item {\bf .preset} (int, READ/WRITE) {\it strike Position}
+\item {\bf .strikePosition} (float, READ/WRITE) {\it strike Position}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ BlowBotl}
+\begin{chuckitemize}
+\item STK blown bottle instrument class
+\end{chuckitemize}
+\verbatiminput{examples/ugen/BlowBotl.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .rate} (float, READ/WRITE) {\it frequency}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ BlowHole}
+\begin{chuckitemize}
+\item STK clarinet physical model with one register hole and one tonehole. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/BlowHole.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .vent} (float, READ/WRITE) {\it vent frequency}
+\item {\bf .tonehole} (float, READ/WRITE) {\it tonehole size}
+\item {\bf .reed} (float, READ/WRITE) {\it reed stiffness}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\end{chuckitemize}
+
+}
+
+
+\chuckugen{ 
+\ugen{ Bowed}
+\begin{chuckitemize}
+\item STK bowed string instrument class.     
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Bowed.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .startBowing} (float, READ/WRITE) {\it begin bowing instrument}
+\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing instrument}
+\item {\bf .freq} (float, READ/WRITE) 
+\item {\bf .rate} (float, READ/WRITE) 
+\item {\bf .vibrato} (float, READ/WRITE) 
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Brass}
+\begin{chuckitemize}
+\item STK simple brass instrument class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Brass.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\item {\bf .lip} (float, READ/WRITE) {\it lip stiffness}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Clarinet}
+\begin{chuckitemize}
+\item STK clarinet physical model class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Clarinet.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Flute}
+\begin{chuckitemize}
+\item STK flute physical model class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Flute.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOn}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\item {\bf .jetReflection} (float, READ/WRITE) {\it rate of change}
+\item {\bf .jetDelay} (float, READ/WRITE) {\it rate of change}
+\item {\bf .endReflection} (float, READ/WRITE) {\it rate of change}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Mandolin}
+\begin{chuckitemize}
+\item STK mandolin instrument model class. 
+\item see examples/mand-o-matic.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Mandolin.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .pluck} (float, WRITE only) {\it pluck string with given amplitude}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .pluckPos} (float, READ/WRITE) {\it set pluck position (0--1) along string}
+\item {\bf .bodySize} (float, READ/WRITE) {\it modify instrument size}
+\item {\bf .stringDamping} (float, READ/WRITE) {\it control string damping}
+\item {\bf .stringDetune} (float, READ/WRITE) {\it control detuning of string pair}
+\item {\bf .aftertouch} (float, READ/WRITE) {\it aftertouch}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ ModalBar}
+\begin{chuckitemize}
+\item STK resonant bar instrument class. 
+\item see examples/modalbot.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/ModalBar.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .strike} (float, READ/WRITE) {\it strike bar}
+\item {\bf .damp} (float, READ/WRITE) {\it damp bar}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .clear} (float, READ/WRITE) {\it reset}
+\item {\bf .preset} (float, READ/WRITE) {\it choose preset}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .strikePosition} (float, READ/WRITE) {\it set frequency}
+\item {\bf .stickHardness} (float, READ/WRITE) {\it set frequency}
+\item {\bf .masterGain} (float, READ/WRITE) {\it set frequency}
+\item {\bf .directGain} (float, READ/WRITE) {\it set frequency}
+\item {\bf .mode} (int, READ/WRITE) {\it choose mode}
+\item {\bf .modeRatio} (float, READ/WRITE) {\it  mode edit}
+\item {\bf .modeRadius} (float, READ/WRITE) {\it mode edit}
+\item {\bf .modeGain} (float, READ/WRITE) {\it  mode edit}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Moog}
+\begin{chuckitemize}
+\item STK moog-like swept filter sampling synthesis class
+\item see examples/moogie.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Moog.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .modSpeed} (float, READ/WRITE) {\it modulation speed}
+\item {\bf .modDepth} (float, READ/WRITE) {\it modulation depth}
+\item {\bf .filterQ} (float, READ/WRITE) {\it filter Q value}
+\item {\bf .filterSweepRate} (float, READ/WRITE) {\it filter sweep rate}
+\item {\bf .aftertouch} (float, WRITE only) {\it aftertouch}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Saxofony}
+\begin{chuckitemize}
+\item STK faux conical bore reed instrument class.
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Saxofony.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .noteOff} (float, WRITE only) {\it noteOff}
+\item {\bf .clear} (float, WRITE only) {\it clear instrument}
+\item {\bf .startBlowing} (float, WRITE only) {\it noteOn}
+\item {\bf .stopBlowing} (float, WRITE only) {\it noteOff}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\item {\bf .blowPosition} (float, READ/WRITE) {\it lip stiffness}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Shakers}
+\begin{chuckitemize}
+\item PhISEM and PhOLIES class. 
+\item see examples/shake-o-matic.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Shakers.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .noteOn} (float, READ/WRITE) {\it start shake with a given amplitude}
+\item {\bf .noteOff} (float, READ/WRITE) {\it stop shake}
+\item {\bf .which} (int, READ/WRITE) {\it select instrument}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Sitar}
+\begin{chuckitemize}
+\item STK sitar string model class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Sitar.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .pluck} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ StifKarp}
+\begin{chuckitemize}
+\item STK plucked stiff string instrument. 
+\item see examples/stifkarp.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/StifKarp.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .pluck} (float, WRITE only) {\it noteOn}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .noteOff} (float, WRITE only) {\it noteOff}
+\item {\bf .clear} (float, WRITE only) {\it clear instrument}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .pickupPosition} (float, READ/WRITE) 
+\item {\bf .stretch} (float, READ/WRITE) 
+\item {\bf .baseLoopGain} (float, READ/WRITE) 
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ VoicForm}
+\begin{chuckitemize}
+\item Four formant synthesis instrument. 
+\item see examples/voic-o-form.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/VoicForm.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .phoneme} (string, READ/WRITE) {\it select phoneme ( above )}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .speak} (float, READ/WRITE) {\it start singing}
+\item {\bf .quiet} (float, READ/WRITE) {\it stop singing}
+\item {\bf .voiced} (float, READ/WRITE) {\it set mix for voiced component}
+\item {\bf .unVoiced} (float, READ/WRITE) {\it set mix for unvoiced componenet}
+\item {\bf .pitchSweepRate} (float, READ/WRITE) {\it pitch sweep}
+\item {\bf .voiceMix} (float, READ/WRITE) {\it voiced/unvoiced mix}
+\item {\bf .setPhoneme} (int, READ/WRITE) {\it set phoneme by number}
+\item {\bf .vibratoFreq} (float, READ/WRITE) {\it vibrato}
+\item {\bf .vibratoGain} (float, READ/WRITE) {\it vibrato depth}
+\item {\bf .loudness} (float, READ/WRITE) {\it 'loudness' of voice}
+\end{chuckitemize}
+}
+
+\ugenheading{STK - FM Synths}
+
+
+\chuckugen{ 
+\ugen{ FM \label{ugen_FM}}
+\begin{chuckitemize}
+\item STK abstract FM synthesis base class
+\end{chuckitemize}
+\verbatiminput{examples/ugen/FM.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
+\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
+\item {\bf .modDepth} (float, READ/WRITE) {\it modulation depth}
+\item {\bf .modSpeed} (float, READ/WRITE) {\it modulation speed}
+\item {\bf .afterTouch} (float, READ/WRITE) {\it aftertouch}
+\item {\bf .control1} (float, READ/WRITE) {\it FM control 1}
+\item {\bf .control2} (float, READ/WRITE) {\it FM control 2}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ BeeThree}
+\begin{chuckitemize}
+\item STK Hammond-oid organ FM synthesis instrument. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/BeeThree.txt}
+extends \hypertarget{ugen_FM}{FM}
+
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ FMVoices}
+\begin{chuckitemize}
+\item STK singing FM synthesis instrument. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/FMVoices.txt}
+extends \hypertarget{ugen_FM}{FM}
+
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .vowel} (float, WRITE only) {\it select vowel}
+\item {\bf .spectralTilt} (float, WRITE only) {\it spectral tilt}
+\item {\bf .lfoSpeed} (float, WRITE only) {\it speed of LFO}
+\item {\bf .lfoDepth} (float,WRITE only) {\it depth of LFO}
+\item {\bf .adsrTarget} (float, WRITE only) {\it adsr targets}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ HevyMetl}
+\begin{chuckitemize}
+\item STK heavy metal FM synthesis instrument. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/HevyMetl.txt}
+extends \hypertarget{ugen_FM}{FM}
+
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ PercFlut}
+\begin{chuckitemize}
+\item STK percussive flute FM synthesis instrument. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/PercFlut.txt}
+extends \hypertarget{ugen_FM}{FM}
+
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Rhodey}
+\begin{chuckitemize}
+\item STK Fender Rhodes-like electric piano FM 
+\item see examples/rhodey.ck
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Rhodey.txt}
+extends \hypertarget{ugen_FM}{FM}
+ 
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ TubeBell}
+\begin{chuckitemize}
+\item STK tubular bell (orchestral chime) FM 
+\item extends \hypertarget{ugen_FM}{FM}
+\end{chuckitemize}
+\verbatiminput{examples/ugen/TubeBell.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ Wurley}
+\begin{chuckitemize}
+\item STK Wurlitzer electric piano FM 
+\item see examples/wurley.ck extends 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Wurley.txt}
+extends \hypertarget{ugen_FM}{FM}
+
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\end{chuckitemize}
+}
+
+\ugenheading{STK - Delay}
+
+\chuckugen{ 
+\ugen{ Delay}
+\begin{chuckitemize}
+\item STK non-interpolating delay line class
+\item see examples/net\_relay.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Delay.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .delay} (float, READ/WRITE) {\it length of delay}
+\item {\bf .max} (float, READ/WRITE) {\it max delay (buffer size)}
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ DelayA}
+\begin{chuckitemize}
+\item STK allpass interpolating delay line class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/DelayA.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .delay} (float, READ/WRITE) {\it length of delay}
+\item {\bf .max} (float, READ/WRITE) {\it max delay (buffer size)}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ DelayL}
+\begin{chuckitemize}
+\item STK linear interpolating delay line class. 
+\item see examples/i-robot.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/DelayL.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .delay} (float, READ/WRITE) {\it length of delay}
+\item {\bf .max} (float, READ/WRITE) {\it max delay (buffer size)}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Echo}
+\begin{chuckitemize}
+\item STK echo effect class.
+\end{chuckitemize} 
+\verbatiminput{examples/ugen/Echo.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .delay} (float, READ/WRITE) {\it length of echo}
+\item {\bf .max} (float, READ/WRITE) {\it max delay}
+\item {\bf .mix} (float, READ/WRITE) {\it mix level (wet/dry)}
+\end{chuckitemize}
+}
+
+
+\ugenheading{STK - Envelopes}
+
+\chuckugen{ 
+\ugen{ Envelope}
+\begin{chuckitemize}
+\item STK envelope base class. 
+\item see examples/sixty.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Envelope.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .keyOn} (int, WRITE only) {\it ramp to 1.0}
+\item {\bf .keyOff} (int, WRITE only) {\it ramp to 0.0}
+\item {\bf .target} (float, READ/WRITE) {\it ramp to arbitrary value}
+\item {\bf .time} (float, READ/WRITE) {\it time to reach target}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\item {\bf .value} (float, READ/WRITE) {\it set immediate value}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ ADSR}
+\begin{chuckitemize}
+\item STK ADSR envelope class. 
+\item see examples/adsr.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/ADSR.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .keyOn} (int, WRITE only) {\it start the attack for non-zero values}
+\item {\bf .keyOff} (int, WRITE only) {\it start the release for non-zero values}
+\item {\bf .attackTime} (float, WRITE only) {\it attack time}
+\item {\bf .attackRate} (float, READ/WRITE) {\it attack rate}
+\item {\bf .decayTime} (float, READ/WRITE) {\it decay}
+\item {\bf .decayRate} (float, READ/WRITE) {\it decay rate}
+\item {\bf .sustainLevel} (float, READ/WRITE) {\it sustain level}
+\item {\bf .releaseTime} (float, READ/WRITE) {\it release time}
+\item {\bf .releaseRate} (float, READ/WRITE) {\it release rate}
+\item {\bf .state} (int, READ only) {\it attack=0, decay=1, sustain=2, release=3,done=4}
+\end{chuckitemize}
+}
+
+\ugenheading{STK - Filters}
+
+\chuckugen{ 
+\ugen{ BiQuad}
+\begin{chuckitemize}
+\item STK biquad (two-pole, two-zero) filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/BiQuad.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .b2} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a2} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a0} (float, READ only) {\it filter coefficient}
+
+\item {\bf .pfreq} (float, WRITE only) {\it set resonance frequency (poles)}
+\item {\bf .prad} (float, WRITE only) {\it pole radius (less than 1 to be stable)}
+\item {\bf .zfreq} (float, WRITE only) {\it notch frequency}
+\item {\bf .zrad} (float, WRITE only) {\it zero radius}
+\item {\bf .norm} (float, WRITE only) {\it normalization}
+\item {\bf .eqzs} (float, WRITE only) {\it equal gain zeroes}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Filter}
+\begin{chuckitemize}
+\item STK filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .coefs} (string, WRITE only) 
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ OnePole}
+\begin{chuckitemize}
+\item STK one-pole filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/OnePole.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .pole} (float, READ/WRITE) {\it set pole position along real axis of z-plane}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ TwoPole}
+\begin{chuckitemize}
+\item STK two-pole filter class. 
+\item see examples/powerup.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/TwoPole.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a2} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it  filter coefficient}
+\item {\bf .freq} (float, READ/WRITE) {\it filter resonance frequency}
+\item {\bf .radius} (float, READ/WRITE) {\it filter resonance radius}
+\item {\bf .norm} (float, READ/WRITE) {\it toggle filter normalization}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ OneZero}
+\begin{chuckitemize}
+\item STK one-zero filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/OneZero.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .zero} (float, READ/WRITE) {\it  set zero position}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ TwoZero}
+\begin{chuckitemize}
+\item STK two-zero filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/TwoZero.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b2} (float, READ/WRITE) {\it  filter coefficient}
+\item {\bf .freq} (float, READ/WRITE) {\it filter notch frequency}
+\item {\bf .radius} (float, READ/WRITE) {\it filter notch radius}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ PoleZero}
+\begin{chuckitemize}
+\item STK one-pole, one-zero filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/PoleZero.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it  filter coefficient}
+\item {\bf .blockZero} (float, READ/WRITE) {\it DC blocking filter with given pole position}
+\item {\bf .allpass} (float, READ/WRITE) {\it allpass filter with given coefficient}
+\end{chuckitemize}
+}
+
+\ugenheading{STK - Reverbs}
+
+\chuckugen{ 
+\ugen{ JCRev}
+\begin{chuckitemize}
+\item John Chowning's reverberator class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/JCRev.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .mix} (float, READ/WRITE) {\it mix level}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ NRev}
+\begin{chuckitemize}
+\item CCRMA's NRev reverberator class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/NRev.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .mix} (float, READ/WRITE) {\it mix level}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ PRCRev}
+\begin{chuckitemize}
+\item Perry's simple reverberator class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/PRCRev.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .mix} (float, READ/WRITE) {\it mix level}
+\end{chuckitemize}
+}
+
+\ugenheading{STK - Components}
+
+\chuckugen{ 
+\ugen{ Chorus}
+\begin{chuckitemize}
+\item STK chorus effect class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Chorus.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .modFreq} (float, READ/WRITE) {\it modulation frequency}
+\item {\bf .modDepth} (float, READ/WRITE) {\it modulation depth}
+\item {\bf .mix} (float, READ/WRITE) {\it effect mix}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Modulate}
+\begin{chuckitemize}
+\item STK periodic/random modulator. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Modulate.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .vibratoRate} (float, READ/WRITE) {\it set rate of vibrato}
+\item {\bf .vibratoGain} (float, READ/WRITE) {\it gain for vibrato}
+\item {\bf .randomGain} (float, READ/WRITE) {\it gain for random contribution}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ PitShift}
+\begin{chuckitemize}
+\item STK simple pitch shifter effect class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/PitShift.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .shift} (float, READ/WRITE) {\it degree of pitch shifting}
+\item {\bf .effectMix} (float, READ/WRITE) {\it mix level}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ SubNoise}
+\begin{chuckitemize}
+\item STK sub-sampled noise generator. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/SubNoise.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .rate} (int, READ/WRITE) {\it subsampling rate}
+\end{chuckitemize}
+}
+
+\ugenheading{STK - File I/O}
+
+\chuckugen{ 
+\ugen{ WvIn}
+\begin{chuckitemize}
+\item STK audio data input base class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/WvIn.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .rate} (float, READ/WRITE) {\it playback rate}
+\item {\bf .path} (string, READ/WRITE) {\it specifies file to be played}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ WaveLoop}
+\begin{chuckitemize}
+\item STK waveform oscillator class. 
+\item see examples/dope.ck
+\end{chuckitemize} 
+\verbatiminput{examples/ugen/WaveLoop.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it frequency of playback (loops/second)}
+\item {\bf .addPhase} (float, READ/WRITE) {\it offset by phase}
+\item {\bf .addPhaseOffset} (float, READ/WRITE) {\it set phase offset}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ WvOut}
+\begin{chuckitemize}
+\item STK audio data output base class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/WvOut.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .matFilename} (string, WRITE only) {\it open a matlab file for writing}
+\item {\bf .sndFilename} (string, WRITE only) {\it open snd file for writing}
+\item {\bf .wavFilename} (string, WRITE only) {\it open WAVE file for writing}
+\item {\bf .rawFilename} (string, WRITE only) {\it open raw file for writing}
+\item {\bf .aifFilename} (string, WRITE only) {\it open AIFF file for writing}
+\item {\bf .closeFile} (string, WRITE only) {\it close file properly}
+\end{chuckitemize}
+}

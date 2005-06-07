@@ -1,0 +1,51 @@
+\chapter{Objects}
+
+ChucK's object class system is very similar to Java. Objects can contain member data and member functions. ChucK allows you to create a class and to extend existing classes. 
+
+To declare a class you use the reserved work {\it class} followed by the name of the class you are going to create. 
+
+
+\begin{verbatim}
+class MyClass
+{
+    // member data
+    int myvalue;
+
+
+    // member function
+    fun int get()
+    {
+        return m_value;
+    }
+}
+
+\end{verbatim}
+
+Instantiating a class is done similar to Java. First we give the name of the class and then the name of the instance you wish to create. 
+
+\begin{verbatim}
+MyClass myinstance;
+\end{verbatim}
+
+We can now access the methods of {\it myinstance} the same way we access the methods of ugens. 
+
+
+\begin{verbatim}
+myinstance.get() => int somevariable;
+\end{verbatim}
+
+
+
+\begin{verbatim}
+class MyChild extend MyClass
+{
+    fun int get( int mul )
+    {
+        return m_value * mul;
+    }
+}
+
+\end{verbatim}
+
+
+Doing useful things with objects

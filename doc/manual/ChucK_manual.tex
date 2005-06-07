@@ -1,0 +1,84 @@
+\documentclass[11pt]{report}
+\usepackage{styles/chuck_manual}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%% TITLE PAGE
+% this is a little too hacky..... but it works
+\thispagestyle{coverplain}
+\vskip 6in
+{\huge
+
+\makebox[\textwidth][s]{{\underline{T} h e \underline{C} h u c K \underline{M} a n u a l}}
+
+}
+
+\vskip 2in
+\begin{center}
+  \includegraphics[height=4in]{images/chuck_logo2.jpg}
+
+  \vskip 1in
+
+  \Large{\href{http://chuck.cs.princeton.edu/}{http://chuck.cs.princeton.edu/}}
+\end{center}
+
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%  OPENING MATTER
+%\colorbox{lightgray}{\parbox{\textwidth}{here is may text which goes over many lines}}
+
+%this needs to be fixed and added into the real deal
+%\pagestyle{openingmatter}
+\pagenumbering{roman}
+
+\include{chapters/authors}
+
+\include{chapters/chuck_places}
+
+\tableofcontents
+\clearpage
+
+%%%%%%%%%%%%%%%%%%%%  MAIN MATTER
+\pagestyle{fancy}
+\pagenumbering{arabic}
+
+\part*{Getting Started}
+
+\include{chapters/chuck_intro}
+
+\include{chapters/chuck_install}
+
+%%% tutorials
+
+\include{chapters/chuck_tutorial}
+
+\include{chapters/chuck_writing}
+
+\include{chapters/chuck_time}
+
+
+%%%%%% TO BE WRITTEN
+%\include{chapter1/terminal_tips}
+%include{chapter1/chuck_midi}
+
+%%%%%%%% Reference
+
+\part*{Reference}
+
+\include{chapters/chuck_virtualmachine}
+
+\include{chapters/chuck_onthefly}
+
+\include{chapters/chuck_reserved}
+
+\include{chapters/chuck_objects}
+
+\include{chapters/chuck_stdlib}
+
+\include{chapters/chuck_ugen}
+
+
+%%%%%%%AUDICLE
+%\include{chapter_audicle/audicle_intro}
+
+\end{document} 

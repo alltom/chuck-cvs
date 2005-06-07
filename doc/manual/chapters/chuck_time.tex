@@ -1,0 +1,57 @@
+\chapter{Time and Timing}
+
+ChucK is a strong timed language. That means that you are guaranteed precise control over time and timing in the language. 
+
+time of a shred
+
+
+\section{Durations and Times}
+
+
+\section{now}
+
+{\it now} is a special word in ChucK that indicates the number of samples that have passed since the ChucK virtual machine was started as well as the general manager of time in ChucK.
+
+\begin{verbatim}
+1::second => now;
+\end{verbatim}
+
+This can be confusing at first. Although ChucK is a powerful language, even it is still limited by the laws physics. In this case ChucK does not actually warp you in time by one second, rather ChucK will wait for one second before proceeding in the shred. 
+
+Since any value of time can be ChucKed to now at any point in code you are free to manage your own your own control rates. In the next example the frequency of a sinewave is changed once per second. 
+
+\begin{verbatim}
+        sinosc sinewave => dac;
+        while(true){
+            // change the frequency of the sinewave
+            std.rand2f(0. , 5000.) => sinewave.freq;
+            // advance time by one second
+            1::second => now;
+        }
+\end{verbatim}
+
+We may also use this process in order to poll for input and use the input to change the parameters of our sinewave.
+
+\begin{verbatim}
+        sinosc sinewave => dac;
+        MidiMsg msg;
+        while(true){
+            // map note number to frequency		
+            std.mtof(msg.data2) => sinewave.freq;
+            // scale the data between 0 and 1
+            msg.data3/127. => sinewave.gain;
+            1::second => now;
+        }
+\end{verbatim}
+
+
+\section{Events}
+
+Not all things are created equally. Not everything that happens happens at exactly the same time interval. Events help to solve this problem.
+
+The problem with this approach is that ChucK will stop at a line of code and not move on until it receives the event. 
+
+\begin{verbatim}
+if(event_a | event_b)
+	//go on and do stuff
+\end{verbatim}	
