@@ -95,6 +95,7 @@ CK_DLL_CTOR( shred_ctor );
 CK_DLL_DTOR( shred_dtor ); // 
 CK_DLL_MFUN( shred_exit );
 CK_DLL_MFUN( shred_clone );
+CK_DLL_MFUN( shred_id );
 
 
 //-----------------------------------------------------------------------------

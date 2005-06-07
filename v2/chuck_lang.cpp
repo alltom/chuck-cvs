@@ -243,6 +243,10 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "void", "exit", shred_exit );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add id()
+    func = make_new_mfun( "int", "id", shred_id );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
     
@@ -825,6 +829,12 @@ CK_DLL_MFUN( shred_clone )
 {
 }
 
+CK_DLL_MFUN( shred_id )
+{
+    Chuck_VM_Shred * derhs = (Chuck_VM_Shred *)SELF;
+    // return the id
+    RETURN->v_int = derhs->id;
+}
 
 
 CK_DLL_MFUN( string_length )
