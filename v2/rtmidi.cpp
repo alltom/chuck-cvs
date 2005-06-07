@@ -618,7 +618,7 @@ void RtMidiOut :: sendMessage( std::vector<unsigned char> *message )
 // API information found at:
 //   - http://www.alsa-project.org/documentation.php#Library
 
-#if defined(__LINUX_ALSASEQ__)
+#if defined(__LINUX_ALSASEQ__) || defined(__LINUX_ALSA__)
 
 // The ALSA Sequencer API is based on the use of a callback function for
 // MIDI input.  We convert the system specific time stamps to delta
