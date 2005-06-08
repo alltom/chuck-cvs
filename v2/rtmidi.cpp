@@ -618,7 +618,7 @@ void RtMidiOut :: sendMessage( std::vector<unsigned char> *message )
 // API information found at:
 //   - http://www.alsa-project.org/documentation.php#Library
 
-#if defined(__LINUX_ALSASEQ__) || defined(__LINUX_ALSA__)
+#if defined(__LINUX_ALSASEQ__) || defined(__LINUX_ALSA__) || defined(__LINUX_JACK__)
 
 // The ALSA Sequencer API is based on the use of a callback function for
 // MIDI input.  We convert the system specific time stamps to delta
@@ -1981,3 +1981,93 @@ void RtMidiOut :: sendMessage( std::vector<unsigned char> *message )
 }
 
 #endif  // __WINDOWS_MM__
+
+
+#if defined(__LINUX_OSS__)  // dummy
+
+void midiInputCallback( const MIDIPacketList *list, void *procRef, void *srcRef )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+void RtMidiIn :: initialize( void )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+void RtMidiIn :: openPort( unsigned int portNumber )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+void RtMidiIn :: openVirtualPort()
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+void RtMidiIn :: closePort( void )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+RtMidiIn :: ~RtMidiIn()
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+unsigned int RtMidiIn :: getPortCount()
+{
+    return 0;
+}
+
+std::string RtMidiIn :: getPortName( unsigned int portNumber )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+    return "";
+}
+
+//*********************************************************************//
+//  API: OS-X
+//  Class Definitions: RtMidiOut
+//*********************************************************************//
+
+unsigned int RtMidiOut :: getPortCount()
+{
+    return 0;
+}
+
+std::string RtMidiOut :: getPortName( unsigned int portNumber )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+    return "";
+}
+
+void RtMidiOut :: initialize( void )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+void RtMidiOut :: openPort( unsigned int portNumber )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+void RtMidiOut :: closePort( void )
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+void RtMidiOut :: openVirtualPort()
+{
+    fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
+}
+
+RtMidiOut :: ~RtMidiOut()
+{
+}
+
+void RtMidiOut :: sendMessage( std::vector<unsigned char> *message )
+{
+}
+
+#endif  // dummy
