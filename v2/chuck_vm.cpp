@@ -1237,13 +1237,19 @@ t_CKBOOL Chuck_VM_Shreduler::shredule( Chuck_VM_Shred * shred,
     {
         // something is really wrong here - no shred can be 
         // shreduled more than once
+        EM_error3( "[chuck](VM): internal sanity check failed in shredule()" );
+        EM_error3( "[chuck](VM): (shred shreduled while shreduled)" );
+
         return FALSE;
     }
 
     // sanity check
-    if( wake_time < this->now_system )
+    if( wake_time < (this->now_system - .5) )
     {
         // trying to enqueue on a time that is less than now
+        EM_error3( "[chuck](VM): internal sanity check failed in shredule()" );
+        EM_error3( "[chuck](VM): (wake time is past)" );
+
         return FALSE;
     }
 

@@ -55,7 +55,7 @@ MidiMsgIn mrw;
 
 mrw.open( "zz.txt" );
 
-1.0 => float scale;
+.1 => float scale;
 
 time t;
 now => t;
