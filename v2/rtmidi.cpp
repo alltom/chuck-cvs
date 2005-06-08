@@ -1985,11 +1985,11 @@ void RtMidiOut :: sendMessage( std::vector<unsigned char> *message )
 
 #if defined(__LINUX_OSS__)  // dummy
 
-void midiInputCallback( const MIDIPacketList *list, void *procRef, void *srcRef )
+/*void midiInputCallback( const MIDIPacketList *list, void *procRef, void *srcRef )
 {
     fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
 }
-
+*/
 void RtMidiIn :: initialize( void )
 {
     fprintf( stderr, "[chuck](via rtmidi): midi not supported for this platform\n" );
