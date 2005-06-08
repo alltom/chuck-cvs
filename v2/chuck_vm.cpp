@@ -1248,7 +1248,7 @@ t_CKBOOL Chuck_VM_Shreduler::shredule( Chuck_VM_Shred * shred,
     {
         // trying to enqueue on a time that is less than now
         EM_error3( "[chuck](VM): internal sanity check failed in shredule()" );
-        EM_error3( "[chuck](VM): (wake time is past)" );
+        EM_error3( "[chuck](VM): (wake time is past) - %f : %f", wake_time, this->now_system );
 
         return FALSE;
     }
