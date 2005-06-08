@@ -73,7 +73,9 @@ while( true )
             // store velocity
             msg.data3 => on.velocity;
             // signal the event
-            on.signal(); 1::samp => now;
+            on.signal();
+            // yield without advancing time to allow shred to run
+            me.yield();
         }
         else
         {
