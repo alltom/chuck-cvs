@@ -65,6 +65,9 @@ while( true )
     // get the midimsg
     while( min.recv( msg ) )
     {
+        if( msg.data1 != 144 )  // !noteon
+            continue;
+
         if( msg.data3 > 0 )
         {
             // store midi note number
