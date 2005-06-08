@@ -116,7 +116,7 @@ t_CKBOOL machine_init( Chuck_VM * vm, proc_msg_func proc_msg )
 // add
 CK_DLL_SFUN( machine_crash_impl )
 {
-    fprintf( stderr, "[chuck]: crashing..." );
+    fprintf( stderr, "[chuck]: crashing...\n" );
     *(int *)0 = 0;
 }
 
