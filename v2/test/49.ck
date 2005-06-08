@@ -6,10 +6,7 @@
 // send all complaints to prc@cs.princeton.edu
 //--------------------------------------------
 
-MidiIn min;
 MidiMsg msg;
-
-if( !min.open( 1 ) ) me.exit();
 
 class NoteEvent extends event
 {
@@ -21,7 +18,6 @@ class NoteEvent extends event
 NoteEvent on;
 // array of ugen's handling each note
 event us[128];
-
 
 gain g => dac;
 .1 => g.gain;
@@ -55,7 +51,6 @@ fun void handler()
 // spork handlers
 for( 0 => int i; i < 10; i++ ) spork ~ handler();
 
-MidiMsg mg;
 MidiMsgIn mrw;
 
 mrw.open( "zz.txt" );
@@ -68,10 +63,10 @@ now => t;
 mrw.close();
 
 // get the midimsg
-while( mrw.read( mg ) != 0 )
+while( mrw.read( msg ) != 0 )
 {
-	scale * (mg.when - t) => now;
-	mg.when => t;
+    scale * (msg.when - t) => now;
+    msg.when => t;
 
     if( msg.data1 != 144 )  // !noteon
         continue;

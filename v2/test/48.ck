@@ -10,10 +10,10 @@ if( !mout.open( 0 ) )
 Mandolin m => JCRev r => dac;
 .2 => r.mix;
 
-mrw.open( "y.txt" );
+mrw.open( "z.txt" );
 //"foo.wav" => s.read;
 
-.1 => float scale;
+0.5 => float scale;
 
 time t;
 now => t;

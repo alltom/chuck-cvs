@@ -4,7 +4,7 @@ MidiIn min;
 MidiMsg msg;
 MidiMsgOut mrw;
 
-if( !min.open( 1 ) )
+if( !min.open( 0 ) )
     <<<"bad">>>;
 
 mrw.open( "z.txt" );
