@@ -753,10 +753,10 @@ t_CKBOOL Chuck_Event::remove( Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Event::queue_broadcast()
 {
-	while( !m_queue.empty() )
-	{
+    // TODO: handle multiple VM
+    if( !m_queue.empty() )
+    {
         Chuck_VM_Shred * shred = m_queue.front();
-		m_queue.pop();
 		shred->vm_ref->queue_event( this, 1 );
 	}
 }
