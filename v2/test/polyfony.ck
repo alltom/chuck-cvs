@@ -43,13 +43,11 @@ fun void handler()
         m => r;
         std.mtof( note ) => m.freq;
         std.rand2f( .6, .8 ) => m.pluckPos;
-        1 => m.gain;
         on.velocity / 128.0 => m.pluck;
         off @=> us[note];
 
         off => now;
         null @=> us[note];
-        0 => m.gain;
         m =< r;
     }
 }
