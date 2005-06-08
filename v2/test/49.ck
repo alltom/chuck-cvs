@@ -55,24 +55,26 @@ MidiMsgIn mrw;
 
 mrw.open( "zz.txt" );
 
-.1 => float scale;
+1.0 => float scale;
 
 time t;
 now => t;
 
-mrw.close();
-
 // get the midimsg
 while( mrw.read( msg ) != 0 )
 {
-    scale * (msg.when - t) => now;
+    <<<scale, msg.when, t>>>;
+    <<<scale * (msg.when - t)>>> => now;
+    <<<"hi">>>;
     msg.when => t;
 
     if( msg.data1 != 144 )  // !noteon
         continue;
 
+    <<<1>>>;
     if( msg.data3 > 0 )
     {
+    <<<2>>>;
         // store midi note number
         msg.data2 => on.note;
         // store velocity
@@ -80,12 +82,17 @@ while( mrw.read( msg ) != 0 )
         // signal the event
         on.signal();
         // yield without advancing time to allow shred to run
-        me.yield();
+        // me.yield();
+    <<<3>>>;
     }
     else
     {
+    <<<4>>>;
         if( us[msg.data2] != null ) us[msg.data2].signal();
+    <<<5>>>;
     }
+    <<<6>>>;
 }
+    <<<7>>>;
 
 mrw.close();
