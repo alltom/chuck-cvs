@@ -30,7 +30,7 @@ fun void handler()
 {
     // don't connect to dac until we need it
     Mandolin m;
-    JCRev r => g;
+    PRCRev r => dac;
     .2 => r.mix;
     event off;
     int note;
@@ -55,7 +55,7 @@ fun void handler()
 }
 
 // spork handlers
-for( 0 => int i; i < 5; i++ ) spork ~ handler();
+for( 0 => int i; i < 10; i++ ) spork ~ handler();
 
 while( true )
 {
