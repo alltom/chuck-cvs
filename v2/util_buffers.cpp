@@ -205,7 +205,7 @@ void CBuffer::put( void * data, UINT__ num_elem )
 			}
 
 			if( m_read_offsets[j].event )
-				m_read_offsets[j].event->broadcast();
+				m_read_offsets[j].event->queue_broadcast();
 		}
 
         // wrap
