@@ -28,9 +28,10 @@ gain g => dac;
 
 fun void handler()
 {
-    Mandolin m => JCRev r => g;
+    // don't connect to dac until we need it
+    Mandolin m;
+    JCRev r => g;
     .2 => r.mix;
-    0 => m.gain;
     event off;
     int note;
 
@@ -38,6 +39,8 @@ fun void handler()
     {
         on => now;
         on.note => note;
+        // dynamically repatch
+        m => r;
         std.mtof( note ) => m.freq;
         std.rand2f( .6, .8 ) => m.pluckPos;
         1 => m.gain;
@@ -47,6 +50,7 @@ fun void handler()
         off => now;
         null @=> us[note];
         0 => m.gain;
+        m =< r;
     }
 }
 
