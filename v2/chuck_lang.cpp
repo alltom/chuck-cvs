@@ -848,7 +848,7 @@ CK_DLL_MFUN( shred_yield )
     // suspend
     derhs->is_running = FALSE;
     // reshredule
-    vm->shreduler()->shredule( derhs );
+    vm->shreduler()->shredule( derhs, derhs->now );
 }
 
 CK_DLL_MFUN( string_length )
