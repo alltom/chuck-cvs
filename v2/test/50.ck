@@ -53,7 +53,7 @@ for( 0 => int i; i < 10; i++ ) spork ~ handler();
 
 MidiMsgIn mrw;
 
-mrw.open( "z.txt" );
+mrw.open( "zz.txt" );
 
 1 => float scale;
 
