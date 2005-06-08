@@ -68,3 +68,26 @@ void otf_ntoh( Net_Msg * msg )
     msg->length = ntohl( msg->length );
 }
 
+
+
+
+const char * poop[] = {
+    "[chuck]: bus error...",
+    "[chuck]: segmentation fault, core dumped...",
+    "[chuck]: access violation, NULL pointer...",
+    "[chuck]: Unhandled exception in chuck: 0xC0000005: Access violation",
+    "[chuck]: malloc: damage after normal block...",
+    "[chuck]: virtual machine panic!!!",
+    "[chuck]: confused by earlier errors, bailing out...",
+    "[chuck]: lack of destructors have led to the unrecoverable mass build-up of trash\n"
+    "         the chuck garbage collector will now run, deleting all files (bye.)",
+    "[chuck]: calling machine.crash()...",
+    "[chuck]: an unknown fatal error has occured.  please restart your computer...",
+    "[chuck]: an unknown fatal error has occured.  please reinstall your OS...",
+    "[chuck]: an unknown fatal error has occured.  please update to chuck-3.0",
+    "[chuck]: internal error: unknown error",
+    "[chuck]: page fault!!!",
+    "[chuck]: error printing error message.  cannot continue 2#%%HGAFf9a0x"
+};
+
+long poop_size = sizeof( poop ) / sizeof( char * );

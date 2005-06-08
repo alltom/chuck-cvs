@@ -26,14 +26,9 @@ event us[128];
 gain g => dac;
 .1 => g.gain;
 
-int count;
-
 fun void handler()
 {
-    count++;
-    Mandolin m;
-    JCRev r;
-    if( count < 11 ) m => r => g;
+    Mandolin m => JCRev r => g;
     .2 => r.mix;
     0 => m.gain;
     event off;
@@ -56,7 +51,7 @@ fun void handler()
 }
 
 // spork handlers
-for( 0 => int i; i < 10; i++ ) spork ~ handler();
+for( 0 => int i; i < 5; i++ ) spork ~ handler();
 
 while( true )
 {

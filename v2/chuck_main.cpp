@@ -36,6 +36,7 @@
 #include <string.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include "chuck_type.h"
 #include "chuck_emit.h"
@@ -792,6 +793,24 @@ error:
 
 
 //-----------------------------------------------------------------------------
+// name: uh()
+// desc: ...
+//-----------------------------------------------------------------------------
+void uh( )
+{
+    srand( time( NULL ) );
+    while( true )
+    {
+        int n = (int)(rand() / (float)RAND_MAX * poop_size);
+        printf( "%s\n", poop[n] );
+        usleep( rand() / (float)RAND_MAX * 2000000 );
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: usage()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -882,6 +901,8 @@ int main( int argc, char ** argv )
                 g_port = atoi( argv[i]+2 );
             else if( !strcmp( argv[i], "--probe" ) )
                 probe = TRUE;
+            else if( !strcmp( argv[i], "--poop" ) )
+                uh();
             else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
                  || !strcmp(argv[i], "--about") )
             {

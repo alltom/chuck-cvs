@@ -70,6 +70,9 @@ void otf_hton( Net_Msg * msg );
 void otf_ntoh( Net_Msg * msg );
 
 
+extern const char * poop[];
+extern long poop_size;
+
 
 
 #endif
