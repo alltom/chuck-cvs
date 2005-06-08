@@ -25,7 +25,7 @@ gain g => dac;
 fun void handler()
 {
     // don't connect to dac until we need it
-    Mandolin m;
+    Clarinet c;
     PRCRev r => dac;
     .2 => r.mix;
     event off;
@@ -36,54 +36,52 @@ fun void handler()
         on => now;
         on.note => note;
         // dynamically repatch
-        m => r;
-        std.mtof( note ) => m.freq;
-        std.rand2f( .6, .8 ) => m.pluckPos;
-        on.velocity / 128.0 => m.pluck;
+        c => r;
+        std.mtof( note ) => c.freq;
+        on.velocity / 128.0 => c.startBlowing;
         off @=> us[note];
 
         off => now;
+		c.stopBlowing();
         null @=> us[note];
-        m =< r;
+        c =< r;
     }
 }
 
 // spork handlers
 for( 0 => int i; i < 10; i++ ) spork ~ handler();
 
-MidiMsgIn mrw;
+MidiMsgOut mrw;
 
-mrw.open( "z.txt" );
+mrw.open( "zz.txt" );
 
-1 => float scale;
-
-time t;
-now => t;
-
-// get the midimsg
-while( mrw.read( msg ) != 0 )
+while( true )
 {
-    scale * (msg.when - t) => now;
-    msg.when => t;
+    // wait on midi event
+    min => now;
 
-    if( msg.data1 != 144 )  // !noteon
-        continue;
+    // get the midimsg
+    while( min.recv( msg ) )
+    {
+        if( msg.data1 != 144 )  // !noteon
+            continue;
 
-    if( msg.data3 > 0 )
-    {
-        // store midi note number
-        msg.data2 => on.note;
-        // store velocity
-        msg.data3 => on.velocity;
-        // signal the event
-        on.signal();
-        // yield without advancing time to allow shred to run
-        me.yield();
-    }
-    else
-    {
-        if( us[msg.data2] != null ) us[msg.data2].signal();
+        if( msg.data3 > 0 )
+        {
+            // store midi note number
+            msg.data2 => on.note;
+            // store velocity
+            msg.data3 => on.velocity;
+            // signal the event
+            on.signal();
+            // yield without advancing time to allow shred to run
+            me.yield();
+        }
+        else
+        {
+            if( us[msg.data2] != null ) us[msg.data2].signal();
+        }
+
+		mrw.write( msg, now );
     }
 }
-
-mrw.close();
