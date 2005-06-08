@@ -798,12 +798,13 @@ error:
 //-----------------------------------------------------------------------------
 void uh( )
 {
+    // TODO: play white noise and/or sound effects
     srand( time( NULL ) );
     while( true )
     {
         int n = (int)(rand() / (float)RAND_MAX * poop_size);
         printf( "%s\n", poop[n] );
-        usleep( rand() / (float)RAND_MAX * 2000000 );
+        usleep( (unsigned long)(rand() / (float)RAND_MAX * 2000000) );
     }
 }
 
