@@ -2584,7 +2584,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         case ae_section_class:
             // do the class
             // make global
-            body->section->class_def->home = env->global();
+            // body->section->class_def->home = env->global();
             ret = type_engine_check_class_def( env, body->section->class_def );
             //EM_error2( body->section->class_def->linepos,
             //    "nested class definitions are not yet supported..." );
