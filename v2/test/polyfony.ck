@@ -9,7 +9,7 @@
 MidiIn min;
 MidiMsg msg;
 
-if( !min.open( 0 ) ) me.exit();
+if( !min.open( 1 ) ) me.exit();
 
 class NoteEvent extends event
 {
@@ -30,7 +30,7 @@ fun void handler()
 {
     // don't connect to dac until we need it
     Mandolin m;
-    PRCRev r => dac;
+    PRCRev r => g;
     .2 => r.mix;
     event off;
     int note;
