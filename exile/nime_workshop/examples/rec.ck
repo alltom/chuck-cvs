@@ -5,8 +5,7 @@
 dac => gain g => WvOut w => blackhole;
 // this is the output file name
 "foo.wav" => w.wavFilename;
-chout => "writing to file: ";
-w.filename => stdout;
+<<<"writing to file: ", w.filename()>>>;
 // any gain you want for the output
 .5 => g.gain;
 
