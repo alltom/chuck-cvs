@@ -6,7 +6,11 @@
 // send all complaints to prc@cs.princeton.edu
 //--------------------------------------------
 
+MidiIn min;
 MidiMsg msg;
+
+if( !min.open( 0 ) )
+    me.exit();
 
 class NoteEvent extends event
 {
@@ -28,6 +32,7 @@ fun void handler()
     Clarinet c;
     PRCRev r => dac;
     .2 => r.mix;
+    40 => c.rate;
     event off;
     int note;
 
@@ -38,12 +43,13 @@ fun void handler()
         // dynamically repatch
         c => r;
         std.mtof( note ) => c.freq;
-        on.velocity / 128.0 => c.startBlowing;
+        .5 + on.velocity / 256.0 => c.startBlowing;
         off @=> us[note];
 
         off => now;
-		c.stopBlowing();
+        c.stopBlowing( 10.0 );
         null @=> us[note];
+        100::ms => now;
         c =< r;
     }
 }
