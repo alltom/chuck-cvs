@@ -3148,7 +3148,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
     }
 
     // if part of class - this only works because x.y is handled separately
-    if( v->owner_class )
+    if( v->owner_class && v->is_member )
     {
         // emit as this.v
         a_Exp base = new_exp_from_id( "this", linepos );
