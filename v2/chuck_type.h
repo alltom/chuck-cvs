@@ -492,7 +492,7 @@ struct Chuck_Func : public Chuck_VM_Object
     Chuck_Value * up;
 
     // constructor
-    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = -1; 
+    Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = 0xffffffff; 
                    value_ref = NULL; dl_code = NULL; next = NULL; up = NULL; }
 };
 
