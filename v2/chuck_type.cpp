@@ -2695,7 +2695,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     vector<a_Arg_List> symbols;
     t_CKUINT count = 0;
     t_CKBOOL has_code = FALSE;  // use this for both user and imported
-    t_CKINT i;
+    t_CKUINT i;
 
     // see if we are already in a function definition
     if( env->func != NULL )
@@ -4484,7 +4484,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
     Chuck_Namespace * nspc = NULL;
     Chuck_Type * parent = NULL;
     const Chuck_DL_Query * query = NULL;
-    t_CKINT i, j;
+    t_CKUINT i, j;
     vector<a_Func_Def> the_funs;
     
     // convert to id list

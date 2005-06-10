@@ -483,7 +483,7 @@ struct Chuck_Func : public Chuck_VM_Object
     // member
     t_CKBOOL is_member;
     // virtual table index
-    t_CKINT vt_index;
+    t_CKUINT vt_index;
     // rember value
     Chuck_Value * value_ref;
     // for overloading

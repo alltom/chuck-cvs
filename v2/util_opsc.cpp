@@ -1330,7 +1330,7 @@ OSC_Receiver::parse() {
     //unpack bundles, dump all messages
    //any local prep we need here?
 
-   unsigned int i = 0;
+   long i = 0;
    //de-buggering
    fprintf(stderr, "OSC_Receiver: parsing message length %d\n", _mesglen);
    for ( i = 0 ; i < _mesglen; i++ ) { 
