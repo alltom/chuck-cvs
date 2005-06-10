@@ -155,30 +155,30 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     Chuck_Env * env = Chuck_Env::instance();
     // add
     env->add_ref();
-	// set the VM reference
+    // set the VM reference
     env->vm = vm;
-	// set the name of global namespace
-	env->global()->name = "global";
+    // set the name of global namespace
+    env->global()->name = "global";
     // set the current namespace to global
     env->curr = env->global();
 
     // enter the default global type mapping
-	env->global()->type.add( t_void.name, &t_void );
-	env->global()->type.add( t_int.name, &t_int );
-	env->global()->type.add( t_float.name, &t_float );
-	env->global()->type.add( t_time.name, &t_time );
-	env->global()->type.add( t_dur.name, &t_dur );
-	env->global()->type.add( t_object.name, &t_object );
-	env->global()->type.add( t_string.name, &t_string );
-	env->global()->type.add( t_ugen.name, &t_ugen );
-	env->global()->type.add( t_shred.name, &t_shred );
-	env->global()->type.add( t_thread.name, &t_thread );
-	env->global()->type.add( t_function.name, &t_function );
-	env->global()->type.add( t_class.name, &t_class );
+    env->global()->type.add( t_void.name, &t_void );
+    env->global()->type.add( t_int.name, &t_int );
+    env->global()->type.add( t_float.name, &t_float );
+    env->global()->type.add( t_time.name, &t_time );
+    env->global()->type.add( t_dur.name, &t_dur );
+    env->global()->type.add( t_object.name, &t_object );
+    env->global()->type.add( t_string.name, &t_string );
+    env->global()->type.add( t_ugen.name, &t_ugen );
+    env->global()->type.add( t_shred.name, &t_shred );
+    env->global()->type.add( t_thread.name, &t_thread );
+    env->global()->type.add( t_function.name, &t_function );
+    env->global()->type.add( t_class.name, &t_class );
     env->global()->type.add( t_array.name, &t_array );
-	env->global()->type.add( t_event.name, &t_event );
+    env->global()->type.add( t_event.name, &t_event );
 
-	// dur value
+    // dur value
     t_CKDUR samp = 1.0;
     // TODO:
     // t_CKDUR second = vm->srate() * samp;
@@ -192,9 +192,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // make sure Objects have namespaces
     init_class_object( env, &t_object );
     init_class_ugen( env, &t_ugen );
-	init_class_shred( env, &t_shred );
-	init_class_event( env, &t_event );
-	init_class_string( env, &t_string );
+    init_class_shred( env, &t_shred );
+    init_class_event( env, &t_event );
+    init_class_string( env, &t_string );
     t_thread.info = new Chuck_Namespace;
     t_thread.info->add_ref();
     t_class.info = new Chuck_Namespace;
@@ -202,27 +202,27 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_array.info = new Chuck_Namespace;
     t_array.info->add_ref();
 
-	// default global values
-	env->global()->value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
-	env->global()->value.add( "NULL", new Chuck_Value( &t_null, "NULL", new void *(NULL), TRUE ) );
+    // default global values
+    env->global()->value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
+    env->global()->value.add( "NULL", new Chuck_Value( &t_null, "NULL", new void *(NULL), TRUE ) );
     // TODO:
-	// env->global()->value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system), TRUE ) );
-	env->global()->value.add( "t_zero", new Chuck_Value( &t_time, "time_zero", new t_CKDUR(0.0), TRUE ) );
+    // env->global()->value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system), TRUE ) );
+    env->global()->value.add( "t_zero", new Chuck_Value( &t_time, "time_zero", new t_CKDUR(0.0), TRUE ) );
     env->global()->value.add( "d_zero", new Chuck_Value( &t_dur, "dur_zero", new t_CKDUR(0.0), TRUE ) );
-	env->global()->value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp), TRUE ) );
-	env->global()->value.add( "ms", new Chuck_Value( &t_dur, "ms", new t_CKDUR(ms), TRUE ) );
-	env->global()->value.add( "second", new Chuck_Value( &t_dur, "second", new t_CKDUR(second), TRUE ) );
-	env->global()->value.add( "minute", new Chuck_Value( &t_dur, "minute", new t_CKDUR(minute), TRUE ) );
-	env->global()->value.add( "hour", new Chuck_Value( &t_dur, "hour", new t_CKDUR(hour), TRUE ) );
-	env->global()->value.add( "day", new Chuck_Value( &t_dur, "day", new t_CKDUR(day), TRUE ) );
-	env->global()->value.add( "week", new Chuck_Value( &t_dur, "week", new t_CKDUR(week), TRUE ) );
-	env->global()->value.add( "true", new Chuck_Value( &t_int, "true", new t_CKINT(1), TRUE ) );
-	env->global()->value.add( "false", new Chuck_Value( &t_int, "false", new t_CKINT(0), TRUE ) );
-	env->global()->value.add( "maybe", new Chuck_Value( &t_int, "maybe", new t_CKFLOAT(.5), FALSE ) );
-	env->global()->value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(ONE_PI), TRUE ) );
-	env->global()->value.add( "global", new Chuck_Value( &t_class, "global", env->global(), TRUE ) );
+    env->global()->value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp), TRUE ) );
+    env->global()->value.add( "ms", new Chuck_Value( &t_dur, "ms", new t_CKDUR(ms), TRUE ) );
+    env->global()->value.add( "second", new Chuck_Value( &t_dur, "second", new t_CKDUR(second), TRUE ) );
+    env->global()->value.add( "minute", new Chuck_Value( &t_dur, "minute", new t_CKDUR(minute), TRUE ) );
+    env->global()->value.add( "hour", new Chuck_Value( &t_dur, "hour", new t_CKDUR(hour), TRUE ) );
+    env->global()->value.add( "day", new Chuck_Value( &t_dur, "day", new t_CKDUR(day), TRUE ) );
+    env->global()->value.add( "week", new Chuck_Value( &t_dur, "week", new t_CKDUR(week), TRUE ) );
+    env->global()->value.add( "true", new Chuck_Value( &t_int, "true", new t_CKINT(1), TRUE ) );
+    env->global()->value.add( "false", new Chuck_Value( &t_int, "false", new t_CKINT(0), TRUE ) );
+    env->global()->value.add( "maybe", new Chuck_Value( &t_int, "maybe", new t_CKFLOAT(.5), FALSE ) );
+    env->global()->value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(ONE_PI), TRUE ) );
+    env->global()->value.add( "global", new Chuck_Value( &t_class, "global", env->global(), TRUE ) );
 
-	/*
+    /*
     S_enter( e->value, insert_symbol( "machine" ), &t_null );
     S_enter( e->value, insert_symbol( "language" ), &t_null );
     S_enter( e->value, insert_symbol( "compiler" ), &t_null );
@@ -276,7 +276,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_values["week"] = TRUE;
     env->key_values["adc"] = TRUE;
     env->key_values["dac"] = TRUE;
-	env->key_values["blackhole"] = TRUE;
+    env->key_values["blackhole"] = TRUE;
     env->key_values["global"] = TRUE;
     env->key_values["null"] = TRUE;
     env->key_values["NULL"] = TRUE;
@@ -1533,13 +1533,13 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 // ugen
                 t = &t_ugen;
             }
-			else if( str == "blackhole" ) // blackhole
-			{
-				// non assignable
-				exp->self->s_meta = ae_meta_value;
-				// ugen
-				t = &t_ugen;
-			}
+            else if( str == "blackhole" ) // blackhole
+            {
+                // non assignable
+                exp->self->s_meta = ae_meta_value;
+                // ugen
+                t = &t_ugen;
+            }
             else if( str == "null" || str == "NULL" ) // null / NULL
             {
                 // not assignable
@@ -1842,7 +1842,7 @@ t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
                 return NULL;
             }
             
-			postfix->exp->emit_var = TRUE;
+            postfix->exp->emit_var = TRUE;
             // TODO: mark somewhere we need to post increment
             
             // check type
@@ -2114,13 +2114,13 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             // move the offset (TODO: check the size)
             env->curr->offset += t->size;
         }
-		else if( env->class_def != NULL ) // static
-		{
-			// offset
-			value->offset = env->class_def->info->class_data_size;
-			// move the size
-			env->class_def->info->class_data_size += t->size;
-		}
+        else if( env->class_def != NULL ) // static
+        {
+            // offset
+            value->offset = env->class_def->info->class_data_size;
+            // move the size
+            env->class_def->info->class_data_size += t->size;
+        }
 
         // the next var decl
         list = list->next;
