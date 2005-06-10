@@ -235,7 +235,7 @@ Chuck_VM_Code * emit_to_code( Chuck_Code * in,
     for( t_CKUINT i = 0; i < code->num_instr; i++ )
         code->instr[i] = in->code[i];
 
-    Chuck_Instr_Goto * a = (Chuck_Instr_Goto *)in->code[22];
+    // Chuck_Instr_Goto * a = (Chuck_Instr_Goto *)in->code[22];
 
     // dump
     if( dump )

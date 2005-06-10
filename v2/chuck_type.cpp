@@ -2169,6 +2169,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
                                           t_CKFUNC & ck_func, int linepos )
 {
     Chuck_Func * func = NULL;
+    Chuck_Func * up = NULL;
 
     // type check the func
     t_CKTYPE f = exp_func->type = type_engine_check_exp( env, exp_func );
@@ -2186,7 +2187,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
     }
     
     // copy the func
-    func = f->func;
+    up = f->func;
 
     // check the arguments
     if( args )
@@ -2198,44 +2199,56 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
     a_Exp e;
     a_Arg_List e1;
     t_CKUINT count;
-    // loop
-    while( func )
+
+    // up is the list of functions in single class / namespace
+    while( up )
     {
-        e = args;
-        e1 = func->def->arg_list;
-        count = 1;
-
-        // check arguments against the definition
-        while( e )
+        func = up;
+        // loop
+        while( func )
         {
-            // check for extra arguments
-            if( e1 == NULL ) goto moveon;
+            e = args;
+            e1 = func->def->arg_list;
+            count = 1;
 
-            // no match
-            if( !isa( e->type, e1->type ) )
+            // check arguments against the definition
+            while( e )
             {
-                // TODO: fix this for overload implicit cast
-                if( *e->type == t_int && *e1->type == t_float )
+                // check for extra arguments
+                if( e1 == NULL ) goto moveon;
+
+                // no match
+                if( !isa( e->type, e1->type ) )
                 {
-                    // int to float
-                    e->cast_to = &t_float;
+                    // TODO: fix this for overload implicit cast
+                    if( *e->type == t_int && *e1->type == t_float )
+                    {
+                        // int to float
+                        e->cast_to = &t_float;
+                    }
+                    else goto moveon; // type mismatch
                 }
-                else goto moveon; // type mismatch
+
+                e = e->next;
+                e1 = e1->next;
+                count++;
             }
 
-            e = e->next;
-            e1 = e1->next;
-            count++;
-        }
-
-        // anything left
-        if( e1 != NULL ) goto moveon; // missing arguments
-        else break; // found match
+            // anything left
+            if( e1 != NULL ) goto moveon; // missing arguments
+            else goto found; // found match
 
 moveon:
-        // next func
-        func = func->next;
+            // next func
+            func = func->next;
+        }
+
+        // go up
+        if( up->up ) up = up->up->func_ref;
+        else up = NULL;
     }
+
+found:
 
     // no func
     if( !func )
@@ -2265,7 +2278,7 @@ moveon:
         return NULL;
     }
 
-/*  // recheck the type with new name
+    // recheck the type with new name
     if( exp_func->s_type == ae_exp_primary && exp_func->primary.s_type == ae_primary_var )
     {
         // set the new name
@@ -2294,7 +2307,7 @@ moveon:
             return NULL;
         }
     }
-    else assert( FALSE ); */
+    else assert( FALSE );
 
     ck_func = func;
 
@@ -2669,18 +2682,20 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     Chuck_Type * type = NULL;
     Chuck_Value * value = NULL;
     Chuck_Func * func = NULL;
-    a_Arg_List arg_list = NULL;
-    t_CKUINT count = 0;
-    t_CKBOOL has_code = FALSE;  // use this for both user and imported
+
+    Chuck_Type * parent = NULL;
     Chuck_Value * overload = NULL;
-    t_CKBOOL parent_match = FALSE;
-    Chuck_Func * parent_func = NULL;
-    string func_name = S_name(f->name);
+    Chuck_Value * override = NULL;
     Chuck_Value * v = NULL;
+    Chuck_Func * parent_func = NULL;
+    a_Arg_List arg_list = NULL;
+    t_CKBOOL parent_match = FALSE;
+    string func_name = S_name(f->name);
     vector<Chuck_Value *> values;
     vector<a_Arg_List> symbols;
+    t_CKUINT count = 0;
+    t_CKBOOL has_code = FALSE;  // use this for both user and imported
     t_CKINT i;
-    Chuck_Type * parent = NULL;
 
     // see if we are already in a function definition
     if( env->func != NULL )
@@ -2702,10 +2717,10 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // look up the value in the current class (can shadow?)
-    if( value = env->curr->lookup_value( f->name, FALSE ) )
+    if( overload = env->curr->lookup_value( f->name, FALSE ) )
     {
         // if value
-        if( !isa( value->type, &t_function ) )
+        if( !isa( overload->type, &t_function ) )
         {
             EM_error2( f->linepos, 
                 "function name '%s' is already used by another value", S_name(f->name) );
@@ -2714,19 +2729,31 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         else 
         {
             // overload
-            if( !value->func_ref )
+            if( !overload->func_ref )
             {
                 // error
                 EM_error2( f->linepos,
                     "internal error: missing function '%s'",
-                    value->name.c_str() );
+                    overload->name.c_str() );
                 return FALSE;
             }
 
-            // remember it
-            overload = value;
             // make the new name
-            func_name += "@" + itoa( ++value->func_num_overloads ) + "@" + env->curr->name;
+            func_name += "@" + itoa( ++overload->func_num_overloads ) + "@" + env->curr->name;
+        }
+    }
+
+    // look up the value in the parent class
+    if( env->class_def && 
+        ( override = type_engine_find_value( env->class_def->parent, f->name ) ) )
+    {
+        // see if the target is a function
+        if( !isa( override->type, &t_function ) )
+        {
+            EM_error2( f->linepos, "function name '%s' conflicts with previously defined value...",
+                S_name(f->name) );
+            EM_error2( f->linepos, "from super class '%s'...", override->owner_class->c_name() );
+            return NULL;
         }
     }
 
@@ -2782,9 +2809,17 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // if overload
     if( overload )
     {
-        // add somewhere
+        // add
         func->next = overload->func_ref->next;
         overload->func_ref->next = func;
+    }
+
+    // if override
+    if( override )
+    {
+        // make reference to parent
+        // TODO: ref count
+        func->up = override;
     }
 
     // look up the return type
@@ -3034,7 +3069,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                     parent_match = TRUE;
 
                     // update virtual table
-                    func->vt_index = v->func_ref->vt_index;
+                    func->vt_index = parent_func->vt_index;
                     assert( func->vt_index < env->curr->obj_v_table.funcs.size() );
                     env->curr->obj_v_table.funcs[func->vt_index] = func;
                     // update name
@@ -3057,14 +3092,10 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         env->curr->obj_v_table.funcs.push_back( func );
     }
 
-    // add only if value != NULL. otherwise, we are overloading and/or overriding
-    if( value )
-    {
-        // add as value
-        env->curr->value.add( value->name, value );
-        // enter the name into the function table
-        env->curr->func.add( func->name, func );
-    }
+    // add as value
+    env->curr->value.add( value->name, value );
+    // enter the name into the function table
+    env->curr->func.add( func->name, func );
 
     // set the current function to this
     env->func = func;

@@ -488,10 +488,12 @@ struct Chuck_Func : public Chuck_VM_Object
     Chuck_Value * value_ref;
     // for overloading
     Chuck_Func * next;
+    // for overriding
+    Chuck_Value * up;
 
     // constructor
     Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = -1; 
-                   value_ref = NULL; dl_code = NULL; next = NULL; }
+                   value_ref = NULL; dl_code = NULL; next = NULL; up = NULL; }
 };
 
 
