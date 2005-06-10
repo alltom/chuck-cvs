@@ -273,13 +273,13 @@ static t_CKUINT Shakers_offset_data = 0;
 static t_CKUINT Sitar_offset_data = 0;
 static t_CKUINT VoicForm_offset_data = 0;
 static t_CKUINT FM_offset_data = 0;
-static t_CKUINT BeeThree_offset_data = 0;
-static t_CKUINT FMVoices_offset_data = 0;
-static t_CKUINT HevyMetl_offset_data = 0;
-static t_CKUINT PercFlut_offset_data = 0;
-static t_CKUINT Rhodey_offset_data = 0;
-static t_CKUINT TubeBell_offset_data = 0;
-static t_CKUINT Wurley_offset_data = 0;
+//static t_CKUINT BeeThree_offset_data = 0;
+//static t_CKUINT FMVoices_offset_data = 0;
+//static t_CKUINT HevyMetl_offset_data = 0;
+//static t_CKUINT PercFlut_offset_data = 0;
+//static t_CKUINT Rhodey_offset_data = 0;
+//static t_CKUINT TubeBell_offset_data = 0;
+//static t_CKUINT Wurley_offset_data = 0;
 static t_CKUINT FormSwep_offset_data = 0;
 static t_CKUINT Delay_offset_data = 0;
 static t_CKUINT DelayA_offset_data = 0;
@@ -1250,7 +1250,12 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if ( !type_engine_import_ugen_begin( env, "FM", "ugen", env->global(), 
                         FM_ctor, FM_tick, FM_pmsg ) ) return FALSE;
+
     //member variable
+    // all subclasses of FM must use this offset, as this is where the inherited 
+    // functions will look for the object
+    // the other option would be to keep SubClass_offset_data, but assign
+    // the value to FM_offset_data.  
     FM_offset_data = type_engine_import_mvar ( env, "int", "@FM_data", FALSE );
     if ( FM_offset_data == CK_INVALID_OFFSET ) goto error;
 
@@ -1301,8 +1306,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( !type_engine_import_ugen_begin( env, "BeeThree", "FM", env->global(), 
                         BeeThree_ctor, BeeThree_tick, BeeThree_pmsg ) ) return FALSE;
     //member variable
-    BeeThree_offset_data = type_engine_import_mvar ( env, "int", "@BeeThree_data", FALSE );
-    if ( BeeThree_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "noteOn", BeeThree_ctrl_noteOn ); //!trigger note
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1319,8 +1323,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( !type_engine_import_ugen_begin( env, "FMVoices", "FM", env->global(), 
                         FMVoices_ctor, FMVoices_tick, FMVoices_pmsg ) ) return FALSE;
     //member variable
-    FMVoices_offset_data = type_engine_import_mvar ( env, "int", "@FMVoices_data", FALSE );
-    if ( FMVoices_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "noteOn", FMVoices_ctrl_noteOn );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1363,9 +1366,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if ( !type_engine_import_ugen_begin( env, "HevyMetl", "FM", env->global(), 
                         HevyMetl_ctor, HevyMetl_tick, HevyMetl_pmsg ) ) return FALSE;
-    //member variable
-    HevyMetl_offset_data = type_engine_import_mvar ( env, "int", "@HevyMetl_data", FALSE );
-    if ( HevyMetl_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "noteOn", HevyMetl_ctrl_noteOn ); //! trigger note
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1381,9 +1382,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if ( !type_engine_import_ugen_begin( env, "PercFlut", "FM", env->global(), 
                         PercFlut_ctor, PercFlut_tick, PercFlut_pmsg ) ) return FALSE;
-    //member variable
-    PercFlut_offset_data = type_engine_import_mvar ( env, "int", "@PercFlut_data", FALSE );
-    if ( PercFlut_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "freq", PercFlut_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1407,9 +1406,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! see \examples rhodey.ck
     if ( !type_engine_import_ugen_begin( env, "Rhodey", "FM", env->global(), 
                         Rhodey_ctor, Rhodey_tick, Rhodey_pmsg ) ) return FALSE;
-    //member variable
-    Rhodey_offset_data = type_engine_import_mvar ( env, "int", "@Rhodey_data", FALSE );
-    if ( Rhodey_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "freq", Rhodey_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1432,9 +1429,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if ( !type_engine_import_ugen_begin( env, "TubeBell", "FM", env->global(), 
                         TubeBell_ctor, TubeBell_tick, TubeBell_pmsg ) ) return FALSE;
-    //member variable
-    TubeBell_offset_data = type_engine_import_mvar ( env, "int", "@TubeBell_data", FALSE );
-    if ( TubeBell_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "freq", TubeBell_ctrl_freq );  //! set frequency
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1458,9 +1453,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! see \examples wurley.ck
     if ( !type_engine_import_ugen_begin( env, "Wurley", "FM", env->global(), 
                         Wurley_ctor, Wurley_tick, Wurley_pmsg ) ) return FALSE; 
-    //member variable
-    Wurley_offset_data = type_engine_import_mvar ( env, "int", "@Wurley_data", FALSE );
-    if ( Wurley_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun ( "float", "freq", Wurley_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1478,7 +1471,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //end FM
     
     //! \section stk - delay
-
 
     //------------------------------------------------------------------------
     // begin Delay ugen
@@ -2266,9 +2258,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! see \example dope.ck
     if ( !type_engine_import_ugen_begin( env, "WaveLoop", "WvIn", env->global(), 
                         WaveLoop_ctor, WaveLoop_tick, WaveLoop_pmsg ) ) return FALSE;
-    //member variable
-    WaveLoop_offset_data = type_engine_import_mvar ( env, "int", "@WaveLoop_data", FALSE );
-    if ( WaveLoop_offset_data == CK_INVALID_OFFSET ) goto error;    
+
     func = make_new_mfun ( "float", "freq", WaveLoop_ctrl_freq ); //! set frequency of playback ( loops / second )
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -12099,6 +12089,17 @@ MY_FLOAT *Instrmnt :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 
   return vec;
 }
+
+/*
+TODO :  let's add this as two function in Chuck.
+     :  one version is a ( int , float ) for the midi messages
+     :  the second is a ( string, float ) that does a quick binary search
+     :  into the skini table for the __SK_ value, and dispatches the proper function
+     :  hoohoo!
+
+     - and then everyone can inherit from Instrmnt like the good Lord intended. 
+     - pld
+*/
 
 void Instrmnt :: controlChange(int number, MY_FLOAT value)
 {
@@ -25491,7 +25492,7 @@ CK_DLL_CTRL( FM_ctrl_afterTouch )
 CK_DLL_CTOR( BeeThree_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, BeeThree_offset_data) = (t_CKUINT) new BeeThree();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new BeeThree();
 }
 
 
@@ -25501,7 +25502,7 @@ CK_DLL_CTOR( BeeThree_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( BeeThree_dtor  )
 { 
-  delete (BeeThree *)OBJ_MEMBER_UINT(SELF, BeeThree_offset_data );
+  delete (BeeThree *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -25511,7 +25512,7 @@ CK_DLL_DTOR( BeeThree_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( BeeThree_tick )
 {
-    BeeThree * m = (BeeThree *)OBJ_MEMBER_UINT(SELF, BeeThree_offset_data );
+    BeeThree * m = (BeeThree *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -25533,7 +25534,7 @@ CK_DLL_PMSG( BeeThree_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BeeThree_ctrl_noteOn )
 {
-    BeeThree * bee= (BeeThree *)OBJ_MEMBER_UINT(SELF, BeeThree_offset_data );
+    BeeThree * bee= (BeeThree *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     bee->noteOn( f );
 }
@@ -25548,7 +25549,7 @@ CK_DLL_CTRL( BeeThree_ctrl_noteOn )
 CK_DLL_CTOR( FMVoices_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, FMVoices_offset_data) = (t_CKUINT) new FMVoices();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new FMVoices();
 }
 
 
@@ -25558,7 +25559,7 @@ CK_DLL_CTOR( FMVoices_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( FMVoices_dtor  )
 { 
-  delete (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+  delete (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -25568,7 +25569,7 @@ CK_DLL_DTOR( FMVoices_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( FMVoices_tick )
 {
-    FMVoices * m = (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * m = (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -25590,7 +25591,7 @@ CK_DLL_PMSG( FMVoices_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( FMVoices_ctrl_noteOn )
 {
-    FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->noteOn( f );
 }
@@ -25602,7 +25603,7 @@ CK_DLL_CTRL( FMVoices_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( FMVoices_ctrl_freq )
 { 
-    FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) voc->baseFrequency  ;
@@ -25615,7 +25616,7 @@ CK_DLL_CTRL( FMVoices_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( FMVoices_cget_freq )
 { 
-    FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc = (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     RETURN->v_float = (t_CKFLOAT) voc->baseFrequency  ;
 }
 
@@ -25626,7 +25627,7 @@ CK_DLL_CGET( FMVoices_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( FMVoices_ctrl_vowel )
 {
-    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_Breath_, f * 128.0 );
 }
@@ -25638,7 +25639,7 @@ CK_DLL_CTRL( FMVoices_ctrl_vowel )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( FMVoices_ctrl_spectralTilt )
 {
-    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_FootControl_, f * 128.0);
 }
@@ -25649,7 +25650,7 @@ CK_DLL_CTRL( FMVoices_ctrl_spectralTilt )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( FMVoices_ctrl_lfoSpeed )
 {
-    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_ModFrequency_, f * 128.0);
 }
@@ -25660,7 +25661,7 @@ CK_DLL_CTRL( FMVoices_ctrl_lfoSpeed )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( FMVoices_ctrl_lfoDepth )
 {
-    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_ModWheel_, f * 128.0);
 }
@@ -25672,7 +25673,7 @@ CK_DLL_CTRL( FMVoices_ctrl_lfoDepth )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( FMVoices_ctrl_adsrTarget )
 {
-    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FMVoices_offset_data );
+    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     voc->controlChange( __SK_AfterTouch_Cont_, f * 128.0);
 }
@@ -25688,7 +25689,7 @@ CK_DLL_CTRL( FMVoices_ctrl_adsrTarget )
 CK_DLL_CTOR( HevyMetl_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data) = (t_CKUINT) new HevyMetl();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new HevyMetl();
 }
 
 
@@ -25698,7 +25699,7 @@ CK_DLL_CTOR( HevyMetl_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( HevyMetl_dtor  )
 { 
-    delete (HevyMetl *)OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data );
+    delete (HevyMetl *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -25708,7 +25709,7 @@ CK_DLL_DTOR( HevyMetl_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( HevyMetl_tick )
 {
-    HevyMetl * m = (HevyMetl *)OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data );
+    HevyMetl * m = (HevyMetl *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -25730,7 +25731,7 @@ CK_DLL_PMSG( HevyMetl_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( HevyMetl_ctrl_noteOn )
 {
-    HevyMetl * hevy= (HevyMetl *)OBJ_MEMBER_UINT(SELF, HevyMetl_offset_data );
+    HevyMetl * hevy= (HevyMetl *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     hevy->noteOn( f );
 }
@@ -25745,7 +25746,7 @@ CK_DLL_CTRL( HevyMetl_ctrl_noteOn )
 CK_DLL_CTOR( PercFlut_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, PercFlut_offset_data) = (t_CKUINT) new PercFlut();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new PercFlut();
 }
 
 
@@ -25755,7 +25756,7 @@ CK_DLL_CTOR( PercFlut_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( PercFlut_dtor  )
 { 
-    delete (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
+    delete (PercFlut *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -25765,7 +25766,7 @@ CK_DLL_DTOR( PercFlut_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( PercFlut_tick )
 {
-    PercFlut * m = (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
+    PercFlut * m = (PercFlut *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -25787,7 +25788,7 @@ CK_DLL_PMSG( PercFlut_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( PercFlut_ctrl_noteOn )
 {
-    PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
+    PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     perc->noteOn( f );
 }
@@ -25799,7 +25800,7 @@ CK_DLL_CTRL( PercFlut_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( PercFlut_ctrl_freq )
 {
-    PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
+    PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     perc->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) perc->baseFrequency  ;
@@ -25812,7 +25813,7 @@ CK_DLL_CTRL( PercFlut_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( PercFlut_cget_freq )
 {
-    PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, PercFlut_offset_data );
+    PercFlut * perc= (PercFlut *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     RETURN->v_float = (t_CKFLOAT) perc->baseFrequency  ;
 }
 
@@ -25918,7 +25919,7 @@ CK_DLL_CTRL( Rhodey_ctrl_noteOff )
 CK_DLL_CTOR( TubeBell_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, TubeBell_offset_data) = (t_CKUINT) new TubeBell();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new TubeBell();
 }
 
 
@@ -25928,7 +25929,7 @@ CK_DLL_CTOR( TubeBell_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( TubeBell_dtor  )
 { 
-    delete (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
+    delete (TubeBell *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -25938,7 +25939,7 @@ CK_DLL_DTOR( TubeBell_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( TubeBell_tick )
 {
-    TubeBell * m = (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
+    TubeBell * m = (TubeBell *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -25960,7 +25961,7 @@ CK_DLL_PMSG( TubeBell_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( TubeBell_ctrl_noteOn )
 {
-    TubeBell * tube = (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
+    TubeBell * tube = (TubeBell *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     tube->noteOn( f );
 }
@@ -25972,7 +25973,7 @@ CK_DLL_CTRL( TubeBell_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( TubeBell_ctrl_freq )
 { 
-    TubeBell * tube= (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
+    TubeBell * tube= (TubeBell *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     tube->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) tube->baseFrequency ;
@@ -25985,7 +25986,7 @@ CK_DLL_CTRL( TubeBell_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( TubeBell_cget_freq )
 { 
-    TubeBell * tube= (TubeBell *)OBJ_MEMBER_UINT(SELF, TubeBell_offset_data );
+    TubeBell * tube= (TubeBell *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     RETURN->v_float = (t_CKFLOAT) tube->baseFrequency ;
 }
 
@@ -27549,7 +27550,7 @@ CK_DLL_CGET( WvIn_cget_path )
 CK_DLL_CTOR( WaveLoop_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data) = (t_CKUINT)new WaveLoop;
+    OBJ_MEMBER_UINT(SELF, WvIn_offset_data) = (t_CKUINT)new WaveLoop;
 }
 
 
@@ -27559,7 +27560,7 @@ CK_DLL_CTOR( WaveLoop_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( WaveLoop_dtor )
 {
-    delete (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    delete (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
 }
 
 
@@ -27569,7 +27570,7 @@ CK_DLL_DTOR( WaveLoop_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( WaveLoop_tick )
 {
-    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
     *out = ( w->m_loaded ? (t_CKFLOAT)w->tick() / SHRT_MAX : (SAMPLE)0.0 );
     return TRUE;
 }
@@ -27591,7 +27592,7 @@ CK_DLL_PMSG( WaveLoop_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( WaveLoop_ctrl_freq )
 {
-    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     w->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) w->m_freq ;
@@ -27604,7 +27605,7 @@ CK_DLL_CTRL( WaveLoop_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( WaveLoop_cget_freq )
 {
-    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
     RETURN->v_float = (t_CKFLOAT) w->m_freq ;
 }
 
@@ -27615,7 +27616,7 @@ CK_DLL_CGET( WaveLoop_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( WaveLoop_ctrl_phase )
 {
-    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
     float f = (float)GET_CK_FLOAT(ARGS);
     w->addPhase( f );
     RETURN->v_float = (t_CKFLOAT) w->time / w->fileSize ;
@@ -27628,7 +27629,7 @@ CK_DLL_CTRL( WaveLoop_ctrl_phase )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( WaveLoop_cget_phase )
 {
-    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
     RETURN->v_float = (t_CKFLOAT) w->time / w->fileSize ;
 }
 
@@ -27639,7 +27640,7 @@ CK_DLL_CGET( WaveLoop_cget_phase )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( WaveLoop_ctrl_phaseOffset )
 {
-    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     w->addPhaseOffset( f );
     RETURN->v_float = (t_CKFLOAT) w->phaseOffset ;
@@ -27652,7 +27653,7 @@ CK_DLL_CTRL( WaveLoop_ctrl_phaseOffset )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( WaveLoop_cget_phaseOffset )
 {
-    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WaveLoop_offset_data );
+    WaveLoop * w = (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data );
     RETURN->v_float = (t_CKFLOAT) w->phaseOffset ;
 }
 
