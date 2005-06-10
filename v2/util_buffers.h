@@ -47,7 +47,7 @@
 #define BYTE__                 unsigned char
 
 #ifndef TRUE
-#define TRUE	1
+#define TRUE    1
 #define FALSE   0
 #endif
 
@@ -70,25 +70,25 @@ public:
     UINT__ get( void * data, UINT__ num_elem, UINT__ read_offset_index );
     void put( void * data, UINT__ num_elem );
     BOOL__ empty( UINT__ read_offset_index );
-	UINT__ join( Chuck_Event * event = NULL );
-	void resign( UINT__ read_offset_index );
+    UINT__ join( Chuck_Event * event = NULL );
+    void resign( UINT__ read_offset_index );
 
 protected:
     BYTE__ * m_data;
     UINT__   m_data_width;
     //UINT__   m_read_offset;
 
-	// this holds the offset allocated by join(), paired with an optional
-	// Chuck_Event to notify when things are put in the buffer
-	struct ReadOffset
-	{
-		SINT__ read_offset;
-		Chuck_Event * event;
-		ReadOffset( SINT__ ro, Chuck_Event * e = NULL )
-		{ read_offset = ro; event = e; }
-	};
-	std::vector<ReadOffset> m_read_offsets;
-	std::queue<UINT__> m_free;
+    // this holds the offset allocated by join(), paired with an optional
+    // Chuck_Event to notify when things are put in the buffer
+    struct ReadOffset
+    {
+        SINT__ read_offset;
+        Chuck_Event * event;
+        ReadOffset( SINT__ ro, Chuck_Event * e = NULL )
+        { read_offset = ro; event = e; }
+    };
+    std::vector<ReadOffset> m_read_offsets;
+    std::queue<UINT__> m_free;
 
     UINT__   m_write_offset;
     UINT__   m_max_elem;

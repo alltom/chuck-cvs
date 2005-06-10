@@ -167,8 +167,8 @@ public: // machine components
     map<t_CKUINT, Chuck_VM_Shred *> children;
     t_CKUINT pc;
 
-	// vm
-	Chuck_VM * vm_ref;
+    // vm
+    Chuck_VM * vm_ref;
 
     // time
     t_CKTIME now;
@@ -183,7 +183,7 @@ public:
     t_CKUINT next_pc;
     t_CKBOOL is_done;
     t_CKBOOL is_running;
-	Chuck_Event * event;  // event shred is waiting on
+    Chuck_Event * event;  // event shred is waiting on
     map<Chuck_UGen *, Chuck_UGen *> m_ugen_map;
 
 public: // id
@@ -373,12 +373,12 @@ public:
 //-----------------------------------------------------------------------------
 enum Chuck_Msg_Type
 {
-	MSG_ADD = 1,
-	MSG_REMOVE,
+    MSG_ADD = 1,
+    MSG_REMOVE,
     MSG_REMOVEALL,
-	MSG_REPLACE,
+    MSG_REPLACE,
     MSG_STATUS,
-	MSG_PAUSE,
+    MSG_PAUSE,
     MSG_KILL,
     MSG_TIME,
     MSG_DONE

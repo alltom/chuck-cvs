@@ -49,7 +49,7 @@ static char g_lasterror[1024] = "[chuck]: (no error)";
 
 
 extern "C" { 
-	extern FILE *yyin;
+    extern FILE *yyin;
 }
 
 

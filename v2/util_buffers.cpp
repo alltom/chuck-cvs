@@ -110,27 +110,27 @@ void CBuffer::cleanup()
 //-----------------------------------------------------------------------------
 UINT__ CBuffer::join( Chuck_Event * event )
 {
-	// index of new pointer that will be pushed back
-	UINT__ read_offset_index;
-	
-	// add new pointer pointing (as pointers do) to current write offset
-	// (shreds don't get interrupted, so m_write_offset will always be correct, right?)
-	// (uh, hope so...)
-	if( !m_free.empty() )
-	{
-		read_offset_index = m_free.front();
-		m_free.pop();
-		//assert( read_offset_index < m_read_offsets.size() );
-		m_read_offsets[read_offset_index] = ReadOffset( (SINT__)m_write_offset, event );
-	}
-	else
-	{
-		read_offset_index = m_read_offsets.size();
-		m_read_offsets.push_back( ReadOffset( (SINT__)m_write_offset, event ) );
-	}
+    // index of new pointer that will be pushed back
+    UINT__ read_offset_index;
+    
+    // add new pointer pointing (as pointers do) to current write offset
+    // (shreds don't get interrupted, so m_write_offset will always be correct, right?)
+    // (uh, hope so...)
+    if( !m_free.empty() )
+    {
+        read_offset_index = m_free.front();
+        m_free.pop();
+        //assert( read_offset_index < m_read_offsets.size() );
+        m_read_offsets[read_offset_index] = ReadOffset( (SINT__)m_write_offset, event );
+    }
+    else
+    {
+        read_offset_index = m_read_offsets.size();
+        m_read_offsets.push_back( ReadOffset( (SINT__)m_write_offset, event ) );
+    }
 
-	// return index
-	return read_offset_index;
+    // return index
+    return read_offset_index;
 }
 
 
@@ -140,15 +140,15 @@ UINT__ CBuffer::join( Chuck_Event * event )
 //-----------------------------------------------------------------------------
 void CBuffer::resign( UINT__ read_offset_index )
 {
-	// make sure read_offset_index passed in is valid
-	if( read_offset_index < 0 || read_offset_index >= m_read_offsets.size() )
-		return;
-	
-	// add this index to free queue
-	m_free.push( read_offset_index );
+    // make sure read_offset_index passed in is valid
+    if( read_offset_index < 0 || read_offset_index >= m_read_offsets.size() )
+        return;
+    
+    // add this index to free queue
+    m_free.push( read_offset_index );
 
-	// "invalidate" the pointer at that index
-	m_read_offsets[read_offset_index].read_offset = -1;
+    // "invalidate" the pointer at that index
+    m_read_offsets[read_offset_index].read_offset = -1;
 }
 
 
@@ -180,7 +180,7 @@ void CBuffer::resign( UINT__ read_offset_index )
 
 void CBuffer::put( void * data, UINT__ num_elem )
 {
-	UINT__ i, j;
+    UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
 
     // copy
@@ -194,26 +194,26 @@ void CBuffer::put( void * data, UINT__ num_elem )
         // move the write
         m_write_offset++;
 
-		// possibility of expelling evil shreds
-		for( j = 0; j < m_read_offsets.size(); j++ )
-		{
-			if( m_write_offset == m_read_offsets[j].read_offset )
-			{
-				// inform shred with index j that it has lost its privileges?
-				// invalidate its read_offset
-				m_read_offsets[j].read_offset = -1;
-			}
+        // possibility of expelling evil shreds
+        for( j = 0; j < m_read_offsets.size(); j++ )
+        {
+            if( m_write_offset == m_read_offsets[j].read_offset )
+            {
+                // inform shred with index j that it has lost its privileges?
+                // invalidate its read_offset
+                m_read_offsets[j].read_offset = -1;
+            }
 
-			if( m_read_offsets[j].event )
-				m_read_offsets[j].event->queue_broadcast();
-		}
+            if( m_read_offsets[j].event )
+                m_read_offsets[j].event->queue_broadcast();
+        }
 
         // wrap
         if( m_write_offset >= m_max_elem )
             m_write_offset = 0;
     }
 
-	
+    
 }
 
 
@@ -262,11 +262,11 @@ void CBuffer::put( void * data, UINT__ num_elem )
 
 BOOL__ CBuffer::empty( UINT__ read_offset_index )
 {
-	// make sure index is valid
-	if( read_offset_index >= m_read_offsets.size() )
-		return TRUE;
-	if( m_read_offsets[read_offset_index].read_offset < 0 )
-		return TRUE;
+    // make sure index is valid
+    if( read_offset_index >= m_read_offsets.size() )
+        return TRUE;
+    if( m_read_offsets[read_offset_index].read_offset < 0 )
+        return TRUE;
 
     SINT__ m_read_offset = m_read_offsets[read_offset_index].read_offset;
 
@@ -280,13 +280,13 @@ UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
 
-	// make sure index is valid
-	if( read_offset_index >= m_read_offsets.size() )
-		return 0;
-	if( m_read_offsets[read_offset_index].read_offset < 0 )
-		return 0;
+    // make sure index is valid
+    if( read_offset_index >= m_read_offsets.size() )
+        return 0;
+    if( m_read_offsets[read_offset_index].read_offset < 0 )
+        return 0;
 
-	SINT__ m_read_offset = m_read_offsets[read_offset_index].read_offset;
+    SINT__ m_read_offset = m_read_offsets[read_offset_index].read_offset;
 
     // read catch up with write
     if( m_read_offset == m_write_offset )
@@ -315,8 +315,8 @@ UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
             m_read_offset = 0;
     }
 
-	// update read offset at given index
-	m_read_offsets[read_offset_index].read_offset = m_read_offset;
+    // update read offset at given index
+    m_read_offsets[read_offset_index].read_offset = m_read_offset;
 
     // return number of elems
     return i;

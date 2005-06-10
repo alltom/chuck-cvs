@@ -201,10 +201,10 @@ CK_DLL_SFUN( rand2_impl ) // inclusive.
     //}
     else { 
       if ( range > 0 ) { 
-	RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
+    RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
       }
       else { 
-	RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
+    RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
       }
     }
 }
@@ -291,8 +291,8 @@ float powtodb(float f)
     if (f <= 0) return (0);
     else
     {
-    	float val = 100 + 10./LOGTEN * log(f);
-    	return (val < 0 ? 0 : val);
+        float val = 100 + 10./LOGTEN * log(f);
+        return (val < 0 ? 0 : val);
     }
 }
 
@@ -309,8 +309,8 @@ float rmstodb(float f)
     if (f <= 0) return (0);
     else
     {
-    	float val = 100 + 20./LOGTEN * log(f);
-    	return (val < 0 ? 0 : val);
+        float val = 100 + 20./LOGTEN * log(f);
+        return (val < 0 ? 0 : val);
     }
 }
 
@@ -324,12 +324,12 @@ CK_DLL_SFUN( rmstodb_impl )
 float dbtopow(float f)
 {
     if (f <= 0)
-    	return(0);
+        return(0);
     else
     {
-    	if (f > 870)
-	    f = 870;
-    	return (exp((LOGTEN * 0.1) * (f-100.)));
+        if (f > 870)
+        f = 870;
+        return (exp((LOGTEN * 0.1) * (f-100.)));
     }
 }
 
@@ -342,11 +342,11 @@ CK_DLL_SFUN( dbtopow_impl )
 float dbtorms(float f)
 {
     if (f <= 0)
-    	return(0);
+        return(0);
     else
     {
-    	if (f > 485)
-	    f = 485;
+        if (f > 485)
+        f = 485;
     }
     return (exp((LOGTEN * 0.05) * (f-100.)));
 }

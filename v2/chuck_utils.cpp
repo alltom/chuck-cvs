@@ -42,7 +42,7 @@
 
 void *checked_malloc( int len )
 {
-	if( !len ) return NULL;
+    if( !len ) return NULL;
 
     void *p = calloc( len, 1 );
     if( !p )

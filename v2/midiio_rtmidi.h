@@ -99,10 +99,10 @@ public:
     t_CKUINT  allnotesoff( t_CKUINT  channel );
 
 public:
-	RtMidiOut * mout;
-	std::vector<unsigned char> m_msg;
-	t_CKUINT m_device_num;
-	t_CKBOOL m_valid;
+    RtMidiOut * mout;
+    std::vector<unsigned char> m_msg;
+    t_CKUINT m_device_num;
+    t_CKBOOL m_valid;
 };
 
 
@@ -128,12 +128,12 @@ public:
 
 public:
     CBuffer * m_buffer;
-	t_CKUINT m_read_index;
-	RtMidiIn * min;
-	t_CKBOOL m_valid;
-	t_CKUINT m_device_num;
-	t_CKUINT m_ref_count;
-	Chuck_Object * SELF;
+    t_CKUINT m_read_index;
+    RtMidiIn * min;
+    t_CKBOOL m_valid;
+    t_CKUINT m_device_num;
+    t_CKUINT m_ref_count;
+    Chuck_Object * SELF;
 };
 
 
@@ -144,14 +144,14 @@ void probeMidiOut();
 class MidiInManager
 {
 public:
-	static t_CKBOOL open( MidiIn * min, t_CKINT device_num );
-	static t_CKBOOL close( MidiIn * min );
+    static t_CKBOOL open( MidiIn * min, t_CKINT device_num );
+    static t_CKBOOL close( MidiIn * min );
 
     static void cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
-		                       void *userData );
+                               void *userData );
 protected:
-	MidiInManager();
-	~MidiInManager();
+    MidiInManager();
+    ~MidiInManager();
 
     static std::vector<RtMidiIn *> the_mins;
     static std::vector<CBuffer *> the_bufs;
@@ -161,14 +161,14 @@ protected:
 class MidiOutManager
 {
 public:
-	static t_CKBOOL open( MidiOut * mout, t_CKINT device_num );
-	static t_CKBOOL close( MidiOut * mout );
+    static t_CKBOOL open( MidiOut * mout, t_CKINT device_num );
+    static t_CKBOOL close( MidiOut * mout );
 
 protected:
-	MidiOutManager();
-	~MidiOutManager();
+    MidiOutManager();
+    ~MidiOutManager();
 
-	static std::vector<RtMidiOut *> the_mouts;
+    static std::vector<RtMidiOut *> the_mouts;
 };
 
 
@@ -179,19 +179,19 @@ protected:
 class MidiRW
 {
 public:
-	MidiRW();
-	~MidiRW();
+    MidiRW();
+    ~MidiRW();
 
 public:
-	t_CKBOOL open( const char * filename );
-	t_CKBOOL close();
+    t_CKBOOL open( const char * filename );
+    t_CKBOOL close();
 
 public:
-	t_CKBOOL read( MidiMsg * msg, t_CKTIME * time );
-	t_CKBOOL write( MidiMsg * msg, t_CKTIME * time );
+    t_CKBOOL read( MidiMsg * msg, t_CKTIME * time );
+    t_CKBOOL write( MidiMsg * msg, t_CKTIME * time );
 
 protected:
-	FILE * file;
+    FILE * file;
 };
 
 // closes all MidiRW file handles
@@ -205,18 +205,18 @@ t_CKBOOL midirw_detach( );
 class MidiMsgOut
 {
 public:
-	MidiMsgOut();
-	~MidiMsgOut();
+    MidiMsgOut();
+    ~MidiMsgOut();
 
 public:
-	t_CKBOOL open( const char * filename );
-	t_CKBOOL close();
+    t_CKBOOL open( const char * filename );
+    t_CKBOOL close();
 
 public:
-	t_CKBOOL write( MidiMsg * msg, t_CKTIME * time );
+    t_CKBOOL write( MidiMsg * msg, t_CKTIME * time );
 
 protected:
-	FILE * file;
+    FILE * file;
 };
 
 
@@ -227,18 +227,18 @@ protected:
 class MidiMsgIn
 {
 public:
-	MidiMsgIn();
-	~MidiMsgIn();
+    MidiMsgIn();
+    ~MidiMsgIn();
 
 public:
-	t_CKBOOL open( const char * filename );
-	t_CKBOOL close();
+    t_CKBOOL open( const char * filename );
+    t_CKBOOL close();
 
 public:
-	t_CKBOOL read( MidiMsg * msg, t_CKTIME * time );
+    t_CKBOOL read( MidiMsg * msg, t_CKTIME * time );
 
 protected:
-	FILE * file;
+    FILE * file;
 };
 
 

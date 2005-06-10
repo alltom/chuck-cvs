@@ -494,7 +494,7 @@ protected:
   #define RTLD_LOCAL        0x4
   #define RTLD_GLOBAL       0x8
   #define RTLD_NOLOAD       0x10
-  #define RTLD_SHARED       0x20	/* not used, the default */
+  #define RTLD_SHARED       0x20    /* not used, the default */
   #define RTLD_UNSHARED     0x40
   #define RTLD_NODELETE     0x80
   #define RTLD_LAZY_UNDEF   0x100
@@ -514,7 +514,7 @@ protected:
   #define RTLD_LOCAL        0x4
   #define RTLD_GLOBAL       0x8
   #define RTLD_NOLOAD       0x10
-  #define RTLD_SHARED       0x20	/* not used, the default */
+  #define RTLD_SHARED       0x20    /* not used, the default */
   #define RTLD_UNSHARED     0x40
   #define RTLD_NODELETE     0x80
   #define RTLD_LAZY_UNDEF   0x100

@@ -702,18 +702,18 @@ t_CKUINT Chuck_Event::our_can_wait = 0;
 //-----------------------------------------------------------------------------
 void Chuck_Event::signal()
 {
-	if( !m_queue.empty() )
-	{
+    if( !m_queue.empty() )
+    {
         Chuck_VM_Shred * shred = m_queue.front();
-		m_queue.pop();
-		Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
-		shred->event = NULL;
+        m_queue.pop();
+        Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
+        shred->event = NULL;
         shreduler->remove_blocked( shred );
-		shreduler->shredule( shred );
-		// push the current time
+        shreduler->shredule( shred );
+        // push the current time
         t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
-		push_( sp, shreduler->now_system );
-	}
+        push_( sp, shreduler->now_system );
+    }
 }
 
 
@@ -725,22 +725,22 @@ void Chuck_Event::signal()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Event::remove( Chuck_VM_Shred * shred )
 {
-	std::queue<Chuck_VM_Shred *> temp;
-	t_CKBOOL removed = FALSE;
+    std::queue<Chuck_VM_Shred *> temp;
+    t_CKBOOL removed = FALSE;
 
-	while( !m_queue.empty() )
-	{
-		if( m_queue.front() != shred )
-			temp.push( m_queue.front() );
-		else {
-			shred->event = NULL;
-			removed = TRUE;
-		}
-		m_queue.pop();
-	}
+    while( !m_queue.empty() )
+    {
+        if( m_queue.front() != shred )
+            temp.push( m_queue.front() );
+        else {
+            shred->event = NULL;
+            removed = TRUE;
+        }
+        m_queue.pop();
+    }
 
-	m_queue = temp;
-	return removed;
+    m_queue = temp;
+    return removed;
 }
 
 
@@ -757,8 +757,8 @@ void Chuck_Event::queue_broadcast()
     if( !m_queue.empty() )
     {
         Chuck_VM_Shred * shred = m_queue.front();
-		shred->vm_ref->queue_event( this, 1 );
-	}
+        shred->vm_ref->queue_event( this, 1 );
+    }
 }
 
 
@@ -770,10 +770,10 @@ void Chuck_Event::queue_broadcast()
 //-----------------------------------------------------------------------------
 void Chuck_Event::broadcast()
 {
-	while( !m_queue.empty() )
-	{
+    while( !m_queue.empty() )
+    {
         this->signal();
-	}
+    }
 }
 
 
@@ -786,8 +786,8 @@ void Chuck_Event::broadcast()
 //-----------------------------------------------------------------------------
 void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
 {
-	// make sure the shred info matches the vm
-	assert( shred->vm_ref == vm );
+    // make sure the shred info matches the vm
+    assert( shred->vm_ref == vm );
     
     Chuck_DL_Return RETURN;
     f_mfun canwaitplease = (f_mfun)this->vtable->funcs[our_can_wait]->code->native_func;
@@ -800,20 +800,20 @@ void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
         // suspend
         shred->is_running = FALSE;
 
-	    // add to waiting list
-	    m_queue.push( shred );
+        // add to waiting list
+        m_queue.push( shred );
 
-	    // add event to shred
-	    assert( shred->event == NULL );
-	    shred->event = this;
+        // add event to shred
+        assert( shred->event == NULL );
+        shred->event = this;
 
         // add shred to shreduler
         vm->shreduler()->add_blocked( shred );
     }
     else // can't wait
     {
-		// push the current time
+        // push the current time
         t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
-		push_( sp, shred->now );
+        push_( sp, shred->now );
     }
 }

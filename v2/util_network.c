@@ -189,7 +189,7 @@ t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port )
 #else
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #endif
-	}
+    }
 
     ret = ck_connect2( sock, (struct sockaddr *)&sock->sock_in, 
         sizeof( struct sockaddr_in ) );

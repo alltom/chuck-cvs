@@ -1522,7 +1522,7 @@ void RtApiCore :: initialize(void)
 {
   OSStatus err = noErr;
   UInt32 dataSize;
-  AudioDeviceID	*deviceList = NULL;
+  AudioDeviceID *deviceList = NULL;
   nDevices_ = 0;
 
   // Find out how many audio devices there are, if any.
@@ -1536,7 +1536,7 @@ void RtApiCore :: initialize(void)
   if (nDevices_ == 0) return;
 
   // Make space for the devices we are about to get.
-  deviceList = (AudioDeviceID	*) malloc( dataSize );
+  deviceList = (AudioDeviceID   *) malloc( dataSize );
   if (deviceList == NULL) {
     sprintf(message_, "RtApiCore: memory allocation error during initialization!");
     error(RtError::MEMORY_ERROR);
@@ -1608,7 +1608,7 @@ int RtApiCore :: getDefaultOutputDevice(void)
 }
 
 static bool deviceSupportsFormat( AudioDeviceID id, bool isInput,
-                                  AudioStreamBasicDescription	*desc, bool isDuplex )
+                                  AudioStreamBasicDescription   *desc, bool isDuplex )
 {
   OSStatus result = noErr;
   UInt32 dataSize = sizeof( AudioStreamBasicDescription );
@@ -1638,8 +1638,8 @@ void RtApiCore :: probeDeviceInfo( RtApiDevice *info )
   OSStatus err = noErr;
 
   // Get the device manufacturer and name.
-  char	name[256];
-  char	fullname[512];
+  char  name[256];
+  char  fullname[512];
   UInt32 dataSize = 256;
   AudioDeviceID *id = (AudioDeviceID *) info->apiDeviceId;
   err = AudioDeviceGetProperty( *id, 0, false,
@@ -1668,7 +1668,7 @@ void RtApiCore :: probeDeviceInfo( RtApiDevice *info )
 
   // Get output channel information.
   unsigned int i, minChannels = 0, maxChannels = 0, nStreams = 0;
-  AudioBufferList	*bufferList = nil;
+  AudioBufferList   *bufferList = nil;
   err = AudioDeviceGetPropertyInfo( *id, 0, false,
                                     kAudioDevicePropertyStreamConfiguration,
                                     &dataSize, NULL );
@@ -1767,7 +1767,7 @@ void RtApiCore :: probeDeviceInfo( RtApiDevice *info )
   // apply to input or output only.
 
   // Create a stream description structure.
-  AudioStreamBasicDescription	description;
+  AudioStreamBasicDescription   description;
   dataSize = sizeof( AudioStreamBasicDescription );
   memset(&description, 0, sizeof(AudioStreamBasicDescription));
   bool isInput = false;
@@ -1920,7 +1920,7 @@ bool RtApiCore :: probeDeviceOpen( int device, StreamMode mode, int channels,
   UInt32 dataSize;
   unsigned int deviceChannels, nStreams = 0;
   UInt32 iChannel = 0, iStream = 0;
-  AudioBufferList	*bufferList = nil;
+  AudioBufferList   *bufferList = nil;
   err = AudioDeviceGetPropertyInfo( id, 0, isInput,
                                     kAudioDevicePropertyStreamConfiguration,
                                     &dataSize, NULL );
@@ -1988,7 +1988,7 @@ bool RtApiCore :: probeDeviceOpen( int device, StreamMode mode, int channels,
   free (bufferList);
 
   // Determine the buffer size.
-  AudioValueRange	bufferRange;
+  AudioValueRange   bufferRange;
   dataSize = sizeof(AudioValueRange);
   err = AudioDeviceGetProperty( id, 0, isInput,
                                 kAudioDevicePropertyBufferSizeRange,
@@ -2032,7 +2032,7 @@ bool RtApiCore :: probeDeviceOpen( int device, StreamMode mode, int channels,
   stream_.nBuffers = 1;
 
   // Set the stream format description.  Do for each channel in mono mode.
-  AudioStreamBasicDescription	description;
+  AudioStreamBasicDescription   description;
   dataSize = sizeof( AudioStreamBasicDescription );
   if ( stream_.deInterleave[mode] ) nStreams = channels;
   else nStreams = 1;
@@ -2604,7 +2604,7 @@ void RtApiJack :: initialize(void)
   // Tell the jack server to call jackerror() when it experiences an
   // error.  This function saves the error message for subsequent
   // reporting via the normal RtAudio error function.
-	jack_set_error_function( jackerror );
+    jack_set_error_function( jackerror );
 
   // Look for jack server and try to become a client.
   jack_client_t *client;
@@ -3237,23 +3237,23 @@ void RtApiAlsa :: initialize(void)
       sprintf(message_, "RtApiAlsa: control open (%i): %s.", card, snd_strerror(result));
       error(RtError::DEBUG_WARNING);
       goto next_card;
-		}
+        }
     result = snd_ctl_card_info(handle, info);
-		if (result < 0) {
+        if (result < 0) {
       sprintf(message_, "RtApiAlsa: control hardware info (%i): %s.", card, snd_strerror(result));
       error(RtError::DEBUG_WARNING);
       goto next_card;
-		}
+        }
     cardId = snd_ctl_card_info_get_id(info);
-		subdevice = -1;
-		while (1) {
+        subdevice = -1;
+        while (1) {
       result = snd_ctl_pcm_next_device(handle, &subdevice);
-			if (result < 0) {
+            if (result < 0) {
         sprintf(message_, "RtApiAlsa: control next device (%i): %s.", card, snd_strerror(result));
         error(RtError::DEBUG_WARNING);
         break;
       }
-			if (subdevice < 0)
+            if (subdevice < 0)
         break;
       sprintf( name, "hw:%d,%d", card, subdevice );
       // If a cardId exists and it contains at least one non-numeric
@@ -3284,8 +3284,8 @@ void RtApiAlsa :: probeDeviceInfo(RtApiDevice *info)
   snd_pcm_t *handle;
   snd_ctl_t *chandle;
   snd_pcm_stream_t stream;
-	snd_pcm_info_t *pcminfo;
-	snd_pcm_info_alloca(&pcminfo);
+    snd_pcm_info_t *pcminfo;
+    snd_pcm_info_alloca(&pcminfo);
   snd_pcm_hw_params_t *params;
   snd_pcm_hw_params_alloca(&params);
   char name[64];
@@ -3590,7 +3590,7 @@ bool RtApiAlsa :: probeDeviceOpen( int device, StreamMode mode, int channels,
     err = snd_pcm_hw_params_set_access(handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
   }
   else if ( !snd_pcm_hw_params_test_access( handle, hw_params, SND_PCM_ACCESS_RW_NONINTERLEAVED) ) {
-		err = snd_pcm_hw_params_set_access(handle, hw_params, SND_PCM_ACCESS_RW_NONINTERLEAVED);
+        err = snd_pcm_hw_params_set_access(handle, hw_params, SND_PCM_ACCESS_RW_NONINTERLEAVED);
     stream_.deInterleave[mode] = true;
   }
   else {
@@ -4531,7 +4531,7 @@ void RtApiAsio :: probeDeviceInfo(RtApiDevice *info)
   else if ( channelInfo.type == ASIOSTFloat64MSB || channelInfo.type == ASIOSTFloat64LSB )
     info->nativeFormats |= RTAUDIO_FLOAT64;
 
-	// Check that we have at least one supported format.
+    // Check that we have at least one supported format.
   if (info->nativeFormats == 0) {
     drivers.removeCurrentDriver();
     sprintf(message_, "RtApiAsio: driver (%s) data format not supported by RtAudio.",
@@ -6682,7 +6682,7 @@ static bool CALLBACK deviceInfoCallback(LPGUID lpguid,
   strncpy(info->name, lpcstrDescription, 64);
   info->id = lpguid;
 
-	HRESULT    hr;
+    HRESULT    hr;
   info->isValid = false;
   if (info->isInput == true) {
     DSCCAPS               caps;
@@ -6750,7 +6750,7 @@ static bool CALLBACK deviceIdCallback(LPGUID lpguid,
 
 static char* getErrorString(int code)
 {
-	switch (code) {
+    switch (code) {
 
   case DSERR_ALLOCATED:
     return "Direct Sound already allocated";
@@ -6799,7 +6799,7 @@ static char* getErrorString(int code)
 
   default:
     return "Direct Sound unknown error";
-	}
+    }
 }
 
 //******************** End of __WINDOWS_DS__ *********************//

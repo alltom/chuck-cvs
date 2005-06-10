@@ -58,9 +58,9 @@ std::vector<RtMidiOut *> MidiOutManager::the_mouts;
 //-----------------------------------------------------------------------------
 MidiOut::MidiOut()
 {
-	mout = new RtMidiOut;
+    mout = new RtMidiOut;
     m_device_num = 0;
-	m_valid = FALSE;
+    m_valid = FALSE;
 }
 
 
@@ -73,7 +73,7 @@ MidiOut::MidiOut()
 MidiOut::~MidiOut()
 {
     if( mout ) this->close();
-	SAFE_DELETE( mout );
+    SAFE_DELETE( mout );
 }
 
 
@@ -109,18 +109,18 @@ t_CKUINT MidiOut::send( t_CKBYTE status, t_CKBYTE data1 )
 //-----------------------------------------------------------------------------
 t_CKUINT MidiOut::send( t_CKBYTE status, t_CKBYTE data1, t_CKBYTE data2 )
 {
-	if( !m_valid ) return 0;
+    if( !m_valid ) return 0;
 
-	// clear
-	m_msg.clear();
-	// add
-	m_msg.push_back( status );
-	m_msg.push_back( data1 );
-	m_msg.push_back( data2 );
+    // clear
+    m_msg.clear();
+    // add
+    m_msg.push_back( status );
+    m_msg.push_back( data1 );
+    m_msg.push_back( data2 );
 
     mout->sendMessage( &m_msg );
 
-	return 3;
+    return 3;
 }
 
 
@@ -132,18 +132,18 @@ t_CKUINT MidiOut::send( t_CKBYTE status, t_CKBYTE data1, t_CKBYTE data2 )
 //-----------------------------------------------------------------------------
 t_CKUINT MidiOut::send( const MidiMsg * msg )
 {
-	if( !m_valid ) return 0;
+    if( !m_valid ) return 0;
 
-	// clear
-	m_msg.clear();
-	// add
-	m_msg.push_back( msg->data[0] );
-	m_msg.push_back( msg->data[1] );
-	m_msg.push_back( msg->data[2] );
+    // clear
+    m_msg.clear();
+    // add
+    m_msg.push_back( msg->data[0] );
+    m_msg.push_back( msg->data[1] );
+    m_msg.push_back( msg->data[2] );
 
     mout->sendMessage( &m_msg );
 
-	return 3;
+    return 3;
 }
 
 
@@ -159,7 +159,7 @@ t_CKBOOL MidiOut::open( t_CKUINT device_num )
     if( m_valid )
         this->close();
 
-	return m_valid = MidiOutManager::open( this, (t_CKINT)device_num );
+    return m_valid = MidiOutManager::open( this, (t_CKINT)device_num );
 }
 
 
@@ -175,9 +175,9 @@ t_CKBOOL MidiOut::close( )
         return FALSE;
 
     // close
-	//MidiOutManager::close( this );
+    //MidiOutManager::close( this );
 
-	m_valid = FALSE;
+    m_valid = FALSE;
 
     return TRUE;
 }
@@ -251,8 +251,8 @@ t_CKUINT MidiOut::chanpress( t_CKUINT channel, t_CKUINT pressure )
 //-----------------------------------------------------------------------------
 t_CKUINT MidiOut::pitchbend( t_CKUINT channel, t_CKUINT bend_val )
 {
-	assert( FALSE );
-	return 0;
+    assert( FALSE );
+    return 0;
 //    return this->send( (t_CKBYTE)(MIDI_PITCHBEND + channel),
 //                       (t_CKBYTE)(HIBYTE( bend_val << 1 )),
 //                       (t_CKBYTE)(LOBYTE( bend_val & 0x7f )) );
@@ -280,11 +280,11 @@ t_CKUINT MidiOut::allnotesoff( t_CKUINT channel )
 //-----------------------------------------------------------------------------
 MidiIn::MidiIn()
 {
-	m_device_num = 0;
-	m_valid = FALSE;
-	m_read_index = 0;
-	m_buffer = NULL;
-	SELF = NULL;
+    m_device_num = 0;
+    m_valid = FALSE;
+    m_read_index = 0;
+    m_buffer = NULL;
+    SELF = NULL;
 }
 
 
@@ -297,7 +297,7 @@ MidiIn::MidiIn()
 MidiIn::~MidiIn( )
 {
     this->close();
-	// SAFE_DELETE( min );
+    // SAFE_DELETE( min );
 }
 
 
@@ -313,8 +313,8 @@ t_CKBOOL MidiIn::open( t_CKUINT device_num )
     if( m_valid )
         this->close();
 
-	// open
-	return m_valid = MidiInManager::open( this, (t_CKINT)device_num );
+    // open
+    return m_valid = MidiInManager::open( this, (t_CKINT)device_num );
 }
 
 
@@ -322,68 +322,68 @@ t_CKBOOL MidiIn::open( t_CKUINT device_num )
 
 MidiInManager::MidiInManager()
 {
-	the_mins.resize( 1024 );
-	the_bufs.resize( 1024 );
+    the_mins.resize( 1024 );
+    the_bufs.resize( 1024 );
 }
 
 
 MidiInManager::~MidiInManager()
 {
-	// yeah right
+    // yeah right
 }
 
 
 t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
 {
     // see if port not already open
-	if( device_num >= (t_CKINT)the_mins.capacity() || !the_mins[device_num] )
-	{
+    if( device_num >= (t_CKINT)the_mins.capacity() || !the_mins[device_num] )
+    {
 
-		// allocate the buffer
-		CBuffer * cbuf = new CBuffer;
-		if( !cbuf->initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
-		{
-			EM_error2( 0, "MidiIn: couldn't allocate CBuffer for port %i...", device_num );
-			delete cbuf;
-			return FALSE;
-		}
+        // allocate the buffer
+        CBuffer * cbuf = new CBuffer;
+        if( !cbuf->initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
+        {
+            EM_error2( 0, "MidiIn: couldn't allocate CBuffer for port %i...", device_num );
+            delete cbuf;
+            return FALSE;
+        }
 
-		// allocate
-		RtMidiIn * rtmin = new RtMidiIn;
-		try {
-			rtmin->openPort( device_num );
-			rtmin->setCallback( cb_midi_input, cbuf );
-		} catch( RtError & err ) {
-			// print it
-			EM_error2( 0, "MidiIn: couldn't open MIDI port %i...", device_num );
-			EM_error2( 0, "...(%s)", err.getMessage().c_str() );
-			delete cbuf;
-			return FALSE;
-		}
+        // allocate
+        RtMidiIn * rtmin = new RtMidiIn;
+        try {
+            rtmin->openPort( device_num );
+            rtmin->setCallback( cb_midi_input, cbuf );
+        } catch( RtError & err ) {
+            // print it
+            EM_error2( 0, "MidiIn: couldn't open MIDI port %i...", device_num );
+            EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+            delete cbuf;
+            return FALSE;
+        }
 
-		// resize?
-		if( device_num >= (t_CKINT)the_mins.capacity() )
-		{
-			t_CKINT size = the_mins.capacity() * 2;
-			if( device_num >= size ) size = device_num + 1;
-			the_mins.resize( size );
-			the_bufs.resize( size );
-		}
+        // resize?
+        if( device_num >= (t_CKINT)the_mins.capacity() )
+        {
+            t_CKINT size = the_mins.capacity() * 2;
+            if( device_num >= size ) size = device_num + 1;
+            the_mins.resize( size );
+            the_bufs.resize( size );
+        }
 
-		// put cbuf and rtmin in vector for future generations
+        // put cbuf and rtmin in vector for future generations
         the_mins[device_num] = rtmin;
-		the_bufs[device_num] = cbuf;
-	}
+        the_bufs[device_num] = cbuf;
+    }
 
-	// found
-	min->m_buffer = the_bufs[device_num];
-	// get an index into your (you are min here) own buffer, 
-	// and a free ticket to your own workshop
-	min->m_read_index = min->m_buffer->join( (Chuck_Event *)min->SELF );
+    // found
+    min->m_buffer = the_bufs[device_num];
+    // get an index into your (you are min here) own buffer, 
+    // and a free ticket to your own workshop
+    min->m_read_index = min->m_buffer->join( (Chuck_Event *)min->SELF );
         min->m_device_num = (t_CKUINT)device_num;
         
-	// done
-	return TRUE;
+    // done
+    return TRUE;
 }
 
 
@@ -398,10 +398,10 @@ t_CKBOOL MidiIn::close()
     if( !m_valid )
         return FALSE;
 
-	// close
-	// MidiInManager::close( this );
+    // close
+    // MidiInManager::close( this );
 
-	m_valid = FALSE;
+    m_valid = FALSE;
 
     return TRUE;
 }
@@ -428,7 +428,7 @@ t_CKBOOL MidiIn::empty()
 //-----------------------------------------------------------------------------
 t_CKUINT MidiIn::recv( MidiMsg * msg )
 {
-	if( !m_valid ) return FALSE;
+    if( !m_valid ) return FALSE;
     return m_buffer->get( msg, 1, m_read_index );
 }
 
@@ -440,14 +440,14 @@ t_CKUINT MidiIn::recv( MidiMsg * msg )
 // desc: call back
 //-----------------------------------------------------------------------------
 void MidiInManager::cb_midi_input( double deltatime, std::vector<unsigned char> * msg,
-		                           void * userData )
+                                   void * userData )
 {
-	unsigned int nBytes = msg->size();
-	CBuffer * cbuf = (CBuffer *)userData;
-	MidiMsg m;
-	if( nBytes >= 1 ) m.data[0] = msg->at(0);
-	if( nBytes >= 2 ) m.data[1] = msg->at(1);
-	if( nBytes >= 3 ) m.data[2] = msg->at(2);
+    unsigned int nBytes = msg->size();
+    CBuffer * cbuf = (CBuffer *)userData;
+    MidiMsg m;
+    if( nBytes >= 1 ) m.data[0] = msg->at(0);
+    if( nBytes >= 2 ) m.data[1] = msg->at(1);
+    if( nBytes >= 3 ) m.data[2] = msg->at(2);
 
     // put in the buffer, make sure not active sensing
     if( m.data[2] != 0xfe )
@@ -465,26 +465,26 @@ void MidiInManager::cb_midi_input( double deltatime, std::vector<unsigned char> 
 //-----------------------------------------------------------------------------
 void probeMidiIn()
 {
-	RtMidiIn * min = NULL;
+    RtMidiIn * min = NULL;
 
-	try {
-		min = new RtMidiIn;;
-	} catch( RtError & err ) {
-		EM_error2b( 0, "%s", err.getMessageString() );
-		return;
-	}
+    try {
+        min = new RtMidiIn;;
+    } catch( RtError & err ) {
+        EM_error2b( 0, "%s", err.getMessageString() );
+        return;
+    }
 
-	// get num
-	t_CKUINT num = min->getPortCount();
-	EM_error2b( 0, "------( chuck -- %i MIDI inputs )------", num );
-	std::string s;
-	for( t_CKUINT i = 0; i < num; i++ )
-	{
-		try { s = min->getPortName( i ); }
-		catch( RtError & err )
-		{ err.printMessage(); return; }
-		EM_error2b( 0, "    [%i] : \"%s\"", i, s.c_str() );
-	}
+    // get num
+    t_CKUINT num = min->getPortCount();
+    EM_error2b( 0, "------( chuck -- %i MIDI inputs )------", num );
+    std::string s;
+    for( t_CKUINT i = 0; i < num; i++ )
+    {
+        try { s = min->getPortName( i ); }
+        catch( RtError & err )
+        { err.printMessage(); return; }
+        EM_error2b( 0, "    [%i] : \"%s\"", i, s.c_str() );
+    }
 }
 
 
@@ -496,75 +496,75 @@ void probeMidiIn()
 //-----------------------------------------------------------------------------
 void probeMidiOut()
 {
-	RtMidiOut * mout =  NULL;
+    RtMidiOut * mout =  NULL;
 
-	try {
-		mout = new RtMidiOut;
-	} catch( RtError & err ) {
-		EM_error2b( 0, "%s", err.getMessageString() );
-		return;
+    try {
+        mout = new RtMidiOut;
+    } catch( RtError & err ) {
+        EM_error2b( 0, "%s", err.getMessageString() );
+        return;
     }
 
-	// get num
-	t_CKUINT num = mout->getPortCount();
-	EM_error2b( 0, "------( chuck -- %i MIDI outputs )-----", num );
-	std::string s;
-	for( t_CKUINT i = 0; i < num; i++ )
-	{
-		try { s = mout->getPortName( i ); }
-		catch( RtError & err )
-		{ err.printMessage(); return; }
-		EM_error2b( 0, "    [%i] : \"%s\"", i, s.c_str() );
-	}
+    // get num
+    t_CKUINT num = mout->getPortCount();
+    EM_error2b( 0, "------( chuck -- %i MIDI outputs )-----", num );
+    std::string s;
+    for( t_CKUINT i = 0; i < num; i++ )
+    {
+        try { s = mout->getPortName( i ); }
+        catch( RtError & err )
+        { err.printMessage(); return; }
+        EM_error2b( 0, "    [%i] : \"%s\"", i, s.c_str() );
+    }
 }
 
 
 MidiOutManager::MidiOutManager()
 {
-	the_mouts.resize( 1024 );
+    the_mouts.resize( 1024 );
 }
 
 
 MidiOutManager::~MidiOutManager()
 {
-	// yeah right
+    // yeah right
 }
 
 
 t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
 {
     // see if port not already open
-	if( device_num >= (t_CKINT)the_mouts.capacity() || !the_mouts[device_num] )
-	{
-		// allocate
-		RtMidiOut * rtmout = new RtMidiOut;
-		try {
-			rtmout->openPort( device_num );
-		} catch( RtError & err ) {
-			// print it
-			EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
-			EM_error2( 0, "...(%s)", err.getMessage().c_str() );
-			return FALSE;
-		}
+    if( device_num >= (t_CKINT)the_mouts.capacity() || !the_mouts[device_num] )
+    {
+        // allocate
+        RtMidiOut * rtmout = new RtMidiOut;
+        try {
+            rtmout->openPort( device_num );
+        } catch( RtError & err ) {
+            // print it
+            EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
+            EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+            return FALSE;
+        }
 
-		// resize?
-		if( device_num >= (t_CKINT)the_mouts.capacity() )
-		{
-			t_CKINT size = the_mouts.capacity() * 2;
-			if( device_num >= size ) size = device_num + 1;
-			the_mouts.resize( size );
-		}
+        // resize?
+        if( device_num >= (t_CKINT)the_mouts.capacity() )
+        {
+            t_CKINT size = the_mouts.capacity() * 2;
+            if( device_num >= size ) size = device_num + 1;
+            the_mouts.resize( size );
+        }
 
-		// put rtmout in vector for future generations
+        // put rtmout in vector for future generations
         the_mouts[device_num] = rtmout;
-	}
+    }
 
-	// found (always) (except when it doesn't get here)
-	mout->mout = the_mouts[device_num];
+    // found (always) (except when it doesn't get here)
+    mout->mout = the_mouts[device_num];
     mout->m_device_num = (t_CKUINT)device_num;
 
-	// done
-	return TRUE;
+    // done
+    return TRUE;
 }
 
 
@@ -596,23 +596,23 @@ t_CKBOOL MidiRW::open( const char * filename )
 {
     this->close();
 
-	file = fopen( filename, "rb+" );
-	if( file == NULL )
-	{
-		file = fopen( filename, "wb+" );
-	}
+    file = fopen( filename, "rb+" );
+    if( file == NULL )
+    {
+        file = fopen( filename, "wb+" );
+    }
 
     // add to hash
     g_rw[this] = this;
 
-	return ( file != NULL );
+    return ( file != NULL );
 }
 
 t_CKBOOL MidiRW::close()
 {
     if( !file ) return FALSE;
 
-	t_CKBOOL value = fclose( file ) == 0;
+    t_CKBOOL value = fclose( file ) == 0;
     
     // remove from hash
     std::map<MidiRW *, MidiRW *>::iterator iter;
@@ -626,33 +626,33 @@ t_CKBOOL MidiRW::close()
 
 t_CKBOOL MidiRW::read( MidiMsg * msg, t_CKTIME * time )
 {
-	if( !file )
-		return FALSE;
+    if( !file )
+        return FALSE;
 
-	// is it open? i don't know...
-	
-	t_CKBOOL m, t;
-	
-	// wouldn't it be cool if this worked?
-	m = fread( msg, sizeof(MidiMsg), 1, file );
-	t = fread( time, sizeof(t_CKTIME), 1, file );
-	
-	return m && t;
+    // is it open? i don't know...
+    
+    t_CKBOOL m, t;
+    
+    // wouldn't it be cool if this worked?
+    m = fread( msg, sizeof(MidiMsg), 1, file );
+    t = fread( time, sizeof(t_CKTIME), 1, file );
+    
+    return m && t;
 }
 
 
 t_CKBOOL MidiRW::write( MidiMsg * msg, t_CKTIME * time )
 {
-	if( !file )
-		return FALSE;
+    if( !file )
+        return FALSE;
 
-	t_CKBOOL m, t;
+    t_CKBOOL m, t;
 
-	m = fwrite( msg, sizeof(MidiMsg), 1, file );
-	t = fwrite( time, sizeof(t_CKTIME), 1, file );
-	fflush( file );
+    m = fwrite( msg, sizeof(MidiMsg), 1, file );
+    t = fwrite( time, sizeof(t_CKTIME), 1, file );
+    fflush( file );
 
-	return m && t;
+    return m && t;
 }
 
 
@@ -685,19 +685,19 @@ t_CKBOOL MidiMsgOut::open( const char * filename )
 {
     this->close();
 
-	file = fopen( filename, "wb" );
+    file = fopen( filename, "wb" );
 
     // add to hash
     g_out[this] = this;
 
-	return ( file != NULL );
+    return ( file != NULL );
 }
 
 t_CKBOOL MidiMsgOut::close()
 {
     if( !file ) return FALSE;
 
-	t_CKBOOL value = fclose( file ) == 0;
+    t_CKBOOL value = fclose( file ) == 0;
     
     // remove from hash
     std::map<MidiMsgOut *, MidiMsgOut *>::iterator iter;
@@ -711,16 +711,16 @@ t_CKBOOL MidiMsgOut::close()
 
 t_CKBOOL MidiMsgOut::write( MidiMsg * msg, t_CKTIME * time )
 {
-	if( !file )
-		return FALSE;
+    if( !file )
+        return FALSE;
 
-	t_CKBOOL m, t;
+    t_CKBOOL m, t;
 
-	m = fwrite( msg, sizeof(MidiMsg), 1, file );
-	t = fwrite( time, sizeof(t_CKTIME), 1, file );
-	fflush( file );
+    m = fwrite( msg, sizeof(MidiMsg), 1, file );
+    t = fwrite( time, sizeof(t_CKTIME), 1, file );
+    fflush( file );
 
-	return m && t;
+    return m && t;
 }
 
 
@@ -739,16 +739,16 @@ t_CKBOOL MidiMsgIn::open( const char * filename )
 {
     this->close();
 
-	file = fopen( filename, "rb" );
+    file = fopen( filename, "rb" );
 
-	return ( file != NULL );
+    return ( file != NULL );
 }
 
 t_CKBOOL MidiMsgIn::close()
 {
     if( !file ) return FALSE;
 
-	t_CKBOOL value = fclose( file ) == 0;
+    t_CKBOOL value = fclose( file ) == 0;
     
     file = NULL;
 
@@ -757,16 +757,16 @@ t_CKBOOL MidiMsgIn::close()
 
 t_CKBOOL MidiMsgIn::read( MidiMsg * msg, t_CKTIME * time )
 {
-	if( !file )
-		return FALSE;
+    if( !file )
+        return FALSE;
 
-	// is it open? i don't know...
-	
-	t_CKBOOL m, t;
-	
-	// wouldn't it be cool if this worked?
-	m = fread( msg, sizeof(MidiMsg), 1, file );
-	t = fread( time, sizeof(t_CKTIME), 1, file );
-	
-	return m && t;
+    // is it open? i don't know...
+    
+    t_CKBOOL m, t;
+    
+    // wouldn't it be cool if this worked?
+    m = fread( msg, sizeof(MidiMsg), 1, file );
+    t = fread( time, sizeof(t_CKTIME), 1, file );
+    
+    return m && t;
 }

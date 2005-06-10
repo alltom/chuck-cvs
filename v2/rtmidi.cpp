@@ -702,13 +702,13 @@ extern "C" void *alsaMidiHandler( void *ptr )
     message.bytes.clear();
     switch (ev->type) {
 
-		case SND_SEQ_EVENT_PORT_SUBSCRIBED:
+        case SND_SEQ_EVENT_PORT_SUBSCRIBED:
 #if defined(__RTMIDI_DEBUG__)
       std::cout << "RtMidiIn::alsaMidiHandler: port connection made!\n";
 #endif
       break;
 
-		case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
+        case SND_SEQ_EVENT_PORT_UNSUBSCRIBED:
       std::cerr << "RtMidiIn::alsaMidiHandler: port connection has closed!\n";
       data->doInput = false;
       break;
@@ -719,7 +719,7 @@ extern "C" void *alsaMidiHandler( void *ptr )
     case SND_SEQ_EVENT_SENSING: // Active sensing
       if ( data->ignoreFlags & 0x04 ) break;
 
-		case SND_SEQ_EVENT_SYSEX:
+        case SND_SEQ_EVENT_SYSEX:
       if ( (data->ignoreFlags & 0x01) ) break;
       if ( ev->data.ext.len > apiData->bufferSize ) {
         apiData->bufferSize = ev->data.ext.len;
@@ -785,12 +785,12 @@ extern "C" void *alsaMidiHandler( void *ptr )
 void RtMidiIn :: initialize( void )
 {
   // Set up the ALSA sequencer client.
-	snd_seq_t *seq;
+    snd_seq_t *seq;
   int result = snd_seq_open(&seq, "default", SND_SEQ_OPEN_INPUT, 0);
   if ( result < 0 ) {
     errorString_ = "RtMidiIn::initialize: error creating ALSA sequencer input client object.";
     error( RtError::DRIVER_ERROR );
-	}
+    }
 
   // Set client name.
   snd_seq_set_client_name(seq, "RtMidi Input Client");
@@ -806,24 +806,24 @@ void RtMidiIn :: initialize( void )
 // This function is used to count or get the pinfo structure for a given port number.
 unsigned int portInfo( snd_seq_t *seq, snd_seq_port_info_t *pinfo, unsigned int type, int portNumber )
 {
-	snd_seq_client_info_t *cinfo;
+    snd_seq_client_info_t *cinfo;
   int client;
   int count = 0;
-	snd_seq_client_info_alloca( &cinfo );
+    snd_seq_client_info_alloca( &cinfo );
 
-	snd_seq_client_info_set_client( cinfo, -1 );
-	while ( snd_seq_query_next_client( seq, cinfo ) >= 0 ) {
+    snd_seq_client_info_set_client( cinfo, -1 );
+    while ( snd_seq_query_next_client( seq, cinfo ) >= 0 ) {
     client = snd_seq_client_info_get_client( cinfo );
     if ( client == 0 ) continue;
-		// Reset query info
-		snd_seq_port_info_set_client( pinfo, client );
-		snd_seq_port_info_set_port( pinfo, -1 );
-		while ( snd_seq_query_next_port( seq, pinfo ) >= 0 ) {
+        // Reset query info
+        snd_seq_port_info_set_client( pinfo, client );
+        snd_seq_port_info_set_port( pinfo, -1 );
+        while ( snd_seq_query_next_port( seq, pinfo ) >= 0 ) {
       if ( !PORT_TYPE( pinfo, type ) )  continue;
       if ( count == portNumber ) return 1;
       count++;
-		}
-	}
+        }
+    }
 
   // If a negative portNumber was used, return the port count.
   if ( portNumber < 0 ) return count;
@@ -844,8 +844,8 @@ void RtMidiIn :: openPort( unsigned int portNumber )
     error( RtError::NO_DEVICES_FOUND );
   }
 
-	snd_seq_port_info_t *pinfo;
-	snd_seq_port_info_alloca( &pinfo );
+    snd_seq_port_info_t *pinfo;
+    snd_seq_port_info_alloca( &pinfo );
   std::ostringstream ost;
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ, (int) portNumber ) == 0 ) {
@@ -968,8 +968,8 @@ RtMidiIn :: ~RtMidiIn()
 
 unsigned int RtMidiIn :: getPortCount()
 {
-	snd_seq_port_info_t *pinfo;
-	snd_seq_port_info_alloca( &pinfo );
+    snd_seq_port_info_t *pinfo;
+    snd_seq_port_info_alloca( &pinfo );
 
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   return portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ, -1 );
@@ -977,8 +977,8 @@ unsigned int RtMidiIn :: getPortCount()
 
 std::string RtMidiIn :: getPortName( unsigned int portNumber )
 {
-	snd_seq_port_info_t *pinfo;
-	snd_seq_port_info_alloca( &pinfo );
+    snd_seq_port_info_t *pinfo;
+    snd_seq_port_info_alloca( &pinfo );
 
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_READ|SND_SEQ_PORT_CAP_SUBS_READ, (int) portNumber ) ) {
@@ -999,8 +999,8 @@ std::string RtMidiIn :: getPortName( unsigned int portNumber )
 
 unsigned int RtMidiOut :: getPortCount()
 {
-	snd_seq_port_info_t *pinfo;
-	snd_seq_port_info_alloca( &pinfo );
+    snd_seq_port_info_t *pinfo;
+    snd_seq_port_info_alloca( &pinfo );
 
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   return portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE, -1 );
@@ -1008,8 +1008,8 @@ unsigned int RtMidiOut :: getPortCount()
 
 std::string RtMidiOut :: getPortName( unsigned int portNumber )
 {
-	snd_seq_port_info_t *pinfo;
-	snd_seq_port_info_alloca( &pinfo );
+    snd_seq_port_info_t *pinfo;
+    snd_seq_port_info_alloca( &pinfo );
 
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE, (int) portNumber ) ) {
@@ -1026,12 +1026,12 @@ std::string RtMidiOut :: getPortName( unsigned int portNumber )
 void RtMidiOut :: initialize( void )
 {
   // Set up the ALSA sequencer client.
-	snd_seq_t *seq;
+    snd_seq_t *seq;
   int result = snd_seq_open(&seq, "default", SND_SEQ_OPEN_OUTPUT, 0);
   if ( result < 0 ) {
     errorString_ = "RtMidiOut::initialize: error creating ALSA sequencer client object.";
     error( RtError::DRIVER_ERROR );
-	}
+    }
 
   // Set client name.
   snd_seq_set_client_name(seq, "RtMidi Output Client");
@@ -1073,8 +1073,8 @@ void RtMidiOut :: openPort( unsigned int portNumber )
     error( RtError::NO_DEVICES_FOUND );
   }
 
-	snd_seq_port_info_t *pinfo;
-	snd_seq_port_info_alloca( &pinfo );
+    snd_seq_port_info_t *pinfo;
+    snd_seq_port_info_alloca( &pinfo );
   std::ostringstream ost;
   AlsaMidiData *data = static_cast<AlsaMidiData *> (apiData_);
   if ( portInfo( data->seq, pinfo, SND_SEQ_PORT_CAP_WRITE|SND_SEQ_PORT_CAP_SUBS_WRITE, (int) portNumber ) == 0 ) {

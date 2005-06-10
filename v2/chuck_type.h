@@ -87,8 +87,8 @@ public:
     { assert( scope.size() != 0 ); (*scope.back())[id] = value; }
 
     // lookup id
-	T operator []( const string & id )
-	{ return this->lookup( id ); }
+    T operator []( const string & id )
+    { return this->lookup( id ); }
     T lookup( const string & id, t_CKINT climb = 1 )
     { return this->lookup( insert_symbol(id.c_str()), climb ); }
     // -1 base, 0 current, 1 climb
@@ -156,10 +156,10 @@ struct Chuck_Namespace : public Chuck_VM_Object
     t_CKUINT offset;
 
     // constructor
-	Chuck_Namespace() { pre_ctor = NULL; parent = NULL; offset = 0; 
+    Chuck_Namespace() { pre_ctor = NULL; parent = NULL; offset = 0; 
                         class_data = NULL; class_data_size = 0; }
     // destructor
-	~Chuck_Namespace() { }
+    ~Chuck_Namespace() { }
 
     // look up type
     Chuck_Type * lookup_type( const string & name, t_CKINT climb = 1 );
@@ -189,8 +189,8 @@ struct Chuck_Context : public Chuck_VM_Object
 {
     // src_name
     string src;
-	// parse tree
-	a_Program parse_tree;
+    // parse tree
+    a_Program parse_tree;
     // context namespace
     Chuck_Namespace * nspc;
     // error - means to free nspc too
@@ -203,10 +203,10 @@ struct Chuck_Context : public Chuck_VM_Object
     std::vector<Chuck_VM_Object *> new_nspc;
 
     // constructor
-	Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; 
+    Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; 
                       has_error = FALSE; }
-	// destructor
-	~Chuck_Context();
+    // destructor
+    ~Chuck_Context();
 
     // special alloc
     Chuck_Type * new_Chuck_Type();
@@ -232,24 +232,24 @@ public:
 
 private:
     static Chuck_Env * our_instance;
-	// constructor
+    // constructor
     Chuck_Env( )
-	{ vm = NULL; context = &global_context; 
+    { vm = NULL; context = &global_context; 
       global_nspc = global_context.nspc; this->reset(); }
 
 protected:
-	// global namespace
-	Chuck_Namespace * global_nspc;
+    // global namespace
+    Chuck_Namespace * global_nspc;
     // global context
     Chuck_Context global_context;
 
 public:
     // global namespace
     Chuck_Namespace * global() { return global_nspc; }
-	// namespace stack
-	vector<Chuck_Namespace *> nspc_stack;
-	// expression namespace
-	Chuck_Namespace * curr;
+    // namespace stack
+    vector<Chuck_Namespace *> nspc_stack;
+    // expression namespace
+    Chuck_Namespace * curr;
     // class stack
     vector<Chuck_Type *> class_stack;
     // current class definition
@@ -259,30 +259,30 @@ public:
     // how far nested in a class definition
     t_CKUINT class_scope;
 
-	// current contexts in memory
-	vector<Chuck_Context *> contexts;
+    // current contexts in memory
+    vector<Chuck_Context *> contexts;
     // current context
     Chuck_Context * context;
 
     // control scope (for break, continue)
     vector<a_Stmt> breaks;
 
-	// VM reference
-	Chuck_VM * vm;
-	// chuck dlls in memory
-	map<Chuck_DLL *, t_CKUINT> dlls;
+    // VM reference
+    Chuck_VM * vm;
+    // chuck dlls in memory
+    map<Chuck_DLL *, t_CKUINT> dlls;
 
     // reserved words
     map<string, t_CKBOOL> key_words;
     map<string, t_CKBOOL> key_types;
     map<string, t_CKBOOL> key_values;
 
-	// destructor
-	~Chuck_Env() { }
+    // destructor
+    ~Chuck_Env() { }
 
-	// reset
-	void reset( )
-	{ nspc_stack.clear(); nspc_stack.push_back( this->global() );
+    // reset
+    void reset( )
+    { nspc_stack.clear(); nspc_stack.push_back( this->global() );
       class_stack.clear(); class_stack.push_back( NULL );
       assert( context == &global_context );
       // if( context ) { contexts.pop_back(); context->release(); } 
@@ -290,10 +290,10 @@ public:
       class_scope = 0; }
 
     // top
-	Chuck_Namespace * nspc_top( )
-	{ assert( nspc_stack.size() > 0 ); return nspc_stack.back(); }
-	Chuck_Type * class_top( )
-	{ assert( class_stack.size() > 0 ); return class_stack.back(); }
+    Chuck_Namespace * nspc_top( )
+    { assert( nspc_stack.size() > 0 ); return nspc_stack.back(); }
+    Chuck_Type * class_top( )
+    { assert( class_stack.size() > 0 ); return class_stack.back(); }
 };
 
 
@@ -332,8 +332,8 @@ struct Chuck_Type : public Chuck_VM_Object
     Chuck_Type * parent;
     // size (in bytes)
     t_CKUINT size;
-	// owner of the type
-	Chuck_Namespace * owner;
+    // owner of the type
+    Chuck_Namespace * owner;
     // array type
     union { Chuck_Type * array_type; Chuck_Type * actual_type; };
     // array size (equals 0 means not array, else dimension of array)
@@ -454,11 +454,11 @@ struct Chuck_Value : public Chuck_VM_Object
     // overloads
     t_CKINT func_num_overloads;
 
-	// constructor
-	Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
+    // constructor
+    Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
                  t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
-	{ type = t; name = n; offset = s; is_const = c; access = acc; 
+    { type = t; name = n; offset = s; is_const = c; access = acc; 
       owner = o; owner_class = oc; addr = a; is_member = FALSE;
       is_context_global = FALSE; func_ref = NULL; func_num_overloads = 0; }
 };

@@ -80,14 +80,14 @@ void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
-	t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
+    t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
 
-	// pointer
-	pop_( reg_sp, 1 );
+    // pointer
+    pop_( reg_sp, 1 );
     // increment value
     (**(reg_sp))++;
-	// value
-	push_( the_sp, **(reg_sp) );
+    // value
+    push_( the_sp, **(reg_sp) );
 }
 
 
@@ -102,14 +102,14 @@ void Chuck_Instr_Dec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
-	t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
+    t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
 
-	// pointer
-	pop_( reg_sp, 1 );
+    // pointer
+    pop_( reg_sp, 1 );
     // decrement value
     (**(reg_sp))--;
-	// value
-	push_( the_sp, **(reg_sp) );
+    // value
+    push_( the_sp, **(reg_sp) );
 }
 
 
@@ -1622,7 +1622,7 @@ t_CKBOOL initialize_object( Chuck_Object * object, Chuck_Type * type )
     // set the type reference
     // TODO: reference count
     object->type_ref = type;
-	object->type_ref->add_ref();
+    object->type_ref->add_ref();
     // get the size
     object->size = type->obj_size;
     // allocate memory
@@ -1680,21 +1680,21 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
     if( !type->ugen_info )
     {
         // check type TODO: make this faster
-		if( isa( type, &t_event ) ) object = new Chuck_Event;
+        if( isa( type, &t_event ) ) object = new Chuck_Event;
         else if( isa( type, &t_string ) ) object = new Chuck_String;
         else object = new Chuck_Object;
     }
     else
-	{
-		// make ugen
-		Chuck_UGen * ugen;
-		object = ugen = new Chuck_UGen;
-		if( shred )
-		{
-			ugen->shred = shred;
-		    shred->add( ugen );
-		}
-	}
+    {
+        // make ugen
+        Chuck_UGen * ugen;
+        object = ugen = new Chuck_UGen;
+        if( shred )
+        {
+            ugen->shred = shred;
+            shred->add( ugen );
+        }
+    }
     
     // check to see enough memory
     if( !object ) goto out_of_memory;
@@ -1924,7 +1924,7 @@ void Chuck_Instr_Assign_String::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
     Chuck_String * lhs = NULL;
-	Chuck_String ** rhs_ptr = NULL;
+    Chuck_String ** rhs_ptr = NULL;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
@@ -1934,30 +1934,30 @@ void Chuck_Instr_Assign_String::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     lhs = (Chuck_String *)(*(reg_sp));
     // release any previous reference
     if( *rhs_ptr )
-	{
-		if( lhs ) (*rhs_ptr)->str = lhs->str;
-		else
-		{
-			// release reference
-			(*rhs_ptr)->release();
-			(*rhs_ptr) = NULL;
-		}
-	}
-	else
-	{
-		// if left is not null, yes
-		if( lhs != NULL )
-		{
-			(*rhs_ptr) = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
-			// add ref
-			(*rhs_ptr)->add_ref();
-			(*rhs_ptr)->str = lhs->str;
-		}
-		//EM_error2( 0, "internal error: somehow the type checker has allowed NULL strings" );
-		//EM_error2( 0, "we are sorry for the inconvenience but..." );
-		//EM_error2( 0, "we have to crash now.  Thanks." );
-		//assert( FALSE );
-	}
+    {
+        if( lhs ) (*rhs_ptr)->str = lhs->str;
+        else
+        {
+            // release reference
+            (*rhs_ptr)->release();
+            (*rhs_ptr) = NULL;
+        }
+    }
+    else
+    {
+        // if left is not null, yes
+        if( lhs != NULL )
+        {
+            (*rhs_ptr) = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
+            // add ref
+            (*rhs_ptr)->add_ref();
+            (*rhs_ptr)->str = lhs->str;
+        }
+        //EM_error2( 0, "internal error: somehow the type checker has allowed NULL strings" );
+        //EM_error2( 0, "we are sorry for the inconvenience but..." );
+        //EM_error2( 0, "we have to crash now.  Thanks." );
+        //assert( FALSE );
+    }
 
     // copy
     // memcpy( (void *)*(reg_sp+1), *obj, sizeof(t_CKUINT) );
@@ -2328,10 +2328,10 @@ void Chuck_Instr_Event_Wait::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // pop word from reg stack
     pop_( sp, 1 );
 
-	Chuck_Event * event = (Chuck_Event *)(*sp);
-	
-	// wait
-	event->wait( shred, vm );
+    Chuck_Event * event = (Chuck_Event *)(*sp);
+    
+    // wait
+    event->wait( shred, vm );
 }
 
 

@@ -154,10 +154,10 @@ void signal_pipe( int sig_num )
 {
     fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (no connection)...\n" );
     if( g_sigpipe_mode )
-	{
+    {
         stk_detach( 0, NULL );
         exit( 1 );
-	}
+    }
 }
 
 
@@ -383,7 +383,7 @@ int send_cmd( int argc, char ** argv, t_CKINT & i )
     g_sigpipe_mode = 1;
     int ret = 0;
     int tasks_total = 0, tasks_done = 0;
-	
+    
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
         if( ++i >= argc )
@@ -539,9 +539,9 @@ error:
 extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data )
 {
     Chuck_Msg * cmd = new Chuck_Msg;
-	Chuck_VM_Code * code = NULL;
+    Chuck_VM_Code * code = NULL;
     FILE * fd = NULL;
-	t_CKBOOL error = FALSE;
+    t_CKBOOL error = FALSE;
     
     // fprintf( stderr, "UDP message recv...\n" );
     if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
@@ -564,14 +564,14 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
 
         // type check
         if( !type_check( g_env, g_program ) )
-			return 1;
+            return 1;
 
         // emit
         if( !(code = emit( g_emitter, g_program )) )
-		{
-			error = TRUE;
-			goto unload;
-		}
+        {
+            error = TRUE;
+            goto unload;
+        }
 
         // name it
         code->name += string(msg->buffer);
@@ -585,10 +585,10 @@ unload:
             return 1;
         }
 
-		if( error )
-			return 1;
+        if( error )
+            return 1;
         
-		// set the flags for the command
+        // set the flags for the command
         cmd->type = msg->type;
         cmd->code = code;
         if( msg->type == MSG_REPLACE )
@@ -774,7 +774,7 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
     // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 
     if( !init_class_Midi( env ) ) goto error;
-	if( !init_class_MidiRW( env ) ) goto error;
+    if( !init_class_MidiRW( env ) ) goto error;
 
     // clear context
     type_engine_unload_context( env );
@@ -855,9 +855,9 @@ int main( int argc, char ** argv )
 
     t_CKUINT files = 0;
     t_CKINT i;
-	t_CKINT a;
+    t_CKINT a;
 
-	// parse command line args
+    // parse command line args
     for( i = 1; i < argc; i++ )
     {
         if( argv[i][0] == '-' || argv[i][0] == '+' ||
@@ -928,13 +928,13 @@ int main( int argc, char ** argv )
     {
         Digitalio::probe();
 
-		EM_error2b( 0, "" );
-		probeMidiIn();
-		EM_error2b( 0, "" );
-		probeMidiOut();
-		EM_error2b( 0, "" );
-	
-	    // exit
+        EM_error2b( 0, "" );
+        probeMidiIn();
+        EM_error2b( 0, "" );
+        probeMidiOut();
+        EM_error2b( 0, "" );
+    
+        // exit
         exit( 0 );
     }
     
@@ -1018,7 +1018,7 @@ int main( int argc, char ** argv )
         }
     }
 
-	// start tcp server
+    // start tcp server
     g_sock = ck_tcp_create( 1 );
     if( !g_sock || !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
     {

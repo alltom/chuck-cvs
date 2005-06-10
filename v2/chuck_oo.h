@@ -228,13 +228,13 @@ public:
     void signal();
     void broadcast();
     void wait( Chuck_VM_Shred * shred, Chuck_VM * vm );
-	t_CKBOOL remove( Chuck_VM_Shred * shred );
+    t_CKBOOL remove( Chuck_VM_Shred * shred );
 
 public: // internal
-	void queue_broadcast();
+    void queue_broadcast();
     static t_CKUINT our_can_wait;
 
-	std::queue<Chuck_VM_Shred *> m_queue;
+    std::queue<Chuck_VM_Shred *> m_queue;
 };
 
 

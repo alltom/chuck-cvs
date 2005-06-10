@@ -332,7 +332,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "BandedWG", "ugen", env->global(), 
-    					BandedWG_ctor, BandedWG_tick, BandedWG_pmsg ) ) return FALSE;
+                        BandedWG_ctor, BandedWG_tick, BandedWG_pmsg ) ) return FALSE;
     //member variable
     BandedWG_offset_data = type_engine_import_mvar ( env, "int", "@BandedWG_data", FALSE );
     if ( BandedWG_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -402,7 +402,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "BlowBotl", "ugen", env->global(), 
-    					BlowBotl_ctor, BlowBotl_tick, BlowBotl_pmsg ) ) return FALSE;
+                        BlowBotl_ctor, BlowBotl_tick, BlowBotl_pmsg ) ) return FALSE;
     //member variable
     BlowBotl_offset_data = type_engine_import_mvar ( env, "int", "@BlowBotl_data", FALSE );
     if ( BlowBotl_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -447,7 +447,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "BlowHole", "ugen", env->global(), 
-    					BlowHole_ctor, BlowHole_tick, BlowHole_pmsg ) ) return FALSE;
+                        BlowHole_ctor, BlowHole_tick, BlowHole_pmsg ) ) return FALSE;
     //member variable
     BlowHole_offset_data = type_engine_import_mvar ( env, "int", "@BlowHole_data", FALSE );
     if ( BlowHole_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -512,7 +512,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Bowed", "ugen", env->global(), 
-    					Bowed_ctor, Bowed_tick, Bowed_pmsg ) ) return FALSE;
+                        Bowed_ctor, Bowed_tick, Bowed_pmsg ) ) return FALSE;
     //member variable
     Bowed_offset_data = type_engine_import_mvar ( env, "int", "@Bowed_data", FALSE );
     if ( Bowed_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -553,7 +553,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "vibrato", Bowed_cget_vibrato ); //!    
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
-	
+    
     // end the class import
     type_engine_import_class_end( env );
 
@@ -563,7 +563,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Brass", "ugen", env->global(), 
-    					Brass_ctor, Brass_tick, Brass_pmsg ) ) return FALSE;
+                        Brass_ctor, Brass_tick, Brass_pmsg ) ) return FALSE;
     //member variable
     Brass_offset_data = type_engine_import_mvar ( env, "int", "@Brass_data", FALSE );
     if ( Brass_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -618,7 +618,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Clarinet", "ugen", env->global(), 
-    					Clarinet_ctor, Clarinet_tick, Clarinet_pmsg ) ) return FALSE;
+                        Clarinet_ctor, Clarinet_tick, Clarinet_pmsg ) ) return FALSE;
     //member variable
     Clarinet_offset_data = type_engine_import_mvar ( env, "int", "@Clarinet_data", FALSE );
     if ( Clarinet_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -666,7 +666,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Flute", "ugen", env->global(), 
-    					Flute_ctor, Flute_tick, Flute_pmsg ) ) return FALSE;
+                        Flute_ctor, Flute_tick, Flute_pmsg ) ) return FALSE;
     //member variable
     Flute_offset_data = type_engine_import_mvar ( env, "int", "@Flute_data", FALSE );
     if ( Flute_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -736,7 +736,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example mand-o-matic.ck
     if ( !type_engine_import_ugen_begin( env, "Mandolin", "ugen", env->global(), 
-    					Mandolin_ctor, Mandolin_tick, Mandolin_pmsg ) ) return FALSE;
+                        Mandolin_ctor, Mandolin_tick, Mandolin_pmsg ) ) return FALSE;
     //member variable
     Mandolin_offset_data = type_engine_import_mvar ( env, "int", "@Mandolin_data", FALSE );
     if ( Mandolin_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -794,7 +794,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example modalbot.ck
     if ( !type_engine_import_ugen_begin( env, "ModalBar", "ugen", env->global(), 
-    					ModalBar_ctor, ModalBar_tick, ModalBar_pmsg ) ) return FALSE;
+                        ModalBar_ctor, ModalBar_tick, ModalBar_pmsg ) ) return FALSE;
     //member variable
     ModalBar_offset_data = type_engine_import_mvar ( env, "int", "@ModalBar_data", FALSE );
     if ( ModalBar_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -901,7 +901,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example moogie.ck
     if ( !type_engine_import_ugen_begin( env, "Moog", "ugen", env->global(), 
-    					Moog_ctor, Moog_tick, Moog_pmsg ) ) return FALSE;
+                        Moog_ctor, Moog_tick, Moog_pmsg ) ) return FALSE;
     //member variable
     Moog_offset_data = type_engine_import_mvar ( env, "int", "@Moog_data", FALSE );
     if ( Moog_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -958,7 +958,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Saxofony", "ugen", env->global(), 
-    					Saxofony_ctor, Saxofony_tick, Saxofony_pmsg ) ) return FALSE;
+                        Saxofony_ctor, Saxofony_tick, Saxofony_pmsg ) ) return FALSE;
     //member variable
     Saxofony_offset_data = type_engine_import_mvar ( env, "int", "@Saxofony_data", FALSE );
     if ( Saxofony_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1014,7 +1014,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example shake-o-matic.ck
     if ( !type_engine_import_ugen_begin( env, "Shakers", "ugen", env->global(), 
-    					Shakers_ctor, Shakers_tick, Shakers_pmsg ) ) return FALSE;
+                        Shakers_ctor, Shakers_tick, Shakers_pmsg ) ) return FALSE;
     //member variable
     Shakers_offset_data = type_engine_import_mvar ( env, "int", "@Shakers_data", FALSE );
     if ( Shakers_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1050,7 +1050,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Sitar", "ugen", env->global(), 
-    					Sitar_ctor, Sitar_tick, Sitar_pmsg ) ) return FALSE;
+                        Sitar_ctor, Sitar_tick, Sitar_pmsg ) ) return FALSE;
     //member variable
     Sitar_offset_data = type_engine_import_mvar ( env, "int", "@Sitar_data", FALSE );
     if ( Sitar_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1088,7 +1088,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example stifkarp.ck
     if ( !type_engine_import_ugen_begin( env, "StifKarp", "ugen", env->global(), 
-    					StifKarp_ctor, StifKarp_tick, StifKarp_pmsg ) ) return FALSE;
+                        StifKarp_ctor, StifKarp_tick, StifKarp_pmsg ) ) return FALSE;
     //member variable
     StifKarp_offset_data = type_engine_import_mvar ( env, "int", "@StifKarp_data", FALSE );
     if ( StifKarp_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1147,7 +1147,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example voic-o-form.ck
     if ( !type_engine_import_ugen_begin( env, "VoicForm", "ugen", env->global(), 
-    					VoicForm_ctor, VoicForm_tick, VoicForm_pmsg ) ) return FALSE;
+                        VoicForm_ctor, VoicForm_tick, VoicForm_pmsg ) ) return FALSE;
     //member variable
     VoicForm_offset_data = type_engine_import_mvar ( env, "int", "@VoicForm_data", FALSE );
     if ( VoicForm_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1249,7 +1249,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "FM", "ugen", env->global(), 
-    					FM_ctor, FM_tick, FM_pmsg ) ) return FALSE;
+                        FM_ctor, FM_tick, FM_pmsg ) ) return FALSE;
     //member variable
     FM_offset_data = type_engine_import_mvar ( env, "int", "@FM_data", FALSE );
     if ( FM_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1299,7 +1299,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "BeeThree", "FM", env->global(), 
-    					BeeThree_ctor, BeeThree_tick, BeeThree_pmsg ) ) return FALSE;
+                        BeeThree_ctor, BeeThree_tick, BeeThree_pmsg ) ) return FALSE;
     //member variable
     BeeThree_offset_data = type_engine_import_mvar ( env, "int", "@BeeThree_data", FALSE );
     if ( BeeThree_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1317,7 +1317,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "FMVoices", "FM", env->global(), 
-    					FMVoices_ctor, FMVoices_tick, FMVoices_pmsg ) ) return FALSE;
+                        FMVoices_ctor, FMVoices_tick, FMVoices_pmsg ) ) return FALSE;
     //member variable
     FMVoices_offset_data = type_engine_import_mvar ( env, "int", "@FMVoices_data", FALSE );
     if ( FMVoices_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1362,7 +1362,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "HevyMetl", "FM", env->global(), 
-    					HevyMetl_ctor, HevyMetl_tick, HevyMetl_pmsg ) ) return FALSE;
+                        HevyMetl_ctor, HevyMetl_tick, HevyMetl_pmsg ) ) return FALSE;
     //member variable
     HevyMetl_offset_data = type_engine_import_mvar ( env, "int", "@HevyMetl_data", FALSE );
     if ( HevyMetl_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1380,7 +1380,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "PercFlut", "FM", env->global(), 
-    					PercFlut_ctor, PercFlut_tick, PercFlut_pmsg ) ) return FALSE;
+                        PercFlut_ctor, PercFlut_tick, PercFlut_pmsg ) ) return FALSE;
     //member variable
     PercFlut_offset_data = type_engine_import_mvar ( env, "int", "@PercFlut_data", FALSE );
     if ( PercFlut_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1406,7 +1406,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \examples rhodey.ck
     if ( !type_engine_import_ugen_begin( env, "Rhodey", "FM", env->global(), 
-    					Rhodey_ctor, Rhodey_tick, Rhodey_pmsg ) ) return FALSE;
+                        Rhodey_ctor, Rhodey_tick, Rhodey_pmsg ) ) return FALSE;
     //member variable
     Rhodey_offset_data = type_engine_import_mvar ( env, "int", "@Rhodey_data", FALSE );
     if ( Rhodey_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1431,7 +1431,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "TubeBell", "FM", env->global(), 
-    					TubeBell_ctor, TubeBell_tick, TubeBell_pmsg ) ) return FALSE;
+                        TubeBell_ctor, TubeBell_tick, TubeBell_pmsg ) ) return FALSE;
     //member variable
     TubeBell_offset_data = type_engine_import_mvar ( env, "int", "@TubeBell_data", FALSE );
     if ( TubeBell_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1457,7 +1457,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \examples wurley.ck
     if ( !type_engine_import_ugen_begin( env, "Wurley", "FM", env->global(), 
-    					Wurley_ctor, Wurley_tick, Wurley_pmsg ) ) return FALSE; 
+                        Wurley_ctor, Wurley_tick, Wurley_pmsg ) ) return FALSE; 
     //member variable
     Wurley_offset_data = type_engine_import_mvar ( env, "int", "@Wurley_data", FALSE );
     if ( Wurley_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1476,7 +1476,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     type_engine_import_class_end( env );
 
     //end FM
-	
+    
     //! \section stk - delay
 
 
@@ -1484,9 +1484,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Delay ugen
     //------------------------------------------------------------------------
 
-	//! see \example net_relay.ck
+    //! see \example net_relay.ck
     if ( !type_engine_import_ugen_begin( env, "Delay", "ugen", env->global(), 
-    					Delay_ctor, Delay_tick, Delay_pmsg ) ) return FALSE;
+                        Delay_ctor, Delay_tick, Delay_pmsg ) ) return FALSE;
     //member variable
     Delay_offset_data = type_engine_import_mvar ( env, "int", "@Delay_data", FALSE );
     if ( Delay_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1516,7 +1516,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "DelayA", "ugen", env->global(), 
-    					DelayA_ctor, DelayA_tick, DelayA_pmsg ) ) return FALSE;
+                        DelayA_ctor, DelayA_tick, DelayA_pmsg ) ) return FALSE;
     //member variable
     DelayA_offset_data = type_engine_import_mvar ( env, "int", "@DelayA_data", FALSE );
     if ( DelayA_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1543,9 +1543,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin DelayL ugen
     //------------------------------------------------------------------------
 
-	//! see \example i-robot.ck
+    //! see \example i-robot.ck
     if ( !type_engine_import_ugen_begin( env, "DelayL", "ugen", env->global(), 
-    					DelayL_ctor, DelayL_tick, DelayL_pmsg ) ) return FALSE;
+                        DelayL_ctor, DelayL_tick, DelayL_pmsg ) ) return FALSE;
     //member variable
     DelayL_offset_data = type_engine_import_mvar ( env, "int", "@DelayL_data", FALSE );
     if ( DelayL_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1573,7 +1573,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Echo", "ugen", env->global(), 
-    					Echo_ctor, Echo_tick, Echo_pmsg ) ) return FALSE;
+                        Echo_ctor, Echo_tick, Echo_pmsg ) ) return FALSE;
     //member variable
     Echo_offset_data = type_engine_import_mvar ( env, "int", "@Echo_data", FALSE );
     if ( Echo_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1609,9 +1609,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Envelope ugen
     //------------------------------------------------------------------------
 
-	//! see \example sixty.ck
+    //! see \example sixty.ck
     if ( !type_engine_import_ugen_begin( env, "Envelope", "ugen", env->global(), 
-    					Envelope_ctor, Envelope_tick, Envelope_pmsg ) ) return FALSE;
+                        Envelope_ctor, Envelope_tick, Envelope_pmsg ) ) return FALSE;
     //member variable
     Envelope_offset_data = type_engine_import_mvar ( env, "int", "@Envelope_data", FALSE );
     if ( Envelope_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1660,9 +1660,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin ADSR ugen
     //------------------------------------------------------------------------
 
-	//! see \example adsr.ck
+    //! see \example adsr.ck
     if ( !type_engine_import_ugen_begin( env, "ADSR", "Envelope", env->global(), 
-    					ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
+                        ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
     func = make_new_mfun ( "int", "keyOn", ADSR_ctrl_keyOn ); //! start the attack for non-zero values
     func->add_arg ( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
@@ -1720,7 +1720,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //uhhh we are supposed to have target and value here as well..  d'oh
 
     //! \section stk - filters
-	
+    
 
 
     //------------------------------------------------------------------------
@@ -1728,7 +1728,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "BiQuad", "ugen", env->global(), 
-    					BiQuad_ctor, BiQuad_tick, BiQuad_pmsg ) ) return FALSE;
+                        BiQuad_ctor, BiQuad_tick, BiQuad_pmsg ) ) return FALSE;
     //member variable
     BiQuad_offset_data = type_engine_import_mvar ( env, "int", "@BiQuad_data", FALSE );
     if ( BiQuad_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1804,7 +1804,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Filter", "ugen", env->global(), 
-    					Filter_ctor, Filter_tick, Filter_pmsg ) ) return FALSE;
+                        Filter_ctor, Filter_tick, Filter_pmsg ) ) return FALSE;
     //member variable
     Filter_offset_data = type_engine_import_mvar ( env, "int", "@Filter_data", FALSE );
     if ( Filter_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1824,7 +1824,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "OnePole", "ugen", env->global(), 
-    					OnePole_ctor, OnePole_tick, OnePole_pmsg ) ) return FALSE; 
+                        OnePole_ctor, OnePole_tick, OnePole_pmsg ) ) return FALSE; 
     //member variable
     OnePole_offset_data = type_engine_import_mvar ( env, "int", "@OnePole_data", FALSE );
     if ( OnePole_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1859,9 +1859,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin TwoPole ugen
     //------------------------------------------------------------------------
 
-	//! see \example powerup.ck
+    //! see \example powerup.ck
     if ( !type_engine_import_ugen_begin( env, "TwoPole", "ugen", env->global(), 
-    					TwoPole_ctor, TwoPole_tick, TwoPole_pmsg ) ) return FALSE;
+                        TwoPole_ctor, TwoPole_tick, TwoPole_pmsg ) ) return FALSE;
     //member variable
     TwoPole_offset_data = type_engine_import_mvar ( env, "int", "@TwoPole_data", FALSE );
     if ( TwoPole_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1917,7 +1917,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "OneZero", "ugen", env->global(), 
-    					OneZero_ctor, OneZero_tick, OneZero_pmsg ) ) return FALSE;
+                        OneZero_ctor, OneZero_tick, OneZero_pmsg ) ) return FALSE;
     //member variable
     OneZero_offset_data = type_engine_import_mvar ( env, "int", "@OneZero_data", FALSE );
     if ( OneZero_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1952,7 +1952,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "TwoZero", "ugen", env->global(), 
-    					TwoZero_ctor, TwoZero_tick, TwoZero_pmsg ) ) return FALSE;
+                        TwoZero_ctor, TwoZero_tick, TwoZero_pmsg ) ) return FALSE;
     //member variable
     TwoZero_offset_data = type_engine_import_mvar ( env, "int", "@TwoZero_data", FALSE );
     if ( TwoZero_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2001,7 +2001,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "PoleZero", "ugen", env->global(), 
-    					PoleZero_ctor, PoleZero_tick, PoleZero_pmsg ) ) return FALSE;
+                        PoleZero_ctor, PoleZero_tick, PoleZero_pmsg ) ) return FALSE;
     //member variable
     PoleZero_offset_data = type_engine_import_mvar ( env, "int", "@PoleZero_data", FALSE );
     if ( PoleZero_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2054,7 +2054,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "JCRev", "ugen", env->global(), 
-    					JCRev_ctor, JCRev_tick, JCRev_pmsg ) ) return FALSE;
+                        JCRev_ctor, JCRev_tick, JCRev_pmsg ) ) return FALSE;
     //member variable
     JCRev_offset_data = type_engine_import_mvar ( env, "int", "@JCRev_data", FALSE );
     if ( JCRev_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2075,7 +2075,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "NRev", "ugen", env->global(), 
-    					NRev_ctor, NRev_tick, NRev_pmsg ) ) return FALSE;
+                        NRev_ctor, NRev_tick, NRev_pmsg ) ) return FALSE;
     //member variable
     NRev_offset_data = type_engine_import_mvar ( env, "int", "@NRev_data", FALSE );
     if ( NRev_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2095,7 +2095,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "PRCRev", "ugen", env->global(), 
-    					PRCRev_ctor, PRCRev_tick, PRCRev_pmsg ) ) return FALSE;
+                        PRCRev_ctor, PRCRev_tick, PRCRev_pmsg ) ) return FALSE;
     //member variable
     PRCRev_offset_data = type_engine_import_mvar ( env, "int", "@PRCRev_data", FALSE );
     if ( PRCRev_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2116,7 +2116,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Chorus", "ugen", env->global(), 
-    					Chorus_ctor, Chorus_tick, Chorus_pmsg ) ) return FALSE;
+                        Chorus_ctor, Chorus_tick, Chorus_pmsg ) ) return FALSE;
     //member variable
     Chorus_offset_data = type_engine_import_mvar ( env, "int", "@Chorus_data", FALSE );
     if ( Chorus_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2151,7 +2151,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "Modulate", "ugen", env->global(), 
-    					Modulate_ctor, Modulate_tick, Modulate_pmsg ) ) return FALSE;
+                        Modulate_ctor, Modulate_tick, Modulate_pmsg ) ) return FALSE;
     //member variable
     Modulate_offset_data = type_engine_import_mvar ( env, "int", "@Modulate_data", FALSE );
     if ( Modulate_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2186,7 +2186,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "PitShift", "ugen", env->global(), 
-    					PitShift_ctor, PitShift_tick, PitShift_pmsg ) ) return FALSE;
+                        PitShift_ctor, PitShift_tick, PitShift_pmsg ) ) return FALSE;
     //member variable
     PitShift_offset_data = type_engine_import_mvar ( env, "int", "@PitShift_data", FALSE );
     if ( PitShift_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2214,7 +2214,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "SubNoise", "ugen", env->global(), 
-    					SubNoise_ctor, SubNoise_tick, SubNoise_pmsg ) ) return FALSE;
+                        SubNoise_ctor, SubNoise_tick, SubNoise_pmsg ) ) return FALSE;
     //member variable
     SubNoise_offset_data = type_engine_import_mvar ( env, "int", "@SubNoise_data", FALSE );
     if ( SubNoise_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2236,7 +2236,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if ( !type_engine_import_ugen_begin( env, "WvIn", "ugen", env->global(), 
-    					WvIn_ctor, WvIn_tick, WvIn_pmsg ) ) return FALSE;
+                        WvIn_ctor, WvIn_tick, WvIn_pmsg ) ) return FALSE;
     //member variable
     WvIn_offset_data = type_engine_import_mvar ( env, "int", "@WvIn_data", FALSE );
     if ( WvIn_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2265,7 +2265,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example dope.ck
     if ( !type_engine_import_ugen_begin( env, "WaveLoop", "WvIn", env->global(), 
-    					WaveLoop_ctor, WaveLoop_tick, WaveLoop_pmsg ) ) return FALSE;
+                        WaveLoop_ctor, WaveLoop_tick, WaveLoop_pmsg ) ) return FALSE;
     //member variable
     WaveLoop_offset_data = type_engine_import_mvar ( env, "int", "@WaveLoop_data", FALSE );
     if ( WaveLoop_offset_data == CK_INVALID_OFFSET ) goto error;    
@@ -2299,7 +2299,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
  
     if ( !type_engine_import_ugen_begin( env, "WvOut", "ugen", env->global(), 
-    					WvOut_ctor, WvOut_tick, WvOut_pmsg ) ) return FALSE; 
+                        WvOut_ctor, WvOut_tick, WvOut_pmsg ) ) return FALSE; 
     //member variable
     WvOut_offset_data = type_engine_import_mvar ( env, "int", "@WvOut_data", FALSE );
     if ( WvOut_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -5920,7 +5920,7 @@ class NRev : public Reverb
   Delay *combDelays[6];
   MY_FLOAT allpassCoefficient;
   MY_FLOAT combCoefficient[6];
-	MY_FLOAT lowpassState;
+    MY_FLOAT lowpassState;
 
 };
 
@@ -7405,7 +7405,7 @@ class WvOut : public Stk
     An StkError is thrown for invalid argument values or if an error occurs when initializing the output file.
   */
   void openFile( const char *fileName, unsigned int nChannels = 1,  \
-		 WvOut::FILE_TYPE type = WVOUT_WAV, Stk::STK_FORMAT = STK_SINT16 );
+         WvOut::FILE_TYPE type = WVOUT_WAV, Stk::STK_FORMAT = STK_SINT16 );
   //! If a file is open, write out samples in the queue and then close it.
   void closeFile( void );
 
@@ -7938,25 +7938,25 @@ public:
   void controlChange(int number, MY_FLOAT value);
 
 public: // SWAP formerly protected  
-	Vector3D *tempVectorP;
+    Vector3D *tempVectorP;
   Vector3D *tempVector;
   OnePole onepole;
   Noise noise;
-	Envelope envelope;
+    Envelope envelope;
   Sphere *can;           // Declare a Spherical "can".
   Sphere *pea, *bumper;  // One spherical "pea", and a spherical "bumper".
 
   WaveLoop *sine;
 
   MY_FLOAT baseFrequency;
-	MY_FLOAT maxPressure;
+    MY_FLOAT maxPressure;
   MY_FLOAT noiseGain;
   MY_FLOAT fippleFreqMod;
-	MY_FLOAT fippleGainMod;
-	MY_FLOAT blowFreqMod;
-	MY_FLOAT tickSize;
-	MY_FLOAT canLoss;
-	int subSample, subSampCount;
+    MY_FLOAT fippleGainMod;
+    MY_FLOAT blowFreqMod;
+    MY_FLOAT tickSize;
+    MY_FLOAT canLoss;
+    int subSample, subSampCount;
 };
 
 #endif
@@ -8220,18 +8220,18 @@ struct SKINISpec skini_msgs[__SK_MaxMsgTypes_] =
                                              
  {"PlayerSkill"      ,  __SK_ControlChange_, __SK_PlayerSkill_   ,  SK_DBL}, 
 
- {"Chord"            ,  __SK_Chord_	   , 		SK_DBL   , SK_STR }, 
- {"ChordOff"         ,  __SK_ChordOff_     ,  		SK_DBL   ,  NOPE  }, 
+ {"Chord"            ,  __SK_Chord_    ,        SK_DBL   , SK_STR }, 
+ {"ChordOff"         ,  __SK_ChordOff_     ,        SK_DBL   ,  NOPE  }, 
 
  {"ShakerInst"       ,  __SK_ControlChange_, __SK_ShakerInst_   ,  SK_DBL},
- {"Maraca"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   0    },
- {"Sekere"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   1    },
- {"Cabasa"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   2    },
- {"Bamboo"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   3    },
- {"Waterdrp"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   4    },
- {"Tambourn"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   5    },
- {"Sleighbl"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   6    },
- {"Guiro"	     ,  __SK_ControlChange_, __SK_ShakerInst_	,   7    },	
+ {"Maraca"       ,  __SK_ControlChange_, __SK_ShakerInst_   ,   0    },
+ {"Sekere"       ,  __SK_ControlChange_, __SK_ShakerInst_   ,   1    },
+ {"Cabasa"       ,  __SK_ControlChange_, __SK_ShakerInst_   ,   2    },
+ {"Bamboo"       ,  __SK_ControlChange_, __SK_ShakerInst_   ,   3    },
+ {"Waterdrp"         ,  __SK_ControlChange_, __SK_ShakerInst_   ,   4    },
+ {"Tambourn"         ,  __SK_ControlChange_, __SK_ShakerInst_   ,   5    },
+ {"Sleighbl"         ,  __SK_ControlChange_, __SK_ShakerInst_   ,   6    },
+ {"Guiro"        ,  __SK_ControlChange_, __SK_ShakerInst_   ,   7    }, 
 
  {"OpenFile"         ,                  256,         SK_STR      ,    NOPE},
  {"SetPath"          ,                  257,         SK_STR      ,    NOPE},
@@ -8439,7 +8439,7 @@ MY_FLOAT ADSR :: tick()
       value = target;
       rate = decayRate;
       target = sustainLevel;
-	    state = DECAY;
+        state = DECAY;
     }
     break;
 
@@ -8627,7 +8627,7 @@ void BandedWG :: setPreset(int preset)
     basegains[11]=0.999999999999999965497558225;
     excitation[11]=57.063034/10.;
 
-    break;	
+    break;  
 
   default: // Uniform Bar
     presetModes = 4;
@@ -8666,14 +8666,14 @@ void BandedWG :: setFrequency(MY_FLOAT frequency)
     if ( length > 2.0) {
       delay[i].setDelay( length );
       gains[i]=basegains[i];
-      //	  gains[i]=(MY_FLOAT) pow(basegains[i], 1/((MY_FLOAT)delay[i].getDelay()));
-      //	  std::cerr << gains[i];
+      //      gains[i]=(MY_FLOAT) pow(basegains[i], 1/((MY_FLOAT)delay[i].getDelay()));
+      //      std::cerr << gains[i];
     }
-    else	{
+    else    {
       nModes = i;
       break;
     }
-    //	std::cerr << std::endl;
+    //  std::cerr << std::endl;
 
     // Set the bandpass filter resonances
     radius = 1.0 - ONE_PI * 32 / Stk::sampleRate(); //freakency * modes[i] / Stk::sampleRate()/32;
@@ -8714,7 +8714,7 @@ void BandedWG :: pluck(MY_FLOAT amplitude)
     for(j=0; j<(int)(delay[i].getDelay()/min_len); j++)
       delay[i].tick( excitation[i]*amplitude / nModes /*/ (delay[i].getDelay()/min_len)*/);
 
-  /*	strikeAmp += amplitude;*/
+  /*    strikeAmp += amplitude;*/
 }
 
 void BandedWG :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
@@ -8806,7 +8806,7 @@ void BandedWG :: controlChange(int number, MY_FLOAT value)
       bowTabl->setSlope( 10.0 - (9.0 * norm));
     }
   }
-  else if (number == 4)	{ // 4
+  else if (number == 4) { // 4
     if ( !trackVelocity ) trackVelocity = true;
     bowTarget += 0.005 * (norm - bowPosition);
     bowPosition = norm;
@@ -8823,19 +8823,19 @@ void BandedWG :: controlChange(int number, MY_FLOAT value)
   }      
   else if (number == __SK_ModWheel_) { // 1
     //    baseGain = 0.9989999999 + (0.001 * norm );
-	  baseGain = 0.8999999999999999 + (0.1 * norm);
-    //	std::cerr << "[chuck](via STK): Yuck!" << std::endl;
+      baseGain = 0.8999999999999999 + (0.1 * norm);
+    //  std::cerr << "[chuck](via STK): Yuck!" << std::endl;
     for (int i=0; i<nModes; i++)
       gains[i]=(MY_FLOAT) basegains[i]*baseGain;
     //      gains[i]=(MY_FLOAT) pow(baseGain, (int)((MY_FLOAT)delay[i].getDelay()+i));
   }
   else if (number == __SK_ModFrequency_) // 11
     integrationConstant = norm;
-  else if (number == __SK_Sustain_)	{ // 64
+  else if (number == __SK_Sustain_) { // 64
     if (value < 65) doPluck = true;
     else doPluck = false;
   }
-  else if (number == __SK_Portamento_)	{ // 65
+  else if (number == __SK_Portamento_)  { // 65
     if (value < 65) trackVelocity = false;
     else trackVelocity = true;
   }
@@ -8933,7 +8933,7 @@ MY_FLOAT BeeThree :: tick()
 {
   register MY_FLOAT temp;
 
-  if (modDepth > 0.0)	{
+  if (modDepth > 0.0)   {
     temp = 1.0 + (modDepth * vibrato->tick() * 0.1);
     waves[0]->setFrequency(baseFrequency * temp * ratios[0]);
     waves[1]->setFrequency(baseFrequency * temp * ratios[1]);
@@ -9115,8 +9115,8 @@ BlowBotl :: BlowBotl()
   noise = new Noise();
   noiseGain = 20.0;
 
-	maxPressure = (MY_FLOAT) 0.0;
-	baseFrequency = 0.0; // chuck data
+    maxPressure = (MY_FLOAT) 0.0;
+    baseFrequency = 0.0; // chuck data
 }
 
 BlowBotl :: ~BlowBotl()
@@ -9637,7 +9637,7 @@ void Bowed :: setFrequency(MY_FLOAT frequency)
   // Delay = length - approximate filter delay.
   baseDelay = Stk::sampleRate() / freakency - (MY_FLOAT) 4.0;
   if ( baseDelay <= 0.0 ) baseDelay = 0.3;
-  bridgeDelay->setDelay(baseDelay * betaRatio); 	               // bow to bridge length
+  bridgeDelay->setDelay(baseDelay * betaRatio);                    // bow to bridge length
   neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio)); // bow to nut (finger) length
 }
 
@@ -9720,9 +9720,9 @@ void Bowed :: controlChange(int number, MY_FLOAT value)
   }
 
   if (number == __SK_BowPressure_) // 2
-		bowTable->setSlope( 5.0 - (4.0 * norm) );
+        bowTable->setSlope( 5.0 - (4.0 * norm) );
   else if (number == __SK_BowPosition_) { // 4
-		betaRatio = 0.027236 + (0.2 * norm);
+        betaRatio = 0.027236 + (0.2 * norm);
     bridgeDelay->setDelay(baseDelay * betaRatio);
     neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio));
   }
@@ -9782,7 +9782,7 @@ Brass :: Brass(MY_FLOAT lowestFrequency)
   vibratoGain = 0.0;
 
   this->clear();
-	maxPressure = (MY_FLOAT) 0.0;
+    maxPressure = (MY_FLOAT) 0.0;
   lipTarget = 0.0;
 
   // Necessary to initialize variables.
@@ -9894,7 +9894,7 @@ void Brass :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): Brass: Control value greater than 128.0!" << std::endl;
   }
 
-  if (number == __SK_LipTension_)	{ // 2
+  if (number == __SK_LipTension_)   { // 2
     MY_FLOAT temp = lipTarget * pow( 4.0, (2.0 * norm) - 1.0 );
     this->setLip(temp);
   }
@@ -10633,26 +10633,26 @@ MY_FLOAT DelayL :: tick(MY_FLOAT sample)
 
 // Not really General MIDI yet.  Coming soon.
 unsigned char genMIDIMap[128] =
-  { 0,0,0,0,0,0,0,0,		// 0-7
-    0,0,0,0,0,0,0,0,		// 8-15
-    0,0,0,0,0,0,0,0,		// 16-23
-    0,0,0,0,0,0,0,0,		// 24-31
-    0,0,0,0,1,0,2,0,		// 32-39
-    2,3,6,3,6,4,7,4,		// 40-47
-    5,8,5,0,0,0,10,0,		// 48-55
-    9,0,0,0,0,0,0,0,		// 56-63
-    0,0,0,0,0,0,0,0,		// 64-71
-    0,0,0,0,0,0,0,0,		// 72-79
-    0,0,0,0,0,0,0,0,		// 80-87
-    0,0,0,0,0,0,0,0,		// 88-95
-    0,0,0,0,0,0,0,0,		// 96-103
-    0,0,0,0,0,0,0,0,		// 104-111
-    0,0,0,0,0,0,0,0,		// 112-119
+  { 0,0,0,0,0,0,0,0,        // 0-7
+    0,0,0,0,0,0,0,0,        // 8-15
+    0,0,0,0,0,0,0,0,        // 16-23
+    0,0,0,0,0,0,0,0,        // 24-31
+    0,0,0,0,1,0,2,0,        // 32-39
+    2,3,6,3,6,4,7,4,        // 40-47
+    5,8,5,0,0,0,10,0,       // 48-55
+    9,0,0,0,0,0,0,0,        // 56-63
+    0,0,0,0,0,0,0,0,        // 64-71
+    0,0,0,0,0,0,0,0,        // 72-79
+    0,0,0,0,0,0,0,0,        // 80-87
+    0,0,0,0,0,0,0,0,        // 88-95
+    0,0,0,0,0,0,0,0,        // 96-103
+    0,0,0,0,0,0,0,0,        // 104-111
+    0,0,0,0,0,0,0,0,        // 112-119
     0,0,0,0,0,0,0,0     // 120-127
   };
  
 //XXX changed this from 16 to 32 for the 'special' convention..also, we do not have these linked
-//in the headers			  
+//in the headers              
 char waveNames[DRUM_NUMWAVES][32] =
   { 
     "special:dope",
@@ -10769,7 +10769,7 @@ MY_FLOAT Drummer :: tick()
   while (i < nSounding) {
     if ( waves[i]->isFinished() ) {
       delete waves[i];
-	    tempFilt = filters[i];
+        tempFilt = filters[i];
       // Re-order the list.
       for (j=i; j<nSounding-1; j++) {
         sounding[j] = sounding[j+1];
@@ -11196,7 +11196,7 @@ void FM :: controlChange(int number, MY_FLOAT value)
     setModulationSpeed( norm * 12.0);
   else if (number == __SK_ModWheel_) // 1
     setModulationDepth( norm );
-  else if (number == __SK_AfterTouch_Cont_)	{ // 128
+  else if (number == __SK_AfterTouch_Cont_) { // 128
     //adsr[0]->setTarget( norm );
     adsr[1]->setTarget( norm );
     //adsr[2]->setTarget( norm );
@@ -11286,19 +11286,19 @@ void FMVoices :: setFrequency(MY_FLOAT frequency)
   int tempi = 0;
   unsigned int i = 0;
 
-  if (currentVowel < 32)	{
+  if (currentVowel < 32)    {
     i = currentVowel;
     temp2 = (MY_FLOAT) 0.9;
   }
-  else if (currentVowel < 64)	{
+  else if (currentVowel < 64)   {
     i = currentVowel - 32;
     temp2 = (MY_FLOAT) 1.0;
   }
-  else if (currentVowel < 96)	{
+  else if (currentVowel < 96)   {
     i = currentVowel - 64;
     temp2 = (MY_FLOAT) 1.1;
   }
-  else if (currentVowel <= 128)	{
+  else if (currentVowel <= 128) {
     i = currentVowel - 96;
     temp2 = (MY_FLOAT) 1.2;
   }
@@ -11370,7 +11370,7 @@ void FMVoices :: controlChange(int number, MY_FLOAT value)
 
   if (number == __SK_Breath_) // 2
     gains[3] = __FM_gains[(int) ( norm * 99.9 )];
-  else if (number == __SK_FootControl_)	{ // 4
+  else if (number == __SK_FootControl_) { // 4
     currentVowel = (int) (norm * 128.0);
     this->setFrequency(baseFrequency);
   }
@@ -11378,7 +11378,7 @@ void FMVoices :: controlChange(int number, MY_FLOAT value)
     this->setModulationSpeed( norm * 12.0);
   else if (number == __SK_ModWheel_) // 1
     this->setModulationDepth( norm );
-  else if (number == __SK_AfterTouch_Cont_)	{ // 128
+  else if (number == __SK_AfterTouch_Cont_) { // 128
     tilt[0] = norm;
     tilt[1] = norm * norm;
     tilt[2] = tilt[1] * norm;
@@ -11687,7 +11687,7 @@ Flute :: Flute(MY_FLOAT lowestFrequency)
   vibratoGain = (MY_FLOAT) 0.05; // Breath periodic vibrato component.
   jetRatio = (MY_FLOAT) 0.32;
 
-	maxPressure = (MY_FLOAT) 0.0;
+    maxPressure = (MY_FLOAT) 0.0;
   lastFrequency = 220.0;
 }
 
@@ -11732,7 +11732,7 @@ void Flute :: setFrequency(MY_FLOAT frequency)
 
 void Flute :: startBlowing(MY_FLOAT amplitude, MY_FLOAT rate)
 {
-	fprintf (stderr,"flute::startblowing %f %f \n", amplitude, rate);
+    fprintf (stderr,"flute::startblowing %f %f \n", amplitude, rate);
   adsr->setAttackRate(rate);
   maxPressure = amplitude / (MY_FLOAT) 0.8;
   adsr->keyOn();
@@ -12138,9 +12138,9 @@ JCRev :: JCRev(MY_FLOAT T60)
   }
 
   for (i=0; i<3; i++)
-	  allpassDelays[i] = new Delay(lengths[i+4], lengths[i+4]);
+      allpassDelays[i] = new Delay(lengths[i+4], lengths[i+4]);
 
-  for (i=0; i<4; i++)	{
+  for (i=0; i<4; i++)   {
     combDelays[i] = new Delay(lengths[i], lengths[i]);
     combCoefficient[i] = pow(10.0,(-3 * lengths[i] / (T60 * Stk::sampleRate())));
   }
@@ -12722,7 +12722,7 @@ MY_FLOAT Mesh2D :: tick0()
   for (x=0; x<NX-1; x++) {
     for (y=0; y<NY-1; y++) {
       v[x][y] = ( vxp[x][y] + vxm[x+1][y] + 
-		  vyp[x][y] + vym[x][y+1] ) * VSCALE;
+          vyp[x][y] + vym[x][y+1] ) * VSCALE;
     }
   }    
 
@@ -12770,7 +12770,7 @@ MY_FLOAT Mesh2D :: tick1()
   for (x=0; x<NX-1; x++) {
     for (y=0; y<NY-1; y++) {
       v[x][y] = ( vxp1[x][y] + vxm1[x+1][y] + 
-		  vyp1[x][y] + vym1[x][y+1] ) * VSCALE;
+          vyp1[x][y] + vym1[x][y+1] ) * VSCALE;
     }
   }
 
@@ -13049,7 +13049,7 @@ MY_FLOAT Modal :: tick()
   temp2  -= temp2 * directGain;
   temp2 += directGain * temp;
 
-  if (vibratoGain != 0.0)	{
+  if (vibratoGain != 0.0)   {
     // Calculate AM and apply to master out
     temp = 1.0 + (vibrato->tick() * vibratoGain);
     temp2 = temp * temp2;
@@ -13156,40 +13156,40 @@ void ModalBar :: setPreset(int preset)
   //     Fourth line: stickHardness, strikePosition, and direct stick
   //                  gain (mixed directly into the output
   static MY_FLOAT presets[9][4][4] = { 
-    {{1.0, 3.99, 10.65, -2443},		// Marimba
+    {{1.0, 3.99, 10.65, -2443},     // Marimba
      {0.9996, 0.9994, 0.9994, 0.999},
      {0.04, 0.01, 0.01, 0.008},
      {0.429688, 0.445312, 0.093750}},
-    {{1.0, 2.01, 3.9, 14.37}, 		// Vibraphone
-     {0.99995, 0.99991, 0.99992, 0.9999},	
+    {{1.0, 2.01, 3.9, 14.37},       // Vibraphone
+     {0.99995, 0.99991, 0.99992, 0.9999},   
      {0.025, 0.015, 0.015, 0.015 },
      {0.390625,0.570312,0.078125}},
-    {{1.0, 4.08, 6.669, -3725.0},		// Agogo 
-     {0.999, 0.999, 0.999, 0.999},	
+    {{1.0, 4.08, 6.669, -3725.0},       // Agogo 
+     {0.999, 0.999, 0.999, 0.999},  
      {0.06, 0.05, 0.03, 0.02},
      {0.609375,0.359375,0.140625}},
-    {{1.0, 2.777, 7.378, 15.377},		// Wood1
-     {0.996, 0.994, 0.994, 0.99},	
+    {{1.0, 2.777, 7.378, 15.377},       // Wood1
+     {0.996, 0.994, 0.994, 0.99},   
      {0.04, 0.01, 0.01, 0.008},
      {0.460938,0.375000,0.046875}},
-    {{1.0, 2.777, 7.378, 15.377},		// Reso
-     {0.99996, 0.99994, 0.99994, 0.9999},	
+    {{1.0, 2.777, 7.378, 15.377},       // Reso
+     {0.99996, 0.99994, 0.99994, 0.9999},   
      {0.02, 0.005, 0.005, 0.004},
      {0.453125,0.250000,0.101562}},
-    {{1.0, 1.777, 2.378, 3.377},		// Wood2
-     {0.996, 0.994, 0.994, 0.99},	
+    {{1.0, 1.777, 2.378, 3.377},        // Wood2
+     {0.996, 0.994, 0.994, 0.99},   
      {0.04, 0.01, 0.01, 0.008},
      {0.312500,0.445312,0.109375}},
-    {{1.0, 1.004, 1.013, 2.377},		// Beats
-     {0.9999, 0.9999, 0.9999, 0.999},	
+    {{1.0, 1.004, 1.013, 2.377},        // Beats
+     {0.9999, 0.9999, 0.9999, 0.999},   
      {0.02, 0.005, 0.005, 0.004},
      {0.398438,0.296875,0.070312}},
-    {{1.0, 4.0, -1320.0, -3960.0},		// 2Fix
-     {0.9996, 0.999, 0.9994, 0.999},	
+    {{1.0, 4.0, -1320.0, -3960.0},      // 2Fix
+     {0.9996, 0.999, 0.9994, 0.999},    
      {0.04, 0.01, 0.01, 0.008},
      {0.453125,0.453125,0.070312}},
-    {{1.0, 1.217, 1.475, 1.729},		// Clump
-     {0.999, 0.999, 0.999, 0.999},	
+    {{1.0, 1.217, 1.475, 1.729},        // Clump
+     {0.999, 0.999, 0.999, 0.999},  
      {0.03, 0.03, 0.03, 0.03 },
      {0.390625,0.570312,0.078125}},
   };
@@ -13227,14 +13227,14 @@ void ModalBar :: controlChange(int number, MY_FLOAT value)
   else if (number == __SK_StrikePosition_) // 4
     this->setStrikePosition( norm );
   else if (number == __SK_ProphesyRibbon_) // 16
-		this->setPreset((int) value);
+        this->setPreset((int) value);
   else if (number == __SK_ModWheel_) // 1
     directGain = norm;
   else if (number == 11) // 11
     vibratoGain = norm * 0.3;
   else if (number == __SK_ModFrequency_) // 7
     vibrato->setFrequency( norm * 12.0 );
-  else if (number == __SK_AfterTouch_Cont_)	// 128
+  else if (number == __SK_AfterTouch_Cont_) // 128
     envelope->setTarget( norm );
   else
     std::cerr << "[chuck](via STK): ModalBar: Undefined Control Number (" << number << ")!!" << std::endl;
@@ -13541,7 +13541,7 @@ MY_FLOAT NRev :: tick(MY_FLOAT input)
     temp = input + (combCoefficient[i] * combDelays[i]->lastOut());
     temp0 += combDelays[i]->tick(temp);
   }
-  for (i=0; i<3; i++)	{
+  for (i=0; i<3; i++)   {
     temp = allpassDelays[i]->lastOut();
     temp1 = allpassCoefficient * temp;
     temp1 += temp0;
@@ -13549,7 +13549,7 @@ MY_FLOAT NRev :: tick(MY_FLOAT input)
     temp0 = -(allpassCoefficient * temp1) + temp;
   }
 
-	// One-pole lowpass filter.
+    // One-pole lowpass filter.
   lowpassState = 0.7*lowpassState + 0.3*temp0;
   temp = allpassDelays[3]->lastOut();
   temp1 = allpassCoefficient * temp;
@@ -13860,7 +13860,7 @@ PRCRev :: PRCRev(MY_FLOAT T60)
   // Scale the delay lengths if necessary.
   int delay, i;
   if ( scaler != 1.0 ) {
-    for (i=0; i<4; i++)	{
+    for (i=0; i<4; i++) {
       delay = (int) floor(scaler * lengths[i]);
       if ( (delay & 1) == 0) delay++;
       while ( !this->isPrime(delay) ) delay += 2;
@@ -13868,7 +13868,7 @@ PRCRev :: PRCRev(MY_FLOAT T60)
     }
   }
 
-  for (i=0; i<2; i++)	{
+  for (i=0; i<2; i++)   {
     allpassDelays[i] = new Delay( lengths[i], lengths[i] );
     combDelays[i] = new Delay( lengths[i+2], lengths[i+2] );
     combCoefficient[i] = pow(10.0,(-3 * lengths[i+2] / (T60 * Stk::sampleRate())));
@@ -15011,11 +15011,11 @@ MY_FLOAT *Reverb :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 bool Reverb :: isPrime(int number)
 {
   if (number == 2) return true;
-  if (number & 1)	{
-	  for (int i=3; i<(int)sqrt((double)number)+1; i+=2)
-		  if ( (number % i) == 0) return false;
-	  return true; /* prime */
-	}
+  if (number & 1)   {
+      for (int i=3; i<(int)sqrt((double)number)+1; i+=2)
+          if ( (number % i) == 0) return false;
+      return true; /* prime */
+    }
   else return false; /* even */
 }
 /***************************************************/
@@ -15211,15 +15211,15 @@ short nextChar(char* aString)
     if (        aString[i] != ' ' &&             // Space
                 aString[i] != ','  &&            // Or Comma
                 aString[i] != '\t'     )         // Or Tab
-	    return i;
+        return i;
   }
   return 1024;
 }
 
 int subStrings(char *aString, 
-	   char someStrings[__SK_MAX_FIELDS_][__SK_MAX_SIZE_], 
-	   int  somePointrs[__SK_MAX_FIELDS_],
-	   char *remainderString)
+       char someStrings[__SK_MAX_FIELDS_][__SK_MAX_SIZE_], 
+       int  somePointrs[__SK_MAX_FIELDS_],
+       char *remainderString)
 {
   int notDone,howMany,point,temp;
   notDone = 1;
@@ -15268,7 +15268,7 @@ int subStrings(char *aString,
   //     for (temp=0;temp<howMany;temp++) 
   //         printf("%s\n",someStrings[temp]);
   return howMany;
-	 
+     
 }
 
 /****************  THE ENCHILLADA !!!!  **********************/
@@ -15298,44 +15298,44 @@ long SKINI :: parseThis(char* aString)
     while ((which < __SK_MaxMsgTypes_) && 
            (strcmp(msgTypeString,
                    skini_msgs[which].messageString)))  {
-	    which += 1;  
+        which += 1;  
     }
     if (which >= __SK_MaxMsgTypes_)  {
-	    messageType = 0;
-	    printf("Couldn't parse this message field: =%s\n %s\n",
+        messageType = 0;
+        printf("Couldn't parse this message field: =%s\n %s\n",
              msgTypeString,aString);
-	    return messageType;
+        return messageType;
     }
     else  {
-	    messageType = skini_msgs[which].type;
+        messageType = skini_msgs[which].type;
       // printf("Message Token = %s type = %i\n", msgTypeString,messageType);
     }
     aField += 1;
 
     if (someStrings[aField][0] == '=') {
-	    deltaTime = (MY_FLOAT) atof(&someStrings[aField][1]);
-	    deltaTime = -deltaTime;
+        deltaTime = (MY_FLOAT) atof(&someStrings[aField][1]);
+        deltaTime = -deltaTime;
     }
     else {
-	    deltaTime = (MY_FLOAT) atof(someStrings[aField]);
+        deltaTime = (MY_FLOAT) atof(someStrings[aField]);
     }
     // printf("DeltaTime = %f\n",deltaTime);
     aField += 1;
-	
+    
     channel = atoi(someStrings[aField]);    
     // printf("Channel = %i\n",channel);
     aField += 1;
-	
+    
     if (skini_msgs[which].data2 != NOPE)    {
-	    if (skini_msgs[which].data2 == SK_INT)       {
+        if (skini_msgs[which].data2 == SK_INT)       {
         byteTwoInt = atoi(someStrings[aField]);    
         byteTwo = (MY_FLOAT) byteTwoInt;
-	    }
-	    else if (skini_msgs[which].data2 == SK_DBL)       {
+        }
+        else if (skini_msgs[which].data2 == SK_DBL)       {
         byteTwo = (MY_FLOAT) atof(someStrings[aField]);    
         byteTwoInt = (long) byteTwo;
-	    }
-	    else if (skini_msgs[which].data2 == SK_STR)       {
+        }
+        else if (skini_msgs[which].data2 == SK_STR)       {
         temp = somePointrs[aField-1];    /*  Hack Danger Here, Why -1??? */
         temp2 = 0;
         while (aString[temp] != '\n')   { 
@@ -15343,14 +15343,14 @@ long SKINI :: parseThis(char* aString)
         }
         remainderString[temp2] = 0;
       }
-	    else {
+        else {
         byteTwoInt = skini_msgs[which].data2;
         byteTwo = (MY_FLOAT) byteTwoInt;
         aField -= 1;
-	    }
-	    
-	    aField += 1;
-	    if (skini_msgs[which].data3 != NOPE)    {
+        }
+        
+        aField += 1;
+        if (skini_msgs[which].data3 != NOPE)    {
         if (skini_msgs[which].data3 == SK_INT)        {
           byteThreeInt = atoi(someStrings[aField]);    
           byteThree = (MY_FLOAT) byteThreeInt;
@@ -15360,7 +15360,7 @@ long SKINI :: parseThis(char* aString)
           byteThreeInt = (long) byteThree;
         }
         else if (skini_msgs[which].data3 == SK_STR)   {
-          temp = somePointrs[aField-1];	/*  Hack Danger Here, Why -1??? */
+          temp = somePointrs[aField-1]; /*  Hack Danger Here, Why -1??? */
           temp2 = 0;
           while (aString[temp] != '\n')   { 
             remainderString[temp2++] = aString[temp++];
@@ -15371,11 +15371,11 @@ long SKINI :: parseThis(char* aString)
           byteThreeInt = skini_msgs[which].data3;
           byteThree = (MY_FLOAT) byteThreeInt;
         }
-	    }
-	    else {
+        }
+        else {
         byteThreeInt = byteTwoInt;
         byteThree = byteTwo;
-	    }
+        }
     }
   }
   return messageType;
@@ -15390,12 +15390,12 @@ long SKINI ::  nextMessage()
   while (notDone)     {
     notDone = 0;
     if (!fgets(inputString,1024,myFile)) {    
-	    printf("// End of Score. Thanks for using SKINI!!\n");
-	    messageType = -1;
-	    return messageType;
+        printf("// End of Score. Thanks for using SKINI!!\n");
+        messageType = -1;
+        return messageType;
     }
     else if (parseThis(inputString) == 0)   {
-	    notDone = 1;
+        notDone = 1;
     }
   }
   return messageType;
@@ -15452,8 +15452,8 @@ const char* SKINI :: whatsThisType(long type)
   whatString[0] = 0;
   for ( i=0; i<__SK_MaxMsgTypes_; i++ ) {
     if ( type == skini_msgs[i].type ) {
-	    strcat(whatString, skini_msgs[i].messageString);
-	    strcat(whatString, ",");
+        strcat(whatString, skini_msgs[i].messageString);
+        strcat(whatString, ",");
     }
   }
   return whatString;            
@@ -15466,8 +15466,8 @@ const char* SKINI :: whatsThisController(long contNum)
   for ( i=0; i<__SK_MaxMsgTypes_; i++) {
     if ( skini_msgs[i].type == __SK_ControlChange_
         && contNum == skini_msgs[i].data2) {
-	    strcat(whatString, skini_msgs[i].messageString);
-	    strcat(whatString, ",");
+        strcat(whatString, skini_msgs[i].messageString);
+        strcat(whatString, ",");
     }
   }
   return whatString;
@@ -15795,9 +15795,9 @@ int my_random(int max) //  Return Random Int Between 0 and max
 }
 
 MY_FLOAT float_random(MY_FLOAT max) // Return random float between 0.0 and max
-{	
+{   
   MY_FLOAT temp = (MY_FLOAT) (max * rand() / (RAND_MAX + 1.0) );
-  return temp;	
+  return temp;  
 }
 
 MY_FLOAT noise_tick() //  Return random MY_FLOAT float between -1.0 and 1.0
@@ -15847,7 +15847,7 @@ MY_FLOAT noise_tick() //  Return random MY_FLOAT float between -1.0 and 1.0
 #define BAMB_CENTER_FREQ0  2800.0
 #define BAMB_CENTER_FREQ1  0.8 * 2800.0
 #define BAMB_CENTER_FREQ2  1.2 * 2800.0
-#define BAMB_RESON	   0.995
+#define BAMB_RESON     0.995
 
 // Tuned Bamboo Wind Chimes (Anklung)
 #define TBAMB_SOUND_DECAY 0.95
@@ -15861,7 +15861,7 @@ MY_FLOAT noise_tick() //  Return random MY_FLOAT float between -1.0 and 1.0
 #define TBAMB_CENTER_FREQ4  1760.0
 #define TBAMB_CENTER_FREQ5  2093.3
 #define TBAMB_CENTER_FREQ6  2350.0
-#define TBAMB_RESON	   0.996
+#define TBAMB_RESON    0.996
 
 // Water Drops
 #define WUTR_SOUND_DECAY 0.95
@@ -16017,7 +16017,7 @@ Shakers :: Shakers()
   nFreqs = 0;
   sndLevel = 0.0;
 
-  for ( i=0; i<MAX_FREQS; i++ )	{
+  for ( i=0; i<MAX_FREQS; i++ ) {
     inputs[i] = 0.0;
     outputs[i][0] = 0.0;
     outputs[i][1] = 0.0;
@@ -16068,9 +16068,9 @@ int Shakers :: setupName(char* instr)
 {
   int which = 0;
 
-  for (int i=0;i<NUM_INSTR;i++)	{
+  for (int i=0;i<NUM_INSTR;i++) {
     if ( !strcmp(instr,instrs[i]) )
-	    which = i;
+        which = i;
   }
 
 #if defined(_STK_DEBUG_)
@@ -16080,7 +16080,7 @@ int Shakers :: setupName(char* instr)
   return this->setupNum(which);
 }
 
-void Shakers :: setFinalZs(MY_FLOAT z0, MY_FLOAT z1, MY_FLOAT z2)	 {
+void Shakers :: setFinalZs(MY_FLOAT z0, MY_FLOAT z1, MY_FLOAT z2)    {
   finalZCoeffs[0] = z0;
   finalZCoeffs[1] = z1;
   finalZCoeffs[2] = z2;
@@ -16092,7 +16092,7 @@ void Shakers :: setDecays(MY_FLOAT sndDecay, MY_FLOAT sysDecay) {
 }
 
 int Shakers :: setFreqAndReson(int which, MY_FLOAT freq, MY_FLOAT reson) {
-  if (which < MAX_FREQS)	{
+  if (which < MAX_FREQS)    {
     resons[which] = reson;
     center_freqs[which] = freq;
     t_center_freqs[which] = freq;
@@ -16247,9 +16247,9 @@ int Shakers :: setupNum(int inst)
     gains[2]=temp;
     gains[3]=temp*0.5;
     gains[4]=temp*0.3;
-    for (i=0;i<nFreqs;i++)	{
-	    freqalloc[i] = 1;
-	    freq_rand[i] = 0.03;
+    for (i=0;i<nFreqs;i++)  {
+        freqalloc[i] = 1;
+        freq_rand[i] = 0.03;
     }
     setFreqAndReson(0,SLEI_CYMB_FREQ0,SLEI_CYMB_RESON);
     setFreqAndReson(1,SLEI_CYMB_FREQ1,SLEI_CYMB_RESON);
@@ -16563,7 +16563,7 @@ MY_FLOAT Shakers :: tick()
   int i;
 
   if (instType == 4) {
-  	if (shakeEnergy > MIN_ENERGY)	{
+    if (shakeEnergy > MIN_ENERGY)   {
       lastOutput = wuter_tick();
       lastOutput *= 0.0001;
     }
@@ -16580,7 +16580,7 @@ MY_FLOAT Shakers :: tick()
       if (ratchet < 0.0) {
         ratchet = 1.0;
         ratchetPos -= 1;
-	    }
+        }
       totalEnergy = ratchet;
       lastOutput = ratchet_tick();
       lastOutput *= 0.0001;
@@ -16588,27 +16588,27 @@ MY_FLOAT Shakers :: tick()
     else lastOutput = 0.0;
   }
   else  {
-    //  MY_FLOAT generic_tick()	{
+    //  MY_FLOAT generic_tick() {
     if (shakeEnergy > MIN_ENERGY) {
       shakeEnergy *= systemDecay;               // Exponential system decay
       if (float_random(1024.0) < nObjects) {
         sndLevel += shakeEnergy;   
         for (i=0;i<nFreqs;i++) {
-          if (freqalloc[i])	{
+          if (freqalloc[i]) {
             temp_rand = t_center_freqs[i] * (1.0 + (freq_rand[i] * noise_tick()));
             coeffs[i][0] = -resons[i] * 2.0 * cos(temp_rand * TWO_PI / Stk::sampleRate());
           }
         }
-    	}
+        }
       inputs[0] = sndLevel * noise_tick();      // Actual Sound is Random
-      for (i=1; i<nFreqs; i++)	{
+      for (i=1; i<nFreqs; i++)  {
         inputs[i] = inputs[0];
       }
       sndLevel *= soundDecay;                   // Exponential Sound decay 
       finalZ[2] = finalZ[1];
       finalZ[1] = finalZ[0];
       finalZ[0] = 0;
-      for (i=0;i<nFreqs;i++)	{
+      for (i=0;i<nFreqs;i++)    {
         inputs[i] -= outputs[i][0]*coeffs[i][0];  // Do
         inputs[i] -= outputs[i][1]*coeffs[i][1];  // resonant
         outputs[i][1] = outputs[i][0];            // filter
@@ -16618,7 +16618,7 @@ MY_FLOAT Shakers :: tick()
       data = finalZCoeffs[0] * finalZ[0];     // Extra zero(s) for shape
       data += finalZCoeffs[1] * finalZ[1];    // Extra zero(s) for shape
       data += finalZCoeffs[2] * finalZ[2];    // Extra zero(s) for shape
-      if (data > 10000.0)	data = 10000.0;
+      if (data > 10000.0)   data = 10000.0;
       if (data < -10000.0) data = -10000.0;
       lastOutput = data * 0.0001;
     }
@@ -16647,9 +16647,9 @@ void Shakers :: controlChange(int number, MY_FLOAT value)
     shakeEnergy += norm * MAX_SHAKE * 0.1;
     if (shakeEnergy > MAX_SHAKE) shakeEnergy = MAX_SHAKE;
     if (instType==10 || instType==3) {
-	    ratchetPos = (int) fabs(value - lastRatchetPos);
-	    ratchetDelta = 0.0002 * ratchetPos;
-	    lastRatchetPos = (int) value;
+        ratchetPos = (int) fabs(value - lastRatchetPos);
+        ratchetDelta = 0.0002 * ratchetPos;
+        lastRatchetPos = (int) value;
     }
   }
   else if (number == __SK_ModFrequency_) { // 4 ... decay
@@ -16699,7 +16699,7 @@ void Shakers :: controlChange(int number, MY_FLOAT value)
     }
   }
   else if (number == __SK_ModWheel_) { // 1 ... resonance frequency
-    for (i=0; i<nFreqs; i++)	{
+    for (i=0; i<nFreqs; i++)    {
       if (instType == 6 || instType == 2 || instType == 7) // limit range a bit for tambourine
         temp = center_freqs[i] * pow (1.008,value-64);
       else
@@ -16713,14 +16713,14 @@ void Shakers :: controlChange(int number, MY_FLOAT value)
   else if (number == __SK_AfterTouch_Cont_) { // 128
     shakeEnergy += norm * MAX_SHAKE * 0.1;
     if (shakeEnergy > MAX_SHAKE) shakeEnergy = MAX_SHAKE;
-    if (instType==10 || instType==3)	{
-	    ratchetPos = (int) fabs(value - lastRatchetPos);
-	    ratchetDelta = 0.0002 * ratchetPos;
-	    lastRatchetPos = (int) value;
+    if (instType==10 || instType==3)    {
+        ratchetPos = (int) fabs(value - lastRatchetPos);
+        ratchetDelta = 0.0002 * ratchetPos;
+        lastRatchetPos = (int) value;
     }
   }
   else  if (number == __SK_ShakerInst_) { // 1071
-    instType = (int) (value + 0.5);	//  Just to be safe
+    instType = (int) (value + 0.5); //  Just to be safe
     this->setupNum(instType);
   }                                       
   else
@@ -16740,20 +16740,20 @@ MY_FLOAT Shakers :: wuter_tick() {
   if (my_random(32767) < nObjects) {     
     sndLevel = shakeEnergy;   
     j = my_random(3);
-	  if (j == 0)   {
+      if (j == 0)   {
       center_freqs[0] = WUTR_CENTER_FREQ1 * (0.75 + (0.25 * noise_tick()));
-	    gains[0] = fabs(noise_tick());
-	  }
-	  else if (j == 1)      {
+        gains[0] = fabs(noise_tick());
+      }
+      else if (j == 1)      {
       center_freqs[1] = WUTR_CENTER_FREQ1 * (1.0 + (0.25 * noise_tick()));
-	    gains[1] = fabs(noise_tick());
-	  }
-	  else  {
+        gains[1] = fabs(noise_tick());
+      }
+      else  {
       center_freqs[2] = WUTR_CENTER_FREQ1 * (1.25 + (0.25 * noise_tick()));
-	    gains[2] = fabs(noise_tick());
-	  }
-	}
-	
+        gains[2] = fabs(noise_tick());
+      }
+    }
+    
   gains[0] *= resons[0];
   if (gains[0] >  0.001) {
     center_freqs[0]  *= WUTR_FREQ_SWEEP;
@@ -16772,7 +16772,7 @@ MY_FLOAT Shakers :: wuter_tick() {
     coeffs[2][0] = -resons[2] * 2.0 * 
       cos(center_freqs[2] * TWO_PI / Stk::sampleRate());
   }
-	
+    
   sndLevel *= soundDecay;        // Each (all) event(s) 
                                  // decay(s) exponentially 
   inputs[0] = sndLevel;
@@ -16812,7 +16812,7 @@ MY_FLOAT Shakers :: ratchet_tick() {
   inputs[0] = sndLevel;
   inputs[0] *= noise_tick() * ratchet;
   sndLevel *= soundDecay;
-		 
+         
   inputs[1] = inputs[0];
   inputs[0] -= outputs[0][0]*coeffs[0][0];
   inputs[0] -= outputs[0][1]*coeffs[0][1];
@@ -16835,20 +16835,20 @@ MY_FLOAT Shakers :: tbamb_tick() {
   static int which = 0;
   int i;
 
-  if (shakeEnergy > MIN_ENERGY)	{
+  if (shakeEnergy > MIN_ENERGY) {
       shakeEnergy *= systemDecay;    // Exponential system decay
       if (float_random(1024.0) < nObjects) {
-	    sndLevel += shakeEnergy;
-	    which = my_random(7);
-	  }  
+        sndLevel += shakeEnergy;
+        which = my_random(7);
+      }  
       temp = sndLevel * noise_tick();      // Actual Sound is Random
-	  for (i=0;i<nFreqs;i++)	inputs[i] = 0;
-	  inputs[which] = temp;
+      for (i=0;i<nFreqs;i++)    inputs[i] = 0;
+      inputs[which] = temp;
       sndLevel *= soundDecay;                   // Exponential Sound decay 
       finalZ[2] = finalZ[1];
       finalZ[1] = finalZ[0];
       finalZ[0] = 0;
-      for (i=0;i<nFreqs;i++)	{
+      for (i=0;i<nFreqs;i++)    {
         inputs[i] -= outputs[i][0]*coeffs[i][0];  // Do
         inputs[i] -= outputs[i][1]*coeffs[i][1];  // resonant
         outputs[i][1] = outputs[i][0];            // filter
@@ -16858,7 +16858,7 @@ MY_FLOAT Shakers :: tbamb_tick() {
       data = finalZCoeffs[0] * finalZ[0];     // Extra zero(s) for shape
       data += finalZCoeffs[1] * finalZ[1];    // Extra zero(s) for shape
       data += finalZCoeffs[2] * finalZ[2];    // Extra zero(s) for shape
-      if (data > 10000.0)	data = 10000.0;
+      if (data > 10000.0)   data = 10000.0;
       if (data < -10000.0) data = -10000.0;
       data = data * 0.0001;
   }
@@ -17006,33 +17006,33 @@ SingWave :: SingWave(const char *fileName, bool raw)
   // An exception could be thrown here.
   wave = new WaveLoop( fileName, raw );
 
-	rate = 1.0;
-	sweepRate = 0.001;
-	modulator = new Modulate();
-	modulator->setVibratoRate( 6.0 );
-	modulator->setVibratoGain( 0.04 );
-	modulator->setRandomGain( 0.005 );
-	envelope = new Envelope;
-	pitchEnvelope = new Envelope;
-	setFrequency( 75.0 );
-	pitchEnvelope->setRate( 1.0 );
-	this->tick();
-	this->tick();
-	pitchEnvelope->setRate( sweepRate * rate );
+    rate = 1.0;
+    sweepRate = 0.001;
+    modulator = new Modulate();
+    modulator->setVibratoRate( 6.0 );
+    modulator->setVibratoGain( 0.04 );
+    modulator->setRandomGain( 0.005 );
+    envelope = new Envelope;
+    pitchEnvelope = new Envelope;
+    setFrequency( 75.0 );
+    pitchEnvelope->setRate( 1.0 );
+    this->tick();
+    this->tick();
+    pitchEnvelope->setRate( sweepRate * rate );
 }
 
 SingWave :: ~SingWave()
 {
   delete wave;
-	delete modulator;
-	delete envelope;
-	delete pitchEnvelope;
+    delete modulator;
+    delete envelope;
+    delete pitchEnvelope;
 }
 
 void SingWave :: reset()
 {
   wave->reset();
-	lastOutput = 0.0;
+    lastOutput = 0.0;
 }
 
 void SingWave :: normalize()
@@ -17048,52 +17048,52 @@ void SingWave :: normalize(MY_FLOAT newPeak)
 void SingWave :: setFrequency(MY_FLOAT frequency)
 {
   m_freq = frequency;
-	MY_FLOAT temp = rate;
-	rate = wave->getSize() * frequency / Stk::sampleRate();
-	temp -= rate;
-	if ( temp < 0) temp = -temp;
-	pitchEnvelope->setTarget( rate );
-	pitchEnvelope->setRate( sweepRate * temp );
+    MY_FLOAT temp = rate;
+    rate = wave->getSize() * frequency / Stk::sampleRate();
+    temp -= rate;
+    if ( temp < 0) temp = -temp;
+    pitchEnvelope->setTarget( rate );
+    pitchEnvelope->setRate( sweepRate * temp );
 }
 
 void SingWave :: setVibratoRate(MY_FLOAT aRate)
 {
-	modulator->setVibratoRate( aRate );
+    modulator->setVibratoRate( aRate );
 }
 
 void SingWave :: setVibratoGain(MY_FLOAT gain)
 {
-	modulator->setVibratoGain(gain);
+    modulator->setVibratoGain(gain);
 }
 
 void SingWave :: setRandomGain(MY_FLOAT gain)
 {
-	modulator->setRandomGain(gain);
+    modulator->setRandomGain(gain);
 }
 
 void SingWave :: setSweepRate(MY_FLOAT aRate)
 {
-	sweepRate = aRate;
+    sweepRate = aRate;
 }
 
 void SingWave :: setGainRate(MY_FLOAT aRate)
 {
-	envelope->setRate(aRate);
+    envelope->setRate(aRate);
 }
 
 void SingWave :: setGainTarget(MY_FLOAT target)
 {
-	envelope->setTarget(target);
+    envelope->setTarget(target);
 }
 
 void SingWave :: noteOn()
 {
-	envelope->keyOn();
+    envelope->keyOn();
 }
 
 void SingWave :: noteOff()
 {
-	envelope->keyOff();
+    envelope->keyOff();
 }
 
 MY_FLOAT SingWave :: tick()
@@ -17104,14 +17104,14 @@ MY_FLOAT SingWave :: tick()
   wave->setRate( newRate );
 
   lastOutput = wave->tick();
-	lastOutput *= envelope->tick();
+    lastOutput *= envelope->tick();
     
-	return lastOutput;             
+    return lastOutput;             
 }
 
 MY_FLOAT SingWave :: lastOut()
 {
-	return lastOutput;
+    return lastOutput;
 }
 /***************************************************/
 /*! \class Sitar
@@ -17431,7 +17431,7 @@ void StifKarp :: setStretch(MY_FLOAT stretch)
   MY_FLOAT dFreq = ( (0.5 * Stk::sampleRate()) - freq ) * 0.25;
   MY_FLOAT temp = 0.5 + (stretch * 0.5);
   if (temp > 0.9999) temp = 0.9999;
-  for (int i=0; i<4; i++)	{
+  for (int i=0; i<4; i++)   {
     coefficient = temp * temp;
     biQuad[i]->setA2( coefficient );
     biQuad[i]->setB0( coefficient );
@@ -18257,37 +18257,37 @@ void Vector3D :: setZ(double aval)
 VoicForm :: VoicForm() : Instrmnt()
 {
   // Concatenate the STK rawwave path to the rawwave file
-	voiced = new SingWave( "special:impuls20", TRUE );
-	voiced->setGainRate( 0.001 );
-	voiced->setGainTarget( 0.0 );
-	noise = new Noise;
+    voiced = new SingWave( "special:impuls20", TRUE );
+    voiced->setGainRate( 0.001 );
+    voiced->setGainTarget( 0.0 );
+    noise = new Noise;
 
   for ( int i=0; i<4; i++ ) {
     filters[i] = new FormSwep;
     filters[i]->setSweepRate( 0.001 );
   }
     
-	onezero = new OneZero;
-	onezero->setZero( -0.9 );
-	onepole = new OnePole;
-	onepole->setPole( 0.9 );
+    onezero = new OneZero;
+    onezero->setZero( -0.9 );
+    onepole = new OnePole;
+    onepole->setPole( 0.9 );
     
-	noiseEnv = new Envelope;
-	noiseEnv->setRate( 0.001 );
-	noiseEnv->setTarget( 0.0 );
+    noiseEnv = new Envelope;
+    noiseEnv->setRate( 0.001 );
+    noiseEnv->setTarget( 0.0 );
     
-	m_phonemeNum = 0;
-	this->setPhoneme( "eee" );
-	this->clear();    
+    m_phonemeNum = 0;
+    this->setPhoneme( "eee" );
+    this->clear();    
 }  
 
 VoicForm :: ~VoicForm()
 {
-	delete voiced;
-	delete noise;
-	delete onezero;
-	delete onepole;
-	delete noiseEnv;
+    delete voiced;
+    delete noise;
+    delete onezero;
+    delete onepole;
+    delete noiseEnv;
   for ( int i=0; i<4; i++ ) {
     delete filters[i];
   }
@@ -18295,8 +18295,8 @@ VoicForm :: ~VoicForm()
 
 void VoicForm :: clear()
 {
-	onezero->clear();
-	onepole->clear();
+    onezero->clear();
+    onepole->clear();
   for ( int i=0; i<4; i++ ) {
     filters[i]->clear();
   }
@@ -18310,16 +18310,16 @@ void VoicForm :: setFrequency(MY_FLOAT frequency)
     freakency = 220.0;
   }
 
-	voiced->setFrequency( freakency );
+    voiced->setFrequency( freakency );
 }
 
 bool VoicForm :: setPhoneme(const char *phoneme )
 {
-	bool found = false;
+    bool found = false;
     unsigned int i = 0;
-	while( i < 32 && !found ) {
-		if( !strcmp( Phonemes::name(i), phoneme ) ) {
-			found = true;
+    while( i < 32 && !found ) {
+        if( !strcmp( Phonemes::name(i), phoneme ) ) {
+            found = true;
       filters[0]->setTargets( Phonemes::formantFrequency(i, 0), Phonemes::formantRadius(i, 0), pow(10.0, Phonemes::formantGain(i, 0 ) / 20.0) );
       filters[1]->setTargets( Phonemes::formantFrequency(i, 1), Phonemes::formantRadius(i, 1), pow(10.0, Phonemes::formantGain(i, 1 ) / 20.0) );
       filters[2]->setTargets( Phonemes::formantFrequency(i, 2), Phonemes::formantRadius(i, 2), pow(10.0, Phonemes::formantGain(i, 2 ) / 20.0) );
@@ -18330,26 +18330,26 @@ bool VoicForm :: setPhoneme(const char *phoneme )
 #if defined(_STK_DEBUG_)
       std::cerr << "[chuck](via STK): VoicForm: found formant " << phoneme << " (number " << i << ")" << std::endl;
 #endif
-		}
-		i++;
-	}
+        }
+        i++;
+    }
 
-	if( !found )
+    if( !found )
         std::cerr << "[chuck](via STK): VoicForm: phoneme " << phoneme << " not found!" << std::endl;
     else
         str_phoneme.str = Phonemes::name( m_phonemeNum );
 
-	return found;
+    return found;
 }
 
 void VoicForm :: setVoiced(MY_FLOAT vGain)
 {
-	voiced->setGainTarget(vGain);
+    voiced->setGainTarget(vGain);
 }
 
 void VoicForm :: setUnVoiced(MY_FLOAT nGain)
 {
-	noiseEnv->setTarget(nGain * 0.01);
+    noiseEnv->setTarget(nGain * 0.01);
 }
 
 void VoicForm :: setFilterSweepRate(int whichOne, MY_FLOAT rate)
@@ -18359,60 +18359,60 @@ void VoicForm :: setFilterSweepRate(int whichOne, MY_FLOAT rate)
     return;
   }
 
-	filters[whichOne]->setSweepRate(rate);
+    filters[whichOne]->setSweepRate(rate);
 }
 
 void VoicForm :: setPitchSweepRate(MY_FLOAT rate)
 {
-	voiced->setSweepRate(rate);
+    voiced->setSweepRate(rate);
 }
 
 void VoicForm :: speak()
 {
-	voiced->noteOn();
+    voiced->noteOn();
 }
 
 void VoicForm :: quiet()
 {
-	voiced->noteOff();
-	noiseEnv->setTarget( 0.0 );
+    voiced->noteOff();
+    noiseEnv->setTarget( 0.0 );
 }
 
 void VoicForm :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
-	setFrequency(frequency);
-	voiced->setGainTarget(amplitude);
-	onepole->setPole( 0.97 - (amplitude * 0.2) );
+    setFrequency(frequency);
+    voiced->setGainTarget(amplitude);
+    onepole->setPole( 0.97 - (amplitude * 0.2) );
 }
 
 void VoicForm :: noteOn( MY_FLOAT amplitude )
 {
-	voiced->setGainTarget(amplitude);
-	onepole->setPole( 0.97 - (amplitude * 0.2) );
+    voiced->setGainTarget(amplitude);
+    onepole->setPole( 0.97 - (amplitude * 0.2) );
 }
 
 void VoicForm :: noteOff(MY_FLOAT amplitude)
 {
-	this->quiet();
+    this->quiet();
 }
 
 MY_FLOAT VoicForm :: tick()
 {
-	MY_FLOAT temp;
-	temp = onepole->tick( onezero->tick( voiced->tick() ) );
-	temp += noiseEnv->tick() * noise->tick();
-	lastOutput = filters[0]->tick(temp);
-	lastOutput += filters[1]->tick(temp);
-	lastOutput += filters[2]->tick(temp);
-	lastOutput += filters[3]->tick(temp);
+    MY_FLOAT temp;
+    temp = onepole->tick( onezero->tick( voiced->tick() ) );
+    temp += noiseEnv->tick() * noise->tick();
+    lastOutput = filters[0]->tick(temp);
+    lastOutput += filters[1]->tick(temp);
+    lastOutput += filters[2]->tick(temp);
+    lastOutput += filters[3]->tick(temp);
   /*
-	temp  += noiseEnv->tick() * noise->tick();
-	lastOutput  = filters[0]->tick(temp);
-	lastOutput  = filters[1]->tick(lastOutput);
-	lastOutput  = filters[2]->tick(lastOutput);
-	lastOutput  = filters[3]->tick(lastOutput);
+    temp  += noiseEnv->tick() * noise->tick();
+    lastOutput  = filters[0]->tick(temp);
+    lastOutput  = filters[1]->tick(lastOutput);
+    lastOutput  = filters[2]->tick(lastOutput);
+    lastOutput  = filters[3]->tick(lastOutput);
   */
-	return lastOutput;
+    return lastOutput;
 }
  
 void VoicForm :: controlChange(int number, MY_FLOAT value)
@@ -18427,47 +18427,47 @@ void VoicForm :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): VoicForm: Control value greater than 128.0!" << std::endl;
   }
 
-	if (number == __SK_Breath_)	{ // 2
-		this->setVoiced( 1.0 - norm );
-		this->setUnVoiced( norm );
-	}
-	else if (number == __SK_FootControl_)	{ // 4
+    if (number == __SK_Breath_) { // 2
+        this->setVoiced( 1.0 - norm );
+        this->setUnVoiced( norm );
+    }
+    else if (number == __SK_FootControl_)   { // 4
     MY_FLOAT temp = 0.0;
-		unsigned int i = (int) value;
-		if (i < 32)	{
+        unsigned int i = (int) value;
+        if (i < 32) {
       temp = 0.9;
-		}
-		else if (i < 64)	{
+        }
+        else if (i < 64)    {
       i -= 32;
       temp = 1.0;
-		}
-		else if (i < 96)	{
+        }
+        else if (i < 96)    {
       i -= 64;
       temp = 1.1;
-		}
-		else if (i < 128)	{
+        }
+        else if (i < 128)   {
       i -= 96;
       temp = 1.2;
-		}
-		else if (i == 128)	{
+        }
+        else if (i == 128)  {
       i = 0;
       temp = 1.4;
-		}
+        }
     filters[0]->setTargets( temp * Phonemes::formantFrequency(i, 0), Phonemes::formantRadius(i, 0), pow(10.0, Phonemes::formantGain(i, 0 ) / 20.0) );
     filters[1]->setTargets( temp * Phonemes::formantFrequency(i, 1), Phonemes::formantRadius(i, 1), pow(10.0, Phonemes::formantGain(i, 1 ) / 20.0) );
     filters[2]->setTargets( temp * Phonemes::formantFrequency(i, 2), Phonemes::formantRadius(i, 2), pow(10.0, Phonemes::formantGain(i, 2 ) / 20.0) );
     filters[3]->setTargets( temp * Phonemes::formantFrequency(i, 3), Phonemes::formantRadius(i, 3), pow(10.0, Phonemes::formantGain(i, 3 ) / 20.0) );
     setVoiced( Phonemes::voiceGain( i ) );
     setUnVoiced( Phonemes::noiseGain( i ) );
-	}
-	else if (number == __SK_ModFrequency_) // 11
-		voiced->setVibratoRate( norm * 12.0);  // 0 to 12 Hz
-	else if (number == __SK_ModWheel_) // 1
-		voiced->setVibratoGain( norm * 0.2);
-	else if (number == __SK_AfterTouch_Cont_)	{ // 128
-		setVoiced( norm );
-		onepole->setPole( 0.97 - ( norm * 0.2) );
-	}
+    }
+    else if (number == __SK_ModFrequency_) // 11
+        voiced->setVibratoRate( norm * 12.0);  // 0 to 12 Hz
+    else if (number == __SK_ModWheel_) // 1
+        voiced->setVibratoGain( norm * 0.2);
+    else if (number == __SK_AfterTouch_Cont_)   { // 128
+        setVoiced( norm );
+        onepole->setPole( 0.97 - ( norm * 0.2) );
+    }
   else
     std::cerr << "[chuck](via STK): VoicForm: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -18567,11 +18567,11 @@ long Voicer :: noteOn(MY_FLOAT noteNumber, MY_FLOAT amplitude, int channel )
   MY_FLOAT frequency = (MY_FLOAT) 220.0 * pow( 2.0, (noteNumber - 57.0) / 12.0 );
   for ( i=0; i<nVoices; i++ ) {
     if (voices[i].noteNumber < 0 && voices[i].channel == channel) {
-	    voices[i].tag = tags++;
+        voices[i].tag = tags++;
       voices[i].channel = channel;
       voices[i].noteNumber = noteNumber;
       voices[i].frequency = frequency;
-	    voices[i].instrument->noteOn( frequency, amplitude * ONE_OVER_128 );
+        voices[i].instrument->noteOn( frequency, amplitude * ONE_OVER_128 );
       voices[i].sounding = 1;
       return voices[i].tag;
     }
@@ -18933,7 +18933,7 @@ const MY_FLOAT *WaveLoop :: tickFrame(void)
 
 Whistle :: Whistle()
 {
-	tempVector = new Vector3D(0,0,0);
+    tempVector = new Vector3D(0,0,0);
   can = new Sphere(CAN_RADIUS);
   pea = new Sphere(PEA_RADIUS);
   bumper = new Sphere(BUMP_RADIUS);
@@ -18955,18 +18955,18 @@ Whistle :: Whistle()
   envelope.setRate(ENV_RATE);
   envelope.keyOn();
 
-	fippleFreqMod = 0.5;
-	fippleGainMod = 0.5;
-	blowFreqMod = 0.25;
-	noiseGain = 0.125;
-	maxPressure = (MY_FLOAT) 0.0;
-	baseFrequency = 2000;
+    fippleFreqMod = 0.5;
+    fippleGainMod = 0.5;
+    blowFreqMod = 0.25;
+    noiseGain = 0.125;
+    maxPressure = (MY_FLOAT) 0.0;
+    baseFrequency = 2000;
 
-	tickSize = NORM_TICK_SIZE;
-	canLoss = NORM_CAN_LOSS;
+    tickSize = NORM_TICK_SIZE;
+    canLoss = NORM_CAN_LOSS;
 
-	subSample = 1;
-	subSampCount = subSample;
+    subSample = 1;
+    subSampCount = subSample;
 }
 
 Whistle :: ~Whistle()
@@ -18995,8 +18995,8 @@ void Whistle :: setFrequency(MY_FLOAT frequency)
 
 void Whistle :: startBlowing(MY_FLOAT amplitude, MY_FLOAT rate)
 {
-	envelope.setRate(ENV_RATE);
-	envelope.setTarget(amplitude);
+    envelope.setRate(ENV_RATE);
+    envelope.setTarget(amplitude);
 }
 
 void Whistle :: stopBlowing(MY_FLOAT rate)
@@ -19032,13 +19032,13 @@ MY_FLOAT Whistle :: tick()
   double phi, cosphi, sinphi;
   double gain = 0.5, mod = 0.0;
 
-	if (--subSampCount <= 0)	{
-		tempVectorP = pea->getPosition();
-		subSampCount = subSample;
-		temp = bumper->isInside(tempVectorP);
+    if (--subSampCount <= 0)    {
+        tempVectorP = pea->getPosition();
+        subSampCount = subSample;
+        temp = bumper->isInside(tempVectorP);
 #ifdef WHISTLE_ANIMATION
     frameCount += 1;
-    if (frameCount >= (1470 / subSample))	{
+    if (frameCount >= (1470 / subSample))   {
       frameCount = 0;
       // printf("%f %f %f\n",tempVectorP->getX(),tempVectorP->getY(),envOut);
       fflush(stdout);
@@ -19053,13 +19053,13 @@ MY_FLOAT Whistle :: tick()
       pea->tick(tickSize);
     }
         
-    mod  = exp(-temp * 0.01);	// exp. distance falloff of fipple/pea effect
-    temp = onepole.tick(mod);	// smooth it a little
+    mod  = exp(-temp * 0.01);   // exp. distance falloff of fipple/pea effect
+    temp = onepole.tick(mod);   // smooth it a little
     gain = (1.0 - (fippleGainMod*0.5)) + (2.0 * fippleGainMod * temp);
-    gain *= gain;				// squared distance/gain
-    //    tempFreq = 1.0				//  Normalized Base Freq
-    //			+ (fippleFreqMod * 0.25) - (fippleFreqMod * temp) // fippleModulation 
-    //			- (blowFreqMod) + (blowFreqMod * envOut); // blowingModulation
+    gain *= gain;               // squared distance/gain
+    //    tempFreq = 1.0                //  Normalized Base Freq
+    //          + (fippleFreqMod * 0.25) - (fippleFreqMod * temp) // fippleModulation 
+    //          - (blowFreqMod) + (blowFreqMod * envOut); // blowingModulation
     // short form of above
     tempFreq = 1.0 + fippleFreqMod*(0.25-temp) + blowFreqMod*(envOut-1.0);
     tempFreq *= baseFrequency;
@@ -19070,9 +19070,9 @@ MY_FLOAT Whistle :: tick()
     temp = can->isInside(tempVectorP);
     temp  = -temp;       // We know (hope) it's inside, just how much??
     if (temp < (PEA_RADIUS * 1.25))        {            
-      pea->getVelocity(tempVector);	//  This is the can/pea collision
-      tempX = tempVectorP->getX();	// calculation.  Could probably
-      tempY = tempVectorP->getY();	// simplify using tables, etc.
+      pea->getVelocity(tempVector); //  This is the can/pea collision
+      tempX = tempVectorP->getX();  // calculation.  Could probably
+      tempY = tempVectorP->getY();  // simplify using tables, etc.
       phi = -atan2(tempY,tempX);
       cosphi = cos(phi);
       sinphi = sin(phi);
@@ -19087,7 +19087,7 @@ MY_FLOAT Whistle :: tick()
       pea->tick(tickSize);
     }
         
-    temp = tempVectorP->getLength();	
+    temp = tempVectorP->getLength();    
     if (temp > 0.01)        {
       tempX = tempVectorP->getX();
       tempY = tempVectorP->getY();
@@ -19109,13 +19109,13 @@ MY_FLOAT Whistle :: tick()
     pea->tick(tickSize);
 
     //    bumper->tick(0.0);
-	}
+    }
 
-	temp = envOut * envOut * gain / 2;
-	soundMix = temp * (sine->tick() + (noiseGain*noise.tick()));
-	lastOutput = 0.25 * soundMix; // should probably do one-zero filter here
+    temp = envOut * envOut * gain / 2;
+    soundMix = temp * (sine->tick() + (noiseGain*noise.tick()));
+    lastOutput = 0.25 * soundMix; // should probably do one-zero filter here
 
-	return lastOutput;
+    return lastOutput;
 }
 
 void Whistle :: controlChange(int number, MY_FLOAT value)
@@ -19140,8 +19140,8 @@ void Whistle :: controlChange(int number, MY_FLOAT value)
     envelope.setTarget( norm * 2.0 );
   else if (number == __SK_Breath_) // 2
     blowFreqMod = norm * 0.5;
-  else if (number == __SK_Sustain_)	 // 64
-	  if (value < 1.0) subSample = 1;
+  else if (number == __SK_Sustain_)  // 64
+      if (value < 1.0) subSample = 1;
   else
     std::cerr << "[chuck](via STK): Whistle: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -19219,7 +19219,7 @@ void Wurley :: setFrequency(MY_FLOAT frequency)
   baseFrequency = frequency;
   waves[0]->setFrequency(baseFrequency * ratios[0]);
   waves[1]->setFrequency(baseFrequency * ratios[1]);
-  waves[2]->setFrequency(ratios[2]);	// Note here a 'fixed resonance'.
+  waves[2]->setFrequency(ratios[2]);    // Note here a 'fixed resonance'.
   waves[3]->setFrequency(ratios[3]);
 }
 
@@ -20150,7 +20150,7 @@ void WvIn :: normalize(MY_FLOAT peak)
     max = (MY_FLOAT) 1.0 / max;
     max *= peak;
     for (i=0;i<=channels*bufferSize;i++)
-	    data[i] *= max;
+        data[i] *= max;
   }
 }
 
@@ -27080,7 +27080,7 @@ CK_DLL_PMSG( SubNoise_pmsg )
     NRev * j = (NRev *)OBJ_MEMBER_UINT(SELF, NRev_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     j->setEffectMix( f );
-	return TRUE;
+    return TRUE;
 }
 
 
@@ -27484,7 +27484,7 @@ CK_DLL_PMSG( WvIn_pmsg )
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     v->controlChange(__SK_ModWheel_, f * 128.0 );
-	return TRUE;
+    return TRUE;
 }
 
 

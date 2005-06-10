@@ -1658,11 +1658,11 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, 
     
     // time advance
     if( isa( left, &t_event ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var &&
-		rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
+        rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
     {
-		// pop now
-		emit->append( new Chuck_Instr_Reg_Pop_Word2 );
-		emit->append( new Chuck_Instr_Event_Wait );
+        // pop now
+        emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+        emit->append( new Chuck_Instr_Event_Wait );
 
         return TRUE;
     }
@@ -1763,11 +1763,11 @@ t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rh
                 // advance time
                 emit->append( new Chuck_Instr_Time_Advance );
             }
-			else if( isa( left, &t_string ) ) // string
-			{
-				// assign string
-				emit->append( new Chuck_Instr_Assign_String );
-			}
+            else if( isa( left, &t_string ) ) // string
+            {
+                // assign string
+                emit->append( new Chuck_Instr_Assign_String );
+            }
             else
             {
                 // assign primitive
@@ -2036,7 +2036,7 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
     case ae_primary_str:
         // TODO: fix this
         str = new Chuck_String;
-		initialize_object( str, &t_string );
+        initialize_object( str, &t_string );
         str->str = exp->str;
         temp = (t_CKUINT)str;
         emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
@@ -2117,9 +2117,9 @@ t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast )
     Chuck_Type * to = cast->self->type;
     Chuck_Type * from = cast->exp->type;
 
-	// emit the exp
-	if( !emit_engine_emit_exp( emit, cast->exp ) )
-		return FALSE;
+    // emit the exp
+    if( !emit_engine_emit_exp( emit, cast->exp ) )
+        return FALSE;
 
     // the actual work to be done
     return emit_engine_emit_cast( emit, to, from );
@@ -2729,46 +2729,46 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         }
         else // not member
         {
-			// not in class
-			if( !emit->env->class_def || !decl->is_static )
-			{
-				// allocate a place on the local stack
-				local = emit->alloc_local( type->size, value->name, is_ref );
-				if( !local )
-				{
-					EM_error2( decl->linepos,
-						"(emit): internal error: cannot allocate local '%s'...",
-						value->name.c_str() );
-					return FALSE;
-				}
+            // not in class
+            if( !emit->env->class_def || !decl->is_static )
+            {
+                // allocate a place on the local stack
+                local = emit->alloc_local( type->size, value->name, is_ref );
+                if( !local )
+                {
+                    EM_error2( decl->linepos,
+                        "(emit): internal error: cannot allocate local '%s'...",
+                        value->name.c_str() );
+                    return FALSE;
+                }
 
-				// put in the value
-				value->offset = local->offset;
+                // put in the value
+                value->offset = local->offset;
 
-				// zero out location in memory, and leave addr on operand stack
-				// TODO: this is wrong for static
-				// BAD:
-				// FIX:
-				if( type->size == 4 )
-					emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
-				else if( type->size == 8 )
-					emit->append( new Chuck_Instr_Alloc_Word2( local->offset ) );
-				else
-				{
-					EM_error2( decl->linepos,
-						"(emit): unhandle decl size of '%i'...",
-						type->size );
-					return FALSE;
-				}
-			}
-			else
-			{
-				// push something on the stack to pop...
-			    // static
-				// HACK
-				// TODO
-				emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-			}
+                // zero out location in memory, and leave addr on operand stack
+                // TODO: this is wrong for static
+                // BAD:
+                // FIX:
+                if( type->size == 4 )
+                    emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
+                else if( type->size == 8 )
+                    emit->append( new Chuck_Instr_Alloc_Word2( local->offset ) );
+                else
+                {
+                    EM_error2( decl->linepos,
+                        "(emit): unhandle decl size of '%i'...",
+                        type->size );
+                    return FALSE;
+                }
+            }
+            else
+            {
+                // push something on the stack to pop...
+                // static
+                // HACK
+                // TODO
+                emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+            }
         }
 
         // if object, assign
@@ -3044,8 +3044,8 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         emit->append( new Chuck_Instr_Func_Return );
         // vm code
         type->info->pre_ctor = emit_to_code( emit->code, type->info->pre_ctor, emit->dump );
-		// allocate static
-		type->info->class_data = new t_CKBYTE[type->info->class_data_size];
+        // allocate static
+        type->info->class_data = new t_CKBYTE[type->info->class_data_size];
     }
     else
     {

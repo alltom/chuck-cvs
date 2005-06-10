@@ -103,8 +103,8 @@ struct Chuck_Emitter : public Chuck_VM_Object
     Chuck_Code * code;
     // current context
     Chuck_Context * context;
-	// expression namespace
-	Chuck_Namespace * nspc;
+    // expression namespace
+    Chuck_Namespace * nspc;
     // current function definition
     Chuck_Func * func;
 

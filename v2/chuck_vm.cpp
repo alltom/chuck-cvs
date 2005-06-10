@@ -117,8 +117,8 @@ Chuck_VM::Chuck_VM()
     m_num_shreds = 0;
     m_shreduler = NULL;
     m_msg_buffer = NULL;
-	m_reply_buffer = NULL;
-	m_event_buffer = NULL;
+    m_reply_buffer = NULL;
+    m_event_buffer = NULL;
     m_shred_id = 0;
     m_halt = TRUE;
     m_env = NULL;
@@ -250,13 +250,13 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     // allocate msg buffer
     m_msg_buffer = new CBufferSimple;
     m_msg_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
-	//m_msg_buffer->join(); // this should return 0
+    //m_msg_buffer->join(); // this should return 0
     m_reply_buffer = new CBufferSimple;
     m_reply_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
-	//m_reply_buffer->join(); // this should return 0 too
+    //m_reply_buffer->join(); // this should return 0 too
     m_event_buffer = new CBufferSimple;
     m_event_buffer->initialize( 1024, sizeof(Chuck_Event *) );
-	//m_event_buffer->join(); // this should also return 0
+    //m_event_buffer->join(); // this should also return 0
 
     // allocate dac and adc
     m_num_dac_channels = 2;
@@ -277,8 +277,8 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     {
         // initialize as object
         initialize_object( &m_adc[i], &t_ugen );
-		// manually set the tick
-		m_adc[i].tick = NULL;
+        // manually set the tick
+        m_adc[i].tick = NULL;
         // add ref
         m_adc[i].add_ref();
     }
@@ -369,7 +369,7 @@ t_CKBOOL Chuck_VM::run( )
     m_running = TRUE;
     Chuck_VM_Shred * shred = NULL;
     Chuck_Msg * msg = NULL;
-	Chuck_Event * event = NULL;
+    Chuck_Event * event = NULL;
 
     // audio
     if( m_audio )
@@ -484,7 +484,7 @@ void Chuck_VM::gc( )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::queue_msg( Chuck_Msg * msg, int count )
 {
-	assert( count == 1 );
+    assert( count == 1 );
     m_msg_buffer->put( &msg, count );
     return TRUE;
 }
@@ -498,7 +498,7 @@ t_CKBOOL Chuck_VM::queue_msg( Chuck_Msg * msg, int count )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::queue_event( Chuck_Event * event, int count )
 {
-	assert( count == 1 );
+    assert( count == 1 );
     m_event_buffer->put( &event, count );
     return TRUE;
 }
@@ -545,7 +545,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             shred = new Chuck_VM_Shred;
             shred->initialize( msg->code );
             shred->name = msg->code->name;
-			shred->add_ref();
+            shred->add_ref();
         }
         // set the current time
         shred->start = m_shreduler->now_system;
@@ -553,8 +553,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         shred->id = msg->param;
         // set the now
         shred->now = shred->wake_time = m_shreduler->now_system;
-	    // set the vm
-	    shred->vm_ref = this;
+        // set the vm
+        shred->vm_ref = this;
         // add it to the parent
         if( shred->parent )
             shred->parent->children[shred->id] = shred;
@@ -767,8 +767,8 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code, Chuck_VM_Shred * parent 
     shred->name = code->name;
     // set the parent
     shred->parent = parent;
-	// add ref
-	shred->add_ref();
+    // add ref
+    shred->add_ref();
     // set the base ref for global
     if( parent ) shred->base_ref = shred->parent->base_ref;
     else shred->base_ref = shred->mem;
@@ -793,8 +793,8 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
     shred->now = shred->wake_time = m_shreduler->now_system;
     // set the id
     shred->id = next_id();
-	// set the vm
-	shred->vm_ref = this;
+    // set the vm
+    shred->vm_ref = this;
     // add it to the parent
     if( shred->parent )
         shred->parent->children[shred->id] = shred;
@@ -840,10 +840,10 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
         shred->parent->children.erase( shred->id );
 
     // free!
-	m_shreduler->remove( shred );
+    m_shreduler->remove( shred );
     // if( shred->event ) shred->event->remove( shred );
-	shred->release();
-	shred = NULL;
+    shred->release();
+    shred = NULL;
     if( dec ) m_num_shreds--;
     if( !m_num_shreds ) m_shred_id = 0;
     
@@ -981,8 +981,8 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     obj_array = NULL;
     obj_array_size = 0;
     base_ref = NULL;
-	vm_ref = NULL;
-	event = NULL;
+    vm_ref = NULL;
+    event = NULL;
 }
 
 
@@ -1026,8 +1026,8 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     // zero out the id
     id = 0;
 
-	// initialize
-	initialize_object( this, &t_shred );
+    // initialize
+    initialize_object( this, &t_shred );
 
     return TRUE;
 }

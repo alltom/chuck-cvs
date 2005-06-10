@@ -205,19 +205,19 @@
 #define SNDFILE_H
 
 /* This is the version 1.0.X header file. */
-#define	SNDFILE_1
+#define SNDFILE_1
 
 
 /* For the Metrowerks CodeWarrior Pro Compiler (mainly MacOS) */
 
-#if	(defined (__MWERKS__))
+#if (defined (__MWERKS__))
 #else
-#include	<sys/types.h>
+#include    <sys/types.h>
 #endif
 
 #ifdef __cplusplus
 extern "C" {
-#endif	/* __cplusplus */
+#endif  /* __cplusplus */
 
 /* The following file types can be read and written.
 ** A file type would consist of a major type (ie SF_FORMAT_WAV) bitwise
@@ -227,61 +227,61 @@ extern "C" {
 */
 
 enum
-{	/* Major formats. */
-	SF_FORMAT_WAV			= 0x010000,		/* Microsoft WAV format (little endian). */
-	SF_FORMAT_AIFF			= 0x020000,		/* Apple/SGI AIFF format (big endian). */
-	SF_FORMAT_AU			= 0x030000,		/* Sun/NeXT AU format (big endian). */
-	SF_FORMAT_RAW			= 0x040000,		/* RAW PCM data. */
-	SF_FORMAT_PAF			= 0x050000,		/* Ensoniq PARIS file format. */
-	SF_FORMAT_SVX			= 0x060000,		/* Amiga IFF / SVX8 / SV16 format. */
-	SF_FORMAT_NIST			= 0x070000,		/* Sphere NIST format. */
-	SF_FORMAT_VOC			= 0x080000,		/* VOC files. */
-	SF_FORMAT_IRCAM			= 0x0A0000,		/* Berkeley/IRCAM/CARL */
-	SF_FORMAT_W64			= 0x0B0000,		/* Sonic Foundry's 64 bit RIFF/WAV */
-	SF_FORMAT_MAT4			= 0x0C0000,		/* Matlab (tm) V4.2 / GNU Octave 2.0 */
-	SF_FORMAT_MAT5			= 0x0D0000,		/* Matlab (tm) V5.0 / GNU Octave 2.1 */
-	SF_FORMAT_PVF			= 0x0E0000,		/* Portable Voice Format */
-	SF_FORMAT_XI			= 0x0F0000,		/* Fasttracker 2 Extended Instrument */
-	SF_FORMAT_HTK			= 0x100000,		/* HMM Tool Kit format */
-	SF_FORMAT_SDS			= 0x110000,		/* Midi Sample Dump Standard */
-	SF_FORMAT_AVR			= 0x120000,		/* Audio Visual Research */
-	SF_FORMAT_WAVEX			= 0x130000,		/* MS WAVE with WAVEFORMATEX */
+{   /* Major formats. */
+    SF_FORMAT_WAV           = 0x010000,     /* Microsoft WAV format (little endian). */
+    SF_FORMAT_AIFF          = 0x020000,     /* Apple/SGI AIFF format (big endian). */
+    SF_FORMAT_AU            = 0x030000,     /* Sun/NeXT AU format (big endian). */
+    SF_FORMAT_RAW           = 0x040000,     /* RAW PCM data. */
+    SF_FORMAT_PAF           = 0x050000,     /* Ensoniq PARIS file format. */
+    SF_FORMAT_SVX           = 0x060000,     /* Amiga IFF / SVX8 / SV16 format. */
+    SF_FORMAT_NIST          = 0x070000,     /* Sphere NIST format. */
+    SF_FORMAT_VOC           = 0x080000,     /* VOC files. */
+    SF_FORMAT_IRCAM         = 0x0A0000,     /* Berkeley/IRCAM/CARL */
+    SF_FORMAT_W64           = 0x0B0000,     /* Sonic Foundry's 64 bit RIFF/WAV */
+    SF_FORMAT_MAT4          = 0x0C0000,     /* Matlab (tm) V4.2 / GNU Octave 2.0 */
+    SF_FORMAT_MAT5          = 0x0D0000,     /* Matlab (tm) V5.0 / GNU Octave 2.1 */
+    SF_FORMAT_PVF           = 0x0E0000,     /* Portable Voice Format */
+    SF_FORMAT_XI            = 0x0F0000,     /* Fasttracker 2 Extended Instrument */
+    SF_FORMAT_HTK           = 0x100000,     /* HMM Tool Kit format */
+    SF_FORMAT_SDS           = 0x110000,     /* Midi Sample Dump Standard */
+    SF_FORMAT_AVR           = 0x120000,     /* Audio Visual Research */
+    SF_FORMAT_WAVEX         = 0x130000,     /* MS WAVE with WAVEFORMATEX */
 
-	/* Subtypes from here on. */
+    /* Subtypes from here on. */
 
-	SF_FORMAT_PCM_S8		= 0x0001,		/* Signed 8 bit data */
-	SF_FORMAT_PCM_16		= 0x0002,		/* Signed 16 bit data */
-	SF_FORMAT_PCM_24		= 0x0003,		/* Signed 24 bit data */
-	SF_FORMAT_PCM_32		= 0x0004,		/* Signed 32 bit data */
-	SF_FORMAT_PCM_U8		= 0x0005,		/* Unsigned 8 bit data (WAV and RAW only) */
-	SF_FORMAT_FLOAT			= 0x0006,		/* 32 bit float data */
-	SF_FORMAT_DOUBLE		= 0x0007,		/* 64 bit float data */
-	SF_FORMAT_ULAW			= 0x0010,		/* U-Law encoded. */
-	SF_FORMAT_ALAW			= 0x0011,		/* A-Law encoded. */
-	SF_FORMAT_IMA_ADPCM		= 0x0012,		/* IMA ADPCM. */
-	SF_FORMAT_MS_ADPCM		= 0x0013,		/* Microsoft ADPCM. */
-	SF_FORMAT_GSM610		= 0x0020,		/* GSM 6.10 encoding. */
-	SF_FORMAT_VOX_ADPCM		= 0x0021,		/* OKI / Dialogix ADPCM */
-	SF_FORMAT_G721_32		= 0x0030,		/* 32kbs G721 ADPCM encoding. */
-	SF_FORMAT_G723_24		= 0x0031,		/* 24kbs G723 ADPCM encoding. */
-	SF_FORMAT_G723_40		= 0x0032,		/* 40kbs G723 ADPCM encoding. */
-	SF_FORMAT_DWVW_12		= 0x0040, 		/* 12 bit Delta Width Variable Word encoding. */
-	SF_FORMAT_DWVW_16		= 0x0041, 		/* 16 bit Delta Width Variable Word encoding. */
-	SF_FORMAT_DWVW_24		= 0x0042, 		/* 24 bit Delta Width Variable Word encoding. */
-	SF_FORMAT_DWVW_N		= 0x0043, 		/* N bit Delta Width Variable Word encoding. */
-	SF_FORMAT_DPCM_8		= 0x0050,		/* 8 bit differential PCM (XI only) */
-	SF_FORMAT_DPCM_16		= 0x0051,		/* 16 bit differential PCM (XI only) */
+    SF_FORMAT_PCM_S8        = 0x0001,       /* Signed 8 bit data */
+    SF_FORMAT_PCM_16        = 0x0002,       /* Signed 16 bit data */
+    SF_FORMAT_PCM_24        = 0x0003,       /* Signed 24 bit data */
+    SF_FORMAT_PCM_32        = 0x0004,       /* Signed 32 bit data */
+    SF_FORMAT_PCM_U8        = 0x0005,       /* Unsigned 8 bit data (WAV and RAW only) */
+    SF_FORMAT_FLOAT         = 0x0006,       /* 32 bit float data */
+    SF_FORMAT_DOUBLE        = 0x0007,       /* 64 bit float data */
+    SF_FORMAT_ULAW          = 0x0010,       /* U-Law encoded. */
+    SF_FORMAT_ALAW          = 0x0011,       /* A-Law encoded. */
+    SF_FORMAT_IMA_ADPCM     = 0x0012,       /* IMA ADPCM. */
+    SF_FORMAT_MS_ADPCM      = 0x0013,       /* Microsoft ADPCM. */
+    SF_FORMAT_GSM610        = 0x0020,       /* GSM 6.10 encoding. */
+    SF_FORMAT_VOX_ADPCM     = 0x0021,       /* OKI / Dialogix ADPCM */
+    SF_FORMAT_G721_32       = 0x0030,       /* 32kbs G721 ADPCM encoding. */
+    SF_FORMAT_G723_24       = 0x0031,       /* 24kbs G723 ADPCM encoding. */
+    SF_FORMAT_G723_40       = 0x0032,       /* 40kbs G723 ADPCM encoding. */
+    SF_FORMAT_DWVW_12       = 0x0040,       /* 12 bit Delta Width Variable Word encoding. */
+    SF_FORMAT_DWVW_16       = 0x0041,       /* 16 bit Delta Width Variable Word encoding. */
+    SF_FORMAT_DWVW_24       = 0x0042,       /* 24 bit Delta Width Variable Word encoding. */
+    SF_FORMAT_DWVW_N        = 0x0043,       /* N bit Delta Width Variable Word encoding. */
+    SF_FORMAT_DPCM_8        = 0x0050,       /* 8 bit differential PCM (XI only) */
+    SF_FORMAT_DPCM_16       = 0x0051,       /* 16 bit differential PCM (XI only) */
 
-	/* Endian-ness options. */
+    /* Endian-ness options. */
 
-	SF_ENDIAN_FILE			= 0x00000000,	/* Default file endian-ness. */
-	SF_ENDIAN_LITTLE		= 0x10000000,	/* Force little endian-ness. */
-	SF_ENDIAN_BIG			= 0x20000000,	/* Force big endian-ness. */
-	SF_ENDIAN_CPU			= 0x30000000,	/* Force CPU endian-ness. */
+    SF_ENDIAN_FILE          = 0x00000000,   /* Default file endian-ness. */
+    SF_ENDIAN_LITTLE        = 0x10000000,   /* Force little endian-ness. */
+    SF_ENDIAN_BIG           = 0x20000000,   /* Force big endian-ness. */
+    SF_ENDIAN_CPU           = 0x30000000,   /* Force CPU endian-ness. */
 
-	SF_FORMAT_SUBMASK		= 0x0000FFFF,
-	SF_FORMAT_TYPEMASK		= 0x0FFF0000,
-	SF_FORMAT_ENDMASK		= 0x30000000
+    SF_FORMAT_SUBMASK       = 0x0000FFFF,
+    SF_FORMAT_TYPEMASK      = 0x0FFF0000,
+    SF_FORMAT_ENDMASK       = 0x30000000
 } ;
 
 
@@ -295,50 +295,50 @@ enum
 
 
 enum
-{	SFC_GET_LIB_VERSION				= 0x1000,
-	SFC_GET_LOG_INFO				= 0x1001,
-	SFC_GET_NORM_DOUBLE				= 0x1010,
-	SFC_GET_NORM_FLOAT				= 0x1011,
-	SFC_SET_NORM_DOUBLE				= 0x1012,
-	SFC_SET_NORM_FLOAT				= 0x1013,
-	SFC_GET_SIMPLE_FORMAT_COUNT		= 0x1020,
-	SFC_GET_SIMPLE_FORMAT			= 0x1021,
-	SFC_GET_FORMAT_INFO				= 0x1028,
-	SFC_GET_FORMAT_MAJOR_COUNT		= 0x1030,
-	SFC_GET_FORMAT_MAJOR			= 0x1031,
-	SFC_GET_FORMAT_SUBTYPE_COUNT	= 0x1032,
-	SFC_GET_FORMAT_SUBTYPE			= 0x1033,
-	SFC_CALC_SIGNAL_MAX				= 0x1040,
-	SFC_CALC_NORM_SIGNAL_MAX		= 0x1041,
-	SFC_CALC_MAX_ALL_CHANNELS		= 0x1042,
-	SFC_CALC_NORM_MAX_ALL_CHANNELS	= 0x1043,
-	SFC_SET_ADD_PEAK_CHUNK			= 0x1050,
-	SFC_UPDATE_HEADER_NOW			= 0x1060,
-	SFC_SET_UPDATE_HEADER_AUTO		= 0x1061,
-	SFC_FILE_TRUNCATE				= 0x1080,
-	SFC_SET_RAW_START_OFFSET		= 0x1090,
-	SFC_SET_DITHER_ON_WRITE			= 0x10A0,
-	SFC_SET_DITHER_ON_READ			= 0x10A1,
-	SFC_GET_DITHER_INFO_COUNT		= 0x10A2,
-	SFC_GET_DITHER_INFO				= 0x10A3,
-	SFC_GET_EMBED_FILE_INFO			= 0x10B0,
-	SFC_SET_CLIPPING				= 0x10C0,
-	SFC_GET_CLIPPING				= 0x10C1,
-	SFC_GET_INSTRUMENT				= 0x10D0,
-	SFC_SET_INSTRUMENT				= 0x10D1,
+{   SFC_GET_LIB_VERSION             = 0x1000,
+    SFC_GET_LOG_INFO                = 0x1001,
+    SFC_GET_NORM_DOUBLE             = 0x1010,
+    SFC_GET_NORM_FLOAT              = 0x1011,
+    SFC_SET_NORM_DOUBLE             = 0x1012,
+    SFC_SET_NORM_FLOAT              = 0x1013,
+    SFC_GET_SIMPLE_FORMAT_COUNT     = 0x1020,
+    SFC_GET_SIMPLE_FORMAT           = 0x1021,
+    SFC_GET_FORMAT_INFO             = 0x1028,
+    SFC_GET_FORMAT_MAJOR_COUNT      = 0x1030,
+    SFC_GET_FORMAT_MAJOR            = 0x1031,
+    SFC_GET_FORMAT_SUBTYPE_COUNT    = 0x1032,
+    SFC_GET_FORMAT_SUBTYPE          = 0x1033,
+    SFC_CALC_SIGNAL_MAX             = 0x1040,
+    SFC_CALC_NORM_SIGNAL_MAX        = 0x1041,
+    SFC_CALC_MAX_ALL_CHANNELS       = 0x1042,
+    SFC_CALC_NORM_MAX_ALL_CHANNELS  = 0x1043,
+    SFC_SET_ADD_PEAK_CHUNK          = 0x1050,
+    SFC_UPDATE_HEADER_NOW           = 0x1060,
+    SFC_SET_UPDATE_HEADER_AUTO      = 0x1061,
+    SFC_FILE_TRUNCATE               = 0x1080,
+    SFC_SET_RAW_START_OFFSET        = 0x1090,
+    SFC_SET_DITHER_ON_WRITE         = 0x10A0,
+    SFC_SET_DITHER_ON_READ          = 0x10A1,
+    SFC_GET_DITHER_INFO_COUNT       = 0x10A2,
+    SFC_GET_DITHER_INFO             = 0x10A3,
+    SFC_GET_EMBED_FILE_INFO         = 0x10B0,
+    SFC_SET_CLIPPING                = 0x10C0,
+    SFC_GET_CLIPPING                = 0x10C1,
+    SFC_GET_INSTRUMENT              = 0x10D0,
+    SFC_SET_INSTRUMENT              = 0x10D1,
 
-	/* Following commands for testing only. */
-	SFC_TEST_IEEE_FLOAT_REPLACE		= 0x6001,
+    /* Following commands for testing only. */
+    SFC_TEST_IEEE_FLOAT_REPLACE     = 0x6001,
 
-	/*
-	** SFC_SET_ADD_* values are deprecated and will disappear at some
-	** time in the future. They are guaranteed to be here up to and
-	** including version 1.0.8 to avoid breakage of existng software.
-	** They currently do nothing and will continue to do nothing.
-	*/
+    /*
+    ** SFC_SET_ADD_* values are deprecated and will disappear at some
+    ** time in the future. They are guaranteed to be here up to and
+    ** including version 1.0.8 to avoid breakage of existng software.
+    ** They currently do nothing and will continue to do nothing.
+    */
 
-	SFC_SET_ADD_DITHER_ON_WRITE		= 0x1070,
-	SFC_SET_ADD_DITHER_ON_READ		= 0x1071
+    SFC_SET_ADD_DITHER_ON_WRITE     = 0x1070,
+    SFC_SET_ADD_DITHER_ON_READ      = 0x1071
 } ;
 
 
@@ -353,25 +353,25 @@ enum
 
 
 enum
-{	SF_STR_TITLE					= 0x01,
-	SF_STR_COPYRIGHT				= 0x02,
-	SF_STR_SOFTWARE					= 0x03,
-	SF_STR_ARTIST					= 0x04,
-	SF_STR_COMMENT					= 0x05,
-	SF_STR_DATE					= 0x06
+{   SF_STR_TITLE                    = 0x01,
+    SF_STR_COPYRIGHT                = 0x02,
+    SF_STR_SOFTWARE                 = 0x03,
+    SF_STR_ARTIST                   = 0x04,
+    SF_STR_COMMENT                  = 0x05,
+    SF_STR_DATE                 = 0x06
 } ;
 
 
 
 enum
-{	/* True and false */
-	SF_FALSE	= 0,
-	SF_TRUE		= 1,
+{   /* True and false */
+    SF_FALSE    = 0,
+    SF_TRUE     = 1,
 
-	/* Modes for opening files. */
-	SFM_READ	= 0x10,
-	SFM_WRITE	= 0x20,
-	SFM_RDWR	= 0x30
+    /* Modes for opening files. */
+    SFM_READ    = 0x10,
+    SFM_WRITE   = 0x20,
+    SFM_RDWR    = 0x30
 } ;
 
 
@@ -385,16 +385,16 @@ enum
 
 
 enum
-{	SF_ERR_NO_ERROR				= 0,
-	SF_ERR_UNRECOGNISED_FORMAT	= 1,
-	SF_ERR_SYSTEM				= 2
+{   SF_ERR_NO_ERROR             = 0,
+    SF_ERR_UNRECOGNISED_FORMAT  = 1,
+    SF_ERR_SYSTEM               = 2
 } ;
 
 
 
 /* A SNDFILE* pointer can be passed around much like stdio.h's FILE* pointer. */
 
-typedef	struct SNDFILE_tag	SNDFILE ;
+typedef struct SNDFILE_tag  SNDFILE ;
 
 
 /* The following typedef is system specific and is defined when libsndfile is.
@@ -404,7 +404,7 @@ typedef	struct SNDFILE_tag	SNDFILE ;
 
 typedef TYPEOF_SF_COUNT_T sf_count_t ;
 
-//#define SF_COUNT_MAX		0x7FFFFFFFFFFFFFFFLL
+//#define SF_COUNT_MAX      0x7FFFFFFFFFFFFFFFLL
 
 /* A pointer to a SF_INFO structure is passed to sf_open_read () and filled in.
 ** On write, the SF_INFO structure is filled in by the user and passed into
@@ -412,15 +412,15 @@ typedef TYPEOF_SF_COUNT_T sf_count_t ;
 */
 
 struct SF_INFO
-{	sf_count_t	frames ;		/* Used to be called samples.  Changed to avoid confusion. */
-	int			samplerate ;
-	int			channels ;
-	int			format ;
-	int			sections ;
-	int			seekable ;
+{   sf_count_t  frames ;        /* Used to be called samples.  Changed to avoid confusion. */
+    int         samplerate ;
+    int         channels ;
+    int         format ;
+    int         sections ;
+    int         seekable ;
 } ;
 
-typedef	struct SF_INFO SF_INFO ;
+typedef struct SF_INFO SF_INFO ;
 
 /* The SF_FORMAT_INFO struct is used to retrieve information about the sound
 ** file formats libsndfile supports using the sf_command () interface.
@@ -434,9 +434,9 @@ typedef	struct SF_INFO SF_INFO ;
 */
 
 typedef struct
-{	int			format ;
-	const char	*name ;
-	const char	*extension ;
+{   int         format ;
+    const char  *name ;
+    const char  *extension ;
 } SF_FORMAT_INFO ;
 
 /*
@@ -446,18 +446,18 @@ typedef struct
 */
 
 enum
-{	SFD_DEFAULT_LEVEL	= 0,
-	SFD_CUSTOM_LEVEL	= 0x40000000,
+{   SFD_DEFAULT_LEVEL   = 0,
+    SFD_CUSTOM_LEVEL    = 0x40000000,
 
-	SFD_NO_DITHER		= 500,
-	SFD_WHITE			= 501,
-	SFD_TRIANGULAR_PDF	= 502
+    SFD_NO_DITHER       = 500,
+    SFD_WHITE           = 501,
+    SFD_TRIANGULAR_PDF  = 502
 } ;
 
 typedef struct
-{	int			type ;
-	double		level ;
-	const char	*name ;
+{   int         type ;
+    double      level ;
+    const char  *name ;
 } SF_DITHER_INFO ;
 
 /* Struct used to retrieve information about a file embedded within a
@@ -465,28 +465,28 @@ typedef struct
 */
 
 typedef struct
-{	sf_count_t	offset ;
-	sf_count_t	length ;
+{   sf_count_t  offset ;
+    sf_count_t  length ;
 } SF_EMBED_FILE_INFO ;
 
 /* Struct used to retrieve music sample information from a file.
 */
 
 typedef struct
-{	int basenote ;
-	int gain ;
-	int	sustain_mode ;
-	int sustain_start, sustain_end ;
-	int release_mode ;
-	int release_start, reslease_end ;
+{   int basenote ;
+    int gain ;
+    int sustain_mode ;
+    int sustain_start, sustain_end ;
+    int release_mode ;
+    int release_start, reslease_end ;
 } SF_INSTRUMENT ;
 
 /* sustain_mode and release_mode will be one of the following. */
 
 enum
-{	SF_LOOP_NONE = 800,
-	SF_LOOP_FORWARD,
-	SF_LOOP_BACKWARD
+{   SF_LOOP_NONE = 800,
+    SF_LOOP_FORWARD,
+    SF_LOOP_BACKWARD
 } ;
 
 /* Open the specified file for read, write or both. On error, this will
@@ -495,7 +495,7 @@ enum
 ** All calls to sf_open() should be matched with a call to sf_close().
 */
 
-SNDFILE* 	sf_open		(const char *path, int mode, SF_INFO *sfinfo) ;
+SNDFILE*    sf_open     (const char *path, int mode, SF_INFO *sfinfo) ;
 
 /* Use the existing file descriptor to create a SNDFILE object. If close_desc
 ** is TRUE, the file descriptor will be closed when sf_close() is called. If
@@ -509,13 +509,13 @@ SNDFILE* 	sf_open		(const char *path, int mode, SF_INFO *sfinfo) ;
 
 */
 
-SNDFILE* 	sf_open_fd	(int fd, int mode, SF_INFO *sfinfo, int close_desc) ;
+SNDFILE*    sf_open_fd  (int fd, int mode, SF_INFO *sfinfo, int close_desc) ;
 
 /* sf_error () returns a error number which can be translated to a text
 ** string using sf_error_number().
 */
 
-int		sf_error		(SNDFILE *sndfile) ;
+int     sf_error        (SNDFILE *sndfile) ;
 
 /* sf_strerror () returns to the caller a pointer to the current error message for
 ** the given SNDFILE.
@@ -528,24 +528,24 @@ const char* sf_strerror (SNDFILE *sndfile) ;
 **
 */
 
-const char*	sf_error_number	(int errnum) ;
+const char* sf_error_number (int errnum) ;
 
 /* The following three error functions are deprecated but they will remain in the
 ** library for the forseeable future. The function sf_strerror() should be used
 ** in their place.
 */
 
-int		sf_perror		(SNDFILE *sndfile) ;
-int		sf_error_str	(SNDFILE *sndfile, char* str, size_t len) ;
+int     sf_perror       (SNDFILE *sndfile) ;
+int     sf_error_str    (SNDFILE *sndfile, char* str, size_t len) ;
 
 
 /* Return TRUE if fields of the SF_INFO struct are a valid combination of values. */
 
-int		sf_command	(SNDFILE *sndfile, int command, void *data, int datasize) ;
+int     sf_command  (SNDFILE *sndfile, int command, void *data, int datasize) ;
 
 /* Return TRUE if fields of the SF_INFO struct are a valid combination of values. */
 
-int		sf_format_check	(const SF_INFO *info) ;
+int     sf_format_check (const SF_INFO *info) ;
 
 /* Seek within the waveform data chunk of the SNDFILE. sf_seek () uses
 ** the same values for whence (SEEK_SET, SEEK_CUR and SEEK_END) as
@@ -559,7 +559,7 @@ int		sf_format_check	(const SF_INFO *info) ;
 ** On error all of these functions return -1.
 */
 
-sf_count_t	sf_seek 		(SNDFILE *sndfile, sf_count_t frames, int whence) ;
+sf_count_t  sf_seek         (SNDFILE *sndfile, sf_count_t frames, int whence) ;
 
 /* Functions for retrieving and setting string data within sound files.
 ** Not all file types support this features; AIFF and WAV do. For both
@@ -576,60 +576,60 @@ const char* sf_get_string (SNDFILE *sndfile, int str_type) ;
 /* Functions for reading/writing the waveform data of a sound file.
 */
 
-sf_count_t	sf_read_raw		(SNDFILE *sndfile, void *ptr, sf_count_t bytes) ;
-sf_count_t	sf_write_raw 	(SNDFILE *sndfile, void *ptr, sf_count_t bytes) ;
+sf_count_t  sf_read_raw     (SNDFILE *sndfile, void *ptr, sf_count_t bytes) ;
+sf_count_t  sf_write_raw    (SNDFILE *sndfile, void *ptr, sf_count_t bytes) ;
 
 /* Functions for reading and writing the data chunk in terms of frames.
 ** The number of items actually read/written = frames * number of channels.
-**     sf_xxxx_raw		read/writes the raw data bytes from/to the file
-**     sf_xxxx_short	passes data in the native short format
-**     sf_xxxx_int		passes data in the native int format
-**     sf_xxxx_float	passes data in the native float format
-**     sf_xxxx_double	passes data in the native double format
+**     sf_xxxx_raw      read/writes the raw data bytes from/to the file
+**     sf_xxxx_short    passes data in the native short format
+**     sf_xxxx_int      passes data in the native int format
+**     sf_xxxx_float    passes data in the native float format
+**     sf_xxxx_double   passes data in the native double format
 ** All of these read/write function return number of frames read/written.
 */
 
-sf_count_t	sf_readf_short	(SNDFILE *sndfile, short *ptr, sf_count_t frames) ;
-sf_count_t	sf_writef_short	(SNDFILE *sndfile, short *ptr, sf_count_t frames) ;
+sf_count_t  sf_readf_short  (SNDFILE *sndfile, short *ptr, sf_count_t frames) ;
+sf_count_t  sf_writef_short (SNDFILE *sndfile, short *ptr, sf_count_t frames) ;
 
-sf_count_t	sf_readf_int	(SNDFILE *sndfile, int *ptr, sf_count_t frames) ;
-sf_count_t	sf_writef_int 	(SNDFILE *sndfile, int *ptr, sf_count_t frames) ;
+sf_count_t  sf_readf_int    (SNDFILE *sndfile, int *ptr, sf_count_t frames) ;
+sf_count_t  sf_writef_int   (SNDFILE *sndfile, int *ptr, sf_count_t frames) ;
 
-sf_count_t	sf_readf_float	(SNDFILE *sndfile, float *ptr, sf_count_t frames) ;
-sf_count_t	sf_writef_float	(SNDFILE *sndfile, float *ptr, sf_count_t frames) ;
+sf_count_t  sf_readf_float  (SNDFILE *sndfile, float *ptr, sf_count_t frames) ;
+sf_count_t  sf_writef_float (SNDFILE *sndfile, float *ptr, sf_count_t frames) ;
 
-sf_count_t	sf_readf_double		(SNDFILE *sndfile, double *ptr, sf_count_t frames) ;
-sf_count_t	sf_writef_double	(SNDFILE *sndfile, double *ptr, sf_count_t frames) ;
+sf_count_t  sf_readf_double     (SNDFILE *sndfile, double *ptr, sf_count_t frames) ;
+sf_count_t  sf_writef_double    (SNDFILE *sndfile, double *ptr, sf_count_t frames) ;
 
 /* Functions for reading and writing the data chunk in terms of items.
 ** Otherwise similar to above.
 ** All of these read/write function return number of items read/written.
 */
 
-sf_count_t	sf_read_short	(SNDFILE *sndfile, short *ptr, sf_count_t items) ;
-sf_count_t	sf_write_short	(SNDFILE *sndfile, short *ptr, sf_count_t items) ;
+sf_count_t  sf_read_short   (SNDFILE *sndfile, short *ptr, sf_count_t items) ;
+sf_count_t  sf_write_short  (SNDFILE *sndfile, short *ptr, sf_count_t items) ;
 
-sf_count_t	sf_read_int		(SNDFILE *sndfile, int *ptr, sf_count_t items) ;
-sf_count_t	sf_write_int 	(SNDFILE *sndfile, int *ptr, sf_count_t items) ;
+sf_count_t  sf_read_int     (SNDFILE *sndfile, int *ptr, sf_count_t items) ;
+sf_count_t  sf_write_int    (SNDFILE *sndfile, int *ptr, sf_count_t items) ;
 
-sf_count_t	sf_read_float	(SNDFILE *sndfile, float *ptr, sf_count_t items) ;
-sf_count_t	sf_write_float	(SNDFILE *sndfile, float *ptr, sf_count_t items) ;
+sf_count_t  sf_read_float   (SNDFILE *sndfile, float *ptr, sf_count_t items) ;
+sf_count_t  sf_write_float  (SNDFILE *sndfile, float *ptr, sf_count_t items) ;
 
-sf_count_t	sf_read_double	(SNDFILE *sndfile, double *ptr, sf_count_t items) ;
-sf_count_t	sf_write_double	(SNDFILE *sndfile, double *ptr, sf_count_t items) ;
+sf_count_t  sf_read_double  (SNDFILE *sndfile, double *ptr, sf_count_t items) ;
+sf_count_t  sf_write_double (SNDFILE *sndfile, double *ptr, sf_count_t items) ;
 
 /* Close the SNDFILE and clean up all memory allocations associated with this
 ** file.
 ** Returns 0 on success, or an error number.
 */
 
-int		sf_close		(SNDFILE *sndfile) ;
+int     sf_close        (SNDFILE *sndfile) ;
 
 #ifdef __cplusplus
-}		/* extern "C" */
-#endif	/* __cplusplus */
+}       /* extern "C" */
+#endif  /* __cplusplus */
 
-#endif	/* SNDFILE_H */
+#endif  /* SNDFILE_H */
 /*
 ** Copyright (C) 1999-2004 Erik de Castro Lopo <erikd@mega-nerd.com>
 **
@@ -655,51 +655,51 @@ int		sf_close		(SNDFILE *sndfile) ;
 #ifndef SNDFILE_H
 #endif
 
-#define	SF_BUFFER_LEN			(8192*2)
-#define	SF_FILENAME_LEN			(256)
-#define	SF_HEADER_LEN			(4096)
-#define	SF_TEXT_LEN				(1024)
-#define SF_SYSERR_LEN			(256)
-#define SF_MAX_STRINGS			(16)
+#define SF_BUFFER_LEN           (8192*2)
+#define SF_FILENAME_LEN         (256)
+#define SF_HEADER_LEN           (4096)
+#define SF_TEXT_LEN             (1024)
+#define SF_SYSERR_LEN           (256)
+#define SF_MAX_STRINGS          (16)
 
-#define	SF_SEEK_ERROR			((sf_count_t) -1)
+#define SF_SEEK_ERROR           ((sf_count_t) -1)
 
 
-#define	BITWIDTH2BYTES(x)	(((x) + 7) / 8)
+#define BITWIDTH2BYTES(x)   (((x) + 7) / 8)
 
-/*	For some reason sizeof returns an unsigned  value which causes
-**	a warning when that value is added or subtracted from a signed
-**	value. Use SIGNED_SIZEOF instead.
+/*  For some reason sizeof returns an unsigned  value which causes
+**  a warning when that value is added or subtracted from a signed
+**  value. Use SIGNED_SIZEOF instead.
 */
-#define		SIGNED_SIZEOF(x)	((int) sizeof (x))
+#define     SIGNED_SIZEOF(x)    ((int) sizeof (x))
 
-#define		ARRAY_LEN(x)	((int) (sizeof (x) / sizeof ((x) [0])))
+#define     ARRAY_LEN(x)    ((int) (sizeof (x) / sizeof ((x) [0])))
 
-#define		SF_MAX(a,b)		((a) > (b) ? (a) : (b))
-#define		SF_MIN(a,b)		((a) < (b) ? (a) : (b))
+#define     SF_MAX(a,b)     ((a) > (b) ? (a) : (b))
+#define     SF_MIN(a,b)     ((a) < (b) ? (a) : (b))
 
 enum
-{	/* PEAK chunk location. */
-	SF_PEAK_START		= 42,
-	SF_PEAK_END			= 43,
+{   /* PEAK chunk location. */
+    SF_PEAK_START       = 42,
+    SF_PEAK_END         = 43,
 
-	/* PEAK chunk location. */
-	SF_SCALE_MAX		= 52,
-	SF_SCALE_MIN		= 53,
+    /* PEAK chunk location. */
+    SF_SCALE_MAX        = 52,
+    SF_SCALE_MIN        = 53,
 
-	/* str_flags values. */
-	SF_STR_ALLOW_START	= 0x0100,
-	SF_STR_ALLOW_END	= 0x0200,
+    /* str_flags values. */
+    SF_STR_ALLOW_START  = 0x0100,
+    SF_STR_ALLOW_END    = 0x0200,
 
-	/* Location of strings. */
-	SF_STR_LOCATE_START	= 0x0400,
-	SF_STR_LOCATE_END	= 0x0800,
+    /* Location of strings. */
+    SF_STR_LOCATE_START = 0x0400,
+    SF_STR_LOCATE_END   = 0x0800,
 
-	SFD_TYPEMASK		= 0x0FFFFFFF
+    SFD_TYPEMASK        = 0x0FFFFFFF
 } ;
 
-#define		SFM_MASK 	(SFM_READ | SFM_WRITE | SFM_RDWR)
-#define		SFM_UNMASK 	(~SFM_MASK)
+#define     SFM_MASK    (SFM_READ | SFM_WRITE | SFM_RDWR)
+#define     SFM_UNMASK  (~SFM_MASK)
 
 /*---------------------------------------------------------------------------------------
 ** Formats that may be supported at some time in the future.
@@ -707,160 +707,160 @@ enum
 */
 
 enum
-{	/* Work in progress. */
+{   /* Work in progress. */
 
-	/* Formats supported read only. */
-	SF_FORMAT_WVE			= 0x4020000,		/* Psion ALaw Sound File */
-	SF_FORMAT_TXW			= 0x4030000,		/* Yamaha TX16 sampler file */
-	SF_FORMAT_DWD			= 0x4040000,		/* DiamondWare Digirized */
+    /* Formats supported read only. */
+    SF_FORMAT_WVE           = 0x4020000,        /* Psion ALaw Sound File */
+    SF_FORMAT_TXW           = 0x4030000,        /* Yamaha TX16 sampler file */
+    SF_FORMAT_DWD           = 0x4040000,        /* DiamondWare Digirized */
 
-	/* Following are detected but not supported. */
-	SF_FORMAT_OGG			= 0x4090000,
+    /* Following are detected but not supported. */
+    SF_FORMAT_OGG           = 0x4090000,
 
-	SF_FORMAT_REX			= 0x40A0000,		/* Propellorheads Rex/Rcy */
-	SF_FORMAT_SD2			= 0x40C0000,		/* Sound Designer 2 */
-	SF_FORMAT_REX2			= 0x40D0000,		/* Propellorheads Rex2 */
-	SF_FORMAT_KRZ			= 0x40E0000,		/* Kurzweil sampler file */
-	SF_FORMAT_WMA			= 0x4100000,		/* Windows Media Audio. */
-	SF_FORMAT_SHN			= 0x4110000,		/* Shorten. */
-	SF_FORMAT_FLAC			= 0x4120000,
+    SF_FORMAT_REX           = 0x40A0000,        /* Propellorheads Rex/Rcy */
+    SF_FORMAT_SD2           = 0x40C0000,        /* Sound Designer 2 */
+    SF_FORMAT_REX2          = 0x40D0000,        /* Propellorheads Rex2 */
+    SF_FORMAT_KRZ           = 0x40E0000,        /* Kurzweil sampler file */
+    SF_FORMAT_WMA           = 0x4100000,        /* Windows Media Audio. */
+    SF_FORMAT_SHN           = 0x4110000,        /* Shorten. */
+    SF_FORMAT_FLAC          = 0x4120000,
 
-	/* Unsupported encodings. */
-	SF_FORMAT_VORBIS		= 0x1001,
+    /* Unsupported encodings. */
+    SF_FORMAT_VORBIS        = 0x1001,
 
-	SF_FORMAT_SVX_FIB		= 0x1020, 		/* SVX Fibonacci Delta encoding. */
-	SF_FORMAT_SVX_EXP		= 0x1021, 		/* SVX Exponential Delta encoding. */
+    SF_FORMAT_SVX_FIB       = 0x1020,       /* SVX Fibonacci Delta encoding. */
+    SF_FORMAT_SVX_EXP       = 0x1021,       /* SVX Exponential Delta encoding. */
 
-	SF_FORMAT_PCM_N			= 0x1030
+    SF_FORMAT_PCM_N         = 0x1030
 } ;
 
 /*---------------------------------------------------------------------------------------
-**	PEAK_CHUNK_OLD - This chunk type is common to both AIFF and WAVE files although their
-**	endian encodings are different.
+**  PEAK_CHUNK_OLD - This chunk type is common to both AIFF and WAVE files although their
+**  endian encodings are different.
 */
 
 typedef struct
-{	float			value ;		/* signed value of peak */
-	unsigned int	position ;	/* the sample frame for the peak */
+{   float           value ;     /* signed value of peak */
+    unsigned int    position ;  /* the sample frame for the peak */
 } PEAK_POS ;
 
 typedef struct
-{	unsigned int	version ;	/* version of the PEAK chunk */
-	unsigned int	timestamp ;	/* secs since 1/1/1970  */
+{   unsigned int    version ;   /* version of the PEAK chunk */
+    unsigned int    timestamp ; /* secs since 1/1/1970  */
 #if HAVE_FLEXIBLE_ARRAY
-	PEAK_POS		peaks [] ;	/* the per channel peak info */
+    PEAK_POS        peaks [] ;  /* the per channel peak info */
 #else
-	PEAK_POS		peaks [1] ;	/* the per channel peak info */
+    PEAK_POS        peaks [1] ; /* the per channel peak info */
 #endif
 } PEAK_CHUNK ;
 
 typedef struct
-{	int		type ;
-	int		flags ;
-	char 	*str ;
+{   int     type ;
+    int     flags ;
+    char    *str ;
 } STR_DATA ;
 
 /*=======================================================================================
-**	SF_PRIVATE stuct - a pointer to this struct is passed back to the caller of the
-**	sf_open_XXXX functions. The caller however has no knowledge of the struct's
-**	contents.
+**  SF_PRIVATE stuct - a pointer to this struct is passed back to the caller of the
+**  sf_open_XXXX functions. The caller however has no knowledge of the struct's
+**  contents.
 */
 
 typedef struct sf_private_tag
-{	/* Force the compiler to double align the start of buffer. */
-	double			buffer		[SF_BUFFER_LEN / sizeof (double)] ;
-	char			filename	[SF_FILENAME_LEN] ;
+{   /* Force the compiler to double align the start of buffer. */
+    double          buffer      [SF_BUFFER_LEN / sizeof (double)] ;
+    char            filename    [SF_FILENAME_LEN] ;
 
-	char			syserr		[SF_SYSERR_LEN] ;
+    char            syserr      [SF_SYSERR_LEN] ;
 
-	/* logbuffer and logindex should only be changed within the logging functions
-	** of common.c
-	*/
-	char			logbuffer	[SF_BUFFER_LEN] ;
-	unsigned char	header		[SF_HEADER_LEN] ; /* Must be unsigned */
-	int				rwf_endian ;	/* Header endian-ness flag. */
+    /* logbuffer and logindex should only be changed within the logging functions
+    ** of common.c
+    */
+    char            logbuffer   [SF_BUFFER_LEN] ;
+    unsigned char   header      [SF_HEADER_LEN] ; /* Must be unsigned */
+    int             rwf_endian ;    /* Header endian-ness flag. */
 
-	/* Storage and housekeeping data for adding/reading strings from
-	** sound files.
-	*/
-	STR_DATA		strings [SF_MAX_STRINGS] ;
-	char			str_storage [SF_BUFFER_LEN] ;
-	char			*str_end ;
-	int				str_flags ;
+    /* Storage and housekeeping data for adding/reading strings from
+    ** sound files.
+    */
+    STR_DATA        strings [SF_MAX_STRINGS] ;
+    char            str_storage [SF_BUFFER_LEN] ;
+    char            *str_end ;
+    int             str_flags ;
 
-	/* Guard value. If this changes the buffers above have overflowed. */
-	int				Magick ;
+    /* Guard value. If this changes the buffers above have overflowed. */
+    int             Magick ;
 
-	/* Index variables for maintaining logbuffer and header above. */
-	int				logindex ;
-	int				headindex, headend ;
-	int				has_text ;
-	int				do_not_close_descriptor ;
+    /* Index variables for maintaining logbuffer and header above. */
+    int             logindex ;
+    int             headindex, headend ;
+    int             has_text ;
+    int             do_not_close_descriptor ;
 
-	int 			filedes ;
+    int             filedes ;
 
-	int				end_of_file ;
-	int				error ;
+    int             end_of_file ;
+    int             error ;
 
-	int				mode ;			/* Open mode : SFM_READ, SFM_WRITE or SFM_RDWR. */
-	int				endian ;		/* File endianness : SF_ENDIAN_LITTLE or SF_ENDIAN_BIG. */
-	int				float_endswap ;	/* Need to endswap float32s? */
+    int             mode ;          /* Open mode : SFM_READ, SFM_WRITE or SFM_RDWR. */
+    int             endian ;        /* File endianness : SF_ENDIAN_LITTLE or SF_ENDIAN_BIG. */
+    int             float_endswap ; /* Need to endswap float32s? */
 
-	/* Vairables for handling pipes. */
-	int				is_pipe ;		/* True if file is a pipe. */
-	sf_count_t		pipeoffset ;	/* Number of bytes read from a pipe. */
+    /* Vairables for handling pipes. */
+    int             is_pipe ;       /* True if file is a pipe. */
+    sf_count_t      pipeoffset ;    /* Number of bytes read from a pipe. */
 
-	/* True if clipping must be performed on float->int conversions. */
-	int				add_clipping ;
+    /* True if clipping must be performed on float->int conversions. */
+    int             add_clipping ;
 
-	SF_INFO			sf ;
+    SF_INFO         sf ;
 
-	int				have_written ;	/* Has a single write been done to the file? */
-	int				has_peak ;		/* Has a PEAK chunk (AIFF and WAVE) been read? */
-	int				peak_loc ;		/* Write a PEAK chunk at the start or end of the file? */
-	PEAK_CHUNK		*pchunk ;
+    int             have_written ;  /* Has a single write been done to the file? */
+    int             has_peak ;      /* Has a PEAK chunk (AIFF and WAVE) been read? */
+    int             peak_loc ;      /* Write a PEAK chunk at the start or end of the file? */
+    PEAK_CHUNK      *pchunk ;
 
-	sf_count_t		filelength ;	/* Overall length of (embedded) file. */
-	sf_count_t		fileoffset ;	/* Offset in number of bytes from beginning of file. */
+    sf_count_t      filelength ;    /* Overall length of (embedded) file. */
+    sf_count_t      fileoffset ;    /* Offset in number of bytes from beginning of file. */
 
-	sf_count_t		dataoffset ;	/* Offset in number of bytes from beginning of file. */
-	sf_count_t		datalength ;	/* Length in bytes of the audio data. */
-	sf_count_t		dataend ;		/* Offset to file tailer. */
+    sf_count_t      dataoffset ;    /* Offset in number of bytes from beginning of file. */
+    sf_count_t      datalength ;    /* Length in bytes of the audio data. */
+    sf_count_t      dataend ;       /* Offset to file tailer. */
 
-	int				blockwidth ;	/* Size in bytes of one set of interleaved samples. */
-	int				bytewidth ;		/* Size in bytes of one sample (one channel). */
+    int             blockwidth ;    /* Size in bytes of one set of interleaved samples. */
+    int             bytewidth ;     /* Size in bytes of one sample (one channel). */
 
-	void			*dither ;
-	void			*interleave ;
+    void            *dither ;
+    void            *interleave ;
 
-	int				last_op ;		/* Last operation; either SFM_READ or SFM_WRITE */
-	sf_count_t		read_current ;
-	sf_count_t		write_current ;
+    int             last_op ;       /* Last operation; either SFM_READ or SFM_WRITE */
+    sf_count_t      read_current ;
+    sf_count_t      write_current ;
 
-	void			*fdata ;		/*	This is a pointer to dynamically allocated file format
-									**	specific data.
-									*/
+    void            *fdata ;        /*  This is a pointer to dynamically allocated file format
+                                    **  specific data.
+                                    */
 
-	SF_DITHER_INFO	write_dither ;
-	SF_DITHER_INFO	read_dither ;
+    SF_DITHER_INFO  write_dither ;
+    SF_DITHER_INFO  read_dither ;
 
-	int				norm_double ;
-	int				norm_float ;
+    int             norm_double ;
+    int             norm_float ;
 
-	int				auto_header ;
+    int             auto_header ;
 
-	int				ieee_replace ;
-	/* A set of file specific function pointers */
+    int             ieee_replace ;
+    /* A set of file specific function pointers */
 
-	sf_count_t		(*read_short)	(struct sf_private_tag*, short *ptr, sf_count_t len) ;
-	sf_count_t		(*read_int)		(struct sf_private_tag*, int *ptr, sf_count_t len) ;
-	sf_count_t		(*read_float)	(struct sf_private_tag*, float *ptr, sf_count_t len) ;
-	sf_count_t		(*read_double)	(struct sf_private_tag*, double *ptr, sf_count_t len) ;
+    sf_count_t      (*read_short)   (struct sf_private_tag*, short *ptr, sf_count_t len) ;
+    sf_count_t      (*read_int)     (struct sf_private_tag*, int *ptr, sf_count_t len) ;
+    sf_count_t      (*read_float)   (struct sf_private_tag*, float *ptr, sf_count_t len) ;
+    sf_count_t      (*read_double)  (struct sf_private_tag*, double *ptr, sf_count_t len) ;
 
-	sf_count_t		(*write_short)	(struct sf_private_tag*, short *ptr, sf_count_t len) ;
-	sf_count_t		(*write_int)	(struct sf_private_tag*, int *ptr, sf_count_t len) ;
-	sf_count_t		(*write_float)	(struct sf_private_tag*, float *ptr, sf_count_t len) ;
-	sf_count_t		(*write_double)	(struct sf_private_tag*, double *ptr, sf_count_t len) ;
+    sf_count_t      (*write_short)  (struct sf_private_tag*, short *ptr, sf_count_t len) ;
+    sf_count_t      (*write_int)    (struct sf_private_tag*, int *ptr, sf_count_t len) ;
+    sf_count_t      (*write_float)  (struct sf_private_tag*, float *ptr, sf_count_t len) ;
+    sf_count_t      (*write_double) (struct sf_private_tag*, double *ptr, sf_count_t len) ;
 
 	sf_count_t		(*seek) 		(struct sf_private_tag*, int mode, sf_count_t samples_from_start) ;
 	int				(*write_header)	(struct sf_private_tag*, int calc_length) ;
