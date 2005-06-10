@@ -1940,6 +1940,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     Chuck_Value * value = NULL;
     t_CKBOOL primitive = FALSE;
     t_CKBOOL do_alloc = TRUE;
+    t_CKINT is_static = -1;
 
     // TODO: handle T a, b, c ...
     // look up the type
@@ -2015,14 +2016,14 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         }
 
         // check if in parent
-        if( env->class_def && ( value =
+        /*if( env->class_def && ( value =
             type_engine_find_value( env->class_def->parent, var_decl->id ) ) )
         {
             EM_error2( var_decl->linepos,
                 "'%s' has already been defined in super class '%s'...",
                 S_name(var_decl->id), value->owner_class->c_name() );
             return NULL;
-        }
+        }*/
 
         // TODO: this needs to be redone
         // check if array
@@ -2113,13 +2114,44 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             value->offset = env->curr->offset;
             // move the offset (TODO: check the size)
             env->curr->offset += t->size;
+
+            // check to see if consistent with stmt
+            if( is_static == 1 ) // static
+            {
+                EM_error2( var_decl->linepos,
+                    "cannot mix static and non-static declarations in the same statement" );
+                return NULL;
+            }
+            else is_static = 0;
         }
-        else if( env->class_def != NULL ) // static
+        else if( env->class_def != NULL && decl->is_static ) // static
         {
+            // base scope
+            if( env->class_scope > 0 )
+            {
+                EM_error2( decl->linepos,
+                    "static variables must be declared at class scope..." );
+                return NULL;
+            }
+
+            // check to see if consistent with stmt
+            if( is_static == 0 ) // non static
+            {
+                EM_error2( var_decl->linepos,
+                    "cannot mix static and non-static declarations in the same statement" );
+                return NULL;
+            }
+            else is_static = 1;
+
             // offset
             value->offset = env->class_def->info->class_data_size;
             // move the size
             env->class_def->info->class_data_size += t->size;
+        }
+        else // local variable
+        {
+            int x = 1;
+            // do nothing?
         }
 
         // the next var decl

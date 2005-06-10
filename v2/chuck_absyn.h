@@ -300,6 +300,7 @@ typedef enum { ae_stmt_exp, ae_stmt_while, ae_stmt_until, ae_stmt_for,
 struct a_Stmt_
 {
     ae_Stmt_Type s_type;
+    int skip;
     
     union
     {
