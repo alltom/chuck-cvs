@@ -321,3 +321,143 @@ UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
     // return number of elems
     return i;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: CBufferSimple()
+// desc: constructor
+//-----------------------------------------------------------------------------
+CBufferSimple::CBufferSimple()
+{
+    m_data = NULL;
+    m_data_width = m_read_offset = m_write_offset = m_max_elem = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~CBufferSimple()
+// desc: destructor
+//-----------------------------------------------------------------------------
+CBufferSimple::~CBufferSimple()
+{
+    this->cleanup();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: initialize()
+// desc: initialize
+//-----------------------------------------------------------------------------
+BOOL__ CBufferSimple::initialize( UINT__ num_elem, UINT__ width )
+{
+    // cleanup
+    cleanup();
+
+    // allocate
+    m_data = (BYTE__ *)malloc( num_elem * width );
+    if( !m_data )
+        return false;
+
+    m_data_width = width;
+    m_read_offset = 0;
+    m_write_offset = 0;
+    m_max_elem = num_elem;
+
+    return true;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: cleanup()
+// desc: cleanup
+//-----------------------------------------------------------------------------
+void CBufferSimple::cleanup()
+{
+    if( !m_data )
+        return;
+
+    free( m_data );
+
+    m_data = NULL;
+    m_data_width = m_read_offset = m_write_offset = m_max_elem = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: put()
+// desc: put
+//-----------------------------------------------------------------------------
+void CBufferSimple::put( void * data, UINT__ num_elem )
+{
+    UINT__ i, j;
+    BYTE__ * d = (BYTE__ *)data;
+
+    // copy
+    for( i = 0; i < num_elem; i++ )
+    {
+        for( j = 0; j < m_data_width; j++ )
+        {
+            m_data[m_write_offset*m_data_width+j] = d[i*m_data_width+j];
+        }
+
+        // move the write
+        m_write_offset++;
+
+        // wrap
+        if( m_write_offset >= m_max_elem )
+            m_write_offset = 0;
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get()
+// desc: get
+//-----------------------------------------------------------------------------
+UINT__ CBufferSimple::get( void * data, UINT__ num_elem )
+{
+    UINT__ i, j;
+    BYTE__ * d = (BYTE__ *)data;
+
+    // read catch up with write
+    if( m_read_offset == m_write_offset )
+        return 0;
+
+    // copy
+    for( i = 0; i < num_elem; i++ )
+    {
+        for( j = 0; j < m_data_width; j++ )
+        {
+            d[i*m_data_width+j] = m_data[m_read_offset*m_data_width+j];
+        }
+
+        // move read
+        m_read_offset++;
+        
+        // catch up
+        if( m_read_offset == m_write_offset )
+        {
+            i++;
+            break;
+        }
+
+        // wrap
+        if( m_read_offset >= m_max_elem )
+            m_read_offset = 0;
+    }
+
+    // return number of elems
+    return 1;
+}

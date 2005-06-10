@@ -96,4 +96,33 @@ protected:
 
 
 
+//-----------------------------------------------------------------------------
+// name: class CBufferSimple
+// desc: circular buffer - one reader one writer
+//-----------------------------------------------------------------------------
+class CBufferSimple
+{
+public:
+    CBufferSimple();
+    ~CBufferSimple();
+
+public:
+    BOOL__ initialize( UINT__ num_elem, UINT__ width );
+    void cleanup();
+
+public:
+    UINT__ get( void * data, UINT__ num_elem );
+    void put( void * data, UINT__ num_elem );
+
+protected:
+    BYTE__ * m_data;
+    UINT__   m_data_width;
+    UINT__   m_read_offset;
+    UINT__   m_write_offset;
+    UINT__   m_max_elem;
+};
+
+
+
+
 #endif

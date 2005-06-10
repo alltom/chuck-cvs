@@ -248,15 +248,15 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_shreduler->bbq = m_audio ? m_bbq : NULL;
 
     // allocate msg buffer
-    m_msg_buffer = new CBuffer;
+    m_msg_buffer = new CBufferSimple;
     m_msg_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
-	m_msg_buffer->join(); // this should return 0
-    m_reply_buffer = new CBuffer;
+	//m_msg_buffer->join(); // this should return 0
+    m_reply_buffer = new CBufferSimple;
     m_reply_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
-	m_reply_buffer->join(); // this should return 0 too
-    m_event_buffer = new CBuffer;
+	//m_reply_buffer->join(); // this should return 0 too
+    m_event_buffer = new CBufferSimple;
     m_event_buffer->initialize( 1024, sizeof(Chuck_Event *) );
-	m_event_buffer->join(); // this should also return 0
+	//m_event_buffer->join(); // this should also return 0
 
     // allocate dac and adc
     m_num_dac_channels = 2;
@@ -406,11 +406,11 @@ t_CKBOOL Chuck_VM::run( )
         m_shreduler->advance();
 
         // process messages
-        while( m_msg_buffer->get( &msg, 1, 0 ) )
+        while( m_msg_buffer->get( &msg, 1 ) )
             process_msg( msg );
 
         // broadcast queued events
-        while( m_event_buffer->get( &event, 1, 0 ) )
+        while( m_event_buffer->get( &event, 1 ) )
             event->broadcast();
     }
 
@@ -513,7 +513,7 @@ t_CKBOOL Chuck_VM::queue_event( Chuck_Event * event, int count )
 Chuck_Msg * Chuck_VM::get_reply( )
 {
     Chuck_Msg * msg = NULL;
-    m_reply_buffer->get( &msg, 1, 0 );
+    m_reply_buffer->get( &msg, 1 );
     return msg;
 }
 

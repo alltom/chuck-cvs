@@ -57,7 +57,7 @@ struct Chuck_VM_FTable;
 struct Chuck_Msg;
 
 class BBQ;
-class CBuffer;
+class CBufferSimple;
 class Digitalio;
 
 
@@ -351,9 +351,9 @@ protected:
     t_CKUINT m_num_func;
 
     // message queue
-    CBuffer * m_msg_buffer;
-    CBuffer * m_reply_buffer;
-    CBuffer * m_event_buffer;
+    CBufferSimple * m_msg_buffer;
+    CBufferSimple * m_reply_buffer;
+    CBufferSimple * m_event_buffer;
 
     // type information
     void * m_env;
