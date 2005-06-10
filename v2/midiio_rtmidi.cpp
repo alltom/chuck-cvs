@@ -336,7 +336,7 @@ MidiInManager::~MidiInManager()
 t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
 {
     // see if port not already open
-	if( device_num >= the_mins.capacity() || !the_mins[device_num] )
+	if( device_num >= (t_CKINT)the_mins.capacity() || !the_mins[device_num] )
 	{
 
 		// allocate the buffer
@@ -362,7 +362,7 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
 		}
 
 		// resize?
-		if( device_num >= the_mins.capacity() )
+		if( device_num >= (t_CKINT)the_mins.capacity() )
 		{
 			t_CKINT size = the_mins.capacity() * 2;
 			if( device_num >= size ) size = device_num + 1;
@@ -534,7 +534,7 @@ MidiOutManager::~MidiOutManager()
 t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
 {
     // see if port not already open
-	if( device_num >= the_mouts.capacity() || !the_mouts[device_num] )
+	if( device_num >= (t_CKINT)the_mouts.capacity() || !the_mouts[device_num] )
 	{
 		// allocate
 		RtMidiOut * rtmout = new RtMidiOut;
@@ -548,7 +548,7 @@ t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
 		}
 
 		// resize?
-		if( device_num >= the_mouts.capacity() )
+		if( device_num >= (t_CKINT)the_mouts.capacity() )
 		{
 			t_CKINT size = the_mouts.capacity() * 2;
 			if( device_num >= size ) size = device_num + 1;

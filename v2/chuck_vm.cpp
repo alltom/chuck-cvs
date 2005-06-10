@@ -236,7 +236,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         return FALSE;
 //#endif
 
-    t_CKINT i;
+    t_CKUINT i;
 
     // allocate bbq
     m_bbq = new BBQ;

@@ -2932,7 +2932,7 @@ t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
         return FALSE;
 
     // set the index for next instruction for return statements
-    for( t_CKINT i = 0; i < emit->code->stack_return.size(); i++ )
+    for( t_CKUINT i = 0; i < emit->code->stack_return.size(); i++ )
         emit->code->stack_return[i]->set( emit->next_index() );
     // clear the return stack
     emit->code->stack_return.clear();

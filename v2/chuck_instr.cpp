@@ -3395,7 +3395,7 @@ void Chuck_Instr_Gack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     }
 
     // loop over types
-    long i;
+    t_CKUINT i;
 
     // find the start of the expression
     for( i = 0; i < m_type_refs.size(); i++ )

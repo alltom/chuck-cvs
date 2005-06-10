@@ -311,7 +311,7 @@ UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
         }
 
         // wrap
-        if( m_read_offset >= m_max_elem )
+        if( m_read_offset >= (SINT__)m_max_elem )
             m_read_offset = 0;
     }
 

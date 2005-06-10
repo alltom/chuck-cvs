@@ -705,7 +705,7 @@ void Chuck_DL_Query::clear()
     // line pos
     linepos = 0;
     // delete classes
-    for( t_CKINT i = 0; i < classes.size(); i++ ) delete classes[i];
+    for( t_CKUINT i = 0; i < classes.size(); i++ ) delete classes[i];
     // clear
     classes.clear();
 }
@@ -719,7 +719,7 @@ void Chuck_DL_Query::clear()
 //-----------------------------------------------------------------------------
 Chuck_DL_Class::~Chuck_DL_Class()
 {
-    t_CKINT i;
+    t_CKUINT i;
 
     // delete mfuns
     for( i = 0; i < mfuns.size(); i++ ) delete mfuns[i];
@@ -742,7 +742,7 @@ Chuck_DL_Class::~Chuck_DL_Class()
 //-----------------------------------------------------------------------------
 Chuck_DL_Func::~Chuck_DL_Func()
 {
-    for( t_CKINT i = 0; i < args.size(); i++ )
+    for( t_CKUINT i = 0; i < args.size(); i++ )
         delete args[i];
 }
 
