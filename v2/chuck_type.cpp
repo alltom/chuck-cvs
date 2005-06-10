@@ -2133,6 +2133,35 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_print_exp_dot_member()
+// desc: ...
+//-----------------------------------------------------------------------------
+string type_engine_print_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
+{
+    Chuck_Value * value = NULL;
+    Chuck_Type * the_base = NULL;
+    t_CKBOOL base_static = FALSE;
+    string str;
+
+    // type check the base
+    member->t_base = type_engine_check_exp( env, member->base );
+    if( !member->t_base ) return "[error]";
+
+    // is the base a class/namespace or a variable
+    base_static = isa( member->t_base, &t_class );
+    // actual type
+    the_base = base_static ? member->t_base->actual_type : member->t_base;
+
+    // this
+    str = S_name(member->id);
+
+    return the_base->name + std::string(".") + str;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_check_exp_func_call()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2179,13 +2208,8 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
         // check arguments against the definition
         while( e )
         {
+            // check for extra arguments
             if( e1 == NULL ) goto moveon;
-            /*{
-                EM_error2( linepos,
-                    "extra argument(s) in function call '%s' (arg %i)",
-                    func->name.c_str(), count );
-                return NULL;
-            }*/
 
             // no match
             if( !isa( e->type, e1->type ) )
@@ -2196,16 +2220,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
                     // int to float
                     e->cast_to = &t_float;
                 }
-                else goto moveon;
-                /*{
-                    EM_error2( e->linepos,
-                        "argument '%i' of function call '%s(...)' has type '%s'...",
-                        count, func->name.c_str(), e->type->c_name() );
-                    EM_error2( e->linepos,
-                        "...(expecting: type '%s')",
-                        e1->type->c_name() );
-                    return NULL;
-                }*/
+                else goto moveon; // type mismatch
             }
 
             e = e->next;
@@ -2214,21 +2229,8 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
         }
 
         // anything left
-        if( e1 != NULL ) goto moveon;
-        else
-        {
-            // found match
-            break;
-        }
-        /*{
-            EM_error2( linepos,
-                "missing argument(s) in function call '%s'...",
-                func->name.c_str() );
-            EM_error2( linepos,
-                "...(next arg type: '%s')",
-                e1->type->c_name() );
-            return NULL;
-        }*/
+        if( e1 != NULL ) goto moveon; // missing arguments
+        else break; // found match
 
 moveon:
         // next func
@@ -2245,6 +2247,12 @@ moveon:
                 "no matching function for '%s(...)' ...",
                 S_name(exp_func->primary.var) );
         }
+        else if( exp_func->s_type == ae_exp_dot_member )
+        {
+            EM_error2( exp_func->linepos,
+                "no matching function for '%s(...)' ...",
+                type_engine_print_exp_dot_member( env, &exp_func->dot_member ).c_str() );
+        }
         else
         {
             EM_error2( exp_func->linepos,
@@ -2256,8 +2264,8 @@ moveon:
 
         return NULL;
     }
-    
-    // recheck the type with new name
+
+/*  // recheck the type with new name
     if( exp_func->s_type == ae_exp_primary && exp_func->primary.s_type == ae_primary_var )
     {
         // set the new name
@@ -2286,7 +2294,7 @@ moveon:
             return NULL;
         }
     }
-    else assert( FALSE );
+    else assert( FALSE ); */
 
     ck_func = func;
 
@@ -2664,7 +2672,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     a_Arg_List arg_list = NULL;
     t_CKUINT count = 0;
     t_CKBOOL has_code = FALSE;  // use this for both user and imported
-    Chuck_Func * overload = NULL;
+    Chuck_Value * overload = NULL;
     t_CKBOOL parent_match = FALSE;
     Chuck_Func * parent_func = NULL;
     string func_name = S_name(f->name);
@@ -2683,8 +2691,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // if not imported, then check to make sure no reserved word conflict
-    //if( f->s_type != ae_func_builtin )  // TODO: fix this
-    //{
+    // if( f->s_type != ae_func_builtin )  // TODO: fix this
+
     // check if reserved
     if( type_engine_check_reserved( env, f->name, f->linepos ) )
     {
@@ -2692,9 +2700,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             S_name(f->name) );
         return FALSE;
     }
-    //}
 
-    // look up the value (can shadow?)
+    // look up the value in the current class (can shadow?)
     if( value = env->curr->lookup_value( f->name, FALSE ) )
     {
         // if value
@@ -2717,7 +2724,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             }
 
             // remember it
-            overload = value->func_ref;
+            overload = value;
             // make the new name
             func_name += "@" + itoa( ++value->func_num_overloads ) + "@" + env->curr->name;
         }
@@ -2776,8 +2783,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     if( overload )
     {
         // add somewhere
-        func->next = overload->next;
-        overload->next = func;
+        func->next = overload->func_ref->next;
+        overload->func_ref->next = func;
     }
 
     // look up the return type
@@ -2789,8 +2796,6 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         EM_error2( f->linepos, "... in return type of function '%s' ...", S_name(f->name) );
         goto error;
     }
-
-    // TODO: deal with arrays
 
     // look up types for the function arguments
     arg_list = f->arg_list;
@@ -3052,10 +3057,14 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         env->curr->obj_v_table.funcs.push_back( func );
     }
 
-    // add as value
-    env->curr->value.add( value->name, value );
-    // enter the name into the function table
-    env->curr->func.add( func->name, func );
+    // add only if value != NULL. otherwise, we are overloading and/or overriding
+    if( value )
+    {
+        // add as value
+        env->curr->value.add( value->name, value );
+        // enter the name into the function table
+        env->curr->func.add( func->name, func );
+    }
 
     // set the current function to this
     env->func = func;
@@ -3098,7 +3107,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     if( overload )
     {
         // make sure returns are equal
-        if( *(f->ret_type) != *(overload->def->ret_type) )
+        if( *(f->ret_type) != *(overload->func_ref->def->ret_type) )
         {
             EM_error2( f->linepos, "function signatures differ in return type..." );
             EM_error2( f->linepos,
