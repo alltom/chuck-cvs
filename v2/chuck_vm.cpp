@@ -155,7 +155,7 @@ t_CKINT Chuck_VM::our_priority = 0x7fffffff;
 #endif
 
 
-#ifndef __WINDOWS_DS__
+#ifndef __PLATFORM_WIN32__
 //-----------------------------------------------------------------------------
 // name: set_priority()
 // desc: ...
@@ -181,7 +181,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     if( pthread_setschedparam( tid, policy, &param ) )
     {
         if( vm )
-            vm->m_last_error = "could not get set new scheduling parameters";
+            vm->m_last_error = "could not set new scheduling parameters";
         return FALSE;
     }
     

@@ -79,7 +79,7 @@
 // global variables
 #if defined(__MACOSX_CORE__)
   t_CKINT g_priority = 95;
-#elif defined(__WINDOWS_DS__)
+#elif defined(__PLATFORM_WIN32__)
   t_CKINT g_priority = 0;
 #else
   t_CKINT g_priority = 0x7fffffff;

@@ -3,7 +3,7 @@
 Rhodey voc=> JCRev r => Echo a => Echo b => Echo c => dac;
 
 220.0 => voc.freq;
-0.5 => voc.gain;
+0.8 => voc.gain;
 .8 => r.gain;
 .2 => r.mix;
 1000::ms => a.max => b.max => c.max;

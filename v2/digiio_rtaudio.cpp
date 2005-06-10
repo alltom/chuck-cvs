@@ -267,10 +267,10 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     }
     else  // initial condition
     {
-//#ifndef __WINDOWS_DS__
+        // priority boost
         if( !m_go && Chuck_VM::our_priority != 0x7fffffff )
             Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
-//#endif
+
         memset( buffer, 0, len );
         m_go++;
         return 0;
