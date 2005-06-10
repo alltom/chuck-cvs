@@ -2753,7 +2753,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             EM_error2( f->linepos, "function name '%s' conflicts with previously defined value...",
                 S_name(f->name) );
             EM_error2( f->linepos, "from super class '%s'...", override->owner_class->c_name() );
-            return NULL;
+            return FALSE;
         }
     }
 

@@ -25333,7 +25333,7 @@ CK_DLL_CGET( PoleZero_cget_blockZero )
 CK_DLL_CTOR( FM_ctor  )
 {
     // return new FM(4);
-    fprintf(stderr,"error : FM is virtual - not for use! \n");
+    // fprintf(stderr,"error : FM is virtual - not for use! \n");
 }
 
 
@@ -25344,7 +25344,7 @@ CK_DLL_CTOR( FM_ctor  )
 CK_DLL_DTOR( FM_dtor  )
 { 
     // delete (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    fprintf(stderr,"error : FM is virtual!\n");
+    // fprintf(stderr,"error : FM is virtual!\n");
 }
 
 
