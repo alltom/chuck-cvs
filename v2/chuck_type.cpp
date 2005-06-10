@@ -4564,10 +4564,10 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         }
         
         // go through funs backwards, and prepend
-        for( j = the_funs.size() - 1; j >= 0; j-- )
+        for( t_CKINT k = (t_CKINT)the_funs.size() - 1; k >= 0; k-- )
         {
             // add to body
-            body = prepend_class_body( new_section_func_def( the_funs[j], 0 ), body, 0 );
+            body = prepend_class_body( new_section_func_def( the_funs[k], 0 ), body, 0 );
         }
 
         // construct class
