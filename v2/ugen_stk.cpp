@@ -25826,7 +25826,7 @@ CK_DLL_CGET( PercFlut_cget_freq )
 CK_DLL_CTOR( Rhodey_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Rhodey_offset_data) = (t_CKUINT) new Rhodey();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new Rhodey();
 }
 
 
@@ -25836,7 +25836,7 @@ CK_DLL_CTOR( Rhodey_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Rhodey_dtor  )
 { 
-  delete (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
+  delete (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -25846,7 +25846,7 @@ CK_DLL_DTOR( Rhodey_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Rhodey_tick )
 {
-    Rhodey * m = (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
+    Rhodey * m = (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -25868,7 +25868,7 @@ CK_DLL_PMSG( Rhodey_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Rhodey_ctrl_freq )
 {
-    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
+    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     rhod->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) rhod->baseFrequency * 0.5  ;
@@ -25881,7 +25881,7 @@ CK_DLL_CTRL( Rhodey_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Rhodey_cget_freq )
 {
-    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
+    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     RETURN->v_float = (t_CKFLOAT) rhod->baseFrequency * 0.5  ;
 }
 
@@ -25892,7 +25892,7 @@ CK_DLL_CGET( Rhodey_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Rhodey_ctrl_noteOn )
 {
-    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
+    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     rhod->noteOn( f );
 }
@@ -25904,7 +25904,7 @@ CK_DLL_CTRL( Rhodey_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Rhodey_ctrl_noteOff )
 {
-    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, Rhodey_offset_data );
+    Rhodey * rhod= (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     rhod->noteOff( f );
 }
@@ -26000,7 +26000,7 @@ CK_DLL_CGET( TubeBell_cget_freq )
 CK_DLL_CTOR( Wurley_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Wurley_offset_data) = (t_CKUINT)new Wurley();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT)new Wurley();
 }
 
 
@@ -26010,7 +26010,7 @@ CK_DLL_CTOR( Wurley_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Wurley_dtor  )
 { 
-    delete (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
+    delete (Wurley *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -26020,7 +26020,7 @@ CK_DLL_DTOR( Wurley_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Wurley_tick )
 {
-    Wurley * m = (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
+    Wurley * m = (Wurley *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -26042,7 +26042,7 @@ CK_DLL_PMSG( Wurley_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Wurley_ctrl_freq )
 {
-    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
+    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     wurl->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT) wurl->baseFrequency ;
@@ -26055,7 +26055,7 @@ CK_DLL_CTRL( Wurley_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Wurley_cget_freq )
 {
-    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
+    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     RETURN->v_float = (t_CKFLOAT) wurl->baseFrequency ;
 }
 
@@ -26066,7 +26066,7 @@ CK_DLL_CGET( Wurley_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Wurley_ctrl_noteOn )
 {
-    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
+    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     wurl->noteOn( f );
 }
@@ -26078,7 +26078,7 @@ CK_DLL_CTRL( Wurley_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Wurley_ctrl_noteOff )
 {
-    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, Wurley_offset_data );
+    Wurley * wurl= (Wurley *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     wurl->noteOff( f );
 }
