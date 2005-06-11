@@ -53,7 +53,7 @@ fun void handler()
 }
 
 // spork handlers
-for( 0 => int i; i < 10; i++ ) spork ~ handler();
+for( 0 => int i; i < 20; i++ ) spork ~ handler();
 
 while( true )
 {
