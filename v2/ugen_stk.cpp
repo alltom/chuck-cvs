@@ -25837,7 +25837,7 @@ CK_DLL_CTOR( Rhodey_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Rhodey_dtor  )
 { 
-  delete (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    delete (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
