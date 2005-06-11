@@ -123,6 +123,7 @@ Chuck_VM::Chuck_VM()
     m_halt = TRUE;
     m_env = NULL;
     m_audio = FALSE;
+    m_audio_started = FALSE;
 
     m_init = FALSE;
 }
@@ -361,6 +362,26 @@ t_CKBOOL Chuck_VM::shutdown()
 
 
 //-----------------------------------------------------------------------------
+// name: start_audio()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::start_audio( )
+{
+    // audio
+    if( !m_audio_started && m_audio )
+    {
+        m_bbq->digi_out()->start();
+        m_bbq->digi_in()->start();
+        m_audio_started = TRUE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: run()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -381,8 +402,6 @@ t_CKBOOL Chuck_VM::run( )
         }
 
         m_bbq->digi_in()->initialize( );
-        m_bbq->digi_out()->start();
-        m_bbq->digi_in()->start();
     }
 
     while( m_running )
@@ -401,6 +420,9 @@ t_CKBOOL Chuck_VM::run( )
                 if( !m_num_shreds && m_halt ) goto vm_stop;
             }
         }
+
+        // start audio
+        if( !m_audio_started ) start_audio();
 
         // advance the shreduler
         m_shreduler->advance();

@@ -290,6 +290,7 @@ public: // running the machine
     t_CKBOOL run( );
     t_CKBOOL pause( );
     t_CKBOOL stop( );
+    t_CKBOOL start_audio( );
 
 public: // invoke functions
     t_CKBOOL invoke_static( Chuck_VM_Shred * shred );
@@ -335,6 +336,7 @@ protected:
 protected:
     t_CKBOOL m_init;
     t_CKBOOL m_running;
+    t_CKBOOL m_audio_started;
     string m_last_error;
 
     // shred
