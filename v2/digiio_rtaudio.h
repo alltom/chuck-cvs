@@ -52,7 +52,7 @@
   #endif
 #define NUM_BUFFERS_DEFAULT          4
 #define NUM_CHANNELS_DEFAULT         2       // number of channels
-  #if defined(__LINUX_ALSA__ ) || defined(__LINUX_OSS__)
+  #if defined(__LINUX_ALSA__ ) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
 #define SAMPLING_RATE_DEFAULT        48000   // sampling rate
 #define USE_CB_DEFAULT               TRUE    // callback
   #else
