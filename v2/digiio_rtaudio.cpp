@@ -242,7 +242,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * m_num_channels_out;
-    DWORD__ n = 100;
+    DWORD__ n = 40;
     DWORD__ start = 50;
 
     // copy input to local buffer
@@ -715,7 +715,7 @@ DWORD__ DigitalIn::capture( )
 {
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
-    t_CKUINT n = 100;
+    t_CKUINT n = 20;
     while( !Digitalio::m_in_ready && n-- )
         usleep( 250 );
 
