@@ -142,8 +142,8 @@ Chuck_VM::~Chuck_VM()
 
 
 // dac tick
-//UGEN_TICK __dac_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
-//{ *out = in; return TRUE; }
+UGEN_TICK __dac_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
+{ *out = in; return TRUE; }
 //UGEN_TICK __bunghole_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out )
 //{ *out = 0.0f; return TRUE; }
 
