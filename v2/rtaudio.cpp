@@ -6486,7 +6486,7 @@ void RtApiDs :: tickStream()
       // A "fudgefactor" less than 1 is used because it was found
       // that sleeping too long was MUCH worse than sleeping for
       // several shorter periods.
-      double millis = (endWrite - currentPos) * 900.0;
+      double millis = (endWrite - currentPos) * 400.0;
       millis /= ( formatBytes(stream_.deviceFormat[0]) * stream_.sampleRate);
       if ( millis < 1.0 ) millis = 1.0;
       Sleep( (DWORD) millis );
@@ -6557,7 +6557,7 @@ void RtApiDs :: tickStream()
     // Check whether the entire write region is behind the play pointer.
     while ( safePos < endRead ) {
       // See comments for playback.
-      double millis = (endRead - safePos) * 900.0;
+      double millis = (endRead - safePos) * 400.0;
       millis /= ( formatBytes(stream_.deviceFormat[1]) * stream_.sampleRate);
       if ( millis < 1.0 ) millis = 1.0;
       Sleep( (DWORD) millis );
