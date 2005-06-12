@@ -142,10 +142,10 @@ Chuck_VM::~Chuck_VM()
 
 
 // dac tick
-UGEN_TICK __dac_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
-{ *out = in; return TRUE; }
-UGEN_TICK __bunghole_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out )
-{ *out = 0.0f; return TRUE; }
+//UGEN_TICK __dac_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
+//{ *out = in; return TRUE; }
+//UGEN_TICK __bunghole_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out )
+//{ *out = 0.0f; return TRUE; }
 
 
 // static
@@ -265,26 +265,28 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     // initialize them
     for( i = 0; i < m_num_dac_channels; i++ )
     {
+        // add ref
+        m_dac[i].add_ref();
         // initialize as object
         initialize_object( &m_dac[i], &t_ugen );
         // manually set the tick
-        m_dac[i].tick = __dac_tick;
-        // add ref
-        m_dac[i].add_ref();
+        // m_dac[i].tick = __dac_tick;
     }
     m_num_adc_channels = 2;
     m_adc = new Chuck_UGen[m_num_adc_channels];
     for( i = 0; i < m_num_adc_channels; i++ )
     {
+        // add ref
+        m_adc[i].add_ref();
         // initialize as object
         initialize_object( &m_adc[i], &t_ugen );
         // manually set the tick
         m_adc[i].tick = NULL;
-        // add ref
-        m_adc[i].add_ref();
     }
     m_bunghole = new Chuck_UGen;
     m_bunghole->add_ref();
+    initialize_object( m_bunghole, &t_ugen );
+    m_bunghole->tick = NULL;
     m_shreduler->m_dac = m_dac;
     m_shreduler->m_adc = m_adc;
     m_shreduler->m_bunghole = m_bunghole;

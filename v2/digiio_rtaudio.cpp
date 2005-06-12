@@ -277,14 +277,14 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     }
 
     // 2nd buffer
-    if( m_go == start )
+    /*if( m_go == start )
     {
         n = 8; while( !m_out_ready && n-- ) usleep( 250 );
         len /= sizeof(SAMPLE); DWORD__ i = 0;
         SAMPLE * s = (SAMPLE *)buffer;
         while( i < len ) *s++ *= (SAMPLE)i++/len;
         m_go++;
-    }
+    }*/
 
     // copy to extern
     if( m_extern_out ) memcpy( m_extern_out, buffer, len );
