@@ -50,7 +50,7 @@
   #else
 #define BUFFER_SIZE_DEFAULT          1024
   #endif
-#define NUM_BUFFERS_DEFAULT          4
+#define NUM_BUFFERS_DEFAULT          8
 #define NUM_CHANNELS_DEFAULT         2       // number of channels
   #if defined(__LINUX_ALSA__ ) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
 #define SAMPLING_RATE_DEFAULT        48000   // sampling rate

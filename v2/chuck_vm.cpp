@@ -270,7 +270,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         // initialize as object
         initialize_object( &m_dac[i], &t_ugen );
         // manually set the tick
-        // m_dac[i].tick = __dac_tick;
+        m_dac[i].tick = __dac_tick;
     }
     m_num_adc_channels = 2;
     m_adc = new Chuck_UGen[m_num_adc_channels];
