@@ -274,6 +274,7 @@ public: // init
                          t_CKUINT buffer_size = 512, t_CKUINT num_buffers = 4,
                          t_CKUINT dac = 0, t_CKUINT adc = 0, 
                          t_CKINT priority = 0x7fffffff );
+    t_CKBOOL initialize_synthesis( );
     t_CKBOOL shutdown();
 
 public: // shreds
@@ -306,8 +307,8 @@ public: // msg
     Chuck_Msg * get_reply( );
 
 public: // static/dynamic function table
-    void set_env( void * env ) { m_env = env; }
-    void * get_env( ) { return m_env; }
+    //void set_env( void * env ) { m_env = env; }
+    //void * get_env( ) { return m_env; }
     t_CKBOOL has_init() { return m_init; }
     
 public: // get error
@@ -357,9 +358,6 @@ protected:
     CBufferSimple * m_reply_buffer;
     CBufferSimple * m_event_buffer;
 
-    // type information
-    void * m_env;
-    
 public:
     // priority
     static t_CKBOOL set_priority( t_CKINT priority, Chuck_VM * vm );

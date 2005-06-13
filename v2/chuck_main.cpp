@@ -951,8 +951,17 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
+    // allocate the vm - needs the type system
+    Chuck_VM * vm = g_vm = new Chuck_VM;
+    if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
+                         num_buffers, dac, adc, g_priority ) )
+    {
+        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+        exit( 1 );
+    }
+
     // allocate the type checker
-    env = g_env = type_engine_init( NULL );
+    env = g_env = type_engine_init( vm );
     // allocate the emitter
     emitter = g_emitter = emit_engine_init( env );
     // enable dump
@@ -961,15 +970,8 @@ int main( int argc, char ** argv )
     if( !load_internal_modules( env ) ) 
         exit( 1 );
 
-    // allocate the vm - needs the type system
-    Chuck_VM * vm = g_vm = new Chuck_VM;
-
-    if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
-                         num_buffers, dac, adc, g_priority ) )
-    {
-        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
-        exit( 1 );
-    }
+    // vm synthesis subsystem - needs the type system
+    vm->initialize_synthesis( );
 
     // catch SIGINT
     signal( SIGINT, signal_int );
