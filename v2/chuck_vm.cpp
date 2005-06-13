@@ -236,8 +236,6 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         return FALSE;
 //#endif
 
-    t_CKUINT i;
-
     // allocate bbq
     m_bbq = new BBQ;
     m_halt = halt;
@@ -258,40 +256,6 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_event_buffer->initialize( 1024, sizeof(Chuck_Event *) );
     //m_event_buffer->join(); // this should also return 0
 
-    // allocate dac and adc
-    m_num_dac_channels = 2;
-    m_dac = new Chuck_UGen[m_num_dac_channels];
-    // initialize them
-    for( i = 0; i < m_num_dac_channels; i++ )
-    {
-        // add ref
-        m_dac[i].add_ref();
-        // initialize as object
-        initialize_object( &m_dac[i], &t_ugen );
-        // manually set the tick
-        m_dac[i].tick = __dac_tick;
-    }
-    m_num_adc_channels = 2;
-    m_adc = new Chuck_UGen[m_num_adc_channels];
-    for( i = 0; i < m_num_adc_channels; i++ )
-    {
-        // add ref
-        m_adc[i].add_ref();
-        // initialize as object
-        initialize_object( &m_adc[i], &t_ugen );
-        // manually set the tick
-        m_adc[i].tick = NULL;
-    }
-    m_bunghole = new Chuck_UGen;
-    m_bunghole->add_ref();
-    initialize_object( m_bunghole, &t_ugen );
-    m_bunghole->tick = NULL;
-    m_shreduler->m_dac = m_dac;
-    m_shreduler->m_adc = m_adc;
-    m_shreduler->m_bunghole = m_bunghole;
-    m_shreduler->m_num_dac_channels = m_num_dac_channels;
-    m_shreduler->m_num_adc_channels = m_num_adc_channels;
-
     if( m_audio )
     {
         // init bbq
@@ -308,9 +272,6 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         m_bbq->set_bufsize( buffer_size );
     }
     
-    // m_bbq->midi_out()->open( 0 );
-    // m_bbq->midi_in()->open( 0 );
-
     return m_init = TRUE;
 }
 
