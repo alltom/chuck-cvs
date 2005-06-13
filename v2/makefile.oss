@@ -19,9 +19,9 @@ endif
 # by default, ChucK on linux needs libsndfile...
 # comment the next 3 lines to use a pre-configured libsndfile
 #-----------------------------------------------------------------------------
-FLAGS+= -D__CK_SNDFILE_NATIVE__
-LIBS+= -lsndfile
-SF_OBJ=
+#FLAGS+= -D__CK_SNDFILE_NATIVE__
+#LIBS+= -lsndfile
+#SF_OBJ=
 
 OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_errmsg.o chuck_frame.o \
 	chuck_symbol.o chuck_table.o chuck_utils.o chuck_vm.o chuck_instr.o \
