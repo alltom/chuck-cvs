@@ -123,6 +123,11 @@ Chuck_VM::Chuck_VM()
     m_halt = TRUE;
     m_audio = FALSE;
     m_audio_started = FALSE;
+    m_dac = NULL;
+    m_adc = NULL;
+    m_bunghole = NULL;
+    m_num_dac_channels = 0;
+    m_num_adc_channels = 0;
 
     m_init = FALSE;
 }
