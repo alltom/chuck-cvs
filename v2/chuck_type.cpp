@@ -2150,7 +2150,6 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         }
         else // local variable
         {
-            int x = 1;
             // do nothing?
         }
 
