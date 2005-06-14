@@ -5,8 +5,6 @@ class Panner extends gain {
 
 	this => gain l_out;
 	this => gain r_out;
-//	gain l_out;
-//	gain r_out;
 
 	3 => l_out.op;
 	3 => r_out.op;

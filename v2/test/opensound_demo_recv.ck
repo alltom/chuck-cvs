@@ -10,8 +10,7 @@ orec.listen(); //start listening ( launches thread )
 function void rate_control_shred() { 
 	//create an address in the receiver 
 	//and store it in a new variable.\
-	orec.event("/sndbuf/buf/rate,f") @=> OSC_Addr rate_addr;
-
+	orec.event("/sndbuf/buf/rate,f") @=> OSC_Addr rate_addr; 
 	while ( true ) { 
 
 		rate_addr => now; //wait for events to arrive.
