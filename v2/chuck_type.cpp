@@ -3141,7 +3141,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         {
             EM_error2( symbols[i]->var_decl->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( symbols[i]->var_decl->linepos, "argument %i '%s' is already defined in this scope",
-                count, S_name(symbols[i]->var_decl->id) );
+                i+1, S_name(symbols[i]->var_decl->id) );
             goto error;
         }
 
