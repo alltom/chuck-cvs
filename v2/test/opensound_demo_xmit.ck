@@ -1,6 +1,9 @@
-// the patch 
+// patch to transmit OSC
+// launch with opensound_demo_recv.ck
 
 OSC_Send xmit;
+
+//aim the transmitter at our local port 6449
 xmit.setHost ( "localhost", 6449 );
 
 // time loop
@@ -8,6 +11,10 @@ xmit.setHost ( "localhost", 6449 );
 0.0 => float modrunning;
 0 => int ct;
 0.25 => float res;
+
+[55, 57, 55, 58, 55, 59, 53] => int notes[];
+7 => int nnote;
+0 => int idx;
 
 while( true )
 {

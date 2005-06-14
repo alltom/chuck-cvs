@@ -1,5 +1,9 @@
 
 class Player { 
+	ugen @ base;
+	fun void connect( ugen target ) {
+		base => target;
+	}
 	fun void noteOn ( float note, float vel ) {}
 	fun void noteOff ( float vel ) {}
 }
@@ -9,6 +13,7 @@ class Note {
 	float note;
 	float vel;
 	dur length;
+
 	fun void set ( float nt, float vl, dur ln ) { 
 		nt => note;
 		vl => vel;
@@ -24,21 +29,28 @@ class Note {
 	fun void playOnAlt( Player p, float noff, float vmul ) { 
 		p.noteOn( note+noff, vel*vmul );
 	}
+
 }
 
 
 class MandPlayer extends Player { 
-	Mandolin m;
-	m => dac;
+	Mandolin m @=> base; 
 	fun void noteOn ( float note, float vel ) { 
 		std.mtof ( note ) => m.freq;
 		vel => m.pluck;
 	}
 }
 
+class FlutePlayer extends Player { 
+	PercFlut f @=> base; 
+	fun void noteOn ( float note, float vel ) { 
+		std.mtof ( note ) => f.freq;
+		vel => f.noteOn;
+	}
+}
+
 class ClarPlayer extends Player { 
-	Clarinet c;
-	c => dac;
+	Clarinet c @=> base;
 	fun void noteOn ( float note, float vel ) { 
 		std.mtof ( note ) => c.freq;
 		vel => c.startBlowing;
@@ -78,6 +90,19 @@ fun void swap( ) {
 
 MandPlayer mand;
 ClarPlayer clar;
+gain g => JCRev j => Echo e => dac;
+0.95 => j.gain;
+0.2 => j.mix;
+
+1.15::second => e.max;
+1.0::second => e.delay;
+0.3 => e.mix;
+
+mand.connect(g);
+clar.connect(g);
+
+0.6 => g.gain;
+
 
 newsequence();
 
@@ -87,9 +112,9 @@ while ( true ) {
 		sequence[order[j]] @=> Note cur;
 		cur.playOn ( mand );
 		cur.playOnAlt ( clar, 12 , 0.7 );
-		cur.length => now;
+		2.0 * cur.length => now;
 		cur.playOnAlt( mand, 7, 0.33);
-		0.5 * cur.length => now;
+		cur.length => now;
 	}
 	for ( std.rand2(0,2) => int j ; j > 0 ; j-- ) { 
 		swap();
