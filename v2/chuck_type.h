@@ -441,6 +441,8 @@ struct Chuck_Value : public Chuck_VM_Object
     t_CKBOOL is_const;
     // member?
     t_CKBOOL is_member;
+    // static?
+    t_CKBOOL is_static;  // do something
     // is context-global?
     t_CKBOOL is_context_global;
     // 0 = public, 1 = protected, 2 = private
@@ -459,7 +461,7 @@ struct Chuck_Value : public Chuck_VM_Object
                  t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
     { type = t; name = n; offset = s; is_const = c; access = acc; 
-      owner = o; owner_class = oc; addr = a; is_member = FALSE;
+      owner = o; owner_class = oc; addr = a; is_member = FALSE; is_static = FALSE;
       is_context_global = FALSE; func_ref = NULL; func_num_overloads = 0; }
 };
 
