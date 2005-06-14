@@ -306,6 +306,8 @@ static t_CKUINT WvOut_offset_data = 0;
 static t_CKUINT StifKarp_offset_data = 0;
 static t_CKUINT PitShift_offset_data = 0;
 
+static t_CKUINT Mesh2D_offset_data = 0 ;
+
 //-----------------------------------------------------------------------------
 // name: stk_query()
 // desc: ...
@@ -2336,6 +2338,59 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+    
+    
+    
+    //Mesh2D 
+    if ( !type_engine_import_ugen_begin( env, "Mesh2D", "ugen", env->global(), 
+                                         Mesh2D_ctor, Mesh2D_tick, Mesh2D_pmsg ) ) return FALSE;
+    //member variable
+    Mesh2D_offset_data = type_engine_import_mvar ( env, "int", "@Mesh2D_data", FALSE );
+    if ( Mesh2D_offset_data == CK_INVALID_OFFSET ) goto error;
+    
+    func = make_new_mfun ( "int", "nx", Mesh2D_ctrl_nx ); //! nx
+    func->add_arg ( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "int", "nx", Mesh2D_cget_nx ); //! nx
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    
+    func = make_new_mfun ( "int", "ny", Mesh2D_ctrl_ny ); //! nx
+    func->add_arg ( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    
+    func = make_new_mfun ( "int", "ny", Mesh2D_cget_ny ); //! nx
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    
+    func = make_new_mfun ( "float", "inputPosition", Mesh2D_ctrl_input_position ); //! nx
+    func->add_arg ( "float", "xval" );
+    func->add_arg ( "float", "yval" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    
+    func = make_new_mfun ( "float", "decay", Mesh2D_ctrl_decay ); //! nx
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;   
+
+    func = make_new_mfun ( "float", "energy", Mesh2D_cget_energy ); //! nx
+    if( !type_engine_import_mfun( env, func ) ) goto error;   
+    
+    func = make_new_mfun ( "float", "noteOn", Mesh2D_ctrl_note_on ); //! start 
+    func->add_arg ( "float", "note" );
+    func->add_arg ( "float", "vel" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    
+    func = make_new_mfun ( "float", "noteOff", Mesh2D_ctrl_note_off ); //! stop
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    
+    func = make_new_mfun ( "int", "controlChange", Mesh2D_ctrl_control_change ); //! select instrument
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+        
+    // end the class import
+    type_engine_import_class_end( env );
+    
     
     return TRUE;
 
@@ -27924,6 +27979,102 @@ CK_DLL_CGET( WvOut_cget_autoPrefix )
     RETURN->v_string = &w->autoPrefix;
 }
 
+//-----------------------------------------------------------------------------
+// name: Mesh2D ctor
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+
+CK_DLL_CTOR( Mesh2D_ctor ) { 
+    Mesh2D * m = new Mesh2D( 2,2 );
+    OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data ) = (t_CKUINT) m ;
+}
+
+
+CK_DLL_DTOR( Mesh2D_dtor ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    delete m;
+}
+
+
+CK_DLL_TICK ( Mesh2D_tick ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    *out = m->tick( in );
+    return TRUE;
+}
+
+CK_DLL_PMSG ( Mesh2D_pmsg ) { 
+    return TRUE;
+}
+CK_DLL_CTRL( Mesh2D_ctrl_nx ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    m->setNX( GET_NEXT_INT ( ARGS ) );
+    
+}
+
+CK_DLL_CTRL( Mesh2D_ctrl_ny ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    m->setNY( GET_NEXT_INT ( ARGS ) );
+    
+}
+
+CK_DLL_CGET( Mesh2D_cget_nx ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    RETURN->v_int = m->NX;
+}
+
+CK_DLL_CGET( Mesh2D_cget_ny ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    RETURN->v_int = m->NY;
+}
+
+
+CK_DLL_CTRL( Mesh2D_ctrl_input_position ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    t_CKFLOAT xpos = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT ypos = GET_NEXT_FLOAT(ARGS);
+    m->setInputPosition(xpos,ypos);
+}
+
+CK_DLL_CTRL( Mesh2D_cget_input_position ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    RETURN->v_float = m->xInput / (m->NX - 1);
+}
+
+
+CK_DLL_CTRL( Mesh2D_ctrl_decay ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    t_CKFLOAT dec = GET_NEXT_FLOAT ( ARGS ) ;
+    m->setDecay( dec );
+    RETURN->v_float = dec;
+}
+
+CK_DLL_CGET( Mesh2D_cget_decay ) { 
+}
+
+CK_DLL_CTRL( Mesh2D_ctrl_note_on ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    t_CKFLOAT note = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT vel = GET_NEXT_FLOAT(ARGS);
+    m->noteOn( note, vel );
+}
+
+CK_DLL_CTRL( Mesh2D_ctrl_note_off ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    m->noteOff( GET_NEXT_FLOAT(ARGS) ); //need a version that takes a float
+}
+
+CK_DLL_CGET( Mesh2D_cget_energy ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    RETURN->v_float = m->energy();
+}
+
+CK_DLL_CTRL ( Mesh2D_ctrl_control_change ) { 
+    Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
+    t_CKINT ctrl = GET_NEXT_INT(ARGS);
+    t_CKFLOAT val = GET_NEXT_FLOAT(ARGS);
+    m->controlChange( ctrl, val ) ;
+    
+}
 
 //-----------------------------------------------------------------------------
 // name: ck_detach()

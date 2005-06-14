@@ -963,6 +963,25 @@ CK_DLL_CTRL( Vector3D_ctrl_x );
 CK_DLL_CTRL( Vector3D_ctrl_y );
 CK_DLL_CTRL( Vector3D_ctrl_z );  
 
+
+
+// Mesh2D
+CK_DLL_CTOR( Mesh2D_ctor );
+CK_DLL_DTOR( Mesh2D_dtor );
+CK_DLL_TICK( Mesh2D_tick );
+CK_DLL_PMSG( Mesh2D_pmsg );
+CK_DLL_CTRL( Mesh2D_ctrl_nx );
+CK_DLL_CTRL( Mesh2D_ctrl_ny );
+CK_DLL_CTRL( Mesh2D_cget_nx );
+CK_DLL_CTRL( Mesh2D_cget_ny );
+CK_DLL_CTRL( Mesh2D_ctrl_input_position );
+CK_DLL_CTRL( Mesh2D_cget_input_position );
+CK_DLL_CTRL( Mesh2D_ctrl_decay );
+CK_DLL_CTRL( Mesh2D_cget_decay );
+CK_DLL_CTRL( Mesh2D_ctrl_note_on );
+CK_DLL_CTRL( Mesh2D_ctrl_note_off );
+CK_DLL_CTRL( Mesh2D_cget_energy );
+CK_DLL_CTRL( Mesh2D_ctrl_control_change );
 // SKINI
 /*
 SkiniIn SkiniMessage => while(skin.getnextmessage(msg))
