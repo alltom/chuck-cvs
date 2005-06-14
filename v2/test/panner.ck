@@ -3,8 +3,10 @@ class Panner extends gain {
 	0.5 => float mixval; 
 	0   => int powermode;
 
-	this => gain l_out;
-	this => gain r_out;
+	//this => 
+	gain l_out;
+	//this => 
+	gain r_out;
 
 	3 => l_out.op;
 	3 => r_out.op;
@@ -18,7 +20,9 @@ class Panner extends gain {
 	0.02 => l_env.time;
 	0.02 => r_env.time;
 
-	function void setme()   { 	
+	function void setmeup()   { 	
+		this => l_out;
+		this => r_out;
 	} 
 	
 	function gain left()  { return l_out; }
@@ -41,7 +45,7 @@ class Panner extends gain {
 }
 
 Mandolin mand => Panner p;
-p.setme();
+p.setmeup();
 p.left() => dac;
 
 
