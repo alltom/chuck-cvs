@@ -3139,9 +3139,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         // look up in scope
         if( env->curr->lookup_value( symbols[i]->var_decl->id, FALSE ) )
         {
-            EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
-            EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
-                count, S_name(arg_list->var_decl->id) );
+            EM_error2( symbols[i]->var_decl->linepos, "in function '%s':", S_name(f->name) );
+            EM_error2( symbols[i]->var_decl->linepos, "argument %i '%s' is already defined in this scope",
+                count, S_name(symbols[i]->var_decl->id) );
             goto error;
         }
 
