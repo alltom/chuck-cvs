@@ -106,7 +106,10 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
 {
     Chuck_DL_Func * func = NULL;
 
+	//the type argument IS t_ugen here - there's no other use of this function
+	//why are we using t_ugen here instead of type ( or vice versa ) ? PLD
     // add ugen info
+
     t_ugen.ugen_info = new Chuck_UGen_Info;
     t_ugen.ugen_info->add_ref();
     t_ugen.ugen_info->tick = __ugen_tick;

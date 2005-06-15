@@ -2585,6 +2585,10 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->id = te_user;
     the_class->name = S_name(class_def->name->id);
     the_class->parent = t_parent;
+
+	// inherit ugen_info data from parent PLD
+	the_class->ugen_info = t_parent->ugen_info;
+
     the_class->owner = env->curr;
     the_class->array_depth = 0;
     the_class->size = sizeof(void *);

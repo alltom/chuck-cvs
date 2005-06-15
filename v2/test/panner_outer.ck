@@ -44,9 +44,10 @@ class Panner extends gain {
 
 }
 
-Mandolin mand => Panner p;
+Panner p; 
 p.setmeup();
 p.left() => dac;
+Mandolin mand => dac;
 
 
 440.0 => mand.freq;

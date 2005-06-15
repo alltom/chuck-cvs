@@ -414,5 +414,9 @@ SOURCE=.\util_xforms.h
 
 # PROP Default_Filter "ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe"
 # End Group
+# Begin Source File
+
+SOURCE=.\test\stk_mesh2d_test.ck
+# End Source File
 # End Target
 # End Project
