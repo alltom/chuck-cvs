@@ -559,6 +559,8 @@ Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
 Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path );
+t_CKBOOL verify_array( a_Array_Sub array );
+const char * type_path( a_Id_List path );
 
 // conversion
 a_Id_List str2list( const string & path );
@@ -572,6 +574,7 @@ extern Chuck_Type t_dur;
 extern Chuck_Type t_object;
 extern Chuck_Type t_null;
 extern Chuck_Type t_string;
+extern Chuck_Type t_array;
 extern Chuck_Type t_shred;
 extern Chuck_Type t_thread;
 extern Chuck_Type t_function;

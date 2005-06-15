@@ -35,6 +35,14 @@
 
 #include "chuck_type.h"
 
+// initialize scan
+t_CKBOOL type_engine_init_scan( Chuck_Env * env );
+// scan a program into the env
+t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog );
+// scan a statement
+t_CKBOOL type_engine_scan_stmt( Chuck_Env * env, a_Stmt stmt );
+// scan an expression
+t_CKBOOL type_engine_scan_exp( Chuck_Env * env, a_Exp exp );
 
 
 

@@ -119,8 +119,6 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def func_def );
 t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 
 // helper
-t_CKBOOL verify_array( a_Array_Sub array );
-const char * type_path( a_Id_List path );
 a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static );
 
 // static
