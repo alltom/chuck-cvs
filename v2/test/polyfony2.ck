@@ -9,7 +9,7 @@
 MidiIn min;
 MidiMsg msg;
 
-if( !min.open( 1 ) ) me.exit();
+if( !min.open( 0 ) ) me.exit();
 
 class NoteEvent extends event
 {
@@ -23,15 +23,14 @@ NoteEvent on;
 event us[128];
 
 
-gain g => dac;
+gain g => JCRev r => dac;
 .1 => g.gain;
+.2 => r.mix;
 
 fun void handler()
 {
     // don't connect to dac until we need it
     Clarinet c;
-    PRCRev r => g;
-    .2 => r.mix;
     event off;
     int note;
 
@@ -40,7 +39,7 @@ fun void handler()
         on => now;
         on.note => note;
         // dynamically repatch
-        c => r;
+        c => g;
         std.mtof( note ) => c.freq;
         .4 + on.velocity / 128.0 * .6 => c.startBlowing;
         off @=> us[note];
@@ -49,12 +48,12 @@ fun void handler()
         c.stopBlowing( 10.0 );
         null @=> us[note];
         100::ms => now;
-        c =< r;
+        c =< g;
     }
 }
 
 // spork handlers
-for( 0 => int i; i < 10; i++ ) spork ~ handler();
+for( 0 => int i; i < 20; i++ ) spork ~ handler();
 
 while( true )
 {

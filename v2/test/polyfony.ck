@@ -9,7 +9,7 @@
 MidiIn min;
 MidiMsg msg;
 
-if( !min.open( 1 ) ) me.exit();
+if( !min.open( 0 ) ) me.exit();
 
 class NoteEvent extends event
 {
@@ -23,15 +23,14 @@ NoteEvent on;
 event us[128];
 
 
-gain g => dac;
+gain g => JCRev r => dac;
 .1 => g.gain;
+.2 => r.mix;
 
 fun void handler()
 {
     // don't connect to dac until we need it
     Mandolin m;
-    PRCRev r => g;
-    .2 => r.mix;
     event off;
     int note;
 
@@ -40,7 +39,7 @@ fun void handler()
         on => now;
         on.note => note;
         // dynamically repatch
-        m => r;
+        m => g;
         std.mtof( note ) => m.freq;
         std.rand2f( .6, .8 ) => m.pluckPos;
         on.velocity / 128.0 => m.pluck;
@@ -48,7 +47,7 @@ fun void handler()
 
         off => now;
         null @=> us[note];
-        m =< r;
+        m =< g;
     }
 }
 
