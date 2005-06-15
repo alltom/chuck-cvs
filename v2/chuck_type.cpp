@@ -3275,7 +3275,7 @@ t_CKBOOL type_engine_scancheck_class_def( Chuck_Env * env, a_Class_Def class_def
             env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
             ret = type_engine_check_stmt_list( env, body->section->stmt_list );
             break;
-        
+
         case ae_section_func:
             // set to complete
             env->class_def->is_complete = TRUE;
@@ -3283,7 +3283,7 @@ t_CKBOOL type_engine_scancheck_class_def( Chuck_Env * env, a_Class_Def class_def
             // back
             env->class_def->is_complete = FALSE;
             break;
-        
+
         case ae_section_class:
             // do the class
             ret = type_engine_check_class_def( env, body->section->class_def );

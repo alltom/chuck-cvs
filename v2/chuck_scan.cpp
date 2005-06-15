@@ -939,8 +939,6 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
 {
     // make new type for class def
     t_CKTYPE the_class = NULL;
-    // the parent class
-    t_CKTYPE t_parent = NULL;
     // the return type
     t_CKBOOL ret = TRUE;
     // the class body
