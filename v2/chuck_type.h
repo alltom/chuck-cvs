@@ -62,7 +62,7 @@ typedef enum {
 // name: struct Chuck_Scope
 // desc: scoping structure
 //-----------------------------------------------------------------------------
-template<class T>
+template <class T>
 struct Chuck_Scope
 {
 public:
@@ -72,45 +72,78 @@ public:
     ~Chuck_Scope() { this->pop(); }
 
     // push scope
-    void push() { scope.push_back( new map<S_Symbol, T> ); }
+    void push() { scope.push_back( new map<S_Symbol, Chuck_VM_Object *> ); }
     // pop scope
     void pop()
     { assert( scope.size() != 0 ); delete scope.back(); scope.pop_back(); }
     // reset the scope
     void reset()
     { scope.clear(); this->push(); }
+    
+    // atomic commit
+    void commit()
+    {
+        Chuck_VM_Object * val; assert( scope.size() != 0 );
+        
+        std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
+
+        // go through buffer    
+        for( iter = commit_map.begin(); iter != commit_map.end(); iter++ )
+        {
+            // add to front
+            (*scope.front())[(*iter).first] = (*iter).second;
+        }
+    }
+
+    // roll back since last commit or beginning
+    void rollback()
+    {
+        Chuck_VM_Object * val; assert( scope.size() != 0 );
+        
+        std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
+
+        // go through buffer    
+        for( iter = commit_map.begin(); iter != commit_map.end(); iter++ )
+        {
+            // release
+            (*iter).second->release();
+        }
+    }
 
     // add
-    void add( const string & id, const T & value )
+    void add( const string & id, Chuck_VM_Object * value )
     { this->add( insert_symbol(id.c_str()), value ); }
-    void add( S_Symbol id, const T & value )
-    { assert( scope.size() != 0 ); (*scope.back())[id] = value; }
+    void add( S_Symbol id, Chuck_VM_Object * value )
+    { assert( scope.size() != 0 ); (*scope.back())[id] = value; 
+      // if front, add for commit
+      if( scope.back() == scope.front() ) commit_map[id] = value; }
 
     // lookup id
     T operator []( const string & id )
-    { return this->lookup( id ); }
+    { return (T)this->lookup( id ); }
     T lookup( const string & id, t_CKINT climb = 1 )
-    { return this->lookup( insert_symbol(id.c_str()), climb ); }
+    { return (T)this->lookup( insert_symbol(id.c_str()), climb ); }
     // -1 base, 0 current, 1 climb
     T lookup( S_Symbol id, t_CKINT climb = 1 )
     {
-        T val; assert( scope.size() != 0 );
+        Chuck_VM_Object * val; assert( scope.size() != 0 );
 
         if( climb == 0 )
-            return (*scope.back())[id];
+            return (T)(*scope.back())[id];
         else if( climb > 0 )
         {
             for( t_CKUINT i = scope.size(); i > 0; i-- )
-                if( val = (*scope[i-1])[id] ) return val;
+                if( val = (*scope[i-1])[id] ) return (T)val;
         }
         else
-            return (*scope.front())[id];
+            return (T)(*scope.front())[id];
 
         return 0;
     }
 
 protected:
-    vector<map<S_Symbol, T> *> scope;
+    std::vector<map<S_Symbol, Chuck_VM_Object *> *> scope;
+    std::map<S_Symbol, Chuck_VM_Object *> commit_map;
 };
 
 
@@ -123,7 +156,6 @@ struct Chuck_VM;
 struct Chuck_VM_Code;
 
 struct Chuck_DLL;
-struct Chuck_UGen_Info;
 
 
 //-----------------------------------------------------------------------------
@@ -136,8 +168,6 @@ struct Chuck_Namespace : public Chuck_VM_Object
     Chuck_Scope<Chuck_Type *> type;
     Chuck_Scope<Chuck_Value *> value;
     Chuck_Scope<Chuck_Func *> func;
-    Chuck_Scope<Chuck_UGen_Info *> ugen;
-    Chuck_Scope<void *> addr;
 
     // virtual table
     Chuck_VTable obj_v_table;
@@ -170,12 +200,6 @@ struct Chuck_Namespace : public Chuck_VM_Object
     // look up func
     Chuck_Func * lookup_func( const string & name, t_CKINT climb = 1 );
     Chuck_Func * lookup_func( S_Symbol name, t_CKINT climb = 1 );
-    // look up ugen
-    Chuck_UGen_Info * lookup_ugen( const string & name, t_CKINT climb = 1 );
-    Chuck_UGen_Info * lookup_ugen( S_Symbol name, t_CKINT climb = 1 );
-    // look up addr
-    void * lookup_addr( const string & name, t_CKINT climb = 1 );
-    void * lookup_addr( S_Symbol name, t_CKINT climb = 1 );
 };
 
 
