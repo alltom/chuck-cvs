@@ -559,10 +559,11 @@ Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
 Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path );
-t_CKBOOL verify_array( a_Array_Sub array );
-const char * type_path( a_Id_List path );
 
+// array verify
+t_CKBOOL verify_array( a_Array_Sub array );
 // conversion
+const char * type_path( a_Id_List path );
 a_Id_List str2list( const string & path );
 
 // default types
