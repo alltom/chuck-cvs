@@ -284,17 +284,12 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 
 
 //-----------------------------------------------------------------------------
-
 // name: initialize_synthesis()
-
 // desc: requires type system
-
 //-----------------------------------------------------------------------------
-
 t_CKBOOL Chuck_VM::initialize_synthesis( )
 {
     t_CKUINT i;
-
 
     if( !m_init )
     {
@@ -356,8 +351,6 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
 
 
 
-
-
 //-----------------------------------------------------------------------------
 // name: shutdown()
 // desc: ...
@@ -403,42 +396,22 @@ t_CKBOOL Chuck_VM::shutdown()
 
 
 
-
 //-----------------------------------------------------------------------------
-
 // name: start_audio()
-
 // desc: ...
-
 //-----------------------------------------------------------------------------
-
 t_CKBOOL Chuck_VM::start_audio( )
-
 {
-
     // audio
-
     if( !m_audio_started && m_audio )
-
     {
-
         m_bbq->digi_out()->start();
-
         m_bbq->digi_in()->start();
-
         m_audio_started = TRUE;
-
     }
 
-
-
     return TRUE;
-
 }
-
-
-
-
 
 
 
@@ -454,29 +427,17 @@ t_CKBOOL Chuck_VM::run( )
     Chuck_Msg * msg = NULL;
     Chuck_Event * event = NULL;
 
-
     // audio
-
     if( m_audio )
-
     {
-
         if( !m_bbq->digi_out()->initialize( ) )
-
         {
-
             m_last_error = "cannot open audio output (option: use --silent/-s)";
-
             return FALSE;
-
         }
 
-
-
         m_bbq->digi_in()->initialize( );
-
     }
-
 
     while( m_running )
     {
@@ -495,10 +456,7 @@ t_CKBOOL Chuck_VM::run( )
             }
         }
 
-
-
         // start audio
-
         if( !m_audio_started ) start_audio();
 
         // advance the shreduler
@@ -1463,6 +1421,7 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::get( )
 
     return NULL;
 }
+
 
 
 
