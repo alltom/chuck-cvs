@@ -972,35 +972,12 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
         return FALSE;
     }
 
-    // make sure inheritance
-    if( class_def->ext )
-    {
-        // if extend
-        if( class_def->ext->extend_id )
-        {
-            t_parent = type_engine_find_type( env, class_def->ext->extend_id );
-            if( !t_parent )
-            {
-                EM_error2( class_def->ext->linepos,
-                    "undefined super class '%s' in definition of class '%s'",
-                    type_path(class_def->ext->extend_id), S_name(class_def->name->id) );
-                return FALSE;
-            }
-        }
-
-        // TODO: interface
-    }
-
-    // by default object
-    if( !t_parent ) t_parent = &t_object;
-
     // allocate new type
     assert( env->context != NULL );
     the_class = env->context->new_Chuck_Type();
     // set the fields
     the_class->id = te_user;
     the_class->name = S_name(class_def->name->id);
-    the_class->parent = t_parent;
     the_class->owner = env->curr;
     the_class->array_depth = 0;
     the_class->size = sizeof(void *);
@@ -1008,10 +985,6 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->info = env->context->new_Chuck_Namespace();
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;
-    // set the beginning of data segment to after the parent
-    the_class->info->offset = t_parent->obj_size;
-    // duplicate the parent's virtual table
-    the_class->info->obj_v_table = t_parent->info->obj_v_table;
     the_class->func = NULL;
     the_class->def = class_def;
     // add to env
@@ -1050,12 +1023,7 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
         
         case ae_section_class:
             // do the class
-            // make global
-            // body->section->class_def->home = env->global();
             ret = type_engine_scan_class_def( env, body->section->class_def );
-            //EM_error2( body->section->class_def->linepos,
-            //    "nested class definitions are not yet supported..." );
-            //ret = FALSE;
             break;
         }
         
@@ -1077,11 +1045,6 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
         Chuck_Value * value = NULL;
         Chuck_Type * type = NULL;
 
-        // set the object size
-        the_class->obj_size = the_class->info->offset;
-        // set complete
-        the_class->is_complete = TRUE;
-
         // allocate value
         type = t_class.copy( env );
         type->actual_type = the_class;
@@ -1094,13 +1057,6 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
 
         // remember
         class_def->type = the_class;
-
-        // TODO: clean up if the context failed
-    }
-    else
-    {
-        // delete the class definition
-        the_class->release();
     }
 
     // if nspc is attached to class_def, that means the class_def is to be

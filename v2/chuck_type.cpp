@@ -3217,33 +3217,8 @@ t_CKBOOL type_engine_scancheck_class_def( Chuck_Env * env, a_Class_Def class_def
     // the class body
     a_Class_Body body = class_def->body;
 
-    // if nspc is attached to class_def, that means the class_def is to be
-    // put in that namespace.  this is usually the case when doing import
-    if( class_def->home != NULL )
-    {
-        // set the new type as current
-        env->nspc_stack.push_back( env->curr );
-        env->curr = class_def->home;
-    }
-
-    // make sure class not already in namespace
-    if( env->curr->lookup_type( class_def->name->id, TRUE ) )
-    {
-        EM_error2( class_def->name->linepos,
-            "class/type '%s' is already defined in namespace '%s'",
-            S_name(class_def->name->id), env->curr->name.c_str() );
-        return FALSE;
-    }
-
-    // check if reserved
-    if( type_engine_check_reserved( env, class_def->name->id, class_def->name->linepos ) )
-    {
-        EM_error2( class_def->name->linepos, "...in class definition '%s'",
-            S_name(class_def->name->id) );
-        return FALSE;
-    }
-
     // make sure inheritance
+    // TODO: sort the graph
     if( class_def->ext )
     {
         // if extend
@@ -3265,30 +3240,16 @@ t_CKBOOL type_engine_scancheck_class_def( Chuck_Env * env, a_Class_Def class_def
     // by default object
     if( !t_parent ) t_parent = &t_object;
 
-    // allocate new type
+    // get from class_def
     assert( env->context != NULL );
-    the_class = env->context->new_Chuck_Type();
+    assert( class_def->type != NULL );
+    the_class = class_def->type;
     // set the fields
-    the_class->id = te_user;
-    the_class->name = S_name(class_def->name->id);
     the_class->parent = t_parent;
-    the_class->owner = env->curr;
-    the_class->array_depth = 0;
-    the_class->size = sizeof(void *);
-    the_class->obj_size = 0;  // TODO:
-    the_class->info = env->context->new_Chuck_Namespace();
-    the_class->info->name = the_class->name;
-    the_class->info->parent = env->curr;
     // set the beginning of data segment to after the parent
     the_class->info->offset = t_parent->obj_size;
     // duplicate the parent's virtual table
     the_class->info->obj_v_table = t_parent->info->obj_v_table;
-    the_class->func = NULL;
-    the_class->def = class_def;
-    // add to env
-    env->curr->type.add( the_class->name, the_class );  // URGENT: make this global
-    // incomplete
-    the_class->is_complete = FALSE;
 
     // set the new type as current
     env->nspc_stack.push_back( env->curr );
@@ -3321,12 +3282,7 @@ t_CKBOOL type_engine_scancheck_class_def( Chuck_Env * env, a_Class_Def class_def
         
         case ae_section_class:
             // do the class
-            // make global
-            // body->section->class_def->home = env->global();
             ret = type_engine_check_class_def( env, body->section->class_def );
-            //EM_error2( body->section->class_def->linepos,
-            //    "nested class definitions are not yet supported..." );
-            //ret = FALSE;
             break;
         }
         
@@ -3345,33 +3301,10 @@ t_CKBOOL type_engine_scancheck_class_def( Chuck_Env * env, a_Class_Def class_def
     // if things checked out
     if( ret )
     {
-        Chuck_Value * value = NULL;
-        Chuck_Type * type = NULL;
-
         // set the object size
         the_class->obj_size = the_class->info->offset;
         // set complete
         the_class->is_complete = TRUE;
-
-        // allocate value
-        type = t_class.copy( env );
-        type->actual_type = the_class;
-        value = env->context->new_Chuck_Value( type, the_class->name );
-        value->owner = env->curr;
-        value->is_const = TRUE;
-        value->is_member = FALSE;
-        // add to env
-        env->curr->value.add( the_class->name, value );
-
-        // remember
-        class_def->type = the_class;
-
-        // TODO: clean up if the context failed
-    }
-    else
-    {
-        // delete the class definition
-        the_class->release();
     }
 
     // if nspc is attached to class_def, that means the class_def is to be
