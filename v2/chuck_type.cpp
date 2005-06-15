@@ -2589,7 +2589,6 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->array_depth = 0;
     the_class->size = sizeof(void *);
     the_class->obj_size = 0;  // TODO:
-    the_class->self_size = 0;  // TODO:
     the_class->info = env->context->new_Chuck_Namespace();
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;
@@ -3277,7 +3276,6 @@ t_CKBOOL type_engine_scancheck_class_def( Chuck_Env * env, a_Class_Def class_def
     the_class->array_depth = 0;
     the_class->size = sizeof(void *);
     the_class->obj_size = 0;  // TODO:
-    the_class->self_size = 0;  // TODO:
     the_class->info = env->context->new_Chuck_Namespace();
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;

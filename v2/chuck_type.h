@@ -241,8 +241,6 @@ struct Chuck_Context : public Chuck_VM_Object
 
 
 
-// where we are
-// enum ce_scope{ ce_global = 0, ce_class }; 
 
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Env
@@ -250,7 +248,6 @@ struct Chuck_Context : public Chuck_VM_Object
 //-----------------------------------------------------------------------------
 struct Chuck_Env : public Chuck_VM_Object
 {
-
 public:
     static Chuck_Env * instance();
 
@@ -294,7 +291,7 @@ public:
     // VM reference
     Chuck_VM * vm;
     // chuck dlls in memory
-    map<Chuck_DLL *, t_CKUINT> dlls;
+    // map<Chuck_DLL *, t_CKUINT> dlls;
 
     // reserved words
     map<string, t_CKBOOL> key_words;
@@ -364,8 +361,6 @@ struct Chuck_Type : public Chuck_VM_Object
     t_CKUINT array_depth;
     // object size (size in memory)
     t_CKUINT obj_size;
-    // self size (size in memory)
-    t_CKUINT self_size;
     // type info
     Chuck_Namespace * info;
     // func info
@@ -386,7 +381,7 @@ public:
     Chuck_Type( te_Type _id = te_null, const string & _n = "", 
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
-      array_type = NULL; array_depth = 0; obj_size = 0; self_size = 0;
+      array_type = NULL; array_depth = 0; obj_size = 0;
       info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
       ugen_info = NULL; is_complete = TRUE; has_constructor = FALSE; }
     // destructor
@@ -395,7 +390,7 @@ public:
     // reset
     void reset()
     { id = te_void; parent = NULL;
-      size = array_depth = obj_size = self_size = 0;
+      size = array_depth = obj_size = 0;
       // fprintf( stderr, "type: %s %i\n", c_name(), (t_CKUINT)this );
       array_type = NULL; if( info ) info->release(); 
       owner = info = NULL; func = NULL; is_copy = FALSE;
@@ -415,7 +410,6 @@ public:
       this->owner = rhs.owner;
       this->parent = rhs.parent;
       this->obj_size = rhs.obj_size;
-      this->self_size = rhs.self_size;
       this->size = rhs.size;
       this->def = rhs.def;
       this->is_copy = TRUE;
