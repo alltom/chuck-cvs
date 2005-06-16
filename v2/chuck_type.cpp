@@ -329,8 +329,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     type_engine_load_context( env, context );
 
     // pre-scan
-    if( !type_engine_scan_prog( env, prog ) )
-        ret = FALSE;
+    //if( !type_engine_scan_prog( env, prog ) )
+    //    ret = FALSE;
 
     // go through each of the program sections
     while( prog && ret )
