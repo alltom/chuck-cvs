@@ -770,8 +770,9 @@ t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     t_CKBOOL is_member = FALSE;
     t_CKINT is_static = -1;
 
-    // TODO: handle T a, b, c ...
-    // look up the type
+    // is member of class
+    is_member = ( env->class_def != NULL && env->class_scope == 0
+                  && env->func == NULL && !decl->is_static );
 
     // loop through the variables
     while( list != NULL )
@@ -802,14 +803,7 @@ t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // member?
         if( is_member )
         {
-            // check to see if consistent with stmt
-            if( is_static == 1 ) // static
-            {
-                EM_error2( var_decl->linepos,
-                    "cannot mix static and non-static declarations in the same statement" );
-                return FALSE;
-            }
-            else is_static = 0;
+            // do nothing
         }
         else if( env->class_def != NULL && decl->is_static ) // static
         {
@@ -820,19 +814,10 @@ t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
                     "static variables must be declared at class scope..." );
                 return FALSE;
             }
-
-            // check to see if consistent with stmt
-            if( is_static == 0 ) // non static
-            {
-                EM_error2( var_decl->linepos,
-                    "cannot mix static and non-static declarations in the same statement" );
-                return FALSE;
-            }
-            else is_static = 1;
         }
         else // local variable
         {
-            // do nothing?
+            // do nothing
         }
 
         // the next var decl

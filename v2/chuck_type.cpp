@@ -32,6 +32,7 @@
 //       Autumn 2004 - rewrite
 //-----------------------------------------------------------------------------
 #include "chuck_type.h"
+#include "chuck_scan.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
 #include "chuck_lang.h"
@@ -296,6 +297,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     //env->key_types["language"] = TRUE;
     //env->key_types["compiler"] = TRUE;
 
+    // init pre-scan
+    // type_engine_init_scan( env );
+
     return env;
 }
 
@@ -323,7 +327,11 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     context->parse_tree = prog;
     // load the context
     type_engine_load_context( env, context );
-    
+
+    // pre-scan
+    if( !type_engine_scan_prog( env, prog ) )
+        ret = FALSE;
+
     // go through each of the program sections
     while( prog && ret )
     {
