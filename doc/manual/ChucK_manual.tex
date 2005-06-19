@@ -27,8 +27,6 @@
 %%%%%%%%%%%%%%%%%%%%  OPENING MATTER
 %\colorbox{lightgray}{\parbox{\textwidth}{here is may text which goes over many lines}}
 
-%this needs to be fixed and added into the real deal
-%\pagestyle{openingmatter}
 \pagenumbering{roman}
 
 \include{chapters/authors}
@@ -40,9 +38,10 @@
 
 %%%%%%%%%%%%%%%%%%%%  MAIN MATTER
 \pagestyle{fancy}
-\pagenumbering{arabic}
 
 \part*{Getting Started}
+
+\pagenumbering{arabic}
 
 \include{chapters/chuck_intro}
 
@@ -54,19 +53,17 @@
   \include{chapters/chuck_tutorial_otf}
   \include{chapters/chuck_tutorial_firstpatch}
   \include{chapters/chuck_tutorial_makingmods}
+  %\include{chapters/chuck_tutorial_lfo}
+  %\include{chapters/chuck_tutorial_midi}
+  %\include{chapters/chuck_tutorial_beats}
+  \include{chapters/chuck_tutorial_writing}
 
-\include{chapters/chuck_writing}
-
-\include{chapters/chuck_time}
-
-
-%%%%%% TO BE WRITTEN
-%\include{chapter1/terminal_tips}
-%include{chapter1/chuck_midi}
 
 %%%%%%%% Reference
 
 \part*{Reference}
+
+\include{chapters/chuck_time}
 
 \include{chapters/chuck_virtualmachine}
 
@@ -79,9 +76,5 @@
 \include{chapters/chuck_stdlib}
 
 \include{chapters/chuck_ugen}
-
-
-%%%%%%%AUDICLE
-%\include{chapter_audicle/audicle_intro}
 
 \end{document} 
