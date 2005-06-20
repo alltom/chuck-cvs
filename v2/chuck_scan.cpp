@@ -800,15 +800,6 @@ t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
-    Chuck_Value * value = NULL;
-    t_CKBOOL primitive = FALSE;
-    t_CKBOOL do_alloc = TRUE;
-    t_CKBOOL is_member = FALSE;
-    t_CKINT is_static = -1;
-
-    // is member of class
-    is_member = ( env->class_def != NULL && env->class_scope == 0
-                  && env->func == NULL && !decl->is_static );
 
     // loop through the variables
     while( list != NULL )
@@ -816,8 +807,7 @@ t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // get the decl
         var_decl = list->var_decl;
 
-        // TODO: this needs to be redone
-        // check if array
+        // scan if array
         if( var_decl->array != NULL )
         {
             // verify there are no errors from the parser...
@@ -834,26 +824,6 @@ t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
                 if( !type_engine_scan_array_subscripts( env, var_decl->array->exp_list ) )
                     return FALSE;
             }
-        }
-
-        // member?
-        if( is_member )
-        {
-            // do nothing
-        }
-        else if( env->class_def != NULL && decl->is_static ) // static
-        {
-            // base scope
-            if( env->class_scope > 0 )
-            {
-                EM_error2( decl->linepos,
-                    "static variables must be declared at class scope..." );
-                return FALSE;
-            }
-        }
-        else // local variable
-        {
-            // do nothing
         }
 
         // the next var decl
@@ -1618,8 +1588,7 @@ t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog )
             break;
 
         case ae_section_class:
-            // make global
-            prog->section->class_def->home = env->global();
+            // already placed in npsc, so no need to specify class_def->home
             ret = type_engine_2ndscan_class_def( env, prog->section->class_def );
             break;
         
@@ -2482,9 +2451,8 @@ t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def class_def )
         switch( body->section->s_type )
         {
         case ae_section_stmt:
-            // flag as having a constructor
-            env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
-//            ret = type_engine_2ndscan_stmt_list( env, body->section->stmt_list );
+            // already flagged as having a constructor or not
+            ret = type_engine_2ndscan_stmt_list( env, body->section->stmt_list );
             break;
 
         case ae_section_func:
