@@ -55,7 +55,7 @@ chuck_absyn.o: chuck_absyn.cpp chuck_absyn.h chuck_utils.h chuck_symbol.h
 	$(CC) $(FLAGS) chuck_absyn.cpp
 
 chuck_scan.o: chuck_scan.h chuck_scan.cpp chuck_type.h
-	$(CC) $(FLAGS) chucK_scan.cpp
+	$(CC) $(FLAGS) chuck_scan.cpp
 
 chuck_type.o: chuck_type.cpp chuck_type.h chuck_absyn.h chuck_oo.h chuck_vm.h chuck_instr.h
 	$(CC) $(FLAGS) chuck_type.cpp
