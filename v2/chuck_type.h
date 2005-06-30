@@ -249,6 +249,15 @@ struct Chuck_Context : public Chuck_VM_Object
     std::vector<Chuck_VM_Object *> new_funcs;
     std::vector<Chuck_VM_Object *> new_nspc;
 
+    // commit map
+    std::map<Chuck_Namespace *, Chuck_Namespace *> commit_map;
+    // add for commit/rollback
+    void add_commit_candidate( Chuck_Namespace * nspc );
+    // commit
+    void commit();
+    // rollback
+    void rollback();
+
     // constructor
     Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; 
                       has_error = FALSE; }

@@ -3411,6 +3411,57 @@ Chuck_Context::~Chuck_Context()
 
 
 //-----------------------------------------------------------------------------
+// name: add_commit_candidate()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Context::add_commit_candidate( Chuck_Namespace * nspc )
+{
+    // add for commit
+    commit_map[nspc] = nspc;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: commit()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Context::commit()
+{
+    std::map<Chuck_Namespace *, Chuck_Namespace *>::iterator iter;
+
+    // loop through
+    for( iter = commit_map.begin(); iter != commit_map.end(); iter++ )
+    {
+        // commit
+        (*iter).second->commit();
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: rollback()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Context::rollback()
+{
+    std::map<Chuck_Namespace *, Chuck_Namespace *>::iterator iter;
+
+    // loop through
+    for( iter = commit_map.begin(); iter != commit_map.end(); iter++ )
+    {
+        // rollback
+        (*iter).second->rollback();
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_check_reserved()
 // desc: ...
 //--------------------------------------------------------------------------
