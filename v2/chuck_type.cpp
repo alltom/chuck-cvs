@@ -3437,6 +3437,9 @@ void Chuck_Context::commit()
         // commit
         (*iter).second->commit();
     }
+    
+    // clear
+    commit_map.clear();
 }
 
 
@@ -3456,6 +3459,9 @@ void Chuck_Context::rollback()
         // rollback
         (*iter).second->rollback();
     }
+
+    // clear
+    commit_map.clear();
 }
 
 

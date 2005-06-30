@@ -98,6 +98,9 @@ public:
             // add to front/where
             (*scope.front())[(*iter).first] = (*iter).second;
         }
+
+        // clear
+        commit_map.clear();
     }
 
     // roll back since last commit or beginning
@@ -112,6 +115,9 @@ public:
             // release
             (*iter).second->release();
         }
+
+        // clear
+        commit_map.clear();
     }
 
     // add
