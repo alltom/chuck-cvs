@@ -327,12 +327,12 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     type_engine_load_context( env, context );
 
     // 1st-scan
-    // if( !type_engine_scan_prog( env, prog ) )
-    //     ret = FALSE;
+    //if( !type_engine_scan_prog( env, prog ) )
+    //    ret = FALSE;
 
     // 2nd-scan
-    // if( !type_engine_2ndscan_prog( env, prog ) )
-    //     ret = FALSE;
+    //if( !type_engine_2ndscan_prog( env, prog ) )
+    //    ret = FALSE;
 
     // go through each of the program sections
     while( prog && ret )
@@ -2647,13 +2647,9 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
             break;
         
         case ae_section_class:
-            // do the class
             // make global
-            // body->section->class_def->home = env->global();
+            body->section->class_def->home = env->global();
             ret = type_engine_check_class_def( env, body->section->class_def );
-            //EM_error2( body->section->class_def->linepos,
-            //    "nested class definitions are not yet supported..." );
-            //ret = FALSE;
             break;
         }
         

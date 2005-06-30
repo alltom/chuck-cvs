@@ -83,8 +83,7 @@ public:
     // atomic commit
     void commit()
     {
-        Chuck_VM_Object * val; assert( scope.size() != 0 );
-        
+        Chuck_VM_Object * val; assert( scope.size() != 0 );        
         std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
 
         // go through buffer    
@@ -99,7 +98,6 @@ public:
     void rollback()
     {
         Chuck_VM_Object * val; assert( scope.size() != 0 );
-        
         std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
 
         // go through buffer    

@@ -1070,7 +1070,7 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_scan_func_def( Chuck_Env * env, a_Func_Def f )
 {
-    Chuck_Type * type = NULL;
+/*    Chuck_Type * type = NULL;
     Chuck_Value * value = NULL;
     Chuck_Func * func = NULL;
 
@@ -1397,14 +1397,6 @@ t_CKBOOL type_engine_scan_func_def( Chuck_Env * env, a_Func_Def f )
                         // move on
                         continue;
                     }
-                    /*{
-                        EM_error2( f->linepos,
-                            "function '%s.%s' resembles '%s.%s' but cannot override...",
-                            env->class_def->c_name(), S_name(f->name),
-                            value->owner_class->c_name(), S_name(f->name) );
-                        if( err != "" ) EM_error2( f->linepos, "...(reason: %s)", err.c_str() );
-                        goto error;
-                    }*/
 
                     // see if parent function is static
                     if( parent_func->def->static_decl == ae_key_static )
@@ -1558,6 +1550,9 @@ error:
     }
 
     return FALSE;
+*/
+
+    return TRUE;
 }
 
 
@@ -2029,7 +2024,7 @@ t_CKBOOL type_engine_2ndscan_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_2ndscan_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, 
-                              a_Exp_Binary binary )
+                                 a_Exp_Binary binary )
 {
     // TODO: check for static here
     
@@ -2044,7 +2039,7 @@ t_CKBOOL type_engine_2ndscan_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_E
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_2ndscan_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
-                                    a_Exp_Binary binary )
+                                       a_Exp_Binary binary )
 {
     return TRUE;
 }
@@ -2305,7 +2300,7 @@ t_CKBOOL type_engine_2ndscan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
-                                         t_CKFUNC & ck_func, int linepos )
+                                            t_CKFUNC & ck_func, int linepos )
 {
     Chuck_Func * func = NULL;
     Chuck_Func * up = NULL;
