@@ -73,9 +73,15 @@ public:
 
     // push scope
     void push() { scope.push_back( new map<S_Symbol, Chuck_VM_Object *> ); }
+
     // pop scope
     void pop()
-    { assert( scope.size() != 0 ); delete scope.back(); scope.pop_back(); }
+    {
+        assert( scope.size() != 0 );
+        // TODO: release contents of scope.back()
+        delete scope.back(); scope.pop_back();
+    }
+
     // reset the scope
     void reset()
     { scope.clear(); this->push(); }
@@ -83,13 +89,13 @@ public:
     // atomic commit
     void commit()
     {
-        Chuck_VM_Object * val; assert( scope.size() != 0 );        
+        assert( scope.size() != 0 );        
         std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
 
         // go through buffer    
         for( iter = commit_map.begin(); iter != commit_map.end(); iter++ )
         {
-            // add to front
+            // add to front/where
             (*scope.front())[(*iter).first] = (*iter).second;
         }
     }
@@ -97,7 +103,7 @@ public:
     // roll back since last commit or beginning
     void rollback()
     {
-        Chuck_VM_Object * val; assert( scope.size() != 0 );
+        assert( scope.size() != 0 );
         std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
 
         // go through buffer    
@@ -112,9 +118,13 @@ public:
     void add( const string & id, Chuck_VM_Object * value )
     { this->add( insert_symbol(id.c_str()), value ); }
     void add( S_Symbol id, Chuck_VM_Object * value )
-    { assert( scope.size() != 0 ); (*scope.back())[id] = value; 
-      // if front, add for commit
-      if( scope.back() == scope.front() ) commit_map[id] = value; }
+    { 
+        assert( scope.size() != 0 );
+        // add if back is NOT front
+        if( scope.back() != scope.front() ) (*scope.back())[id] = value; 
+        // add for commit
+        else commit_map[id] = value;
+    }
 
     // lookup id
     T operator []( const string & id )
@@ -127,16 +137,26 @@ public:
         Chuck_VM_Object * val; assert( scope.size() != 0 );
 
         if( climb == 0 )
-            return (T)(*scope.back())[id];
+        {
+            val = (*scope.back())[id];
+            // look in commit buffer if the back is the front
+            if( !val && scope.back() == scope.front() ) val = commit_map[id];
+        }
         else if( climb > 0 )
         {
             for( t_CKUINT i = scope.size(); i > 0; i-- )
-                if( val = (*scope[i-1])[id] ) return (T)val;
+                if( val = (*scope[i-1])[id] ) break;
+            // look in commit buffer
+            if( !val ) val = commit_map[id];
         }
         else
-            return (T)(*scope.front())[id];
+        {
+            val = (*scope.front())[id];
+            // look in commit buffer
+            if( !val ) val = commit_map[id];
+        }
 
-        return 0;
+        return (T)val;
     }
 
 protected:
@@ -198,6 +218,11 @@ struct Chuck_Namespace : public Chuck_VM_Object
     // look up func
     Chuck_Func * lookup_func( const string & name, t_CKINT climb = 1 );
     Chuck_Func * lookup_func( S_Symbol name, t_CKINT climb = 1 );
+
+    // commit the maps
+    void commit() { type.commit(); value.commit(); func.commit(); }
+    // rollback the maps
+    void rollback() { type.rollback(); value.rollback(); func.rollback(); }
 };
 
 
