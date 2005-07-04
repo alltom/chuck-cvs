@@ -78,7 +78,7 @@ void Chuck_Instr_Add_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    // t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
     t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
 
@@ -100,7 +100,7 @@ void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Dec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    // t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
     t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
 
@@ -2097,8 +2097,8 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     local_depth = ( local_depth >> 2 ) + ( local_depth & 0x3 ? 1 : 0 );
     // get the stack depth of the callee function args
     t_CKUINT stack_depth = ( func->stack_depth >> 2 ) + ( func->stack_depth & 0x3 ? 1 : 0 );
-    // get the previous stack depth - caller function args
-    t_CKUINT prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
+    // UNUSED: get the previous stack depth - caller function args
+    // UNUSED: t_CKUINT prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );
     // the amount to push in 4-byte words
     t_CKUINT push = local_depth;
     // push the mem stack passed the current function variables and arguments
@@ -2172,8 +2172,8 @@ void Chuck_Instr_Func_Call_Static::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     local_depth = ( local_depth >> 2 ) + ( local_depth & 0x3 ? 1 : 0 );
     // get the stack depth of the callee function args
     t_CKUINT stack_depth = ( func->stack_depth >> 2 ) + ( func->stack_depth & 0x3 ? 1 : 0 );
-    // get the previous stack depth - caller function args
-    t_CKUINT prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );    
+    // UNUSED: get the previous stack depth - caller function args
+    // UNUSED: t_CKUINT prev_stack = ( *(mem_sp-1) >> 2 ) + ( *(mem_sp-1) & 0x3 ? 1 : 0 );    
     // the amount to push in 4-byte words
     t_CKUINT push = local_depth;
     // push the mem stack passed the current function variables and arguments
@@ -2234,7 +2234,7 @@ void Chuck_Instr_Func_Call_Static::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
 void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& mem_sp = (t_CKUINT *&)shred->mem->sp;
-    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    // UNUSED: t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // pop pc
     pop_( mem_sp, 2 );
@@ -2640,7 +2640,7 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( reg_sp, m_depth );
 
     // make sure
-    assert( index == num_obj );
+    assert( index == (t_CKINT)num_obj );
 
     // problem
     if( !ref ) goto error;
@@ -2686,7 +2686,7 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // reg stack pointer
     t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-    t_CKUINT *& reg_sp = sp;
+    // UNUSED: t_CKUINT *& reg_sp = sp;
     t_CKINT i = 0;
     t_CKUINT val = 0;
     t_CKFLOAT fval = 0;

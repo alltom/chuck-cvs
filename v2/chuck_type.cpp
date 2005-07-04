@@ -969,7 +969,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             else LR( te_float, te_int ) right = rhs->cast_to = &t_float;
         break;
         
-        // default: break;
+        default: break;
         }
 
         // no commute - int/float
@@ -984,7 +984,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             LR( te_int, te_float ) left = lhs->cast_to = &t_float;
         break;
         
-        // default: break;
+        default: break;
         }
         
         // int/dur
@@ -1028,7 +1028,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         }
     break;
 
-    // default: break;
+    default: break;
     }
     
     // make sure
@@ -1060,7 +1060,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 
         break;
 
-    // default: break;
+    default: break;
     }
 
     // based on the op
@@ -1164,7 +1164,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_dur, te_dur ) return &t_dur;
     break;
 
-    // default: break;
+    default: break;
     }
 
     // no match
@@ -1473,7 +1473,7 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             return t;
         break;
 
-        // default: break;
+        default: break;
     }
     
     // no match
@@ -1960,9 +1960,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
     Chuck_Value * value = NULL;
-    t_CKBOOL primitive = FALSE;
     t_CKBOOL do_alloc = TRUE;
     t_CKINT is_static = -1;
+    // UNUSED: t_CKBOOL primitive = FALSE;
 
     // TODO: handle T a, b, c ...
     // look up the type
@@ -2191,7 +2191,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 //-----------------------------------------------------------------------------
 string type_engine_print_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
 {
-    Chuck_Value * value = NULL;
+    // UNUSED: Chuck_Value * value = NULL;
     Chuck_Type * the_base = NULL;
     t_CKBOOL base_static = FALSE;
     string str;
@@ -2769,7 +2769,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // look up the value in the current class (can shadow?)
-    if( overload = env->curr->lookup_value( f->name, FALSE ) )
+    if( (overload = env->curr->lookup_value( f->name, FALSE )) )
     {
         // if value
         if( !isa( overload->type, &t_function ) )
@@ -3608,7 +3608,7 @@ Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol id )
     Chuck_Type * type = NULL;
     if( !nspc) return NULL;
     // -1 for base
-    if( type = nspc->lookup_type( id, -1 ) ) return type;
+    if( (type = nspc->lookup_type( id, -1 )) ) return type;
     return NULL;
 }
 
@@ -3696,7 +3696,7 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
     if( !type ) return NULL;
     if( !type->info ) return NULL;
     // -1 for base
-    if( value = type->info->lookup_value( id, -1 ) ) return value;
+    if( (value = type->info->lookup_value( id, -1 )) ) return value;
     if( type->parent ) return type_engine_find_value( type->parent, id );
     return NULL;
 }
@@ -4530,7 +4530,6 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
     // which namespace
     string where = ( dest == "" ? "global" : dest );
     Chuck_Namespace * nspc = NULL;
-    Chuck_Type * parent = NULL;
     const Chuck_DL_Query * query = NULL;
     t_CKUINT i, j;
     vector<a_Func_Def> the_funs;
@@ -4552,13 +4551,13 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         a_Class_Def def = NULL;
         a_Class_Ext ext = NULL;
         a_Class_Body body = NULL;
-        a_Section sec = NULL;
+        // UNUSED: a_Section sec = NULL;
         a_Func_Def fun = NULL;
         a_Id_List name;
         a_Id_List parent;
-        Chuck_DL_Func * dl_fun = NULL;
-        Chuck_DL_Value * dl_val = NULL;
-        Chuck_DL_Ctrl * dl_ctrl = NULL;
+        // UNUSED: Chuck_DL_Func * dl_fun = NULL;
+        // UNUSED: Chuck_DL_Value * dl_val = NULL;
+        // UNUSED: Chuck_DL_Ctrl * dl_ctrl = NULL;
         Chuck_DL_Class * cl = query->classes[i];
         assert( cl != NULL );
         

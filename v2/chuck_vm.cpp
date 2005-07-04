@@ -1541,8 +1541,9 @@ void Chuck_VM_Shreduler::status( )
     s = s - (m*(srate*60));
     t_CKUINT sec = s / srate;
     s = s - (sec*(srate));
-    float millisecond = s / (float)(srate) * 1000.0f;
-    fprintf( stdout, "[chuck](VM): status (now == %ih%im%is, %.1f samps) ...\n",
+    // float millisecond = s / (float)(srate) * 1000.0f;
+
+    fprintf( stdout, "[chuck](VM): status (now == %ldh%ldm%lds, %.1f samps) ...\n",
              h, m, sec, now_system );
     
     char buffer[1024];
@@ -1553,7 +1554,7 @@ void Chuck_VM_Shreduler::status( )
         while( *s++ ) if( *s == '/' ) { ss = s+1; }
         
         fprintf( stdout, 
-            "    [shred id]: %i  [source]: %s  [spork time]: %.2fs ago\n",
+            "    [shred id]: %ld  [source]: %s  [spork time]: %.2fs ago\n",
             shred->id, mini( shred->name.c_str() ),
             (now_system-shred->start)/(float)Digitalio::sampling_rate() );
         shred = shred->next;
@@ -1570,7 +1571,7 @@ void Chuck_VM_Shreduler::status( )
         while( *s++ ) if( *s == '/' ) { ss = s+1; }
         
         fprintf( stdout, 
-            "    [shred id]: %i [source]: %s  [spork time]: %.2fs ago (blocked)\n",
+            "    [shred id]: %ld [source]: %s  [spork time]: %.2fs ago (blocked)\n",
             shred->id, mini( shred->name.c_str() ),
             (now_system-shred->start)/(float)Digitalio::sampling_rate() );
     }

@@ -843,8 +843,8 @@ t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 t_CKBOOL type_engine_scan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
                                          t_CKFUNC & ck_func, int linepos )
 {
-    Chuck_Func * func = NULL;
-    Chuck_Func * up = NULL;
+    // Chuck_Func * func = NULL;
+    // Chuck_Func * up = NULL;
 
     // type check the func
     t_CKBOOL f = type_engine_scan_exp( env, exp_func );
@@ -912,9 +912,9 @@ t_CKBOOL type_engine_scan_exp_array( Chuck_Env * env, a_Exp_Array array )
     if( !index ) return FALSE;
     
     // cycle through each exp
-    a_Exp e = array->indices->exp_list;
+    // a_Exp e = array->indices->exp_list;
     // count the dimension
-    t_CKUINT depth = 0;
+    // t_CKUINT depth = 0;
 
     return TRUE;
 }
@@ -2229,11 +2229,11 @@ t_CKBOOL type_engine_2ndscan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
-    Chuck_Value * value = NULL;
-    t_CKBOOL primitive = FALSE;
-    t_CKBOOL do_alloc = TRUE;
+    // Chuck_Value * value = NULL;
+    // t_CKBOOL primitive = FALSE;
+    // t_CKBOOL do_alloc = TRUE;
     t_CKBOOL is_member = FALSE;
-    t_CKINT is_static = -1;
+    // t_CKINT is_static = -1;
 
     // is member of class
     is_member = ( env->class_def != NULL && env->class_scope == 0
@@ -2302,7 +2302,7 @@ t_CKBOOL type_engine_2ndscan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
                                             t_CKFUNC & ck_func, int linepos )
 {
-    Chuck_Func * func = NULL;
+    // Chuck_Func * func = NULL;
     Chuck_Func * up = NULL;
 
     // type check the func
@@ -2371,9 +2371,9 @@ t_CKBOOL type_engine_2ndscan_exp_array( Chuck_Env * env, a_Exp_Array array )
     if( !index ) return FALSE;
     
     // cycle through each exp
-    a_Exp e = array->indices->exp_list;
+    // a_Exp e = array->indices->exp_list;
     // count the dimension
-    t_CKUINT depth = 0;
+    // t_CKUINT depth = 0;
 
     return TRUE;
 }
