@@ -162,6 +162,8 @@ struct Chuck_UGen;
 // example: DLL_UGEN_F foo_tick( Chuck_UGen * SELF, SAMPLE, SAMPLE * out );
 #define DLL_QUERY   CK_DLL_EXPORT(t_CKBOOL)
 #define DLL_FUNC    CK_DLL_EXPORT(void)
+#define UGEN_CTOR   CK_DLL_EXPORT(void *)
+#define UGEN_DTOR   CK_DLL_EXPORT(void)
 #define UGEN_TICK   CK_DLL_EXPORT(t_CKBOOL)
 #define UGEN_PMSG   CK_DLL_EXPORT(t_CKBOOL)
 #define UGEN_CTRL   CK_DLL_EXPORT(t_CKVOID)

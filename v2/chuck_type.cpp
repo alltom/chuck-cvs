@@ -968,6 +968,8 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             LR( te_int, te_float ) left = lhs->cast_to = &t_float;
             else LR( te_float, te_int ) right = rhs->cast_to = &t_float;
         break;
+        
+        // default: break;
         }
 
         // no commute - int/float
@@ -981,6 +983,8 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             // mark for cast
             LR( te_int, te_float ) left = lhs->cast_to = &t_float;
         break;
+        
+        // default: break;
         }
         
         // int/dur
@@ -1023,6 +1027,8 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             return NULL;
         }
     break;
+
+    // default: break;
     }
     
     // make sure
@@ -1053,6 +1059,8 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         rhs->emit_var = 1;
 
         break;
+
+    // default: break;
     }
 
     // based on the op
@@ -1155,6 +1163,8 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_float, te_float ) return &t_float;
         LR( te_dur, te_dur ) return &t_dur;
     break;
+
+    // default: break;
     }
 
     // no match
@@ -1462,6 +1472,8 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
             // return the type
             return t;
         break;
+
+        // default: break;
     }
     
     // no match

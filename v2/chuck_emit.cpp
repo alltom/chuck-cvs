@@ -1168,6 +1168,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_dur:
                 emit->append( instr = new Chuck_Instr_Add_double );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1190,6 +1192,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_dur:
                 emit->append( instr = new Chuck_Instr_Add_double_Assign );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1210,6 +1214,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_dur:
                 emit->append( instr = new Chuck_Instr_Minus_double );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1230,6 +1236,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_dur:
                 emit->append( instr = new Chuck_Instr_Minus_double_Assign );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1244,6 +1252,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_dur:
             emit->append( instr = new Chuck_Instr_Times_double );
             break;
+
+        // default: break;
         }
         break;
     
@@ -1256,6 +1266,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_float:
             emit->append( instr = new Chuck_Instr_Times_double_Assign );
             break;
+
+        // default: break;
         }
         break;
 
@@ -1273,7 +1285,9 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_dur:
                 emit->append( instr = new Chuck_Instr_Divide_double );
                 break;
-            }
+
+            // default: break;
+            }	    
         }
         break;
     
@@ -1291,6 +1305,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_float:
                 emit->append( instr = new Chuck_Instr_Divide_double_Assign );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1301,6 +1317,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Or );
             break;
+        // default: break;
         }
         break;
     
@@ -1310,6 +1327,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Or_Assign );
             break;
+        // default: break;
         }
         break;
 
@@ -1319,6 +1337,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_And );
             break;
+        // default: break;
         }
         break;
 
@@ -1328,6 +1347,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_And_Assign );
             break;
+        // default: break;
         }
         break;
 
@@ -1337,6 +1357,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Shift_Left );
             break;
+        // default: break;
         }
         break;
 
@@ -1347,6 +1368,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Shift_Left_Assign );
             break;
+        // default: break;
         }
         break;
     
@@ -1356,6 +1378,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Shift_Right );
             break;
+        // default: break;
         }
         break;
 
@@ -1366,6 +1389,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Shift_Right_Assign );
             break;
+        // default: break;
         }
         break;
 
@@ -1385,6 +1409,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_dur:
                 emit->append( instr = new Chuck_Instr_Mod_double );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1406,6 +1432,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_dur:
                 emit->append( instr = new Chuck_Instr_Mod_double_Reverse );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1416,6 +1444,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Xor );
             break;
+        // default: break;
         }
         break;
     
@@ -1425,6 +1454,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Xor_Assign );
             break;
+        // default: break;
         }
         break;
 
@@ -1502,6 +1532,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_time:
                 emit->append( instr = new Chuck_Instr_Eq_double );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1521,6 +1553,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             case te_time:
                 emit->append( instr = new Chuck_Instr_Neq_double );
                 break;
+
+            // default: break;
             }
         }
         break;
@@ -1536,6 +1570,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_time:
             emit->append( instr = new Chuck_Instr_Lt_double );
             break;
+
+        // default: break;
         }
         break;
     
@@ -1550,6 +1586,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_time:
             emit->append( instr = new Chuck_Instr_Le_double );
             break;
+
+        // default: break;
         }
         break;
     
@@ -1564,6 +1602,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_time:
             emit->append( instr = new Chuck_Instr_Gt_double );
             break;
+
+        // default: break;
         }
         break;
     
@@ -1578,6 +1618,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_time:
             emit->append( instr = new Chuck_Instr_Ge_double );
             break;
+
+        // default: break;
         }
         break;
     
@@ -1587,6 +1629,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_And );
             break;
+        // default: break;
         }
         break;
     
@@ -1596,6 +1639,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Or );
             break;
+        // default: break;
         }
         break;
 

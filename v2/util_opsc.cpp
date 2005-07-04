@@ -1217,16 +1217,16 @@ OSC_Transmitter::kickMessage() {
 // OSC_RECEIVER
 
 OSC_Receiver::OSC_Receiver():
+    _listening(false),
     _inbufsize(OSCINBUFSIZE),
     _inbox(NULL),
-    _address_space (NULL),
-    _address_size ( 2 ),
-    _address_num ( 0 ), 
     _inbox_size(2),
     _started(false),
     _in_read(0),
     _in_write(1),
-    _listening(false)
+    _address_space (NULL),
+    _address_size ( 2 ),
+    _address_num ( 0 )
 { 
 
     _inbox = (OSCMesg*) malloc (sizeof(OSCMesg) * _inbox_size);

@@ -192,7 +192,7 @@ protected:
     CallbackInfo callbackInfo;
     //XXX VC6 throws an error using UNINITIALIZED ( protected member ) 
     RtApiStream()
-       :apiHandle(0), userBuffer(0), deviceBuffer(0), sub_mode((enum RtApi::StreamMode)-75) {}
+       :apiHandle(0), sub_mode((enum RtApi::StreamMode)-75), userBuffer(0), deviceBuffer(0) {}
     //      mode(UNINITIALIZED), state(STREAM_STOPPED),
   };
 

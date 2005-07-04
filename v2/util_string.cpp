@@ -43,7 +43,7 @@ using namespace std;
 string itoa( t_CKINT val )
 {
     char buffer[128];
-    sprintf( buffer, "%i", val );
+    sprintf( buffer, "%li", val );
     return string(buffer);
 }
 
@@ -58,7 +58,7 @@ string itoa( t_CKFLOAT val, t_CKUINT precision )
     char str[32];
     char buffer[128];
     if( precision > 32 ) precision = 32;
-    sprintf( str, "%%.%if", precision );
+    sprintf( str, "%%.%lif", precision );
     sprintf( buffer, str, val );
     return string(buffer);
 }

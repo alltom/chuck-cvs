@@ -2366,7 +2366,7 @@ Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t , t_CKINT length 
 
     // append length
     char buffer[16];
-    sprintf( buffer, "---%d", m_length );
+    sprintf( buffer, "---%ld", m_length );
     strcat( m_param_str, buffer );
 }
 
