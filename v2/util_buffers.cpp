@@ -80,7 +80,7 @@ BOOL__ CBuffer::initialize( UINT__ num_elem, UINT__ width )
     m_data_width = width;
     //m_read_offset = 0;
     m_write_offset = 0;
-    m_max_elem = num_elem;
+    m_max_elem = (SINT__)num_elem;
 
     return true;
 }
@@ -100,8 +100,11 @@ void CBuffer::cleanup()
     free( m_data );
 
     m_data = NULL;
-    m_data_width = m_write_offset = m_max_elem = 0; // = m_read_offset
+    m_data_width = 0;
+    m_write_offset = m_max_elem = 0; // = m_read_offset
 }
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -121,12 +124,12 @@ UINT__ CBuffer::join( Chuck_Event * event )
         read_offset_index = m_free.front();
         m_free.pop();
         //assert( read_offset_index < m_read_offsets.size() );
-        m_read_offsets[read_offset_index] = ReadOffset( (SINT__)m_write_offset, event );
+        m_read_offsets[read_offset_index] = ReadOffset( m_write_offset, event );
     }
     else
     {
         read_offset_index = m_read_offsets.size();
-        m_read_offsets.push_back( ReadOffset( (SINT__)m_write_offset, event ) );
+        m_read_offsets.push_back( ReadOffset( m_write_offset, event ) );
     }
 
     // return index
@@ -177,6 +180,7 @@ void CBuffer::resign( UINT__ read_offset_index )
             m_write_offset = 0;
     }
 }*/
+
 
 void CBuffer::put( void * data, UINT__ num_elem )
 {
@@ -311,7 +315,7 @@ UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
         }
 
         // wrap
-        if( m_read_offset >= (SINT__)m_max_elem )
+        if( m_read_offset >= m_max_elem )
             m_read_offset = 0;
     }
 

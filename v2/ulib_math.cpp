@@ -35,8 +35,8 @@
 #include "ulib_std.h"
 
 
-static double g_pi = 3.14159265358979323846;
-static double g_twopi = 2.0 * 3.14159265358979323846;
+static double g_pi = ONE_PI;
+static double g_twopi = TWO_PI;
 static double g_e = ::exp( 1.0 );
 
 
@@ -225,7 +225,6 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 // sin
 CK_DLL_SFUN( sin_impl )
 {
-    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     RETURN->v_float = ::sin( GET_CK_FLOAT(ARGS) );
 }
 

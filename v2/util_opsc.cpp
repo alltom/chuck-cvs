@@ -1263,11 +1263,13 @@ OSC_Receiver::~OSC_Receiver() {
     delete _in;
 }
 
-THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data )  { 
+THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data ) { 
     OSC_Receiver * oscar = (OSC_Receiver * ) data;
     do { 
         oscar->recv_mesg();
     } while ( true );
+
+    return (THREAD_RETURN)0;
 }
 
 bool
@@ -1830,6 +1832,3 @@ OSCSrc::queue_mesg ( OSCMesg* m )
     */
    
 }
-
-
-

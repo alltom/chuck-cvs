@@ -1083,7 +1083,7 @@ CK_DLL_TICK( delayp_tick )
     double diff= nowpos - lastpos;
     double d_samp = in - d->sample_last;
     int i, smin, smax;
-    SAMPLE sampi;
+    SAMPLE sampi = 0;
     if ( diff >= 0 ) { //forward.
         smin = (int)ceil( lastpos );
         smax = (int)floor( nowpos );
@@ -1368,8 +1368,8 @@ void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
     double factor = d->rate;
     double time_now = d->curf;
     double one_over_factor;
-    double int_time = 0;
-    double last_time = 0;
+    // UNUSED: double int_time = 0;
+    // UNUSED: double last_time = 0;
     double temp1 = 0.0;
     
     long time_i = (long)time_now;
@@ -1632,9 +1632,9 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         }
 
         SNDFILE* file = sf_open(filename, SFM_READ, &info);
-        int er = sf_error(file);
+        t_CKINT er = sf_error(file);
         if(er) fprintf( stderr, "[chuck](via sndbuf): sndfile error '%i' opening '%s'...\n", er, filename );
-        int size = info.channels * info.frames;
+        t_CKINT size = info.channels * info.frames;
         d->buffer = new SAMPLE[size+1];
         d->chan = 0;
         d->num_frames = info.frames;
@@ -1644,7 +1644,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         // fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
         d->samplerate = info.samplerate;
 
-        if( d->num_samples != size )
+        if( d->num_samples != (t_CKUINT)size )
         {
             fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
                      d->num_samples, size, filename );

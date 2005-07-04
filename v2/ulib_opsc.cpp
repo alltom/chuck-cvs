@@ -444,6 +444,3 @@ CK_DLL_MFUN( osc_recv_listen ) {
     OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
     recv->listen();
 }
-
-
-

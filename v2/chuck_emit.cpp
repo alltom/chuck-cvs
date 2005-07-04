@@ -659,7 +659,6 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
     while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
         emit->code->stack_cont.back()->set( start_index );
-        Chuck_Instr_Goto * a = emit->code->stack_cont.back();
         emit->code->stack_cont.pop_back();
     }
 
@@ -2008,7 +2007,6 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
 {
     t_CKUINT temp;
     t_CKDUR dur;
-    Chuck_Instr_Unary_Op * op = NULL, * op2 = NULL;
     Chuck_String * str = NULL;
 
     // find out exp
@@ -2733,7 +2731,6 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
     Chuck_Value * value = NULL;
     Chuck_Type * type = NULL;
     Chuck_Local * local = NULL;
-    t_CKUINT size = 0;
     t_CKBOOL is_obj = FALSE;
     t_CKBOOL is_ref = FALSE;
 

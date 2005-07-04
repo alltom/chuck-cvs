@@ -2769,7 +2769,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // look up the value in the current class (can shadow?)
-    if( (overload = env->curr->lookup_value( f->name, FALSE )) )
+    if(( overload = env->curr->lookup_value( f->name, FALSE ) ))
     {
         // if value
         if( !isa( overload->type, &t_function ) )
@@ -3032,7 +3032,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         parent = env->class_def->parent;
         while( parent && !parent_match )
         {
-            if( v = type_engine_find_value( env->class_def->parent, f->name ) )
+            if(( v = type_engine_find_value( env->class_def->parent, f->name ) ))
             {
                 // see if the target is a function
                 if( !isa( v->type, &t_function ) )
@@ -3608,7 +3608,7 @@ Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol id )
     Chuck_Type * type = NULL;
     if( !nspc) return NULL;
     // -1 for base
-    if( (type = nspc->lookup_type( id, -1 )) ) return type;
+    if(( type = nspc->lookup_type( id, -1 ) )) return type;
     return NULL;
 }
 
@@ -3696,7 +3696,7 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
     if( !type ) return NULL;
     if( !type->info ) return NULL;
     // -1 for base
-    if( (value = type->info->lookup_value( id, -1 )) ) return value;
+    if(( value = type->info->lookup_value( id, -1 ) )) return value;
     if( type->parent ) return type_engine_find_value( type->parent, id );
     return NULL;
 }

@@ -90,8 +90,8 @@ protected:
     std::vector<ReadOffset> m_read_offsets;
     std::queue<UINT__> m_free;
 
-    UINT__   m_write_offset;
-    UINT__   m_max_elem;
+    SINT__   m_write_offset;
+    SINT__   m_max_elem;
 };
 
 

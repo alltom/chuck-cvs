@@ -442,7 +442,7 @@ t_CKBOOL Chuck_VM::run( )
     while( m_running )
     {
         // get the shreds queued for 'now'
-        while( shred = m_shreduler->get() )
+        while(( shred = m_shreduler->get() ))
         {
             // set the current time of the shred
             shred->now = shred->wake_time;

@@ -168,7 +168,7 @@ error:
 
 
 
-static t_CKUINT event_offset_data = 0;
+// static t_CKUINT event_offset_data = 0;
 //-----------------------------------------------------------------------------
 // name: init_class_event()
 // desc: ...
@@ -707,8 +707,7 @@ CK_DLL_CTOR( ugen_ctor )
 CK_DLL_DTOR( ugen_dtor )
 {
     // get as ugen
-    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
-
+    // Chuck_UGen * ugen = (Chuck_UGen *)SELF;
 }
 
 CK_DLL_MFUN( ugen_op )
@@ -806,7 +805,7 @@ CK_DLL_MFUN( event_broadcast )
 
 CK_DLL_MFUN( event_wait )
 {
-    Chuck_Event * d = (Chuck_Event *)SELF;
+    // Chuck_Event * d = (Chuck_Event *)SELF;
     assert( FALSE );
 }
 

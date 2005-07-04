@@ -2303,7 +2303,7 @@ t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_E
                                             t_CKFUNC & ck_func, int linepos )
 {
     // Chuck_Func * func = NULL;
-    Chuck_Func * up = NULL;
+    // Chuck_Func * up = NULL;
 
     // type check the func
     t_CKBOOL f = type_engine_2ndscan_exp( env, exp_func );

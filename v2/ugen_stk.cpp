@@ -254,8 +254,8 @@ typedef double FLOAT64;
 union what { long x; char y[sizeof(long)]; };
 t_CKBOOL little_endian = FALSE;
 
-static t_CKUINT g_srate = 0;
-//filter member data offset
+// static t_CKUINT g_srate = 0;
+// filter member data offset
 
 static t_CKUINT BandedWG_offset_data = 0;
 //static t_CKUINT BandedWG_offset_data = 0;
@@ -301,7 +301,7 @@ static t_CKUINT Chorus_offset_data = 0;
 static t_CKUINT Modulate_offset_data = 0;
 static t_CKUINT SubNoise_offset_data = 0;
 static t_CKUINT WvIn_offset_data = 0;
-static t_CKUINT WaveLoop_offset_data = 0;
+// static t_CKUINT WaveLoop_offset_data = 0;
 static t_CKUINT WvOut_offset_data = 0;
 static t_CKUINT StifKarp_offset_data = 0;
 static t_CKUINT PitShift_offset_data = 0;
@@ -22993,7 +22993,6 @@ CK_DLL_CTRL( ModalBar_ctrl_damp )
 CK_DLL_CTRL( ModalBar_ctrl_clear )
 {
     ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
-    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->modalbar.clear();
 }
 
@@ -24621,8 +24620,8 @@ CK_DLL_PMSG( Filter_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Filter_ctrl_coefs )
 {
-    Filter * d = (Filter *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
-    fprintf(stderr,"Filter.coefs :: not implemented\n");
+    // Filter * d = (Filter *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
+    fprintf( stderr, "Filter.coefs :: not implemented\n" );
 }
 
 
@@ -24999,9 +24998,8 @@ CK_DLL_CTRL( OneZero_ctrl_zero )
 CK_DLL_CGET( OneZero_cget_zero )
 {
     OneZero * filter = (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     double zeeroo = ( filter->b[0] == 0 ) ? 0 : -filter->b[1] / filter->b[0]; 
-    RETURN->v_float = (t_CKFLOAT) zeeroo; 
+    RETURN->v_float = (t_CKFLOAT)zeeroo; 
 }
 
 
@@ -25410,8 +25408,8 @@ CK_DLL_DTOR( FM_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( FM_tick )
 {
-    FM * m = (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    //    *out = m->tick();
+    // FM * m = (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    // *out = m->tick();
     fprintf(stderr,"error : FM tick is virtual\n");
     return TRUE;
 }
@@ -25434,7 +25432,6 @@ CK_DLL_PMSG( FM_pmsg )
 CK_DLL_CTRL( FM_ctrl_noteOn )
 {
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
     fm->keyOn();
 }
 
@@ -27570,6 +27567,7 @@ CK_DLL_CTRL( WvIn_ctrl_path )
     {
         const char * s = e.getMessage();
         // fprintf( stderr, "[chuck](via STK): WvIn cannot load file '%s'\n", c );
+        s = "";
     }
     RETURN->v_string = &(w->str_filename);
 }

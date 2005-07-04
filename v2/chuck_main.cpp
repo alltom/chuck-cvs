@@ -319,7 +319,7 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
     Net_Msg buf;
     
     // what is left
-    t_CKUINT left = msg.param2;
+    // t_CKUINT left = msg.param2;
     // make a temp file
     FILE * fd = tmpfile();
 
@@ -381,7 +381,6 @@ int send_cmd( int argc, char ** argv, t_CKINT & i )
 {
     Net_Msg msg;
     g_sigpipe_mode = 1;
-    int ret = 0;
     int tasks_total = 0, tasks_done = 0;
     
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
@@ -836,7 +835,6 @@ void usage()
 //-----------------------------------------------------------------------------
 int main( int argc, char ** argv )
 {
-    t_CKBOOL ret = TRUE;
     Chuck_Env * env = NULL;
     Chuck_Emitter * emitter = NULL;
     Chuck_VM_Code * code = NULL;
@@ -910,7 +908,7 @@ int main( int argc, char ** argv )
                 usage();
                 exit( 2 );
             }
-            else if( a = send_cmd( argc, argv, i ) )
+            else if(( a = send_cmd( argc, argv, i ) ))
                 exit( 0 );
             else
             {

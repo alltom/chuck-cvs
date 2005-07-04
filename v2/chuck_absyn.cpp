@@ -822,7 +822,7 @@ static const char * op_str[] = {
 const char * op2str( ae_Operator op )
 {
     t_CKINT index = (t_CKINT)op;
-    if( index < 0 || index >= (sizeof(op_str)/sizeof(char *)) )
+    if( index < 0 || index >= (t_CKINT)(sizeof(op_str)/sizeof(char *)) )
         return "[non-existent operator]";
 
     return op_str[index];
