@@ -54,6 +54,11 @@
 
 
 
+#ifdef __PLATFORM_WIN32__
+static WSADATA g_wsd;
+static int g_init = 0;
+#endif
+
 //-----------------------------------------------------------------------------
 // name: struct ck_socket_
 // desc: ...
@@ -65,11 +70,6 @@ struct ck_socket_
     struct sockaddr_in sock_in;
     socklen_t len;
 };
-
-#ifdef __PLATFORM_WIN32__
-static WSADATA g_wsd;
-static int g_init = 0;
-#endif
 
 
 
@@ -307,7 +307,7 @@ int ck_sendto( ck_socket sock, const char * buffer, int len,
 // desc: recv a datagram
 //-----------------------------------------------------------------------------
 int ck_recvfrom( ck_socket sock, char * buffer, int len,
-                 struct sockaddr * from, int * fromlen ) 
+                 struct sockaddr * from, unsigned int * fromlen ) 
 {
     if( sock->prot == SOCK_STREAM )
     {

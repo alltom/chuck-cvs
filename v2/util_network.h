@@ -83,7 +83,7 @@ int ck_sendto( ck_socket sock, const char * buffer, int len,
 int ck_recv( ck_socket sock, char * buffer, int len );
 // recv a datagram
 int ck_recvfrom( ck_socket sock, char * buffer, int len,
-                 struct sockaddr * from, int * fromlen );
+                 struct sockaddr * from, unsigned int * fromlen );
 
 // send timeout
 int ck_send_timeout( ck_socket sock, long sec, long usec );
