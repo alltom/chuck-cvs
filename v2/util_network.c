@@ -307,14 +307,14 @@ int ck_sendto( ck_socket sock, const char * buffer, int len,
 // desc: recv a datagram
 //-----------------------------------------------------------------------------
 int ck_recvfrom( ck_socket sock, char * buffer, int len,
-                 struct sockaddr * from, unsigned int * fromlen ) 
+                 struct sockaddr * from, int * fromlen ) 
 {
     if( sock->prot == SOCK_STREAM )
     {
         memset( buffer, 0, len );
         return 0;
     }
-    else return recvfrom( sock->sock, buffer, len, 0, from, fromlen );
+    else return recvfrom( sock->sock, buffer, len, 0, from, (unsigned int *)fromlen );
 }
 
 

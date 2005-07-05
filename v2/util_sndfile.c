@@ -12932,7 +12932,7 @@ ima_reader_init (SF_PRIVATE *psf, int blockalign, int samplesperblock)
 
 	memset (pima, 0, pimasize) ;
 
-	pima->samples	= pima->data ;
+	pima->samples	= (short *)pima->data ;
 	pima->block		= (unsigned char*) (pima->data + samplesperblock * psf->sf.channels) ;
 
 	pima->channels			= psf->sf.channels ;
@@ -16778,7 +16778,7 @@ wav_w64_msadpcm_init	(SF_PRIVATE *psf, int blockalign, int samplesperblock)
 	pms = (MSADPCM_PRIVATE*) psf->fdata ;
 	memset (pms, 0, pmssize) ;
 
-	pms->samples	= pms->dummydata ;
+	pms->samples	= (short *)pms->dummydata ;
 	pms->block		= (unsigned char*) (pms->dummydata + psf->sf.channels * samplesperblock) ;
 
 	pms->channels	= psf->sf.channels ;
@@ -16810,7 +16810,7 @@ wav_w64_msadpcm_init	(SF_PRIVATE *psf, int blockalign, int samplesperblock)
 		} ;
 
 	if (psf->mode == SFM_WRITE)
-	{	pms->samples = pms->dummydata ;
+	{	pms->samples = (short *)pms->dummydata ;
 
 		pms->samplecount = 0 ;
 
