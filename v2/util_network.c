@@ -63,7 +63,7 @@ struct ck_socket_
     int sock;
     int prot;
     struct sockaddr_in sock_in;
-    int len;
+    socklen_t len;
 };
 
 #ifdef __PLATFORM_WIN32__
