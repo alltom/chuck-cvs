@@ -782,7 +782,7 @@ const char * dlerror( void )
 #endif
 
 // mac os x
-#if defined(__MACOSX_CORE__)
+#if defined(__MACOSX_CORE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= 1030
 
 extern "C"
 {
@@ -831,6 +831,7 @@ static struct dlopen_handle *dlopen_handles = NULL;
 static const struct dlopen_handle main_program_handle = {NULL};
 static char *dlerror_pointer = NULL;
 
+
 /*
  * NSMakePrivateModulePublic() is not part of the public dyld API so we define
  * it here.  The internal dyld function pointer for
@@ -847,6 +848,7 @@ NSModule module)
     if(p == NULL)
         _dyld_func_lookup("__dyld_NSMakePrivateModulePublic",
                   (unsigned long *)&p);
+
     if(p == NULL){
 #ifdef DEBUG
         printf("_dyld_func_lookup of __dyld_NSMakePrivateModulePublic "
