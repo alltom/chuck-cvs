@@ -57,6 +57,9 @@
 #ifdef __PLATFORM_WIN32__
 static WSADATA g_wsd;
 static int g_init = 0;
+#ifndef socklen_t
+#define socklen_t int
+#endif
 #endif
 
 //-----------------------------------------------------------------------------
