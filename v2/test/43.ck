@@ -1,3 +1,5 @@
+// midi (fail-correct)
+
 sinosc s => DelayL z => dac;
 
 MidiIn min;

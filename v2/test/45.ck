@@ -1,3 +1,5 @@
+// midi event (fail-correct)
+
 sinosc s => dac;
 
 MidiIn min;

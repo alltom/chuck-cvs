@@ -1,3 +1,4 @@
+// midi read (fail-correct)
 
 MidiOut mout;
 MidiMsg mg;

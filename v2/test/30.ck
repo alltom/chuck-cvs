@@ -1,5 +1,8 @@
 
 Object x[10];
-x[9].setTestID( 3 );
-<<<x[9].getTestID()>>>;
+x[9].testID( 3 );
+<<<x[9].testID()>>>;
 <<<x[9].m_testID>>>;
+
+if( x[9].m_testID == 3 )
+    <<<"success">>>;

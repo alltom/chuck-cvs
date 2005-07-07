@@ -3,7 +3,7 @@ event e;
 fun int hi( event e )
 {
     e => now;
-    <<<"hi">>>;
+    <<<"success">>>;
 }
 
 spork ~ hi( e );
@@ -15,7 +15,4 @@ spork ~ hi( e );
 
 e.broadcast();
 
-while( true )
-{
-    1::second => now;
-}
+1::ms => now;

@@ -5,7 +5,7 @@ class X
     { <<<a>>>; }
 
     fun void foo( int a, int b )
-    { <<<a+5>>>; }
+    { <<<"success">>>; }
 }
 
 //class Y extends X

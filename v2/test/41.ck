@@ -3,16 +3,13 @@ event e;
 fun int hi( event e )
 {
     e => now;
-    <<<"hi">>>;
+    <<<"success">>>;
 }
 
 spork ~ hi( e );
 
-1::second => now;
+1::ms => now;
 
 e.signal();
 
-while( true )
-{
-    1::second => now;
-}
+1::samp => now;

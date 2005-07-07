@@ -20,7 +20,7 @@ class Y extends X
 class Z extends Y
 {
     fun void foo( int a, int b )
-    { <<<a+b+2>>>;}
+    { <<<"success">>>;}
 }
 
 Z x;

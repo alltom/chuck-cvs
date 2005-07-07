@@ -1,3 +1,4 @@
+// midi (fail-correct)
 
 MidiIn min;
 MidiMsg msg;

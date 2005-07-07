@@ -1,6 +1,6 @@
 
     fun void foo( int a, int b )
-    { <<<a+b>>>; }
+    { <<<"success">>>; }
 
     fun void foo( int a )
     { foo( a, a ); }
