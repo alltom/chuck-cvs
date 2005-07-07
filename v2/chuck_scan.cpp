@@ -998,19 +998,21 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
         {
         case ae_section_stmt:
             // flag as having a constructor
-            env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
-            ret = type_engine_scan_stmt_list( env, body->section->stmt_list );
+            //env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
+            //ret = type_engine_scan_stmt_list( env, body->section->stmt_list );
             break;
         
         case ae_section_func:
             // set to complete
-            env->class_def->is_complete = TRUE;
-            ret = type_engine_scan_func_def( env, body->section->func_def );
+            //env->class_def->is_complete = TRUE;
+            //ret = type_engine_scan_func_def( env, body->section->func_def );
             // back
-            env->class_def->is_complete = FALSE;
+            //env->class_def->is_complete = FALSE;
             break;
         
         case ae_section_class:
+            // make global
+            body->section->class_def->home = env->global();
             // do the class
             ret = type_engine_scan_class_def( env, body->section->class_def );
             break;

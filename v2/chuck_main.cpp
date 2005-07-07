@@ -777,6 +777,9 @@ t_CKBOOL load_internal_modules( Chuck_Env * env )
 
     // clear context
     type_engine_unload_context( env );
+
+    // commit what is in the type checker at this point
+    env->global()->commit();
     
     return TRUE;
 
@@ -965,8 +968,7 @@ int main( int argc, char ** argv )
     // enable dump
     emitter->dump = dump;
     // load internal libs
-    if( !load_internal_modules( env ) ) 
-        exit( 1 );
+    if( !load_internal_modules( env ) ) exit( 1 );
 
     // vm synthesis subsystem - needs the type system
     vm->initialize_synthesis( );

@@ -298,6 +298,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // init pre-scan
     // type_engine_init_scan( env );
 
+    // commit the global namespace
+    env->global()->commit();
+
     return env;
 }
 
@@ -327,8 +330,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     type_engine_load_context( env, context );
 
     // 1st-scan
-    //if( !type_engine_scan_prog( env, prog ) )
-    //    ret = FALSE;
+    if( !type_engine_scan_prog( env, prog ) )
+        ret = FALSE;
 
     // 2nd-scan
     //if( !type_engine_2ndscan_prog( env, prog ) )
@@ -349,7 +352,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
 
         case ae_section_class:
             // make global
-            prog->section->class_def->home = env->global();
+            // DONE in 1st scan: prog->section->class_def->home = env->global();
             ret = type_engine_check_class_def( env, prog->section->class_def );
             break;
         
@@ -368,8 +371,15 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     // assert( env->contexts.back() == context );
 
     // check to see if everything passed
+    if( ret )
+    {
+        // commit global namespace
+        env->global()->commit();
+    }
     if( !ret )
     {
+        // rollback the global namespace
+        env->global()->rollback();
         // TODO: remove the effects of the context in the env
         // ---> insert code here <----
         // flag the context with error, so more stuff gets deleted
@@ -2552,32 +2562,6 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // the class body
     a_Class_Body body = class_def->body;
 
-    // if nspc is attached to class_def, that means the class_def is to be
-    // put in that namespace.  this is usually the case when doing import
-    if( class_def->home != NULL )
-    {
-        // set the new type as current
-        env->nspc_stack.push_back( env->curr );
-        env->curr = class_def->home;
-    }
-
-    // make sure class not already in namespace
-    if( env->curr->lookup_type( class_def->name->id, TRUE ) )
-    {
-        EM_error2( class_def->name->linepos,
-            "class/type '%s' is already defined in namespace '%s'",
-            S_name(class_def->name->id), env->curr->name.c_str() );
-        return FALSE;
-    }
-
-    // check if reserved
-    if( type_engine_check_reserved( env, class_def->name->id, class_def->name->linepos ) )
-    {
-        EM_error2( class_def->name->linepos, "...in class definition '%s'",
-            S_name(class_def->name->id) );
-        return FALSE;
-    }
-
     // make sure inheritance
     if( class_def->ext )
     {
@@ -2600,34 +2584,22 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     // by default object
     if( !t_parent ) t_parent = &t_object;
 
-    // allocate new type
+    // check for fun
     assert( env->context != NULL );
-    the_class = env->context->new_Chuck_Type();
-    // set the fields
-    the_class->id = te_user;
-    the_class->name = S_name(class_def->name->id);
-    the_class->parent = t_parent;
+    assert( class_def->type != NULL );
+    assert( class_def->type->info != NULL );
 
+    // retrieve the new type (created in scan_class_def)
+    the_class = class_def->type;
+
+    // set fields not set in scan
+    the_class->parent = t_parent;
 	// inherit ugen_info data from parent PLD
 	the_class->ugen_info = t_parent->ugen_info;
-
-    the_class->owner = env->curr;
-    the_class->array_depth = 0;
-    the_class->size = sizeof(void *);
-    the_class->obj_size = 0;  // TODO:
-    the_class->info = env->context->new_Chuck_Namespace();
-    the_class->info->name = the_class->name;
-    the_class->info->parent = env->curr;
     // set the beginning of data segment to after the parent
     the_class->info->offset = t_parent->obj_size;
     // duplicate the parent's virtual table
     the_class->info->obj_v_table = t_parent->info->obj_v_table;
-    the_class->func = NULL;
-    the_class->def = class_def;
-    // add to env
-    env->curr->type.add( the_class->name, the_class );  // URGENT: make this global
-    // incomplete
-    the_class->is_complete = FALSE;
 
     // set the new type as current
     env->nspc_stack.push_back( env->curr );
@@ -2660,7 +2632,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         
         case ae_section_class:
             // make global
-            body->section->class_def->home = env->global();
+            // DONE in scan: body->section->class_def->home = env->global();
             ret = type_engine_check_class_def( env, body->section->class_def );
             break;
         }
@@ -2669,7 +2641,6 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         body = body->next;
     }
 
-
     // pop the class
     env->class_def = env->class_stack.back();
     env->class_stack.pop_back();
@@ -2677,46 +2648,18 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     env->curr = env->nspc_stack.back();
     env->nspc_stack.pop_back();
 
-    // if things checked out
+    // if ok
     if( ret )
     {
-        Chuck_Value * value = NULL;
-        Chuck_Type * type = NULL;
-
         // set the object size
         the_class->obj_size = the_class->info->offset;
         // set complete
         the_class->is_complete = TRUE;
-
-        // allocate value
-        type = t_class.copy( env );
-        type->actual_type = the_class;
-        value = env->context->new_Chuck_Value( type, the_class->name );
-        value->owner = env->curr;
-        value->is_const = TRUE;
-        value->is_member = FALSE;
-        // add to env
-        env->curr->value.add( the_class->name, value );
-
-        // remember
-        class_def->type = the_class;
-
-        // TODO: clean up if the context failed
     }
-    else
+    if( !ret )
     {
         // delete the class definition
         the_class->release();
-    }
-
-    // if nspc is attached to class_def, that means the class_def is to be
-    // put in that namespace.  this is usually the case when doing import
-    // we undo that extra namespace layer here...
-    if( class_def->home != NULL )
-    {
-        // pop the namesapce
-        env->curr = env->nspc_stack.back();
-        env->nspc_stack.pop_back();
     }
 
     return ret;
@@ -4623,7 +4566,9 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         def->home = nspc;
         // TODO: mark the class as dll import?
 
-        // type check it
+        // scan type check it
+        if( !type_engine_scan_class_def( env, def ) ) goto error;
+        // if( !type_engine_2ndscan_class_def( env, def ) ) goto error;
         if( !type_engine_check_class_def( env, def ) ) goto error;
         
         // TODO: clean up?

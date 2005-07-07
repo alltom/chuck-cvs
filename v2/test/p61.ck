@@ -13,15 +13,15 @@ function int howMany( int a, int b ) {
 }
 
 0 => int ret;
-if ( howMany() = 0 ) { 
+if ( howMany() == 0 ) { 
 	1 +=> ret;
 }
 
-if ( howMany( 1 ) = 1 ) { 
+if ( howMany( 1 ) == 1 ) { 
 	2 +=> ret;
 }
 
-if ( howMany( 2 ) = 2) { 
+if ( howMany( 2, 2 ) == 2 ) { 
 	4 +=> ret;
 }
 

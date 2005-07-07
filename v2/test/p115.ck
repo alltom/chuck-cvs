@@ -26,3 +26,6 @@ b @=> Top @ b2t;
 
 <<<"Bottom Cast to Top">>>;
 <<<b2t.topValue()>>>;
+
+if( b.topValue() == 1 && b.bottomValue() == 2 && t.topValue() == 1 && b2t.topValue() == 1 )
+    <<<"success">>>;

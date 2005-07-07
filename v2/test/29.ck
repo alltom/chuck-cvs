@@ -13,13 +13,14 @@ class X
 }
 
 X x;
-x.setTestID( 3 );
+x.testID( 3 );
 x.testStatic( 2 );
 
 //2 => x.m_testID;
 <<< x.m_testID >>>;
 
 //<<<x.getTestID()>>>;
-Machine.status();
+machine.status();
+if( x.m_testID == 3 ) <<<"success">>>;
 //<<<Math.sin( 1.0 )>>>;
 //<<<Std.rand2f( 30.0, 1000.0 )>>>;

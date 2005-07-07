@@ -8,4 +8,4 @@ fun void waits( int a ) {
 
 spork ~ waits(5);
 spork ~ waits(10);
-2::second => now;
+11::second => now;

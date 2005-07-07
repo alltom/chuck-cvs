@@ -146,20 +146,24 @@ public:
         {
             val = (*scope.back())[id];
             // look in commit buffer if the back is the front
-            if( !val && scope.back() == scope.front() ) val = commit_map[id];
+            if( !val && scope.back() == scope.front() 
+                && (commit_map.find(id) != commit_map.end()) ) 
+                val = commit_map[id];
         }
         else if( climb > 0 )
         {
             for( t_CKUINT i = scope.size(); i > 0; i-- )
                 if( val = (*scope[i-1])[id] ) break;
             // look in commit buffer
-            if( !val ) val = commit_map[id];
+            if( !val && (commit_map.find(id) != commit_map.end()) )
+                val = commit_map[id];
         }
         else
         {
             val = (*scope.front())[id];
             // look in commit buffer
-            if( !val ) val = commit_map[id];
+            if( !val && (commit_map.find(id) != commit_map.end()) )
+                val = commit_map[id];
         }
 
         return (T)val;

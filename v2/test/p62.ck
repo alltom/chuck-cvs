@@ -6,5 +6,5 @@ fun void wait10() {
 }
 
 spork ~ wait10();
-2::second => now;
+11::second => now;
 

@@ -12,21 +12,21 @@ fun void takesFloats ( float argF ) {
 
 
 takesFloats( 4 );
-takesInts(5.0);
+takesInts(5.0 $ int);
 
-takesFloats(a);
-takesInts(x);
-
-1.0 => int a;
+1 => int a;
 2 => float x;
 
-y => int b;
-a => float y;
+takesFloats(a);
+takesInts(x $ int);
 
-5 * x => int c;
-x * 5 => int d;
-3.0 * x => int e;
-x * 3.0 => int f;
+a => float y;
+y $ int => int b;
+
+(5 * x) $ int => int c;
+(x * 5) $ int => int d;
+(3.0 * x) $ int => int e;
+(x * 3.0) $ int => int f;
 
 3 * a => float m;
 a * 3 => float n;
