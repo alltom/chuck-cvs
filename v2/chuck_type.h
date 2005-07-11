@@ -250,6 +250,8 @@ struct Chuck_Context : public Chuck_VM_Object
     a_Program parse_tree;
     // context namespace
     Chuck_Namespace * nspc;
+    // public class def if any
+    a_Class_Def public_class_def;
     // error - means to free nspc too
     t_CKBOOL has_error;  
 
@@ -270,7 +272,7 @@ struct Chuck_Context : public Chuck_VM_Object
 
     // constructor
     Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; 
-                      has_error = FALSE; }
+                      public_class_def = NULL; has_error = FALSE; }
     // destructor
     ~Chuck_Context();
 
