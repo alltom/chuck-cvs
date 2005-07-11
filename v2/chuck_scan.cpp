@@ -1013,8 +1013,6 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
             break;
         
         case ae_section_class:
-            // make global
-            body->section->class_def->home = env->global();
             // do the class
             ret = type_engine_scan_class_def( env, body->section->class_def );
             break;
@@ -1060,6 +1058,11 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
         // pop the namesapce
         env->curr = env->nspc_stack.back();
         env->nspc_stack.pop_back();
+    }
+    else // set the current namespace as home
+    {
+        // set curr as home
+        class_def->home = env->curr;
     }
 
     return ret;
@@ -2487,16 +2490,6 @@ t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def class_def )
         the_class->obj_size = the_class->info->offset;
         // set complete
         the_class->is_complete = TRUE;
-    }
-
-    // if nspc is attached to class_def, that means the class_def is to be
-    // put in that namespace.  this is usually the case when doing import
-    // we undo that extra namespace layer here...
-    if( class_def->home != NULL )
-    {
-        // pop the namesapce
-        env->curr = env->nspc_stack.back();
-        env->nspc_stack.pop_back();
     }
 
     return ret;

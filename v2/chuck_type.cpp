@@ -2631,8 +2631,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
             break;
         
         case ae_section_class:
-            // make global
-            // DONE in scan: body->section->class_def->home = env->global();
+            // check it
             ret = type_engine_check_class_def( env, body->section->class_def );
             break;
         }

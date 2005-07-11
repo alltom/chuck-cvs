@@ -1,7 +1,7 @@
-/* A Bison parser, made by GNU Bison 1.875c.  */
+/* A Bison parser, made from chuck.y, by GNU bison 1.75.  */
 
 /* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,6 +22,9 @@
    Bison output file, you may use that output file without restriction.
    This special exception was added by the Free Software Foundation
    in version 1.24 of Bison.  */
+
+#ifndef BISON_CHUCK_TAB_H
+# define BISON_CHUCK_TAB_H
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -233,9 +236,9 @@
 
 
 
-#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
+#ifndef YYSTYPE
 #line 59 "chuck.y"
-typedef union YYSTYPE {
+typedef union {
     int pos;
     int ival;
     double fval;
@@ -256,15 +259,14 @@ typedef union YYSTYPE {
     a_Arg_List arg_list;
     a_Id_List id_list;
     a_Array_Sub array_sub;
-} YYSTYPE;
-/* Line 1268 of yacc.c.  */
-#line 262 "chuck.tab.h"
-# define yystype YYSTYPE /* obsolescent; will be withdrawn */
-# define YYSTYPE_IS_DECLARED 1
-# define YYSTYPE_IS_TRIVIAL 1
+} yystype;
+/* Line 1281 of /usr/share/bison/yacc.c.  */
+#line 265 "chuck.tab.h"
+# define YYSTYPE yystype
 #endif
 
 extern YYSTYPE yylval;
 
 
+#endif /* not BISON_CHUCK_TAB_H */
 
