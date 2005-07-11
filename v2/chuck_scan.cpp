@@ -153,8 +153,10 @@ t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog )
             break;
 
         case ae_section_class:
-            // make global
-            prog->section->class_def->home = env->global();
+            // make global, if marked public
+            if( prog->section->class_def->decl == ae_key_public )
+                prog->section->class_def->home = env->global();
+            // scan it
             ret = type_engine_scan_class_def( env, prog->section->class_def );
             break;
         
