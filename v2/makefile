@@ -2,10 +2,8 @@ current:
 	@echo "[chuck build]: please use one of the following configurations:"; echo "   make linux-alsa, make linux-jack, make linux-oss, make osx, or make win32"
 
 install:
-	-cp $(wildcard chuck chuck.exe) /usr/bin/
-	@if [[ $? -ne 0 ]]; then echo "(failed... note: maybe try as root?)"; exit 1; fi
-	-chmod 755 /usr/bin/$(wildcard chuck chuck.exe)
-	@if [[ $? -ne 0 ]]; then echo "(failed... note: maybe try as root?)"; exit 1; fi
+	cp $(wildcard chuck chuck.exe) /usr/bin/
+	chmod 755 /usr/bin/$(wildcard chuck chuck.exe)
 
 osx: 
 	-make -f makefile.osx
