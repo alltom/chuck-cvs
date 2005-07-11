@@ -3,6 +3,7 @@ current:
 
 install:
 	cp $(wildcard chuck chuck.exe) /usr/bin/; chmod 755 /usr/bin/$(wildcard chuck chuck.exe)
+	@if [ "$?" -ne "0" ]; then echo "failed: maybe try as root?"; fi
 
 osx: 
 	-make -f makefile.osx
