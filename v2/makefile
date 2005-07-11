@@ -2,7 +2,6 @@ current:
 	@echo "[chuck build]: please use one of the following configurations:"; echo "   make linux-alsa, make linux-jack, make linux-oss, make osx, or make win32"
 
 install:
-	@echo "(must be root to install)"
 	cp $(wildcard chuck chuck.exe) /usr/bin/; chmod 755 /usr/bin/$(wildcard chuck chuck.exe)
 
 osx: 
