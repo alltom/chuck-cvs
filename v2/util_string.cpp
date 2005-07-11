@@ -62,3 +62,43 @@ string itoa( t_CKFLOAT val, t_CKUINT precision )
     sprintf( buffer, str, val );
     return string(buffer);
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: tolower()
+// desc: ...
+//-----------------------------------------------------------------------------
+string tolower( const string & str )
+{
+    string s = str;
+    t_CKUINT len = s.length();
+
+    // loop
+    for( t_CKUINT i = 0; i < len; i++ )
+        if( s[i] >= 'A' && s[i] <= 'Z' )
+            s[i] += 32;
+
+    return s;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: toupper()
+// desc: ...
+//-----------------------------------------------------------------------------
+string toupper( const string & str )
+{
+    string s = str;
+    t_CKUINT len = s.length();
+
+    // loop
+    for( t_CKUINT i = 0; i < len; i++ )
+        if( s[i] >= 'a' && s[i] <= 'z' )
+            s[i] -= 32;
+
+    return s;
+}

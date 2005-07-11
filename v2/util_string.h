@@ -41,7 +41,10 @@
 std::string itoa( t_CKINT val );
 // ftoa
 std::string ftoa( t_CKINT val );
-
+// tolower
+std::string tolower( const std::string & val );
+// toupper
+std::string toupper( const std::string & val );
 
 
 
