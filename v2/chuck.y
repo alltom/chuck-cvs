@@ -116,6 +116,7 @@ a_Program g_program = NULL;
 %type <class_def> class_definition
 %type <class_body> class_body
 %type <class_ext> class_ext
+%type <ival> class_decl 
 %type <class_ext> iface_ext
 %type <program_section> class_section
 %type <stmt_list> statement_list
@@ -176,14 +177,14 @@ program_section
         ;
 
 class_definition
-        : CLASS id_list LBRACE class_body RBRACE
-            { $$ = new_class_def( $2, NULL, $4, EM_lineNum ); }
-        | CLASS id_list class_ext LBRACE class_body RBRACE 
-            { $$ = new_class_def( $2, $3, $5, EM_lineNum ); }
-        | INTERFACE id_list LBRACE class_body RBRACE
-            { $$ = new_iface_def( $2, NULL, $4, EM_lineNum ); }
-        | INTERFACE id_list iface_ext LBRACE class_body RBRACE
-            { $$ = new_iface_def( $2, $3, $5, EM_lineNum ); }
+        : class_decl CLASS id_list LBRACE class_body RBRACE
+            { $$ = new_class_def( $3, NULL, $5, EM_lineNum ); }
+        | class_decl CLASS id_list class_ext LBRACE class_body RBRACE 
+            { $$ = new_class_def( $3, $4, $6, EM_lineNum ); }
+        | class_decl INTERFACE id_list LBRACE class_body RBRACE
+            { $$ = new_iface_def( $3, NULL, $5, EM_lineNum ); }
+        | class_decl INTERFACE id_list iface_ext LBRACE class_body RBRACE
+            { $$ = new_iface_def( $3, $4, $6, EM_lineNum ); }
         ;
 
 class_ext
@@ -227,6 +228,12 @@ function_definition
             { $$ = new_func_def( $1, $2, $3, $4, $6, NULL, EM_lineNum ); }
         | function_decl static_decl type_decl2 ID LPAREN RPAREN SEMICOLON
             { $$ = new_func_def( $1, $2, $3, $4, NULL, NULL, EM_lineNum ); }
+        ;
+
+class_decl
+        : PUBLIC                            { $$ = ae_key_public; }
+        | PRIVATE                           { $$ = ae_key_private; }
+        |                                   { $$ = ae_key_private; }
         ;
 
 function_decl
