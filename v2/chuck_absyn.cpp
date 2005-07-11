@@ -617,9 +617,11 @@ a_Func_Def new_func_def( ae_Keyword func_decl, ae_Keyword static_decl,
     return a;
 }
 
-a_Class_Def new_class_def( a_Id_List name, a_Class_Ext ext, a_Class_Body body, int pos )
+a_Class_Def new_class_def( ae_Keyword class_decl, a_Id_List name, 
+                           a_Class_Ext ext, a_Class_Body body, int pos )
 {
     a_Class_Def a = (a_Class_Def)checked_malloc( sizeof( struct a_Class_Def_ ) );
+    a->decl = class_decl;
     a->name = name;
     a->ext = ext;
     a->body = body;
@@ -628,9 +630,10 @@ a_Class_Def new_class_def( a_Id_List name, a_Class_Ext ext, a_Class_Body body, i
     return a;
 }
 
-a_Class_Def new_iface_def( a_Id_List name, a_Class_Ext ext, a_Class_Body body, int pos )
+a_Class_Def new_iface_def( ae_Keyword class_decl, a_Id_List name,
+                           a_Class_Ext ext, a_Class_Body body, int pos )
 {
-    a_Class_Def a = new_class_def( name, ext, body, pos );
+    a_Class_Def a = new_class_def( class_decl, name, ext, body, pos );
     a->iface = 1;
     
     return a;
