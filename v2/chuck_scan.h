@@ -38,7 +38,8 @@
 // initialize scan
 t_CKBOOL type_engine_init_scan( Chuck_Env * env );
 // scan a program into the env
-t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog );
+t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog, 
+                                te_HowMuch val = te_do_all );
 // scan a statement
 t_CKBOOL type_engine_scan_stmt( Chuck_Env * env, a_Stmt stmt );
 // scan a class
@@ -46,7 +47,8 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def def );
 // scan an expression
 t_CKBOOL type_engine_scan_exp( Chuck_Env * env, a_Exp exp );
 // scan a program into the env
-t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog );
+t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog,
+                                   te_HowMuch val = te_do_all );
 // scan a class
 t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def def );
 // scan a statement

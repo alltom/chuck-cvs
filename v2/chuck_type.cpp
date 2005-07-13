@@ -331,7 +331,8 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
 // name: type_engine_check_context()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog )
+t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
+                                    te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
 
@@ -348,11 +349,11 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog )
     type_engine_load_context( env, context );
 
     // 1st-scan
-    if( !type_engine_scan_prog( env, prog ) )
+    if( !type_engine_scan_prog( env, prog, how_much ) )
         ret = FALSE;
 
     // 2nd-scan
-    //if( !type_engine_2ndscan_prog( env, prog ) )
+    //if( !type_engine_2ndscan_prog( env, prog, how_much ) )
     //    ret = FALSE;
 
     // go through each of the program sections
@@ -361,16 +362,23 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog )
         switch( prog->section->s_type )
         {
         case ae_section_stmt:
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // check the statements
             ret = type_engine_check_stmt_list( env, prog->section->stmt_list );
             break;
         
         case ae_section_func:
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // check the function definition
             ret = type_engine_check_func_def( env, prog->section->func_def );
             break;
 
         case ae_section_class:
-            // make global
-            // DONE in 1st scan: prog->section->class_def->home = env->global();
+            // if no classes, then skip
+            if( how_much == te_do_no_classes ) break;
+            // check the class definition
             ret = type_engine_check_class_def( env, prog->section->class_def );
             break;
         

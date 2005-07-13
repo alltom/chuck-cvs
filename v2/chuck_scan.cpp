@@ -132,7 +132,8 @@ t_CKBOOL type_engine_scan_init( Chuck_Env * env )
 // name: type_engine_scan_prog()
 // desc: data in env should be ready
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog )
+t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog,
+                                te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
 
@@ -145,14 +146,22 @@ t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog )
         switch( prog->section->s_type )
         {
         case ae_section_stmt:
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // scan the statements
             ret = type_engine_scan_stmt_list( env, prog->section->stmt_list );
             break;
         
         case ae_section_func:
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // scan the function definition
             ret = type_engine_scan_func_def( env, prog->section->func_def );
             break;
 
         case ae_section_class:
+            // if no classes, then skip
+            if( how_much == te_do_no_classes ) break;
             // make global, if marked public
             if( prog->section->class_def->decl == ae_key_public )
             {
@@ -170,7 +179,7 @@ t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog )
                 // remember
                 env->context->public_class_def = prog->section->class_def;
             }
-            // scan it
+            // scan the class definition
             ret = type_engine_scan_class_def( env, prog->section->class_def );
             break;
         
@@ -1583,7 +1592,8 @@ error:
 // name: type_engine_2ndscan_prog()
 // desc: data in env should be ready
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog )
+t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog,
+                                   te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
 
@@ -1596,15 +1606,23 @@ t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog )
         switch( prog->section->s_type )
         {
         case ae_section_stmt:
+            // if classes only, then skip
+            if( how_much == te_do_classes_only ) break;
+            // scan the statements
             ret = type_engine_2ndscan_stmt_list( env, prog->section->stmt_list );
             break;
         
         case ae_section_func:
+            // if classes only, then skip
+            if( how_much == te_do_classes_only ) break;
+            // scan the function definition
             ret = type_engine_2ndscan_func_def( env, prog->section->func_def );
             break;
 
         case ae_section_class:
-            // already placed in npsc, so no need to specify class_def->home
+            // if no classes, then skip
+            if( how_much == te_do_no_classes ) break;
+            // scan the class definition
             ret = type_engine_2ndscan_class_def( env, prog->section->class_def );
             break;
         

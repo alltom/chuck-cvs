@@ -59,6 +59,17 @@ typedef enum {
 
 
 //-----------------------------------------------------------------------------
+// name: enum te_HowMuch
+// desc: how much to scan/type check
+//-----------------------------------------------------------------------------
+typedef enum { 
+    te_do_all, te_do_classes_only, te_do_no_classes
+} te_HowMuch;
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Scope
 // desc: scoping structure
 //-----------------------------------------------------------------------------
@@ -577,7 +588,8 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env );
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
 // type check a context into the env
-t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog );
+t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
+                                    te_HowMuch how_much = te_do_all );
 // type check a statement
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
 // type check an expression

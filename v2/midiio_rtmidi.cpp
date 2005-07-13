@@ -338,7 +338,6 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
     // see if port not already open
     if( device_num >= (t_CKINT)the_mins.capacity() || !the_mins[device_num] )
     {
-
         // allocate the buffer
         CBuffer * cbuf = new CBuffer;
         if( !cbuf->initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
@@ -380,8 +379,8 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
     // get an index into your (you are min here) own buffer, 
     // and a free ticket to your own workshop
     min->m_read_index = min->m_buffer->join( (Chuck_Event *)min->SELF );
-        min->m_device_num = (t_CKUINT)device_num;
-        
+    min->m_device_num = (t_CKUINT)device_num;
+
     // done
     return TRUE;
 }
@@ -579,11 +578,12 @@ t_CKBOOL out_detach( );
 t_CKBOOL midirw_detach( )
 {
     std::map<MidiRW *, MidiRW *>::iterator iter;
-    
+    std::vector<MidiRW *> list;
+
     for( iter = g_rw.begin(); iter != g_rw.end(); iter++ )
-    {
-        (*iter).second->close();
-    }
+        list.push_back( (*iter).second );
+    for( t_CKUINT i = 0; i < list.size(); i++ )
+        list[i]->close();
 
     return out_detach( );
 }
@@ -668,11 +668,12 @@ static std::map<MidiMsgOut *, MidiMsgOut *> g_out;
 t_CKBOOL out_detach( )
 {
     std::map<MidiMsgOut *, MidiMsgOut *>::iterator iter;
-    
+    std::vector<MidiMsgOut *> list;
+
     for( iter = g_out.begin(); iter != g_out.end(); iter++ )
-    {
-        (*iter).second->close();
-    }
+        list.push_back( (*iter).second );
+    for( t_CKUINT i = 0; i < list.size(); i++ )
+        list[i]->close();
     
     return TRUE;
 }
