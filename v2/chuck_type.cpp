@@ -315,11 +315,29 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
 {
     t_CKBOOL ret = TRUE;
 
+    // reset the env
+    env->reset();
+
+    // check the context
+    ret = type_engine_check_context( env, prog );
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_context()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog )
+{
+    t_CKBOOL ret = TRUE;
+
     if( !prog )
         return FALSE;
 
-    // reset the env
-    env->reset();
     // each parse tree corresponds to a chuck context
     Chuck_Context * context = new Chuck_Context;
     // add reference

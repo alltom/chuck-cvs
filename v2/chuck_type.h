@@ -576,6 +576,8 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context );
 t_CKBOOL type_engine_unload_context( Chuck_Env * env );
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
+// type check a context into the env
+t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog );
 // type check a statement
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
 // type check an expression
