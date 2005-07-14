@@ -587,7 +587,9 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context );
 t_CKBOOL type_engine_unload_context( Chuck_Env * env );
 
 // parse and type check program
-t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename );
+t_CKBOOL parse_and_check_prog( Chuck_Env * env, 
+                               const string & filename, FILE * fd = NULL );
+
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog, 
                                  const string & filename );

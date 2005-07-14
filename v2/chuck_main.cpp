@@ -154,16 +154,26 @@ void signal_pipe( int sig_num )
 
 
 //-----------------------------------------------------------------------------
+// name: parse()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL parse( const char * filename, FILE * fd )
+{
+    // parse
+    return chuck_parse( filename, fd );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_check()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_check( Chuck_Env * env, a_Program prog, const string & filename )
+t_CKBOOL type_check( Chuck_Env * env, const string & filename )
 {
-    // type check it
-    if( !type_engine_check_prog( env, prog, filename ) )
-        return FALSE;
-
-    return TRUE;
+    // parse and type check it
+    return parse_and_check_prog( env, filename );
 }
 
 
@@ -504,7 +514,7 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
             return 1;
 
         // type check
-        if( !type_check( g_env, g_program, msg->buffer ) )
+        if( !type_check( g_env, msg->buffer ) )
             return 1;
 
         // emit
@@ -936,12 +946,8 @@ int main( int argc, char ** argv )
             continue;
         }
     
-        // parse
-        if( !chuck_parse( argv[i] ) )
-            return 1;
-
-        // type check
-        if( !type_check( g_env, g_program, argv[1] ) )
+        // parse and type check
+        if( !type_check( g_env, argv[1] ) )
             return 1;
 
         // emit

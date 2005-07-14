@@ -312,12 +312,13 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 // name: parse_and_check_prog()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename )
+t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename,
+                               FILE * fd )
 {
     t_CKBOOL ret = TRUE;
 
     // parse the code
-    ret = chuck_parse( filename.c_str() );
+    ret = chuck_parse( filename.c_str(), fd );
 
     // check the program
     ret = type_engine_check_prog( env, g_program, filename );
