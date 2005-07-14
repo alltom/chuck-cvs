@@ -942,7 +942,7 @@ int main( int argc, char ** argv )
             
             continue;
         }
-    
+
         // parse and type check
         if( !parse_and_type_check( g_env, argv[i], NULL ) )
             return 1;
