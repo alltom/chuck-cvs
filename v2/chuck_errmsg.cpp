@@ -39,24 +39,29 @@
 #include "chuck_errmsg.h"
 
 
-t_CKBOOL anyErrors= FALSE;
-static c_str fileName = "";
-static int lineNum = 1;
+// global
 int EM_tokPos = 0;
 int EM_lineNum = 1;
+t_CKBOOL anyErrors= FALSE;
+
+// local global
+static c_str fileName = "";
+static int lineNum = 1;
 static char g_buffer[1024] = "";
 static char g_lasterror[1024] = "[chuck]: (no error)";
 
-
+// external
 extern "C" { 
     extern FILE *yyin;
 }
 
 
+// intList
 typedef struct intList {int i; struct intList *rest;} *IntList;
 static IntList linePos=NULL;
 
 
+// constructor
 static IntList intList( int i, IntList rest )
 {
     IntList l = (IntList)checked_malloc(sizeof *l);
@@ -65,6 +70,7 @@ static IntList intList( int i, IntList rest )
 }
 
 
+// new line in lexer
 void EM_newline(void)
 {
     lineNum++;
@@ -73,6 +79,7 @@ void EM_newline(void)
 }
 
 
+// content after rightmost '/'
 const char * mini( const char * str )
 {
     int len = strlen( str );
@@ -82,10 +89,11 @@ const char * mini( const char * str )
 }
 
 
+// [%s]:line(%d).char(%d): 
 void EM_error( int pos, char *message, ... )
 {
     va_list ap;
-    IntList lines = linePos; 
+    IntList lines = linePos;
     int num = lineNum;
 
     anyErrors = TRUE;
@@ -95,10 +103,14 @@ void EM_error( int pos, char *message, ... )
         num--;
     }
 
-    fprintf( stderr, "('%s'):", *fileName ? mini(fileName) : "chuck" );
-    sprintf( g_lasterror, "('%s'):", *fileName ? mini(fileName) : "chuck" );
-    if(lines) fprintf(stderr, "line(%d).char(%d):", num, pos-lines->i );
-    if(lines) { sprintf( g_buffer, "line(%d).char(%d):", num, pos-lines->i ); strcat( g_lasterror, g_buffer ); }
+    fprintf( stderr, "['%s']:", *fileName ? mini(fileName) : "chuck" );
+    sprintf( g_lasterror, "['%s']:", *fileName ? mini(fileName) : "chuck" );
+    if(lines)
+    {
+        fprintf(stderr, "line(%d).char(%d):", num, pos-lines->i );
+        sprintf( g_buffer, "line(%d).char(%d):", num, pos-lines->i );
+        strcat( g_lasterror, g_buffer );
+    }
     fprintf(stderr, " " );
     strcat( g_lasterror, " " );
     va_start(ap, message);
@@ -110,14 +122,19 @@ void EM_error( int pos, char *message, ... )
 }
 
 
+// [%s]:line(%d): 
 void EM_error2( int line, char * message, ... )
 {
     va_list ap;
 
     fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
     sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
-    if(line) fprintf( stderr, "line(%d):", line );
-    if(line) { sprintf( g_buffer, "line(%d):", line ); strcat( g_lasterror, g_buffer ); }
+    if(line)
+    {
+        fprintf( stderr, "line(%d):", line );
+        sprintf( g_buffer, "line(%d):", line );
+        strcat( g_lasterror, g_buffer );
+    }
     fprintf( stderr, " " );
     strcat( g_lasterror, " " );
 
@@ -131,14 +148,19 @@ void EM_error2( int line, char * message, ... )
 }
 
 
+// [%s]:line(%d):
 void EM_error2b( int line, char * message, ... )
 {
     va_list ap;
 
     fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
     sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
-    if(line) fprintf( stderr, "line(%d):", line );
-    if(line) { sprintf( g_buffer, "line(%d):", line ); strcat( g_lasterror, g_buffer ); }
+    if(line)
+    {
+        fprintf( stderr, "line(%d):", line );
+        sprintf( g_buffer, "line(%d):", line );
+        strcat( g_lasterror, g_buffer );
+    }
     fprintf( stderr, " " );
     strcat( g_lasterror, " " );
 
@@ -152,6 +174,7 @@ void EM_error2b( int line, char * message, ... )
 }
 
 
+// 
 void EM_error3( char * message, ... )
 {
     va_list ap;
@@ -169,12 +192,28 @@ void EM_error3( char * message, ... )
 }
 
 
+// prepare new file
 t_CKBOOL EM_reset( c_str fname, FILE * fd )
 {
-    anyErrors = FALSE; fileName = fname ? fname : (c_str)""; lineNum = 1;  EM_lineNum = 1;
+    anyErrors = FALSE;
+    fileName = fname ? fname : (c_str)"";
+    lineNum = 1;
+    EM_lineNum = 1;
+
+    // free the intList
+    IntList curr = NULL;
+    while( linePos )
+    {
+        curr = linePos;
+        linePos = linePos->rest;
+        // free
+        free( curr );
+    }
+
+    // make new intList
     linePos = intList( 0, NULL );
 
-    // if( yyin ) fclose( yyin );
+    // TODO: if( yyin ) fclose( yyin );
     if( fd ) yyin = fd;
     else yyin = fopen( fname, "r" );
     if (!yyin)
@@ -187,6 +226,7 @@ t_CKBOOL EM_reset( c_str fname, FILE * fd )
 }
 
 
+// return last error
 const char * EM_lasterror()
 {
     return g_lasterror;
