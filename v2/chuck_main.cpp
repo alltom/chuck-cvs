@@ -38,6 +38,7 @@
 #include <sys/stat.h>
 #include <time.h>
 
+#include "chuck_parse.h"
 #include "chuck_type.h"
 #include "chuck_emit.h"
 #include "chuck_vm.h"
@@ -92,19 +93,8 @@ int g_port = 8888;
 Chuck_Env * g_env = NULL;
 Chuck_Emitter * g_emitter = NULL;
 t_CKBOOL g_error = FALSE;
-char g_filename[1024] = "";
+
 ck_socket g_sock;
-
-
-// 'C' specification necessary for windows to link properly
-#ifdef __PLATFORM_WIN32__
-  extern "C" a_Program g_program;
-#else
-  extern a_Program g_program;
-#endif
-
-// link with the parser
-extern "C" int yyparse( void );
 
 
 
@@ -164,54 +154,6 @@ void signal_pipe( int sig_num )
 
 
 //-----------------------------------------------------------------------------
-// name: open_cat()
-// desc: ...
-//-----------------------------------------------------------------------------
-FILE * open_cat( c_str fname )
-{
-    FILE * fd = NULL;
-    if( !(fd = fopen( fname, "rb" )) )
-        if( !strstr( fname, ".ck" ) && !strstr( fname, ".CK" ) )
-        {
-            strcat( fname, ".ck" );
-            fd = fopen( fname, "rb" );
-        }
-    return fd;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: parse()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL parse( c_constr fname, FILE * fd = NULL )
-{
-    strcpy( g_filename, fname );
-
-    // test it
-    if( !fd ) {
-        fd = open_cat( g_filename );
-        if( !fd ) strcpy( g_filename, fname );
-    }
-
-    // reset
-    if( EM_reset( g_filename, fd ) == FALSE ) return FALSE;
-
-    // TODO: clean g_program
-    g_program = NULL;
-
-    // parse
-    if( !(yyparse( ) == 0) ) return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: type_check()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -258,14 +200,14 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     strcat( msg.buffer, filename );
 
     // test it
-    fd = open_cat( (char *)msg.buffer );
+    fd = open_cat_ck( (char *)msg.buffer );
     if( !fd )
     {
         fprintf( stderr, "[chuck]: cannot open file '%s' for [%s]...\n", filename, op );
         return FALSE;
     }
             
-    if( !parse( (char *)msg.buffer, fd ) )
+    if( !chuck_parse( (char *)msg.buffer, fd ) )
     {
         fprintf( stderr, "[chuck]: skipping file '%s' for [%s]...\n", filename, op );
         fclose( fd );
@@ -558,7 +500,7 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
         }
         
         // parse
-        if( !parse( msg->buffer, fd ) )
+        if( !chuck_parse( msg->buffer, fd ) )
             return 1;
 
         // type check
@@ -995,7 +937,7 @@ int main( int argc, char ** argv )
         }
     
         // parse
-        if( !parse( argv[i] ) )
+        if( !chuck_parse( argv[i] ) )
             return 1;
 
         // type check

@@ -131,6 +131,10 @@ SOURCE=.\chuck_otf.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_parse.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_scan.cpp
 # End Source File
 # Begin Source File
@@ -292,6 +296,10 @@ SOURCE=.\chuck_oo.h
 # Begin Source File
 
 SOURCE=.\chuck_otf.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\chuck_parse.h
 # End Source File
 # Begin Source File
 
