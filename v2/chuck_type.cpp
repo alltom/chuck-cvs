@@ -315,15 +315,15 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename,
                                FILE * fd )
 {
-    t_CKBOOL ret = TRUE;
-
     // parse the code
-    ret = chuck_parse( filename.c_str(), fd );
+    if( !chuck_parse( filename.c_str(), fd ) )
+        return FALSE;
 
     // check the program
-    ret = type_engine_check_prog( env, g_program, filename );
+    if( !type_engine_check_prog( env, g_program, filename ) )
+        return FALSE;
 
-    return ret;
+    return TRUE;
 }
 
 
@@ -336,15 +336,14 @@ t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename,
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
                                  const string & filename )
 {
-    t_CKBOOL ret = TRUE;
-
     // reset the env
     env->reset();
 
     // check the context
-    ret = type_engine_check_context( env, prog, filename );
+    if( !type_engine_check_context( env, prog, filename ) )
+        return FALSE;
 
-    return ret;
+    return TRUE;
 }
 
 

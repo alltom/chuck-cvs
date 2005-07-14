@@ -944,7 +944,7 @@ int main( int argc, char ** argv )
         }
     
         // parse and type check
-        if( !parse_and_type_check( g_env, argv[1], NULL ) )
+        if( !parse_and_type_check( g_env, argv[i], NULL ) )
             return 1;
 
         // emit
