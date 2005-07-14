@@ -45,7 +45,7 @@ int EM_lineNum = 1;
 t_CKBOOL anyErrors= FALSE;
 
 // local global
-static c_str fileName = "";
+static const char * fileName = "";
 static int lineNum = 1;
 static char g_buffer[1024] = "";
 static char g_lasterror[1024] = "[chuck]: (no error)";
@@ -90,7 +90,7 @@ const char * mini( const char * str )
 
 
 // [%s]:line(%d).char(%d): 
-void EM_error( int pos, char *message, ... )
+void EM_error( int pos, const char * message, ... )
 {
     va_list ap;
     IntList lines = linePos;
@@ -123,7 +123,7 @@ void EM_error( int pos, char *message, ... )
 
 
 // [%s]:line(%d): 
-void EM_error2( int line, char * message, ... )
+void EM_error2( int line, const char * message, ... )
 {
     va_list ap;
 
@@ -149,7 +149,7 @@ void EM_error2( int line, char * message, ... )
 
 
 // [%s]:line(%d):
-void EM_error2b( int line, char * message, ... )
+void EM_error2b( int line, const char * message, ... )
 {
     va_list ap;
 
@@ -175,7 +175,7 @@ void EM_error2b( int line, char * message, ... )
 
 
 // 
-void EM_error3( char * message, ... )
+void EM_error3( const char * message, ... )
 {
     va_list ap;
     
@@ -193,7 +193,7 @@ void EM_error3( char * message, ... )
 
 
 // prepare new file
-t_CKBOOL EM_reset( c_str fname, FILE * fd )
+t_CKBOOL EM_reset( const char * fname, FILE * fd )
 {
     anyErrors = FALSE;
     fileName = fname ? fname : (c_str)"";
@@ -221,8 +221,18 @@ t_CKBOOL EM_reset( c_str fname, FILE * fd )
     else
         fseek( yyin, 0, SEEK_SET );
 
-    EM_lineNum = 1;
     return (yyin != 0);
+}
+
+
+// change file
+void EM_change_file( const char * fname )
+{
+    // set
+    fileName = fname ? fname : (c_str)"";
+    // more set
+    lineNum = 0;
+    EM_lineNum = 0;
 }
 
 

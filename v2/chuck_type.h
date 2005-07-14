@@ -256,7 +256,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
 struct Chuck_Context : public Chuck_VM_Object  
 {
     // src_name
-    string src;
+    string filename;
     // parse tree
     a_Program parse_tree;
     // context namespace
@@ -586,9 +586,11 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context );
 // unload a context after being emitted
 t_CKBOOL type_engine_unload_context( Chuck_Env * env );
 // type check a program into the env
-t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog );
+t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog, 
+                                 const string & filename );
 // type check a context into the env
 t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
+                                    const string & filename,
                                     te_HowMuch how_much = te_do_all );
 // type check a statement
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );

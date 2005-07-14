@@ -215,10 +215,10 @@ t_CKBOOL parse( c_constr fname, FILE * fd = NULL )
 // name: type_check()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_check( Chuck_Env * env, a_Program prog )
+t_CKBOOL type_check( Chuck_Env * env, a_Program prog, const string & filename )
 {
     // type check it
-    if( !type_engine_check_prog( env, prog ) )
+    if( !type_engine_check_prog( env, prog, filename ) )
         return FALSE;
 
     return TRUE;
@@ -562,7 +562,7 @@ extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data 
             return 1;
 
         // type check
-        if( !type_check( g_env, g_program ) )
+        if( !type_check( g_env, g_program, msg->buffer ) )
             return 1;
 
         // emit
@@ -999,7 +999,7 @@ int main( int argc, char ** argv )
             return 1;
 
         // type check
-        if( !type_check( g_env, g_program ) )
+        if( !type_check( g_env, g_program, argv[1] ) )
             return 1;
 
         // emit

@@ -311,7 +311,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 // name: type_engine_check_prog()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
+t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
+                                 const string & filename )
 {
     t_CKBOOL ret = TRUE;
 
@@ -319,7 +320,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
     env->reset();
 
     // check the context
-    ret = type_engine_check_context( env, prog );
+    ret = type_engine_check_context( env, prog, filename );
 
     return ret;
 }
@@ -332,6 +333,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
+                                    const string & filename,
                                     te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
@@ -345,6 +347,8 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
     context->add_ref();
     // save a reference to the parse tree
     context->parse_tree = prog;
+    // set name
+    context->filename = filename;
     // load the context
     type_engine_load_context( env, context );
 

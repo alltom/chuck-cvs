@@ -49,12 +49,13 @@ extern int EM_lineNum;
 
 void EM_newline( );
 
-void EM_error( int, c_str, ... );
-void EM_error2( int, c_str, ... );
-void EM_error2b( int, c_str, ... );
-void EM_error3( c_str, ... );
-void EM_impossible( c_str, ... );
-t_CKBOOL EM_reset( c_str filename, FILE * fd );
+void EM_error( int, c_constr, ... );
+void EM_error2( int, c_constr, ... );
+void EM_error2b( int, c_constr, ... );
+void EM_error3( c_constr, ... );
+void EM_impossible( c_constr, ... );
+t_CKBOOL EM_reset( c_constr filename, FILE * fd );
+void EM_change_file( c_constr filename );
 const char * EM_lasterror();
 
 const char * mini( const char * str );
