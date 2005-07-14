@@ -216,7 +216,7 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
         fprintf( stderr, "[chuck]: cannot open file '%s' for [%s]...\n", filename, op );
         return FALSE;
     }
-            
+
     if( !chuck_parse( (char *)msg.buffer, fd ) )
     {
         fprintf( stderr, "[chuck]: skipping file '%s' for [%s]...\n", filename, op );
