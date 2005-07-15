@@ -38,26 +38,15 @@
 #include <sys/stat.h>
 #include <time.h>
 
-#include "chuck_parse.h"
-#include "chuck_type.h"
-#include "chuck_emit.h"
+#include "chuck_compile.h"
 #include "chuck_vm.h"
 #include "chuck_bbq.h"
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
 #include "chuck_lang.h"
+#include "chuck_otf.h"
 
-#include "ugen_osc.h"
-#include "ugen_xxx.h"
-#include "ugen_filter.h"
 #include "ugen_stk.h"
-#include "ulib_machine.h"
-#include "ulib_math.h"
-#include "ulib_std.h"
-#include "ulib_opsc.h"
-
-//#include "ulib_net.h"
-
 #include "util_thread.h"
 #include "util_network.h"
 
@@ -89,12 +78,10 @@ Chuck_VM * g_vm = NULL;
 CHUCK_THREAD g_tid = 0;
 char g_host[256] = "127.0.0.1";
 int g_port = 8888;
-// ck_socket g_sock;
-Chuck_Env * g_env = NULL;
-Chuck_Emitter * g_emitter = NULL;
-t_CKBOOL g_error = FALSE;
-
 ck_socket g_sock;
+
+// global compiler
+Chuck_Compiler * g_compiler = NULL;
 
 
 
@@ -148,46 +135,6 @@ void signal_pipe( int sig_num )
         stk_detach( 0, NULL );
         exit( 1 );
     }
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: parse()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL parse( const char * filename, FILE * fd )
-{
-    // parse
-    return chuck_parse( filename, fd );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: parse_and_type_check()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL parse_and_type_check( Chuck_Env * env, const string & filename, 
-                               FILE * fd )
-{
-    // parse and type check it
-    return parse_and_check_prog( env, filename, fd );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit()
-// desc: ...
-//-----------------------------------------------------------------------------
-Chuck_VM_Code * emit( Chuck_Emitter * emit, a_Program prog )
-{
-    // emit to vm code
-    return emit_engine_emit_prog( emit, prog );
 }
 
 
@@ -258,39 +205,6 @@ int send_file( const char * filename, Net_Msg & msg, const char * op )
     fclose( fd );
     //fprintf(stderr, "done.\n", msg.buffer );
     return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: recv_file()
-// desc: ...
-//-----------------------------------------------------------------------------
-FILE * recv_file( const Net_Msg & msg, ck_socket sock )
-{
-    Net_Msg buf;
-    
-    // what is left
-    // t_CKUINT left = msg.param2;
-    // make a temp file
-    FILE * fd = tmpfile();
-
-    do {
-        // msg
-        if( !ck_recv( sock, (char *)&buf, sizeof(buf) ) )
-            goto error;
-        otf_ntoh( &buf );
-        // write
-        fwrite( buf.buffer, sizeof(char), buf.length, fd );
-    }while( buf.param2 );
-    
-    return fd;
-
-error:
-    fclose( fd );
-    fd = NULL;
-    return NULL;
 }
 
 
@@ -485,89 +399,6 @@ error:
 
 
 //-----------------------------------------------------------------------------
-// name: process_msg()
-// desc: ...
-//-----------------------------------------------------------------------------
-extern "C" t_CKUINT process_msg( Net_Msg * msg, t_CKBOOL immediate, void * data )
-{
-    Chuck_Msg * cmd = new Chuck_Msg;
-    Chuck_VM_Code * code = NULL;
-    FILE * fd = NULL;
-    t_CKBOOL error = FALSE;
-    
-    // fprintf( stderr, "UDP message recv...\n" );
-    if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
-    {
-        // see if entire file is on the way
-        if( msg->param2 )
-        {
-            fd = recv_file( *msg, (ck_socket)data );
-            if( !fd )
-            {
-                fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
-                    mini(msg->buffer) );
-                return 0;
-            }
-        }
-        
-        // parse and type check
-        if( !parse_and_type_check( g_env, msg->buffer, fd ) )
-            return 1;
-
-        // emit
-        if( !(code = emit( g_emitter, g_program )) )
-        {
-            error = TRUE;
-            goto unload;
-        }
-
-        // name it
-        code->name += string(msg->buffer);
-
-unload:
-
-        // unload the context from the type-checker
-        if( !type_engine_unload_context( g_env ) )
-        {
-            EM_error2( 0, "internal error unloading context...\n" );
-            return 1;
-        }
-
-        if( error )
-            return 1;
-        
-        // set the flags for the command
-        cmd->type = msg->type;
-        cmd->code = code;
-        if( msg->type == MSG_REPLACE )
-            cmd->param = msg->param;
-    }
-    else if( msg->type == MSG_STATUS || msg->type == MSG_REMOVE || msg->type == MSG_REMOVEALL
-             || msg->type == MSG_KILL || msg->type == MSG_TIME )
-    {
-        cmd->type = msg->type;
-        cmd->param = msg->param;
-    }
-    else
-    {
-        fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
-        SAFE_DELETE(cmd);
-        return 0;
-    }
-    
-    // immediate
-    if( immediate )
-        return g_vm->process_msg( cmd );
-
-    g_vm->queue_msg( cmd, 1 );
-
-    return 1;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: cb()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -617,7 +448,7 @@ void * cb( void * p )
         {
             if( g_vm )
             {
-                if( !process_msg( &msg, FALSE, client ) )
+                if( !process_msg( g_vm, g_compiler, &msg, FALSE, client ) )
                 {
                     ret.param = FALSE;
                     strcpy( (char *)ret.buffer, EM_lasterror() );
@@ -659,85 +490,6 @@ t_CKUINT next_power_2( t_CKUINT n )
     t_CKUINT nn = n;
     for( ; n &= n-1; nn = n );
     return nn * 2;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: load_module()
-// desc: load a dll and add it
-//-----------------------------------------------------------------------------
-t_CKBOOL load_module( Chuck_Env * env, f_ck_query query, 
-                      const char * name, const char * nspc )
-{
-    Chuck_DLL * dll = NULL;
-    
-    // load osc
-    dll = new Chuck_DLL( name );
-    dll->load( query );
-    if( !dll->query() || !type_engine_add_dll( env, dll, nspc ) )
-    {
-        fprintf( stderr, 
-                 "[chuck]: internal error loading module '%s.%s'...\n", 
-                 nspc, name );
-        if( !dll->query() )
-            fprintf( stderr, "       %s\n", dll->last_error() );
-
-        g_error = TRUE;
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: load_internal_modules()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL load_internal_modules( Chuck_Env * env )
-{
-    // make context
-    Chuck_Context * context = new Chuck_Context;
-    // add ref
-    context->add_ref();
-    // load it
-    type_engine_load_context( env, context );
-
-    // load
-    load_module( env, osc_query, "osc", "global" );
-    load_module( env, xxx_query, "xxx", "global" );
-    load_module( env, filter_query, "filter", "global" );
-    load_module( env, stk_query, "stk", "global" );
-
-    // load
-    if( !load_module( env, machine_query, "Machine", "global" ) ) goto error;
-    machine_init( g_vm, process_msg );
-    if( !load_module( env, libstd_query, "Std", "global" ) ) goto error;
-    if( !load_module( env, libmath_query, "Math", "global" ) ) goto error;
-    if( !load_module( env, opensoundcontrol_query, "opsc", "global" ) ) goto error;
-    // if( !load_module( env, net_query, "net", "global" ) ) goto error;
-
-    if( !init_class_Midi( env ) ) goto error;
-    if( !init_class_MidiRW( env ) ) goto error;
-
-    // clear context
-    type_engine_unload_context( env );
-
-    // commit what is in the type checker at this point
-    env->global()->commit();
-    
-    return TRUE;
-
-error:
-
-    // clear context
-    type_engine_unload_context( env );
-
-    return FALSE;
 }
 
 
@@ -787,8 +539,7 @@ void usage()
 //-----------------------------------------------------------------------------
 int main( int argc, char ** argv )
 {
-    Chuck_Env * env = NULL;
-    Chuck_Emitter * emitter = NULL;
+    Chuck_Compiler * compiler = NULL;
     Chuck_VM_Code * code = NULL;
     Chuck_VM_Shred * shred = NULL;
     
@@ -910,14 +661,12 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-    // allocate the type checker
-    env = g_env = type_engine_init( vm );
-    // allocate the emitter
-    emitter = g_emitter = emit_engine_init( env );
+    // allocate the compiler
+    compiler = g_compiler = new Chuck_Compiler;
+    // initialize the compiler
+    compiler->initialize( vm );
     // enable dump
-    emitter->dump = dump;
-    // load internal libs
-    if( !load_internal_modules( env ) ) exit( 1 );
+    compiler->emitter->dump = dump;
 
     // vm synthesis subsystem - needs the type system
     vm->initialize_synthesis( );
@@ -936,33 +685,24 @@ int main( int argc, char ** argv )
         if( argv[i][0] == '-' || argv[i][0] == '+' )
         {
             if( !strcmp(argv[i], "--dump") || !strcmp(argv[i], "+d" ) )
-                emitter->dump = TRUE;
+                compiler->emitter->dump = TRUE;
             else if( !strcmp(argv[i], "--nodump") || !strcmp(argv[i], "-d" ) )
-                emitter->dump = FALSE;
+                compiler->emitter->dump = FALSE;
             
             continue;
         }
 
-        // parse and type check
-        if( !parse_and_type_check( g_env, argv[i], NULL ) )
+        // parse, type-check, and emit
+        if( !compiler->go( argv[i], NULL ) )
             return 1;
 
-        // emit
-        if( !(code = emit( emitter, g_program )) )
-            return 1;
-
+        // get the code
+        code = compiler->output();
         // name it
         code->name += string("'") + argv[i] + "'";
 
         // spork it
         shred = vm->spork( code, NULL );
-
-        // unload the context from the type-checker
-        if( !type_engine_unload_context( env ) )
-        {
-            EM_error2( 0, "internal error unloading context...\n" );
-            return 1;
-        }
     }
 
     // start tcp server
@@ -985,11 +725,13 @@ int main( int argc, char ** argv )
     // run the vm
     vm->run();
 
+    // close all file handles in stk
+    stk_detach( 0, NULL );
+
     // free vm
     SAFE_DELETE( vm );
-    stk_detach( 0, NULL );
-    // TODO: clean env
-    // TODO: clean emitter
+    // free the compiler
+    SAFE_DELETE( compiler );
 
     return 0;
 }

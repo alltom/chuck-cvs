@@ -264,7 +264,9 @@ struct Chuck_Context : public Chuck_VM_Object
     // public class def if any
     a_Class_Def public_class_def;
     // error - means to free nspc too
-    t_CKBOOL has_error;  
+    t_CKBOOL has_error;
+    // progress in scan / type check
+    // t_CKUINT progress;
 
     // things to release with the context
     std::vector<Chuck_VM_Object *> new_types;
@@ -310,8 +312,9 @@ private:
     static Chuck_Env * our_instance;
     // constructor
     Chuck_Env( )
-    { vm = NULL; context = &global_context; 
-      global_nspc = global_context.nspc; this->reset(); }
+    { context = &global_context; 
+      global_nspc = global_context.nspc;
+      this->reset(); }
 
 protected:
     // global namespace
@@ -344,7 +347,7 @@ public:
     vector<a_Stmt> breaks;
 
     // VM reference
-    Chuck_VM * vm;
+    // Chuck_VM * vm;
     // chuck dlls in memory
     // map<Chuck_DLL *, t_CKUINT> dlls;
 
@@ -585,10 +588,6 @@ void type_engine_shutdown( Chuck_Env * env );
 t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context );
 // unload a context after being emitted
 t_CKBOOL type_engine_unload_context( Chuck_Env * env );
-
-// parse and type check program
-t_CKBOOL parse_and_check_prog( Chuck_Env * env, 
-                               const string & filename, FILE * fd = NULL );
 
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog, 

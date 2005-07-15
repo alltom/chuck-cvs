@@ -30,8 +30,9 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Autumn 2004
 //-----------------------------------------------------------------------------
-
 #include "chuck_otf.h"
+#include "chuck_compile.h"
+#include "chuck_errmsg.h"
 #include "util_network.h"
 
 
@@ -66,6 +67,105 @@ void otf_ntoh( Net_Msg * msg )
     msg->param2 = ntohl( msg->param2 );
     msg->param3 = ntohl( msg->param3 );
     msg->length = ntohl( msg->length );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: recv_file()
+// desc: ...
+//-----------------------------------------------------------------------------
+FILE * recv_file( const Net_Msg & msg, ck_socket sock )
+{
+    Net_Msg buf;
+    
+    // what is left
+    // t_CKUINT left = msg.param2;
+    // make a temp file
+    FILE * fd = tmpfile();
+
+    do {
+        // msg
+        if( !ck_recv( sock, (char *)&buf, sizeof(buf) ) )
+            goto error;
+        otf_ntoh( &buf );
+        // write
+        fwrite( buf.buffer, sizeof(char), buf.length, fd );
+    }while( buf.param2 );
+    
+    return fd;
+
+error:
+    fclose( fd );
+    fd = NULL;
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: process_msg()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKUINT process_msg( Chuck_VM * vm, Chuck_Compiler * compiler, 
+                      Net_Msg * msg, t_CKBOOL immediate, void * data )
+{
+    Chuck_Msg * cmd = new Chuck_Msg;
+    Chuck_VM_Code * code = NULL;
+    FILE * fd = NULL;
+    
+    // fprintf( stderr, "UDP message recv...\n" );
+    if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
+    {
+        // see if entire file is on the way
+        if( msg->param2 )
+        {
+            fd = recv_file( *msg, (ck_socket)data );
+            if( !fd )
+            {
+                fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
+                    mini(msg->buffer) );
+                return 0;
+            }
+        }
+
+        // parse, type-check, and emit
+        if( !compiler->go( msg->buffer, fd ) )
+            return 0;
+
+        // get the code
+        code = compiler->output();
+        // name it
+        code->name += string(msg->buffer);
+
+        // set the flags for the command
+        cmd->type = msg->type;
+        cmd->code = code;
+        if( msg->type == MSG_REPLACE )
+            cmd->param = msg->param;
+    }
+    else if( msg->type == MSG_STATUS || msg->type == MSG_REMOVE || msg->type == MSG_REMOVEALL
+             || msg->type == MSG_KILL || msg->type == MSG_TIME )
+    {
+        cmd->type = msg->type;
+        cmd->param = msg->param;
+    }
+    else
+    {
+        fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
+        SAFE_DELETE(cmd);
+        return 0;
+    }
+    
+    // immediate
+    if( immediate )
+        return vm->process_msg( cmd );
+
+    vm->queue_msg( cmd, 1 );
+
+    return 1;
 }
 
 

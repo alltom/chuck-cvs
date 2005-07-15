@@ -155,8 +155,6 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     Chuck_Env * env = Chuck_Env::instance();
     // add
     env->add_ref();
-    // set the VM reference
-    env->vm = vm;
     // set the name of global namespace
     env->global()->name = "global";
     // set the current namespace to global
@@ -303,27 +301,6 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->global()->commit();
 
     return env;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: parse_and_check_prog()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename,
-                               FILE * fd )
-{
-    // parse the code
-    if( !chuck_parse( filename.c_str(), fd ) )
-        return FALSE;
-
-    // check the program
-    if( !type_engine_check_prog( env, g_program, filename ) )
-        return FALSE;
-
-    return TRUE;
 }
 
 

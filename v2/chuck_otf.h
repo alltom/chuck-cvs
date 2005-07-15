@@ -34,7 +34,6 @@
 #define __CHUCK_OTF_H__
 
 #include "chuck_def.h"
-// #include "chuck_vm.h"
 #include <memory.h>
 
 
@@ -42,6 +41,9 @@
 #define NET_HEADER      0x8c8cc8c8
 // buffer size
 #define NET_BUFFER_SIZE 512
+// forward
+struct Chuck_VM;
+struct Chuck_Compiler;
 
 
 //-----------------------------------------------------------------------------
@@ -68,7 +70,9 @@ struct Net_Msg
 void otf_hton( Net_Msg * msg );
 // network to host
 void otf_ntoh( Net_Msg * msg );
-
+// process incoming message
+t_CKUINT process_msg( Chuck_VM * vm, Chuck_Compiler * compiler, 
+                      Net_Msg * msg, t_CKBOOL immediate, void * data );
 
 extern const char * poop[];
 extern long poop_size;
