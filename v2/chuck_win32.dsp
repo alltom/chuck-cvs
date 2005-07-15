@@ -95,6 +95,10 @@ SOURCE=.\chuck_bbq.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_compile.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_dl.cpp
 # End Source File
 # Begin Source File
@@ -260,6 +264,10 @@ SOURCE=.\chuck_absyn.h
 # Begin Source File
 
 SOURCE=.\chuck_bbq.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\chuck_compile.h
 # End Source File
 # Begin Source File
 
