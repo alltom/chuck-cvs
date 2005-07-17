@@ -34,14 +34,11 @@
 //-----------------------------------------------------------------------------
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <time.h>
 
 #include "chuck_compile.h"
 #include "chuck_vm.h"
 #include "chuck_bbq.h"
-#include "chuck_utils.h"
 #include "chuck_errmsg.h"
 #include "chuck_lang.h"
 #include "chuck_otf.h"
@@ -74,14 +71,36 @@
 #else
   t_CKINT g_priority = 0x7fffffff;
 #endif
-Chuck_VM * g_vm = NULL;
-CHUCK_THREAD g_tid = 0;
-char g_host[256] = "127.0.0.1";
-int g_port = 8888;
-ck_socket g_sock;
 
+// global virtual machine
+Chuck_VM * g_vm = NULL;
 // global compiler
 Chuck_Compiler * g_compiler = NULL;
+
+// thread id for second thread
+CHUCK_THREAD g_tid = 0;
+
+// default destination host name
+char g_host[256] = "127.0.0.1";
+// default destination host port
+int g_port = 8888;
+// default socket
+ck_socket g_sock = NULL;
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: all_detach()
+// desc: called during cleanup to close all open file handles
+//-----------------------------------------------------------------------------
+extern "C" void all_detach()
+{
+    // close stk file handles
+    stk_detach( 0, NULL );
+    // close midi file handles
+    midirw_detach();
+}
 
 
 
@@ -90,7 +109,7 @@ Chuck_Compiler * g_compiler = NULL;
 // name: signal_int()
 // desc: ...
 //-----------------------------------------------------------------------------
-void signal_int( int sig_num )
+extern "C" void signal_int( int sig_num )
 {
     fprintf( stderr, "[chuck]: cleaning up...\n" );
 
@@ -99,8 +118,8 @@ void signal_int( int sig_num )
         Chuck_VM * vm = g_vm;
         g_vm = NULL;
         vm->stop();
-        stk_detach( 0, NULL );
-        midirw_detach( );
+        // detach
+        all_detach();
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
         if( g_tid ) pthread_cancel( g_tid );
@@ -109,11 +128,11 @@ void signal_int( int sig_num )
 #else
         CloseHandle( g_tid );
 #endif
-//        ck_close( g_sock );
+        // ck_close( g_sock );
     }
 
 #ifndef __PLATFORM_WIN32__
-//    pthread_join( g_tid, NULL );
+    // pthread_join( g_tid, NULL );
 #endif
     
     exit(2);
@@ -127,354 +146,14 @@ t_CKUINT g_sigpipe_mode = 0;
 // name: signal_pipe()
 // desc: ...
 //-----------------------------------------------------------------------------
-void signal_pipe( int sig_num )
+extern "C" void signal_pipe( int sig_num )
 {
     fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (no connection)...\n" );
     if( g_sigpipe_mode )
     {
-        stk_detach( 0, NULL );
-        exit( 1 );
+        all_detach();
+        exit( 2 );
     }
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: send_file()
-// desc: ...
-//-----------------------------------------------------------------------------
-int send_file( const char * filename, Net_Msg & msg, const char * op )
-{
-    FILE * fd = NULL;
-    struct stat fs;
-    
-    strcpy( msg.buffer, "" );
-    //if( filename[0] != '/' )
-    //{ 
-    //    strcpy( msg.buffer, getenv("PWD") ? getenv("PWD") : "" );
-    //    strcat( msg.buffer, getenv("PWD") ? "/" : "" );
-    //}
-    strcat( msg.buffer, filename );
-
-    // test it
-    fd = open_cat_ck( (char *)msg.buffer );
-    if( !fd )
-    {
-        fprintf( stderr, "[chuck]: cannot open file '%s' for [%s]...\n", filename, op );
-        return FALSE;
-    }
-
-    if( !chuck_parse( (char *)msg.buffer, fd ) )
-    {
-        fprintf( stderr, "[chuck]: skipping file '%s' for [%s]...\n", filename, op );
-        fclose( fd );
-        return FALSE;
-    }
-            
-    // stat it
-    stat( msg.buffer, &fs );
-    fseek( fd, 0, SEEK_SET );
-
-    //fprintf(stderr, "sending TCP file %s\n", msg.buffer );
-    // send the first packet
-    msg.param2 = (t_CKUINT)fs.st_size;
-    msg.length = 0;
-    otf_hton( &msg );
-    ck_send( g_sock, (char *)&msg, sizeof(msg) );
-
-    // send the whole thing
-    t_CKUINT left = (t_CKUINT)fs.st_size;
-    while( left )
-    {
-        //fprintf(stderr,"file %03d bytes left ... ", left);
-        // amount to send
-        msg.length = left > NET_BUFFER_SIZE ? NET_BUFFER_SIZE : left;
-        // read
-        msg.param3 = fread( msg.buffer, sizeof(char), msg.length, fd );
-        // amount left
-        left -= msg.param3 ? msg.param3 : 0;
-        msg.param2 = left;
-        //fprintf(stderr, "sending fread %03d length %03d...\n", msg.param3, msg.length );
-        // send it
-        otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    }
-    
-    // close
-    fclose( fd );
-    //fprintf(stderr, "done.\n", msg.buffer );
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: send_connect()
-// desc: ...
-//-----------------------------------------------------------------------------
-int send_connect()
-{
-    g_sock = ck_tcp_create( 0 );
-    if( !g_sock )
-    {
-        fprintf( stderr, "[chuck]: cannot open socket to send command...\n" );
-        return FALSE;
-    }
-
-    if( strcmp( g_host, "127.0.0.1" ) )
-        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
-    
-    if( !ck_connect( g_sock, g_host, g_port ) )
-    {
-        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
-        return FALSE;
-    }
-    
-    ck_send_timeout( g_sock, 0, 2000000 );
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: send_cmd()
-// desc: ...
-//-----------------------------------------------------------------------------
-int send_cmd( int argc, char ** argv, t_CKINT & i )
-{
-    Net_Msg msg;
-    g_sigpipe_mode = 1;
-    int tasks_total = 0, tasks_done = 0;
-    
-    if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
-    {
-        if( ++i >= argc )
-        {
-            fprintf( stderr, "[chuck]: not enough arguments following [add]...\n" );
-            goto error;
-        }
-
-        if( !send_connect() ) return 0;
-        do {
-            msg.type = MSG_ADD;
-            msg.param = 1;
-            tasks_done += send_file( argv[i], msg, "add" );
-            tasks_total++;
-        } while( ++i < argc );
-        
-        if( !tasks_done )
-            goto error;
-    }
-    else if( !strcmp( argv[i], "--remove" ) || !strcmp( argv[i], "-" ) )
-    {
-        if( ++i >= argc )
-        {
-            fprintf( stderr, "[chuck]: not enough arguments following [remove]...\n" );
-            goto error;
-        }
-
-        if( !send_connect() ) return 0;
-        do {
-            msg.param = atoi( argv[i] );
-            msg.type = MSG_REMOVE;
-            otf_hton( &msg );
-            ck_send( g_sock, (char *)&msg, sizeof(msg) );
-        } while( ++i < argc );
-    }
-    else if( !strcmp( argv[i], "--" ) )
-    {
-        if( !send_connect() ) return 0;
-        msg.param = 0xffffffff;
-        msg.type = MSG_REMOVE;
-        otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    }
-    else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
-    {
-        if( ++i >= argc )
-        {
-            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
-            goto error;
-        }
-
-        if( i <= 0 )
-            msg.param = 0xffffffff;
-        else
-            msg.param = atoi( argv[i] );
-
-        if( ++i >= argc )
-        {
-            fprintf( stderr, "[chuck]: not enough arguments following [replace]...\n" );
-            goto error;
-        }
-
-        if( !send_connect() ) return 0;
-        msg.type = MSG_REPLACE;
-        if( !send_file( argv[i], msg, "replace" ) )
-            goto error;
-    }
-    else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
-    {
-        if( !send_connect() ) return 0;
-        msg.type = MSG_REMOVEALL;
-        msg.param = 0;
-        otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    }
-    else if( !strcmp( argv[i], "--kill" ) )
-    {
-        if( !send_connect() ) return 0;
-        msg.type = MSG_REMOVEALL;
-        msg.param = 0;
-        otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-        msg.type = MSG_KILL;
-        msg.param = (i+1)<argc ? atoi(argv[++i]) : 0;
-        otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    }
-    else if( !strcmp( argv[i], "--time" ) )
-    {
-        if( !send_connect() ) return 0;
-        msg.type = MSG_TIME;
-        msg.param = 0;
-        otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    }
-    else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
-    {
-        if( !send_connect() ) return 0;
-        msg.type = MSG_STATUS;
-        msg.param = 0;
-        otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    }
-    else
-        return 0;
-        
-    // send
-    msg.type = MSG_DONE;
-    otf_hton( &msg );
-    ck_send( g_sock, (char *)&msg, sizeof(msg) );
-
-    // set timeout
-    ck_recv_timeout( g_sock, 0, 2000000 );
-    // reply
-    if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
-    {
-        otf_ntoh( &msg );
-        fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
-        if( !msg.param )
-            fprintf( stderr, "(reason): %s\n", 
-                ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) ) ;
-    }
-    else
-    {
-        fprintf( stderr, "[chuck]: remote operation timed out...\n" );
-    }
-    // close the sock
-    ck_close( g_sock );
-    
-    // exit
-    exit( msg.param );
-
-    return 1;
-    
-error:
-    msg.type = MSG_DONE;
-    otf_hton( &msg );
-    ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    ck_close( g_sock );
-    
-    exit( 1 );
-
-    return 0;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: cb()
-// desc: ...
-//-----------------------------------------------------------------------------
-void * cb( void * p )
-{
-    Net_Msg msg;
-    Net_Msg ret;
-    ck_socket client;
-    int n;
-
-#ifndef __PLATFORM_WIN32__
-    // catch SIGPIPE
-    signal( SIGPIPE, signal_pipe );
-#endif
-
-    while( true )
-    {
-        client = ck_accept( g_sock );
-        if( !client )
-        {
-            if( g_vm ) fprintf( stderr, "[chuck]: socket error during accept()...\n" );
-            usleep( 40000 );
-            ck_close( client );
-            continue;
-        }
-        msg.clear();
-        // set time out
-        ck_recv_timeout( client, 0, 5000000 );
-        n = ck_recv( client, (char *)&msg, sizeof(msg) );
-        otf_ntoh( &msg );
-        if( n != sizeof(msg) )
-        {
-            fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
-            usleep( 40000 );
-            ck_close( client );
-            continue;
-        }
-        
-        if( msg.header != NET_HEADER )
-        {
-            fprintf( stderr, "[chuck]: header mismatch - possible endian lunacy...\n" );
-            ck_close( client );
-            continue;
-        }
-
-        while( msg.type != MSG_DONE )
-        {
-            if( g_vm )
-            {
-                if( !process_msg( g_vm, g_compiler, &msg, FALSE, client ) )
-                {
-                    ret.param = FALSE;
-                    strcpy( (char *)ret.buffer, EM_lasterror() );
-                    while( msg.type != MSG_DONE && n )
-                    {
-                        n = ck_recv( client, (char *)&msg, sizeof(msg) );
-                        otf_ntoh( &msg );
-                    }
-                    break;
-                }
-                else
-                {
-                    ret.param = TRUE;
-                    strcpy( (char *)ret.buffer, "success" );
-                    n = ck_recv( client, (char *)&msg, sizeof(msg) );
-                    otf_ntoh( &msg );
-                }
-            }
-        }
-        
-        otf_hton( &ret );
-        ck_send( client, (char *)&ret, sizeof(ret) );
-        ck_close( client );
-    }
-    
-    return NULL;
 }
 
 
@@ -540,6 +219,7 @@ void usage()
 int main( int argc, char ** argv )
 {
     Chuck_Compiler * compiler = NULL;
+    Chuck_VM * vm = NULL;
     Chuck_VM_Code * code = NULL;
     Chuck_VM_Shred * shred = NULL;
     
@@ -611,7 +291,7 @@ int main( int argc, char ** argv )
                 usage();
                 exit( 2 );
             }
-            else if(( a = send_cmd( argc, argv, i ) ))
+            else if(( a = otf_send_cmd( argc, argv, i ) ))
                 exit( 0 );
             else
             {
@@ -653,7 +333,7 @@ int main( int argc, char ** argv )
     }
 
     // allocate the vm - needs the type system
-    Chuck_VM * vm = g_vm = new Chuck_VM;
+    vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
                          num_buffers, dac, adc, g_priority ) )
     {
@@ -716,17 +396,17 @@ int main( int argc, char ** argv )
     else
     {
 #ifndef __PLATFORM_WIN32__
-        pthread_create( &g_tid, NULL, cb, NULL );
+        pthread_create( &g_tid, NULL, otf_cb, NULL );
 #else
-        g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)cb, NULL, 0, 0);
+        g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0);
 #endif
     }
 
     // run the vm
     vm->run();
 
-    // close all file handles in stk
-    stk_detach( 0, NULL );
+    // detach
+    all_detach();
 
     // free vm
     SAFE_DELETE( vm );

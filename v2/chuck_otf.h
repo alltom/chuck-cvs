@@ -70,9 +70,21 @@ struct Net_Msg
 void otf_hton( Net_Msg * msg );
 // network to host
 void otf_ntoh( Net_Msg * msg );
+
 // process incoming message
-t_CKUINT process_msg( Chuck_VM * vm, Chuck_Compiler * compiler, 
-                      Net_Msg * msg, t_CKBOOL immediate, void * data );
+t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler, 
+                          Net_Msg * msg, t_CKBOOL immediate, void * data );
+
+// send command
+int otf_send_cmd( int argc, char ** argv, t_CKINT & i );
+// send file to remote host
+int otf_send_file( const char * filename, Net_Msg & msg, const char * op );
+// connect
+int otf_send_connect();
+
+// callback
+void * otf_cb( void * p );
+
 
 extern const char * poop[];
 extern long poop_size;

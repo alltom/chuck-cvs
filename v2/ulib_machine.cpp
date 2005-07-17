@@ -99,6 +99,8 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
 
 
 
+
+extern Chuck_VM * g_vm;
 static Chuck_VM * the_vm = NULL;
 static Chuck_Compiler * the_compiler = NULL;
 static proc_msg_func the_func = NULL;
@@ -108,6 +110,7 @@ static proc_msg_func the_func = NULL;
 //-----------------------------------------------------------------------------
 t_CKBOOL machine_init( Chuck_Compiler * compiler, proc_msg_func proc_msg )
 {
+    the_vm = g_vm;
     the_compiler = compiler;
     the_func = proc_msg;
 

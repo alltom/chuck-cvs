@@ -44,7 +44,6 @@
 #include "ulib_std.h"
 #include "ulib_opsc.h"
 
-//#include "ulib_net.h"
 
 
 
@@ -222,7 +221,7 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
 
     // load
     if( !load_module( env, machine_query, "Machine", "global" ) ) goto error;
-    machine_init( compiler, process_msg );
+    machine_init( compiler, otf_process_msg );
     if( !load_module( env, libstd_query, "Std", "global" ) ) goto error;
     if( !load_module( env, libmath_query, "Math", "global" ) ) goto error;
     if( !load_module( env, opensoundcontrol_query, "opsc", "global" ) ) goto error;
