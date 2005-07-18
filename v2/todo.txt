@@ -6,12 +6,12 @@ todo
   - optimize reduce if static
 
 class library:
-- string
-- array
-- OSC event
-- exception
+- string (done)
+- array (done)
+- OSC event (done)
+- exception (done)
 - ugen
-  - make it work
+  - make it work (done)
   - stereo
   - multichannel
 - IO
@@ -26,11 +26,10 @@ string
 
 objects
   - obj_size
-  - self_size
   - virtual table
-  - global classes
-  - function overloading
-  - instantiation
+  - global classes (done)
+  - function overloading (done)
+  - instantiation (done)
   - constructors
   - destructor
 
@@ -38,10 +37,9 @@ Bugs
 - none
 
 - Midi files (Miaiy!be)
-- string
 - Wvout
 - shred
-- boost cb priority
+- boost cb priority (done)
 - update todo (doing) //(done)
 
 done - dot member
@@ -53,9 +51,9 @@ done - overload functions
 
 class library
 done - object
-done -   -Event
-	  - MIDI
-	  - other shreds
+done - Event
+       - MIDI
+       - other shreds
 
 done - MidiIn and MidiOut classes 
 done - multimidi
