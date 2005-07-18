@@ -65,3 +65,64 @@ done - <<<Adam>>>;
 done - Ajay$int
 
 bye.
+
+
+for( each f in files )
+{
+    do_entire_file( f );
+}
+
+do_entire_file( file f )
+{
+    Context context;
+    // look up in recent table
+    if( recent.find( f.path ) )
+    {
+        context = recent.find( f.path );
+        if( context.progress == classes_only )
+        {
+            check_context( env, context, all_except_classes );
+            context.progress = all;
+        }
+        else if( context.progress == all )
+        {
+            // do nothing?
+        }
+        else
+        {
+            internal error
+        }
+    }
+    else // can't find the context
+    {
+        check_context( env, f, all );
+        return false on error?
+        context.progress = all;
+        add to recent table;
+    }
+
+    if( context.emit_progess == ? )
+        // emit the thing
+
+    // unload context?
+}
+
+do_just_classes( file f )
+{
+    Context context;
+    // look up in recent table
+    if( recent.find( f.path ) )
+    {
+        // nothing
+    }
+    else // can't find the context
+    {
+        check_context( env, f, all );
+        return false on error?
+        context.progress = class_only;
+    }
+
+    if( context.emit_progress == ? )
+        // emit just the classes
+}
+
