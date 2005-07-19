@@ -413,7 +413,7 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
         // flag the context with error, so more stuff gets deleted
         env->context->has_error = TRUE;
         // remove the context
-        type_engine_unload_context( env );
+        // type_engine_unload_context( env );
     }
 
     return ret;
