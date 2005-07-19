@@ -134,8 +134,12 @@ t_CKBOOL Chuck_Compiler::go( const string & filename, FILE * fd )
 {
     t_CKBOOL ret = TRUE;
 
-    // parse and type check
-    if( !parse_and_check_prog( env, filename, fd ) )
+    // parse the code
+    if( !chuck_parse( filename.c_str(), fd ) )
+        return FALSE;
+
+    // check the program
+    if( !type_engine_check_prog( env, g_program, filename ) )
     { ret = FALSE; goto cleanup; }
 
     // emit
