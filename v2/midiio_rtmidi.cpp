@@ -44,7 +44,7 @@
 //-----------------------------------------------------------------------------
 // global variables
 //-----------------------------------------------------------------------------
-#define BUFFER_SIZE 8192
+#define BUFFER_SIZE 128
 
 std::vector<RtMidiIn *> MidiInManager::the_mins;
 std::vector<CBuffer *> MidiInManager::the_bufs;

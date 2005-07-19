@@ -197,6 +197,9 @@ void CBuffer::put( void * data, UINT__ num_elem )
 
         // move the write
         m_write_offset++;
+        // wrap
+        if( m_write_offset >= m_max_elem )
+            m_write_offset = 0;
 
         // possibility of expelling evil shreds
         for( j = 0; j < m_read_offsets.size(); j++ )
@@ -205,16 +208,13 @@ void CBuffer::put( void * data, UINT__ num_elem )
             {
                 // inform shred with index j that it has lost its privileges?
                 // invalidate its read_offset
-                m_read_offsets[j].read_offset = -1;
+                // m_read_offsets[j].read_offset = -1;
             }
 
             if( m_read_offsets[j].event )
                 m_read_offsets[j].event->queue_broadcast();
         }
 
-        // wrap
-        if( m_write_offset >= m_max_elem )
-            m_write_offset = 0;
     }
 
     
