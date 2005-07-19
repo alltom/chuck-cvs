@@ -431,10 +431,15 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
     return 1;
     
 error:
-    msg.type = MSG_DONE;
-    otf_hton( &msg );
-    ck_send( g_sock, (char *)&msg, sizeof(msg) );
-    ck_close( g_sock );
+    
+    // if sock was opened
+    if( g_sock )
+    {
+        msg.type = MSG_DONE;
+        otf_hton( &msg );
+        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_close( g_sock );
+    }
     
     exit( 1 );
 
