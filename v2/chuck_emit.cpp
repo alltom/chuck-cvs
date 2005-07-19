@@ -322,17 +322,29 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop 
                 // sanity
                 assert( stmt->stmt_exp->cast_to == NULL );
 
+                // exp
+                a_Exp exp = stmt->stmt_exp;
+                // hack
+                if( exp->s_type == ae_exp_primary && exp->primary.s_type == ae_primary_hack )
+                    exp = exp->primary.exp;
+
                 // HACK!
-                if( stmt->stmt_exp->type->size == 4 || stmt->stmt_exp->s_type == ae_exp_decl )
-                    emit->append( new Chuck_Instr_Reg_Pop_Word );
-                else if( stmt->stmt_exp->type->size == 8 )
-                    emit->append( new Chuck_Instr_Reg_Pop_Word2 );
-                else
+                while( exp )
                 {
-                    EM_error2( stmt->stmt_exp->linepos,
-                               "(emit): internal error: %i byte stack item unhandled...",
-                               stmt->stmt_exp->type->size );
-                    return FALSE;
+                    if( exp->type->size == 4 || exp->s_type == ae_exp_decl )
+                        emit->append( new Chuck_Instr_Reg_Pop_Word );
+                    else if( exp->type->size == 8 )
+                        emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+                    else
+                    {
+                        EM_error2( exp->linepos,
+                                   "(emit): internal error: %i byte stack item unhandled...",
+                                   exp->type->size );
+                        return FALSE;
+                    }
+
+                    // go
+                    exp = exp->next;
                 }
             }
             break;
