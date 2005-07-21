@@ -90,7 +90,6 @@ void Chuck_UGen::init()
     m_use_next = FALSE;
 
     shred = NULL;
-    state = NULL;
 }
 
 
@@ -172,15 +171,15 @@ t_CKUINT Chuck_UGen::get_num_src()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
 {
-    if( m_num_src >= m_max_src )
-        return FALSE;
-
     // examine ins and outs
     t_CKUINT outs = src->m_num_outs;
     t_CKUINT ins = this->m_num_ins;
 
     if( outs == 1 && ins == 1 )
     {
+        if( m_num_src >= m_max_src )
+            return FALSE;
+
         // append
         m_num_src++;
         m_src_list.push_back( src );
@@ -190,17 +189,20 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
     else if( outs == 2 && ins == 2 )
     {
         // add to each channel
-        this->m_multi_chan[0]->add( src->m_multi_chan[0] );
-        this->m_multi_chan[1]->add( src->m_multi_chan[1] );
+        if( !this->m_multi_chan[0]->add( src->m_multi_chan[0] ) ) return FALSE;
+        if( !this->m_multi_chan[1]->add( src->m_multi_chan[1] ) ) return FALSE;
     }
     else if( outs == 1 && ins == 2 )
     {
         // add to each channel
-        this->m_multi_chan[0]->add( src );
-        this->m_multi_chan[1]->add( src );
+        if( !this->m_multi_chan[0]->add( src ) ) return FALSE;
+        if( !this->m_multi_chan[1]->add( src ) ) return FALSE;
     }
     else if( outs == 2 && ins == 1 )
     {
+        if( m_num_src >= m_max_src )
+            return FALSE;
+
         // append
         m_num_src++;
         m_src_list.push_back( src );
@@ -238,23 +240,62 @@ void Chuck_UGen::add_by( Chuck_UGen * dest )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
 {
-    if( m_num_src == 0 )
-        return FALSE;
+    // ins and outs
+    t_CKUINT outs = src->m_num_outs;
+    t_CKUINT ins = this->m_num_ins;
+    t_CKBOOL ret = FALSE;
 
-    // remove
-    for( unsigned int i = 0; i < m_num_src; i++ )
-        if( m_src_list[i] == src )
-        {
-            for( unsigned int j = i+1; j < m_num_src; j++ )
-                m_src_list[j-1] = m_src_list[j];
+    // take action
+    if( outs == 1 && ins == 1 )
+    {
+        if( m_num_src == 0 ) return FALSE;
 
-            m_src_list[--m_num_src] = NULL;
-            m_src_list.pop_back();
-            src->remove_by( this );
-            src->release();
-        }
+        // remove
+        for( unsigned int i = 0; i < m_num_src; i++ )
+            if( m_src_list[i] == src )
+            {
+                ret = TRUE;
+                for( unsigned int j = i+1; j < m_num_src; j++ )
+                    m_src_list[j-1] = m_src_list[j];
 
-    return TRUE;
+                m_src_list[--m_num_src] = NULL;
+                m_src_list.pop_back();
+                src->remove_by( this );
+                src->release();
+            }
+    }
+    else if( outs == 2 && ins == 2 )
+    {
+        if( !m_multi_chan[0]->remove( src->m_multi_chan[0] ) ) return FALSE;
+        if( !m_multi_chan[1]->remove( src->m_multi_chan[1] ) ) return FALSE;
+        ret = TRUE;
+    }
+    else if( outs == 1 && ins == 2 )
+    {
+        if( !m_multi_chan[0]->remove( src ) ) return FALSE;
+        if( !m_multi_chan[1]->remove( src ) ) return FALSE;
+        ret = TRUE;
+    }
+    else if( outs == 2 && ins == 1 )
+    {
+        if( m_num_src == 0 ) return FALSE;
+
+        // remove
+        for( unsigned int i = 0; i < m_num_src; i++ )
+            if( m_src_list[i] == src )
+            {
+                ret = TRUE;
+                for( unsigned int j = i+1; j < m_num_src; j++ )
+                    m_src_list[j-1] = m_src_list[j];
+
+                m_src_list[--m_num_src] = NULL;
+                m_src_list.pop_back();
+                src->remove_by( this );
+                src->release();
+            }
+    }
+
+    return ret;
 }
 
 

@@ -108,11 +108,6 @@ public: // data
 
     // the shred on which the ugen is created
     Chuck_VM_Shred * shred;
-
-
-public: // dynamic linking client data
-    void * state;
-    t_CKTIME now;
 };
 
 

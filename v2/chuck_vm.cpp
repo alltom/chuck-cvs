@@ -1353,7 +1353,11 @@ void Chuck_VM_Shreduler::advance( )
         audio->digi_in()->tick_in( &l, &r );
         m_adc->m_multi_chan[0]->m_current = l * m_adc->m_multi_chan[0]->m_gain;
         m_adc->m_multi_chan[1]->m_current = r * m_adc->m_multi_chan[1]->m_gain;
-        l = m_adc->m_multi_chan[0]->m_current;
+        m_adc->m_current = .5f * ( l + r );
+        // time it
+        m_adc->m_multi_chan[0]->m_time = this->now_system;
+        m_adc->m_multi_chan[1]->m_time = this->now_system;
+        m_adc->m_time = this->now_system;
     }
 
     // dac
