@@ -40,6 +40,30 @@
 // query
 DLL_QUERY xxx_query( Chuck_DL_Query * query );
 
+// global
+struct Chuck_Type;
+extern Chuck_Type * g_t_dac;
+extern Chuck_Type * g_t_adc;
+
+// stereo
+CK_DLL_CTOR( stereo_ctor );
+CK_DLL_CTRL( stereo_ctrl_pan );
+CK_DLL_CGET( stereo_cget_pan );
+
+// bunghole
+CK_DLL_TICK( bunghole_tick );
+
+// pan2
+CK_DLL_CTOR( pan2_ctor );
+CK_DLL_DTOR( pan2_dtor );
+CK_DLL_CTRL( pan2_ctrl_value );
+CK_DLL_CGET( pan2_cget_value );
+
+// MIX2
+CK_DLL_CTOR( mix2_ctor );
+CK_DLL_CTOR( mix2_dtor );
+CK_DLL_CTRL( mix2_ctrl_value );
+CK_DLL_CGET( mix2_cget_value );
 
 // noise
 CK_DLL_TICK( noise_tick );
@@ -82,10 +106,6 @@ CK_DLL_TICK( fullrect_tick );
 CK_DLL_CTOR( zerox_ctor );
 CK_DLL_DTOR( zerox_dtor );
 CK_DLL_TICK( zerox_tick );
-
-// DAC and ADC
-CK_DLL_TICK( dac_tick );
-CK_DLL_TICK( bunghole_tick );
 
 // delayp
 CK_DLL_CTOR( delayp_ctor );

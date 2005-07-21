@@ -74,8 +74,20 @@ protected:
     t_CKVOID remove_by( Chuck_UGen * dest );
 
 public:
+    // tick function
     f_tick tick;
+    // msg function
     f_pmsg pmsg;
+    // channels (if more than one is required)
+    Chuck_UGen ** m_multi_chan;
+    // size of m_multi_chan;
+    t_CKUINT m_multi_chan_size;
+    // number of channels
+    t_CKUINT m_num_ins;
+    // number of channels
+    t_CKUINT m_num_outs;
+    // alloc multi channels
+    void alloc_multi_chan( t_CKUINT num_ins, t_CKUINT num_outs );
 
 public: // data
     std::vector<Chuck_UGen *> m_src_list;
@@ -91,10 +103,12 @@ public: // data
     SAMPLE m_next;
     SAMPLE m_last;
     SAMPLE m_gain;
+    SAMPLE m_pan;
     t_CKINT m_op;
 
     // the shred on which the ugen is created
     Chuck_VM_Shred * shred;
+
 
 public: // dynamic linking client data
     void * state;

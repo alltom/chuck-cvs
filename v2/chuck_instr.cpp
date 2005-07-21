@@ -1640,9 +1640,23 @@ t_CKBOOL initialize_object( Chuck_Object * object, Chuck_Type * type )
     if( type->ugen_info )
     {
         // ugen
-        Chuck_UGen * ugen = ( Chuck_UGen * )object;
+        Chuck_UGen * ugen = (Chuck_UGen *)object;
         if( type->ugen_info->tick ) ugen->tick = type->ugen_info->tick;
         if( type->ugen_info->pmsg ) ugen->pmsg = type->ugen_info->pmsg;
+        // allocate multi chan
+        ugen->alloc_multi_chan( type->ugen_info->num_ins, 
+                                type->ugen_info->num_outs );
+        // allocate the channels
+        for( t_CKUINT i = 0; i < ugen->m_multi_chan_size; i++ )
+        {
+            // allocate ugen for each
+            Chuck_Object * obj = instantiate_and_initialize_object(
+                &t_ugen, ugen->shred );
+            // cast to ugen
+            ugen->m_multi_chan[i] = (Chuck_UGen *)obj;
+            // additional reference count
+            ugen->m_multi_chan[i]->add_ref();
+        }
     }
 
     return TRUE;

@@ -38,6 +38,7 @@
 #include "chuck_errmsg.h"
 #include "chuck_lang.h"
 #include "util_string.h"
+#include "ugen_xxx.h"
 
 
 
@@ -1225,7 +1226,28 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
     t_CKTYPE left = lhs->type, right = rhs->type;
     
     // ugen => ugen
-    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) ) return right;
+    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
+    {
+        // make sure non-zero
+        if( left->ugen_info->num_outs == 0 )
+        {
+            // error
+            EM_error2( lhs->linepos,
+                "ugen's of type '%s' have no output - cannot => to another ugen...",
+                left->c_name() );
+            return NULL;
+        }
+        else if( right->ugen_info->num_ins == 0 )
+        {
+            // error
+            EM_error2( rhs->linepos,
+                "ugen's of type '%s' have no input - cannot => from another ugen...",
+                right->c_name() );
+            return NULL;
+        }
+
+        return right;
+    }
 
     // time advance ( dur => now )
     if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var
@@ -1584,14 +1606,14 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 // not assignable
                 exp->self->s_meta = ae_meta_value;
                 // ugen
-                t = &t_ugen;
+                t = g_t_dac;
             }
             else if( str == "adc" ) // adc
             {
                 // not assignable
                 exp->self->s_meta = ae_meta_value;
                 // ugen
-                t = &t_ugen;
+                t = g_t_adc;
             }
             else if( str == "blackhole" ) // blackhole
             {
@@ -3863,8 +3885,9 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 // desc: ...
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, 
-                                           const char * parent_str,
-                                           Chuck_Namespace * where, f_ctor pre_ctor )
+                                             const char * parent_str,
+                                             Chuck_Namespace * where, 
+                                             f_ctor pre_ctor )
 {
     // which namespace
     Chuck_Type * parent = NULL;
@@ -3919,7 +3942,8 @@ cleanup:
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, 
                                             const char * parent, Chuck_Namespace * where,
-                                            f_ctor pre_ctor, f_tick tick, f_pmsg pmsg )
+                                            f_ctor pre_ctor, f_tick tick, f_pmsg pmsg,
+                                            t_CKUINT num_ins, t_CKUINT num_outs )
 {
     Chuck_Type * type = NULL;
     Chuck_UGen_Info * info = NULL;
@@ -3944,8 +3968,12 @@ Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name,
     info->add_ref();
     info->tick = type->parent->ugen_info->tick;
     info->pmsg = type->parent->ugen_info->pmsg;
+    info->num_ins = type->parent->ugen_info->num_ins;
+    info->num_outs = type->parent->ugen_info->num_outs;
     if( tick ) info->tick = tick;
     if( pmsg ) info->pmsg = pmsg;
+    if( num_ins != 0xffffffff ) info->num_ins = num_ins;
+    if( num_outs != 0xffffffff ) info->num_outs = num_outs;
     // set in type
     type->ugen_info = info;
 

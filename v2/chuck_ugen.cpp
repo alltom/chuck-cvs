@@ -70,6 +70,10 @@ void Chuck_UGen::init()
 {
     tick = NULL;
     pmsg = NULL;
+    m_multi_chan = NULL;
+    m_multi_chan_size = 0;
+    m_num_ins = 1;
+    m_num_outs = 1;
     
     m_num_src = 0;
     m_num_dest = 0;
@@ -81,6 +85,7 @@ void Chuck_UGen::init()
     m_last = 0.0f;
     m_op = UGEN_OP_TICK;
     m_gain = 1.0f;
+    m_pan = 1.0f;
     m_next = 0.0f;
     m_use_next = FALSE;
 
@@ -104,6 +109,33 @@ void Chuck_UGen::done()
 
     this->remove_all();
     m_valid = FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: alloc_multi_chan()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_UGen::alloc_multi_chan( t_CKUINT num_ins, t_CKUINT num_outs )
+{
+    // get max of num_ins and num_outs
+    m_multi_chan_size = ( num_ins > num_outs ? num_ins : num_outs );
+    // if more than one
+    if( m_multi_chan_size > 1 )
+    {
+        // allocate
+        m_multi_chan = new Chuck_UGen *[m_multi_chan_size];
+        // zero it out, whoever call this will fill in
+        memset( m_multi_chan, 0, m_multi_chan_size * sizeof(Chuck_UGen *) );
+    }
+    else
+        m_multi_chan_size = 0;
+    
+    // remember
+    m_num_ins = num_ins;
+    m_num_outs = num_outs;
 }
 
 
@@ -143,11 +175,42 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
     if( m_num_src >= m_max_src )
         return FALSE;
 
-    // append
-    m_num_src++;
-    m_src_list.push_back( src );
-    src->add_ref();
-    src->add_by( this );
+    // examine ins and outs
+    t_CKUINT outs = src->m_num_outs;
+    t_CKUINT ins = this->m_num_ins;
+
+    if( outs == 1 && ins == 1 )
+    {
+        // append
+        m_num_src++;
+        m_src_list.push_back( src );
+        src->add_ref();
+        src->add_by( this );
+    }
+    else if( outs == 2 && ins == 2 )
+    {
+        // add to each channel
+        this->m_multi_chan[0]->add( src->m_multi_chan[0] );
+        this->m_multi_chan[1]->add( src->m_multi_chan[1] );
+    }
+    else if( outs == 1 && ins == 2 )
+    {
+        // add to each channel
+        this->m_multi_chan[0]->add( src );
+        this->m_multi_chan[1]->add( src );
+    }
+    else if( outs == 2 && ins == 1 )
+    {
+        // append
+        m_num_src++;
+        m_src_list.push_back( src );
+        src->add_ref();
+        src->add_by( this );
+    }
+    else
+    {
+        assert( FALSE );
+    }
 
     return TRUE;
 }
@@ -276,35 +339,50 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
             m_src_list[0]->m_current : 0.0f;
 
     // tick the src list
-    for( t_CKUINT i = 1; i < m_num_src; i++ )
-        if( m_src_list[i]->system_tick( now ) )
+    t_CKUINT i; Chuck_UGen * ugen;
+    for( i = 1; i < m_num_src; i++ )
+    {
+        ugen = m_src_list[i];
+        if( ugen->system_tick( now ) )
         {
             if( m_op <= 1 )
-                m_sum += m_src_list[i]->m_current;
+                m_sum += ugen->m_current;
             else // special ops
             {
                 switch( m_op )
                 {
-                case 2: m_sum -= m_src_list[i]->m_current; break;
-                case 3: m_sum *= m_src_list[i]->m_current; break;
-                case 4: m_sum /= m_src_list[i]->m_current; break;
-                default: m_sum += m_src_list[i]->m_current; break;
+                case 2: m_sum -= ugen->m_current; break;
+                case 3: m_sum *= ugen->m_current; break;
+                case 4: m_sum /= ugen->m_current; break;
+                default: m_sum += ugen->m_current; break;
                 }
             }
         }
+    }
+
+    // tick multiple channels
+    for( i = 0; i < m_multi_chan_size; i++ )
+    {
+        ugen = m_multi_chan[i];
+        if( ugen->system_tick( now ) )
+        {
+            // multiple channels are added
+            m_sum += ugen->m_current;
+        }
+    }
 
     if( m_op > 0 )  // UGEN_OP_TICK
     {
         // tick the ugen
         if( tick ) m_valid = tick( this, m_sum, &m_current );
         if( !m_valid ) m_current = 0.0f;
-        m_current *= m_gain;
+        m_current *= m_gain * m_pan;
         return m_valid;
     }
     else if( m_op < 0 ) // UGEN_OP_PASS
     {
         // pass through
-        m_current = m_sum * m_gain;
+        m_current = m_sum;
         return TRUE;
     }
     else // UGEN_OP_STOP

@@ -1699,7 +1699,7 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, 
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
     {
-        // connect the ugens
+        // link
         emit->append( new Chuck_Instr_UGen_Link );
         // done
         return TRUE;

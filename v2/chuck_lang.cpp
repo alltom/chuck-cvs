@@ -113,6 +113,8 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     t_ugen.ugen_info = new Chuck_UGen_Info;
     t_ugen.ugen_info->add_ref();
     t_ugen.ugen_info->tick = __ugen_tick;
+    t_ugen.ugen_info->num_ins = 1;
+    t_ugen.ugen_info->num_outs = 1;
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
@@ -720,6 +722,11 @@ CK_DLL_MFUN( ugen_op )
     ugen->m_op = op;
     // set return
     RETURN->v_int = ugen->m_op;
+
+    // for multiple channels
+    Chuck_DL_Return ret;
+    for( t_CKUINT i = 0; i < ugen->m_multi_chan_size; i++ )
+        ugen_op( ugen->m_multi_chan[i], ARGS, &ret );
 }
 
 CK_DLL_MFUN( ugen_cget_op )
@@ -749,6 +756,11 @@ CK_DLL_MFUN( ugen_next )
     ugen->m_use_next = TRUE;
     // set return
     RETURN->v_float = (t_CKFLOAT)ugen->m_next;
+
+    // for multiple channels
+    Chuck_DL_Return ret;
+    for( t_CKUINT i = 0; i < ugen->m_multi_chan_size; i++ )
+        ugen_next( ugen->m_multi_chan[i], ARGS, &ret );
 }
 
 CK_DLL_MFUN( ugen_cget_next )
@@ -769,6 +781,11 @@ CK_DLL_MFUN( ugen_gain )
     ugen->m_gain = (SAMPLE)gain;
     // set return
     RETURN->v_float = (t_CKFLOAT)ugen->m_gain;
+
+    // for multiple channels
+    Chuck_DL_Return ret;
+    for( t_CKUINT i = 0; i < ugen->m_multi_chan_size; i++ )
+        ugen_gain( ugen->m_multi_chan[i], ARGS, &ret );
 }
 
 CK_DLL_MFUN( ugen_cget_gain )

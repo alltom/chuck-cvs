@@ -34,6 +34,7 @@
 //-----------------------------------------------------------------------------
 #include "ugen_xxx.h"
 #include "chuck_type.h"
+#include "chuck_ugen.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,12 +47,18 @@ using namespace std;
 t_CKUINT g_srate;
 
 // offset
+static t_CKUINT stereo_offset_left = 0;
+static t_CKUINT stereo_offset_right = 0;
+static t_CKUINT stereo_offset_pan = 0;
 static t_CKUINT cnoise_offset_data = 0;
 static t_CKUINT impulse_offset_data = 0;
 static t_CKUINT step_offset_data = 0;
 static t_CKUINT zerox_offset_data = 0;
 static t_CKUINT delayp_offset_data = 0;
 static t_CKUINT sndbuf_offset_data = 0;
+
+Chuck_Type * g_t_dac = NULL;
+Chuck_Type * g_t_adc = NULL;
 
 
 //-----------------------------------------------------------------------------
@@ -68,19 +75,85 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 
     //! \section audio output
     
+    //---------------------------------------------------------------------
+    // init as base class: ugen_stereo
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "ugen_stereo", "ugen", env->global(), 
+                                        stereo_ctor, NULL, NULL, 2, 2 ) )
+        return FALSE;
+
+    // add left
+    stereo_offset_left = type_engine_import_mvar( env, "ugen", "left", FALSE );
+    if( stereo_offset_left == CK_INVALID_OFFSET ) goto error;
+    
+    // add right
+    stereo_offset_right = type_engine_import_mvar( env, "ugen", "right", FALSE );
+    if( stereo_offset_right == CK_INVALID_OFFSET ) goto error;
+
+    // add pan
+    stereo_offset_pan = type_engine_import_mvar( env, "float", "@pan", FALSE );
+    if( stereo_offset_pan == CK_INVALID_OFFSET ) goto error;
+    
+    // add pan
+    func = make_new_mfun( "float", "pan", stereo_ctrl_pan );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "pan", stereo_cget_pan );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
+
     // add dac
     //! digital/analog converter
     //! abstraction for underlying audio output device
-    //QUERY->ugen_add( QUERY, "dac", NULL );
-    // set funcs
-    //QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
+    //---------------------------------------------------------------------
+    // init as base class: dac
+    //---------------------------------------------------------------------
+    if( !(g_t_dac = type_engine_import_ugen_begin( env, "dac", "ugen_stereo", env->global(), 
+                                                   NULL, NULL, NULL, 2, 2 )) )
+        return FALSE;
+
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
     
     // add adc
     //! analog/digital converter
     //! abstraction for underlying audio input device
-    //QUERY->ugen_add( QUERY, "adc", NULL );
-    // set funcs
-    //QUERY->ugen_func( QUERY, NULL, NULL, dac_tick, NULL );
+    //---------------------------------------------------------------------
+    // init as base class: adc
+    //---------------------------------------------------------------------
+    if( !(g_t_adc = type_engine_import_ugen_begin( env, "dac", "ugen_stereo", env->global(), 
+                                                   NULL, NULL, NULL, 0, 2 )) )
+        return FALSE;
+
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
+
+    //---------------------------------------------------------------------
+    // init as base class: pan2
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "pan2", "ugen_stereo", env->global(), 
+                                        NULL, NULL, NULL, 2, 2 ) )
+        return FALSE;
+    
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
+
+    //---------------------------------------------------------------------
+    // init as base class: mix2
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "mix2", "ugen_stereo", env->global(), 
+                                        NULL, NULL, NULL, 2, 1 ) )
+        return FALSE;
+    
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
     
     // add blackhole
     //! sample rate sample sucker
@@ -103,7 +176,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //! (this is a way to add N outputs together and scale them) 
     //! used in \example i-robot.ck
     //---------------------------------------------------------------------
-    // init as base class: osc
+    // init as base class: gain
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "gain", "ugen", env->global(), 
                                         NULL, NULL, NULL ) )
@@ -532,6 +605,85 @@ error:
     type_engine_import_class_end( env );
     
     return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: stereo_ctor()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( stereo_ctor )
+{
+    // get ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // set left
+    OBJ_MEMBER_UINT( SELF, stereo_offset_left ) = (t_CKUINT)(ugen->m_multi_chan[0]);
+    // set right
+    OBJ_MEMBER_UINT( SELF, stereo_offset_right ) = (t_CKUINT)(ugen->m_multi_chan[1]);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: stereo_ctrl_pan()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( stereo_ctrl_pan )
+{
+    Chuck_UGen * ugen = (Chuck_UGen * )SELF;
+    Chuck_UGen * left = ugen->m_multi_chan[0];
+    Chuck_UGen * right = ugen->m_multi_chan[1];
+    // get arg
+    t_CKFLOAT pan = GET_CK_FLOAT(ARGS);
+    // clip it
+    if( pan < -1.0 ) pan = -1.0;
+    else if( pan > 1.0 ) pan = 1.0;
+    // set it
+    OBJ_MEMBER_FLOAT( SELF, stereo_offset_pan ) = pan;
+    // pan it
+    left->m_pan = pan < 0.0 ? 1.0 : 1.0 - pan;
+    right->m_pan = pan > 0.0 ? 1.0 : 1.0 + pan;
+
+    RETURN->v_float = pan;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: stereo_cget_pan()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( stereo_cget_pan )
+{
+    RETURN->v_float = OBJ_MEMBER_FLOAT( SELF, stereo_offset_pan );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: dac_tick()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( dac_tick )
+{
+    *out = in; return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: bunghole_tick
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( bunghole_tick )
+{
+    *out = 0.0f; return 0;
 }
 
 
@@ -969,27 +1121,6 @@ CK_DLL_TICK( zerox_tick )
 }
 
 
-
-
-//-----------------------------------------------------------------------------
-// name: dac_tick
-// desc: ...
-//-----------------------------------------------------------------------------
-CK_DLL_TICK( dac_tick )
-{
-    // this is a placeholder - the real tick is the VM
-    return 0;
-}
-
-//-----------------------------------------------------------------------------
-// name: bunghole_tick
-// desc: ...
-//-----------------------------------------------------------------------------
-CK_DLL_TICK( bunghole_tick )
-{
-    *out = 0.0f;
-    return 0;
-}
 
 
 struct delayp_data 

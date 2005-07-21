@@ -388,10 +388,14 @@ struct Chuck_UGen_Info : public Chuck_VM_Object
     f_tick tick;
     // pmsg function pointer
     f_pmsg pmsg;
-    
+    // number of incoming channels
+    t_CKUINT num_ins;
+    // number of outgoing channels
+    t_CKUINT num_outs;
+
     // constructor
     Chuck_UGen_Info()
-    { tick = NULL; pmsg = NULL; }
+    { tick = NULL; pmsg = NULL; num_ins = 1; num_outs = 1; }
 };
 
 
@@ -619,7 +623,8 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name,
                                              Chuck_Namespace * where, f_ctor pre_ctor );
 Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
                                             Chuck_Namespace * where, f_ctor pre_ctor,
-                                            f_tick tick, f_pmsg pmsg );
+                                            f_tick tick, f_pmsg pmsg,
+                                            t_CKUINT num_ins = 0xffffffff, t_CKUINT num_outs = 0xffffffff );
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun );
 t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun );
 t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 

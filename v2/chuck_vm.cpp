@@ -36,6 +36,7 @@
 #include "chuck_errmsg.h"
 #include "chuck_dl.h"
 #include "chuck_type.h"
+#include "ugen_xxx.h"
 
 #include <vector>
 using namespace std;
@@ -146,8 +147,8 @@ Chuck_VM::~Chuck_VM()
 
 
 // dac tick
-UGEN_TICK __dac_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
-{ *out = in; return TRUE; }
+//UGEN_TICK __dac_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
+//{ *out = in; return TRUE; }
 //UGEN_TICK __bunghole_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out )
 //{ *out = 0.0f; return TRUE; }
 
@@ -289,11 +290,15 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::initialize_synthesis( )
 {
-    t_CKUINT i;
-
     if( !m_init )
     {
         m_last_error = "VM initialize_synthesis() called on raw VM";
+        return FALSE;
+    }
+
+    if( !g_t_dac || !g_t_adc )
+    {
+        m_last_error = "VM initialize_synthesis() called before type system initialized";
         return FALSE;
     }
 
@@ -304,36 +309,13 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
 	}
 
     // allocate dac and adc
-	m_num_dac_channels = 2;
-	m_dac = new Chuck_UGen[m_num_dac_channels];
+	m_num_dac_channels = g_t_dac->ugen_info->num_ins;
+	m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
+    stereo_ctor( m_dac, NULL );
 	
-	// initialize them
-	for( i = 0; i < m_num_dac_channels; i++ )
-	{
-		// add ref
-		m_dac[i].add_ref();
-		
-		// initialize as object
-		initialize_object( &m_dac[i], &t_ugen );
-		
-		// manually set the tick
-		m_dac[i].tick = __dac_tick;
-	}
-	
-	m_num_adc_channels = 2;
-	m_adc = new Chuck_UGen[m_num_adc_channels];
-
-    for( i = 0; i < m_num_adc_channels; i++ )
-	{
-		// add ref
-		m_adc[i].add_ref();
-		
-		// initialize as object
-		initialize_object( &m_adc[i], &t_ugen );
-		
-		// manually set the tick
-		m_adc[i].tick = NULL;
-	}
+	m_num_adc_channels = g_t_adc->ugen_info->num_outs;
+	m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
+    stereo_ctor( m_adc, NULL );
 	
 	m_bunghole = new Chuck_UGen;
 	m_bunghole->add_ref();
@@ -1369,23 +1351,23 @@ void Chuck_VM_Shreduler::advance( )
     if( audio )
     {
         audio->digi_in()->tick_in( &l, &r );
-        m_adc[0].m_current = .5f * ( l + r ) * m_adc[0].m_gain;
-        // m_adc[1].m_current = r * m_adc[1].m_gain;
+        m_adc->m_multi_chan[0]->m_current = l * m_adc->m_multi_chan[0]->m_gain;
+        m_adc->m_multi_chan[1]->m_current = r * m_adc->m_multi_chan[1]->m_gain;
+        l = m_adc->m_multi_chan[0]->m_current;
     }
 
     // dac
-    m_dac[0].system_tick( this->now_system );
-    //m_dac[1].system_tick( this->now_system );
-    l = m_dac[0].m_current;
-    //r = m_dac[1].m_current;
-    l *= .5f;
+    m_dac->system_tick( this->now_system );
+    l = m_dac->m_multi_chan[0]->m_current;
+    r = m_dac->m_multi_chan[1]->m_current;
+    l *= .5f; r *= .5f;
 
     // suck samples
     m_bunghole->system_tick( this->now_system );
 
     // tick
     if( audio )
-        audio->digi_out()->tick_out( l, l );
+        audio->digi_out()->tick_out( l, r );
 }
 
 
