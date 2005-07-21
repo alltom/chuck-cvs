@@ -17,6 +17,6 @@ while( true )
     // pan
     std.rand2f( -1, 1 ) => p.pan;
     // advance time
-    100::ms => now;
+    std.rand2f( 25, 500 )::ms => now;
 }
 
