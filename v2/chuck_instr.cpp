@@ -1656,6 +1656,10 @@ t_CKBOOL initialize_object( Chuck_Object * object, Chuck_Type * type )
             ugen->m_multi_chan[i] = (Chuck_UGen *)obj;
             // additional reference count
             ugen->m_multi_chan[i]->add_ref();
+            // owner
+            ugen->m_multi_chan[i]->owner = ugen;
+            // ref count
+            ugen->add_ref();
         }
     }
 

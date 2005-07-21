@@ -90,6 +90,7 @@ void Chuck_UGen::init()
     m_use_next = FALSE;
 
     shred = NULL;
+    owner = NULL;
 }
 
 
@@ -108,6 +109,8 @@ void Chuck_UGen::done()
 
     this->remove_all();
     m_valid = FALSE;
+
+    // TODO: m_multi_chan, break ref count loop
 }
 
 
@@ -411,6 +414,10 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
             m_sum += ugen->m_current;
         }
     }
+
+    // if owner
+    if( owner != NULL && owner->m_time <= now )
+        owner->system_tick( now );
 
     if( m_op > 0 )  // UGEN_OP_TICK
     {
