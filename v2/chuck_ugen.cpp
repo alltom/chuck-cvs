@@ -68,8 +68,6 @@ Chuck_UGen::~Chuck_UGen()
 //-----------------------------------------------------------------------------
 void Chuck_UGen::init()
 {
-    //ctor = NULL;
-    //dtor = NULL;
     tick = NULL;
     pmsg = NULL;
     
@@ -85,7 +83,8 @@ void Chuck_UGen::init()
     m_gain = 1.0f;
     m_next = 0.0f;
     m_use_next = FALSE;
-    
+
+    shred = NULL;
     state = NULL;
 }
 
