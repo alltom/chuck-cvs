@@ -376,30 +376,37 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     if( m_time >= now )
         return m_valid;
 
+    t_CKUINT i; Chuck_UGen * ugen;
+
     m_last = m_current;
     // inc time
     m_time = now;
-    m_sum = m_num_src && m_src_list[0]->system_tick( now ) ? 
-            m_src_list[0]->m_current : 0.0f;
-
-    // tick the src list
-    t_CKUINT i; Chuck_UGen * ugen;
-    for( i = 1; i < m_num_src; i++ )
+    // initial sum
+    m_sum = 0.0f;
+    if( m_num_src )
     {
-        ugen = m_src_list[i];
+        ugen = m_src_list[0];
         if( ugen->m_time < now ) ugen->system_tick( now );
-        if( ugen->m_valid )
+        m_sum = ugen->m_current;
+
+        // tick the src list
+        for( i = 1; i < m_num_src; i++ )
         {
-            if( m_op <= 1 )
-                m_sum += ugen->m_current;
-            else // special ops
+            ugen = m_src_list[i];
+            if( ugen->m_time < now ) ugen->system_tick( now );
+            if( ugen->m_valid )
             {
-                switch( m_op )
+                if( m_op <= 1 )
+                    m_sum += ugen->m_current;
+                else // special ops
                 {
-                case 2: m_sum -= ugen->m_current; break;
-                case 3: m_sum *= ugen->m_current; break;
-                case 4: m_sum /= ugen->m_current; break;
-                default: m_sum += ugen->m_current; break;
+                    switch( m_op )
+                    {
+                    case 2: m_sum -= ugen->m_current; break;
+                    case 3: m_sum *= ugen->m_current; break;
+                    case 4: m_sum /= ugen->m_current; break;
+                    default: m_sum += ugen->m_current; break;
+                    }
                 }
             }
         }
@@ -410,11 +417,8 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     {
         ugen = m_multi_chan[i];
         if( ugen->m_time < now ) ugen->system_tick( now );
-        if( ugen->m_valid )
-        {
-            // multiple channels are added
-            m_sum += ugen->m_current;
-        }
+        // multiple channels are added
+        m_sum += ugen->m_current;
     }
 
     // if owner
