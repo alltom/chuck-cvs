@@ -312,10 +312,12 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
 	m_num_dac_channels = g_t_dac->ugen_info->num_ins;
 	m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
     stereo_ctor( m_dac, NULL );
+    m_dac->add_ref();
 	
 	m_num_adc_channels = g_t_adc->ugen_info->num_outs;
 	m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
     stereo_ctor( m_adc, NULL );
+    m_adc->add_ref();
 	
 	m_bunghole = new Chuck_UGen;
 	m_bunghole->add_ref();
