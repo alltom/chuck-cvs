@@ -387,7 +387,8 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     for( i = 1; i < m_num_src; i++ )
     {
         ugen = m_src_list[i];
-        if( ugen->system_tick( now ) )
+        if( ugen->m_time < now ) ugen->system_tick( now );
+        if( ugen->m_valid )
         {
             if( m_op <= 1 )
                 m_sum += ugen->m_current;
@@ -408,7 +409,8 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     for( i = 0; i < m_multi_chan_size; i++ )
     {
         ugen = m_multi_chan[i];
-        if( ugen->system_tick( now ) )
+        if( ugen->m_time < now ) ugen->system_tick( now );
+        if( ugen->m_valid )
         {
             // multiple channels are added
             m_sum += ugen->m_current;
