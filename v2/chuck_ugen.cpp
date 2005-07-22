@@ -529,5 +529,3 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     
     return TRUE;
 }
-
-
