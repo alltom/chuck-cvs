@@ -194,6 +194,30 @@ void uh( )
 
 
 //-----------------------------------------------------------------------------
+// name: get_count()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL get_count( const char * arg, t_CKUINT * out )
+{
+    // no comment
+    if( !strncmp( arg, "--", 2 ) ) arg += 2;
+    else if( !strncmp( arg, "-", 1 ) ) arg += 1;
+    else return FALSE;
+
+    // end of string
+    if( *arg == '\0' ) return FALSE;
+
+    // number
+    if( *arg >= '0' && *arg <= '9' )
+        *out = (t_CKUINT)atoi( arg );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: usage()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -235,8 +259,8 @@ int main( int argc, char ** argv )
     t_CKBOOL set_priority = FALSE;
 
     t_CKUINT files = 0;
+    t_CKUINT count = 1;
     t_CKINT i;
-    t_CKINT a;
 
     // parse command line args
     for( i = 1; i < argc; i++ )
@@ -246,6 +270,8 @@ int main( int argc, char ** argv )
         {
             if( !strcmp(argv[i], "--dump") || !strcmp(argv[i], "+d")
                 || !strcmp(argv[i], "--nodump") || !strcmp(argv[i], "-d") )
+                continue;
+            else if( get_count( argv[i], &count ) )
                 continue;
             else if( !strcmp(argv[i], "--audio") || !strcmp(argv[i], "-a") )
                 enable_audio = TRUE;
@@ -291,7 +317,7 @@ int main( int argc, char ** argv )
                 usage();
                 exit( 2 );
             }
-            else if(( a = otf_send_cmd( argc, argv, i ) ))
+            else if( otf_send_cmd( argc, argv, i ) )
                 exit( 0 );
             else
             {
@@ -358,6 +384,9 @@ int main( int argc, char ** argv )
     signal( SIGPIPE, signal_pipe );
 #endif
 
+    // reset count
+    count = 1;
+
     // loop through and process each file
     for( i = 1; i < argc; i++ )
     {
@@ -368,6 +397,8 @@ int main( int argc, char ** argv )
                 compiler->emitter->dump = TRUE;
             else if( !strcmp(argv[i], "--nodump") || !strcmp(argv[i], "-d" ) )
                 compiler->emitter->dump = FALSE;
+            else
+                get_count( argv[i], &count );
             
             continue;
         }
@@ -382,7 +413,10 @@ int main( int argc, char ** argv )
         code->name += string("'") + argv[i] + "'";
 
         // spork it
-        shred = vm->spork( code, NULL );
+        while( count-- ) shred = vm->spork( code, NULL );
+
+        // reset count
+        count = 1;
     }
 
     // start tcp server
