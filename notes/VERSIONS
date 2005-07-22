@@ -1,5 +1,83 @@
 
 ---
+1.2.0.0
+
+  SYNTAX and OPERATORS:
+  - (added) +=>, operator : 2 +=> i; (also) -=>, *=>, /=>, %=>
+  - (added) @=> for explicit assignment
+    this is the only way to make object reference assignments
+  - (added) implicit int to float casting
+  - (changed) cast now look like: 1.1 $ (int) => int i;
+  - (added) function call by chucking : 
+    // call
+    (1,4) => math.rand2f => result;
+    // same as
+    math.rand2f(1,4) => result;
+
+  LANGUAGE:
+  - (fixed) type system for existing types
+
+  OBJECTS:
+  - (added) 'class' definitions : class X { int i; }
+  - (added) 'exterds' keyword : class Y extends event { int i; }
+  - (added) virtual inheritance
+  - (added) added pre-constructors - code at class level
+    gets run when object is instantiated
+  - (added) function overloading :
+    class X { fun void foo() { }  fun void foo( int y ) { } }
+  - (added) base classes (can be extended):
+    Object, event, array, ugen, string
+    see below.
+
+  EVENTS:
+  - (added) base event class : event e;
+    can be used directly
+    can be extended to custom events
+    (see one_event_many_shreds.ck)
+  - (added) waiting on event, chuck to now : 
+    e => now; // wait on e
+  - (added) e.signal() wakes up 1 shred, if any
+  - (added) e.broadcast() wakes up all shreds waiting on e
+  - (added) class MidiEvent (see gomidi2.ck)
+    alternative to polling.
+  - (added) class OSCEvent
+
+  ARRAYS:
+  - (added) arrays : int a[10]; float b[20]; event e[2];
+  - (added) multidimensional arrays : int a[2][2][2];
+  - (added) associative arrays : int a[10]; 0 => a["foo"];
+    all arrays are both int-indexed and associative
+  - (added) array initialization : [ 1, 2, 3 ] @=> int a[];
+
+  UGENS:
+  - (added) class ugen
+    can be extended
+  - (changed) all ugen parameters are now also functions:
+    // set freq
+    440 => s.freq => val;
+    // same as...
+    s.freq( 440 ) => val;
+  - (changed) left-most parameters must now be called as functions
+    // no longer valid
+    f.freq => float val;
+    // valid
+    f.freq() => float val;
+    // still ok
+    440 => s.freq => float val;
+
+  STRINGS:
+  - (added) class string
+
+  AUDIO:
+  - (added) stereo
+    all stereo unit generators have .left, .right, .pan functions
+  - (changed) stereo ugen: dac (2 in, 2 out)
+  - (changed) stereo ugen: adc (0 in, 2 out)
+  - (added) stereo ugen: pan2 (1 in, 2 out)
+  - (added) stereo ugen: mix2 (2 in, 1 out)
+
+
+---
 1.1.5.6 - 2005.4.11
   - last 1.1 release : contains all 1.1 changes
 
