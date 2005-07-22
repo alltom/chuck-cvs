@@ -39,6 +39,91 @@ using namespace std;
 
 
 //-----------------------------------------------------------------------------
+// fast array
+//-----------------------------------------------------------------------------
+void fa_init( Chuck_UGen ** & base, t_CKUINT & capacity );
+void fa_done( Chuck_UGen ** & base, t_CKUINT & capacity );
+void fa_resize( Chuck_UGen ** & base, t_CKUINT & capacity );
+void fa_push_back( Chuck_UGen ** & base, t_CKUINT & capacity, 
+                   t_CKUINT size, Chuck_UGen * value );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: fa_init()
+// desc: ...
+//-----------------------------------------------------------------------------
+void fa_init( Chuck_UGen ** & base, t_CKUINT & capacity )
+{
+    base = NULL;
+    capacity = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: fa_done()
+// desc: ...
+//-----------------------------------------------------------------------------
+void fa_done( Chuck_UGen ** & base, t_CKUINT & capacity )
+{
+    if( base ) delete [] base;
+    base = NULL;
+    capacity = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: fa_resize()
+// desc: ...
+//-----------------------------------------------------------------------------
+void fa_resize( Chuck_UGen ** & base, t_CKUINT & capacity )
+{
+    // initial
+    if( capacity == 0 )
+        capacity = 8;
+    else
+        capacity *= 2;
+
+    // allocate
+    Chuck_UGen ** new_base = new Chuck_UGen *[capacity];
+    // delete
+    if( base )
+    {
+        // copy
+        memcpy( new_base, base, capacity / 2 * sizeof(Chuck_UGen *) );
+        // delete
+        delete [] base;
+    }
+
+    // done
+    base = new_base;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: fa_push_back()
+// desc: ...
+//-----------------------------------------------------------------------------
+void fa_push_back( Chuck_UGen ** & base, t_CKUINT & capacity, 
+                   t_CKUINT size, Chuck_UGen * value )
+{
+    // resize
+    if( size == capacity ) fa_resize( base, capacity );
+    // add
+    base[size] = value;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: Chuck_UGen()
 // desc: constructor
 //-----------------------------------------------------------------------------
@@ -74,7 +159,9 @@ void Chuck_UGen::init()
     m_multi_chan_size = 0;
     m_num_ins = 1;
     m_num_outs = 1;
-    
+
+    fa_init( m_src_list, m_src_cap );
+    fa_init( m_dest_list, m_dest_cap );
     m_num_src = 0;
     m_num_dest = 0;
     m_max_src = 0xffffffff;
@@ -109,6 +196,9 @@ void Chuck_UGen::done()
 
     this->remove_all();
     m_valid = FALSE;
+
+    fa_done( m_src_list, m_src_cap );
+    fa_done( m_dest_list, m_dest_cap );
 
     // TODO: m_multi_chan, break ref count loop
 }
@@ -184,8 +274,8 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
             return FALSE;
 
         // append
+        fa_push_back( m_src_list, m_src_cap, m_num_src, src );
         m_num_src++;
-        m_src_list.push_back( src );
         src->add_ref();
         src->add_by( this );
     }
@@ -207,8 +297,8 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
             return FALSE;
 
         // append
+        fa_push_back( m_src_list, m_src_cap, m_num_src, src );
         m_num_src++;
-        m_src_list.push_back( src );
         src->add_ref();
         src->add_by( this );
     }
@@ -230,8 +320,8 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
 void Chuck_UGen::add_by( Chuck_UGen * dest )
 {
     // append
+    fa_push_back( m_dest_list, m_dest_cap, m_num_dest, dest );
     m_num_dest++;
-    m_dest_list.push_back( dest );
 }
 
 
@@ -262,7 +352,6 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
                     m_src_list[j-1] = m_src_list[j];
 
                 m_src_list[--m_num_src] = NULL;
-                m_src_list.pop_back();
                 src->remove_by( this );
                 src->release();
             }
@@ -292,7 +381,6 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
                     m_src_list[j-1] = m_src_list[j];
 
                 m_src_list[--m_num_src] = NULL;
-                m_src_list.pop_back();
                 src->remove_by( this );
                 src->release();
             }
@@ -318,7 +406,6 @@ void Chuck_UGen::remove_by( Chuck_UGen * dest )
                 m_dest_list[j-1] = m_dest_list[j];
 
             m_dest_list[--m_num_dest] = NULL;
-            m_dest_list.pop_back();
         }
 }
 
@@ -338,7 +425,6 @@ void Chuck_UGen::remove_all( )
         m_src_list[i]->release();
 
     m_num_src = 0;
-    m_src_list.clear();
 }
 
 
@@ -355,7 +441,6 @@ t_CKBOOL Chuck_UGen::disconnect( t_CKBOOL recursive )
         m_dest_list[i]->remove( this );
 
     m_num_dest = 0;
-    m_dest_list.clear();
     
     // disconnect src too?
     if( recursive )

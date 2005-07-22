@@ -90,9 +90,11 @@ public:
     void alloc_multi_chan( t_CKUINT num_ins, t_CKUINT num_outs );
 
 public: // data
-    std::vector<Chuck_UGen *> m_src_list;
-    std::vector<Chuck_UGen *> m_dest_list;
+    Chuck_UGen ** m_src_list;
+    t_CKUINT m_src_cap;
     t_CKUINT m_num_src;
+    Chuck_UGen ** m_dest_list;
+    t_CKUINT m_dest_cap;
     t_CKUINT m_num_dest;
     t_CKUINT m_max_src;
     t_CKTIME m_time;
