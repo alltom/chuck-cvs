@@ -416,7 +416,7 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     }
 
     // if owner
-    if( owner != NULL && owner->m_time <= now )
+    if( owner != NULL && owner->m_time < now )
         owner->system_tick( now );
 
     if( m_op > 0 )  // UGEN_OP_TICK
