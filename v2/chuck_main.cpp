@@ -206,11 +206,12 @@ t_CKBOOL get_count( const char * arg, t_CKUINT * out )
 
     // end of string
     if( *arg == '\0' ) return FALSE;
+    // not digit
+    if( *arg < '0' || *arg > '9' ) return FALSE;
 
     // number
-    if( *arg >= '0' && *arg <= '9' )
-        *out = (t_CKUINT)atoi( arg );
-    
+    *out = (t_CKUINT)atoi( arg );
+
     return TRUE;
 }
 

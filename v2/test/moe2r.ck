@@ -13,7 +13,7 @@ while( true )
     // set the current sample/impulse
     1.0 => i.next;
     // set filter resonant frequency
-    std.rand2f( 60, 5000 ) => f.pfreq;
+    std.rand2f( 250, 5000 ) => f.pfreq;
     // pan
     std.rand2f( -1, 1 ) => p.pan;
     // advance time
