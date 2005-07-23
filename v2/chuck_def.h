@@ -70,7 +70,7 @@ typedef char *                      c_str;
 typedef const char *                c_constr;
 
 // double
-#define CK_S_DOUBLE
+// #define CK_S_DOUBLE
 
 // sample
 #ifdef CK_S_DOUBLE
