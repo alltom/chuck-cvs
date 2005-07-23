@@ -41,8 +41,6 @@
 #endif
 
 
-
-
 // static
 BOOL__ Digitalio::m_init = FALSE;
 DWORD__ Digitalio::m_start = 0;
@@ -67,6 +65,14 @@ DWORD__ Digitalio::m_go = 0;
 DWORD__ Digitalio::m_dac_n = 0;
 DWORD__ Digitalio::m_adc_n = 0;
 DWORD__ Digitalio::m_end = 0;
+
+
+// sample
+#if defined(CK_S_DOUBLE)
+#define CK_RTAUDIO_FORMAT RTAUDIO_FLOAT64
+#else
+#define CK_RTAUDIO_FORMAT RTAUDIO_FLOAT32
+#endif
 
 
 
@@ -195,7 +201,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     try {
         m_rtaudio->openStream(
             m_dac_n, m_num_channels_out, m_adc_n, m_num_channels_in,
-            RTAUDIO_FLOAT32, sampling_rate,
+            CK_RTAUDIO_FORMAT, sampling_rate,
             (int *)&m_buffer_size, num_buffers );
         if( m_use_cb )
             m_rtaudio->setStreamCallback( &cb, NULL );

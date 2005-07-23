@@ -1362,8 +1362,8 @@ struct sndbuf_data
     t_CKUINT samplerate;
     t_CKUINT chan;
     double sampleratio;
-    float * eob;
-    float * curr;
+    SAMPLE * eob;
+    SAMPLE * curr;
     double  curf;
     float   rate;
     int     interp;
@@ -1771,7 +1771,11 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         d->num_frames = info.frames;
         d->num_channels = info.channels;
         sf_seek(file, 0, SEEK_SET );
-        d->num_samples = sf_read_float(file, d->buffer, size) ;
+#if defined(CK_S_DOUBLE)
+        d->num_samples = sf_read_double( file, d->buffer, size );
+#else
+        d->num_samples = sf_read_float( file, d->buffer, size );
+#endif
         // fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
         d->samplerate = info.samplerate;
 

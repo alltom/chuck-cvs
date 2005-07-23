@@ -33,16 +33,18 @@
 #ifndef __DIGITAL_IO_H__
 #define __DIGITAL_IO_H__
 
+#include "chuck_def.h"
+
 
 
 
 //-----------------------------------------------------------------------------
 // define and forward references
 //-----------------------------------------------------------------------------
-#ifndef SAFE_DELETE
-#define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
-#define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
-#endif
+// #ifndef SAFE_DELETE
+// #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
+// #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }
+// #endif
 
 // defaults
   #if defined(__MACOSX_CORE__)
@@ -64,25 +66,21 @@
 #define DEVICE_NUM_IN_DEFAULT        0
 
 // sample types
-#define SAMPLE_SHORT         short
-#define SAMPLE_INTERNAL      SAMPLE_SHORT
-#ifndef SAMPLE
-#define SAMPLE_FLOAT         float
-#define SAMPLE               SAMPLE_FLOAT
-#endif
-#define S_MAX                0x7fff  // max value for 16 bit
-#define S_MIN                -0x7fff // min value for 16 bit
+// #define SAMPLE_SHORT         short
+// #define SAMPLE_INTERNAL      SAMPLE_SHORT
+// #define SAMPLE               float
+// #define S_MAX                0x7fff  // max value for 16 bit
+// #define S_MIN                -0x7fff // min value for 16 bit
 
 // external to internal sample conversion
-#define SAMPLE_TO_INTERNAL(s) ( (SAMPLE_INTERNAL)((SAMPLE)S_MAX * s) )
-#define INTERNAL_TO_SAMPLE(s) ( (SAMPLE)((SAMPLE)s / S_MAX) )
+// #define SAMPLE_TO_INTERNAL(s) ( (SAMPLE_INTERNAL)((SAMPLE)S_MAX * s) )
+// #define INTERNAL_TO_SAMPLE(s) ( (SAMPLE)((SAMPLE)s / S_MAX) )
 
 // types
 #define DWORD__                unsigned long
 #define SINT__                 long
 #define UINT__                 DWORD__
 #define BOOL__                 DWORD__
-#define FLOAT__                float
 #define BYTE__                 unsigned char
 
 

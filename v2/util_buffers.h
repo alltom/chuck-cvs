@@ -43,7 +43,6 @@
 #define SINT__                 long
 #define UINT__                 DWORD__
 #define BOOL__                 DWORD__
-#define FLOAT__                float
 #define BYTE__                 unsigned char
 
 #ifndef TRUE

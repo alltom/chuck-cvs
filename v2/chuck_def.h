@@ -69,9 +69,17 @@
 typedef char *                      c_str;
 typedef const char *                c_constr;
 
+// double
+#define CK_S_DOUBLE
+
 // sample
-#define SAMPLE_FLOAT                float
-#define SAMPLE                      SAMPLE_FLOAT
+#ifdef CK_S_DOUBLE
+#define SAMPLE                      double
+#define SILENCE                     0.0
+#else
+#define SAMPLE                      float
+#define SILENCE                     0.0f
+#endif
 
 // bool
 #ifndef TRUE
