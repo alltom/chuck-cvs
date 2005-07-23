@@ -959,7 +959,7 @@ CK_DLL_TICK( impulse_tick )
     if( d->when )
     {
         *out = d->value;
-        d->value = 0;
+        d->when = 0;
     }
     else
         *out = 0.0f;

@@ -81,56 +81,93 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     biquad_offset_data = type_engine_import_mvar ( env, "int", "@biquad_data", FALSE );
     if ( biquad_offset_data == CK_INVALID_OFFSET ) goto error;
 
+    // pfreq
     func = make_new_mfun ( "float", "pfreq", biquad_ctrl_pfreq );
     func->add_arg ( "float", "freq" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "pfreq", biquad_cget_pfreq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // prad
     func = make_new_mfun ( "float", "prad", biquad_ctrl_prad );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "prad", biquad_cget_prad );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // zfreq
     func = make_new_mfun ( "float", "zfreq", biquad_ctrl_zfreq );
     func->add_arg ( "float", "freq" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "zfreq", biquad_cget_zfreq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // zrad
     func = make_new_mfun ( "float", "zrad", biquad_ctrl_zrad );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "zrad", biquad_cget_zrad );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // norm
     func = make_new_mfun ( "int", "norm", biquad_ctrl_norm );
     func->add_arg ( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "int", "norm", biquad_cget_norm );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // pregain
     func = make_new_mfun ( "float", "pregain", biquad_ctrl_pregain );
     func->add_arg ( "float", "level" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "pregain", biquad_cget_pregain );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // eqzs
     func = make_new_mfun ( "int", "eqzs", biquad_ctrl_eqzs );
     func->add_arg ( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // b0
     func = make_new_mfun ( "float", "b0", biquad_ctrl_b0 );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "b0", biquad_cget_b0 );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // b1
     func = make_new_mfun ( "float", "b1", biquad_ctrl_b1 );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "b1", biquad_cget_b1 );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // b2
     func = make_new_mfun ( "float", "b2", biquad_ctrl_b2 );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "b2", biquad_cget_b2 );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // a0
     func = make_new_mfun ( "float", "a0", biquad_ctrl_a0 );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "a0", biquad_cget_a0 );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // a1
     func = make_new_mfun ( "float", "a1", biquad_ctrl_a1 );
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "a1", biquad_cget_a1 );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    // a2
     func = make_new_mfun ( "float", "a2", biquad_ctrl_a2 );
     func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    func = make_new_mfun ( "float", "a2", biquad_cget_a2 );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     // end the class import
@@ -322,7 +359,7 @@ struct filter_data
         }
         output[0] += b[0] * input[0];
 
-        for (i=nA-1; i>0; i--)
+        for ( i = nA-1; i>0; i--)
         {
             output[0] += -a[i] * output[i];
             output[i] = output[i-1];
@@ -459,6 +496,17 @@ CK_DLL_CTRL( biquad_ctrl_pfreq )
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->pfreq = GET_CK_FLOAT(ARGS);
     biquad_set_reson( d ); 
+    RETURN->v_float = d->pfreq;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_pfreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_pfreq )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->pfreq;
 }
 
 //-----------------------------------------------------------------------------
@@ -470,6 +518,17 @@ CK_DLL_CTRL( biquad_ctrl_prad )
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->prad = GET_CK_FLOAT(ARGS);
     biquad_set_reson( d );
+    RETURN->v_float = d->prad;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_prad()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_prad )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->prad;
 }
 
 void biquad_set_notch( biquad_data * d )
@@ -487,6 +546,17 @@ CK_DLL_CTRL( biquad_ctrl_zfreq )
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->zfreq = GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
+    RETURN->v_float = d->zfreq;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_zfreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_zfreq )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->zfreq;
 }
 
 //-----------------------------------------------------------------------------
@@ -498,6 +568,17 @@ CK_DLL_CTRL( biquad_ctrl_zrad )
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->zrad = GET_CK_FLOAT(ARGS);
     biquad_set_notch( d );
+    RETURN->v_float = d->zrad;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_zrad()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_zrad )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->zrad;
 }
 
 //-----------------------------------------------------------------------------
@@ -509,6 +590,17 @@ CK_DLL_CTRL( biquad_ctrl_norm )
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->norm = *(t_CKBOOL *)ARGS;
     biquad_set_reson( d );
+    RETURN->v_int = d->norm;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_norm()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_norm )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_int = d->norm;
 }
 
 //-----------------------------------------------------------------------------
@@ -519,6 +611,17 @@ CK_DLL_CTRL( biquad_ctrl_pregain )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->m_a0 = (SAMPLE)GET_CK_FLOAT(ARGS);
+    RETURN->v_float = d->m_a0;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_pregain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_pregain )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->m_a0;
 }
 
 //-----------------------------------------------------------------------------
@@ -534,6 +637,7 @@ CK_DLL_CTRL( biquad_ctrl_eqzs )
         d->m_b1 = 0.0f;
         d->m_b2 = -1.0f;
     }
+    RETURN->v_int = *(t_CKUINT *)ARGS;
 }
 
 //-----------------------------------------------------------------------------
@@ -544,6 +648,17 @@ CK_DLL_CTRL( biquad_ctrl_b0 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->m_b0 = (SAMPLE)GET_CK_FLOAT(ARGS);
+    RETURN->v_float = d->m_b0;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_b0()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_b0 )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->m_b0;
 }
 
 //-----------------------------------------------------------------------------
@@ -554,6 +669,17 @@ CK_DLL_CTRL( biquad_ctrl_b1 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->m_b1 = (SAMPLE)GET_CK_FLOAT(ARGS);
+    RETURN->v_float = d->m_b1;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_b1()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_b1 )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->m_b1;
 }
 
 //-----------------------------------------------------------------------------
@@ -564,6 +690,17 @@ CK_DLL_CTRL( biquad_ctrl_b2 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->m_b2 = (SAMPLE)GET_CK_FLOAT(ARGS);
+    RETURN->v_float = d->m_b2;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_b2()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_b2 )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->m_b2;
 }
 
 //-----------------------------------------------------------------------------
@@ -574,6 +711,17 @@ CK_DLL_CTRL( biquad_ctrl_a0 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->m_a0 = (SAMPLE)GET_CK_FLOAT(ARGS);
+    RETURN->v_float = d->m_a0;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_a0()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_a0 )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->m_a0;
 }
 
 //-----------------------------------------------------------------------------
@@ -584,6 +732,17 @@ CK_DLL_CTRL( biquad_ctrl_a1 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->m_a1 = (SAMPLE)GET_CK_FLOAT(ARGS);
+    RETURN->v_float = d->m_a1;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_a1()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_a1 )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->m_a1;
 }
 
 //-----------------------------------------------------------------------------
@@ -594,6 +753,17 @@ CK_DLL_CTRL( biquad_ctrl_a2 )
 {
     biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
     d->m_a2 = (SAMPLE)GET_CK_FLOAT(ARGS);
+    RETURN->v_float = d->m_a2;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_cget_a2()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( biquad_cget_a2 )
+{
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    RETURN->v_float = d->m_a2;
 }
 
 
