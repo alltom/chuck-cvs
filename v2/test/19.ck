@@ -6,4 +6,5 @@ fun void foo( float a[] )
 
 float x[10];
 foo( x );
-<<<"success">>>;
+
+if( 10.0 == x["foo"] ) <<<"success">>>;

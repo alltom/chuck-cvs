@@ -16,7 +16,7 @@
 
 test_output="chuck_autotest_log.txt"
 tmp_file="/tmp/chuck_test"
-chuck_bin="../chuck"
+chuck_bin="chuck"
 
 # simple header
 
