@@ -4,40 +4,40 @@ MidiOut mout;
 MidiMsg mg;
 MidiMsgIn mrw;
 
+// open MIDI output
 if( !mout.open( 0 ) )
-    <<<"bad">>>;
+    me.exit();
 
-//sinosc s => dac;
 Mandolin m => JCRev r => dac;
 .2 => r.mix;
 
+// open file for read
 mrw.open( "z.txt" );
 //"foo.wav" => s.read;
 
+// time scale
 0.5 => float scale;
 
+// get current time
 time t;
 now => t;
 
 int count;
 
+// while there is more to read
 while( mrw.read( mg ) != 0 )
 {
-    <<<"ha">>>;
+    // advance time
     scale * (mg.when - t) => now;
     mg.when => t;
-    //mg.when => now;
+
     mout.send( mg );
     std.rand2f( .8, .9 ) => m.pluckPos;
     std.mtof( mg.data2 ) => m.freq;
     mg.data3 / 128.0 => m.pluck;
-    //<<< mg.data1 >>>;
-    //<<< mg.data2 >>>;
-    //<<< mg.data3 >>>;
-    <<< mg.when >>>;
-    //<<< "----" >>>;
 
-    <<<count + 1 => count>>>;
+    <<< "when:", mg.when, mg.data1, mg.data2, mg.data3 >>>;
+    // <<<count + 1 => count>>>;
 }
 
 mrw.close();
