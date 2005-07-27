@@ -12,4 +12,4 @@ class X
 X x;
 x.foo( 2 );
 
-<<<"success">>>;
+if( x.i == 2 ) <<<"success">>>;
