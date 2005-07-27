@@ -42,6 +42,9 @@
 #include <sys/stat.h>
 #include <signal.h>
 
+#ifndef __PLATFORM_WIN32__
+#include <unistd.h>
+#endif
 
 // global
 extern Chuck_VM * g_vm;

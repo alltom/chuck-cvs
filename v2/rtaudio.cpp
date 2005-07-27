@@ -432,7 +432,6 @@ bool RtApi :: probeDeviceOpen( int device, StreamMode mode, int channels,
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
-#include <unistd.h>
 #include <fcntl.h>
 #include <sys/soundcard.h>
 #include <errno.h>
