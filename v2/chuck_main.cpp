@@ -400,7 +400,7 @@ int main( int argc, char ** argv )
                 compiler->emitter->dump = FALSE;
             else
                 get_count( argv[i], &count );
-            
+
             continue;
         }
 
