@@ -71,6 +71,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, Chuck_Func * func
                                          Chuck_Type * type, int linepos, t_CKBOOL spork = FALSE );
 t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call,
                                          t_CKBOOL spork = FALSE );
+t_CKBOOL emit_engine_emit_func_args( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
 t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
 t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
@@ -2447,6 +2448,27 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
 
 
 //-----------------------------------------------------------------------------
+// name: emit_engine_emit_func_args()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_func_args( Chuck_Emitter * emit,
+                                     a_Exp_Func_Call func_call )
+{
+    // emit the args
+    if( !emit_engine_emit_exp( emit, func_call->args ) )
+    {
+        EM_error2( func_call->linepos,
+                   "(emit): internal error in emitting function call arguments..." );
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: emit_engine_emit_exp_func_call()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2454,16 +2476,11 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
                                          a_Exp_Func_Call func_call,
                                          t_CKBOOL spork )
 {
-    // make sure there are args
-    if( func_call->args )
+    // make sure there are args, and not sporking
+    if( func_call->args && !spork )
     {
-        // emit the args
-        if( !emit_engine_emit_exp( emit, func_call->args ) )
-        {
-            EM_error2( func_call->linepos,
-                       "(emit): internal error in emitting function call arguments..." );
+        if( !emit_engine_emit_func_args( emit, func_call ) )
             return FALSE;
-        }
     }
 
     // emit func
@@ -3140,6 +3157,10 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 {
     // spork
     Chuck_Instr_Mem_Push_Imm * op = NULL;
+
+    // evaluate args on sporker shred
+    if( !emit_engine_emit_func_args( emit, exp ) )
+        return FALSE;
 
     // push the current code
     emit->stack.push_back( emit->code );
