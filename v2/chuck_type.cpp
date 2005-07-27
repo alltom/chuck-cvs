@@ -1795,7 +1795,7 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
     // set the array depth
     t->array_depth = type->array_depth + 1;
     // set the base type
-    t->array_type = type;
+    t->array_type = type->array_depth ? type->array_type : type;
     // set owner
     t->owner = env->curr;
 
@@ -3317,7 +3317,7 @@ t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
     // check array depth
     if( lhs.array_depth != rhs.array_depth ) return FALSE;
     // check array type
-    if( lhs.array_depth && (lhs.actual_type != rhs.actual_type) ) return FALSE;
+    if( lhs.array_depth && (*lhs.actual_type != *rhs.actual_type) ) return FALSE;
 
     // if user-defined type
     if( lhs.id == te_user )
