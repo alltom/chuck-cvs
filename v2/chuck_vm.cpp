@@ -130,7 +130,7 @@ Chuck_VM::Chuck_VM()
     m_bunghole = NULL;
     m_num_dac_channels = 0;
     m_num_adc_channels = 0;
-	m_init = FALSE;
+    m_init = FALSE;
 }
 
 
@@ -303,33 +303,33 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     }
 
     if( m_dac != NULL )
-	{
-		m_last_error = "VM synthesis already initialized";
-		return FALSE;
-	}
+    {
+        m_last_error = "VM synthesis already initialized";
+        return FALSE;
+    }
 
     // allocate dac and adc
-	m_num_dac_channels = g_t_dac->ugen_info->num_ins;
-	m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
+    m_num_dac_channels = g_t_dac->ugen_info->num_ins;
+    m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
     stereo_ctor( m_dac, NULL );
     m_dac->add_ref();
-	
-	m_num_adc_channels = g_t_adc->ugen_info->num_outs;
-	m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
+    
+    m_num_adc_channels = g_t_adc->ugen_info->num_outs;
+    m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
     stereo_ctor( m_adc, NULL );
     m_adc->add_ref();
-	
-	m_bunghole = new Chuck_UGen;
-	m_bunghole->add_ref();
-	initialize_object( m_bunghole, &t_ugen );
-	m_bunghole->tick = NULL;
-	m_shreduler->m_dac = m_dac;
-	m_shreduler->m_adc = m_adc;
-	m_shreduler->m_bunghole = m_bunghole;
-	m_shreduler->m_num_dac_channels = m_num_dac_channels;
-	m_shreduler->m_num_adc_channels = m_num_adc_channels;
-	
-	return TRUE;
+    
+    m_bunghole = new Chuck_UGen;
+    m_bunghole->add_ref();
+    initialize_object( m_bunghole, &t_ugen );
+    m_bunghole->tick = NULL;
+    m_shreduler->m_dac = m_dac;
+    m_shreduler->m_adc = m_adc;
+    m_shreduler->m_bunghole = m_bunghole;
+    m_shreduler->m_num_dac_channels = m_num_dac_channels;
+    m_shreduler->m_num_adc_channels = m_num_adc_channels;
+    
+    return TRUE;
 }
 
 

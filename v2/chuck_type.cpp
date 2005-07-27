@@ -2644,8 +2644,8 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
 
     // set fields not set in scan
     the_class->parent = t_parent;
-	// inherit ugen_info data from parent PLD
-	the_class->ugen_info = t_parent->ugen_info;
+    // inherit ugen_info data from parent PLD
+    the_class->ugen_info = t_parent->ugen_info;
     // set the beginning of data segment to after the parent
     the_class->info->offset = t_parent->obj_size;
     // duplicate the parent's virtual table
