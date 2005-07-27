@@ -5,11 +5,14 @@ MidiIn min;
 MidiMsg msg;
 MidiRW mrw;
 
+// open MIDI device
 if( !min.open( 0 ) )
     me.exit();
 
+// open
 mrw.open( "y.txt" );
 
+// infinite time loop
 while( true )
 {
     // wait on event

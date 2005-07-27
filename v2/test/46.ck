@@ -5,9 +5,8 @@ MidiMsg mg;
 MidiRW mrw;
 
 if( !mout.open( 0 ) )
-    <<<"bad">>>;
+    me.exit();
 
-//sinosc s => dac;
 Mandolin m => JCRev r => dac;
 .2 => r.mix;
 
@@ -18,23 +17,16 @@ now => t;
 
 int count;
 
+// play back from file
 while( mrw.read( mg ) != 0 )
 {
-    <<<"ha">>>;
     mg.when - t => now;
     mg.when => t;
-    //mg.when => now;
     mout.send( mg );
     std.rand2f( .8, .9 ) => m.pluckPos;
     std.mtof( mg.data2 ) => m.freq;
     mg.data3 / 128.0 => m.pluck;
-    //<<< mg.data1 >>>;
-    //<<< mg.data2 >>>;
-    //<<< mg.data3 >>>;
-    <<< mg.when >>>;
-    //<<< "----" >>>;
-
-    <<<count + 1 => count>>>;
+    <<< "when:", mg.when, " msg:", mg.data1, mg.data2, mg.data3 >>>; 
 }
 
 mrw.close();
