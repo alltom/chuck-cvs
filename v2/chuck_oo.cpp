@@ -382,7 +382,17 @@ t_CKINT Chuck_Array4::find( const string & key )
 //-----------------------------------------------------------------------------
 t_CKINT Chuck_Array4::erase( const string & key )
 {
-    return m_map.erase( key );
+    map<string, t_CKUINT>::iterator iter = m_map.find( key );
+    t_CKINT v = iter != m_map.end();
+
+    // if obj
+    if( m_is_obj && iter != m_map.end() ) 
+        ((Chuck_Object *)(*iter).second)->release();
+
+    // erase
+    if( v ) m_map.erase( key );
+
+    return v;
 }
 
 
