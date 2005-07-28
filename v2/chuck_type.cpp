@@ -1517,6 +1517,8 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                     t,  // the 'array_type'
                     env->curr  // the owner namespace
                 );
+
+                // TODO: ref?
             }
 
             // make sure the type is not a primitive

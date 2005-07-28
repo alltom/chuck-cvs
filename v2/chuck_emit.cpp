@@ -1994,7 +1994,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
         if( isobj( t ) )
         {
             // instantiate object, including array
-            if( !emit_engine_instantiate_object( emit, t, unary->type->array, unary->type->ref ) )
+            if( !emit_engine_instantiate_object( emit, t, unary->array, unary->type->ref ) )
                 return FALSE;
         }
         break;
