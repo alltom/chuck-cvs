@@ -1488,26 +1488,6 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                 return NULL;
             }
 
-            // make sure the type is not a primitive
-            if( isa( t, &t_int ) || isa( t, &t_float ) || isa( t, &t_dur ) 
-                || isa( t, &t_time ) )
-            {
-                EM_error2( unary->linepos,
-                    "cannot instantiate/(new) primitive type '%s'...",
-                    t->c_name() );
-                EM_error2( unary->linepos,
-                    "...(primitive types: 'int', 'float', 'time', 'dur')" );
-                return NULL;
-            }
-
-            // make sure the type is not a reference
-            if( unary->type->ref && !unary->array )
-            {
-                EM_error2( unary->linepos,
-                    "cannot instantiate/(new) single object references (@)..." );
-                return NULL;
-            }
-
             // []
             if( unary->array )
             {
@@ -1528,6 +1508,35 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
                 // make sure types are of int
                 if( !type_engine_check_array_subscripts( env, unary->array->exp_list ) )
                     return NULL;
+
+                // create the new array type, replace t
+                t = new_array_type(
+                    env,  // the env
+                    &t_array,  // the array base class, usually &t_array
+                    unary->array->depth,  // the depth of the new type
+                    t,  // the 'array_type'
+                    env->curr  // the owner namespace
+                );
+            }
+
+            // make sure the type is not a primitive
+            if( isa( t, &t_int ) || isa( t, &t_float ) || isa( t, &t_dur ) 
+                || isa( t, &t_time ) )
+            {
+                EM_error2( unary->linepos,
+                    "cannot instantiate/(new) primitive type '%s'...",
+                    t->c_name() );
+                EM_error2( unary->linepos,
+                    "...(primitive types: 'int', 'float', 'time', 'dur')" );
+                return NULL;
+            }
+
+            // make sure the type is not a reference
+            if( unary->type->ref && !unary->array )
+            {
+                EM_error2( unary->linepos,
+                    "cannot instantiate/(new) single object references (@)..." );
+                return NULL;
             }
 
             // return the type
