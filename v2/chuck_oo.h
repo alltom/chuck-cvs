@@ -147,6 +147,33 @@ public:
 
 
 
+#define CHUCK_ARRAY4_DATASIZE 4; 
+#define CHUCK_ARRAY8_DATASIZE 8; 
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Array
+// desc: native ChucK arrays ( virtual base class )
+//-----------------------------------------------------------------------------
+struct Chuck_Array : Chuck_Object
+{
+    //functionality that we can keep in common...
+
+public:
+    Chuck_Array();
+    virtual ~Chuck_Array();
+
+    virtual t_CKINT erase( const std::string & key ) = 0; //erase...
+    virtual t_CKINT size( ) const { return m_size; } //array size
+    virtual t_CKINT capacity( ) const { return m_capacity; } //array capacity
+    virtual t_CKINT data_type_size( ) = 0; //size of stored type ( from type_ref )
+
+public:
+    t_CKUINT m_size;
+    t_CKUINT m_capacity;
+};
+
+
+
+
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Array4
 // desc: native ChucK arrays (for 4-byte)
