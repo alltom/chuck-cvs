@@ -7,7 +7,7 @@ int a[2];
 // associative
 5 => a["foo"];
 
-
+// test
 if( !a[0] && a["foo"] == 5 && a.find("foo") ) <<<"success">>>;
 
 // erase

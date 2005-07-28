@@ -123,7 +123,9 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def );
 
 // helper
 a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static );
-
+Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
+                             t_CKUINT depth, Chuck_Type * base_type,
+                             Chuck_Namespace * owner_nspc );
 // static
 Chuck_Env * Chuck_Env::our_instance = NULL;
 
@@ -1781,6 +1783,16 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
     // treat static and dynamic separately
     // exp->array->is_dynamic = !is_static_array_lit( env, exp->array->exp_list );
 
+    // create the new array type
+    t = new_array_type(
+        env,  // the env
+        &t_array,  // the array base class, usually &t_array
+        type->array_depth + 1,  // the depth of the new type
+        type->array_depth ? type->array_type : type,  // the 'array_type'
+        env->curr  // the owner namespace
+    );
+
+    /*
     // create the new type
     t = env->context->new_Chuck_Type();
     // set the id
@@ -1802,6 +1814,7 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
     t->info->add_ref();
     // set owner
     t->owner = env->curr;
+    */
 
     return t;
 }
@@ -2130,6 +2143,17 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
                 if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
                     return NULL;
             }
+
+            // create the new array type
+            t = new_array_type(
+                env,  // the env
+                &t_array,  // the array base class, usually &t_array
+                var_decl->array->depth,  // the depth of the new type
+                t2,  // the 'array_type'
+                env->curr  // the owner namespace
+            );
+
+            /*
             // make new type
             t = env->context->new_Chuck_Type();
             // set the id
@@ -2151,6 +2175,8 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             t->info->add_ref();
             // set owner
             t->owner = env->curr;
+            */
+
             // set ref
             if( !var_decl->array->exp_list )
                 decl->type->ref = TRUE;
@@ -2884,6 +2910,38 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         EM_error2( f->linepos, "... in return type of function '%s' ...", S_name(f->name) );
         goto error;
     }
+    // check if array
+    if( f->type_decl->array != NULL )
+    {
+        // verify there are no errors from the parser...
+        if( !verify_array( f->type_decl->array ) )
+            return FALSE;
+        
+        Chuck_Type * t = NULL;
+        Chuck_Type * t2 = f->ret_type;
+        // should be partial and empty []
+        if( f->type_decl->array->exp_list )
+        {
+            EM_error2( f->type_decl->array->linepos, "function '%s':", S_name(f->name) );
+            EM_error2( f->type_decl->array->linepos, "return array type must be defined with empty []'s" );
+            return FALSE;
+        }
+
+        // create the new array type
+        t = new_array_type(
+            env,  // the env
+            &t_array,  // the array base class, usually &t_array
+            f->type_decl->array->depth,  // the depth of the new type
+            t2,  // the 'array_type'
+            env->curr  // the owner namespace
+        );
+
+        // TODO: verify
+        // set ref
+        f->type_decl->ref = TRUE;
+        // replace type
+        f->ret_type = t;
+    }
 
     // look up types for the function arguments
     arg_list = f->arg_list;
@@ -2945,6 +3003,17 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
                     count, S_name(arg_list->var_decl->id) );
                 return FALSE;
             }
+
+            // create the new array type
+            t = new_array_type(
+                env,  // the env
+                &t_array,  // the array base class, usually &t_array
+                arg_list->var_decl->array->depth,  // the depth of the new type
+                t2,  // the 'array_type'
+                env->curr  // the owner namespace
+            );
+
+            /*
             // make new type
             t = env->context->new_Chuck_Type();
             // set the id
@@ -2965,6 +3034,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             t->info->add_ref();
             // set owner
             t->owner = env->curr;
+            */
+
             // set ref
             arg_list->type_decl->ref = TRUE;
             // set type
@@ -4283,6 +4354,42 @@ Chuck_Namespace * Chuck_Context::new_Chuck_Namespace()
     init_special( nspc );
 
     return nspc;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: new_array_type()
+// desc: instantiate new chuck type for some kind of array
+//-----------------------------------------------------------------------------
+Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
+                             t_CKUINT depth, Chuck_Type * base_type,
+                             Chuck_Namespace * owner_nspc )
+{
+    // make new type
+    Chuck_Type * t = env->context->new_Chuck_Type();
+    // set the id
+    t->id = te_array;
+    // set the name
+    t->name = base_type->name;
+    // set the parent
+    t->parent = array_parent; // TODO: ref
+    // is a ref
+    t->size = array_parent->size;
+    // set the array depth
+    t->array_depth = depth;
+    // set the base type
+    t->array_type = base_type; // TODO: ref
+    // set the namesapce
+    t->info = array_parent->info;
+    // add reference
+    t->info->add_ref();
+    // set owner
+    t->owner = owner_nspc;
+
+    // return the type
+    return t;
 }
 
 
