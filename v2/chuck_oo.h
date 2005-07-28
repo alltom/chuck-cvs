@@ -147,8 +147,8 @@ public:
 
 
 
-#define CHUCK_ARRAY4_DATASIZE 4; 
-#define CHUCK_ARRAY8_DATASIZE 8; 
+#define CHUCK_ARRAY4_DATASIZE 4
+#define CHUCK_ARRAY8_DATASIZE 8
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Array
 // desc: native ChucK arrays ( virtual base class )
@@ -158,13 +158,14 @@ struct Chuck_Array : Chuck_Object
     //functionality that we can keep in common...
 
 public:
-    Chuck_Array();
-    virtual ~Chuck_Array();
+    // Chuck_Array();
+    // virtual ~Chuck_Array() { }
 
-    virtual t_CKINT erase( const std::string & key ) = 0; //erase...
     virtual t_CKINT size( ) const { return m_size; } //array size
     virtual t_CKINT capacity( ) const { return m_capacity; } //array capacity
     virtual t_CKINT data_type_size( ) = 0; //size of stored type ( from type_ref )
+    virtual t_CKINT find( const std::string & key ) = 0; // find
+    virtual t_CKINT erase( const std::string & key ) = 0; // erase
 
 public:
     t_CKUINT m_size;
@@ -178,11 +179,11 @@ public:
 // name: struct Chuck_Array4
 // desc: native ChucK arrays (for 4-byte)
 //-----------------------------------------------------------------------------
-struct Chuck_Array4 : Chuck_Object
+struct Chuck_Array4 : Chuck_Array
 {
 public:
     Chuck_Array4( t_CKBOOL is_obj, t_CKINT capacity = 8 );
-    ~Chuck_Array4();
+    virtual ~Chuck_Array4();
 
 public:
     t_CKUINT addr( t_CKINT i );
@@ -191,20 +192,21 @@ public:
     t_CKINT get( const std::string & key, t_CKUINT * val );
     t_CKINT set( t_CKINT i, t_CKUINT val );
     t_CKINT set( const std::string & key, t_CKUINT val );
-    t_CKINT erase( const std::string & key );
     t_CKINT push_back( t_CKUINT val );
     t_CKINT pop_back( );
     t_CKINT back( t_CKUINT * val ) const;
-    t_CKINT size( ) const { return m_size; }
-    t_CKINT capacity( ) const { return m_capacity; }
     void clear( );
+
+    virtual t_CKINT find( const std::string & key );
+    virtual t_CKINT erase( const std::string & key );
+    virtual t_CKINT data_type_size( ) { return CHUCK_ARRAY4_DATASIZE; } 
 
 public:
     std::vector<t_CKUINT> m_vector;
     std::map<std::string, t_CKUINT> m_map;
-    t_CKINT m_size;
-    t_CKINT m_capacity;
     t_CKBOOL m_is_obj;
+    // t_CKINT m_size;
+    // t_CKINT m_capacity;
 };
 
 
@@ -214,11 +216,11 @@ public:
 // name: struct Chuck_Array8
 // desc: native ChucK arrays (for 8-byte)
 //-----------------------------------------------------------------------------
-struct Chuck_Array8 : Chuck_Object
+struct Chuck_Array8 : Chuck_Array
 {
 public:
     Chuck_Array8( t_CKINT capacity = 8 );
-    ~Chuck_Array8();
+    virtual ~Chuck_Array8();
 
 public:
     t_CKUINT addr( t_CKINT i );
@@ -227,19 +229,20 @@ public:
     t_CKINT get( const std::string & key, t_CKFLOAT * val );
     t_CKINT set( t_CKINT i, t_CKFLOAT val );
     t_CKINT set( const std::string & key, t_CKFLOAT val );
-    t_CKINT erase( const std::string & key );
     t_CKINT push_back( t_CKFLOAT val );
     t_CKINT pop_back( );
     t_CKINT back( t_CKFLOAT * val ) const;
-    t_CKINT size( ) const { return m_size; }
-    t_CKINT capacity( ) const { return m_capacity; }
     void clear( );
+
+    virtual t_CKINT find( const std::string & key );
+    virtual t_CKINT erase( const std::string & key );
+    virtual t_CKINT data_type_size( ) { return CHUCK_ARRAY8_DATASIZE; }
 
 public:
     std::vector<t_CKFLOAT> m_vector;
     std::map<std::string, t_CKFLOAT> m_map;
-    t_CKINT m_size;
-    t_CKINT m_capacity;
+    // t_CKINT m_size;
+    // t_CKINT m_capacity;
 };
 
 

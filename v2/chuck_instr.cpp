@@ -2426,9 +2426,13 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         Chuck_Array4 * array = new Chuck_Array4( m_is_obj, m_length );
         // problem
         if( !array ) goto out_of_memory;
+        // initialize object
+        initialize_object( array, &t_array );
         // fill array
         for( t_CKINT i = 0; i < m_length; i++ )
             array->set( i, *(reg_sp + i) );
+        // set size
+        array->m_size = m_length;
         // push the pointer
         push_( reg_sp, (t_CKUINT)array );
     }
@@ -2442,8 +2446,13 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         if( !array ) goto out_of_memory;
         // fill array
         t_CKFLOAT * sp = (t_CKFLOAT *)reg_sp;
+        // intialize object
+        initialize_object( array, &t_array );
+        // fill array
         for( t_CKINT i = 0; i < m_length; i++ )
             array->set( i, *(sp + i) );
+        // set size
+        array->m_size = m_length;
         // push the pointer
         push_( reg_sp, (t_CKUINT)array );
     }
@@ -2551,12 +2560,17 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
                 }
             }
 
+            // initialize object
+            initialize_object( base, &t_array );
             return base;
         }
         else
         {
             Chuck_Array8 * base = new Chuck_Array8( *capacity );
             if( !base ) goto out_of_memory;
+
+            // initialize object
+            initialize_object( base, &t_array );
             return base;
         }
 
@@ -2579,6 +2593,8 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
         base->set( i, (t_CKUINT)next );
     }
 
+    // initialize object
+    initialize_object( base, &t_array );
     return base;
 
 out_of_memory:

@@ -322,9 +322,41 @@ error:
 t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
-//    init_base_array( env, type, env->global(), (t_CKUINT)string_ctor );
+    Chuck_DL_Func * func = NULL;
+
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
+        return FALSE;
+
+    // add size()
+    func = make_new_mfun( "int", "size", array_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add size()
+    func = make_new_mfun( "int", "cap", array_capacity );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add find()
+    func = make_new_mfun( "int", "find", array_find );
+    func->add_arg( "string", "key" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add erase()
+    func = make_new_mfun( "int", "erase", array_erase );
+    func->add_arg( "string", "key" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    type_engine_import_class_end( env );
+
     return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
 }
+
 
 
 
@@ -890,6 +922,58 @@ CK_DLL_MFUN( string_get_at )
     RETURN->v_int = s->str.length();
 }
 */
+
+
+// array.size()
+CK_DLL_MFUN( array_size )
+{
+	Chuck_Array * array = (Chuck_Array *)SELF;
+	RETURN->v_int = array->size();
+}
+
+// array.cap()
+CK_DLL_MFUN( array_capacity )
+{
+	Chuck_Array * array = (Chuck_Array *)SELF;
+	RETURN->v_int = array->capacity();
+}
+
+// array.find()
+CK_DLL_MFUN( array_find )
+{
+	Chuck_Array * array = (Chuck_Array *)SELF;
+    Chuck_String * name = GET_NEXT_STRING( ARGS );
+	RETURN->v_int = array->find( name->str );
+}
+
+// array.erase()
+CK_DLL_MFUN( array_erase )
+{
+	Chuck_Array * array = (Chuck_Array *)SELF;
+    Chuck_String * name = GET_NEXT_STRING( ARGS );
+	RETURN->v_int = array->erase( name->str );
+}
+
+// array.push_back()
+CK_DLL_MFUN( array_push_back )
+{
+	Chuck_Array * array = (Chuck_Array *)SELF;
+	if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
+		RETURN->v_int = ((Chuck_Array4 *)array)->push_back( GET_NEXT_UINT( ARGS ) );
+	else 
+		RETURN->v_int = ((Chuck_Array8 *)array)->push_back( GET_NEXT_FLOAT( ARGS ) );
+}
+
+// array.pop_back()
+CK_DLL_MFUN( array_pop_back )
+{
+	Chuck_Array * array = (Chuck_Array *)SELF;
+	if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
+		RETURN->v_int = ((Chuck_Array4 *)array)->pop_back( );
+	else 
+		RETURN->v_int = ((Chuck_Array8 *)array)->pop_back( );
+}
+
 
 //-----------------------------------------------------------------------------
 // MidiIn API

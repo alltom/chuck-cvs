@@ -345,12 +345,13 @@ t_CKINT Chuck_Array4::set( t_CKINT i, t_CKUINT val )
 //-----------------------------------------------------------------------------
 t_CKINT Chuck_Array4::set( const string & key, t_CKUINT val )
 {
-    t_CKUINT v = m_map[key];
+    map<string, t_CKUINT>::iterator iter = m_map.find( key );
 
     // if obj
-    if( m_is_obj && v ) ((Chuck_Object *)v)->release();
+    if( m_is_obj && iter != m_map.end() ) 
+        ((Chuck_Object *)(*iter).second)->release();
 
-    if( !v ) m_map.erase( key );
+    if( !val ) m_map.erase( key );
     else m_map[key] = val;
 
     // if obj
@@ -358,6 +359,18 @@ t_CKINT Chuck_Array4::set( const string & key, t_CKUINT val )
 
     // return good
     return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: find()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array4::find( const string & key )
+{
+    return m_map.find( key ) != m_map.end();
 }
 
 
@@ -589,13 +602,26 @@ t_CKINT Chuck_Array8::set( t_CKINT i, t_CKFLOAT val )
 //-----------------------------------------------------------------------------
 t_CKINT Chuck_Array8::set( const string & key, t_CKFLOAT val )
 {
-    if( val == 0.0 ) m_map.erase( key );
+    map<string, t_CKFLOAT>::iterator iter = m_map.find( key );
+
+    if( !val ) m_map.erase( key );
     else m_map[key] = val;
 
     // return good
     return 1;
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: set()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array8::find( const string & key )
+{
+    return m_map.find( key ) != m_map.end();
+}
 
 
 

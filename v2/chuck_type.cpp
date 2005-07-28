@@ -194,12 +194,11 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
     init_class_string( env, &t_string );
+    init_class_array( env, &t_array );
     t_thread.info = new Chuck_Namespace;
     t_thread.info->add_ref();
     t_class.info = new Chuck_Namespace;
     t_class.info->add_ref();
-    t_array.info = new Chuck_Namespace;
-    t_array.info->add_ref();
 
     // default global values
     env->global()->value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
@@ -1796,6 +1795,11 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
     t->array_depth = type->array_depth + 1;
     // set the base type
     t->array_type = type->array_depth ? type->array_type : type;
+    // TODO: verify the following is correct
+    // set namespace
+    t->info = t_array.info;
+    // add reference
+    t->info->add_ref();
     // set owner
     t->owner = env->curr;
 
@@ -2140,6 +2144,11 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             t->array_depth = var_decl->array->depth;
             // set the base type
             t->array_type = t2;
+            // TODO: verify the following is correct
+            // set namespace
+            t->info = t_array.info;
+            // add reference
+            t->info->add_ref();
             // set owner
             t->owner = env->curr;
             // set ref
@@ -2268,7 +2277,7 @@ string type_engine_print_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member membe
     // this
     str = S_name(member->id);
 
-    return the_base->name + std::string(".") + str;
+    return string(the_base->c_name()) + std::string(".") + str;
 }
 
 
@@ -2370,23 +2379,23 @@ found:
         if( exp_func->s_type == ae_exp_primary && exp_func->primary.s_type == ae_primary_var )
         {
             EM_error2( exp_func->linepos,
-                "no matching function for '%s(...)' ...",
+                "argument type(s) do not match for function '%s(...)' ...",
                 S_name(exp_func->primary.var) );
         }
         else if( exp_func->s_type == ae_exp_dot_member )
         {
             EM_error2( exp_func->linepos,
-                "no matching function for '%s(...)' ...",
+                "arguments type(s) do not match for function '%s(...)' ...",
                 type_engine_print_exp_dot_member( env, &exp_func->dot_member ).c_str() );
         }
         else
         {
             EM_error2( exp_func->linepos,
-                "no matching function call ..." );
+                "argument type(s) do not match for function ..." );
         }
 
         EM_error2( exp_func->linepos,
-            "...(please check the function arguments)" );
+            "...(please check the argument types)" );
 
         return NULL;
     }
