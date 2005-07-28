@@ -942,8 +942,16 @@ Chuck_VM_Code::Chuck_VM_Code()
 //-----------------------------------------------------------------------------
 Chuck_VM_Code::~Chuck_VM_Code()
 {
+    // free instructions
     if( instr )
-        delete [] instr;
+    {
+        // loop over array
+        for( t_CKUINT i = 0; i < num_instr; i++ )
+            delete instr[i];
+
+        // free the array
+        SAFE_DELETE_ARRAY( instr );
+    }
 
     num_instr = 0;
 }
@@ -1058,6 +1066,8 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     next_pc = 1;
     // code pointer
     code = c;
+    // add reference
+    code->add_ref();
     // shred done
     is_done = FALSE;
     // shred running
@@ -1100,6 +1110,7 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
     obj_array_size = 0;
 
     // TODO: is this right?
+    code->release();
     code = NULL;
     // what to do with next and prev?
 

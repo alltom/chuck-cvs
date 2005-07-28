@@ -3360,12 +3360,12 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 Chuck_Instr_Hack::Chuck_Instr_Hack( Chuck_Type * type )
 {
     this->m_type_ref = type;
-//    this->m_type_ref->add_ref();
+    this->m_type_ref->add_ref();
 }
 
 Chuck_Instr_Hack::~Chuck_Instr_Hack()
 {
-//    this->m_type_ref->release();
+    this->m_type_ref->release();
 }
 
 void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )

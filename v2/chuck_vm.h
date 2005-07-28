@@ -103,7 +103,7 @@ public: // state
 // name: struct Chuck_VM_Code
 // desc: ...
 //-----------------------------------------------------------------------------
-struct Chuck_VM_Code
+struct Chuck_VM_Code : Chuck_Object
 {
 public:
     Chuck_VM_Code();
