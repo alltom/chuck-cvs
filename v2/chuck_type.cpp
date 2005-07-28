@@ -2959,6 +2959,10 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             t->array_depth = arg_list->var_decl->array->depth;
             // set the base type
             t->array_type = t2; // TODO: ref
+            // set the namesapce
+            t->info = t_array.info;
+            // add reference
+            t->info->add_ref();
             // set owner
             t->owner = env->curr;
             // set ref
