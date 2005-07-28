@@ -1151,9 +1151,10 @@ t_CKBOOL Chuck_VM_Shred::run( Chuck_VM * vm )
     // get the code
     instr = code->instr;
     is_running = TRUE;
+    t_CKBOOL * vm_running = &vm->m_running;
 
     // go!
-    while( is_running )
+    while( is_running && *vm_running )
     {
         // execute the instruction
         instr[pc]->execute( vm, this );

@@ -336,7 +336,7 @@ protected:
 
 protected:
     t_CKBOOL m_init;
-    t_CKBOOL m_running;
+    // t_CKBOOL m_running;  -> moved to public
     t_CKBOOL m_audio_started;
     string m_last_error;
 
@@ -359,6 +359,9 @@ protected:
     CBufferSimple * m_event_buffer;
 
 public:
+    // running
+    t_CKBOOL m_running;
+
     // priority
     static t_CKBOOL set_priority( t_CKINT priority, Chuck_VM * vm );
     static t_CKINT our_priority;
