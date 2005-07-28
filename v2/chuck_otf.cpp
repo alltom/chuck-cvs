@@ -465,7 +465,7 @@ void * otf_cb( void * p )
     int n;
 
     // catch SIGINT
-    signal( SIGINT, signal_int );
+    // signal( SIGINT, signal_int );
 #ifndef __PLATFORM_WIN32__
     // catch SIGPIPE
     signal( SIGPIPE, signal_pipe );
