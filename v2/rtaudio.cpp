@@ -1403,8 +1403,8 @@ void RtApiOss :: setStreamCallback(RtAudioCallback callback, void *userData)
   // program is run as root or suid.
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-  // pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-  // pthread_attr_setschedpolicy(&attr, SCHED_RR);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  pthread_attr_setschedpolicy(&attr, SCHED_RR);
 
   int err = pthread_create(&(info->thread), &attr, ossCallbackHandler, &stream_.callbackInfo);
   pthread_attr_destroy(&attr);
@@ -4301,8 +4301,8 @@ void RtApiAlsa :: setStreamCallback(RtAudioCallback callback, void *userData)
   // program is run as root or suid.
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-  // pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-  // pthread_attr_setschedpolicy(&attr, SCHED_RR);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  pthread_attr_setschedpolicy(&attr, SCHED_RR);
 
   int err = pthread_create(&info->thread, &attr, alsaCallbackHandler, &stream_.callbackInfo);
   pthread_attr_destroy(&attr);
