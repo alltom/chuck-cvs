@@ -53,6 +53,7 @@ extern char g_host[256];
 extern int g_port;
 extern ck_socket g_sock;
 extern t_CKUINT g_sigpipe_mode;
+extern "C" void signal_int( int );
 extern "C" void signal_pipe( int );
 
 
@@ -463,6 +464,8 @@ void * otf_cb( void * p )
     ck_socket client;
     int n;
 
+    // catch SIGINT
+    signal( SIGINT, signal_int );
 #ifndef __PLATFORM_WIN32__
     // catch SIGPIPE
     signal( SIGPIPE, signal_pipe );

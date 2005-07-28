@@ -34,12 +34,14 @@
 #include "chuck_errmsg.h"
 #include "rtaudio.h"
 #include "rtmidi.h"
+#include <signal.h>
 #if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
 #include <windows.h>
 #else
 #include <unistd.h>
 #endif
 
+extern "C" void signal_int( int );
 
 // static
 BOOL__ Digitalio::m_init = FALSE;
@@ -276,6 +278,8 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
         // priority boost
         if( !m_go && Chuck_VM::our_priority != 0x7fffffff )
             Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
+        // catch SIGINT
+        signal( SIGINT, signal_int );
 
         memset( buffer, 0, len );
         m_go++;
