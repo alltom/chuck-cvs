@@ -10,6 +10,7 @@ fun int hi( event e, string id )
     {
         // wait on event
         e => now;
+        // print the id
         <<<id>>>;
     }
 }

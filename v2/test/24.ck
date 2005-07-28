@@ -1,4 +1,5 @@
 
+// declare class with a member field and a member function
 class X
 {
     int i;
@@ -9,6 +10,7 @@ class X
     }
 }
 
+// instantiate a X
 X x;
 x.foo( 2 );
 
