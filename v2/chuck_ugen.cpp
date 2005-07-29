@@ -437,10 +437,12 @@ void Chuck_UGen::remove_all( )
 t_CKBOOL Chuck_UGen::disconnect( t_CKBOOL recursive )
 {
     // remove
-    for( unsigned int i = 0; i < m_num_dest; i++ )
-        m_dest_list[i]->remove( this );
+    while( m_num_dest > 0 )
+        m_dest_list[0]->remove( this );
+    // for( unsigned int i = 0; i < m_num_dest; i++ )
+    //    m_dest_list[i]->remove( this );
 
-    m_num_dest = 0;
+    // m_num_dest = 0;
     
     // disconnect src too?
     if( recursive )
