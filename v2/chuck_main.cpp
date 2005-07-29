@@ -408,7 +408,7 @@ int main( int argc, char ** argv )
         // get the code
         code = compiler->output();
         // name it
-        code->name += string("'") + argv[i] + "'";
+        code->name += string(argv[i]);
 
         // spork it
         while( count-- ) shred = vm->spork( code, NULL );
