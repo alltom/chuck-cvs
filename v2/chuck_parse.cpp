@@ -84,3 +84,15 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd )
     return TRUE;
 }
 
+
+
+
+//------------------------------------------------------------------------------
+// name: reset_parse()
+// desc: ...
+//------------------------------------------------------------------------------
+void reset_parse( )
+{
+    // empty file name
+    EM_change_file( NULL );
+}

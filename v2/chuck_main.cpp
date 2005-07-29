@@ -416,6 +416,9 @@ int main( int argc, char ** argv )
         // reset count
         count = 1;
     }
+    
+    // reset the parser
+    reset_parse();
 
     // boost priority
     if( Chuck_VM::our_priority != 0x7fffffff )

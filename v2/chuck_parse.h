@@ -55,6 +55,8 @@ extern "C" int yyparse( void );
 FILE * open_cat_ck( c_str filename );
 // parse file
 t_CKBOOL chuck_parse( c_constr fname, FILE * fd = NULL );
+// reset the parser
+void reset_parse( );
 
 
 #endif
