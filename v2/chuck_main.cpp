@@ -375,8 +375,6 @@ int main( int argc, char ** argv )
     // enable dump
     compiler->emitter->dump = dump;
 
-    // vm synthesis subsystem - needs the type system
-    vm->initialize_synthesis( );
 
     // catch SIGINT
     signal( SIGINT, signal_int );
@@ -419,6 +417,9 @@ int main( int argc, char ** argv )
         // reset count
         count = 1;
     }
+    
+    // vm synthesis subsystem - needs the type system
+    vm->initialize_synthesis( );
 
     // start tcp server
     g_sock = ck_tcp_create( 1 );

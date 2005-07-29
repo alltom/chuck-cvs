@@ -205,8 +205,6 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // default global values
     env->global()->value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
     env->global()->value.add( "NULL", new Chuck_Value( &t_null, "NULL", new void *(NULL), TRUE ) );
-    // TODO:
-    // env->global()->value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system), TRUE ) );
     env->global()->value.add( "t_zero", new Chuck_Value( &t_time, "time_zero", new t_CKDUR(0.0), TRUE ) );
     env->global()->value.add( "d_zero", new Chuck_Value( &t_dur, "dur_zero", new t_CKDUR(0.0), TRUE ) );
     env->global()->value.add( "samp", new Chuck_Value( &t_dur, "samp", new t_CKDUR(samp), TRUE ) );
@@ -221,6 +219,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->global()->value.add( "maybe", new Chuck_Value( &t_int, "maybe", new t_CKFLOAT(.5), FALSE ) );
     env->global()->value.add( "pi", new Chuck_Value( &t_float, "pi", new t_CKFLOAT(ONE_PI), TRUE ) );
     env->global()->value.add( "global", new Chuck_Value( &t_class, "global", env->global(), TRUE ) );
+
+    // TODO: can't use the following now is local to shred
+    // env->global()->value.add( "now", new Chuck_Value( &t_time, "now", &(vm->shreduler()->now_system), TRUE ) );
 
     /*
     S_enter( e->value, insert_symbol( "machine" ), &t_null );
