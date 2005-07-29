@@ -155,7 +155,7 @@ Chuck_VM::~Chuck_VM()
 
 // static
 #ifdef __MACOSX_CORE__
-t_CKINT Chuck_VM::our_priority = 95;
+t_CKINT Chuck_VM::our_priority = 85;
 #else
 t_CKINT Chuck_VM::our_priority = 0x7fffffff;
 #endif
