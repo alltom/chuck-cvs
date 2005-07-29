@@ -362,7 +362,7 @@ int main( int argc, char ** argv )
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
-                         num_buffers, dac, adc, g_priority ) )
+                         num_buffers, dac, adc ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
@@ -375,6 +375,8 @@ int main( int argc, char ** argv )
     // enable dump
     compiler->emitter->dump = dump;
 
+    // vm synthesis subsystem - needs the type system
+    vm->initialize_synthesis( );
 
     // catch SIGINT
     signal( SIGINT, signal_int );
@@ -418,8 +420,6 @@ int main( int argc, char ** argv )
         count = 1;
     }
     
-    // vm synthesis subsystem - needs the type system
-    vm->initialize_synthesis( );
 
     // start tcp server
     g_sock = ck_tcp_create( 1 );
@@ -436,6 +436,18 @@ int main( int argc, char ** argv )
 #else
         g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0);
 #endif
+    }
+
+    // boost priority
+    if( Chuck_VM::our_priority != 0x7fffffff )
+    {
+        // try
+        if( !Chuck_VM::set_priority( Chuck_VM::our_priority, vm ) )
+        {
+            // error
+            fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+            exit( 1 );
+        }
     }
 
     // run the vm

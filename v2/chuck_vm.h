@@ -272,8 +272,7 @@ public: // init
     t_CKBOOL initialize( t_CKBOOL enable_audio = TRUE, t_CKBOOL halt = TRUE,
                          t_CKUINT srate = 44100,
                          t_CKUINT buffer_size = 512, t_CKUINT num_buffers = 4,
-                         t_CKUINT dac = 0, t_CKUINT adc = 0, 
-                         t_CKINT priority = 0x7fffffff );
+                         t_CKUINT dac = 0, t_CKUINT adc = 0 );
     t_CKBOOL initialize_synthesis( );
     t_CKBOOL shutdown();
 

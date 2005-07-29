@@ -94,6 +94,8 @@ public:
                        DWORD__ adc = 0 );
     void set_srate( DWORD__ srate );
     void set_bufsize( DWORD__ bufsize );
+    // void set_numbufs( DWORD__ numbufs );
+    // void set_inouts( DWORD__ dac, DWORD__ adc );
     void shutdown();
 
 public:

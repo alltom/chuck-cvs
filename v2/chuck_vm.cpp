@@ -228,7 +228,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT srate,
                                t_CKUINT buffer_size, t_CKUINT num_buffers,
-                               t_CKUINT dac, t_CKUINT adc, t_CKINT priority )
+                               t_CKUINT dac, t_CKUINT adc )
 {
     if( m_init )
     {
@@ -236,11 +236,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         return FALSE;
     }
 
-//#ifndef __WINDOWS_DS__
     // boost thread priority
-    if( priority != 0x7fffffff && !set_priority( priority, this ) )
-        return FALSE;
-//#endif
+    // if( priority != 0x7fffffff && !set_priority( priority, this ) )
+    //    return FALSE;
 
     // allocate bbq
     m_bbq = new BBQ;
@@ -262,6 +260,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_event_buffer->initialize( 1024, sizeof(Chuck_Event *) );
     //m_event_buffer->join(); // this should also return 0
 
+    // if real-time audio enabled
     if( m_audio )
     {
         // init bbq
