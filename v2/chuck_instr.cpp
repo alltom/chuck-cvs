@@ -2401,7 +2401,7 @@ Chuck_Instr_Array_Init::~Chuck_Instr_Array_Init()
     delete [] m_param_str;
     m_param_str = NULL;
     // release
-    m_type_ref->release();
+    //m_type_ref->release();
     m_type_ref = NULL;
 }
 
@@ -2520,7 +2520,7 @@ Chuck_Instr_Array_Alloc::~Chuck_Instr_Array_Alloc()
     delete [] m_param_str;
     m_param_str = NULL;
     // release
-    m_type_ref->release();
+    //m_type_ref->release();
     m_type_ref = NULL;
 }
 
@@ -3365,7 +3365,7 @@ Chuck_Instr_Hack::Chuck_Instr_Hack( Chuck_Type * type )
 
 Chuck_Instr_Hack::~Chuck_Instr_Hack()
 {
-    this->m_type_ref->release();
+//    this->m_type_ref->release();
 }
 
 void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
