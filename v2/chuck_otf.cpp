@@ -157,7 +157,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
         // get the code
         code = compiler->output();
         // name it
-        code->name += string(msg->buffer);
+        code->name += string("'") + msg->buffer + "'";
 
         // set the flags for the command
         cmd->type = msg->type;
