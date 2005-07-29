@@ -33,6 +33,7 @@
 //-----------------------------------------------------------------------------
 #include "chuck_ugen.h"
 #include "chuck_vm.h"
+#include "chuck_errmsg.h"
 using namespace std;
 
 
@@ -194,7 +195,8 @@ void Chuck_UGen::done()
 
     assert( this->m_ref_count == 0 );
 
-    this->remove_all();
+    // disconnect
+    this->disconnect( TRUE );
     m_valid = FALSE;
 
     fa_done( m_src_list, m_src_cap );
@@ -321,6 +323,7 @@ void Chuck_UGen::add_by( Chuck_UGen * dest )
 {
     // append
     fa_push_back( m_dest_list, m_dest_cap, m_num_dest, dest );
+    dest->add_ref();
     m_num_dest++;
 }
 
@@ -402,9 +405,13 @@ void Chuck_UGen::remove_by( Chuck_UGen * dest )
     for( unsigned int i = 0; i < m_num_dest; i++ )
         if( m_dest_list[i] == dest )
         {
+            // get rid of it
             for( unsigned int j = i+1; j < m_num_dest; j++ )
                 m_dest_list[j-1] = m_dest_list[j];
 
+            // release
+            dest->release();
+            // null the last element
             m_dest_list[--m_num_dest] = NULL;
         }
 }
@@ -421,10 +428,19 @@ void Chuck_UGen::remove_all( )
     assert( this->m_num_dest == 0 );
     
     // remove
-    for( unsigned int i = 0; i < m_num_src; i++ )
-        m_src_list[i]->release();
+    while( m_num_src > 0 )
+    {
+        // make sure at least one got disconnected
+        if( !this->remove( m_src_list[0] ) )
+        {
+            // get rid of it, but don't release
+            for( unsigned int j = 1; j < m_num_src; j++ )
+                m_src_list[j-1] = m_src_list[j];
 
-    m_num_src = 0;
+            // null the last element
+            m_src_list[--m_num_src] = NULL;
+        }
+    }
 }
 
 
@@ -438,12 +454,23 @@ t_CKBOOL Chuck_UGen::disconnect( t_CKBOOL recursive )
 {
     // remove
     while( m_num_dest > 0 )
-        m_dest_list[0]->remove( this );
+    {
+        // make sure at least one got disconnected
+        if( !m_dest_list[0]->remove( this ) )
+        {
+            // get rid of it, but don't release
+            for( unsigned int j = 1; j < m_num_dest; j++ )
+                m_dest_list[j-1] = m_dest_list[j];
+
+            // null the last element
+            m_dest_list[--m_num_dest] = NULL;
+        }
+    }
+
     // for( unsigned int i = 0; i < m_num_dest; i++ )
     //    m_dest_list[i]->remove( this );
-
     // m_num_dest = 0;
-    
+
     // disconnect src too?
     if( recursive )
         this->remove_all();

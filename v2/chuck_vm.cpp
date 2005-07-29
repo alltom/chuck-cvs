@@ -1099,7 +1099,7 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
     map<Chuck_UGen *, Chuck_UGen *>::iterator iter = m_ugen_map.begin();
     while( iter != m_ugen_map.end() )
     {
-        (*iter).first->disconnect( FALSE );
+        (*iter).first->disconnect( TRUE );
         iter++;
     }
     m_ugen_map.clear();
