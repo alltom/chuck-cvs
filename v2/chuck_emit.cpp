@@ -157,7 +157,7 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog )
     // clear the code stack
     emit->stack.clear();
     // name the code
-    emit->code->name = "(main)";
+    // emit->code->name = "(main)";
     // whether code need this
     emit->code->need_this = TRUE;
 
