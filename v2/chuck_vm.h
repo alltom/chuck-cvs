@@ -162,6 +162,7 @@ public: // machine components
 
     // code
     Chuck_VM_Code * code;
+    Chuck_VM_Code * code_orig; // the one to release
     Chuck_Instr ** instr;
     Chuck_VM_Shred * parent;
     map<t_CKUINT, Chuck_VM_Shred *> children;
@@ -349,8 +350,8 @@ protected:
     BBQ * m_bbq;
 
     // function table
-    Chuck_VM_FTable * m_func_table;
-    t_CKUINT m_num_func;
+    // Chuck_VM_FTable * m_func_table;
+    // t_CKUINT m_num_func;
 
     // message queue
     CBufferSimple * m_msg_buffer;

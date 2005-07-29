@@ -1068,9 +1068,9 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     pc = 0;
     next_pc = 1;
     // code pointer
-    code = c;
+    code_orig = code = c;
     // add reference
-    code->add_ref();
+    code_orig->add_ref();
     // shred done
     is_done = FALSE;
     // shred running
@@ -1113,8 +1113,8 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
     obj_array_size = 0;
 
     // TODO: is this right?
-    code->release();
-    code = NULL;
+    code_orig->release();
+    code_orig = code = NULL;
     // what to do with next and prev?
 
     return TRUE;
