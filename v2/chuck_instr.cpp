@@ -2366,7 +2366,7 @@ Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t , t_CKINT length 
     // copy
     m_type_ref = t;
     // remember
-    m_type_ref->add_ref();
+    // m_type_ref->add_ref();
     // type
     m_param_str = new char[64];
     // obj
@@ -2486,7 +2486,7 @@ Chuck_Instr_Array_Alloc::Chuck_Instr_Array_Alloc( t_CKUINT depth, Chuck_Type * t
     // copy
     m_type_ref = t;
     // remember
-    m_type_ref->add_ref();
+    // m_type_ref->add_ref();
     // type
     m_param_str = new char[64];
     // obj
@@ -3360,7 +3360,7 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 Chuck_Instr_Hack::Chuck_Instr_Hack( Chuck_Type * type )
 {
     this->m_type_ref = type;
-    this->m_type_ref->add_ref();
+    // this->m_type_ref->add_ref();
 }
 
 Chuck_Instr_Hack::~Chuck_Instr_Hack()
