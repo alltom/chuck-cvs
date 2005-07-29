@@ -885,7 +885,8 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
 
     // free!
     m_shreduler->remove( shred );
-    // if( shred->event ) shred->event->remove( shred );
+    // TODO: remove shred from event, with synchronization
+    if( shred->event ) shred->event->remove( shred );
     shred->release();
     shred = NULL;
     if( dec ) m_num_shreds--;
