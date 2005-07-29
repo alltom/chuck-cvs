@@ -103,8 +103,8 @@ void EM_error( int pos, const char * message, ... )
         num--;
     }
 
-    fprintf( stderr, "['%s']:", *fileName ? mini(fileName) : "chuck" );
-    sprintf( g_lasterror, "['%s']:", *fileName ? mini(fileName) : "chuck" );
+    fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
+    sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
     if(lines)
     {
         fprintf(stderr, "line(%d).char(%d):", num, pos-lines->i );
