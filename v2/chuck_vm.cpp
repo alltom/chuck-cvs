@@ -260,22 +260,11 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_event_buffer->initialize( 1024, sizeof(Chuck_Event *) );
     //m_event_buffer->join(); // this should also return 0
 
-    // if real-time audio enabled
-    if( m_audio )
-    {
-        // init bbq
-        if( !m_bbq->initialize( 2, srate, 16, buffer_size, num_buffers, dac, adc ) )
-        {
-            m_last_error = "cannot initialize audio device (try using --silent/-s)";
-            return FALSE;
-        }
-    }
-    else
-    {
-        // at least set the sample rate and buffer size
-        m_bbq->set_srate( srate );
-        m_bbq->set_bufsize( buffer_size );
-    }
+    // at least set the sample rate and buffer size
+    m_bbq->set_srate( srate );
+    m_bbq->set_bufsize( buffer_size );
+    m_bbq->set_numbufs( num_buffers );
+    m_bbq->set_inouts( adc, dac );
     
     return m_init = TRUE;
 }
@@ -305,6 +294,19 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     {
         m_last_error = "VM synthesis already initialized";
         return FALSE;
+    }
+
+    // if real-time audio enabled
+    if( m_audio )
+    {
+        // init bbq
+        if( !m_bbq->initialize( 2, Digitalio::m_sampling_rate, 16, 
+            Digitalio::m_buffer_size, Digitalio::m_num_buffers,
+            Digitalio::m_dac_n, Digitalio::m_adc_n ) )
+        {
+            m_last_error = "cannot initialize audio device (try using --silent/-s)";
+            return FALSE;
+        }
     }
 
     // allocate dac and adc
@@ -390,8 +392,10 @@ t_CKBOOL Chuck_VM::start_audio( )
     {
         m_bbq->digi_out()->start();
         m_bbq->digi_in()->start();
-        m_audio_started = TRUE;
     }
+
+    // set the flag to true to avoid entering this function
+    m_audio_started = TRUE;
 
     return TRUE;
 }

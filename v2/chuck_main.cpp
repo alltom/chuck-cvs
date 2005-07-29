@@ -352,7 +352,7 @@ int main( int argc, char ** argv )
     if( !set_priority && !enable_audio ) g_priority = 0x7fffffff;
     // set priority
     Chuck_VM::our_priority = g_priority;
-    
+
     if ( !files && vm_halt )
     {
         fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
@@ -374,9 +374,6 @@ int main( int argc, char ** argv )
     compiler->initialize( vm );
     // enable dump
     compiler->emitter->dump = dump;
-
-    // vm synthesis subsystem - needs the type system
-    vm->initialize_synthesis( );
 
     // catch SIGINT
     signal( SIGINT, signal_int );
@@ -419,7 +416,25 @@ int main( int argc, char ** argv )
         // reset count
         count = 1;
     }
-    
+
+    // boost priority
+    if( Chuck_VM::our_priority != 0x7fffffff )
+    {
+        // try
+        if( !Chuck_VM::set_priority( Chuck_VM::our_priority, vm ) )
+        {
+            // error
+            fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+            exit( 1 );
+        }
+    }
+
+    // vm synthesis subsystem - needs the type system
+    if( !vm->initialize_synthesis( ) )
+    {
+        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+        exit( 1 );
+    }
 
     // start tcp server
     g_sock = ck_tcp_create( 1 );
@@ -436,18 +451,6 @@ int main( int argc, char ** argv )
 #else
         g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0);
 #endif
-    }
-
-    // boost priority
-    if( Chuck_VM::our_priority != 0x7fffffff )
-    {
-        // try
-        if( !Chuck_VM::set_priority( Chuck_VM::our_priority, vm ) )
-        {
-            // error
-            fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
-            exit( 1 );
-        }
     }
 
     // run the vm
