@@ -48,13 +48,17 @@
 //-----------------------------------------------------------------------------
 struct Chuck_Compiler
 {
+public: // data
     // type-checking environment
     Chuck_Env * env;
     // emitter
     Chuck_Emitter * emitter;
     // generated code
     Chuck_VM_Code * code;
+    // auto-depend flag
+    t_CKBOOL auto_depend;
 
+public: // to all
     // contructor
     Chuck_Compiler();
     // destructor
@@ -67,8 +71,18 @@ struct Chuck_Compiler
 
     // parse, type-check, and emit a program
     t_CKBOOL go( const string & filename, FILE * fd = NULL );
+    // resolve a type automatically, if auto_depend is on
+    t_CKBOOL resolve( const string & type );
     // get the code generated from the last go()
     Chuck_VM_Code * output( );
+
+public: // internal
+    // do entire file
+    t_CKBOOL do_entire_file( const string & path, FILE * fd = NULL );
+    // do just class definitions
+    t_CKBOOL do_only_classes( const string & path, FILE * fd = NULL );
+    // do normal compile
+    t_CKBOOL do_normal( const string & path, FILE * fd = NULL );
 };
 
 

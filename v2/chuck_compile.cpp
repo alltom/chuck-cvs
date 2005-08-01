@@ -92,6 +92,8 @@ t_CKBOOL Chuck_Compiler::initialize( Chuck_VM * vm )
     env = type_engine_init( vm );
     // allocate the emitter
     emitter = emit_engine_init( env );
+    // set auto depend to 0
+    auto_depend = FALSE;
 
     // load internal libs
     if( !load_internal_modules( this ) )
@@ -121,6 +123,7 @@ void Chuck_Compiler::shutdown()
     env = NULL;
     emitter = NULL;
     code = NULL;
+    auto_depend = FALSE;
 }
 
 
@@ -131,6 +134,73 @@ void Chuck_Compiler::shutdown()
 // desc: parse, type-check, and emit a program
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Compiler::go( const string & filename, FILE * fd )
+{
+    t_CKBOOL ret = FALSE;
+
+    // check to see if resolve dependencies automatically
+    if( auto_depend )
+    {
+    }
+    else
+    {
+        // normal
+        ret = this->do_normal( filename, fd );
+    }
+
+    // done
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: resolve()
+// desc: resolve type automatically - if auto_depend is off, return FALSE
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Compiler::resolve( const string & type )
+{
+    t_CKBOOL ret = TRUE;
+
+    // check auto_depend
+    if( auto_depend )
+        return FALSE;
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: do_entire_file()
+// desc: parse, type-check, and emit a program
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Compiler::do_entire_file( const string & filename, FILE * fd )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: do_only_classes()
+// desc: compile only classes definitions
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Compiler::do_only_classes( const string & filename, FILE * fd )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: do_normal()
+// desc: compile normally without auto-depend
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Compiler::do_normal( const string & filename, FILE * fd )
 {
     t_CKBOOL ret = TRUE;
 
