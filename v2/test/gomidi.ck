@@ -2,7 +2,7 @@
 MidiIn min;
 MidiMsg msg;
 
-if( !min.open(1) )
+if( !min.open( 0 ) )
 {
     <<<"gomidi error: wrong port specified...">>>;
     me.exit();
