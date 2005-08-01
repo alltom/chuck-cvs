@@ -87,9 +87,11 @@ protected: // internal
     // do normal compile
     t_CKBOOL do_normal( const string & path, FILE * fd = NULL );
     // look up in recent
-    t_CKBOOL recent_find_path( const string & path );
+    Chuck_Context * find_recent_path( const string & path );
     // look up in recent
-    t_CKBOOL recent_find_type( const string & type );
+    Chuck_Context * find_recent_type( const string & type );
+    // add to recent
+    t_CKBOOL add_recent_path( const string & path, Chuck_Context * context );
 };
 
 

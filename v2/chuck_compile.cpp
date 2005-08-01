@@ -236,7 +236,7 @@ cleanup:
 // name: find_recent_path()
 // desc: find recent context by path
 //-----------------------------------------------------------------------------
-Chuck_Context * find_recent_path( const string & path )
+Chuck_Context * Chuck_Compiler::find_recent_path( const string & path )
 {
     return NULL;
 }
@@ -248,9 +248,22 @@ Chuck_Context * find_recent_path( const string & path )
 // name: find_recent_type()
 // desc: find recent context by type name
 //-----------------------------------------------------------------------------
-Chuck_Context * find_recent_type( const string & type )
+Chuck_Context * Chuck_Compiler::find_recent_type( const string & type )
 {
     return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: add_recent_path()
+// desc: add recent context by path
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Compiler::add_recent_path( const string & path,
+                                          Chuck_Context * context )
+{
+    return TRUE;
 }
 
 
