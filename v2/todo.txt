@@ -2,35 +2,32 @@ todo
 ---
 - release objects from all scopes
 - array initialization
-  - multi-type [ 1, "foo" ]
+  - multi-type [ 1, "foo" ] (done)
   - optimize reduce if static
 
 class library:
-- string (done)
+- string
+  - check
 - array (done)
 - OSC event (done)
 - exception (done)
 - ugen
   - make it work (done)
-  - stereo
+  - stereo (done)
   - multichannel
 - IO
   - file input
   - file output
-  - OSC (also events)
-  - MIDI (also events)
-
-
-check binary operators
-string
+  - OSC (also events) (done)
+  - MIDI (also events) (done)
 
 objects
-  - obj_size
-  - virtual table
+  - obj_size (done)
+  - virtual table (done)
   - global classes (done)
   - function overloading (done)
   - instantiation (done)
-  - constructors
+  - constructors (done)
   - destructor
 
 Bugs
@@ -38,7 +35,7 @@ Bugs
 
 - Midi files (Miaiy!be)
 - Wvout
-- shred
+- shred (done)
 - boost cb priority (done)
 - update todo (doing) //(done)
 
