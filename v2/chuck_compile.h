@@ -55,8 +55,11 @@ public: // data
     Chuck_Emitter * emitter;
     // generated code
     Chuck_VM_Code * code;
+
     // auto-depend flag
-    t_CKBOOL auto_depend;
+    t_CKBOOL m_auto_depend;
+    // recent map
+    std::map<std::string, Chuck_Context *> m_recent;
 
 public: // to all
     // contructor
@@ -76,13 +79,17 @@ public: // to all
     // get the code generated from the last go()
     Chuck_VM_Code * output( );
 
-public: // internal
+protected: // internal
     // do entire file
     t_CKBOOL do_entire_file( const string & path, FILE * fd = NULL );
     // do just class definitions
     t_CKBOOL do_only_classes( const string & path, FILE * fd = NULL );
     // do normal compile
     t_CKBOOL do_normal( const string & path, FILE * fd = NULL );
+    // look up in recent
+    t_CKBOOL recent_find_path( const string & path );
+    // look up in recent
+    t_CKBOOL recent_find_type( const string & type );
 };
 
 

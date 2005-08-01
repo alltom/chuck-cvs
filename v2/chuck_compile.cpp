@@ -93,7 +93,7 @@ t_CKBOOL Chuck_Compiler::initialize( Chuck_VM * vm )
     // allocate the emitter
     emitter = emit_engine_init( env );
     // set auto depend to 0
-    auto_depend = FALSE;
+    m_auto_depend = FALSE;
 
     // load internal libs
     if( !load_internal_modules( this ) )
@@ -123,7 +123,8 @@ void Chuck_Compiler::shutdown()
     env = NULL;
     emitter = NULL;
     code = NULL;
-    auto_depend = FALSE;
+    m_auto_depend = FALSE;
+    m_recent.clear();
 }
 
 
@@ -138,7 +139,7 @@ t_CKBOOL Chuck_Compiler::go( const string & filename, FILE * fd )
     t_CKBOOL ret = FALSE;
 
     // check to see if resolve dependencies automatically
-    if( auto_depend )
+    if( m_auto_depend )
     {
     }
     else
@@ -163,7 +164,7 @@ t_CKBOOL Chuck_Compiler::resolve( const string & type )
     t_CKBOOL ret = TRUE;
 
     // check auto_depend
-    if( auto_depend )
+    if( !m_auto_depend )
         return FALSE;
 
     return ret;
@@ -226,6 +227,30 @@ cleanup:
     }
 
     return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: find_recent_path()
+// desc: find recent context by path
+//-----------------------------------------------------------------------------
+Chuck_Context * find_recent_path( const string & path )
+{
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: find_recent_type()
+// desc: find recent context by type name
+//-----------------------------------------------------------------------------
+Chuck_Context * find_recent_type( const string & type )
+{
+    return NULL;
 }
 
 
