@@ -9,7 +9,7 @@
 MidiIn min;
 MidiMsg msg;
 
-if( !min.open( 0 ) ) me.exit();
+// if( !min.open( 0 ) ) me.exit();
 
 class NoteEvent extends event
 {
