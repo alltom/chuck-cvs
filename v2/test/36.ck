@@ -1,4 +1,4 @@
-// function overloading across inheritance, with overriding
+// 36.ck : function overloading across inheritance, with overriding
 
 // base calss
 class X
@@ -31,5 +31,6 @@ class Z extends Y
 
 // instantiate a Z
 Z x;
+
 // call the foo
 x.foo(3,5);

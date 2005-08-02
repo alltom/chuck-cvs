@@ -1,3 +1,5 @@
+// 29.ck : test
+
 class X
 {
     1 => int x;

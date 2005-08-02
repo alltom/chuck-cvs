@@ -1,6 +1,8 @@
+// 27.ck : 26, float
+
 class X
 {
-    float x;
+    float f;
 }
 
 class Y
@@ -10,6 +12,6 @@ class Y
 }
 
 Y y;
-12.2 => y.x.x;
+12.2 => y.x.f;
 
-if( y.foo().x == 12.2 ) <<<"success">>>;
+if( y.foo().f == 12.2 ) <<<"success">>>;

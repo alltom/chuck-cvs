@@ -1,3 +1,4 @@
+// 31.ck : even more test
 
 Object x[10];
 x[9].setTestID( 3 );

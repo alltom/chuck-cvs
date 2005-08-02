@@ -1,3 +1,5 @@
+// 32.ck : calling functions by chucking
+
 // declare X
 class X
 {

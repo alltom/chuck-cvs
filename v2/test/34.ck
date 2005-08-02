@@ -1,4 +1,4 @@
-// function overloading
+// 34.ck : function overloading
 
 // declare class
 class X
@@ -12,13 +12,15 @@ class X
     { <<<"success">>>; }
 }
 
-//class Y extends X
-//{
-//    fun void foo( int a )
-//    { <<<a+1>>>; }
-//}
+// extend X
+class Y extends X
+{
+    fun void foo( int a )
+    { <<<a+1>>>; }
+}
 
-// instantiate a X
-X x;
+// instantiate a Y
+Y y;
+
 // call the right one, hopefully
-x.foo(3,5);
+y.foo( 3, 5 );

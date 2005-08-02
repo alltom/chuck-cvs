@@ -1,3 +1,4 @@
+// 30.ck : more test
 
 Object x[10];
 x[9].testID( 3 );
