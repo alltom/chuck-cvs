@@ -1,3 +1,7 @@
-// test float
+// 02.ck : test float assignment
+
+// float assignment
 2.2 => float y;
-<<<"success">>>;
+
+// test
+if( y == 2.2 ) <<<"success">>>;

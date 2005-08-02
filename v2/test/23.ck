@@ -1,3 +1,5 @@
+// 23.ck : inheritance
+
 // declare class X
 class X
 {
@@ -12,11 +14,10 @@ class Y extends X
 
 // instantiate a Y
 Y y;
+
+// assign to i
 10 => y.i;
 
-if( y.i == 10 && y.j != 0 ) { 
-	<<<"test failed">>>;
-}
-else { 
-	<<<"success">>>;
-}
+// test
+if( y.i == 10 && y.j != 0 ) <<<"test failed">>>;
+else <<<"success">>>;

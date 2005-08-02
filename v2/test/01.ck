@@ -1,3 +1,7 @@
-// test assignment
+// 01.ck : test assignment
+
+// assignment
 1 => int x;
-<<<"success">>>;
+
+// test
+if( x == 1 ) <<<"success">>>;

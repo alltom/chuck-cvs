@@ -1,3 +1,5 @@
+// 20.ck : assignment inside functions
+
 fun int foo( int x )
 {
     x => int a;

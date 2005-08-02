@@ -1,24 +1,35 @@
+// 21.ck : classes inside classes
 
+// X
 class X
 {
     float f;
     int i;
 }
 
+// Y has an X
 class Y
 {
     X x;
 }
 
-fun void foo( Y x )
+// foo that takes a Y
+fun void foo( Y y )
 {
-    10.0 => x.x.f;
+    // assignment
+    10.0 => y.x.f;
+    // assignment
     1 => x.x.i;
 }
 
-Y x;
-foo( x );
+// instantiate a Y
+Y y;
 
-x.x @=> X @ y;
+// call
+foo( y );
 
-if( y.f == 10.0 && y.i == 1 ) <<<"success">>>;
+// assign reference
+y.x @=> X @ x;
+
+// test
+if( x.f == 10.0 && x.i == 1 ) <<<"success">>>;

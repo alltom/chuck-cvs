@@ -1,7 +1,13 @@
-// function with return type
+// 11.ck : function with return type
+
+// function
 fun float f()
 {
     return 1.0;
 }
+
+// call
 f() => float x;
-<<<"success">>>;
+
+// test
+if( x == 1.0 ) <<<"success">>>;

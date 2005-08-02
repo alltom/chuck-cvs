@@ -1,3 +1,4 @@
+// 03.ck : arithmetic
+
 // arithmetic
-3 + 2 => int x;
-<<<"success">>>;
+if( 3 + 2 == 5 ) <<<"success">>>;
