@@ -1,4 +1,4 @@
-// one_event_broadcast
+// 54.ck : creating custom event objects
 
 // new event class
 class TheEvent extends event

@@ -1,9 +1,10 @@
-// midi read (fail-correct)
+// 46.ck : midi read (fail-correct)
 
 MidiOut mout;
 MidiMsg mg;
 MidiRW mrw;
 
+// open - see 'chuck --probe'
 if( !mout.open( 0 ) )
     me.exit();
 

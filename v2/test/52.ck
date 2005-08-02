@@ -1,4 +1,4 @@
-// one event, many shreds
+// 52.ck : one event, many shreds
 
 // the event
 event e;

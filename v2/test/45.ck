@@ -1,11 +1,11 @@
-// midi event (fail-correct)
+// 45.ck : midi event and writing to file (fail-correct)
 sinosc s => dac;
 
 MidiIn min;
 MidiMsg msg;
 MidiRW mrw;
 
-// open MIDI device
+// open MIDI device - see 'chuck --probe'
 if( !min.open( 0 ) )
     me.exit();
 

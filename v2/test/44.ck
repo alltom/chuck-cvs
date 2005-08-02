@@ -1,3 +1,4 @@
+// 44.ck : crash?
 
 fun void crash( string crashstr )
 {

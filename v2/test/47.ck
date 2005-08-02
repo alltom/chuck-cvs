@@ -1,4 +1,4 @@
-// midi write (fail-correct)
+// 47.ck : midi write (fail-correct)
 
 sinosc s => dac;
 

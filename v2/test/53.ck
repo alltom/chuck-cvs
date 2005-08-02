@@ -1,4 +1,4 @@
-// one_event_broadcast
+// 53.ck : one event broadcast
 
 // the event
 event e;

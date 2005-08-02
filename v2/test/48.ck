@@ -1,10 +1,10 @@
-// midi read (fail-correct)
+// 48.ck : midi read (fail-correct)
 
 MidiOut mout;
 MidiMsg mg;
 MidiMsgIn mrw;
 
-// open MIDI output
+// open MIDI output - see 'chuck --probe'
 if( !mout.open( 0 ) )
     me.exit();
 
