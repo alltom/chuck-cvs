@@ -399,7 +399,7 @@ const char * dlerror( void )
 #endif
 
 // mac os x
-#if defined(__MACOSX_CORE__)
+#if defined(__MACOSX_CORE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= 1030
 
 extern "C"
 {

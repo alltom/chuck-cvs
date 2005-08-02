@@ -297,6 +297,11 @@ protected:
 
 // dlfcn interface
 #if defined(__MACOSX_CORE__)
+#include <AvailabilityMacros.h>
+#endif
+
+// dlfcn interface, panther or below
+#if defined(__MACOSX_CORE__) && MAC_OS_X_VERSION_MAX_ALLOWED <= 1030
 
   #ifdef __cplusplus
   extern "C" {
@@ -348,9 +353,7 @@ protected:
   #endif
 
 #else
-
   #include "dlfcn.h"
-
 #endif
 
 
