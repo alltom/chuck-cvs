@@ -32,6 +32,7 @@
 // originally randy_socket
 // author: Peng Bi (pbi@cs.princeton.edu)
 //         Ge Wang (gewang@cs.princeton.edu)
+// date: Winter 2003
 //-----------------------------------------------------------------------------
 #include "util_network.h"
 #include "chuck_utils.h"
@@ -53,6 +54,14 @@
 
 
 
+#ifdef __PLATFORM_WIN32__
+static WSADATA g_wsd;
+static int g_init = 0;
+#ifndef socklen_t
+#define socklen_t int
+#endif
+#endif
+
 //-----------------------------------------------------------------------------
 // name: struct ck_socket_
 // desc: ...
@@ -62,13 +71,8 @@ struct ck_socket_
     int sock;
     int prot;
     struct sockaddr_in sock_in;
-    int len;
+    socklen_t len;
 };
-
-#ifdef __PLATFORM_WIN32__
-static WSADATA g_wsd;
-static int g_init = 0;
-#endif
 
 
 
@@ -188,7 +192,7 @@ t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port )
 #else
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #endif
-	}
+    }
 
     ret = ck_connect2( sock, (struct sockaddr *)&sock->sock_in, 
         sizeof( struct sockaddr_in ) );
@@ -313,7 +317,7 @@ int ck_recvfrom( ck_socket sock, char * buffer, int len,
         memset( buffer, 0, len );
         return 0;
     }
-    else return recvfrom( sock->sock, buffer, len, 0, from, fromlen );
+    else return recvfrom( sock->sock, buffer, len, 0, from, (unsigned int *)fromlen );
 }
 
 
