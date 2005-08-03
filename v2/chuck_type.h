@@ -596,9 +596,12 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env );
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog, 
                                  const string & filename );
+// make a context
+Chuck_Context * type_engine_make_context( a_Program prog,
+                                          const string & filename );
 // type check a context into the env
-t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
-                                    const string & filename,
+t_CKBOOL type_engine_check_context( Chuck_Env * env,
+                                    Chuck_Context * context,
                                     te_HowMuch how_much = te_do_all );
 // type check a statement
 t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );

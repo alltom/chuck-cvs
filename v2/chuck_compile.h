@@ -81,9 +81,11 @@ public: // to all
 
 protected: // internal
     // do entire file
-    t_CKBOOL do_entire_file( const string & path, FILE * fd = NULL );
+    t_CKBOOL do_entire_file( Chuck_Context * context );
     // do just class definitions
-    t_CKBOOL do_only_classes( const string & path, FILE * fd = NULL );
+    t_CKBOOL do_only_classes( Chuck_Context * context );
+    // do all excect classes
+    t_CKBOOL do_all_except_classes( Chuck_Context * context );
     // do normal compile
     t_CKBOOL do_normal( const string & path, FILE * fd = NULL );
     // look up in recent

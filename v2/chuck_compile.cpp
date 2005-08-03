@@ -139,16 +139,38 @@ t_CKBOOL Chuck_Compiler::go( const string & filename, FILE * fd )
     t_CKBOOL ret = FALSE;
 
     // check to see if resolve dependencies automatically
-    if( m_auto_depend )
-    {
-    }
-    else
+    if( !m_auto_depend )
     {
         // normal
         ret = this->do_normal( filename, fd );
+        return ret;
     }
 
-    // done
+    // parse the code
+    if( !chuck_parse( filename.c_str(), fd ) )
+        return FALSE;
+
+    // make the context
+    Chuck_Context * context = type_engine_make_context( g_program, filename );
+    if( !context ) return FALSE;
+
+    // do entire file
+    if( !do_entire_file( context ) )
+    { ret = FALSE; goto cleanup; }
+
+    // emit
+    if( !(code = emit_engine_emit_prog( emitter, g_program )) )
+    { ret = FALSE; goto cleanup; }
+
+cleanup:
+
+    // unload the context from the type-checker
+    if( !type_engine_unload_context( env ) )
+    {
+        EM_error2( 0, "internal error unloading context...\n" );
+        return FALSE;
+    }
+
     return ret;
 }
 
@@ -177,8 +199,15 @@ t_CKBOOL Chuck_Compiler::resolve( const string & type )
 // name: do_entire_file()
 // desc: parse, type-check, and emit a program
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Compiler::do_entire_file( const string & filename, FILE * fd )
+t_CKBOOL Chuck_Compiler::do_entire_file( Chuck_Context * context )
 {
+    // reset the env
+    env->reset();
+
+    // check the context
+    if( !type_engine_check_context( env, context, te_do_all ) )
+        return FALSE;
+
     return TRUE;
 }
 
@@ -189,7 +218,19 @@ t_CKBOOL Chuck_Compiler::do_entire_file( const string & filename, FILE * fd )
 // name: do_only_classes()
 // desc: compile only classes definitions
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Compiler::do_only_classes( const string & filename, FILE * fd )
+t_CKBOOL Chuck_Compiler::do_only_classes( Chuck_Context * context )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: do_all_except_classes()
+// desc: compile everything except classes
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Compiler::do_all_except_classes( Chuck_Context * context )
 {
     return TRUE;
 }

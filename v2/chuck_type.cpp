@@ -316,11 +316,15 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
                                  const string & filename )
 {
+    // make the context
+    Chuck_Context * context = type_engine_make_context( prog, filename );
+    if( !context ) return FALSE;
+
     // reset the env
     env->reset();
 
     // check the context
-    if( !type_engine_check_context( env, prog, filename ) )
+    if( !type_engine_check_context( env, context ) )
         return FALSE;
 
     return TRUE;
@@ -330,17 +334,18 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_check_context()
+// name: type_engine_make_context()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
-                                    const string & filename,
-                                    te_HowMuch how_much )
+Chuck_Context * type_engine_make_context( a_Program prog, const string & filename )
 {
-    t_CKBOOL ret = TRUE;
-
+    // parse tree
     if( !prog )
-        return FALSE;
+    {
+        // error
+        EM_error2( 0, "internal error: empty parse tree '%s'", filename.c_str() );
+        return NULL;
+    }
 
     // each parse tree corresponds to a chuck context
     Chuck_Context * context = new Chuck_Context;
@@ -350,8 +355,29 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
     context->parse_tree = prog;
     // set name
     context->filename = filename;
+
+    return context;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_context()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_context( Chuck_Env * env,
+                                    Chuck_Context * context,
+                                    te_HowMuch how_much )
+{
+    t_CKBOOL ret = TRUE;
+
     // load the context
     type_engine_load_context( env, context );
+
+    // parse tree
+    a_Program prog = context->parse_tree;
+    assert( prog != NULL );
 
     // 1st-scan
     if( !type_engine_scan_prog( env, prog, how_much ) )
@@ -411,10 +437,13 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env, a_Program prog,
     {
         // rollback the global namespace
         env->global()->rollback();
+
         // TODO: remove the effects of the context in the env
         // ---> insert code here <----
+
         // flag the context with error, so more stuff gets deleted
         env->context->has_error = TRUE;
+
         // remove the context
         // type_engine_unload_context( env );
     }
