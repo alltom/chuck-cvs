@@ -32,8 +32,8 @@
 //       Autumn 2004 - rewrite
 //-----------------------------------------------------------------------------
 #include "chuck_type.h"
-#include "chuck_scan.h"
 #include "chuck_parse.h"
+#include "chuck_scan.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
 #include "chuck_lang.h"
@@ -286,19 +286,16 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["same"] = TRUE;
     env->key_types["int"] = TRUE;
     env->key_types["float"] = TRUE;
-    //env->key_types["dur"] = TRUE;
-    //env->key_types["time"] = TRUE;
-    env->key_types["object"] = TRUE;
-    env->key_types["string"] = TRUE;
-    //env->key_types["shred"] = TRUE;
-    //env->key_types["event"] = TRUE;
-    //env->key_types["ugen"] = TRUE;
-    //env->key_types["machine"] = TRUE;
-    //env->key_types["language"] = TRUE;
-    //env->key_types["compiler"] = TRUE;
-
-    // init pre-scan
-    // type_engine_init_scan( env );
+    // env->key_types["dur"] = TRUE;
+    // env->key_types["time"] = TRUE;
+    // env->key_types["object"] = TRUE;
+    // env->key_types["string"] = TRUE;
+    // env->key_types["shred"] = TRUE;
+    // env->key_types["event"] = TRUE;
+    // env->key_types["ugen"] = TRUE;
+    // env->key_types["machine"] = TRUE;
+    // env->key_types["language"] = TRUE;
+    // env->key_types["compiler"] = TRUE;
 
     // commit the global namespace
     env->global()->commit();
@@ -316,6 +313,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
                                  const string & filename )
 {
+    t_CKBOOL ret = FALSE;
+
     // make the context
     Chuck_Context * context = type_engine_make_context( prog, filename );
     if( !context ) return FALSE;
@@ -323,9 +322,34 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
     // reset the env
     env->reset();
 
-    // check the context
+    // load the context
+    if( !type_engine_load_context( env, context ) )
+        return FALSE;
+
+    // 0th-scan (pass 0)
+    if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
+    { ret = FALSE; goto cleanup; }
+
+    // 1st-scan (pass 1)
+    if( !type_engine_scan1_prog( env, g_program, te_do_all ) )
+    { ret = FALSE; goto cleanup; }
+
+    // 2nd-scan (pass 2)
+    if( !type_engine_scan2_prog( env, prog, te_do_all ) )
+    { ret = FALSE; goto cleanup; }
+
+    // check the context (pass 3)
     if( !type_engine_check_context( env, context ) )
         return FALSE;
+
+cleanup:
+
+    // unload the context from the type-checker
+    if( !type_engine_unload_context( env ) )
+    {
+        EM_error2( 0, "internal error unloading context...\n" );
+        return FALSE;
+    }
 
     return TRUE;
 }
@@ -372,20 +396,22 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env,
 {
     t_CKBOOL ret = TRUE;
 
-    // load the context
-    type_engine_load_context( env, context );
+    // make sure there is a context
+    if( !env->context )
+    {
+        // error
+        EM_error2( 0, "internal error: env->context NULL!" );
+        return FALSE;
+    }
 
     // parse tree
     a_Program prog = context->parse_tree;
-    assert( prog != NULL );
-
-    // 1st-scan
-    if( !type_engine_scan_prog( env, prog, how_much ) )
-        ret = FALSE;
-
-    // 2nd-scan
-    //if( !type_engine_2ndscan_prog( env, prog, how_much ) )
-    //    ret = FALSE;
+    if( !prog )
+    {
+        // error
+        EM_error2( 0, "internal error: context->parse_tree NULL!" );
+        return FALSE;
+    }
 
     // go through each of the program sections
     while( prog && ret )
@@ -4783,8 +4809,9 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
         // TODO: mark the class as dll import?
 
         // scan type check it
-        if( !type_engine_scan_class_def( env, def ) ) goto error;
-        // if( !type_engine_2ndscan_class_def( env, def ) ) goto error;
+        if( !type_engine_scan0_class_def( env, def ) ) goto error;
+        // if( !type_engine_scan1_class_def( env, def ) ) goto error;
+        // if( !type_engine_scan2_class_def( env, def ) ) goto error;
         if( !type_engine_check_class_def( env, def ) ) goto error;
         
         // TODO: clean up?

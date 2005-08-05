@@ -35,6 +35,7 @@
 
 #include "chuck_def.h"
 #include "chuck_parse.h"
+#include "chuck_scan.h"
 #include "chuck_type.h"
 #include "chuck_emit.h"
 #include "chuck_vm.h"

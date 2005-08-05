@@ -42,98 +42,89 @@
 //-----------------------------------------------------------------------------
 // function prototypes
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_stmt_list( Chuck_Env * env, a_Stmt_List list );
-t_CKBOOL type_engine_scan_stmt( Chuck_Env * env, a_Stmt stmt );
-t_CKBOOL type_engine_scan_if( Chuck_Env * env, a_Stmt_If stmt );
-t_CKBOOL type_engine_scan_for( Chuck_Env * env, a_Stmt_For stmt );
-t_CKBOOL type_engine_scan_while( Chuck_Env * env, a_Stmt_While stmt );
-t_CKBOOL type_engine_scan_until( Chuck_Env * env, a_Stmt_Until stmt );
-t_CKBOOL type_engine_scan_break( Chuck_Env * env, a_Stmt_Break br );
-t_CKBOOL type_engine_scan_continue( Chuck_Env * env, a_Stmt_Continue cont );
-t_CKBOOL type_engine_scan_return( Chuck_Env * env, a_Stmt_Return stmt );
-t_CKBOOL type_engine_scan_switch( Chuck_Env * env, a_Stmt_Switch stmt );
-t_CKBOOL type_engine_scan_exp( Chuck_Env * env, a_Exp exp );
-t_CKBOOL type_engine_scan_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
-t_CKBOOL type_engine_scan_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
-t_CKBOOL type_engine_scan_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
-t_CKBOOL type_engine_scan_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
-t_CKBOOL type_engine_scan_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
-t_CKBOOL type_engine_scan_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
-t_CKBOOL type_engine_scan_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
-t_CKBOOL type_engine_scan_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp );
-t_CKBOOL type_engine_scan_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
-t_CKBOOL type_engine_scan_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
-t_CKBOOL type_engine_scan_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
-t_CKBOOL type_engine_scan_exp_array( Chuck_Env * env, a_Exp_Array array );
-t_CKBOOL type_engine_scan_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
-t_CKBOOL type_engine_scan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
+t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def );
+
+t_CKBOOL type_engine_scan1_stmt_list( Chuck_Env * env, a_Stmt_List list );
+t_CKBOOL type_engine_scan1_stmt( Chuck_Env * env, a_Stmt stmt );
+t_CKBOOL type_engine_scan1_if( Chuck_Env * env, a_Stmt_If stmt );
+t_CKBOOL type_engine_scan1_for( Chuck_Env * env, a_Stmt_For stmt );
+t_CKBOOL type_engine_scan1_while( Chuck_Env * env, a_Stmt_While stmt );
+t_CKBOOL type_engine_scan1_until( Chuck_Env * env, a_Stmt_Until stmt );
+t_CKBOOL type_engine_scan1_break( Chuck_Env * env, a_Stmt_Break br );
+t_CKBOOL type_engine_scan1_continue( Chuck_Env * env, a_Stmt_Continue cont );
+t_CKBOOL type_engine_scan1_return( Chuck_Env * env, a_Stmt_Return stmt );
+t_CKBOOL type_engine_scan1_switch( Chuck_Env * env, a_Stmt_Switch stmt );
+t_CKBOOL type_engine_scan1_exp( Chuck_Env * env, a_Exp exp );
+t_CKBOOL type_engine_scan1_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
+t_CKBOOL type_engine_scan1_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKBOOL type_engine_scan1_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKBOOL type_engine_scan1_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKBOOL type_engine_scan1_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKBOOL type_engine_scan1_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
+t_CKBOOL type_engine_scan1_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
+t_CKBOOL type_engine_scan1_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp );
+t_CKBOOL type_engine_scan1_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
+t_CKBOOL type_engine_scan1_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
+t_CKBOOL type_engine_scan1_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
+t_CKBOOL type_engine_scan1_exp_array( Chuck_Env * env, a_Exp_Array array );
+t_CKBOOL type_engine_scan1_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
+t_CKBOOL type_engine_scan1_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
                                           t_CKFUNC & ck_func, int linepos );
-t_CKBOOL type_engine_scan_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
-t_CKBOOL type_engine_scan_exp_if( Chuck_Env * env, a_Exp_If exp_if );
-t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
-t_CKBOOL type_engine_scan_array_subscripts( Chuck_Env * env, a_Exp exp_list );
-t_CKBOOL type_engine_scan_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
-t_CKBOOL type_engine_scan_code_segment( Chuck_Env * env, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
-t_CKBOOL type_engine_scan_func_def( Chuck_Env * env, a_Func_Def func_def );
-t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def );
+t_CKBOOL type_engine_scan1_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
+t_CKBOOL type_engine_scan1_exp_if( Chuck_Env * env, a_Exp_If exp_if );
+t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
+t_CKBOOL type_engine_scan1_array_subscripts( Chuck_Env * env, a_Exp exp_list );
+t_CKBOOL type_engine_scan1_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
+t_CKBOOL type_engine_scan1_code_segment( Chuck_Env * env, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
+t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def func_def );
+t_CKBOOL type_engine_scan1_class_def( Chuck_Env * env, a_Class_Def class_def );
 
-t_CKBOOL type_engine_2ndscan_stmt_list( Chuck_Env * env, a_Stmt_List list );
-t_CKBOOL type_engine_2ndscan_stmt( Chuck_Env * env, a_Stmt stmt );
-t_CKBOOL type_engine_2ndscan_if( Chuck_Env * env, a_Stmt_If stmt );
-t_CKBOOL type_engine_2ndscan_for( Chuck_Env * env, a_Stmt_For stmt );
-t_CKBOOL type_engine_2ndscan_while( Chuck_Env * env, a_Stmt_While stmt );
-t_CKBOOL type_engine_2ndscan_until( Chuck_Env * env, a_Stmt_Until stmt );
-t_CKBOOL type_engine_2ndscan_break( Chuck_Env * env, a_Stmt_Break br );
-t_CKBOOL type_engine_2ndscan_continue( Chuck_Env * env, a_Stmt_Continue cont );
-t_CKBOOL type_engine_2ndscan_return( Chuck_Env * env, a_Stmt_Return stmt );
-t_CKBOOL type_engine_2ndscan_switch( Chuck_Env * env, a_Stmt_Switch stmt );
-t_CKBOOL type_engine_2ndscan_exp( Chuck_Env * env, a_Exp exp );
-t_CKBOOL type_engine_2ndscan_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
-t_CKBOOL type_engine_2ndscan_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
-t_CKBOOL type_engine_2ndscan_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
-t_CKBOOL type_engine_2ndscan_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
-t_CKBOOL type_engine_2ndscan_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
-t_CKBOOL type_engine_2ndscan_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
-t_CKBOOL type_engine_2ndscan_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
-t_CKBOOL type_engine_2ndscan_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp );
-t_CKBOOL type_engine_2ndscan_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
-t_CKBOOL type_engine_2ndscan_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
-t_CKBOOL type_engine_2ndscan_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
-t_CKBOOL type_engine_2ndscan_exp_array( Chuck_Env * env, a_Exp_Array array );
-t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
-t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
+t_CKBOOL type_engine_scan2_stmt_list( Chuck_Env * env, a_Stmt_List list );
+t_CKBOOL type_engine_scan2_stmt( Chuck_Env * env, a_Stmt stmt );
+t_CKBOOL type_engine_scan2_if( Chuck_Env * env, a_Stmt_If stmt );
+t_CKBOOL type_engine_scan2_for( Chuck_Env * env, a_Stmt_For stmt );
+t_CKBOOL type_engine_scan2_while( Chuck_Env * env, a_Stmt_While stmt );
+t_CKBOOL type_engine_scan2_until( Chuck_Env * env, a_Stmt_Until stmt );
+t_CKBOOL type_engine_scan2_break( Chuck_Env * env, a_Stmt_Break br );
+t_CKBOOL type_engine_scan2_continue( Chuck_Env * env, a_Stmt_Continue cont );
+t_CKBOOL type_engine_scan2_return( Chuck_Env * env, a_Stmt_Return stmt );
+t_CKBOOL type_engine_scan2_switch( Chuck_Env * env, a_Stmt_Switch stmt );
+t_CKBOOL type_engine_scan2_exp( Chuck_Env * env, a_Exp exp );
+t_CKBOOL type_engine_scan2_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
+t_CKBOOL type_engine_scan2_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKBOOL type_engine_scan2_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKBOOL type_engine_scan2_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKBOOL type_engine_scan2_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKBOOL type_engine_scan2_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
+t_CKBOOL type_engine_scan2_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
+t_CKBOOL type_engine_scan2_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp );
+t_CKBOOL type_engine_scan2_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
+t_CKBOOL type_engine_scan2_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
+t_CKBOOL type_engine_scan2_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
+t_CKBOOL type_engine_scan2_exp_array( Chuck_Env * env, a_Exp_Array array );
+t_CKBOOL type_engine_scan2_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call );
+t_CKBOOL type_engine_scan2_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
                                           t_CKFUNC & ck_func, int linepos );
-t_CKBOOL type_engine_2ndscan_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
-t_CKBOOL type_engine_2ndscan_exp_if( Chuck_Env * env, a_Exp_If exp_if );
-t_CKBOOL type_engine_2ndscan_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
-t_CKBOOL type_engine_2ndscan_array_subscripts( Chuck_Env * env, a_Exp exp_list );
-t_CKBOOL type_engine_2ndscan_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
-t_CKBOOL type_engine_2ndscan_code_segment( Chuck_Env * env, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
-t_CKBOOL type_engine_2ndscan_func_def( Chuck_Env * env, a_Func_Def func_def );
-t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def class_def );
-t_CKBOOL type_engine_2ndscan_func_def( Chuck_Env * env, a_Func_Def func_def );
-t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def class_def );
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_init()
-// desc: initialize a type engine scan
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_init( Chuck_Env * env )
-{
-    return TRUE;
-}
+t_CKBOOL type_engine_scan2_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member );
+t_CKBOOL type_engine_scan2_exp_if( Chuck_Env * env, a_Exp_If exp_if );
+t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
+t_CKBOOL type_engine_scan2_array_subscripts( Chuck_Env * env, a_Exp exp_list );
+t_CKBOOL type_engine_scan2_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE from );
+t_CKBOOL type_engine_scan2_code_segment( Chuck_Env * env, a_Stmt_Code stmt, t_CKBOOL push = TRUE );
+t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def func_def );
+t_CKBOOL type_engine_scan2_class_def( Chuck_Env * env, a_Class_Def class_def );
+t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def func_def );
+t_CKBOOL type_engine_scan2_class_def( Chuck_Env * env, a_Class_Def class_def );
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_scan_prog()
-// desc: data in env should be ready
+// name: type_engine_scan0_prog()
+// desc: data in env should be ready : type discovery
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog,
-                                te_HowMuch how_much )
+t_CKBOOL type_engine_scan0_prog( Chuck_Env * env, a_Program prog,
+                                 te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
 
@@ -146,17 +137,11 @@ t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog,
         switch( prog->section->s_type )
         {
         case ae_section_stmt:
-            // if only classes, then skip
-            if( how_much == te_do_classes_only ) break;
-            // scan the statements
-            ret = type_engine_scan_stmt_list( env, prog->section->stmt_list );
+            // do nothing
             break;
         
         case ae_section_func:
-            // if only classes, then skip
-            if( how_much == te_do_classes_only ) break;
-            // scan the function definition
-            ret = type_engine_scan_func_def( env, prog->section->func_def );
+            // do nothing
             break;
 
         case ae_section_class:
@@ -180,7 +165,7 @@ t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog,
                 env->context->public_class_def = prog->section->class_def;
             }
             // scan the class definition
-            ret = type_engine_scan_class_def( env, prog->section->class_def );
+            ret = type_engine_scan0_class_def( env, prog->section->class_def );
             break;
         
         default:
@@ -200,758 +185,10 @@ t_CKBOOL type_engine_scan_prog( Chuck_Env * env, a_Program prog,
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_scan_stmt_list()
-// desc: ...
+// name: type_engine_scan0_class_def()
+// desc: add defined class to env - this is the main goal of scan0
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_stmt_list( Chuck_Env * env, a_Stmt_List list )
-{
-    // type check the stmt_list
-    while( list )
-    {
-        // the current statement
-        if( !type_engine_scan_stmt( env, list->stmt ) )
-            return FALSE;
-        
-        // advance to the next statement
-        list = list->next;
-    }
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_stmt(()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_stmt( Chuck_Env * env, a_Stmt stmt )
-{
-    t_CKBOOL ret = FALSE;
-
-    if( !stmt )
-        return TRUE;
-
-    // the type of stmt
-    switch( stmt->s_type )
-    {
-        case ae_stmt_if:
-            // count scope to help determine class member
-            env->class_scope++;
-            env->curr->value.push();
-            ret = type_engine_scan_if( env, &stmt->stmt_if );
-            env->curr->value.pop();
-            env->class_scope--;
-            break;
-
-        case ae_stmt_for:
-            env->class_scope++;
-            env->curr->value.push();
-            ret = type_engine_scan_for( env, &stmt->stmt_for );
-            env->curr->value.pop();
-            env->class_scope--;
-            break;
-
-        case ae_stmt_while:
-            env->class_scope++;
-            env->curr->value.push();
-            ret = type_engine_scan_while( env, &stmt->stmt_while );
-            env->curr->value.pop();
-            env->class_scope--;
-            break;
-            
-        case ae_stmt_until:
-            env->class_scope++;
-            env->curr->value.push();
-            ret = type_engine_scan_until( env, &stmt->stmt_until );
-            env->curr->value.pop();
-            env->class_scope--;
-            break;
-
-        case ae_stmt_exp:
-            ret = type_engine_scan_exp( env, stmt->stmt_exp );
-            break;
-
-        case ae_stmt_return:
-            ret = type_engine_scan_return( env, &stmt->stmt_return );
-            break;
-
-        case ae_stmt_code:
-            env->class_scope++;
-            ret = type_engine_scan_code_segment( env, &stmt->stmt_code );
-            env->class_scope--;
-            break;
-
-        case ae_stmt_break:
-            ret = type_engine_scan_break( env, &stmt->stmt_break );
-            break;
-
-        case ae_stmt_continue:
-            ret = type_engine_scan_continue( env, &stmt->stmt_continue );
-            break;
-
-        case ae_stmt_switch:
-            env->class_scope++;
-            ret = type_engine_scan_switch( env, &stmt->stmt_switch );
-            env->class_scope--;
-            break;
-
-        case ae_stmt_case:
-            // ret = type_engine_scan_case( env, &stmt->stmt_case );
-            break;
-
-        case ae_stmt_gotolabel:
-            // ret = type_engine_scan_gotolabel( env, &stmt->goto_label );
-            break;
-
-        //case ae_stmt_func:
-        //    ret = type_engine_scan_func_def( env, stmt->stmt_func );
-        //    break;
-        
-        default:
-            EM_error2( stmt->linepos, 
-                "internal compiler error (pre-scan) - no stmt type '%i'!", stmt->s_type );
-            ret = FALSE;
-            break;
-    }
-
-    return ret;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_if()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_if( Chuck_Env * env, a_Stmt_If stmt )
-{
-    // check the conditional
-    if( !type_engine_scan_exp( env, stmt->cond ) )
-        return FALSE;
-        
-    // TODO: ensure that conditional has valid type
-
-    // check if
-    if( !type_engine_scan_stmt( env, stmt->if_body ) )
-        return FALSE;
-
-    // check else, if there is one
-    if( stmt->else_body )
-        if( !type_engine_scan_stmt( env, stmt->else_body ) )
-            return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_for()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_for( Chuck_Env * env, a_Stmt_For stmt )
-{
-    // check the initial
-    if( !type_engine_scan_stmt( env, stmt->c1 ) )
-        return FALSE;
-    
-    // check the conditional
-    if( !type_engine_scan_stmt( env, stmt->c2 ) )
-        return FALSE;
-
-    // TODO: same as if - check conditional type valid
-
-    // check the post
-    if( stmt->c3 && !type_engine_scan_exp( env, stmt->c3 ) )
-        return FALSE;
-
-    // check body
-    if( !type_engine_scan_stmt( env, stmt->body ) )
-        return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_while()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_while( Chuck_Env * env, a_Stmt_While stmt )
-{
-    // check the conditional
-    if( !type_engine_scan_exp( env, stmt->cond ) )
-        return FALSE;
-        
-    // TODO: same as if - ensure the type in conditional is valid
-
-    // check the body
-    if( !type_engine_scan_stmt( env, stmt->body ) )
-        return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_until()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_until( Chuck_Env * env, a_Stmt_Until stmt )
-{
-    // check the conditional
-    if( !type_engine_scan_exp( env, stmt->cond ) )
-        return FALSE;
-        
-    // TODO: same as if - ensure the type in conditional is valid
-
-    // check the body
-    if( !type_engine_scan_stmt( env, stmt->body ) )
-        return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_switch()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_switch( Chuck_Env * env, a_Stmt_Switch stmt )
-{
-    // TODO: implement this
-    EM_error2( stmt->linepos, "switch not implemented..." );
-
-    return FALSE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_break()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_break( Chuck_Env * env, a_Stmt_Break br )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_continue()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_continue( Chuck_Env * env, a_Stmt_Continue cont )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_return()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_return( Chuck_Env * env, a_Stmt_Return stmt )
-{
-    t_CKBOOL ret = FALSE;
-
-    // check the type of the return
-    if( stmt->val )
-        ret = type_engine_scan_exp( env, stmt->val );
-    else
-        ret = TRUE;
-
-    return ret;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_code_segment()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
-                                        t_CKBOOL push )
-{
-    // push
-    if( push ) env->curr->value.push(); // env->context->nspc.value.push();
-    // do it
-    t_CKBOOL t = type_engine_scan_stmt_list( env, stmt->stmt_list );
-    // pop
-    if( push ) env->curr->value.pop();  // env->context->nspc.value.pop();
-    
-    return t;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp( Chuck_Env * env, a_Exp exp )
-{
-    a_Exp curr = exp;
-    t_CKBOOL ret = TRUE;
-    
-    // loop through parallel expressions
-    while( curr )
-    {
-        // examine the syntax
-        switch( curr->s_type )
-        {
-        case ae_exp_binary:
-            ret = type_engine_scan_exp_binary( env, &curr->binary );
-        break;
-    
-        case ae_exp_unary:
-            ret = type_engine_scan_exp_unary( env, &curr->unary );
-        break;
-    
-        case ae_exp_cast:
-            ret = type_engine_scan_exp_cast( env, &curr->cast );
-        break;
-    
-        case ae_exp_postfix:
-            ret = type_engine_scan_exp_postfix( env, &curr->postfix );
-        break;
-    
-        case ae_exp_dur:
-            ret = type_engine_scan_exp_dur( env, &curr->dur );
-        break;
-    
-        case ae_exp_primary:
-            ret = type_engine_scan_exp_primary( env, &curr->primary );
-        break;
-    
-        case ae_exp_array:
-            ret = type_engine_scan_exp_array( env, &curr->array );
-        break;
-    
-        case ae_exp_func_call:
-            ret = type_engine_scan_exp_func_call( env, &curr->func_call );
-        break;
-    
-        case ae_exp_dot_member:
-            ret = type_engine_scan_exp_dot_member( env, &curr->dot_member );
-        break;
-    
-        case ae_exp_if:
-            ret = type_engine_scan_exp_if( env, &curr->exp_if );
-        break;
-    
-        case ae_exp_decl:
-            ret = type_engine_scan_exp_decl( env, &curr->decl );
-        break;
-
-        default:
-            EM_error2( curr->linepos,
-                "internal compiler error - no expression type '%i'...",
-                curr->s_type );
-            return FALSE;
-        }
-
-        // error
-        if( !ret )
-            return FALSE;
-
-        // advance to next expression
-        curr = curr->next;
-    }
-
-    // return type
-    return ret;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_binary()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
-{
-    a_Exp cl = binary->lhs, cr = binary->rhs;
-
-    // type check the lhs and rhs
-    t_CKBOOL left = type_engine_scan_exp( env, cl );
-    t_CKBOOL right = type_engine_scan_exp( env, cr);
-    
-    // if either fails, then return FALSE
-    if( !left || !right )
-        return FALSE;
-
-    // cross chuck
-    while( cr )
-    {
-        // type check the pair
-        if( !type_engine_scan_op( env, binary->op, cl, cr, binary ) )
-            return FALSE;
-
-        cr = cr->next;
-    }
-        
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_op()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, 
-                              a_Exp_Binary binary )
-{
-    // TODO: check for static here
-    
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_op_chuck()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
-                                    a_Exp_Binary binary )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_op_unchuck()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_op_at_chuck()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_unary()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_primary()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_array_lit()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
-{
-    // verify there are no errors from the parser...
-    if( !verify_array( exp->array ) )
-        return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_cast()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
-{
-    // check the exp
-    t_CKBOOL t = type_engine_scan_exp( env, cast->exp );
-    if( !t ) return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_dur()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
-{
-    // type check the two components
-    t_CKBOOL base = type_engine_scan_exp( env, dur->base );
-    t_CKBOOL unit = type_engine_scan_exp( env, dur->unit );
-    
-    // make sure both type check
-    if( !base || !unit ) return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_postfix()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
-{
-    // check the exp
-    t_CKBOOL t = type_engine_scan_exp( env, postfix->exp );
-    if( !t ) return FALSE;
-    
-    // syntax
-    // TODO: figure out ++/--
-    switch( postfix->op )
-    {
-        case ae_op_plusplus:
-        case ae_op_minusminus:
-            // assignable?
-            if( postfix->exp->s_meta != ae_meta_var )
-            {
-                EM_error2( postfix->exp->linepos,
-                    "postfix operator '%s' cannot be used on non-mutable data-type...",
-                    op2str( postfix->op ) );
-                return FALSE;
-            }
-            
-            // TODO: mark somewhere we need to post increment
-            
-            return TRUE;
-        break;
-        
-        default:
-            // no match
-            EM_error2( postfix->linepos,
-                "internal compiler error (pre-scan): unrecognized postfix '%i'", postfix->op );
-            return FALSE;
-    }
-    
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_if()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_if( Chuck_Env * env, a_Exp_If exp_if )
-{
-    // check the components
-    t_CKBOOL cond = type_engine_scan_exp( env, exp_if->cond );
-    t_CKBOOL if_exp = type_engine_scan_exp( env, exp_if->if_exp );
-    t_CKBOOL else_exp = type_engine_scan_exp( env, exp_if->else_exp );
-
-    // make sure everything good
-    if( !cond || !if_exp || !else_exp ) return FALSE;
-    
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_array_subscripts( )
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_array_subscripts( Chuck_Env * env, a_Exp exp_list )
-{
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_decl( )
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
-{
-    a_Var_Decl_List list = decl->var_decl_list;
-    a_Var_Decl var_decl = NULL;
-
-    // loop through the variables
-    while( list != NULL )
-    {
-        // get the decl
-        var_decl = list->var_decl;
-
-        // scan if array
-        if( var_decl->array != NULL )
-        {
-            // verify there are no errors from the parser...
-            if( !verify_array( var_decl->array ) )
-                return FALSE;
-
-            // may be partial and empty []
-            if( var_decl->array->exp_list )
-            {
-                // type check the exp
-                if( !type_engine_scan_exp( env, var_decl->array->exp_list ) )
-                    return FALSE;
-                // make sure types are of int
-                if( !type_engine_scan_array_subscripts( env, var_decl->array->exp_list ) )
-                    return FALSE;
-            }
-        }
-
-        // the next var decl
-        list = list->next;
-    }
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_func_call()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
-                                         t_CKFUNC & ck_func, int linepos )
-{
-    // Chuck_Func * func = NULL;
-    // Chuck_Func * up = NULL;
-
-    // type check the func
-    t_CKBOOL f = type_engine_scan_exp( env, exp_func );
-    if( !f ) return FALSE;
-
-    // check the arguments
-    if( args )
-    {
-        t_CKBOOL a = type_engine_scan_exp( env, args );
-        if( !a ) return FALSE;
-    }
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_func_call()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call )
-{
-    // type check it
-    return type_engine_scan_exp_func_call( env, func_call->func, func_call->args,
-                                           func_call->ck_func, func_call->linepos );
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_dot_member()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
-{
-    // type check the base
-    t_CKBOOL base = type_engine_scan_exp( env, member->base );
-    if( !base ) return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_exp_array()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_exp_array( Chuck_Env * env, a_Exp_Array array )
-{
-    // verify there are no errors from the parser...
-    if( !verify_array( array->indices ) )
-        return FALSE;
-
-    // type check the base
-    t_CKBOOL base = type_engine_scan_exp( env, array->base );
-    if( !base ) return FALSE;
-        
-    // type check the index
-    t_CKBOOL index = type_engine_scan_exp( env, array->indices->exp_list );
-    if( !index ) return FALSE;
-    
-    // cycle through each exp
-    // a_Exp e = array->indices->exp_list;
-    // count the dimension
-    // t_CKUINT depth = 0;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: type_engine_scan_class_def()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
+t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
 {
     // make new type for class def
     t_CKTYPE the_class = NULL;
@@ -1024,20 +261,20 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
         case ae_section_stmt:
             // flag as having a constructor
             //env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
-            //ret = type_engine_scan_stmt_list( env, body->section->stmt_list );
+            //ret = type_engine_scan0_stmt_list( env, body->section->stmt_list );
             break;
         
         case ae_section_func:
             // set to complete
-            //env->class_def->is_complete = TRUE;
-            //ret = type_engine_scan_func_def( env, body->section->func_def );
+            // env->class_def->is_complete = TRUE;
+            // ret = type_engine_scan0_func_def( env, body->section->func_def );
             // back
-            //env->class_def->is_complete = FALSE;
+            // env->class_def->is_complete = FALSE;
             break;
         
         case ae_section_class:
             // do the class
-            ret = type_engine_scan_class_def( env, body->section->class_def );
+            ret = type_engine_scan0_class_def( env, body->section->class_def );
             break;
         }
         
@@ -1095,10 +332,976 @@ t_CKBOOL type_engine_scan_class_def( Chuck_Env * env, a_Class_Def class_def )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_scan_func_def()
+// name: type_engine_scan1_prog()
+// desc: data in env should be ready
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_prog( Chuck_Env * env, a_Program prog,
+                                te_HowMuch how_much )
+{
+    t_CKBOOL ret = TRUE;
+
+    if( !prog )
+        return FALSE;
+
+    // go through each of the program sections
+    while( prog && ret )
+    {
+        switch( prog->section->s_type )
+        {
+        case ae_section_stmt:
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // scan the statements
+            ret = type_engine_scan1_stmt_list( env, prog->section->stmt_list );
+            break;
+        
+        case ae_section_func:
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // scan the function definition
+            ret = type_engine_scan1_func_def( env, prog->section->func_def );
+            break;
+
+        case ae_section_class:
+            // if no classes, then skip
+            if( how_much == te_do_no_classes ) break;
+            // make global, if marked public
+            if( prog->section->class_def->decl == ae_key_public )
+            {
+                // make sure the context has no public class
+                if( env->context->public_class_def != NULL )
+                {
+                    EM_error2( prog->section->class_def->linepos,
+                        "more than one 'public' class defined..." );
+                    ret = FALSE;
+                    continue;
+                }
+
+                // make global
+                prog->section->class_def->home = env->global();
+                // remember
+                env->context->public_class_def = prog->section->class_def;
+            }
+            // scan the class definition
+            ret = type_engine_scan1_class_def( env, prog->section->class_def );
+            break;
+        
+        default:
+            EM_error2( prog->linepos,
+                "internal error: unrecognized program section in type checker pre-scan..." );
+            ret = FALSE;
+            break;
+        }
+
+        prog = prog->next;
+    }
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_stmt_list()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_scan_func_def( Chuck_Env * env, a_Func_Def f )
+t_CKBOOL type_engine_scan1_stmt_list( Chuck_Env * env, a_Stmt_List list )
+{
+    // type check the stmt_list
+    while( list )
+    {
+        // the current statement
+        if( !type_engine_scan1_stmt( env, list->stmt ) )
+            return FALSE;
+        
+        // advance to the next statement
+        list = list->next;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_stmt(()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_stmt( Chuck_Env * env, a_Stmt stmt )
+{
+    t_CKBOOL ret = FALSE;
+
+    if( !stmt )
+        return TRUE;
+
+    // the type of stmt
+    switch( stmt->s_type )
+    {
+        case ae_stmt_if:
+            // count scope to help determine class member
+            env->class_scope++;
+            env->curr->value.push();
+            ret = type_engine_scan1_if( env, &stmt->stmt_if );
+            env->curr->value.pop();
+            env->class_scope--;
+            break;
+
+        case ae_stmt_for:
+            env->class_scope++;
+            env->curr->value.push();
+            ret = type_engine_scan1_for( env, &stmt->stmt_for );
+            env->curr->value.pop();
+            env->class_scope--;
+            break;
+
+        case ae_stmt_while:
+            env->class_scope++;
+            env->curr->value.push();
+            ret = type_engine_scan1_while( env, &stmt->stmt_while );
+            env->curr->value.pop();
+            env->class_scope--;
+            break;
+            
+        case ae_stmt_until:
+            env->class_scope++;
+            env->curr->value.push();
+            ret = type_engine_scan1_until( env, &stmt->stmt_until );
+            env->curr->value.pop();
+            env->class_scope--;
+            break;
+
+        case ae_stmt_exp:
+            ret = type_engine_scan1_exp( env, stmt->stmt_exp );
+            break;
+
+        case ae_stmt_return:
+            ret = type_engine_scan1_return( env, &stmt->stmt_return );
+            break;
+
+        case ae_stmt_code:
+            env->class_scope++;
+            ret = type_engine_scan1_code_segment( env, &stmt->stmt_code );
+            env->class_scope--;
+            break;
+
+        case ae_stmt_break:
+            ret = type_engine_scan1_break( env, &stmt->stmt_break );
+            break;
+
+        case ae_stmt_continue:
+            ret = type_engine_scan1_continue( env, &stmt->stmt_continue );
+            break;
+
+        case ae_stmt_switch:
+            env->class_scope++;
+            ret = type_engine_scan1_switch( env, &stmt->stmt_switch );
+            env->class_scope--;
+            break;
+
+        case ae_stmt_case:
+            // ret = type_engine_scan1_case( env, &stmt->stmt_case );
+            break;
+
+        case ae_stmt_gotolabel:
+            // ret = type_engine_scan1_gotolabel( env, &stmt->goto_label );
+            break;
+
+        //case ae_stmt_func:
+        //    ret = type_engine_scan1_func_def( env, stmt->stmt_func );
+        //    break;
+        
+        default:
+            EM_error2( stmt->linepos, 
+                "internal compiler error (pre-scan) - no stmt type '%i'!", stmt->s_type );
+            ret = FALSE;
+            break;
+    }
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_if()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_if( Chuck_Env * env, a_Stmt_If stmt )
+{
+    // check the conditional
+    if( !type_engine_scan1_exp( env, stmt->cond ) )
+        return FALSE;
+        
+    // TODO: ensure that conditional has valid type
+
+    // check if
+    if( !type_engine_scan1_stmt( env, stmt->if_body ) )
+        return FALSE;
+
+    // check else, if there is one
+    if( stmt->else_body )
+        if( !type_engine_scan1_stmt( env, stmt->else_body ) )
+            return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_for()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_for( Chuck_Env * env, a_Stmt_For stmt )
+{
+    // check the initial
+    if( !type_engine_scan1_stmt( env, stmt->c1 ) )
+        return FALSE;
+    
+    // check the conditional
+    if( !type_engine_scan1_stmt( env, stmt->c2 ) )
+        return FALSE;
+
+    // TODO: same as if - check conditional type valid
+
+    // check the post
+    if( stmt->c3 && !type_engine_scan1_exp( env, stmt->c3 ) )
+        return FALSE;
+
+    // check body
+    if( !type_engine_scan1_stmt( env, stmt->body ) )
+        return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_while()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_while( Chuck_Env * env, a_Stmt_While stmt )
+{
+    // check the conditional
+    if( !type_engine_scan1_exp( env, stmt->cond ) )
+        return FALSE;
+        
+    // TODO: same as if - ensure the type in conditional is valid
+
+    // check the body
+    if( !type_engine_scan1_stmt( env, stmt->body ) )
+        return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_until()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_until( Chuck_Env * env, a_Stmt_Until stmt )
+{
+    // check the conditional
+    if( !type_engine_scan1_exp( env, stmt->cond ) )
+        return FALSE;
+        
+    // TODO: same as if - ensure the type in conditional is valid
+
+    // check the body
+    if( !type_engine_scan1_stmt( env, stmt->body ) )
+        return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_switch()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_switch( Chuck_Env * env, a_Stmt_Switch stmt )
+{
+    // TODO: implement this
+    EM_error2( stmt->linepos, "switch not implemented..." );
+
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_break()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_break( Chuck_Env * env, a_Stmt_Break br )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_continue()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_continue( Chuck_Env * env, a_Stmt_Continue cont )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_return()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_return( Chuck_Env * env, a_Stmt_Return stmt )
+{
+    t_CKBOOL ret = FALSE;
+
+    // check the type of the return
+    if( stmt->val )
+        ret = type_engine_scan1_exp( env, stmt->val );
+    else
+        ret = TRUE;
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_code_segment()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
+                                        t_CKBOOL push )
+{
+    // push
+    if( push ) env->curr->value.push(); // env->context->nspc.value.push();
+    // do it
+    t_CKBOOL t = type_engine_scan1_stmt_list( env, stmt->stmt_list );
+    // pop
+    if( push ) env->curr->value.pop();  // env->context->nspc.value.pop();
+    
+    return t;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp( Chuck_Env * env, a_Exp exp )
+{
+    a_Exp curr = exp;
+    t_CKBOOL ret = TRUE;
+    
+    // loop through parallel expressions
+    while( curr )
+    {
+        // examine the syntax
+        switch( curr->s_type )
+        {
+        case ae_exp_binary:
+            ret = type_engine_scan1_exp_binary( env, &curr->binary );
+        break;
+    
+        case ae_exp_unary:
+            ret = type_engine_scan1_exp_unary( env, &curr->unary );
+        break;
+    
+        case ae_exp_cast:
+            ret = type_engine_scan1_exp_cast( env, &curr->cast );
+        break;
+    
+        case ae_exp_postfix:
+            ret = type_engine_scan1_exp_postfix( env, &curr->postfix );
+        break;
+    
+        case ae_exp_dur:
+            ret = type_engine_scan1_exp_dur( env, &curr->dur );
+        break;
+    
+        case ae_exp_primary:
+            ret = type_engine_scan1_exp_primary( env, &curr->primary );
+        break;
+    
+        case ae_exp_array:
+            ret = type_engine_scan1_exp_array( env, &curr->array );
+        break;
+    
+        case ae_exp_func_call:
+            ret = type_engine_scan1_exp_func_call( env, &curr->func_call );
+        break;
+    
+        case ae_exp_dot_member:
+            ret = type_engine_scan1_exp_dot_member( env, &curr->dot_member );
+        break;
+    
+        case ae_exp_if:
+            ret = type_engine_scan1_exp_if( env, &curr->exp_if );
+        break;
+    
+        case ae_exp_decl:
+            ret = type_engine_scan1_exp_decl( env, &curr->decl );
+        break;
+
+        default:
+            EM_error2( curr->linepos,
+                "internal compiler error - no expression type '%i'...",
+                curr->s_type );
+            return FALSE;
+        }
+
+        // error
+        if( !ret )
+            return FALSE;
+
+        // advance to next expression
+        curr = curr->next;
+    }
+
+    // return type
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_binary()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
+{
+    a_Exp cl = binary->lhs, cr = binary->rhs;
+
+    // type check the lhs and rhs
+    t_CKBOOL left = type_engine_scan1_exp( env, cl );
+    t_CKBOOL right = type_engine_scan1_exp( env, cr);
+    
+    // if either fails, then return FALSE
+    if( !left || !right )
+        return FALSE;
+
+    // cross chuck
+    while( cr )
+    {
+        // type check the pair
+        if( !type_engine_scan1_op( env, binary->op, cl, cr, binary ) )
+            return FALSE;
+
+        cr = cr->next;
+    }
+        
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_op()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, 
+                              a_Exp_Binary binary )
+{
+    // TODO: check for static here
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_op_chuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
+                                    a_Exp_Binary binary )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_op_unchuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_op_at_chuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_unary()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_primary()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_array_lit()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
+{
+    // verify there are no errors from the parser...
+    if( !verify_array( exp->array ) )
+        return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_cast()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
+{
+    // check the exp
+    t_CKBOOL t = type_engine_scan1_exp( env, cast->exp );
+    if( !t ) return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_dur()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
+{
+    // type check the two components
+    t_CKBOOL base = type_engine_scan1_exp( env, dur->base );
+    t_CKBOOL unit = type_engine_scan1_exp( env, dur->unit );
+    
+    // make sure both type check
+    if( !base || !unit ) return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_postfix()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
+{
+    // check the exp
+    t_CKBOOL t = type_engine_scan1_exp( env, postfix->exp );
+    if( !t ) return FALSE;
+    
+    // syntax
+    // TODO: figure out ++/--
+    switch( postfix->op )
+    {
+        case ae_op_plusplus:
+        case ae_op_minusminus:
+            // assignable?
+            if( postfix->exp->s_meta != ae_meta_var )
+            {
+                EM_error2( postfix->exp->linepos,
+                    "postfix operator '%s' cannot be used on non-mutable data-type...",
+                    op2str( postfix->op ) );
+                return FALSE;
+            }
+            
+            // TODO: mark somewhere we need to post increment
+            
+            return TRUE;
+        break;
+        
+        default:
+            // no match
+            EM_error2( postfix->linepos,
+                "internal compiler error (pre-scan): unrecognized postfix '%i'", postfix->op );
+            return FALSE;
+    }
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_if()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_if( Chuck_Env * env, a_Exp_If exp_if )
+{
+    // check the components
+    t_CKBOOL cond = type_engine_scan1_exp( env, exp_if->cond );
+    t_CKBOOL if_exp = type_engine_scan1_exp( env, exp_if->if_exp );
+    t_CKBOOL else_exp = type_engine_scan1_exp( env, exp_if->else_exp );
+
+    // make sure everything good
+    if( !cond || !if_exp || !else_exp ) return FALSE;
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_array_subscripts( )
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_array_subscripts( Chuck_Env * env, a_Exp exp_list )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_decl( )
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
+{
+    a_Var_Decl_List list = decl->var_decl_list;
+    a_Var_Decl var_decl = NULL;
+
+    // loop through the variables
+    while( list != NULL )
+    {
+        // get the decl
+        var_decl = list->var_decl;
+
+        // scan if array
+        if( var_decl->array != NULL )
+        {
+            // verify there are no errors from the parser...
+            if( !verify_array( var_decl->array ) )
+                return FALSE;
+
+            // may be partial and empty []
+            if( var_decl->array->exp_list )
+            {
+                // type check the exp
+                if( !type_engine_scan1_exp( env, var_decl->array->exp_list ) )
+                    return FALSE;
+                // make sure types are of int
+                if( !type_engine_scan1_array_subscripts( env, var_decl->array->exp_list ) )
+                    return FALSE;
+            }
+        }
+
+        // the next var decl
+        list = list->next;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_func_call()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
+                                         t_CKFUNC & ck_func, int linepos )
+{
+    // Chuck_Func * func = NULL;
+    // Chuck_Func * up = NULL;
+
+    // type check the func
+    t_CKBOOL f = type_engine_scan1_exp( env, exp_func );
+    if( !f ) return FALSE;
+
+    // check the arguments
+    if( args )
+    {
+        t_CKBOOL a = type_engine_scan1_exp( env, args );
+        if( !a ) return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_func_call()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call )
+{
+    // type check it
+    return type_engine_scan1_exp_func_call( env, func_call->func, func_call->args,
+                                           func_call->ck_func, func_call->linepos );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_dot_member()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
+{
+    // type check the base
+    t_CKBOOL base = type_engine_scan1_exp( env, member->base );
+    if( !base ) return FALSE;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_exp_array()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_exp_array( Chuck_Env * env, a_Exp_Array array )
+{
+    // verify there are no errors from the parser...
+    if( !verify_array( array->indices ) )
+        return FALSE;
+
+    // type check the base
+    t_CKBOOL base = type_engine_scan1_exp( env, array->base );
+    if( !base ) return FALSE;
+        
+    // type check the index
+    t_CKBOOL index = type_engine_scan1_exp( env, array->indices->exp_list );
+    if( !index ) return FALSE;
+    
+    // cycle through each exp
+    // a_Exp e = array->indices->exp_list;
+    // count the dimension
+    // t_CKUINT depth = 0;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_class_def()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_class_def( Chuck_Env * env, a_Class_Def class_def )
+{
+    // make new type for class def
+    t_CKTYPE the_class = NULL;
+    // the return type
+    t_CKBOOL ret = TRUE;
+    // the class body
+    a_Class_Body body = class_def->body;
+
+    // if nspc is attached to class_def, that means the class_def is to be
+    // put in that namespace.  this is usually the case when doing import
+    if( class_def->home != NULL )
+    {
+        // set the new type as current
+        env->nspc_stack.push_back( env->curr );
+        env->curr = class_def->home;
+    }
+
+    // make sure class not already in namespace
+    if( env->curr->lookup_type( class_def->name->id, TRUE ) )
+    {
+        EM_error2( class_def->name->linepos,
+            "class/type '%s' is already defined in namespace '%s'",
+            S_name(class_def->name->id), env->curr->name.c_str() );
+        return FALSE;
+    }
+
+    // check if reserved
+    if( type_engine_check_reserved( env, class_def->name->id, class_def->name->linepos ) )
+    {
+        EM_error2( class_def->name->linepos, "...in class definition '%s'",
+            S_name(class_def->name->id) );
+        return FALSE;
+    }
+
+    // allocate new type
+    assert( env->context != NULL );
+    the_class = env->context->new_Chuck_Type();
+    // set the fields
+    the_class->id = te_user;
+    the_class->name = S_name(class_def->name->id);
+    the_class->owner = env->curr;
+    the_class->array_depth = 0;
+    the_class->size = sizeof(void *);
+    the_class->obj_size = 0;  // TODO:
+    the_class->info = env->context->new_Chuck_Namespace();
+    the_class->info->name = the_class->name;
+    the_class->info->parent = env->curr;
+    the_class->func = NULL;
+    the_class->def = class_def;
+    // add to env
+    env->curr->type.add( the_class->name, the_class );  // URGENT: make this global
+    // incomplete
+    the_class->is_complete = FALSE;
+
+    // set the new type as current
+    env->nspc_stack.push_back( env->curr );
+    env->curr = the_class->info;
+    // push the class def
+    env->class_stack.push_back( env->class_def );
+    env->class_def = the_class;
+    // reset the nest list
+    env->class_scope = 0;
+
+    // type check the body
+    while( body && ret )
+    {
+        // check the section
+        switch( body->section->s_type )
+        {
+        case ae_section_stmt:
+            // flag as having a constructor
+            //env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
+            //ret = type_engine_scan1_stmt_list( env, body->section->stmt_list );
+            break;
+        
+        case ae_section_func:
+            // set to complete
+            //env->class_def->is_complete = TRUE;
+            //ret = type_engine_scan1_func_def( env, body->section->func_def );
+            // back
+            //env->class_def->is_complete = FALSE;
+            break;
+        
+        case ae_section_class:
+            // do the class
+            ret = type_engine_scan1_class_def( env, body->section->class_def );
+            break;
+        }
+        
+        // move to the next section
+        body = body->next;
+    }
+
+
+    // pop the class
+    env->class_def = env->class_stack.back();
+    env->class_stack.pop_back();
+    // pop the namesapce
+    env->curr = env->nspc_stack.back();
+    env->nspc_stack.pop_back();
+
+    // if things checked out
+    if( ret )
+    {
+        Chuck_Value * value = NULL;
+        Chuck_Type * type = NULL;
+
+        // allocate value
+        type = t_class.copy( env );
+        type->actual_type = the_class;
+        value = env->context->new_Chuck_Value( type, the_class->name );
+        value->owner = env->curr;
+        value->is_const = TRUE;
+        value->is_member = FALSE;
+        // add to env
+        env->curr->value.add( the_class->name, value );
+
+        // remember
+        class_def->type = the_class;
+    }
+
+    // if nspc is attached to class_def, that means the class_def is to be
+    // put in that namespace.  this is usually the case when doing import
+    // we undo that extra namespace layer here...
+    if( class_def->home != NULL )
+    {
+        // pop the namesapce
+        env->curr = env->nspc_stack.back();
+        env->nspc_stack.pop_back();
+    }
+    else // set the current namespace as home
+    {
+        // set curr as home
+        class_def->home = env->curr;
+    }
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_func_def()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def f )
 {
 /*    Chuck_Type * type = NULL;
     Chuck_Value * value = NULL;
@@ -1532,7 +1735,7 @@ t_CKBOOL type_engine_scan_func_def( Chuck_Env * env, a_Func_Def f )
 
     // type check the code
     assert( f->code == NULL || f->code->s_type == ae_stmt_code );
-    if( f->code && !type_engine_scan_code_segment( env, &f->code->stmt_code, FALSE ) )
+    if( f->code && !type_engine_scan1_code_segment( env, &f->code->stmt_code, FALSE ) )
     {
         EM_error2( 0, "...in function '%s'", S_name(f->name) );
         goto error;
@@ -1589,10 +1792,10 @@ error:
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_prog()
+// name: type_engine_scan2_prog()
 // desc: data in env should be ready
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog,
+t_CKBOOL type_engine_scan2_prog( Chuck_Env * env, a_Program prog,
                                    te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
@@ -1609,21 +1812,21 @@ t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog,
             // if classes only, then skip
             if( how_much == te_do_classes_only ) break;
             // scan the statements
-            ret = type_engine_2ndscan_stmt_list( env, prog->section->stmt_list );
+            ret = type_engine_scan2_stmt_list( env, prog->section->stmt_list );
             break;
         
         case ae_section_func:
             // if classes only, then skip
             if( how_much == te_do_classes_only ) break;
             // scan the function definition
-            ret = type_engine_2ndscan_func_def( env, prog->section->func_def );
+            ret = type_engine_scan2_func_def( env, prog->section->func_def );
             break;
 
         case ae_section_class:
             // if no classes, then skip
             if( how_much == te_do_no_classes ) break;
             // scan the class definition
-            ret = type_engine_2ndscan_class_def( env, prog->section->class_def );
+            ret = type_engine_scan2_class_def( env, prog->section->class_def );
             break;
         
         default:
@@ -1643,16 +1846,16 @@ t_CKBOOL type_engine_2ndscan_prog( Chuck_Env * env, a_Program prog,
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_stmt_list()
+// name: type_engine_scan2_stmt_list()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_stmt_list( Chuck_Env * env, a_Stmt_List list )
+t_CKBOOL type_engine_scan2_stmt_list( Chuck_Env * env, a_Stmt_List list )
 {
     // type check the stmt_list
     while( list )
     {
         // the current statement
-        if( !type_engine_2ndscan_stmt( env, list->stmt ) )
+        if( !type_engine_scan2_stmt( env, list->stmt ) )
             return FALSE;
         
         // advance to the next statement
@@ -1666,10 +1869,10 @@ t_CKBOOL type_engine_2ndscan_stmt_list( Chuck_Env * env, a_Stmt_List list )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_stmt(()
+// name: type_engine_scan2_stmt(()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_stmt( Chuck_Env * env, a_Stmt stmt )
+t_CKBOOL type_engine_scan2_stmt( Chuck_Env * env, a_Stmt stmt )
 {
     t_CKBOOL ret = FALSE;
 
@@ -1683,7 +1886,7 @@ t_CKBOOL type_engine_2ndscan_stmt( Chuck_Env * env, a_Stmt stmt )
             // count scope to help determine class member
             env->class_scope++;
             env->curr->value.push();
-            ret = type_engine_2ndscan_if( env, &stmt->stmt_if );
+            ret = type_engine_scan2_if( env, &stmt->stmt_if );
             env->curr->value.pop();
             env->class_scope--;
             break;
@@ -1691,7 +1894,7 @@ t_CKBOOL type_engine_2ndscan_stmt( Chuck_Env * env, a_Stmt stmt )
         case ae_stmt_for:
             env->class_scope++;
             env->curr->value.push();
-            ret = type_engine_2ndscan_for( env, &stmt->stmt_for );
+            ret = type_engine_scan2_for( env, &stmt->stmt_for );
             env->curr->value.pop();
             env->class_scope--;
             break;
@@ -1699,7 +1902,7 @@ t_CKBOOL type_engine_2ndscan_stmt( Chuck_Env * env, a_Stmt stmt )
         case ae_stmt_while:
             env->class_scope++;
             env->curr->value.push();
-            ret = type_engine_2ndscan_while( env, &stmt->stmt_while );
+            ret = type_engine_scan2_while( env, &stmt->stmt_while );
             env->curr->value.pop();
             env->class_scope--;
             break;
@@ -1707,49 +1910,49 @@ t_CKBOOL type_engine_2ndscan_stmt( Chuck_Env * env, a_Stmt stmt )
         case ae_stmt_until:
             env->class_scope++;
             env->curr->value.push();
-            ret = type_engine_2ndscan_until( env, &stmt->stmt_until );
+            ret = type_engine_scan2_until( env, &stmt->stmt_until );
             env->curr->value.pop();
             env->class_scope--;
             break;
 
         case ae_stmt_exp:
-            ret = type_engine_2ndscan_exp( env, stmt->stmt_exp );
+            ret = type_engine_scan2_exp( env, stmt->stmt_exp );
             break;
 
         case ae_stmt_return:
-            ret = type_engine_2ndscan_return( env, &stmt->stmt_return );
+            ret = type_engine_scan2_return( env, &stmt->stmt_return );
             break;
 
         case ae_stmt_code:
             env->class_scope++;
-            ret = type_engine_2ndscan_code_segment( env, &stmt->stmt_code );
+            ret = type_engine_scan2_code_segment( env, &stmt->stmt_code );
             env->class_scope--;
             break;
 
         case ae_stmt_break:
-            ret = type_engine_2ndscan_break( env, &stmt->stmt_break );
+            ret = type_engine_scan2_break( env, &stmt->stmt_break );
             break;
 
         case ae_stmt_continue:
-            ret = type_engine_2ndscan_continue( env, &stmt->stmt_continue );
+            ret = type_engine_scan2_continue( env, &stmt->stmt_continue );
             break;
 
         case ae_stmt_switch:
             env->class_scope++;
-            ret = type_engine_2ndscan_switch( env, &stmt->stmt_switch );
+            ret = type_engine_scan2_switch( env, &stmt->stmt_switch );
             env->class_scope--;
             break;
 
         case ae_stmt_case:
-            // ret = type_engine_2ndscan_case( env, &stmt->stmt_case );
+            // ret = type_engine_scan2_case( env, &stmt->stmt_case );
             break;
 
         case ae_stmt_gotolabel:
-            // ret = type_engine_2ndscan_gotolabel( env, &stmt->goto_label );
+            // ret = type_engine_scan2_gotolabel( env, &stmt->goto_label );
             break;
 
         //case ae_stmt_func:
-        //    ret = type_engine_2ndscan_func_def( env, stmt->stmt_func );
+        //    ret = type_engine_scan2_func_def( env, stmt->stmt_func );
         //    break;
         
         default:
@@ -1766,24 +1969,24 @@ t_CKBOOL type_engine_2ndscan_stmt( Chuck_Env * env, a_Stmt stmt )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_if()
+// name: type_engine_scan2_if()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_if( Chuck_Env * env, a_Stmt_If stmt )
+t_CKBOOL type_engine_scan2_if( Chuck_Env * env, a_Stmt_If stmt )
 {
     // check the conditional
-    if( !type_engine_2ndscan_exp( env, stmt->cond ) )
+    if( !type_engine_scan2_exp( env, stmt->cond ) )
         return FALSE;
         
     // TODO: ensure that conditional has valid type
 
     // check if
-    if( !type_engine_2ndscan_stmt( env, stmt->if_body ) )
+    if( !type_engine_scan2_stmt( env, stmt->if_body ) )
         return FALSE;
 
     // check else, if there is one
     if( stmt->else_body )
-        if( !type_engine_2ndscan_stmt( env, stmt->else_body ) )
+        if( !type_engine_scan2_stmt( env, stmt->else_body ) )
             return FALSE;
 
     return TRUE;
@@ -1793,27 +1996,27 @@ t_CKBOOL type_engine_2ndscan_if( Chuck_Env * env, a_Stmt_If stmt )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_for()
+// name: type_engine_scan2_for()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_for( Chuck_Env * env, a_Stmt_For stmt )
+t_CKBOOL type_engine_scan2_for( Chuck_Env * env, a_Stmt_For stmt )
 {
     // check the initial
-    if( !type_engine_2ndscan_stmt( env, stmt->c1 ) )
+    if( !type_engine_scan2_stmt( env, stmt->c1 ) )
         return FALSE;
     
     // check the conditional
-    if( !type_engine_2ndscan_stmt( env, stmt->c2 ) )
+    if( !type_engine_scan2_stmt( env, stmt->c2 ) )
         return FALSE;
 
     // TODO: same as if - check conditional type valid
 
     // check the post
-    if( stmt->c3 && !type_engine_2ndscan_exp( env, stmt->c3 ) )
+    if( stmt->c3 && !type_engine_scan2_exp( env, stmt->c3 ) )
         return FALSE;
 
     // check body
-    if( !type_engine_2ndscan_stmt( env, stmt->body ) )
+    if( !type_engine_scan2_stmt( env, stmt->body ) )
         return FALSE;
 
     return TRUE;
@@ -1823,19 +2026,19 @@ t_CKBOOL type_engine_2ndscan_for( Chuck_Env * env, a_Stmt_For stmt )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_while()
+// name: type_engine_scan2_while()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_while( Chuck_Env * env, a_Stmt_While stmt )
+t_CKBOOL type_engine_scan2_while( Chuck_Env * env, a_Stmt_While stmt )
 {
     // check the conditional
-    if( !type_engine_2ndscan_exp( env, stmt->cond ) )
+    if( !type_engine_scan2_exp( env, stmt->cond ) )
         return FALSE;
         
     // TODO: same as if - ensure the type in conditional is valid
 
     // check the body
-    if( !type_engine_2ndscan_stmt( env, stmt->body ) )
+    if( !type_engine_scan2_stmt( env, stmt->body ) )
         return FALSE;
 
     return TRUE;
@@ -1845,19 +2048,19 @@ t_CKBOOL type_engine_2ndscan_while( Chuck_Env * env, a_Stmt_While stmt )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_until()
+// name: type_engine_scan2_until()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_until( Chuck_Env * env, a_Stmt_Until stmt )
+t_CKBOOL type_engine_scan2_until( Chuck_Env * env, a_Stmt_Until stmt )
 {
     // check the conditional
-    if( !type_engine_2ndscan_exp( env, stmt->cond ) )
+    if( !type_engine_scan2_exp( env, stmt->cond ) )
         return FALSE;
         
     // TODO: same as if - ensure the type in conditional is valid
 
     // check the body
-    if( !type_engine_2ndscan_stmt( env, stmt->body ) )
+    if( !type_engine_scan2_stmt( env, stmt->body ) )
         return FALSE;
 
     return TRUE;
@@ -1867,10 +2070,10 @@ t_CKBOOL type_engine_2ndscan_until( Chuck_Env * env, a_Stmt_Until stmt )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_switch()
+// name: type_engine_scan2_switch()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_switch( Chuck_Env * env, a_Stmt_Switch stmt )
+t_CKBOOL type_engine_scan2_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 {
     // TODO: implement this
     EM_error2( stmt->linepos, "switch not implemented..." );
@@ -1882,10 +2085,10 @@ t_CKBOOL type_engine_2ndscan_switch( Chuck_Env * env, a_Stmt_Switch stmt )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_break()
+// name: type_engine_scan2_break()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_break( Chuck_Env * env, a_Stmt_Break br )
+t_CKBOOL type_engine_scan2_break( Chuck_Env * env, a_Stmt_Break br )
 {
     return TRUE;
 }
@@ -1894,10 +2097,10 @@ t_CKBOOL type_engine_2ndscan_break( Chuck_Env * env, a_Stmt_Break br )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_continue()
+// name: type_engine_scan2_continue()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_continue( Chuck_Env * env, a_Stmt_Continue cont )
+t_CKBOOL type_engine_scan2_continue( Chuck_Env * env, a_Stmt_Continue cont )
 {
     return TRUE;
 }
@@ -1906,16 +2109,16 @@ t_CKBOOL type_engine_2ndscan_continue( Chuck_Env * env, a_Stmt_Continue cont )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_return()
+// name: type_engine_scan2_return()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_return( Chuck_Env * env, a_Stmt_Return stmt )
+t_CKBOOL type_engine_scan2_return( Chuck_Env * env, a_Stmt_Return stmt )
 {
     t_CKBOOL ret = FALSE;
 
     // check the type of the return
     if( stmt->val )
-        ret = type_engine_2ndscan_exp( env, stmt->val );
+        ret = type_engine_scan2_exp( env, stmt->val );
     else
         ret = TRUE;
 
@@ -1926,16 +2129,16 @@ t_CKBOOL type_engine_2ndscan_return( Chuck_Env * env, a_Stmt_Return stmt )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_code_segment()
+// name: type_engine_scan2_code_segment()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
+t_CKBOOL type_engine_scan2_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
                                         t_CKBOOL push )
 {
     // push
     if( push ) env->curr->value.push(); // env->context->nspc.value.push();
     // do it
-    t_CKBOOL t = type_engine_2ndscan_stmt_list( env, stmt->stmt_list );
+    t_CKBOOL t = type_engine_scan2_stmt_list( env, stmt->stmt_list );
     // pop
     if( push ) env->curr->value.pop();  // env->context->nspc.value.pop();
     
@@ -1946,10 +2149,10 @@ t_CKBOOL type_engine_2ndscan_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp()
+// name: type_engine_scan2_exp()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp( Chuck_Env * env, a_Exp exp )
+t_CKBOOL type_engine_scan2_exp( Chuck_Env * env, a_Exp exp )
 {
     a_Exp curr = exp;
     t_CKBOOL ret = TRUE;
@@ -1961,47 +2164,47 @@ t_CKBOOL type_engine_2ndscan_exp( Chuck_Env * env, a_Exp exp )
         switch( curr->s_type )
         {
         case ae_exp_binary:
-            ret = type_engine_2ndscan_exp_binary( env, &curr->binary );
+            ret = type_engine_scan2_exp_binary( env, &curr->binary );
         break;
     
         case ae_exp_unary:
-            ret = type_engine_2ndscan_exp_unary( env, &curr->unary );
+            ret = type_engine_scan2_exp_unary( env, &curr->unary );
         break;
     
         case ae_exp_cast:
-            ret = type_engine_2ndscan_exp_cast( env, &curr->cast );
+            ret = type_engine_scan2_exp_cast( env, &curr->cast );
         break;
     
         case ae_exp_postfix:
-            ret = type_engine_2ndscan_exp_postfix( env, &curr->postfix );
+            ret = type_engine_scan2_exp_postfix( env, &curr->postfix );
         break;
     
         case ae_exp_dur:
-            ret = type_engine_2ndscan_exp_dur( env, &curr->dur );
+            ret = type_engine_scan2_exp_dur( env, &curr->dur );
         break;
     
         case ae_exp_primary:
-            ret = type_engine_2ndscan_exp_primary( env, &curr->primary );
+            ret = type_engine_scan2_exp_primary( env, &curr->primary );
         break;
     
         case ae_exp_array:
-            ret = type_engine_2ndscan_exp_array( env, &curr->array );
+            ret = type_engine_scan2_exp_array( env, &curr->array );
         break;
     
         case ae_exp_func_call:
-            ret = type_engine_2ndscan_exp_func_call( env, &curr->func_call );
+            ret = type_engine_scan2_exp_func_call( env, &curr->func_call );
         break;
     
         case ae_exp_dot_member:
-            ret = type_engine_2ndscan_exp_dot_member( env, &curr->dot_member );
+            ret = type_engine_scan2_exp_dot_member( env, &curr->dot_member );
         break;
     
         case ae_exp_if:
-            ret = type_engine_2ndscan_exp_if( env, &curr->exp_if );
+            ret = type_engine_scan2_exp_if( env, &curr->exp_if );
         break;
     
         case ae_exp_decl:
-            ret = type_engine_2ndscan_exp_decl( env, &curr->decl );
+            ret = type_engine_scan2_exp_decl( env, &curr->decl );
         break;
 
         default:
@@ -2027,16 +2230,16 @@ t_CKBOOL type_engine_2ndscan_exp( Chuck_Env * env, a_Exp exp )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_binary()
+// name: type_engine_scan2_exp_binary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
+t_CKBOOL type_engine_scan2_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
 {
     a_Exp cl = binary->lhs, cr = binary->rhs;
 
     // type check the lhs and rhs
-    t_CKBOOL left = type_engine_2ndscan_exp( env, cl );
-    t_CKBOOL right = type_engine_2ndscan_exp( env, cr);
+    t_CKBOOL left = type_engine_scan2_exp( env, cl );
+    t_CKBOOL right = type_engine_scan2_exp( env, cr);
     
     // if either fails, then return FALSE
     if( !left || !right )
@@ -2046,7 +2249,7 @@ t_CKBOOL type_engine_2ndscan_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
     while( cr )
     {
         // type check the pair
-        if( !type_engine_2ndscan_op( env, binary->op, cl, cr, binary ) )
+        if( !type_engine_scan2_op( env, binary->op, cl, cr, binary ) )
             return FALSE;
 
         cr = cr->next;
@@ -2059,10 +2262,10 @@ t_CKBOOL type_engine_2ndscan_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_op()
+// name: type_engine_scan2_op()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, 
+t_CKBOOL type_engine_scan2_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, 
                                  a_Exp_Binary binary )
 {
     // TODO: check for static here
@@ -2074,10 +2277,10 @@ t_CKBOOL type_engine_2ndscan_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_E
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_op_chuck()
+// name: type_engine_scan2_op_chuck()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
+t_CKBOOL type_engine_scan2_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
                                        a_Exp_Binary binary )
 {
     return TRUE;
@@ -2087,10 +2290,10 @@ t_CKBOOL type_engine_2ndscan_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_op_unchuck()
+// name: type_engine_scan2_op_unchuck()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+t_CKBOOL type_engine_scan2_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 {
     return TRUE;
 }
@@ -2099,10 +2302,10 @@ t_CKBOOL type_engine_2ndscan_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_op_at_chuck()
+// name: type_engine_scan2_op_at_chuck()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+t_CKBOOL type_engine_scan2_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 {
     return TRUE;
 }
@@ -2111,10 +2314,10 @@ t_CKBOOL type_engine_2ndscan_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs 
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_unary()
+// name: type_engine_scan2_exp_unary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
+t_CKBOOL type_engine_scan2_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 {
     return TRUE;
 }
@@ -2123,10 +2326,10 @@ t_CKBOOL type_engine_2ndscan_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_primary()
+// name: type_engine_scan2_exp_primary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
+t_CKBOOL type_engine_scan2_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
 {
     return TRUE;
 }
@@ -2135,10 +2338,10 @@ t_CKBOOL type_engine_2ndscan_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_array_lit()
+// name: type_engine_scan2_exp_array_lit()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
+t_CKBOOL type_engine_scan2_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
 {
     // verify there are no errors from the parser...
     if( !verify_array( exp->array ) )
@@ -2151,13 +2354,13 @@ t_CKBOOL type_engine_2ndscan_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_cast()
+// name: type_engine_scan2_exp_cast()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
+t_CKBOOL type_engine_scan2_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
 {
     // check the exp
-    t_CKBOOL t = type_engine_2ndscan_exp( env, cast->exp );
+    t_CKBOOL t = type_engine_scan2_exp( env, cast->exp );
     if( !t ) return FALSE;
 
     return TRUE;
@@ -2167,14 +2370,14 @@ t_CKBOOL type_engine_2ndscan_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_dur()
+// name: type_engine_scan2_exp_dur()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
+t_CKBOOL type_engine_scan2_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
 {
     // type check the two components
-    t_CKBOOL base = type_engine_2ndscan_exp( env, dur->base );
-    t_CKBOOL unit = type_engine_2ndscan_exp( env, dur->unit );
+    t_CKBOOL base = type_engine_scan2_exp( env, dur->base );
+    t_CKBOOL unit = type_engine_scan2_exp( env, dur->unit );
     
     // make sure both type check
     if( !base || !unit ) return FALSE;
@@ -2186,13 +2389,13 @@ t_CKBOOL type_engine_2ndscan_exp_dur( Chuck_Env * env, a_Exp_Dur dur )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_postfix()
+// name: type_engine_scan2_exp_postfix()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
+t_CKBOOL type_engine_scan2_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix )
 {
     // check the exp
-    t_CKBOOL t = type_engine_2ndscan_exp( env, postfix->exp );
+    t_CKBOOL t = type_engine_scan2_exp( env, postfix->exp );
     if( !t ) return FALSE;
     
     // syntax
@@ -2229,15 +2432,15 @@ t_CKBOOL type_engine_2ndscan_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_if()
+// name: type_engine_scan2_exp_if()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_if( Chuck_Env * env, a_Exp_If exp_if )
+t_CKBOOL type_engine_scan2_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 {
     // check the components
-    t_CKBOOL cond = type_engine_2ndscan_exp( env, exp_if->cond );
-    t_CKBOOL if_exp = type_engine_2ndscan_exp( env, exp_if->if_exp );
-    t_CKBOOL else_exp = type_engine_2ndscan_exp( env, exp_if->else_exp );
+    t_CKBOOL cond = type_engine_scan2_exp( env, exp_if->cond );
+    t_CKBOOL if_exp = type_engine_scan2_exp( env, exp_if->if_exp );
+    t_CKBOOL else_exp = type_engine_scan2_exp( env, exp_if->else_exp );
 
     // make sure everything good
     if( !cond || !if_exp || !else_exp ) return FALSE;
@@ -2249,10 +2452,10 @@ t_CKBOOL type_engine_2ndscan_exp_if( Chuck_Env * env, a_Exp_If exp_if )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_array_subscripts( )
+// name: type_engine_scan2_array_subscripts( )
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_array_subscripts( Chuck_Env * env, a_Exp exp_list )
+t_CKBOOL type_engine_scan2_array_subscripts( Chuck_Env * env, a_Exp exp_list )
 {
     return TRUE;
 }
@@ -2261,10 +2464,10 @@ t_CKBOOL type_engine_2ndscan_array_subscripts( Chuck_Env * env, a_Exp exp_list )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_decl( )
+// name: type_engine_scan2_exp_decl( )
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
+t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
@@ -2296,10 +2499,10 @@ t_CKBOOL type_engine_2ndscan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             if( var_decl->array->exp_list )
             {
                 // type check the exp
-                if( !type_engine_2ndscan_exp( env, var_decl->array->exp_list ) )
+                if( !type_engine_scan2_exp( env, var_decl->array->exp_list ) )
                     return FALSE;
                 // make sure types are of int
-                if( !type_engine_2ndscan_array_subscripts( env, var_decl->array->exp_list ) )
+                if( !type_engine_scan2_array_subscripts( env, var_decl->array->exp_list ) )
                     return FALSE;
             }
         }
@@ -2335,23 +2538,23 @@ t_CKBOOL type_engine_2ndscan_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_func_call()
+// name: type_engine_scan2_exp_func_call()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
+t_CKBOOL type_engine_scan2_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp args, 
                                             t_CKFUNC & ck_func, int linepos )
 {
     // Chuck_Func * func = NULL;
     // Chuck_Func * up = NULL;
 
     // type check the func
-    t_CKBOOL f = type_engine_2ndscan_exp( env, exp_func );
+    t_CKBOOL f = type_engine_scan2_exp( env, exp_func );
     if( !f ) return FALSE;
 
     // check the arguments
     if( args )
     {
-        t_CKBOOL a = type_engine_2ndscan_exp( env, args );
+        t_CKBOOL a = type_engine_scan2_exp( env, args );
         if( !a ) return FALSE;
     }
 
@@ -2362,13 +2565,13 @@ t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_E
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_func_call()
+// name: type_engine_scan2_exp_func_call()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call )
+t_CKBOOL type_engine_scan2_exp_func_call( Chuck_Env * env, a_Exp_Func_Call func_call )
 {
     // type check it
-    return type_engine_2ndscan_exp_func_call( env, func_call->func, func_call->args,
+    return type_engine_scan2_exp_func_call( env, func_call->func, func_call->args,
                                            func_call->ck_func, func_call->linepos );
 }
 
@@ -2376,13 +2579,13 @@ t_CKBOOL type_engine_2ndscan_exp_func_call( Chuck_Env * env, a_Exp_Func_Call fun
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_dot_member()
+// name: type_engine_scan2_exp_dot_member()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
+t_CKBOOL type_engine_scan2_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member member )
 {
     // type check the base
-    t_CKBOOL base = type_engine_2ndscan_exp( env, member->base );
+    t_CKBOOL base = type_engine_scan2_exp( env, member->base );
     if( !base ) return FALSE;
 
     return TRUE;
@@ -2392,21 +2595,21 @@ t_CKBOOL type_engine_2ndscan_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member m
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_exp_array()
+// name: type_engine_scan2_exp_array()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_exp_array( Chuck_Env * env, a_Exp_Array array )
+t_CKBOOL type_engine_scan2_exp_array( Chuck_Env * env, a_Exp_Array array )
 {
     // verify there are no errors from the parser...
     if( !verify_array( array->indices ) )
         return FALSE;
 
     // type check the base
-    t_CKBOOL base = type_engine_2ndscan_exp( env, array->base );
+    t_CKBOOL base = type_engine_scan2_exp( env, array->base );
     if( !base ) return FALSE;
         
     // type check the index
-    t_CKBOOL index = type_engine_2ndscan_exp( env, array->indices->exp_list );
+    t_CKBOOL index = type_engine_scan2_exp( env, array->indices->exp_list );
     if( !index ) return FALSE;
     
     // cycle through each exp
@@ -2421,10 +2624,10 @@ t_CKBOOL type_engine_2ndscan_exp_array( Chuck_Env * env, a_Exp_Array array )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_class_def()
+// name: type_engine_scan2_class_def()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def class_def )
+t_CKBOOL type_engine_scan2_class_def( Chuck_Env * env, a_Class_Def class_def )
 {
     // make new type for class def
     t_CKTYPE the_class = NULL;
@@ -2486,20 +2689,20 @@ t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def class_def )
         {
         case ae_section_stmt:
             // already flagged as having a constructor or not
-            ret = type_engine_2ndscan_stmt_list( env, body->section->stmt_list );
+            ret = type_engine_scan2_stmt_list( env, body->section->stmt_list );
             break;
 
         case ae_section_func:
             // set to complete
             env->class_def->is_complete = TRUE;
-            ret = type_engine_2ndscan_func_def( env, body->section->func_def );
+            ret = type_engine_scan2_func_def( env, body->section->func_def );
             // back
             env->class_def->is_complete = FALSE;
             break;
 
         case ae_section_class:
             // do the class
-            ret = type_engine_2ndscan_class_def( env, body->section->class_def );
+            ret = type_engine_scan2_class_def( env, body->section->class_def );
             break;
         }
         
@@ -2531,10 +2734,10 @@ t_CKBOOL type_engine_2ndscan_class_def( Chuck_Env * env, a_Class_Def class_def )
 
 
 //-----------------------------------------------------------------------------
-// name: type_engine_2ndscan_func_def()
+// name: type_engine_scan2_func_def()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_2ndscan_func_def( Chuck_Env * env, a_Func_Def f )
+t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
 {
     return TRUE;
 }

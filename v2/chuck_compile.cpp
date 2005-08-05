@@ -50,7 +50,6 @@
 // function prototypes
 t_CKBOOL load_internal_modules( Chuck_Compiler * compiler );
 t_CKBOOL load_module( Chuck_Env * env, f_ck_query query, const char * name, const char * nspc );
-t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename, FILE * fd );
 
 
 
@@ -245,16 +244,40 @@ t_CKBOOL Chuck_Compiler::do_all_except_classes( Chuck_Context * context )
 t_CKBOOL Chuck_Compiler::do_normal( const string & filename, FILE * fd )
 {
     t_CKBOOL ret = TRUE;
+    Chuck_Context * context = NULL;
 
     // parse the code
     if( !chuck_parse( filename.c_str(), fd ) )
         return FALSE;
 
-    // check the program
-    if( !type_engine_check_prog( env, g_program, filename ) )
+    // make the context
+    context = type_engine_make_context( g_program, filename );
+    if( !context ) return FALSE;
+
+    // reset the env
+    env->reset();
+
+    // load the context
+    if( !type_engine_load_context( env, context ) )
+        return FALSE;
+
+    // 0th-scan (pass 0)
+    // if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
+    // { ret = FALSE; goto cleanup; }
+
+    // 1st-scan (pass 1)
+    if( !type_engine_scan1_prog( env, g_program, te_do_all ) )
     { ret = FALSE; goto cleanup; }
 
-    // emit
+    // 2nd-scan (pass 2)
+    //if( !type_engine_scan2_prog( env, g_program, te_do_all ) )
+    //{ ret = FALSE; goto cleanup; }
+
+    // check the program (pass 3)
+    if( !type_engine_check_context( env, context, te_do_all ) )
+    { ret = FALSE; goto cleanup; }
+
+    // emit (pass 4)
     if( !(code = emit_engine_emit_prog( emitter, g_program )) )
     { ret = FALSE; goto cleanup; }
 
@@ -400,25 +423,4 @@ error:
     env->global()->rollback();
 
     return FALSE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: parse_and_check_prog()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL parse_and_check_prog( Chuck_Env * env, const string & filename,
-                               FILE * fd )
-{
-    // parse the code
-    if( !chuck_parse( filename.c_str(), fd ) )
-        return FALSE;
-
-    // check the program
-    if( !type_engine_check_prog( env, g_program, filename ) )
-        return FALSE;
-
-    return TRUE;
 }
