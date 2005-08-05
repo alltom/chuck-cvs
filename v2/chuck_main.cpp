@@ -258,6 +258,7 @@ int main( int argc, char ** argv )
     t_CKBOOL dump = FALSE;
     t_CKBOOL probe = FALSE;
     t_CKBOOL set_priority = FALSE;
+    t_CKBOOL auto_depend = FALSE;
 
     t_CKUINT files = 0;
     t_CKUINT count = 1;
@@ -308,6 +309,10 @@ int main( int argc, char ** argv )
                 g_port = atoi( argv[i]+6 );
             else if( !strncmp(argv[i], "-p", 2) )
                 g_port = atoi( argv[i]+2 );
+            else if( !strncmp(argv[i], "--auto", 6) )
+                auto_depend = TRUE;
+            else if( !strncmp(argv[i], "-u", 2) )
+                auto_depend = TRUE;
             else if( !strcmp( argv[i], "--probe" ) )
                 probe = TRUE;
             else if( !strcmp( argv[i], "--poop" ) )
@@ -374,6 +379,8 @@ int main( int argc, char ** argv )
     compiler->initialize( vm );
     // enable dump
     compiler->emitter->dump = dump;
+    // set auto depend
+    compiler->set_auto_depend( auto_depend );
 
     // catch SIGINT
     signal( SIGINT, signal_int );

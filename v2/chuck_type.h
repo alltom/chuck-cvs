@@ -265,8 +265,11 @@ struct Chuck_Context : public Chuck_VM_Object
     a_Class_Def public_class_def;
     // error - means to free nspc too
     t_CKBOOL has_error;
-    // progress in scan / type check
-    // t_CKUINT progress;
+
+    // progress
+    enum { P_NONE = 0, P_CLASSES_ONLY, P_ALL };
+    // progress in scan / type check / emit
+    t_CKUINT progress;
 
     // things to release with the context
     std::vector<Chuck_VM_Object *> new_types;
@@ -285,9 +288,12 @@ struct Chuck_Context : public Chuck_VM_Object
 
     // constructor
     Chuck_Context() { parse_tree = NULL; nspc = new Chuck_Namespace; 
-                      public_class_def = NULL; has_error = FALSE; }
+                      public_class_def = NULL; has_error = FALSE;
+                      progress = P_NONE; }
     // destructor
     ~Chuck_Context();
+    // get the top-level code
+    Chuck_VM_Code * code() { return nspc->pre_ctor; }
 
     // special alloc
     Chuck_Type * new_Chuck_Type();

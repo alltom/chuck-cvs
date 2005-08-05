@@ -135,7 +135,8 @@ void Chuck_Compiler::shutdown()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Compiler::go( const string & filename, FILE * fd )
 {
-    t_CKBOOL ret = FALSE;
+    t_CKBOOL ret = TRUE;
+    Chuck_Context * context = NULL;
 
     // check to see if resolve dependencies automatically
     if( !m_auto_depend )
@@ -144,33 +145,46 @@ t_CKBOOL Chuck_Compiler::go( const string & filename, FILE * fd )
         ret = this->do_normal( filename, fd );
         return ret;
     }
+    else // auto
+    {
+        // parse the code
+        if( !chuck_parse( filename.c_str(), fd ) )
+            return FALSE;
 
-    // parse the code
-    if( !chuck_parse( filename.c_str(), fd ) )
-        return FALSE;
+        // make the context
+        context = type_engine_make_context( g_program, filename );
+        if( !context ) return FALSE;
 
-    // make the context
-    Chuck_Context * context = type_engine_make_context( g_program, filename );
-    if( !context ) return FALSE;
+        // reset the env
+        env->reset();
 
-    // do entire file
-    if( !do_entire_file( context ) )
-    { ret = FALSE; goto cleanup; }
+        // load the context
+        if( !type_engine_load_context( env, context ) )
+            return FALSE;
 
-    // emit
-    if( !(code = emit_engine_emit_prog( emitter, g_program )) )
-    { ret = FALSE; goto cleanup; }
+        // do entire file
+        if( !do_entire_file( context ) )
+        { ret = FALSE; goto cleanup; }
+
+        // get the code
+        if( !(code = context->code()) )
+        {
+            ret = FALSE;
+            EM_error2( 0, "internal error: context->code() NULL!" );
+            goto cleanup;
+        }
 
 cleanup:
 
-    // unload the context from the type-checker
-    if( !type_engine_unload_context( env ) )
-    {
-        EM_error2( 0, "internal error unloading context...\n" );
-        return FALSE;
-    }
+        // unload the context from the type-checker
+        if( !type_engine_unload_context( env ) )
+        {
+            EM_error2( 0, "internal error unloading context...\n" );
+            return FALSE;
+        }
 
-    return ret;
+        return ret;
+    }
 }
 
 
@@ -188,6 +202,10 @@ t_CKBOOL Chuck_Compiler::resolve( const string & type )
     if( !m_auto_depend )
         return FALSE;
 
+    // look up if name is already parsed
+
+    
+
     return ret;
 }
 
@@ -200,12 +218,28 @@ t_CKBOOL Chuck_Compiler::resolve( const string & type )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Compiler::do_entire_file( Chuck_Context * context )
 {
-    // reset the env
-    env->reset();
+    // 0th-scan (pass 0)
+    // if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
+    //     return FALSE;
 
-    // check the context
+    // 1st-scan (pass 1)
+    if( !type_engine_scan1_prog( env, g_program, te_do_all ) )
+        return FALSE;
+
+    // 2nd-scan (pass 2)
+    //if( !type_engine_scan2_prog( env, g_program, te_do_all ) )
+    //    return FALSE;
+
+    // check the program (pass 3)
     if( !type_engine_check_context( env, context, te_do_all ) )
         return FALSE;
+
+    // emit (pass 4)
+    if( !emit_engine_emit_prog( emitter, g_program ) )
+        return FALSE;
+
+    // set the state of the context to done
+    context->progress = Chuck_Context::P_ALL;
 
     return TRUE;
 }
@@ -219,6 +253,29 @@ t_CKBOOL Chuck_Compiler::do_entire_file( Chuck_Context * context )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Compiler::do_only_classes( Chuck_Context * context )
 {
+    // 0th-scan (pass 0)
+    // if( !type_engine_scan0_prog( env, g_program, te_do_classes_only ) )
+    //     return FALSE;
+
+    // 1st-scan (pass 1)
+    if( !type_engine_scan1_prog( env, g_program, te_do_classes_only ) )
+        return FALSE;
+
+    // 2nd-scan (pass 2)
+    //if( !type_engine_scan2_prog( env, g_program, te_do_classes_only ) )
+    //    return FALSE;
+
+    // check the program (pass 3)
+    if( !type_engine_check_context( env, context, te_do_classes_only ) )
+        return FALSE;
+
+    // emit (pass 4)
+    if( !(code = emit_engine_emit_prog( emitter, g_program )) )
+        return FALSE;
+
+    // set the state of the context to done
+    context->progress = Chuck_Context::P_ALL;
+
     return TRUE;
 }
 
@@ -231,6 +288,27 @@ t_CKBOOL Chuck_Compiler::do_only_classes( Chuck_Context * context )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Compiler::do_all_except_classes( Chuck_Context * context )
 {
+    // 0th scan only deals with classes, so is not needed
+
+    // 1st-scan (pass 1)
+    if( !type_engine_scan1_prog( env, g_program, te_do_no_classes ) )
+        return FALSE;
+
+    // 2nd-scan (pass 2)
+    //if( !type_engine_scan2_prog( env, g_program, te_do_no_classes ) )
+    //    return FALSE;
+
+    // check the program (pass 3)
+    if( !type_engine_check_context( env, context, te_do_no_classes ) )
+        return FALSE;
+
+    // emit (pass 4)
+    if( !(code = emit_engine_emit_prog( emitter, g_program )) )
+        return FALSE;
+
+    // set the state of the context to done
+    context->progress = Chuck_Context::P_ALL;
+
     return TRUE;
 }
 
