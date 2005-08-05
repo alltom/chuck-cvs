@@ -148,11 +148,20 @@ struct Chuck_Emitter : public Chuck_VM_Object
 
 
 
-// function prototypes
+// allocate the emitter
 Chuck_Emitter * emit_engine_init( Chuck_Env * env );
+// shutdown and free the emitter
 t_CKBOOL emit_engine_shutdown( Chuck_Emitter *& emit );
-Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog );
-Chuck_VM_Code * emit_to_code( Chuck_Code * in, Chuck_VM_Code * out = NULL, t_CKBOOL dump = FALSE );
+// emit a program into vm code
+Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit,
+                                       a_Program prog,
+                                       te_HowMuch how_much = te_do_all );
+// helper function to emit code
+Chuck_VM_Code * emit_to_code( Chuck_Code * in,
+                              Chuck_VM_Code * out = NULL,
+                              t_CKBOOL dump = FALSE );
+
+// NOT USED: ...
 t_CKBOOL emit_engine_addr_map( Chuck_Emitter * emit, Chuck_VM_Shred * shred );
 t_CKBOOL emit_engine_resolve( );
 

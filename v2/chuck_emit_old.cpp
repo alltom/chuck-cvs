@@ -24,425 +24,69 @@
 
 //-----------------------------------------------------------------------------
 // file: chuck_emit.cpp
-// desc: ...
+// desc: chuck instruction emitter
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Autumn 2002
-//       Autumn 2003 updated
+//       Autumn 2003 - updated
+//       Autumn 2004 - redesign
 //-----------------------------------------------------------------------------
-#include <vector>
-#include <string>
-using namespace std;
-
 #include "chuck_emit.h"
-#include "chuck_frame.h"
-#include "chuck_instr.h"
-#include "chuck_bbq.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
+#include "chuck_instr.h"
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Code
-// desc: ...
+// function prototypes
 //-----------------------------------------------------------------------------
-class Chuck_Code
-{
-public:
-    vector<Chuck_Instr *> code;
-    string name;
-    F_Frame frame;
-    unsigned int stack_depth;
-
-    Chuck_Code( c_str scope_name )
-    {
-        name = scope_name;
-        frame = F_new_frame( Temp_named_label( scope_name ) );
-        stack_depth = 0;
-    }
-
-    ~Chuck_Code()
-    {
-        // TODO: free the frame
-    }
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: struct Dur_Node
-// desc: ...
-//-----------------------------------------------------------------------------
-struct Dur_Node
-{
-    t_CKDUR dur;
-
-    Dur_Node( t_CKDUR d )
-    { dur = d; }
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: struct Func_Link
-// desc: ...
-//-----------------------------------------------------------------------------
-struct Func_Link
-{
-    S_Symbol name;
-    Chuck_Instr_Reg_Push_Imm * op;
-};
-
-// global func table
-S_table g_func2code = NULL;
-vector<Func_Link *> g_func_links;
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: struct Chuck_Emmission
-// desc: ...
-//-----------------------------------------------------------------------------
-struct Chuck_Emmission
-{
-    Chuck_Code * global;
-    Chuck_Code * local;
-    vector<Chuck_Code *> functions;
-    S_table var2offset;
-    S_table dur2num_samps;
-    S_table globals;
-    t_Env env;
-    unsigned int is_global;
-    unsigned int count;
-    unsigned int chuck_count;
-    vector<Chuck_Instr_Branch_Op *> returns;
-    vector<Chuck_Instr_Unary_Op *> addr_map;
-
-    // namespace
-    t_Env nspc;
-    a_Func_Def nspc_func;
-    vector<Chuck_Instr_Unary_Op *> ops;
-
-    Chuck_Emmission( t_Env e )
-    {
-        global = NULL;
-        local = NULL;
-        var2offset = S_empty();
-        dur2num_samps = S_empty();
-        globals = S_empty();
-        is_global = TRUE;
-        count = 0;
-        chuck_count = 0;
-        returns.clear();
-        env = e;
-        nspc = e;
-        nspc_func = NULL;
-    }
-    
-    void push_op( Chuck_Instr_Unary_Op * a )
-    {
-        ops.push_back( a );
-    }
-    
-    Chuck_Instr_Unary_Op * get_op()
-    {
-        if( ops.size() ) return ops[ops.size()-1];
-        else return NULL; 
-    }
-    
-    void pop_op( )
-    {
-        if( ops.size() ) ops.pop_back();
-    }
-    
-    void append_ops()
-    {
-        while( get_op() )
-        {
-            append( get_op() );
-            pop_op();
-        }
-    }
-    
-    void pop_the_ops()
-    {
-        ops.clear();
-        // while( get_op() ) pop_op();
-    }
-
-    uint append( Chuck_Instr * instr )
-    {
-        if( is_global )
-        {
-            global->code.push_back( instr );
-            return (uint)global->code.size() - 1;
-        }
-        else
-        {
-            local->code.push_back( instr );
-            return (uint)local->code.size() - 1;
-        }
-    }
-    
-    Chuck_Instr * remove_last( )
-    {
-        if( is_global )
-        {
-            if( global->code.size() == 0 ) return NULL;
-            Chuck_Instr * instr = *global->code.end();
-            global->code.pop_back();
-            return instr;
-        }
-        else
-        {
-            if( local->code.size() == 0 ) return NULL;
-            Chuck_Instr * instr = *local->code.end();
-            local->code.pop_back();
-            return instr;
-        }
-    }
-
-    uint next_index()
-    {
-        if( is_global )
-            return (uint)global->code.size();
-        else
-            return (uint)local->code.size();
-    }
-
-    void alloc_dur( S_Symbol var, t_CKDUR samp )
-    {
-        S_enter( dur2num_samps, var, new Dur_Node( samp ) );
-    }
-
-    uint find_dur( S_Symbol var, t_CKDUR * dur )
-    {
-        Dur_Node * n = (Dur_Node *)S_look( dur2num_samps, var );
-        if( !n )
-            return FALSE;
-
-        *dur = n->dur;
-        return TRUE;
-    }
-
-    unsigned int alloc_local( S_Symbol var, t_Type type )
-    {
-        // allocate offset in the frame
-        F_Access a;
-        if( is_global )
-            a = F_alloc_local( global->frame, type->size, is_global );
-        else
-            a = F_alloc_local( local->frame, type->size, is_global );
-
-        unsigned int offset = F_offset( a );
-
-        // push in the table
-        S_enter( var2offset, var, a );
-
-        return offset;
-    }
-
-    int find_offset( S_Symbol var, t_CKBOOL * isglobal = NULL, t_CKUINT * size = NULL )
-    {
-        F_Access a = (F_Access)S_look( var2offset, var );
-        if( !a )
-            return -1;
-        if( isglobal )
-            *isglobal = a->global;
-        if( size )
-            *size = a->size;
-
-        return a->offset;
-    }
-    
-    unsigned int stack_depth()
-    {
-        if( is_global )
-            return F_stack_depth( global->frame );
-        else
-            return F_stack_depth( local->frame );
-    }
-
-    void push( c_str scope_name = NULL )
-    {
-        S_beginScope( var2offset );
-        if( this->is_global )
-            F_begin_scope( global->frame );
-        else
-            F_begin_scope( local->frame );
-        count++;
-    }
-
-    void pop( )
-    {
-        if( !count )
-        {
-            EM_error2( 0, "(emit): internal error - too many pop()!" );
-            return;
-        }
-
-        S_endScope( var2offset );
-        if( is_global )
-            F_end_scope( global->frame );
-        else
-            F_end_scope( local->frame );
-        count--;
-    }
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_to_code()
-// desc: emit to vm code
-//-----------------------------------------------------------------------------
-Chuck_VM_Code * emit_to_code( Chuck_Emmission * emit, t_CKBOOL dump )
-{
-    Chuck_VM_Code * code = new Chuck_VM_Code;
-    code->num_instr = emit->global->code.size();
-    code->instr = new Chuck_Instr *[code->num_instr];
-
-    // copy
-    for( unsigned int i = 0; i < code->num_instr; i++ )
-        code->instr[i] = emit->global->code[i];
-
-    // functions
-    for( unsigned int j = 0; j < emit->functions.size(); j++ )
-    {
-        Chuck_VM_Code * code2 = new Chuck_VM_Code;
-        Chuck_Code * c = emit->functions[j];
-        code2->num_instr = c->code.size();
-        code2->instr = new Chuck_Instr *[code2->num_instr];
-
-        // copy
-        for( unsigned int i = 0; i < code2->num_instr; i++ )
-            code2->instr[i] = c->code[i];
-
-        // set the parent
-        code2->stack_depth = c->stack_depth;
-        
-        if( dump )
-        {
-            fprintf( stderr, "[chuck]: dumping function %s( ... )\n\n", c->name.c_str() );
-
-            for( unsigned int i = 0; i < code2->num_instr; i++ )
-                fprintf( stdout, "'%i' %s( %s )\n", i, 
-                    code2->instr[i]->name(), code2->instr[i]->params() );
-
-            fprintf( stdout, "...\n\n" );
-        }
-
-        // put in table
-        S_enter( g_func2code, insert_symbol((char *)c->name.c_str()), code2 );
-    }
-
-    return code;
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_addr_map()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_addr_map( Chuck_Emmission * emit, Chuck_VM_Shred * shred )
-{
-    // memory stack
-    uint sp = (uint)shred->mem->sp;
-    
-    // offset the initial region
-    sp += sizeof(t_CKINT);
-    
-    // map the offset to pointers
-    for( unsigned int i = 0; i < emit->addr_map.size(); i++ )
-        emit->addr_map[i]->set( sp + emit->addr_map[i]->get() );
-
-    return TRUE;
-}
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_resolve()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_resolve()
-{
-    Func_Link * f = NULL;
-    Chuck_VM_Code * code = NULL;
-
-    for( unsigned int i = 0; i < g_func_links.size(); i++ )
-    {
-        f = g_func_links[i];
-        code = (Chuck_VM_Code *)S_look( g_func2code, f->name );
-        if( code == NULL )
-        {
-            EM_error2( 0, "error: cannot resolve function '%s'",
-                       S_name(f->name) );
-            return FALSE;
-        }
-
-        f->op->set( (uint)code );
-    }
-
-    g_func_links.clear();
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// prototypes
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_prog( Chuck_Emmission * emit, a_Program prog );
-t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emmission * emit, a_Stmt_List list );
-t_CKBOOL emit_engine_emit_stmt( Chuck_Emmission * emit, a_Stmt stmt, t_CKBOOL pop = TRUE );
-t_CKBOOL emit_engine_emit_code_segment( Chuck_Emmission * emit, a_Stmt_Code stmt );
-t_CKBOOL emit_engine_emit_switch( Chuck_Emmission * emit, a_Stmt_Switch stmt );
-t_CKBOOL emit_engine_emit_while( Chuck_Emmission * emit, a_Stmt_While stmt );
-t_CKBOOL emit_engine_emit_do_while( Chuck_Emmission * emit, a_Stmt_While stmt );
-t_CKBOOL emit_engine_emit_until( Chuck_Emmission * emit, a_Stmt_Until stmt );
-t_CKBOOL emit_engine_emit_do_until( Chuck_Emmission * emit, a_Stmt_Until stmt );
-t_CKBOOL emit_engine_emit_for( Chuck_Emmission * emit, a_Stmt_For stmt );
-t_CKBOOL emit_engine_emit_if( Chuck_Emmission * emit, a_Stmt_If stmt );
-t_CKBOOL emit_engine_emit_return( Chuck_Emmission * emit, a_Stmt_Return stmt );
-t_CKBOOL emit_engine_emit_exp( Chuck_Emmission * emit, a_Exp exp );
-t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emmission * emit, a_Exp_Binary exp );
-t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emmission * emit, a_Exp_Unary exp );
-t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emmission * emit, a_Exp_Cast exp );
-t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emmission * emit, a_Exp_Postfix exp );
-t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emmission * emit, a_Exp_Dur exp );
-t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp );
-t_CKBOOL emit_engine_emit_exp_array( Chuck_Emmission * emit, a_Exp_Array exp );
-t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call exp, t_CKBOOL spork = FALSE );
-t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Member exp, t_Type t );
-t_CKBOOL emit_engine_emit_exp_if( Chuck_Emmission * emit, a_Exp_If exp );
-t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emmission * emit, a_Exp_Decl exp );
-t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emmission * emit, a_Exp_Namespace nspc );
-t_CKBOOL emit_engine_emit_op( Chuck_Emmission * emit, ae_Operator op, a_Exp lhs, a_Exp rhs );
-t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs );
-t_CKBOOL emit_engine_emit_unchuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs );
-t_CKBOOL emit_engine_emit_func_def( Chuck_Emmission * emit, a_Func_Def func_def );
-t_CKBOOL emit_engine_emit_spork( Chuck_Emmission * emit, a_Exp_Func_Call exp );
-
-t_CKBOOL emit_engine_emit_exp_mem( Chuck_Emmission * emit, a_Exp exp );
-t_CKBOOL emit_engine_emit_exp_primary_mem( Chuck_Emmission * emit, a_Exp_Primary exp );
-t_CKBOOL emit_engine_emit_exp_dot_member_mem( Chuck_Emmission * emit, a_Exp_Dot_Member exp );
-t_CKBOOL emit_engine_emit_exp_array_mem( Chuck_Emmission * emit, a_Exp_Array exp );
-t_CKBOOL emit_engine_emit_exp_func_call_mem( Chuck_Emmission * emit, a_Exp_Func_Call exp );
-
-t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol symbol, 
-                                  t_CKBOOL offset, int linepos );
+t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emitter * emit, a_Stmt_List list );
+t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop = TRUE );
+t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt );
+t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt );
+t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt );
+t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt );
+t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt );
+t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt );
+t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br );
+t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont );
+t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt );
+t_CKBOOL emit_engine_emit_switch( Chuck_Emitter * emit, a_Stmt_Switch stmt );
+t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp );
+t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary );
+t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
+t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs );
+t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary );
+t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp );
+t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast );
+t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix );
+t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur );
+t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, Chuck_Func * func,
+                                         Chuck_Type * type, int linepos, t_CKBOOL spork = FALSE );
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call func_call,
+                                         t_CKBOOL spork = FALSE );
+t_CKBOOL emit_engine_emit_func_args( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
+t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
+t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
+t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
+t_CKBOOL emit_engine_emit_array_lit( Chuck_Emitter * emit, a_Array_Sub array );
+t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
+                                        t_CKBOOL push = TRUE );
+t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def );
+t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def );
+t_CKBOOL emit_engine_pre_constructor( Chuck_Emitter * emit, Chuck_Type * type );
+t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type,
+                                         a_Array_Sub array, t_CKBOOL is_ref );
+t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp );
+t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit, Chuck_Type * to, Chuck_Type * from );
+t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
+                                  Chuck_Value * v, t_CKBOOL emit_var, int linepos );
 
 
 
@@ -451,59 +95,15 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol symbol,
 // name: emit_engine_init()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Emmission * emit_engine_init( t_Env env )
+Chuck_Emitter * emit_engine_init( Chuck_Env * env )
 {
-    // allocate the emit
-    Chuck_Emmission * emit = new Chuck_Emmission( env );
-    if( !emit )
-    {
-        EM_error2( 0, "(emit): out of memory!" );
-        return NULL;
-    }
+    // TODO: ensure this in a better way
+    assert( sizeof(t_CKUINT) == sizeof(void *) );
 
-    if( g_func2code == NULL )
-        g_func2code = S_empty();
-
-    // set the env
-    emit->global = new Chuck_Code( "__system_scope__" );
-    emit->push( "__system_scope__" );
-
-    // push special
-    //emit->alloc_local( insert_symbol("now"), lookup_value(env, insert_symbol("now") ) );
-    //emit->alloc_local( insert_symbol("samp"), lookup_value(env, insert_symbol("samp") ) );
-    //emit->alloc_local( insert_symbol("ms"), lookup_value(env, insert_symbol("ms") ) );
-    //emit->alloc_local( insert_symbol("second"), lookup_value(env, insert_symbol("second") ) );
-    //emit->alloc_local( insert_symbol("minute"), lookup_value(env, insert_symbol("minute") ) );
-    //emit->alloc_local( insert_symbol("hour"), lookup_value(env, insert_symbol("hour") ) );
-    //emit->alloc_local( insert_symbol("day"), lookup_value(env, insert_symbol("day") ) );
-    //emit->alloc_local( insert_symbol("week"), lookup_value(env, insert_symbol("week") ) );
-    emit->alloc_local( insert_symbol("stdout"), lookup_value(env, insert_symbol("stdout") ) );
-    emit->alloc_local( insert_symbol("stderr"), lookup_value(env, insert_symbol("stderr") ) );
-    emit->alloc_local( insert_symbol("chout"), lookup_value(env, insert_symbol("chout") ) );
-    emit->alloc_local( insert_symbol("cherr"), lookup_value(env, insert_symbol("cherr") ) );
-    emit->alloc_local( insert_symbol("midiin"), lookup_value(env, insert_symbol("midiin") ) );
-    emit->alloc_local( insert_symbol("midiout"), lookup_value(env, insert_symbol("midiout") ) );
-    //emit->alloc_local( insert_symbol("adc"), lookup_value(env, insert_symbol("adc") ) );
-    //emit->alloc_local( insert_symbol("dac"), lookup_value(env, insert_symbol("dac") ) );
-
-    t_CKDUR samp = 1.0;
-    t_CKDUR second = Digitalio::sampling_rate() * samp;
-    t_CKDUR ms = second / 1000.0;
-    t_CKDUR minute = second * 60.0;
-    t_CKDUR hour = minute * 60.0;
-    t_CKDUR day = hour * 24.0;
-    t_CKDUR week = day * 7.0;
-
-    // push dur
-    emit->alloc_dur( insert_symbol("samp"), samp );
-    emit->alloc_dur( insert_symbol("ms"), ms );
-    emit->alloc_dur( insert_symbol("second"), second );
-    emit->alloc_dur( insert_symbol("minute"), minute );
-    emit->alloc_dur( insert_symbol("hour"), hour );
-    emit->alloc_dur( insert_symbol("day"), day );
-    emit->alloc_dur( insert_symbol("week"), week );
-
-    emit->push( "__base_scope__" );
+    // allocate new emit
+    Chuck_Emitter * emit = new Chuck_Emitter;
+    // set the reference
+    emit->env = env;
 
     return emit;
 }
@@ -515,13 +115,15 @@ Chuck_Emmission * emit_engine_init( t_Env env )
 // name: emit_engine_shutdown()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_shutdown( Chuck_Emmission *& emit )
+t_CKBOOL emit_engine_shutdown( Chuck_Emitter *& emit )
 {
-    // delete and set pointer to NULL
+    if( !emit ) return FALSE;
+
+    // delete
     delete emit;
     emit = NULL;
 
-    return TRUE;
+    return TRUE;    
 }
 
 
@@ -529,55 +131,164 @@ t_CKBOOL emit_engine_shutdown( Chuck_Emmission *& emit )
 
 //-----------------------------------------------------------------------------
 // name: emit_engine_emit_prog()
-// desc: emit a program
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_prog( Chuck_Emmission * emit, a_Program prog )
+Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog,
+                                       te_HowMuch how_much )
 {
+    // make sure the code is NULL
+    assert( emit->code == NULL );
+    // make sure the stack is empty
+    assert( emit->stack.size() == 0 );
+    // make sure there is a context to emit
+    assert( emit->env->context != NULL );
+    // make sure no code
+    assert( emit->env->context->nspc->pre_ctor == NULL );
+
+    // return
     t_CKBOOL ret = TRUE;
-    Chuck_Instr_Mem_Push_Imm * op = new Chuck_Instr_Mem_Push_Imm( 0 );
+    // allocate the code
+    emit->code = new Chuck_Code;
+    // set the current context
+    emit->context = emit->env->context;
+    // set the namespace
+    emit->nspc = emit->context->nspc;
+    // reset the func
+    emit->func = NULL;
+    // clear the code stack
+    emit->stack.clear();
+    // name the code
+    // emit->code->name = "(main)";
+    // whether code need this
+    emit->code->need_this = TRUE;
 
-    if( !prog )
-        return FALSE;
-    
-    // emit the stack depth - we don't know this yet
-    emit->append( op );
-
+    // loop over the program sections
     while( prog && ret )
     {
         switch( prog->section->s_type )
         {
-        case ae_section_stmt:
+        case ae_section_stmt: // code section
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // emit statement list
             ret = emit_engine_emit_stmt_list( emit, prog->section->stmt_list );
             break;
-        
-        case ae_section_func:
+
+        case ae_section_func: // function definition
+            // if only classes, then skip
+            if( how_much == te_do_classes_only ) break;
+            // check function definition
             ret = emit_engine_emit_func_def( emit, prog->section->func_def );
             break;
 
-        case ae_section_class:
+        case ae_section_class: // class definition
+            // if no classes, then skip
+            if( how_much == te_do_no_classes ) break;
+            // check class definition
+            ret = emit_engine_emit_class_def( emit, prog->section->class_def );
+            break;
+
+        default: // bad
+            EM_error2( 0,
+                "internal compiler error: unrecognized program section..." );
             ret = FALSE;
             break;
         }
 
+        // the next
         prog = prog->next;
     }
 
-    // done
-    emit->append( new Chuck_Instr_EOC );
-    // set the stack depth now that we know
-    op->set( emit->stack_depth() );
+    if( ret )
+    {
+        // append end of code
+        emit->append( new Chuck_Instr_EOC );
 
-    return ret;
+        // converted to virtual machine code
+        emit->context->nspc->pre_ctor = emit_to_code( emit->code, NULL, emit->dump );
+    }
+
+    // clear the code
+    delete emit->code;
+    emit->code = NULL;
+
+    // return the code
+    return emit->context->nspc->pre_ctor;
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_stmt_list()
-// desc: emit stmt list
+// name: emit_to_code()
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emmission * emit, a_Stmt_List list )
+Chuck_VM_Code * emit_to_code( Chuck_Code * in,
+                              Chuck_VM_Code * out,
+                              t_CKBOOL dump )
+{
+    // allocate the vm code
+    Chuck_VM_Code * code = out ? out : new Chuck_VM_Code;
+    // make sure
+    assert( code->num_instr == 0 );
+    // size
+    code->num_instr = in->code.size();
+    // allocate instruction pointers+
+    code->instr = new Chuck_Instr *[code->num_instr];
+    // set the stack depth
+    code->stack_depth = in->stack_depth;
+    // set whether code need this base pointer
+    code->need_this = in->need_this;
+    // set name
+    code->name = in->name;
+
+    // copy
+    for( t_CKUINT i = 0; i < code->num_instr; i++ )
+        code->instr[i] = in->code[i];
+
+    // dump
+    if( dump )
+    {
+        // name of what we are dumping
+        EM_error2( 0, "dumping %s:", in->name.c_str() );
+
+        // uh
+        EM_error2( 0, "-------" );
+        for( t_CKUINT i = 0; i < code->num_instr; i++ )
+            EM_error2( 0, "[%i] %s( %s )", i, 
+               code->instr[i]->name(), code->instr[i]->params() );
+        EM_error2( 0, "-------\n" );
+    }
+
+    return code;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name:
+// desc: ...
+//-----------------------------------------------------------------------------
+// t_CKBOOL emit_engine_addr_map( Chuck_Emitter * emit, Chuck_VM_Shred * shred );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name:
+// desc: ...
+//-----------------------------------------------------------------------------
+// t_CKBOOL emit_engine_resolve( );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_stmt_list()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emitter * emit, a_Stmt_List list )
 {
     t_CKBOOL ret = TRUE;
 
@@ -597,112 +308,117 @@ t_CKBOOL emit_engine_emit_stmt_list( Chuck_Emmission * emit, a_Stmt_List list )
 
 //-----------------------------------------------------------------------------
 // name: emit_engine_emit_stmt()
-// desc: emit a stmt
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_stmt( Chuck_Emmission * emit, a_Stmt stmt, t_CKBOOL pop )
+t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop )
 {
-    t_CKBOOL ret = TRUE;
-
+    // empty stmt list
     if( !stmt )
         return TRUE;
 
+    // return
+    t_CKBOOL ret = TRUE;
+
+    // loop over statements
     switch( stmt->s_type )
     {
-        case ae_stmt_exp:
-            // env->print( "stmt_exp" );
+        case ae_stmt_exp:  // expression statement
+            // emit it
             ret = emit_engine_emit_exp( emit, stmt->stmt_exp );
-            if( pop && stmt->stmt_exp->type->size > 0 )
+            if( !ret )
+                return FALSE;
+            // need to pop the final value from stack
+            if( ret && pop && stmt->stmt_exp->type->size > 0 )
             {
-                if( stmt->stmt_exp->type->size == 4 )
-                    emit->append( new Chuck_Instr_Reg_Pop_Word );
-                else if( stmt->stmt_exp->type->size == 8 )
-                    emit->append( new Chuck_Instr_Reg_Pop_Word2 );
-                else
+                // sanity
+                assert( stmt->stmt_exp->cast_to == NULL );
+
+                // exp
+                a_Exp exp = stmt->stmt_exp;
+                // hack
+                if( exp->s_type == ae_exp_primary && exp->primary.s_type == ae_primary_hack )
+                    exp = exp->primary.exp;
+
+                // HACK!
+                while( exp )
                 {
-                    EM_error2( stmt->stmt_exp->linepos,
-                               "(emit): internal error: %i byte stack item not unhandled",
-                               stmt->stmt_exp->type->size );
-                    return FALSE;
+                    if( exp->type->size == 4 || exp->s_type == ae_exp_decl )
+                        emit->append( new Chuck_Instr_Reg_Pop_Word );
+                    else if( exp->type->size == 8 )
+                        emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+                    else
+                    {
+                        EM_error2( exp->linepos,
+                                   "(emit): internal error: %i byte stack item unhandled...",
+                                   exp->type->size );
+                        return FALSE;
+                    }
+
+                    // go
+                    exp = exp->next;
                 }
             }
             break;
 
-        case ae_stmt_if:
-            // env->print( "stmt_if" );
-            emit->push();
+        case ae_stmt_if:  // if statement
             ret = emit_engine_emit_if( emit, &stmt->stmt_if );
-            emit->pop();
             break;
 
-        case ae_stmt_for:
-            // env->print( "stmt_for" );
-            emit->push();
+        case ae_stmt_for:  // for statement
             ret = emit_engine_emit_for( emit, &stmt->stmt_for );
-            emit->pop();
             break;
 
-        case ae_stmt_while:
-            // env->print( "stmt_while" );
-            emit->push();
+        case ae_stmt_while:  // while statement
             if( stmt->stmt_while.is_do )
                 ret = emit_engine_emit_do_while( emit, &stmt->stmt_while );
             else
                 ret = emit_engine_emit_while( emit, &stmt->stmt_while );
-            emit->pop();
             break;
         
-        case ae_stmt_until:
-            // env->print( "stmt_until" );
-            emit->push();
+        case ae_stmt_until:  // until statement
             if( stmt->stmt_until.is_do )
                 ret = emit_engine_emit_do_until( emit, &stmt->stmt_until );
             else
                 ret = emit_engine_emit_until( emit, &stmt->stmt_until );
-            emit->pop();
             break;
 
-        case ae_stmt_switch:
-            // env->print( "stmt_switch" );
+        case ae_stmt_switch:  // switch statement
             // not implemented
             ret = FALSE;
             break;
 
-        case ae_stmt_break:
-            // env->print( "break? not implemented" );
-            // ok here
+        case ae_stmt_break:  // break statement
+            ret = emit_engine_emit_break( emit, &stmt->stmt_break );
             break;
 
-        case ae_stmt_code:
-            // env->print( "code segment" );
-            emit->push();
+        case ae_stmt_code:  // code segment
             ret = emit_engine_emit_code_segment( emit, &stmt->stmt_code );
-            emit->pop();
             break;
             
-        case ae_stmt_continue:
-            // env->print( "continue" );
-            // ret = emit_engine_emit_continue( emit, &stmt->stmt_continue );
+        case ae_stmt_continue:  // continue statement
+            ret = emit_engine_emit_continue( emit, &stmt->stmt_continue );
             break;
             
-        case ae_stmt_return:
-            // env->print( "return" );
+        case ae_stmt_return:  // return statement
             ret = emit_engine_emit_return( emit, &stmt->stmt_return );
             break;
             
-        case ae_stmt_case:
-            // env->print( "case" );
+        case ae_stmt_case:  // case statement
+            // not implemented
+            ret = FALSE;
             // ret = emit_engine_emit_case( emit, &stmt->stmt_case );
             break;
        
-        case ae_stmt_gotolabel:
-            // env->print( "gotolabel" );
+        case ae_stmt_gotolabel:  // goto label statement
+            // not implemented
+            ret = FALSE;
             // ret = emit_engine_emit_gotolabel( emit, &stmt->stmt_case );
             break;
         
-        default:
+        default:  // bad
             EM_error2( stmt->linepos, 
-                       "(emit): internal error: unhandled statement '%i' during emission",
-                       stmt->s_type );
+                 "(emit): internal error: unhandled statement type '%i'...",
+                 stmt->s_type );
             break;
     }
 
@@ -713,11 +429,615 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emmission * emit, a_Stmt stmt, t_CKBOOL po
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp()
-// desc: emit an exp
+// name: emit_engine_emit_if()
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp( Chuck_Emmission * emit, a_Exp exp )
+t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
 {
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL, * op2 = NULL;
+
+    // push the stack, allowing for new local variables
+    emit->push_scope();
+
+    // emit the condition
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+
+    // type of the condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+            "(emit): internal error: unhandled type '%s' in if condition",
+            stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+
+    if( !ret ) return FALSE;
+
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->if_body );
+    if( !ret )
+        return FALSE;
+
+    // emit the skip to the end
+    emit->append( op2 = new Chuck_Instr_Goto(0) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->else_body );
+    if( !ret )
+        return FALSE;
+
+    // pop stack
+    emit->pop_scope();
+
+    // set the op2's target
+    op2->set( emit->next_index() );
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_for()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push the stack
+    emit->push_scope();
+
+    // emit the cond
+    ret = emit_engine_emit_stmt( emit, stmt->c1 );
+    if( !ret )
+        return FALSE;
+
+    // the start index
+    t_CKUINT start_index = emit->next_index();
+    // mark the stack of continue
+    emit->code->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->code->stack_break.push_back( NULL );
+
+    // emit the cond - keep the result on the stack
+    emit_engine_emit_stmt( emit, stmt->c2, FALSE );
+
+    // could be NULL
+    if( stmt->c2 )
+    {
+        switch( stmt->c2->stmt_exp->type->id )
+        {
+        case te_int:
+            // push 0
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+            op = new Chuck_Instr_Branch_Eq_int( 0 );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            // push 0
+            emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+            op = new Chuck_Instr_Branch_Eq_double( 0 );
+            break;
+        
+        default:
+            EM_error2( stmt->c2->stmt_exp->linepos,
+                 "(emit): internal error: unhandled type '%s' in for conditional",
+                 stmt->c2->stmt_exp->type->name.c_str() );
+            return FALSE;
+        }
+        // append the op
+        emit->append( op );
+    }
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+
+    // emit the action
+    if( stmt->c3 )
+    {
+        ret = emit_engine_emit_exp( emit, stmt->c3 );
+        if( !ret )
+            return FALSE;
+
+        // HACK!
+        if( stmt->c3->type->size == 8 )
+            emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+        else if( stmt->c3->type->size == 4 )
+            emit->append( new Chuck_Instr_Reg_Pop_Word );
+        else if( stmt->c3->type->size != 0 )
+        {
+            EM_error2( stmt->c3->linepos,
+                "(emit): internal error: non-void type size %i unhandled...",
+                stmt->c3->type->size );
+            return FALSE;
+        }
+    }
+
+    // go back to do check the condition
+    emit->append( new Chuck_Instr_Goto( start_index ) );
+
+    // could be NULL
+    if( stmt->c2 )
+        // set the op's target
+        op->set( emit->next_index() );
+
+    // stack of continue
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
+    {
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
+    {
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_break.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_while()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push stack
+    emit->push_scope();
+
+    // get the index
+    t_CKUINT start_index = emit->next_index();
+    // mark the stack of continue
+    emit->code->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->code->stack_break.push_back( NULL );
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+    
+    // the condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+            "(emit): internal error: unhandled type '%s' in while conditional",
+            stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+    
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+    
+    // go back to do check the condition
+    emit->append( new Chuck_Instr_Goto( start_index ) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // stack of continue
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
+    {
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
+    {
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_break.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_do_while()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+    t_CKUINT start_index = emit->next_index();
+    
+    // push stack
+    emit->push_scope();
+
+    // mark the stack of continue
+    emit->code->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->code->stack_break.push_back( NULL );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+    
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+    
+    // the condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Neq_int( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Neq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+                   "(emit): internal error: unhandled type '%s' in do/while conditional",
+                   stmt->cond->type->c_name() );
+        return FALSE;
+    }
+    
+    // append the op
+    emit->append( op );
+
+    // set the op's target
+    op->set( start_index );
+
+    // stack of continue
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
+    {
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
+    {
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_break.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
+    
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_until()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push stack
+    emit->push_scope();
+
+    // get index
+    t_CKUINT start_index = emit->next_index();
+    // mark the stack of continue
+    emit->code->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->code->stack_break.push_back( NULL );
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+
+    // condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Neq_int( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Neq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+             "(emit): internal error: unhandled type '%s' in until conditional",
+             stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+    
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    emit_engine_emit_stmt( emit, stmt->body );
+    
+    // go back to do check the condition
+    emit->append( new Chuck_Instr_Goto( start_index ) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // stack of continue
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
+    {
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
+    {
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_break.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
+    
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_do_until()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push stack
+    emit->push_scope();
+
+    // the index
+    t_CKUINT start_index = emit->next_index();
+    // mark the stack of continue
+    emit->code->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->code->stack_break.push_back( NULL );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+
+    // condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+
+    default:
+        EM_error2( stmt->cond->linepos,
+             "(emit): internal error: unhandled type '%s' in do/until conditional",
+             stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+
+    // append the op
+    emit->append( op );
+
+    // set the op's target
+    op->set( start_index );
+
+    // stack of continue
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
+    {
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
+    {
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_break.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
+    
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_break()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br )
+{
+    // append
+    Chuck_Instr_Goto * op = new Chuck_Instr_Goto( 0 );
+    emit->append( op );
+    // remember
+    emit->code->stack_break.push_back( op );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_continue()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont )
+{
+    // append
+    Chuck_Instr_Goto * op = new Chuck_Instr_Goto( 0 );
+    emit->append( op );
+    // remember
+    emit->code->stack_cont.push_back( op );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_return()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt )
+{
+    if( !emit_engine_emit_exp( emit, stmt->val ) )
+        return FALSE;
+
+    // emit return
+    // emit->append( new Chuck_Instr_Func_Return );
+
+    // determine where later
+    Chuck_Instr_Goto * instr = new Chuck_Instr_Goto( 0 );
+    emit->append( instr );
+    emit->code->stack_return.push_back( instr );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name:
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_switch( Chuck_Emitter * emit, a_Stmt_Switch stmt );
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp )
+{
+    // for now...
+    // assert( exp->next == NULL );
+
+    // loop over 
     while( exp )
     {
         switch( exp->s_type )
@@ -763,7 +1083,7 @@ t_CKBOOL emit_engine_emit_exp( Chuck_Emmission * emit, a_Exp exp )
             break;
 
         case ae_exp_dot_member:
-            if( !emit_engine_emit_exp_dot_member( emit, &exp->dot_member, exp->type ) )
+            if( !emit_engine_emit_exp_dot_member( emit, &exp->dot_member ) )
                 return FALSE;
             break;
 
@@ -777,17 +1097,22 @@ t_CKBOOL emit_engine_emit_exp( Chuck_Emmission * emit, a_Exp exp )
                 return FALSE;
             break;
 
-        case ae_exp_namespace:
-            if( !emit_engine_emit_exp_namespace( emit, &exp->name_space ) )
-                return FALSE;
-            break;
+        //case ae_exp_namespace:
+        //    if( !emit_engine_emit_exp_namespace( emit, &exp->name_space ) )
+        //        return FALSE;
+        //    break;
 
         default:
             EM_error2( exp->linepos, 
-                       "(emit): internal error: unhandled expression '%i' in emission!",
-                       exp->s_type );
+                 "(emit): internal error: unhandled expression type '%i'...",
+                 exp->s_type );
             return FALSE;
         }
+
+        // implicit cast
+        if( exp->cast_to != NULL )
+            if( !emit_engine_emit_cast( emit, exp->cast_to, exp->type ) )
+                return FALSE;
 
         exp = exp->next;
     }
@@ -799,40 +1124,27 @@ t_CKBOOL emit_engine_emit_exp( Chuck_Emmission * emit, a_Exp exp )
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_binary
+// name: emit_engine_emit_exp_binary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emmission * emit, a_Exp_Binary exp )
+t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary )
 {
+    // sanity
+    assert( binary->self->emit_var == FALSE );
+
     t_CKBOOL left = FALSE;
     t_CKBOOL right = FALSE;
 
-    // hack for determining if a dot member comes first in chuck chain
-    if( exp->op == ae_op_chuck && ( exp->rhs->s_type == ae_exp_dot_member ) )
-    {
-        // set the flag
-        exp->rhs->dot_member.flag = TRUE;
-    }
-
-    // ^ op should be reversed for midi
-    if( exp->op == ae_op_s_xor && ( exp->lhs->type->type == te_midiin || exp->lhs->type->type == te_midiout ) )
-    {
-        right = emit_engine_emit_exp( emit, exp->rhs );
-        left = emit_engine_emit_exp( emit, exp->lhs );
-    }
-    else
-    {
-        left = emit_engine_emit_exp( emit, exp->lhs );
-        right = emit_engine_emit_exp( emit, exp->rhs );
-    }
-
+    // emit
+    left = emit_engine_emit_exp( emit, binary->lhs );
+    right = emit_engine_emit_exp( emit, binary->rhs );
 
     // check
     if( !left || !right )
         return FALSE;
 
     // emit the op
-    if( !emit_engine_emit_op( emit, exp->op, exp->lhs, exp->rhs ) )
+    if( !emit_engine_emit_op( emit, binary->op, binary->lhs, binary->rhs, binary ) )
         return FALSE;
 
     return TRUE;
@@ -842,407 +1154,866 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emmission * emit, a_Exp_Binary exp )
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_unary
-// desc: ...
+// name: emit_engine_emit_op()
+// desc: emit binary operator
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emmission * emit, a_Exp_Unary exp )
+t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary )
 {
-    if( exp->op != ae_op_spork && !emit_engine_emit_exp( emit, exp->exp ) )
-        return FALSE;
+    // any implicit cast happens before this
+    Chuck_Type * t_left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * t_right = rhs->cast_to ? rhs->cast_to : rhs->type;
+    // get the types of the left and right
+    te_Type left = t_left->id;
+    te_Type right = t_right->id;
+    // op
+    Chuck_Instr * instr = NULL;
 
-    switch( exp->op )
+    // emit op
+    switch( op )
+    {    
+    // ----------------------------- num --------------------------------------
+    case ae_op_plus:
+        // time + dur
+        if( ( left == te_dur && right == te_time ) ||
+            ( left == te_time && right == te_dur ) )
+        {
+            emit->append( instr = new Chuck_Instr_Add_double );
+        }
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Add_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Add_double );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+    
+    case ae_op_plus_chuck:
+        // time + dur
+        if( ( left == te_dur && right == te_time ) ||
+            ( left == te_time && right == te_dur ) )
+        {
+            emit->append( instr = new Chuck_Instr_Add_double_Assign );
+        }
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Add_int_Assign );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Add_double_Assign );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+
+    case ae_op_minus:
+        if( ( left == te_time && right == te_dur ) ) // time - dur = time
+            emit->append( instr = new Chuck_Instr_Minus_double );
+        else if( ( left == te_time && right == te_time ) ) // time - time = dur
+            emit->append( instr = new Chuck_Instr_Minus_double );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Minus_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Minus_double );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+    
+    case ae_op_minus_chuck:
+        if( ( left == te_dur && right == te_time ) ) // time - dur = time
+            emit->append( instr = new Chuck_Instr_Minus_double_Assign );
+        else if( ( left == te_time && right == te_time ) ) // time - time = dur
+            emit->append( instr = new Chuck_Instr_Minus_double_Assign );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Minus_int_Assign );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Minus_double_Assign );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+
+    case ae_op_times:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Times_int );
+            break;
+        case te_float:
+        case te_dur:
+            emit->append( instr = new Chuck_Instr_Times_double );
+            break;
+
+        default: break;
+        }
+        break;
+    
+    case ae_op_times_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Times_int_Assign );
+            break;
+        case te_float:
+            emit->append( instr = new Chuck_Instr_Times_double_Assign );
+            break;
+
+        default: break;
+        }
+        break;
+
+    case ae_op_divide:
+        if( ( left == te_time && right == te_dur ) ) // time / dur = float
+            emit->append( instr = new Chuck_Instr_Divide_double );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Divide_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Divide_double );
+                break;
+
+            default: break;
+            }	    
+        }
+        break;
+    
+    case ae_op_divide_chuck:
+        // reverse
+        if( ( left == te_dur && right == te_time ) ) // time / dur = float
+            emit->append( instr = new Chuck_Instr_Divide_double_Assign );
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Divide_int_Assign );
+                break;
+            case te_float:
+                emit->append( instr = new Chuck_Instr_Divide_double_Assign );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+
+    case ae_op_s_or:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Or );
+            break;
+        
+        default: break;
+        }
+        break;
+    
+    case ae_op_s_or_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Or_Assign );
+            break;
+        
+        default: break;
+        }
+        break;
+
+    case ae_op_s_and:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_And );
+            break;
+
+        default: break;
+        }
+        break;
+
+    case ae_op_s_and_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_And_Assign );
+            break;
+
+        default: break;
+        }
+        break;
+
+    case ae_op_shift_left:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Left );
+            break;
+
+        default: break;
+        }
+        break;
+
+    case ae_op_shift_left_chuck:
+        // reverse
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Left_Assign );
+            break;
+
+        default: break;
+        }
+        break;
+    
+    case ae_op_shift_right:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Right );
+            break;
+
+        default: break;
+        }
+        break;
+
+    case ae_op_shift_right_chuck:
+        // reverse
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Shift_Right_Assign );
+            break;
+
+        default: break;
+        }
+        break;
+
+    case ae_op_percent:
+        if( ( left == te_time && right == te_dur ) ) // time % dur = dur
+        {
+            emit->append( instr = new Chuck_Instr_Mod_double );
+        }
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Mod_int );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Mod_double );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+
+    case ae_op_percent_chuck:
+        // reverse
+        if( ( left == te_dur && right == te_time ) ) // time % dur = dur
+        {
+            emit->append( instr = new Chuck_Instr_Mod_double_Reverse );
+        }
+        else // other types
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Mod_int_Reverse );
+                break;
+            case te_float:
+            case te_dur:
+                emit->append( instr = new Chuck_Instr_Mod_double_Reverse );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+
+    case ae_op_s_xor:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Xor );
+            break;
+        default: break;
+        }
+        break;
+    
+    case ae_op_s_xor_chuck:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Binary_Xor_Assign );
+            break;
+        default: break;
+        }
+        break;
+
+    // ----------------------------- chuck -------------------------------------
+    case ae_op_chuck:
     {
-    case ae_op_plusplus:
-        if( !emit_engine_emit_exp_mem( emit, exp->exp ) )
+        a_Exp cl = lhs, cr = rhs;
+
+        if( !emit_engine_emit_op_chuck( emit, cl, cr, binary ) )
             return FALSE;
 
-        if( exp->exp->type->type == te_int )
-            emit->append( new Chuck_Instr_Inc_int );
-        else if( exp->exp->type->type == te_uint )
-            emit->append( new Chuck_Instr_Inc_uint );   
+        return TRUE;
+    }
+    
+    case ae_op_unchuck:
+    {
+        a_Exp cl = lhs, cr = rhs;
+        
+        // TODO: cross chuck
+        assert( cl->next == NULL && cr->next == NULL );
+        while( cr )
+        {
+            cl = lhs;
+            while( cl )
+            {
+                if( !emit_engine_emit_op_unchuck( emit, cl, cr ) )
+                    return FALSE;
+                cl = cl->next;
+            }
+            
+            cr = cr->next;
+        }
+
+        return TRUE;
+    }
+    
+    case ae_op_at_chuck:
+    {
+        a_Exp cl = lhs, cr = rhs;
+        
+        // TODO: cross chuck
+        assert( cl->next == NULL && cr->next == NULL );
+        while( cr )
+        {
+            cl = lhs;
+            while( cl )
+            {
+                if( !emit_engine_emit_op_at_chuck( emit, cl, cr ) )
+                    return FALSE;
+                cl = cl->next;
+            }
+            
+            cr = cr->next;
+        }
+
+        return TRUE;
+    }
+    
+    case ae_op_s_chuck:
+    break;
+
+    // -------------------------------- bool -----------------------------------        
+    case ae_op_eq:
+        if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
+            emit->append( instr = new Chuck_Instr_Eq_int );
         else
         {
-            EM_error2( exp->linepos, 
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Eq_int );
+                break;
+            case te_float:
+            case te_dur:
+            case te_time:
+                emit->append( instr = new Chuck_Instr_Eq_double );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+    
+    case ae_op_neq:
+        if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
+            emit->append( instr = new Chuck_Instr_Neq_int );
+        else
+        {
+            switch( left )
+            {
+            case te_int:
+                emit->append( instr = new Chuck_Instr_Neq_int );
+                break;
+            case te_float:
+            case te_dur:
+            case te_time:
+                emit->append( instr = new Chuck_Instr_Neq_double );
+                break;
+
+            default: break;
+            }
+        }
+        break;
+    
+    case ae_op_lt:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Lt_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( instr = new Chuck_Instr_Lt_double );
+            break;
+
+        default: break;
+        }
+        break;
+    
+    case ae_op_le:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Le_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( instr = new Chuck_Instr_Le_double );
+            break;
+
+        default: break;
+        }
+        break;
+    
+    case ae_op_gt:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Gt_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( instr = new Chuck_Instr_Gt_double );
+            break;
+
+        default: break;
+        }
+        break;
+    
+    case ae_op_ge:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Ge_int );
+            break;
+        case te_float:
+        case te_dur:
+        case te_time:
+            emit->append( instr = new Chuck_Instr_Ge_double );
+            break;
+
+        default: break;
+        }
+        break;
+    
+    case ae_op_and:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_And );
+            break;
+
+        default: break;
+        }
+        break;
+    
+    case ae_op_or:
+        switch( left )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_Or );
+            break;
+
+        default: break;
+        }
+        break;
+
+    default:
+        EM_error2( lhs->linepos,
+            "(emit): internal error: unhandled op '%s' %s '%s'",
+            t_left->c_name(), op2str( op ), t_right->c_name() );
+        return FALSE;
+    }
+    
+    // make sure emit
+    if( !instr )
+    {
+        EM_error2( lhs->linepos,
+            "(emit): internal error: unhandled op '%s' %s '%s'",
+            t_left->c_name(), op2str( op ), t_right->c_name() );
+        return FALSE;
+    }
+        
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_op_chuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary )
+{
+    // any implicit cast happens before this
+    Chuck_Type * left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * right = rhs->cast_to ? rhs->cast_to : rhs->type;
+    
+    // ugen => ugen
+    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
+    {
+        // link
+        emit->append( new Chuck_Instr_UGen_Link );
+        // done
+        return TRUE;
+    }
+
+    // time advance
+    if( isa( left, &t_dur ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var )
+    {
+        // add the two
+        emit->append( new Chuck_Instr_Add_double );
+
+        // see if rhs is 'now'
+        if( rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
+        {
+            // advance time
+            emit->append( new Chuck_Instr_Time_Advance );
+        }
+
+        return TRUE;
+    }
+    
+    // time advance
+    if( isa( left, &t_event ) && isa( right, &t_time ) && rhs->s_meta == ae_meta_var &&
+        rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
+    {
+        // pop now
+        emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+        emit->append( new Chuck_Instr_Event_Wait );
+
+        return TRUE;
+    }
+
+    // func call
+    if( isa( right, &t_function ) )
+    {
+        assert( binary->ck_func != NULL );
+        
+        // emit
+        return emit_engine_emit_exp_func_call( emit, binary->ck_func, binary->self->type, binary->linepos );
+    }
+
+    // assignment or something else
+    if( isa( left, right ) )
+    {
+        // basic types?
+        if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
+        {
+            // use at assign
+            return emit_engine_emit_op_at_chuck( emit, lhs, rhs );
+        }
+    }
+
+    // TODO: check overloading of =>
+    // TODO: deal with const
+
+    // no match
+    EM_error2( lhs->linepos,
+        "(emit): internal error: unhandled '=>' on types '%s' and '%s'...",
+        left->c_name(), right->c_name() );
+
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_op_unchuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_op_unchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
+{
+    // any implicit cast happens before this
+    Chuck_Type * left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * right = rhs->cast_to ? rhs->cast_to : rhs->type;
+    
+    // if ugen
+    if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
+    {
+        // no connect
+        emit->append( new Chuck_Instr_UGen_UnLink );
+    }
+    else
+    {
+        EM_error2( lhs->linepos,
+            "(emit): internal error: unhandled '=<' on types '%s' and '%s'",
+            left->c_name(), right->c_name() );
+        return FALSE;
+    }
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_op_at_chuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_op_at_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs )
+{
+    // any implicit cast happens before this
+    Chuck_Type * left = lhs->cast_to ? lhs->cast_to : lhs->type;
+    Chuck_Type * right = rhs->cast_to ? rhs->cast_to : rhs->type;
+    
+    // assignment or something else
+    if( isa( left, right ) )
+    {
+        // basic types?
+        if( type_engine_check_primitive( left ) || isa( left, &t_string ) )
+        {
+            // assigment?
+            if( rhs->s_meta != ae_meta_var )
+            {
+                EM_error2( lhs->linepos,
+                    "(emit): internal error: assignment to non-variable..." );
+                return FALSE;
+            }
+
+            // see if rhs is 'now' - time => now
+            if( rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
+            {
+                // pop the now addr
+                emit->append( new Chuck_Instr_Reg_Pop_Word2 );
+                // advance time
+                emit->append( new Chuck_Instr_Time_Advance );
+            }
+            else if( isa( left, &t_string ) ) // string
+            {
+                // assign string
+                emit->append( new Chuck_Instr_Assign_String );
+            }
+            else
+            {
+                // assign primitive
+                if( right->size == 4 )
+                    emit->append( new Chuck_Instr_Assign_Primitive );
+                else if( right->size == 8 )
+                    emit->append( new Chuck_Instr_Assign_Primitive2 );
+                else
+                {
+                    EM_error2( rhs->linepos,
+                        "(emit): internal error: assignment to type of size %i...",
+                        right->size );
+                }
+            }
+
+            return TRUE;
+        }
+        else // objects
+        {
+            // assign object
+            emit->append( new Chuck_Instr_Assign_Object );
+
+            return TRUE;
+        }
+    }
+
+    // TODO: check overloading of =>
+    // TODO: deal with const
+
+    // no match
+    EM_error2( lhs->linepos,
+        "(emit): internal error: unhandled '@=>' on types '%s' and '%s'...",
+        left->c_name(), right->c_name() );
+
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_unary()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
+{
+    if( unary->op != ae_op_spork && !emit_engine_emit_exp( emit, unary->exp ) )
+        return FALSE;
+
+    // get type
+    Chuck_Type * t = unary->self->type;
+    assert( t != NULL );
+
+    // emit the operator
+    switch( unary->op )
+    {
+    case ae_op_plusplus:
+        // make sure assignment is legal
+        if( unary->self->s_meta != ae_meta_var )  // TODO: const
+        {
+            EM_error2( unary->self->linepos,
+                "(emit): target for '++' not mutable..." );
+            return FALSE;
+        }
+
+        // increment
+        if( equals( unary->exp->type, &t_int ) )
+            emit->append( new Chuck_Instr_Inc_int );
+        else
+        {
+            EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for pre '++'' operator",
-                exp->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
 
     case ae_op_minusminus:
-        if( !emit_engine_emit_exp_mem( emit, exp->exp ) )
+        // make sure assignment is legal
+        if( unary->self->s_meta != ae_meta_var )  // TODO: const
+        {
+            EM_error2( unary->self->linepos,
+                "(emit): target for '--' not mutable..." );
             return FALSE;
+        }
 
-        if( exp->exp->type->type == te_int )
+        // decrement
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Dec_int );
-        else if( exp->exp->type->type == te_uint )
-            emit->append( new Chuck_Instr_Dec_uint );
         else
         {
-            EM_error2( exp->linepos, 
+            EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for pre '--' operator",
-                exp->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
 
     case ae_op_tilda:
-        if( exp->exp->type->type == te_int )
+        // complement
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Complement_int );
-        else if( exp->exp->type->type == te_uint )
-            emit->append( new Chuck_Instr_Complement_uint );
         else
         {
-            EM_error2( exp->linepos, 
+            EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for '~' operator",
-                exp->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
 
     case ae_op_exclamation:
-        if( exp->exp->type->type == te_int || exp->exp->type->type == te_uint)
+        // !
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Not_int );
         else
         {
-            EM_error2( exp->linepos, 
+            EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for '!' operator",
-                exp->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
         
     case ae_op_minus:
-        if( exp->exp->type->type == te_int || exp->exp->type->type == te_uint )
+        // negate
+        if( equals( unary->exp->type, &t_int ) )
             emit->append( new Chuck_Instr_Negate_int );
-        else if( exp->exp->type->type == te_float )
+        else if( equals( unary->exp->type, &t_float ) )
             emit->append( new Chuck_Instr_Negate_double );
         else
         {
-            EM_error2( exp->linepos, 
+            EM_error2( unary->linepos, 
                 "(emit): internal error: unhandled type '%s' for unary '-' operator",
-                exp->exp->type->name );
+                unary->exp->type->c_name() );
             return FALSE;
         }
         break;
 
     case ae_op_spork:
-        if( exp->exp->s_type == ae_exp_func_call )
+        // spork ~ func()
+        if( unary->exp->s_type == ae_exp_func_call )
         {
-            if( !emit_engine_emit_spork( emit, &exp->exp->func_call ) )
+            if( !emit_engine_emit_spork( emit, &unary->exp->func_call ) )
                 return FALSE;
         }
         else
         {
-            EM_error2( exp->linepos,
-                       "(emit): internal error: sporking non-function call..." );
+            EM_error2( unary->linepos,
+                "(emit): internal error: sporking non-function call..." );
             return FALSE;
         }
         break;
-    default:
-        EM_error2( exp->linepos, 
-            "(emit): internal error: unhandled unary op '%i",
-            exp->op );
-        return FALSE;
-    }
-    
-    return TRUE;
-}
 
+    case ae_op_new:
 
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_spork
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_spork( Chuck_Emmission * emit, a_Exp_Func_Call exp )
-{
-    // emit the function call
-    if( !emit_engine_emit_exp_func_call( emit, exp, true ) )
-        return FALSE;
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_spork
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_spork( Chuck_Emmission * emit, a_Exp exp )
-{
-    Chuck_Emmission * emit2 = emit_engine_init( emit->env );
-
-    Chuck_Instr_Mem_Push_Imm * op = new Chuck_Instr_Mem_Push_Imm( 0 );
-
-    // emit the stack depth - we don't know this yet
-    emit2->append( op );
-
-    // emit the function call
-    if( !emit_engine_emit_exp( emit2, exp ) )
-        return FALSE;
-
-    // done
-    emit2->append( new Chuck_Instr_EOC );
-    // set the stack depth now that we know
-    op->set( emit2->stack_depth() );
-
-    // emit it
-    Chuck_VM_Code * code = emit_to_code( emit2 );
-    code->name = string("spork ~ exp");
-    emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
-    emit->append( new Chuck_Instr_Spork );
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_get_cast_instr()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_get_cast_instr( Chuck_Emmission * emit, t_Type to, t_Type from )
-{
-    if( to->type == from->type ) return TRUE;
-
-    if( to->type == te_int && from->type == te_float )
-        emit->append( new Chuck_Instr_Cast_double2int );
-    else if( to->type == te_float && from->type == te_int )
-        emit->append( new Chuck_Instr_Cast_int2double );
-    else
-    {
-        EM_error2( 0, "(emit): internal error: no instruction for casting type '%s' to '%s'",
-                   from->name, to->name );
-        return FALSE;
-    }
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_cast
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emmission * emit, a_Exp_Cast exp )
-{
-    if( !emit_engine_emit_exp( emit, exp->exp ) )
-        return FALSE;
-    if( !emit_get_cast_instr( emit, lookup_type( emit->env, exp->type, TRUE ),
-                              exp->exp->type ) )
-        return FALSE;
-    
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_postfix
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emmission * emit, a_Exp_Postfix exp )
-{
-    // emit the exp inside
-    if( !emit_engine_emit_exp( emit, exp->exp ) )
-        return FALSE;
-
-    switch( exp->op )
-    {
-    case ae_op_plusplus:
-        if( !emit_engine_emit_exp_mem( emit, exp->exp ) )
+        // if this is an object
+        if( isobj( t ) )
         {
-            EM_error2( exp->linepos, 
-                       "(emit): internal error: emitting [mem] exp from postfix..." );
-            return FALSE;
+            // instantiate object, including array
+            if( !emit_engine_instantiate_object( emit, t, unary->array, unary->type->ref ) )
+                return FALSE;
         }
-    
-        if( exp->exp->type->type == te_int )
-            emit->append( new Chuck_Instr_Inc_int );
-        else if( exp->exp->type->type == te_uint )
-            emit->append( new Chuck_Instr_Inc_uint );           
-        else
-        {
-            EM_error2( exp->linepos,
-                "(emit): internal error: unhandled type '%s' for post '++' operator",
-                exp->exp->type->name );
-            return FALSE;
-        }
-    break;
-
-    case ae_op_minusminus:
-        if( !emit_engine_emit_exp_mem( emit, exp->exp ) )
-        {
-            EM_error2( exp->linepos,
-                       "(emit): internal error: emitting [mem] exp from postfix..." );
-            return FALSE;
-        }
-        
-        if( exp->exp->type->type == te_int )
-            emit->append( new Chuck_Instr_Dec_int );
-        else if( exp->exp->type->type == te_uint )
-            emit->append( new Chuck_Instr_Dec_uint );           
-        else
-        {
-            EM_error2( exp->linepos,
-                "(emit): internal error: unhandled type '%s' for post '--' operator",
-                exp->exp->type->name );
-            return FALSE;
-        }
-    break;
+        break;
 
     default:
-        EM_error2( exp->linepos,
-                   "(emit): internal error: unhandled postfix operator '%i'",
-                   exp->op );
+        EM_error2( unary->linepos, 
+            "(emit): internal error: unhandled unary op '%s",
+            op2str( unary->op ) );
         return FALSE;
-    }        
-     
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_dur
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emmission * emit, a_Exp_Dur exp )
-{
-    if( !emit_engine_emit_exp( emit, exp->base ) )
-        return FALSE;
-
-    // cast
-    if( exp->base->type->type == te_int )
-        emit->append( new Chuck_Instr_Cast_int2double );
-
-    if( !emit_engine_emit_exp( emit, exp->unit ) )
-        return FALSE;
-        
-    // multiply
-    emit->append( new Chuck_Instr_Times_double );
-        
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_symbol
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol id,
-                                  t_CKBOOL off, int linepos )
-{
-    t_CKUINT is_global = FALSE;
-    t_CKUINT size = 0;
-    int offset = off ? emit->find_offset( id, &is_global, &size ) : -1;
-    if( offset < 0 )
-    {
-        // could be a function
-        t_Type t = lookup_value( emit->nspc, id );
-        if( t && t->type == te_function )
-        {
-            a_Func_Def func = lookup_func( emit->nspc, id, FALSE );
-            if( !func || ( func && func->s_type == ae_func_user ) )
-            {
-                Func_Link * f = (Func_Link *)checked_malloc( sizeof( Func_Link ) );
-                f->name = id;
-                emit->append( f->op = new Chuck_Instr_Reg_Push_Imm( 0 ) );
-                g_func_links.push_back( f );
-            }
-            else // func && func->s_type == ae_func_builtin
-            {
-                emit->nspc_func = func;
-                emit->append( new Chuck_Instr_Reg_Push_Imm( func->stack_depth ) );
-                emit->append( new Chuck_Instr_Reg_Push_Imm( 
-                    (uint)func->builtin ) );
-            }
-        }
-        else if( t && t->type == __te_system_namespace__ )
-        {
-            // find the namespace
-            emit->nspc = lookup_namespace( emit->env, id, FALSE );
-            if( !emit->nspc )
-            {
-                EM_error2( linepos,
-                    "(emit): internal error: cannot find namespace '%s'",
-                    S_name(id) );
-                return FALSE;
-            }
-        }
-        else if( t && t->type == __te_system_class__ )
-        {
-            // error
-            EM_error2( linepos,
-                       "(emit): internal error: class/lookup not impl" );
-            return FALSE;
-        }
-        else if( emit->nspc && ( t = lookup_value( emit->nspc, id, FALSE ) ) )
-        {
-            void * addr = lookup_addr( emit->nspc, id, FALSE );
-            if( !addr )
-            {
-                EM_error2( linepos,
-                           "(emit): internal error looking up addr for '%s.%s'",
-                           "[namespace]", S_name(id) );
-                return FALSE;
-            }
-
-            // push the addr
-            if( t->size == 4 || t->size == 8 )
-                emit->append( new Chuck_Instr_Reg_Push_Deref( (uint)addr, t->size ) );
-            else
-            {
-                EM_error2( linepos,
-                           "(emit): internal error resolving '%s.%s'",
-                           "[namespace]", S_name(id) );
-                return FALSE;
-            }
-        }
-        else
-        {
-            // error
-            EM_error2( linepos,
-                       "(emit): internal error resolving var '%s'",
-                       S_name(id) );
-            return FALSE;
-        }
-    }
-    else
-    {
-        if( emit->is_global || !is_global )
-        {
-            if( size == 4 )
-                emit->append( new Chuck_Instr_Reg_Push_Mem( offset ) );
-            else if( size == 8 )
-                emit->append( new Chuck_Instr_Reg_Push_Mem2( offset ) );
-            else
-            {
-                EM_error2( linepos,
-                           "(emit): internal error with reg push %i",
-                           size );
-                return FALSE;
-            }
-        }
-        else // local and global
-        {
-            Chuck_Instr_Unary_Op * op = NULL;
-            // the offset is not set yet
-            emit->append( op = new Chuck_Instr_Reg_Push_Deref( offset, size ) );
-            // queue for addr translation later
-            emit->addr_map.push_back( op );
-        }
     }
     
     return TRUE;
@@ -1252,15 +2023,16 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emmission * emit, S_Symbol id,
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_primary
+// name: emit_engine_emit_exp_primary()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp )
+t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
 {
-    uint temp;
+    t_CKUINT temp;
     t_CKDUR dur;
-    Chuck_Instr_Unary_Op * op = NULL, * op2 = NULL;
+    Chuck_String * str = NULL;
 
+    // find out exp
     switch( exp->s_type )
     {
     case ae_primary_var:
@@ -1268,37 +2040,36 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
         {
             emit->append( new Chuck_Instr_Reg_Push_Now );
         }
-        else if( exp->var == insert_symbol( "start" ) )
+        else if( exp->var == insert_symbol( "this" ) )
         {
-            emit->append( new Chuck_Instr_Reg_Push_Start );
+            // TODO: verify this is in the right scope
+            emit->append( new Chuck_Instr_Reg_Push_This );
         }
-        else if( exp->var == insert_symbol( "midiin" ) )
+        else if( exp->var == insert_symbol( "me" ) )
         {
-            if( emit->get_op() )
-            {
-                EM_error2( exp->linepos,
-                           "MIDI in should be drained by using => before invoking again" );
-                return FALSE;
-            }
-
-            emit->append( op = new Chuck_Instr_Midi_In(0) );
-            emit->append( op2 = new Chuck_Instr_Midi_In_Go(0) );
-            emit->push_op( op2 );
-            emit->push_op( op );
+            emit->append( new Chuck_Instr_Reg_Push_Me );
         }
-        else if( exp->var == insert_symbol( "midiout" ) )
+        else if( exp->var == insert_symbol( "true" ) )
         {
-            if( emit->get_op() )
-            {
-                EM_error2( exp->linepos,
-                           "MIDI out should be drained by using => before invoking again" );
-                return FALSE;
-            }
-
-            emit->append( op = new Chuck_Instr_Midi_Out(0) );
-            emit->append( op2 = new Chuck_Instr_Midi_Out_Go(0) );
-            emit->push_op( op2 );
-            emit->push_op( op );
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 1 ) );
+        }
+        else if( exp->var == insert_symbol( "false" ) )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        }
+        else if( exp->var == insert_symbol("maybe") )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Maybe() );
+        }
+        else if( exp->var == insert_symbol("null") ||
+                 exp->var == insert_symbol("NULL") )
+        {
+            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        }
+        else if( exp->var == insert_symbol( "pi" ) )
+        {
+            double pi = 3.14159265358979323846;
+            emit->append( new Chuck_Instr_Reg_Push_Imm2( pi ) );
         }
         else if( exp->var == insert_symbol( "dac" ) )
         {
@@ -1316,40 +2087,15 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
         {
             emit->append( new Chuck_Instr_Bunghole );
         }
-        else if( exp->var == insert_symbol( "true" ) )
-        {
-            emit->append( new Chuck_Instr_Reg_Push_Imm( 1 ) );
-        }
-        else if( exp->var == insert_symbol( "false" ) )
-        {
-            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        }
-        else if( exp->var == insert_symbol("maybe") )
-        {
-            emit->append( new Chuck_Instr_Reg_Push_Maybe() );
-        }
-        else if( exp->var == insert_symbol( "pi" ) )
-        {
-            double pi = 3.14159265358979323846;
-            emit->append( new Chuck_Instr_Reg_Push_Imm2( pi ) );
-        }
-        else if( exp->var == insert_symbol( "endl" ) )
-        {
-            emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)"\n" ) );
-        }
-        else if( exp->var == insert_symbol( "stdout" ) || 
-                 exp->var == insert_symbol( "chout" ) )
-        {
-            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        }
-        else if( emit->find_dur( exp->var, &dur ) )
+        else if( emit->find_dur( S_name(exp->var), &dur ) )
         {
             emit->append( new Chuck_Instr_Reg_Push_Imm2( dur ) );
         }
         else
         {
             // emit the symbol
-            return emit_engine_emit_symbol( emit, exp->var, TRUE, exp->linepos );
+            return emit_engine_emit_symbol( 
+                emit, exp->var, exp->value, exp->self->emit_var, exp->linepos );
         }
         break;
     
@@ -1358,22 +2104,48 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
         emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
         break;
         
-    case ae_primary_uint:
-        emit->append( new Chuck_Instr_Reg_Push_Imm( exp->num2 ) );
-        break;
-        
     case ae_primary_float:
         emit->append( new Chuck_Instr_Reg_Push_Imm2( exp->fnum ) );
         break;
         
     case ae_primary_str:
-        temp = (uint)exp->str;
+        // TODO: fix this
+        str = new Chuck_String;
+        initialize_object( str, &t_string );
+        str->str = exp->str;
+        temp = (t_CKUINT)str;
         emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
+        break;
+
+    case ae_primary_array:
+        if( !emit_engine_emit_array_lit( emit, exp->array ) )
+            return FALSE;
         break;
         
     case ae_primary_exp:
-        emit_engine_emit_exp( emit, exp->exp );
+        if( !emit_engine_emit_exp( emit, exp->exp ) )
+            return FALSE;
         break;
+
+    case ae_primary_hack:
+        {
+            a_Exp e = exp->exp;
+            // emit the expression
+            if( !emit_engine_emit_exp( emit, e ) )
+                return FALSE;
+            std::vector<Chuck_Type *> types;
+
+            while( e != NULL )
+            {
+                types.push_back( e->type );
+                e = e->next;
+            }
+            
+            // emit hack
+            emit->append( new Chuck_Instr_Gack( types ) );
+
+            break;
+        }
     }
     
     return TRUE;
@@ -1383,11 +2155,28 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emmission * emit, a_Exp_Primary exp
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_array
+// name: emit_engine_emit_array_lit()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_array( Chuck_Emmission * emit, a_Exp_Array exp )
+t_CKBOOL emit_engine_emit_array_lit( Chuck_Emitter * emit, a_Array_Sub array )
 {
+    // go through and emit the expressions
+    if( !emit_engine_emit_exp( emit, array->exp_list ) )
+        return FALSE;
+
+    // count the number
+    a_Exp e = array->exp_list;
+    t_CKUINT count = 0;
+    // loop over
+    while( e ) { count++; e = e->next; }
+
+    // the type
+    e = array->exp_list;
+    Chuck_Type * type = e->cast_to ? e->cast_to : e->type;
+
+    // construct array dynamically
+    emit->append( new Chuck_Instr_Array_Init( type, count ) );
+
     return TRUE;
 }
 
@@ -1395,173 +2184,467 @@ t_CKBOOL emit_engine_emit_exp_array( Chuck_Emmission * emit, a_Exp_Array exp )
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_func_call
+// name: emit_engine_emit_exp_cast()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emmission * emit, a_Exp_Func_Call exp,
+t_CKBOOL emit_engine_emit_exp_cast( Chuck_Emitter * emit, a_Exp_Cast cast )
+{
+    Chuck_Type * to = cast->self->type;
+    Chuck_Type * from = cast->exp->type;
+
+    // emit the exp
+    if( !emit_engine_emit_exp( emit, cast->exp ) )
+        return FALSE;
+
+    // the actual work to be done
+    return emit_engine_emit_cast( emit, to, from );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_cast()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit, 
+                                Chuck_Type * to, Chuck_Type * from )
+{
+    // if type is already the same
+    if( equals( to, from ) )
+        return TRUE;
+
+    // int to float
+    if( equals( to, &t_int ) && equals( from, &t_float ) )
+        emit->append( new Chuck_Instr_Cast_double2int );
+    // float to int
+    else if( equals( to, &t_float ) && equals( from, &t_int ) )
+        emit->append( new Chuck_Instr_Cast_int2double );
+    // up cast - do nothing
+    else if( !isa( to, from ) && !isa( from, to ) )
+    {
+        EM_error2( 0, "(emit): internal error: cannot cast type '%s' to '%s'",
+             from->c_name(), to->c_name() );
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_postfix()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postfix )
+{
+    // emit the exp
+    if( !emit_engine_emit_exp( emit, postfix->exp ) )
+        return FALSE;
+
+    // emit
+    switch( postfix->op )
+    {
+    case ae_op_plusplus:
+        if( equals( postfix->exp->type, &t_int ) )
+            emit->append( new Chuck_Instr_Inc_int );
+        else
+        {
+            EM_error2( postfix->linepos,
+                "(emit): internal error: unhandled type '%s' for post '++' operator",
+                postfix->exp->type->c_name() );
+            return FALSE;
+        }
+    break;
+
+    case ae_op_minusminus:
+        if( equals( postfix->exp->type, &t_int ) )
+            emit->append( new Chuck_Instr_Dec_int );
+        else
+        {
+            EM_error2( postfix->linepos,
+                "(emit): internal error: unhandled type '%s' for post '--' operator",
+                postfix->exp->type->c_name() );
+            return FALSE;
+        }
+    break;
+
+    default:
+        EM_error2( postfix->linepos,
+            "(emit): internal error: unhandled postfix operator '%s'",
+            op2str( postfix->op ) );
+        return FALSE;
+    }        
+     
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_dur()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_dur( Chuck_Emitter * emit, a_Exp_Dur dur )
+{
+    // emit base
+    if( !emit_engine_emit_exp( emit, dur->base ) )
+        return FALSE;
+
+    // cast
+    if( equals( dur->base->type, &t_int ) )
+        emit->append( new Chuck_Instr_Cast_int2double );
+
+    // emit unit
+    if( !emit_engine_emit_exp( emit, dur->unit ) )
+        return FALSE;
+        
+    // multiply
+    emit->append( new Chuck_Instr_Times_double );
+        
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_array()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_array( Chuck_Emitter * emit, a_Exp_Array array )
+{
+    Chuck_Type * type = NULL, * base_type = NULL;
+    t_CKUINT depth = 0;
+    a_Array_Sub sub = NULL;
+    a_Exp exp = NULL;
+    t_CKBOOL is_var = FALSE;
+    t_CKBOOL is_str = FALSE;
+
+    // get the type
+    type = array->self->type;
+    // get the base type
+    base_type = array->base->type;
+    // emit as addr?
+    is_var = array->self->emit_var;
+    // get the dimension
+    depth = base_type->array_depth - type->array_depth;
+    // make sure
+    if( depth == 0 )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: array with 0 depth..." );
+        return FALSE;
+    }
+    // get the sub
+    sub = array->indices;
+    if( !sub )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: NULL array sub..." );
+        return FALSE;
+    }
+    // get the exp list
+    exp = sub->exp_list;
+    if( !exp )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: NULL array exp..." );
+        return FALSE;
+    }
+
+    // emit the base (it should be a pointer to array)
+    if( !emit_engine_emit_exp( emit, array->base ) )
+        return FALSE;
+
+    // emit the exp list
+    if( !emit_engine_emit_exp( emit, exp ) )
+        return FALSE;
+
+    // find out first element
+    if( isa( exp->type, &t_string ) )
+        is_str = TRUE;
+
+    // make sure
+    if( type->size != 4 && type->size != 8 )
+    {
+        EM_error2( array->linepos,
+            "(emit): internal error: array with datasize of %i...", type->size );
+        return FALSE;
+    }
+
+    // check the depth
+    if( depth == 1 )
+    {
+        // emit the array access
+        if( is_str )
+            emit->append( new Chuck_Instr_Array_Map_Access( type->size, is_var ) );
+        else
+            emit->append( new Chuck_Instr_Array_Access( type->size, is_var ) );
+    }
+    else
+    {
+        // emit the multi array access
+        emit->append( new Chuck_Instr_Array_Access_Multi( depth, type->size, is_var ) );
+    }
+
+    // TODO: variable?
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_func_call()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
+                                         Chuck_Func * func,
+                                         Chuck_Type * type,
+                                         int linepos,
                                          t_CKBOOL spork )
 {
-    if( exp->args )
+    // is a member?
+    t_CKBOOL is_member = func->is_member;
+
+    // if member
+    //if( is_member )
+    //{
+    //    // this
+    //    emit->append( new Chuck_Instr_Reg_Push_This );
+    //}
+
+    // translate to code
+    emit->append( new Chuck_Instr_Func_To_Code );
+    // emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)func->code ) );
+    // push the local stack depth - local variables
+    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
+
+    // TODO: member functions and static functions
+    // call the function
+    t_CKUINT size = type->size;
+    if( func->def->s_type == ae_func_builtin )
     {
-        // emit the args
-        if( !emit_engine_emit_exp( emit, exp->args ) )
+        if( size == 0 || size == 4 || size == 8 )
         {
-            EM_error2( exp->linepos,
-                       "(emit): internal error in emitting function call arguments..." );
+            // is member
+            if( is_member )
+                emit->append( new Chuck_Instr_Func_Call_Member( size ) );
+            else
+                emit->append( new Chuck_Instr_Func_Call_Static( size ) );
+        }
+        else
+        {
+            EM_error2( linepos,
+                       "(emit): internal error: %i func call not handled",
+                       size );
             return FALSE;
         }
     }
-
-    // spork
-    Chuck_Emmission * emit_save = emit;
-    Chuck_Instr_Mem_Push_Imm * op = NULL;
-    if( spork )
+    else
     {
-        emit = emit_engine_init( emit->env );
-        op = new Chuck_Instr_Mem_Push_Imm( 0 );
-        // emit the stack depth - we don't know this yet
-        emit->append( op );
+        emit->append( new Chuck_Instr_Func_Call );
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_func_args()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_func_args( Chuck_Emitter * emit,
+                                     a_Exp_Func_Call func_call )
+{
+    // emit the args
+    if( !emit_engine_emit_exp( emit, func_call->args ) )
+    {
+        EM_error2( func_call->linepos,
+                   "(emit): internal error in emitting function call arguments..." );
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_func_call()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
+                                         a_Exp_Func_Call func_call,
+                                         t_CKBOOL spork )
+{
+    // make sure there are args, and not sporking
+    if( func_call->args && !spork )
+    {
+        if( !emit_engine_emit_func_args( emit, func_call ) )
+            return FALSE;
     }
 
     // emit func
-    if( !emit_engine_emit_exp( emit, exp->func ) )
+    if( !emit_engine_emit_exp( emit, func_call->func ) )
     {
-        EM_error2( exp->linepos,
+        EM_error2( func_call->linepos,
                    "(emit): internal error in evaluating function call..." );
         return FALSE;
     }
-
-    // push the local stack depth
-    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->stack_depth() ) );
     
-    // call the function
-    if( emit->nspc_func && emit->nspc_func->s_type == ae_func_builtin )
-    {
-        if( exp->ret_type->size == 0 )
-            emit->append( new Chuck_Instr_Func_Call0 );
-        else if( exp->ret_type->size == 4 )
-            emit->append( new Chuck_Instr_Func_Call2 );
-        else if( exp->ret_type->size == 8 )
-            emit->append( new Chuck_Instr_Func_Call3 );
-        else
-        {
-            EM_error2( exp->linepos,
-                       "(emit): internal error: %i func call not handled",
-                       exp->ret_type->size );
-            return FALSE;
-        }
-    }
-    else
-    {
-        Chuck_Instr * op = new Chuck_Instr_Func_Call;
-        emit->append( op );
-    }
-
-    // spork
-    if( spork )
-    {
-        // done
-        emit->append( new Chuck_Instr_EOC );
-        // set the stack depth now that we know
-        op->set( emit->stack_depth() );
-
-        // emit it
-        Chuck_VM_Code * code = emit_to_code( emit );
-        code->name = string("spork ~ exp");
-        emit = emit_save;
-
-        a_Exp e = exp->args;
-        t_CKUINT size = 0;
-        while( e ) { size += e->type->size; e=e->next; }        
-        emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)code ) );
-        emit->append( new Chuck_Instr_Spork( size ) );
-    }
-
-    // reset the emit
-    emit->nspc = emit->env;
-    emit->nspc_func = NULL;
-
-    return TRUE;
+    // the rest
+    return emit_engine_emit_exp_func_call( emit, func_call->ck_func, func_call->ret_type,
+                                           func_call->linepos, spork );
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_dot_member
+// name: emit_engine_emit_dot_member()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Member exp, t_Type t )
+t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
+                                          a_Exp_Dot_Member member )
 {
-    t_Type t_base = exp->base->type;
-    t_Env e = NULL;
-    
-    // namespace or class
-    if( t_base->type == __te_system_namespace__ )
-    {
-        // emit the base
-        emit_engine_emit_exp( emit, exp->base );
-        // emit the member
-        emit_engine_emit_symbol( emit, exp->id, FALSE, exp->linepos );
-    }
-    else if( isa( t_base, lookup_type( emit->env, insert_symbol( "ugen" ) ) ) )
-    {
-        // emit the base
-        emit_engine_emit_exp( emit, exp->base );
-        // emit the member
-        //if( !exp->data )
-        //{
-        //    EM_error2( exp->linepos,
-        //        "(emit): internal error: no ctrl for '%s.%s'",
-        //        t_base->name, S_name(exp->id) );
-        //    return FALSE;
-        //}
-        // push the addr
-        //emit->append( new Chuck_Instr_Reg_Push_Imm( exp->data ) );
+    // the type of the base
+    Chuck_Type * t_base = NULL;
+    // whether to emit addr or value
+    t_CKBOOL emit_addr = member->self->emit_var;
+    // is the base a class/namespace or a variable
+    t_CKBOOL base_static = isa( member->t_base, &t_class );
+    // a function
+    Chuck_Func * func = NULL;
+    // a non-function value
+    Chuck_Value * value = NULL;
+    // the offset
+    t_CKUINT offset = 0;
+    // actual type - if base is class name its type is actually 'class'
+    //               to get the actual type use actual_type
+    t_base = base_static ? member->t_base->actual_type : member->t_base;
 
-        // cget
-        if( exp->flag == 0 )
+    // make sure that the base type is object
+    assert( t_base->info != NULL );
+
+    // if base is static
+    if( !base_static )
+    {
+        // if is a func
+        if( isfunc( member->self->type ) )
         {
-            if( exp->data2 == 0 )
+            // get the func
+            value = type_engine_find_value( t_base, member->id );
+            func = value->func_ref;
+            // make sure it's there
+            assert( func != NULL );
+
+            // is the func static?
+            if( func->is_member )
             {
-                EM_error2( exp->linepos,
-                           "(emit): internal error: cannot read from ugen parameter '%s.%s', it is write-only",
-                           t_base->name, S_name(exp->id) );
-                return FALSE;
+                // emit the base
+                emit_engine_emit_exp( emit, member->base );
+                // dup the base pointer
+                emit->append( new Chuck_Instr_Reg_Dup_Last );
+                // find the offset for virtual table
+                offset = func->vt_index;
+                // emit the function
+                emit->append( new Chuck_Instr_Dot_Member_Func( offset ) );
             }
-
-            // the cget function addr
-            emit->append( new Chuck_Instr_Reg_Push_Imm( exp->data2 ) );
-
-            // the ugen
-            if( !strcmp( S_name(exp->id), "op" ) )
-                emit->append( new Chuck_Instr_UGen_CGet_Op );
-            else if( !strcmp( S_name(exp->id), "gain" ) )
-                emit->append( new Chuck_Instr_UGen_CGet_Gain );
-            else if( !strcmp( S_name(exp->id), "last" ) )
-                emit->append( new Chuck_Instr_UGen_CGet_Last );
             else
             {
-                // cget passing to ugen
-                if( t->size == 4 )
-                    emit->append( new Chuck_Instr_UGen_CGet );
-                else if( t->size == 8 )
-                    emit->append( new Chuck_Instr_UGen_CGet2 );
+                // emit the type
+                emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
+                // emit the static function
+                emit->append( new Chuck_Instr_Dot_Static_Func( func ) );
+            }
+        }
+        else
+        {
+            // get the value
+            // value = t_base->info->lookup_value( member->id, FALSE );
+            value = type_engine_find_value( t_base, member->id );
+            // make sure it's there
+            assert( value != NULL );
+
+            // find the offset for data
+            offset = value->offset;
+
+            // is the value static?
+            if( value->is_member )
+            {
+                // emit the base
+                emit_engine_emit_exp( emit, member->base );
+                // lookup the member
+                emit->append( new Chuck_Instr_Dot_Member_Data( 
+                    offset, member->self->type->size, emit_addr ) );
+            }
+            else
+            {
+                // if builtin or not
+                if( value->addr )
+                {
+                    // emit builtin
+                    emit->append( new Chuck_Instr_Dot_Static_Import_Data(
+                        value->addr, member->self->type->size, emit_addr ) );
+                }
                 else
                 {
-                    EM_error2( exp->linepos,
-                               "(emit): internal error: %i ugen cget not handled",
-                               t->size );
-                    return FALSE;
+                    // emit the type
+                    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
+                    // emit the static value
+                    emit->append( new Chuck_Instr_Dot_Static_Data(
+                        offset, member->self->type->size, emit_addr ) );
                 }
             }
         }
     }
-    else
+    else // static
     {
-        EM_error2( exp->linepos,
-                   "(emit): internal error: class.member not impl" );
-        return FALSE;
+        // emit the type
+        emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
+
+        // if is a func
+        if( isfunc( member->self->type ) )
+        {
+            // get the func
+            func = t_base->info->lookup_func( member->id, FALSE );
+            // make sure it's there
+            assert( func != NULL );
+            // emit the function
+            emit->append( new Chuck_Instr_Dot_Static_Func( func ) );
+        }
+        else
+        {
+            // get the value
+            value = t_base->info->lookup_value( member->id, FALSE );
+            // make sure it's there
+            assert( value != NULL );
+
+            // if builtin
+            if( value->addr )
+            {
+                // emit
+                emit->append( new Chuck_Instr_Dot_Static_Import_Data(
+                    value->addr, member->self->type->size, emit_addr ) );
+            }
+            else
+            {
+                // find the offset for data
+                offset = value->offset;
+                // emit the member
+                emit->append( new Chuck_Instr_Dot_Static_Data(
+                    offset, member->self->type->size, emit_addr ) );
+            }
+        }
     }
     
     return TRUE;
@@ -1571,10 +2654,10 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emmission * emit, a_Exp_Dot_Memb
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_if
+// name: emit_engine_emit_exp_if()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_if( Chuck_Emmission * emit, a_Exp_If exp )
+t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if )
 {
     return TRUE;
 }
@@ -1583,46 +2666,206 @@ t_CKBOOL emit_engine_emit_exp_if( Chuck_Emmission * emit, a_Exp_If exp )
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_decl
+// name: emit_engine_pre_constructor()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emmission * emit, a_Exp_Decl exp )
+t_CKBOOL emit_engine_pre_constructor( Chuck_Emitter * emit, Chuck_Type * type )
 {
-    a_Var_Decl_List list = exp->var_decl_list;
-    a_Var_Decl var_decl = NULL;
+    // parent first pre constructor
+    if( type->parent != NULL )
+        emit_engine_pre_constructor( emit, type->parent );
 
+    // pre constructor
+    if( type->has_constructor )
+    {
+        // make sure
+        assert( type->info->pre_ctor != NULL );
+        // append instruction
+        emit->append( new Chuck_Instr_Pre_Constructor( type->info->pre_ctor,
+            emit->code->frame->curr_offset ) );
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_pre_constructor_array()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_pre_constructor_array( Chuck_Emitter * emit, Chuck_Type * type )
+{
+    // alloc should have put all objects to made in linear list, on stack
+    Chuck_Instr_Pre_Ctor_Array_Top * top = NULL;
+    Chuck_Instr_Pre_Ctor_Array_Bottom * bottom = NULL;
+    // get start index
+    t_CKUINT start_index = emit->next_index();
+    // append first part of pre ctor
+    emit->append( top = new Chuck_Instr_Pre_Ctor_Array_Top( type ) );
+    // call pre constructor
+    emit_engine_pre_constructor( emit, type );
+    // append second part of the pre ctor
+    emit->append( bottom = new Chuck_Instr_Pre_Ctor_Array_Bottom );
+    // set the goto of the first one
+    top->set( emit->next_index() );
+    // set the goto for the second one
+    bottom->set( start_index );
+    // clean up code
+    emit->append( new Chuck_Instr_Pre_Ctor_Array_Post );
+
+    return TRUE;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_instantiate_object()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type,
+                                         a_Array_Sub array, t_CKBOOL is_ref )
+{
+    // if array
+    if( type->array_depth )
+    {
+        // emit indices
+        emit_engine_emit_exp( emit, array->exp_list );
+        // emit array allocation
+        emit->append( new Chuck_Instr_Array_Alloc( 
+            type->array_depth, type->array_type, emit->code->frame->curr_offset,
+            is_ref ) );
+
+        // handle constructor
+        if( isobj( type->array_type ) && !is_ref )
+        {
+            // call pre constructor for array
+            emit_engine_pre_constructor_array( emit, type->array_type );
+        }
+    }
+    else if( !is_ref ) // not array
+    {
+        // emit object instantiation code, include pre constructor
+        emit->append( new Chuck_Instr_Instantiate_Object( type ) );
+        
+        // call pre constructor
+        emit_engine_pre_constructor( emit, type );
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_exp_decl()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
+{
+    a_Var_Decl_List list = decl->var_decl_list;
+    a_Var_Decl var_decl = NULL;
+    Chuck_Value * value = NULL;
+    Chuck_Type * type = NULL;
+    Chuck_Local * local = NULL;
+    t_CKBOOL is_obj = FALSE;
+    t_CKBOOL is_ref = FALSE;
+
+    // loop through vars
     while( list )
     {
+        // the var
         var_decl = list->var_decl;
-        t_Type type = lookup_type( emit->env, exp->type );
+        // get the value determined in type checker
+        value = var_decl->value;
+        // get the type of the value
+        type = value->type;
+        // is the variable a reference
+        is_obj = isobj( type );
+        // do alloc or not
+        is_ref = decl->type->ref;
 
-        if( var_decl->isarray )
+        // if this is an object
+        if( is_obj )
         {
-            EM_error2( exp->linepos,
-                       "(emit): internal error: array not impl" );
-            return FALSE;
-        }
-        else
-        {
-            // offset
-            emit->append( new Chuck_Instr_Reg_Push_Imm(
-                emit->alloc_local( var_decl->id, type ) ) );
-
-            // ugen
-            if( isa( type, lookup_type(emit->env, insert_symbol("ugen")) ) )
+            // if array, then check to see if empty []
+            if( !list->var_decl->array || list->var_decl->array->exp_list != NULL )
             {
-                Chuck_UGen_Info * info = lookup_ugen( emit->nspc, exp->type );
-                if( !info )
+                // instantiate object, including array
+                if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
+                    return FALSE;
+            }
+        }
+
+        // put in the value
+
+        // member
+        if( value->is_member )
+        {
+            // zero out location in object, and leave addr on operand stack
+            if( type->size == 4 )
+                emit->append( new Chuck_Instr_Alloc_Member_Word( value->offset ) );
+            else if( type->size == 8 )
+                emit->append( new Chuck_Instr_Alloc_Member_Word2( value->offset ) );
+            else
+            {
+                EM_error2( decl->linepos,
+                    "(emit): unhandle decl size of '%i'...",
+                    type->size );
+                return FALSE;
+            }
+        }
+        else // not member
+        {
+            // not in class
+            if( !emit->env->class_def || !decl->is_static )
+            {
+                // allocate a place on the local stack
+                local = emit->alloc_local( type->size, value->name, is_ref );
+                if( !local )
                 {
-                    EM_error2( exp->linepos,
-                        "(emit): internal error: undefined ugen type '%s'",
-                        S_name(var_decl->id) );
+                    EM_error2( decl->linepos,
+                        "(emit): internal error: cannot allocate local '%s'...",
+                        value->name.c_str() );
                     return FALSE;
                 }
-                emit->append( new Chuck_Instr_Reg_Push_Imm( (uint)info ) );
-                emit->append( new Chuck_Instr_UGen_Alloc() );
-                emit->append( new Chuck_Instr_Chuck_Assign_Object2 );
+
+                // put in the value
+                value->offset = local->offset;
+
+                // zero out location in memory, and leave addr on operand stack
+                // TODO: this is wrong for static
+                // BAD:
+                // FIX:
+                if( type->size == 4 )
+                    emit->append( new Chuck_Instr_Alloc_Word( local->offset ) );
+                else if( type->size == 8 )
+                    emit->append( new Chuck_Instr_Alloc_Word2( local->offset ) );
+                else
+                {
+                    EM_error2( decl->linepos,
+                        "(emit): unhandle decl size of '%i'...",
+                        type->size );
+                    return FALSE;
+                }
             }
+            else
+            {
+                // push something on the stack to pop...
+                // static
+                // HACK
+                // TODO
+                emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+            }
+        }
+
+        // if object, assign
+        if( is_obj && !is_ref )
+        {
+            // assign the object
+            emit->append( new Chuck_Instr_Assign_Object );
         }
         
         list = list->next;
@@ -1635,1274 +2878,26 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emmission * emit, a_Exp_Decl exp )
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_namespace()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_namespace( Chuck_Emmission * emit, a_Exp_Namespace exp )
-{
-    // push the name
-    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)S_name(exp->name) ) );
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_op()
-// desc: emit op
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_op( Chuck_Emmission * emit,
-                              ae_Operator op, a_Exp lhs, a_Exp rhs )
-{
-    te_Type left = lhs->type->type;
-    te_Type right = rhs->type->type;
-    
-    switch( op )
-    {
-    
-    // ----------------------------- num --------------------------------------
-    
-    case ae_op_plus:
-        if( ( left == te_dur && right == te_time ) ||
-            ( left == te_time && right == te_dur ) )
-            emit->append( new Chuck_Instr_Add_double );
-        else
-        {
-            switch( left )
-            {
-            case te_int:
-                emit->append( new Chuck_Instr_Add_int );
-                break;
-            case te_uint:
-                emit->append( new Chuck_Instr_Add_uint );
-                break;
-            case te_float:
-                emit->append( new Chuck_Instr_Add_double );
-                break;
-            case te_dur:
-                emit->append( new Chuck_Instr_Add_double );
-                break;
-                 
-            default:
-                EM_error2( lhs->linepos, 
-                           "(emit): internal error: unhandled type '%i' in binary op '+'",
-                           left );
-                return FALSE;
-            }
-        }
-        break;
-    
-    case ae_op_minus:
-        if( ( left == te_time && right == te_dur ) )
-            emit->append( new Chuck_Instr_Minus_double );
-        else if( ( left == te_time && right == te_time ) ) // XXX time - time = dur
-            emit->append( new Chuck_Instr_Minus_double );
-        else
-        {
-            switch( left )
-            {
-            case te_int:
-                emit->append( new Chuck_Instr_Minus_int );
-                break;
-            case te_uint:
-                emit->append( new Chuck_Instr_Minus_uint );
-                break;
-            case te_float:
-                emit->append( new Chuck_Instr_Minus_double );
-                break;
-            case te_dur:
-                emit->append( new Chuck_Instr_Minus_double );
-                break;
-                 
-            default:
-                EM_error2( lhs->linepos, 
-                           "(emit): internal error: unhandled '%i' in binary op '-'",
-                           left );
-                return FALSE;
-            }
-        }
-        break;
-    
-    case ae_op_times:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Times_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Times_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Times_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Times_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '*'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_divide:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Divide_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Divide_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Divide_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Divide_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '/'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_s_or:
-        switch( left )
-        {
-        case te_int:
-        case te_uint:
-            emit->append( new Chuck_Instr_Binary_Or );
-            break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '|'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_s_and:
-        switch( left )
-        {
-        case te_int:
-        case te_uint:
-            emit->append( new Chuck_Instr_Binary_And );
-            break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '&'",
-                       left );
-            return FALSE;
-        }
-        break;
-
-    case ae_op_shift_left:
-        switch( left )
-        {
-        case te_int:
-        case te_uint:
-            emit->append( new Chuck_Instr_Binary_Shift_Left );
-            break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '<<'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_shift_right:
-        switch( left )
-        {
-        case te_int:
-        case te_uint:
-            emit->append( new Chuck_Instr_Binary_Shift_Right );
-            break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '>>'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_percent:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Mod_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Mod_uint );
-            break;
-        case te_float:
-        case te_time:
-        case te_dur:
-            emit->append( new Chuck_Instr_Mod_double );
-            break;
-        
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '%%'",
-                       left );
-            return FALSE;
-        }
-        break;
-
-    case ae_op_s_xor:
-        switch( left )
-        {
-        case te_int:
-        case te_uint:
-            emit->append( new Chuck_Instr_Binary_Xor );
-            break;
-        case te_midiin:
-        {
-            Chuck_Instr_Unary_Op * op = emit->get_op();
-            if( !op )
-            {
-                EM_error2( lhs->linepos,
-                           "(emit): internal error: in binary op '%i'", left );
-                return FALSE;
-            }
-            op->set( op->get() | 1 );
-            // emit->append_ops();
-        }
-            break;
-        case te_midiout:
-        {
-            Chuck_Instr_Unary_Op * op = emit->get_op();
-            if( !op )
-            {
-                EM_error2( lhs->linepos,
-                           "(emit): internal error: in binary op '%i'", left );
-                return FALSE;
-            }
-            op->set( op->get() | 1 );
-            // emit->append_ops();
-        }
-            break;
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '^'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    // ----------------------------- chuck -------------------------------------
-    
-    case ae_op_chuck:
-    {
-        a_Exp cl = lhs, cr = rhs;
-        
-        while( cr )
-        {
-            cl = lhs;
-            while( cl )
-            {
-                if( !emit_engine_emit_chuck( emit, cl, cr ) )
-                    return FALSE;
-                cl = cl->next;
-            }
-            
-            cr = cr->next;
-        }
-        break;
-    }
-    
-    case ae_op_unchuck:
-    {
-        a_Exp cl = lhs, cr = rhs;
-        
-        while( cr )
-        {
-            cl = lhs;
-            while( cl )
-            {
-                if( !emit_engine_emit_unchuck( emit, cl, cr ) )
-                    return FALSE;
-                cl = cl->next;
-            }
-            
-            cr = cr->next;
-        }
-        break;
-    }
-    
-    case ae_op_at_chuck:
-    break;
-    
-    case ae_op_s_chuck:
-    break;
-    
-    case ae_op_plus_chuck:
-    break;
-    
-    case ae_op_minus_chuck:
-    break;
-    
-    case ae_op_times_chuck:
-    break;
-    
-    case ae_op_divide_chuck:
-    break;
-    
-    case ae_op_s_and_chuck:
-    break;
-    
-    case ae_op_s_or_chuck:
-    break;
-    
-    case ae_op_s_xor_chuck:
-    break;
-    
-    case ae_op_shift_right_chuck:
-    break;
-    
-    case ae_op_shift_left_chuck:
-    break;
-    
-    case ae_op_percent_chuck:
-    break;
-
-    // -------------------------------- bool -----------------------------------
-        
-    case ae_op_eq:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Eq_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Eq_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Eq_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Eq_double );
-            break;
-        case te_time:
-            emit->append( new Chuck_Instr_Eq_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '=='",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_neq:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Neq_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Neq_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Neq_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Neq_double );
-            break;
-        case te_time:
-            emit->append( new Chuck_Instr_Neq_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '!='",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_lt:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Lt_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Lt_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Lt_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Lt_double );
-            break;
-        case te_time:
-            emit->append( new Chuck_Instr_Lt_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '<'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_le:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Le_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Le_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Le_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Le_double );
-            break;
-        case te_time:
-            emit->append( new Chuck_Instr_Le_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '<='",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_gt:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Gt_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Gt_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Gt_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Gt_double );
-            break;
-        case te_time:
-            emit->append( new Chuck_Instr_Gt_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '>='",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_ge:
-        switch( left )
-        {
-        case te_int:
-            emit->append( new Chuck_Instr_Ge_int );
-            break;
-        case te_uint:
-            emit->append( new Chuck_Instr_Ge_uint );
-            break;
-        case te_float:
-            emit->append( new Chuck_Instr_Ge_double );
-            break;
-        case te_dur:
-            emit->append( new Chuck_Instr_Ge_double );
-            break;
-        case te_time:
-            emit->append( new Chuck_Instr_Ge_double );
-            break;
-
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '>='",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_and:
-        switch( left )
-        {
-        case te_int:
-        case te_uint:
-        //case te_float:
-        //case te_dur:
-        //case te_time:
-            emit->append( new Chuck_Instr_And );
-            break;
- 
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '&&'",
-                       left );
-            return FALSE;
-        }
-        break;
-    
-    case ae_op_or:
-        switch( left )
-        {
-        case te_int:
-        case te_uint:
-        //case te_float:
-        //case te_dur:
-        //case te_time:
-            emit->append( new Chuck_Instr_Or );
-            break;
- 
-        default:
-            EM_error2( lhs->linepos,
-                       "(emit): internal error: unhandled type '%i' in binary op '||'",
-                       left );
-            return FALSE;
-        }
-        break;
-
-    default:
-        EM_error2( lhs->linepos,
-                   "(emit): internal error: op '%i' not handled",
-                   op );
-        return FALSE;
-    }
-        
-    return TRUE;
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_emit_while()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_while( Chuck_Emmission * emit, a_Stmt_While stmt )
-{
-    t_CKBOOL ret = TRUE;
-    Chuck_Instr_Branch_Op * op = NULL;
-    uint start_index = emit->next_index();
-    
-    // emit the cond
-    emit_engine_emit_exp( emit, stmt->cond );
-    
-    switch( stmt->cond->type->type )
-    {
-    case te_int:
-    case te_uint:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Eq_uint( 0 );
-        break;
-    case te_float:
-    case te_dur:
-    case te_time:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
-        op = new Chuck_Instr_Branch_Eq_double( 0 );
-        break;
-        
-    default:
-        EM_error2( stmt->cond->linepos,
-                   "(emit): internal error: unhandled type '%s' in while conditional",
-                   stmt->cond->type->name );
-        return FALSE;
-    }
-    
-    // append the op
-    emit->append( op );
-
-    // emit the body
-    emit_engine_emit_stmt( emit, stmt->body );
-    
-    // go back to do check the condition
-    emit->append( new Chuck_Instr_Goto( start_index ) );
-    
-    // set the op's target
-    op->set( emit->next_index() );
-
-    return ret;    
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_emit_do_while()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_do_while( Chuck_Emmission * emit, a_Stmt_While stmt )
-{
-    t_CKBOOL ret = TRUE;
-    Chuck_Instr_Branch_Op * op = NULL;
-    uint start_index = emit->next_index();
-    
-    // emit the body
-    emit_engine_emit_stmt( emit, stmt->body );
-    
-    // emit the cond
-    emit_engine_emit_exp( emit, stmt->cond );
-    
-    switch( stmt->cond->type->type )
-    {
-    case te_int:
-    case te_uint:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Neq_uint( 0 );
-        break;
-    case te_float:
-    case te_dur:
-    case te_time:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
-        op = new Chuck_Instr_Branch_Neq_double( 0 );
-        break;
-        
-    default:
-        EM_error2( stmt->cond->linepos,
-                   "(emit): internal error: unhandled type '%s' in do/while conditional",
-                   stmt->cond->type->name );
-        return FALSE;
-    }
-    
-    // append the op
-    emit->append( op );
-
-    // set the op's target
-    op->set( start_index );
-
-    return ret;    
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_emit_until()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_until( Chuck_Emmission * emit, a_Stmt_Until stmt )
-{
-    t_CKBOOL ret = TRUE;
-    Chuck_Instr_Branch_Op * op = NULL;
-    uint start_index = emit->next_index();
-    
-    // emit the cond
-    emit_engine_emit_exp( emit, stmt->cond );
-    
-    switch( stmt->cond->type->type )
-    {
-    case te_int:
-    case te_uint:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Neq_uint( 0 );
-        break;
-    case te_float:
-    case te_dur:
-    case te_time:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
-        op = new Chuck_Instr_Branch_Neq_double( 0 );
-        break;
-        
-    default:
-        EM_error2( stmt->cond->linepos,
-                   "(emit): internal error: unhandled type '%s' in until conditional",
-                   stmt->cond->type->name );
-        return FALSE;
-    }
-    
-    // append the op
-    emit->append( op );
-
-    // emit the body
-    emit_engine_emit_stmt( emit, stmt->body );
-    
-    // go back to do check the condition
-    emit->append( new Chuck_Instr_Goto( start_index ) );
-    
-    // set the op's target
-    op->set( emit->next_index() );
-
-    return ret;    
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_emit_do_until()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_do_until( Chuck_Emmission * emit, a_Stmt_Until stmt )
-{
-    t_CKBOOL ret = TRUE;
-    Chuck_Instr_Branch_Op * op = NULL;
-    uint start_index = emit->next_index();
-    
-    // emit the body
-    emit_engine_emit_stmt( emit, stmt->body );
-    
-    // emit the cond
-    emit_engine_emit_exp( emit, stmt->cond );
-    
-    switch( stmt->cond->type->type )
-    {
-    case te_int:
-    case te_uint:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Eq_uint( 0 );
-        break;
-    case te_float:
-    case te_dur:
-    case te_time:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
-        op = new Chuck_Instr_Branch_Eq_double( 0 );
-        break;
-
-    default:
-        EM_error2( stmt->cond->linepos,
-                   "(emit): internal error: unhandled type '%s' in do/until conditional",
-                   stmt->cond->type->name );
-        return FALSE;
-    }
-    
-    // append the op
-    emit->append( op );
-
-    // set the op's target
-    op->set( start_index );
-
-    return ret;    
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_emit_for()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_for( Chuck_Emmission * emit, a_Stmt_For stmt )
-{
-    t_CKBOOL ret = TRUE;
-    Chuck_Instr_Branch_Op * op = NULL;
-    
-    // emit the cond
-    emit_engine_emit_stmt( emit, stmt->c1 );
-    
-    uint start_index = emit->next_index();
-    
-    // emit the cond
-    emit_engine_emit_stmt( emit, stmt->c2, FALSE );
-    
-    // could be NULL
-    if( stmt->c2 )
-    {
-        switch( stmt->c2->stmt_exp->type->type )
-        {
-        case te_int:
-        case te_uint:
-            // push 0
-            emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-            op = new Chuck_Instr_Branch_Eq_uint( 0 );
-            break;
-        case te_float:
-        case te_dur:
-        case te_time:
-            // push 0
-            emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
-            op = new Chuck_Instr_Branch_Eq_double( 0 );
-            break;
-        
-        default:
-            EM_error2( stmt->c2->stmt_exp->linepos,
-                       "(emit): internal error: unhandled type '%s' in for conditional",
-                       stmt->c2->stmt_exp->type->name );
-            return FALSE;
-        }
-        // append the op
-        emit->append( op );
-    }
-    
-    // emit the body
-    emit_engine_emit_stmt( emit, stmt->body );
-    
-    // emit the action
-    emit_engine_emit_exp( emit, stmt->c3 );
-    if( stmt->c3 )
-        if( stmt->c3->type->size == 8 )
-            emit->append( new Chuck_Instr_Reg_Pop_Word2 );
-        else if( stmt->c3->type->size == 4 )
-            emit->append( new Chuck_Instr_Reg_Pop_Word );
-        else if( stmt->c3->type->size != 0 )
-        {
-            EM_error2( stmt->c3->linepos,
-                       "(emit): internal error: non-void type size %i not handled",
-                       stmt->c3->type->size );
-            return FALSE;
-        }
-
-    // go back to do check the condition
-    emit->append( new Chuck_Instr_Goto( start_index ) );    
-
-    // could be NULL
-    if( stmt->c2 )
-        // set the op's target
-        op->set( emit->next_index() );
-
-    return ret;    
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_emit_if()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_if( Chuck_Emmission * emit, a_Stmt_If stmt )
-{
-    t_CKBOOL ret = TRUE;
-    Chuck_Instr_Branch_Op * op = NULL, * op2 = NULL;
-    uint start_index = emit->next_index();
-    
-    // emit the cond
-    emit_engine_emit_exp( emit, stmt->cond );
-    
-    switch( stmt->cond->type->type )
-    {
-    case te_int:
-    case te_uint:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
-        op = new Chuck_Instr_Branch_Eq_uint( 0 );
-        break;
-    case te_float:
-    case te_dur:
-    case te_time:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
-        op = new Chuck_Instr_Branch_Eq_double( 0 );
-        break;
-        
-    default:
-        EM_error2( stmt->cond->linepos,
-                   "(emit): internal erorr: unhandled type '%s' in if conditional",
-                   stmt->cond->type->name );
-        break;
-    }
-    
-    // append the op
-    emit->append( op );
-
-    // emit the body
-    emit_engine_emit_stmt( emit, stmt->if_body );
-    
-    // emit the skip to the end
-    emit->append( op2 = new Chuck_Instr_Goto(0) );
-    
-    // set the op's target
-    op->set( emit->next_index() );
-
-    // emit the body
-    emit_engine_emit_stmt( emit, stmt->else_body );
-
-    // set the op2's target
-    op2->set( emit->next_index() );
-
-    return ret;    
-}
-
-
-
-
-//------------------------------------------------------------------------------
-// name: emit_engine_emit_return()
-// desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_return( Chuck_Emmission * emit, a_Stmt_Return ret )
-{
-    if( !emit_engine_emit_exp( emit, ret->val ) )
-        return FALSE;
-
-    // determine where later
-    Chuck_Instr_Goto * instr = new Chuck_Instr_Goto( 0 );
-    emit->append( instr );
-    emit->returns.push_back( instr );
-
-    return TRUE;
-}
-
-
-
-
-//------------------------------------------------------------------------------
 // name: emit_engine_emit_code_segment()
 // desc: ...
-//------------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_code_segment( Chuck_Emmission * emit, a_Stmt_Code stmt )
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, 
+                                        a_Stmt_Code stmt, t_CKBOOL push )
 {
     a_Stmt_List list = stmt->stmt_list;
-    
+
+    // loop through
     while( list )
     {
+        // emit the statement
         if( !emit_engine_emit_stmt( emit, list->stmt ) )
             return FALSE;
-            
+
+        // next
         list = list->next;
     }
-    
-    return TRUE;
-}
 
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_chuck()
-// desc: emit chuck operator
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_chuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
-{
-    if( rhs->type->type == te_midiout || lhs->type->type == te_midiin )
-        emit->pop_the_ops();
-    
-    if( lhs->type->parent && rhs->type->parent &&
-        lhs->type->parent->type == te_ugen &&
-        rhs->type->parent->type == te_ugen )
-    {
-        emit->append( new Chuck_Instr_UGen_Link );
-        
-        return TRUE;
-    }
-    else if( lhs->type->type == __te_system_out__ )
-    {
-        switch( rhs->type->type )
-        {
-            case te_int:
-                emit->append( new Chuck_Instr_Reg_Push_Imm( cip_int ) );
-                break;
-            case te_uint:
-                emit->append( new Chuck_Instr_Reg_Push_Imm( cip_uint ) );
-                break;
-            case te_float:
-                emit->append( new Chuck_Instr_Reg_Push_Imm( cip_float ) );
-                break;
-            case te_double:
-                emit->append( new Chuck_Instr_Reg_Push_Imm( cip_double ) );
-                break;
-            case te_time:
-                emit->append( new Chuck_Instr_Reg_Push_Imm( cip_time ) );
-                break;
-            case te_dur:
-                emit->append( new Chuck_Instr_Reg_Push_Imm( cip_dur ) );
-                break;
-            case te_string:
-                emit->append( new Chuck_Instr_Reg_Push_Imm( cip_string ) );
-                break;
-            default:
-                EM_error2( rhs->linepos,
-                           "(emit): internal error: unsupported type '%s' to print to console",
-                           rhs->type->name );
-                return FALSE;
-        }
-        
-        emit->append( new Chuck_Instr_Print_Console2 );
-    }
-    else if( rhs->s_type != ae_exp_decl )
-    {
-        if( rhs->s_type == ae_exp_primary && 
-            rhs->primary.s_type == ae_primary_var )
-        {
-            a_Exp_Primary primary = &(rhs->primary);
-            if( !strcmp( S_name(primary->var), "now" ) )
-            {
-                // special case: time advance
-                if( lhs->type->type == te_dur )
-                    emit->append( new Chuck_Instr_Add_dur_time );
-                else if( lhs->type->type == te_time )
-                    // pop the now - no need it anymore
-                    emit->append( new Chuck_Instr_Reg_Pop_Word2() );
-                else
-                {
-                    EM_error2( lhs->linepos,
-                               "(emit): internal error: bad type '%s' chucked to now",
-                               lhs->type->name );
-                    return FALSE;
-                }
-
-                // advance
-                emit->append( new Chuck_Instr_Time_Advance );
-
-                return TRUE;
-            }
-            else if( !strcmp( S_name(primary->var), "midiin" ) )
-            {
-                EM_error2( lhs->linepos,
-                           "(emit): internal error: value chucked to midiin" );
-                return FALSE;
-            }
-            else if( !strcmp( S_name(primary->var), "midiout" ) )
-            {
-                emit->append_ops();
-                // emit->append( new Chuck_Instr_Midi_Out_Go(0) );
-                return TRUE; 
-            }
-            else if( !strcmp( S_name(primary->var), "true" ) )
-            {
-                EM_error2( primary->linepos,
-                           "cannot assign value to 'true'" );
-                return FALSE;
-            }
-            else if( !strcmp( S_name(primary->var), "false" ) )
-            {
-                EM_error2( primary->linepos,
-                           "cannot assign value to 'false'" );
-                return FALSE;
-            }
-            else if( !strcmp( S_name(primary->var), "maybe" ) )
-            {
-                EM_error2( primary->linepos,
-                           "cannot assign value to 'maybe'" );
-                return FALSE;
-            }
-            else if( !strcmp( S_name(primary->var), "pi" ) )
-            {
-                EM_error2( primary->linepos,
-                           "cannot assign value to 'pi'" );
-                return FALSE;
-            }
-            else if( !strcmp( S_name(primary->var), "stdout" ) ||
-                     !strcmp( S_name(primary->var), "chout" ) )
-            {
-                switch( lhs->type->type )
-                {
-                    case te_int:
-                        emit->append( new Chuck_Instr_Reg_Push_Imm( cip_int ) );
-                        break;
-                    case te_uint:
-                        emit->append( new Chuck_Instr_Reg_Push_Imm( cip_uint ) );
-                        break;
-                    case te_float:
-                        emit->append( new Chuck_Instr_Reg_Push_Imm( cip_double ) );
-                        break;
-                    case te_double:
-                        emit->append( new Chuck_Instr_Reg_Push_Imm( cip_double ) );
-                        break;
-                    case te_time:
-                        emit->append( new Chuck_Instr_Reg_Push_Imm( cip_time ) );
-                        break;
-                    case te_dur:
-                        emit->append( new Chuck_Instr_Reg_Push_Imm( cip_dur ) );
-                        break;
-                    case te_string:
-                        emit->append( new Chuck_Instr_Reg_Push_Imm( cip_string ) );
-                        break;
-                    default:
-                        EM_error2( lhs->linepos,
-                                   "(emit): internal error: unsupported type '%s' to print to console",
-                                   lhs->type->name );
-                        return FALSE;
-                }
-                
-                emit->append( new Chuck_Instr_Print_Console );
-            }
-            else
-            {
-                t_CKUINT is_global = FALSE;
-                t_CKUINT size = 0;
-                int offset = emit->find_offset( primary->var, &is_global, &size );
-                Chuck_Instr_Unary_Op * op = NULL;
-                
-                if( offset < 0 )
-                {
-                    // should be a function
-                    EM_error2( rhs->linepos,
-                               "(emit): internal error: chuck to function not impl" );
-                    return FALSE;
-                }
-                else
-                {
-                    // TODO: fix this hack
-                    if( size == 4 )
-                        emit->append( new Chuck_Instr_Reg_Pop_Word );
-                    else if( size == 8 )
-                        emit->append( new Chuck_Instr_Reg_Pop_Word2 );
-                    else
-                    {
-                        EM_error2( rhs->linepos,
-                                   "(emit): %i byte not handled in chuck operator : decl",
-                                   size );
-                        return FALSE;
-                    }
-
-                    emit->append( op = new Chuck_Instr_Reg_Push_Imm( offset ) );
-                    if( emit->is_global || !is_global )
-                    {
-                        // special case: assignment
-                        if( rhs->type->parent == NULL )
-                        {
-                            if( rhs->type->size == 4 )
-                                emit->append( new Chuck_Instr_Chuck_Assign );
-                            else if( rhs->type->size == 8 )
-                                emit->append( new Chuck_Instr_Chuck_Assign2 );
-                            else
-                            {
-                                EM_error2( rhs->linepos,
-                                           "(emit): %i byte not handled in chuck operator assign",
-                                           rhs->type->size );
-                                return FALSE;
-                            }
-                        }
-                        else
-                            emit->append( new Chuck_Instr_Chuck_Assign_Object );
-                    }
-                    else
-                    {
-                        emit->addr_map.push_back( op );
-                        // special case: deref assignment
-                        if( rhs->type->parent == NULL )
-                        {
-                            if( rhs->type->size == 4 )
-                                emit->append( new Chuck_Instr_Chuck_Assign_Deref );
-                            else
-                                emit->append( new Chuck_Instr_Chuck_Assign_Deref2 );
-                        }
-                        else
-                            emit->append( new Chuck_Instr_Chuck_Assign_Object_Deref );
-                    }
-                }
-            }
-        }
-        else if( rhs->s_type == ae_exp_namespace )
-        {
-            if( lhs->type->type == te_string )
-            {
-                // emit instruction to load the DLL
-                emit->append( new Chuck_Instr_DLL_Load );
-            }
-            else
-            {
-                EM_error2( lhs->linepos,
-                           "(emit): internal error: unhandled type '%s' in namespace expression",
-                           lhs->type->name );
-                return FALSE;
-            }
-        }
-        else if( rhs->s_type == ae_exp_dot_member && rhs->dot_member.data )
-        {
-            // the function addr
-            emit->append( new Chuck_Instr_Reg_Push_Imm( rhs->dot_member.data ) );
-            emit->append( new Chuck_Instr_Reg_Push_Imm( rhs->dot_member.data2 ) );
-
-            // the ugen
-            if( !strcmp( S_name(rhs->dot_member.id), "op" ) )
-                emit->append( new Chuck_Instr_UGen_Ctrl_Op );
-            else if( !strcmp( S_name(rhs->dot_member.id), "gain" ) )
-                emit->append( new Chuck_Instr_UGen_Ctrl_Gain );
-            else if( !strcmp( S_name(rhs->dot_member.id), "last" ) )
-            {
-                EM_error2( rhs->linepos,
-                           "(emit): internal error: cannot chuck to 'ugen.last'" );
-                return FALSE;
-            }
-            else
-            {
-                // ctrl passing to ugen
-                if( rhs->type->size == 4 )
-                    emit->append( new Chuck_Instr_UGen_Ctrl );
-                else if( rhs->type->size == 8 )
-                    emit->append( new Chuck_Instr_UGen_Ctrl2 );
-                else
-                {
-                    EM_error2( rhs->linepos,
-                               "(emit): internal error: %i ugen ctrl not handled",
-                               rhs->type->size );
-                    return FALSE;
-                }
-            }
-        }
-        else if( rhs->s_type == ae_exp_dot_member )
-        {
-            EM_error2( rhs->linepos,
-                       "(emit): cannot assign values to namespace constants" );
-            return FALSE;
-        }
-        else
-        {
-            EM_error2( rhs->linepos,
-                       "(emit): internal error: illegal expression" );
-            return FALSE;
-        }
-    }
-    else // if( rhs->s_type == ae_exp_decl )
-    {
-        // special case: assignment
-        if( rhs->type->parent == NULL )
-        {
-            if( rhs->type->size == 4 )
-                emit->append( new Chuck_Instr_Chuck_Assign );
-            else if( rhs->type->size == 8 )
-                emit->append( new Chuck_Instr_Chuck_Assign2 );
-            else
-            {
-                EM_error2( rhs->linepos,
-                           "(emit): %i size not handled in chuck assigg",
-                           rhs->type->size );
-                return FALSE;
-            }
-        }
-        else
-            emit->append( new Chuck_Instr_Chuck_Assign_Object );
-    }
-
-    return TRUE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_unchuck()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_unchuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs )
-{
-    if( lhs->type->parent && rhs->type->parent && 
-        lhs->type->parent->type == te_ugen && rhs->type->parent->type == te_ugen )
-    {
-        emit->append( new Chuck_Instr_UGen_UnLink );
-    }
-    else
-    {
-        EM_error2( lhs->linepos,
-            "(emit): internal error: no suitable un-chuck resolution on types '%s' and '%s'",
-            lhs->type->name, rhs->type->name );
-        return FALSE;
-    }
+    // TODO: push
     
     return TRUE;
 }
@@ -2914,136 +2909,381 @@ t_CKBOOL emit_engine_emit_unchuck( Chuck_Emmission * emit, a_Exp lhs, a_Exp rhs 
 // name: emit_engine_emit_func_def()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_func_def( Chuck_Emmission * emit, a_Func_Def func_def )
+t_CKBOOL emit_engine_emit_func_def( Chuck_Emitter * emit, a_Func_Def func_def )
 {
-    if( func_def->s_type == ae_func_user )
+    // get the func
+    Chuck_Func * func = func_def->ck_func;
+    // get the value
+    Chuck_Value * value = func->value_ref;
+    // get the type
+    Chuck_Type * type = value->type;
+    // local
+    Chuck_Local * local = NULL;
+
+    // make sure it's the same one
+    //Chuck_Func * func2 = emit->env->context->nspc.lookup_func( func_def->name, FALSE );
+    //if( func != func2 )
+    //{
+    //    EM_error2( func_def->linepos,
+    //        "(emit): ambiguous function resolution for %s...",
+    //        S_name(func_def->name) );
+    //    return FALSE;
+    //}
+
+    // make sure the code is empty
+    if( func->code != NULL )
     {
-        emit->is_global = FALSE;
-        emit->local = new Chuck_Code( S_name(func_def->name) );
-        emit->push( "__func_def_scope__" );
-        emit->functions.push_back( emit->local );
-        emit->local->stack_depth = func_def->stack_depth;
-        emit->returns.clear();
+        EM_error2( func_def->linepos,
+            "(emit): function '%s' already emitted...",
+            S_name(func_def->name) );
+        return FALSE;
+    }
 
-        // args
-        a_Arg_List args = func_def->arg_list;
+    // make sure we are not in a function already
+    if( emit->env->func != NULL )
+    {
+        EM_error2( func_def->linepos,
+            "(emit): internal error: nested function definition..." );
+        return FALSE;
+    }
 
-        while( args )
+    // if not part of a class
+    if( !emit->env->class_def )
+    {
+        // put function on stack
+        local = emit->alloc_local( value->type->size, value->name, TRUE );
+        // remember the offset
+        value->offset = local->offset;
+        // write to mem stack
+        emit->append( new Chuck_Instr_Mem_Set_Imm( value->offset, (t_CKUINT)func ) );
+    }
+
+    // set the func
+    emit->env->func = func;
+    // push the current code
+    emit->stack.push_back( emit->code );
+    // make a new one
+    emit->code = new Chuck_Code;
+    // name the code
+    emit->code->name = emit->env->class_def ? emit->env->class_def->name + "." : "";
+    emit->code->name += func->name + "( ... )";
+    // set whether need this
+    emit->code->need_this = func->is_member;
+
+    // go through the args
+    a_Arg_List a = func_def->arg_list;
+    t_CKBOOL is_ref = FALSE;
+
+    // if member (non-static) function
+    if( func->is_member )
+    {
+        // get the size
+        emit->code->stack_depth += sizeof(t_CKUINT);
+        // add this
+        if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
         {
-            emit->alloc_local( args->id, args->type );
-            args = args->next;
+            EM_error2( a->linepos,
+                "(emit): internal error: cannot allocate local 'this'..." );
+            return FALSE;
         }
+    }
+    // loop through args
+    while( a )
+    {
+        // get the value
+        value = a->var_decl->value;
+        // get the type
+        type = value->type;
+        // get ref
+        is_ref = a->type_decl->ref;
+        // get the size
+        emit->code->stack_depth += type->size;
+        // allocate a place on the local stack
+        local = emit->alloc_local( type->size, value->name, is_ref );
+        if( !local )
+        {
+            EM_error2( a->linepos,
+                "(emit): internal error: cannot allocate local '%s'...",
+                value->name.c_str() );
+            return FALSE;
+        }
+        // remember the offset
+        value->offset = local->offset;
 
-        // emit the function body
-        emit_engine_emit_stmt( emit, func_def->code );
+        // advance
+        a = a->next;
+    }
 
-        // return index to the end of the function
-        for( unsigned int i = 0; i < emit->returns.size(); i++ )
-            emit->returns[i]->set( emit->next_index() );
+    // TODO: make sure the calculated stack depth is the same as func_def->stack depth
+    // taking into account member function
 
-        // emit the return
+    // emit the code
+    if( !emit_engine_emit_stmt( emit, func_def->code, FALSE ) )
+        return FALSE;
+
+    // set the index for next instruction for return statements
+    for( t_CKUINT i = 0; i < emit->code->stack_return.size(); i++ )
+        emit->code->stack_return[i]->set( emit->next_index() );
+    // clear the return stack
+    emit->code->stack_return.clear();
+    // emit return statement
+    emit->append( new Chuck_Instr_Func_Return );
+
+    // vm code
+    func->code = emit_to_code( emit->code, NULL, emit->dump );
+    
+    // unset the func
+    emit->env->func = NULL;
+    // delete the code
+    SAFE_DELETE( emit->code );
+    // pop the code
+    assert( emit->stack.size() );
+    emit->code = emit->stack.back();
+    emit->stack.pop_back();
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_class_def()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def )
+{
+    // get the type
+    Chuck_Type * type = class_def->type;
+    // the return type
+    t_CKBOOL ret = TRUE;
+    // the class body
+    a_Class_Body body = class_def->body;
+    
+    // make sure the code is empty
+    if( type->info->pre_ctor != NULL )
+    {
+        EM_error2( class_def->linepos,
+            "(emit): class '%s' already emitted...",
+            type->name.c_str() );
+        return FALSE;
+    }
+
+    // make sure we are not in a class already
+    //if( emit->env->class_def != NULL )
+    //{
+    //    EM_error2( class_def->linepos,
+    //        "(emit): internal error: nested class definition..." );
+    //    return FALSE;
+    //}
+
+    // set the class
+    emit->env->class_stack.push_back( emit->env->class_def );
+    emit->env->class_def = type;
+    // push the current code
+    emit->stack.push_back( emit->code );
+    // make a new one
+    emit->code = new Chuck_Code;
+    // name the code
+    emit->code->name = string("class ") + type->name;
+    // whether code needs this
+    emit->code->need_this = TRUE;
+    // if has constructor
+    if( type->has_constructor ) type->info->pre_ctor = new Chuck_VM_Code;
+
+    // get the size
+    emit->code->stack_depth += sizeof(t_CKUINT);
+    // add this
+    if( !emit->alloc_local( sizeof(t_CKUINT), "this", TRUE ) )
+    {
+        EM_error2( class_def->linepos,
+            "(emit): internal error: cannot allocate local 'this'..." );
+        return FALSE;
+    }
+
+    // emit the body
+    while( body && ret )
+    {
+        // check the section
+        switch( body->section->s_type )
+        {
+        case ae_section_stmt:
+            ret = emit_engine_emit_stmt_list( emit, body->section->stmt_list );
+            break;
+        
+        case ae_section_func:
+            ret = emit_engine_emit_func_def( emit, body->section->func_def );
+            break;
+        
+        case ae_section_class:
+            ret = emit_engine_emit_class_def( emit, body->section->class_def );
+            //EM_error2( body->section->class_def->linepos,
+            //    "nested class definitions are not yet supported..." );
+            //ret = FALSE;
+            break;
+        }
+        
+        // move to the next section
+        body = body->next;
+    }
+
+    // if ok
+    if( ret )
+    {
+        // emit return statement
         emit->append( new Chuck_Instr_Func_Return );
-
-        emit->pop();
-        emit->is_global = TRUE;
-        emit->local = NULL;
+        // vm code
+        type->info->pre_ctor = emit_to_code( emit->code, type->info->pre_ctor, emit->dump );
+        // allocate static
+        type->info->class_data = new t_CKBYTE[type->info->class_data_size];
     }
     else
     {
-        EM_error2( func_def->linepos,
-                   "(emit): internal error: builtin functions not impl" );
-        return FALSE;
+        // clean
+        SAFE_DELETE( type->info->pre_ctor );
     }
+
+    // unset the class
+    emit->env->class_def = emit->env->class_stack.back();
+    emit->env->class_stack.pop_back();
+    // delete the code
+    SAFE_DELETE( emit->code );
+    // pop the code
+    assert( emit->stack.size() );
+    emit->code = emit->stack.back();
+    emit->stack.pop_back();
+
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_spork()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
+{
+    // spork
+    Chuck_Instr_Mem_Push_Imm * op = NULL;
+
+    // evaluate args on sporker shred
+    if( !emit_engine_emit_func_args( emit, exp ) )
+        return FALSE;
+
+    // push the current code
+    emit->stack.push_back( emit->code );
+    // make a new one
+    emit->code = new Chuck_Code;
+    // handle need this
+    emit->code->need_this = exp->ck_func->is_member;
+    // name it
+    emit->code->name = "spork ~ exp";
+    // push op
+    op = new Chuck_Instr_Mem_Push_Imm( 0 );
+    // emit the stack depth - we don't know this yet
+    emit->append( op );
+
+    // emit the function call, with special flag
+    if( !emit_engine_emit_exp_func_call( emit, exp, TRUE ) )
+        return FALSE;
+
+    // done
+    emit->append( new Chuck_Instr_EOC );
+    // set the stack depth now that we know
+    op->set( emit->code->stack_depth );
+
+    // emit it
+    Chuck_VM_Code * code = emit_to_code( emit->code, NULL, emit->dump );
+    //code->name = string("spork ~ exp");
+
+    // restore the code
+    assert( emit->stack.size() > 0 );
+    emit->code = emit->stack.back();
+    // pop
+    emit->stack.pop_back();
+
+    a_Exp e = exp->args;
+    t_CKUINT size = 0;
+    while( e ) { size += e->type->size; e = e->next; }
+
+    // emit instruction that will put the code on the stack
+    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)code ) );
+    // emit spork instruction
+    emit->append( new Chuck_Instr_Spork( size ) );
 
     return TRUE;
 }
 
 
 
+
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_mem()
-// desc: emit an exp as memory address only
+// name: emit_engine_emit_symbol()
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_mem( Chuck_Emmission * emit, a_Exp exp )
+t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol, 
+                                  Chuck_Value * v, t_CKBOOL emit_var,
+                                  int linepos )
 {
-    while( exp )
+    // look up the value
+    // Chuck_Value * v = emit->env->curr->lookup_value( symbol, TRUE );
+    // it should be there
+    if( !v )
     {
-        switch( exp->s_type )
+        // internal error
+        EM_error2( linepos,
+            "(emit): internal error: undefined symbol '%s'...",
+            S_name(symbol) );
+        return FALSE;
+    }
+
+    // if part of class - this only works because x.y is handled separately
+    if( v->owner_class && v->is_member )
+    {
+        // emit as this.v
+        a_Exp base = new_exp_from_id( "this", linepos );
+        a_Exp dot = new_exp_from_member_dot( base, (char *)v->name.c_str(), linepos );
+        base->type = v->owner_class;
+        dot->type = v->type;
+        dot->dot_member.t_base = v->owner_class;
+        dot->emit_var = emit_var;
+        // emit it
+        if( !emit_engine_emit_exp_dot_member( emit, &dot->dot_member ) )
         {
-        case ae_exp_primary:
-            if( !emit_engine_emit_exp_primary_mem( emit, &exp->primary ) )
-                return FALSE;
-            break;
-
-        case ae_exp_dot_member:
-            if( !emit_engine_emit_exp_dot_member_mem( emit, &exp->dot_member ) )
-                return FALSE;
-            break;
-
-        case ae_exp_array:
-            if( !emit_engine_emit_exp_array_mem( emit, &exp->array ) )
-                return FALSE;
-            break;
-
-        case ae_exp_func_call:
-            if( !emit_engine_emit_exp_func_call_mem( emit, &exp->func_call ) )
-                return FALSE;
-            break;
-
-        default:
-            EM_error2( exp->linepos,
-                       "(emit): internal error: unhandled expression in [mem] emission" );
+            // internal error
+            EM_error2( linepos,
+                "(emit): internal error: symbol transformation failed..." );
             return FALSE;
         }
 
-        exp = exp->next;
+        return TRUE;
     }
-    
-    return TRUE;
-}
 
-
-
-
-//-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_primary_mem()
-// desc: emit a primary exp as memory address only
-//-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_primary_mem( Chuck_Emmission * emit, a_Exp_Primary exp )
-{
-    switch( exp->s_type )
+    // var or value
+    if( emit_var )
     {
-    case ae_primary_var:
-        /*if( exp->var == insert_symbol( "now" ) )
-        {
-            emit->append( new Chuck_Instr_Reg_Push_Now );
-        }
-        else */
-        {
-            int offset = emit->find_offset( exp->var );
-            if( offset < 0 )
-            {
-                // could be a function
-                EM_error2( exp->linepos,
-                           "(emit): internal error: cannot resolve [mem] var '%s'",
-                           S_name(exp->var) );                
-                return FALSE;
-            }
-
-            emit->append( new Chuck_Instr_Reg_Push_Imm( offset ) );
-        }
-        break;
-
-    case ae_primary_exp:        
-        return emit_engine_emit_exp_mem( emit, exp->exp );
-        break;
-        
-    default:
-        EM_error2( exp->linepos,
-                   "(emit): internal error: cannot emit [mem] primary exp" );
-        return FALSE;
+        // emit as addr
+        emit->append( new Chuck_Instr_Reg_Push_Mem_Addr( v->offset, v->is_context_global ) );
     }
-    
+    else
+    {
+        // check size
+        if( v->type->size == 4 )
+            emit->append( new Chuck_Instr_Reg_Push_Mem( v->offset, v->is_context_global ) );
+        else if( v->type->size == 8 )
+            emit->append( new Chuck_Instr_Reg_Push_Mem2( v->offset, v->is_context_global  ) );
+        else
+        {
+            // internal error
+            EM_error2( linepos,
+                "(emit): internal error: symbol '%s' has size '%i'...",
+                S_name(symbol), v->type->size );
+            return FALSE;
+        }
+    }
+
     return TRUE;
 }
 
@@ -3051,40 +3291,120 @@ t_CKBOOL emit_engine_emit_exp_primary_mem( Chuck_Emmission * emit, a_Exp_Primary
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_dot_member_mem()
-// desc: emit a dot exp as memory address only
+// name: pop_scope()
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_dot_member_mem( Chuck_Emmission * emit, a_Exp_Dot_Member exp )
+void Chuck_Emitter::pop_scope( )
 {
-    EM_error2( exp->linepos,
-               "(emit): internal erorr: . address not impl" );
-    return FALSE;
+    // sanity
+    assert( code != NULL );
+    // clear locals
+    locals.clear();
+    // get locals
+    code->frame->pop_scope( locals );
+
+    // TODO: free locals
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_array_mem()
-// desc: emit array exp as memory address only
+// name: find_dur()
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_array_mem( Chuck_Emmission * emit, a_Exp_Array exp )
+t_CKBOOL Chuck_Emitter::find_dur( const string & name, t_CKDUR * out )
 {
-    EM_error2( exp->linepos,
-               "(emit): internal error: array address not impl" );
-    return FALSE;
+    // sanity
+    assert( env != NULL );
+    assert( out != NULL );
+
+    // zero
+    *out = 0.0;
+    // get value from env
+    Chuck_Value * value = env->global()->lookup_value( name, FALSE );
+    if( !value || !equals( value->type, &t_dur ) ) return FALSE;
+    // copy
+    *out = *( (t_CKDUR *)value->addr );
+    
+    return TRUE;
 }
 
 
 
 
+/*
 //-----------------------------------------------------------------------------
-// name: emit_engine_emit_exp_func_call_mem()
-// desc: emit a func call exp as memory address only
+// name: emit_engine_instantiate_object()
+// desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_func_call_mem( Chuck_Emmission * emit, a_Exp_Func_Call exp )
+t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type,
+                                         a_Array_Sub array, t_CKBOOL is_ref )
 {
-    EM_error2( exp->linepos,
-               "(emit): internal error: func call address no impl" );
-    return FALSE;
-}
+    // if array
+    if( type->array_depth )
+    {
+        // emit indices
+        emit_engine_emit_exp( emit, array->exp_list );
+        // emit array allocation
+        emit->append( new Chuck_Instr_Array_Alloc( 
+            type->array_depth, type->array_type, emit->code->frame->curr_offset,
+            is_ref ) );
+
+        // handle constructor
+        //if( isobj( type->array_type ) && !is_ref )
+        //{
+        //    // TODO:
+        //    EM_error2( array->linepos, "internal error: object array constructor not impl..." );
+        //    return FALSE;
+        //}
+    }
+    else if( !is_ref ) // not array
+    {
+        // if ugen
+        //if( isa( type, &t_ugen ) )
+        //{
+        //    // get the ugen info
+        //    Chuck_UGen_Info * info = decl->self->type->ugen;
+        //    if( !info )
+        //    {
+        //        EM_error2( decl->linepos,
+        //            "(emit): internal error: undefined ugen type '%s'",
+        //            type->name.c_str() );
+        //        return FALSE;
+        //    }
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)info ) );
+        //    emit->append( new Chuck_Instr_UGen_Alloc() );
+        //}
+        //else
+        //{
+
+        // emit object instantiation code, include pre constructor
+        emit->append( new Chuck_Instr_Instantiate_Object( type ) );
+
+        //}
+        
+        // call pre constructor
+        emit_engine_pre_constructor( emit, type );
+
+        // constructor
+        //if( type->has_constructor )
+        //{
+        //    // make sure
+        //    assert( type->info->pre_ctor != NULL );
+        //    // push this
+        //    emit->append( new Chuck_Instr_Reg_Dup_Last );
+        //    // push pre-constructor
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)type->info->pre_ctor ) );
+        //    // push frame offset
+        //    emit->append( new Chuck_Instr_Reg_Push_Imm( emit->code->frame->curr_offset ) );
+        //    // call the function
+        //    if( type->info->pre_ctor->native_func != NULL )
+        //        emit->append( new Chuck_Instr_Func_Call_Member( 0 ) );
+        //    else
+        //        emit->append( new Chuck_Instr_Func_Call );
+        //}
+    }
+
+    return TRUE;
+}*/
