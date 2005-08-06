@@ -49,6 +49,23 @@ static const char * fileName = "";
 static int lineNum = 1;
 static char g_buffer[1024] = "";
 static char g_lasterror[1024] = "[chuck]: (no error)";
+static int g_loglevel = CK_LOG_SYSTEM_ERROR;
+
+// name
+static const char * g_str[] = {
+    "ALL",          // 0
+    "FINEST",       // 1
+    "FINER",        // 2
+    "FINE",         // 3
+    "CONFIG",       // 4
+    "INFO",         // 5
+    "WARNING",      // 6
+    "SEVERE",       // 7
+    "SYSTEM",       // 8
+    "SYSTEM_ERROR", // 9
+    "NONE"          // 10
+};
+
 
 // external
 extern "C" { 
@@ -191,6 +208,39 @@ void EM_error3( const char * message, ... )
     fprintf( stderr, "\n" );
 }
 
+
+// log
+void EM_log( int level, const char * message, ... )
+{
+    va_list ap;
+
+    if( level < CK_LOG_FINEST ) level = CK_LOG_FINEST;
+    else if( level >= CK_LOG_NONE ) level = CK_LOG_NONE - 1;
+
+    // check level
+    if( level < g_loglevel ) return;
+
+    fprintf( stderr, "[chuck]:" );
+    fprintf( stderr, "(LOG-%i:%s): ", level, g_str[level] );
+
+    va_start( ap, message );
+    vfprintf( stderr, message, ap );
+    va_end( ap );
+
+    fprintf( stderr, "\n" );
+}
+
+
+// set log level
+void EM_setlog( int level )
+{
+    if( level < CK_LOG_FINEST ) level = CK_LOG_FINEST;
+    else if( level > CK_LOG_NONE ) level = CK_LOG_NONE;
+    g_loglevel = level;
+
+    // log this
+    EM_log( CK_LOG_SYSTEM, "log level set to: %i (%s)...", level, g_str[level] );
+}
 
 // prepare new file
 t_CKBOOL EM_reset( const char * fname, FILE * fd )

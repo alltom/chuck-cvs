@@ -259,6 +259,7 @@ int main( int argc, char ** argv )
     t_CKBOOL probe = FALSE;
     t_CKBOOL set_priority = FALSE;
     t_CKBOOL auto_depend = FALSE;
+    t_CKINT  log_level = 0;
 
     t_CKUINT files = 0;
     t_CKUINT count = 1;
@@ -313,6 +314,8 @@ int main( int argc, char ** argv )
                 auto_depend = TRUE;
             else if( !strncmp(argv[i], "-u", 2) )
                 auto_depend = TRUE;
+            else if( !strncmp(argv[i], "--log", 5) )
+                log_level = atoi( argv[i]+5 );
             else if( !strcmp( argv[i], "--probe" ) )
                 probe = TRUE;
             else if( !strcmp( argv[i], "--poop" ) )
@@ -363,6 +366,9 @@ int main( int argc, char ** argv )
         fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
         exit( 1 );
     }
+
+    // set log level
+    if( log_level ) EM_setlog( log_level );
 
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;

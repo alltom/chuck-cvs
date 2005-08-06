@@ -49,6 +49,21 @@ extern int EM_lineNum;
 
 void EM_newline( );
 
+// levels
+#define CK_LOG_FINEST           1  // set this to log everything
+#define CK_LOG_FINER            2
+#define CK_LOG_FINE             3
+#define CK_LOG_CONFIG           4
+#define CK_LOG_INFO             5
+#define CK_LOG_WARNING          6
+#define CK_LOG_SEVERE           7
+#define CK_LOG_SYSTEM           8
+#define CK_LOG_SYSTEM_ERROR     9
+#define CK_LOG_NONE             10  // set this to log nothing
+
+void EM_log( int, c_constr, ... );
+void EM_setlog( int );
+
 void EM_error( int, c_constr, ... );
 void EM_error2( int, c_constr, ... );
 void EM_error2b( int, c_constr, ... );
