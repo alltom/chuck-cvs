@@ -65,12 +65,17 @@ public:
     virtual ~Chuck_VM_Object() { }
 
 public:
+    // add reference
     void add_ref();
+    // release reference
     void release();
+    // lock
+    void lock();
 
 public:
-    t_CKUINT m_ref_count;
-    t_CKBOOL m_pooled;
+    t_CKUINT m_ref_count; // reference count
+    t_CKBOOL m_pooled; // if true, this allocates from a pool
+    t_CKBOOL m_locked; // if true, this should never be deleted
 
 public:
     // where

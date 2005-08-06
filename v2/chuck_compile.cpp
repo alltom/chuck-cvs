@@ -461,9 +461,9 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
     // get env
     Chuck_Env * env = compiler->env;
     // make context
-    Chuck_Context * context = new Chuck_Context;
-    // add ref
-    context->add_ref();
+    Chuck_Context * context = type_engine_make_context( NULL, "@[internal]" );
+    // reset env - not needed since we just created the env
+    env->reset();
     // load it
     type_engine_load_context( env, context );
 

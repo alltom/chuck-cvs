@@ -35,6 +35,7 @@
 #include "chuck_type.h"
 #include "chuck_vm.h"
 #include "chuck_instr.h"
+#include "chuck_errmsg.h"
 
 
 
@@ -49,6 +50,8 @@ void Chuck_VM_Object::init_ref()
     m_ref_count = 0;
     // set flag
     m_pooled = FALSE;
+    // set to not locked
+    m_locked = FALSE;
     // set v ref
     m_v_ref = NULL;
     // add to vm allocator
@@ -92,10 +95,34 @@ void Chuck_VM_Object::release()
     // if no more references
     if( m_ref_count == 0 )
     {
+        // this is not good
+        if( m_locked )
+        {
+            EM_error2( 0, "internal error: releasing locked VM object!" );
+            // fail
+            assert( FALSE );
+            // in case assert is disabled
+            exit( 1 );
+        }
+
         // tell the object manager to set this free
         Chuck_VM_Alloc::instance()->free_object( this );
     }
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lock()
+// desc: lock to keep from deleted
+//-----------------------------------------------------------------------------
+void Chuck_VM_Object::lock()
+{
+    m_locked = TRUE;
+}
+
+
 
 
 // static member

@@ -180,6 +180,25 @@ public:
         return (T)val;
     }
 
+    // get list of top level
+    void get_toplevel( vector<Chuck_VM_Object *> & out )
+    {
+        assert( scope.size() != 0 );
+        std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
+
+        // clear the out
+        out.clear();
+        // get the front of the array
+        map<S_Symbol, Chuck_VM_Object *> * m = scope.front();
+
+        // go through map
+        for( iter = m->begin(); iter != m->end(); iter++ )
+        {
+            // add
+            out.push_back( (*iter).second );
+        }
+    }
+
 protected:
     std::vector<map<S_Symbol, Chuck_VM_Object *> *> scope;
     std::map<S_Symbol, Chuck_VM_Object *> commit_map;
@@ -244,6 +263,13 @@ struct Chuck_Namespace : public Chuck_VM_Object
     void commit() { type.commit(); value.commit(); func.commit(); }
     // rollback the maps
     void rollback() { type.rollback(); value.rollback(); func.rollback(); }
+
+    // get top level types
+    void get_types( vector<Chuck_Type *> & out );
+    // get top level values
+    void get_values( vector<Chuck_Value *> & out );
+    // get top level functions
+    void get_funcs( vector<Chuck_Func *> & out );
 };
 
 

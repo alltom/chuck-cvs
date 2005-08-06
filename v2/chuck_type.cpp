@@ -163,21 +163,21 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     // set the current namespace to global
     env->curr = env->global();
 
-    // enter the default global type mapping
-    env->global()->type.add( t_void.name, &t_void );
-    env->global()->type.add( t_int.name, &t_int );
-    env->global()->type.add( t_float.name, &t_float );
-    env->global()->type.add( t_time.name, &t_time );
-    env->global()->type.add( t_dur.name, &t_dur );
-    env->global()->type.add( t_object.name, &t_object );
-    env->global()->type.add( t_string.name, &t_string );
-    env->global()->type.add( t_ugen.name, &t_ugen );
-    env->global()->type.add( t_shred.name, &t_shred );
-    env->global()->type.add( t_thread.name, &t_thread );
-    env->global()->type.add( t_function.name, &t_function );
-    env->global()->type.add( t_class.name, &t_class );
-    env->global()->type.add( t_array.name, &t_array );
-    env->global()->type.add( t_event.name, &t_event );
+    // enter the default global type mapping : lock VM objects to catch deletion
+    env->global()->type.add( t_void.name, &t_void );          t_void.lock();
+    env->global()->type.add( t_int.name, &t_int );            t_int.lock();
+    env->global()->type.add( t_float.name, &t_float );        t_float.lock();
+    env->global()->type.add( t_time.name, &t_time );          t_time.lock();
+    env->global()->type.add( t_dur.name, &t_dur );            t_dur.lock();
+    env->global()->type.add( t_object.name, &t_object );      t_object.lock();
+    env->global()->type.add( t_string.name, &t_string );      t_string.lock();
+    env->global()->type.add( t_ugen.name, &t_ugen );          t_ugen.lock();
+    env->global()->type.add( t_shred.name, &t_shred );        t_shred.lock();
+    env->global()->type.add( t_thread.name, &t_thread );      t_thread.lock();
+    env->global()->type.add( t_function.name, &t_function );  t_function.lock();
+    env->global()->type.add( t_class.name, &t_class );        t_class.lock();
+    env->global()->type.add( t_array.name, &t_array );        t_array.lock();
+    env->global()->type.add( t_event.name, &t_event );        t_event.lock();
 
     // dur value
     t_CKDUR samp = 1.0;
@@ -363,14 +363,6 @@ cleanup:
 //-----------------------------------------------------------------------------
 Chuck_Context * type_engine_make_context( a_Program prog, const string & filename )
 {
-    // parse tree
-    if( !prog )
-    {
-        // error
-        EM_error2( 0, "internal error: empty parse tree '%s'", filename.c_str() );
-        return NULL;
-    }
-
     // each parse tree corresponds to a chuck context
     Chuck_Context * context = new Chuck_Context;
     // add reference
@@ -3452,6 +3444,69 @@ Chuck_Func * Chuck_Namespace::lookup_func( S_Symbol name, t_CKINT climb )
     if( climb > 0 && !f && parent )
         return parent->lookup_func( name, climb );
     return f;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get_types()
+// desc: get top level types
+//-----------------------------------------------------------------------------
+void Chuck_Namespace::get_types( vector<Chuck_Type *> & out )
+{
+    // temporary vector
+    vector<Chuck_VM_Object *> list;
+    // get it from the scope
+    this->type.get_toplevel( list );
+    // clear
+    out.clear();
+    
+    // copy the list - cast
+    for( t_CKUINT i = 0; i < list.size(); i++ )
+        out.push_back( (Chuck_Type *)list[i] );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get_values()
+// desc: get top level values
+//-----------------------------------------------------------------------------
+void Chuck_Namespace::get_values( vector<Chuck_Value *> & out )
+{
+    // temporary vector
+    vector<Chuck_VM_Object *> list;
+    // get it from the scope
+    this->value.get_toplevel( list );
+    // clear
+    out.clear();
+    
+    // copy the list - cast
+    for( t_CKUINT i = 0; i < list.size(); i++ )
+        out.push_back( (Chuck_Value *)list[i] );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get_funcs()
+// desc: get top level functions
+//-----------------------------------------------------------------------------
+void Chuck_Namespace::get_funcs( vector<Chuck_Func *> & out )
+{
+    // temporary vector
+    vector<Chuck_VM_Object *> list;
+    // get it from the scope
+    this->type.get_toplevel( list );
+    // clear
+    out.clear();
+    
+    // copy the list - cast
+    for( t_CKUINT i = 0; i < list.size(); i++ )
+        out.push_back( (Chuck_Func *)list[i] );
 }
 
 
