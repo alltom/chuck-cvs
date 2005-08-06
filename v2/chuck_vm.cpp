@@ -314,14 +314,19 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
     stereo_ctor( m_dac, NULL );
     m_dac->add_ref();
+    // lock it
+    m_dac->lock();
     
     m_num_adc_channels = g_t_adc->ugen_info->num_outs;
     m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
     stereo_ctor( m_adc, NULL );
     m_adc->add_ref();
+    // lock it
+    m_adc->add_ref();
     
     m_bunghole = new Chuck_UGen;
     m_bunghole->add_ref();
+    m_bunghole->lock();
     initialize_object( m_bunghole, &t_ugen );
     m_bunghole->tick = NULL;
     m_shreduler->m_dac = m_dac;

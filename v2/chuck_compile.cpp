@@ -89,8 +89,12 @@ t_CKBOOL Chuck_Compiler::initialize( Chuck_VM * vm )
 {
     // allocate the type checker
     env = type_engine_init( vm );
+    // add reference
+    env->add_ref();
     // allocate the emitter
     emitter = emit_engine_init( env );
+    // add reference
+    emitter->add_ref();
     // set auto depend to 0
     m_auto_depend = FALSE;
 

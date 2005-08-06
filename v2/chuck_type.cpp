@@ -156,8 +156,6 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 {
     // allocate a new env
     Chuck_Env * env = Chuck_Env::instance();
-    // add
-    env->add_ref();
     // set the name of global namespace
     env->global()->name = "global";
     // set the current namespace to global
@@ -365,8 +363,6 @@ Chuck_Context * type_engine_make_context( a_Program prog, const string & filenam
 {
     // each parse tree corresponds to a chuck context
     Chuck_Context * context = new Chuck_Context;
-    // add reference
-    context->add_ref();
     // save a reference to the parse tree
     context->parse_tree = prog;
     // set name
@@ -482,6 +478,8 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
     env->contexts.push_back( env->context );
     // make the context current
     env->context = context;
+    // add reference
+    env->context->add_ref();
     // push the context scope
     env->context->nspc->value.push();
     // push the current namespaces
@@ -2937,9 +2935,9 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     // is global context
     value->is_context_global = env->class_def == NULL;
     // remember the func
-    value->func_ref = func;
+    value->func_ref = func; func->add_ref(); // add reference
     // remember the value
-    func->value_ref = value;
+    func->value_ref = value; value->add_ref(); // add reference
 
     // set the func
     f->ck_func = func;
@@ -4017,11 +4015,14 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 
     // allocate namespace for type
     type->info = new Chuck_Namespace;
-    type->info->add_ref();
+    // add reference
+    SAFE_ADD_REF(type->info);
     // name it
     type->info->name = type->name;
     // set the parent namespace
     type->info->parent = where;
+    // add reference
+    SAFE_ADD_REF(type->info->parent);
 
     // if pre constructor
     if( pre_ctor != 0 )
@@ -4049,6 +4050,8 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 
     // set the owner namespace
     type->owner = where;
+    // add reference
+    SAFE_ADD_REF(type->owner);
     // set the size, which is always the width of a pointer
     type->size = sizeof(t_CKUINT);
     // set the object size
@@ -4059,11 +4062,12 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
     // make type
     type_type = t_class.copy( env );
     type_type->actual_type = type;
-    
+    // SAFE_REF_ASSIGN( type_type->actual_type, type );
+
     // make value
     value = new Chuck_Value( type_type, type->name );
-    value->add_ref();
     value->owner = where;
+    // SAFE_REF_ASSIGN( value->owner, where );
     value->is_const = TRUE;
     value->is_member = FALSE;
 
@@ -4391,8 +4395,9 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
 //-----------------------------------------------------------------------------
 void init_special( Chuck_VM_Object * obj )
 {
-    // reference
-    obj->add_ref();
+    // reference - this is done when the reference is assigned
+    // obj->add_ref();
+
     // add to vector
     if( obj->m_v_ref ) obj->m_v_ref->push_back( obj );
 }
@@ -4506,9 +4511,11 @@ Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
     // set the namesapce
     t->info = array_parent->info;
     // add reference
-    t->info->add_ref();
+    SAFE_ADD_REF(t->info);
     // set owner
     t->owner = owner_nspc;
+    // add reference
+    SAFE_ADD_REF(t->owner);
 
     // return the type
     return t;

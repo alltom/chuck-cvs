@@ -102,7 +102,7 @@ void Chuck_VM_Object::release()
             // fail
             assert( FALSE );
             // in case assert is disabled
-            exit( 1 );
+            *(int *)0 = 1;
         }
 
         // tell the object manager to set this free

@@ -141,6 +141,8 @@ public:
         if( scope.back() != scope.front() ) (*scope.back())[id] = value; 
         // add for commit
         else commit_map[id] = value;
+        // add reference
+        SAFE_ADD_REF(value);
     }
 
     // lookup id
@@ -344,9 +346,16 @@ private:
     static Chuck_Env * our_instance;
     // constructor
     Chuck_Env( )
-    { context = &global_context; 
-      global_nspc = global_context.nspc;
-      this->reset(); }
+    { 
+        // lock from being deleted
+        global_context.lock();
+        // make reference
+        context = &global_context; SAFE_ADD_REF(context);
+        // remember
+        global_nspc = global_context.nspc; SAFE_ADD_REF(global_nspc);
+        // clear
+        this->reset();
+    }
 
 protected:
     // global namespace
@@ -378,11 +387,6 @@ public:
     // control scope (for break, continue)
     vector<a_Stmt> breaks;
 
-    // VM reference
-    // Chuck_VM * vm;
-    // chuck dlls in memory
-    // map<Chuck_DLL *, t_CKUINT> dlls;
-
     // reserved words
     map<string, t_CKBOOL> key_words;
     map<string, t_CKBOOL> key_types;
@@ -393,12 +397,19 @@ public:
 
     // reset
     void reset( )
-    { nspc_stack.clear(); nspc_stack.push_back( this->global() );
-      class_stack.clear(); class_stack.push_back( NULL );
-      assert( context == &global_context );
-      // if( context ) { contexts.pop_back(); context->release(); } 
-      curr = this->global(); class_def = NULL; func = NULL;
-      class_scope = 0; }
+    {
+        // TODO: release stack items?
+        nspc_stack.clear(); nspc_stack.push_back( this->global() );
+        // TODO: release stack items?
+        class_stack.clear(); class_stack.push_back( NULL );
+        // should be at top level
+        assert( context == &global_context );
+        // assign : TODO: release curr? class_def? func?
+        // TODO: need another function, since this is called from constructor
+        curr = this->global(); class_def = NULL; func = NULL;
+        // make sure this is 0
+        class_scope = 0;
+    }
 
     // top
     Chuck_Namespace * nspc_top( )
@@ -474,46 +485,58 @@ public:
     // constructor
     Chuck_Type( te_Type _id = te_null, const string & _n = "", 
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
-    { id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
-      array_type = NULL; array_depth = 0; obj_size = 0;
-      info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
-      ugen_info = NULL; is_complete = TRUE; has_constructor = FALSE; }
+    {
+        id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
+        array_type = NULL; array_depth = 0; obj_size = 0;
+        info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
+        ugen_info = NULL; is_complete = TRUE; has_constructor = FALSE;
+    }
+
     // destructor
     ~Chuck_Type() { reset(); }
     
     // reset
     void reset()
-    { id = te_void; parent = NULL;
-      size = array_depth = obj_size = 0;
-      // fprintf( stderr, "type: %s %i\n", c_name(), (t_CKUINT)this );
-      array_type = NULL; if( info ) info->release(); 
-      owner = info = NULL; func = NULL; is_copy = FALSE;
-      if( ugen_info ) ugen_info->release(); }
+    {
+        // fprintf( stderr, "type: %s %i\n", c_name(), (t_CKUINT)this );
+        id = te_void; 
+        size = array_depth = obj_size = 0;
+        is_copy = FALSE;
+
+        // release references
+        // SAFE_RELEASE(parent);
+        // SAFE_RELEASE(array_type);
+        SAFE_RELEASE(info);
+        // SAFE_RELEASE(owner);
+        // SAFE_RELEASE(func);
+        // SAFE_RELEASE(ugen_info);
+    }   
     
     // assignment - this does not touch the Chuck_VM_Object
     const Chuck_Type & operator =( const Chuck_Type & rhs )
     {
-      // copy
-      this->array_type = rhs.array_type;
-      this->array_depth = rhs.array_depth;
-      this->func = rhs.func;
-      this->id = rhs.id;
-      this->info = rhs.info;
-      if( this->info ) this->info->add_ref(); // HACK:
-      this->name = rhs.name;
-      this->owner = rhs.owner;
-      this->parent = rhs.parent;
-      this->obj_size = rhs.obj_size;
-      this->size = rhs.size;
-      this->def = rhs.def;
-      this->is_copy = TRUE;
+        // release first
+        this->reset();
 
-      // TODO: fix this reference counting mess
-      // add references
-      // if( array_type ) rhs.array_type->add_ref();
-      // if( info ) rhs.info->add_ref();
-      
-      return *this;
+        // copy
+        this->id = rhs.id;
+        this->name = rhs.name;
+        this->parent = rhs.parent;
+        this->obj_size = rhs.obj_size;
+        this->size = rhs.size;
+        this->def = rhs.def;
+        this->is_copy = TRUE;
+        this->array_depth = rhs.array_depth;
+        this->array_type = rhs.array_type;
+        // SAFE_ADD_REF(this->array_type);
+        this->func = rhs.func;
+        // SAFE_ADD_REF(this->func);
+        this->info = rhs.info;
+        SAFE_ADD_REF(this->info);
+        this->owner = rhs.owner;
+        // SAFE_ADD_REF(this->owner);
+
+        return *this;
     }
 
     // copy
@@ -572,9 +595,24 @@ struct Chuck_Value : public Chuck_VM_Object
     Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
                  t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
-    { type = t; name = n; offset = s; is_const = c; access = acc; 
-      owner = o; owner_class = oc; addr = a; is_member = FALSE; is_static = FALSE;
-      is_context_global = FALSE; func_ref = NULL; func_num_overloads = 0; }
+    { type = t; SAFE_ADD_REF(type); // add reference
+      name = n; offset = s; 
+      is_const = c; access = acc;
+      owner = o; SAFE_ADD_REF(o); // add reference
+      owner_class = oc; SAFE_ADD_REF(oc); // add reference
+      addr = a; is_member = FALSE;
+      is_static = FALSE; is_context_global = FALSE;
+      func_ref = NULL; func_num_overloads = 0; }
+
+    // destructor
+    ~Chuck_Value()
+    {
+        // release
+        // SAFE_RELEASE( type );
+        // SAFE_RELEASE( owner ):
+        // SAFE_RELEASE( owner_class );
+        // SAFE_RELEASE( func_ref );
+    }
 };
 
 
