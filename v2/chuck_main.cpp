@@ -342,6 +342,8 @@ int main( int argc, char ** argv )
     // probe
     if( probe )
     {
+        // log
+        EM_log( CK_LOG_SYSTEM, "probing audio and MIDI devices..." );
         Digitalio::probe();
 
         EM_error2b( 0, "" );
@@ -368,7 +370,7 @@ int main( int argc, char ** argv )
     }
 
     // set log level
-    if( log_level ) EM_setlog( log_level );
+    EM_setlog( log_level );
 
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
@@ -387,6 +389,7 @@ int main( int argc, char ** argv )
     compiler->emitter->dump = dump;
     // set auto depend
     compiler->set_auto_depend( auto_depend );
+
 
     // catch SIGINT
     signal( SIGINT, signal_int );
