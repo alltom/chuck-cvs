@@ -38,6 +38,7 @@
 #include "chuck_absyn.h"
 #include "chuck_oo.h"
 #include "chuck_dl.h"
+#include "chuck_errmsg.h"
 using namespace std;
 
 
@@ -262,9 +263,16 @@ struct Chuck_Namespace : public Chuck_VM_Object
     Chuck_Func * lookup_func( S_Symbol name, t_CKINT climb = 1 );
 
     // commit the maps
-    void commit() { type.commit(); value.commit(); func.commit(); }
+    void commit() { 
+        EM_log( CK_LOG_SYSTEM, "committing namespace: '%s'", name.c_str() );
+        type.commit(); value.commit(); func.commit();
+    }
+    
     // rollback the maps
-    void rollback() { type.rollback(); value.rollback(); func.rollback(); }
+    void rollback() { 
+        EM_log( CK_LOG_SYSTEM, "rolling back namespace: '%s'", name.c_str() );
+        type.rollback(); value.rollback(); func.rollback();
+    }
 
     // get top level types
     void get_types( vector<Chuck_Type *> & out );

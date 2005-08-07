@@ -87,10 +87,19 @@ Chuck_Compiler::~Chuck_Compiler()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Compiler::initialize( Chuck_VM * vm )
 {
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing compiler..." );
+    // push indent level
+    EM_pushlog();
+
+    // log
     // allocate the type checker
     env = type_engine_init( vm );
     // add reference
     env->add_ref();
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing emitter..." );
     // allocate the emitter
     emitter = emit_engine_init( env );
     // add reference
@@ -102,11 +111,17 @@ t_CKBOOL Chuck_Compiler::initialize( Chuck_VM * vm )
     if( !load_internal_modules( this ) )
         goto error;
     
+    // pop indent
+    EM_poplog();
+
     return TRUE;
 
 error:
     // clean up
     this->shutdown();
+
+    // pop indent
+    EM_poplog();
 
     return FALSE;
 }
@@ -462,6 +477,11 @@ t_CKBOOL load_module( Chuck_Env * env, f_ck_query query,
 //-----------------------------------------------------------------------------
 t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
 {
+    // log
+    EM_log( CK_LOG_SYSTEM, "loading built-in modules..." );
+    // push indent level
+    EM_pushlog();
+
     // get env
     Chuck_Env * env = compiler->env;
     // make context
@@ -472,16 +492,24 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
     type_engine_load_context( env, context );
 
     // load
+    EM_log( CK_LOG_SYSTEM, "module osc..." );
     load_module( env, osc_query, "osc", "global" );
+    EM_log( CK_LOG_SYSTEM, "module xxx..." );
     load_module( env, xxx_query, "xxx", "global" );
+    EM_log( CK_LOG_SYSTEM, "module filter..." );
     load_module( env, filter_query, "filter", "global" );
+    EM_log( CK_LOG_SYSTEM, "module STK..." );
     load_module( env, stk_query, "stk", "global" );
 
     // load
+    EM_log( CK_LOG_SYSTEM, "class 'machine'..." );
     if( !load_module( env, machine_query, "Machine", "global" ) ) goto error;
     machine_init( compiler, otf_process_msg );
+    EM_log( CK_LOG_SYSTEM, "class 'std'..." );
     if( !load_module( env, libstd_query, "Std", "global" ) ) goto error;
+    EM_log( CK_LOG_SYSTEM, "class 'math'..." );
     if( !load_module( env, libmath_query, "Math", "global" ) ) goto error;
+    EM_log( CK_LOG_SYSTEM, "class 'opsc'..." );
     if( !load_module( env, opensoundcontrol_query, "opsc", "global" ) ) goto error;
     // if( !load_module( env, net_query, "net", "global" ) ) goto error;
 
@@ -493,6 +521,9 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
 
     // commit what is in the type checker at this point
     env->global()->commit();
+
+    // pop indent level
+    EM_poplog();
     
     return TRUE;
 
@@ -503,6 +534,9 @@ error:
 
     // probably dangerous: rollback
     env->global()->rollback();
+
+    // pop indent level
+    EM_poplog();
 
     return FALSE;
 }

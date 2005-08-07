@@ -50,6 +50,7 @@ static int lineNum = 1;
 static char g_buffer[1024] = "";
 static char g_lasterror[1024] = "[chuck]: (no error)";
 static int g_loglevel = CK_LOG_SYSTEM_ERROR;
+static int g_logstack = 0;
 
 // name
 static const char * g_str[] = {
@@ -223,6 +224,10 @@ void EM_log( int level, const char * message, ... )
     fprintf( stderr, "[chuck]:" );
     fprintf( stderr, "(LOG-%i:%s): ", level, g_str[level] );
 
+    // if( g_logstack ) fprintf( stderr, " " );
+    for( int i = 0; i < g_logstack; i++ )
+        fprintf( stderr, " | " );
+
     va_start( ap, message );
     vfprintf( stderr, message, ap );
     va_end( ap );
@@ -239,7 +244,20 @@ void EM_setlog( int level )
     g_loglevel = level;
 
     // log this
-    EM_log( CK_LOG_SYSTEM, "log level set to: %i (%s)...", level, g_str[level] );
+    EM_log( CK_LOG_SYSTEM, "setting log level to: %i (%s)...", level, g_str[level] );
+}
+
+// push log
+void EM_pushlog()
+{
+    g_logstack++;
+}
+
+// pop log
+void EM_poplog()
+{
+    g_logstack--;
+    if( g_logstack < 0 ) g_logstack = 0;
 }
 
 // prepare new file

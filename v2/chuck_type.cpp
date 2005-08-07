@@ -154,6 +154,11 @@ Chuck_Env * Chuck_Env::instance()
 //-----------------------------------------------------------------------------
 Chuck_Env * type_engine_init( Chuck_VM * vm )
 {
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing type checker..." );
+    // push indent level
+    EM_pushlog();
+
     // allocate a new env
     Chuck_Env * env = Chuck_Env::instance();
     // set the name of global namespace
@@ -188,17 +193,24 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_CKDUR day = hour * 24.0;
     t_CKDUR week = day * 7.0;
 
-    // make sure Objects have namespaces
+    // add internal classes
+    EM_log( CK_LOG_SYSTEM, "adding base classes..." );
+    EM_pushlog();
     init_class_object( env, &t_object );
+    init_class_array( env, &t_array );
+    init_class_string( env, &t_string );
     init_class_ugen( env, &t_ugen );
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
-    init_class_string( env, &t_string );
-    init_class_array( env, &t_array );
-    t_thread.info = new Chuck_Namespace;
-    t_thread.info->add_ref();
+
+    EM_log( CK_LOG_SYSTEM, "class 'class'" );
     t_class.info = new Chuck_Namespace;
     t_class.info->add_ref();
+    t_thread.info = new Chuck_Namespace;
+    t_thread.info->add_ref();
+
+    // pop indent
+    EM_poplog();
 
     // default global values
     env->global()->value.add( "null", new Chuck_Value( &t_null, "null", new void *(NULL), TRUE ) );
@@ -297,6 +309,9 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
 
     // commit the global namespace
     env->global()->commit();
+
+    // pop indent level
+    EM_poplog();
 
     return env;
 }

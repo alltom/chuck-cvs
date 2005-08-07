@@ -33,6 +33,7 @@
 #include "chuck_lang.h"
 #include "chuck_type.h"
 #include "chuck_vm.h"
+#include "chuck_errmsg.h"
 #include "midiio_rtmidi.h"
 // #include "skiniio_skini.h"
 
@@ -55,6 +56,9 @@ UGEN_TICK __ugen_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out )
 t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
 {
     Chuck_DL_Func * func = NULL;
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "class 'object'" );
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), object_ctor ) )
@@ -106,7 +110,9 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
 {
     Chuck_DL_Func * func = NULL;
 
-	//the type argument IS t_ugen here - there's no other use of this function
+    EM_log( CK_LOG_SYSTEM, "class 'ugen'" );
+
+    //the type argument IS t_ugen here - there's no other use of this function
 	//why are we using t_ugen here instead of type ( or vice versa ) ? PLD
     // add ugen info
 
@@ -180,6 +186,9 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
     Chuck_Value * value = NULL;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "class 'event'" );
+
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), event_ctor ) )
         return FALSE;
@@ -233,6 +242,9 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     // init as base class
     Chuck_DL_Func * func = NULL;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "class 'shred'" );
+
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
         return FALSE;
@@ -281,6 +293,9 @@ t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
     // init as base class
     Chuck_DL_Func * func = NULL;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "class 'string'" );
+
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
         return FALSE;
@@ -324,6 +339,10 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     // init as base class
     Chuck_DL_Func * func = NULL;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "class 'array'" );
+
+    // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
         return FALSE;
 

@@ -63,6 +63,8 @@ void EM_newline( );
 
 void EM_log( int, c_constr, ... );
 void EM_setlog( int );
+void EM_pushlog();
+void EM_poplog();
 
 void EM_error( int, c_constr, ... );
 void EM_error2( int, c_constr, ... );

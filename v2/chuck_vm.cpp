@@ -242,8 +242,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 
     // log
     EM_log( CK_LOG_SYSTEM, "initializing virtual machine..." );
-    EM_log( CK_LOG_SYSTEM, " | behavior: %s", halt ? "HALT" : "LOOP" );
-    EM_log( CK_LOG_SYSTEM, " | real-time audio: %s", enable_audio ? "TRUE" : "FALSE" );
+    EM_pushlog(); // push stack
+    EM_log( CK_LOG_SYSTEM, "behavior: %s", halt ? "HALT" : "LOOP" );
+    EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "TRUE" : "FALSE" );
 
     // allocate bbq
     m_bbq = new BBQ;
@@ -251,13 +252,13 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_audio = enable_audio;
     
     // log
-    EM_log( CK_LOG_SYSTEM, " | allocating shreduler..." );
+    EM_log( CK_LOG_SYSTEM, "allocating shreduler..." );
     // allocate shreduler
     m_shreduler = new Chuck_VM_Shreduler;
     m_shreduler->bbq = m_audio ? m_bbq : NULL;
 
     // log
-    EM_log( CK_LOG_SYSTEM, " | allocating messaging buffers..." );
+    EM_log( CK_LOG_SYSTEM, "allocating messaging buffers..." );
     // allocate msg buffer
     m_msg_buffer = new CBufferSimple;
     m_msg_buffer->initialize( 1024, sizeof(Chuck_Msg *) );
@@ -270,18 +271,21 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     //m_event_buffer->join(); // this should also return 0
 
     // log
-    EM_log( CK_LOG_SYSTEM, " | sample rate: %d", srate );
-    EM_log( CK_LOG_SYSTEM, " | buffer size: %d", buffer_size );
-    EM_log( CK_LOG_SYSTEM, " | num buffers: %d", num_buffers );
-    EM_log( CK_LOG_SYSTEM, " | channels in: %d out: %d", 2, 2 );
-    EM_log( CK_LOG_SYSTEM, " | devices adc: %d dac: %d (default 0)", adc, dac );
+    EM_log( CK_LOG_SYSTEM, "sample rate: %ld", srate );
+    EM_log( CK_LOG_SYSTEM, "buffer size: %ld", buffer_size );
+    EM_log( CK_LOG_SYSTEM, "num buffers: %ld", num_buffers );
+    EM_log( CK_LOG_SYSTEM, "channels in: %ld out: %d", 2, 2 );
+    EM_log( CK_LOG_SYSTEM, "devices adc: %ld dac: %d (default 0)", adc, dac );
     
     // at least set the sample rate and buffer size
     m_bbq->set_srate( srate );
     m_bbq->set_bufsize( buffer_size );
     m_bbq->set_numbufs( num_buffers );
     m_bbq->set_inouts( adc, dac );
-    
+
+    // pop log
+    EM_poplog();
+
     return m_init = TRUE;
 }
 

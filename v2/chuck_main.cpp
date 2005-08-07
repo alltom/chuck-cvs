@@ -342,8 +342,6 @@ int main( int argc, char ** argv )
     // probe
     if( probe )
     {
-        // log
-        EM_log( CK_LOG_SYSTEM, "probing audio and MIDI devices..." );
         Digitalio::probe();
 
         EM_error2b( 0, "" );
