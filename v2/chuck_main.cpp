@@ -259,7 +259,7 @@ int main( int argc, char ** argv )
     t_CKBOOL probe = FALSE;
     t_CKBOOL set_priority = FALSE;
     t_CKBOOL auto_depend = FALSE;
-    t_CKINT  log_level = 0;
+    t_CKINT  log_level = CK_LOG_SYSTEM_ERROR;
 
     t_CKUINT files = 0;
     t_CKUINT count = 1;
