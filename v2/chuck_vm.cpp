@@ -171,6 +171,10 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     struct sched_param param;
     pthread_t tid = pthread_self();
     int policy;
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "setting thread priority to: %ld...", priority );
+
     // get for thread
     if( pthread_getschedparam( tid, &policy, &param) ) 
     {
@@ -206,6 +210,9 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     // set the priority class of the process
     // if( !SetPriorityClass( GetCurrentProcess(), HIGH_PRIORITY_CLASS ) )
     //     return FALSE;
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "setting thread priority to: %ld...", priority );
 
     // set the priority the thread
     if( !SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL ) )
@@ -316,19 +323,13 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
         return FALSE;
     }
 
-    // if real-time audio enabled
-    if( m_audio )
-    {
-        // init bbq
-        if( !m_bbq->initialize( 2, Digitalio::m_sampling_rate, 16, 
-            Digitalio::m_buffer_size, Digitalio::m_num_buffers,
-            Digitalio::m_dac_n, Digitalio::m_adc_n ) )
-        {
-            m_last_error = "cannot initialize audio device (try using --silent/-s)";
-            return FALSE;
-        }
-    }
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing synthesis engine..." );
+    // push indent
+    EM_pushlog();
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing 'dac'..." );
     // allocate dac and adc
     m_num_dac_channels = g_t_dac->ugen_info->num_ins;
     m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
@@ -336,14 +337,18 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     m_dac->add_ref();
     // lock it
     m_dac->lock();
-    
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing 'adc'..." );
     m_num_adc_channels = g_t_adc->ugen_info->num_outs;
     m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
     stereo_ctor( m_adc, NULL );
     m_adc->add_ref();
     // lock it
     m_adc->add_ref();
-    
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing 'blackhole'..." );
     m_bunghole = new Chuck_UGen;
     m_bunghole->add_ref();
     m_bunghole->lock();
@@ -354,7 +359,27 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     m_shreduler->m_bunghole = m_bunghole;
     m_shreduler->m_num_dac_channels = m_num_dac_channels;
     m_shreduler->m_num_adc_channels = m_num_adc_channels;
-    
+
+    // if real-time audio enabled
+    if( m_audio )
+    {
+        // log
+        EM_log( CK_LOG_SYSTEM, "initializing real-time audio..." );
+        // init bbq
+        if( !m_bbq->initialize( 2, Digitalio::m_sampling_rate, 16, 
+            Digitalio::m_buffer_size, Digitalio::m_num_buffers,
+            Digitalio::m_dac_n, Digitalio::m_adc_n ) )
+        {
+            m_last_error = "cannot initialize audio device (try using --silent/-s)";
+            // pop indent
+            EM_poplog();
+            return FALSE;
+        }
+    }
+
+    // pop indent
+    EM_poplog();
+
     return TRUE;
 }
 

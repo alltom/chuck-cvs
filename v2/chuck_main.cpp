@@ -399,6 +399,11 @@ int main( int argc, char ** argv )
     // reset count
     count = 1;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "starting compilation..." );
+    // push indent
+    EM_pushlog();
+
     // loop through and process each file
     for( i = 1; i < argc; i++ )
     {
@@ -430,7 +435,10 @@ int main( int argc, char ** argv )
         // reset count
         count = 1;
     }
-    
+
+    // pop indent
+    EM_poplog();
+
     // reset the parser
     reset_parse();
 

@@ -74,7 +74,7 @@ public: // to all
     void shutdown();
 
     // set auto depend
-    void set_auto_depend( t_CKBOOL v ) { m_auto_depend = v; }
+    void set_auto_depend( t_CKBOOL v );
     // parse, type-check, and emit a program
     t_CKBOOL go( const string & filename, FILE * fd = NULL );
     // resolve a type automatically, if auto_depend is on

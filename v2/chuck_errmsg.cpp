@@ -59,7 +59,7 @@ static const char * g_str[] = {
     "FINER",        // 2
     "FINE",         // 3
     "CONFIG",       // 4
-    "INFO",         // 5
+    "INFORM",         // 5
     "WARNING",      // 6
     "SEVERE",       // 7
     "SYSTEM",       // 8

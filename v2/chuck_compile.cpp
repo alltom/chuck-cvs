@@ -98,8 +98,6 @@ t_CKBOOL Chuck_Compiler::initialize( Chuck_VM * vm )
     // add reference
     env->add_ref();
 
-    // log
-    EM_log( CK_LOG_SYSTEM, "initializing emitter..." );
     // allocate the emitter
     emitter = emit_engine_init( env );
     // add reference
@@ -143,6 +141,21 @@ void Chuck_Compiler::shutdown()
     code = NULL;
     m_auto_depend = FALSE;
     m_recent.clear();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_auto_depend()
+// desc: auto dependency resolve for types
+//-----------------------------------------------------------------------------
+void Chuck_Compiler::set_auto_depend( t_CKBOOL v )
+{
+    // log
+    EM_log( CK_LOG_SYSTEM, "setting auto dependency resolution to: %s...",
+            v ? "TRUE" : "FALSE" );
+    m_auto_depend = v;
 }
 
 
