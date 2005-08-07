@@ -133,6 +133,11 @@ error:
 //-----------------------------------------------------------------------------
 void Chuck_Compiler::shutdown()
 {
+    // log
+    EM_log( CK_LOG_SYSTEM, "shutting down compiler..." ) ;
+    // push indent
+    EM_pushlog();
+
     // TODO: free
     // type_engine_shutdown( env );
     // emit_engine_shutdown( emitter );
@@ -141,6 +146,9 @@ void Chuck_Compiler::shutdown()
     code = NULL;
     m_auto_depend = FALSE;
     m_recent.clear();
+
+    // pop indent
+    EM_poplog();
 }
 
 

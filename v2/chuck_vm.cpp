@@ -395,13 +395,25 @@ t_CKBOOL Chuck_VM::shutdown()
     // make sure we are in the initialized state
     if( !m_init ) return FALSE;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "shutting down virtual machine..." );
+    // push indent
+    EM_pushlog();
+
     // stop
-    this->stop();
-    usleep( 50000 );
-    
+    if( m_running )
+    {
+        this->stop();
+        usleep( 50000 );
+    }
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "freeing shreduler..." );
     // free the shreduler
     SAFE_DELETE( m_shreduler );
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "clearing shreds..." );
     // terminate shreds
     Chuck_VM_Shred * curr = m_shreds, * prev = NULL;
     while( curr )
@@ -416,6 +428,9 @@ t_CKBOOL Chuck_VM::shutdown()
     // shutdown audio
     if( m_audio )
     {
+        // log
+        EM_log( CK_LOG_SYSTEM, "shutting down real-time audio..." );
+
         m_bbq->digi_out()->cleanup();
         m_bbq->digi_in()->cleanup();
         m_bbq->shutdown();
@@ -424,6 +439,9 @@ t_CKBOOL Chuck_VM::shutdown()
     }
 
     m_init = FALSE;
+
+    // pop indent
+    EM_poplog();
 
     return TRUE;
 }
@@ -464,9 +482,16 @@ t_CKBOOL Chuck_VM::run( )
     Chuck_Msg * msg = NULL;
     Chuck_Event * event = NULL;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "starting virtual machine..." );
+    // push indent
+    EM_pushlog();
+
     // audio
     if( m_audio )
     {
+        // log
+        EM_log( CK_LOG_SYSTEM, "starting real-time audio..." );
         if( !m_bbq->digi_out()->initialize( ) )
         {
             m_last_error = "cannot open audio output (option: use --silent/-s)";
@@ -475,6 +500,11 @@ t_CKBOOL Chuck_VM::run( )
 
         m_bbq->digi_in()->initialize( );
     }
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "virtual machine running..." );
+    // pop indent
+    EM_poplog();
 
     while( m_running )
     {
@@ -512,6 +542,9 @@ t_CKBOOL Chuck_VM::run( )
 vm_stop:
     m_running = FALSE;
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "virtual machine stopped..." );
+
     return TRUE;
 }
 
@@ -541,6 +574,9 @@ t_CKBOOL Chuck_VM::pause( )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::stop( )
 {
+    // log
+    EM_log( CK_LOG_SYSTEM, "requesting STOP virtual machine..." );
+
     m_running = FALSE;
     Digitalio::m_end = TRUE;
 

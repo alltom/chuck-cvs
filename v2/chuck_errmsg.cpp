@@ -56,11 +56,11 @@ static int g_logstack = 0;
 static const char * g_str[] = {
     "ALL",          // 0
     "FINEST",       // 1
-    "FINER",        // 2
-    "FINE",         // 3
+    "FINER!",       // 2
+    "FINE!!",       // 3
     "CONFIG",       // 4
-    "INFORM",         // 5
-    "WARNING",      // 6
+    "INFORM",       // 5
+    "WARN!!",       // 6
     "SEVERE",       // 7
     "SYSTEM",       // 8
     "SYSTEM_ERROR", // 9

@@ -461,6 +461,9 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
+    // log
+    EM_log( CK_LOG_SYSTEM, "starting listener on port: %d...", g_port );
+
     // start tcp server
     g_sock = ck_tcp_create( 1 );
     if( !g_sock || !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
