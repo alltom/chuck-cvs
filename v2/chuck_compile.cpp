@@ -259,16 +259,16 @@ t_CKBOOL Chuck_Compiler::resolve( const string & type )
 t_CKBOOL Chuck_Compiler::do_entire_file( Chuck_Context * context )
 {
     // 0th-scan (pass 0)
-    // if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
-    //     return FALSE;
+    if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
+         return FALSE;
 
     // 1st-scan (pass 1)
     if( !type_engine_scan1_prog( env, g_program, te_do_all ) )
         return FALSE;
 
     // 2nd-scan (pass 2)
-    //if( !type_engine_scan2_prog( env, g_program, te_do_all ) )
-    //    return FALSE;
+    if( !type_engine_scan2_prog( env, g_program, te_do_all ) )
+        return FALSE;
 
     // check the program (pass 3)
     if( !type_engine_check_context( env, context, te_do_all ) )
@@ -294,23 +294,23 @@ t_CKBOOL Chuck_Compiler::do_entire_file( Chuck_Context * context )
 t_CKBOOL Chuck_Compiler::do_only_classes( Chuck_Context * context )
 {
     // 0th-scan (pass 0)
-    // if( !type_engine_scan0_prog( env, g_program, te_do_classes_only ) )
-    //     return FALSE;
+    if( !type_engine_scan0_prog( env, g_program, te_do_classes_only ) )
+        return FALSE;
 
     // 1st-scan (pass 1)
     if( !type_engine_scan1_prog( env, g_program, te_do_classes_only ) )
         return FALSE;
 
     // 2nd-scan (pass 2)
-    //if( !type_engine_scan2_prog( env, g_program, te_do_classes_only ) )
-    //    return FALSE;
+    if( !type_engine_scan2_prog( env, g_program, te_do_classes_only ) )
+        return FALSE;
 
     // check the program (pass 3)
     if( !type_engine_check_context( env, context, te_do_classes_only ) )
         return FALSE;
 
     // emit (pass 4)
-    if( !(code = emit_engine_emit_prog( emitter, g_program )) )
+    if( !(code = emit_engine_emit_prog( emitter, g_program , te_do_classes_only )) )
         return FALSE;
 
     // set the state of the context to done
@@ -335,15 +335,15 @@ t_CKBOOL Chuck_Compiler::do_all_except_classes( Chuck_Context * context )
         return FALSE;
 
     // 2nd-scan (pass 2)
-    //if( !type_engine_scan2_prog( env, g_program, te_do_no_classes ) )
-    //    return FALSE;
+    if( !type_engine_scan2_prog( env, g_program, te_do_no_classes ) )
+        return FALSE;
 
     // check the program (pass 3)
     if( !type_engine_check_context( env, context, te_do_no_classes ) )
         return FALSE;
 
     // emit (pass 4)
-    if( !(code = emit_engine_emit_prog( emitter, g_program )) )
+    if( !(code = emit_engine_emit_prog( emitter, g_program, te_do_no_classes )) )
         return FALSE;
 
     // set the state of the context to done
@@ -396,7 +396,7 @@ t_CKBOOL Chuck_Compiler::do_normal( const string & filename, FILE * fd )
     { ret = FALSE; goto cleanup; }
 
     // emit (pass 4)
-    if( !(code = emit_engine_emit_prog( emitter, g_program )) )
+    if( !(code = emit_engine_emit_prog( emitter, g_program, te_do_all )) )
     { ret = FALSE; goto cleanup; }
 
 cleanup:
