@@ -420,8 +420,8 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env,
     a_Program prog = NULL;
 
     // log
-    EM_log( CK_LOG_FINER, "(pass 3) - type-checking context '%s'...",
-        mini(context->filename.c_str()) );
+    EM_log( CK_LOG_FINER, "(pass 3) type-checking context '%s'...",
+        context->filename.c_str() );
     // push indent
     EM_pushlog();
     // how much
@@ -526,7 +526,7 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
     EM_log( CK_LOG_FINER, "loading context '%s'...", context->filename.c_str() );
     // push indent
     EM_pushlog();
-    if( env->context ) EM_log( CK_LOG_FINER, "(pushing existing context '%s')",
+    if( env->context ) EM_log( CK_LOG_FINER, "pushing existing context '%s'...",
                                env->context->filename.c_str() );
     // append the context to the env
     env->contexts.push_back( env->context );

@@ -264,13 +264,13 @@ struct Chuck_Namespace : public Chuck_VM_Object
 
     // commit the maps
     void commit() { 
-        EM_log( CK_LOG_INFO, "committing namespace: '%s'...", name.c_str() );
+        EM_log( CK_LOG_FINER, "committing namespace: '%s'...", name.c_str() );
         type.commit(); value.commit(); func.commit();
     }
     
     // rollback the maps
     void rollback() { 
-        EM_log( CK_LOG_INFO, "rolling back namespace: '%s'...", name.c_str() );
+        EM_log( CK_LOG_FINER, "rolling back namespace: '%s'...", name.c_str() );
         type.rollback(); value.rollback(); func.rollback();
     }
 

@@ -54,17 +54,17 @@ static int g_logstack = 0;
 
 // name
 static const char * g_str[] = {
-    "ALL",          // 0
-    "FINEST",       // 1
-    "FINER!",       // 2
-    "FINE!!",       // 3
-    "CONFIG",       // 4
+    "NONE",         // 0
+    "SYSTEM_ERROR", // 1
+    "SYSTEM",       // 2
+    "SEVERE",       // 3
+    "WARN!!",       // 4
     "INFORM",       // 5
-    "WARN!!",       // 6
-    "SEVERE",       // 7
-    "SYSTEM",       // 8
-    "SYSTEM_ERROR", // 9
-    "NONE"          // 10
+    "CONFIG",       // 6
+    "FINE!!",       // 7
+    "FINER!",       // 8
+    "FINEST",       // 9
+    "ALL"           // 10
 };
 
 
@@ -215,14 +215,14 @@ void EM_log( int level, const char * message, ... )
 {
     va_list ap;
 
-    if( level < CK_LOG_FINEST ) level = CK_LOG_FINEST;
-    else if( level >= CK_LOG_NONE ) level = CK_LOG_NONE - 1;
+    if( level > CK_LOG_FINEST ) level = CK_LOG_FINEST;
+    else if( level <= CK_LOG_NONE ) level = CK_LOG_NONE + 1;
 
     // check level
-    if( level < g_loglevel ) return;
+    if( level > g_loglevel ) return;
 
     fprintf( stderr, "[chuck]:" );
-    fprintf( stderr, "(LOG-%i:%s): ", level, g_str[level] );
+    fprintf( stderr, "(%i:%s): ", level, g_str[level] );
 
     // if( g_logstack ) fprintf( stderr, " " );
     for( int i = 0; i < g_logstack; i++ )
@@ -239,8 +239,8 @@ void EM_log( int level, const char * message, ... )
 // set log level
 void EM_setlog( int level )
 {
-    if( level < CK_LOG_FINEST ) level = CK_LOG_FINEST;
-    else if( level > CK_LOG_NONE ) level = CK_LOG_NONE;
+    if( level > CK_LOG_FINEST ) level = CK_LOG_FINEST;
+    else if( level < CK_LOG_NONE ) level = CK_LOG_NONE;
     g_loglevel = level;
 
     // log this

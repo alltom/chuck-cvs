@@ -131,6 +131,12 @@ t_CKBOOL type_engine_scan0_prog( Chuck_Env * env, a_Program prog,
     if( !prog )
         return FALSE;
 
+    // log
+    EM_log( CK_LOG_FINER, "(pass 0) type discovery scan '%s'...",
+            env->context->filename.c_str() );
+    // push indent
+    EM_pushlog();
+
     // go through each of the program sections
     while( prog && ret )
     {
@@ -177,6 +183,9 @@ t_CKBOOL type_engine_scan0_prog( Chuck_Env * env, a_Program prog,
 
         prog = prog->next;
     }
+
+    // pop indent
+    EM_poplog();
 
     return ret;
 }
@@ -336,12 +345,18 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
 // desc: data in env should be ready
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_scan1_prog( Chuck_Env * env, a_Program prog,
-                                te_HowMuch how_much )
+                                 te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
 
     if( !prog )
         return FALSE;
+
+    // log
+    EM_log( CK_LOG_FINER, "(pass 1) type resolution scan '%s'...",
+        env->context->filename.c_str() );
+    // push indent
+    EM_pushlog();
 
     // go through each of the program sections
     while( prog && ret )
@@ -395,6 +410,9 @@ t_CKBOOL type_engine_scan1_prog( Chuck_Env * env, a_Program prog,
 
         prog = prog->next;
     }
+
+    // pop indent
+    EM_poplog();
 
     return ret;
 }
@@ -1803,6 +1821,12 @@ t_CKBOOL type_engine_scan2_prog( Chuck_Env * env, a_Program prog,
     if( !prog )
         return FALSE;
 
+    // log
+    EM_log( CK_LOG_FINER, "(pass 2) type verification scan '%s'...",
+        env->context->filename.c_str() );
+    // push indent
+    EM_pushlog();
+
     // go through each of the program sections
     while( prog && ret )
     {
@@ -1838,6 +1862,9 @@ t_CKBOOL type_engine_scan2_prog( Chuck_Env * env, a_Program prog,
 
         prog = prog->next;
     }
+
+    // pop indent
+    EM_poplog();
 
     return ret;
 }

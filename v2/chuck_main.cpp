@@ -315,7 +315,11 @@ int main( int argc, char ** argv )
             else if( !strncmp(argv[i], "-u", 2) )
                 auto_depend = TRUE;
             else if( !strncmp(argv[i], "--log", 5) )
-                log_level = atoi( argv[i]+5 );
+                log_level = argv[i][5] ? atoi( argv[i]+5 ) : CK_LOG_INFO;
+            else if( !strncmp(argv[i], "--verbose", 9) )
+                log_level = argv[i][9] ? atoi( argv[i]+9 ) : CK_LOG_INFO;
+            else if( !strncmp(argv[i], "-v", 2) )
+                log_level = argv[i][2] ? atoi( argv[i]+2 ) : CK_LOG_INFO;
             else if( !strcmp( argv[i], "--probe" ) )
                 probe = TRUE;
             else if( !strcmp( argv[i], "--poop" ) )
@@ -368,7 +372,7 @@ int main( int argc, char ** argv )
     }
 
     // set log level
-    EM_setlog( log_level ? log_level : CK_LOG_INFO );
+    EM_setlog( log_level );
 
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
@@ -387,6 +391,13 @@ int main( int argc, char ** argv )
     compiler->emitter->dump = dump;
     // set auto depend
     compiler->set_auto_depend( auto_depend );
+
+    // vm synthesis subsystem - needs the type system
+    if( !vm->initialize_synthesis( ) )
+    {
+        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
+        exit( 1 );
+    }
 
     // catch SIGINT
     signal( SIGINT, signal_int );
@@ -419,6 +430,11 @@ int main( int argc, char ** argv )
             continue;
         }
 
+        // log
+        EM_log( CK_LOG_FINE, "compiling '%s'...", argv[i] );
+        // push indent
+        EM_pushlog();
+
         // parse, type-check, and emit
         if( !compiler->go( argv[i], NULL ) )
             return 1;
@@ -428,8 +444,15 @@ int main( int argc, char ** argv )
         // name it
         code->name += string(argv[i]);
 
+        // log
+        EM_log( CK_LOG_FINE, "sporking %d %s...", count,
+                count == 1 ? "instance" : "instances" );
+
         // spork it
         while( count-- ) shred = vm->spork( code, NULL );
+
+        // pop indent
+        EM_poplog();
 
         // reset count
         count = 1;
@@ -451,13 +474,6 @@ int main( int argc, char ** argv )
             fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
             exit( 1 );
         }
-    }
-
-    // vm synthesis subsystem - needs the type system
-    if( !vm->initialize_synthesis( ) )
-    {
-        fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
-        exit( 1 );
     }
 
     // log
