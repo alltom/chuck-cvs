@@ -136,6 +136,8 @@ t_CKBOOL type_engine_scan0_prog( Chuck_Env * env, a_Program prog,
             env->context->filename.c_str() );
     // push indent
     EM_pushlog();
+    // log how much
+    EM_log( CK_LOG_FINER, "target: %s", howmuch2str( how_much ) );
 
     // go through each of the program sections
     while( prog && ret )
@@ -252,6 +254,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->size = sizeof(void *);
     the_class->obj_size = 0;  // TODO:
     the_class->info = env->context->new_Chuck_Namespace();
+    SAFE_ADD_REF( the_class->info );
     the_class->info->name = the_class->name;
     the_class->info->parent = env->curr;
     the_class->func = NULL;
