@@ -161,7 +161,7 @@ void Chuck_Compiler::shutdown()
 void Chuck_Compiler::set_auto_depend( t_CKBOOL v )
 {
     // log
-    EM_log( CK_LOG_SYSTEM, "type dependency resolution: %s...",
+    EM_log( CK_LOG_SYSTEM, "type dependency resolution: %s",
             v ? "AUTO" : "MANUAL" );
     m_auto_depend = v;
 }

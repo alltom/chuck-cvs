@@ -328,16 +328,22 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
 {
     t_CKBOOL ret = FALSE;
 
+    // log
+    EM_log( CK_LOG_FINE, "type-checking program '%s' - passes 0, 1, 2, 3...",
+            filename.c_str() );
+    // push indent
+    EM_pushlog();
+
     // make the context
     Chuck_Context * context = type_engine_make_context( prog, filename );
-    if( !context ) return FALSE;
+    if( !context ) goto done;
 
     // reset the env
     env->reset();
 
     // load the context
     if( !type_engine_load_context( env, context ) )
-        return FALSE;
+    { ret = FALSE; goto done; }
 
     // 0th-scan (pass 0)
     if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
@@ -353,7 +359,7 @@ t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog,
 
     // check the context (pass 3)
     if( !type_engine_check_context( env, context ) )
-        return FALSE;
+    { ret = FALSE; goto cleanup; }
 
 cleanup:
 
@@ -361,10 +367,15 @@ cleanup:
     if( !type_engine_unload_context( env ) )
     {
         EM_error2( 0, "internal error unloading context...\n" );
-        return FALSE;
+        ret = FALSE;
     }
 
-    return TRUE;
+done:
+
+    // pop indent
+    EM_poplog();
+
+    return ret;
 }
 
 
@@ -376,12 +387,20 @@ cleanup:
 //-----------------------------------------------------------------------------
 Chuck_Context * type_engine_make_context( a_Program prog, const string & filename )
 {
+    // log
+    EM_log( CK_LOG_FINER, "creating context '%s'...", filename.c_str() );
+    // push indent
+    EM_pushlog();
+
     // each parse tree corresponds to a chuck context
     Chuck_Context * context = new Chuck_Context;
     // save a reference to the parse tree
     context->parse_tree = prog;
     // set name
     context->filename = filename;
+
+    // pop indent
+    EM_poplog();
 
     return context;
 }
@@ -398,22 +417,31 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env,
                                     te_HowMuch how_much )
 {
     t_CKBOOL ret = TRUE;
+    a_Program prog = NULL;
+
+    // log
+    EM_log( CK_LOG_FINER, "(pass 3) - type-checking context '%s'...",
+        mini(context->filename.c_str()) );
+    // push indent
+    EM_pushlog();
+    // how much
+    EM_log( CK_LOG_FINER, "target: %s", howmuch2str( how_much ) );
 
     // make sure there is a context
     if( !env->context )
     {
         // error
         EM_error2( 0, "internal error: env->context NULL!" );
-        return FALSE;
+        ret = FALSE; goto done;
     }
 
     // parse tree
-    a_Program prog = context->parse_tree;
+    prog = context->parse_tree;
     if( !prog )
     {
         // error
         EM_error2( 0, "internal error: context->parse_tree NULL!" );
-        return FALSE;
+        ret = FALSE; goto done;
     }
 
     // go through each of the program sections
@@ -477,6 +505,11 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env,
         // type_engine_unload_context( env );
     }
 
+done:
+
+    // pop indent
+    EM_poplog();
+
     return ret;
 }
 
@@ -489,6 +522,12 @@ t_CKBOOL type_engine_check_context( Chuck_Env * env,
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
 {
+    // log
+    EM_log( CK_LOG_FINER, "loading context '%s'...", context->filename.c_str() );
+    // push indent
+    EM_pushlog();
+    if( env->context ) EM_log( CK_LOG_FINER, "(pushing existing context '%s')",
+                               env->context->filename.c_str() );
     // append the context to the env
     env->contexts.push_back( env->context );
     // make the context current
@@ -503,6 +542,9 @@ t_CKBOOL type_engine_load_context( Chuck_Env * env, Chuck_Context * context )
     context->nspc->parent = env->curr;
     // set the context's namespace as current
     env->curr = context->nspc;
+
+    // pop indent
+    EM_poplog();
     
     return TRUE;
 }
@@ -519,6 +561,13 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env )
     // make sure
     assert( env->context != NULL );
     assert( env->contexts.size() != 0 );
+    // log
+    EM_log( CK_LOG_FINER, "unloading context '%s'...",
+        env->context->filename.c_str() );
+    // push indent
+    EM_pushlog();
+    EM_log( CK_LOG_FINER, "restoring context '%s'...",
+        env->contexts.back()->filename.c_str() );
     // assert( env->context->has_error == FALSE );
     // pop the context scope
     env->context->nspc->value.pop();
@@ -536,7 +585,10 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env )
     // make sure the nspc is ok
     assert( env->nspc_stack.size() != 0 );
     // assert( env->stack.back() == &(context->nspc) );
-    
+
+    // pop indent
+    EM_poplog();
+
     return TRUE;
 }
 
@@ -4913,6 +4965,18 @@ error:
 }
 
 
+
+
+static const char * g_howmuch[] = { "ALL", "CLASSES_ONLY", "ALL_EXCEPT_CLASSES" };
+//-----------------------------------------------------------------------------
+// name: howmuch2str()
+// desc: ...
+//-----------------------------------------------------------------------------
+const char * howmuch2str( te_HowMuch how_much )
+{
+    if( how_much < 0 || how_much > te_do_no_classes ) return "[INVALID]";
+    else return g_howmuch[how_much];
+}
 
 /*
     // check

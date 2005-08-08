@@ -64,7 +64,7 @@ typedef enum {
 // desc: how much to scan/type check
 //-----------------------------------------------------------------------------
 typedef enum { 
-    te_do_all, te_do_classes_only, te_do_no_classes
+    te_do_all = 0, te_do_classes_only, te_do_no_classes
 } te_HowMuch;
 
 
@@ -359,6 +359,8 @@ private:
         global_context.lock();
         // make reference
         context = &global_context; SAFE_ADD_REF(context);
+        // make name
+        context->filename = "@[global]";
         // remember
         global_nspc = global_context.nspc; SAFE_ADD_REF(global_nspc);
         // clear
@@ -733,6 +735,7 @@ t_CKBOOL verify_array( a_Array_Sub array );
 // conversion
 const char * type_path( a_Id_List path );
 a_Id_List str2list( const string & path );
+const char * howmuch2str( te_HowMuch how_much );
 
 // default types
 extern Chuck_Type t_void;

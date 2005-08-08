@@ -173,7 +173,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     int policy;
 
     // log
-    // EM_log( CK_LOG_SYSTEM, "setting thread priority to: %ld...", priority );
+    EM_log( CK_LOG_FINE, "setting thread priority to: %ld...", priority );
 
     // get for thread
     if( pthread_getschedparam( tid, &policy, &param) ) 
@@ -212,7 +212,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     //     return FALSE;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "setting thread priority to: %ld...", priority );
+    EM_log( CK_LOG_FINE, "setting thread priority to: %ld...", priority );
 
     // set the priority the thread
     if( !SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL ) )
@@ -251,7 +251,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     EM_log( CK_LOG_SYSTEM, "initializing virtual machine..." );
     EM_pushlog(); // push stack
     EM_log( CK_LOG_SYSTEM, "behavior: %s", halt ? "HALT" : "LOOP" );
-    EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "TRUE" : "FALSE" );
+    EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "YES" : "NO" );
 
     // allocate bbq
     m_bbq = new BBQ;
