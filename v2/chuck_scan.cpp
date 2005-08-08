@@ -206,10 +206,19 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     // the class body
     a_Class_Body body = class_def->body;
 
+    // log
+    EM_log( CK_LOG_FINEST, "scanning class definition '%s'...",
+        S_name(class_def->name->id) );
+    // push indent
+    EM_pushlog();
+
     // if nspc is attached to class_def, that means the class_def is to be
     // put in that namespace.  this is usually the case when doing import
     if( class_def->home != NULL )
     {
+        // log
+        EM_log( CK_LOG_FINEST, "target namespace: '%s'",
+            class_def->home->name.c_str() );
         // set the new type as current
         env->nspc_stack.push_back( env->curr );
         env->curr = class_def->home;
@@ -221,7 +230,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
         EM_error2( class_def->name->linepos,
             "class/type '%s' is already defined in namespace '%s'",
             S_name(class_def->name->id), env->curr->name.c_str() );
-        return FALSE;
+        ret = FALSE; goto done;
     }
 
     // check if reserved
@@ -229,7 +238,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     {
         EM_error2( class_def->name->linepos, "...in class definition '%s'",
             S_name(class_def->name->id) );
-        return FALSE;
+        ret = FALSE; goto done;
     }
 
     // allocate new type
@@ -334,6 +343,11 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
         class_def->home = env->curr;
     }
 
+done:
+
+    // pop indent
+    EM_poplog();
+
     return ret;
 }
 
@@ -357,6 +371,8 @@ t_CKBOOL type_engine_scan1_prog( Chuck_Env * env, a_Program prog,
         env->context->filename.c_str() );
     // push indent
     EM_pushlog();
+    // log how much
+    EM_log( CK_LOG_FINER, "target: %s", howmuch2str( how_much ) );
 
     // go through each of the program sections
     while( prog && ret )
@@ -1174,142 +1190,7 @@ t_CKBOOL type_engine_scan1_exp_array( Chuck_Env * env, a_Exp_Array array )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_scan1_class_def( Chuck_Env * env, a_Class_Def class_def )
 {
-    // make new type for class def
-    t_CKTYPE the_class = NULL;
-    // the return type
-    t_CKBOOL ret = TRUE;
-    // the class body
-    a_Class_Body body = class_def->body;
-
-    // if nspc is attached to class_def, that means the class_def is to be
-    // put in that namespace.  this is usually the case when doing import
-    if( class_def->home != NULL )
-    {
-        // set the new type as current
-        env->nspc_stack.push_back( env->curr );
-        env->curr = class_def->home;
-    }
-
-    // make sure class not already in namespace
-    if( env->curr->lookup_type( class_def->name->id, TRUE ) )
-    {
-        EM_error2( class_def->name->linepos,
-            "class/type '%s' is already defined in namespace '%s'",
-            S_name(class_def->name->id), env->curr->name.c_str() );
-        return FALSE;
-    }
-
-    // check if reserved
-    if( type_engine_check_reserved( env, class_def->name->id, class_def->name->linepos ) )
-    {
-        EM_error2( class_def->name->linepos, "...in class definition '%s'",
-            S_name(class_def->name->id) );
-        return FALSE;
-    }
-
-    // allocate new type
-    assert( env->context != NULL );
-    the_class = env->context->new_Chuck_Type();
-    // set the fields
-    the_class->id = te_user;
-    the_class->name = S_name(class_def->name->id);
-    the_class->owner = env->curr;
-    the_class->array_depth = 0;
-    the_class->size = sizeof(void *);
-    the_class->obj_size = 0;  // TODO:
-    the_class->info = env->context->new_Chuck_Namespace();
-    the_class->info->name = the_class->name;
-    the_class->info->parent = env->curr;
-    the_class->func = NULL;
-    the_class->def = class_def;
-    // add to env
-    env->curr->type.add( the_class->name, the_class );  // URGENT: make this global
-    // incomplete
-    the_class->is_complete = FALSE;
-
-    // set the new type as current
-    env->nspc_stack.push_back( env->curr );
-    env->curr = the_class->info;
-    // push the class def
-    env->class_stack.push_back( env->class_def );
-    env->class_def = the_class;
-    // reset the nest list
-    env->class_scope = 0;
-
-    // type check the body
-    while( body && ret )
-    {
-        // check the section
-        switch( body->section->s_type )
-        {
-        case ae_section_stmt:
-            // flag as having a constructor
-            //env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
-            //ret = type_engine_scan1_stmt_list( env, body->section->stmt_list );
-            break;
-        
-        case ae_section_func:
-            // set to complete
-            //env->class_def->is_complete = TRUE;
-            //ret = type_engine_scan1_func_def( env, body->section->func_def );
-            // back
-            //env->class_def->is_complete = FALSE;
-            break;
-        
-        case ae_section_class:
-            // do the class
-            ret = type_engine_scan1_class_def( env, body->section->class_def );
-            break;
-        }
-        
-        // move to the next section
-        body = body->next;
-    }
-
-
-    // pop the class
-    env->class_def = env->class_stack.back();
-    env->class_stack.pop_back();
-    // pop the namesapce
-    env->curr = env->nspc_stack.back();
-    env->nspc_stack.pop_back();
-
-    // if things checked out
-    if( ret )
-    {
-        Chuck_Value * value = NULL;
-        Chuck_Type * type = NULL;
-
-        // allocate value
-        type = t_class.copy( env );
-        type->actual_type = the_class;
-        value = env->context->new_Chuck_Value( type, the_class->name );
-        value->owner = env->curr;
-        value->is_const = TRUE;
-        value->is_member = FALSE;
-        // add to env
-        env->curr->value.add( the_class->name, value );
-
-        // remember
-        class_def->type = the_class;
-    }
-
-    // if nspc is attached to class_def, that means the class_def is to be
-    // put in that namespace.  this is usually the case when doing import
-    // we undo that extra namespace layer here...
-    if( class_def->home != NULL )
-    {
-        // pop the namesapce
-        env->curr = env->nspc_stack.back();
-        env->nspc_stack.pop_back();
-    }
-    else // set the current namespace as home
-    {
-        // set curr as home
-        class_def->home = env->curr;
-    }
-
-    return ret;
+    return TRUE;
 }
 
 
@@ -1826,6 +1707,8 @@ t_CKBOOL type_engine_scan2_prog( Chuck_Env * env, a_Program prog,
         env->context->filename.c_str() );
     // push indent
     EM_pushlog();
+    // log how much
+    EM_log( CK_LOG_FINER, "target: %s", howmuch2str( how_much ) );
 
     // go through each of the program sections
     while( prog && ret )
@@ -2656,6 +2539,7 @@ t_CKBOOL type_engine_scan2_exp_array( Chuck_Env * env, a_Exp_Array array )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_scan2_class_def( Chuck_Env * env, a_Class_Def class_def )
 {
+/*
     // make new type for class def
     t_CKTYPE the_class = NULL;
     // the parent class
@@ -2753,8 +2637,8 @@ t_CKBOOL type_engine_scan2_class_def( Chuck_Env * env, a_Class_Def class_def )
         // set complete
         the_class->is_complete = TRUE;
     }
-
-    return ret;
+*/
+    return TRUE;
 }
 
 

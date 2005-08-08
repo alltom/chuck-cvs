@@ -380,16 +380,16 @@ t_CKBOOL Chuck_Compiler::do_normal( const string & filename, FILE * fd )
         return FALSE;
 
     // 0th-scan (pass 0)
-    // if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
-    // { ret = FALSE; goto cleanup; }
+    if( !type_engine_scan0_prog( env, g_program, te_do_all ) )
+    { ret = FALSE; goto cleanup; }
 
     // 1st-scan (pass 1)
     if( !type_engine_scan1_prog( env, g_program, te_do_all ) )
     { ret = FALSE; goto cleanup; }
 
     // 2nd-scan (pass 2)
-    //if( !type_engine_scan2_prog( env, g_program, te_do_all ) )
-    //{ ret = FALSE; goto cleanup; }
+    if( !type_engine_scan2_prog( env, g_program, te_do_all ) )
+    { ret = FALSE; goto cleanup; }
 
     // check the program (pass 3)
     if( !type_engine_check_context( env, context, te_do_all ) )
