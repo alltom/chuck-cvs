@@ -2189,18 +2189,20 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     // make sure complete
     if( !t->is_complete && do_alloc )
     {
+        /*
         EM_error2( decl->linepos,
             "cannot declare object due to incomplete type '%s'...",
             t->c_name() );
         EM_error2( decl->linepos,
             "...(note: can define only references (@) to incomplete types)" );
+        */
         if( env->class_def && equals( t, env->class_def ) )
         {
             EM_error2( decl->linepos,
                 "...(note: object of type '%s' declared inside itself)",
                 t->c_name() );
+            return NULL;
         }
-        return NULL;
     }
 
     // primitive

@@ -250,7 +250,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
     Chuck_Namespace() { pre_ctor = NULL; parent = NULL; offset = 0; 
                         class_data = NULL; class_data_size = 0; }
     // destructor
-    ~Chuck_Namespace() { }
+    virtual ~Chuck_Namespace() { }
 
     // look up type
     Chuck_Type * lookup_type( const string & name, t_CKINT climb = 1 );
@@ -327,7 +327,7 @@ struct Chuck_Context : public Chuck_VM_Object
                       public_class_def = NULL; has_error = FALSE;
                       progress = P_NONE; }
     // destructor
-    ~Chuck_Context();
+    virtual ~Chuck_Context();
     // get the top-level code
     Chuck_VM_Code * code() { return nspc->pre_ctor; }
 
@@ -403,7 +403,7 @@ public:
     map<string, t_CKBOOL> key_values;
 
     // destructor
-    ~Chuck_Env() { }
+    virtual ~Chuck_Env() { }
 
     // reset
     void reset( )
@@ -503,7 +503,7 @@ public:
     }
 
     // destructor
-    ~Chuck_Type() { reset(); }
+    virtual ~Chuck_Type() { reset(); }
     
     // reset
     void reset()
@@ -615,7 +615,7 @@ struct Chuck_Value : public Chuck_VM_Object
       func_ref = NULL; func_num_overloads = 0; }
 
     // destructor
-    ~Chuck_Value()
+    virtual ~Chuck_Value()
     {
         // release
         // SAFE_RELEASE( type );
@@ -656,6 +656,10 @@ struct Chuck_Func : public Chuck_VM_Object
     // constructor
     Chuck_Func() { def = NULL; code = NULL; is_member = FALSE; vt_index = 0xffffffff; 
                    value_ref = NULL; dl_code = NULL; next = NULL; up = NULL; }
+
+    // destructor
+    virtual ~Chuck_Func()
+    { }
 };
 
 

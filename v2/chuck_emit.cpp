@@ -217,6 +217,8 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog,
     {
         // append end of code
         emit->append( new Chuck_Instr_EOC );
+        // make sure
+        assert( emit->context->nspc->pre_ctor == NULL );
         // converted to virtual machine code
         emit->context->nspc->pre_ctor = emit_to_code( emit->code, NULL, emit->dump );
     }
@@ -3080,7 +3082,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     a_Class_Body body = class_def->body;
     
     // make sure the code is empty
-    if( type->info->pre_ctor != NULL )
+    if( type->info->pre_ctor != NULL && type->info->pre_ctor->instr != NULL )
     {
         EM_error2( class_def->linepos,
             "(emit): class '%s' already emitted...",
@@ -3108,7 +3110,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
     // whether code needs this
     emit->code->need_this = TRUE;
     // if has constructor
-    if( type->has_constructor ) type->info->pre_ctor = new Chuck_VM_Code;
+    // if( type->has_constructor ) type->info->pre_ctor = new Chuck_VM_Code;
 
     // get the size
     emit->code->stack_depth += sizeof(t_CKUINT);

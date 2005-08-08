@@ -259,6 +259,9 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->info->parent = env->curr;
     the_class->func = NULL;
     the_class->def = class_def;
+    // add code
+    the_class->info->pre_ctor = new Chuck_VM_Code;
+    SAFE_ADD_REF( the_class->info->pre_ctor );
     // add to env
     env->curr->type.add( the_class->name, the_class );  // URGENT: make this global
     // incomplete
