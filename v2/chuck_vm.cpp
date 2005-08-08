@@ -173,7 +173,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
     int policy;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "setting thread priority to: %ld...", priority );
+    // EM_log( CK_LOG_SYSTEM, "setting thread priority to: %ld...", priority );
 
     // get for thread
     if( pthread_getschedparam( tid, &policy, &param) ) 
