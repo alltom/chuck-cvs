@@ -199,15 +199,32 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
         return m_init = FALSE;
     }
 
+    // log
+    EM_log( CK_LOG_FINE, "initializing RtAudio..." );
+    // push indent
+    EM_pushlog();
+
     // open device
     try {
+        // log
+        EM_log( CK_LOG_FINE, "trying %d input %d output...", 
+                m_num_channels_in, m_num_channels_out );
+        // open RtAudio
         m_rtaudio->openStream(
             m_dac_n, m_num_channels_out, m_adc_n, m_num_channels_in,
             CK_RTAUDIO_FORMAT, sampling_rate,
             (int *)&m_buffer_size, num_buffers );
+        // set callback
         if( m_use_cb )
+        {
+            // log
+            EM_log( CK_LOG_FINE, "initializing callback..." );
             m_rtaudio->setStreamCallback( &cb, NULL );
+        }
     } catch( RtError err ) {
+        // log
+        EM_log( CK_LOG_FINE, "exception caught: '%s'...", err.getMessageString() );
+        EM_log( CK_LOG_FINE, "trying %d input %d output...", 0, m_num_channels_out );
         try {
             m_buffer_size = buffer_size;
             // try output only
@@ -215,8 +232,13 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                 m_dac_n, m_num_channels_out, 0, 0,
                 RTAUDIO_FLOAT32, sampling_rate,
                 (int *)&m_buffer_size, num_buffers );
+            // set callback
             if( m_use_cb )
+            {
+                // log
+                EM_log( CK_LOG_FINE, "initializing callback..." );
                 m_rtaudio->setStreamCallback( &cb, NULL );
+            }
         } catch( RtError err ) {
             EM_error2( 0, "%s", err.getMessageString() );
             SAFE_DELETE( m_rtaudio );
@@ -224,8 +246,15 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
         }
     }
 
+    // pop indent
+    EM_poplog();
+
     if( m_use_cb )
     {
+        // log
+        EM_log( CK_LOG_FINE, "allocating buffers for %d x %d samples...",
+                m_buffer_size, num_channels );
+        // allocate buffers
         m_buffer_in = new SAMPLE[m_buffer_size * num_channels];
         m_buffer_out = new SAMPLE[m_buffer_size * num_channels];
         memset( m_buffer_in, 0, m_buffer_size * sizeof(SAMPLE) * num_channels );

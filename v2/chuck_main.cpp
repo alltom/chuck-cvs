@@ -368,7 +368,7 @@ int main( int argc, char ** argv )
     }
 
     // set log level
-    EM_setlog( log_level );
+    EM_setlog( log_level ? log_level : CK_LOG_INFO );
 
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
@@ -387,7 +387,6 @@ int main( int argc, char ** argv )
     compiler->emitter->dump = dump;
     // set auto depend
     compiler->set_auto_depend( auto_depend );
-
 
     // catch SIGINT
     signal( SIGINT, signal_int );
