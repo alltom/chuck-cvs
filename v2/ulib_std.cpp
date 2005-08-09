@@ -43,7 +43,8 @@
 #include "chuck_type.h"
 #include "chuck_instr.h"
 
-#if __PLATFORM_WIN32__
+#if defined(__PLATFORM_WIN32__)
+
 #include <windows.h>
 
 int setenv( const char *n, const char *v, int i )
