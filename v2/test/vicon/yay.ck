@@ -46,7 +46,7 @@ if( !vcr.load( f, column ) )
 <<< "column:", column >>>;
 <<< "name:", vcr.name() >>>;
 <<< "size:", vcr.size() >>>;
-<<< "srate:", srate >>>;
+<<< "srate (ms):", srate / second * 1000 >>>;
 
 
 // good
