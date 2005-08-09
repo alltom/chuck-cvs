@@ -7,7 +7,7 @@
 "JaneHappy17.txt" => string filename;
 
 // srate in ms
-"10" => string srate;
+"1" => string srate;
 
 <<<"setting FILENAME:", filename>>>;
 <<<"setting SRATE:", srate>>>;
@@ -24,6 +24,4 @@ while( c < total )
     std.setenv( "VCR_COLUMN", std.itoa( c ) );
     // spork
     machine.add( "yay.ck" );
-    // let time pass
-    1::ms => now;
 }

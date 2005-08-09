@@ -1,6 +1,6 @@
 
 // set column number
-6 => int column;
+3 => int column;
 // default srate
 10::ms => dur srate;
 
