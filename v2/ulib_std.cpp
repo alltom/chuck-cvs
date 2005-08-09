@@ -332,7 +332,8 @@ static Chuck_String g_str; // PROBLEM: not thread friendly
 CK_DLL_SFUN( getenv_impl )
 {
     const char * v = GET_CK_STRING(ARGS)->str.c_str();
-    g_str.str = getenv( v );
+    const char * s = getenv( v );
+    g_str.str = s ? s : "";
     RETURN->v_string = &g_str;
 }
 
