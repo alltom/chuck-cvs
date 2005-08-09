@@ -46,6 +46,26 @@ int setenv( const char *n, const char *v, int i )
 
 #endif
 
+#ifdef AJAY
+
+#include "chuck_type.h"
+#include "chuck_oo.h"
+
+CK_DLL_CTOR( VCR_ctor );
+CK_DLL_MFUN( VCR_load );
+CK_DLL_MFUN( VCR_reset );
+CK_DLL_MFUN( VCR_seek );
+CK_DLL_MFUN( VCR_more );
+CK_DLL_MFUN( VCR_curr );
+CK_DLL_MFUN( VCR_next );
+CK_DLL_MFUN( VCR_pos );
+CK_DLL_MFUN( VCR_size );
+CK_DLL_MFUN( VCR_name );
+
+static t_CKUINT VCR_offset_data = 0;
+
+#endif
+
 
 //-----------------------------------------------------------------------------
 // name: libstd_query()
@@ -140,7 +160,77 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     // seed the rand
     srand( time( NULL ) );
 
+#ifdef AJAY
+
+    Chuck_DL_Func * func = NULL;
+    Chuck_Env * env = Chuck_Env::instance();
+
+    // begin class
+    // init base class
+    if( !type_engine_import_class_begin( env, "VCR", "Object",
+                                         env->global(), VCR_ctor ) )
+        return FALSE;
+
+    // add member variable
+    VCR_offset_data = type_engine_import_mvar( env, "int", "@me", FALSE );
+    if( VCR_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add load()
+    func = make_new_mfun( "int", "load", VCR_load );
+    func->add_arg( "string", "filename" );
+    func->add_arg( "int", "column" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add reset()
+    func = make_new_mfun( "int", "reset", VCR_reset );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add seek()
+    func = make_new_mfun( "int", "seek", VCR_seek );
+    func->add_arg( "int", "where" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add more()
+    func = make_new_mfun( "int", "more", VCR_more );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add curr()
+    func = make_new_mfun( "float", "curr", VCR_curr );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add next()
+    func = make_new_mfun( "int", "next", VCR_next );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add pos()
+    func = make_new_mfun( "int", "pos", VCR_pos );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add size()
+    func = make_new_mfun( "int", "size", VCR_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add name()
+    func = make_new_mfun( "string", "name", VCR_name );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
     return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
+
+#else
+
+    return TRUE;
+
+#endif
 }
 
 #define RAND_INV_RANGE(r) (RAND_MAX / (r))
@@ -358,3 +448,282 @@ CK_DLL_SFUN( dbtorms_impl )
 }
 
 
+#ifdef AJAY
+
+#include <assert.h>
+#include <fstream>
+#include <iostream>
+#include <vector>
+#include <map>
+#include <string>
+using namespace std;
+
+class ColumnReader
+{
+public:
+    ColumnReader();
+    virtual ~ColumnReader();
+
+    bool init( const string & filename, long col );
+    
+    bool reset() { if( !fin.good() ) return false; where = 0; return true; }
+    bool seek( long pos ) { if( pos < 0 || pos >= values.size() ) return false; where = pos; return true; }
+    bool more() { return where < values.size(); }
+    double curr();
+    bool next() { if( where < values.size() ) where++; return more(); }
+    long pos() { return where; }
+    long size() { return values.size(); }
+    string name() { return n; }
+
+    Chuck_String s;
+
+protected:
+    bool get_str( string & out );
+    bool get_double( double & out );
+
+protected:
+    ifstream fin;
+    string n;
+    long column;
+    long where;
+    char line[0x1000];
+    long len;
+
+    vector<double> values;
+};
+
+
+
+
+ColumnReader::ColumnReader()
+{
+    n = "[NONE]";
+    column = -1;
+    where = -1;
+    len = 0x1000;
+}
+
+
+ColumnReader::~ColumnReader()
+{
+    // close file
+    if( fin.good() ) 
+        fin.close();
+}
+
+bool ColumnReader::init( const string & filename, long col )
+{
+    // hmm
+    if( col < 1 )
+    {
+        cerr << "column must be greater than 0!!!" << endl;
+        return false;
+    }
+
+    // open file
+    fin.open( filename.c_str(), ios::in );
+    // yes
+    if( !fin.good() )
+    {
+        cerr << "ColumnReader: cannot open file: '" << filename << "'..." << endl;
+        return false;
+    }
+
+    // set column
+    column = col;
+
+    // read first line
+    if( !fin.getline( line, len ) )
+    {
+        cerr << "ColumnReader: cannot read first line: '" << filename << "'..." << endl;
+        return false;
+    }
+
+    // get the name
+    if( !get_str( n ) )
+    {
+        cerr << "ColumnReader: cannot seek to column " << col << ": " << filename << "..." << endl;
+        return false;
+    }
+
+    double v;
+    long i = 1;
+    // read values
+    while( fin.getline( line, len ) )
+    {
+        v = 0.0;
+        // get value
+        if( !get_double( v ) )
+        {
+            cerr << "ColumnReader: cannot read column " << v << " on line i: " << n << "..." << endl;
+            return false;
+        }
+
+        values.push_back( v );
+    }
+
+    // well
+    if( values.size() == 0 )
+    {
+        cerr << "ColumnReader: file doesn't not contain data after first line: " << n << "..." << endl;
+        return false;
+    }
+
+    // set location
+    where = 0;
+
+    s.str = n;
+
+    return true;
+}
+
+double ColumnReader::curr()
+{
+    if( where >= values.size() )
+    {
+        cerr << "ColumnReader: trying to read beyond end of file: " << n << "..." << endl;
+        return 0.0;
+    }
+
+    return values[where];
+}
+
+bool ColumnReader::get_double( double & out )
+{
+    assert( column > 0 );
+    long c = 1;
+    
+    char * start = line;
+    char * curr = start;
+
+    while( c < column )
+    {
+        // move past value
+        while( *curr && *curr != ',' ) curr++;
+        // move past ,
+        while( *curr && *curr == ',' ) curr++;
+        // check
+        if( *curr == '\0' )
+        {
+            cerr << "ColumnReader: cannot find column " << column << ": " << n << endl;
+            return false;
+        }
+
+        // increment
+        c++;
+        // set start
+        start = curr;
+    }
+
+    // move past value
+    while( *curr && *curr != ',' ) curr++;
+    // end
+    *curr = '\0';
+
+    out = atof( start );
+    
+    return true;
+}
+
+
+bool ColumnReader::get_str( string & out )
+{
+    assert( column > 0 );
+    long c = 1;
+    
+    char * start = line;
+    char * curr = start;
+
+    while( c < column )
+    {
+        // move past value
+        while( *curr && *curr != ',' ) curr++;
+        // move past ,
+        while( *curr && *curr == ',' ) curr++;
+        // check
+        if( *curr == '\0' )
+        {
+            cerr << "ColumnReader: cannot find column " << column << ": " << n << endl;
+            return false;
+        }
+
+        // increment
+        c++;
+        // set start
+        start = curr;
+    }
+
+    // move past value
+    while( *curr && *curr != ',' ) curr++;
+    // end
+    *curr = '\0';
+
+    out = start;
+    
+    return true;
+}
+
+
+CK_DLL_CTOR( VCR_ctor )
+{
+    OBJ_MEMBER_INT(SELF, VCR_offset_data) = (t_CKUINT)new ColumnReader;
+}
+
+CK_DLL_MFUN( VCR_load )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    const char * filename = GET_NEXT_STRING(ARGS)->str.c_str();
+    t_CKINT column = GET_NEXT_INT(ARGS);
+    RETURN->v_int = vcr->init( filename, column );
+}
+
+CK_DLL_MFUN( VCR_reset )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    RETURN->v_int = vcr->reset();
+}
+
+CK_DLL_MFUN( VCR_seek )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    t_CKINT where = GET_CK_INT(ARGS);
+    RETURN->v_int = vcr->seek( where );
+}
+
+CK_DLL_MFUN( VCR_more )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    RETURN->v_int = vcr->more();
+}
+
+CK_DLL_MFUN( VCR_curr )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    RETURN->v_float = vcr->curr();
+}
+
+CK_DLL_MFUN( VCR_next )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    RETURN->v_int = vcr->next();
+}
+
+CK_DLL_MFUN( VCR_pos )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    RETURN->v_int = vcr->pos();
+}
+
+CK_DLL_MFUN( VCR_size )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    RETURN->v_int = vcr->size();
+}
+
+CK_DLL_MFUN( VCR_name )
+{
+    ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
+    RETURN->v_string = &(vcr->s);
+}
+
+#endif
