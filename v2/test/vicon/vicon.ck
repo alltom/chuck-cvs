@@ -23,5 +23,5 @@ for( 0 => int c; c < columns.cap(); c++ )
     // spork
     machine.add( "yay.ck" );
     // let time pass
-    1::ms => now;
+    1::samp => now;
 }
