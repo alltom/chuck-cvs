@@ -487,6 +487,11 @@ t_CKBOOL Chuck_VM::run( )
     // push indent
     EM_pushlog();
 
+#ifdef __CHUCK_STAT_TRACK__
+    // set reference
+    Chuck_Stats::instance()->set_vm_ref( this );
+#endif
+
     // audio
     if( m_audio )
     {
@@ -514,13 +519,22 @@ t_CKBOOL Chuck_VM::run( )
             // set the current time of the shred
             shred->now = shred->wake_time;
 
+            // track shred activation
+            CK_TRACK( Chuck_Stats::instance()->activate_shred( shred ) );
+
             // run the shred
             if( !shred->run( this ) )
             {
+                // track shred deactivation
+                CK_TRACK( Chuck_Stats::instance()->deactivate_shred( shred ) );
+
                 this->free( shred, TRUE );
                 shred = NULL;
                 if( !m_num_shreds && m_halt ) goto vm_stop;
             }
+
+            // track shred deactivation
+            CK_TRACK( if( shred ) Chuck_Stats::instance()->deactivate_shred( shred ) );
         }
 
         // start audio
@@ -696,6 +710,10 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                        out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
             this->free( out, TRUE, FALSE );
             retval = shred->id;
+        
+            // tracking new shred
+            CK_TRACK( Chuck_Stats::instance()->add_shred( shred ) );
+
             goto done;
         }
         else
@@ -905,6 +923,9 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code, Chuck_VM_Shred * parent 
     // spork it
     this->spork( shred );
 
+    // track new shred
+    CK_TRACK( Chuck_Stats::instance()->add_shred( shred ) );
+
     return shred;
 }
 
@@ -968,6 +989,9 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
     // tell parent
     if( shred->parent )
         shred->parent->children.erase( shred->id );
+
+    // track remove shred
+    CK_TRACK( Chuck_Stats::instance()->remove_shred( shred ) );
 
     // free!
     m_shreduler->remove( shred );
@@ -1122,6 +1146,9 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     base_ref = NULL;
     vm_ref = NULL;
     event = NULL;
+
+    // set
+    CK_TRACK( stat = NULL );
 }
 
 
@@ -1263,6 +1290,9 @@ t_CKBOOL Chuck_VM_Shred::run( Chuck_VM * vm )
         // set to next_pc;
         pc = next_pc;
         next_pc++;
+
+        // track number of cycles
+        CK_TRACK( this->stat->cycles++ );
     }
 
     // is the shred finished

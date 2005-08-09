@@ -31,7 +31,6 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Spring 2005
 //-----------------------------------------------------------------------------
-
 #include "ulib_opsc.h"
 #include "chuck_type.h"
 #include "chuck_vm.h"

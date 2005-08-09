@@ -143,6 +143,10 @@ SOURCE=.\chuck_scan.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_stats.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_symbol.cpp
 # End Source File
 # Begin Source File
@@ -312,6 +316,10 @@ SOURCE=.\chuck_parse.h
 # Begin Source File
 
 SOURCE=.\chuck_scan.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\chuck_stats.h
 # End Source File
 # Begin Source File
 

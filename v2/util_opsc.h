@@ -41,7 +41,7 @@
 // the included files were from the CNMAT OSC-Kit distrib. 
 
 #ifdef __PLATFORM_WIN32__
-#include <winsock2.h>
+#include <windows.h>
 #endif
 
 //#include "OSC-pattern-match.h"

@@ -35,9 +35,14 @@
 
 #include "chuck_oo.h"
 #include "chuck_ugen.h"
+
+// tracking
+CK_TRACK( #include "chuck_stats.h" )
+
 #include <string>
 #include <map>
 using namespace std;
+
 
 
 
@@ -194,6 +199,9 @@ public: // id
 public:
     Chuck_VM_Shred * prev;
     Chuck_VM_Shred * next;
+
+    // tracking
+    CK_TRACK( Shred_Stat * stat );
 };
 
 

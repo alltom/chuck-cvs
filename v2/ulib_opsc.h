@@ -35,9 +35,9 @@
 #ifndef __ULIB_OPSC_H__
 #define __ULIB_OPSC_H__
 
+#include "chuck_def.h"
 #include "chuck_dl.h"
 #include "chuck_oo.h"
-#include "chuck_def.h"
 
 DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query* query );
 

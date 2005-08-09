@@ -2329,6 +2329,11 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // suspend
     shred->is_running = FALSE;
 
+#ifdef __CHUCK_STAT_TRACK__
+    // track time advance
+    Chuck_Stats::instance()->advance_time( shred, *sp );
+#endif
+
     push_( sp, *sp );
 }
 
