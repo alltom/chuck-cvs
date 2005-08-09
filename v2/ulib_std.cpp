@@ -30,6 +30,10 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
+#ifdef AJAY
+  #include <fstream>
+  #include <iostream>
+#endif
 #include "ulib_std.h"
 #include <stdlib.h>
 #include <time.h>
@@ -50,6 +54,7 @@ int setenv( const char *n, const char *v, int i )
 
 #include "chuck_type.h"
 #include "chuck_oo.h"
+using namespace std;
 
 CK_DLL_CTOR( VCR_ctor );
 CK_DLL_MFUN( VCR_load );
@@ -451,13 +456,6 @@ CK_DLL_SFUN( dbtorms_impl )
 
 #ifdef AJAY
 
-#include <assert.h>
-#include <fstream>
-#include <iostream>
-#include <vector>
-#include <map>
-#include <string>
-using namespace std;
 
 class ColumnReader
 {
@@ -492,8 +490,6 @@ protected:
 
     vector<double> values;
 };
-
-
 
 
 ColumnReader::ColumnReader()
@@ -726,5 +722,6 @@ CK_DLL_MFUN( VCR_name )
     ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
     RETURN->v_string = &(vcr->s);
 }
+
 
 #endif
