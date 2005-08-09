@@ -102,6 +102,13 @@ typedef const char *                c_constr;
 #define ck_max(x,y)                 ( x >= y ? x : y )
 #define ck_min(x,y)                 ( x <= y ? x : y )
 
+// tracking
+#if defined(__CHUCK_STAT_TRACK__)
+#define CK_TRACK( stmt ) stmt
+#else
+#define CK_TRACK( stmt )
+#endif
+
 #ifdef __MACOSX_CORE__
 #define __PLATFORM_MACOSX__
 #endif

@@ -2329,10 +2329,8 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // suspend
     shred->is_running = FALSE;
 
-#ifdef __CHUCK_STAT_TRACK__
     // track time advance
-    Chuck_Stats::instance()->advance_time( shred, *sp );
-#endif
+    CK_TRACK( Chuck_Stats::instance()->advance_time( shred, *sp ) );
 
     push_( sp, *sp );
 }
@@ -3402,8 +3400,8 @@ void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 const char * Chuck_Instr_Hack::params() const
 {
     static char buffer[256];
-     sprintf( buffer, "(%s)", m_type_ref->c_name() );
-     return buffer;
+    sprintf( buffer, "(%s)", m_type_ref->c_name() );
+    return buffer;
 }
 
 
