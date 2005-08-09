@@ -28,7 +28,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	chuck_frame.o chuck_symbol.o chuck_table.o chuck_utils.o \
 	chuck_vm.o chuck_instr.o chuck_scan.o chuck_type.o chuck_emit.o \
 	chuck_compile.o chuck_dl.o chuck_oo.o chuck_lang.o chuck_ugen.o \
-	chuck_main.o chuck_otf.o chuck_bbq.o digiio_rtaudio.o \
+	chuck_main.o chuck_otf.o chuck_stats.o chuck_bbq.o digiio_rtaudio.o \
 	midiio_rtmidi.o rtaudio.o rtmidi.o ugen_osc.o ugen_filter.o \
 	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o \
 	ulib_opsc.o util_buffers.o util_math.o util_network.o util_raw.o \
@@ -105,6 +105,9 @@ chuck_dl.o: chuck_dl.h chuck_dl.cpp
 
 chuck_otf.o: chuck_otf.h chuck_otf.cpp
 	$(CC) $(FLAGS) chuck_otf.cpp
+
+chuck_stats.o: chuck_stats.h chuck_stats.cpp
+	$(CC) $(FLAGS) chuck_stats.cpp
 
 chuck_bbq.o: chuck_bbq.cpp chuck_bbq.h midiio_rtmidi.h
 	$(CC) $(FLAGS) chuck_bbq.cpp
