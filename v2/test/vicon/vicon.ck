@@ -1,18 +1,28 @@
 
-// number of total columns
-9 => int total;
-
+// columns
+[ 1,2,3,4,5,6,7,8,9 ] @=> int columns[];
 0 => int c;
 
-// do the set
-machine.add( "set.ck" );
+// filename
+"JaneHappy17.txt" => string filename;
+
+// srate in ms
+"10" => string srate;
+
+<<<"setting FILENAME:", filename>>>;
+<<<"setting SRATE:", srate>>>;
+
+// set environment
+std.setenv( "FILENAME", filename );
+std.setenv( "SRATE", srate );
 
 // spork many
-while( c < total )
+for( 0 => c; c < columns.cap(); c++ )
 {
-    c++;
     // set column
-    std.setenv( "VCR_COLUMN", std.itoa( c ) );
+    std.setenv( "VCR_COLUMN", std.itoa( columns[c] ) );
     // spork
     machine.add( "yay.ck" );
+    // let time pass
+    1::ms => now;
 }
