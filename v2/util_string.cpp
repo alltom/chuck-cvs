@@ -53,7 +53,7 @@ string itoa( t_CKINT val )
 // name: ftoa()
 // desc: ...
 //-----------------------------------------------------------------------------
-string itoa( t_CKFLOAT val, t_CKUINT precision )
+string ftoa( t_CKFLOAT val, t_CKUINT precision )
 {
     char str[32];
     char buffer[128];

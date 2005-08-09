@@ -39,6 +39,9 @@
 #include <time.h>
 #include <math.h>
 #include "util_math.h"
+#include "util_string.h"
+#include "chuck_type.h"
+#include "chuck_instr.h"
 
 #if __PLATFORM_WIN32__
 #include <windows.h>
@@ -124,6 +127,15 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     // add atof
     QUERY->add_sfun( QUERY, atof_impl, "float", "atof" ); //! string to float
     QUERY->add_arg( QUERY, "string", "value" );
+
+    // add itoa
+    QUERY->add_sfun( QUERY, itoa_impl, "string", "itoa" ); //! int to string
+    QUERY->add_arg( QUERY, "int", "i" );
+
+    // add ftoa
+    QUERY->add_sfun( QUERY, ftoa_impl, "string", "ftoa" ); //! float to string
+    QUERY->add_arg( QUERY, "float", "f" );
+    QUERY->add_arg( QUERY, "int", "precision" );
 
     // add getenv
     QUERY->add_sfun( QUERY, getenv_impl, "string", "getenv" ); //! fetch environment variable
@@ -332,14 +344,34 @@ CK_DLL_SFUN( atof_impl )
     RETURN->v_float = atof( v );
 }
 
+// itoa
+CK_DLL_SFUN( itoa_impl )
+{
+    t_CKINT i = GET_CK_INT(ARGS);
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    a->str = itoa( i );
+    RETURN->v_string = a;
+}
+
+// ftoa
+CK_DLL_SFUN( ftoa_impl )
+{
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    t_CKINT p = GET_NEXT_INT(ARGS);
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    a->str = ftoa( f, (t_CKUINT)p );
+    RETURN->v_string = a;
+}
+
 // getenv
 static Chuck_String g_str; // PROBLEM: not thread friendly
 CK_DLL_SFUN( getenv_impl )
 {
     const char * v = GET_CK_STRING(ARGS)->str.c_str();
     const char * s = getenv( v );
-    g_str.str = s ? s : "";
-    RETURN->v_string = &g_str;
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    a->str = s ? s : "";
+    RETURN->v_string = a;
 }
 
 // setenv

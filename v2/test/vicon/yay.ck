@@ -1,5 +1,5 @@
 
-// set column number
+// default column number
 1 => int column;
 // default srate
 10::ms => dur srate;
@@ -12,9 +12,12 @@ if( f.length() == 0 )
     me.exit();
 }
 
+// get column
+std.getenv( "VCR_COLUMN" ) => string c;
+if( c.length() != 0 ) std.atoi( c ) => column;
+
 // get srate
 std.getenv( "SRATE" ) => string r;
-<<<r>>>;
 if( r.length() != 0 ) std.atof( r )::ms => srate;
 
 // if srate less than a samp, then something is wrong

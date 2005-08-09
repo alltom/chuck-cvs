@@ -1,12 +1,26 @@
 
 // set column number
 7 => int column;
+// default srate
+10::ms => dur srate;
 
 // get name
 std.getenv( "FILENAME" ) => string f;
 if( f.length() == 0 )
 {
     <<<"set environment variable FILENAME!">>>;
+    me.exit();
+}
+
+// get srate
+std.getenv( "SRATE" ) => string r;
+<<<r>>>;
+if( r.length() != 0 ) std.atof( r )::ms => srate;
+
+// if srate less than a samp, then something is wrong
+if( srate < samp )
+{
+    <<<"srate:", srate, "too tiny!!!">>>;
     me.exit();
 }
 
@@ -29,6 +43,7 @@ if( !vcr.load( f, column ) )
 <<< "column:", column >>>;
 <<< "name:", vcr.name() >>>;
 <<< "size:", vcr.size() >>>;
+<<< "srate:", srate >>>;
 
 
 // good
@@ -40,5 +55,5 @@ while( vcr.more() )
     vcr.next();
 
     // this is srate
-    10::ms => now;
+    srate => now;
 }

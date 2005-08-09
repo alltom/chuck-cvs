@@ -402,23 +402,6 @@ t_CKBOOL type_engine_scan1_prog( Chuck_Env * env, a_Program prog,
         case ae_section_class:
             // if no classes, then skip
             if( how_much == te_do_no_classes ) break;
-            // make global, if marked public
-            if( prog->section->class_def->decl == ae_key_public )
-            {
-                // make sure the context has no public class
-                if( env->context->public_class_def != NULL )
-                {
-                    EM_error2( prog->section->class_def->linepos,
-                        "more than one 'public' class defined..." );
-                    ret = FALSE;
-                    continue;
-                }
-
-                // make global
-                prog->section->class_def->home = env->global();
-                // remember
-                env->context->public_class_def = prog->section->class_def;
-            }
             // scan the class definition
             ret = type_engine_scan1_class_def( env, prog->section->class_def );
             break;

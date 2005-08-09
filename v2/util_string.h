@@ -40,7 +40,7 @@
 // itoa
 std::string itoa( t_CKINT val );
 // ftoa
-std::string ftoa( t_CKINT val );
+std::string ftoa( t_CKFLOAT val, t_CKUINT precision );
 // tolower
 std::string tolower( const std::string & val );
 // toupper
