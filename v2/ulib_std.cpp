@@ -40,12 +40,12 @@
 #include <math.h>
 #include "util_math.h"
 
-#if __WINDOWS_DS__
+#if __PLATFORM_WIN32__
 #include <windows.h>
 
 int setenv( const char *n, const char *v, int i )
 {
-    return SetEnvironmentVariable(n, v);
+    return !SetEnvironmentVariable(n, v);
 }
 
 #endif
