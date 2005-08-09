@@ -22,6 +22,6 @@ for( 0 => int c; c < columns.cap(); c++ )
     std.setenv( "VCR_COLUMN", std.itoa( columns[c] ) );
     // spork
     machine.add( "yay.ck" );
-    // let time pass
-    1::samp => now;
+    // yield
+    me.yield();
 }
