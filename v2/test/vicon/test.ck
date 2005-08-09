@@ -3,7 +3,7 @@
 VCR vcr;
 
 // load file and specify column
-if( !vcr.load( "a.txt", 2 ) )
+if( !vcr.load( "JaneHappy17.txt", 2 ) )
     me.exit();
 
 // print out some info
