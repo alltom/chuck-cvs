@@ -1,20 +1,11 @@
 
 // number of total columns
 9 => int total;
+
 0 => int c;
 
-// filename
-"JaneHappy17.txt" => string filename;
-
-// srate in ms
-"1" => string srate;
-
-<<<"setting FILENAME:", filename>>>;
-<<<"setting SRATE:", srate>>>;
-
-// set environment
-std.setenv( "FILENAME", filename );
-std.setenv( "SRATE", srate );
+// do the set
+machine.add( "set.ck" );
 
 // spork many
 while( c < total )
