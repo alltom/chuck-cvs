@@ -76,8 +76,8 @@
     all stereo unit generators have .left, .right, .pan functions
   - (changed) stereo ugen: dac (2 in, 2 out)
   - (changed) stereo ugen: adc (0 in, 2 out)
-  - (added) stereo ugen: pan2 (1 in, 2 out)
-  - (added) stereo ugen: mix2 (2 in, 1 out)
+  - (added) stereo ugen: pan2 take mono or stereo input and pans
+  - (added) stereo ugen: mix2 mix stereo input into mono
 
 
 ---
