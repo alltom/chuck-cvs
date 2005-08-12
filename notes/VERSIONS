@@ -17,6 +17,13 @@
   LANGUAGE:
   - (fixed) type system for existing types
 
+  COMMAND-LINE:
+  - (added) --probe prints all audio and MIDI devices
+  - (added) --log or --verbose logs compiler and virtual machine
+  - (added) --logN or --verboseN multi level logging
+    1 - least verbose
+    9 - most verbose
+
   OBJECTS:
   - (added) 'class' definitions : class X { int i; }
   - (added) 'exterds' keyword : class Y extends event { int i; }

@@ -113,7 +113,7 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     EM_log( CK_LOG_SYSTEM, "class 'ugen'" );
 
     //the type argument IS t_ugen here - there's no other use of this function
-	//why are we using t_ugen here instead of type ( or vice versa ) ? PLD
+    //why are we using t_ugen here instead of type ( or vice versa ) ? PLD
     // add ugen info
 
     t_ugen.ugen_info = new Chuck_UGen_Info;
@@ -946,51 +946,51 @@ CK_DLL_MFUN( string_get_at )
 // array.size()
 CK_DLL_MFUN( array_size )
 {
-	Chuck_Array * array = (Chuck_Array *)SELF;
-	RETURN->v_int = array->size();
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    RETURN->v_int = array->size();
 }
 
 // array.cap()
 CK_DLL_MFUN( array_capacity )
 {
-	Chuck_Array * array = (Chuck_Array *)SELF;
-	RETURN->v_int = array->capacity();
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    RETURN->v_int = array->capacity();
 }
 
 // array.find()
 CK_DLL_MFUN( array_find )
 {
-	Chuck_Array * array = (Chuck_Array *)SELF;
+    Chuck_Array * array = (Chuck_Array *)SELF;
     Chuck_String * name = GET_NEXT_STRING( ARGS );
-	RETURN->v_int = array->find( name->str );
+    RETURN->v_int = array->find( name->str );
 }
 
 // array.erase()
 CK_DLL_MFUN( array_erase )
 {
-	Chuck_Array * array = (Chuck_Array *)SELF;
+    Chuck_Array * array = (Chuck_Array *)SELF;
     Chuck_String * name = GET_NEXT_STRING( ARGS );
-	RETURN->v_int = array->erase( name->str );
+    RETURN->v_int = array->erase( name->str );
 }
 
 // array.push_back()
 CK_DLL_MFUN( array_push_back )
 {
-	Chuck_Array * array = (Chuck_Array *)SELF;
-	if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
-		RETURN->v_int = ((Chuck_Array4 *)array)->push_back( GET_NEXT_UINT( ARGS ) );
-	else 
-		RETURN->v_int = ((Chuck_Array8 *)array)->push_back( GET_NEXT_FLOAT( ARGS ) );
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
+        RETURN->v_int = ((Chuck_Array4 *)array)->push_back( GET_NEXT_UINT( ARGS ) );
+    else 
+        RETURN->v_int = ((Chuck_Array8 *)array)->push_back( GET_NEXT_FLOAT( ARGS ) );
 }
 
 // array.pop_back()
 CK_DLL_MFUN( array_pop_back )
 {
-	Chuck_Array * array = (Chuck_Array *)SELF;
-	if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
-		RETURN->v_int = ((Chuck_Array4 *)array)->pop_back( );
-	else 
-		RETURN->v_int = ((Chuck_Array8 *)array)->pop_back( );
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
+        RETURN->v_int = ((Chuck_Array4 *)array)->pop_back( );
+    else 
+        RETURN->v_int = ((Chuck_Array8 *)array)->pop_back( );
 }
 
 
