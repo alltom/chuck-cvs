@@ -48,6 +48,9 @@
   - (added) associative arrays : int a[10]; 0 => a["foo"];
     all arrays are both int-indexed and associative
   - (added) array initialization : [ 1, 2, 3 ] @=> int a[];
+  - (added) .cap() for array capacity
+  - (added) .find() test if item is associative array
+  - (added) .erase() erase item in associative array
 
   UGENS:
   - (added) class ugen
