@@ -1,1 +1,11 @@
 \section{LFOs and Blackhole}
+
+A common technique to
+
+ChucK does not support the connection of Ugen signal outputs to parameter inputs. This piece of code will not work:
+
+\begin{verbatim}
+        sinosc s => dac;
+        sinosc lfo => s.freq;
+\end{verbatim}
+

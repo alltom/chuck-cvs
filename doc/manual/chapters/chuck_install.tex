@@ -4,9 +4,25 @@ We tried to make ChucK as easy as possible to build and re-use. All
 sources files - headers source for compiler, vm, and audio engine - are 
 in the same directory (they run in the same address space anyway). Platforms 
 differences are abstracted to the lowest level (in part thanks to Gary 
-Scavone). None of the compiler/vm has any OS-depedent code. To build 
-chuck from the source (from scratch): 
+Scavone). None of the compiler/vm has any OS-depedent code. 
 
+\section{Binary Installation}
+
+The binary distributions inlcude a directory called bin/ istead of src/ that contains the precompiled binary of ChucK for your operating system. The binary distribution is a great introduction to ChucK but once you are comfortable we suggest that you compile ChucK on your own system so that it is optimized for your hardware. 
+
+1. Go to the bin/ directory (replace chuck-x.x.x.x-exe with the actual 
+directory name):
+
+\chuckterm{
+   \prompt cd chuck-x.x.x.x-exe/bin
+}
+
+2. Skip to 3 in the next section.
+
+
+\section{Source Installation}
+
+To build chuck from the source (from scratch): 
 
 1. Go to the src/ directory (replace chuck-x.x.x.x with the actual 
 directory name):
@@ -30,7 +46,7 @@ for example, for MacOS X:
 
 \chuckterm{\prompt make osx}
 
-3. If you like to install chuck (cp into /usr/bin by default). if you 
+3. If you would like to install chuck (cp into /usr/bin by default). If you 
 don't like the destination, simply edit the makefile under `install', or 
 skip this step altogether. (we recommend putting it somewhere in your 
 path, it makes on-the-fly programming easier)
@@ -40,7 +56,7 @@ path, it makes on-the-fly programming easier)
    \prompt make install
 }
 
-4. If you haven't gotten any egregous error messages up to this point, 
+4. If you haven't gotten any egregious error messages up to this point, 
 then you should be done! There should be a `chuck' executable in the 
 current directory. For a quick sanity check, execute the following (use 
 `./chuck' if chuck is not in your path), and see if you get the same output:
