@@ -221,8 +221,6 @@ Chuck_VM_Code * emit_engine_emit_prog( Chuck_Emitter * emit, a_Program prog,
         assert( emit->context->nspc->pre_ctor == NULL );
         // converted to virtual machine code
         emit->context->nspc->pre_ctor = emit_to_code( emit->code, NULL, emit->dump );
-        // add reference
-        emit->context->nspc->pre_ctor->add_ref();
     }
 
     // clear the code
@@ -3159,8 +3157,6 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         emit->append( new Chuck_Instr_Func_Return );
         // vm code
         type->info->pre_ctor = emit_to_code( emit->code, type->info->pre_ctor, emit->dump );
-        // add reference
-        type->info->pre_ctor->add_ref();
         // allocate static
         type->info->class_data = new t_CKBYTE[type->info->class_data_size];
     }
