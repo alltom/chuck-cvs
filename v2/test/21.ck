@@ -19,7 +19,7 @@ fun void foo( Y y )
     // assignment
     10.0 => y.x.f;
     // assignment
-    1 => x.x.i;
+    1 => y.x.i;
 }
 
 // instantiate a Y
