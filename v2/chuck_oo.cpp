@@ -161,7 +161,7 @@ void Chuck_VM_Alloc::add_object( Chuck_VM_Object * obj )
     {
         // log it
         EM_log( CK_LOG_CRAZY, "adding '%s' (0x%lx)...",
-            typeid(*obj).name(), obj );
+            mini_type( typeid(*obj).name() ), obj );
     }
 
     // add it to map
@@ -184,7 +184,7 @@ void Chuck_VM_Alloc::free_object( Chuck_VM_Object * obj )
     {
         // log it
         EM_log( CK_LOG_FINEST, "freeing '%s' (0x%lx)...",
-            typeid(*obj).name(), obj );
+            mini_type( typeid(*obj).name() ), obj );
     }
 
     // remove it from map

@@ -82,6 +82,7 @@ void EM_change_file( c_constr filename );
 const char * EM_lasterror();
 
 const char * mini( const char * str );
+const char * mini_type( const char * str );
 
 #if defined(_cplusplus) || defined(__cplusplus)
 }

@@ -108,6 +108,16 @@ const char * mini( const char * str )
 }
 
 
+// content after 'struct'
+const char * mini_type( const char * str )
+{
+    if( !strncmp( str, "struct ", 7 ) ) str += 7;
+    const char * p = str;
+    while( *p && *p >= '0' && *p <= '9' ) p++;
+    return p;
+}
+
+
 // [%s]:line(%d).char(%d): 
 void EM_error( int pos, const char * message, ... )
 {
