@@ -37,6 +37,9 @@
 #include "chuck_instr.h"
 #include "chuck_errmsg.h"
 
+#include <typeinfo>
+using namespace std;
+
 
 
 
@@ -55,7 +58,7 @@ void Chuck_VM_Object::init_ref()
     // set v ref
     m_v_ref = NULL;
     // add to vm allocator
-    Chuck_VM_Alloc::instance()->add_object( this );
+    // Chuck_VM_Alloc::instance()->add_object( this );
 }
 
 
@@ -71,11 +74,11 @@ void Chuck_VM_Object::add_ref()
     m_ref_count++;
 
     // if going from 0 to 1
-    // if( m_ref_count == 1 )
-    // {
-    //    // add to vm allocator
-    //    Chuck_VM_Alloc::instance()->add_object( this );
-    // }
+    if( m_ref_count == 1 )
+    {
+        // add to vm allocator
+        Chuck_VM_Alloc::instance()->add_object( this );
+    }
 }
 
 

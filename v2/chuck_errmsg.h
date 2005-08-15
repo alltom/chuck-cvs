@@ -70,7 +70,7 @@ void EM_poplog();
 // actual level
 extern int g_loglevel;
 // macro to compare
-#define DO_LOG(x) ( x >= g_loglevel )
+#define DO_LOG(x) ( x <= g_loglevel )
 
 void EM_error( int, c_constr, ... );
 void EM_error2( int, c_constr, ... );
