@@ -37,6 +37,9 @@
 #include "chuck_instr.h"
 #include "chuck_errmsg.h"
 
+#include <typeinfo>
+using namespace std;
+
 
 
 
@@ -71,11 +74,11 @@ void Chuck_VM_Object::add_ref()
     m_ref_count++;
 
     // if going from 0 to 1
-    //if( m_ref_count == 1 )
-    //{
+    // if( m_ref_count == 1 )
+    // {
     //    // add to vm allocator
     //    Chuck_VM_Alloc::instance()->add_object( this );
-    //}
+    // }
 }
 
 
@@ -153,6 +156,14 @@ Chuck_VM_Alloc * Chuck_VM_Alloc::instance()
 //-----------------------------------------------------------------------------
 void Chuck_VM_Alloc::add_object( Chuck_VM_Object * obj )
 {
+    // do log
+    if( DO_LOG( CK_LOG_CRAZY ) )
+    {
+        // log it
+        EM_log( CK_LOG_CRAZY, "adding '%s' (0x%lx)...",
+            typeid(*obj).name(), obj );
+    }
+
     // add it to map
 }
 
@@ -167,9 +178,17 @@ void Chuck_VM_Alloc::free_object( Chuck_VM_Object * obj )
 {
     // make sure the ref count is 0
     assert( obj && obj->m_ref_count == 0 );
-    
+
+    // do log
+    if( DO_LOG( CK_LOG_FINEST ) )
+    {
+        // log it
+        EM_log( CK_LOG_FINEST, "freeing '%s' (0x%lx)...",
+            typeid(*obj).name(), obj );
+    }
+
     // remove it from map
-    
+
     // delete it
     delete obj;
 }

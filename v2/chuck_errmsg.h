@@ -50,7 +50,8 @@ extern int EM_lineNum;
 void EM_newline( );
 
 // levels
-#define CK_LOG_FINEST           9  // set this to log everything
+#define CK_LOG_CRAZY            10 // set this to log everything
+#define CK_LOG_FINEST           9
 #define CK_LOG_FINER            8
 #define CK_LOG_FINE             7
 #define CK_LOG_CONFIG           6
@@ -65,6 +66,11 @@ void EM_log( int, c_constr, ... );
 void EM_setlog( int );
 void EM_pushlog();
 void EM_poplog();
+
+// actual level
+extern int g_loglevel;
+// macro to compare
+#define DO_LOG(x) ( x >= g_loglevel )
 
 void EM_error( int, c_constr, ... );
 void EM_error2( int, c_constr, ... );

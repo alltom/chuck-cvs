@@ -49,8 +49,9 @@ static const char * fileName = "";
 static int lineNum = 1;
 static char g_buffer[1024] = "";
 static char g_lasterror[1024] = "[chuck]: (no error)";
-static int g_loglevel = CK_LOG_SYSTEM_ERROR;
-static int g_logstack = 0;
+// log globals
+int g_loglevel = CK_LOG_SYSTEM_ERROR;
+int g_logstack = 0;
 
 // name
 static const char * g_str[] = {
@@ -64,7 +65,7 @@ static const char * g_str[] = {
     "FINE!!",       // 7
     "FINER!",       // 8
     "FINEST",       // 9
-    "ALL"           // 10
+    "ALL!!"           // 10
 };
 
 
@@ -215,7 +216,7 @@ void EM_log( int level, const char * message, ... )
 {
     va_list ap;
 
-    if( level > CK_LOG_FINEST ) level = CK_LOG_FINEST;
+    if( level > CK_LOG_CRAZY ) level = CK_LOG_CRAZY;
     else if( level <= CK_LOG_NONE ) level = CK_LOG_NONE + 1;
 
     // check level
@@ -239,7 +240,7 @@ void EM_log( int level, const char * message, ... )
 // set log level
 void EM_setlog( int level )
 {
-    if( level > CK_LOG_FINEST ) level = CK_LOG_FINEST;
+    if( level > CK_LOG_CRAZY ) level = CK_LOG_CRAZY;
     else if( level < CK_LOG_NONE ) level = CK_LOG_NONE;
     g_loglevel = level;
 
