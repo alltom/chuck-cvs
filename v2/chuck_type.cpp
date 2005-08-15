@@ -701,10 +701,6 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             // ret = type_engine_check_gotolabel( env, &stmt->goto_label );
             break;
 
-        //case ae_stmt_func:
-        //    ret = type_engine_check_func_def( env, stmt->stmt_func );
-        //    break;
-        
         default:
             EM_error2( stmt->linepos, 
                 "internal compiler error - no stmt type '%i'!", stmt->s_type );

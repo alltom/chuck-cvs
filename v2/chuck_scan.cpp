@@ -283,17 +283,9 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
         switch( body->section->s_type )
         {
         case ae_section_stmt:
-            // flag as having a constructor
-            //env->class_def->has_constructor |= (body->section->stmt_list->stmt != NULL);
-            //ret = type_engine_scan0_stmt_list( env, body->section->stmt_list );
             break;
         
         case ae_section_func:
-            // set to complete
-            // env->class_def->is_complete = TRUE;
-            // ret = type_engine_scan0_func_def( env, body->section->func_def );
-            // back
-            // env->class_def->is_complete = FALSE;
             break;
         
         case ae_section_class:
@@ -531,10 +523,6 @@ t_CKBOOL type_engine_scan1_stmt( Chuck_Env * env, a_Stmt stmt )
             // ret = type_engine_scan1_gotolabel( env, &stmt->goto_label );
             break;
 
-        //case ae_stmt_func:
-        //    ret = type_engine_scan1_func_def( env, stmt->stmt_func );
-        //    break;
-        
         default:
             EM_error2( stmt->linepos, 
                 "internal compiler error (pre-scan) - no stmt type '%i'!", stmt->s_type );
@@ -1850,10 +1838,6 @@ t_CKBOOL type_engine_scan2_stmt( Chuck_Env * env, a_Stmt stmt )
             // ret = type_engine_scan2_gotolabel( env, &stmt->goto_label );
             break;
 
-        //case ae_stmt_func:
-        //    ret = type_engine_scan2_func_def( env, stmt->stmt_func );
-        //    break;
-        
         default:
             EM_error2( stmt->linepos, 
                 "internal compiler error (pre-scan) - no stmt type '%i'!", stmt->s_type );
