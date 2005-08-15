@@ -216,6 +216,11 @@ t_CKBOOL Chuck_Compiler::go( const string & filename, FILE * fd )
 
 cleanup:
 
+        // commit
+        if( ret ) env->global()->commit();
+        // or rollback
+        else env->global()->rollback();
+
         // unload the context from the type-checker
         if( !type_engine_unload_context( env ) )
         {
@@ -401,6 +406,11 @@ t_CKBOOL Chuck_Compiler::do_normal( const string & filename, FILE * fd )
 
 cleanup:
 
+    // commit
+    if( ret ) env->global()->commit();
+    // or rollback
+    else env->global()->rollback();
+
     // unload the context from the type-checker
     if( !type_engine_unload_context( env ) )
     {
@@ -550,11 +560,11 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
 
 error:
 
-    // clear context
-    type_engine_unload_context( env );
-
     // probably dangerous: rollback
     env->global()->rollback();
+
+    // clear context
+    type_engine_unload_context( env );
 
     // pop indent level
     EM_poplog();

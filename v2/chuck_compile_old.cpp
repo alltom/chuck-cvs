@@ -212,6 +212,8 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
     Chuck_Env * env = compiler->env;
     // make context
     Chuck_Context * context = new Chuck_Context;
+    // add ref
+    context->add_ref();
     // load it
     type_engine_load_context( env, context );
 
@@ -232,21 +234,21 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
     if( !init_class_Midi( env ) ) goto error;
     if( !init_class_MidiRW( env ) ) goto error;
 
-    // clear context
-    type_engine_unload_context( env );
-
     // commit what is in the type checker at this point
     env->global()->commit();
     
+    // clear context
+    type_engine_unload_context( env );
+
     return TRUE;
 
 error:
 
-    // clear context
-    type_engine_unload_context( env );
-
     // probably dangerous: rollback
     env->global()->rollback();
+
+    // clear context
+    type_engine_unload_context( env );
 
     return FALSE;
 }

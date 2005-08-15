@@ -736,6 +736,10 @@ Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path );
 
 // array verify
 t_CKBOOL verify_array( a_Array_Sub array );
+// make array type
+Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
+                             t_CKUINT depth, Chuck_Type * base_type,
+                             Chuck_Namespace * owner_nspc );
 // conversion
 const char * type_path( a_Id_List path );
 a_Id_List str2list( const string & path );
