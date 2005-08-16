@@ -2153,9 +2153,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     t_CKINT is_static = -1;
     // UNUSED: t_CKBOOL primitive = FALSE;
 
-    // TODO: handle T a, b, c ...
     // look up the type
-    // t_CKTYPE t = env->curr->lookup_type( decl->type->id->id, TRUE );
+    // TODO: handle T a, b, c...
+    // TODO: do we climb?
     t_CKTYPE t = type_engine_find_type( env, decl->type->id );
     if( !t )
     {
