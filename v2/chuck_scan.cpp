@@ -772,7 +772,7 @@ t_CKBOOL type_engine_scan1_exp( Chuck_Env * env, a_Exp exp )
         break;
     
         case ae_exp_decl:
-            ret = type_engine_scan1_exp_decl( env, &curr->decl );
+            // ret = type_engine_scan1_exp_decl( env, &curr->decl );
         break;
 
         default:
@@ -1040,6 +1040,19 @@ t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
 
+    // look up the type
+    // TODO: handle T a, b, c...
+    // TODO: do we climb?
+    t_CKTYPE t = type_engine_find_type( env, decl->type->id );
+    // if not found, try to resolve
+    if( !t )
+    {
+        // resolve
+
+        EM_error2( decl->linepos, "... in declaration ..." );
+        return NULL;
+    }
+
     // loop through the variables
     while( list != NULL )
     {
@@ -1068,6 +1081,11 @@ t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // the next var decl
         list = list->next;
     }
+
+    // remember
+    decl->ck_type = t;
+    // add reference
+    decl->ck_type->add_ref();
 
     return TRUE;
 }
@@ -1280,8 +1298,8 @@ t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def f )
         // TODO: verify
         // set ref
         f->type_decl->ref = TRUE;
-        // replace type
-        f->ret_type = t;
+        // replace type : f->ret_type = t
+        SAFE_REF_ASSIGN( f->ret_type, t );
     }
 
     // look up types for the function arguments
@@ -1748,7 +1766,7 @@ t_CKBOOL type_engine_scan2_exp( Chuck_Env * env, a_Exp exp )
         break;
     
         case ae_exp_decl:
-            ret = type_engine_scan2_exp_decl( env, &curr->decl );
+            // ret = type_engine_scan2_exp_decl( env, &curr->decl );
         break;
 
         default:
@@ -2015,15 +2033,52 @@ t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
-    // Chuck_Value * value = NULL;
+    Chuck_Type * type = NULL;
+    Chuck_Value * value = NULL;
     // t_CKBOOL primitive = FALSE;
-    // t_CKBOOL do_alloc = TRUE;
+    t_CKBOOL do_alloc = TRUE;
     t_CKBOOL is_member = FALSE;
-    // t_CKINT is_static = -1;
+    t_CKINT is_static = -1;
 
-    // is member of class
-    is_member = ( env->class_def != NULL && env->class_scope == 0
-                  && env->func == NULL && !decl->is_static );
+    // retrieve the type
+    type = decl->ck_type;
+    // make sure it's not NULL
+    assert( type != NULL );
+
+    // check to see type is not void
+    if( type->size == 0 )
+    {
+        EM_error( decl->linepos,
+            "cannot declare variables of size '0' (i.e. 'void')..." );
+        return FALSE;
+    }
+
+    // T @ foo?
+    do_alloc = !decl->type->ref;
+
+    // make sure complete
+    if( /*!t->is_complete &&*/ do_alloc )
+    {
+        // check to see if class inside itself
+        if( env->class_def && equals( type, env->class_def ) )
+        {
+            EM_error2( decl->linepos,
+                "...(note: object of type '%s' declared inside itself)",
+                type->c_name() );
+            return FALSE;
+        }
+    }
+
+    // primitive
+    if( (isprim( type ) || isa( type, &t_string )) && decl->type->ref )  // TODO: string
+    {
+        EM_error2( decl->linepos,
+            "cannot declare references (@) of primitive type '%s'...",
+            type->c_name() );
+        EM_error2( decl->linepos,
+            "...(primitive types: 'int', 'float', 'time', 'dur')" );
+        return FALSE;
+    }
 
     // loop through the variables
     while( list != NULL )
@@ -2031,7 +2086,23 @@ t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // get the decl
         var_decl = list->var_decl;
 
-        // TODO: this needs to be redone
+        // check if reserved
+        if( type_engine_check_reserved( env, var_decl->id, var_decl->linepos ) )
+        {
+            EM_error2( var_decl->linepos, 
+                "...in variable declaration", S_name(var_decl->id) );
+            return FALSE;
+        }
+
+        // check if locally defined
+        if( env->curr->lookup_value( var_decl->id, FALSE ) )
+        {
+            EM_error2( var_decl->linepos,
+                "'%s' has already been defined in the same scope...",
+                S_name(var_decl->id) );
+            return FALSE;
+        }
+
         // check if array
         if( var_decl->array != NULL )
         {
@@ -2039,36 +2110,79 @@ t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             if( !verify_array( var_decl->array ) )
                 return FALSE;
 
+            Chuck_Type * t2 = type;
             // may be partial and empty []
             if( var_decl->array->exp_list )
             {
-                // type check the exp
+                // scan2 the exp
                 if( !type_engine_scan2_exp( env, var_decl->array->exp_list ) )
                     return FALSE;
                 // make sure types are of int
                 if( !type_engine_scan2_array_subscripts( env, var_decl->array->exp_list ) )
                     return FALSE;
             }
+
+            // create the new array type
+            type = new_array_type(
+                env,  // the env
+                &t_array,  // the array base class, usually &t_array
+                var_decl->array->depth,  // the depth of the new type
+                t2,  // the 'array_type'
+                env->curr  // the owner namespace
+            );
+
+            // set ref
+            if( !var_decl->array->exp_list )
+                decl->type->ref = TRUE;
+
+            // set reference : decl->ck_type = type;
+            SAFE_REF_ASSIGN( decl->ck_type, type );
         }
 
+        // enter into value binding
+        env->curr->value.add( var_decl->id,
+            value = env->context->new_Chuck_Value( type, S_name(var_decl->id) ) );
+
+        // remember the owner
+        value->owner = env->curr;
+        value->owner_class = env->func ? NULL : env->class_def;
+        value->is_member = ( env->class_def != NULL && 
+                             env->class_scope == 0 && 
+                             env->func == NULL && !decl->is_static );
+        value->is_context_global = ( env->class_def == NULL && env->func == NULL );
+        value->addr = var_decl->addr;
+
+        // remember the value
+        var_decl->value = value;
+
         // member?
-        if( is_member )
+        if( value->is_member )
         {
-            // do nothing
+            // offset
+            value->offset = env->curr->offset;
+            // move the offset (TODO: check the size)
+            env->curr->offset += type->size;
         }
-        else if( env->class_def != NULL && decl->is_static ) // static
+        else if( decl->is_static ) // static
         {
             // base scope
-            if( env->class_scope > 0 )
+            if( env->class_def == NULL || env->class_scope > 0 )
             {
                 EM_error2( decl->linepos,
                     "static variables must be declared at class scope..." );
                 return FALSE;
             }
+
+            // flag
+            value->is_static = TRUE;
+            // offset
+            value->offset = env->class_def->info->class_data_size;
+            // move the size
+            env->class_def->info->class_data_size += type->size;
         }
         else // local variable
         {
-            // do nothing
+            // do nothing?
         }
 
         // the next var decl
@@ -2417,8 +2531,8 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
 
             // set ref
             arg_list->type_decl->ref = TRUE;
-            // set type
-            arg_list->type = t;
+            // set type : arg_list->type = t;
+            SAFE_REF_ASSIGN( arg_list->type, t );
         }
         
         // make new value

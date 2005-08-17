@@ -4286,13 +4286,17 @@ Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
     // set the name
     t->name = base_type->name;
     // set the parent
-    t->parent = array_parent; // TODO: ref
+    t->parent = array_parent;
+    // add reference
+    SAFE_ADD_REF(t->parent);
     // is a ref
     t->size = array_parent->size;
     // set the array depth
     t->array_depth = depth;
     // set the base type
-    t->array_type = base_type; // TODO: ref
+    t->array_type = base_type;
+    // add reference
+    SAFE_ADD_REF(t->array_type);
     // set the namesapce
     t->info = array_parent->info;
     // add reference

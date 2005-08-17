@@ -96,7 +96,7 @@ typedef const char *                c_constr;
 #define SAFE_DELETE_ARRAY(x)        { if(x){ delete [] x; x = NULL; } }
 #define SAFE_RELEASE(x)             { if(x){ x->release(); x = NULL; } }
 #define SAFE_ADD_REF(x)             { if(x){ x->add_ref(); } }
-#define SAFE_REF_ASSIGN(lhs,rhs)    { SAFE_RELEASE(lhs); lhs = rhs; SAFE_ADD_REF(lhs); }
+#define SAFE_REF_ASSIGN(lhs,rhs)    { SAFE_RELEASE(lhs); (lhs) = (rhs); SAFE_ADD_REF(lhs); }
 #endif
 
 #define ck_max(x,y)                 ( x >= y ? x : y )
