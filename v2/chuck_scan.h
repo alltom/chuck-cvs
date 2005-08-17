@@ -49,6 +49,8 @@ t_CKBOOL type_engine_scan1_prog( Chuck_Env * env, a_Program prog,
 t_CKBOOL type_engine_scan1_class_def( Chuck_Env * env, a_Class_Def def );
 // scan a function definition (used by type_engine_add_dll())
 t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def def );
+// scan an exp decl
+t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
 
 // scan a program into the env - function/member/static scan
 t_CKBOOL type_engine_scan2_prog( Chuck_Env * env, a_Program prog,
@@ -57,6 +59,8 @@ t_CKBOOL type_engine_scan2_prog( Chuck_Env * env, a_Program prog,
 t_CKBOOL type_engine_scan2_class_def( Chuck_Env * env, a_Class_Def def );
 // scan a function definition (used by type_engine_add_dll())
 t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def def );
+// scan an exp decl
+t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl );
 
 // the rest is done in chuck_type
 

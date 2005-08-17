@@ -772,7 +772,7 @@ t_CKBOOL type_engine_scan1_exp( Chuck_Env * env, a_Exp exp )
         break;
     
         case ae_exp_decl:
-            // ret = type_engine_scan1_exp_decl( env, &curr->decl );
+            ret = type_engine_scan1_exp_decl( env, &curr->decl );
         break;
 
         default:
@@ -1206,6 +1206,8 @@ t_CKBOOL type_engine_scan1_class_def( Chuck_Env * env, a_Class_Def class_def )
         switch( body->section->s_type )
         {
         case ae_section_stmt:
+            // do the statements
+            ret = type_engine_scan1_stmt_list( env, body->section->stmt_list );
             break;
         
         case ae_section_func:
@@ -1764,7 +1766,7 @@ t_CKBOOL type_engine_scan2_exp( Chuck_Env * env, a_Exp exp )
         break;
     
         case ae_exp_decl:
-            // ret = type_engine_scan2_exp_decl( env, &curr->decl );
+            ret = type_engine_scan2_exp_decl( env, &curr->decl );
         break;
 
         default:
@@ -2311,7 +2313,7 @@ t_CKBOOL type_engine_scan2_class_def( Chuck_Env * env, a_Class_Def class_def )
         {
         case ae_section_stmt:
             // already flagged as having a constructor or not
-            // ret = type_engine_scan2_stmt_list( env, body->section->stmt_list );
+            ret = type_engine_scan2_stmt_list( env, body->section->stmt_list );
             break;
 
         case ae_section_func:

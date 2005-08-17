@@ -2148,61 +2148,13 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 {
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
+    Chuck_Type * type = NULL;
     Chuck_Value * value = NULL;
-    t_CKBOOL do_alloc = TRUE;
-    t_CKINT is_static = -1;
-    // UNUSED: t_CKBOOL primitive = FALSE;
 
-    // look up the type
-    // TODO: handle T a, b, c...
-    // TODO: do we climb?
-    t_CKTYPE t = type_engine_find_type( env, decl->type->id );
-    if( !t )
-    {
-        EM_error2( decl->linepos, "... in declaration ..." );
-        return NULL;
-    }
-
-    // make sure it's not void
-    if( t->size == 0 )
-    {
-        EM_error2( decl->linepos,
-            "cannot declare variables of size '0' (i.e. 'void')..." );
-        return NULL;
-    }
-
-    // T @ foo?
-    do_alloc = !decl->type->ref;
-
-    // make sure complete
-    if( !t->is_complete && do_alloc )
-    {
-        // EM_error2( decl->linepos,
-        //     "cannot declare object due to incomplete type '%s'...",
-        //     t->c_name() );
-        // EM_error2( decl->linepos,
-        //     "...(note: can define only references (@) to incomplete types)" );
-
-        // check to see if class inside itself
-        if( env->class_def && equals( t, env->class_def ) )
-        {
-            EM_error2( decl->linepos,
-                "...(note: object of type '%s' declared inside itself)",
-                t->c_name() );
-            return NULL;
-        }
-    }
-
-    // primitive
-    if( (isprim( t ) || isa( t, &t_string )) && decl->type->ref )  // TODO: string
-    {
-        EM_error2( decl->linepos,
-            "cannot declare references (@) of primitive type '%s'...",
-            t->c_name() );
-        EM_error2( decl->linepos,
-            "...(primitive types: 'int', 'float', 'time', 'dur')" );
-        return NULL;
-    }
+    // get the type
+    type = decl->ck_type;
+    // make sure
+    assert( type != NULL );
 
     // loop through the variables
     while( list != NULL )
@@ -2210,157 +2162,22 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // get the decl
         var_decl = list->var_decl;
 
-        // check if reserved
-        if( type_engine_check_reserved( env, var_decl->id, var_decl->linepos ) )
-        {
-            EM_error2( var_decl->linepos, 
-                "...in variable declaration", S_name(var_decl->id) );
-            return NULL;
-        }
-
-        // check if locally defined
-        if( env->curr->lookup_value( var_decl->id, FALSE ) )
+        // check if in parent
+        // TODO: sort
+        if( env->class_def && ( value =
+            type_engine_find_value( env->class_def->parent, var_decl->id ) ) )
         {
             EM_error2( var_decl->linepos,
-                "'%s' has already been defined in the same scope...",
-                S_name(var_decl->id) );
+                "'%s' has already been defined in super class '%s'...",
+                S_name(var_decl->id), value->owner_class->c_name() );
             return NULL;
-        }
-
-        // check if in parent
-        // if( env->class_def && ( value =
-        //     type_engine_find_value( env->class_def->parent, var_decl->id ) ) )
-        // {
-        //     EM_error2( var_decl->linepos,
-        //         "'%s' has already been defined in super class '%s'...",
-        //         S_name(var_decl->id), value->owner_class->c_name() );
-        //     return NULL;
-        // }
-
-        // check if array
-        if( var_decl->array != NULL )
-        {
-            // verify there are no errors from the parser...
-            if( !verify_array( var_decl->array ) )
-                return NULL;
-
-            Chuck_Type * t2 = t;
-            // may be partial and empty []
-            if( var_decl->array->exp_list )
-            {
-                // type check the exp
-                if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
-                    return NULL;
-                // make sure types are of int
-                if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
-                    return NULL;
-            }
-
-            // create the new array type
-            t = new_array_type(
-                env,  // the env
-                &t_array,  // the array base class, usually &t_array
-                var_decl->array->depth,  // the depth of the new type
-                t2,  // the 'array_type'
-                env->curr  // the owner namespace
-            );
-
-            // set ref
-            if( !var_decl->array->exp_list )
-                decl->type->ref = TRUE;
-        }
-
-        // make sure
-        // if( var_decl->isarray )
-        // {
-        //     EM_error2( decl->linepos,
-        //         "for declaration, array subscripts must be placed after type" );
-        //     return NULL;
-        // }
-
-        // enter into value binding
-        env->curr->value.add( var_decl->id,
-            value = env->context->new_Chuck_Value( t, S_name(var_decl->id) ) );
-
-        // remember the owner
-        value->owner = env->curr;
-        value->owner_class = env->func ? NULL : env->class_def;
-        value->is_member = ( env->class_def != NULL && 
-                             env->class_scope == 0 && 
-                             env->func == NULL && !decl->is_static );
-        value->is_context_global = ( env->class_def == NULL && env->func == NULL );
-        value->addr = var_decl->addr;
-
-        // remember the value
-        var_decl->value = value;
-
-        // see if in function or not
-        // if( env->func )
-        // {
-        //    // assign the offset in the function
-        //    value->offset = env->func->offset;
-        //    // move the offset (TODO: check the size)
-        //    env->func->offset += t->size;
-        //}
-        //else
-        //{
-        //    // assign the offset
-        //    value->offset = env->curr->offset;
-        //    // move the offset (TODO: check the size)
-        //    env->curr->offset += t->size;
-        //}
-
-        // member?
-        if( value->is_member )
-        {
-            // offset
-            value->offset = env->curr->offset;
-            // move the offset (TODO: check the size)
-            env->curr->offset += t->size;
-
-            // check to see if consistent with stmt
-            if( is_static == 1 ) // static
-            {
-                EM_error2( var_decl->linepos,
-                    "cannot mix static and non-static declarations in the same statement" );
-                return NULL;
-            }
-            else is_static = 0;
-        }
-        else if( env->class_def != NULL && decl->is_static ) // static
-        {
-            // base scope
-            if( env->class_scope > 0 )
-            {
-                EM_error2( decl->linepos,
-                    "static variables must be declared at class scope..." );
-                return NULL;
-            }
-
-            // check to see if consistent with stmt
-            if( is_static == 0 ) // non static
-            {
-                EM_error2( var_decl->linepos,
-                    "cannot mix static and non-static declarations in the same statement" );
-                return NULL;
-            }
-            else is_static = 1;
-
-            // offset
-            value->offset = env->class_def->info->class_data_size;
-            // move the size
-            env->class_def->info->class_data_size += t->size;
-        }
-        else // local variable
-        {
-            // do nothing?
         }
 
         // the next var decl
         list = list->next;
     }
 
-    return t;
+    return type;
 }
 
 
@@ -4104,7 +3921,9 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
     // make exp decl
     a_Exp exp_decl = new_exp_decl( type_decl, var_decl_list, FALSE, 0 );
     // add it
-    if( !type_engine_check_exp_decl( env, &exp_decl->decl ) )
+    if( !type_engine_scan1_exp_decl( env, &exp_decl->decl ) ||
+        !type_engine_scan2_exp_decl( env, &exp_decl->decl ) ||
+        !type_engine_check_exp_decl( env, &exp_decl->decl ) )
     {
         delete_id_list( path );
         return CK_INVALID_OFFSET;
@@ -4159,7 +3978,9 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
     // add addr
     var_decl->addr = (void *)addr;
     // add it
-    if( !type_engine_check_exp_decl( env, &exp_decl->decl ) )
+    if( !type_engine_scan1_exp_decl( env, &exp_decl->decl ) ||
+        !type_engine_scan2_exp_decl( env, &exp_decl->decl ) ||
+        !type_engine_check_exp_decl( env, &exp_decl->decl ) )
     {
         delete_id_list( path );
         return FALSE;
