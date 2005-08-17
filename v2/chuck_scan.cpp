@@ -2035,10 +2035,7 @@ t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     a_Var_Decl var_decl = NULL;
     Chuck_Type * type = NULL;
     Chuck_Value * value = NULL;
-    // t_CKBOOL primitive = FALSE;
     t_CKBOOL do_alloc = TRUE;
-    t_CKBOOL is_member = FALSE;
-    t_CKINT is_static = -1;
 
     // retrieve the type
     type = decl->ck_type;
