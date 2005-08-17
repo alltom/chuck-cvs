@@ -1082,10 +1082,8 @@ t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         list = list->next;
     }
 
-    // remember
-    decl->ck_type = t;
-    // add reference
-    decl->ck_type->add_ref();
+    // remember : decl->ck_type = t;
+    SAFE_REF_ASSIGN( decl->ck_type, t );
 
     return TRUE;
 }
