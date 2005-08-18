@@ -703,12 +703,16 @@ t_CKBOOL type_engine_scan1_return( Chuck_Env * env, a_Stmt_Return stmt )
 t_CKBOOL type_engine_scan1_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
                                         t_CKBOOL push )
 {
+    // class
+    env->class_scope++;
     // push
     if( push ) env->curr->value.push(); // env->context->nspc.value.push();
     // do it
     t_CKBOOL t = type_engine_scan1_stmt_list( env, stmt->stmt_list );
     // pop
     if( push ) env->curr->value.pop();  // env->context->nspc.value.pop();
+    // class
+    env->class_scope--;
     
     return t;
 }
@@ -1697,12 +1701,16 @@ t_CKBOOL type_engine_scan2_return( Chuck_Env * env, a_Stmt_Return stmt )
 t_CKBOOL type_engine_scan2_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
                                         t_CKBOOL push )
 {
+    // class
+    env->class_scope++;
     // push
     if( push ) env->curr->value.push(); // env->context->nspc.value.push();
     // do it
     t_CKBOOL t = type_engine_scan2_stmt_list( env, stmt->stmt_list );
     // pop
     if( push ) env->curr->value.pop();  // env->context->nspc.value.pop();
+    // class
+    env->class_scope--;
     
     return t;
 }
@@ -2057,7 +2065,7 @@ t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     if( /*!t->is_complete &&*/ do_alloc )
     {
         // check to see if class inside itself
-        if( env->class_def && equals( type, env->class_def ) )
+        if( env->class_def && equals( type, env->class_def ) && env->class_scope == 0 )
         {
             EM_error2( decl->linepos,
                 "...(note: object of type '%s' declared inside itself)",
