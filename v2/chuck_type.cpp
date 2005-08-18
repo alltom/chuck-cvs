@@ -930,12 +930,16 @@ t_CKBOOL type_engine_check_code_segment( Chuck_Env * env, a_Stmt_Code stmt,
 {
     // TODO: make sure this is in a function or is outside class
 
+    // class
+    env->class_scope++;
     // push
     if( push ) env->curr->value.push(); // env->context->nspc.value.push();
     // do it
     t_CKBOOL t = type_engine_check_stmt_list( env, stmt->stmt_list );
     // pop
     if( push ) env->curr->value.pop();  // env->context->nspc.value.pop();
+    // class
+    env->class_scope--;
     
     return t;
 }
@@ -2161,6 +2165,10 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     {
         // get the decl
         var_decl = list->var_decl;
+        // get the value
+        value = var_decl->value;
+        // make sure
+        assert( value != NULL );
 
         // check if in parent
         // TODO: sort
@@ -2171,6 +2179,14 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
                 "'%s' has already been defined in super class '%s'...",
                 S_name(var_decl->id), value->owner_class->c_name() );
             return NULL;
+        }
+
+        // add the value, if we are not at class scope
+        // (otherwise they should already have been added)
+        if( !env->class_def || env->class_scope > 0 )
+        {
+            // add as value
+            env->curr->value.add( var_decl->id, value );
         }
 
         // the next var decl
@@ -2717,8 +2733,6 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 
     // make sure return type is not NULL
     assert( f->ret_type != NULL );
-
-
 
     // only class functions can be pure
     if( !env->class_def && f->static_decl == ae_key_abstract )

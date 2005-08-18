@@ -139,7 +139,8 @@ public:
     { 
         assert( scope.size() != 0 );
         // add if back is NOT front
-        if( scope.back() != scope.front() ) (*scope.back())[id] = value; 
+        if( scope.back() != scope.front() )
+            (*scope.back())[id] = value; 
         // add for commit
         else commit_map[id] = value;
         // add reference
@@ -167,7 +168,8 @@ public:
         else if( climb > 0 )
         {
             for( t_CKUINT i = scope.size(); i > 0; i-- )
-                if( val = (*scope[i-1])[id] ) break;
+            { if( val = (*scope[i-1])[id] ) break; }
+
             // look in commit buffer
             if( !val && (commit_map.find(id) != commit_map.end()) )
                 val = commit_map[id];

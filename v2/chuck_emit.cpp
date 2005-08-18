@@ -3172,10 +3172,24 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         type->info->pre_ctor->add_ref();
         // allocate static
         type->info->class_data = new t_CKBYTE[type->info->class_data_size];
-        // zero it out
-        memset( type->info->class_data, 0, type->info->class_data_size );
+        // verify
+        if( !type->info->class_data )
+        {
+            // we have a problem
+            fprintf( stderr, 
+                "[chuck](VM): OutOfMemory: while allocating static data '%s'\n", type->c_name() );
+            // flag
+            ret = FALSE;
+        }
+        else
+        {
+            // zero it out
+            memset( type->info->class_data, 0, type->info->class_data_size );
+        }
     }
-    else
+
+    // check again
+    if( !ret )
     {
         // clean
         SAFE_DELETE( type->info->pre_ctor );

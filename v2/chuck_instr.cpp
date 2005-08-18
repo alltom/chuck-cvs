@@ -59,6 +59,23 @@ const char * Chuck_Instr::name() const
 
 
 //-----------------------------------------------------------------------------
+// name: handle_overflow()
+// desc: stack overflow
+//-----------------------------------------------------------------------------
+static void handle_overflow( Chuck_VM_Shred * shred, Chuck_VM * vm )
+{
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): Exception StackOverflow in shred '%ld'\n", shred->id );
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2088,6 +2105,15 @@ void Chuck_Instr_Func_Call::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         for( t_CKUINT i = 0; i < stack_depth; i++ )
             *mem_sp2++ = *reg_sp2++;
     }
+
+    // detect overflow/underflow
+    if( overflow_( shred->mem ) ) goto error_overflow;
+
+    return;
+
+error_overflow:
+    
+    handle_overflow( shred, vm );
 }
 
 
@@ -2145,6 +2171,9 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
             *mem_sp2++ = *reg_sp2++;
     }
 
+    // detect overflow/underflow
+    if( overflow_( shred->mem ) ) goto error_overflow;
+
     // call the function
     f( (Chuck_Object *)(*mem_sp), mem_sp + 1, &retval );
     mem_sp -= push;
@@ -2163,6 +2192,12 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     }
     else if( m_val == 0 ) { }
     else assert( FALSE );
+
+    return;
+
+error_overflow:
+    
+    handle_overflow( shred, vm );
 }
 
 
@@ -2222,6 +2257,9 @@ void Chuck_Instr_Func_Call_Static::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
             *mem_sp2++ = *reg_sp2++;
     }
 
+    // detect overflow/underflow
+    if( overflow_( shred->mem ) ) goto error_overflow;
+
     // call the function
     f( mem_sp, &retval );
     mem_sp -= push;
@@ -2240,6 +2278,12 @@ void Chuck_Instr_Func_Call_Static::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     }
     else if( m_val == 0 ) { }
     else assert( FALSE );
+
+    return;
+
+error_overflow:
+    
+    handle_overflow( shred, vm );
 }
 
 

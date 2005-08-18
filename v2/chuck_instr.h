@@ -2307,6 +2307,10 @@ t_CKBOOL initialize_object( Chuck_Object * obj, Chuck_Type * type );
 #define pop_( sp, n )            sp -= (n)
 #define val_( sp )               *(sp)
 
+// stack overflow detection
+#define overflow_( stack )       ( stack->sp > stack->sp_max )
+#define underflow_( stack )      ( stack->sp < stack->stack )
+
 
 
 

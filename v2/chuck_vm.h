@@ -51,7 +51,7 @@ using namespace std;
 // vm defines
 //-----------------------------------------------------------------------------
 #define CVM_MEM_STACK_SIZE          (0x1 << 16)
-#define CVM_REG_STACK_SIZE          (0x1 << 16)
+#define CVM_REG_STACK_SIZE          (0x1 << 14)
 
 
 // forward references

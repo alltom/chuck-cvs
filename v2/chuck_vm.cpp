@@ -1087,9 +1087,8 @@ t_CKBOOL Chuck_VM_Stack::initialize( t_CKUINT size )
     size += VM_STACK_OFFSET;
     // allocate stack
     stack = new t_CKBYTE[size];
-    if( !stack )
-        return FALSE;
-        
+    if( !stack ) goto out_of_memory;
+
     // zero
     memset( stack, 0, size );
 
@@ -1101,6 +1100,15 @@ t_CKBOOL Chuck_VM_Stack::initialize( t_CKUINT size )
 
     // set flag and return
     return m_is_init = TRUE;
+
+out_of_memory:
+
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): OutOfMemory: while allocating stack '%s'\n" );
+
+    // return FALSE
+    return FALSE;
 }
 
 
