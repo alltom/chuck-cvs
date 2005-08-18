@@ -2811,11 +2811,20 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         is_ref = decl->type->ref;
 
         // if this is an object
-        if( is_obj )
+        if( is_obj && !is_ref )
         {
             // if array, then check to see if empty []
             if( !list->var_decl->array || list->var_decl->array->exp_list != NULL )
             {
+                // for now - no good for static, since we need separate
+                // initialization which we don't have
+                if( value->is_static )
+                {
+                    EM_error2( var_decl->linepos,
+                        "cannot declare static nonprimitive objects (yet)..." );
+                    return FALSE;
+                }
+
                 // instantiate object, including array
                 if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
                     return FALSE;
@@ -3163,6 +3172,8 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         type->info->pre_ctor->add_ref();
         // allocate static
         type->info->class_data = new t_CKBYTE[type->info->class_data_size];
+        // zero it out
+        memset( type->info->class_data, 0, type->info->class_data_size );
     }
     else
     {
