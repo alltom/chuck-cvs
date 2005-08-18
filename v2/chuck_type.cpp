@@ -1752,7 +1752,7 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 if( !v )
                 {
                     // error
-                    if( !env->class_def )
+                    if( !env->class_def || env->class_scope > 0 )
                     {
                         EM_error2( exp->linepos,
                             "undefined variable '%s'...", S_name(exp->var) );
@@ -2165,10 +2165,6 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     {
         // get the decl
         var_decl = list->var_decl;
-        // get the value
-        value = var_decl->value;
-        // make sure
-        assert( value != NULL );
 
         // check if in parent
         // TODO: sort
@@ -2180,6 +2176,11 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
                 S_name(var_decl->id), value->owner_class->c_name() );
             return NULL;
         }
+
+        // get the value
+        value = var_decl->value;
+        // make sure
+        assert( value != NULL );
 
         // add the value, if we are not at class scope
         // (otherwise they should already have been added)

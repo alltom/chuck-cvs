@@ -136,11 +136,11 @@ public:
     void add( const string & id, Chuck_VM_Object * value )
     { this->add( insert_symbol(id.c_str()), value ); }
     void add( S_Symbol id, Chuck_VM_Object * value )
-    { 
+    {
         assert( scope.size() != 0 );
         // add if back is NOT front
         if( scope.back() != scope.front() )
-            (*scope.back())[id] = value; 
+            (*scope.back())[id] = value;
         // add for commit
         else commit_map[id] = value;
         // add reference
