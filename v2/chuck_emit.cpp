@@ -2874,13 +2874,13 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
                     return FALSE;
                 }
             }
-            else
+            else // static
             {
-                // push something on the stack to pop...
-                // static
-                // HACK
-                // TODO
-                emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+                // emit the type
+                emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)emit->env->class_def ) );
+                // emit the static value
+                emit->append( new Chuck_Instr_Dot_Static_Data(
+                    value->offset, value->type->size, TRUE ) );
             }
         }
 
@@ -3271,7 +3271,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
     }
 
     // if part of class - this only works because x.y is handled separately
-    if( v->owner_class && v->is_member )
+    if( v->owner_class && ( v->is_member || v->is_static) )
     {
         // emit as this.v
         a_Exp base = new_exp_from_id( "this", linepos );
