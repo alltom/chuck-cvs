@@ -136,8 +136,7 @@ public:
     void add( const string & id, Chuck_VM_Object * value )
     { this->add( insert_symbol(id.c_str()), value ); }
     void add( S_Symbol id, Chuck_VM_Object * value )
-    { 
-        long i = (long)scope.back();
+    {
         assert( scope.size() != 0 );
         // add if back is NOT front
         if( scope.back() != scope.front() )
@@ -156,7 +155,6 @@ public:
     // -1 base, 0 current, 1 climb
     T lookup( S_Symbol id, t_CKINT climb = 1 )
     {
-        long i = (long)scope.back();
         Chuck_VM_Object * val; assert( scope.size() != 0 );
 
         if( climb == 0 )
