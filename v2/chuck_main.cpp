@@ -115,18 +115,28 @@ extern "C" void signal_int( int sig_num )
 
     if( g_vm )
     {
+        // get vm
         Chuck_VM * vm = g_vm;
+        // flag the global one
         g_vm = NULL;
-        vm->stop();
-        // detach
-        all_detach();
+        // if not NULL
+        if( vm )
+        {
+            // stop
+            vm->stop();
+            // detach
+            all_detach();
+        }
+
+        // things don't work so good on windows...
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid, 2 );
         if( g_tid ) pthread_cancel( g_tid );
         // if( g_tid ) usleep( 50000 );
-        delete( vm );
+        SAFE_DELETE( vm );
 #else
-        CloseHandle( g_tid );
+        // close handle
+        if( g_tid ) CloseHandle( g_tid );
 #endif
         // ck_close( g_sock );
     }
@@ -503,7 +513,7 @@ int main( int argc, char ** argv )
     all_detach();
 
     // free vm
-    SAFE_DELETE( vm );
+    g_vm = NULL; SAFE_DELETE( vm );
     // free the compiler
     SAFE_DELETE( compiler );
 

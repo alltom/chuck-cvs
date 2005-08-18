@@ -2339,7 +2339,7 @@ void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         sh->reg->sp += m_val;
     }
     // push the stack
-    push_( reg_sp, sh->id );
+    push_( reg_sp, (t_CKUINT)sh );
 }
 
 
