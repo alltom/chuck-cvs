@@ -16,18 +16,20 @@
 
   LANGUAGE:
   - (fixed) type system for existing types
+  - (added) forward lookup of classes and functions (mutual recursion)
+  - (added) stack overflow detection for massive recursion
 
   COMMAND-LINE:
   - (added) --probe prints all audio and MIDI devices
   - (added) --log or --verbose logs compiler and virtual machine
   - (added) --logN or --verboseN multi level logging
     1 - least verbose
-    9 - most verbose
+    10 - most verbose
 
   OBJECTS:
   - (added) 'class' definitions : class X { int i; }
   - (added) 'exterds' keyword : class Y extends event { int i; }
-  - (added) virtual inheritance
+  - (added) virtual/polymorphic inheritance
   - (added) added pre-constructors - code at class level
     gets run when object is instantiated
   - (added) function overloading :
@@ -35,6 +37,10 @@
   - (added) base classes (can be extended):
     Object, event, array, ugen, string
     see below.
+  - (added) member data
+  - (added) static data
+  - (added) member functions
+  - (added) static functions
 
   EVENTS:
   - (added) base event class : event e;
