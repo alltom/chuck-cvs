@@ -1073,7 +1073,10 @@ Chuck_VM_Code::~Chuck_VM_Code()
 
 
 
-#define VM_STACK_OFFSET 16
+// offset in bytes at the beginning of a stack for initializing data
+#define VM_STACK_OFFSET  16
+// 1/factor of stack is left blank, to give room to detect overflow
+#define VM_STACK_PADDING_FACTOR 16
 //-----------------------------------------------------------------------------
 // name: initialize()
 // desc: ...
@@ -1096,7 +1099,8 @@ t_CKBOOL Chuck_VM_Stack::initialize( t_CKUINT size )
     stack += VM_STACK_OFFSET;
     // set the sp
     sp = stack;
-    sp_max = sp + size;
+    // upper limit (padding factor)
+    sp_max = sp + size - (size / VM_STACK_PADDING_FACTOR);
 
     // set flag and return
     return m_is_init = TRUE;
