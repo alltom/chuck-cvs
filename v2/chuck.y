@@ -115,6 +115,7 @@ a_Program g_program = NULL;
 %type <func_def> function_definition
 %type <class_def> class_definition
 %type <class_body> class_body
+%type <class_body> class_body2
 %type <class_ext> class_ext
 %type <ival> class_decl 
 %type <class_ext> iface_ext
@@ -195,9 +196,15 @@ class_ext
         ;
 
 class_body
-        : class_section                     { $$ = new_class_body( $1, EM_lineNum ); }
-        | class_section class_body          { $$ = prepend_class_body( $1, $2, EM_lineNum ); }
+        : class_body2                       { $$ = $1; }
+		|                                   { $$ = NULL; }
         ;
+
+class_body2
+        : class_section                     { $$ = new_class_body( $1, EM_lineNum ); }
+        | class_section class_body2         { $$ = prepend_class_body( $1, $2, EM_lineNum ); }
+        ;
+
 
 class_section
         : statement_list                    { $$ = new_section_stmt( $1, EM_lineNum ); }
