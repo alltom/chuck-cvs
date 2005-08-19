@@ -2325,13 +2325,17 @@ found:
         if( exp_func->s_type == ae_exp_primary && exp_func->primary.s_type == ae_primary_var )
         {
             EM_error2( exp_func->linepos,
-                "argument type(s) do not match for function '%s(...)' ...",
+                "argument type(s) do not match:" );
+            EM_error2( exp_func->linepos,
+                "... for function '%s(...)' ...",
                 S_name(exp_func->primary.var) );
         }
         else if( exp_func->s_type == ae_exp_dot_member )
         {
             EM_error2( exp_func->linepos,
-                "arguments type(s) do not match for function '%s(...)' ...",
+                "arguments type(s) do not match:" );
+            EM_error2( exp_func->linepos,
+                "... for function '%s(...)' ...",
                 type_engine_print_exp_dot_member( env, &exp_func->dot_member ).c_str() );
         }
         else

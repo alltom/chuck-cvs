@@ -331,6 +331,20 @@ a_Exp new_exp_from_unary2( ae_Operator oper, a_Type_Decl type,
     return a;
 }
 
+a_Exp new_exp_from_unary3( ae_Operator oper, a_Stmt code, int pos )
+{
+    a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
+    a->s_type = ae_exp_unary;
+    a->s_meta = ae_meta_value;
+    a->unary.op = oper;
+    a->unary.code = code;
+    a->linepos = pos;
+    a->unary.linepos = pos;
+    a->unary.self = a;
+    
+    return a;
+}
+
 a_Exp new_exp_from_cast( a_Type_Decl type, a_Exp exp, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
