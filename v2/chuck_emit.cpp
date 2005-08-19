@@ -3325,8 +3325,11 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
     }
     else
     {
+        // special case
+        if( v->func_ref )
+            emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)v->func_ref ) );
         // check size
-        if( v->type->size == 4 )
+        else if( v->type->size == 4 )
             emit->append( new Chuck_Instr_Reg_Push_Mem( v->offset, v->is_context_global ) );
         else if( v->type->size == 8 )
             emit->append( new Chuck_Instr_Reg_Push_Mem2( v->offset, v->is_context_global  ) );
