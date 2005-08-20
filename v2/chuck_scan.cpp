@@ -1054,7 +1054,7 @@ t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // resolve
 
         EM_error2( decl->linepos, "... in declaration ..." );
-        return NULL;
+        return FALSE;
     }
 
     // loop through the variables
