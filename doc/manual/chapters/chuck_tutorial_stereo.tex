@@ -1,0 +1,19 @@
+\section{Stereo}
+
+At long last, ChucK is stereo! Accessing the stereo capabilities of ChucK are relatively simple. {\bf dac} now has three access points. 
+
+\begin{verbatim}
+    ugen u;
+    // standard mono connection
+    u => dac;
+
+    // simple enough!
+    u => dac.left;
+    u => dac.right;
+\end{verbatim}
+
+adc
+
+Pan
+
+Mix
