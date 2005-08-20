@@ -28,7 +28,7 @@
 
   OBJECTS:
   - (added) 'class' definitions : class X { int i; }
-  - (added) 'exterds' keyword : class Y extends event { int i; }
+  - (added) 'extends' keyword : class Y extends event { int i; }
   - (added) virtual/polymorphic inheritance
   - (added) added pre-constructors - code at class level
     gets run when object is instantiated
