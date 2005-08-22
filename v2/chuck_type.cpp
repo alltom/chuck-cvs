@@ -266,9 +266,12 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_words["private"] = TRUE;
     env->key_words["static"] = TRUE;
     env->key_words["pure"] = TRUE;
+    env->key_words["function"] = TRUE;
+    env->key_words["fun"] = TRUE;
+    env->key_words["break"] = TRUE;
+    env->key_words["continue"] = TRUE;
 
     env->key_values["now"] = TRUE;
-    env->key_values["beginning"] = TRUE;
     env->key_values["true"] = TRUE;
     env->key_values["false"] = TRUE;
     env->key_values["maybe"] = TRUE;
@@ -294,8 +297,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["same"] = TRUE;
     env->key_types["int"] = TRUE;
     env->key_types["float"] = TRUE;
-    // env->key_types["dur"] = TRUE;
-    // env->key_types["time"] = TRUE;
+    env->key_types["dur"] = TRUE;
+    env->key_types["time"] = TRUE;
     // env->key_types["object"] = TRUE;
     // env->key_types["string"] = TRUE;
     // env->key_types["shred"] = TRUE;
