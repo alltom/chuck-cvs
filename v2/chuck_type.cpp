@@ -297,8 +297,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["same"] = TRUE;
     env->key_types["int"] = TRUE;
     env->key_types["float"] = TRUE;
-    env->key_types["dur"] = TRUE;
-    env->key_types["time"] = TRUE;
+    // env->key_types["dur"] = TRUE;
+    // env->key_types["time"] = TRUE;
     // env->key_types["object"] = TRUE;
     // env->key_types["string"] = TRUE;
     // env->key_types["shred"] = TRUE;
