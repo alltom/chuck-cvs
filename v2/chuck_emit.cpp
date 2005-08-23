@@ -2816,15 +2816,6 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             // if array, then check to see if empty []
             if( !list->var_decl->array || list->var_decl->array->exp_list != NULL )
             {
-                // for now - no good for static, since we need separate
-                // initialization which we don't have
-                if( value->is_static )
-                {
-                    EM_error2( var_decl->linepos,
-                        "cannot declare static nonprimitive objects (yet)..." );
-                    return FALSE;
-                }
-
                 // instantiate object, including array
                 if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
                     return FALSE;

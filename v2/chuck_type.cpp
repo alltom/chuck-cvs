@@ -2157,11 +2157,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     a_Var_Decl var_decl = NULL;
     Chuck_Type * type = NULL;
     Chuck_Value * value = NULL;
+    t_CKBOOL is_obj = FALSE;
+    t_CKBOOL is_ref = FALSE;
 
-    // get the type
-    type = decl->ck_type;
-    // make sure
-    assert( type != NULL );
 
     // loop through the variables
     while( list != NULL )
@@ -2184,6 +2182,39 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         value = var_decl->value;
         // make sure
         assert( value != NULL );
+        // get the type
+        type = value->type;
+        // make sure
+        assert( type != NULL );
+        // is object
+        is_obj = isobj( type );
+        // is ref
+        is_ref = decl->type->ref;
+
+        // if this is an object
+        if( is_obj && !is_ref )
+        {
+            // for now - no good for static, since we need separate
+            // initialization which we don't have
+            if( value->is_static )
+            {
+                EM_error2( var_decl->linepos,
+                    "cannot declare static nonprimitive objects (yet)..." );
+                return FALSE;
+            }
+
+            // if array, then check to see if empty []
+            if( var_decl->array && var_decl->array->exp_list != NULL )
+            {
+                // instantiate object, including array
+                if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
+                    return FALSE;
+
+                // check the subscripts
+                if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
+                    return FALSE;
+            }
+        }
 
         // add the value, if we are not at class scope
         // (otherwise they should already have been added)
@@ -2197,7 +2228,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         list = list->next;
     }
 
-    return type;
+    return decl->ck_type;
 }
 
 
