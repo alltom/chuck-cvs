@@ -1,7 +1,7 @@
 // 54.ck : creating custom event objects
 
 // new event class
-class TheEvent extends event
+class TheEvent extends Event
 {
     int value;
 }

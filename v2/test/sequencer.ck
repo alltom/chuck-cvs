@@ -1,7 +1,7 @@
 
 class Player { 
-	ugen @ base;
-	fun void connect( ugen target ) {
+	UGen @ base;
+	fun void connect( UGen target ) {
 		base => target;
 	}
 	fun void noteOn ( float note, float vel ) {}

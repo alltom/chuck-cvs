@@ -1,3 +1,3 @@
 fun void anything(){}
-spork ~ anything() @=> shred myshred;
-machine.remove(myshred.id());
+spork ~ anything() @=> Shred myShred;
+machine.remove(myShred.id());

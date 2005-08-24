@@ -1,10 +1,10 @@
 // 52.ck : one event, many shreds
 
 // the event
-event e;
+Event e;
 
 // event to say hi
-fun int hi( event e, string id )
+fun int hi( Event e, string id )
 {
     while( true )
     {

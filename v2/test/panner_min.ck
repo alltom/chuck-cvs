@@ -1,4 +1,4 @@
-class Panner extends ugen { 
+class Panner extends UGen { 
 	float foo;
 }
 

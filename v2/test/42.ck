@@ -1,9 +1,9 @@
 // 42.ck : event broadcast
 
 // delcare event e
-event e;
+Event e;
 
-fun int hi( event e )
+fun int hi( Event e )
 {
     // wait on event
     e => now;

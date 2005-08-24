@@ -1,10 +1,10 @@
 // 41.ck : event
 
 // declare an event
-event e;
+Event e;
 
 // declare function
-fun int hi( event e )
+fun int hi( Event e )
 {
     // wait on event e
     e => now;

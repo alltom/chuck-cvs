@@ -101,7 +101,7 @@ class Bar extends Foo
     int c;
 }
 
-class thing extends ugen
+class thing extends UGen
 {
     int a;
 }

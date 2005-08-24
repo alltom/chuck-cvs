@@ -1,18 +1,18 @@
-class Panner extends ugen { 
+class Panner extends UGen { 
 	
 	0.5 => float mixval; 
 	0   => int powermode;
 
-	this => Envelope l_env => ugen l;
-	this => Envelope r_env => ugen r;
+	this => Envelope l_env => UGen l;
+	this => Envelope r_env => UGen r;
 	
 	0.02 => l_env.time;
 	0.02 => r_env.time;
 	0.5  => l_env.value;
 	0.5  => r_env.value;
 
-	function ugen left()  { return l; }
-	function ugen right() { return r; }
+	function UGen left()  { return l; }
+	function UGen right() { return r; }
 
 	function void set( float m ) { 
 

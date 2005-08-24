@@ -1,10 +1,10 @@
 // 53.ck : one event broadcast
 
 // the event
-event e;
+Event e;
 
 // handler
-fun int hi( event e, string id )
+fun int hi( Event e, string id )
 {
     while( true )
     {

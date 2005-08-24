@@ -9,7 +9,7 @@ function void trigger_s () {
 	recv.event( "/foo/zoop,s" ) @=> OSC_Addr oscev;
 	while ( true  ) { 
 		oscev => now;	
-		<<<"event occurred">>>;
+		<<<"Event occurred">>>;
 		while ( oscev.nextMesg() != 0 ) { 
 			<<<"fetching string">>>;
 			string c;

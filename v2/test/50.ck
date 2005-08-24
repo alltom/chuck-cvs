@@ -8,7 +8,7 @@
 
 MidiMsg msg;
 
-class NoteEvent extends event
+class NoteEvent extends Event
 {
     int note;
     int velocity;
@@ -17,7 +17,7 @@ class NoteEvent extends event
 // the event
 NoteEvent on;
 // array of ugen's handling each note
-event us[128];
+Event us[128];
 
 gain g => dac;
 .1 => g.gain;
@@ -28,7 +28,7 @@ fun void handler()
     Mandolin m;
     PRCRev r => dac;
     .2 => r.mix;
-    event off;
+    Event off;
     int note;
 
     while( true )
