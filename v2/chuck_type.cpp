@@ -2642,12 +2642,35 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
         // if extend
         if( class_def->ext->extend_id )
         {
+            // find the type
             t_parent = type_engine_find_type( env, class_def->ext->extend_id );
             if( !t_parent )
             {
                 EM_error2( class_def->ext->linepos,
                     "undefined super class '%s' in definition of class '%s'",
                     type_path(class_def->ext->extend_id), S_name(class_def->name->id) );
+                return FALSE;
+            }
+
+            // must not be primitive
+            if( isprim( t_parent ) )
+            {
+                EM_error2( class_def->ext->linepos,
+                    "cannot extend primitive type '%s'",
+                    t_parent->c_name() );
+                EM_error2( class_def->ext->linepos,
+                    "...(note: primitives types are 'int', 'float', 'time', and 'dur')" );
+                return FALSE;
+            }
+
+            // if not complete
+            if( t_parent->is_complete == FALSE )
+            {
+                EM_error2( class_def->ext->linepos,
+                    "cannot extend incomplete type '%s'",
+                    t_parent->c_name() );
+                EM_error2( class_def->ext->linepos,
+                    "...(note: the parent's declaration must preceed child's)" );
                 return FALSE;
             }
         }
