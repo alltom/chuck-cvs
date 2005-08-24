@@ -333,7 +333,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin BandedWG ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "BandedWG", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "BandedWG", "UGen", env->global(), 
                         BandedWG_ctor, BandedWG_tick, BandedWG_pmsg ) ) return FALSE;
     //member variable
     BandedWG_offset_data = type_engine_import_mvar ( env, "int", "@BandedWG_data", FALSE );
@@ -403,7 +403,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin BlowBotl ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "BlowBotl", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "BlowBotl", "UGen", env->global(), 
                         BlowBotl_ctor, BlowBotl_tick, BlowBotl_pmsg ) ) return FALSE;
     //member variable
     BlowBotl_offset_data = type_engine_import_mvar ( env, "int", "@BlowBotl_data", FALSE );
@@ -448,7 +448,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin BlowHole ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "BlowHole", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "BlowHole", "UGen", env->global(), 
                         BlowHole_ctor, BlowHole_tick, BlowHole_pmsg ) ) return FALSE;
     //member variable
     BlowHole_offset_data = type_engine_import_mvar ( env, "int", "@BlowHole_data", FALSE );
@@ -513,7 +513,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Bowed ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Bowed", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Bowed", "UGen", env->global(), 
                         Bowed_ctor, Bowed_tick, Bowed_pmsg ) ) return FALSE;
     //member variable
     Bowed_offset_data = type_engine_import_mvar ( env, "int", "@Bowed_data", FALSE );
@@ -564,7 +564,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Brass ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Brass", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Brass", "UGen", env->global(), 
                         Brass_ctor, Brass_tick, Brass_pmsg ) ) return FALSE;
     //member variable
     Brass_offset_data = type_engine_import_mvar ( env, "int", "@Brass_data", FALSE );
@@ -619,7 +619,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Clarinet ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Clarinet", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Clarinet", "UGen", env->global(), 
                         Clarinet_ctor, Clarinet_tick, Clarinet_pmsg ) ) return FALSE;
     //member variable
     Clarinet_offset_data = type_engine_import_mvar ( env, "int", "@Clarinet_data", FALSE );
@@ -667,7 +667,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Flute ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Flute", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Flute", "UGen", env->global(), 
                         Flute_ctor, Flute_tick, Flute_pmsg ) ) return FALSE;
     //member variable
     Flute_offset_data = type_engine_import_mvar ( env, "int", "@Flute_data", FALSE );
@@ -737,7 +737,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example mand-o-matic.ck
-    if ( !type_engine_import_ugen_begin( env, "Mandolin", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Mandolin", "UGen", env->global(), 
                         Mandolin_ctor, Mandolin_tick, Mandolin_pmsg ) ) return FALSE;
     //member variable
     Mandolin_offset_data = type_engine_import_mvar ( env, "int", "@Mandolin_data", FALSE );
@@ -795,7 +795,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example modalbot.ck
-    if ( !type_engine_import_ugen_begin( env, "ModalBar", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "ModalBar", "UGen", env->global(), 
                         ModalBar_ctor, ModalBar_tick, ModalBar_pmsg ) ) return FALSE;
     //member variable
     ModalBar_offset_data = type_engine_import_mvar ( env, "int", "@ModalBar_data", FALSE );
@@ -902,7 +902,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example moogie.ck
-    if ( !type_engine_import_ugen_begin( env, "Moog", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Moog", "UGen", env->global(), 
                         Moog_ctor, Moog_tick, Moog_pmsg ) ) return FALSE;
     //member variable
     Moog_offset_data = type_engine_import_mvar ( env, "int", "@Moog_data", FALSE );
@@ -959,7 +959,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Saxofony ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Saxofony", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Saxofony", "UGen", env->global(), 
                         Saxofony_ctor, Saxofony_tick, Saxofony_pmsg ) ) return FALSE;
     //member variable
     Saxofony_offset_data = type_engine_import_mvar ( env, "int", "@Saxofony_data", FALSE );
@@ -1015,7 +1015,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example shake-o-matic.ck
-    if ( !type_engine_import_ugen_begin( env, "Shakers", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Shakers", "UGen", env->global(), 
                         Shakers_ctor, Shakers_tick, Shakers_pmsg ) ) return FALSE;
     //member variable
     Shakers_offset_data = type_engine_import_mvar ( env, "int", "@Shakers_data", FALSE );
@@ -1051,7 +1051,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Sitar ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Sitar", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Sitar", "UGen", env->global(), 
                         Sitar_ctor, Sitar_tick, Sitar_pmsg ) ) return FALSE;
     //member variable
     Sitar_offset_data = type_engine_import_mvar ( env, "int", "@Sitar_data", FALSE );
@@ -1089,7 +1089,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example stifkarp.ck
-    if ( !type_engine_import_ugen_begin( env, "StifKarp", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "StifKarp", "UGen", env->global(), 
                         StifKarp_ctor, StifKarp_tick, StifKarp_pmsg ) ) return FALSE;
     //member variable
     StifKarp_offset_data = type_engine_import_mvar ( env, "int", "@StifKarp_data", FALSE );
@@ -1148,7 +1148,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example voic-o-form.ck
-    if ( !type_engine_import_ugen_begin( env, "VoicForm", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "VoicForm", "UGen", env->global(), 
                         VoicForm_ctor, VoicForm_tick, VoicForm_pmsg ) ) return FALSE;
     //member variable
     VoicForm_offset_data = type_engine_import_mvar ( env, "int", "@VoicForm_data", FALSE );
@@ -1250,7 +1250,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin FM ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "FM", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "FM", "UGen", env->global(), 
                         FM_ctor, FM_tick, FM_pmsg ) ) return FALSE;
 
     //member variable
@@ -1479,7 +1479,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example net_relay.ck
-    if ( !type_engine_import_ugen_begin( env, "Delay", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Delay", "UGen", env->global(), 
                         Delay_ctor, Delay_tick, Delay_pmsg ) ) return FALSE;
     //member variable
     Delay_offset_data = type_engine_import_mvar ( env, "int", "@Delay_data", FALSE );
@@ -1509,7 +1509,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin DelayA ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "DelayA", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "DelayA", "UGen", env->global(), 
                         DelayA_ctor, DelayA_tick, DelayA_pmsg ) ) return FALSE;
     //member variable
     DelayA_offset_data = type_engine_import_mvar ( env, "int", "@DelayA_data", FALSE );
@@ -1538,7 +1538,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example i-robot.ck
-    if ( !type_engine_import_ugen_begin( env, "DelayL", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "DelayL", "UGen", env->global(), 
                         DelayL_ctor, DelayL_tick, DelayL_pmsg ) ) return FALSE;
     //member variable
     DelayL_offset_data = type_engine_import_mvar ( env, "int", "@DelayL_data", FALSE );
@@ -1566,7 +1566,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Echo ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Echo", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Echo", "UGen", env->global(), 
                         Echo_ctor, Echo_tick, Echo_pmsg ) ) return FALSE;
     //member variable
     Echo_offset_data = type_engine_import_mvar ( env, "int", "@Echo_data", FALSE );
@@ -1604,7 +1604,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example sixty.ck
-    if ( !type_engine_import_ugen_begin( env, "Envelope", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Envelope", "UGen", env->global(), 
                         Envelope_ctor, Envelope_tick, Envelope_pmsg ) ) return FALSE;
     //member variable
     Envelope_offset_data = type_engine_import_mvar ( env, "int", "@Envelope_data", FALSE );
@@ -1721,7 +1721,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin BiQuad ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "BiQuad", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "BiQuad", "UGen", env->global(), 
                         BiQuad_ctor, BiQuad_tick, BiQuad_pmsg ) ) return FALSE;
     //member variable
     BiQuad_offset_data = type_engine_import_mvar ( env, "int", "@BiQuad_data", FALSE );
@@ -1797,7 +1797,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Filter ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Filter", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Filter", "UGen", env->global(), 
                         Filter_ctor, Filter_tick, Filter_pmsg ) ) return FALSE;
     //member variable
     Filter_offset_data = type_engine_import_mvar ( env, "int", "@Filter_data", FALSE );
@@ -1817,7 +1817,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin OnePole ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "OnePole", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "OnePole", "UGen", env->global(), 
                         OnePole_ctor, OnePole_tick, OnePole_pmsg ) ) return FALSE; 
     //member variable
     OnePole_offset_data = type_engine_import_mvar ( env, "int", "@OnePole_data", FALSE );
@@ -1854,7 +1854,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example powerup.ck
-    if ( !type_engine_import_ugen_begin( env, "TwoPole", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "TwoPole", "UGen", env->global(), 
                         TwoPole_ctor, TwoPole_tick, TwoPole_pmsg ) ) return FALSE;
     //member variable
     TwoPole_offset_data = type_engine_import_mvar ( env, "int", "@TwoPole_data", FALSE );
@@ -1910,7 +1910,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin OneZero ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "OneZero", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "OneZero", "UGen", env->global(), 
                         OneZero_ctor, OneZero_tick, OneZero_pmsg ) ) return FALSE;
     //member variable
     OneZero_offset_data = type_engine_import_mvar ( env, "int", "@OneZero_data", FALSE );
@@ -1945,7 +1945,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin TwoZero ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "TwoZero", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "TwoZero", "UGen", env->global(), 
                         TwoZero_ctor, TwoZero_tick, TwoZero_pmsg ) ) return FALSE;
     //member variable
     TwoZero_offset_data = type_engine_import_mvar ( env, "int", "@TwoZero_data", FALSE );
@@ -1994,7 +1994,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin PoleZero ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "PoleZero", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "PoleZero", "UGen", env->global(), 
                         PoleZero_ctor, PoleZero_tick, PoleZero_pmsg ) ) return FALSE;
     //member variable
     PoleZero_offset_data = type_engine_import_mvar ( env, "int", "@PoleZero_data", FALSE );
@@ -2047,7 +2047,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin JCRev ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "JCRev", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "JCRev", "UGen", env->global(), 
                         JCRev_ctor, JCRev_tick, JCRev_pmsg ) ) return FALSE;
     //member variable
     JCRev_offset_data = type_engine_import_mvar ( env, "int", "@JCRev_data", FALSE );
@@ -2068,7 +2068,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin NRev ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "NRev", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "NRev", "UGen", env->global(), 
                         NRev_ctor, NRev_tick, NRev_pmsg ) ) return FALSE;
     //member variable
     NRev_offset_data = type_engine_import_mvar ( env, "int", "@NRev_data", FALSE );
@@ -2088,7 +2088,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin PRCRev ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "PRCRev", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "PRCRev", "UGen", env->global(), 
                         PRCRev_ctor, PRCRev_tick, PRCRev_pmsg ) ) return FALSE;
     //member variable
     PRCRev_offset_data = type_engine_import_mvar ( env, "int", "@PRCRev_data", FALSE );
@@ -2109,7 +2109,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Chorus ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Chorus", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Chorus", "UGen", env->global(), 
                         Chorus_ctor, Chorus_tick, Chorus_pmsg ) ) return FALSE;
     //member variable
     Chorus_offset_data = type_engine_import_mvar ( env, "int", "@Chorus_data", FALSE );
@@ -2144,7 +2144,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Modulate ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "Modulate", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Modulate", "UGen", env->global(), 
                         Modulate_ctor, Modulate_tick, Modulate_pmsg ) ) return FALSE;
     //member variable
     Modulate_offset_data = type_engine_import_mvar ( env, "int", "@Modulate_data", FALSE );
@@ -2179,7 +2179,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin PitShift ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "PitShift", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "PitShift", "UGen", env->global(), 
                         PitShift_ctor, PitShift_tick, PitShift_pmsg ) ) return FALSE;
     //member variable
     PitShift_offset_data = type_engine_import_mvar ( env, "int", "@PitShift_data", FALSE );
@@ -2207,7 +2207,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin SubNoise ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "SubNoise", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "SubNoise", "UGen", env->global(), 
                         SubNoise_ctor, SubNoise_tick, SubNoise_pmsg ) ) return FALSE;
     //member variable
     SubNoise_offset_data = type_engine_import_mvar ( env, "int", "@SubNoise_data", FALSE );
@@ -2229,7 +2229,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin WvIn ugen
     //------------------------------------------------------------------------
 
-    if ( !type_engine_import_ugen_begin( env, "WvIn", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "WvIn", "UGen", env->global(), 
                         WvIn_ctor, WvIn_tick, WvIn_pmsg ) ) return FALSE;
     //member variable
     WvIn_offset_data = type_engine_import_mvar ( env, "int", "@WvIn_data", FALSE );
@@ -2290,7 +2290,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin WvOut ugen
     //------------------------------------------------------------------------
  
-    if ( !type_engine_import_ugen_begin( env, "WvOut", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "WvOut", "UGen", env->global(), 
                         WvOut_ctor, WvOut_tick, WvOut_pmsg ) ) return FALSE; 
     //member variable
     WvOut_offset_data = type_engine_import_mvar ( env, "int", "@WvOut_data", FALSE );
@@ -2342,7 +2342,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     
     
     //Mesh2D 
-    if ( !type_engine_import_ugen_begin( env, "Mesh2D", "ugen", env->global(), 
+    if ( !type_engine_import_ugen_begin( env, "Mesh2D", "UGen", env->global(), 
                                          Mesh2D_ctor, Mesh2D_tick, Mesh2D_pmsg ) ) return FALSE;
     //member variable
     Mesh2D_offset_data = type_engine_import_mvar ( env, "int", "@Mesh2D_data", FALSE );

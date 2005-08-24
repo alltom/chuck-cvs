@@ -76,18 +76,18 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //! \section audio output
     
     //---------------------------------------------------------------------
-    // init as base class: ugen_stereo
+    // init as base class: UGen_Stereo
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "ugen_stereo", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "UGen_Stereo", "UGen", env->global(), 
                                         stereo_ctor, NULL, NULL, 2, 2 ) )
         return FALSE;
 
     // add left
-    stereo_offset_left = type_engine_import_mvar( env, "ugen", "left", FALSE );
+    stereo_offset_left = type_engine_import_mvar( env, "UGen", "left", FALSE );
     if( stereo_offset_left == CK_INVALID_OFFSET ) goto error;
     
     // add right
-    stereo_offset_right = type_engine_import_mvar( env, "ugen", "right", FALSE );
+    stereo_offset_right = type_engine_import_mvar( env, "UGen", "right", FALSE );
     if( stereo_offset_right == CK_INVALID_OFFSET ) goto error;
 
     // add pan
@@ -111,7 +111,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: dac
     //---------------------------------------------------------------------
-    if( !(g_t_dac = type_engine_import_ugen_begin( env, "dac", "ugen_stereo", env->global(), 
+    if( !(g_t_dac = type_engine_import_ugen_begin( env, "dac", "UGen_Stereo", env->global(), 
                                                    NULL, NULL, NULL, 2, 2 )) )
         return FALSE;
 
@@ -125,7 +125,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: adc
     //---------------------------------------------------------------------
-    if( !(g_t_adc = type_engine_import_ugen_begin( env, "dac", "ugen_stereo", env->global(), 
+    if( !(g_t_adc = type_engine_import_ugen_begin( env, "dac", "UGen_Stereo", env->global(), 
                                                    NULL, NULL, NULL, 0, 2 )) )
         return FALSE;
 
@@ -136,7 +136,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: pan2
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "pan2", "ugen_stereo", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "pan2", "UGen_Stereo", env->global(), 
                                         NULL, NULL, NULL, 2, 2 ) )
         return FALSE;
     
@@ -147,7 +147,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: mix2
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "mix2", "ugen_stereo", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "mix2", "UGen_Stereo", env->global(), 
                                         NULL, NULL, NULL, 2, 1 ) )
         return FALSE;
     
@@ -178,7 +178,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: gain
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "gain", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "gain", "UGen", env->global(), 
                                         NULL, NULL, NULL ) )
         return FALSE;
     // end import
@@ -199,7 +199,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: noise
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "noise", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "noise", "UGen", env->global(), 
                                         NULL, noise_tick, NULL ) )
         return FALSE;
 
@@ -217,7 +217,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: cnoise
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "cnoise", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "cnoise", "UGen", env->global(), 
                                         cnoise_ctor, cnoise_tick, NULL ) )
         return FALSE;
 
@@ -266,7 +266,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: impulse
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "impulse", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "impulse", "UGen", env->global(), 
                                         impulse_ctor, impulse_tick, NULL ) )
         return FALSE;
 
@@ -317,7 +317,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: step
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "step", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "step", "UGen", env->global(), 
                                         step_ctor, step_tick, NULL ) )
         return FALSE;
 
@@ -356,7 +356,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: halfrect
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "halfrect", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "halfrect", "UGen", env->global(), 
                                         NULL, halfrect_tick, NULL ) )
         return FALSE;
 
@@ -373,7 +373,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: fullrect
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "fullrect", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "fullrect", "UGen", env->global(), 
                                         NULL, fullrect_tick, NULL ) )
         return FALSE;
 
@@ -392,7 +392,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: zerox
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "zerox", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "zerox", "UGen", env->global(), 
                                         zerox_ctor, zerox_tick, NULL ) )
         return FALSE;
 
@@ -421,7 +421,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: delayp
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "delayp", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "delayp", "UGen", env->global(), 
                                         delayp_ctor, delayp_tick, delayp_pmsg ) )
         return FALSE;
 
@@ -485,7 +485,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: sndbuf
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "sndbuf", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "sndbuf", "UGen", env->global(), 
                                         sndbuf_ctor, sndbuf_tick, NULL ) )
         return FALSE;
 

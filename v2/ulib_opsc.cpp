@@ -97,7 +97,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     type_engine_import_class_end( env );
 
     // init base class
-    if( !type_engine_import_class_begin( env, "OSC_Addr", "event",
+    if( !type_engine_import_class_begin( env, "OSC_Addr", "Event",
                                          env->global(), osc_address_ctor ) )
 		return FALSE;
 
@@ -158,7 +158,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func->add_arg( "OSC_Addr" , "addr" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "OSC_Addr", "event", osc_recv_new_address );
+    func = make_new_mfun( "OSC_Addr", "Event", osc_recv_new_address );
     func->add_arg( "string" , "spec" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 

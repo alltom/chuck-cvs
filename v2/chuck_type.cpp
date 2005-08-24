@@ -56,11 +56,11 @@ Chuck_Type t_function( te_function, "@function", &t_object, sizeof(void *) );
 Chuck_Type t_array( te_array, "@array", NULL, sizeof(void *) );
 Chuck_Type t_object( te_object, "Object", NULL, sizeof(void *) );
 Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
-Chuck_Type t_event( te_event, "event", &t_object, sizeof(void *) );
-Chuck_Type t_ugen( te_ugen, "ugen", &t_object, sizeof(void *) );
-Chuck_Type t_shred( te_shred, "shred", &t_object, sizeof(void *) );
-Chuck_Type t_thread( te_thread, "thread", &t_object, sizeof(void *) );
-Chuck_Type t_class( te_class, "class", &t_object, sizeof(void *) );
+Chuck_Type t_event( te_event, "Event", &t_object, sizeof(void *) );
+Chuck_Type t_ugen( te_ugen, "UGen", &t_object, sizeof(void *) );
+Chuck_Type t_shred( te_shred, "Shred", &t_object, sizeof(void *) );
+Chuck_Type t_thread( te_thread, "Thread", &t_object, sizeof(void *) );
+Chuck_Type t_class( te_class, "Class", &t_object, sizeof(void *) );
 
 /* exile
 struct Chuck_Type t_adc = { te_adc, "adc", &t_ugen, t_ugen.size };
@@ -299,11 +299,11 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->key_types["float"] = TRUE;
     // env->key_types["dur"] = TRUE;
     // env->key_types["time"] = TRUE;
-    // env->key_types["object"] = TRUE;
+    // env->key_types["Object"] = TRUE;
     // env->key_types["string"] = TRUE;
-    // env->key_types["shred"] = TRUE;
-    // env->key_types["event"] = TRUE;
-    // env->key_types["ugen"] = TRUE;
+    // env->key_types["Shred"] = TRUE;
+    // env->key_types["Event"] = TRUE;
+    // env->key_types["UGen"] = TRUE;
     // env->key_types["machine"] = TRUE;
     // env->key_types["language"] = TRUE;
     // env->key_types["compiler"] = TRUE;

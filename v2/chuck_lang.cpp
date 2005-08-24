@@ -203,7 +203,7 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
 
     // add wait()
     func = make_new_mfun( "void", "wait", event_wait );
-    func->add_arg( "shred", "me" );
+    func->add_arg( "Shred", "me" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add can_wait()
@@ -421,7 +421,7 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
 
     
     // init base class
-    if( !type_engine_import_class_begin( env, "MidiIn", "event",
+    if( !type_engine_import_class_begin( env, "MidiIn", "Event",
                                          env->global(), MidiIn_ctor ) )
         return FALSE;
 

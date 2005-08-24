@@ -58,7 +58,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: osc
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "osc", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "osc", "UGen", env->global(), 
                                         osc_ctor, osc_tick, osc_pmsg ) )
         return FALSE;
 

@@ -58,7 +58,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: filter
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "filter", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "filter", "UGen", env->global(), 
                                         filter_ctor, filter_tick, filter_pmsg ) )
         return FALSE;
 
@@ -73,7 +73,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: biquad
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "biquad", "ugen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "biquad", "UGen", env->global(), 
                                         biquad_ctor, biquad_tick, NULL ) )
         return FALSE;
 
@@ -243,7 +243,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //----------------------------------
     // begin delay ugen
     //----------------------------------
-    if ( !type_engine_import_ugen_begin( env, "delay", "ugen", env->global(),
+    if ( !type_engine_import_ugen_begin( env, "delay", "UGen", env->global(),
                                          delay_ctor, delay_tick, NULL ) ) return FALSE;
 
     // ctrl func
@@ -266,7 +266,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //----------------------------------
     // begin delayA ugen
     //----------------------------------
-    if ( !type_engine_import_ugen_begin( env, "delayA", "ugen", env->global(),
+    if ( !type_engine_import_ugen_begin( env, "delayA", "UGen", env->global(),
                                          delayA_ctor, delayA_tick, NULL ) ) return FALSE;
 
     // ctrl func
@@ -285,7 +285,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //----------------------------------
     // begin one ugen
     //----------------------------------
-    if ( !type_engine_import_ugen_begin( env, "delayL", "ugen", env->global(),
+    if ( !type_engine_import_ugen_begin( env, "delayL", "UGen", env->global(),
                                          delayL_ctor, delayL_tick, NULL ) ) return FALSE;
     // ctrl func
     func = make_new_mfun ( "float", "delay", delayL_ctrl_delay );
