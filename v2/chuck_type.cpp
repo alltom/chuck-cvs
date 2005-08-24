@@ -2216,6 +2216,36 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             }
         }
 
+        // member?
+        if( value->is_member )
+        {
+            // offset
+            value->offset = env->curr->offset;
+            // move the offset (TODO: check the size)
+            env->curr->offset += type->size;
+        }
+        else if( decl->is_static ) // static
+        {
+            // base scope
+            if( env->class_def == NULL || env->class_scope > 0 )
+            {
+                EM_error2( decl->linepos,
+                    "static variables must be declared at class scope..." );
+                return FALSE;
+            }
+
+            // flag
+            value->is_static = TRUE;
+            // offset
+            value->offset = env->class_def->info->class_data_size;
+            // move the size
+            env->class_def->info->class_data_size += type->size;
+        }
+        else // local variable
+        {
+            // do nothing?
+        }
+        
         // add the value, if we are not at class scope
         // (otherwise they should already have been added)
         if( !env->class_def || env->class_scope > 0 )

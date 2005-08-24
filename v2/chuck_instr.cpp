@@ -1859,7 +1859,7 @@ void Chuck_Instr_Pre_Ctor_Array_Bottom::execute( Chuck_VM * vm, Chuck_VM_Shred *
     // ref count
     obj->add_ref();
     // increment the index
-    (*(reg_sp-2))++;
+    (*(reg_sp-2))++; //= (*(reg_sp-2)) + 1;
 
     // goto top
     shred->next_pc = m_val;
