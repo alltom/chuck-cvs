@@ -392,10 +392,9 @@ chuck_operator
         | SHIFT_LEFT_CHUCK                  { $$ = ae_op_shift_left_chuck; }
         | PERCENT_CHUCK                     { $$ = ae_op_percent_chuck; }
         | UNCHUCK                           { $$ = ae_op_unchuck; }
-        // | S_CHUCK                           { $$ = ae_op_s_chuck; }
-        // | S_AND_CHUCK                       { $$ = ae_op_s_and_chuck; }
-        // | S_OR_CHUCK                        { $$ = ae_op_s_or_chuck; }
-        // | S_XOR_CHUCK                       { $$ = ae_op_s_xor_chuck; }
+        | S_AND_CHUCK                       { $$ = ae_op_s_and_chuck; }
+        | S_OR_CHUCK                        { $$ = ae_op_s_or_chuck; }
+        | S_XOR_CHUCK                       { $$ = ae_op_s_xor_chuck; }
         ;
 
 conditional_expression
