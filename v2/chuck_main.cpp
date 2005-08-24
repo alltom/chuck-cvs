@@ -60,7 +60,7 @@
 
 
 // current version
-#define CK_VERSION "1.2.0.0 (beta)"
+#define CK_VERSION "1.2.0.0 (dracula)"
 
 
 // global variables
@@ -237,7 +237,7 @@ void usage()
     fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
-    fprintf( stderr, "               remote<hostname>|port<N>|probe\n" );
+    fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
     fprintf( stderr, "chuck version: %s\n", CK_VERSION );
