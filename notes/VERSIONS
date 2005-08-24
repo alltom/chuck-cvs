@@ -28,22 +28,25 @@
 
   OBJECTS:
   - (added) 'class' definitions : class X { int i; }
-  - (added) 'extends' keyword : class Y extends event { int i; }
+  - (added) 'extends' keyword : class Y extends Event { int i; }
   - (added) virtual/polymorphic inheritance
   - (added) added pre-constructors - code at class level
     gets run when object is instantiated
   - (added) function overloading :
     class X { fun void foo() { }  fun void foo( int y ) { } }
   - (added) base classes (can be extended):
-    Object, event, array, ugen, string
-    see below.
+    Object, Event, UGen
+    see below
+  - (added) base classes (cannot be extended):
+    array, string
+    see below
   - (added) member data
   - (added) static data
   - (added) member functions
   - (added) static functions
 
   EVENTS:
-  - (added) base event class : event e;
+  - (added) base Event class : Event e;
     can be used directly
     can be extended to custom events
     (see one_event_many_shreds.ck)
@@ -56,7 +59,7 @@
   - (added) class OSCEvent
 
   ARRAYS:
-  - (added) arrays : int a[10]; float b[20]; event e[2];
+  - (added) arrays : int a[10]; float b[20]; Event e[2];
   - (added) multidimensional arrays : int a[2][2][2];
   - (added) associative arrays : int a[10]; 0 => a["foo"];
     all arrays are both int-indexed and associative
@@ -66,7 +69,7 @@
   - (added) .erase() erase item in associative array
 
   UGENS:
-  - (added) class ugen
+  - (added) class UGen
     can be extended
   - (changed) all ugen parameters are now also functions:
     // set freq
@@ -80,6 +83,10 @@
     f.freq() => float val;
     // still ok
     440 => s.freq => float val;
+
+  SHREDS:
+  - (added) class Shred
+  - (added) .yield() .id()
 
   STRINGS:
   - (added) class string
