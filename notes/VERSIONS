@@ -19,6 +19,10 @@
   - (added) forward lookup of classes and functions (mutual recursion)
   - (added) stack overflow detection for massive recursion
 
+  DOCUMENTATION:
+  - (added) language specification:
+        http://chuck.cs.princeton.edu/doc/language
+
   COMMAND-LINE:
   - (added) --probe prints all audio and MIDI devices
   - (added) --log or --verbose logs compiler and virtual machine
