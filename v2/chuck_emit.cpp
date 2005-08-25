@@ -3211,6 +3211,11 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     // spork
     Chuck_Instr_Mem_Push_Imm * op = NULL;
 
+    // if member function, push this
+    // TODO: this is a hack - what if exp is not func_call?
+    // if( exp->ck_func->is_member )
+    //     emit->append( new Chuck_Instr_Reg_Push_This );
+
     // evaluate args on sporker shred
     if( !emit_engine_emit_func_args( emit, exp ) )
         return FALSE;
@@ -3222,7 +3227,7 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     // handle need this
     emit->code->need_this = exp->ck_func->is_member;
     // name it
-    emit->code->name = "spork ~ exp";
+    emit->code->name = "spork~exp";
     // push op
     op = new Chuck_Instr_Mem_Push_Imm( 0 );
     // emit the stack depth - we don't know this yet
@@ -3243,7 +3248,7 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     exp->ck_vm_code = code;
     // add reference
     exp->ck_vm_code->add_ref();
-    //code->name = string("spork ~ exp");
+    //code->name = string("spork~exp");
 
     // restore the code
     assert( emit->stack.size() > 0 );
@@ -3254,6 +3259,11 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     a_Exp e = exp->args;
     t_CKUINT size = 0;
     while( e ) { size += e->type->size; e = e->next; }
+
+    // handle member function
+    // TODO: this is a hack - what if exp is not func_call?
+    // if( emit->code->need_this )
+    //     size += 4;
 
     // emit instruction that will put the code on the stack
     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)code ) );
@@ -3287,8 +3297,11 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
     }
 
     // if part of class - this only works because x.y is handled separately
-    if( v->owner_class && ( v->is_member || v->is_static) )
+    if( v->owner_class && (v->is_member || v->is_static) )
     {
+        // make sure talking about the same class
+        assert( v->owner_class == emit->env->class_def );
+
         // emit as this.v
         a_Exp base = new_exp_from_id( "this", linepos );
         a_Exp dot = new_exp_from_member_dot( base, (char *)v->name.c_str(), linepos );
