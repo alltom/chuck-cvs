@@ -721,7 +721,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         {
             EM_error3( "[chuck](VM): shreduler ERROR replacing shred %i...",
                        out->id );
-            delete shred;
+            shred->release();
             retval = 0;
             goto done;
         }
