@@ -787,7 +787,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         while( m_num_shreds && id > 0 )
         {
             if( m_shreduler->remove( shred = m_shreduler->lookup( id ) ) )
-                delete shred;
+                this->free( shred, TRUE );
             id--;
         }
         
