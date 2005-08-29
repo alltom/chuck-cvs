@@ -35,9 +35,9 @@
 #ifndef __UTIL_BUFFERS_H__
 #define __UTIL_BUFFERS_H__
 
+#include "chuck_oo.h"
 #include <vector>
 #include <queue>
-#include "chuck_oo.h"
 
 #define DWORD__                unsigned long
 #define SINT__                 long

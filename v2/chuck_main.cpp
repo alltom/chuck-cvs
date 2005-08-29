@@ -60,7 +60,7 @@
 
 
 // current version
-#define CK_VERSION "1.2.0.0 (dracula)"
+#define CK_VERSION "1.2.0.1 (dracula)"
 
 
 // global variables
