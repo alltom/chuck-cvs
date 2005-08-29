@@ -689,6 +689,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
             shred = new Chuck_VM_Shred;
             shred->initialize( msg->code );
             shred->name = msg->code->name;
+            shred->base_ref = shred->mem;
             shred->add_ref();
         }
         // set the current time
@@ -1606,7 +1607,7 @@ t_CKBOOL Chuck_VM_Shreduler::remove( Chuck_VM_Shred * out )
     }
 
     // sanity check
-    if( !out->prev && !out->prev && out != shred_list )
+    if( !out->prev && !out->next && out != shred_list )
         return FALSE;
     
     if( !out->prev )

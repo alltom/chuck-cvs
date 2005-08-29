@@ -37,7 +37,9 @@
 #include "chuck_ugen.h"
 
 // tracking
-CK_TRACK( #include "chuck_stats.h" )
+#ifdef __CHUCK_STAT_TRACK__
+#include "chuck_stats.h"
+#endif
 
 #include <string>
 #include <map>
