@@ -7,16 +7,16 @@ FLAGS=-D__MACOSX_CORE__ -O3 -c
 LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation -lstdc++ -lm
 SF_OBJ=util_sndfile.o
 
+ifneq ($(CHUCK_STAT),)
+FLAGS+= -D__CHUCK_STAT_TRACK__
+endif
+
 ifneq ($(CHUCK_DEBUG),)
 FLAGS+= -g
 endif
 
 ifneq ($(CHUCK_STRICT),)
 FLAGS+= -Wall
-endif
-
-ifneq ($(CHUCK_STAT),)
-FLAGS+= -D__CHUCK_STAT_TRACK__
 endif
 
 #-----------------------------------------------------------------------------
