@@ -72,6 +72,7 @@
 #include <vector>
 using namespace std;
 
+struct Chuck_VM;
 
 
 
@@ -91,7 +92,9 @@ public:
                        DWORD__ buffer_size = BUFFER_SIZE_DEFAULT,
                        DWORD__ num_buffers = NUM_BUFFERS_DEFAULT,
                        DWORD__ dac = 0,
-                       DWORD__ adc = 0 );
+                       DWORD__ adc = 0,
+                       DWORD__ block = TRUE,
+                       Chuck_VM * vm_ref = NULL );
     void set_srate( DWORD__ srate );
     void set_bufsize( DWORD__ bufsize );
     void set_numbufs( DWORD__ numbufs );

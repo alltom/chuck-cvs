@@ -283,7 +283,8 @@ public: // init
     t_CKBOOL initialize( t_CKBOOL enable_audio = TRUE, t_CKBOOL halt = TRUE,
                          t_CKUINT srate = 44100,
                          t_CKUINT buffer_size = 512, t_CKUINT num_buffers = 4,
-                         t_CKUINT dac = 0, t_CKUINT adc = 0 );
+                         t_CKUINT dac = 0, t_CKUINT adc = 0, 
+                         t_CKBOOL block = TRUE );
     t_CKBOOL initialize_synthesis( );
     t_CKBOOL shutdown();
 
@@ -299,6 +300,7 @@ public: // audio
 
 public: // running the machine
     t_CKBOOL run( );
+    t_CKBOOL run( t_CKINT num_samps );
     t_CKBOOL pause( );
     t_CKBOOL stop( );
     t_CKBOOL start_audio( );
@@ -338,6 +340,7 @@ public:
     
     t_CKBOOL m_halt;
     t_CKBOOL m_audio;
+    t_CKBOOL m_block;
 
 protected:
     Chuck_VM_Shred * spork( Chuck_VM_Shred * shred );

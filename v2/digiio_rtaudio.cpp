@@ -67,6 +67,7 @@ DWORD__ Digitalio::m_go = 0;
 DWORD__ Digitalio::m_dac_n = 0;
 DWORD__ Digitalio::m_adc_n = 0;
 DWORD__ Digitalio::m_end = 0;
+DWORD__ Digitalio::m_block = TRUE;
 
 
 // sample
@@ -174,7 +175,8 @@ void Digitalio::probe()
 //-----------------------------------------------------------------------------
 BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                               DWORD__ bps, DWORD__ buffer_size, 
-                              DWORD__ num_buffers )
+                              DWORD__ num_buffers, DWORD__ block,
+                              Chuck_VM * vm_ref )
 {
     if( m_init )
         return FALSE;
@@ -189,6 +191,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     m_tick_count = 0;
     m_go = 0;
     m_end = 0;
+    m_block = block;
 
     // allocate RtAudio
     try { m_rtaudio = new RtAudio( ); }
@@ -219,7 +222,8 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
         {
             // log
             EM_log( CK_LOG_FINE, "initializing callback..." );
-            m_rtaudio->setStreamCallback( &cb, NULL );
+            if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
+            else m_rtaudio->setStreamCallback( &cb2, vm_ref );
         }
     } catch( RtError err ) {
         // log
@@ -237,7 +241,8 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
             {
                 // log
                 EM_log( CK_LOG_FINE, "initializing callback..." );
-                m_rtaudio->setStreamCallback( &cb, NULL );
+                if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
+                else m_rtaudio->setStreamCallback( &cb2, vm_ref );
             }
         } catch( RtError err ) {
             EM_error2( 0, "%s", err.getMessageString() );
@@ -332,6 +337,53 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     //*m_write_ptr = (SAMPLE *)m_buffer_out;
     //*m_read_ptr = (SAMPLE *)m_buffer_in;
     m_out_ready = FALSE;
+
+    return 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: cb2()
+// desc: ...
+//-----------------------------------------------------------------------------
+int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
+{
+    DWORD__ len = buffer_size * sizeof(SAMPLE) * m_num_channels_out;
+    DWORD__ n = 20;
+    DWORD__ start = 50;
+    Chuck_VM * vm_ref = (Chuck_VM *)user_data;
+
+    // priority boost
+    if( !m_go && Chuck_VM::our_priority != 0x7fffffff )
+    {
+        Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
+        memset( buffer, 0, len );
+        m_go = TRUE;
+    }
+
+    // copy input to local buffer
+    if( m_num_channels_in )
+    {
+        memcpy( m_buffer_in, buffer, len );
+        // copy to extern
+        if( m_extern_in ) memcpy( m_extern_in, buffer, len );
+    }
+    // flag ready
+    m_in_ready = TRUE;
+    m_out_ready = FALSE;
+    // get samples from output
+    vm_ref->run( buffer_size );
+
+    // copy local buffer to be rendered
+    if( !m_end ) memcpy( buffer, m_buffer_out, len );
+    // set all elements of local buffer to silence
+    else memset( buffer, 0, len);
+
+    // copy to extern
+    if( m_extern_out ) memcpy( m_extern_out, buffer, len );
+
 
     return 0;
 }
@@ -578,11 +630,15 @@ DWORD__ DigitalOut::render()
 {
     //if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
-    // synchronize
-    Digitalio::m_out_ready = TRUE;
-    // synchronize
-    while( Digitalio::m_out_ready )
-        usleep( 250 );
+    if( Digitalio::m_block )
+    {
+        // synchronize
+        Digitalio::m_out_ready = TRUE;
+        // synchronize
+        while( Digitalio::m_out_ready )
+            usleep( 250 );
+    }
+
     // set pointer to the beginning - if not ready, then too late anyway
     *Digitalio::m_write_ptr = (SAMPLE *)Digitalio::m_buffer_out;
 
@@ -754,9 +810,12 @@ DWORD__ DigitalIn::capture( )
 {
     // if( !Digitalio::m_use_cb && !Digitalio::tick() ) return FALSE;
 
-    t_CKUINT n = 20;
-    while( !Digitalio::m_in_ready && n-- )
-        usleep( 250 );
+    if( Digitalio::m_block )
+    {
+        t_CKUINT n = 20;
+        while( !Digitalio::m_in_ready && n-- )
+            usleep( 250 );
+    }
 
     // copy data
     memcpy( m_data, Digitalio::m_buffer_in, Digitalio::buffer_size() *

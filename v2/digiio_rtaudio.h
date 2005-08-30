@@ -92,6 +92,7 @@
 #endif
 
 class RtAudio;
+struct Chuck_VM;
 
 
 
@@ -107,7 +108,9 @@ public:
                               DWORD__ sampling_rate = SAMPLING_RATE_DEFAULT,
                               DWORD__ bps = BITS_PER_SAMPLE_DEFAULT,
                               DWORD__ buffer_size = BUFFER_SIZE_DEFAULT,
-                              DWORD__ num_buffers = NUM_BUFFERS_DEFAULT );
+                              DWORD__ num_buffers = NUM_BUFFERS_DEFAULT,
+                              DWORD__ block = TRUE,
+                              Chuck_VM * vm_ref = NULL );
     static void shutdown();
     static void probe();
 
@@ -125,6 +128,7 @@ public:
     static void    set_extern( SAMPLE * in, SAMPLE * out )
                    { m_extern_in = in; m_extern_out = out; } 
     static int cb( char * buffer, int buffer_size, void * user_data );
+    static int cb2( char * buffer, int buffer_size, void * user_data );
 
 public: // data
     static BOOL__ m_init;
@@ -148,6 +152,7 @@ public: // data
     static BOOL__ m_use_cb;
     static DWORD__ m_go;
     static DWORD__ m_end;
+    static DWORD__ m_block;
     
     static DWORD__ m_dac_n;
     static DWORD__ m_adc_n;

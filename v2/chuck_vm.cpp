@@ -123,6 +123,7 @@ Chuck_VM::Chuck_VM()
     m_shred_id = 0;
     m_halt = TRUE;
     m_audio = FALSE;
+    m_block = TRUE;
 
     m_audio_started = FALSE;
     m_dac = NULL;
@@ -235,7 +236,7 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT srate,
                                t_CKUINT buffer_size, t_CKUINT num_buffers,
-                               t_CKUINT dac, t_CKUINT adc )
+                               t_CKUINT dac, t_CKUINT adc, t_CKBOOL block )
 {
     if( m_init )
     {
@@ -257,6 +258,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     m_bbq = new BBQ;
     m_halt = halt;
     m_audio = enable_audio;
+    m_block = block;
     
     // log
     EM_log( CK_LOG_SYSTEM, "allocating shreduler..." );
@@ -368,7 +370,8 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
         // init bbq
         if( !m_bbq->initialize( 2, Digitalio::m_sampling_rate, 16, 
             Digitalio::m_buffer_size, Digitalio::m_num_buffers,
-            Digitalio::m_dac_n, Digitalio::m_adc_n ) )
+            Digitalio::m_dac_n, Digitalio::m_adc_n,
+            m_block, this ) )
         {
             m_last_error = "cannot initialize audio device (try using --silent/-s)";
             // pop indent
@@ -511,7 +514,48 @@ t_CKBOOL Chuck_VM::run( )
     // pop indent
     EM_poplog();
 
-    while( m_running )
+    // run
+    if( m_block ) this->run( -1 );
+    else
+    {
+        // start audio
+        if( !m_audio_started ) start_audio();
+
+        // wait
+        while( m_running )
+        { usleep( 100000 ); }
+    }
+
+    return TRUE;
+}
+
+/*should we comment out what we just did?
+i can't think of why it might be affecting this part of the vm
+you never know
+true*/
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: run()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::run( t_CKINT num_samps )
+{
+    m_running = TRUE;
+    Chuck_VM_Shred * shred = NULL;
+    Chuck_Msg * msg = NULL;
+    Chuck_Event * event = NULL;
+
+    // push indent
+    EM_pushlog();
+    // log
+    EM_log( CK_LOG_CRAZY, "virtual machine computing..." );
+    // pop indent
+    EM_poplog();
+
+    while( num_samps )
     {
         // get the shreds queued for 'now'
         while(( shred = m_shreduler->get() ))
@@ -550,7 +594,12 @@ t_CKBOOL Chuck_VM::run( )
         // broadcast queued events
         while( m_event_buffer->get( &event, 1 ) )
             event->broadcast();
+
+        // count
+        if( num_samps > 0 ) num_samps--;
     }
+
+    return FALSE;
 
 // vm stop here
 vm_stop:
@@ -562,10 +611,7 @@ vm_stop:
     return TRUE;
 }
 
-/*should we comment out what we just did?
-i can't think of why it might be affecting this part of the vm
-you never know
-true*/
+
 
 
 //-----------------------------------------------------------------------------

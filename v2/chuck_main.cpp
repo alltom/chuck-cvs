@@ -269,6 +269,7 @@ int main( int argc, char ** argv )
     t_CKBOOL probe = FALSE;
     t_CKBOOL set_priority = FALSE;
     t_CKBOOL auto_depend = FALSE;
+    t_CKBOOL block = FALSE;
     t_CKINT  log_level = CK_LOG_SYSTEM_ERROR;
 
     t_CKUINT files = 0;
@@ -294,6 +295,8 @@ int main( int argc, char ** argv )
                 vm_halt = TRUE;
             else if( !strcmp(argv[i], "--loop") || !strcmp(argv[i], "-l") )
                 vm_halt = FALSE;
+            else if( !strcmp(argv[i], "--block") )
+                block = TRUE;
             else if( !strncmp(argv[i], "--srate", 7) )
                 srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : srate;
             else if( !strncmp(argv[i], "-r", 2) )
@@ -387,7 +390,7 @@ int main( int argc, char ** argv )
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
-                         num_buffers, dac, adc ) )
+                         num_buffers, dac, adc, block ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
