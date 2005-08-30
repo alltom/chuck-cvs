@@ -235,7 +235,7 @@ t_CKBOOL get_count( const char * arg, t_CKUINT * out )
 void usage()
 {
     fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
-    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about\n" );
+    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
     fprintf( stderr, "               block|callback\n" );
