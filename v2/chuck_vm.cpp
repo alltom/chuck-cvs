@@ -523,7 +523,7 @@ t_CKBOOL Chuck_VM::run( )
 
         // wait
         while( m_running )
-        { usleep( 100000 ); }
+        { usleep( 50000 ); }
     }
 
     return TRUE;
@@ -543,7 +543,6 @@ true*/
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::run( t_CKINT num_samps )
 {
-    m_running = TRUE;
     Chuck_VM_Shred * shred = NULL;
     Chuck_Msg * msg = NULL;
     Chuck_Event * event = NULL;
