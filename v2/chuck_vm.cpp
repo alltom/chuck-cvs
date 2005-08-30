@@ -253,7 +253,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     EM_pushlog(); // push stack
     EM_log( CK_LOG_SYSTEM, "behavior: %s", halt ? "HALT" : "LOOP" );
     EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "YES" : "NO" );
-    EM_log( CK_LOG_SYSTEM, "method: %s", block ? "BLOCKING" : "CALLBACK" );
+    if( enable_audio ) EM_log( CK_LOG_SYSTEM, "method: %s", block ? "BLOCKING" : "CALLBACK" );
 
     // allocate bbq
     m_bbq = new BBQ;
@@ -516,7 +516,7 @@ t_CKBOOL Chuck_VM::run( )
     EM_poplog();
 
     // run
-    if( m_block ) this->run( -1 );
+    if( !m_audio || m_block ) this->run( -1 );
     else
     {
         // start audio
