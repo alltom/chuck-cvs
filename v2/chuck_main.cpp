@@ -269,7 +269,7 @@ int main( int argc, char ** argv )
     t_CKBOOL probe = FALSE;
     t_CKBOOL set_priority = FALSE;
     t_CKBOOL auto_depend = FALSE;
-    t_CKBOOL block = FALSE;
+    t_CKBOOL block = TRUE;
     t_CKINT  log_level = CK_LOG_SYSTEM_ERROR;
 
     t_CKUINT files = 0;
@@ -295,6 +295,8 @@ int main( int argc, char ** argv )
                 vm_halt = TRUE;
             else if( !strcmp(argv[i], "--loop") || !strcmp(argv[i], "-l") )
                 vm_halt = FALSE;
+            else if( !strcmp(argv[i], "--callback") )
+                block = FALSE;
             else if( !strcmp(argv[i], "--block") )
                 block = TRUE;
             else if( !strncmp(argv[i], "--srate", 7) )

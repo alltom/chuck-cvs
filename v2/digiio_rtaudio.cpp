@@ -305,7 +305,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
         // copy local buffer to be rendered
         if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
-        else memset( buffer, 0, len);
+        else memset( buffer, 0, len );
     }
     else  // initial condition
     {
@@ -351,8 +351,6 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
 int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * m_num_channels_out;
-    DWORD__ n = 20;
-    DWORD__ start = 50;
     Chuck_VM * vm_ref = (Chuck_VM *)user_data;
 
     // priority boost
@@ -370,16 +368,14 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         // copy to extern
         if( m_extern_in ) memcpy( m_extern_in, buffer, len );
     }
-    // flag ready
-    m_in_ready = TRUE;
-    m_out_ready = FALSE;
+
     // get samples from output
     vm_ref->run( buffer_size );
 
     // copy local buffer to be rendered
     if( !m_end ) memcpy( buffer, m_buffer_out, len );
     // set all elements of local buffer to silence
-    else memset( buffer, 0, len);
+    else memset( buffer, 0, len );
 
     // copy to extern
     if( m_extern_out ) memcpy( m_extern_out, buffer, len );
