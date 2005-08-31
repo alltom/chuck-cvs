@@ -549,11 +549,11 @@ t_CKBOOL Chuck_VM::run( t_CKINT num_samps )
     Chuck_Event * event = NULL;
 
     // push indent
-    EM_pushlog();
+    //EM_pushlog();
     // log
-    EM_log( CK_LOG_CRAZY, "virtual machine computing..." );
+    //EM_log( CK_LOG_CRAZY, "virtual machine computing..." );
     // pop indent
-    EM_poplog();
+    //EM_poplog();
 
     while( num_samps )
     {
