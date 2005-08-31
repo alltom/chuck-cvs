@@ -65,7 +65,7 @@
 
 // global variables
 #if defined(__MACOSX_CORE__)
-  t_CKINT g_priority = 50;
+  t_CKINT g_priority = 60;
 #elif defined(__PLATFORM_WIN32__)
   t_CKINT g_priority = 0;
 #else
