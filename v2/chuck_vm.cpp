@@ -124,6 +124,7 @@ Chuck_VM::Chuck_VM()
     m_halt = TRUE;
     m_audio = FALSE;
     m_block = TRUE;
+    m_running = FALSE;
 
     m_audio_started = FALSE;
     m_dac = NULL;
@@ -391,6 +392,19 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
 
 
 //-----------------------------------------------------------------------------
+// name: compensate_bbq()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_VM::compensate_bbq()
+{
+    // set shreduler - the audio was initialized elsewhere
+    m_shreduler->bbq = m_bbq;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: shutdown()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -490,11 +504,6 @@ t_CKBOOL Chuck_VM::run( )
     EM_log( CK_LOG_SYSTEM, "starting virtual machine..." );
     // push indent
     EM_pushlog();
-
-#ifdef __CHUCK_STAT_TRACK__
-    // set reference
-    Chuck_Stats::instance()->set_vm_ref( this );
-#endif
 
     // audio
     if( m_audio )

@@ -249,7 +249,7 @@ public:
     // time and audio
     t_CKTIME now_system;
     BBQ * bbq;
-    
+
     // shreds to be shreduled
     Chuck_VM_Shred * shred_list;
     // shreds waiting on events
@@ -297,6 +297,7 @@ public: // shreds
 public: // audio
     BBQ * bbq() const;
     t_CKUINT srate() const;
+    void compensate_bbq();
 
 public: // running the machine
     t_CKBOOL run( );
