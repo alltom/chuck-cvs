@@ -41,6 +41,7 @@
 
 #include "rtaudio.h"
 #include "chuck_errmsg.h"
+#include "digiio_rtaudio.h"
 #include <stdio.h>
 
 // Static variable definitions.
@@ -1896,9 +1897,14 @@ OSStatus deviceListener(AudioDeviceID inDevice,
   if ( propertyID == kAudioDeviceProcessorOverload )
   {
     if ( isInput )
+        // chuck log
         EM_log( CK_LOG_FINEST, "(via rtaudio): OS-X audio input overrun detected!" );
     else
+        // chuck log
         EM_log( CK_LOG_FINEST, "(via rtaudio): OS-X audio output overrun detected!" );
+
+    // chuck notify
+    Digitalio::m_xrun++;
 
     handle->xrun = true;
   }

@@ -68,6 +68,7 @@ DWORD__ Digitalio::m_dac_n = 0;
 DWORD__ Digitalio::m_adc_n = 0;
 DWORD__ Digitalio::m_end = 0;
 DWORD__ Digitalio::m_block = TRUE;
+DWORD__ Digitalio::m_xrun = 0;
 
 
 // sample

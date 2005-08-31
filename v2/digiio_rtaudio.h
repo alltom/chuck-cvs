@@ -153,7 +153,8 @@ public: // data
     static DWORD__ m_go;
     static DWORD__ m_end;
     static DWORD__ m_block;
-    
+    static DWORD__ m_xrun;
+
     static DWORD__ m_dac_n;
     static DWORD__ m_adc_n;
 };
