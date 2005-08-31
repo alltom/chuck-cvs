@@ -460,5 +460,5 @@ UINT__ CBufferSimple::get( void * data, UINT__ num_elem )
     }
 
     // return number of elems
-    return 1;
+    return 1; // shouldn't it return i?
 }
