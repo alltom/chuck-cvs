@@ -370,8 +370,13 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         if( m_extern_in ) memcpy( m_extern_in, buffer, len );
     }
 
-    // get samples from output
-    vm_ref->run( buffer_size );
+    // check xrun
+    if( m_xrun < 10 )
+        // get samples from output
+        vm_ref->run( buffer_size );
+    else
+        // reset
+        m_xrun = 0;
 
     // copy local buffer to be rendered
     if( !m_end ) memcpy( buffer, m_buffer_out, len );
