@@ -376,7 +376,7 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         // get samples from output
         vm_ref->run( buffer_size );
         // ...
-        if( m_xrun ) m_xrun--;
+        // if( m_xrun ) m_xrun--;
     }
     else
         // reset

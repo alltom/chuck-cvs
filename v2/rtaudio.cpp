@@ -1904,7 +1904,7 @@ OSStatus deviceListener(AudioDeviceID inDevice,
         EM_log( CK_LOG_FINEST, "(via rtaudio): OS-X audio output overrun detected!" );
 
     // chuck notify
-    Digitalio::m_xrun++;
+    Digitalio::m_xrun += 2;
 
     handle->xrun = true;
   }
