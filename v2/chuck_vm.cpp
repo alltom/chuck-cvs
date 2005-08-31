@@ -348,7 +348,7 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     stereo_ctor( m_adc, NULL );
     m_adc->add_ref();
     // lock it
-    m_adc->add_ref();
+    m_adc->lock();
 
     // log
     EM_log( CK_LOG_SYSTEM, "initializing 'blackhole'..." );
