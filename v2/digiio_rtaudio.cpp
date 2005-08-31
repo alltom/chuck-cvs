@@ -371,9 +371,13 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
     }
 
     // check xrun
-    if( m_xrun < 4 )
+    if( m_xrun < 6 )
+    {
         // get samples from output
         vm_ref->run( buffer_size );
+        // ...
+        if( m_xrun ) m_xrun--;
+    }
     else
         // reset
         m_xrun = 0;
