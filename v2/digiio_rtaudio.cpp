@@ -177,7 +177,8 @@ void Digitalio::probe()
 BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                               DWORD__ bps, DWORD__ buffer_size, 
                               DWORD__ num_buffers, DWORD__ block,
-                              Chuck_VM * vm_ref )
+                              Chuck_VM * vm_ref,
+                              void * callback, void * data )
 {
     if( m_init )
         return FALSE;
@@ -223,8 +224,15 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
         {
             // log
             EM_log( CK_LOG_FINE, "initializing callback..." );
-            if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
-            else m_rtaudio->setStreamCallback( &cb2, vm_ref );
+            if( !callback )
+            {
+                if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
+                else m_rtaudio->setStreamCallback( &cb2, vm_ref );
+            }
+            else
+            {
+                m_rtaudio->setStreamCallback( (RtAudioCallback)callback, data );
+            }
         }
     } catch( RtError err ) {
         // log
@@ -242,8 +250,15 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
             {
                 // log
                 EM_log( CK_LOG_FINE, "initializing callback..." );
-                if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
-                else m_rtaudio->setStreamCallback( &cb2, vm_ref );
+                if( !callback )
+                {
+                    if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
+                    else m_rtaudio->setStreamCallback( &cb2, vm_ref );
+                }
+                else
+                {
+                    m_rtaudio->setStreamCallback( (RtAudioCallback)callback, data );
+                }
             }
         } catch( RtError err ) {
             EM_error2( 0, "%s", err.getMessageString() );

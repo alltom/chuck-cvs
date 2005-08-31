@@ -94,7 +94,9 @@ public:
                        DWORD__ dac = 0,
                        DWORD__ adc = 0,
                        DWORD__ block = TRUE,
-                       Chuck_VM * vm_ref = NULL );
+                       Chuck_VM * vm_ref = NULL,
+                       void * callback = NULL,
+                       void * data = NULL );
     void set_srate( DWORD__ srate );
     void set_bufsize( DWORD__ bufsize );
     void set_numbufs( DWORD__ numbufs );

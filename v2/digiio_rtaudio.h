@@ -110,7 +110,8 @@ public:
                               DWORD__ buffer_size = BUFFER_SIZE_DEFAULT,
                               DWORD__ num_buffers = NUM_BUFFERS_DEFAULT,
                               DWORD__ block = TRUE,
-                              Chuck_VM * vm_ref = NULL );
+                              Chuck_VM * vm_ref = NULL,
+                              void * callback = NULL, void * data = NULL );
     static void shutdown();
     static void probe();
 
