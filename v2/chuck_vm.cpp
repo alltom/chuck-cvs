@@ -411,6 +411,19 @@ t_CKBOOL Chuck_VM::shutdown()
         usleep( 50000 );
     }
 
+    // shutdown audio
+    if( m_audio )
+    {
+        // log
+        EM_log( CK_LOG_SYSTEM, "shutting down real-time audio..." );
+
+        m_bbq->digi_out()->cleanup();
+        m_bbq->digi_in()->cleanup();
+        m_bbq->shutdown();
+        SAFE_DELETE( m_bbq );
+        m_audio = FALSE;
+    }
+
     // log
     EM_log( CK_LOG_SYSTEM, "freeing shreduler..." );
     // free the shreduler
@@ -428,19 +441,6 @@ t_CKBOOL Chuck_VM::shutdown()
     }
     m_shreds = NULL;
     m_num_shreds = 0;
-
-    // shutdown audio
-    if( m_audio )
-    {
-        // log
-        EM_log( CK_LOG_SYSTEM, "shutting down real-time audio..." );
-
-        m_bbq->digi_out()->cleanup();
-        m_bbq->digi_in()->cleanup();
-        m_bbq->shutdown();
-        SAFE_DELETE( m_bbq );
-        m_audio = FALSE;
-    }
 
     m_init = FALSE;
 
