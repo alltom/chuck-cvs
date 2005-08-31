@@ -65,7 +65,7 @@
 
 // global variables
 #if defined(__MACOSX_CORE__)
-  t_CKINT g_priority = 45;
+  t_CKINT g_priority = 50;
 #elif defined(__PLATFORM_WIN32__)
   t_CKINT g_priority = 0;
 #else
@@ -270,7 +270,7 @@ int main( int argc, char ** argv )
     t_CKBOOL probe = FALSE;
     t_CKBOOL set_priority = FALSE;
     t_CKBOOL auto_depend = FALSE;
-    t_CKBOOL block = TRUE;
+    t_CKBOOL block = FALSE;
     t_CKINT  log_level = CK_LOG_SYSTEM_ERROR;
 
     t_CKUINT files = 0;
