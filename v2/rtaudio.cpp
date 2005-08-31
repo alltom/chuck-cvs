@@ -40,6 +40,7 @@
 // RtAudio: Version 3.0.1, 22 March 2004
 
 #include "rtaudio.h"
+#include "chuck_errmsg.h"
 #include <stdio.h>
 
 // Static variable definitions.
