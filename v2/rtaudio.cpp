@@ -1892,13 +1892,13 @@ OSStatus deviceListener(AudioDeviceID inDevice,
                         void* handlePointer)
 {
   CoreHandle *handle = (CoreHandle *) handlePointer;
-  if ( propertyID == kAudioDeviceProcessorOverload ) {
-#ifdef __CHUCK_DEBUG__
+  if ( propertyID == kAudioDeviceProcessorOverload )
+  {
     if ( isInput )
-        fprintf(stderr, "[chuck](via rtaudio): RtApiCore: OS-X audio input overrun detected!\n");
+        EM_log( CK_LOG_FINEST, "(via rtaudio): OS-X audio input overrun detected!" );
     else
-        fprintf(stderr, "[chuck](via rtaudio): RtApiCore: OS-X audio output underrun detected!\n");
-#endif
+        EM_log( CK_LOG_FINEST, "(via rtaudio): OS-X audio output overrun detected!" );
+
     handle->xrun = true;
   }
 
