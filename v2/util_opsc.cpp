@@ -1803,7 +1803,7 @@ OSCSrc::queue_mesg ( OSCMesg* m )
                 _vals[i].t = OSC_STRING;
                 _vals[i].s = (char *) realloc ( _vals[i].s, clen * sizeof(char) );
                 memcpy ( _vals[i].s, data, clen );
-                fprintf(stderr, "add string |%s| ( %d ) \n", _vals[i].s, clen  );
+                //fprintf(stderr, "add string |%s| ( %d ) \n", _vals[i].s, clen  );
                 data += clen + 4 - clen % 4;
             break;
             case 'b':
