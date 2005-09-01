@@ -72,7 +72,7 @@
   t_CKINT g_priority_low = 0;
 #else
   t_CKINT g_priority = 0x7fffffff;
-  t_CKINT g_priority_low = 0x7ffffffff;
+  t_CKINT g_priority_low = 0x7fffffff;
 #endif
 
 // global virtual machine
