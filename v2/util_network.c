@@ -372,9 +372,9 @@ int ck_recv( ck_socket sock, char * buffer, int len )
 int ck_recv2( ck_socket sock, char * buffer, int len ) 
 {
     struct sockaddr_in from;
+    unsigned int flen;
     memset( &from, 0, sizeof(from) );
-    unsigned intlen;
-    return recvfrom( sock->sock, buffer, len, 0, (struct sockaddr *)&from, &len );
+    return recvfrom( sock->sock, buffer, len, 0, (struct sockaddr *)&from, &flen );
 }
 
 
