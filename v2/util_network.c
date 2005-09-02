@@ -374,6 +374,7 @@ int ck_recv2( ck_socket sock, char * buffer, int len )
     struct sockaddr_in from;
     unsigned int flen;
     memset( &from, 0, sizeof(from) );
+    flen = sizeof(struct sockaddr_in);
     return recvfrom( sock->sock, buffer, len, 0, (struct sockaddr *)&from, &flen );
 }
 
