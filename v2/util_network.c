@@ -100,7 +100,7 @@ ck_socket ck_udp_create( )
 #endif
 
     sock = (ck_socket)checked_malloc( sizeof( struct ck_socket_ ) );
-    sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );
+    sock->sock = socket( AF_INET, SOCK_DGRAM, 0 );  
     sock->prot = SOCK_DGRAM;
 
     return sock;
@@ -176,7 +176,7 @@ t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port )
 #endif
 
     sock->sock_in.sin_family = AF_INET;
-    sock->sock_in.sin_port = htons( (unsigned short)port );
+    sock->sock_in.sin_port = htons( (unsigned short)abs(port) );
     // lookup name
     host = gethostbyname( hostname );
     if( !host )
@@ -193,6 +193,9 @@ t_CKBOOL ck_connect( ck_socket sock, const char * hostname, int port )
         bcopy( host->h_addr, (char *)&sock->sock_in.sin_addr, host->h_length );
 #endif
     }
+
+    if( port < 0 )
+        return TRUE;
 
     ret = ck_connect2( sock, (struct sockaddr *)&sock->sock_in, 
         sizeof( struct sockaddr_in ) );
@@ -292,6 +295,19 @@ int ck_send( ck_socket sock, const char * buffer, int len )
 
 
 //-----------------------------------------------------------------------------
+// name: ck_send2()
+// desc: send a datagram
+//-----------------------------------------------------------------------------
+int ck_send2( ck_socket sock, const char * buffer, int len ) 
+{
+    return sendto( sock->sock, buffer, len, 0,
+        (struct sockaddr *)&sock->sock_in, sizeof(struct sockaddr_in) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: ck_sendto()
 // desc: send a datagram
 //-----------------------------------------------------------------------------
@@ -343,7 +359,22 @@ int ck_recv( ck_socket sock, char * buffer, int len )
         }
         return len;
     }
-    else return recv( sock->sock, buffer, len, 0);
+    else return recv( sock->sock, buffer, len, 0 );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ck_recv2()
+// desc: recv a datagram
+//-----------------------------------------------------------------------------
+int ck_recv2( ck_socket sock, char * buffer, int len ) 
+{
+    struct sockaddr_in from;
+    memset( &from, 0, sizeof(from) );
+    unsigned intlen;
+    return recvfrom( sock->sock, buffer, len, 0, (struct sockaddr *)&from, &len );
 }
 
 

@@ -81,6 +81,8 @@ int ck_sendto( ck_socket sock, const char * buffer, int len,
 
 // recv
 int ck_recv( ck_socket sock, char * buffer, int len );
+// recv
+int ck_recv2( ck_socket sock, char * buffer, int len );
 // recv a datagram
 int ck_recvfrom( ck_socket sock, char * buffer, int len,
                  struct sockaddr * from, int * fromlen );
