@@ -4,7 +4,7 @@
 // number of disks
 10 => int disks;
 // min duration for each move
-100::ms => dur wait => dur the_wait;
+200::ms => dur wait => dur the_wait;
 // max factor
 8 => int factor;
 
