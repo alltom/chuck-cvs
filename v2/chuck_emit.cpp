@@ -3258,7 +3258,7 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 
     a_Exp e = exp->args;
     t_CKUINT size = 0;
-    while( e ) { size += e->type->size; e = e->next; }
+    while( e ) { size += e->cast_to ? e->cast_to->size : e->type->size; e = e->next; }
 
     // handle member function
     // TODO: this is a hack - what if exp is not func_call?
