@@ -3300,7 +3300,11 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
     if( v->owner_class && (v->is_member || v->is_static) )
     {
         // make sure talking about the same class
-        assert( v->owner_class == emit->env->class_def );
+        // this doesn't work since the owner class could be a super class
+        // assert( v->owner_class == emit->env->class_def );
+        //
+        // try this (thanks Robin Davies)
+        assert( v->owner_class <= emit->env->class_def /* || is_global( v->owner_class ) */ );
 
         // emit as this.v
         a_Exp base = new_exp_from_id( "this", linepos );

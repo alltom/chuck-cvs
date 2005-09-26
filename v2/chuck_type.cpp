@@ -1751,11 +1751,13 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
             }
             else  // look up
             {
+                // look in local scope first
                 v = env->curr->lookup_value( exp->var, TRUE );
                 if( !v )
                 {
                     // error
-                    if( !env->class_def || env->class_scope > 0 )
+                    // checking for class scope incorrect (thanks Robin Davies)
+                    if( !env->class_def /* || env->class_scope > 0 */ )
                     {
                         EM_error2( exp->linepos,
                             "undefined variable '%s'...", S_name(exp->var) );
