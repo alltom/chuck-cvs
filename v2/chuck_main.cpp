@@ -241,7 +241,7 @@ void usage()
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
-    fprintf( stderr, "               block|callback\n" );
+    fprintf( stderr, "               blocking|callback\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
     fprintf( stderr, "chuck version: %s\n", CK_VERSION );
@@ -301,7 +301,7 @@ int main( int argc, char ** argv )
                 vm_halt = FALSE;
             else if( !strcmp(argv[i], "--callback") )
                 block = FALSE;
-            else if( !strcmp(argv[i], "--block") )
+            else if( !strcmp(argv[i], "--blocking") )
                 block = TRUE;
             else if( !strncmp(argv[i], "--srate", 7) )
                 srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : srate;
