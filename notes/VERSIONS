@@ -14,6 +14,10 @@
   - (fixed) examples code reformatted, cleaned, and commented
   - (fixed) nested class definitions can now have same name as outer class
   - (fixed) nested class bug in scan1 (thanks to Robin Davies)
+  - (fixed) variable resolution in parent class now visible (thanks to Robin Davies)
+  - (fixed) variable resolution ordering
+    - local, class, parent, global (thanks to Robin Davies)
+  - (fixed) emitter now asserts inheritance instead of equality (thanks to Robin Davies)
 
 
 ---
