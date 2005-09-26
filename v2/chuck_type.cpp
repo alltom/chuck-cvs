@@ -1154,10 +1154,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_minus:
     case ae_op_times:
     case ae_op_divide:
-    case ae_op_lt:
-    case ae_op_le:
-    case ae_op_gt:
-    case ae_op_ge:
+    //case ae_op_lt:
+    //case ae_op_le:
+    //case ae_op_gt:
+    //case ae_op_ge:
     case ae_op_percent:
     case ae_op_plus_chuck:
     case ae_op_minus_chuck:

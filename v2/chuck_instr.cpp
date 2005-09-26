@@ -3227,6 +3227,81 @@ void Chuck_Instr_Cast_int2double::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Op_string::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_String * lhs = NULL;
+    Chuck_String * rhs = NULL;
+
+    // pop
+    pop_( sp, 2 );
+    // get the string references
+    lhs = (Chuck_String *)*sp;
+    rhs = (Chuck_String *)*(sp + 1);
+    // neither should be null
+    if( !lhs || !rhs ) goto null_pointer;
+
+    // look
+    switch( m_val )
+    {
+    case ae_op_eq:
+        push_( sp, lhs->str == rhs->str );
+    break;
+
+    case ae_op_neq:
+        push_( sp, lhs->str != rhs->str );
+    break;
+
+    case ae_op_lt:
+        push_( sp, lhs->str < rhs->str );
+    break;
+
+    case ae_op_le:
+        push_( sp, lhs->str <= rhs->str );
+    break;
+
+    case ae_op_gt:
+        push_( sp, lhs->str > rhs->str );
+    break;
+
+    case ae_op_ge:
+        push_( sp, lhs->str >= rhs->str );
+    break;
+
+    default:
+        goto invalid_op;
+    break;
+    }
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (during string op) in shred[id=%d:%s]\n",
+        shred->id, shred->name.c_str() );
+    goto done;
+
+invalid_op:
+    // we have a problem
+    fprintf( stderr,
+        "[chuck](VM): InvalidStringOpException: '%d' in shred[id=%d:%s]\n",
+        m_val, shred->id, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_ADC::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;

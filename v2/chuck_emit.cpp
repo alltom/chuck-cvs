@@ -1571,7 +1571,9 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
 
     // -------------------------------- bool -----------------------------------        
     case ae_op_eq:
-        if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
+        if( isa( t_left, &t_string ) && isa( t_right, &t_string ) )
+            emit->append( instr = new Chuck_Instr_Op_string( op ) );
+        else if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
             emit->append( instr = new Chuck_Instr_Eq_int );
         else
         {
@@ -1592,7 +1594,9 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         break;
     
     case ae_op_neq:
-        if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
+        if( isa( t_left, &t_string ) && isa( t_right, &t_string ) )
+            emit->append( instr = new Chuck_Instr_Op_string( op ) );
+        else if( isa( t_left, &t_object ) && isa( t_right, &t_object ) )
             emit->append( instr = new Chuck_Instr_Neq_int );
         else
         {
@@ -1622,6 +1626,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_dur:
         case te_time:
             emit->append( instr = new Chuck_Instr_Lt_double );
+        case te_string:
+            emit->append( instr = new Chuck_Instr_Op_string( op ) );
             break;
 
         default: break;
@@ -1638,6 +1644,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_dur:
         case te_time:
             emit->append( instr = new Chuck_Instr_Le_double );
+        case te_string:
+            emit->append( instr = new Chuck_Instr_Op_string( op ) );
             break;
 
         default: break;
@@ -1654,6 +1662,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_dur:
         case te_time:
             emit->append( instr = new Chuck_Instr_Gt_double );
+        case te_string:
+            emit->append( instr = new Chuck_Instr_Op_string( op ) );
             break;
 
         default: break;
@@ -1670,6 +1680,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_dur:
         case te_time:
             emit->append( instr = new Chuck_Instr_Ge_double );
+        case te_string:
+            emit->append( instr = new Chuck_Instr_Op_string( op ) );
             break;
 
         default: break;

@@ -2257,6 +2257,22 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Op_string
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Op_string : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Op_string( t_CKUINT v ) { this->set( v ); }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Hack
 // desc: ...
 //-----------------------------------------------------------------------------
