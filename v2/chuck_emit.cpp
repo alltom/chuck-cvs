@@ -3304,7 +3304,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
         // assert( v->owner_class == emit->env->class_def );
         //
         // try this (thanks Robin Davies)
-        assert( v->owner_class <= emit->env->class_def /* || is_global( v->owner_class ) */ );
+        assert( isa( emit->env->class_def, v->owner_class ) /* || is_global( v->owner_class ) */ );
 
         // emit as this.v
         a_Exp base = new_exp_from_id( "this", linepos );

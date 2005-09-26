@@ -1752,7 +1752,7 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
             else  // look up
             {
                 // look in local scope first
-                v = env->curr->lookup_value( exp->var, TRUE );
+                v = env->curr->lookup_value( exp->var, FALSE );
                 if( !v )
                 {
                     // error
@@ -2177,9 +2177,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // get the decl
         var_decl = list->var_decl;
 
-        // check if in parent
+        // (if at class_scope) check if in parent
         // TODO: sort
-        if( env->class_def && ( value =
+        if( env->class_def && env->class_scope == 0 && ( value =
             type_engine_find_value( env->class_def->parent, var_decl->id ) ) )
         {
             EM_error2( var_decl->linepos,
