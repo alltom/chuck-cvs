@@ -185,7 +185,7 @@ t_CKBOOL type_engine_scan0_prog( Chuck_Env * env, a_Program prog,
 
         prog = prog->next;
     }
-
+    
     // pop indent
     EM_poplog();
 
@@ -227,7 +227,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     }
 
     // make sure class not already in namespace
-    if( env->curr->lookup_type( class_def->name->id, TRUE ) )
+    if( env->curr->lookup_type( class_def->name->id, FALSE ) )
     {
         EM_error2( class_def->name->linepos,
             "class/type '%s' is already defined in namespace '%s'",
@@ -1221,7 +1221,7 @@ t_CKBOOL type_engine_scan1_class_def( Chuck_Env * env, a_Class_Def class_def )
         
         case ae_section_class:
             // do the class
-            ret = type_engine_scan0_class_def( env, body->section->class_def );
+            ret = type_engine_scan1_class_def( env, body->section->class_def );
             break;
         }
         
