@@ -18,6 +18,8 @@
   - (fixed) variable resolution ordering
     - local, class, parent, global (thanks to Robin Davies)
   - (fixed) emitter now asserts inheritance instead of equality (thanks to Robin Davies)
+  - (fixed) string comparison ==, !=
+  - (added) string operations <, <=, >, >=
 
 
 ---
