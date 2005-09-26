@@ -1755,22 +1755,37 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 v = env->curr->lookup_value( exp->var, FALSE );
                 if( !v )
                 {
-                    // error
-                    // checking for class scope incorrect (thanks Robin Davies)
-                    if( !env->class_def /* || env->class_scope > 0 */ )
-                    {
-                        EM_error2( exp->linepos,
-                            "undefined variable '%s'...", S_name(exp->var) );
-                        return NULL;
-                    }
-                    else
+
+                    // if in class
+                    if( env->class_def )
                     {
                         // see if in parent
                         v = type_engine_find_value( env->class_def->parent, exp->var );
-                        if( !v )
+                    }
+
+                    // still not found
+                    if( !v )
+                    {
+                        // look globally
+                        v = env->curr->lookup_value( exp->var, TRUE );
+                    }
+
+
+                    // error
+                    if( !v )
+                    {
+                        // checking for class scope incorrect (thanks Robin Davies)
+                        if( !env->class_def /* || env->class_scope > 0 */ )
+                        {
+                    
+                            EM_error2( exp->linepos,
+                                "undefined variable '%s'...", S_name(exp->var) );
+                            return NULL;
+                        }
+                        else
                         {
                             EM_error2( exp->linepos,
-                                "undefined member '%s' in class/namespace '%s'...",
+                                "undefined variable/member '%s' in class/namespace '%s'...",
                                 S_name(exp->var), env->class_def->name.c_str() );
                             return NULL;
                         }
