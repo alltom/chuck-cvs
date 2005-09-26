@@ -10,7 +10,7 @@
   - (fixed) crash when doing on-the-fly 'replace' : chuck --replace 0 foo.ck
   - (fixed) OSC event function now correctly named ("event")
   - (fixed) removed debug output in OSC
-  - (fixed) implicit cast is now correct when sporking
+  - (fixed) implicit cast is now correct when sporking (thanks to Manfred Brockhaus)
   - (fixed) examples code reformatted, cleaned, and commented
   - (fixed) nested class definitions can now have same name as outer class
   - (fixed) nested class bug in scan1 (thanks to Robin Davies)
