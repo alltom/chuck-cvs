@@ -283,16 +283,13 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "YES" : "NO" );
     if( enable_audio )
         EM_log( CK_LOG_SYSTEM, "mode: %s", block ? "BLOCKING" : "CALLBACK" );
-
     EM_log( CK_LOG_SYSTEM, "sample rate: %ld", srate );
-    
     if( enable_audio )
     {
         EM_log( CK_LOG_SYSTEM, "buffer size: %ld", buffer_size );
         EM_log( CK_LOG_SYSTEM, "num buffers: %ld", num_buffers );
         EM_log( CK_LOG_SYSTEM, "devices adc: %ld dac: %d (default 0)", adc, dac );
     }
-
     EM_log( CK_LOG_SYSTEM, "channels in: %ld out: %d", 2, 2 );
     
     // at least set the sample rate and buffer size
