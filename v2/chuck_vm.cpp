@@ -253,8 +253,6 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     EM_log( CK_LOG_SYSTEM, "initializing virtual machine..." );
     EM_pushlog(); // push stack
     EM_log( CK_LOG_SYSTEM, "behavior: %s", halt ? "HALT" : "LOOP" );
-    EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "YES" : "NO" );
-    if( enable_audio ) EM_log( CK_LOG_SYSTEM, "method: %s", block ? "BLOCKING" : "CALLBACK" );
 
     // allocate bbq
     m_bbq = new BBQ;
@@ -282,11 +280,20 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     //m_event_buffer->join(); // this should also return 0
 
     // log
+    EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "YES" : "NO" );
+    if( enable_audio )
+        EM_log( CK_LOG_SYSTEM, "mode: %s", block ? "BLOCKING" : "CALLBACK" );
+
     EM_log( CK_LOG_SYSTEM, "sample rate: %ld", srate );
-    EM_log( CK_LOG_SYSTEM, "buffer size: %ld", buffer_size );
-    EM_log( CK_LOG_SYSTEM, "num buffers: %ld", num_buffers );
+    
+    if( enable_audio )
+    {
+        EM_log( CK_LOG_SYSTEM, "buffer size: %ld", buffer_size );
+        EM_log( CK_LOG_SYSTEM, "num buffers: %ld", num_buffers );
+        EM_log( CK_LOG_SYSTEM, "devices adc: %ld dac: %d (default 0)", adc, dac );
+    }
+
     EM_log( CK_LOG_SYSTEM, "channels in: %ld out: %d", 2, 2 );
-    EM_log( CK_LOG_SYSTEM, "devices adc: %ld dac: %d (default 0)", adc, dac );
     
     // at least set the sample rate and buffer size
     m_bbq->set_srate( srate );
