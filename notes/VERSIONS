@@ -1,12 +1,12 @@
 
 ---
-1.2.0.1
+1.2.0.1 - 2005.9.27
   - (added) full callback capability for real-time audio
     - blocking functionality still available
-    - select via flags: --block and --callback
+    - select via flags: --blocking and --callback
     - improves latency and stability, especially on linux
-    - use --callback for low latency / small buffer size
-    - use --block for higher throughput
+    - use --callback (default) for low latency / small buffer size
+    - use --blocking for higher throughput
   - (fixed) crash when doing on-the-fly 'replace' : chuck --replace 0 foo.ck
   - (fixed) OSC event function now correctly named ("event")
   - (fixed) removed debug output in OSC
