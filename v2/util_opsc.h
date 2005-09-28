@@ -386,7 +386,7 @@ int OSC_effectiveStringLength(char *string);
 
 #include "chuck_oo.h"
 
-class OSCSrc;
+class OSC_Address_Space;
 class UDP_Transmitter;
 class UDP_Receiver; 
 
@@ -465,7 +465,7 @@ protected:
     int            _in_read;   //space that is being read
     int            _in_write;  //space that is being written
 
-    OSCSrc **      _address_space;
+    OSC_Address_Space **      _address_space;
     int            _address_size;
     int            _address_num;
 
@@ -500,15 +500,15 @@ public:
     bool has_mesg();
     bool get_mesg(OSCMesg* bucket);
 
-    void add_address ( OSCSrc * o );
-    void remove_address ( OSCSrc * o ); 
-    OSCSrc * new_event ( char * spec );
+    void add_address ( OSC_Address_Space * o );
+    void remove_address ( OSC_Address_Space * o ); 
+    OSC_Address_Space * new_event ( char * spec );
     void distribute_message( OSCMesg * msg);
 };
 
 enum osc_datatype { OSC_UNTYPED, OSC_NOARGS, OSC_INT, OSC_FLOAT, OSC_STRING, OSC_BLOB, OSC_NTYPE };
 
-struct osc_data { 
+struct opsc_data { 
 
     osc_datatype t;    
     OSCTimeTag timetag;
@@ -516,46 +516,53 @@ struct osc_data {
     unsigned int u;
     float f;
     char * s;
-    osc_data() { 
+    opsc_data() { 
         t = OSC_UNTYPED;
         s = NULL;
     }
-    ~osc_data() { 
+    ~opsc_data() { 
         s = NULL;
     }
 
 };
 
+#define OSC_ADDRESS_QUEUE_MAX 32768
+//if it's bigger than this, something's not doing it's job...
+//so we'll drop the message and send a friendly warning via EM_log
 
-class OSCSrc : public Chuck_Event { 
+typedef class OSC_Address_Space OSCSrc;
+
+class OSC_Address_Space : public Chuck_Event { 
 
 protected:
 
     OSC_Receiver * _receiver;
-    
+	XMutex*        _buffer_mutex;
     char  _spec[512];
     bool  _needparse;
     char  _address[512];
     char  _type[512];
-    osc_data * _queue;
+    opsc_data * _queue;
+	opsc_data * _current_data;
     int   _qread;
     int   _qwrite;
-    int   _qz;
+    int   _queueSize;
     int   _cur_value;
-    osc_data *_cur_mesg;
-    osc_data *_vals;
-    int   _nv;
+    opsc_data *_cur_mesg;
+    opsc_data *_vals;
+    int   _dataSize;
     bool  _noArgs;
-    void resize(int n);
+    void resizeData(int n);
+	void resizeQueue(int n);
     void parseSpec();
 
 public:
 
     Chuck_Object * SELF; 
     Chuck_String p_str;
-    OSCSrc();
-    OSCSrc( char * spec );
-    ~OSCSrc();
+    OSC_Address_Space();
+    OSC_Address_Space( char * spec );
+    ~OSC_Address_Space();
 
     // initialization
     void   init();
@@ -563,7 +570,7 @@ public:
     void   setReceiver( OSC_Receiver * recv );
 
     //distribution
-    bool   check_mesg ( OSCMesg * o );
+    bool   try_queue_mesg ( OSCMesg * o );
     bool   message_matches ( OSCMesg * o );
     void   queue_mesg ( OSCMesg * o );
 

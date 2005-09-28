@@ -38,6 +38,8 @@
 #include "util_network.h"
 #include "util_thread.h"
 
+#include "chuck_errmsg.h"
+
 // FROM PLATFORM.H -UDP TRANSMITTER / RECEIVER 
 
 #if defined(__PLATFORM_WIN32__)
@@ -60,6 +62,7 @@
 #define SOCKET int
 #define SOCKADDR_IN struct sockaddr_in
 #endif
+
 
 // squeeze the whole wad of OSC-Kit code in here. 
 
@@ -1232,7 +1235,7 @@ OSC_Receiver::OSC_Receiver():
     _inbox = (OSCMesg*) malloc (sizeof(OSCMesg) * _inbox_size);
     for ( int i = 0; i < _inbox_size; i++ ) _inbox[i].payload = NULL;
 
-    _address_space = (OSCSrc **) realloc ( _address_space, _address_size * sizeof ( OSCSrc * ) );
+    _address_space = (OSC_Address_Space **) realloc ( _address_space, _address_size * sizeof ( OSC_Address_Space * ) );
 
     _io_mutex = new XMutex();
     _io_thread = new XThread();
@@ -1497,6 +1500,8 @@ OSC_Receiver::set_mesg(OSCMesg* mrp, char * buf, int len ) {
 void
 OSC_Receiver::handle_mesg( char* buf, int len ) { 
 
+	//this is called sequentially by the receiving thread. 
+
    if ( buf[0] == '#' ) { handle_bundle( buf, len ); return; }
   
    OSCMesg * mrp = write();
@@ -1510,9 +1515,12 @@ OSC_Receiver::handle_mesg( char* buf, int len ) {
    set_mesg( mrp, mrp->payload, len ); //set pointers for the message to its own payload
    mrp->recvtime = 0.000; //GetTime(); //set message time
 
-   distribute_message( mrp );  //send message to any waiting addresses
-   
-   next_write();
+   distribute_message( mrp );  //copy message to any&all matching address spaces
+
+   // the distribute message will copy any necessary data into the addr object's private queue.
+   // so we don't need to buffer here...( totally wasting the kick-ass expanding buffer i have in this class...drat )  
+
+   //next_write();
    
 }
 
@@ -1539,25 +1547,25 @@ OSC_Receiver::handle_bundle(char*b, int len) {
    }
 }
 
-OSCSrc * 
+OSC_Address_Space * 
 OSC_Receiver::new_event ( char * spec) { 
-    OSCSrc * event = new OSCSrc ( spec );
+    OSC_Address_Space * event = new OSC_Address_Space ( spec );
     add_address ( event );
     return event;
 }
 
 void
-OSC_Receiver::add_address ( OSCSrc * src ) { 
+OSC_Receiver::add_address ( OSC_Address_Space * src ) { 
     if ( _address_num == _address_size ) { 
         _address_size *= 2;
-        _address_space = (OSCSrc **) realloc ( _address_space, _address_size * sizeof( OSCSrc **));
+        _address_space = (OSC_Address_Space **) realloc ( _address_space, _address_size * sizeof( OSC_Address_Space **));
     }
     _address_space[_address_num++] = src;
     src->setReceiver(this);
 }
 
 void
-OSC_Receiver::remove_address ( OSCSrc *odd ) { 
+OSC_Receiver::remove_address ( OSC_Address_Space *odd ) { 
     for ( int i = 0 ; i < _address_num ; i++ ) { 
         while ( _address_space[i] == odd ) { 
             _address_space[i] = _address_space[--_address_num];
@@ -1575,7 +1583,7 @@ OSC_Receiver::remove_address ( OSCSrc *odd ) {
 void 
 OSC_Receiver::distribute_message ( OSCMesg * msg ) { 
     for ( int i = 0 ; i < _address_num ; i++ ) { 
-        if ( _address_space[i]->check_mesg ( msg ) ) {
+        if ( _address_space[i]->try_queue_mesg ( msg ) ) {
 //            fprintf ( stderr, "broadcasting %x from %x\n", (uint)_address_space[i]->SELF, (uint)_address_space[i] );
             ( (Chuck_Event *) _address_space[i]->SELF )->broadcast(); //if the event has any shreds queued, fire them off..
         }
@@ -1586,7 +1594,7 @@ OSC_Receiver::distribute_message ( OSCMesg * msg ) {
 //OSC SOURCE ( Parser ) 
 //rename to OSC_address ? 
 
-// this is an OSCSrc - we register it to a particular receiver
+// this is an OSC_Address_Space - we register it to a particular receiver
 // the receiver matches an incoming message against registered 
 // address and sends the message to all that match. 
 
@@ -1595,43 +1603,47 @@ OSC_Receiver::distribute_message ( OSCMesg * msg ) {
 
 // public for of inherited chuck_event mfunc.  
 
-OSCSrc::OSCSrc() { 
+
+OSC_Address_Space::OSC_Address_Space() { 
     init();
     setSpec("/undefined/default,i");
 }
 
-OSCSrc::OSCSrc( char * spec ) { 
+OSC_Address_Space::OSC_Address_Space( char * spec ) { 
     init();
     setSpec( spec );
 }
 
 void
-OSCSrc::init() { 
+OSC_Address_Space::init() { 
     _receiver = NULL;
     SELF = NULL;
-    _qz = 64;
+    _queueSize = 64; //start queue size at 64. 
+	_dataSize = 0;
     _cur_mesg = NULL;
     _queue = NULL;
+	_current_data = NULL;
+	_buffer_mutex = new XMutex();
 }
 
-OSCSrc::~OSCSrc() { 
+OSC_Address_Space::~OSC_Address_Space() { 
     if ( _queue ) free ( _queue ); 
 }
 
 void
-OSCSrc::setReceiver(OSC_Receiver * recv) { 
+OSC_Address_Space::setReceiver(OSC_Receiver * recv) { 
     _receiver = recv;
 }
 
 void   
-OSCSrc::setSpec( char *c ) { 
+OSC_Address_Space::setSpec( char *c ) { 
     strncpy ( _spec, c, 512); 
     _needparse = true; 
     parseSpec(); 
 }
  
 void
-OSCSrc::parseSpec() { 
+OSC_Address_Space::parseSpec() { 
 
    if ( !_needparse ) return;
 
@@ -1648,7 +1660,7 @@ OSCSrc::parseSpec() {
 
    int n = strlen ( type );
    _noArgs = ( n == 0 );
-   resize( ( n < 1 ) ? 1 : n );
+   resizeData( ( n < 1 ) ? 1 : n );
    _qread = 0;
    _qwrite = 1;
 
@@ -1656,14 +1668,73 @@ OSCSrc::parseSpec() {
 }
 
 void
-OSCSrc::resize( int n ) { 
-    _nv = n;
-    _queue = ( osc_data * ) realloc ( _queue, _qz * _nv * sizeof( osc_data ) );
-    memset ( _queue, 0, _qz * _nv * sizeof( osc_data ) );
+OSC_Address_Space::resizeQueue( int n ) { 
+		if ( n <= _queueSize ) return; //only grows
+
+		_buffer_mutex->acquire();
+
+		//it's possible that between the test above and now, 
+		//qread has moved on and we actually DO have space..
+
+        EM_log( CK_LOG_INFO, "\nOSC_Address (%s) -- buffer full ( r:%d , w:%d, of %d(x%d) ), resizing\n\n", _address, _qread, _qwrite, _queueSize, _dataSize );
+        //fprintf( stderr, "--- hasMesg ( %d ) nextMesg ( %d )\n", (int) has_mesg(), (int)next_mesg()  );
+
+		//we're the server... all we know is that the contents of qread are in the current_buffer, 
+		//so we can move the data, but we don't want to 
+		//move ahead and lose it just yet.
+
+		size_t chunkSize = _dataSize * sizeof( opsc_data );
+
+		int _newQSize = n;
+		opsc_data * _new_queue = ( opsc_data * ) malloc( _newQSize * chunkSize );
+
+		memset( _new_queue, 0, _newQSize * chunkSize ); //out with the old...
+		if ( _qread < _qwrite ) { 
+			//we're doing this because qwrite is out of room.  
+			//so if qwrite is already greater than qread,
+			//just copy the whole thing to the start of the new buffer ( adding more space to the end ) 
+			memcpy( (void*)_new_queue, (const void*)_queue, _queueSize * chunkSize);
+			//_qwrite and _qread can stay right where they are. 
+			//fprintf(stderr, "resize - case 1\n");
+		}
+		else { 
+			//_qread is in front of _qwrite, so we must unwrap, and place _qread at the
+			//front of the queue, and qwrite at the end, preserving all elements that qread
+			//is waiting to consume.
+			int nread = _queueSize - _qread;
+			memcpy( (void*)_new_queue, 
+					(const void*)(_queue + _qread * _dataSize), 
+					(nread) * chunkSize);
+			memcpy( (void*)(_new_queue + nread * _dataSize),
+					(const void*)_queue,
+					(_qread) * _dataSize * sizeof( opsc_data ));
+			_qread = 0;
+			_qwrite += nread;
+			//EM_log(CK_LOG_INFO, "resize - case 2\n");
+		}
+
+		_queueSize = _newQSize; 
+		opsc_data * trash = _queue; 
+		_queue = _new_queue;
+		free ( (void*)trash );
+
+		//don't move qread or qwrite until we're done. 
+		_buffer_mutex->release();
+
+}
+
+void
+OSC_Address_Space::resizeData( int n ) { 
+	if ( _dataSize == n ) return;
+    _dataSize = n;
+	int queueLen = _queueSize * _dataSize * sizeof( opsc_data );
+    _queue = ( opsc_data * ) realloc ( _queue, queueLen );
+    memset ( _queue, 0, queueLen );
+	_current_data = (opsc_data* ) realloc ( _current_data, _dataSize * sizeof( opsc_data) );
 }
 
 bool
-OSCSrc::message_matches( OSCMesg * m ) {
+OSC_Address_Space::message_matches( OSCMesg * m ) {
 
     //this should test for type as well.
    
@@ -1687,7 +1758,7 @@ OSCSrc::message_matches( OSCMesg * m ) {
 }
 
 bool
-OSCSrc::check_mesg( OSCMesg * m ) 
+OSC_Address_Space::try_queue_mesg( OSCMesg * m ) 
 { 
     if ( !message_matches ( m ) ) return false;
     queue_mesg( m );
@@ -1697,26 +1768,34 @@ OSCSrc::check_mesg( OSCMesg * m )
 
 
 bool
-OSCSrc::has_mesg() { 
-    return ( ( _qread + 1 ) % _qz != _qwrite );
+OSC_Address_Space::has_mesg() { 
+    return ( ( _qread + 1 ) % _queueSize != _qwrite );
 }
 
 bool
-OSCSrc::next_mesg() { 
+OSC_Address_Space::next_mesg() { 
     if ( has_mesg() ) { 
-        _qread = ( _qread + 1 ) % _qz;
-        _cur_mesg = _queue + _qread * _nv;
+
+		_buffer_mutex->acquire();
+
+		if ( !has_mesg() ) return false; 
+        _qread = ( _qread + 1 ) % _queueSize; //move qread forward 
+		memcpy( _current_data, _queue + _qread * _dataSize, _dataSize * sizeof ( opsc_data ) ); //copy data from queue to buffer
+        _cur_mesg = _current_data;
         _cur_value = 0;
+
+		_buffer_mutex->release();
+
         return true;
     }
     return false;
 }
 
 bool
-OSCSrc::vcheck( osc_datatype tt ) { 
+OSC_Address_Space::vcheck( osc_datatype tt ) { 
 
-    if ( _cur_value >= _nv ) { 
-        fprintf( stderr, "OSCSrc: read beyond message size\n" );
+    if ( _cur_value >= _dataSize ) { 
+        fprintf( stderr, "OSC_Address_Space: read beyond message size\n" );
         return false;
     }
     if ( _cur_mesg[_cur_value].t != tt ) { 
@@ -1727,22 +1806,22 @@ OSCSrc::vcheck( osc_datatype tt ) {
 }
 
 int
-OSCSrc::next_int() { 
+OSC_Address_Space::next_int() { 
     return ( vcheck(OSC_INT) )    ?  _cur_mesg[_cur_value++].i : 0 ;
 }
 
 float
-OSCSrc::next_float() { 
+OSC_Address_Space::next_float() { 
     return ( vcheck(OSC_FLOAT) )  ?  _cur_mesg[_cur_value++].f : 0.0 ;
 }
 
 char *
-OSCSrc::next_string() { 
+OSC_Address_Space::next_string() { 
     return ( vcheck(OSC_STRING) ) ?  _cur_mesg[_cur_value++].s : NULL ;
 }
 
 char * 
-OSCSrc::next_string_dup() { 
+OSC_Address_Space::next_string_dup() { 
     if ( !vcheck(OSC_STRING) ) return NULL;
     char * alt_c = _cur_mesg[_cur_value++].s;
     char * dup_c = (char * ) malloc ( (strlen ( alt_c )+1 ) * sizeof(char) );
@@ -1751,26 +1830,38 @@ OSCSrc::next_string_dup() {
 }
 
 char *
-OSCSrc::next_blob() { 
+OSC_Address_Space::next_blob() { 
     return ( vcheck(OSC_BLOB) )   ?  _cur_mesg[_cur_value++].s : NULL ;
 }
 
 void
-OSCSrc::queue_mesg ( OSCMesg* m ) 
+OSC_Address_Space::queue_mesg ( OSCMesg* m ) 
 { 
-    int nqw = ( _qwrite + 1 ) % _qz;
-    if ( nqw != _qread ) { 
-        _vals = _queue + _qwrite * _nv;
+
+	// in the server thread. 
+
+    int nqw = ( _qwrite + 1 ) % _queueSize;
+
+    if ( nqw == _qread ) {
+		if ( _queueSize < OSC_ADDRESS_QUEUE_MAX ) { 
+			resizeQueue( _queueSize * 2 );
+			nqw = ( _qwrite + 1 ) % _queueSize; //_qwrite, _qread may have changed.
+		}
+		else { 
+			EM_log (CK_LOG_INFO, "OSC_Address_Space(%s): message queue reached max size %d\n-----dropping oldest message %d\n", _address, _queueSize, _qread );
+			//bump!
+			_buffer_mutex->acquire();
+			_qread = ( _qread + 1 ) % _queueSize; 
+			_buffer_mutex->release();
+		}
     }
-    else { 
-        fprintf( stderr, "OSCSrc::( %s )  mesg buffer full ( r:%d , w:%d ), dropping message \n", _address, _qread, _qwrite );
-        fprintf( stderr, "--- hasMesg ( %d ) nextMesg ( %d )", (int) has_mesg(), (int)next_mesg()  );
-        return;
-    }
+
+	_vals = _queue + _qwrite * _dataSize;
 
     if ( _noArgs ) { // if address takes no arguments, 
         _vals[0].t = OSC_NOARGS;
     }
+
     else { 
         char * type = m->types+1;
         char * data = m->data;
@@ -1802,7 +1893,7 @@ OSCSrc::queue_mesg ( OSCMesg* m )
                 clen = strlen(data) + 1; //terminating!
                 _vals[i].t = OSC_STRING;
                 _vals[i].s = (char *) realloc ( _vals[i].s, clen * sizeof(char) );
-                memcpy ( _vals[i].s, data, clen );
+                memcpy ( _vals[i].s, data, clen ); //make a copy of the data...
                 //fprintf(stderr, "add string |%s| ( %d ) \n", _vals[i].s, clen  );
                 data += clen + 4 - clen % 4;
             break;
