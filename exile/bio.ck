@@ -21,9 +21,9 @@ class male extends human
     public time born(){
         return now;
     }
-    fun int study(string school){
-        return degrees++;
-    }
+    // fun int study(string school){
+    //     return degrees++;
+    // }
     fun string study(string school, string program, int level, int completed){
         degrees++;
         if (level == 0)
