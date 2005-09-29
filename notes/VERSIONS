@@ -1,6 +1,8 @@
 
 ---
 1.2.0.2
+  - (changed) chuck --status now prints shreds sorted by id
+    (previously it was the current shreduling order + blocked)
   - (fixed) improved OSC stability (phil)
   - (fixed) removed extra console output in STK Flute
 
