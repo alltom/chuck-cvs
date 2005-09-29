@@ -11777,7 +11777,9 @@ void Flute :: setFrequency(MY_FLOAT frequency)
 
 void Flute :: startBlowing(MY_FLOAT amplitude, MY_FLOAT rate)
 {
-    fprintf (stderr,"flute::startblowing %f %f \n", amplitude, rate);
+#if defined(_STK_DEBUG_)
+  std::cerr << "[chuck](via STK): Flute: startblowing " << amplitude << " " << rate << endl;
+#endif
   adsr->setAttackRate(rate);
   maxPressure = amplitude / (MY_FLOAT) 0.8;
   adsr->keyOn();

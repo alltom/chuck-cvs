@@ -1,5 +1,11 @@
 
 ---
+1.2.0.2
+  - (fixed) improved OSC stability (phil)
+  - (fixed) removed extra console output in STK Flute
+
+
+---
 1.2.0.1 - 2005.9.27
   - (added) full callback capability for real-time audio
     - blocking functionality still available
