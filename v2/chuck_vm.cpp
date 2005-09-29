@@ -1718,6 +1718,19 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT id )
 
 
 //-----------------------------------------------------------------------------
+// name: SortByID()
+// desc: ...
+//-----------------------------------------------------------------------------
+struct SortByID
+{
+    bool operator() ( const Chuck_VM_Shred * lhs, const Chuck_VM_Shred * rhs )
+    {    return lhs->id < rhs->id; }
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: status()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -1738,7 +1751,7 @@ void Chuck_VM_Shreduler::status( )
     fprintf( stdout, "[chuck](VM): status (now == %ldh%ldm%lds, %.1f samps) ...\n",
              h, m, sec, now_system );
     
-    char buffer[1024];
+/*    char buffer[1024];
     while( shred )
     {
         char * s = buffer, * ss = buffer;
@@ -1767,4 +1780,40 @@ void Chuck_VM_Shreduler::status( )
             shred->id, mini( shred->name.c_str() ),
             (now_system-shred->start)/(float)Digitalio::sampling_rate() );
     }
+*/    
+    // get list of shreds
+    vector<Chuck_VM_Shred *> list;
+    while( shred )
+    {
+        list.push_back( shred );
+        shred = shred->next;
+    }
+    
+    // get blocked
+    std::map<Chuck_VM_Shred *, Chuck_VM_Shred *>::iterator iter;    
+    for( iter = blocked.begin(); iter != blocked.end(); iter++ )
+    {
+        shred = (*iter).second;
+        list.push_back( shred );
+    }
+    
+    // sort the list
+    SortByID byid;
+    std::sort( list.begin(), list.end(), byid );
+    
+    // print status
+    char buffer[1024];
+    for( t_CKUINT i = 0; i < list.size(); i++ )
+    {
+        shred = list[i];
+        char * s = buffer, * ss = buffer;
+        strcpy( buffer, shred->name.c_str() );
+        while( *s++ ) if( *s == '/' ) { ss = s+1; }
+        
+        fprintf( stdout, 
+            "    [shred id]: %ld  [source]: %s  [spork time]: %.2fs ago%s\n",
+            shred->id, mini( shred->name.c_str() ),
+            (now_system-shred->start)/(float)Digitalio::sampling_rate(),
+            shred->event ? " (blocked)" : "" );
+    }    
 }
