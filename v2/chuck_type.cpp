@@ -2780,7 +2780,9 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
     if( !ret )
     {
         // delete the class definition
-        the_class->release();
+        SAFE_RELEASE( class_def->type );
+        // set the thing to NULL
+        the_class = NULL;
     }
 
     return ret;

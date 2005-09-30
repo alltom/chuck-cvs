@@ -246,6 +246,8 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     // allocate new type
     assert( env->context != NULL );
     the_class = env->context->new_Chuck_Type();
+    // add reference
+    SAFE_ADD_REF( the_class );
     // set the fields
     the_class->id = te_user;
     the_class->name = S_name(class_def->name->id);
@@ -2422,9 +2424,9 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
     // is global context
     value->is_context_global = env->class_def == NULL;
     // remember the func
-    value->func_ref = func; func->add_ref(); // add reference
+    value->func_ref = func; func->add_ref(); // add reference TODO: break cycle?
     // remember the value
-    func->value_ref = value; value->add_ref(); // add reference
+    func->value_ref = value; value->add_ref(); // add reference TODO: break cycle?
 
     // set the func
     f->ck_func = func; func->add_ref(); // add reference

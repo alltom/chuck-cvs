@@ -5,6 +5,7 @@
     (previously it was the current shreduling order + blocked)
   - (fixed) improved OSC stability (phil)
   - (fixed) removed extra console output in STK Flute
+  - (fixed) multiple delete/assertion failure on type rollback
 
 
 ---
