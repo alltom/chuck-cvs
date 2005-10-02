@@ -37,6 +37,7 @@
 #include <string.h>
 #include "chuck_utils.h"
 #include "chuck_errmsg.h"
+#include "util_thread.h"
 
 
 // global
@@ -52,6 +53,7 @@ static char g_lasterror[1024] = "[chuck]: (no error)";
 // log globals
 int g_loglevel = CK_LOG_SYSTEM_ERROR;
 int g_logstack = 0;
+XMutex g_logmutex;
 
 // name
 static const char * g_str[] = {
@@ -232,6 +234,7 @@ void EM_log( int level, const char * message, ... )
     // check level
     if( level > g_loglevel ) return;
 
+    g_logmutex.acquire();
     fprintf( stderr, "[chuck]:" );
     fprintf( stderr, "(%i:%s): ", level, g_str[level] );
 
@@ -244,6 +247,7 @@ void EM_log( int level, const char * message, ... )
     va_end( ap );
 
     fprintf( stderr, "\n" );
+    g_logmutex.release();
 }
 
 
