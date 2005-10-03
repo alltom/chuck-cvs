@@ -1332,7 +1332,7 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
                 break;
 
             default: break;
-            }	    
+            }       
         }
         break;
     

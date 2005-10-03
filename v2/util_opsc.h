@@ -161,8 +161,8 @@ The OpenSound Control WWW page is
     typedef uint64 OSCTimeTag;
 #else
     typedef struct {
-	uint32 seconds;
-	uint32 fraction;
+    uint32 seconds;
+    uint32 fraction;
     } OSCTimeTag;
 #endif
 
@@ -281,17 +281,17 @@ typedef struct OSCbuf_struct {
     char *buffer;            /* The buffer to hold the OSC packet */
     int size;                /* Size of the buffer */
     char *bufptr;            /* Current position as we fill the buffer */
-    int state;		     /* State of partially-constructed message */
+    int state;           /* State of partially-constructed message */
     int4byte *thisMsgSize;   /* Pointer to count field before 
-			        currently-being-written message */
+                    currently-being-written message */
     int4byte *prevCounts[MAX_BUNDLE_NESTING];
-			     /* Pointers to count field before each currently
-			        open bundle */
-    int bundleDepth;	     /* How many sub-sub-bundles are we in now? */
+                 /* Pointers to count field before each currently
+                    open bundle */
+    int bundleDepth;         /* How many sub-sub-bundles are we in now? */
     char *typeStringPtr;    /* This pointer advances through the type
-			       tag string as you add arguments. */
-    int gettingFirstUntypedArg;	/* nonzero if this message doesn't have
-				   a type tag and we're waiting for the 1st arg */
+                   tag string as you add arguments. */
+    int gettingFirstUntypedArg; /* nonzero if this message doesn't have
+                   a type tag and we're waiting for the 1st arg */
 } OSCbuf;
 
 
@@ -337,26 +337,26 @@ int OSC_packetSize(OSCbuf *buf);
       Call OSC_closeBundle() to close the bundle.  Note that a packet
       does not have to have a bundle; it can instead consist of just a 
       single message.
-								  
+                                  
 
     - For each message you want to send:
 
-	- Call OSC_writeAddress() with the name of your message.  (In
-	  addition to writing your message name into the buffer, this
-	  procedure will also leave space for the size count of this message.)
+    - Call OSC_writeAddress() with the name of your message.  (In
+      addition to writing your message name into the buffer, this
+      procedure will also leave space for the size count of this message.)
 
         - Alternately, call OSC_writeAddressAndTypes() with the name of
           your message and with a type string listing the types of all the
           arguments you will be putting in this message.
-	
-	- Now write each of the arguments into the buffer, by calling one of:
-	    OSC_writeFloatArg()
-	    OSC_writeFloatArgs()
-	    OSC_writeIntArg()
-	    OSC_writeStringArg()
+    
+    - Now write each of the arguments into the buffer, by calling one of:
+        OSC_writeFloatArg()
+        OSC_writeFloatArgs()
+        OSC_writeIntArg()
+        OSC_writeStringArg()
 
-	- Now your message is complete; you can send out the buffer or you can
-	  add another message to it.
+    - Now your message is complete; you can send out the buffer or you can
+      add another message to it.
 */
 
 int OSC_openBundle(OSCbuf *buf, OSCTimeTag tt);
@@ -537,13 +537,13 @@ class OSC_Address_Space : public Chuck_Event {
 protected:
 
     OSC_Receiver * _receiver;
-	XMutex*        _buffer_mutex;
+    XMutex*        _buffer_mutex;
     char  _spec[512];
     bool  _needparse;
     char  _address[512];
     char  _type[512];
     opsc_data * _queue;
-	opsc_data * _current_data;
+    opsc_data * _current_data;
     int   _qread;
     int   _qwrite;
     int   _queueSize;
@@ -553,7 +553,7 @@ protected:
     int   _dataSize;
     bool  _noArgs;
     void resizeData(int n);
-	void resizeQueue(int n);
+    void resizeQueue(int n);
     void parseSpec();
 
 public:

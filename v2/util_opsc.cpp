@@ -1,4 +1,3 @@
-
 /*----------------------------------------------------------------------------
     ChucK Concurrent, On-the-fly Audio Programming Language
       Compiler and Virtual Machine
@@ -107,7 +106,7 @@ The OpenSound Control WWW page is
 
 //#include "OSC-pattern-match.h"
 
-static const char *theWholePattern;	/* Just for warning messages */
+static const char *theWholePattern; /* Just for warning messages */
 
 static bool MatchBrackets (const char *pattern, const char *test);
 static bool MatchList (const char *pattern, const char *test);
@@ -185,8 +184,8 @@ static bool MatchBrackets (const char *pattern, const char *test) {
     }
     if (p[1] == '-' && p[2] != 0) {
       if (test[0] >= p[0] && test[0] <= p[2]) {
-	result = !negated;
-	goto advance;
+    result = !negated;
+    goto advance;
       }
     }
     if (p[0] == test[0]) {
@@ -320,7 +319,7 @@ OSCTimeTag OSCTT_PlusSeconds(OSCTimeTag original, float secondsOffset) {
     int64 offset = (int64) (secondsOffset * TWO_TO_THE_32_FLOAT);
 
 /*    printf("* OSCTT_PlusSeconds %llx plus %f seconds (i.e., %lld offset) is %llx\n", original,
-	      secondsOffset, offset, original + offset);  */
+          secondsOffset, offset, original + offset);  */
 
     return original + offset;
 }
@@ -328,7 +327,7 @@ OSCTimeTag OSCTT_PlusSeconds(OSCTimeTag original, float secondsOffset) {
 int OSCTT_Compare(OSCTimeTag left, OSCTimeTag right) {
 #if 0
     printf("***** OSCTT_Compare(%llx, %llx): %d\n", left, right,
-	   (left<right) ? -1 : ((left == right) ? 0 : 1));
+       (left<right) ? -1 : ((left == right) ? 0 : 1));
 #endif
     if (left < right) {
         return -1;
@@ -356,20 +355,20 @@ OSCTimeTag OSCTT_CurrentTime(void) {
 
     /* First get the seconds right */
     result = (unsigned) SECONDS_FROM_1900_to_1970 + 
-	     (unsigned) tv.tv_sec - 
-	     (unsigned) 60 * tz.tz_minuteswest +
+         (unsigned) tv.tv_sec - 
+         (unsigned) 60 * tz.tz_minuteswest +
              (unsigned) (tz.tz_dsttime ? 3600 : 0);
 
 #if 0
     /* No timezone, no DST version ... */
     result = (unsigned) SECONDS_FROM_1900_to_1970 + 
-	     (unsigned) tv.tv_sec;
+         (unsigned) tv.tv_sec;
 #endif
 
 
     /* make seconds the high-order 32 bits */
     result = result << 32;
-	
+    
     /* Now get the fractional part. */
     usecOffset = (unsigned) tv.tv_usec * (unsigned) TWO_TO_THE_32_OVER_ONE_MILLION;
     /* printf("** %ld microsec is offset %x\n", tv.tv_usec, usecOffset); */
@@ -479,15 +478,15 @@ University of California, Berkeley.
 
 /* Here are the possible values of the state field: */
 
-#define EMPTY 0	       /* Nothing written to packet yet */
+#define EMPTY 0        /* Nothing written to packet yet */
 #define ONE_MSG_ARGS 1 /* Packet has a single message; gathering arguments */
 #define NEED_COUNT 2   /* Just opened a bundle; must write message name or
                           open another bundle */
 #define GET_ARGS 3     /* Getting arguments to a message.  If we see a message
-			  name or a bundle open/close then the current message
-			  will end. */
+              name or a bundle open/close then the current message
+              will end. */
 #define DONE 4         /* All open bundles have been closed, so can't write 
-		          anything else */
+                  anything else */
 
 
 //#include "OSC-client.h"
@@ -507,7 +506,7 @@ void OSC_initBuffer(OSCbuf *buf, int size, char *byteArray) {
     OSC_resetBuffer(buf);
 }
 
-void OSC_resetBuffer(OSCbuf *buf) {	
+void OSC_resetBuffer(OSCbuf *buf) { 
     buf->bufptr = buf->buffer;
     buf->state = EMPTY;
     buf->bundleDepth = 0;
@@ -531,10 +530,10 @@ int OSC_isBufferDone(OSCbuf *buf) {
 char *OSC_getPacket(OSCbuf *buf) {
 #ifdef ERROR_CHECK_GETPACKET
     if (buf->state == DONE || buf->state == ONE_MSG_ARGS) {
-	return buf->buffer;
+    return buf->buffer;
     } else {
-	OSC_errorMessage = "Packet has unterminated bundles";
-	return 0;
+    OSC_errorMessage = "Packet has unterminated bundles";
+    return 0;
     }
 #else
     return buf->buffer;
@@ -544,7 +543,7 @@ char *OSC_getPacket(OSCbuf *buf) {
 int OSC_packetSize(OSCbuf *buf) {
 #ifdef ERROR_CHECK_PACKETSIZE
     if (buf->state == DONE || buf->state == ONE_MSG_ARGS) {
-	return (buf->bufptr - buf->buffer);
+    return (buf->bufptr - buf->buffer);
     } else {
         OSC_errorMessage = "Packet has unterminated bundles";
         return 0;
@@ -556,8 +555,8 @@ int OSC_packetSize(OSCbuf *buf) {
 
 #define CheckOverflow(buf, bytesNeeded) { \
     if ((bytesNeeded) > OSC_freeSpaceInBuffer(buf)) { \
-	OSC_errorMessage = "buffer overflow"; \
-	return 1; \
+    OSC_errorMessage = "buffer overflow"; \
+    return 1; \
     } \
 }
 
@@ -569,37 +568,37 @@ static void PatchMessageSize(OSCbuf *buf) {
 
 int OSC_openBundle(OSCbuf *buf, OSCTimeTag tt) {
     if (buf->state == ONE_MSG_ARGS) {
-	OSC_errorMessage = "Can't open a bundle in a one-message packet";
-	return 3;
+    OSC_errorMessage = "Can't open a bundle in a one-message packet";
+    return 3;
     }
 
     if (buf->state == DONE) {
-	OSC_errorMessage = "This packet is finished; can't open a new bundle";
-	return 4;
+    OSC_errorMessage = "This packet is finished; can't open a new bundle";
+    return 4;
     }
 
     if (++(buf->bundleDepth) >= MAX_BUNDLE_NESTING) {
-	OSC_errorMessage = "Bundles nested too deeply; change MAX_BUNDLE_NESTING in OpenSoundControl.h";
-	return 2;
+    OSC_errorMessage = "Bundles nested too deeply; change MAX_BUNDLE_NESTING in OpenSoundControl.h";
+    return 2;
     }
 
     if (CheckTypeTag(buf, '\0')) return 9;
 
     if (buf->state == GET_ARGS) {
-	PatchMessageSize(buf);
+    PatchMessageSize(buf);
     }
 
     if (buf->state == EMPTY) {
-	/* Need 16 bytes for "#bundle" and time tag */
-	CheckOverflow(buf, 16);
+    /* Need 16 bytes for "#bundle" and time tag */
+    CheckOverflow(buf, 16);
     } else {
-	/* This bundle is inside another bundle, so we need to leave
-	   a blank size count for the size of this current bundle. */
-	CheckOverflow(buf, 20);
-	*((int4byte *)buf->bufptr) = 0xaaaaaaaa;
+    /* This bundle is inside another bundle, so we need to leave
+       a blank size count for the size of this current bundle. */
+    CheckOverflow(buf, 20);
+    *((int4byte *)buf->bufptr) = 0xaaaaaaaa;
         buf->prevCounts[buf->bundleDepth] = (int4byte *)buf->bufptr;
 
-	buf->bufptr += 4;
+    buf->bufptr += 4;
     }
 
     buf->bufptr += OSC_padString(buf->bufptr, "#bundle");
@@ -608,20 +607,20 @@ int OSC_openBundle(OSCbuf *buf, OSCTimeTag tt) {
     *((OSCTimeTag *) buf->bufptr) = tt;
 
     if (htonl(1) != 1) {
-	/* Byte swap the 8-byte integer time tag */
-	int4byte *intp = (int4byte *)buf->bufptr;
-	intp[0] = htonl(intp[0]);
-	intp[1] = htonl(intp[1]);
+    /* Byte swap the 8-byte integer time tag */
+    int4byte *intp = (int4byte *)buf->bufptr;
+    intp[0] = htonl(intp[0]);
+    intp[1] = htonl(intp[1]);
 
 #ifdef HAS8BYTEINT
-	{ /* tt is a 64-bit int so we have to swap the two 32-bit words. 
-	    (Otherwise tt is a struct of two 32-bit words, and even though
-	     each word was wrong-endian, they were in the right order
-	     in the struct.) */
-	    int4byte temp = intp[0];
-	    intp[0] = intp[1];
-	    intp[1] = temp;
-	}
+    { /* tt is a 64-bit int so we have to swap the two 32-bit words. 
+        (Otherwise tt is a struct of two 32-bit words, and even though
+         each word was wrong-endian, they were in the right order
+         in the struct.) */
+        int4byte temp = intp[0];
+        intp[0] = intp[1];
+        intp[1] = temp;
+    }
 #endif
     }
 
@@ -636,9 +635,9 @@ int OSC_openBundle(OSCbuf *buf, OSCTimeTag tt) {
 
 int OSC_closeBundle(OSCbuf *buf) {
     if (buf->bundleDepth == 0) {
-	/* This handles EMPTY, ONE_MSG, ARGS, and DONE */
-	OSC_errorMessage = "Can't close bundle; no bundle is open!";
-	return 5;
+    /* This handles EMPTY, ONE_MSG, ARGS, and DONE */
+    OSC_errorMessage = "Can't close bundle; no bundle is open!";
+    return 5;
     }
 
     if (CheckTypeTag(buf, '\0')) return 9;
@@ -648,13 +647,13 @@ int OSC_closeBundle(OSCbuf *buf) {
     }
 
     if (buf->bundleDepth == 1) {
-	/* Closing the last bundle: No bundle size to patch */
-	buf->state = DONE;
+    /* Closing the last bundle: No bundle size to patch */
+    buf->state = DONE;
     } else {
-	/* Closing a sub-bundle: patch bundle size */
-	int size = buf->bufptr - ((char *) buf->prevCounts[buf->bundleDepth]) - 4;
-	*(buf->prevCounts[buf->bundleDepth]) = htonl(size);
-	buf->state = NEED_COUNT;
+    /* Closing a sub-bundle: patch bundle size */
+    int size = buf->bufptr - ((char *) buf->prevCounts[buf->bundleDepth]) - 4;
+    *(buf->prevCounts[buf->bundleDepth]) = htonl(size);
+    buf->state = NEED_COUNT;
     }
 
     --buf->bundleDepth;
@@ -674,7 +673,7 @@ int OSC_closeAllBundles(OSCbuf *buf) {
     if (CheckTypeTag(buf, '\0')) return 9;
 
     while (buf->bundleDepth > 0) {
-	OSC_closeBundle(buf);
+    OSC_closeBundle(buf);
     }
     buf->typeStringPtr = 0;
     return 0;
@@ -684,8 +683,8 @@ int OSC_writeAddress(OSCbuf *buf, char *name) {
     int4byte paddedLength;
 
     if (buf->state == ONE_MSG_ARGS) {
-	OSC_errorMessage = "This packet is not a bundle, so you can't write another address";
-	return 7;
+    OSC_errorMessage = "This packet is not a bundle, so you can't write another address";
+    return 7;
     }
 
     if (buf->state == DONE) {
@@ -698,20 +697,20 @@ int OSC_writeAddress(OSCbuf *buf, char *name) {
     paddedLength = OSC_effectiveStringLength(name);
 
     if (buf->state == EMPTY) {
-	/* This will be a one-message packet, so no sizes to worry about */
-	CheckOverflow(buf, paddedLength);
-	buf->state = ONE_MSG_ARGS;
+    /* This will be a one-message packet, so no sizes to worry about */
+    CheckOverflow(buf, paddedLength);
+    buf->state = ONE_MSG_ARGS;
     } else {
-	/* GET_ARGS or NEED_COUNT */
-	CheckOverflow(buf, 4+paddedLength);
-	if (buf->state == GET_ARGS) {
-	    /* Close the old message */
-	    PatchMessageSize(buf);
-	}
-	buf->thisMsgSize = (int4byte *)buf->bufptr;
-	*(buf->thisMsgSize) = 0xbbbbbbbb;
-	buf->bufptr += 4;
-	buf->state = GET_ARGS;
+    /* GET_ARGS or NEED_COUNT */
+    CheckOverflow(buf, 4+paddedLength);
+    if (buf->state == GET_ARGS) {
+        /* Close the old message */
+        PatchMessageSize(buf);
+    }
+    buf->thisMsgSize = (int4byte *)buf->bufptr;
+    *(buf->thisMsgSize) = 0xbbbbbbbb;
+    buf->bufptr += 4;
+    buf->state = GET_ARGS;
     }
 
     /* Now write the name */
@@ -745,21 +744,21 @@ int OSC_writeAddressAndTypes(OSCbuf *buf, char *name, char *types) {
 
 static int CheckTypeTag(OSCbuf *buf, char expectedType) {
     if (buf->typeStringPtr) {
-	if (*(buf->typeStringPtr) != expectedType) {
-	    if (expectedType == '\0') {
-		OSC_errorMessage =
-		    "According to the type tag I expected more arguments.";
-	    } else if (*(buf->typeStringPtr) == '\0') {
-		OSC_errorMessage =
-		    "According to the type tag I didn't expect any more arguments.";
-	    } else {
-		OSC_errorMessage =
-		    "According to the type tag I expected an argument of a different type.";
-		printf("* Expected %c, string now %s\n", expectedType, buf->typeStringPtr);
-	    }
-	    return 9; 
-	}
-	++(buf->typeStringPtr);
+    if (*(buf->typeStringPtr) != expectedType) {
+        if (expectedType == '\0') {
+        OSC_errorMessage =
+            "According to the type tag I expected more arguments.";
+        } else if (*(buf->typeStringPtr) == '\0') {
+        OSC_errorMessage =
+            "According to the type tag I didn't expect any more arguments.";
+        } else {
+        OSC_errorMessage =
+            "According to the type tag I expected an argument of a different type.";
+        printf("* Expected %c, string now %s\n", expectedType, buf->typeStringPtr);
+        }
+        return 9; 
+    }
+    ++(buf->typeStringPtr);
     }
     return 0;
 }
@@ -794,9 +793,9 @@ int OSC_writeFloatArgs(OSCbuf *buf, int numFloats, float *args) {
     intp = ((int4byte *) args);
 
     for (i = 0; i < numFloats; i++) {
-	if (CheckTypeTag(buf, 'f')) return 9;
-	*((int4byte *) buf->bufptr) = htonl(intp[i]);
-	buf->bufptr += 4;
+    if (CheckTypeTag(buf, 'f')) return 9;
+    *((int4byte *) buf->bufptr) = htonl(intp[i]);
+    buf->bufptr += 4;
     }
 
     buf->gettingFirstUntypedArg = 0;
@@ -822,18 +821,18 @@ int OSC_writeStringArg(OSCbuf *buf, char *arg) {
     len = OSC_effectiveStringLength(arg);
 
     if (buf->gettingFirstUntypedArg && arg[0] == ',') {
-	/* This un-type-tagged message starts with a string
-	   that starts with a comma, so we have to escape it
-	   (with a double comma) so it won't look like a type
-	   tag string. */
+    /* This un-type-tagged message starts with a string
+       that starts with a comma, so we have to escape it
+       (with a double comma) so it won't look like a type
+       tag string. */
 
-	CheckOverflow(buf, len+4); /* Too conservative */
-	buf->bufptr += 
-	    OSC_padStringWithAnExtraStupidComma(buf->bufptr, arg);
+    CheckOverflow(buf, len+4); /* Too conservative */
+    buf->bufptr += 
+        OSC_padStringWithAnExtraStupidComma(buf->bufptr, arg);
 
     } else {
-	CheckOverflow(buf, len);
-	buf->bufptr += OSC_padString(buf->bufptr, arg);
+    CheckOverflow(buf, len);
+    buf->bufptr += OSC_padString(buf->bufptr, arg);
     }
 
     buf->gettingFirstUntypedArg = 0;
@@ -886,7 +885,7 @@ static int OSC_WritePadding(char *dest, int i) {
     i++;
 
     for (; (i % STRING_ALIGN_PAD) != 0; i++) {
-	dest[i] = '\0';
+    dest[i] = '\0';
     }
 
     return i;
@@ -1116,13 +1115,13 @@ OSC_Transmitter::closeBundle() {
 void
 OSC_Transmitter::addMessage( char *address, char * args, ...) { 
 
-   if (args == NULL || args[0] == '\0')	 { 					   // If There's No Text
-       OSC_writeAddress( &_osc, address );				           //  Nothing
+   if (args == NULL || args[0] == '\0')  {                     // If There's No Text
+       OSC_writeAddress( &_osc, address );                         //  Nothing
       return;
    }
 
-   va_list		tags;							   // Pointer To List Of Arguments
-   va_start(tags, args);							   // Parses The String For Variables
+   va_list      tags;                              // Pointer To List Of Arguments
+   va_start(tags, args);                               // Parses The String For Variables
    
    OSC_writeAddressAndTypes( &_osc, address, args );
 
@@ -1500,7 +1499,7 @@ OSC_Receiver::set_mesg(OSCMesg* mrp, char * buf, int len ) {
 void
 OSC_Receiver::handle_mesg( char* buf, int len ) { 
 
-	//this is called sequentially by the receiving thread. 
+    //this is called sequentially by the receiving thread. 
 
    if ( buf[0] == '#' ) { handle_bundle( buf, len ); return; }
   
@@ -1619,11 +1618,11 @@ OSC_Address_Space::init() {
     _receiver = NULL;
     SELF = NULL;
     _queueSize = 64; //start queue size at 64. 
-	_dataSize = 0;
+    _dataSize = 0;
     _cur_mesg = NULL;
     _queue = NULL;
-	_current_data = NULL;
-	_buffer_mutex = new XMutex();
+    _current_data = NULL;
+    _buffer_mutex = new XMutex();
 }
 
 OSC_Address_Space::~OSC_Address_Space() { 
@@ -1669,68 +1668,68 @@ OSC_Address_Space::parseSpec() {
 
 void
 OSC_Address_Space::resizeQueue( int n ) { 
-		if ( n <= _queueSize ) return; //only grows
+        if ( n <= _queueSize ) return; //only grows
 
-		_buffer_mutex->acquire();
+        _buffer_mutex->acquire();
 
-		//it's possible that between the test above and now, 
-		//qread has moved on and we actually DO have space..
+        //it's possible that between the test above and now, 
+        //qread has moved on and we actually DO have space..
 
         EM_log( CK_LOG_INFO, "\nOSC_Address (%s) -- buffer full ( r:%d , w:%d, of %d(x%d) ), resizing\n\n", _address, _qread, _qwrite, _queueSize, _dataSize );
         //fprintf( stderr, "--- hasMesg ( %d ) nextMesg ( %d )\n", (int) has_mesg(), (int)next_mesg()  );
 
-		//we're the server... all we know is that the contents of qread are in the current_buffer, 
-		//so we can move the data, but we don't want to 
-		//move ahead and lose it just yet.
+        //we're the server... all we know is that the contents of qread are in the current_buffer, 
+        //so we can move the data, but we don't want to 
+        //move ahead and lose it just yet.
 
-		size_t chunkSize = _dataSize * sizeof( opsc_data );
+        size_t chunkSize = _dataSize * sizeof( opsc_data );
 
-		int _newQSize = n;
-		opsc_data * _new_queue = ( opsc_data * ) malloc( _newQSize * chunkSize );
+        int _newQSize = n;
+        opsc_data * _new_queue = ( opsc_data * ) malloc( _newQSize * chunkSize );
 
-		memset( _new_queue, 0, _newQSize * chunkSize ); //out with the old...
-		if ( _qread < _qwrite ) { 
-			//we're doing this because qwrite is out of room.  
-			//so if qwrite is already greater than qread,
-			//just copy the whole thing to the start of the new buffer ( adding more space to the end ) 
-			memcpy( (void*)_new_queue, (const void*)_queue, _queueSize * chunkSize);
-			//_qwrite and _qread can stay right where they are. 
-			//fprintf(stderr, "resize - case 1\n");
-		}
-		else { 
-			//_qread is in front of _qwrite, so we must unwrap, and place _qread at the
-			//front of the queue, and qwrite at the end, preserving all elements that qread
-			//is waiting to consume.
-			int nread = _queueSize - _qread;
-			memcpy( (void*)_new_queue, 
-					(const void*)(_queue + _qread * _dataSize), 
-					(nread) * chunkSize);
-			memcpy( (void*)(_new_queue + nread * _dataSize),
-					(const void*)_queue,
-					(_qread) * _dataSize * sizeof( opsc_data ));
-			_qread = 0;
-			_qwrite += nread;
-			//EM_log(CK_LOG_INFO, "resize - case 2\n");
-		}
+        memset( _new_queue, 0, _newQSize * chunkSize ); //out with the old...
+        if ( _qread < _qwrite ) { 
+            //we're doing this because qwrite is out of room.  
+            //so if qwrite is already greater than qread,
+            //just copy the whole thing to the start of the new buffer ( adding more space to the end ) 
+            memcpy( (void*)_new_queue, (const void*)_queue, _queueSize * chunkSize);
+            //_qwrite and _qread can stay right where they are. 
+            //fprintf(stderr, "resize - case 1\n");
+        }
+        else { 
+            //_qread is in front of _qwrite, so we must unwrap, and place _qread at the
+            //front of the queue, and qwrite at the end, preserving all elements that qread
+            //is waiting to consume.
+            int nread = _queueSize - _qread;
+            memcpy( (void*)_new_queue, 
+                    (const void*)(_queue + _qread * _dataSize), 
+                    (nread) * chunkSize);
+            memcpy( (void*)(_new_queue + nread * _dataSize),
+                    (const void*)_queue,
+                    (_qread) * _dataSize * sizeof( opsc_data ));
+            _qread = 0;
+            _qwrite += nread;
+            //EM_log(CK_LOG_INFO, "resize - case 2\n");
+        }
 
-		_queueSize = _newQSize; 
-		opsc_data * trash = _queue; 
-		_queue = _new_queue;
-		free ( (void*)trash );
+        _queueSize = _newQSize; 
+        opsc_data * trash = _queue; 
+        _queue = _new_queue;
+        free ( (void*)trash );
 
-		//don't move qread or qwrite until we're done. 
-		_buffer_mutex->release();
+        //don't move qread or qwrite until we're done. 
+        _buffer_mutex->release();
 
 }
 
 void
 OSC_Address_Space::resizeData( int n ) { 
-	if ( _dataSize == n ) return;
+    if ( _dataSize == n ) return;
     _dataSize = n;
-	int queueLen = _queueSize * _dataSize * sizeof( opsc_data );
+    int queueLen = _queueSize * _dataSize * sizeof( opsc_data );
     _queue = ( opsc_data * ) realloc ( _queue, queueLen );
     memset ( _queue, 0, queueLen );
-	_current_data = (opsc_data* ) realloc ( _current_data, _dataSize * sizeof( opsc_data) );
+    _current_data = (opsc_data* ) realloc ( _current_data, _dataSize * sizeof( opsc_data) );
 }
 
 bool
@@ -1776,15 +1775,15 @@ bool
 OSC_Address_Space::next_mesg() { 
     if ( has_mesg() ) { 
 
-		_buffer_mutex->acquire();
+        _buffer_mutex->acquire();
 
-		if ( !has_mesg() ) return false; 
+        if ( !has_mesg() ) return false; 
         _qread = ( _qread + 1 ) % _queueSize; //move qread forward 
-		memcpy( _current_data, _queue + _qread * _dataSize, _dataSize * sizeof ( opsc_data ) ); //copy data from queue to buffer
+        memcpy( _current_data, _queue + _qread * _dataSize, _dataSize * sizeof ( opsc_data ) ); //copy data from queue to buffer
         _cur_mesg = _current_data;
         _cur_value = 0;
 
-		_buffer_mutex->release();
+        _buffer_mutex->release();
 
         return true;
     }
@@ -1838,25 +1837,25 @@ void
 OSC_Address_Space::queue_mesg ( OSCMesg* m ) 
 { 
 
-	// in the server thread. 
+    // in the server thread. 
 
     int nqw = ( _qwrite + 1 ) % _queueSize;
 
     if ( nqw == _qread ) {
-		if ( _queueSize < OSC_ADDRESS_QUEUE_MAX ) { 
-			resizeQueue( _queueSize * 2 );
-			nqw = ( _qwrite + 1 ) % _queueSize; //_qwrite, _qread may have changed.
-		}
-		else { 
-			EM_log (CK_LOG_INFO, "OSC_Address_Space(%s): message queue reached max size %d\n-----dropping oldest message %d\n", _address, _queueSize, _qread );
-			//bump!
-			_buffer_mutex->acquire();
-			_qread = ( _qread + 1 ) % _queueSize; 
-			_buffer_mutex->release();
-		}
+        if ( _queueSize < OSC_ADDRESS_QUEUE_MAX ) { 
+            resizeQueue( _queueSize * 2 );
+            nqw = ( _qwrite + 1 ) % _queueSize; //_qwrite, _qread may have changed.
+        }
+        else { 
+            EM_log (CK_LOG_INFO, "OSC_Address_Space(%s): message queue reached max size %d\n-----dropping oldest message %d\n", _address, _queueSize, _qread );
+            //bump!
+            _buffer_mutex->acquire();
+            _qread = ( _qread + 1 ) % _queueSize; 
+            _buffer_mutex->release();
+        }
     }
 
-	_vals = _queue + _qwrite * _dataSize;
+    _vals = _queue + _qwrite * _dataSize;
 
     if ( _noArgs ) { // if address takes no arguments, 
         _vals[0].t = OSC_NOARGS;

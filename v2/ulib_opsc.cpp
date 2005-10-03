@@ -52,7 +52,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     // init base class
     if( !type_engine_import_class_begin( env, "OSC_Send", "Object",
                                          env->global(), osc_send_ctor ) )
-		return FALSE;
+        return FALSE;
 
     // add member variable  - OSCTransmitter object
     osc_send_offset_data = type_engine_import_mvar( env, "int", "@OSC_Send_data", FALSE );
@@ -99,7 +99,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     // init base class
     if( !type_engine_import_class_begin( env, "OSC_Addr", "Event",
                                          env->global(), osc_address_ctor ) )
-		return FALSE;
+        return FALSE;
 
     // add member variable  - OSCAddress object
 
@@ -137,7 +137,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     // init base class
     if( !type_engine_import_class_begin( env, "OSC_Recv", "Object",
                                          env->global(), osc_recv_ctor ) )
-		return FALSE;
+        return FALSE;
 
     // add member variable  - OSCReceiver object
     osc_recv_offset_data = type_engine_import_mvar( env, "int", "@OSC_Recv_data", FALSE );
