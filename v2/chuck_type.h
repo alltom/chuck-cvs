@@ -252,7 +252,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
     Chuck_Namespace() { pre_ctor = NULL; parent = NULL; offset = 0; 
                         class_data = NULL; class_data_size = 0; }
     // destructor
-    virtual ~Chuck_Namespace() { }
+    virtual ~Chuck_Namespace() { /* TODO: SAFE_RELEASE( this->parent ); */ }
 
     // look up type
     Chuck_Type * lookup_type( const string & name, t_CKINT climb = 1 );
@@ -515,13 +515,17 @@ public:
         size = array_depth = obj_size = 0;
         is_copy = FALSE;
 
-        // release references
-        // SAFE_RELEASE(parent);
-        // SAFE_RELEASE(array_type);
-        SAFE_RELEASE(info);
-        // SAFE_RELEASE(owner);
-        // SAFE_RELEASE(func);
-        // SAFE_RELEASE(ugen_info);
+        // free only if not locked: to prevent garbage collection after exit
+        if( !this->m_locked )
+        {
+            // release references
+            // SAFE_RELEASE(parent);
+            // SAFE_RELEASE(array_type);
+            SAFE_RELEASE(info);
+            // SAFE_RELEASE(owner);
+            // SAFE_RELEASE(func);
+            // SAFE_RELEASE(ugen_info);
+        }
     }   
     
     // assignment - this does not touch the Chuck_VM_Object
