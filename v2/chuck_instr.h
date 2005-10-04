@@ -180,6 +180,23 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Dec_int_Addr
+// desc: decrement int value at addr
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Dec_int_Addr : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Dec_int_Addr( t_CKUINT src )
+    { this->set( src ); }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Complement_int
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2264,6 +2281,23 @@ struct Chuck_Instr_Op_string : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Op_string( t_CKUINT v ) { this->set( v ); }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Init_Loop_Counter
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Init_Loop_Counter : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Init_Loop_Counter( t_CKUINT v )
+    { this->set( v ); }
 
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

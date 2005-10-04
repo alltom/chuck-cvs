@@ -996,9 +996,19 @@ t_CKBOOL emit_engine_emit_loop( Chuck_Emitter * emit, a_Stmt_Loop stmt )
 {
     t_CKBOOL ret = TRUE;
     Chuck_Instr_Branch_Op * op = NULL;
+    // TODO: SAFE_DELETE( counter )
+    t_CKINT * counter = NULL;
 
     // push stack
     emit->push_scope();
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+
+    // initialize our loop counter
+    emit->append( new Chuck_Instr_Init_Loop_Counter( (t_CKUINT)(counter = new t_CKINT) ) );
 
     // get the index
     t_CKUINT start_index = emit->next_index();
@@ -1007,36 +1017,35 @@ t_CKBOOL emit_engine_emit_loop( Chuck_Emitter * emit, a_Stmt_Loop stmt )
     // mark the stack of break
     emit->code->stack_break.push_back( NULL );
 
-    // emit the cond
-    ret = emit_engine_emit_exp( emit, stmt->cond );
-    if( !ret )
-        return FALSE;
-    
+    // push the value of the loop counter
+    // TODO: get rid of hard code 4
+    emit->append( new Chuck_Instr_Reg_Push_Deref( (t_CKUINT)counter, 4 ) );
+
+    // get the type, taking cast into account
+    Chuck_Type * type = stmt->cond->cast_to ? stmt->cond->cast_to : stmt->cond->type;
+
     // the condition
-    switch( stmt->cond->type->id )
+    switch( type->id )
     {
     case te_int:
         // push 0
         emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
         op = new Chuck_Instr_Branch_Eq_int( 0 );
         break;
-    case te_float:
-    case te_dur:
-    case te_time:
-        // push 0
-        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
-        op = new Chuck_Instr_Branch_Eq_double( 0 );
-        break;
-        
+
     default:
         EM_error2( stmt->cond->linepos,
             "(emit): internal error: unhandled type '%s' in while conditional",
-            stmt->cond->type->name.c_str() );
+            type->name.c_str() );
+
         return FALSE;
     }
     
     // append the op
     emit->append( op );
+
+    // decrement the counter
+    emit->append( new Chuck_Instr_Dec_int_Addr( (t_CKUINT)counter ) );
 
     // emit the body
     ret = emit_engine_emit_stmt( emit, stmt->body );

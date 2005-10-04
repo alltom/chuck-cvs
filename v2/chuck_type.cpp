@@ -769,6 +769,7 @@ t_CKBOOL type_engine_check_for( Chuck_Env * env, a_Stmt_For stmt )
     env->breaks.push_back( stmt->self );
 
     // check body
+    // TODO: restore break stack? (same for other loops)
     if( !type_engine_check_stmt( env, stmt->body ) )
         return FALSE;
         
@@ -846,11 +847,24 @@ t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_loop( Chuck_Env * env, a_Stmt_Loop stmt )
 {
+    Chuck_Type * type = NULL;
+
     // check the conditional
-    if( !type_engine_check_exp( env, stmt->cond ) )
+    if( !(type = type_engine_check_exp( env, stmt->cond )) )
         return FALSE;
         
-    // TODO: same as if - ensure the type in conditional is valid
+    // ensure the type in conditional is int (different from other loops)
+    if( isa( type, &t_float ) )
+    {
+        // cast
+        stmt->cond->cast_to = &t_int;
+    }
+    else if( !isa( type, &t_int ) ) // must be int
+    {
+        EM_error2( stmt->linepos,
+            "loop * conditional must be of type int..." );
+        return FALSE;
+    }
 
     // for break and continue statement
     env->breaks.push_back( stmt->self );

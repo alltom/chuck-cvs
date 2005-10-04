@@ -134,6 +134,19 @@ void Chuck_Instr_Dec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 //-----------------------------------------------------------------------------
+// name: class Chuck_Instr_Dec_int_Addr
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Dec_int_Addr::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // decrement value
+    (*((t_CKINT *)(m_val)))--;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: exexute()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -3475,6 +3488,24 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // (*(sp + 1))->pmsg( shred->now, *sp );
     
     push_( sp, *(sp + 1) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Init_Loop_Counter::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+
+    // pop the value
+    pop_( sp, 1 );
+
+    // copy it
+    (*(t_CKUINT *)m_val) = *sp >= 0 ? *sp : -*sp;
 }
 
 
