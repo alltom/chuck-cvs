@@ -180,6 +180,7 @@ int comment();
 for                     { adjust(); return FOR; }
 while                   { adjust(); return WHILE; }
 until                   { adjust(); return UNTIL; }
+loop                    { adjust(); return LOOP; }
 continue                { adjust(); return CONTINUE; }
 break                   { adjust(); return BREAK; }
 if                      { adjust(); return IF; }

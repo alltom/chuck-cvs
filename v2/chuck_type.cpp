@@ -92,6 +92,7 @@ t_CKBOOL type_engine_check_if( Chuck_Env * env, a_Stmt_If stmt );
 t_CKBOOL type_engine_check_for( Chuck_Env * env, a_Stmt_For stmt );
 t_CKBOOL type_engine_check_while( Chuck_Env * env, a_Stmt_While stmt );
 t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt );
+t_CKBOOL type_engine_check_loop( Chuck_Env * env, a_Stmt_Loop stmt );
 t_CKBOOL type_engine_check_break( Chuck_Env * env, a_Stmt_Break br );
 t_CKBOOL type_engine_check_continue( Chuck_Env * env, a_Stmt_Continue cont );
 t_CKBOOL type_engine_check_return( Chuck_Env * env, a_Stmt_Return stmt );
@@ -660,6 +661,14 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt )
             env->class_scope--;
             break;
 
+        case ae_stmt_loop:
+            env->class_scope++;
+            env->curr->value.push();
+            ret = type_engine_check_loop( env, &stmt->stmt_loop );
+            env->curr->value.pop();
+            env->class_scope--;
+            break;
+
         case ae_stmt_exp:
             ret = ( type_engine_check_exp( env, stmt->stmt_exp ) != NULL );
             break;
@@ -807,6 +816,35 @@ t_CKBOOL type_engine_check_while( Chuck_Env * env, a_Stmt_While stmt )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_check_until( Chuck_Env * env, a_Stmt_Until stmt )
+{
+    // check the conditional
+    if( !type_engine_check_exp( env, stmt->cond ) )
+        return FALSE;
+        
+    // TODO: same as if - ensure the type in conditional is valid
+
+    // for break and continue statement
+    env->breaks.push_back( stmt->self );
+
+    // check the body
+    if( !type_engine_check_stmt( env, stmt->body ) )
+        return FALSE;
+
+    // remove the loop from the stack
+    assert( env->breaks.size() && env->breaks.back() == stmt->self );
+    env->breaks.pop_back();
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_loop()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_check_loop( Chuck_Env * env, a_Stmt_Loop stmt )
 {
     // check the conditional
     if( !type_engine_check_exp( env, stmt->cond ) )

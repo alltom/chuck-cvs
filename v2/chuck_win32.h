@@ -1,7 +1,7 @@
-/* A Bison parser, made from chuck.y, by GNU bison 1.75.  */
+/* A Bison parser, made by GNU Bison 1.875b.  */
 
 /* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002 Free Software Foundation, Inc.
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003 Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -22,9 +22,6 @@
    Bison output file, you may use that output file without restriction.
    This special exception was added by the Free Software Foundation
    in version 1.24 of Bison.  */
-
-#ifndef BISON_CHUCK_TAB_H
-# define BISON_CHUCK_TAB_H
 
 /* Tokens.  */
 #ifndef YYTOKENTYPE
@@ -67,70 +64,71 @@
      WHILE = 290,
      FOR = 291,
      DO = 292,
-     BREAK = 293,
-     CONTINUE = 294,
-     NULL_TOK = 295,
-     FUNCTION = 296,
-     RETURN = 297,
-     QUESTION = 298,
-     EXCLAMATION = 299,
-     S_OR = 300,
-     S_AND = 301,
-     S_XOR = 302,
-     PLUSPLUS = 303,
-     MINUSMINUS = 304,
-     DOLLAR = 305,
-     SIMULT = 306,
-     PATTERN = 307,
-     CODE = 308,
-     TRANSPORT = 309,
-     HOST = 310,
-     TIME = 311,
-     WHENEVER = 312,
-     NEXT = 313,
-     UNTIL = 314,
-     EVERY = 315,
-     BEFORE = 316,
-     AFTER = 317,
-     AT = 318,
-     AT_SYM = 319,
-     ATAT_SYM = 320,
-     NEW = 321,
-     SIZEOF = 322,
-     TYPEOF = 323,
-     SAME = 324,
-     PLUS_CHUCK = 325,
-     MINUS_CHUCK = 326,
-     TIMES_CHUCK = 327,
-     DIVIDE_CHUCK = 328,
-     S_AND_CHUCK = 329,
-     S_OR_CHUCK = 330,
-     S_XOR_CHUCK = 331,
-     SHIFT_RIGHT_CHUCK = 332,
-     SHIFT_LEFT_CHUCK = 333,
-     PERCENT_CHUCK = 334,
-     SHIFT_RIGHT = 335,
-     SHIFT_LEFT = 336,
-     TILDA = 337,
-     CHUCK = 338,
-     COLONCOLON = 339,
-     S_CHUCK = 340,
-     AT_CHUCK = 341,
-     LEFT_S_CHUCK = 342,
-     UNCHUCK = 343,
-     CLASS = 344,
-     INTERFACE = 345,
-     EXTENDS = 346,
-     IMPLEMENTS = 347,
-     PUBLIC = 348,
-     PROTECTED = 349,
-     PRIVATE = 350,
-     STATIC = 351,
-     ABSTRACT = 352,
-     CONST = 353,
-     SPORK = 354,
-     L_HACK = 355,
-     R_HACK = 356
+     LOOP = 293,
+     BREAK = 294,
+     CONTINUE = 295,
+     NULL_TOK = 296,
+     FUNCTION = 297,
+     RETURN = 298,
+     QUESTION = 299,
+     EXCLAMATION = 300,
+     S_OR = 301,
+     S_AND = 302,
+     S_XOR = 303,
+     PLUSPLUS = 304,
+     MINUSMINUS = 305,
+     DOLLAR = 306,
+     SIMULT = 307,
+     PATTERN = 308,
+     CODE = 309,
+     TRANSPORT = 310,
+     HOST = 311,
+     TIME = 312,
+     WHENEVER = 313,
+     NEXT = 314,
+     UNTIL = 315,
+     EVERY = 316,
+     BEFORE = 317,
+     AFTER = 318,
+     AT = 319,
+     AT_SYM = 320,
+     ATAT_SYM = 321,
+     NEW = 322,
+     SIZEOF = 323,
+     TYPEOF = 324,
+     SAME = 325,
+     PLUS_CHUCK = 326,
+     MINUS_CHUCK = 327,
+     TIMES_CHUCK = 328,
+     DIVIDE_CHUCK = 329,
+     S_AND_CHUCK = 330,
+     S_OR_CHUCK = 331,
+     S_XOR_CHUCK = 332,
+     SHIFT_RIGHT_CHUCK = 333,
+     SHIFT_LEFT_CHUCK = 334,
+     PERCENT_CHUCK = 335,
+     SHIFT_RIGHT = 336,
+     SHIFT_LEFT = 337,
+     TILDA = 338,
+     CHUCK = 339,
+     COLONCOLON = 340,
+     S_CHUCK = 341,
+     AT_CHUCK = 342,
+     LEFT_S_CHUCK = 343,
+     UNCHUCK = 344,
+     CLASS = 345,
+     INTERFACE = 346,
+     EXTENDS = 347,
+     IMPLEMENTS = 348,
+     PUBLIC = 349,
+     PROTECTED = 350,
+     PRIVATE = 351,
+     STATIC = 352,
+     ABSTRACT = 353,
+     CONST = 354,
+     SPORK = 355,
+     L_HACK = 356,
+     R_HACK = 357
    };
 #endif
 #define ID 258
@@ -168,77 +166,78 @@
 #define WHILE 290
 #define FOR 291
 #define DO 292
-#define BREAK 293
-#define CONTINUE 294
-#define NULL_TOK 295
-#define FUNCTION 296
-#define RETURN 297
-#define QUESTION 298
-#define EXCLAMATION 299
-#define S_OR 300
-#define S_AND 301
-#define S_XOR 302
-#define PLUSPLUS 303
-#define MINUSMINUS 304
-#define DOLLAR 305
-#define SIMULT 306
-#define PATTERN 307
-#define CODE 308
-#define TRANSPORT 309
-#define HOST 310
-#define TIME 311
-#define WHENEVER 312
-#define NEXT 313
-#define UNTIL 314
-#define EVERY 315
-#define BEFORE 316
-#define AFTER 317
-#define AT 318
-#define AT_SYM 319
-#define ATAT_SYM 320
-#define NEW 321
-#define SIZEOF 322
-#define TYPEOF 323
-#define SAME 324
-#define PLUS_CHUCK 325
-#define MINUS_CHUCK 326
-#define TIMES_CHUCK 327
-#define DIVIDE_CHUCK 328
-#define S_AND_CHUCK 329
-#define S_OR_CHUCK 330
-#define S_XOR_CHUCK 331
-#define SHIFT_RIGHT_CHUCK 332
-#define SHIFT_LEFT_CHUCK 333
-#define PERCENT_CHUCK 334
-#define SHIFT_RIGHT 335
-#define SHIFT_LEFT 336
-#define TILDA 337
-#define CHUCK 338
-#define COLONCOLON 339
-#define S_CHUCK 340
-#define AT_CHUCK 341
-#define LEFT_S_CHUCK 342
-#define UNCHUCK 343
-#define CLASS 344
-#define INTERFACE 345
-#define EXTENDS 346
-#define IMPLEMENTS 347
-#define PUBLIC 348
-#define PROTECTED 349
-#define PRIVATE 350
-#define STATIC 351
-#define ABSTRACT 352
-#define CONST 353
-#define SPORK 354
-#define L_HACK 355
-#define R_HACK 356
+#define LOOP 293
+#define BREAK 294
+#define CONTINUE 295
+#define NULL_TOK 296
+#define FUNCTION 297
+#define RETURN 298
+#define QUESTION 299
+#define EXCLAMATION 300
+#define S_OR 301
+#define S_AND 302
+#define S_XOR 303
+#define PLUSPLUS 304
+#define MINUSMINUS 305
+#define DOLLAR 306
+#define SIMULT 307
+#define PATTERN 308
+#define CODE 309
+#define TRANSPORT 310
+#define HOST 311
+#define TIME 312
+#define WHENEVER 313
+#define NEXT 314
+#define UNTIL 315
+#define EVERY 316
+#define BEFORE 317
+#define AFTER 318
+#define AT 319
+#define AT_SYM 320
+#define ATAT_SYM 321
+#define NEW 322
+#define SIZEOF 323
+#define TYPEOF 324
+#define SAME 325
+#define PLUS_CHUCK 326
+#define MINUS_CHUCK 327
+#define TIMES_CHUCK 328
+#define DIVIDE_CHUCK 329
+#define S_AND_CHUCK 330
+#define S_OR_CHUCK 331
+#define S_XOR_CHUCK 332
+#define SHIFT_RIGHT_CHUCK 333
+#define SHIFT_LEFT_CHUCK 334
+#define PERCENT_CHUCK 335
+#define SHIFT_RIGHT 336
+#define SHIFT_LEFT 337
+#define TILDA 338
+#define CHUCK 339
+#define COLONCOLON 340
+#define S_CHUCK 341
+#define AT_CHUCK 342
+#define LEFT_S_CHUCK 343
+#define UNCHUCK 344
+#define CLASS 345
+#define INTERFACE 346
+#define EXTENDS 347
+#define IMPLEMENTS 348
+#define PUBLIC 349
+#define PROTECTED 350
+#define PRIVATE 351
+#define STATIC 352
+#define ABSTRACT 353
+#define CONST 354
+#define SPORK 355
+#define L_HACK 356
+#define R_HACK 357
 
 
 
 
-#ifndef YYSTYPE
+#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
 #line 59 "chuck.y"
-typedef union {
+typedef union YYSTYPE {
     int pos;
     int ival;
     double fval;
@@ -259,14 +258,15 @@ typedef union {
     a_Arg_List arg_list;
     a_Id_List id_list;
     a_Array_Sub array_sub;
-} yystype;
-/* Line 1281 of /usr/share/bison/yacc.c.  */
-#line 265 "chuck.tab.h"
-# define YYSTYPE yystype
+} YYSTYPE;
+/* Line 1252 of yacc.c.  */
+#line 264 "chuck.tab.h"
+# define yystype YYSTYPE /* obsolescent; will be withdrawn */
+# define YYSTYPE_IS_DECLARED 1
+# define YYSTYPE_IS_TRIVIAL 1
 #endif
 
 extern YYSTYPE yylval;
 
 
-#endif /* not BISON_CHUCK_TAB_H */
 

@@ -51,6 +51,7 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt );
 t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt );
 t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt );
 t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt );
+t_CKBOOL emit_engine_emit_loop( Chuck_Emitter * emit, a_Stmt_Loop stmt );
 t_CKBOOL emit_engine_emit_break( Chuck_Emitter * emit, a_Stmt_Break br );
 t_CKBOOL emit_engine_emit_continue( Chuck_Emitter * emit, a_Stmt_Continue cont );
 t_CKBOOL emit_engine_emit_return( Chuck_Emitter * emit, a_Stmt_Return stmt );
@@ -403,6 +404,10 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop 
                 ret = emit_engine_emit_do_until( emit, &stmt->stmt_until );
             else
                 ret = emit_engine_emit_until( emit, &stmt->stmt_until );
+            break;
+
+        case ae_stmt_loop:  // loop statement
+            ret = emit_engine_emit_loop( emit, &stmt->stmt_loop );
             break;
 
         case ae_stmt_switch:  // switch statement
@@ -977,6 +982,94 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
     // pop break stack
     emit->code->stack_break.pop_back();
     
+    return ret;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: emit_engine_emit_loop()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL emit_engine_emit_loop( Chuck_Emitter * emit, a_Stmt_Loop stmt )
+{
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL;
+
+    // push stack
+    emit->push_scope();
+
+    // get the index
+    t_CKUINT start_index = emit->next_index();
+    // mark the stack of continue
+    emit->code->stack_cont.push_back( NULL );
+    // mark the stack of break
+    emit->code->stack_break.push_back( NULL );
+
+    // emit the cond
+    ret = emit_engine_emit_exp( emit, stmt->cond );
+    if( !ret )
+        return FALSE;
+    
+    // the condition
+    switch( stmt->cond->type->id )
+    {
+    case te_int:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( stmt->cond->linepos,
+            "(emit): internal error: unhandled type '%s' in while conditional",
+            stmt->cond->type->name.c_str() );
+        return FALSE;
+    }
+    
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    ret = emit_engine_emit_stmt( emit, stmt->body );
+    if( !ret )
+        return FALSE;
+    
+    // go back to do check the condition
+    emit->append( new Chuck_Instr_Goto( start_index ) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // stack of continue
+    while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
+    {
+        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.pop_back();
+    }
+
+    // stack of break
+    while( emit->code->stack_break.size() && emit->code->stack_break.back() )
+    {
+        emit->code->stack_break.back()->set( emit->next_index() );
+        emit->code->stack_break.pop_back();
+    }
+
+    // pop stack
+    emit->pop_scope();
+    // pop continue stack
+    emit->code->stack_cont.pop_back();
+    // pop break stack
+    emit->code->stack_break.pop_back();
+
     return ret;
 }
 

@@ -79,8 +79,8 @@ a_Program g_program = NULL;
     a_Array_Sub array_sub;
 };
 
-// expect 34 shift/reduce conflicts
-%expect 34
+// expect 35 shift/reduce conflicts
+%expect 35
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -91,7 +91,7 @@ a_Program g_program = NULL;
   LBRACK RBRACK LBRACE RBRACE DOT
   PLUS MINUS TIMES DIVIDE PERCENT
   EQ NEQ LT LE GT GE AND OR ASSIGN
-  IF THEN ELSE WHILE FOR DO
+  IF THEN ELSE WHILE FOR DO LOOP
   BREAK CONTINUE NULL_TOK FUNCTION RETURN
   QUESTION EXCLAMATION S_OR S_AND S_XOR
   PLUSPLUS MINUSMINUS DOLLAR
@@ -328,6 +328,8 @@ loop_statement
             { $$ = new_stmt_from_until( $3, $5, EM_lineNum ); }
         | DO statement UNTIL LPAREN expression RPAREN SEMICOLON
             { $$ = new_stmt_from_do_until( $5, $2, EM_lineNum ); }
+		| LOOP LPAREN expression RPAREN statement
+		    { $$ = new_stmt_from_loop( $3, $5, EM_lineNum ); }
         ;
 
 code_segment

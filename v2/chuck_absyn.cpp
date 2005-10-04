@@ -210,6 +210,19 @@ a_Stmt new_stmt_from_for( a_Stmt c1, a_Stmt c2, a_Exp c3, a_Stmt body, int pos )
     return a;
 }
 
+a_Stmt new_stmt_from_loop( a_Exp cond, a_Stmt body, int pos )
+{
+    a_Stmt a = (a_Stmt)checked_malloc( sizeof( struct a_Stmt_ ) );
+    a->s_type = ae_stmt_loop;
+    a->stmt_loop.cond = cond;
+    a->stmt_loop.body = body;
+    a->linepos = pos;
+    a->stmt_loop.linepos = pos;
+    a->stmt_loop.self = a;
+
+    return a;
+}
+
 a_Stmt new_stmt_from_switch( a_Exp val, int pos )
 {
     a_Stmt a = (a_Stmt)checked_malloc( sizeof( struct a_Stmt_ ) );
