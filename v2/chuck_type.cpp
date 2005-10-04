@@ -862,7 +862,7 @@ t_CKBOOL type_engine_check_loop( Chuck_Env * env, a_Stmt_Loop stmt )
     else if( !isa( type, &t_int ) ) // must be int
     {
         EM_error2( stmt->linepos,
-            "loop * conditional must be of type int..." );
+            "loop * conditional must be of type 'int'..." );
         return FALSE;
     }
 
