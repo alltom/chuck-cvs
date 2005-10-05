@@ -328,8 +328,8 @@ loop_statement
             { $$ = new_stmt_from_until( $3, $5, EM_lineNum ); }
         | DO statement UNTIL LPAREN expression RPAREN SEMICOLON
             { $$ = new_stmt_from_do_until( $5, $2, EM_lineNum ); }
-        | LOOP TIMES LPAREN expression RPAREN statement
-            { $$ = new_stmt_from_loop( $4, $6, EM_lineNum ); }
+        | LOOP LPAREN expression RPAREN statement
+            { $$ = new_stmt_from_loop( $3, $5, EM_lineNum ); }
         ;
 
 code_segment

@@ -3499,13 +3499,15 @@ void Chuck_Instr_UGen_PMsg::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Init_Loop_Counter::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKINT *& sp = (t_CKINT *&)shred->reg->sp;
 
     // pop the value
     pop_( sp, 1 );
 
     // copy it
-    (*(t_CKUINT *)m_val) = *sp >= 0 ? *sp : -*sp;
+    (*(t_CKINT *)m_val) = *sp >= 0 ? *sp : -*sp;
+
+    t_CKINT x = *(t_CKINT *)m_val;
 }
 
 

@@ -1,17 +1,18 @@
 
 ---
 1.2.0.2
-  - (added) loop * control structure : 
-    example: loop*( 8 ) { ... } // executes body 8 times
-    example: loop*( foo ) { ... } // executes body foo times
+  - (added) 'loop(...){ }' control structure : 
+    example: loop( 8 ) { ... } // executes body 8 times
+    example: loop( foo ) { ... } // executes body foo times
     (foo is evaluated exactly once entering the loop, the
      value at that time is used as a constant to control
      loop iteration - even if foo is changed in the loop
      body.)
     - supports break and continue
-    - the * is present as a reminder that the loop* semantic
-      is different from for, while, until semantic in that
-      the conditional is evaluated exactly once for loop*.
+    - important: one fundamantal difference between the loop 
+      semantic and for/while/until semantic is that the argument
+      expression 'exp' in loop( exp ) is evaluated exactly once
+      when the loop is first entered.
   - (changed) chuck --status now prints shreds sorted by id
     (previously it was the current shreduling order + blocked)
   - (fixed) improved OSC stability (phil)
