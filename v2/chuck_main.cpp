@@ -42,6 +42,8 @@
 #include "chuck_errmsg.h"
 #include "chuck_lang.h"
 #include "chuck_otf.h"
+#include "chuck_shell.h"
+#include "chuck_console.h"
 
 #include "ugen_stk.h"
 #include "util_thread.h"
@@ -79,9 +81,13 @@
 Chuck_VM * g_vm = NULL;
 // global compiler
 Chuck_Compiler * g_compiler = NULL;
+// the shell
+Chuck_Shell * g_shell = NULL;
 
-// thread id for second thread
-CHUCK_THREAD g_tid = 0;
+// thread id for otf thread
+CHUCK_THREAD g_tid_otf = 0;
+// thread id for shell
+CHUCK_THREAD g_tid_shell = 0;
 
 // default destination host name
 char g_host[256] = "127.0.0.1";
@@ -133,19 +139,19 @@ extern "C" void signal_int( int sig_num )
 
         // things don't work so good on windows...
 #ifndef __PLATFORM_WIN32__
-        // pthread_kill( g_tid, 2 );
-        if( g_tid ) pthread_cancel( g_tid );
-        // if( g_tid ) usleep( 50000 );
+        // pthread_kill( g_tid_otf, 2 );
+        if( g_tid_otf ) pthread_cancel( g_tid_otf );
+        // if( g_tid_otf ) usleep( 50000 );
         SAFE_DELETE( vm );
 #else
         // close handle
-        if( g_tid ) CloseHandle( g_tid );
+        if( g_tid_otf ) CloseHandle( g_tid_otf );
 #endif
         // ck_close( g_sock );
     }
 
 #ifndef __PLATFORM_WIN32__
-    // pthread_join( g_tid, NULL );
+    // pthread_join( g_tid_otf, NULL );
 #endif
     
     exit(2);
@@ -274,6 +280,7 @@ int main( int argc, char ** argv )
     t_CKBOOL set_priority = FALSE;
     t_CKBOOL auto_depend = FALSE;
     t_CKBOOL block = FALSE;
+    t_CKBOOL enable_shell = FALSE;
     t_CKINT  log_level = CK_LOG_SYSTEM_ERROR;
 
     t_CKUINT files = 0;
@@ -303,6 +310,10 @@ int main( int argc, char ** argv )
                 block = FALSE;
             else if( !strcmp(argv[i], "--blocking") )
                 block = TRUE;
+            else if( !strcmp(argv[i], "--console") || !strcmp( argv[i], "-c" ) )
+                enable_shell = TRUE;
+            else if( !strcmp(argv[i], "--shell") )
+                enable_shell = TRUE;
             else if( !strncmp(argv[i], "--srate", 7) )
                 srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : srate;
             else if( !strncmp(argv[i], "-r", 2) )
@@ -426,6 +437,19 @@ int main( int argc, char ** argv )
     signal( SIGPIPE, signal_pipe );
 #endif
 
+    // shell
+    if( enable_shell )
+    {
+        // instantiate
+        g_shell = new Chuck_Shell;
+        // initialize
+        if( !g_shell->init( vm, compiler, NULL ) )
+        {
+            fprintf( stderr, "[chuck]: error starting shell...\n" );
+            exit( 1 );
+        }
+    }
+
     // reset count
     count = 1;
 
@@ -510,9 +534,19 @@ int main( int argc, char ** argv )
     else
     {
 #ifndef __PLATFORM_WIN32__
-        pthread_create( &g_tid, NULL, otf_cb, NULL );
+        pthread_create( &g_tid_otf, NULL, otf_cb, NULL );
 #else
-        g_tid = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0);
+        g_tid_otf = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0);
+#endif
+    }
+
+    // start shell on separate thread
+    if( enable_shell )
+    {
+#ifndef __PLATFORM_WIN32__
+        pthread_create( &g_tid_shell, NULL, shell_cb, NULL );
+#else
+        g_tid_shell = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shell_cb, NULL, 0, 0);
 #endif
     }
 

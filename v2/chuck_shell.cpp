@@ -23,82 +23,63 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: chuck_shell.h
+// file: chuck_shell.cpp
 // desc: ...
 //
 // author: Spencer Salazar (ssalazar@princeton.edu)
 // date: Autumn 2005
 //-----------------------------------------------------------------------------
-#ifndef __CHUCK_SHELL_H__
-#define __CHUCK_SHELL_H__
+#include "chuck_shell.h"
 
-#include "chuck_def.h"
-#include "chuck_vm.h"
-#include "chuck_compile.h"
-
-#include <map>
-#include <string>
-
-
-// forward references
-class Chuck_Shell_Mode;
-class Chuck_Shell_UI;
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Shell
-// desc: controller class for facilitating interaction between a shell UI and a 
-//      shell mode.
+// name: shell_cb
+// desc: thread routine
 //-----------------------------------------------------------------------------
-class Chuck_Shell
+void * shell_cb( void * p )
 {
-public:
-    Chuck_Shell();
-    ~Chuck_Shell();
-    
-    t_CKBOOL init(Chuck_VM *,Chuck_Compiler *,Chuck_Shell_UI *);
-    void run();
-    void stop();
+    // log
+    EM_log( CK_LOG_INFO, "starting thread routine for shell..." );
 
-protected:
-    static std::map<const char *,Chuck_Shell_Mode *> modes;
-    Chuck_Shell_Mode *current_mode;
-    Chuck_Shell_UI *ui;
-    Chuck_VM *vm;
-    Chuck_Compiler *compiler;
-    
-};
+    return NULL;
+}
+
+
+
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Shell_Mode
-// desc: superclass to various types of Chuck shells
+// name: Chuck_Shell()
+// desc: ...
 //-----------------------------------------------------------------------------
-class Chuck_Shell_Mode
+Chuck_Shell::Chuck_Shell()
 {
-public:
-    Chuck_Shell_Mode();
-    ~Chuck_Shell_Mode();
-    
-    virtual t_CKBOOL init(Chuck_VM *,Chuck_Compiler *);
-    virtual t_CKBOOL execute(const std::string &,std::string &)=0;
-    
-protected:
-    Chuck_VM *vm;
-    Chuck_Compiler *compiler;
-};
+    vm = NULL;
+    compiler = NULL;
+    current_mode = NULL;
+    ui = NULL;
+}
 
-class Chuck_Shell_UI
+
+
+
+//-----------------------------------------------------------------------------
+// name: init()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
+                            Chuck_Shell_UI * ui )
 {
-public:
-    Chuck_Shell_UI();
-    ~Chuck_Shell_UI();
-    
-    virtual t_CKBOOL init();
-    virtual t_CKBOOL nextCommand(std::string &)=0;
-    virtual void nextResult(const std::string &)=0;
-};
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing chuck shell..." );
+    // push log
+    EM_pushlog();
 
-// prototype for shred thread routine
-void * shell_cb( void * p );
+    this->vm = vm;
+    this->compiler = compiler;
+    this->ui = ui;
 
+    // pop log
+    EM_poplog();
 
-#endif //__CHUCK_SHELL_H__
+    return TRUE;
+}
