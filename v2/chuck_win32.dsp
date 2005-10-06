@@ -235,6 +235,10 @@ SOURCE=.\util_buffers.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\util_console.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\util_math.c
 # End Source File
 # Begin Source File
@@ -424,6 +428,10 @@ SOURCE=.\ulib_std.h
 # Begin Source File
 
 SOURCE=.\util_buffers.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util_console.h
 # End Source File
 # Begin Source File
 
