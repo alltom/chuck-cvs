@@ -20,5 +20,8 @@ linux-alsa:
 win32: 
 	-make -f makefile.win32
 
+osx-rr:
+	-make -f makefile.rr
+
 clean:
 	rm -f *.o chuck.tab.c chuck.tab.h chuck.yy.c chuck.output $(wildcard chuck chuck.exe)

@@ -3,8 +3,8 @@ CC=gcc
 LEX=flex
 YACC=bison
 INCLUDES=
-FLAGS=-D__MACOSX_CORE__ -O3 -c
-LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation -lstdc++ -lm
+FLAGS=-D__MACOSX_CORE__ -D__USE_READLINE__ -O3 -c
+LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation -lstdc++ -lm -lreadline
 SF_OBJ=util_sndfile.o
 
 ifneq ($(CHUCK_STAT),)
