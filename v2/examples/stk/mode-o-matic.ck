@@ -52,6 +52,9 @@ fun void echo_Shred( ) {
 // let echo shred go
 spork ~ echo_Shred();
 
+// scale
+[ 0, 2, 4, 7 ] @=> int scale[];
+
 // our main loop
 while( true )
 {
@@ -62,8 +65,7 @@ while( true )
     // position
     std.rand2f( 0.2, 0.8 ) => modey.strikePosition;
     // frequency...
-    2 * std.rand2( 0, 4 ) => int freq;
-    if( freq == 6 ) 7 => freq; if( freq == 8 ) 9 => freq;
+    scale[std.rand2(0,scale.cap()-1)] => int freq;
     110.0 * math.pow( 1.05946, (std.rand2(0,3)*12)
                       + freq ) => modey.freq;
     // pluck it!

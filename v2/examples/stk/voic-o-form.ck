@@ -49,6 +49,9 @@ spork ~ vecho_Shred();
 0.5 => voc.loudness;
 0.01 => voc.vibratoGain;
 
+// scale
+[ 0, 2, 4, 7, 9 ] @=> int scale[];
+
 // our main time loop
 while( true )
 {
@@ -80,8 +83,6 @@ while( true )
     }
 
     // pentatonic
-    2 * std.rand2( 0, 4 ) => int freq;
-    if( freq == 6 ) 7 => freq;
-    if( freq == 8 ) 9 => freq;
+    scale[std.rand2(0,scale.cap()-1)] => int freq;
     std.mtof( ( 45 + std.rand2(0,2) * 12 + freq ) ) => voc.freq;
 }

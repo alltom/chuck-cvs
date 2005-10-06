@@ -19,8 +19,7 @@ while( true )
     {
         std.rand2( 0, 22 ) => shake.which;
         std.rand2f( 0.0, 128.0 ) => shake.freq;
-	//chout => "instrument (see docs): ";
-	//shake.which => stdout;
+        <<< "instrument #:", shake.which() >>>;
     }
 
     // shake it!

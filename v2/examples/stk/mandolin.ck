@@ -10,8 +10,8 @@ while( true )
     220.0 * math.pow( 1.059, std.rand2(0,24) ) => mand.freq;
     // pluck!
     std.rand2f( 0.4, 0.9 ) => mand.pluck;
-	mand.freq() => float foo;
-	<<<foo>>>;
+    // print the freq
+    <<< mand.freq() >>>;
     // advance time
     if ( std.randf() > 0.0 ) {
         1::second => now;

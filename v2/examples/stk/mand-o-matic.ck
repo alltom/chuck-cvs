@@ -17,6 +17,9 @@ Mandolin mand => JCRev r => Echo a => Echo b => Echo c => dac;
 // set the initial effect mix
 0.0 => a.mix => b.mix => c.mix;
 
+// scale
+[ 0, 2, 4, 7, 9 ] @=> int scale[];
+
 // shred to modulate the mix
 fun void echo_Shred( )
 {
@@ -56,10 +59,8 @@ while( true )
     // position
     std.rand2f( 0.2, 0.8 ) => mand.pluckPos;
     // frequency...
-    2 * std.rand2( 0, 4 ) => int freq;
-    if( freq == 6 ) 7 => freq; if( freq == 8 ) 9 => freq;
-    220.0 * math.pow( 1.05946, (std.rand2(0,2)*12)
-                      +freq ) => mand.freq;
+    scale[std.rand2(0,scale.cap()-1)] => int freq;
+    220.0 * math.pow( 1.05946, (std.rand2(0,2)*12) + freq ) => mand.freq;
     // pluck it!
     std.rand2f( 0.2, 0.9 ) => mand.pluck;
 

@@ -10,6 +10,9 @@ std.mtof( ( 21 + std.rand2(0,3) * 12 + 7 ) ) => band.freq;
 .8 => r.gain;
 .1 => r.mix;
 
+// scale
+[ 0, 2, 4, 7, 9 ] @=> int scale[];
+
 // our main time loop
 while( true )
 {    
@@ -46,9 +49,7 @@ while( true )
         0.5::second *  std.rand2(1,3) => now;
 
         // pentatonic
-        2 * std.rand2( 0, 4 ) => int freq;
-        if( freq == 6 ) 7 => freq;
-        if( freq == 8 ) 9 => freq;
+        scale[std.rand2(0, scale.cap()-1)] => int freq;
         std.mtof( 21 + std.rand2(0,5) * 12 + freq ) => band.freq;
         if ( std.randf() > 0.7 ) 
             std.rand2(0,3) => band.preset;

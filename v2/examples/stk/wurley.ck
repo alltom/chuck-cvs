@@ -47,14 +47,14 @@ fun void vecho_Shred( )
 // let echo shred go
 spork ~ vecho_Shred();
 
+// scale
+[ 0, 3, 7, 8, 11 ] @=> int scale[];
+
 // our main time loop
 while( true )
 {
-    // pentatonic
-    2 * std.rand2( 0, 4 ) => int freq;
-    if( freq == 4 ) 3 => freq;
-    if( freq == 6 ) 7 => freq;
-    if( freq == 2 ) 11 => freq;
+    // scale
+    scale[std.rand2(0,scale.cap()-1)] => int freq;
     std.mtof( ( 45 + std.rand2(0,1) * 12 + freq ) ) => voc.freq;
     std.rand2f( 0.6, 0.8 ) => voc.noteOn;
 
