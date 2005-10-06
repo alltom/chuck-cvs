@@ -44,6 +44,7 @@
 class Chuck_Shell_Mode;
 class Chuck_Shell_UI;
 
+
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell
 // desc: controller class for facilitating interaction between a shell UI and a 
@@ -55,7 +56,7 @@ public:
     Chuck_Shell();
     ~Chuck_Shell();
     
-    t_CKBOOL init(Chuck_VM *,Chuck_Compiler *,Chuck_Shell_UI *);
+    t_CKBOOL init( Chuck_VM *, Chuck_Compiler *, Chuck_Shell_UI * );
     void run();
     void stop();
 
@@ -69,6 +70,9 @@ protected:
     
 };
 
+
+
+
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Mode
 // desc: superclass to various types of Chuck shell modes
@@ -79,16 +83,19 @@ public:
     Chuck_Shell_Mode();
     ~Chuck_Shell_Mode();
     
-    virtual t_CKBOOL init(Chuck_VM *,Chuck_Compiler *);
-    virtual t_CKBOOL execute(const std::string &,std::string &)=0;
-    virtual t_CKBOOL switch_vm(Chuck_VM *,Chuck_VM **);
-    virtual t_CKBOOL switch_compiler(Chuck_Compiler *,Chuck_Compiler **);
+    virtual t_CKBOOL init( Chuck_VM *, Chuck_Compiler * );
+    virtual t_CKBOOL execute( const std::string &,std::string & ) = 0;
+    virtual t_CKBOOL switch_vm( Chuck_VM *, Chuck_VM ** );
+    virtual t_CKBOOL switch_compiler( Chuck_Compiler *, Chuck_Compiler ** );
     
 protected:
-    Chuck_VM *vm;
-    Chuck_Compiler *compiler;
+    Chuck_VM * vm;
+    Chuck_Compiler * compiler;
     t_CKBOOL initialized;
 };
+
+
+
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_UI
@@ -101,12 +108,31 @@ public:
     ~Chuck_Shell_UI();
     
     virtual t_CKBOOL init();
-    virtual t_CKBOOL nextCommand(std::string &)=0;
-    virtual void nextResult(const std::string &)=0;
+    virtual t_CKBOOL nextCommand( std::string & ) = 0;
+    virtual void nextResult( const std::string & ) = 0;
 };
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell_Mode_Command
+// desc: command mode for chuck shell
+//-----------------------------------------------------------------------------
+class Chuck_Shell_Mode_Command : public Chuck_Shell_Mode
+{
+public:
+	Chuck_Shell_Mode_Command();
+	~Chuck_Shell_Mode_Command();
+
+    t_CKBOOL execute( const std::string &, std::string & );
+};
+
 
 // prototype for shred thread routine
 void * shell_cb( void * p );
+
+
 
 
 #endif //__CHUCK_SHELL_H__

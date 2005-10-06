@@ -83,8 +83,6 @@ Chuck_VM * g_vm = NULL;
 Chuck_Compiler * g_compiler = NULL;
 // the shell
 Chuck_Shell * g_shell = NULL;
-// the shell UI
-Chuck_Shell_UI * g_shell_ui = NULL;
 
 // thread id for otf thread
 CHUCK_THREAD g_tid_otf = 0;
@@ -442,22 +440,26 @@ int main( int argc, char ** argv )
     // shell
     if( enable_shell )
     {
+        Chuck_Shell_Mode * mode = NULL;
+        Chuck_Shell_UI * ui = NULL;
+
         // instantiate
         g_shell = new Chuck_Shell;
         
+        // instantiate mode
+
         // instantiate shell UI
-        //g_shell_ui =
-        Chuck_Console * shell_ui = new Chuck_Console();
-        g_shell_ui = shell_ui;
+        ui = new Chuck_Console();
+
         // initialize shell UI
-        if( !g_shell_ui->init() )
-            {
+        if( !ui->init() )
+        {
             fprintf( stderr, "[chuck]: error starting shell UI...\n" );
             exit(1);
-            }
+        }
         
         // initialize
-        if( !g_shell->init( vm, compiler, g_shell_ui ) )
+        if( !g_shell->init( vm, compiler, ui ) )
         {
             fprintf( stderr, "[chuck]: error starting shell...\n" );
             exit( 1 );
@@ -550,7 +552,7 @@ int main( int argc, char ** argv )
 #ifndef __PLATFORM_WIN32__
         pthread_create( &g_tid_otf, NULL, otf_cb, NULL );
 #else
-        g_tid_otf = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0);
+        g_tid_otf = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0 );
 #endif
     }
 
@@ -558,9 +560,9 @@ int main( int argc, char ** argv )
     if( enable_shell )
     {
 #ifndef __PLATFORM_WIN32__
-        pthread_create( &g_tid_shell, NULL, shell_cb, NULL );
+        pthread_create( &g_tid_shell, NULL, shell_cb, g_shell );
 #else
-        g_tid_shell = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)shell_cb, NULL, 0, 0);
+        g_tid_shell = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)shell_cb, g_shell, 0, 0 );
 #endif
     }
 

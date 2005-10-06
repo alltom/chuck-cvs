@@ -35,9 +35,10 @@
 #include "chuck_def.h"
 #include "chuck_shell.h"
 
+
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Mode_Command
-// desc: command shell for chuck shell
+// desc: command mode for chuck shell
 //-----------------------------------------------------------------------------
 class Chuck_Shell_Mode_Command : public Chuck_Shell_Mode
 {

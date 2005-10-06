@@ -29,8 +29,8 @@
 // author: Spencer Salazar (ssalazar@princeton.edu)
 // date: Autumn 2005
 //-----------------------------------------------------------------------------
-
 #include "chuck_shell_mode.h"
+
 
 //-----------------------------------------------------------------------------
 // name: Chuck_Shell_Mode
@@ -43,6 +43,7 @@ Chuck_Shell_Mode::Chuck_Shell_Mode()
 	initialized = FALSE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: init
 // desc: ...
@@ -54,6 +55,7 @@ t_CKBOOL Chuck_Shell_Mode::init( Chuck_VM * vm, Chuck_Compiler * compiler )
 	initialized = TRUE;
 	return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: switch_vm
@@ -73,11 +75,13 @@ t_CKBOOL Chuck_Shell_Mode::switch_vm( Chuck_VM * new_vm, Chuck_VM ** old_vm )
 	return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: switch_compiler
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Mode::switch_compiler( Chuck_Compiler * new_compiler, 											 	Chuck_Compiler ** old_compiler )
+t_CKBOOL Chuck_Shell_Mode::switch_compiler( Chuck_Compiler * new_compiler, 
+                                            Chuck_Compiler ** old_compiler )
 {
 	if( old_compiler != NULL )
 		*old_compiler = this->compiler;
@@ -92,6 +96,7 @@ t_CKBOOL Chuck_Shell_Mode::switch_compiler( Chuck_Compiler * new_compiler, 					
 	return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
 // name: Chuck_Shell_Mode_Command
 // desc: ...
@@ -99,6 +104,7 @@ t_CKBOOL Chuck_Shell_Mode::switch_compiler( Chuck_Compiler * new_compiler, 					
 Chuck_Shell_Mode_Command::Chuck_Shell_Mode_Command() : Chuck_Shell_Mode()
 {
 }
+
 
 //-----------------------------------------------------------------------------
 // name: execute
@@ -109,4 +115,3 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const std::string & in, std::string 
 	out = in + "\n";
 	return TRUE;
 }
-
