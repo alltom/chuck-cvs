@@ -99,6 +99,10 @@ SOURCE=.\chuck_compile.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\chuck_console.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\chuck_dl.cpp
 # End Source File
 # Begin Source File

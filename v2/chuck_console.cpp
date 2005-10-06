@@ -29,13 +29,9 @@
 // author: Spencer Salazar (ssalazar@princeton.edu)
 // date: Autumn 2005
 //-----------------------------------------------------------------------------
-
 #include "chuck_console.h"
-#ifdef __USE_READLINE__
-#include <readline/readline.h>
-#else
-#include "util_consoleio.h"
-#endif
+#include "util_console.h"
+
 
 //-----------------------------------------------------------------------------
 // name: Chuck_Console()
@@ -61,21 +57,29 @@ t_CKBOOL Chuck_Console::init()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Console::nextCommand(std::string &out)
 {
-    char * line_read=NULL;
+    // the line read
+    char * line_read = NULL;
+
+    // read the next line
+    line_read = io_readline( "shell %> " );
     
-    line_read = readline( "shell %> " );
-    
-    if( line_read == NULL)
-        {
+    // check to see if EOF encountered
+    // do we need more return codes to differentiate between
+    // EOF encountered vs. empty line?
+    if( line_read == NULL )
+    {
         out = "";
         return FALSE;
-        }
-    
-    if( *line_read == 0 )
-        add_history( line_read );        
-    
+    }
+
+    // check first character
+    // if( *line_read == 0 )
+    //    add_history( line_read );
+
+    // copy the result
     out = line_read;
-    
+
+    // free the thing
     free( line_read );
     
     return TRUE;
