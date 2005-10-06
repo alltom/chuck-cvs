@@ -23,32 +23,30 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: chuck_console.h
+// file: chuck_shell_mode.h
 // desc: ...
 //
 // author: Spencer Salazar (ssalazar@princeton.edu)
 // date: Autumn 2005
 //-----------------------------------------------------------------------------
-#ifndef __CHUCK_CONSOLE_H__
-#define __CHUCK_CONSOLE_H__
+#ifndef __CHUCK_SHELL_MODE_H__
+#define __CHUCK_SHELL_MODE_H__
 
 #include "chuck_def.h"
 #include "chuck_shell.h"
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Console
-// desc: for ttyp access to chuck shell
+// name: class Chuck_Shell_Mode_Command
+// desc: command shell for chuck shell
 //-----------------------------------------------------------------------------
-class Chuck_Console : public Chuck_Shell_UI
+class Chuck_Shell_Mode_Command : public Chuck_Shell_Mode
 {
 public:
-    Chuck_Console();
-    ~Chuck_Console();
+	Chuck_Shell_Mode_Command();
+	~Chuck_Shell_Mode_Command();
 
-    t_CKBOOL init();
-    t_CKBOOL nextCommand(std::string &);
-    void nextResult(const std::string &);
-
+    t_CKBOOL execute( const std::string &, std::string & );
 };
 
-#endif //__CHUCK_CONSOLE_H__
+
+#endif //__CHUCK_SHELL_MODE_H__

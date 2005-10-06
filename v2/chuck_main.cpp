@@ -83,6 +83,8 @@ Chuck_VM * g_vm = NULL;
 Chuck_Compiler * g_compiler = NULL;
 // the shell
 Chuck_Shell * g_shell = NULL;
+// the shell UI
+Chuck_Shell_UI * g_shell_ui = NULL;
 
 // thread id for otf thread
 CHUCK_THREAD g_tid_otf = 0;
@@ -396,7 +398,7 @@ int main( int argc, char ** argv )
     // set priority
     Chuck_VM::our_priority = g_priority;
 
-    if ( !files && vm_halt )
+    if ( !files && vm_halt && !enable_shell)
     {
         fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
         exit( 1 );
@@ -442,8 +444,20 @@ int main( int argc, char ** argv )
     {
         // instantiate
         g_shell = new Chuck_Shell;
+        
+        // instantiate shell UI
+        //g_shell_ui =
+        Chuck_Console * shell_ui = new Chuck_Console();
+        g_shell_ui = shell_ui;
+        // initialize shell UI
+        if( !g_shell_ui->init() )
+            {
+            fprintf( stderr, "[chuck]: error starting shell UI...\n" );
+            exit(1);
+            }
+        
         // initialize
-        if( !g_shell->init( vm, compiler, NULL ) )
+        if( !g_shell->init( vm, compiler, g_shell_ui ) )
         {
             fprintf( stderr, "[chuck]: error starting shell...\n" );
             exit( 1 );

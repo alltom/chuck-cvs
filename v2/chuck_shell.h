@@ -60,17 +60,18 @@ public:
     void stop();
 
 protected:
-    static std::map<const char *,Chuck_Shell_Mode *> modes;
+    std::map< std::string, Chuck_Shell_Mode * > modes;
     Chuck_Shell_Mode *current_mode;
     Chuck_Shell_UI *ui;
     Chuck_VM *vm;
     Chuck_Compiler *compiler;
+    t_CKBOOL initialized;
     
 };
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Mode
-// desc: superclass to various types of Chuck shells
+// desc: superclass to various types of Chuck shell modes
 //-----------------------------------------------------------------------------
 class Chuck_Shell_Mode
 {
@@ -80,12 +81,19 @@ public:
     
     virtual t_CKBOOL init(Chuck_VM *,Chuck_Compiler *);
     virtual t_CKBOOL execute(const std::string &,std::string &)=0;
+    virtual t_CKBOOL switch_vm(Chuck_VM *,Chuck_VM **);
+    virtual t_CKBOOL switch_compiler(Chuck_Compiler *,Chuck_Compiler **);
     
 protected:
     Chuck_VM *vm;
     Chuck_Compiler *compiler;
+    t_CKBOOL initialized;
 };
 
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell_UI
+// desc: superclass to various types of Chuck UIs
+//-----------------------------------------------------------------------------
 class Chuck_Shell_UI
 {
 public:
