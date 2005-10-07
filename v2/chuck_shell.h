@@ -43,7 +43,8 @@
 // forward references
 class Chuck_Shell_Mode;
 class Chuck_Shell_UI;
-
+struct Chuck_Shell_Request;
+struct Chuck_Shell_Response;
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell
@@ -128,6 +129,47 @@ public:
     t_CKBOOL execute( const std::string &, std::string & );
 };
 
+//-----------------------------------------------------------------------------
+// name: typedef t_CKSHRequestType
+// desc: chuck shell request type identifier
+//-----------------------------------------------------------------------------
+typedef enum 
+{
+	CKSH_REQ_COMMAND,	/* a textual command input from the user */
+	CKSH_REQ_PROMPT,	/* ask for the current desired shell prompt */
+} t_CKSHRequestType;
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Shell_Request
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Shell_Request
+{
+	std::string data;
+	t_CKSHRequestType type;
+};
+
+//-----------------------------------------------------------------------------
+// name: typedef t_CKSHResponseType
+// desc: chuck shell response type identifier
+//-----------------------------------------------------------------------------
+typedef enum 
+{
+	CKSH_RSP_RESULT_TEXT,	/* textual result of the most recently executed */
+							/* command */
+	CKSH_RSP_PROMPT,		/* text of the current shell prompt */
+	CKSH_RSP_SWAP_MODE,		/* meta command for the Shell to swap Shell_Mode */
+} t_CKSHResponseType;
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Shell_Response
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Shell_Response
+{
+	std::string data;
+	t_CKSHResponseType type;
+};
 
 // prototype for shred thread routine
 void * shell_cb( void * p );
