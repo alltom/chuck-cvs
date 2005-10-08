@@ -38,7 +38,25 @@ static const char CHUCK_SHELL_ESCAPE_CHAR = '#';
 // global shell pointer (lives in chuck_main)
 extern Chuck_Shell * g_shell;
 
-
+//-----------------------------------------------------------------------------
+// name: divide_string
+// desc: divides string into substrings, each separated by an arbitrarily long 
+//		sequence of any characters in edge.  
+//-----------------------------------------------------------------------------
+void divide_string( const std::string & stra, const std::string & edge, 
+					std::vector< std::string > & substrings)
+{
+	std::string str = stra + " ";
+	int i = str.find_first_not_of( edge ), j = 0;
+	for(;;)
+		{
+		j = str.find_first_of( edge, i );
+		if( j == std::string::npos )
+			break;
+		substrings.push_back( std::string( str, i, j - i ) );
+		i = str.find_first_not_of( edge, j );
+		}
+}
 
 //-----------------------------------------------------------------------------
 // name: shell_cb
@@ -153,7 +171,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
     // make new mode
     current_mode = new Chuck_Shell_Mode_Command();
     // initialize it
-    if( !current_mode->init( vm, compiler ) )
+    if( !current_mode->init( vm, compiler, this ) )
     {
         fprintf( stderr, "[chuck](via shell): unable to initialize shell command mode\n");
         //delete current_mode;
@@ -196,7 +214,7 @@ void Chuck_Shell::run()
     for(;;)
     {
         // get command
-        if( ui->nextCommand( command ) == TRUE )
+        if( ui->next_command( command ) == TRUE )
         {
             if( command[0] == CHUCK_SHELL_ESCAPE_CHAR )
             {
@@ -210,7 +228,7 @@ void Chuck_Shell::run()
             }
 
             // pass the result to the shell ui
-            ui->nextResult( result );
+            ui->next_result( result );
         }
         else
             // done
@@ -271,17 +289,25 @@ Chuck_Shell_Mode::Chuck_Shell_Mode()
 	initialized = FALSE;
 }
 
-
-
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Shell_Mode
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_Mode::~Chuck_Shell_Mode()
+{
+}
 
 //-----------------------------------------------------------------------------
 // name: init
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Mode::init( Chuck_VM * vm, Chuck_Compiler * compiler )
+t_CKBOOL Chuck_Shell_Mode::init( Chuck_VM * vm, Chuck_Compiler * compiler, 
+								 Chuck_Shell * host_shell )
 {
+	//TODO: input validation
 	this->vm = vm;
 	this->compiler = compiler;
+	this->host_shell = host_shell;
 	initialized = TRUE;
 	return TRUE;
 }
@@ -339,15 +365,46 @@ Chuck_Shell_Mode_Command::Chuck_Shell_Mode_Command()
 {
 }
 
-
-
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Shell_Mode_Command
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_Mode_Command::~Chuck_Shell_Mode_Command()
+{
+}
 
 //-----------------------------------------------------------------------------
 // name: execute
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Mode_Command::execute( const std::string & in, std::string & out )
+t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in, 
+											Chuck_Shell_Response & out )
 {
-	out = in + "\n";
+	std::vector< std::string > vec;
+	
+	//partition the string into white space separated words
+	divide_string( in, " \t\n\v",  vec );
+	if( vec.size() == 0) 
+		{
+		out = "";
+		return TRUE;
+		}
+	
+	//first find out what the command is
+	if( vec[0] == "add" || vec[0] == "+" )
+		{
+		Chuck_VM_Code * code = NULL;
+		Chuck_VM_Shred * shred = NULL;
+		compiler->go( vec[1], NULL );
+		code = compiler->output();
+		code->name += vec[1];
+		vm->spork( code, NULL );
+		}
+	else
+		{
+		out = "shrell: unknown command '"+vec[0]+"'\n";
+		}
+	
 	return TRUE;
 }
+

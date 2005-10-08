@@ -30,8 +30,12 @@
 // date: Autumn 2005
 //-----------------------------------------------------------------------------
 #include "util_console.h"
-#if __USE_READLINE__
+#include <stdio.h>
+#ifdef __USE_READLINE__
  #include <readline/readline.h>
+#else
+ #include <stdlib.h>
+ #define CONSOLE_INPUT_BUFFER_SIZE 255
 #endif
 
 char * io_readline( const char * prompt )
@@ -44,8 +48,29 @@ char * io_readline( const char * prompt )
 #else
 
     // insert our hack
+    char *buf=(char *)malloc( CONSOLE_INPUT_BUFFER_SIZE * sizeof(char) );
+    fputs( prompt, stdout );
+	fgets( buf, CONSOLE_INPUT_BUFFER_SIZE, stdin );
+	for( int i=0; i < CONSOLE_INPUT_BUFFER_SIZE; i++ )
+		if(buf[i] == '\n' )
+			{
+			buf[i] = 0;
+			break;
+			}
+	return buf;
+	
+#endif
+}
 
-    return NULL;
-
+void io_addhistory( const char * addme )
+{
+#ifdef __USE_READLINE__
+	
+	add_history( addme );
+	
+#else
+	
+	//do nothing
+	
 #endif
 }

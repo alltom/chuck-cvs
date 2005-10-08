@@ -55,7 +55,7 @@ t_CKBOOL Chuck_Console::init()
 // name: nextCommand()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Console::nextCommand(std::string &out)
+t_CKBOOL Chuck_Console::next_command( Chuck_Shell_Response &out )
 {
     // the line read
     char * line_read = NULL;
@@ -73,8 +73,8 @@ t_CKBOOL Chuck_Console::nextCommand(std::string &out)
     }
 
     // check first character
-    // if( *line_read == 0 )
-    //    add_history( line_read );
+    if( *line_read == 0 )
+    	io_addhistory( line_read );
 
     // copy the result
     out = line_read;
@@ -89,7 +89,7 @@ t_CKBOOL Chuck_Console::nextCommand(std::string &out)
 // name: nextResult()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Console::nextResult(const std::string &in)
+void Chuck_Console::next_result( const Chuck_Shell_Response &in )
 {
     printf( in.c_str() );
 }

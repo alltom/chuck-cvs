@@ -43,8 +43,11 @@
 // forward references
 class Chuck_Shell_Mode;
 class Chuck_Shell_UI;
-struct Chuck_Shell_Request;
-struct Chuck_Shell_Response;
+//struct Chuck_Shell_Request;
+//struct Chuck_Shell_Response;
+typedef std::string Chuck_Shell_Request;
+typedef std::string Chuck_Shell_Response;
+
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell
@@ -53,6 +56,7 @@ struct Chuck_Shell_Response;
 //-----------------------------------------------------------------------------
 class Chuck_Shell
 {
+friend class Chuck_Shell_Mode;
 public:
     Chuck_Shell();
     ~Chuck_Shell();
@@ -61,18 +65,25 @@ public:
     void run();
     void stop();
 
-protected:
+protected: /* these functions are usually called by a Chuck_Shell_Mode */
+    t_CKBOOL swap_mode( const std::string &, std::vector< Chuck_VM > &, 
+    				   Chuck_Compiler & );
+    t_CKBOOL swap_last_Mode();
+    t_CKBOOL setPrompt( const std::string & );
+    t_CKBOOL addVM( /* ??? */ );
+    t_CKBOOL removeVM( /* ??? */ );
+    t_CKBOOL metaCommand( t_CKUINT, const std::string & );
+
+private:
     std::map< std::string, Chuck_Shell_Mode * > modes;
     Chuck_Shell_Mode *current_mode;
     Chuck_Shell_UI *ui;
     Chuck_VM *vm;
+    std::vector< Chuck_VM > VM_list;
     Chuck_Compiler *compiler;
     t_CKBOOL initialized;
     
 };
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Mode
@@ -84,14 +95,16 @@ public:
     Chuck_Shell_Mode();
     ~Chuck_Shell_Mode();
     
-    virtual t_CKBOOL init( Chuck_VM *, Chuck_Compiler * );
-    virtual t_CKBOOL execute( const std::string &,std::string & ) = 0;
+    virtual t_CKBOOL init( Chuck_VM *, Chuck_Compiler * , Chuck_Shell * );
+    virtual t_CKBOOL execute( const Chuck_Shell_Request &,
+    						  Chuck_Shell_Response & ) = 0;
     virtual t_CKBOOL switch_vm( Chuck_VM *, Chuck_VM ** );
     virtual t_CKBOOL switch_compiler( Chuck_Compiler *, Chuck_Compiler ** );
     
 protected:
     Chuck_VM * vm;
     Chuck_Compiler * compiler;
+    Chuck_Shell *host_shell;
     t_CKBOOL initialized;
 };
 
@@ -109,8 +122,8 @@ public:
     ~Chuck_Shell_UI();
     
     virtual t_CKBOOL init();
-    virtual t_CKBOOL nextCommand( std::string & ) = 0;
-    virtual void nextResult( const std::string & ) = 0;
+    virtual t_CKBOOL next_command( Chuck_Shell_Request & ) = 0;
+    virtual void next_result( const Chuck_Shell_Response & ) = 0;
 };
 
 
@@ -126,49 +139,7 @@ public:
 	Chuck_Shell_Mode_Command();
 	~Chuck_Shell_Mode_Command();
 
-    t_CKBOOL execute( const std::string &, std::string & );
-};
-
-//-----------------------------------------------------------------------------
-// name: typedef t_CKSHRequestType
-// desc: chuck shell request type identifier
-//-----------------------------------------------------------------------------
-typedef enum 
-{
-	CKSH_REQ_COMMAND,	/* a textual command input from the user */
-	CKSH_REQ_PROMPT,	/* ask for the current desired shell prompt */
-} t_CKSHRequestType;
-
-//-----------------------------------------------------------------------------
-// name: struct Chuck_Shell_Request
-// desc: ...
-//-----------------------------------------------------------------------------
-struct Chuck_Shell_Request
-{
-	std::string data;
-	t_CKSHRequestType type;
-};
-
-//-----------------------------------------------------------------------------
-// name: typedef t_CKSHResponseType
-// desc: chuck shell response type identifier
-//-----------------------------------------------------------------------------
-typedef enum 
-{
-	CKSH_RSP_RESULT_TEXT,	/* textual result of the most recently executed */
-							/* command */
-	CKSH_RSP_PROMPT,		/* text of the current shell prompt */
-	CKSH_RSP_SWAP_MODE,		/* meta command for the Shell to swap Shell_Mode */
-} t_CKSHResponseType;
-
-//-----------------------------------------------------------------------------
-// name: struct Chuck_Shell_Response
-// desc: ...
-//-----------------------------------------------------------------------------
-struct Chuck_Shell_Response
-{
-	std::string data;
-	t_CKSHResponseType type;
+    t_CKBOOL execute( const Chuck_Shell_Request &, Chuck_Shell_Response & );
 };
 
 // prototype for shred thread routine

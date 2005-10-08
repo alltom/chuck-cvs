@@ -35,8 +35,10 @@
 #include "chuck_def.h"
 
 // read a line
-char * io_readline( const char * prompt );
+char * io_readline( const char * );
 
+// add a line to the history
+void io_addhistory( const char * );
 
 
 #endif
