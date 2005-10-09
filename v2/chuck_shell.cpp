@@ -272,7 +272,7 @@ void Chuck_Shell::run()
     
     // log
     EM_poplog();
-    EM_log( CK_LOG_SYSTEM, "exiting chuck shell run routine..." );
+    EM_log( CK_LOG_SYSTEM, "exiting chuck shell..." );
 }
 
 
@@ -348,7 +348,7 @@ t_CKBOOL Chuck_Shell_Mode::init( Chuck_VM * vm,
                                  std::vector< Chuck_Shell_Shred * > * shreds,
                                  Chuck_Shell * host_shell ) 
 {
-    //TODO: input validation
+    // TODO: input validation
     this->vm = vm;
     this->compiler = compiler;
     this->host_shell = host_shell;
@@ -423,7 +423,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
         char buf[10];
         int i;
                 
-        //first gather command line options
+        // first gather command line options
         for( i = 1; i < vec.size(); i++ )
         {
             if( vec[i][0] == '-' )
@@ -439,7 +439,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
 
         for(; i < vec.size(); i++ )
         {
-            //first need to stat the file and make sure it exists/is readable
+            // first need to stat the file and make sure it exists/is readable
             
             // compile the file for local usage
             if( !compiler->go( vec[i], NULL ) )
@@ -448,13 +448,13 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                 continue;
             }
             
-            //add to local VM
+            // add to local VM
             code = compiler->output();
             code->name += vec[i];
             shred->shred = vm->spork( code, NULL );
             shred->vms.push_back( 0 );
             
-            //add to network VMs
+            // add to network VMs
             Net_Msg msg;
             g_sigpipe_mode = 1;
             for( int j = 0; j < vms->size(); j++ )
@@ -472,7 +472,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                     sprintf( buf, "%u", (*vms)[j]->port );
                     out += "unable to connect to " + 
                         (*vms)[j]->hostname + ":" + buf + "\n";
-                    //snprintf( buf, 9, "%u", j );
+                    // snprintf( buf, 9, "%u", j );
                     sprintf( buf, "%u", j );
                     out += std::string("*** add failed for VM ") + buf + 
                             "***\n";
@@ -491,8 +491,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                 if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
                 {
                     otf_ntoh( &msg );
-                    if( !msg.param )
-                        // error from server
+                    if( !msg.param ) // error from server
                     {
                         out += std::string((char *)msg.buffer) + "\n";
                         // snprintf( buf, 9, "%u", j );
@@ -541,7 +540,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
         char buf[10];
         
         if( vec.size() < 2 )
-            vec.push_back("localhost:8888");
+            vec.push_back( "localhost:8888" );
 
         for( int i = 1; i < vec.size(); i++ )
         {
