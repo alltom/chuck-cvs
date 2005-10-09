@@ -73,7 +73,7 @@ t_CKBOOL Chuck_Console::next_command( Chuck_Shell_Response &out )
     }
 
     // check first character
-    if( *line_read == 0 )
+    if( *line_read != 0 )
     	io_addhistory( line_read );
 
     // copy the result

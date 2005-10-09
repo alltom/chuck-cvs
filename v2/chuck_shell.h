@@ -66,24 +66,47 @@ public:
     void stop();
 
 protected: /* these functions are usually called by a Chuck_Shell_Mode */
-    t_CKBOOL swap_mode( const std::string &, std::vector< Chuck_VM > &, 
-    				   Chuck_Compiler & );
-    t_CKBOOL swap_last_Mode();
-    t_CKBOOL setPrompt( const std::string & );
-    t_CKBOOL addVM( /* ??? */ );
-    t_CKBOOL removeVM( /* ??? */ );
-    t_CKBOOL metaCommand( t_CKUINT, const std::string & );
+    t_CKBOOL swap_mode( const std::string & );
+    t_CKBOOL swap_last_mode();
+    t_CKBOOL set_prompt( const std::string & );
+	t_CKBOOL meta_command( t_CKUINT, const std::string & );
 
 private:
     std::map< std::string, Chuck_Shell_Mode * > modes;
     Chuck_Shell_Mode *current_mode;
     Chuck_Shell_UI *ui;
     Chuck_VM *vm;
-    std::vector< Chuck_VM > VM_list;
     Chuck_Compiler *compiler;
     t_CKBOOL initialized;
     
 };
+
+struct Chuck_Shell_Network_VM
+{
+	std::string hostname;
+	t_CKUINT port;
+};
+
+struct Chuck_Shell_Shred
+{
+	Chuck_VM_Shred * shred;		//the local shred
+	std::string name;
+	std::vector< t_CKUINT > vms;//all VMs to which it is attached
+};
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell_VM
+// desc: encapsulates local and network VMs into a single class
+//-----------------------------------------------------------------------------
+/*class Chuck_Shell_VM
+{
+public:
+	Chuck_Shell_VM();
+	~Chuck_Shell_VM();
+	
+	void spork();
+}
+*/
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Mode
@@ -95,14 +118,21 @@ public:
     Chuck_Shell_Mode();
     ~Chuck_Shell_Mode();
     
-    virtual t_CKBOOL init( Chuck_VM *, Chuck_Compiler * , Chuck_Shell * );
+    virtual t_CKBOOL init( Chuck_VM *, Chuck_Compiler * , 
+    					   std::vector< Chuck_Shell_Network_VM * > *, 
+    					   std::vector< Chuck_Shell_Shred * > *, 
+    					   Chuck_Shell * );
     virtual t_CKBOOL execute( const Chuck_Shell_Request &,
     						  Chuck_Shell_Response & ) = 0;
-    virtual t_CKBOOL switch_vm( Chuck_VM *, Chuck_VM ** );
-    virtual t_CKBOOL switch_compiler( Chuck_Compiler *, Chuck_Compiler ** );
     
 protected:
-    Chuck_VM * vm;
+    static void add_VM( Chuck_VM * );
+    static void remove_VM( t_CKUINT );
+
+    Chuck_VM * vm;  //local VMs
+    std::vector< Chuck_Shell_Network_VM * > * vms;  
+    				//shared by all modes
+	std::vector< Chuck_Shell_Shred * > * shreds;  //all shreds currently added
     Chuck_Compiler * compiler;
     Chuck_Shell *host_shell;
     t_CKBOOL initialized;
@@ -140,6 +170,8 @@ public:
 	~Chuck_Shell_Mode_Command();
 
     t_CKBOOL execute( const Chuck_Shell_Request &, Chuck_Shell_Response & );
+
+protected:
 };
 
 // prototype for shred thread routine
