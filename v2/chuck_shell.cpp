@@ -420,7 +420,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
         Chuck_VM_Code * code = NULL;
         Chuck_Shell_Shred * shred = new Chuck_Shell_Shred;
         std::vector< t_CKUINT > only_these_vms;
-        char buf[10];
+        char buf[16];
         int i;
                 
         // first gather command line options
@@ -537,7 +537,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
         //in theory this should send some sort of non-state changing command
         //to the VM in question to ensure that it exists
         
-        char buf[10];
+        char buf[16];
         
         if( vec.size() < 2 )
             vec.push_back( "localhost:8888" );
