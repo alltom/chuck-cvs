@@ -435,8 +435,8 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
             }
             else
                 break;
-            }
-        
+        }
+
         for(; i < vec.size(); i++ )
         {
             //first need to stat the file and make sure it exists/is readable
