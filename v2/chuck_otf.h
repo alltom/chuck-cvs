@@ -34,6 +34,7 @@
 #define __CHUCK_OTF_H__
 
 #include "chuck_def.h"
+#include "util_network.h"
 #include <memory.h>
 
 
@@ -76,11 +77,11 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
                           Net_Msg * msg, t_CKBOOL immediate, void * data );
 
 // send command
-int otf_send_cmd( int argc, char ** argv, t_CKINT & i );
+int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int port );
 // send file to remote host
-int otf_send_file( const char * filename, Net_Msg & msg, const char * op );
+int otf_send_file( const char * filename, Net_Msg & msg, const char * op, ck_socket sock );
 // connect
-int otf_send_connect();
+ck_socket otf_send_connect( const char * host, int port );
 
 // callback
 void * otf_cb( void * p );

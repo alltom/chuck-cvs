@@ -64,7 +64,7 @@ t_CKBOOL Chuck_Console::next_command( Chuck_Shell_Response &out )
     char * line_read = NULL;
 
     // read the next line
-    line_read = io_readline( "shell %> " );
+    line_read = io_readline( "chuck %> " );
     
     // check to see if EOF encountered
     // do we need more return codes to differentiate between

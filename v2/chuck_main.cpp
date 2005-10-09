@@ -360,7 +360,7 @@ int main( int argc, char ** argv )
                 usage();
                 exit( 2 );
             }
-            else if( otf_send_cmd( argc, argv, i ) )
+            else if( otf_send_cmd( argc, argv, i, g_host, g_port ) )
                 exit( 0 );
             else
             {

@@ -33,8 +33,8 @@
 #include "chuck_otf.h"
 #include "chuck_compile.h"
 #include "chuck_errmsg.h"
-#include "util_network.h"
 #include "util_thread.h"
+// #include "util_network.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -49,9 +49,9 @@
 // global
 extern Chuck_VM * g_vm;
 extern Chuck_Compiler * g_compiler;
-extern char g_host[256];
-extern int g_port;
 extern ck_socket g_sock;
+// extern char g_host[256];
+// extern int g_port;
 extern t_CKUINT g_sigpipe_mode;
 extern "C" void signal_int( int );
 extern "C" void signal_pipe( int );
@@ -194,7 +194,8 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
 // name: otf_send_file()
 // desc: ...
 //-----------------------------------------------------------------------------
-int otf_send_file( const char * filename, Net_Msg & msg, const char * op )
+int otf_send_file( const char * filename, Net_Msg & msg, const char * op,
+                   ck_socket dest )
 {
     FILE * fd = NULL;
     struct stat fs;
@@ -231,7 +232,7 @@ int otf_send_file( const char * filename, Net_Msg & msg, const char * op )
     msg.param2 = (t_CKUINT)fs.st_size;
     msg.length = 0;
     otf_hton( &msg );
-    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    ck_send( dest, (char *)&msg, sizeof(msg) );
 
     // send the whole thing
     t_CKUINT left = (t_CKUINT)fs.st_size;
@@ -248,7 +249,7 @@ int otf_send_file( const char * filename, Net_Msg & msg, const char * op )
         //fprintf(stderr, "sending fread %03d length %03d...\n", msg.param3, msg.length );
         // send it
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     
     // close
@@ -264,27 +265,28 @@ int otf_send_file( const char * filename, Net_Msg & msg, const char * op )
 // name: otf_send_connect()
 // desc: ...
 //-----------------------------------------------------------------------------
-int otf_send_connect()
+ck_socket otf_send_connect( const char * host, int port )
 {
-    g_sock = ck_tcp_create( 0 );
-    if( !g_sock )
+    ck_socket sock = ck_tcp_create( 0 );
+    if( !sock )
     {
         fprintf( stderr, "[chuck]: cannot open socket to send command...\n" );
-        return FALSE;
+        return NULL;
     }
 
-    if( strcmp( g_host, "127.0.0.1" ) )
-        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", g_host, g_port );
+    if( strcmp( host, "127.0.0.1" ) )
+        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", host, port );
     
-    if( !ck_connect( g_sock, g_host, g_port ) )
+    if( !ck_connect( sock, host, port ) )
     {
-        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", g_host, g_port );
-        return FALSE;
+        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", host, port );
+        ck_close( sock );
+        return NULL;
     }
     
-    ck_send_timeout( g_sock, 0, 2000000 );
+    ck_send_timeout( sock, 0, 2000000 );
 
-    return TRUE;
+    return sock;
 }
 
 
@@ -294,11 +296,12 @@ int otf_send_connect()
 // name: otf_send_cmd()
 // desc: ...
 //-----------------------------------------------------------------------------
-int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
+int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int port )
 {
     Net_Msg msg;
     g_sigpipe_mode = 1;
     int tasks_total = 0, tasks_done = 0;
+    ck_socket dest = NULL;
     
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
@@ -308,11 +311,11 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
             goto error;
         }
 
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         do {
             msg.type = MSG_ADD;
             msg.param = 1;
-            tasks_done += otf_send_file( argv[i], msg, "add" );
+            tasks_done += otf_send_file( argv[i], msg, "add", dest );
             tasks_total++;
         } while( ++i < argc );
         
@@ -327,21 +330,21 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
             goto error;
         }
 
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         do {
             msg.param = atoi( argv[i] );
             msg.type = MSG_REMOVE;
             otf_hton( &msg );
-            ck_send( g_sock, (char *)&msg, sizeof(msg) );
+            ck_send( dest, (char *)&msg, sizeof(msg) );
         } while( ++i < argc );
     }
     else if( !strcmp( argv[i], "--" ) )
     {
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.param = 0xffffffff;
         msg.type = MSG_REMOVE;
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
     {
@@ -362,46 +365,46 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
             goto error;
         }
 
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.type = MSG_REPLACE;
-        if( !otf_send_file( argv[i], msg, "replace" ) )
+        if( !otf_send_file( argv[i], msg, "replace", dest ) )
             goto error;
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
     {
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--kill" ) )
     {
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
         msg.type = MSG_KILL;
         msg.param = (i+1)<argc ? atoi(argv[++i]) : 0;
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--time" ) )
     {
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.type = MSG_TIME;
         msg.param = 0;
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
     {
-        if( !otf_send_connect() ) return 0;
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.type = MSG_STATUS;
         msg.param = 0;
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     else
         return 0;
@@ -409,12 +412,12 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
     // send
     msg.type = MSG_DONE;
     otf_hton( &msg );
-    ck_send( g_sock, (char *)&msg, sizeof(msg) );
+    ck_send( dest, (char *)&msg, sizeof(msg) );
 
     // set timeout
-    ck_recv_timeout( g_sock, 0, 2000000 );
+    ck_recv_timeout( dest, 0, 2000000 );
     // reply
-    if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
+    if( ck_recv( dest, (char *)&msg, sizeof(msg) ) )
     {
         otf_ntoh( &msg );
         fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
@@ -427,7 +430,7 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
         fprintf( stderr, "[chuck]: remote operation timed out...\n" );
     }
     // close the sock
-    ck_close( g_sock );
+    ck_close( dest );
     
     // exit
     exit( msg.param );
@@ -437,12 +440,12 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i )
 error:
     
     // if sock was opened
-    if( g_sock )
+    if( dest )
     {
         msg.type = MSG_DONE;
         otf_hton( &msg );
-        ck_send( g_sock, (char *)&msg, sizeof(msg) );
-        ck_close( g_sock );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
+        ck_close( dest );
     }
     
     exit( 1 );

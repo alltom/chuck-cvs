@@ -44,17 +44,17 @@ static const char CHUCK_SHELL_ESCAPE_CHAR = '#';
 // global shell pointer (lives in chuck_main)
 extern Chuck_Shell * g_shell;
 
-// global network socket
-extern ck_socket g_sock;
-
 // SIGPIPE mode
 extern t_CKUINT g_sigpipe_mode;
 
+// global network socket
+// extern ck_socket g_sock;
+
 // global OTF host
-extern char g_host[256];
+// extern char g_host[256];
 
 // global OTF port
-extern int g_port;
+// extern int g_port;
 
 
 
@@ -402,19 +402,28 @@ Chuck_Shell_Mode_Command::~Chuck_Shell_Mode_Command()
 t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in, 
                                             Chuck_Shell_Response & out )
 {
+    // vector of string tokens
     std::vector< std::string > vec;
+    // socket
+    ck_socket sock = NULL;
+    // hostname
+    string hostname;
+    // port
+    int port = 0;
     
+    // clear the response
     out = "";
 
-    //divide the string into white space separated substrings
+    // divide the string into white space separated substrings
     divide_string( in, " \t\n\v",  vec );
+    // if no tokens
     if( vec.size() == 0) 
     {
         out = "";
         return TRUE;
     }
     
-    //first find out what the command is
+    // first find out what the command is
     if( vec[0] == "add" || vec[0] == "+" )
     {
         Chuck_VM_Code * code = NULL;
@@ -437,7 +446,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                 break;
         }
 
-        for(; i < vec.size(); i++ )
+        for( ; i < vec.size(); i++ )
         {
             // first need to stat the file and make sure it exists/is readable
             
@@ -459,14 +468,22 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
             g_sigpipe_mode = 1;
             for( int j = 0; j < vms->size(); j++ )
             {
+                // make sure not NULL
                 if( (*vms)[j] == NULL )
                     continue;
+
                 // snprintf( g_host, 255, (*vms)[j]->hostname.c_str() );
-                sprintf( g_host, (*vms)[j]->hostname.c_str() );
-                g_port = (*vms)[j]->port;
+
+                // temporary variables to hold
+                hostname = (*vms)[j]->hostname;
+                port = (*vms)[j]->port;
+
+                // the message type
                 msg.type=MSG_ADD;
                 msg.param = 1;
-                if( !otf_send_connect() )
+
+                // connect to remote host
+                if( !(sock = otf_send_connect( hostname.c_str(), port )) )
                 {
                     // snprintf( buf, 9, "%u", (*vms)[j]->port );
                     sprintf( buf, "%u", (*vms)[j]->port );
@@ -478,17 +495,17 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                             "***\n";
                     continue;
                 }
-                otf_send_file( vec[i].c_str(), msg, "add" );
+                otf_send_file( vec[i].c_str(), msg, "add", sock );
                 
                 // end transaction
                 msg.type = MSG_DONE;
                 otf_hton( &msg );
-                ck_send( g_sock, (char *)&msg, sizeof(msg) );
+                ck_send( sock, (char *)&msg, sizeof(msg) );
             
                 // set timeout
-                ck_recv_timeout( g_sock, 0, 2000000 );
+                ck_recv_timeout( sock, 0, 2000000 );
                 // get reply from server
-                if( ck_recv( g_sock, (char *)&msg, sizeof(msg) ) )
+                if( ck_recv( sock, (char *)&msg, sizeof(msg) ) )
                 {
                     otf_ntoh( &msg );
                     if( !msg.param ) // error from server
@@ -517,7 +534,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                 shred->vms.push_back( j );
                 
                 // close the sock
-                ck_close( g_sock );
+                ck_close( sock );
             
             }
             
