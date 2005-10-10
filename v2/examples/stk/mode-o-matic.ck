@@ -21,7 +21,8 @@ ModalBar modey => JCRev r => Echo a => Echo b => Echo c => dac;
 0.0 => a.mix => b.mix => c.mix;
 
 // shred to modulate the mix
-fun void echo_Shred( ) { 
+fun void echo_Shred( )
+{ 
     0.0 => float decider => float mix => float old => float inc;
 
     // time loop

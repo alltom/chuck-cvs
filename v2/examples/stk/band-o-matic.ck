@@ -43,12 +43,13 @@ while( true )
         }
     }
 
-    if ( std.randf() > 0.2 ) { 
+    if ( std.randf() > 0.2 )
+    { 
         1::second => now;
         0.001 => band.stopBowing;
         0.5::second *  std.rand2(1,3) => now;
 
-        // pentatonic
+        // scale
         scale[std.rand2(0, scale.cap()-1)] => int freq;
         std.mtof( 21 + std.rand2(0,5) * 12 + freq ) => band.freq;
         if ( std.randf() > 0.7 ) 

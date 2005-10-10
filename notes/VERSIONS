@@ -13,6 +13,7 @@
       semantic and for/while/until semantic is that the argument
       expression 'exp' in loop( exp ) is evaluated exactly once
       when the loop is first entered.
+  - (changed) STK Shakers.freq now expect Hz instead of MIDI number
   - (changed) chuck --status now prints shreds sorted by id
     (previously it was the current shreduling order + blocked)
   - (fixed) improved OSC stability (phil)
