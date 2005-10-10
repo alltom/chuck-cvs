@@ -18,7 +18,7 @@ while( true )
     if ( std.randf() > 0.25 )
     {
         std.rand2( 0, 22 ) => shake.which;
-        std.rand2f( 0.0, 128.0 ) => shake.freq;
+        std.mtof( std.rand2f( 0.0, 128.0 ) ) => shake.freq;
         <<< "instrument #:", shake.which() >>>;
     }
 

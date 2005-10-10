@@ -35,6 +35,7 @@
 //-----------------------------------------------------------------------------
 #include "ugen_stk.h"
 #include "chuck_type.h"
+#include "util_math.h"
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -27076,7 +27077,7 @@ CK_DLL_CTRL( Shakers_ctrl_freq )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
     s->freq = GET_CK_FLOAT(ARGS);
-    s->controlChange( __SK_ModWheel_, s->freq );
+    s->controlChange( __SK_ModWheel_, ftom(s->freq) );
     RETURN->v_float = (t_CKFLOAT) s->freq;
 }
 
@@ -27087,7 +27088,7 @@ CK_DLL_CTRL( Shakers_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Shakers_cget_freq )
 {
-    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT( SELF, Shakers_offset_data );
     RETURN->v_float = (t_CKFLOAT) s->freq;
 }
 

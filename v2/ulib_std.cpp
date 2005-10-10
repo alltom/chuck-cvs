@@ -383,103 +383,43 @@ CK_DLL_SFUN( setenv_impl )
     RETURN->v_int = setenv( v1, v2, 1 );
 }
 
-// the following 6 functions are 
-// lifted from  PD source
-// specifically x_acoustics.c
-// http://puredata.info/downloads
 
-#define LOGTEN 2.302585092994
-
-double mtof(double f)
-{
-    if (f <= -1500) return(0);
-    else if (f > 1499) return(mtof(1499));
-    else return (8.17579891564 * exp(.0577622650 * f));
-}
-
+// mtof
 CK_DLL_SFUN( mtof_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = mtof(v);
 }
 
-double ftom(double f)
-{
-    return (f > 0 ? 17.3123405046 * log(.12231220585 * f) : -1500);
-}
-
+// ftom
 CK_DLL_SFUN( ftom_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = ftom(v);
 }
 
-
-float powtodb(float f)
-{
-    if (f <= 0) return (0);
-    else
-    {
-        float val = 100 + 10./LOGTEN * log(f);
-        return (val < 0 ? 0 : val);
-    }
-}
-
-
+// powtodb
 CK_DLL_SFUN( powtodb_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = powtodb(v);
 }
 
-
-float rmstodb(float f)
-{
-    if (f <= 0) return (0);
-    else
-    {
-        float val = 100 + 20./LOGTEN * log(f);
-        return (val < 0 ? 0 : val);
-    }
-}
-
+// rmstodb
 CK_DLL_SFUN( rmstodb_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = rmstodb(v);
 }
 
-
-float dbtopow(float f)
-{
-    if (f <= 0)
-        return(0);
-    else
-    {
-        if (f > 870)
-        f = 870;
-        return (exp((LOGTEN * 0.1) * (f-100.)));
-    }
-}
-
+// dbtopow
 CK_DLL_SFUN( dbtopow_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = dbtopow(v);
 }
 
-float dbtorms(float f)
-{
-    if (f <= 0)
-        return(0);
-    else
-    {
-        if (f > 485)
-        f = 485;
-    }
-    return (exp((LOGTEN * 0.05) * (f-100.)));
-}
-
+// dbtorms
 CK_DLL_SFUN( dbtorms_impl )
 {
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);

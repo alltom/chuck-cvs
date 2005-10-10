@@ -36,21 +36,35 @@
 
 #include <math.h>
 
-#ifdef __PLATFORM_WIN32__
-
 #if defined (__cplusplus) || defined(_cplusplus)  
 extern "C" {
 #endif 
+
+#ifdef __PLATFORM_WIN32__
 
     double round(double a);
     double trunc(double a);
     double remainder(long a, long b);
 
+#endif
+
+// mtof
+double mtof(double f);
+// ftom
+double ftom(double f);
+// powtodb
+float powtodb(float f);
+// rmstodb
+float rmstodb(float f);
+// dbtopow
+float dbtopow(float f);
+// dbtorms
+float dbtorms(float f);
+
 #if defined (__cplusplus) || defined(_cplusplus)  
 }
 #endif
 
-#endif
 
 
 #endif 
