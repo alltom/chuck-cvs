@@ -39,14 +39,34 @@
 #include <map>
 #include <string>
 
+using namespace std;
 
 // forward references
 class Chuck_Shell_Mode;
 class Chuck_Shell_UI;
 //struct Chuck_Shell_Request;
 //struct Chuck_Shell_Response;
-typedef std::string Chuck_Shell_Request;
-typedef std::string Chuck_Shell_Response;
+typedef string Chuck_Shell_Request;
+typedef string Chuck_Shell_Response;
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell_Network_VM
+// desc: controller class for facilitating interaction between a shell UI and a 
+//      shell mode.
+//-----------------------------------------------------------------------------
+struct Chuck_Shell_Network_VM
+{
+	std::string hostname;
+	t_CKUINT port;
+};
+
+struct Chuck_Shell_Shred
+{
+	Chuck_VM_Shred * shred;		//the local shred
+	std::string name;
+	std::vector< t_CKUINT > vms;//all VMs to which it is attached
+};
+
 
 
 //-----------------------------------------------------------------------------
@@ -79,19 +99,6 @@ private:
     Chuck_Compiler *compiler;
     t_CKBOOL initialized;
     
-};
-
-struct Chuck_Shell_Network_VM
-{
-	std::string hostname;
-	t_CKUINT port;
-};
-
-struct Chuck_Shell_Shred
-{
-	Chuck_VM_Shred * shred;		//the local shred
-	std::string name;
-	std::vector< t_CKUINT > vms;//all VMs to which it is attached
 };
 
 //-----------------------------------------------------------------------------

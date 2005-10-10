@@ -37,9 +37,7 @@
 #include <stdio.h>
 #include <errno.h>
 
-
-// escape char
-static const char CHUCK_SHELL_ESCAPE_CHAR = '#';
+using namespace std;
 
 // global shell pointer (lives in chuck_main)
 extern Chuck_Shell * g_shell;
@@ -47,34 +45,23 @@ extern Chuck_Shell * g_shell;
 // SIGPIPE mode
 extern t_CKUINT g_sigpipe_mode;
 
-// global network socket
-// extern ck_socket g_sock;
-
-// global OTF host
-// extern char g_host[256];
-
-// global OTF port
-// extern int g_port;
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: divide_string
 // desc: divides string into substrings, each separated by an arbitrarily long 
 //       sequence of any characters in edge.  
 //-----------------------------------------------------------------------------
-void divide_string( const std::string & stra, const std::string & edge, 
-                    std::vector< std::string > & substrings)
+void divide_string( const string & stra, const string & edge, 
+                    vector< string > & substrings)
 {
-    std::string str = stra + " ";
+    string str = stra + " ";
     int i = str.find_first_not_of( edge ), j = 0;
     for(;;)
     {
         j = str.find_first_of( edge, i );
-        if( j == std::string::npos )
+        if( j == string::npos )
             break;
-        substrings.push_back( std::string( str, i, j - i ) );
+        substrings.push_back( string( str, i, j - i ) );
         i = str.find_first_not_of( edge, j );
     }
 }
@@ -192,10 +179,10 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
     }
     this->ui = ui;
     
-    std::vector< Chuck_Shell_Network_VM * > * nvmvec = 
-        new std::vector< Chuck_Shell_Network_VM * > ();
-    std::vector< Chuck_Shell_Shred * > * shrvec = 
-        new std::vector< Chuck_Shell_Shred * > ();
+    vector< Chuck_Shell_Network_VM * > * nvmvec = 
+        new vector< Chuck_Shell_Network_VM * > ();
+    vector< Chuck_Shell_Shred * > * shrvec = 
+        new vector< Chuck_Shell_Shred * > ();
     
     // make new mode
     current_mode = new Chuck_Shell_Mode_Command();
@@ -245,22 +232,14 @@ void Chuck_Shell::run()
         // get command
         if( ui->next_command( command ) == TRUE )
         {
-            if( command[0] == CHUCK_SHELL_ESCAPE_CHAR )
-            {
-                // interpret the shell meta-command
-                result = "(meta-command)\n";
-            }
-            else
-            {
-                // result.clear();
-                result = "";
+			// result.clear();
+			result = "";
 
-                // execute the command
-                current_mode->execute(command,result);
+			// execute the command
+			current_mode->execute(command,result);
 
-                // command.clear();
-                command = "";
-            }
+			// command.clear();
+			command = "";
 
             // pass the result to the shell ui
             ui->next_result( result );
@@ -344,8 +323,8 @@ Chuck_Shell_Mode::~Chuck_Shell_Mode()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Shell_Mode::init( Chuck_VM * vm, 
                                  Chuck_Compiler * compiler, 
-                                 std::vector< Chuck_Shell_Network_VM * > * nvms, 
-                                 std::vector< Chuck_Shell_Shred * > * shreds,
+                                 vector< Chuck_Shell_Network_VM * > * nvms, 
+                                 vector< Chuck_Shell_Shred * > * shreds,
                                  Chuck_Shell * host_shell ) 
 {
     // TODO: input validation
@@ -403,7 +382,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                                             Chuck_Shell_Response & out )
 {
     // vector of string tokens
-    std::vector< std::string > vec;
+    vector< string > vec;
     // socket
     ck_socket sock = NULL;
     // hostname
@@ -428,7 +407,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     {
         Chuck_VM_Code * code = NULL;
         Chuck_Shell_Shred * shred = new Chuck_Shell_Shred;
-        std::vector< t_CKUINT > only_these_vms;
+        vector< t_CKUINT > only_these_vms;
         char buf[16];
         int i;
                 
@@ -491,7 +470,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                         (*vms)[j]->hostname + ":" + buf + "\n";
                     // snprintf( buf, 9, "%u", j );
                     sprintf( buf, "%u", j );
-                    out += std::string("*** add failed for VM ") + buf + 
+                    out += string("*** add failed for VM ") + buf + 
                             "***\n";
                     continue;
                 }
@@ -510,10 +489,10 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                     otf_ntoh( &msg );
                     if( !msg.param ) // error from server
                     {
-                        out += std::string((char *)msg.buffer) + "\n";
+                        out += string((char *)msg.buffer) + "\n";
                         // snprintf( buf, 9, "%u", j );
                         sprintf( buf, "%u", j );
-                        out += std::string("*** add failed for VM ") + buf + 
+                        out += string("*** add failed for VM ") + buf + 
                             "***\n";
                         continue;
                     }
@@ -526,7 +505,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
                         (*vms)[j]->hostname + ":" + buf + "\n";
                     // snprintf( buf, 9, "%u", j );
                     sprintf( buf, "%u", j );
-                    out += std::string("*** add failed for VM ") + buf + 
+                    out += string("*** add failed for VM ") + buf + 
                             "***\n";
                     continue;
                 }
@@ -545,7 +524,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
             // print success message
             // snprintf(buf,9,"%u",shreds->size()-1);
             sprintf( buf, "%u", shreds->size()-1 );
-            out += std::string( "shred " ) + buf + ": '"+vec[i]+"'\n";
+            out += string( "shred " ) + buf + ": '"+vec[i]+"'\n";
         }
     }
 
@@ -565,15 +544,15 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
             if( vec[i] == "local" || vec[i] == "default" )
                 vec[i] = "localhost:8888";
             int j = vec[i].find( ':' );
-            if( j == std::string::npos )
+            if( j == string::npos )
             {
                 net_vm->hostname = vec[i];
                 net_vm->port = 8888;
             }
             else
             {
-                net_vm->hostname = std::string( vec[i], 0, j );
-                std::string port = std::string( vec[i], j+1, vec[i].size());
+                net_vm->hostname = string( vec[i], 0, j );
+                string port = string( vec[i], j+1, vec[i].size());
                 net_vm->port = strtol( port.c_str(), NULL, 10 );
                 if( net_vm->port == 0 )
                 {
@@ -585,9 +564,9 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
             vms->push_back( net_vm );
             // snprintf( buf, 9, "%u", vms->size());
             sprintf( buf, "%u", vms->size() );
-            out += std::string("VM ") + buf + ": ";
+            out += string("VM ") + buf + ": ";
             // snprintf( buf, 9, "%u", net_vm->port );
-            sprintf( buf, "%u", vms->size() );
+            sprintf( buf, "%u", net_vm->port );
             out += "attached to " + net_vm->hostname + " on port " + buf + "\n";
         }
     }
@@ -598,14 +577,13 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
         for( int i = 1; i < vec.size(); i++ )
         {
             vm_num = strtol( vec[i].c_str(), NULL, 10 );
-            if( ( vm_num == 0 && errno == EINVAL ) || vm_num > vms->size() 
-                || (*vms)[vm_num] == NULL )
+            if( ( vm_num == 0 && errno == EINVAL ) || vm_num - 1 > vms->size() 
+                || (*vms)[vm_num - 1] == NULL )
             {
                 out += "invalid VM reference: " + vec[i] + "\n";
                 continue;
             }
-            vm_num +=1;
-            SAFE_DELETE( (*vms)[vm_num] );
+            SAFE_DELETE( (*vms)[vm_num - 1] );
             out += "VM " + vec[i] + " detached\n";
         }
     }
