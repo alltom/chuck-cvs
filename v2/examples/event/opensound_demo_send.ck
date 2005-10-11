@@ -6,11 +6,6 @@ OSC_Send xmit;
 // aim the transmitter at our local port 6449
 xmit.setHost ( "localhost", 6449 );
 
-// our notes
-[0, 2, -44, 4, 2, 7, 9, 0, -3, -36] @=> int notes[];
-10 => int nnote;
-0 => int idx;
-
 // infinite time loop
 while( true )
 {
@@ -20,12 +15,8 @@ while( true )
 
     // a message is kicked as soon as it is complete 
     // - type string is satisfied and bundles are closed
+    std.rand2f( .5, 2.0 ) => xmit.addFloat;
 
-    std.mtof( notes[idx] ) => xmit.addFloat;
-
-    // increment our index
-    (idx + 1) % nnote => idx;
-
-    // let note play
+    // advance time
     0.01::second => now;
 }
