@@ -31,7 +31,7 @@ while ( true )
         // getFloat fetches the expected float (as indicated by ",f")
         rate_addr.getFloat() => buf.play;
         // print
-        <<< "got:", buf.play() >>>;
+        <<< "got (via OSC):", buf.play() >>>;
         // set play pointer to beginning
         0 => buf.pos;
     }
