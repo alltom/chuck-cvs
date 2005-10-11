@@ -32,6 +32,7 @@
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "util_math.h"
+#include <math.h>
 
 
 // windows / visual c++
@@ -44,9 +45,8 @@
 //-----------------------------------------------------------------------------
 double round( double a )
 {
-    double off = a - (long)a;
-    if( off > .5 ) return (double)(long)a + 1.0;
-    return (double)(long)a;
+    if( a >= 0 ) return (double)(long)( a + .5 );
+    else return (double)(long)( a - .5 );
 }
 
 
@@ -79,7 +79,7 @@ double remainder( long a, long b )
 // lifted from  PD source
 // specifically x_acoustics.c
 // http://puredata.info/downloads
-
+#define LOGTWO 0.69314718055994528623
 #define LOGTEN 2.302585092994
 
 
@@ -91,7 +91,9 @@ double mtof( double f )
 {
     if( f <= -1500 ) return (0);
     else if( f > 1499 ) return (mtof(1499));
-    else return (8.17579891564 * exp(.0577622650 * f));
+    // else return (8.17579891564 * exp(.0577622650 * f));
+    // TODO: optimize
+    else return ( pow(2,(f-69)/12.0) * 440.0 );
 }
 
 
@@ -101,7 +103,9 @@ double mtof( double f )
 //-----------------------------------------------------------------------------
 double ftom( double f )
 {   
-    return (f > 0 ? 17.3123405046 * log(.12231220585 * f) : -1500);
+    // return (f > 0 ? 17.3123405046 * log(.12231220585 * f) : -1500);
+    // TODO: optimize
+    return (f > 0 ? (log(f/440.0) / LOGTWO) * 12.0 + 69 : -1500);
 }
 
 
