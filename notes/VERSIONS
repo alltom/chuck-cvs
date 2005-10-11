@@ -17,6 +17,7 @@
   - (changed) chuck --status now prints shreds sorted by id
     (previously it was the current shreduling order + blocked)
   - (fixed) improved OSC stability (phil)
+  - (fixed) OSC shreduling sanity check failed now resolved
   - (fixed) removed extra console output in STK Flute
   - (fixed) multiple delete/assertion failure on type rollback
   - (added) examples/midi/gomidi.ck

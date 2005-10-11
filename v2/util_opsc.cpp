@@ -1581,10 +1581,11 @@ OSC_Receiver::remove_address ( OSC_Address_Space *odd ) {
 
 void 
 OSC_Receiver::distribute_message ( OSCMesg * msg ) { 
-    for ( int i = 0 ; i < _address_num ; i++ ) { 
-        if ( _address_space[i]->try_queue_mesg ( msg ) ) {
-//            fprintf ( stderr, "broadcasting %x from %x\n", (uint)_address_space[i]->SELF, (uint)_address_space[i] );
-            ( (Chuck_Event *) _address_space[i]->SELF )->broadcast(); //if the event has any shreds queued, fire them off..
+    for( int i = 0 ; i < _address_num ; i++ ) { 
+        if( _address_space[i]->try_queue_mesg ( msg ) ) {
+            // fprintf ( stderr, "broadcasting %x from %x\n", (uint)_address_space[i]->SELF, (uint)_address_space[i] );
+            // if the event has any shreds queued, fire them off..
+            ( (Chuck_Event *) _address_space[i]->SELF )->queue_broadcast();
         }
     }
 }
