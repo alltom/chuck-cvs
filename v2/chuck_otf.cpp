@@ -433,7 +433,7 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
     ck_close( dest );
     
     // exit
-    exit( msg.param );
+    // exit( msg.param );
 
     return 1;
     
@@ -448,7 +448,7 @@ error:
         ck_close( dest );
     }
     
-    exit( 1 );
+    // exit( 1 );
 
     return 0;
 }
