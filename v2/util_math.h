@@ -42,24 +42,24 @@ extern "C" {
 
 #ifdef __PLATFORM_WIN32__
 
-    double round(double a);
-    double trunc(double a);
-    double remainder(long a, long b);
+    double round( double a );
+    double trunc( double a );
+    double remainder( long a, long b );
 
 #endif
 
 // mtof
-double mtof(double f);
+double mtof( double f );
 // ftom
-double ftom(double f);
+double ftom( double f );
 // powtodb
-float powtodb(float f);
+double powtodb( double f );
 // rmstodb
-float rmstodb(float f);
+double rmstodb( double f );
 // dbtopow
-float dbtopow(float f);
+double dbtopow( double f );
 // dbtorms
-float dbtorms(float f);
+double dbtorms( double f );
 
 #if defined (__cplusplus) || defined(_cplusplus)  
 }

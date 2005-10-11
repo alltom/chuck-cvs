@@ -87,10 +87,10 @@ double remainder( long a, long b )
 // name: mtof()
 // desc: midi to freq
 //-----------------------------------------------------------------------------
-double mtof(double f)
+double mtof( double f )
 {
-    if (f <= -1500) return(0);
-    else if (f > 1499) return(mtof(1499));
+    if( f <= -1500 ) return (0);
+    else if( f > 1499 ) return (mtof(1499));
     else return (8.17579891564 * exp(.0577622650 * f));
 }
 
@@ -99,7 +99,7 @@ double mtof(double f)
 // name: ftom()
 // desc: freq to midi
 //-----------------------------------------------------------------------------
-double ftom(double f)
+double ftom( double f )
 {   
     return (f > 0 ? 17.3123405046 * log(.12231220585 * f) : -1500);
 }
@@ -109,12 +109,12 @@ double ftom(double f)
 // name: powtodb()
 // desc: ...
 //-----------------------------------------------------------------------------
-float powtodb(float f)
+double powtodb( double f )
 {
-    if (f <= 0) return (0);
+    if( f <= 0 ) return (0);
     else
     {
-        float val = 100 + 10./LOGTEN * log(f);
+        double val = 100 + 10./LOGTEN * log(f);
         return (val < 0 ? 0 : val);
     }
 }
@@ -124,12 +124,12 @@ float powtodb(float f)
 // name: rmstodb()
 // desc: ...
 //-----------------------------------------------------------------------------
-float rmstodb(float f)
+double rmstodb( double f )
 {
-    if (f <= 0) return (0);
+    if( f <= 0 ) return (0);
     else
     {
-        float val = 100 + 20./LOGTEN * log(f);
+        double val = 100 + 20./LOGTEN * log(f);
         return (val < 0 ? 0 : val);
     }
 }
@@ -139,14 +139,13 @@ float rmstodb(float f)
 // name: dbtopow()
 // desc: ...
 //-----------------------------------------------------------------------------
-float dbtopow(float f)
+double dbtopow( double f )
 {
-    if (f <= 0)
-        return(0);
+    if( f <= 0 )
+        return (0);
     else
     {
-        if (f > 870)
-        f = 870;
+        if( f > 870 ) f = 870;
         return (exp((LOGTEN * 0.1) * (f-100.)));
     }
 }
@@ -156,14 +155,13 @@ float dbtopow(float f)
 // name: dbtorms()
 // desc: ...
 //-----------------------------------------------------------------------------
-float dbtorms(float f)
+double dbtorms( double f )
 {
-    if (f <= 0)
-        return(0);
+    if( f <= 0 )
+        return (0);
     else
     {
-        if (f > 485)
-        f = 485;
+        if( f > 485 ) f = 485;
+        return (exp((LOGTEN * 0.05) * (f-100.)));
     }
-    return (exp((LOGTEN * 0.05) * (f-100.)));
 }
