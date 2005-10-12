@@ -548,6 +548,7 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
 
     // the start index
     t_CKUINT start_index = emit->next_index();
+    t_CKUINT cont_index = 0;
     // mark the stack of continue
     emit->code->stack_cont.push_back( NULL );
     // mark the stack of break
@@ -588,6 +589,9 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
     ret = emit_engine_emit_stmt( emit, stmt->body );
     if( !ret )
         return FALSE;
+        
+    // continue here
+    cont_index = emit->next_index();
 
     // emit the action
     if( stmt->c3 )
@@ -621,7 +625,7 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
     // stack of continue
     while( emit->code->stack_cont.size() && emit->code->stack_cont.back() )
     {
-        emit->code->stack_cont.back()->set( start_index );
+        emit->code->stack_cont.back()->set( cont_index );
         emit->code->stack_cont.pop_back();
     }
 

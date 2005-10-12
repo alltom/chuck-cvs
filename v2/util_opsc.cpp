@@ -38,6 +38,7 @@
 #include "util_thread.h"
 
 #include "chuck_errmsg.h"
+#include "chuck_vm.h"
 
 // FROM PLATFORM.H -UDP TRANSMITTER / RECEIVER 
 
@@ -1265,11 +1266,18 @@ OSC_Receiver::~OSC_Receiver() {
     delete _in;
 }
 
-THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data ) { 
+THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data )
+{
     OSC_Receiver * oscar = (OSC_Receiver * ) data;
-    do { 
+
+    // priority boost
+    if( Chuck_VM::our_priority != 0x7fffffff )
+        Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
+
+    do {
         oscar->recv_mesg();
-    } while ( true );
+        usleep( 10 );
+    }while( true );
 
     return (THREAD_RETURN)0;
 }

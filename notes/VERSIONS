@@ -16,6 +16,7 @@
   - (changed) STK Shakers.freq now expect Hz instead of MIDI number
   - (changed) chuck --status now prints shreds sorted by id
     (previously it was the current shreduling order + blocked)
+  - (fixed) incorrect 'continue' behavior in for loops
   - (fixed) improved OSC stability (phil)
   - (fixed) OSC shreduling sanity check failed now resolved
   - (fixed) math.round for negative numbers (win32)
@@ -24,9 +25,10 @@
   - (fixed) multiple delete/assertion failure on type rollback
   - (added) examples/midi/gomidi.ck
   - (moved) examples/event/polyfony*.ck to examples/midi/
-  - (added) basic/rec-auto.ck
+  - (added) examples/basic/rec-auto.ck
   - (added) examples/sitar.ck
   - (fixed) examples/stk/*-o-matic.ck now uses array
+  - (changed) examples/event/opensound_demo_*.ck simplified reformatted
 
 
 ---
