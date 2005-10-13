@@ -48,6 +48,10 @@ using namespace std;
   #include <pthread.h>
 #endif
 
+// function to close open audio and midi file handles
+extern "C" void all_detach();
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -867,6 +871,9 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     else if( msg->type == MSG_KILL )
     {
         EM_error3( "[chuck](VM): KILL received...." );
+        // close file handles and clean up
+        all_detach();
+        // TODO: free more memory?
         exit( 1 );
     }
     else if( msg->type == MSG_STATUS )
