@@ -2027,7 +2027,8 @@ OSC_Address_Space::queue_mesg ( OSCMesg* m )
                 _vals[i].s = (char *) realloc ( _vals[i].s, clen * sizeof(char) );
                 memcpy ( _vals[i].s, data, clen ); //make a copy of the data...
                 //fprintf(stderr, "add string |%s| ( %d ) \n", _vals[i].s, clen  );
-                data += clen + 4 - clen % 4;
+				data += (((clen-1) >> 2) + 1) << 2;
+                //data += clen + 4 - clen % 4;
             break;
             case 'b':
                 // blobs
