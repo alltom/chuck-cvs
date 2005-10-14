@@ -91,7 +91,7 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func = make_new_mfun( "int", "closeBundle", osc_send_closeBundle );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "kick", osc_send_holdMesg );
+    func = make_new_mfun( "int", "hold", osc_send_holdMesg );
     func->add_arg( "int", "on" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -148,6 +148,10 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     if( osc_recv_offset_data == CK_INVALID_OFFSET ) goto error;
     
     func = make_new_mfun( "int", "port", osc_recv_port );
+    func->add_arg( "int" , "port" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "listen", osc_recv_listen_port );
     func->add_arg( "int" , "port" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -412,6 +416,28 @@ CK_DLL_MFUN( osc_recv_port ) {
     recv->bind_to_port( (int)GET_NEXT_INT(ARGS) );
 }
 
+// need to add a listen function in Receiver which opens up a recv loop on another thread.
+// address then subscribe to a receiver to take in events. 
+
+//----------------------------------------------
+// name :  osc_recv_listen  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_listen ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    recv->listen();
+}
+
+//----------------------------------------------
+// name :  osc_recv_listen_port  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_listen_port ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    recv->bind_to_port( (int)GET_NEXT_INT(ARGS) );
+    recv->listen();
+}
+
 //----------------------------------------------
 // name :  osc_recv_add_listener  
 // desc : MFUN function 
@@ -488,14 +514,3 @@ CK_DLL_MFUN( osc_recv_new_address_type ) {
 }
 
 
-// need to add a listen function in Receiver which opens up a recv loop on another thread.
-// address then subscribe to a receiver to take in events. 
-
-//----------------------------------------------
-// name :  osc_recv_listen  
-// desc : MFUN function 
-//-----------------------------------------------
-CK_DLL_MFUN( osc_recv_listen ) { 
-    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
-    recv->listen();
-}

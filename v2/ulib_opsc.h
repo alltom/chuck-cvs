@@ -72,6 +72,7 @@ CK_DLL_MFUN ( osc_recv_new_address_type );
 CK_DLL_MFUN ( osc_recv_add_address );
 CK_DLL_MFUN ( osc_recv_remove_address );
 CK_DLL_MFUN ( osc_recv_listen );
+CK_DLL_MFUN ( osc_recv_listen_port );
 
 #endif
 

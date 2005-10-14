@@ -1190,14 +1190,15 @@ OSC_Transmitter::startMessage( char * spec ) {
 void
 OSC_Transmitter::startMessage( char * address, char* args ) { 
 //    OSC_writeAddressAndTypes( &_osc, address, args );
-
+	char addrfix[512];
 	int addrlen = strlen( address );
 	int mx = strlen(address) + strlen(args) + 1; //either we need to add a comma to args,
 	// or it's got junk in it. 
-	char * addrfix = (char*) malloc( mx * sizeof( char ) );
+	//char addrfix[] = new char[mx]; //(char*) malloc( mx * sizeof( char ) );
 	strcpy ( addrfix, address );
-	addrfix[addrlen] = ',';
-	char * argptr = addrfix + (addrlen + 1);
+	addrfix[addrlen] = '\0';
+	addrfix[addrlen+1] = ',';
+	char * argptr = addrfix + (addrlen + 2);
 	char * p_args = args;
 	while ( *p_args != '\0' ) { 
 		if ( *p_args != ',' && *p_args != ' ' ) {
@@ -1207,9 +1208,10 @@ OSC_Transmitter::startMessage( char * address, char* args ) {
 		p_args++;
 	}	
 	*argptr = '\0';
-	
-    OSC_writeAddressAndTypes( &_osc, addrfix, addrfix + addrlen);  //expects the ',' before spec tag.
-	free ( addrfix );
+
+    OSC_writeAddressAndTypes( &_osc, addrfix, addrfix + addrlen + 1);  //expects the ',' before spec tag.
+//	delete[] addrfix;
+	//free ( (void*)addrfix );
     tryMessage();
 }
 
@@ -1338,6 +1340,12 @@ THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data )
     }while( true );
 
     return (THREAD_RETURN)0;
+}
+
+bool
+OSC_Receiver::listen( int port ) { 
+	bind_to_port ( port );
+	return listen();
 }
 
 bool
@@ -1565,7 +1573,6 @@ void
 OSC_Receiver::handle_mesg( char* buf, int len ) { 
 
     //this is called sequentially by the receiving thread. 
-
    if ( buf[0] == '#' ) { handle_bundle( buf, len ); return; }
   
    OSCMesg * mrp = write();

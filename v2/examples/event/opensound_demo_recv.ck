@@ -16,14 +16,15 @@ orec.listen();
 
 
 // create an address in the receiver, store in new variable
-orec.event("/sndbuf/buf/rate","f") @=> OSC_Addr rate_addr; 
-
+orec.event("/sndbuf/buf/rate, f") @=> OSC_Addr rate_addr; 
+<<<"starting">>>;
 // infinite event loop
 while ( true )
 {
+	<<<"ev-loop">>>;
     // wait for event to arrive
     rate_addr => now; //wait for Events to arrive.
-
+	<<<"received">>>;
     // grab the next message from the queue. 
     while ( rate_addr.nextMesg() != 0 )
     { 

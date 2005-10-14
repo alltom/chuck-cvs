@@ -446,6 +446,36 @@ struct OSCMesg {
 struct XMutex;
 struct XThread;
 
+/*
+class OSC_Port_Manager { 
+
+private:
+	static OSC_Port_Manager* _inst;
+	map < int, OSC_Port_Listener* > _ports;
+
+public:
+
+	static OSC_Port_Manager* instance();
+	static init();
+	bool subscribe( OSC_Receiver * recv, int port );
+	bool unsubscribe ( OSC_Receiver * recv, int port );
+};
+
+
+class OSC_Port_Listener { 
+private:
+    UDP_Receiver*  m_in;
+    char           m_inbuf[OSCINBUFSIZE];
+    int            m_inbufsize;
+	vector < OSC_Receiver * > m_subscribers;
+public:
+	void add(	OSC_Receiver * );
+	void drop ( OSC_Receiver * );
+	void listen();
+	void bind_to_port();
+};
+*/
+
 class OSC_Receiver { 
     
 protected:
@@ -483,8 +513,8 @@ public:
     
     void recv_mesg();
 
+	bool listen( int port );
     bool listen();
-
     void parse();
     void handle_mesg(char *, int len);
     void handle_bundle(char *, int len);
