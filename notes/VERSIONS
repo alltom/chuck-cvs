@@ -16,6 +16,7 @@
   - (changed) STK Shakers.freq now expect Hz instead of MIDI number
   - (changed) chuck --status now prints shreds sorted by id
     (previously it was the current shreduling order + blocked)
+  - (changed) address/type string in OSC: comma now optional (phil)
   - (fixed) incorrect 'continue' behavior in for loops
   - (fixed) improved OSC stability (phil)
   - (fixed) OSC shreduling sanity check failed now resolved
