@@ -68,6 +68,10 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func->add_arg( "string", "args" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "int", "startMesg", osc_send_startMesg_spec );
+    func->add_arg( "string", "spec" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "int", "addInt", osc_send_addInt );
     func->add_arg( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -162,7 +166,21 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func->add_arg( "string" , "spec" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    type_engine_import_class_end( env );
+    func = make_new_mfun( "OSC_Addr", "event", osc_recv_new_address_type );
+    func->add_arg( "string" , "address" );
+    func->add_arg( "string" , "type" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "OSC_Addr", "address", osc_recv_new_address );
+    func->add_arg( "string" , "spec" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "OSC_Addr", "address", osc_recv_new_address_type );
+    func->add_arg( "string" , "address" );
+    func->add_arg( "string" , "type" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+	type_engine_import_class_end( env );
     return TRUE;
 
 error:
@@ -207,6 +225,17 @@ CK_DLL_MFUN( osc_send_setHost ) {
 // desc : MFUN function 
 //-----------------------------------------------
 CK_DLL_MFUN( osc_send_startMesg ) { 
+    OSC_Transmitter* xmit = (OSC_Transmitter *)OBJ_MEMBER_INT(SELF, osc_send_offset_data);
+    Chuck_String* address = GET_NEXT_STRING(ARGS);
+    Chuck_String* args = GET_NEXT_STRING(ARGS);
+    xmit->startMessage( (char*) address->str.c_str(), (char*) args->str.c_str() );
+}
+
+//----------------------------------------------
+// name :  osc_send_startMesg 
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_send_startMesg_spec ) { 
     OSC_Transmitter* xmit = (OSC_Transmitter *)OBJ_MEMBER_INT(SELF, osc_send_offset_data);
     Chuck_String* address = GET_NEXT_STRING(ARGS);
     Chuck_String* args = GET_NEXT_STRING(ARGS);
@@ -430,6 +459,33 @@ CK_DLL_MFUN( osc_recv_new_address ) {
     RETURN->v_object = new_event_obj;
 }
 
+
+
+//----------------------------------------------
+// name :  osc_recv_new_address  
+// desc : MFUN function 
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_new_address_type ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+    Chuck_String* addr_obj = (Chuck_String*) GET_NEXT_STRING(ARGS); //listener object class...
+    Chuck_String* type_obj = (Chuck_String*) GET_NEXT_STRING(ARGS); //listener object class...
+
+    OSC_Address_Space* new_addr_obj = recv->new_event ( (char*)addr_obj->str.c_str(), (char*)type_obj->str.c_str() );
+
+    /* wolf in sheep's clothing
+    initialize_object( new_addr_obj , osc_addr_type_ptr ); //initialize in vm
+    new_addr_obj->SELF = new_addr_obj;
+    OBJ_MEMBER_INT( new_addr_obj, osc_address_offset_data ) = (t_CKINT)new_addr_obj;
+    */
+
+    // more correct...?
+    Chuck_Event* new_event_obj = new Chuck_Event();
+    initialize_object( new_event_obj, osc_addr_type_ptr );
+    new_addr_obj->SELF = new_event_obj;
+    OBJ_MEMBER_INT( new_event_obj, osc_address_offset_data ) = (t_CKINT)new_addr_obj;
+
+    RETURN->v_object = new_event_obj;
+}
 
 
 // need to add a listen function in Receiver which opens up a recv loop on another thread.

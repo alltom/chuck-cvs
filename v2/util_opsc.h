@@ -411,6 +411,7 @@ public:
     void openBundle( OSCTimeTag t);
     void closeBundle();
     
+    void startMessage( char * spec );
     void startMessage( char * address, char * args );
     void addInt( int i );
     void addFloat( float f );
@@ -503,6 +504,7 @@ public:
     void add_address ( OSC_Address_Space * o );
     void remove_address ( OSC_Address_Space * o ); 
     OSC_Address_Space * new_event ( char * spec );
+    OSC_Address_Space * new_event ( char * addr, char * type );
     void distribute_message( OSCMesg * msg);
 };
 
@@ -555,6 +557,7 @@ protected:
     void resizeData(int n);
     void resizeQueue(int n);
     void parseSpec();
+	void scanSpec();
 
 public:
 
@@ -562,11 +565,13 @@ public:
     Chuck_String p_str;
     OSC_Address_Space();
     OSC_Address_Space( char * spec );
+    OSC_Address_Space( char * addr, char * type );
     ~OSC_Address_Space();
 
     // initialization
     void   init();
     void   setSpec(char *c );
+    void   setSpec(char *addr, char * type );
     void   setReceiver( OSC_Receiver * recv );
 
     //distribution

@@ -16,8 +16,7 @@ orec.listen();
 
 
 // create an address in the receiver, store in new variable
-orec.event("/sndbuf/buf/rate,f") @=> OSC_Addr rate_addr; 
-
+orec.event("/sndbuf/buf/rate","f") @=> OSC_Addr rate_addr; 
 
 // infinite event loop
 while ( true )

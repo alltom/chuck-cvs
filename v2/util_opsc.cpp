@@ -1178,8 +1178,38 @@ OSC_Transmitter::addMessage( char *address, char * args, ...) {
 }
 
 void
+OSC_Transmitter::startMessage( char * spec ) { 
+	char * comma = strchr( spec, ',');
+	char * space = strchr ( spec, ' ');
+	int coff = ( comma == NULL ) ? strlen(spec) : comma - spec; 
+	int spoff = ( space == NULL ) ? strlen(spec) : space - spec; 
+	int off = min ( coff, spoff );
+	startMessage( spec, spec + off );
+}
+
+void
 OSC_Transmitter::startMessage( char * address, char* args ) { 
-    OSC_writeAddressAndTypes( &_osc, address, args );
+//    OSC_writeAddressAndTypes( &_osc, address, args );
+
+	int addrlen = strlen( address );
+	int mx = strlen(address) + strlen(args) + 1; //either we need to add a comma to args,
+	// or it's got junk in it. 
+	char * addrfix = (char*) malloc( mx * sizeof( char ) );
+	strcpy ( addrfix, address );
+	addrfix[addrlen] = ',';
+	char * argptr = addrfix + (addrlen + 1);
+	char * p_args = args;
+	while ( *p_args != '\0' ) { 
+		if ( *p_args != ',' && *p_args != ' ' ) {
+			*argptr = *p_args; 
+			argptr++;
+		}
+		p_args++;
+	}	
+	*argptr = '\0';
+	
+    OSC_writeAddressAndTypes( &_osc, addrfix, addrfix + addrlen);  //expects the ',' before spec tag.
+	free ( addrfix );
     tryMessage();
 }
 
@@ -1588,6 +1618,14 @@ OSC_Receiver::new_event ( char * spec) {
     return event;
 }
 
+OSC_Address_Space * 
+OSC_Receiver::new_event ( char * addr, char * type) { 
+    OSC_Address_Space * event = new OSC_Address_Space ( addr, type );
+    add_address ( event );
+    return event;
+}
+
+
 void
 OSC_Receiver::add_address ( OSC_Address_Space * src ) { 
     if ( _address_num == _address_size ) { 
@@ -1644,9 +1682,15 @@ OSC_Address_Space::OSC_Address_Space() {
     setSpec( "/undefined/default,i" );
 }
 
+
 OSC_Address_Space::OSC_Address_Space( char * spec ) { 
     init();
     setSpec( spec );
+}
+
+OSC_Address_Space::OSC_Address_Space( char * addr, char * types) { 
+    init();
+    setSpec( addr, types );
 }
 
 void
@@ -1670,13 +1714,52 @@ OSC_Address_Space::setReceiver(OSC_Receiver * recv) {
     _receiver = recv;
 }
 
+void
+OSC_Address_Space::setSpec( char *addr, char * types ) { 
+	strncpy ( _spec, addr, 512 );
+	strncat ( _spec, "," , 512);
+	strncat ( _spec, types, 512 );
+	scanSpec();
+    _needparse = true; 
+    parseSpec(); 
+}
+
 void   
 OSC_Address_Space::setSpec( char *c ) { 
-    strncpy ( _spec, c, 512); 
+	strncpy ( _spec, c, 512); 
+	scanSpec();
     _needparse = true; 
     parseSpec(); 
 }
  
+void
+OSC_Address_Space::scanSpec() { //this allows for sloppy-ish definitions in type string
+	//assumes that a potential spec is already in _spec;
+	char * pread;
+	char * pwrite;
+	pread = pwrite = (char*)_spec;
+	bool in_type = false;
+	while ( *pread != '\0' ) { 
+		if ( *pread == ',' || *pread == ' ' ) { 
+			if ( !in_type ) {
+				in_type = true;
+				*pwrite = ',';
+				pwrite++;
+			} //otherwise, we ignore
+		}
+		else { 
+			if ( pwrite != pread ) { *pwrite = *pread; }
+			pwrite++;
+		}
+		pread++;
+	}
+	if ( !in_type ) {
+		//no type args found, add a comma to indicate a zero-arg string. 
+		*(pwrite++) = ',';
+	}
+	*pwrite = '\0'; //if pread terminates, so does pwrite. 
+}
+
 void
 OSC_Address_Space::parseSpec() { 
 

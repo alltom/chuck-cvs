@@ -11,7 +11,7 @@ while( true )
 {
     // start the message...
     // the type string ',f' expects a single float argument
-    xmit.startMesg( "/sndbuf/buf/rate", ",f" );
+    xmit.startMesg( "/sndbuf/buf/rate", "f" );
 
     // a message is kicked as soon as it is complete 
     // - type string is satisfied and bundles are closed
