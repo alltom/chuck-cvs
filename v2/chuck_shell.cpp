@@ -104,8 +104,6 @@ void * shell_cb( void * p )
 //-----------------------------------------------------------------------------
 Chuck_Shell::Chuck_Shell()
 {
-    vm = NULL;
-    compiler = NULL;
     current_mode = NULL;
     ui = NULL;
     initialized = FALSE;
@@ -121,16 +119,14 @@ Chuck_Shell::Chuck_Shell()
 Chuck_Shell::~Chuck_Shell()
 {
     // iterate through map, delete modes?
-    
-    // delete ui?
+  	//iterator i = modes
+  
+    // delete ui
     SAFE_DELETE( ui );
 
     // flag
     initialized = FALSE;
 
-    // zero out
-    vm = NULL;
-    compiler = NULL;
 }
 
 
@@ -155,22 +151,6 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
         return TRUE;
     }
     
-    // vm
-    if( vm == NULL )
-    {
-        fprintf( stderr, "[chuck](via shell): NULL VM passed to Chuck_Shell::init\n" );
-        return FALSE;
-    }
-    this->vm = vm;
-
-    // compiler
-    if(compiler == NULL)
-    {
-        fprintf( stderr, "[chuck](via shell): NULL compiler passed to Chuck_Shell::init\n" );
-        return FALSE;
-    }
-    this->compiler = compiler;
-
     // ui
     if( ui == NULL )
     {
@@ -178,19 +158,26 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
         return FALSE;
     }
     this->ui = ui;
-    
-    vector< Chuck_Shell_Network_VM * > * nvmvec = 
-        new vector< Chuck_Shell_Network_VM * > ();
-    vector< Chuck_Shell_Shred * > * shrvec = 
-        new vector< Chuck_Shell_Shred * > ();
+
+    Chuck_Shell_Network_VM * cspv = new Chuck_Shell_Network_VM();
+    if( !cspv->init( "localhost", 8888 ) )
+    {
+        fprintf( stderr, "[chuck](via shell): error initializing process VM\n" );
+        SAFE_DELETE( cspv );
+		return FALSE;
+    }
+
+    vms = vector< Chuck_Shell_VM * > ();
+    vms.push_back( cspv );
     
     // make new mode
     current_mode = new Chuck_Shell_Mode_Command();
     // initialize it
-    if( !current_mode->init( vm, compiler, nvmvec, shrvec, this ) )
+    if( !current_mode->init( &vms, this ) )
     {
         fprintf( stderr, "[chuck](via shell): unable to initialize shell command mode\n");
-        //delete current_mode;
+        SAFE_DELETE( vms[0] );
+        SAFE_DELETE( current_mode );
         return FALSE;
     }
 
@@ -255,7 +242,142 @@ void Chuck_Shell::run()
 }
 
 
+//-----------------------------------------------------------------------------
+// name: Chuck_Shell_VM()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_VM::Chuck_Shell_VM()
+{
+}
 
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Shell_VM()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_VM::~Chuck_Shell_VM()
+{
+}
+
+//-----------------------------------------------------------------------------
+// name: init()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_VM::init()
+{
+}
+
+//-----------------------------------------------------------------------------
+// name: Chuck_Shell_Network_VM()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_Network_VM::Chuck_Shell_Network_VM()
+{
+}
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Shell_Network_VM()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_Network_VM::~Chuck_Shell_Network_VM()
+{
+}
+
+//-----------------------------------------------------------------------------
+// name: init()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::init( const string & hostname, t_CKINT port )
+{
+	this->hostname = hostname;
+	this->port = port;
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: add_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::add_shred( const string & file, string & out )
+{
+	long int i = 0;
+	char str[1024];
+	strncpy( str, file.c_str(), 1024 );
+	char * argv[] = { "+", str };
+	otf_send_cmd( 2, argv, i, hostname.c_str(), port );
+	/**** it would awesome if arg2 of otf_send_cmd was const char ** ****/
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: remove_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::remove_shred( t_CKUINT id, string & out )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: status()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::status( string & out )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: Chuck_Shell_Process_VM()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_Process_VM::Chuck_Shell_Process_VM()
+{
+}
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Shell_Process_VM()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_Process_VM::~Chuck_Shell_Process_VM()
+{
+}
+
+//-----------------------------------------------------------------------------
+// name: init()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Process_VM::init( Chuck_VM * vm, 
+									   Chuck_Compiler * compiler )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: add_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Process_VM::add_shred( const string & file, string & out )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: remove_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Process_VM::remove_shred( t_CKUINT id, string & out )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: status()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Process_VM::status( string & out )
+{
+	return TRUE;
+}
 
 //-----------------------------------------------------------------------------
 // name: Chuck_Shell_UI()
@@ -298,8 +420,9 @@ t_CKBOOL Chuck_Shell_UI::init()
 //-----------------------------------------------------------------------------
 Chuck_Shell_Mode::Chuck_Shell_Mode()
 {
-    vm = NULL;
-    compiler = NULL;
+    vms = NULL;
+    current_vm = NULL;
+    host_shell = NULL;
     initialized = FALSE;
 }
 
@@ -321,36 +444,16 @@ Chuck_Shell_Mode::~Chuck_Shell_Mode()
 // name: init
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Mode::init( Chuck_VM * vm, 
-                                 Chuck_Compiler * compiler, 
-                                 vector< Chuck_Shell_Network_VM * > * nvms, 
-                                 vector< Chuck_Shell_Shred * > * shreds,
+t_CKBOOL Chuck_Shell_Mode::init( vector< Chuck_Shell_VM * > * vms, 
                                  Chuck_Shell * host_shell ) 
 {
     // TODO: input validation
-    this->vm = vm;
-    this->compiler = compiler;
     this->host_shell = host_shell;
-    this->vms = nvms;
-    this->shreds = shreds;
+    this->vms = vms;
+    this->current_vm = (*vms)[0];
     initialized = TRUE;
     return TRUE;
 }
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: add_VM
-// desc: ...
-//-----------------------------------------------------------------------------
-
-
-//-----------------------------------------------------------------------------
-// name: remove_VM
-// desc: ...
-//-----------------------------------------------------------------------------
-
 
 //-----------------------------------------------------------------------------
 // name: Chuck_Shell_Mode_Command
@@ -381,15 +484,15 @@ Chuck_Shell_Mode_Command::~Chuck_Shell_Mode_Command()
 t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in, 
                                             Chuck_Shell_Response & out )
 {
+	if( !initialized )
+	{
+		//fprintf();
+		return FALSE;
+	}
+	
     // vector of string tokens
     vector< string > vec;
-    // socket
-    ck_socket sock = NULL;
-    // hostname
-    string hostname;
-    // port
-    int port = 0;
-    
+        
     // clear the response
     out = "";
 
@@ -400,196 +503,124 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     {
         out = "";
         return TRUE;
+    }    
+    
+    if( vec[0] == "vm" )
+    {
+    	vec.erase( vec.begin() );
+    	
+    	if( vec[0] == "attach" || vec[1] == "@" )
+    	{
+    		vec.erase( vec.begin() );
+    		vm_attach( vec, out );
+    	}
+    	
+    	else if( vec[0] == "add" || vec[1] == "+" )
+    	{
+    		vec.erase( vec.begin() );
+    		vm_add( vec, out );
+    	}
+    	
+    	else if( vec[0] == "remove" || vec[1] == "-" )
+    	{
+    		vec.erase( vec.begin() );
+    		vm_remove( vec, out );
+    	}
+    	
+    	else if( vec[0] == "list" )
+    	{
+    		vec.erase( vec.begin() );
+    		vm_list( vec, out );
+    	}
+    	
+    	else if( vec[0] == "@+" )
+    	{
+    		vec.erase( vec.begin() );
+    		vm_attach_add( vec, out );
+    	}
+    	else
+    		out = "shell: unknown command 'vm " + vec[0] + "'\n";
     }
     
-    // first find out what the command is
-    if( vec[0] == "add" || vec[0] == "+" )
+    else if( vec[0] == "vms" )
     {
-        Chuck_VM_Code * code = NULL;
-        Chuck_Shell_Shred * shred = new Chuck_Shell_Shred;
-        vector< t_CKUINT > only_these_vms;
-        char buf[16];
-        int i;
-                
-        // first gather command line options
-        for( i = 1; i < vec.size(); i++ )
-        {
-            if( vec[i][0] == '-' )
-            {
-                if( vec[i] == "-v" )
-                {
-            
-                }
-            }
-            else
-                break;
-        }
-
-        for( ; i < vec.size(); i++ )
-        {
-            // first need to stat the file and make sure it exists/is readable
-            
-            // compile the file for local usage
-            if( !compiler->go( vec[i], NULL ) )
-            {
-                out += "*** error: cannot compile '"+vec[i]+"' ***\n";
-                continue;
-            }
-            
-            // add to local VM
-            code = compiler->output();
-            code->name += vec[i];
-            shred->shred = vm->spork( code, NULL );
-            shred->vms.push_back( 0 );
-            
-            // add to network VMs
-            Net_Msg msg;
-            g_sigpipe_mode = 1;
-            for( int j = 0; j < vms->size(); j++ )
-            {
-                // make sure not NULL
-                if( (*vms)[j] == NULL )
-                    continue;
-
-                // snprintf( g_host, 255, (*vms)[j]->hostname.c_str() );
-
-                // temporary variables to hold
-                hostname = (*vms)[j]->hostname;
-                port = (*vms)[j]->port;
-
-                // the message type
-                msg.type=MSG_ADD;
-                msg.param = 1;
-
-                // connect to remote host
-                if( !(sock = otf_send_connect( hostname.c_str(), port )) )
-                {
-                    // snprintf( buf, 9, "%u", (*vms)[j]->port );
-                    sprintf( buf, "%u", (*vms)[j]->port );
-                    out += "unable to connect to " + 
-                        (*vms)[j]->hostname + ":" + buf + "\n";
-                    // snprintf( buf, 9, "%u", j );
-                    sprintf( buf, "%u", j );
-                    out += string("*** add failed for VM ") + buf + 
-                            "***\n";
-                    continue;
-                }
-                otf_send_file( vec[i].c_str(), msg, "add", sock );
-                
-                // end transaction
-                msg.type = MSG_DONE;
-                otf_hton( &msg );
-                ck_send( sock, (char *)&msg, sizeof(msg) );
-            
-                // set timeout
-                ck_recv_timeout( sock, 0, 2000000 );
-                // get reply from server
-                if( ck_recv( sock, (char *)&msg, sizeof(msg) ) )
-                {
-                    otf_ntoh( &msg );
-                    if( !msg.param ) // error from server
-                    {
-                        out += string((char *)msg.buffer) + "\n";
-                        // snprintf( buf, 9, "%u", j );
-                        sprintf( buf, "%u", j );
-                        out += string("*** add failed for VM ") + buf + 
-                            "***\n";
-                        continue;
-                    }
-                }
-                else //timeout
-                {
-                    // snprintf( buf, 9, "%u", (*vms)[j]->port );
-                    sprintf( buf, "%u", j );
-                    out += "remote operation timed out for " + 
-                        (*vms)[j]->hostname + ":" + buf + "\n";
-                    // snprintf( buf, 9, "%u", j );
-                    sprintf( buf, "%u", j );
-                    out += string("*** add failed for VM ") + buf + 
-                            "***\n";
-                    continue;
-                }
-                
-                shred->vms.push_back( j );
-                
-                // close the sock
-                ck_close( sock );
-            
-            }
-            
-            // add to shred list
-            shred->name = vec[i];
-            shreds->push_back( shred );
-            
-            // print success message
-            // snprintf(buf,9,"%u",shreds->size()-1);
-            sprintf( buf, "%u", shreds->size()-1 );
-            out += string( "shred " ) + buf + ": '"+vec[i]+"'\n";
-        }
+    	vec.erase( vec.begin() );
+    	vm_list( vec, out );	
     }
-
-    else if( vec[0] == "attach" )
+    
+    else if( vec[0] == "add" )
     {
-        //in theory this should send some sort of non-state changing command
-        //to the VM in question to ensure that it exists
-        
-        char buf[16];
-        
-        if( vec.size() < 2 )
-            vec.push_back( "localhost:8888" );
-
-        for( int i = 1; i < vec.size(); i++ )
-        {
-            Chuck_Shell_Network_VM * net_vm = new Chuck_Shell_Network_VM;
-            if( vec[i] == "local" || vec[i] == "default" )
-                vec[i] = "localhost:8888";
-            int j = vec[i].find( ':' );
-            if( j == string::npos )
-            {
-                net_vm->hostname = vec[i];
-                net_vm->port = 8888;
-            }
-            else
-            {
-                net_vm->hostname = string( vec[i], 0, j );
-                string port = string( vec[i], j+1, vec[i].size());
-                net_vm->port = strtol( port.c_str(), NULL, 10 );
-                if( net_vm->port == 0 )
-                {
-                    out += "*** error: invalid port "+port+" ***\n";
-                    continue;
-                }
-            }
-            
-            vms->push_back( net_vm );
-            // snprintf( buf, 9, "%u", vms->size());
-            sprintf( buf, "%u", vms->size() );
-            out += string("VM ") + buf + ": ";
-            // snprintf( buf, 9, "%u", net_vm->port );
-            sprintf( buf, "%u", net_vm->port );
-            out += "attached to " + net_vm->hostname + " on port " + buf + "\n";
-        }
+    	vec.erase( vec.begin() );
+    	add( vec, out );
     }
-        
-    else if( vec[0] == "detach" )
-    {
-        long vm_num = 0;
-        for( int i = 1; i < vec.size(); i++ )
-        {
-            vm_num = strtol( vec[i].c_str(), NULL, 10 );
-            if( ( vm_num == 0 && errno == EINVAL ) || vm_num - 1 > vms->size() 
-                || (*vms)[vm_num - 1] == NULL )
-            {
-                out += "invalid VM reference: " + vec[i] + "\n";
-                continue;
-            }
-            SAFE_DELETE( (*vms)[vm_num - 1] );
-            out += "VM " + vec[i] + " detached\n";
-        }
-    }
-        
+    
     else
-        out = "shell: unknown command '"+vec[0]+"'\n";
+    	out = "shell: unknown command '" + vec[0] + "'\n";
     
     return TRUE;
 }
+
+//-----------------------------------------------------------------------------
+// name: add()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::add( const vector< string > & argv,
+										  string & out )
+{
+	if( current_vm->add_shred(argv[0], out) )
+		out += argv[0] + " added\n";
+}
+
+//-----------------------------------------------------------------------------
+// name: vm_attach()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::vm_attach( const vector< string > & argv,
+										  string & out )
+{
+	string hostname = argv[0];
+	
+	out += argv[0] + " attached\n";
+}
+
+//-----------------------------------------------------------------------------
+// name: vm_add()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::vm_add( const vector< string > & argv,
+									   string & out )
+{
+	
+}
+
+//-----------------------------------------------------------------------------
+// name: vm_remove()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::vm_remove( const vector< string > & argv,
+										  string & out )
+{
+	
+}
+
+//-----------------------------------------------------------------------------
+// name: vm_list()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::vm_list( const vector< string > & argv,
+										string & out )
+{
+	
+}
+
+//-----------------------------------------------------------------------------
+// name: vm_attach_add()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::vm_attach_add( const vector< string > & argv,
+										  	  string & out )
+{
+	
+}
+
+
