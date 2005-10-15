@@ -60,7 +60,7 @@ static int g_init = 0;
 #endif
 
 #ifndef socklen_t
-#define socklen_t int
+#define socklen_t unsigned int
 #endif
 
 
