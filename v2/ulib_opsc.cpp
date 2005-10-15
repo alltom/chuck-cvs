@@ -158,6 +158,9 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func = make_new_mfun( "int", "listen", osc_recv_listen );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "int", "stop", osc_recv_listen_stop );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "int", "add_address", osc_recv_add_address );
     func->add_arg( "OSC_Addr" , "addr" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -408,7 +411,7 @@ CK_DLL_DTOR( osc_recv_dtor ) {
 
 //----------------------------------------------
 // name :  osc_recv_port  
-// desc : MFUN function 
+// desc : specify port to listen on
 //-----------------------------------------------
 CK_DLL_MFUN( osc_recv_port ) { 
 
@@ -421,7 +424,7 @@ CK_DLL_MFUN( osc_recv_port ) {
 
 //----------------------------------------------
 // name :  osc_recv_listen  
-// desc : MFUN function 
+// desc :  start listening
 //-----------------------------------------------
 CK_DLL_MFUN( osc_recv_listen ) { 
     OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
@@ -430,12 +433,20 @@ CK_DLL_MFUN( osc_recv_listen ) {
 
 //----------------------------------------------
 // name :  osc_recv_listen_port  
-// desc : MFUN function 
+// desc :  listen to a given port ( disconnects from current )
 //-----------------------------------------------
 CK_DLL_MFUN( osc_recv_listen_port ) { 
     OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
-    recv->bind_to_port( (int)GET_NEXT_INT(ARGS) );
-    recv->listen();
+    recv->listen((int)GET_NEXT_INT(ARGS));
+}
+
+//----------------------------------------------
+// name :  osc_recv_listen_port  
+// desc :  listen to a given port ( disconnects from current )
+//-----------------------------------------------
+CK_DLL_MFUN( osc_recv_listen_stop ) { 
+    OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
+	recv->stopListening();
 }
 
 //----------------------------------------------

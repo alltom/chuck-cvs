@@ -961,6 +961,77 @@ static int OSC_WritePadding(char *dest, int i)
 
 enum udp_stat { UDP_NOINIT, UDP_UNBOUND, UDP_BOUND, UDP_READY, UDP_ERROR, UDP_NUM };
 
+
+/* in the .h so that OSC can subclass it
+
+class UDP_Subscriber { 
+		virtual void onRecieve( char * mesg, int mesgLen ) = 0;
+		virtual bool subscribe( int port );
+		virtual bool unsubscribe();
+		virtual int& port(); //get/set the value of the subscriber's current port. 
+}
+  
+*/
+
+class DefUDP_Subscriber : public UDP_Subscriber { 
+public:
+		int _port;
+		void onReceive ( char * mesg, int mesgLen ) {} //ignore
+		int& port() { return _port; }
+};
+
+class UDP_Port_Listener { 
+private:
+    UDP_Receiver*  m_in;
+	bool		   m_port;
+	    
+	XThread*       m_thread;
+	XMutex*		   m_mutex;
+
+    char           m_inbuf[OSCINBUFSIZE];
+    int            m_inbufsize;
+
+	vector < UDP_Subscriber * > m_subscribers;
+	queue < UDP_Subscriber * > m_free;
+
+public:
+	UDP_Port_Listener( int port );
+	~UDP_Port_Listener();
+	void init();
+	bool bind_to_port(int port);
+	void close();
+	bool listen();
+	int recv_mesg();
+	bool add ( UDP_Subscriber * );
+	bool drop ( UDP_Subscriber * );
+	int  nsubs(); 
+
+	bool		   listening;
+	
+};
+
+
+
+class UDP_Port_Manager { 
+
+private:
+
+	static UDP_Port_Manager* _inst;
+	map < int, UDP_Port_Listener* > _listeners;
+
+public:
+
+	static UDP_Port_Manager* instance();
+	UDP_Port_Manager();
+	void init();
+	bool subscribe ( UDP_Subscriber * sub, int port );
+	bool unsubscribe ( UDP_Subscriber * sub );
+};
+
+
+
+
+
 class UDP_Receiver { 
 
 protected:
@@ -970,15 +1041,17 @@ protected:
     SOCKADDR_IN   _remote_addr;
     int           _remote_addr_len;
     int           _mesgLen;
+
 public:
 
     UDP_Receiver();
     
     ~UDP_Receiver() { }
     void init();
-    void bind_to_port(int port);
+    bool bind_to_port(int port);
     int recv_next(char *buffer, int size);   
     void close_sock();
+	udp_stat status();
     
 };
 
@@ -1004,6 +1077,220 @@ public:
 };
 
 
+UDP_Port_Manager * UDP_Port_Manager::_inst = NULL;
+UDP_Port_Manager * UDP_Port_Manager::instance() { 
+	if (_inst == NULL ) { 
+		_inst = new UDP_Port_Manager();
+		assert ( _inst );
+	}
+	return _inst; 
+}
+
+UDP_Port_Manager::UDP_Port_Manager() {
+	init();
+}
+
+void
+UDP_Port_Manager::init() {
+	_listeners.clear();
+}
+
+bool
+UDP_Port_Manager::subscribe ( UDP_Subscriber * sub, int port ) { 
+	if ( _listeners.count( port ) == 0 ) { 
+		EM_log (CK_LOG_INFO, "PortManager:  starting Listener on %d", port );
+		_listeners[port] = new UDP_Port_Listener( port ); //make a new listener on this port
+	}
+	return _listeners[port]->add( sub );
+}
+
+bool
+UDP_Port_Manager::unsubscribe( UDP_Subscriber * sub ) { 
+	if ( sub->port() < 0 ) { 
+		EM_log ( CK_LOG_INFO, "error, subscriber's port < 0, return false" );
+		return false; 
+	}
+	if ( _listeners.count( sub->port() ) == 0 ) { 
+		EM_log ( CK_LOG_INFO, "error, cannot unsubscribe: port %d not in use", sub->port() );
+		return false; 
+	}
+	else { 
+		int pp = sub->port();
+		UDP_Port_Listener* listener = _listeners[pp]; 
+		bool ret = listener->drop( sub );
+		//check empty 
+		if ( listener->nsubs() == 0 ) { 
+			EM_log( CK_LOG_INFO, "PortManager: Listener on port %d is empty - removing", sub->port() );			
+			delete listener;
+			_listeners.erase( pp );
+		}
+		return ret; 
+	}
+
+}
+
+UDP_Port_Listener::UDP_Port_Listener( int port ) : 
+	m_inbufsize( OSCINBUFSIZE ),
+		listening( false )	
+	{ 
+	init();
+	m_in->bind_to_port( port );
+	listen();
+}
+
+UDP_Port_Listener::~UDP_Port_Listener() { 
+	//fprintf(stderr , "port listener destructor\n"); 
+	close();
+	// usleep( 10 );	// do we need this ? 
+	delete m_in;
+	delete m_mutex;
+	delete m_thread;
+}
+
+void
+UDP_Port_Listener::init() { 
+	memset( (void*)m_inbuf, '\0', m_inbufsize * sizeof(char) );
+	m_thread = new XThread();
+	m_mutex  = new XMutex();
+	m_in = new UDP_Receiver();
+	m_in->init();
+}
+
+int
+UDP_Port_Listener::nsubs() { return m_subscribers.size(); }
+
+bool
+UDP_Port_Listener::add( UDP_Subscriber * sub ) { 
+	if ( find ( m_subscribers.begin(), m_subscribers.end(), sub ) == m_subscribers.end() ) { 
+		EM_log (CK_LOG_INFO, "UDP_Port_Listener: adding subscriber" );
+		m_mutex->acquire();
+		m_subscribers.push_back( sub );
+		m_mutex->release();
+		sub->port() = m_port;	
+		return true;
+	}
+	else { 
+		EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
+		return false;
+	}
+}
+
+
+bool
+UDP_Port_Listener::drop( UDP_Subscriber * sub ) { 
+
+	vector < UDP_Subscriber * >::iterator m_iter = find ( m_subscribers.begin(), m_subscribers.end(), sub );
+	if ( m_iter != m_subscribers.end() ) { 
+		EM_log (CK_LOG_INFO, "UDP_Port_Listener: dropping subscriber" );
+		m_mutex->acquire();			
+		m_subscribers.erase( m_iter );
+		m_mutex->release();
+		sub->port() = -1;	
+		return true;
+	}
+	else { 
+		EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
+		return false;
+	}
+}
+
+
+THREAD_RETURN ( THREAD_TYPE udp_port_listener_thread ) ( void * data )
+{
+    UDP_Port_Listener * upl = (UDP_Port_Listener *) data;
+
+    // priority boost
+    if( Chuck_VM::our_priority != 0x7fffffff )
+        Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
+
+	EM_log ( CK_LOG_INFO, "UDP_Port_Listener:: starting receive loop\n" );
+	int mLen;
+    do {
+        mLen = upl->recv_mesg();
+        usleep( 10 );
+    } while( mLen != 0 );
+
+	EM_log ( CK_LOG_INFO, "UDP_Port_Listener:: receive loop terminated\n" );
+
+    return (THREAD_RETURN)0;
+}
+
+
+
+//returns whether an attempt to start the listening thread 
+//was made. 
+bool
+UDP_Port_Listener::listen() { 
+	if ( !listening && m_in->status() != UDP_ERROR ) { 
+		listening = true;
+		m_thread->start( udp_port_listener_thread, (void*) this );
+		return true;
+	}
+	return false;
+}
+
+bool
+UDP_Port_Listener::bind_to_port(int port) {
+	return m_in->bind_to_port( port );
+}
+
+void
+UDP_Port_Listener::close() { 
+	if ( m_in->status() == UDP_BOUND ) { 
+		listening = false;
+		m_in->close_sock();
+	}
+}
+
+int
+UDP_Port_Listener::recv_mesg() { 
+	int mLen = m_in->recv_next( m_inbuf, m_inbufsize );
+	
+	if ( mLen == 0 ) { 
+		EM_log( CK_LOG_INFO, "recvLen 0 on socket, returning 0" );
+		return 0;
+	}
+
+	for ( int i = 0 ; i < m_subscribers.size(); i++ ) {
+		m_mutex->acquire();
+		m_subscribers[i]->onReceive( m_inbuf, mLen );
+		m_mutex->release();
+	}
+
+	return mLen;
+}
+
+
+//UDP_Subscriber
+bool
+UDP_Subscriber::subscribe( int p ) { 
+	if ( port() >= 0 ) return false; //already subscribed 
+	else if ( UDP_Port_Manager::instance()->subscribe( this, p ) ) 
+	{ 
+		port() = p;
+		return true;
+	}
+	else 
+	{ 
+		port() = -1;
+		return false;
+	}
+}
+
+bool 
+UDP_Subscriber::unsubscribe() { 
+	if ( port() < 0 ) return false; //currently unsubscribed
+	else if ( UDP_Port_Manager::instance()->unsubscribe( this ) ) { 
+		port() = -1;
+		return true;
+	}
+	else {
+		return false; //could not unsubscribe? 
+	}
+}
+
+
+
 UDP_Receiver::UDP_Receiver() 
 { 
     _status = UDP_NOINIT; 
@@ -1019,20 +1306,27 @@ UDP_Receiver::init() {
 
 }
 
-void
+bool
 UDP_Receiver::bind_to_port(int port) { 
 
-   // Fill in the interface information
-   _status =  ( ck_bind ( _sock, port ) ) ?  UDP_BOUND : UDP_ERROR ;
-
+	// Fill in the interface information
+	_status =  ( ck_bind ( _sock, port ) ) ?  UDP_BOUND : UDP_ERROR ;
+	if ( _status == UDP_ERROR ) { 
+		EM_log( CK_LOG_SYSTEM, "[chuck](via OSC): cannot bind to %d!\n", port); 
+		return false;
+	}
+	return true;
 }
+
+udp_stat
+UDP_Receiver::status() { return _status; }
 
 int
 UDP_Receiver::recv_next(char * buffer, int bsize)
 { 
    if ( _status != UDP_BOUND ) 
    {
-      fprintf( stderr, "[chuck](via OSC): socket not bound!\n"); return 0; 
+      EM_log( CK_LOG_SYSTEM, "[chuck](via OSC): socket not bound!\n"); return 0; 
    }
 
    _remote_addr_len = sizeof(_remote_addr);
@@ -1040,6 +1334,7 @@ UDP_Receiver::recv_next(char * buffer, int bsize)
 
    return ( ret <= 0 ) ? 0 : ret;
 }
+
 
 void
 UDP_Receiver::close_sock() {
@@ -1280,8 +1575,8 @@ OSC_Transmitter::kickMessage() {
 // OSC_RECEIVER
 
 OSC_Receiver::OSC_Receiver():
-    _listening(false),
-    _inbufsize(OSCINBUFSIZE),
+//    _listening(false),
+//    _inbufsize(OSCINBUFSIZE),
     _inbox(NULL),
     _inbox_size(2),
     _started(false),
@@ -1298,24 +1593,28 @@ OSC_Receiver::OSC_Receiver():
     _address_space = (OSC_Address_Space **) realloc ( _address_space, _address_size * sizeof ( OSC_Address_Space * ) );
 
     _io_mutex = new XMutex();
-    _io_thread = new XThread();
+//    _io_thread = new XThread();
 
-    _in = new UDP_Receiver();
+    //_in = new UDP_Receiver();
 
     init();
 
 }
 
 OSC_Receiver::OSC_Receiver(UDP_Receiver* in) {
-    _in   = in;
+//    _in   = in;
+	_port = -1;
 }
 
 void 
 OSC_Receiver::init(){ 
-   _in->init();
+	_port = -1;
+//   _in->init();
 }
 
 OSC_Receiver::~OSC_Receiver() {
+
+	stopListening();
     for ( int i=0; i < _inbox_size; i++ ) { 
         if ( _inbox[i].payload ) { 
             free ( _inbox[i].payload );
@@ -1323,7 +1622,9 @@ OSC_Receiver::~OSC_Receiver() {
         }
         free ( _inbox );
     }
-    delete _in;
+	
+
+    //delete _in;
 }
 
 THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data )
@@ -1342,39 +1643,66 @@ THREAD_RETURN ( THREAD_TYPE osc_recv_thread ) ( void * data )
     return (THREAD_RETURN)0;
 }
 
+
+int&
+OSC_Receiver::port() { return _port; }
+
+void 
+OSC_Receiver::onReceive( char * mesg, int mesgLen ) { 
+	handle_mesg( mesg, mesgLen );
+}
+
+void
+OSC_Receiver::bind_to_port(int port ) { 
+	_tmp_port = port;
+//    _in->bind_to_port(port);
+}
+
 bool
 OSC_Receiver::listen( int port ) { 
 	bind_to_port ( port );
 	return listen();
 }
 
+void
+OSC_Receiver::stopListening() { 
+	unsubscribe();
+}
+
 bool
 OSC_Receiver::listen() { 
+	unsubscribe(); //in case we're connected. 
+	return subscribe( _tmp_port );
+	/*
     if ( !_listening ) { 
         _listening = true;
         _io_thread->start( osc_recv_thread, (void*)this );
     }
     return _listening;
+	*/
 }
 
-void
-OSC_Receiver::bind_to_port(int port ) { 
-    _in->bind_to_port(port);
-}
 
 
 void
 OSC_Receiver::close_sock() { 
-   _in->close_sock();
+	unsubscribe();
+//   _in->close_sock();
 }
 
 void
 OSC_Receiver::recv_mesg() { 
-   _mesglen = _in->recv_next( _inbuf, _inbufsize );
+	//this is when OSC_Receiver was 
+	//used as the port-manager.  now this code ( and callback ) are in UDP_Port_Listener interface,
+	//which OSC_Receiver subclasses 
+	/*
+	_mesglen = _in->recv_next( _inbuf, _inbufsize );
    if ( _mesglen > 0 ) { 
        //parse();
        handle_mesg(_inbuf, _mesglen);
    }
+   */
+   
 }
  
 
@@ -1403,20 +1731,16 @@ OSC_Receiver::get_mesg(OSCMesg* bucket)   {
 }
 
 void
-OSC_Receiver::parse() { 
+OSC_Receiver::parse( char * mesg, int mesgLen ) { 
 
    //unpack bundles, dump all messages
    //any local prep we need here?
 
    long i = 0;
    // log
-   EM_log( CK_LOG_FINER, "OSC_Receiver: parsing message length %d", _mesglen );
-   for ( i = 0 ; i < _mesglen; i++ ) { 
-      fprintf(stderr, "%c :", _inbuf[i] );
-   }
-   fprintf(stderr, "\n");
-   for ( i = 0 ; i < _mesglen; i++ ) { 
-      fprintf(stderr, "%0x:", _inbuf[i] );
+   EM_log( CK_LOG_FINER, "OSC_Receiver: print message length %d", mesgLen );
+   for ( i = 0 ; i < mesgLen; i++ ) { 
+      fprintf(stderr, "\t%c(%0x):", mesg[i], mesg[i]);
    }
 
    fprintf( stderr, "\n" );
@@ -1597,8 +1921,9 @@ OSC_Receiver::handle_mesg( char* buf, int len ) {
 
 void
 OSC_Receiver::handle_bundle(char*b, int len) { 
+
    //no scheduling for now
-   //just unpack everything
+   //just immediately unpack everything
 
    //fprintf(stderr, "bundle (length %d)\n", len);
    
@@ -1795,7 +2120,7 @@ OSC_Address_Space::parseSpec() {
 void
 OSC_Address_Space::resizeQueue( int n ) { 
         if ( n <= _queueSize ) return; //only grows
-
+		
         _buffer_mutex->acquire();
 
         //it's possible that between the test above and now, 

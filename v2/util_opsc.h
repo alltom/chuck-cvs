@@ -446,49 +446,33 @@ struct OSCMesg {
 struct XMutex;
 struct XThread;
 
-/*
-class OSC_Port_Manager { 
-
-private:
-	static OSC_Port_Manager* _inst;
-	map < int, OSC_Port_Listener* > _ports;
-
+class UDP_Subscriber { 
 public:
-
-	static OSC_Port_Manager* instance();
-	static init();
-	bool subscribe( OSC_Receiver * recv, int port );
-	bool unsubscribe ( OSC_Receiver * recv, int port );
+		virtual int& port() = 0; //get/set the value of the subscriber's current port. 
+		virtual void onReceive( char * mesg, int mesgLen ) = 0;
+protected: 
+		virtual bool subscribe( int port );
+		virtual bool unsubscribe();
 };
 
 
-class OSC_Port_Listener { 
-private:
-    UDP_Receiver*  m_in;
-    char           m_inbuf[OSCINBUFSIZE];
-    int            m_inbufsize;
-	vector < OSC_Receiver * > m_subscribers;
-public:
-	void add(	OSC_Receiver * );
-	void drop ( OSC_Receiver * );
-	void listen();
-	void bind_to_port();
-};
-*/
-
-class OSC_Receiver { 
+class OSC_Receiver : private UDP_Subscriber { 
     
 protected:
-    
-    UDP_Receiver*  _in;
+
+//    UDP_Receiver*  _in;
+
+//    bool           _listening;
+//    char           _inbuf[OSCINBUFSIZE];
+//    int            _inbufsize;
+//    int            _mesglen;
+	int			   _port;
+	int			   _tmp_port;
+	void		   onReceive( char * mesg, int mesgLen);
+	int &		   port();
 
     XMutex*        _io_mutex;
-    XThread*       _io_thread;
-    bool           _listening;
-
-    char           _inbuf[OSCINBUFSIZE];
-    int            _inbufsize;
-    int            _mesglen;
+    //XThread*       _io_thread;
     OSCMesg        _meep;
     OSCMesg        *_inbox;
     int             _inbox_size;
@@ -515,7 +499,9 @@ public:
 
 	bool listen( int port );
     bool listen();
-    void parse();
+	void stopListening(); //unsubscribe;
+
+    void parse(char *, int len);
     void handle_mesg(char *, int len);
     void handle_bundle(char *, int len);
     void set_mesg(OSCMesg *m, char * buf, int len );
