@@ -1585,13 +1585,12 @@ CK_DLL_TICK( sndbuf_tick )
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     if( !d->buffer ) return FALSE;
     
-    //we're ticking once per sample ( system )
-    //curf in samples;
+    // we're ticking once per sample ( system )
+    // curf in samples;
     
     if ( !d->loop && d->curr >= d->eob ) return FALSE;
     
-    //calculate frame
-    
+    // calculate frame    
     if( d->interp == SNDBUF_DROP )
     { 
         *out = (SAMPLE)( (*(d->curr)) ) ;
@@ -1610,6 +1609,7 @@ CK_DLL_TICK( sndbuf_tick )
     //advance
     d->curf += d->rate;
     sndbuf_setpos(d, d->curf);
+
     return TRUE;    
 }
 
