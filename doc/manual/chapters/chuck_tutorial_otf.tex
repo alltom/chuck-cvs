@@ -40,3 +40,13 @@ You can ask ChucK how he is doing by typing chuck \doubledash status The shortcu
 When you have had enough of ChucK you can go to the other window and use your fancy CONTROL-C trick or you can type chuck \doubledash kill in your original window.   
 
 \chuckterm{\prompt chuck \doubledash kill}
+
+\section*{One Window ChucK}
+
+So you think you are pretty good? One window ChucK is only for the hardest of hardcore. You have been warned. 
+
+The concept is pretty similar to two window ChucK: first, you start a ChucK going, then you manage the adding and removal of scripts to it. How do you start a ChucK and get the command prompt to return, you ask? In your shell you can add an ampersand (\& ) after the command and that will tell the shell to run the command as a background process and give you the prompt back. 
+
+\chuckterm{\prompt chuck \doubledash loop \& }
+
+The rest is as it should be. You will have to be careful when writing your patches to not put too many print statements. When you print you will temporarily lose control of the prompt as the shell prints. This can be bad when are you are printing MIDI input. The same applies when you use the \doubledash status command to ChucK. It can also be fun to fight for your command line. Who will win?

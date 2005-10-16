@@ -4,6 +4,8 @@
 # make pdf will latex twice and open (OSX only)
 # make clean gets rid of a lot of nasty bits
 
+pdf: latex latex2 open
+
 latex:
 	pdflatex ChucK_manual.tex
 
@@ -13,7 +15,7 @@ latex2:
 open:
 	open ChucK_manual.pdf
 
-pdf: latex latex2 open
+
 
 clean:
 	rm .DS_Store chapters/.DS_Store *aux *log *toc *out chapters/*aux *~ chapters/*~ styles/*~ 
