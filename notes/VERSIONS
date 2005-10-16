@@ -13,9 +13,15 @@
       semantic and for/while/until semantic is that the argument
       expression 'exp' in loop( exp ) is evaluated exactly once
       when the loop is first entered.
+  - (added) MidiIn and MidiOut member functions:
+      .good() : whether the thing is good to go (int)
+      .num()  : the device number (int)
+      .name() : the device name (string)
   - (changed) STK Shakers.freq now expect Hz instead of MIDI number
   - (changed) chuck --status now prints shreds sorted by id
     (previously it was the current shreduling order + blocked)
+  - (changed) a udp port may now be shared by many OSC_Recv (phil)
+      : the incoming messages are broadcast to all
   - (changed) address/type string in OSC: comma now optional (phil)
   - (fixed) incorrect 'continue' behavior in for loops
   - (fixed) improved OSC stability (phil)
