@@ -1161,16 +1161,17 @@ UDP_Port_Listener::nsubs() { return m_subscribers.size(); }
 
 bool
 UDP_Port_Listener::add( UDP_Subscriber * sub ) { 
+    m_mutex->acquire();
 	if ( find ( m_subscribers.begin(), m_subscribers.end(), sub ) == m_subscribers.end() ) { 
 		EM_log (CK_LOG_INFO, "UDP_Port_Listener: adding subscriber" );
-		m_mutex->acquire();
 		m_subscribers.push_back( sub );
-		m_mutex->release();
 		sub->port() = m_port;	
+		m_mutex->release();
 		return true;
 	}
 	else { 
 		EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
+		m_mutex->release();
 		return false;
 	}
 }
@@ -1179,17 +1180,18 @@ UDP_Port_Listener::add( UDP_Subscriber * sub ) {
 bool
 UDP_Port_Listener::drop( UDP_Subscriber * sub ) { 
 
+    m_mutex->acquire();
 	vector < UDP_Subscriber * >::iterator m_iter = find ( m_subscribers.begin(), m_subscribers.end(), sub );
 	if ( m_iter != m_subscribers.end() ) { 
 		EM_log (CK_LOG_INFO, "UDP_Port_Listener: dropping subscriber" );
-		m_mutex->acquire();			
 		m_subscribers.erase( m_iter );
+		sub->port() = -1;
 		m_mutex->release();
-		sub->port() = -1;	
 		return true;
 	}
 	else { 
 		EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
+		m_mutex->release();
 		return false;
 	}
 }
@@ -1251,11 +1253,11 @@ UDP_Port_Listener::recv_mesg() {
 		return 0;
 	}
 
-	for ( int i = 0 ; i < m_subscribers.size(); i++ ) {
-		m_mutex->acquire();
-		m_subscribers[i]->onReceive( m_inbuf, mLen );
-		m_mutex->release();
-	}
+    m_mutex->acquire();
+    for ( int i = 0 ; i < m_subscribers.size(); i++ ) {
+        m_subscribers[i]->onReceive( m_inbuf, mLen );
+    }
+    m_mutex->release();
 
 	return mLen;
 }
