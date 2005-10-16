@@ -443,6 +443,11 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     func = make_new_mfun( "string", "name", MidiIn_name );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add printerr()
+    func = make_new_mfun( "void", "printerr", MidiIn_printerr );
+    func->add_arg( "int", "print_or_not" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add recv()
     func = make_new_mfun( "int", "recv", MidiIn_recv );
     func->add_arg( "MidiMsg", "msg" );
@@ -479,6 +484,11 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
 
     // add name()
     func = make_new_mfun( "string", "name", MidiOut_name );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add printerr()
+    func = make_new_mfun( "void", "printerr", MidiOut_printerr );
+    func->add_arg( "int", "print_or_not" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add send()
@@ -1053,6 +1063,13 @@ CK_DLL_MFUN( MidiIn_num )
     RETURN->v_int = min->num();
 }
 
+CK_DLL_MFUN( MidiIn_printerr )
+{
+    MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+    t_CKINT print_or_not = GET_CK_INT(ARGS);
+    min->set_suppress( !print_or_not );
+}
+
 CK_DLL_MFUN( MidiIn_name )
 {
     MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
@@ -1127,6 +1144,13 @@ CK_DLL_MFUN( MidiOut_name )
     if( mout->good() )
         a->str = mout->mout->getPortName( mout->num() );
     RETURN->v_string = a;
+}
+
+CK_DLL_MFUN( MidiOut_printerr )
+{
+    MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+    t_CKINT print_or_not = GET_CK_INT(ARGS);
+    mout->set_suppress( !print_or_not );
 }
 
 CK_DLL_MFUN( MidiOut_send )

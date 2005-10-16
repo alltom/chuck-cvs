@@ -61,6 +61,7 @@ MidiOut::MidiOut()
     mout = new RtMidiOut;
     m_device_num = 0;
     m_valid = FALSE;
+    m_suppress_output = FALSE;
 }
 
 
@@ -285,6 +286,7 @@ MidiIn::MidiIn()
     m_valid = FALSE;
     m_read_index = 0;
     m_buffer = NULL;
+    m_suppress_output = FALSE;
     SELF = NULL;
 }
 
@@ -343,7 +345,8 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
         CBuffer * cbuf = new CBuffer;
         if( !cbuf->initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
         {
-            EM_error2( 0, "MidiIn: couldn't allocate CBuffer for port %i...", device_num );
+            if( !min->m_suppress_output )
+                EM_error2( 0, "MidiIn: couldn't allocate CBuffer for port %i...", device_num );
             delete cbuf;
             return FALSE;
         }
@@ -354,9 +357,12 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
             rtmin->openPort( device_num );
             rtmin->setCallback( cb_midi_input, cbuf );
         } catch( RtError & err ) {
-            // print it
-            EM_error2( 0, "MidiIn: couldn't open MIDI port %i...", device_num );
-            EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+            if( !min->m_suppress_output )
+            {
+                // print it
+                EM_error2( 0, "MidiIn: couldn't open MIDI port %i...", device_num );
+                // EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+            }
             delete cbuf;
             return FALSE;
         }
@@ -543,9 +549,12 @@ t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
         try {
             rtmout->openPort( device_num );
         } catch( RtError & err ) {
-            // print it
-            EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
-            EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+            if( !mout->m_suppress_output )
+            {
+                // print it
+                EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
+                // EM_error2( 0, "...(%s)", err.getMessage().c_str() );
+            }
             return FALSE;
         }
 

@@ -1,20 +1,24 @@
+// print out MIDI messages on device
+0 => int device;
 
+// the event
 MidiIn min;
+// the message
 MidiMsg msg;
 
-if( !min.open( 0 ) )
-{
-    <<<"gomidi error: wrong port specified...">>>;
-    me.exit();
-}
+// try to open
+if( !min.open( device ) ) me.exit();
 
-// infinite time-loop
+// infinite event loop
 while( true )
 {
+    // wait on event
     min => now;
+
+    // get the messages
     while( min.recv(msg) )
     {
         // print out midi message
-        <<<msg.data1, msg.data2, msg.data3>>>;
+        <<< msg.data1, msg.data2, msg.data3 >>>;
     }
 }

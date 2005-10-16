@@ -17,6 +17,7 @@
       .good() : whether the thing is good to go (int)
       .num()  : the device number (int)
       .name() : the device name (string)
+      .printerr( int ) : whether to auto print errors (default YES)
   - (changed) STK Shakers.freq now expect Hz instead of MIDI number
   - (changed) chuck --status now prints shreds sorted by id
     (previously it was the current shreduling order + blocked)

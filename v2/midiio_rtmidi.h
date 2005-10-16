@@ -83,6 +83,12 @@ public:
     t_CKBOOL close();
     t_CKBOOL good() { return m_valid; }
     t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
+    
+public:
+    void     set_suppress( t_CKBOOL print_or_not )
+    { m_suppress_output = print_or_not; }
+    t_CKBOOL get_suppress()
+    { return m_suppress_output; }
 
 public:
     t_CKUINT send( t_CKBYTE status );
@@ -105,6 +111,7 @@ public:
     std::vector<unsigned char> m_msg;
     t_CKUINT m_device_num;
     t_CKBOOL m_valid;
+    t_CKBOOL m_suppress_output;
 };
 
 
@@ -127,6 +134,12 @@ public:
     t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
 
 public:
+    void     set_suppress( t_CKBOOL print_or_not )
+    { m_suppress_output = print_or_not; }
+    t_CKBOOL get_suppress()
+    { return m_suppress_output; }
+
+public:
     t_CKBOOL empty();
     t_CKUINT recv( MidiMsg * msg );
 
@@ -138,6 +151,7 @@ public:
     t_CKUINT m_device_num;
     t_CKUINT m_ref_count;
     Chuck_Object * SELF;
+    t_CKBOOL m_suppress_output;
 };
 
 
