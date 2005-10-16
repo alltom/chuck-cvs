@@ -1,10 +1,10 @@
 // launch with opensound_demo_recv.ck
 
 // the sender
-OSC_Send xmit;
+OscSend xmit;
 
 // aim the transmitter at our local port 6449
-xmit.setHost ( "localhost", 6449 );
+xmit.setHost( "localhost", 6449 );
 
 // stuff
 0.0 => float running;
@@ -26,10 +26,10 @@ while( true )
         ( 1.0 + diff ) / res => f; 
     }
 
-    xmit.startMesg ( "/sndbuf/buf/play", ",f" );
+    xmit.startMsg ( "/sndbuf/buf/play", "f" );
     f => xmit.addFloat;
     res * f::second => now;
-    res * f +=> modrunning; //actual time
-    res +=> running; //track time
+    res * f +=> modrunning; // actual time
+    res +=> running; // track time
     1 +=> ct;
 }

@@ -50,12 +50,12 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     Chuck_DL_Func * func = NULL;
 
     // init base class
-    if( !type_engine_import_class_begin( env, "OSC_Send", "Object",
+    if( !type_engine_import_class_begin( env, "OscSend", "Object",
                                          env->global(), osc_send_ctor ) )
         return FALSE;
 
     // add member variable  - OSCTransmitter object
-    osc_send_offset_data = type_engine_import_mvar( env, "int", "@OSC_Send_data", FALSE );
+    osc_send_offset_data = type_engine_import_mvar( env, "int", "@OscSend_data", FALSE );
     if( osc_send_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "int", "setHost", osc_send_setHost );
@@ -63,12 +63,12 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func->add_arg( "int", "port" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "startMesg", osc_send_startMesg );
+    func = make_new_mfun( "int", "startMsg", osc_send_startMesg );
     func->add_arg( "string", "address" );
     func->add_arg( "string", "args" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "startMesg", osc_send_startMesg_spec );
+    func = make_new_mfun( "int", "startMsg", osc_send_startMesg_spec );
     func->add_arg( "string", "spec" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -118,10 +118,10 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     func->add_arg( "string" , "addr" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "hasMesg", osc_address_has_mesg );
+    func = make_new_mfun( "int", "hasMsg", osc_address_has_mesg );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "nextMesg", osc_address_next_mesg );
+    func = make_new_mfun( "int", "nextMsg", osc_address_next_mesg );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "int", "getInt", osc_address_next_int );

@@ -8,26 +8,26 @@ sndbuf buf => dac;
 0 => buf.play; 
 
 // create our OSC receiver
-OSC_Recv orec;
+OscRecv recv;
 // use port 6449
-6449 => orec.port;
+6449 => recv.port;
 // start listening (launch thread)
-orec.listen();
+recv.listen();
 
 // create an address in the receiver, store in new variable
-orec.event( "/sndbuf/buf/rate, f" ) @=> OSC_Addr rate_addr; 
+recv.event( "/sndbuf/buf/rate, f" ) @=> OscEvent oe;
 
 // infinite event loop
 while ( true )
 {
     // wait for event to arrive
-    rate_addr => now;
+    oe => now;
 
     // grab the next message from the queue. 
-    while ( rate_addr.nextMesg() != 0 )
+    while ( oe.nextMsg() != 0 )
     { 
         // getFloat fetches the expected float (as indicated by ",f")
-        rate_addr.getFloat() => buf.play;
+        oe.getFloat() => buf.play;
         // print
         <<< "got (via OSC):", buf.play() >>>;
         // set play pointer to beginning
