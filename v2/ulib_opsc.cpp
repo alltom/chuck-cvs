@@ -101,13 +101,13 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     type_engine_import_class_end( env );
 
     // init base class
-    if( !type_engine_import_class_begin( env, "OSC_Addr", "Event",
+    if( !type_engine_import_class_begin( env, "OscEvent", "Event",
                                          env->global(), osc_address_ctor ) )
         return FALSE;
 
     // add member variable  - OSCAddress object
 
-    osc_address_offset_data = type_engine_import_mvar( env, "int", "@OSC_Address_data", FALSE );
+    osc_address_offset_data = type_engine_import_mvar( env, "int", "@OscEvent_Data", FALSE );
     if( osc_recv_offset_data == CK_INVALID_OFFSET ) goto error;
 
     // keep type around for initialization ( so other classes can return it )
@@ -139,12 +139,12 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     type_engine_import_class_end( env );
 
     // init base class
-    if( !type_engine_import_class_begin( env, "OSC_Recv", "Object",
+    if( !type_engine_import_class_begin( env, "OscRecv", "Object",
                                          env->global(), osc_recv_ctor ) )
         return FALSE;
 
     // add member variable  - OSCReceiver object
-    osc_recv_offset_data = type_engine_import_mvar( env, "int", "@OSC_Recv_data", FALSE );
+    osc_recv_offset_data = type_engine_import_mvar( env, "int", "@OscRecv_data", FALSE );
     if( osc_recv_offset_data == CK_INVALID_OFFSET ) goto error;
     
     func = make_new_mfun( "int", "port", osc_recv_port );
@@ -162,27 +162,27 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "int", "add_address", osc_recv_add_address );
-    func->add_arg( "OSC_Addr" , "addr" );
+    func->add_arg( "OscEvent" , "addr" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "int", "remove_address", osc_recv_remove_address );
-    func->add_arg( "OSC_Addr" , "addr" );
+    func->add_arg( "OscEvent" , "addr" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "OSC_Addr", "event", osc_recv_new_address );
+    func = make_new_mfun( "OscEvent", "event", osc_recv_new_address );
     func->add_arg( "string" , "spec" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "OSC_Addr", "event", osc_recv_new_address_type );
+    func = make_new_mfun( "OscEvent", "event", osc_recv_new_address_type );
     func->add_arg( "string" , "address" );
     func->add_arg( "string" , "type" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "OSC_Addr", "address", osc_recv_new_address );
+    func = make_new_mfun( "OscEvent", "address", osc_recv_new_address );
     func->add_arg( "string" , "spec" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "OSC_Addr", "address", osc_recv_new_address_type );
+    func = make_new_mfun( "OscEvent", "address", osc_recv_new_address_type );
     func->add_arg( "string" , "address" );
     func->add_arg( "string" , "type" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -388,7 +388,7 @@ CK_DLL_MFUN(  osc_address_next_string  ) {
     RETURN->v_string = ckstr;
 }
 
-// OSC_Recv functions 
+// OscRecv functions 
 
 
 //----------------------------------------------
