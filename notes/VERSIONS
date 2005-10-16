@@ -1,29 +1,40 @@
 
 ---
 1.2.0.2
+  - (API change) OSC_Send class name changed to 'OscSend'
+      (also): .startMesg(...) name changed to startMsg(...)
+  - (API change) OSC_Recv class name changed to 'OscRecv'
+  - (API change) OSC_Addr class name changed to 'OscEvent'
+      (also): .hasMesg() name changed to .hasMsg()
+      (also): .nextMesg() name changed to .nextMsg()
+  - (examples) see examples/event/opensound_demo_*.ck
+  - (examples) examples/event/opensound_demo_*.ck simplified reformatted
+  - (API change) STK Shakers.freq now expect Hz instead of MIDI number
+
   - (added) 'loop(...){ }' control structure : 
-    example: loop( 8 ) { ... } // executes body 8 times
-    example: loop( foo ) { ... } // executes body foo times
-    (foo is evaluated exactly once entering the loop, the
-    value at that time is used as a constant to control
+      example: loop( 8 ) { ... } // executes body 8 times
+      example: loop( foo ) { ... } // executes body foo times
+      (foo is evaluated exactly once entering the loop, the
+      value at that time is used as a constant to control
       loop iteration - even if foo is changed in the loop
-     body.)
-    - supports break and continue
-    - important: one fundamantal difference between the loop 
-      semantic and for/while/until semantic is that the argument
-      expression 'exp' in loop( exp ) is evaluated exactly once
-      when the loop is first entered.
+      body.)
+      - supports break and continue
+      - important: one fundamantal difference between the loop 
+        semantic and for/while/until semantic is that the argument
+        expression 'exp' in loop( exp ) is evaluated exactly once
+        when the loop is first entered.
   - (added) MidiIn and MidiOut member functions:
       .good() : whether the thing is good to go (int)
       .num()  : the device number (int)
       .name() : the device name (string)
       .printerr( int ) : whether to auto print errors (default YES)
-  - (changed) STK Shakers.freq now expect Hz instead of MIDI number
+
   - (changed) chuck --status now prints shreds sorted by id
-    (previously it was the current shreduling order + blocked)
+      (previously it was the current shreduling order + blocked)
   - (changed) a udp port may now be shared by many OSC_Recv (phil)
       : the incoming messages are broadcast to all
   - (changed) address/type string in OSC: comma now optional (phil)
+
   - (fixed) incorrect 'continue' behavior in for loops
   - (fixed) improved OSC stability (phil)
   - (fixed) OSC shreduling sanity check failed now resolved
@@ -37,7 +48,6 @@
   - (added) examples/basic/rec-auto.ck
   - (added) examples/sitar.ck
   - (fixed) examples/stk/*-o-matic.ck now uses array
-  - (changed) examples/event/opensound_demo_*.ck simplified reformatted
 
 
 ---
