@@ -81,22 +81,24 @@ public:
 public:
     t_CKBOOL open( t_CKUINT device_num = 0 );
     t_CKBOOL close();
+    t_CKBOOL good() { return m_valid; }
+    t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
 
 public:
-    t_CKUINT  send( t_CKBYTE status );
-    t_CKUINT  send( t_CKBYTE status, t_CKBYTE data1 );
-    t_CKUINT  send( t_CKBYTE status, t_CKBYTE data1, t_CKBYTE data2 );
-    t_CKUINT  send( const MidiMsg * msg );
+    t_CKUINT send( t_CKBYTE status );
+    t_CKUINT send( t_CKBYTE status, t_CKBYTE data1 );
+    t_CKUINT send( t_CKBYTE status, t_CKBYTE data1, t_CKBYTE data2 );
+    t_CKUINT send( const MidiMsg * msg );
 
 public:
-    t_CKUINT  noteon( t_CKUINT  channel, t_CKUINT  note, t_CKUINT  velocity );
-    t_CKUINT  noteoff( t_CKUINT  channel, t_CKUINT  note, t_CKUINT  velocity );
-    t_CKUINT  polypress( t_CKUINT  channel, t_CKUINT  note, t_CKUINT  pressure );
-    t_CKUINT  ctrlchange( t_CKUINT  channel, t_CKUINT  ctrl_num, t_CKUINT  ctrl_val );
-    t_CKUINT  progchange( t_CKUINT  channel, t_CKUINT  patch );
-    t_CKUINT  chanpress( t_CKUINT  channel, t_CKUINT  pressure );
-    t_CKUINT  pitchbend( t_CKUINT  channel, t_CKUINT  bend_val );
-    t_CKUINT  allnotesoff( t_CKUINT  channel );
+    t_CKUINT noteon( t_CKUINT  channel, t_CKUINT  note, t_CKUINT  velocity );
+    t_CKUINT noteoff( t_CKUINT  channel, t_CKUINT  note, t_CKUINT  velocity );
+    t_CKUINT polypress( t_CKUINT  channel, t_CKUINT  note, t_CKUINT  pressure );
+    t_CKUINT ctrlchange( t_CKUINT  channel, t_CKUINT  ctrl_num, t_CKUINT  ctrl_val );
+    t_CKUINT progchange( t_CKUINT  channel, t_CKUINT  patch );
+    t_CKUINT chanpress( t_CKUINT  channel, t_CKUINT  pressure );
+    t_CKUINT pitchbend( t_CKUINT  channel, t_CKUINT  bend_val );
+    t_CKUINT allnotesoff( t_CKUINT  channel );
 
 public:
     RtMidiOut * mout;
@@ -121,6 +123,8 @@ public:
 public:
     t_CKBOOL open( t_CKUINT device_num = 0 );
     t_CKBOOL close();
+    t_CKBOOL good() { return m_valid; }
+    t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
 
 public:
     t_CKBOOL empty();

@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include "chuck_lang.h"
 #include "chuck_type.h"
+#include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
 #include "midiio_rtmidi.h"
@@ -430,6 +431,18 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     func->add_arg( "int", "port" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add good()
+    func = make_new_mfun( "int", "good", MidiIn_good );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add num()
+    func = make_new_mfun( "int", "num", MidiIn_num );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add name()
+    func = make_new_mfun( "string", "name", MidiIn_name );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add recv()
     func = make_new_mfun( "int", "recv", MidiIn_recv );
     func->add_arg( "MidiMsg", "msg" );
@@ -454,6 +467,18 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     // add open()
     func = make_new_mfun( "int", "open", MidiOut_open );
     func->add_arg( "int", "port" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add good()
+    func = make_new_mfun( "int", "good", MidiOut_good );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add num()
+    func = make_new_mfun( "int", "num", MidiOut_num );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add name()
+    func = make_new_mfun( "string", "name", MidiOut_name );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add send()
@@ -1016,6 +1041,29 @@ CK_DLL_MFUN( MidiIn_open )
     RETURN->v_int = min->open( port );
 }
 
+CK_DLL_MFUN( MidiIn_good )
+{
+    MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+    RETURN->v_int = (t_CKINT)min->good();
+}
+
+CK_DLL_MFUN( MidiIn_num )
+{
+    MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+    RETURN->v_int = min->num();
+}
+
+CK_DLL_MFUN( MidiIn_name )
+{
+    MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+    // TODO: memory leak, please fix, Thanks.
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    // only if valid
+    if( min->good() )
+        a->str = min->min->getPortName( min->num() );
+    RETURN->v_string = a;
+}
+
 CK_DLL_MFUN( MidiIn_recv )
 {
     MidiIn * min = (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
@@ -1056,6 +1104,29 @@ CK_DLL_MFUN( MidiOut_open )
     MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
     t_CKINT port = GET_CK_INT(ARGS);
     RETURN->v_int = mout->open( port );
+}
+
+CK_DLL_MFUN( MidiOut_good )
+{
+    MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+    RETURN->v_int = (t_CKINT)mout->good();
+}
+
+CK_DLL_MFUN( MidiOut_num )
+{
+    MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+    RETURN->v_int = mout->num();
+}
+
+CK_DLL_MFUN( MidiOut_name )
+{
+    MidiOut * mout = (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+    // TODO: memory leak, please fix, Thanks.
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    // only if valid
+    if( mout->good() )
+        a->str = mout->mout->getPortName( mout->num() );
+    RETURN->v_string = a;
 }
 
 CK_DLL_MFUN( MidiOut_send )

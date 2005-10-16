@@ -72,8 +72,6 @@ CK_DLL_MFUN( ugen_getTestID );
 CK_DLL_SFUN( object_testStatic );
 
 
-
-
 //-----------------------------------------------------------------------------
 // ugen API
 //-----------------------------------------------------------------------------
@@ -89,8 +87,6 @@ CK_DLL_MFUN( ugen_gain );
 CK_DLL_MFUN( ugen_cget_gain );
 
 
-
-
 //-----------------------------------------------------------------------------
 // shred API
 //-----------------------------------------------------------------------------
@@ -100,8 +96,6 @@ CK_DLL_MFUN( shred_exit );
 CK_DLL_MFUN( shred_clone );
 CK_DLL_MFUN( shred_id );
 CK_DLL_MFUN( shred_yield );
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -119,8 +113,6 @@ CK_DLL_MFUN( array_clear );
 CK_DLL_MFUN( array_recap );
 
 
-
-
 //-----------------------------------------------------------------------------
 // event API
 //-----------------------------------------------------------------------------
@@ -132,16 +124,12 @@ CK_DLL_MFUN( event_wait );
 CK_DLL_MFUN( event_can_wait );
 
 
-
-
 //-----------------------------------------------------------------------------
 // string API
 //-----------------------------------------------------------------------------
 CK_DLL_MFUN( string_length );
 CK_DLL_MFUN( string_set_at );
 CK_DLL_MFUN( string_get_at );
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -161,13 +149,10 @@ public:
 //-----------------------------------------------------------------------------
 
 
-
-
 //-----------------------------------------------------------------------------
 // MidiMsg API
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( MidiMsg_ctor );
-
 
 
 //-----------------------------------------------------------------------------
@@ -207,10 +192,11 @@ CK_DLL_MFUN( MidiMsgIn_read );
 CK_DLL_CTOR( MidiIn_ctor );
 CK_DLL_DTOR( MidiIn_dtor );
 CK_DLL_MFUN( MidiIn_open );
+CK_DLL_MFUN( MidiIn_good );
+CK_DLL_MFUN( MidiIn_num );
+CK_DLL_MFUN( MidiIn_name );
 CK_DLL_MFUN( MidiIn_recv );
 CK_DLL_MFUN( MidiIn_can_wait );
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -219,16 +205,16 @@ CK_DLL_MFUN( MidiIn_can_wait );
 CK_DLL_CTOR( MidiOut_ctor );
 CK_DLL_DTOR( MidiOut_dtor );
 CK_DLL_MFUN( MidiOut_open );
+CK_DLL_MFUN( MidiOut_good );
+CK_DLL_MFUN( MidiOut_num );
+CK_DLL_MFUN( MidiOut_name );
 CK_DLL_MFUN( MidiOut_send );
-
 
 
 //-----------------------------------------------------------------------------
 // SkiniMMsg API
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( SkiniMsg_ctor );
-
-
 
 
 //-----------------------------------------------------------------------------
@@ -240,8 +226,6 @@ CK_DLL_MFUN( SkiniIn_open );
 CK_DLL_MFUN( SkiniIn_recv );
 
 
-
-
 //-----------------------------------------------------------------------------
 // SkiniOut API
 //-----------------------------------------------------------------------------
@@ -249,6 +233,8 @@ CK_DLL_CTOR( SkiniOut_ctor );
 CK_DLL_DTOR( SkiniOut_dtor );
 CK_DLL_MFUN( SkiniOut_open );
 CK_DLL_MFUN( SkiniOut_send );
+
+
 
 
 #endif

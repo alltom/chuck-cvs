@@ -280,6 +280,7 @@ t_CKUINT MidiOut::allnotesoff( t_CKUINT channel )
 //-----------------------------------------------------------------------------
 MidiIn::MidiIn()
 {
+    min = NULL;
     m_device_num = 0;
     m_valid = FALSE;
     m_read_index = 0;
@@ -374,6 +375,8 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
         the_bufs[device_num] = cbuf;
     }
 
+    // set min
+    min->min = the_mins[device_num];
     // found
     min->m_buffer = the_bufs[device_num];
     // get an index into your (you are min here) own buffer, 

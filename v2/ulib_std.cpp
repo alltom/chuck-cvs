@@ -349,6 +349,7 @@ CK_DLL_SFUN( atof_impl )
 CK_DLL_SFUN( itoa_impl )
 {
     t_CKINT i = GET_CK_INT(ARGS);
+    // TODO: memory leak, please fix.  Thanks.
     Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
     a->str = itoa( i );
     RETURN->v_string = a;
