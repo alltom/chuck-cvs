@@ -7,9 +7,10 @@
   - (API change) OSC_Addr class name changed to 'OscEvent'
       (also): .hasMesg() name changed to .hasMsg()
       (also): .nextMesg() name changed to .nextMsg()
-  - (examples) examples/event/opensound*.ck moved to examples/osc/OSC*.ck
-      (see OSC_send.ck and OSC_recv.ck for examples on OpenSoundControl)
   - (API change) STK Shakers.freq now expect Hz instead of MIDI number
+  - (moved) examples/event/opensound*.ck moved to examples/osc/OSC*.ck
+      (see OSC_send.ck and OSC_recv.ck for examples on OpenSoundControl)
+  - (moved) examples/event/polyfony*.ck to examples/midi/
 
   - (added) 'loop(...){ }' control structure : 
       example: loop( 8 ) { ... } // executes body 8 times
@@ -43,8 +44,8 @@
   - (fixed) removed extra console output in STK Flute
   - (fixed) multiple delete/assertion failure on type rollback
   - (fixed) chuck --kill now closes WvOut and MidiRW file handles
-  - (added) examples/midi/gomidi.ck
-  - (moved) examples/event/polyfony*.ck to examples/midi/
+  - (added) examples/midi/gomidi.ck : very useful sometimes
+  - (added) examples/midi/gomidi2.ck
   - (added) examples/basic/rec-auto.ck
   - (added) examples/sitar.ck
   - (fixed) examples/stk/*-o-matic.ck now uses array
