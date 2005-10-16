@@ -7,8 +7,8 @@
   - (API change) OSC_Addr class name changed to 'OscEvent'
       (also): .hasMesg() name changed to .hasMsg()
       (also): .nextMesg() name changed to .nextMsg()
-  - (examples) see examples/event/opensound_demo_*.ck
-  - (examples) examples/event/opensound_demo_*.ck simplified reformatted
+  - (examples) examples/event/opensound*.ck moved to examples/osc/OSC*.ck
+      (see OSC_send.ck and OSC_recv.ck for examples on OpenSoundControl)
   - (API change) STK Shakers.freq now expect Hz instead of MIDI number
 
   - (added) 'loop(...){ }' control structure : 
