@@ -1,5 +1,5 @@
 // fm synth "by hand"
-// to be legit, we should be polling another sinosc (see sixty.ck, pwm.ck)
+// to be legit, we should be polling another sinosc
 // - pld  06/17/04
 
 440.0 => float fc;

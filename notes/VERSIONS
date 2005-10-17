@@ -32,7 +32,6 @@
       .name() : the device name (string)
       .printerr( int ) : whether to auto print errors (default YES)
   - (added) --version command line flag (Graham)
-  - (added) phasor object back in action
 
   - (changed) chuck --status now prints shreds sorted by id
       (previously it was the current shreduling order + blocked)
@@ -53,7 +52,7 @@
   - (added) examples/midi/gomidi.ck : very useful sometimes
   - (added) examples/midi/gomidi2.ck
   - (added) examples/basic/rec-auto.ck (rec2.ck back in action)
-  - (added) old fm examples: fmsynth.ck sixty.ck pwm.ck
+  - (added) examples/basic/fmsynth.ck (from v1)
   - (added) examples/sitar.ck
   - (fixed) examples/stk/*-o-matic.ck now uses array
 
