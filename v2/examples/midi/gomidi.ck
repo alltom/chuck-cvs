@@ -1,21 +1,24 @@
-// print out MIDI messages on device
-0 => int device;
+// number of the device to open (see: chuck --probe)
+1 => int device;
 
-// the event
+// the midi event
 MidiIn min;
-// the message
+// the message for retrieving data
 MidiMsg msg;
 
-// try to open
+// open the device
 if( !min.open( device ) ) me.exit();
 
-// infinite event loop
+// print out device that was opened
+<<< "MIDI device:", min.num(), " -> ", min.name() >>>;
+
+// infinite time-loop
 while( true )
 {
-    // wait on event
+    // wait on the event 'min'
     min => now;
 
-    // get the messages
+    // get the message(s)
     while( min.recv(msg) )
     {
         // print out midi message

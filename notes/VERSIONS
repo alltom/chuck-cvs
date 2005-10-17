@@ -1,6 +1,7 @@
 
 ---
 1.2.0.2
+  (sorry for the API changes)
   - (API change) OSC_Send class name changed to 'OscSend'
       (also): .startMesg(...) name changed to startMsg(...)
   - (API change) OSC_Recv class name changed to 'OscRecv'
@@ -8,6 +9,7 @@
       (also): .hasMesg() name changed to .hasMsg()
       (also): .nextMesg() name changed to .nextMsg()
   - (API change) STK Shakers.freq now expect Hz instead of MIDI number
+
   - (moved) examples/event/opensound*.ck moved to examples/osc/OSC*.ck
       (see OSC_send.ck and OSC_recv.ck for examples on OpenSoundControl)
   - (moved) examples/event/polyfony*.ck to examples/midi/
@@ -29,6 +31,7 @@
       .num()  : the device number (int)
       .name() : the device name (string)
       .printerr( int ) : whether to auto print errors (default YES)
+  - (added) --version command line flag (Graham)
 
   - (changed) chuck --status now prints shreds sorted by id
       (previously it was the current shreduling order + blocked)
@@ -46,7 +49,7 @@
   - (fixed) chuck --kill now closes WvOut and MidiRW file handles
   - (added) examples/midi/gomidi.ck : very useful sometimes
   - (added) examples/midi/gomidi2.ck
-  - (added) examples/basic/rec-auto.ck
+  - (added) examples/basic/rec-auto.ck (rec2.ck back in action)
   - (added) examples/sitar.ck
   - (fixed) examples/stk/*-o-matic.ck now uses array
 

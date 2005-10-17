@@ -6,11 +6,18 @@
 // send all complaints to prc@cs.princeton.edu
 //--------------------------------------------
 
+// device to open (see: chuck --probe)
+1 => int device;
+
 MidiIn min;
 MidiMsg msg;
 
 // try to open MIDI port (see chuck --probe for available devices)
-if( !min.open( 0 ) ) me.exit();
+if( !min.open( device ) ) me.exit();
+
+// print out device that was opened
+<<< "MIDI device:", min.num(), " -> ", min.name() >>>;
+
 
 // make our own event
 class NoteEvent extends Event
