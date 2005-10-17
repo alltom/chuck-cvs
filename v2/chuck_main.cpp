@@ -238,6 +238,20 @@ t_CKBOOL get_count( const char * arg, t_CKUINT * out )
 
 
 //-----------------------------------------------------------------------------
+// name: version()
+// desc: ...
+//-----------------------------------------------------------------------------
+void version()
+{
+    fprintf( stderr, "\n" );
+    fprintf( stderr, "chuck version: %s\n", CK_VERSION );
+    fprintf( stderr, "   http://chuck.cs.princeton.edu/\n\n" );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: usage()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -249,9 +263,8 @@ void usage()
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
     fprintf( stderr, "               blocking|callback\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
-    fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n\n" );
-    fprintf( stderr, "chuck version: %s\n", CK_VERSION );
-    fprintf( stderr, "   http://chuck.cs.princeton.edu/\n\n" );
+    fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n" );
+    version();
 }
 
 
@@ -358,6 +371,11 @@ int main( int argc, char ** argv )
                  || !strcmp(argv[i], "--about") )
             {
                 usage();
+                exit( 2 );
+            }
+            else if( !strcmp( argv[i], "--version" ) )
+            {
+                version();
                 exit( 2 );
             }
             else if( otf_send_cmd( argc, argv, i, g_host, g_port ) )
