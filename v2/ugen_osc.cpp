@@ -98,6 +98,16 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
 
     //---------------------------------------------------------------------
+    // phasor
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "phasor", "osc", env->global(), 
+                                        NULL, sinosc_tick, NULL ) )
+        return FALSE;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    //---------------------------------------------------------------------
     // sinosc
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "sinosc", "osc", env->global(), 
