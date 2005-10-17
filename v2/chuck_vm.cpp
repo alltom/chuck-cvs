@@ -536,12 +536,23 @@ t_CKBOOL Chuck_VM::run( )
     if( !m_audio || m_block ) this->run( -1 );
     else
     {
-        // start audio
-        if( !m_audio_started ) start_audio();
+        // compute shreds before first sample
+        if( !compute() )
+        {
+            // done
+            m_running = FALSE;
+            // log
+            EM_log( CK_LOG_SYSTEM, "virtual machine stopped..." );
+        }
+        else
+        {
+            // start audio
+            if( !m_audio_started ) start_audio();
 
-        // wait
-        while( m_running )
-        { usleep( 50000 ); }
+            // wait
+            while( m_running )
+            { usleep( 50000 ); }
+        }
     }
 
     return TRUE;
@@ -556,23 +567,18 @@ true*/
 
 
 //-----------------------------------------------------------------------------
-// name: run()
+// name: compute()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_VM::run( t_CKINT num_samps )
+t_CKBOOL Chuck_VM::compute()
 {
     Chuck_VM_Shred * shred = NULL;
     Chuck_Msg * msg = NULL;
     Chuck_Event * event = NULL;
+    t_CKBOOL iterate = TRUE;
 
-    // push indent
-    //EM_pushlog();
-    // log
-    //EM_log( CK_LOG_CRAZY, "virtual machine computing..." );
-    // pop indent
-    //EM_poplog();
-
-    while( num_samps )
+    // iteration until no more shreds/events/messages
+    while( iterate )
     {
         // get the shreds queued for 'now'
         while(( shred = m_shreduler->get() ))
@@ -591,26 +597,48 @@ t_CKBOOL Chuck_VM::run( t_CKINT num_samps )
 
                 this->free( shred, TRUE );
                 shred = NULL;
-                if( !m_num_shreds && m_halt ) goto vm_stop;
+                if( !m_num_shreds && m_halt ) return FALSE;
             }
 
             // track shred deactivation
             CK_TRACK( if( shred ) Chuck_Stats::instance()->deactivate_shred( shred ) );
         }
+            
+        // set to false for now
+        iterate = FALSE;
+
+        // broadcast queued events
+        while( m_event_buffer->get( &event, 1 ) )
+        { event->broadcast(); iterate = TRUE; }
+
+        // process messages
+        while( m_msg_buffer->get( &msg, 1 ) )
+        { process_msg( msg ); iterate = TRUE; }
+    }
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: run()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::run( t_CKINT num_samps )
+{
+    // loop it
+    while( num_samps )
+    {
+        // compute shreds
+        if( !compute() ) goto vm_stop;
 
         // start audio
         if( !m_audio_started ) start_audio();
 
         // advance the shreduler
         m_shreduler->advance();
-
-        // process messages
-        while( m_msg_buffer->get( &msg, 1 ) )
-            process_msg( msg );
-
-        // broadcast queued events
-        while( m_event_buffer->get( &event, 1 ) )
-            event->broadcast();
 
         // count
         if( num_samps > 0 ) num_samps--;

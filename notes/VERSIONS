@@ -39,6 +39,8 @@
       : the incoming messages are broadcast to all
   - (changed) address/type string in OSC: comma now optional (phil)
 
+  - (fixed) events are now 0-sample synchronous (instead of 1)
+  - (fixed) startup audio stability for --callback mode
   - (fixed) incorrect 'continue' behavior in for loops
   - (fixed) improved OSC stability (phil)
   - (fixed) OSC shreduling sanity check failed now resolved

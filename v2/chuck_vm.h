@@ -302,6 +302,7 @@ public: // audio
 public: // running the machine
     t_CKBOOL run( );
     t_CKBOOL run( t_CKINT num_samps );
+    t_CKBOOL compute( );
     t_CKBOOL pause( );
     t_CKBOOL stop( );
     t_CKBOOL start_audio( );
