@@ -375,6 +375,8 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
         memset( buffer, 0, len );
         m_go = TRUE;
+        // let it go the first time
+        return 0;
     }
 
     // copy input to local buffer
@@ -391,7 +393,7 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         // get samples from output
         vm_ref->run( buffer_size );
         // ...
-        // if( m_xrun ) m_xrun--;
+        if( m_xrun ) m_xrun--;
     }
     else
         // reset
