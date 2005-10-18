@@ -1,6 +1,14 @@
 
 ---
-1.2.0.2
+1.2.0.2b
+  - loop( ... ) construct (see 1.2.0.2) changed to repeat( ... )
+    - usage and semantics same as before
+    - this is also an experimental language feature
+      (let us know if it's good or bad)
+
+
+---
+1.2.0.2 - 2005.10.17
   (sorry for the API changes)
   - (API change) OSC_Send class name changed to 'OscSend'
       (also): .startMesg(...) name changed to startMsg(...)

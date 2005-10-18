@@ -180,14 +180,14 @@ int comment();
 for                     { adjust(); return FOR; }
 while                   { adjust(); return WHILE; }
 until                   { adjust(); return UNTIL; }
-loop                    { adjust(); return LOOP; }
+repeat                  { adjust(); return LOOP; }
 continue                { adjust(); return CONTINUE; }
 break                   { adjust(); return BREAK; }
 if                      { adjust(); return IF; }
 else                    { adjust(); return ELSE; }
 do                      { adjust(); return DO; }
-"<<<"                    { adjust(); return L_HACK; }
-">>>"                    { adjust(); return R_HACK; }
+"<<<"                   { adjust(); return L_HACK; }
+">>>"                   { adjust(); return R_HACK; }
 
 return                  { adjust(); return RETURN; }
 
