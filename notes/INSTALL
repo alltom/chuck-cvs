@@ -12,6 +12,14 @@ online version of this document:
 
 ---
 
+If you are using the executable, you only need to put chuck (osx) or 
+chuck.exe (win32) in your path.  On osx, go to the bin/ directory 
+and type 'sudo make install', and enter your password.  On win32, put 
+bin/chuck.exe in c:\windows\system32\.  If that is the case, you can skip 
+the rest of this document.
+
+---
+
 We tried to make ChucK as easy as possible to build and re-use. All 
 sources files - headers source for compiler, vm, and audio engine - are 
 in the same directory (they run in the same address space anyway). Platforms 
