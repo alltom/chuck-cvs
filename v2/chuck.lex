@@ -127,12 +127,14 @@ long htol( c_str str )
 }
 
 int comment();
+int block_comment();
 
 %}
 
 %%
 
 "//"                    { adjust(); comment(); continue; }
+"/*"                    { adjust(); block_comment(); continue; }
 " "                     { adjust(); continue; }
 "\t"                    { adjust(); continue; }
 "\r\n"                  { adjust(); EM_newline(); continue; }
@@ -248,4 +250,41 @@ int comment()
     }
     
     return 0;
+}
+
+// block comment
+int block_comment()
+{
+	char c, c1;
+
+loop:
+	while ((c = input()) != '*' && c != 0 && c != EOF )
+	{
+	    switch(c)
+		{
+		case '\n': EM_newline();
+		break;
+		}
+		// putchar(c);
+	}
+
+	if( c == EOF )
+	{
+	    adjust();
+		return 1;
+	}
+
+	if ((c1 = input()) != '/' && c != 0)
+	{
+		unput(c1);
+		goto loop;
+	}
+
+	if (c != 0)
+	{
+	    adjust();
+		// putchar(c1);
+	}
+
+	return 0;
 }
