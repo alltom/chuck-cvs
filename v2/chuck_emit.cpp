@@ -2933,12 +2933,21 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         is_ref = decl->type->ref;
 
         // if this is an object
-        if( is_obj && !is_ref )
+        if( is_obj )
         {
             // if array, then check to see if empty []
-            if( !list->var_decl->array || list->var_decl->array->exp_list != NULL )
+            if( list->var_decl->array )
             {
-                // instantiate object, including array
+                if( list->var_decl->array->exp_list )
+                {
+                    // instantiate object, including array
+                    if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
+                        return FALSE;
+                }
+            }
+            else if( !is_ref )
+            {
+                // instantiate object (not array)
                 if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
                     return FALSE;
             }
@@ -3007,10 +3016,21 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         }
 
         // if object, assign
-        if( is_obj && !is_ref )
+        if( is_obj )
         {
-            // assign the object
-            emit->append( new Chuck_Instr_Assign_Object );
+            // if array
+            if( var_decl->array )
+            {
+                // if not []
+                if( var_decl->array->exp_list )
+                    // assign
+                    emit->append( new Chuck_Instr_Assign_Object );
+            }
+            else if( !is_ref )
+            {
+                // assign the object
+                emit->append( new Chuck_Instr_Assign_Object );
+            }
         }
         
         list = list->next;

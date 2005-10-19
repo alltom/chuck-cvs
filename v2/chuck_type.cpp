@@ -2279,18 +2279,18 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
                     "cannot declare static nonprimitive objects (yet)..." );
                 return FALSE;
             }
+        }
 
-            // if array, then check to see if empty []
-            if( var_decl->array && var_decl->array->exp_list != NULL )
-            {
-                // instantiate object, including array
-                if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
-                    return FALSE;
+        // if array, then check to see if empty []
+        if( var_decl->array && var_decl->array->exp_list != NULL )
+        {
+            // instantiate object, including array
+            if( !type_engine_check_exp( env, var_decl->array->exp_list ) )
+                return FALSE;
 
-                // check the subscripts
-                if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
-                    return FALSE;
-            }
+            // check the subscripts
+            if( !type_engine_check_array_subscripts( env, var_decl->array->exp_list ) )
+                return FALSE;
         }
 
         // member?
