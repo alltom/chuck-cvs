@@ -1,51 +1,13 @@
 // even more music for replicants
 
 // patch
-Wurley voc=> JCRev r => Echo a => Echo b => Echo c => dac;
+Wurley voc=> JCRev r => dac;
 
 // initial settings
 220.0 => voc.freq;
 0.95 => voc.gain;
 .8 => r.gain;
 .2 => r.mix;
-1000::ms => a.max => b.max => c.max;
-750::ms => a.delay => b.delay => c.delay;
-.50 => a.mix => b.mix => c.mix;
-
-// shred to modulate the mix
-fun void vecho_Shred( )
-{
-    0.0 => float decider;
-    0.0 => float mix;
-    0.0 => float old;
-    0.0 => float inc;
-    0 => int n;
-
-    // time loop
-    while( true )
-    {
-        std.rand2f(0.0,1.0) => decider;
-        if( decider < .3 ) 0.0 => mix;
-        else if( decider < .6 ) .08 => mix;
-        else if( decider < .8 ) .5 => mix;
-        else .15 => mix;
-
-        // find the increment
-        (mix-old)/1000.0 => inc;
-        1000 => n;
-        while( n-- )
-        {
-            old + inc => old;
-            old => a.mix => b.mix => c.mix;
-            1::ms => now;
-        }
-        mix => old;
-        std.rand2(2,6)::second => now;
-    }
-}
-
-// let echo shred go
-spork ~ vecho_Shred();
 
 // scale
 [ 0, 3, 7, 8, 11 ] @=> int scale[];
@@ -58,12 +20,29 @@ while( true )
     std.mtof( ( 45 + std.rand2(0,1) * 12 + freq ) ) => voc.freq;
     std.rand2f( 0.6, 0.8 ) => voc.noteOn;
 
-    if( std.randf() > 0.7 )
-    { 1000::ms => now; }
-    else if( std.randf() > .7 )
-    { 500::ms => now; }
+    if( std.randf() > 0.8 )
+    {
+        // 1000::ms => now;
+        repeat( 100 )
+        {
+            voc.freq() * 1.01 => voc.freq;
+            10::ms => now;
+        }
+    }
+    else if( std.randf() > .5 )
+    {
+        // 500::ms => now;
+        repeat( 50 )
+        {
+            voc.freq() * .99 => voc.freq;
+            10::ms => now;
+        }
+    }
     else if( std.randf() > -0.8 )
-    { .250::second => now; }
+    {
+        250::ms => now;
+
+    }
     else
     {
         0 => int i;
