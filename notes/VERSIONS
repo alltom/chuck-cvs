@@ -8,10 +8,12 @@
       (let us know if it's good or bad)
 
   - (fixed) arrays of null object references correctly allocated
-    : Event @ events[128];
+      : Event @ events[128];
+  - (fixed) examples/midi/polyfony*.ck no longer creates 128
+      unnecessary events...
 
   - (changed) examples/stk/wurley.ck -> examples/stk/wurley2.ck
-  - (added) examples/stk/wurley.ck (wacky version)
+  - (changed) examples/stk/wurley.ck (wacky version)
 
 
 ---

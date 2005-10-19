@@ -1,13 +1,13 @@
 //------------------------------------------------
-// name: polyfony.ck
-// desc: polyfonic midi
+// name: polyfony2.ck
+// desc: polyfonic clarinet model with midi input
 //
 // by: Ananya Misra and Ge Wang
 // send all complaints to prc@cs.princeton.edu
 //--------------------------------------------
 
 // device to open
-1 => int device;
+0 => int device;
 
 MidiIn min;
 MidiMsg msg;
@@ -29,7 +29,7 @@ class NoteEvent extends Event
 // the event
 NoteEvent on;
 // array of ugen's handling each note
-Event us[128];
+Event @ us[128];
 
 // the base patch
 gain g => JCRev r => dac;

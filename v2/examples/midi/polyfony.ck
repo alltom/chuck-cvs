@@ -1,13 +1,13 @@
 //------------------------------------------------
 // name: polyfony.ck
-// desc: polyfonic midi
+// desc: polyfonic mandolin model
 //
 // by: Ananya Misra and Ge Wang
 // send all complaints to prc@cs.princeton.edu
 //--------------------------------------------
 
 // device to open (see: chuck --probe)
-1 => int device;
+0 => int device;
 
 MidiIn min;
 MidiMsg msg;
@@ -29,7 +29,7 @@ class NoteEvent extends Event
 // the event
 NoteEvent on;
 // array of ugen's handling each note
-Event us[128];
+Event @ us[128];
 
 // the base patch
 gain g => JCRev r => dac;
