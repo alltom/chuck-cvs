@@ -1103,7 +1103,7 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
 
     // type check the lhs and rhs
     t_CKTYPE left = type_engine_check_exp( env, cl );
-    t_CKTYPE right = type_engine_check_exp( env, cr);
+    t_CKTYPE right = type_engine_check_exp( env, cr );
     
     // if either fails, then return NULL
     if( !left || !right )

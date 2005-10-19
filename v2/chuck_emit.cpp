@@ -75,7 +75,7 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit, a_Exp_Func_Call f
 t_CKBOOL emit_engine_emit_func_args( Chuck_Emitter * emit, a_Exp_Func_Call func_call );
 t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit, a_Exp_Dot_Member member );
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if );
-t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl );
+t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl, t_CKBOOL first_exp );
 t_CKBOOL emit_engine_emit_array_lit( Chuck_Emitter * emit, a_Array_Sub array );
 t_CKBOOL emit_engine_emit_code_segment( Chuck_Emitter * emit, a_Stmt_Code stmt,
                                         t_CKBOOL push = TRUE );
@@ -1222,7 +1222,7 @@ t_CKBOOL emit_engine_emit_exp( Chuck_Emitter * emit, a_Exp exp )
             break;
 
         case ae_exp_decl:
-            if( !emit_engine_emit_exp_decl( emit, &exp->decl ) )
+            if( !emit_engine_emit_exp_decl( emit, &exp->decl, FALSE ) )
                 return FALSE;
             break;
 
@@ -2908,7 +2908,8 @@ t_CKBOOL emit_engine_instantiate_object( Chuck_Emitter * emit, Chuck_Type * type
 // name: emit_engine_emit_exp_decl()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
+t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl,
+                                    t_CKBOOL first_exp )
 {
     a_Var_Decl_List list = decl->var_decl_list;
     a_Var_Decl var_decl = NULL;
@@ -2917,6 +2918,7 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
     Chuck_Local * local = NULL;
     t_CKBOOL is_obj = FALSE;
     t_CKBOOL is_ref = FALSE;
+    t_CKBOOL is_init = FALSE;
 
     // loop through vars
     while( list )
@@ -2931,6 +2933,8 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
         is_obj = isobj( type );
         // do alloc or not
         is_ref = decl->type->ref;
+        // not init
+        is_init = FALSE;
 
         // if this is an object
         if( is_obj )
@@ -2940,6 +2944,8 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             {
                 if( list->var_decl->array->exp_list )
                 {
+                    // set
+                    is_init = TRUE;
                     // instantiate object, including array
                     if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
                         return FALSE;
@@ -2947,11 +2953,30 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             }
             else if( !is_ref )
             {
+                // set
+                is_init = TRUE;
                 // instantiate object (not array)
                 if( !emit_engine_instantiate_object( emit, type, list->var_decl->array, is_ref ) )
                     return FALSE;
             }
         }
+
+        // if not init and first exp
+        /* if( !is_init && first_exp )
+        {
+            // push 0
+            if( type->size == 4 )
+                emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+            else if( type->size == 8 )
+                emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+            else
+            {
+                EM_error2( decl->linepos,
+                    "(emit): unhandle decl size of '%i'...",
+                    type->size );
+                return FALSE;
+            }
+        }*/
 
         // put in the value
 
@@ -3015,6 +3040,9 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             }
         }
 
+        // set is_init
+        is_init = FALSE;
+
         // if object, assign
         if( is_obj )
         {
@@ -3023,15 +3051,37 @@ t_CKBOOL emit_engine_emit_exp_decl( Chuck_Emitter * emit, a_Exp_Decl decl )
             {
                 // if not []
                 if( var_decl->array->exp_list )
+                {
+                    // set
+                    is_init = TRUE;
                     // assign
                     emit->append( new Chuck_Instr_Assign_Object );
+                }
             }
             else if( !is_ref )
             {
+                // set
+                is_init = TRUE;
                 // assign the object
                 emit->append( new Chuck_Instr_Assign_Object );
             }
         }
+
+        // if not init and first exp
+        /* if( !is_init && first_exp )
+        {
+            // if obj
+            if( is_obj )
+                emit->append( new Chuck_Instr_Assign_Object );
+            // size 4 primitive
+            else if( type->size == 4 )
+                emit->append( new Chuck_Instr_Assign_Primitive );
+            // size 8 primitive
+            else if( type->size == 8 )
+                emit->append( new Chuck_Instr_Assign_Primitive2 );
+            else
+                assert( FALSE );
+        }*/
         
         list = list->next;
     }
