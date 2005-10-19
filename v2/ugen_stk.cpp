@@ -26319,7 +26319,6 @@ CK_DLL_CTRL( Mandolin_ctrl_freq )
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     m->setFrequency( f );
-
 }
 
 
