@@ -7,6 +7,10 @@
     - this is also an experimental language feature
       (let us know if it's good or bad)
 
+  - (added) /* block comments */
+    - no nesting allowed
+    - closing '*/' not necessary if commenting out rest of the file
+
   - (fixed) arrays of null object references correctly allocated
       : Event @ events[128];
   - (fixed) examples/midi/polyfony*.ck no longer creates 128
