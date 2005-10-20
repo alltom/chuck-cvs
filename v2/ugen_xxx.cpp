@@ -1790,6 +1790,8 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 
     // d->interp = SNDBUF_INTERP;
     d->sampleratio = (double)d->samplerate / (double)g_srate;
+    // set the rate
+    d->rate = d->sampleratio;
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
 }
@@ -1820,7 +1822,7 @@ CK_DLL_CTRL( sndbuf_ctrl_write )
 CK_DLL_CTRL( sndbuf_ctrl_rate )
 {
     sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    t_CKFLOAT rate = GET_CK_FLOAT(ARGS); // rate     
+    t_CKFLOAT rate = GET_CK_FLOAT(ARGS); // rate
     d->rate = rate * d->sampleratio; 
     RETURN->v_float = d->rate / d->sampleratio; // TODO: (or not TODO:)
 }

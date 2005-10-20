@@ -93,9 +93,13 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     QUERY->begin_class( QUERY, "std", "Object" );
 
     // add abs
-    QUERY->add_sfun( QUERY, abs_impl, "float", "abs" );
-    QUERY->add_arg( QUERY, "float", "value" );
+    QUERY->add_sfun( QUERY, abs_impl, "int", "abs" );
+    QUERY->add_arg( QUERY, "int", "value" );
     
+    // add fabs
+    QUERY->add_sfun( QUERY, abs_impl, "float", "fabs" );
+    QUERY->add_arg( QUERY, "float", "value" );
+
     // add rand
     QUERY->add_sfun( QUERY, rand_impl, "int", "rand"); //! return int between 0 and RAND_MAX
     
@@ -267,14 +271,16 @@ int irand_exclusive ( int max ) {
 // abs
 CK_DLL_SFUN( abs_impl )
 {
-  t_CKFLOAT v = GET_CK_FLOAT(ARGS);
-  RETURN->v_float = v >= 0.0f ? v : -v;
+    t_CKINT v = GET_CK_INT(ARGS);
+    RETURN->v_int = v >= 0 ? v : -v;
 }
 
 // fabs
 CK_DLL_SFUN( fabs_impl )
 {
-    RETURN->v_float = ::fabs( GET_CK_FLOAT(ARGS) );
+    t_CKFLOAT v = GET_CK_FLOAT(ARGS);
+    RETURN->v_float = v >= 0.0 ? v : -v;
+    //RETURN->v_float = ::fabs( GET_CK_FLOAT(ARGS) );
 }
 
 // rand
@@ -309,10 +315,10 @@ CK_DLL_SFUN( rand2_impl ) // inclusive.
     //}
     else { 
       if ( range > 0 ) { 
-    RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
+        RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
       }
       else { 
-    RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
+        RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
       }
     }
 }

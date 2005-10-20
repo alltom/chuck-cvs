@@ -1,11 +1,14 @@
 
 ---
 1.2.0.3
+  (API changes again)
   (syntax change - 'loop' -> 'repeat')
   - loop( ... ) construct (see 1.2.0.2) changed to repeat( ... )
     - usage and semantics same as before
     - this is also an experimental language feature
       (let us know if it's good or bad)
+  - float std.abs( float ) changed -> int std.abs( int )
+  - use std.fabs( ... ) for floating point absolute value
 
   - (added) /* block comments */
     - no nesting allowed
@@ -13,6 +16,9 @@
 
   - (fixed) arrays of null object references correctly allocated
       : Event @ events[128];
+  - (fixed) DEFAULT sndbuf rate now set correctly to interpolate
+      for files outside of chuck sample rate (no longer have to
+      explicit do 1 => buf.rate)
   - (fixed) examples/midi/polyfony*.ck no longer creates 128
       unnecessary events...
 
