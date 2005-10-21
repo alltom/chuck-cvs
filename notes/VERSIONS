@@ -13,7 +13,6 @@
   - (added) /* block comments */
     - no nesting allowed
     - closing '*/' not necessary if commenting out rest of the file
-
   - (fixed) arrays of null object references correctly allocated
       : Event @ events[128];
   - (fixed) DEFAULT sndbuf rate now set correctly to interpolate
@@ -21,7 +20,6 @@
       explicit do 1 => buf.rate)
   - (fixed) examples/midi/polyfony*.ck no longer creates 128
       unnecessary events...
-
   - (changed) examples/stk/wurley.ck -> examples/stk/wurley2.ck
   - (changed) examples/stk/wurley.ck (wacky version)
 
