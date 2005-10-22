@@ -138,8 +138,8 @@ int block_comment();
 	{ \
 		unput(c1); \
 		goto loop; \
-        adjust(); \
-	}
+	}\
+    if( c != 0 ) adjust();
 
 %}
 
@@ -264,7 +264,7 @@ int comment()
     return 0;
 }
 
-// block comment using hack thanks to flex unput uncertainty
+// block comment
 /* int block_comment()
 {
 	char c, c1;
@@ -283,8 +283,9 @@ loop:
 	{
 		unput(c1);
 		goto loop;
-        adjust();
 	}
+    
+    if( c != 0 ) adjust();
 
 	return 0;
 }
