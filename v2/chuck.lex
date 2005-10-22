@@ -264,7 +264,7 @@ int comment()
     return 0;
 }
 
-// block comment
+// block comment using hack thanks to flex unput uncertainty
 /* int block_comment()
 {
 	char c, c1;
