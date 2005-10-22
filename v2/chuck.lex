@@ -129,7 +129,7 @@ long htol( c_str str )
 int comment();
 int block_comment();
 
-// block comment hack
+// block comment hack (thanks to unput/yytext_ptr inconsistency)
 #define block_comment_hack loop: \
 	while ((c = input()) != '*' && c != 0 && c != EOF ) \
         if( c == '\n' ) EM_newline(); \
