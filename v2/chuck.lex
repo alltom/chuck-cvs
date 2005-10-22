@@ -129,12 +129,24 @@ long htol( c_str str )
 int comment();
 int block_comment();
 
+// block comment hack
+#define block_comment_hack loop: \
+	while ((c = input()) != '*' && c != 0 && c != EOF ) \
+        if( c == '\n' ) EM_newline(); \
+	if( c == EOF ) adjust(); \
+	else if( (c1 = input()) != '/' && c != 0 ) \
+	{ \
+		unput(c1); \
+		goto loop; \
+        adjust(); \
+	}
+
 %}
 
 %%
 
 "//"                    { adjust(); comment(); continue; }
-"/*"                    { adjust(); block_comment(); continue; }
+"/*"                    { char c, c1; adjust(); block_comment_hack; continue; }
 " "                     { adjust(); continue; }
 "\t"                    { adjust(); continue; }
 "\r\n"                  { adjust(); EM_newline(); continue; }
@@ -253,38 +265,27 @@ int comment()
 }
 
 // block comment
-int block_comment()
+/* int block_comment()
 {
 	char c, c1;
 
 loop:
 	while ((c = input()) != '*' && c != 0 && c != EOF )
-	{
-	    switch(c)
-		{
-		case '\n': EM_newline();
-		break;
-		}
-		// putchar(c);
-	}
+        if( c == '\n' ) EM_newline();
 
 	if( c == EOF )
-	{
-	    adjust();
-		return 1;
-	}
-
-	if ((c1 = input()) != '/' && c != 0)
+    {
+        adjust();
+        return 1;
+    }
+    
+	if( (c1 = input()) != '/' && c != 0 )
 	{
 		unput(c1);
 		goto loop;
-	}
-
-	if (c != 0)
-	{
-	    adjust();
-		// putchar(c1);
+        adjust();
 	}
 
 	return 0;
 }
+*/
