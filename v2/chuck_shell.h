@@ -63,21 +63,24 @@ public:
     
     t_CKBOOL init( Chuck_VM *, Chuck_Compiler *, Chuck_Shell_UI * );
     void run();
-    void stop();
+    void close();
+    void kill();
 
 protected: /* these functions are usually called by a Chuck_Shell_Mode */
-    t_CKBOOL swap_mode( const string & );
-    t_CKBOOL swap_last_mode();
-    t_CKBOOL set_prompt( const string & );
-	t_CKBOOL meta_command( t_CKUINT, const string & );
+    //t_CKBOOL swap_mode( const string & );
+    //t_CKBOOL swap_last_mode();
+    //t_CKBOOL set_prompt( const string & );
+	//t_CKBOOL meta_command( t_CKUINT, const string & );
+	
 
 private:
     map< string, Chuck_Shell_Mode * > modes;
-    Chuck_Shell_Mode *current_mode;
-    Chuck_Shell_UI *ui;
+    Chuck_Shell_Mode * current_mode;
+    Chuck_Shell_UI * ui;
     vector< Chuck_Shell_VM * > vms;
+    Chuck_VM * process_vm;
     t_CKBOOL initialized;
-    
+    t_CKBOOL stop;
 };
 
 //-----------------------------------------------------------------------------
@@ -87,13 +90,10 @@ private:
 class Chuck_Shell_VM
 {
 public:
-	Chuck_Shell_VM();
-	~Chuck_Shell_VM();
-	
-	virtual t_CKBOOL init();
-	virtual t_CKBOOL add_shred( const string &, string & )=0;
-	virtual t_CKBOOL remove_shred( t_CKUINT, string & )=0;
+	virtual t_CKBOOL add_shred( const vector< string > &, string & )=0;
+	virtual t_CKBOOL remove_shred( const vector< string > &, string & )=0;
 	virtual t_CKBOOL status( string & )=0;
+	virtual string fullname()=0;
 };
 
 //-----------------------------------------------------------------------------
@@ -103,13 +103,11 @@ public:
 class Chuck_Shell_Network_VM : public Chuck_Shell_VM
 {
 public:
-	Chuck_Shell_Network_VM();
-	~Chuck_Shell_Network_VM();
-	
 	t_CKBOOL init( const string &, t_CKINT );
-	t_CKBOOL add_shred( const string &, string & );
-	t_CKBOOL remove_shred( t_CKUINT, string & );
+	t_CKBOOL add_shred( const vector< string > &, string & );
+	t_CKBOOL remove_shred( const vector< string > &, string & );
 	t_CKBOOL status( string & );
+	string fullname();
 
 private: 
 	string hostname;
@@ -123,13 +121,12 @@ private:
 class Chuck_Shell_Process_VM : public Chuck_Shell_VM
 {
 public:
-	Chuck_Shell_Process_VM();
-	~Chuck_Shell_Process_VM();
-	
 	t_CKBOOL init( Chuck_VM *, Chuck_Compiler * );
-	t_CKBOOL add_shred( const string &, string & );
-	t_CKBOOL remove_shred( t_CKUINT, string & );
+	t_CKBOOL add_shred( const vector< string > &, string & );
+	t_CKBOOL remove_shred( const vector< string > &, string & );
 	t_CKBOOL status( string & );
+	void stop();
+	string fullname();
 
 private:
 	Chuck_VM * vm;
@@ -153,6 +150,7 @@ public:
     
 protected:
     vector< Chuck_Shell_VM * > * vms;  //shared by all modes
+    t_CKBOOL save_current_vm;  //if true, do not delete the current vm 
    	Chuck_Shell_VM * current_vm;
     Chuck_Shell * host_shell;
     t_CKBOOL initialized;
@@ -191,6 +189,9 @@ public:
 protected:
 	void add( const vector< string > &, string & );
 	void remove( const vector< string > &, string & );
+	void close( const vector< string > &, string & );
+	void kill( const vector< string > &, string & );
+	void ls( const vector< string > &, string & );
 	void vm_attach( const vector< string > &, string & );
 	void vm_add( const vector< string > &, string & );
 	void vm_remove( const vector< string > &, string & );

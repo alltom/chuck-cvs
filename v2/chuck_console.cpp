@@ -93,7 +93,7 @@ t_CKBOOL Chuck_Console::next_command( Chuck_Shell_Response &out )
 //-----------------------------------------------------------------------------
 void Chuck_Console::next_result( const Chuck_Shell_Response &in )
 {
-    printf( in.c_str() );
+    fputs( in.c_str(), stdout );
 }
 
 

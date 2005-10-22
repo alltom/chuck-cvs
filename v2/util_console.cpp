@@ -48,15 +48,26 @@ char * io_readline( const char * prompt )
 #else
 
     // insert our hack
-    char *buf=(char *)malloc( CONSOLE_INPUT_BUFFER_SIZE * sizeof(char) );
+    char * buf=(char *)malloc( CONSOLE_INPUT_BUFFER_SIZE * sizeof(char) );
+    char * result;
+    
     fputs( prompt, stdout );
-	fgets( buf, CONSOLE_INPUT_BUFFER_SIZE, stdin );
+    
+	result = fgets( buf, CONSOLE_INPUT_BUFFER_SIZE, stdin );
+	
+	if( result == NULL )
+	{
+		free( buf );
+		return NULL;
+	}
+	
 	for( int i=0; i < CONSOLE_INPUT_BUFFER_SIZE; i++ )
 		if(buf[i] == '\n' )
-			{
+		{
 			buf[i] = 0;
 			break;
-			}
+		}
+	
 	return buf;
 	
 #endif

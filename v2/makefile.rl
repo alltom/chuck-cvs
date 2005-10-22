@@ -167,7 +167,7 @@ ulib_opsc.o: ulib_opsc.h ulib_opsc.cpp
 util_buffers.o: util_buffers.h util_buffers.cpp
 	$(CC) $(FLAGS) util_buffers.cpp
 
-util_console.o: util_console.h util_console.cpp chuck_shell.h
+util_console.o: util_console.h util_console.cpp
 	$(CC) $(FLAGS) util_console.cpp
 
 util_math.o: util_math.h util_math.c
