@@ -937,7 +937,11 @@ void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
 		
 		while( dir_entity != NULL )
 		{
+#ifdef __MACOSX_CORE__
 			out += string( dir_entity->d_name, dir_entity->d_namlen ) + "\n";
+#else
+            out += string( dir_entity->d_name, dir_entity->d_reclen ) + "\n";
+#endif
 			dir_entity = readdir( dir_handle );
 		}
 		
@@ -958,7 +962,11 @@ void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
 		
 		while( dir_entity != NULL )
 		{
+#ifdef __MACOSX_CORE__
 			out += string( dir_entity->d_name, dir_entity->d_namlen ) + "\n";
+#else
+            out += string( dir_entity->d_name, dir_entity->d_reclen ) + "\n";
+#endif
 			dir_entity = readdir( dir_handle );
 		}
 		
