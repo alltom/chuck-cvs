@@ -53,10 +53,14 @@ extern Chuck_Shell * g_shell;
 // desc: divides string into substrings, each separated by an arbitrarily long 
 //       sequence of any characters in edge.  
 //-----------------------------------------------------------------------------
-void divide_string( const string & stra, const string & edge, 
+void divide_string( string str, const string & edge, 
                     vector< string > & substrings)
 {
-    string str = stra + " ";
+    //string space = " ";
+	//string singleq = "'";
+	//string doubleq = "\"";
+    str.append( " " );
+
     int i = str.find_first_not_of( edge ), j = 0;
     for(;;)
     {
@@ -164,7 +168,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
         return FALSE;
     }
     this->ui = ui;
-
+	
 	process_vm = vm;
 
     Chuck_Shell_Network_VM * cspv = new Chuck_Shell_Network_VM();
@@ -311,7 +315,10 @@ t_CKBOOL Chuck_Shell_Network_VM::add_shred( const vector< string > & files,
 	if( otf_send_cmd( vec_len, argv, i, hostname.c_str(), port ) )
 		return_val = TRUE;
 	else
+	{
+		out += "add command failed\n";
 		return_val = FALSE;
+	}
 
 	/* clean up heap data */
 	for( j = 0; j < vec_len; j++ )
@@ -338,21 +345,110 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_shred( const vector< string > & ids,
 	argv[0] = new char [2];
 	strncpy( argv[0], "-", 2 );
 	
-	/* copy file paths into argv */
+	/* copy ids into argv */
 	for( j = 1; j < vec_len; j++ )
-		{
+	{
 		str_len = ids[j - 1].size() + 1;
 		argv[j] = new char [str_len];
 		strncpy( argv[j], ids[j - 1].c_str(), str_len );
-		}
+	}
 	
 	/* send the command */
 	if( otf_send_cmd( vec_len, argv, i, hostname.c_str(), port ) )
 		return_val = TRUE;
 	else
+	{
+		out += "remove command failed\n";
 		return_val = FALSE;
+	}
 
 	/* clean up heap data */
+	for( j = 0; j < vec_len; j++ )
+		delete[] argv[j];
+	delete[] argv;
+	
+	return return_val;
+}
+
+//-----------------------------------------------------------------------------
+// name: remove_all()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::remove_all( string & out )
+{
+	int return_val = TRUE;
+	long int j = 0;
+	char ** argv = new char * [1];
+	argv[0] = "--removeall";
+	if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+	{
+		out += "removeall command failed\n";
+		return_val = FALSE;
+	}
+
+	return return_val;
+}
+
+//-----------------------------------------------------------------------------
+// name: remove_last()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::remove_last( string & out )
+{
+	int return_val = TRUE;
+	long int j = 0;
+	char ** argv = new char * [1];
+	argv[0] = "--";
+	if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+	{
+		out += "removelast command failed\n";
+		return_val = FALSE;
+	}
+	
+	return return_val;
+}
+
+//-----------------------------------------------------------------------------
+// name: replace_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
+										string & out )
+{
+	long int i = 0;
+	t_CKBOOL return_val;
+	int j, str_len, vec_len = vec.size() + 1;
+	char ** argv = new char * [ vec_len ];
+	
+	/* prepare an argument vector to submit to otf_send_cmd */
+	/* first, specify an add command */
+	argv[0] = new char [sizeof( "--replace" )];
+	strncpy( argv[0], "--replace", sizeof( "--replace" ) );
+	
+	/* copy ids/files into argv */
+	for( j = 1; j < vec_len; j++ )
+	{
+		str_len = vec[j - 1].size() + 1;
+		argv[j] = new char [str_len];
+		strncpy( argv[j], vec[j - 1].c_str(), str_len );
+	}
+	
+	/* send the command */
+	if( otf_send_cmd( vec_len, argv, i, hostname.c_str(), port ) )
+		return_val = TRUE;
+	else
+	{
+		out += "replace command failed\n";
+		return_val = FALSE;
+	}
+	
+	if( vec.size() % 2 != 0 )
+	{
+		out += "ignoring excess arguments...\n";
+		return FALSE;
+	}
+	
+/* clean up heap data */
 	for( j = 0; j < vec_len; j++ )
 		delete[] argv[j];
 	delete[] argv;
@@ -370,6 +466,29 @@ t_CKBOOL Chuck_Shell_Network_VM::status( string & out )
 }
 
 //-----------------------------------------------------------------------------
+// name: kill()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
+{
+	char ** argv = new char * [1];
+	long int j = 0;
+	t_CKBOOL return_val;
+	
+	argv[0] = "--kill";
+	
+	if( otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+		return_val = TRUE;
+	else
+	{
+		return_val = FALSE;
+		out += "kill command failed";
+	}
+	
+	return return_val;
+}
+
+//-----------------------------------------------------------------------------
 // name: fullname()
 // desc: returns a somewhat descriptive full name for this VM
 //-----------------------------------------------------------------------------
@@ -380,7 +499,7 @@ string Chuck_Shell_Network_VM::fullname()
 	
 	return hostname + buf;
 }
-
+/*
 //-----------------------------------------------------------------------------
 // name: init()
 // desc: ...
@@ -412,6 +531,36 @@ t_CKBOOL Chuck_Shell_Process_VM::remove_shred( const vector< string > & id,
 }
 
 //-----------------------------------------------------------------------------
+// name: remove_all()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Process_VM::remove_all( const vector< string > & id, 
+											 string & out )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: remove_last()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Process_VM::remove_last( const vector< string > & id, 
+											  string & out )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: replace_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell_Process_VM::replace_shred( const vector< string > & id, 
+												string & out )
+{
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
 // name: status()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -428,7 +577,7 @@ string Chuck_Shell_Process_VM::fullname()
 {
 	return "local process VM";
 }
-
+*/
 //-----------------------------------------------------------------------------
 // name: Chuck_Shell_UI()
 // desc: ...
@@ -554,7 +703,17 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     {
         out = "";
         return TRUE;
-    }    
+    }
+    
+    // first check if the first token matches an alias
+    while( aliases.find( vec[0] ) != aliases.end() )
+    {
+    	vector< string > vec2;
+    	divide_string( aliases[vec[0]], " \t\n\v", vec2 );
+    	vec.erase( vec.begin() );
+    	vec2.insert( vec2.end(), vec.begin(), vec.end() );
+    	vec = vec2;
+    }
     
     if( vec[0] == "vm" )
     {
@@ -618,6 +777,24 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     	remove( vec, out );
     }
     
+    else if( vec[0] == "removeall" || vec[0] == "remall" )
+    {
+    	vec.erase( vec.begin() );
+    	removeall( vec, out );
+    }
+    
+    else if( vec[0] == "--" )
+    {
+    	vec.erase( vec.begin() );
+    	removelast( vec, out );
+    }
+    
+    else if( vec[0] == "replace" || vec[0] == "=" )
+    {
+    	vec.erase( vec.begin() );
+    	replace( vec, out );
+    }
+    
     else if( vec[0] == "close" )
     {
     	vec.erase( vec.begin() );
@@ -634,6 +811,30 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     {
     	vec.erase( vec.begin() );
     	ls( vec, out );
+    }
+    
+    else if( vec[0] == "pwd" )
+    {
+    	vec.erase( vec.begin() );
+    	pwd( vec, out );
+    }
+    
+    else if( vec[0] == "cd" )
+    {
+    	vec.erase( vec.begin() );
+    	cd( vec, out );
+    }
+    
+    else if( vec[0] == "alias" )
+    {
+    	vec.erase( vec.begin() );
+    	alias( vec, out );
+    }
+    
+    else if( vec[0] == "unalias" )
+    {
+    	vec.erase( vec.begin() );
+    	unalias( vec, out );
     }
     
     else
@@ -663,6 +864,52 @@ void Chuck_Shell_Mode_Command::remove( const vector< string > & argv,
 }
 
 //-----------------------------------------------------------------------------
+// name: removeall()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::removeall( const vector< string > & argv,
+										  string & out )
+{
+	current_vm->remove_all( out );
+	if( argv.size() > 0 )
+		out += "ignoring excess arguments...\n";
+}
+
+//-----------------------------------------------------------------------------
+// name: removelast()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::removelast( const vector< string > & argv,
+										  string & out )
+{
+	current_vm->remove_last( out );
+	if( argv.size() > 0 )
+		out += "ignoring excess arguments...\n";
+}
+
+//-----------------------------------------------------------------------------
+// name: replace()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::replace( const vector< string > & argv,
+										  string & out )
+{
+	current_vm->replace_shred( argv, out );
+}
+
+//-----------------------------------------------------------------------------
+// name: kill()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::kill( const vector< string > & argv,
+									  string & out )
+{
+	current_vm->kill( out );
+	if( argv.size() > 0 )
+		out += "ignoring excess arguments...\n";
+}
+
+//-----------------------------------------------------------------------------
 // name: close()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -675,18 +922,6 @@ void Chuck_Shell_Mode_Command::close( const vector< string > & argv,
 }
 
 //-----------------------------------------------------------------------------
-// name: kill()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::kill( const vector< string > & argv,
-									  string & out )
-{
-	host_shell->kill();
-	if( argv.size() > 0 )
-		out += "ignoring excess arguments...\n";
-}
-
-//-----------------------------------------------------------------------------
 // name: ls()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -694,20 +929,134 @@ void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
 									  string & out )
 {
 #ifndef __PLATFORM_WIN32__
-	DIR * dir_handle = opendir( "." );
-	dirent * dir_entity = readdir( dir_handle );
 	
-	while( dir_entity != NULL )
+	if( argv.size() == 0 )
+		{
+		DIR * dir_handle = opendir( "." );
+		dirent * dir_entity = readdir( dir_handle );
+		
+		while( dir_entity != NULL )
+		{
+			out += string( dir_entity->d_name, dir_entity->d_namlen ) + "\n";
+			dir_entity = readdir( dir_handle );
+		}
+		
+		closedir( dir_handle );
+		return;
+		}
+	
+	int i, len = argv.size();
+	t_CKBOOL print_parent_name = len > 1 ? TRUE : FALSE;
+	
+	for( i = 0; i < len; i++ )
 	{
-		out += string( dir_entity->d_name, dir_entity->d_namlen ) + "\n";
-		dir_entity = readdir( dir_handle );
+		DIR * dir_handle = opendir( argv[i].c_str() );
+		dirent * dir_entity = readdir( dir_handle );
+		
+		if( print_parent_name )
+			out += argv[i] + ":\n";
+		
+		while( dir_entity != NULL )
+		{
+			out += string( dir_entity->d_name, dir_entity->d_namlen ) + "\n";
+			dir_entity = readdir( dir_handle );
+		}
+		
+		if( print_parent_name )
+			out += "\n";
+		
+		closedir( dir_handle );
 	}
-	
-	closedir( dir_handle );
 	
 #else
 	out += "command not yet supported on Win32!\n";
 #endif
+}
+
+//-----------------------------------------------------------------------------
+// name: cd()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::cd( const vector< string > & argv,
+									string & out )
+{
+#ifndef __PLATFORM_WIN32__
+	if( argv.size() < 1 )
+	{
+		if( chdir( getenv( "HOME" ) ) )
+			out += "cd command failed\n";
+	}
+	
+	else
+	{
+		if( chdir( argv[0].c_str() ) )
+			out += "cd command failed\n";
+	}
+	
+#else
+	out += "command not yet supported on Win32!\n";
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// name: pwd()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::pwd( const vector< string > & argv,
+									string & out )
+{
+#ifndef __PLATFORM_WIN32__
+	char * cwd = getcwd( NULL, 0 );
+	out += string( cwd ) + "\n";
+	free( cwd );
+	if( argv.size() > 0 )
+		out += "ignoring excess arguments...\n";
+#else
+	out += "command not yet supported on Win32!\n";
+#endif
+}
+
+//-----------------------------------------------------------------------------
+// name: alias()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::alias( const vector< string > & argv,
+									  string & out )
+{
+	int i, j, len = argv.size();
+	string a, b;
+	
+	for( i = 0; i < len; i++ )
+	{
+		j = argv[i].find( "=" );
+		
+		// no alias assignment specified; just print the alias value if exists
+		if( j == string::npos )
+		{
+			// see if the alias exists in the map
+			if( aliases.find( argv[i] ) == aliases.end() )
+				out += "alias " + argv[i] + " not found\n";
+			else
+				out += "alias " + argv[i] + "='" + aliases[argv[i]] + "'\n";
+		}
+		// create the alias
+		else
+		{
+			a = string( argv[i], 0, j );
+			b = string( argv[i], j + 1, string::npos );
+			aliases[a] = b;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// name: unalias()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::unalias( const vector< string > & argv,
+										string & out )
+{
+	
 }
 
 //-----------------------------------------------------------------------------

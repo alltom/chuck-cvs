@@ -83,6 +83,7 @@ private:
     t_CKBOOL stop;
 };
 
+
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_VM
 // desc: encapsulates local and network VMs into a single class
@@ -92,7 +93,11 @@ class Chuck_Shell_VM
 public:
 	virtual t_CKBOOL add_shred( const vector< string > &, string & )=0;
 	virtual t_CKBOOL remove_shred( const vector< string > &, string & )=0;
+	virtual t_CKBOOL remove_all( string & )=0;
+	virtual t_CKBOOL remove_last( string & )=0;
+	virtual t_CKBOOL replace_shred( const vector< string > &, string & )=0;
 	virtual t_CKBOOL status( string & )=0;
+	virtual t_CKBOOL kill( string & )=0;
 	virtual string fullname()=0;
 };
 
@@ -106,14 +111,18 @@ public:
 	t_CKBOOL init( const string &, t_CKINT );
 	t_CKBOOL add_shred( const vector< string > &, string & );
 	t_CKBOOL remove_shred( const vector< string > &, string & );
+	t_CKBOOL remove_all( string & );
+	t_CKBOOL remove_last( string & );
+	t_CKBOOL replace_shred( const vector< string > &, string & );
 	t_CKBOOL status( string & );
+	t_CKBOOL kill( string & );
 	string fullname();
 
 private: 
 	string hostname;
 	t_CKINT port;
 };
-
+/* 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Process_VM
 // desc: VM in process
@@ -124,6 +133,9 @@ public:
 	t_CKBOOL init( Chuck_VM *, Chuck_Compiler * );
 	t_CKBOOL add_shred( const vector< string > &, string & );
 	t_CKBOOL remove_shred( const vector< string > &, string & );
+	t_CKBOOL remove_all( const vector< string > &, string & );
+	t_CKBOOL remove_last( const vector< string > &, string & );
+	t_CKBOOL replace_shred( const vector< string > &, string & );
 	t_CKBOOL status( string & );
 	void stop();
 	string fullname();
@@ -132,7 +144,7 @@ private:
 	Chuck_VM * vm;
 	Chuck_Compiler * compiler;
 };
-
+*/
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Mode
 // desc: superclass to various types of Chuck shell modes
@@ -172,8 +184,6 @@ public:
 };
 
 
-
-
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_Mode_Command
 // desc: command mode for chuck shell
@@ -189,21 +199,31 @@ public:
 protected:
 	void add( const vector< string > &, string & );
 	void remove( const vector< string > &, string & );
-	void close( const vector< string > &, string & );
+	void removeall( const vector< string > &, string & );
+	void removelast( const vector< string > &, string & );
+	void replace( const vector< string > &, string & );
 	void kill( const vector< string > &, string & );
+	void close( const vector< string > &, string & );
 	void ls( const vector< string > &, string & );
+	void cd( const vector< string > &, string & );
+	void pwd( const vector< string > &, string & );
+	void alias( const vector< string > &, string & );
+	void unalias( const vector< string > &, string & );
+	void source( const vector< string > &, string & );
 	void vm_attach( const vector< string > &, string & );
 	void vm_add( const vector< string > &, string & );
 	void vm_remove( const vector< string > &, string & );
 	void vm_list( const vector< string > &, string & );
 	void vm_attach_add( const vector< string > &, string & );
 	void vm_swap( const vector< string > &, string & );
+
+private:
+	map < string, string > aliases;
+	map < string, string > variables;
+
 };
 
-// prototype for shred thread routine
+// prototype for shell thread routine
 void * shell_cb( void * p );
-
-
-
 
 #endif //__CHUCK_SHELL_H__

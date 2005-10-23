@@ -294,6 +294,7 @@ int main( int argc, char ** argv )
     t_CKBOOL auto_depend = FALSE;
     t_CKBOOL block = FALSE;
     t_CKBOOL enable_shell = FALSE;
+    t_CKBOOL no_vm = FALSE;
     t_CKINT  log_level = CK_LOG_SYSTEM_ERROR;
 
     t_CKUINT files = 0;
@@ -327,6 +328,8 @@ int main( int argc, char ** argv )
                 enable_shell = TRUE;
             else if( !strcmp(argv[i], "--shell") )
                 enable_shell = TRUE;
+            else if( !strcmp(argv[i], "--no-vm") )
+                no_vm = TRUE;
             else if( !strncmp(argv[i], "--srate", 7) )
                 srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : srate;
             else if( !strncmp(argv[i], "-r", 2) )
@@ -422,7 +425,43 @@ int main( int argc, char ** argv )
 
     // set log level
     EM_setlog( log_level );
+	
+	// shell initialization without vm
+	if( enable_shell && no_vm)
+	{
+        Chuck_Shell_Mode * mode = NULL;
+        Chuck_Shell_UI * ui = NULL;
 
+        // instantiate
+        g_shell = new Chuck_Shell;
+        
+        // instantiate mode
+
+        // instantiate shell UI
+        ui = new Chuck_Console();
+
+        // initialize shell UI
+        if( !ui->init() )
+        {
+            fprintf( stderr, "[chuck]: error starting shell UI...\n" );
+            exit(1);
+        }
+        
+        // initialize
+        if( !g_shell->init( NULL, NULL, ui ) )
+        {
+            fprintf( stderr, "[chuck]: error starting shell...\n" );
+            exit( 1 );
+        }
+        
+        // no vm is needed, just start running the shell now
+		g_shell->run();
+		
+		SAFE_DELETE( g_shell );
+		
+		return 0;
+	}
+	
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
@@ -455,9 +494,9 @@ int main( int argc, char ** argv )
     signal( SIGPIPE, signal_pipe );
 #endif
 
-    // shell
-    if( enable_shell )
-    {
+	// shell initialization without vm
+	if( enable_shell )
+	{
         Chuck_Shell_Mode * mode = NULL;
         Chuck_Shell_UI * ui = NULL;
 
