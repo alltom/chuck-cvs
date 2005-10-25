@@ -56,24 +56,139 @@ extern Chuck_Shell * g_shell;
 void divide_string( string str, const string & edge, 
                     vector< string > & substrings)
 {
-    //string space = " ";
-	//string singleq = "'";
-	//string doubleq = "\"";
+    string tmp = " ";
+    string qq = "\"'";
     str.append( " " );
 
     int i = str.find_first_not_of( edge ), j = 0;
+    if( i != 0 )
+    {
+    	tmp[0] = str[i - 1];
+    }
+    
     for(;;)
     {
-        j = str.find_first_of( edge, i );
+        j = str.find_first_of( tmp, i );
         if( j == string::npos )
             break;
         substrings.push_back( string( str, i, j - i ) );
         i = str.find_first_not_of( edge, j );
+        tmp[0] = str[i - 1];
     }
 }
 
-
-
+//-----------------------------------------------------------------------------
+// name: tokenize_string
+// desc: divides a string into space separated tokens, respecting single and 
+//		double quotes
+//-----------------------------------------------------------------------------
+void tokenize_string( string str, vector< string > & tokens)
+{
+	int space = 1;
+	int end_space = 0;
+	int squote = 0;
+	int dquote = 0;
+	int i = 0, j = 0, len = str.size();
+	
+    for( i = 0; i < len; i++ )
+    {
+		if( str[i] == ' ' && space )
+		{
+			j++;
+			continue;
+		}
+		
+		if( str[i] == ' ' && end_space )
+		{
+			tokens.push_back( string( str, j, i - j ) );
+			j = i + 1;
+			space = 1;
+			end_space = 0;
+			continue;
+		}
+		
+		if( str[i] == '\'' )
+		{
+			if( dquote )
+				continue;
+			if( !squote )
+			{
+				str.erase( i, 1 );
+				len--;
+				i--;
+				space = 0;
+				end_space = 0;
+				squote = 1;
+				continue;
+			}
+			
+			else if( str[i - 1] == '\\' )
+			{
+				str.erase( i - 1, 1 );
+				len--;
+				i--;
+				continue;
+			}
+			
+			else
+			{
+				str.erase( i, 1 );
+				len--;
+				i--;
+				squote = 0;
+				end_space = 1;
+				space = 0;
+				continue;
+			}
+		}
+		
+		if( str[i] == '"' ) //"
+		{
+			if( squote )
+				continue;
+			if( !dquote )
+			{
+				str.erase( i, 1 );
+				i--;
+				len--;
+				space = 0;
+				end_space = 0;
+				dquote = 1;
+				continue;
+			}
+			
+			else if( str[i - 1] == '\\' )
+			{
+				str.erase( i - 1, 1 );
+				len--;
+				i--;
+				continue;
+			}
+			
+			else
+			{
+				str.erase( i, 1 );
+				i--;
+				len--;
+				dquote = 0;
+				end_space = 1;
+				space = 0;
+				continue;
+			}
+		}
+		
+		if( !squote && !dquote )
+		{		
+			end_space = 1;
+			space = 0;
+		}
+    }
+    
+    if( i > j && end_space )
+    {
+    	tokens.push_back( string( str, j, i - j ) );
+    }
+}
 
 //-----------------------------------------------------------------------------
 // name: shell_cb
@@ -697,7 +812,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     out = "";
 
     // divide the string into white space separated substrings
-    divide_string( in, " \t\n\v",  vec );
+    tokenize_string( in, vec );
     // if no tokens
     if( vec.size() == 0) 
     {
@@ -709,7 +824,7 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     while( aliases.find( vec[0] ) != aliases.end() )
     {
     	vector< string > vec2;
-    	divide_string( aliases[vec[0]], " \t\n\v", vec2 );
+    	tokenize_string( aliases[vec[0]], vec2 );
     	vec.erase( vec.begin() );
     	vec2.insert( vec2.end(), vec.begin(), vec.end() );
     	vec = vec2;
@@ -805,6 +920,12 @@ t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in,
     {
     	vec.erase( vec.begin() );
     	kill( vec, out );
+    }
+    
+    else if( vec[0] == "exit" )
+    {
+    	vec.erase( vec.begin() );
+    	exit( vec, out );
     }
     
     else if( vec[0] == "ls" )
@@ -922,6 +1043,18 @@ void Chuck_Shell_Mode_Command::close( const vector< string > & argv,
 }
 
 //-----------------------------------------------------------------------------
+// name: exit()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell_Mode_Command::exit( const vector< string > & argv,
+									 string & out )
+{
+	host_shell->kill();
+	if( argv.size() > 0 )
+		out += "ignoring excess arguments...\n";
+}
+
+//-----------------------------------------------------------------------------
 // name: ls()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -937,11 +1070,7 @@ void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
 		
 		while( dir_entity != NULL )
 		{
-#ifdef __MACOSX_CORE__
-			out += string( dir_entity->d_name, dir_entity->d_namlen ) + "\n";
-#else
-            out += string( dir_entity->d_name, dir_entity->d_reclen ) + "\n";
-#endif
+            out += string( dir_entity->d_name ) + "\n";
 			dir_entity = readdir( dir_handle );
 		}
 		
@@ -962,11 +1091,7 @@ void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
 		
 		while( dir_entity != NULL )
 		{
-#ifdef __MACOSX_CORE__
-			out += string( dir_entity->d_name, dir_entity->d_namlen ) + "\n";
-#else
-            out += string( dir_entity->d_name, dir_entity->d_reclen ) + "\n";
-#endif
+            out += string( dir_entity->d_name ) + "\n";
 			dir_entity = readdir( dir_handle );
 		}
 		
@@ -978,7 +1103,7 @@ void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
 	
 #else
 	out += "command not yet supported on Win32!\n";
-#endif
+#endif // __PLATFORM_WIN32__
 }
 
 //-----------------------------------------------------------------------------
@@ -1003,7 +1128,7 @@ void Chuck_Shell_Mode_Command::cd( const vector< string > & argv,
 	
 #else
 	out += "command not yet supported on Win32!\n";
-#endif
+#endif //__PLATFORM_WIN32__
 }
 
 //-----------------------------------------------------------------------------
@@ -1064,7 +1189,18 @@ void Chuck_Shell_Mode_Command::alias( const vector< string > & argv,
 void Chuck_Shell_Mode_Command::unalias( const vector< string > & argv,
 										string & out )
 {
+	int i, len = argv.size();
 	
+	for( i = 0; i < len; i++ )
+	{
+		if( aliases.find( argv[i] ) == aliases.end() )
+		{
+			out += "alias " + argv[i] + " not found\n";
+		}
+		
+		else
+			aliases.erase( argv[i] );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -1204,6 +1340,9 @@ void Chuck_Shell_Mode_Command::vm_swap( const vector< string > & argv,
 	save_current_vm = TRUE;
 	current_vm = (*vms)[new_vm];
 	out += "current VM is now " + current_vm->fullname() + "\n";
+	
+	if( argv.size() > 1 )
+		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------

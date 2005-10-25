@@ -204,6 +204,7 @@ protected:
 	void replace( const vector< string > &, string & );
 	void kill( const vector< string > &, string & );
 	void close( const vector< string > &, string & );
+	void exit( const vector< string > &, string & );
 	void ls( const vector< string > &, string & );
 	void cd( const vector< string > &, string & );
 	void pwd( const vector< string > &, string & );
