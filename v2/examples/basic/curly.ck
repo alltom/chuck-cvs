@@ -17,7 +17,7 @@ while( true )
     // set the current sample/impulse
     1.0 => i.next;
     // sweep the filter resonant frequency
-    std.abs(math.sin(v)) * 800.0 => f.pfreq;
+    std.fabs(math.sin(v)) * 800.0 => f.pfreq;
     // increment v
     v + .1 => v;
     // advance time

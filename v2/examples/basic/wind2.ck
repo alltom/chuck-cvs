@@ -17,7 +17,7 @@ fun void wind_gain( )
     // time loop to ramp up the gain / oscillate
     while( true )
     {
-        std.abs( math.sin( g ) ) => n.gain;
+        std.fabs( math.sin( g ) ) => n.gain;
         g + .001 => g;
         10::ms => now;
     }
@@ -30,7 +30,7 @@ spork ~ wind_gain();
 while( true )
 {
     // sweep the filter resonant frequency
-    100.0 + std.abs(math.sin(t)) * 1000.0 => f.pfreq;
+    100.0 + std.fabs(math.sin(t)) * 1000.0 => f.pfreq;
     t + .01 => t;
     // advance time
     100::ms => now;

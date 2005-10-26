@@ -97,7 +97,7 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     QUERY->add_arg( QUERY, "int", "value" );
     
     // add fabs
-    QUERY->add_sfun( QUERY, abs_impl, "float", "fabs" );
+    QUERY->add_sfun( QUERY, fabs_impl, "float", "fabs" );
     QUERY->add_arg( QUERY, "float", "value" );
 
     // add rand
