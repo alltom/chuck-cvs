@@ -11,7 +11,7 @@ MidiIn min;
 MidiMsg msg;
 
 // open midi port
-if ( !min.open( 1 ) )
+if ( !min.open( 0 ) )
    me.exit;
 
 while ( true )

@@ -21,7 +21,7 @@ T - (now % T) => now;
 
 sinosc s => JCRev r => dac;
 .05 => s.gain;
-.25 => r.mix;
+.5 => r.mix;
 
 // scale (in semitones)
 [ 0, 2, 4, 7, 9 ] @=> int scale[];
