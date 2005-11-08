@@ -92,13 +92,13 @@ void tokenize_string( string str, vector< string > & tokens)
 	
     for( i = 0; i < len; i++ )
     {
-		if( str[i] == ' ' && space )
+		if( isspace( str[i] ) && space )
 		{
 			j++;
 			continue;
 		}
 		
-		if( str[i] == ' ' && end_space )
+		if( isspace( str[i] ) && end_space )
 		{
 			tokens.push_back( string( str, j, i - j ) );
 			j = i + 1;
@@ -225,15 +225,14 @@ void * shell_cb( void * p )
 //-----------------------------------------------------------------------------
 Chuck_Shell::Chuck_Shell()
 {
-    current_mode = NULL;
     ui = NULL;
     process_vm = NULL;
+    current_vm = NULL;
     initialized = FALSE;
     stop = FALSE;
+    code_entry_active = FALSE;
+    save_current_vm = FALSE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: ~Chuck_Shell()
@@ -241,10 +240,13 @@ Chuck_Shell::Chuck_Shell()
 //-----------------------------------------------------------------------------
 Chuck_Shell::~Chuck_Shell()
 {
-    // iterate through map, delete modes?
-  	//iterator i = modes
-
 	// iterate through map, delete vms
+
+	// iterate through commands, delete the associated heap data
+	map< string, Command * >::iterator end = commands.end(), 
+									   i = commands.begin();
+	for( ; i != end; i++ )
+		delete i->second;
 
     // delete ui
     SAFE_DELETE( ui );
@@ -253,9 +255,6 @@ Chuck_Shell::~Chuck_Shell()
     initialized = FALSE;
 
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: init()
@@ -296,18 +295,94 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
 
     vms = vector< Chuck_Shell_VM * > ();
     vms.push_back( cspv );
-    
-    // make new mode
-    current_mode = new Chuck_Shell_Mode_Command();
-    // initialize it
-    if( !current_mode->init( &vms, this ) )
-    {
-        fprintf( stderr, "[chuck](via shell): unable to initialize shell command mode\n");
-        SAFE_DELETE( vms[0] );
-        SAFE_DELETE( current_mode );
-        return FALSE;
-    }
 
+	current_vm = cspv;
+    save_current_vm = true;
+    
+    code_entry_active = false;
+    code = "";
+    current_context = "";
+    
+	
+	// init default variables
+	variables["COMMAND_PROMPT"] = "chuck %> ";
+	variables["DEFAULT_CONTEXT"] = "shell_global";
+
+	// initialize prompt
+	prompt = variables["COMMAND_PROMPT"];	
+	
+	Command * temp;
+
+	// initialize the string -> Chuck_Shell_Command map
+	temp = new Command_VM();
+	temp->init( this );
+	commands["vm"] = temp;
+	
+	temp = new Command_VMList();
+	temp->init( this );
+	commands["vms"] = temp;
+	
+	temp = new Command_Add();
+	temp->init( this );
+	commands["+"] = temp;
+	commands["add"] = temp;
+	
+	temp = new Command_Remove();
+	temp->init( this );
+	commands["-"] = temp;
+	commands["remove"] = temp;
+	
+	temp = new Command_Removeall();
+	temp->init( this );
+	commands["removeall"] = temp;
+	
+	temp = new Command_Removelast();
+	temp->init( this );
+	commands["--"] = temp;
+	
+	temp = new Command_Replace();
+	temp->init( this );
+	commands["replace"] = temp;
+	commands["="] = temp;
+	
+	temp = new Command_Close();
+	temp->init( this );
+	commands["close"] = temp;
+	
+	temp = new Command_Kill();
+	temp->init( this );
+	commands["kill"] = temp;
+	
+	temp = new Command_Exit();
+	temp->init( this );
+	commands["exit"] = temp;
+	commands["quit"] = temp;
+	
+	temp = new Command_Ls();
+	temp->init( this );
+	commands["ls"] = temp;
+	
+	temp = new Command_Pwd();
+	temp->init( this );
+	commands["pwd"] = temp;
+	
+	temp = new Command_Cd();
+	temp->init( this );
+	commands["cd"] = temp;
+	
+    temp = new Command_Alias();
+	temp->init( this );
+	commands["alias"] = temp;
+	
+    temp = new Command_Unalias();
+	temp->init( this );
+	commands["unalias"] = temp;
+	
+	temp = new Command_Source();
+	temp->init( this );
+	commands["source"] = temp;
+	commands["."] = temp;
+	
     // flag
     initialized = TRUE;
     
@@ -316,9 +391,6 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
 
     return TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: run()
@@ -337,20 +409,20 @@ void Chuck_Shell::run()
         return;
     }
 
-    Chuck_Shell_Request command;
-    Chuck_Shell_Response result;
+    string command;
+    string result;
 
     // loop
     for( ; !stop; )
     {
         // get command
-        if( ui->next_command( command ) == TRUE )
+        if( ui->next_command( prompt, command ) == TRUE )
         {
 			// result.clear();
 			result = "";
-
+			
 			// execute the command
-			current_mode->execute(command,result);
+			execute( command, result );
 
 			// command.clear();
 			command = "";
@@ -366,6 +438,148 @@ void Chuck_Shell::run()
     // log
     EM_poplog();
     EM_log( CK_LOG_SYSTEM, "exiting chuck shell..." );
+}
+
+//-----------------------------------------------------------------------------
+// name: execute
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell::execute( string & in, string & out )
+{
+	if( !initialized )
+	{
+		//fprintf();
+		return FALSE;
+	}
+	
+    // vector of string tokens
+    vector< string > vec;
+        
+    // clear the response
+    out = "";
+
+    // first find out if this is code to run
+    if( !code_entry_active && in[in.find_first_not_of( " \t\v\n" )] == '{' )
+    {
+    	code = "";
+    	code_entry_active = TRUE;
+    	scope = 0;
+    }
+    
+    if( code_entry_active )
+    {
+    	if( in.find( "{" ) != string::npos )
+    	// increase the scope one level and change the prompt
+    	{
+    		char buf[16];
+    		scope++;
+#ifndef __PLATFORM_WIN32__
+			snprintf( buf, 16, "code %2d> ", scope );
+#else
+			sprintf( buf, "code %2d> ", scope);
+#endif
+			prompt = buf;
+    	}
+    	
+    	if( in.find( "}" ) != string::npos )
+    	// decrease the scope one level and change the prompt
+    	{
+    		char buf[16];
+    		scope--;
+#ifndef __PLATFORM_WIN32__
+			snprintf( buf, 16, "code %2d> ", scope );
+#else
+			sprintf( buf, "code %2d> ", scope);
+#endif
+			prompt = buf;
+    	}
+    	
+    	// collect this line as ChucK code
+		code += in + "\n";
+
+    	if( scope == 0 )
+    	// the end of this code block -- lets execute it on the current_vm
+    	{
+    		// end code_entry mode, stop collecting lines of ChucK code
+    		code_entry_active = FALSE;
+    		
+    		// open a temporary file
+	    	char * tmp_filepath = tmpnam( NULL );
+	    	FILE * tmp_file = fopen( tmp_filepath, "w" );
+	    	
+	    	//strip opening and closing braces
+	    	int k = code.find( "{" );
+			string head = string( code, 0, k );
+	    	code = string( code, k + 1, code.size() - k - 1 );
+	    	
+	    	k = code.rfind( "}" );
+	    	string tail = string( code, k + 1, code.size() - k - 1 );
+	    	code = string( code, 0, k );
+	    	
+	    	// print out the code (for debugging)
+	    	printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
+	    	printf( "--start code--\n%s\n--end code--\n", code.c_str() );
+	    	
+	    	// write the code to the temp file
+	    	fprintf( tmp_file, "%s", code.c_str() );
+	    	fclose( tmp_file );
+
+			string argv = string( "+ " ) + tmp_filepath;
+			
+			if( this->execute( argv, out ) )
+				;
+			
+			// delete the file
+#ifndef __PLATFORM_WIN32__
+			unlink( tmp_filepath );
+#else
+			// delete the file...
+#endif // __PLATFORM_WIN32__
+			
+			prompt = variables["COMMAND_PROMPT"];
+			in = string( tail );
+    	}
+    
+    if( code_entry_active )
+	    return TRUE;
+    }
+    
+
+
+    // divide the string into white space separated substrings
+    tokenize_string( in, vec );
+    
+    // if no tokens
+    if( vec.size() == 0) 
+        return TRUE;
+    
+    // first check if the first token matches an alias
+    while( aliases.find( vec[0] ) != aliases.end() )
+    // use a while loop to handle nested aliases
+    {
+    	vector< string > vec2;
+    	tokenize_string( aliases[vec[0]], vec2 );
+    	vec.erase( vec.begin() );
+    	vec2.insert( vec2.end(), vec.begin(), vec.end() );
+    	vec = vec2;
+    }
+    
+    // locate the command
+    if( commands.find( vec[0] ) == commands.end() )
+    // command doesn't exist!
+    {
+    	out += vec[0] + ": command not found\n";
+    	return FALSE;
+    }
+    else
+    // execute the command
+    {
+		Command * command = commands[vec[0]];
+    	vec.erase( vec.begin() );
+    	command->execute( vec, out );
+    }
+        
+    return TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -614,108 +828,6 @@ string Chuck_Shell_Network_VM::fullname()
 	
 	return hostname + buf;
 }
-/*
-//-----------------------------------------------------------------------------
-// name: init()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Process_VM::init( Chuck_VM * vm, 
-									   Chuck_Compiler * compiler )
-{
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: add_shred()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Process_VM::add_shred( const vector< string > & files, 
-											string & out )
-{
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: remove_shred()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Process_VM::remove_shred( const vector< string > & id, 
-											   string & out )
-{
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: remove_all()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Process_VM::remove_all( const vector< string > & id, 
-											 string & out )
-{
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: remove_last()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Process_VM::remove_last( const vector< string > & id, 
-											  string & out )
-{
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: replace_shred()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Process_VM::replace_shred( const vector< string > & id, 
-												string & out )
-{
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: status()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Process_VM::status( string & out )
-{
-	return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: fullname()
-// desc: returns a somewhat descriptive full name for this VM
-//-----------------------------------------------------------------------------
-string Chuck_Shell_Process_VM::fullname()
-{
-	return "local process VM";
-}
-*/
-//-----------------------------------------------------------------------------
-// name: Chuck_Shell_UI()
-// desc: ...
-//-----------------------------------------------------------------------------
-Chuck_Shell_UI::Chuck_Shell_UI()
-{
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: ~Chuck_Shell_UI()
-// desc: ...
-//-----------------------------------------------------------------------------
-Chuck_Shell_UI::~Chuck_Shell_UI()
-{
-    // this being chuck, there isn't much need to anything here =P
-}
-
-
-
-
 //-----------------------------------------------------------------------------
 // name: init()
 // desc: ...
@@ -725,341 +837,130 @@ t_CKBOOL Chuck_Shell_UI::init()
     return TRUE;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
-// name: Chuck_Shell_Mode
+// name: init()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Shell_Mode::Chuck_Shell_Mode()
+t_CKBOOL Chuck_Shell::Command::init( Chuck_Shell * caller )
 {
-    vms = NULL;
-    current_vm = NULL;
-    host_shell = NULL;
-    initialized = FALSE;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: ~Chuck_Shell_Mode
-// desc: ...
-//-----------------------------------------------------------------------------
-Chuck_Shell_Mode::~Chuck_Shell_Mode()
-{
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: init
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Mode::init( vector< Chuck_Shell_VM * > * vms, 
-                                 Chuck_Shell * host_shell ) 
-{
-    // TODO: input validation
-    this->host_shell = host_shell;
-    this->vms = vms;
-    this->current_vm = (*vms)[0];
-    save_current_vm = true;
-    initialized = TRUE;
-    return TRUE;
+	this->caller = caller;
+	return TRUE;
 }
 
 //-----------------------------------------------------------------------------
-// name: Chuck_Shell_Mode_Command
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Shell_Mode_Command::Chuck_Shell_Mode_Command()
+void Chuck_Shell::Command_Add::execute( vector< string > & argv,
+										     string & out )
 {
+	if( caller->current_vm == NULL)
+		out += "not attached to a VM\n";
+	else
+		caller->current_vm->add_shred( argv, out );
 }
 
-
-
-
 //-----------------------------------------------------------------------------
-// name: ~Chuck_Shell_Mode_Command
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Shell_Mode_Command::~Chuck_Shell_Mode_Command()
+void Chuck_Shell::Command_Remove::execute( vector< string > & argv,
+									   			string & out )
 {
+	if( caller->current_vm == NULL)
+		out += "not attached to a VM\n";
+	else
+		caller->current_vm->remove_shred( argv, out );
 }
 
-
-
-
 //-----------------------------------------------------------------------------
-// name: execute
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell_Mode_Command::execute( const Chuck_Shell_Request & in, 
-                                            Chuck_Shell_Response & out )
+void Chuck_Shell::Command_Removeall::execute( vector< string > & argv, 
+												   string & out )
 {
-	if( !initialized )
-	{
-		//fprintf();
-		return FALSE;
-	}
+	if( caller->current_vm == NULL)
+		out += "not attached to a VM\n";
+	else
+		caller->current_vm->remove_all( out );
+
+	if( argv.size() > 0 )
+		out += "ignoring excess arguments...\n";
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_Removelast::execute( vector< string > & argv,
+										  			string & out )
+{
+	if( caller->current_vm == NULL)
+		out += "not attached to a VM\n";
+	else
+		caller->current_vm->remove_last( out );
 	
-    // vector of string tokens
-    vector< string > vec;
-        
-    // clear the response
-    out = "";
-
-    // divide the string into white space separated substrings
-    tokenize_string( in, vec );
-    // if no tokens
-    if( vec.size() == 0) 
-    {
-        out = "";
-        return TRUE;
-    }
-    
-    // first check if the first token matches an alias
-    while( aliases.find( vec[0] ) != aliases.end() )
-    {
-    	vector< string > vec2;
-    	tokenize_string( aliases[vec[0]], vec2 );
-    	vec.erase( vec.begin() );
-    	vec2.insert( vec2.end(), vec.begin(), vec.end() );
-    	vec = vec2;
-    }
-    
-    if( vec[0] == "vm" )
-    {
-    	vec.erase( vec.begin() );
-    	
-    	if( vec[0] == "attach" || vec[0] == "@" )
-    	{
-    		vec.erase( vec.begin() );
-    		vm_attach( vec, out );
-    	}
-    	
-    	else if( vec[0] == "add" || vec[0] == "+" )
-    	{
-    		vec.erase( vec.begin() );
-    		vm_add( vec, out );
-    	}
-    	
-    	else if( vec[0] == "remove" || vec[0] == "-" )
-    	{
-    		vec.erase( vec.begin() );
-    		vm_remove( vec, out );
-    	}
-    	
-    	else if( vec[0] == "list" )
-    	{
-    		vec.erase( vec.begin() );
-    		vm_list( vec, out );
-    	}
-    	
-    	else if( vec[0] == "@+" )
-    	{
-    		vec.erase( vec.begin() );
-    		vm_attach_add( vec, out );
-    	}
-    	
-    	else if( vec[0] == "=" || vec[0] == "swap" )
-    	{
-    	vec.erase( vec.begin() );
-    	vm_swap( vec, out );
-    	}
-    	
-    	else
-    		out = "shell: unknown command 'vm " + vec[0] + "'\n";
-    }
-    
-    else if( vec[0] == "vms" )
-    {
-    	vec.erase( vec.begin() );
-    	vm_list( vec, out );	
-    }
-    
-    else if( vec[0] == "add" || vec[0] == "+")
-    {
-    	vec.erase( vec.begin() );
-    	add( vec, out );
-    }
-    
-    else if( vec[0] == "remove" || vec[0] == "-" )
-    {
-    	vec.erase( vec.begin() );
-    	remove( vec, out );
-    }
-    
-    else if( vec[0] == "removeall" || vec[0] == "remall" )
-    {
-    	vec.erase( vec.begin() );
-    	removeall( vec, out );
-    }
-    
-    else if( vec[0] == "--" )
-    {
-    	vec.erase( vec.begin() );
-    	removelast( vec, out );
-    }
-    
-    else if( vec[0] == "replace" || vec[0] == "=" )
-    {
-    	vec.erase( vec.begin() );
-    	replace( vec, out );
-    }
-    
-    else if( vec[0] == "close" )
-    {
-    	vec.erase( vec.begin() );
-    	close( vec, out );
-    }
-    
-    else if( vec[0] == "kill" )
-    {
-    	vec.erase( vec.begin() );
-    	kill( vec, out );
-    }
-    
-    else if( vec[0] == "exit" )
-    {
-    	vec.erase( vec.begin() );
-    	exit( vec, out );
-    }
-    
-    else if( vec[0] == "ls" )
-    {
-    	vec.erase( vec.begin() );
-    	ls( vec, out );
-    }
-    
-    else if( vec[0] == "pwd" )
-    {
-    	vec.erase( vec.begin() );
-    	pwd( vec, out );
-    }
-    
-    else if( vec[0] == "cd" )
-    {
-    	vec.erase( vec.begin() );
-    	cd( vec, out );
-    }
-    
-    else if( vec[0] == "alias" )
-    {
-    	vec.erase( vec.begin() );
-    	alias( vec, out );
-    }
-    
-    else if( vec[0] == "unalias" )
-    {
-    	vec.erase( vec.begin() );
-    	unalias( vec, out );
-    }
-    
-    else
-    	out = "shell: unknown command '" + vec[0] + "'\n";
-    
-    return TRUE;
-}
-
-//-----------------------------------------------------------------------------
-// name: add()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::add( const vector< string > & argv,
-										  string & out )
-{
-	current_vm->add_shred( argv, out );
-}
-
-//-----------------------------------------------------------------------------
-// name: remove()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::remove( const vector< string > & argv,
-										  string & out )
-{
-	current_vm->remove_shred( argv, out );
-}
-
-//-----------------------------------------------------------------------------
-// name: removeall()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::removeall( const vector< string > & argv,
-										  string & out )
-{
-	current_vm->remove_all( out );
 	if( argv.size() > 0 )
 		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------
-// name: removelast()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::removelast( const vector< string > & argv,
-										  string & out )
+void Chuck_Shell::Command_Replace::execute( vector< string > & argv,
+										  		 string & out )
 {
-	current_vm->remove_last( out );
+	if( caller->current_vm == NULL)
+		out += "not attached to a VM\n";
+	else
+		caller->current_vm->replace_shred( argv, out );
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_Kill::execute( vector< string > & argv,
+									  		  string & out )
+{
+	caller->current_vm->kill( out );
 	if( argv.size() > 0 )
 		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------
-// name: replace()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::replace( const vector< string > & argv,
-										  string & out )
+void Chuck_Shell::Command_Close::execute( vector< string > & argv,
+									  		   string & out )
 {
-	current_vm->replace_shred( argv, out );
-}
-
-//-----------------------------------------------------------------------------
-// name: kill()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::kill( const vector< string > & argv,
-									  string & out )
-{
-	current_vm->kill( out );
+	caller->close();
+	out += "closing chuck shell.  Bye!\n";
 	if( argv.size() > 0 )
 		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------
-// name: close()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::close( const vector< string > & argv,
-									  string & out )
+void Chuck_Shell::Command_Exit::execute( vector< string > & argv,
+											  string & out )
 {
-	host_shell->close();
+	caller->kill();
 	if( argv.size() > 0 )
 		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------
-// name: exit()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::exit( const vector< string > & argv,
-									 string & out )
-{
-	host_shell->kill();
-	if( argv.size() > 0 )
-		out += "ignoring excess arguments...\n";
-}
-
-//-----------------------------------------------------------------------------
-// name: ls()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
-									  string & out )
+void Chuck_Shell::Command_Ls::execute( vector< string > & argv,
+											string & out )
 {
 #ifndef __PLATFORM_WIN32__
 	
@@ -1107,11 +1008,11 @@ void Chuck_Shell_Mode_Command::ls( const vector< string > & argv,
 }
 
 //-----------------------------------------------------------------------------
-// name: cd()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::cd( const vector< string > & argv,
-									string & out )
+void Chuck_Shell::Command_Cd::execute( vector< string > & argv,
+											string & out )
 {
 #ifndef __PLATFORM_WIN32__
 	if( argv.size() < 1 )
@@ -1132,11 +1033,11 @@ void Chuck_Shell_Mode_Command::cd( const vector< string > & argv,
 }
 
 //-----------------------------------------------------------------------------
-// name: pwd()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::pwd( const vector< string > & argv,
-									string & out )
+void Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
+											 string & out )
 {
 #ifndef __PLATFORM_WIN32__
 	char * cwd = getcwd( NULL, 0 );
@@ -1150,11 +1051,11 @@ void Chuck_Shell_Mode_Command::pwd( const vector< string > & argv,
 }
 
 //-----------------------------------------------------------------------------
-// name: alias()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::alias( const vector< string > & argv,
-									  string & out )
+void Chuck_Shell::Command_Alias::execute( vector< string > & argv,
+									  		   string & out )
 {
 	int i, j, len = argv.size();
 	string a, b;
@@ -1167,48 +1068,143 @@ void Chuck_Shell_Mode_Command::alias( const vector< string > & argv,
 		if( j == string::npos )
 		{
 			// see if the alias exists in the map
-			if( aliases.find( argv[i] ) == aliases.end() )
+			if( caller->aliases.find( argv[i] ) == caller->aliases.end() )
 				out += "alias " + argv[i] + " not found\n";
 			else
-				out += "alias " + argv[i] + "='" + aliases[argv[i]] + "'\n";
+				out += "alias " + argv[i] + "='" + 
+					   caller->aliases[argv[i]] + "'\n";
 		}
 		// create the alias
 		else
 		{
 			a = string( argv[i], 0, j );
 			b = string( argv[i], j + 1, string::npos );
-			aliases[a] = b;
+			caller->aliases[a] = b;
 		}
 	}
+	
+	if( len == 0 )
+	// no arguments specified; print the entire alias map
+	{	
+		map< string, string>::iterator i = caller->aliases.begin(), 
+									   end = caller->aliases.end();
+		for( ; i != end; i++ )
+			out += "alias " + i->first + "='" + i->second + "'\n";
+	}
+	
+
 }
 
 //-----------------------------------------------------------------------------
-// name: unalias()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::unalias( const vector< string > & argv,
-										string & out )
+void Chuck_Shell::Command_Unalias::execute( vector< string > & argv,
+												 string & out )
 {
 	int i, len = argv.size();
 	
 	for( i = 0; i < len; i++ )
 	{
-		if( aliases.find( argv[i] ) == aliases.end() )
+		if( caller->aliases.find( argv[i] ) == caller->aliases.end() )
 		{
 			out += "alias " + argv[i] + " not found\n";
 		}
 		
 		else
-			aliases.erase( argv[i] );
+			caller->aliases.erase( argv[i] );
 	}
 }
 
 //-----------------------------------------------------------------------------
-// name: vm_attach()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::vm_attach( const vector< string > & argv,
-										  string & out )
+void Chuck_Shell::Command_Source::execute( vector< string > & argv,
+										   string & out )
+{
+	int i, len = argv.size();
+	char line_buf[255];
+	string line, temp;
+
+	for( i = 0; i < len; i++ )
+	{
+		FILE * source_file = fopen( argv[i].c_str(), "r" );
+		while( fgets( line_buf, 255, source_file ) != NULL )
+		{
+			line = string( line_buf );
+			caller->execute( line, temp );
+			out += temp;
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// name: init()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell::Command_VM::init( Chuck_Shell * caller )
+{
+	Command * temp;
+	
+	Command::init( caller );
+	
+	temp = new Command_VMAttach();
+	temp->init( caller );
+	commands["attach"] = temp;
+	commands["@"] = temp;
+	
+	temp = new Command_VMAdd();
+	temp->init( caller );
+	commands["add"] = temp;
+	commands["+"] = temp;
+	
+	temp = new Command_VMRemove();
+	temp->init( caller );
+	commands["remove"] = temp;
+	commands["-"] = temp;
+	
+	temp = new Command_VMList();
+	temp->init( caller );
+	commands["list"] = temp;
+	
+	temp = new Command_VMSwap();
+	temp->init( caller );
+	commands["swap"] = temp;
+	commands["="] = temp;
+	
+	temp = new Command_VMAttachAdd();
+	temp->init( caller );
+	commands["@+"] = temp;	
+	
+	return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_VM::execute( vector< string > & argv,
+									  		string & out )
+{
+	if( commands.find( argv[0] ) == commands.end() )
+	// command doesn't exist
+		out += "vm " + argv[0] + ": command not found\n";
+	else
+	// call the mapped command
+	{
+		Command * command = commands[argv[0]];
+		argv.erase( argv.begin() );
+		command->execute( argv, out );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_VMAttach::execute( vector< string > & argv,
+										 		  string & out )
 {
 	string hostname;
 	int port;
@@ -1220,6 +1216,7 @@ void Chuck_Shell_Mode_Command::vm_attach( const vector< string > & argv,
 		hostname = "localhost";
 		port = 8888;
 	}
+	
 	else
 	{
 		int i = argv[0].find( ":" );
@@ -1248,10 +1245,10 @@ void Chuck_Shell_Mode_Command::vm_attach( const vector< string > & argv,
 		//	{
 			
 		//	}
-		if( !save_current_vm )
-			SAFE_DELETE( current_vm );
-		current_vm = new_vm;
-		save_current_vm = FALSE;
+		if( !caller->save_current_vm )
+			SAFE_DELETE( caller->current_vm );
+		caller->current_vm = new_vm;
+		caller->save_current_vm = FALSE;
 		out += argv[0] + " is now current VM\n";
 	}
 	else 
@@ -1259,66 +1256,63 @@ void Chuck_Shell_Mode_Command::vm_attach( const vector< string > & argv,
 	
 	if( argv.size() > 1 )
 		out += "ignoring excess arguments...";
-	
 }
 
 //-----------------------------------------------------------------------------
-// name: vm_add()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::vm_add( const vector< string > & argv,
-									   string & out )
+void Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
+									  		   string & out )
 {
 	char buf[16];
 	
-	vms->push_back( current_vm );
-	save_current_vm = TRUE;
+	caller->vms.push_back( caller->current_vm );
+	caller->save_current_vm = TRUE;
 	
-	sprintf( buf, "%u", vms->size() - 1 );
-	out += current_vm->fullname() + " saved as VM " + buf + "\n";
+#ifndef __PLATFORM_WIN32__
+	snprintf( buf, 16, "%u", caller->vms.size() - 1 );
+#else
+	sprintf( buf, "%u", caller->vms.size() - 1 );	
+#endif // __PLATFORM_WIN32__
+
+	out += caller->current_vm->fullname() + " saved as VM " + buf + "\n";
 	
 	if( argv.size() > 0 )
 		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------
-// name: vm_remove()
+// name: execute()
 // desc: ...
+// warning: this function will do a multiple free if the vm numbers supplied
+// are all associated with the same VM
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::vm_remove( const vector< string > & argv,
-										  string & out )
+void Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
+									  		   	  string & out )
 {
+	int i = 0, vm_no, len = argv.size();
 	
-}
-
-//-----------------------------------------------------------------------------
-// name: vm_list()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::vm_list( const vector< string > & argv,
-										string & out )
-{
-	char buf[16];
-	int i, len = vms->size();
-	
-	out += string("current VM: ") + current_vm->fullname() + "\n";
-	
-	for( i = 0; i < len; i++ )
+	for( ; i < len; i++ )
 	{
-		sprintf( buf, "%u", i );
-		out += string( "VM " ) + buf + ": " + (*vms)[i]->fullname() + "\n";
+		vm_no = strtoul( argv[i].c_str(), NULL, 10 );
+		if( vm_no == 0 && errno == EINVAL || caller->vms.size() <= vm_no || 
+			caller->vms[vm_no] == NULL )
+			out += "invalid VM id: " + argv[i] + "\n";
+		else
+		{
+			SAFE_DELETE( caller->vms[vm_no] );
+			caller->vms[vm_no] = NULL;
+		}
 	}
-	
-	if( argv.size() > 0 )
-		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------
-// name: vm_swap()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::vm_swap( const vector< string > & argv,
-										string & out )
+void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
+									  		   	string & out )
 {
 	int new_vm;
 	
@@ -1329,31 +1323,127 @@ void Chuck_Shell_Mode_Command::vm_swap( const vector< string > & argv,
 	}
 	
 	new_vm = strtol( argv[0].c_str(), NULL, 10 );
-	if( new_vm >= vms->size() || new_vm < 0 || (*vms)[new_vm] == NULL )
+	if( new_vm >= caller->vms.size() || new_vm < 0 || 
+		caller->vms[new_vm] == NULL )
 	{
 		out += string( "invalid VM: " ) + argv[0];
 		return;
 	}
 	
-	if( !save_current_vm )
-		SAFE_DELETE( current_vm );
-	save_current_vm = TRUE;
-	current_vm = (*vms)[new_vm];
-	out += "current VM is now " + current_vm->fullname() + "\n";
+	if( !caller->save_current_vm )
+		SAFE_DELETE( caller->current_vm );
+	caller->save_current_vm = TRUE;
+	caller->current_vm = caller->vms[new_vm];
+	out += "current VM is now " + caller->current_vm->fullname() + "\n";
 	
 	if( argv.size() > 1 )
 		out += "ignoring excess arguments...\n";
 }
 
 //-----------------------------------------------------------------------------
-// name: vm_attach_add()
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell_Mode_Command::vm_attach_add( const vector< string > & argv,
-										  	  string & out )
+void Chuck_Shell::Command_VMList::execute( vector< string > & argv,
+									  		   	string & out )
 {
-	vm_attach( argv, out );
-	vm_add( vector< string >(), out );
+	char buf[16];
+	int i, len = caller->vms.size();
+	
+	out += string("current VM: ") + caller->current_vm->fullname() + "\n";
+	
+	for( i = 0; i < len; i++ )
+	{
+#ifndef __PLATFORM_WIN32__
+		snprintf( buf, 16, "%u", i );
+#else
+		sprintf( buf, "%u", i );
+#endif // __PLATFORM_WIN32__
+		out += string( "VM " ) + buf + ": " + 
+			   caller->vms[i]->fullname() + "\n";
+	}
+	
+	if( argv.size() > 0 )
+		out += "ignoring excess arguments...\n";
 }
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_VMAttachAdd::execute( vector< string > & argv,
+									  		   		 string & out )
+{
+//	caller->commands["vm"]->execute( argv, out );
+//	vm_add( vector< string >(), out );
+}
+
+//-----------------------------------------------------------------------------
+// name: init()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Shell::Command_Code::init( Chuck_Shell * caller )
+{
+	Command * temp;
+	
+	Command::init( caller );
+	
+	temp = new Command_CodeContext();
+	temp->init( caller );
+	commands["context"] = temp;
+	//commands["=>"] = temp;
+}
+
+//-----------------------------------------------------------------------------
+// name: ~Command_Code()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell::Command_Code::~Command_Code()
+{
+	map< string, Command * >::iterator end = commands.end(), 
+									   i = commands.begin();
+	
+	//iterate through commands, delete the associated heap data
+	for( ; i != end; i++ )
+		delete i->second;
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_Code::execute( vector< string > & argv,
+									  	 string & out )
+{
+	if( commands.find( argv[0] ) == commands.end() )
+	// command doesn't exist
+		out += "code " + argv[0] + ": command not found\n";
+	else
+	// call the mapped command
+	{
+		Command * command = commands[argv[0]];
+		argv.erase( argv.begin() );
+		command->execute( argv, out );
+	}
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodeContext::execute( vector< string > & argv,
+									  	 		string & out )
+{
+	if( argv.size() == 0 )
+		caller->current_context = "";
+	else
+	{
+		if( caller->contexts.find( argv[0] ) == caller->contexts.end() )
+		// this is a new context
+			caller->contexts[argv[0]] = argv[0];
+		caller->current_context = caller->contexts[argv[0]];
+	}
+}
+
 
 

@@ -46,8 +46,8 @@ public:
     ~Chuck_Console();
 
     t_CKBOOL init();
-    t_CKBOOL next_command(Chuck_Shell_Request &);
-    void next_result(const Chuck_Shell_Response &);
+    t_CKBOOL next_command( const string &, string &);
+    void next_result(const string &);
 
 };
 

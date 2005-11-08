@@ -634,5 +634,11 @@ int main( int argc, char ** argv )
     // free the compiler
     SAFE_DELETE( compiler );
 
+	// wait for the shell, if it is running
+	// does the VM reset its priority to normal before exiting?
+	if( enable_shell )
+		while( g_shell != NULL )
+			;
+
     return 0;
 }

@@ -37,7 +37,7 @@
 // name: Chuck_Console()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Console::Chuck_Console() : Chuck_Shell_UI()
+Chuck_Console::Chuck_Console()
 {
 }
 
@@ -56,13 +56,13 @@ t_CKBOOL Chuck_Console::init()
 // name: nextCommand()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Console::next_command( Chuck_Shell_Response &out )
+t_CKBOOL Chuck_Console::next_command( const string & prompt, string & out )
 {
     // the line read
     char * line_read = NULL;
 
     // read the next line
-    line_read = io_readline( "chuck %> " );
+    line_read = io_readline( prompt.c_str() );
     
     // check to see if EOF encountered
     // do we need more return codes to differentiate between
