@@ -1,3 +1,8 @@
+1.2.0.4
+---
+  - (fixed) chuck.lex compatibility under some linux
+  - (fixed) std.fabs() now works correctly
+  - (fixed) basic/moe.ck larry.ck currly.ck use fabs
 
 ---
 1.2.0.3
