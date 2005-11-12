@@ -66,21 +66,30 @@ public:
     void close();
     void kill();
 
+public: // HACK-GE: these were moved from protected for win32
+    vector< Chuck_Shell_VM * > vms;
+    Chuck_VM * process_vm;
+    Chuck_Shell_VM * current_vm;
+    t_CKBOOL save_current_vm; // if true, do not delete the current vm 
+
+    //forward declaration
+    class Command;
+
+    // alias, variable, and command maps
+    map < string, string > aliases;
+    map < string, string > variables;
+    map < string, Command * > commands;
+
+    string current_context;
+    map < string, string > contexts;
+
 protected:
-	// helper functions
+    // helper functions
     void do_code( string & );
     void do_code_context( string & );
     void string_hash( string &, string & );
-
-    //forward declaration
-	class Command;
     
     Chuck_Shell_UI * ui;
-    
-    vector< Chuck_Shell_VM * > vms;
-    Chuck_Shell_VM * current_vm;
-    Chuck_VM * process_vm;
-    t_CKBOOL save_current_vm; //if true, do not delete the current vm 
     
     t_CKBOOL initialized;
     t_CKBOOL stop;
@@ -92,320 +101,314 @@ protected:
     // code entry variables
     t_CKBOOL code_entry_active;
     t_CKUINT scope;
-   	string code;
-   	map < string, string > codes;
-   	
-   	string current_context;
-   	map < string, string > contexts;
-   	
-   	// alias, variable, and command maps
-    map < string, string > aliases;
-	map < string, string > variables;
-	map < string, Command * > commands;
+    string code;
+    map < string, string > codes;
+
+public: // HACK-GE: moved from protected for win32
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command
 // desc: superclass to Chuck_Shell_Commands
 //-----------------------------------------------------------------------------
-	class Command
-	{
-	public:
-		virtual t_CKBOOL init( Chuck_Shell * );
-		virtual void execute( vector< string > &, string & ) = 0;
-	
-	protected:
-		Chuck_Shell * caller;
-	};
-	
+    class Command
+    {
+    public:
+        virtual t_CKBOOL init( Chuck_Shell * );
+        virtual void execute( vector< string > &, string & ) = 0;
+    
+    protected:
+        Chuck_Shell * caller;
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_VM
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_VM : public Command
-	{
-	public:
-		~Command_VM();
-		t_CKBOOL init( Chuck_Shell * );
-		void execute( vector< string > &, string & );
-	
-	protected:
-		map < string, Command * > commands;
-	};
+    class Command_VM : public Command
+    {
+    public:
+        ~Command_VM();
+        t_CKBOOL init( Chuck_Shell * );
+        void execute( vector< string > &, string & );
+    
+    protected:
+        map < string, Command * > commands;
+    };
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_VM_Add
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_VMAdd : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_VMAdd : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_VM_Remove
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_VMRemove : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
+    class Command_VMRemove : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_VM_Attach
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_VMAttach : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_VMAttach : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_VM_List
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_VMList : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_VMList : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_VM_Swap
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_VMSwap : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_VMSwap : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_VM_AttachAdd
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_VMAttachAdd : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_VMAttachAdd : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Add
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Add : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Add : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Remove
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Remove : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Remove : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Removeall
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Removeall : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Removeall : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Removelast
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Removelast : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Removelast : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Replace
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Replace : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Replace : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Kill
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Kill : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Kill : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Close
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Close : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Close : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Exit
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Exit : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Exit : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Ls
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Ls : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Ls : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Cd
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Cd : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Cd : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Pwd
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Pwd : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Pwd : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Alias
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Alias : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Alias : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Unalias
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Unalias : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Unalias : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Source
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Source : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_Source : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Code
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_Code : public Command
-	{
-	public:
-		~Command_Code();
-		t_CKBOOL init( Chuck_Shell * );
-		void execute( vector< string > &, string & );
-		
-	private:
-		map< string, Command * > commands;
-	};
-	
+    class Command_Code : public Command
+    {
+    public:
+        ~Command_Code();
+        t_CKBOOL init( Chuck_Shell * );
+        void execute( vector< string > &, string & );
+        
+    private:
+        map< string, Command * > commands;
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeContext
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_CodeContext : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
-	
+    class Command_CodeContext : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+    
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeSave
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_CodeSave : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
+    class Command_CodeSave : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeDelete
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_CodeDelete : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
+    class Command_CodeDelete : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeList
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_CodeList : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
+    class Command_CodeList : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeWrite
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_CodeWrite : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
+    class Command_CodeWrite : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeRead
 // desc: ...
 //-----------------------------------------------------------------------------
-	class Command_CodeRead : public Command
-	{
-	public:
-		void execute( vector< string > &, string & );
-	};
+    class Command_CodeRead : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
 
 };
 
@@ -417,14 +420,14 @@ protected:
 class Chuck_Shell_VM
 {
 public:
-	virtual t_CKBOOL add_shred( const vector< string > &, string & )=0;
-	virtual t_CKBOOL remove_shred( const vector< string > &, string & )=0;
-	virtual t_CKBOOL remove_all( string & )=0;
-	virtual t_CKBOOL remove_last( string & )=0;
-	virtual t_CKBOOL replace_shred( const vector< string > &, string & )=0;
-	virtual t_CKBOOL status( string & )=0;
-	virtual t_CKBOOL kill( string & )=0;
-	virtual string fullname()=0;
+    virtual t_CKBOOL add_shred( const vector< string > &, string & )=0;
+    virtual t_CKBOOL remove_shred( const vector< string > &, string & )=0;
+    virtual t_CKBOOL remove_all( string & )=0;
+    virtual t_CKBOOL remove_last( string & )=0;
+    virtual t_CKBOOL replace_shred( const vector< string > &, string & )=0;
+    virtual t_CKBOOL status( string & )=0;
+    virtual t_CKBOOL kill( string & )=0;
+    virtual string fullname()=0;
 };
 
 //-----------------------------------------------------------------------------
@@ -434,19 +437,19 @@ public:
 class Chuck_Shell_Network_VM : public Chuck_Shell_VM
 {
 public:
-	t_CKBOOL init( const string &, t_CKINT );
-	t_CKBOOL add_shred( const vector< string > &, string & );
-	t_CKBOOL remove_shred( const vector< string > &, string & );
-	t_CKBOOL remove_all( string & );
-	t_CKBOOL remove_last( string & );
-	t_CKBOOL replace_shred( const vector< string > &, string & );
-	t_CKBOOL status( string & );
-	t_CKBOOL kill( string & );
-	string fullname();
+    t_CKBOOL init( const string &, t_CKINT );
+    t_CKBOOL add_shred( const vector< string > &, string & );
+    t_CKBOOL remove_shred( const vector< string > &, string & );
+    t_CKBOOL remove_all( string & );
+    t_CKBOOL remove_last( string & );
+    t_CKBOOL replace_shred( const vector< string > &, string & );
+    t_CKBOOL status( string & );
+    t_CKBOOL kill( string & );
+    string fullname();
 
 private: 
-	string hostname;
-	t_CKINT port;
+    string hostname;
+    t_CKINT port;
 };
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_UI
