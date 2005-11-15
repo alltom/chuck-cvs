@@ -80,9 +80,7 @@ public: // HACK-GE: these were moved from protected for win32
     map < string, string > aliases;
     map < string, string > variables;
     map < string, Command * > commands;
-
-    string current_context;
-    map < string, string > contexts;
+    vector < Command * > allocated_commands;
 
 protected:
 	// helper functions
@@ -115,18 +113,6 @@ protected:
 public: // HACK-GE: moved from protected for win32
 
 //-----------------------------------------------------------------------------
-// name: class Chuck_Shell::CodeContext
-// desc: ...
-//-----------------------------------------------------------------------------
-struct CodeContext
-{
-	string name;
-	string hash_name;
-	CodeContext * parent;
-	vector < string > vars;
-};
-
-//-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command
 // desc: superclass to Chuck_Shell_Commands
 //-----------------------------------------------------------------------------
@@ -153,6 +139,7 @@ struct CodeContext
     
     protected:
         map < string, Command * > commands;
+        vector < Command * > allocated_commands;
     };
 
 //-----------------------------------------------------------------------------
@@ -367,7 +354,8 @@ struct CodeContext
         void execute( vector< string > &, string & );
         
     private:
-        map< string, Command * > commands;
+        map < string, Command * > commands;
+        vector < Command * > allocated_commands;
     };
     
 //-----------------------------------------------------------------------------

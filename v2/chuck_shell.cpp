@@ -243,13 +243,11 @@ Chuck_Shell::Chuck_Shell()
 //-----------------------------------------------------------------------------
 Chuck_Shell::~Chuck_Shell()
 {
-    // iterate through map, delete vms
+    int i, len = allocated_commands.size();    
 
-    // iterate through commands, delete the associated heap data
-    map< string, Command * >::iterator end = commands.end(), 
-                                       i = commands.begin();
-    for( ; i != end; i++ )
-        delete i->second;
+    //iterate through commands, delete the associated heap data
+    for( i = 0; i != len; i++ )
+	    SAFE_DELETE( allocated_commands[i] );
 
     // delete ui
     SAFE_DELETE( ui );
@@ -302,9 +300,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_Shell_UI * ui )
     save_current_vm = true;
     
     code_entry_active = false;
-    code = "";
-    current_context = "";
-    
+    code = "";    
     
     // init default variables
     variables["COMMAND_PROMPT"] = "chuck %> ";
@@ -319,71 +315,87 @@ t_CKBOOL Chuck_Shell::init( Chuck_Shell_UI * ui )
     temp = new Command_VM();
     temp->init( this );
     commands["vm"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_VMList();
     temp->init( this );
     commands["vms"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Add();
     temp->init( this );
     commands["+"] = temp;
     commands["add"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Remove();
     temp->init( this );
     commands["-"] = temp;
     commands["remove"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Removeall();
     temp->init( this );
     commands["removeall"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Removelast();
     temp->init( this );
     commands["--"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Replace();
     temp->init( this );
     commands["replace"] = temp;
     commands["="] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Close();
     temp->init( this );
     commands["close"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Kill();
     temp->init( this );
     commands["kill"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Exit();
     temp->init( this );
     commands["exit"] = temp;
     commands["quit"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Ls();
     temp->init( this );
     commands["ls"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Pwd();
     temp->init( this );
     commands["pwd"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Cd();
     temp->init( this );
     commands["cd"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Alias();
     temp->init( this );
     commands["alias"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Unalias();
     temp->init( this );
     commands["unalias"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_Source();
     temp->init( this );
     commands["source"] = temp;
     commands["."] = temp;
+    allocated_commands.push_back( temp );
     
     // flag
     initialized = TRUE;
@@ -1186,31 +1198,50 @@ t_CKBOOL Chuck_Shell::Command_VM::init( Chuck_Shell * caller )
     temp->init( caller );
     commands["attach"] = temp;
     commands["@"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_VMAdd();
     temp->init( caller );
     commands["add"] = temp;
     commands["+"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_VMRemove();
     temp->init( caller );
     commands["remove"] = temp;
     commands["-"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_VMList();
     temp->init( caller );
     commands["list"] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_VMSwap();
     temp->init( caller );
     commands["swap"] = temp;
     commands["="] = temp;
+    allocated_commands.push_back( temp );
     
     temp = new Command_VMAttachAdd();
     temp->init( caller );
     commands["@+"] = temp;  
+    allocated_commands.push_back( temp );
     
     return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: ~Command_VM()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell::Command_VM::~Command_VM()
+{
+	int i, len = allocated_commands.size();
+	 
+    //iterate through commands, delete the associated heap data
+    for( i = 0; i != len; i++ )
+	    SAFE_DELETE( allocated_commands[i] );
 }
 
 //-----------------------------------------------------------------------------
@@ -1421,11 +1452,6 @@ t_CKBOOL Chuck_Shell::Command_Code::init( Chuck_Shell * caller )
     
     Command::init( caller );
     
-    temp = new Command_CodeContext();
-    temp->init( caller );
-    commands["context"] = temp;
-    //commands["=>"] = temp;
-
     return TRUE;
 }
 
@@ -1435,12 +1461,11 @@ t_CKBOOL Chuck_Shell::Command_Code::init( Chuck_Shell * caller )
 //-----------------------------------------------------------------------------
 Chuck_Shell::Command_Code::~Command_Code()
 {
-    map< string, Command * >::iterator end = commands.end(), 
-                                       i = commands.begin();
-    
+	int i, len = allocated_commands.size();
+	
     //iterate through commands, delete the associated heap data
-    for( ; i != end; i++ )
-        delete i->second;
+    for( i = 0; i != len; i++ )
+	    SAFE_DELETE( allocated_commands[i] );
 }
 
 //-----------------------------------------------------------------------------
@@ -1462,20 +1487,3 @@ void Chuck_Shell::Command_Code::execute( vector< string > & argv,
     }
 }
 
-//-----------------------------------------------------------------------------
-// name: execute()
-// desc: ...
-//-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodeContext::execute( vector< string > & argv,
-                                                string & out )
-{
-    if( argv.size() == 0 )
-        caller->current_context = "";
-    else
-    {
-        if( caller->contexts.find( argv[0] ) == caller->contexts.end() )
-        // this is a new context
-            caller->contexts[argv[0]] = argv[0];
-        caller->current_context = caller->contexts[argv[0]];
-    }
-}
