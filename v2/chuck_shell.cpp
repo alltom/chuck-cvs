@@ -1293,9 +1293,10 @@ void Chuck_Shell::Command_VMAttach::execute( vector< string > & argv,
         
         else
         {
-            port = strtol( string( argv[0].c_str(), i + 1 ).c_str(), NULL, 10 );
+            port = strtol( argv[0].c_str() + i + 1, NULL, 10 );
             if( port == 0 /* && errno == EINVAL */ )
-                out += "invalid port '" + string( argv[0].c_str(), i + 1 ) + "'\n";
+                out += string( "invalid port '" ) + 
+                	   string( argv[0].c_str() + i + 1 ) + "'\n";
             else
                 hostname = string( argv[0], 0, i );
         }
