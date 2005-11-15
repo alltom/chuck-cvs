@@ -474,7 +474,7 @@ t_CKBOOL emit_engine_emit_if( Chuck_Emitter * emit, a_Stmt_If stmt )
         return FALSE;
 
     // type of the condition
-    switch( stmt->cond->type->id )
+    switch( stmt->cond->type->xid )
     {
     case te_int:
         // push 0
@@ -560,7 +560,7 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
     // could be NULL
     if( stmt->c2 )
     {
-        switch( stmt->c2->stmt_exp->type->id )
+        switch( stmt->c2->stmt_exp->type->xid )
         {
         case te_int:
             // push 0
@@ -674,7 +674,7 @@ t_CKBOOL emit_engine_emit_while( Chuck_Emitter * emit, a_Stmt_While stmt )
         return FALSE;
     
     // the condition
-    switch( stmt->cond->type->id )
+    switch( stmt->cond->type->xid )
     {
     case te_int:
         // push 0
@@ -766,7 +766,7 @@ t_CKBOOL emit_engine_emit_do_while( Chuck_Emitter * emit, a_Stmt_While stmt )
         return FALSE;
     
     // the condition
-    switch( stmt->cond->type->id )
+    switch( stmt->cond->type->xid )
     {
     case te_int:
         // push 0
@@ -846,7 +846,7 @@ t_CKBOOL emit_engine_emit_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
         return FALSE;
 
     // condition
-    switch( stmt->cond->type->id )
+    switch( stmt->cond->type->xid )
     {
     case te_int:
         // push 0
@@ -937,7 +937,7 @@ t_CKBOOL emit_engine_emit_do_until( Chuck_Emitter * emit, a_Stmt_Until stmt )
         return FALSE;
 
     // condition
-    switch( stmt->cond->type->id )
+    switch( stmt->cond->type->xid )
     {
     case te_int:
         // push 0
@@ -1029,7 +1029,7 @@ t_CKBOOL emit_engine_emit_loop( Chuck_Emitter * emit, a_Stmt_Loop stmt )
     Chuck_Type * type = stmt->cond->cast_to ? stmt->cond->cast_to : stmt->cond->type;
 
     // the condition
-    switch( type->id )
+    switch( type->xid )
     {
     case te_int:
         // push 0
@@ -1292,8 +1292,8 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
     Chuck_Type * t_left = lhs->cast_to ? lhs->cast_to : lhs->type;
     Chuck_Type * t_right = rhs->cast_to ? rhs->cast_to : rhs->type;
     // get the types of the left and right
-    te_Type left = t_left->id;
-    te_Type right = t_right->id;
+    te_Type left = t_left->xid;
+    te_Type right = t_right->xid;
     // op
     Chuck_Instr * instr = NULL;
 
@@ -2687,7 +2687,7 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
         if( isfunc( member->self->type ) )
         {
             // get the func
-            value = type_engine_find_value( t_base, member->id );
+            value = type_engine_find_value( t_base, member->xid );
             func = value->func_ref;
             // make sure it's there
             assert( func != NULL );
@@ -2715,8 +2715,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
         else
         {
             // get the value
-            // value = t_base->info->lookup_value( member->id, FALSE );
-            value = type_engine_find_value( t_base, member->id );
+            // value = t_base->info->lookup_value( member->xid, FALSE );
+            value = type_engine_find_value( t_base, member->xid );
             // make sure it's there
             assert( value != NULL );
 
@@ -2761,7 +2761,7 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
         if( isfunc( member->self->type ) )
         {
             // get the func
-            func = t_base->info->lookup_func( member->id, FALSE );
+            func = t_base->info->lookup_func( member->xid, FALSE );
             // make sure it's there
             assert( func != NULL );
             // emit the function
@@ -2770,7 +2770,7 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
         else
         {
             // get the value
-            value = t_base->info->lookup_value( member->id, FALSE );
+            value = t_base->info->lookup_value( member->xid, FALSE );
             // make sure it's there
             assert( value != NULL );
 

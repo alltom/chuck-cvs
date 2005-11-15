@@ -212,7 +212,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
 
     // log
     EM_log( CK_LOG_FINEST, "scanning class definition '%s'...",
-        S_name(class_def->name->id) );
+        S_name(class_def->name->xid) );
     // push indent
     EM_pushlog();
 
@@ -229,19 +229,19 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     }
 
     // make sure class not already in namespace
-    if( env->curr->lookup_type( class_def->name->id, FALSE ) )
+    if( env->curr->lookup_type( class_def->name->xid, FALSE ) )
     {
         EM_error2( class_def->name->linepos,
             "class/type '%s' is already defined in namespace '%s'",
-            S_name(class_def->name->id), env->curr->name.c_str() );
+            S_name(class_def->name->xid), env->curr->name.c_str() );
         ret = FALSE; goto done;
     }
 
     // check if reserved
-    if( type_engine_check_reserved( env, class_def->name->id, class_def->name->linepos ) )
+    if( type_engine_check_reserved( env, class_def->name->xid, class_def->name->linepos ) )
     {
         EM_error2( class_def->name->linepos, "...in class definition '%s'",
-            S_name(class_def->name->id) );
+            S_name(class_def->name->xid) );
         ret = FALSE; goto done;
     }
 
@@ -251,8 +251,8 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     // add reference
     SAFE_ADD_REF( the_class );
     // set the fields
-    the_class->id = te_user;
-    the_class->name = S_name(class_def->name->id);
+    the_class->xid = te_user;
+    the_class->name = S_name(class_def->name->xid);
     the_class->owner = env->curr;
     the_class->array_depth = 0;
     the_class->size = sizeof(void *);
@@ -1081,7 +1081,7 @@ t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     // look up the type
     // TODO: handle T a, b, c...
     // TODO: do we climb?
-    t_CKTYPE t = type_engine_find_type( env, decl->type->id );
+    t_CKTYPE t = type_engine_find_type( env, decl->type->xid );
     // if not found, try to resolve
     if( !t )
     {
@@ -1299,7 +1299,7 @@ t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def f )
     }
     
     // look up the return type
-    f->ret_type = type_engine_find_type( env, f->type_decl->id );
+    f->ret_type = type_engine_find_type( env, f->type_decl->xid );
     // no return type
     if( !f->ret_type )
     {
@@ -1348,7 +1348,7 @@ t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def f )
     while( arg_list )
     {
         // look up in type table
-        arg_list->type = type_engine_find_type( env, arg_list->type_decl->id );
+        arg_list->type = type_engine_find_type( env, arg_list->type_decl->xid );
         // if not there, try to resolve
         if( !arg_list->type )
         {
@@ -1356,7 +1356,7 @@ t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def f )
             // EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, 
                 "... in argument %i '%s' of function '%s(.)' ...", 
-                count, S_name(arg_list->var_decl->id), S_name(f->name) );
+                count, S_name(arg_list->var_decl->xid), S_name(f->name) );
             goto error;
         }
 
@@ -2156,19 +2156,19 @@ t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         var_decl = list->var_decl;
 
         // check if reserved
-        if( type_engine_check_reserved( env, var_decl->id, var_decl->linepos ) )
+        if( type_engine_check_reserved( env, var_decl->xid, var_decl->linepos ) )
         {
             EM_error2( var_decl->linepos, 
-                "...in variable declaration", S_name(var_decl->id) );
+                "...in variable declaration", S_name(var_decl->xid) );
             return FALSE;
         }
 
         // check if locally defined
-        if( env->curr->lookup_value( var_decl->id, FALSE ) )
+        if( env->curr->lookup_value( var_decl->xid, FALSE ) )
         {
             EM_error2( var_decl->linepos,
                 "'%s' has already been defined in the same scope...",
-                S_name(var_decl->id) );
+                S_name(var_decl->xid) );
             return FALSE;
         }
 
@@ -2209,8 +2209,8 @@ t_CKBOOL type_engine_scan2_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         }
 
         // enter into value binding
-        env->curr->value.add( var_decl->id,
-            value = env->context->new_Chuck_Value( type, S_name(var_decl->id) ) );
+        env->curr->value.add( var_decl->xid,
+            value = env->context->new_Chuck_Value( type, S_name(var_decl->xid) ) );
 
         // remember the owner
         value->owner = env->curr;
@@ -2469,7 +2469,7 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
 
     // make a new type for the function
     type = env->context->new_Chuck_Type();
-    type->id = te_function;
+    type->xid = te_function;
     type->name = "[function]";
     type->parent = &t_function;
     type->size = sizeof(void *);
@@ -2526,18 +2526,18 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
         }
 
         // check if reserved
-        if( type_engine_check_reserved( env, arg_list->var_decl->id, arg_list->linepos ) )
+        if( type_engine_check_reserved( env, arg_list->var_decl->xid, arg_list->linepos ) )
         {
             EM_error2( arg_list->linepos, "in function '%s'", S_name(f->name) );
             goto error;
         }
 
         // look up in scope: later
-        //if( env->curr->lookup_value( arg_list->var_decl->id, FALSE ) )
+        //if( env->curr->lookup_value( arg_list->var_decl->xid, FALSE ) )
         //{
         //    EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
         //    EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
-        //        count, S_name(arg_list->var_decl->id) );
+        //        count, S_name(arg_list->var_decl->xid) );
         //    goto error;
         //}
 
@@ -2555,7 +2555,7 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
             {
                 EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
                 EM_error2( arg_list->linepos, "argument %i '%s' must be defined with empty []'s",
-                    count, S_name(arg_list->var_decl->id) );
+                    count, S_name(arg_list->var_decl->xid) );
                 return FALSE;
             }
 
@@ -2576,7 +2576,7 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
         
         // make new value
         v = env->context->new_Chuck_Value( 
-            arg_list->type, S_name(arg_list->var_decl->id) );
+            arg_list->type, S_name(arg_list->var_decl->xid) );
         // remember the owner
         v->owner = env->curr;
         // function args not owned
@@ -2585,7 +2585,7 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
         // later: add as value
         // symbols.push_back( arg_list );
         // values.push_back( v );
-        // later: env->curr->value.add( arg_list->var_decl->id, v );
+        // later: env->curr->value.add( arg_list->var_decl->xid, v );
 
         // stack
         v->offset = f->stack_depth;

@@ -942,7 +942,7 @@ CK_DLL_MFUN( shred_id )
 {
     Chuck_VM_Shred * derhs = (Chuck_VM_Shred *)SELF;
     // return the id
-    RETURN->v_int = derhs->id;
+    RETURN->v_int = derhs->xid;
 }
 
 CK_DLL_MFUN( shred_yield )

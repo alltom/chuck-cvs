@@ -269,11 +269,11 @@ a_Stmt new_stmt_from_return( a_Exp exp, int pos )
     return a;
 }
 
-a_Stmt new_stmt_from_label( c_str id, int pos )
+a_Stmt new_stmt_from_label( c_str xid, int pos )
 {
     a_Stmt a = (a_Stmt)checked_malloc( sizeof( struct a_Stmt_ ) );
     a->s_type = ae_stmt_gotolabel;
-    a->stmt_gotolabel.name = insert_symbol( id );
+    a->stmt_gotolabel.name = insert_symbol( xid );
     a->linepos = pos;
     a->stmt_gotolabel.linepos = pos;
     a->stmt_gotolabel.self = a;
@@ -400,13 +400,13 @@ a_Exp new_exp_from_func_call( a_Exp base, a_Exp args, int pos )
     return a;
 }
 
-a_Exp new_exp_from_member_dot( a_Exp base, c_str id, int pos )
+a_Exp new_exp_from_member_dot( a_Exp base, c_str xid, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_dot_member;
     a->s_meta = ae_meta_var;
     a->dot_member.base = base;
-    a->dot_member.id = insert_symbol( id );
+    a->dot_member.xid = insert_symbol( xid );
     a->linepos = pos;
     a->dot_member.linepos = pos;
     a->dot_member.self = a;
@@ -442,13 +442,13 @@ a_Exp new_exp_from_dur( a_Exp base, a_Exp unit, int pos )
     return a;
 }
 
-a_Exp new_exp_from_id( c_str id, int pos )
+a_Exp new_exp_from_id( c_str xid, int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_primary;
     a->s_meta = ae_meta_var;
     a->primary.s_type = ae_primary_var;
-    a->primary.var = insert_symbol( id );
+    a->primary.var = insert_symbol( xid );
     a->linepos = pos;
     a->primary.linepos = pos;
     a->primary.self = a;
@@ -557,10 +557,10 @@ a_Exp new_exp_from_hack( a_Exp exp, int pos )
     return a;
 }
 
-a_Var_Decl new_var_decl( c_str id, a_Array_Sub array, int pos )
+a_Var_Decl new_var_decl( c_str xid, a_Array_Sub array, int pos )
 {
     a_Var_Decl a = (a_Var_Decl)checked_malloc( sizeof( struct a_Var_Decl_ ) );
-    a->id = insert_symbol(id);
+    a->xid = insert_symbol(xid);
     a->array = array;
     a->linepos = pos;
     
@@ -589,7 +589,7 @@ a_Type_Decl new_type_decl( a_Id_List type, int ref, int pos )
 {
     a_Type_Decl a = (a_Type_Decl)checked_malloc(
         sizeof( struct a_Type_Decl_ ) );
-    a->id = type;
+    a->xid = type;
     a->ref = ref;
     a->linepos = pos;
 
@@ -694,19 +694,19 @@ a_Class_Ext new_class_ext( a_Id_List extend_id, a_Id_List impl_list, int pos )
     return a;
 }
 
-a_Id_List new_id_list( c_str id, int pos )
+a_Id_List new_id_list( c_str xid, int pos )
 {
     a_Id_List a = (a_Id_List)checked_malloc( sizeof( struct a_Id_List_ ) );
-    a->id = insert_symbol( id );
+    a->xid = insert_symbol( xid );
     a->next = NULL;
     a->linepos = pos;
 
     return a;
 }
 
-a_Id_List prepend_id_list( c_str id, a_Id_List list, int pos )
+a_Id_List prepend_id_list( c_str xid, a_Id_List list, int pos )
 {
-    a_Id_List a = new_id_list( id, pos );
+    a_Id_List a = new_id_list( xid, pos );
     a->next = list;
     a->linepos = pos;
 

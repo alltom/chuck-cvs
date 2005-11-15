@@ -1124,9 +1124,9 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
 
 
 // helper macros
-#define LR( L, R )      if( (left->id == L) && (right->id == R) )
-#define COMMUTE( L, R ) if( ( (left->id == L) && (right->id == R) ) || \
-                            ( (left->id == R) && (right->id == L) ) )
+#define LR( L, R )      if( (left->xid == L) && (right->xid == R) )
+#define COMMUTE( L, R ) if( ( (left->xid == L) && (right->xid == R) ) || \
+                            ( (left->xid == R) && (right->xid == L) ) )
 
 //-----------------------------------------------------------------------------
 // name: type_engine_check_op()
@@ -1639,8 +1639,8 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
 
         case ae_op_new:
             // look up the type
-            // t = env->curr->lookup_type( unary->type->id->id, TRUE );
-            t = type_engine_find_type( env, unary->type->id );
+            // t = env->curr->lookup_type( unary->type->xid->xid, TRUE );
+            t = type_engine_find_type( env, unary->type->xid );
             if( !t )
             {
                 EM_error2( unary->linepos,
@@ -1991,8 +1991,8 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
     /*
     // create the new type
     t = env->context->new_Chuck_Type();
-    // set the id
-    t->id = te_array;
+    // set the xid
+    t->xid = te_array;
     // set the name
     t->name = type->name;
     // set the parent
@@ -2029,8 +2029,8 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     if( !t ) return NULL;
 
     // the type to cast to
-    // t_CKTYPE t2 = env->curr->lookup_type( cast->type->id->id, TRUE );
-    t_CKTYPE t2 = type_engine_find_type( env, cast->type->id );
+    // t_CKTYPE t2 = env->curr->lookup_type( cast->type->xid->xid, TRUE );
+    t_CKTYPE t2 = type_engine_find_type( env, cast->type->xid );
     if( !t2 )
     {
         EM_error2( cast->linepos, "... in cast expression ..." );
@@ -2042,7 +2042,7 @@ t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast )
     {
         EM_error2( cast->linepos,
             "invalid cast to '%s' from '%s'...",
-            S_name( cast->type->id->id ), t->c_name() );
+            S_name( cast->type->xid->xid ), t->c_name() );
         return NULL;
     }
     
@@ -2247,11 +2247,11 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // (if at class_scope) check if in parent
         // TODO: sort
         if( env->class_def && env->class_scope == 0 && ( value =
-            type_engine_find_value( env->class_def->parent, var_decl->id ) ) )
+            type_engine_find_value( env->class_def->parent, var_decl->xid ) ) )
         {
             EM_error2( var_decl->linepos,
                 "'%s' has already been defined in super class '%s'...",
-                S_name(var_decl->id), value->owner_class->c_name() );
+                S_name(var_decl->xid), value->owner_class->c_name() );
             return NULL;
         }
 
@@ -2328,7 +2328,7 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         if( !env->class_def || env->class_scope > 0 )
         {
             // add as value
-            env->curr->value.add( var_decl->id, value );
+            env->curr->value.add( var_decl->xid, value );
         }
 
         // the next var decl
@@ -2362,7 +2362,7 @@ string type_engine_print_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member membe
     the_base = base_static ? member->t_base->actual_type : member->t_base;
 
     // this
-    str = S_name(member->id);
+    str = S_name(member->xid);
 
     return string(the_base->c_name()) + std::string(".") + str;
 }
@@ -2510,7 +2510,7 @@ found:
     {
         // set the new name
         // TODO: clear old
-        exp_func->dot_member.id = insert_symbol(func->name.c_str());
+        exp_func->dot_member.xid = insert_symbol(func->name.c_str());
         // make sure the type is still the name
         if( *exp_func->type != *type_engine_check_exp( env, exp_func ) )
         {
@@ -2575,7 +2575,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     }
 
     // this
-    str = S_name(member->id);
+    str = S_name(member->xid);
     if( str == "this" )
     {
         // uh
@@ -2597,13 +2597,13 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     }
 
     // find the value
-    value = type_engine_find_value( the_base, member->id );
+    value = type_engine_find_value( the_base, member->xid );
     if( !value )
     {
         // can't find member
         EM_error2( member->base->linepos,
             "class '%s' has no member '%s'",
-            the_base->c_name(), S_name(member->id) );
+            the_base->c_name(), S_name(member->xid) );
         return NULL;
     }
 
@@ -2613,7 +2613,7 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
         // this won't work
         EM_error2( member->linepos,
             "cannot access member '%s.%s' without object instance...",
-            the_base->c_name(), S_name(member->id) );
+            the_base->c_name(), S_name(member->xid) );
         return NULL;
     }
 
@@ -2725,7 +2725,7 @@ t_CKBOOL type_engine_check_class_def( Chuck_Env * env, a_Class_Def class_def )
             {
                 EM_error2( class_def->ext->linepos,
                     "undefined super class '%s' in definition of class '%s'",
-                    type_path(class_def->ext->extend_id), S_name(class_def->name->id) );
+                    type_path(class_def->ext->extend_id), S_name(class_def->name->xid) );
                 return FALSE;
             }
 
@@ -3082,16 +3082,16 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         assert( v != NULL );
 
         // look up in scope: later
-        if( env->curr->lookup_value( arg_list->var_decl->id, FALSE ) )
+        if( env->curr->lookup_value( arg_list->var_decl->xid, FALSE ) )
         {
             EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
-                count, S_name(arg_list->var_decl->id) );
+                count, S_name(arg_list->var_decl->xid) );
             goto error;
         }
 
         // add as value
-        env->curr->value.add( arg_list->var_decl->id, v );
+        env->curr->value.add( arg_list->var_decl->xid, v );
 
         // increment count
         count++;
@@ -3296,14 +3296,14 @@ void Chuck_Namespace::get_funcs( vector<Chuck_Func *> & out )
 t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs )
 {
     // check id
-    if( lhs.id != rhs.id ) return FALSE;
+    if( lhs.xid != rhs.xid ) return FALSE;
     // check array depth
     if( lhs.array_depth != rhs.array_depth ) return FALSE;
     // check array type
     if( lhs.array_depth && (*lhs.actual_type != *rhs.actual_type) ) return FALSE;
 
     // if user-defined type
-    if( lhs.id == te_user )
+    if( lhs.xid == te_user )
     {
         // check name
         if( lhs.name != rhs.name ) return FALSE;
@@ -3458,26 +3458,26 @@ void Chuck_Context::rollback()
 // name: type_engine_check_reserved()
 // desc: ...
 //--------------------------------------------------------------------------
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos )
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & xid, int pos )
 {
     // key word?
-    if( env->key_words[id] )
+    if( env->key_words[xid] )
     {
-        EM_error2( pos, "illegal use of keyword '%s'.", id.c_str() );
+        EM_error2( pos, "illegal use of keyword '%s'.", xid.c_str() );
         return TRUE;
     }
 
     // key value?
-    if( env->key_values[id] )
+    if( env->key_values[xid] )
     {
-        EM_error2( pos, "illegal re-declaration of reserved value '%s'.", id.c_str() );
+        EM_error2( pos, "illegal re-declaration of reserved value '%s'.", xid.c_str() );
         return TRUE;
     }
 
     // key type?
-    if( env->key_types[id] )
+    if( env->key_types[xid] )
     {
-        EM_error2( pos, "illegal use of reserved type id '%s'.", id.c_str() );
+        EM_error2( pos, "illegal use of reserved type id '%s'.", xid.c_str() );
         return TRUE;
     }
 
@@ -3491,9 +3491,9 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos
 // name: type_engine_check_reserved()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos )
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol xid, int pos )
 {
-    return type_engine_check_reserved( env, string(S_name(id)), pos );
+    return type_engine_check_reserved( env, string(S_name(xid)), pos );
 }
 
 
@@ -3561,7 +3561,7 @@ const char * type_path( a_Id_List path )
     while( path )
     {
         // concatenate
-        str += S_name(path->id);
+        str += S_name(path->xid);
         // add .
         if( path->next ) str += ".";
         // advance
@@ -3578,12 +3578,12 @@ const char * type_path( a_Id_List path )
 // name: type_engine_find_type()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol id )
+Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol xid )
 {
     Chuck_Type * type = NULL;
     if( !nspc) return NULL;
     // -1 for base
-    if(( type = nspc->lookup_type( id, -1 ) )) return type;
+    if(( type = nspc->lookup_type( xid, -1 ) )) return type;
     return NULL;
 }
 
@@ -3596,10 +3596,10 @@ Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol id )
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
 {
-    S_Symbol id = NULL;
+    S_Symbol xid = NULL;
     Chuck_Type * t = NULL;
     // get base type
-    Chuck_Type * type = env->curr->lookup_type( path->id, TRUE );
+    Chuck_Type * type = env->curr->lookup_type( path->xid, TRUE );
     if( !type )
     {
         EM_error2( path->linepos, "undefined type '%s'...",
@@ -3614,13 +3614,13 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
     while( path != NULL )
     {
         // get the id
-        id = path->id;
+        xid = path->xid;
         // look for the type in the namespace
-        t = type_engine_find_type( nspc, id );
+        t = type_engine_find_type( nspc, xid );
         // look in parent
         while( !t && type && type->parent )
         {
-            t = type_engine_find_type( type->parent->info, id );
+            t = type_engine_find_type( type->parent->info, xid );
             type = type->parent;
         }
         // can't find
@@ -3631,7 +3631,7 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
                 type_path( path ) );
             EM_error2( path->linepos,
                 "...(cannot find class '%s' in namespace '%s')",
-                S_name(id), nspc->name.c_str() );
+                S_name(xid), nspc->name.c_str() );
             return NULL;
         }
 
@@ -3653,9 +3653,9 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
 // name: type_engine_find_value()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id )
+Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol xid )
 {
-    return type_engine_find_value( type, string(S_name(id)) );
+    return type_engine_find_value( type, string(S_name(xid)) );
 }
 
 
@@ -3665,14 +3665,14 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id )
 // name: type_engine_find_value()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id )
+Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & xid )
 {
     Chuck_Value * value = NULL;
     if( !type ) return NULL;
     if( !type->info ) return NULL;
     // -1 for base
-    if(( value = type->info->lookup_value( id, -1 ) )) return value;
-    if( type->parent ) return type_engine_find_value( type->parent, id );
+    if(( value = type->info->lookup_value( xid, -1 ) )) return value;
+    if( type->parent ) return type_engine_find_value( type->parent, xid );
     return NULL;
 }
 
@@ -3687,7 +3687,7 @@ Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path )
 {
     Chuck_Namespace * nspc = NULL;
     // if the first if global, move to the next
-    if( path && !strcmp( S_name(path->id), "global" ) ) path = path->next;
+    if( path && !strcmp( S_name(path->xid), "global" ) ) path = path->next;
     // global namespace
     if( path == NULL ) return env->global();
     // find the type
@@ -4288,7 +4288,7 @@ Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
     // make new type
     Chuck_Type * t = env->context->new_Chuck_Type();
     // set the id
-    t->id = te_array;
+    t->xid = te_array;
     // set the name
     t->name = base_type->name;
     // set the parent
@@ -4861,7 +4861,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
 
     // make a new type for the function
     type = env->context->new_Chuck_Type();
-    type->id = te_function;
+    type->xid = te_function;
     type->name = "[function]";
     type->parent = &t_function;
     type->size = sizeof(void *);
@@ -4902,8 +4902,8 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     }
 
     // look up the return type
-    // f->ret_type = env->curr->lookup_type( f->type_decl->id->id );
-    f->ret_type = type_engine_find_type( env, f->type_decl->id );
+    // f->ret_type = env->curr->lookup_type( f->type_decl->xid->xid );
+    f->ret_type = type_engine_find_type( env, f->type_decl->xid );
     // no return type
     if( !f->ret_type )
     {
@@ -4951,14 +4951,14 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     while( arg_list )
     {
         // look up in type table
-        // arg_list->type = env->curr->lookup_type( arg_list->type_decl->id->id );
-        arg_list->type = type_engine_find_type( env, arg_list->type_decl->id );
+        // arg_list->type = env->curr->lookup_type( arg_list->type_decl->xid->xid );
+        arg_list->type = type_engine_find_type( env, arg_list->type_decl->xid );
         if( !arg_list->type )
         {
             // EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( arg_list->linepos, 
                 "... in argument %i '%s' of function '%s(.)' ...", 
-                count, S_name(arg_list->var_decl->id), S_name(f->name) );
+                count, S_name(arg_list->var_decl->xid), S_name(f->name) );
             goto error;
         }
 
@@ -4971,18 +4971,18 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         }
 
         // check if reserved
-        if( type_engine_check_reserved( env, arg_list->var_decl->id, arg_list->linepos ) )
+        if( type_engine_check_reserved( env, arg_list->var_decl->xid, arg_list->linepos ) )
         {
             EM_error2( arg_list->linepos, "in function '%s'", S_name(f->name) );
             goto error;
         }
 
         // look up in scope: later
-        //if( env->curr->lookup_value( arg_list->var_decl->id, FALSE ) )
+        //if( env->curr->lookup_value( arg_list->var_decl->xid, FALSE ) )
         //{
         //    EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
         //    EM_error2( arg_list->linepos, "argument %i '%s' is already defined in this scope",
-        //        count, S_name(arg_list->var_decl->id) );
+        //        count, S_name(arg_list->var_decl->xid) );
         //    goto error;
         //}
 
@@ -5000,7 +5000,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
             {
                 EM_error2( arg_list->linepos, "in function '%s':", S_name(f->name) );
                 EM_error2( arg_list->linepos, "argument %i '%s' must be defined with empty []'s",
-                    count, S_name(arg_list->var_decl->id) );
+                    count, S_name(arg_list->var_decl->xid) );
                 return FALSE;
             }
 
@@ -5021,7 +5021,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         
         // make new value
         v = env->context->new_Chuck_Value( 
-            arg_list->type, S_name(arg_list->var_decl->id) );
+            arg_list->type, S_name(arg_list->var_decl->xid) );
         // remember the owner
         v->owner = env->curr;
         // function args not owned
@@ -5030,7 +5030,7 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
         // add as value
         symbols.push_back( arg_list );
         values.push_back( v );
-        // later: env->curr->value.add( arg_list->var_decl->id, v );
+        // later: env->curr->value.add( arg_list->var_decl->xid, v );
 
         // stack
         v->offset = f->stack_depth;
@@ -5203,15 +5203,15 @@ t_CKBOOL type_engine_check_func_def( Chuck_Env * env, a_Func_Def f )
     for( i = 0; i < values.size(); i++ )
     {
         // look up in scope
-        if( env->curr->lookup_value( symbols[i]->var_decl->id, FALSE ) )
+        if( env->curr->lookup_value( symbols[i]->var_decl->xid, FALSE ) )
         {
             EM_error2( symbols[i]->var_decl->linepos, "in function '%s':", S_name(f->name) );
             EM_error2( symbols[i]->var_decl->linepos, "argument %i '%s' is already defined in this scope",
-                i+1, S_name(symbols[i]->var_decl->id) );
+                i+1, S_name(symbols[i]->var_decl->xid) );
             goto error;
         }
 
-        env->curr->value.add( symbols[i]->var_decl->id, values[i] );
+        env->curr->value.add( symbols[i]->var_decl->xid, values[i] );
     }
 
     // type check the code
@@ -5283,8 +5283,8 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
 
     // TODO: handle T a, b, c ...
     // look up the type
-    // t_CKTYPE t = env->curr->lookup_type( decl->type->id->id, TRUE );
-    t_CKTYPE t = type_engine_find_type( env, decl->type->id );
+    // t_CKTYPE t = env->curr->lookup_type( decl->type->xid->xid, TRUE );
+    t_CKTYPE t = type_engine_find_type( env, decl->type->xid );
     if( !t )
     {
         EM_error2( decl->linepos, "... in declaration ..." );
@@ -5338,30 +5338,30 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         var_decl = list->var_decl;
 
         // check if reserved
-        if( type_engine_check_reserved( env, var_decl->id, var_decl->linepos ) )
+        if( type_engine_check_reserved( env, var_decl->xid, var_decl->linepos ) )
         {
             EM_error2( var_decl->linepos, 
-                "...in variable declaration", S_name(var_decl->id) );
+                "...in variable declaration", S_name(var_decl->xid) );
             return NULL;
         }
 
         // check if locally defined
-        // if( env->context->nspc.value.lookup( var_decl->id, TRUE ) )
-        if( env->curr->lookup_value( var_decl->id, FALSE ) )
+        // if( env->context->nspc.value.lookup( var_decl->xid, TRUE ) )
+        if( env->curr->lookup_value( var_decl->xid, FALSE ) )
         {
             EM_error2( var_decl->linepos,
                 "'%s' has already been defined in the same scope...",
-                S_name(var_decl->id) );
+                S_name(var_decl->xid) );
             return NULL;
         }
 
         // check if in parent
         //if( env->class_def && ( value =
-        //    type_engine_find_value( env->class_def->parent, var_decl->id ) ) )
+        //    type_engine_find_value( env->class_def->parent, var_decl->xid ) ) )
         //{
         //    EM_error2( var_decl->linepos,
         //        "'%s' has already been defined in super class '%s'...",
-        //        S_name(var_decl->id), value->owner_class->c_name() );
+        //        S_name(var_decl->xid), value->owner_class->c_name() );
         //    return NULL;
         //}
 
@@ -5408,10 +5408,10 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // }
 
         // enter into value binding
-        // env->context->nspc.value.add( var_decl->id, 
-        //    new Chuck_Value( t, S_name(var_decl->id), NULL ) );
-        env->curr->value.add( var_decl->id,
-            value = env->context->new_Chuck_Value( t, S_name(var_decl->id) ) );
+        // env->context->nspc.value.add( var_decl->xid, 
+        //    new Chuck_Value( t, S_name(var_decl->xid), NULL ) );
+        env->curr->value.add( var_decl->xid,
+            value = env->context->new_Chuck_Value( t, S_name(var_decl->xid) ) );
 
         // remember the owner
         value->owner = env->curr;

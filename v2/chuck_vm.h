@@ -195,7 +195,7 @@ public:
     map<Chuck_UGen *, Chuck_UGen *> m_ugen_map;
 
 public: // id
-    t_CKUINT id;
+    t_CKUINT xid;
     string name;
 
 public:
@@ -235,7 +235,7 @@ public: // shreduling
 public: // high-level shred interface
     t_CKBOOL remove( Chuck_VM_Shred * shred );
     t_CKBOOL replace( Chuck_VM_Shred * out, Chuck_VM_Shred * in );
-    Chuck_VM_Shred * lookup( t_CKUINT id );
+    Chuck_VM_Shred * lookup( t_CKUINT xid );
     void status( );
 
 public: // for event related shred queue

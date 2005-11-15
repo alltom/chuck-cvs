@@ -133,53 +133,53 @@ public:
     }
 
     // add
-    void add( const string & id, Chuck_VM_Object * value )
-    { this->add( insert_symbol(id.c_str()), value ); }
-    void add( S_Symbol id, Chuck_VM_Object * value )
+    void add( const string & xid, Chuck_VM_Object * value )
+    { this->add( insert_symbol(xid.c_str()), value ); }
+    void add( S_Symbol xid, Chuck_VM_Object * value )
     {
         assert( scope.size() != 0 );
         // add if back is NOT front
         if( scope.back() != scope.front() )
-            (*scope.back())[id] = value;
+            (*scope.back())[xid] = value;
         // add for commit
-        else commit_map[id] = value;
+        else commit_map[xid] = value;
         // add reference
         SAFE_ADD_REF(value);
     }
 
     // lookup id
-    T operator []( const string & id )
-    { return (T)this->lookup( id ); }
-    T lookup( const string & id, t_CKINT climb = 1 )
-    { return (T)this->lookup( insert_symbol(id.c_str()), climb ); }
+    T operator []( const string & xid )
+    { return (T)this->lookup( xid ); }
+    T lookup( const string & xid, t_CKINT climb = 1 )
+    { return (T)this->lookup( insert_symbol(xid.c_str()), climb ); }
     // -1 base, 0 current, 1 climb
-    T lookup( S_Symbol id, t_CKINT climb = 1 )
+    T lookup( S_Symbol xid, t_CKINT climb = 1 )
     {
         Chuck_VM_Object * val; assert( scope.size() != 0 );
 
         if( climb == 0 )
         {
-            val = (*scope.back())[id];
+            val = (*scope.back())[xid];
             // look in commit buffer if the back is the front
             if( !val && scope.back() == scope.front() 
-                && (commit_map.find(id) != commit_map.end()) ) 
-                val = commit_map[id];
+                && (commit_map.find(xid) != commit_map.end()) ) 
+                val = commit_map[xid];
         }
         else if( climb > 0 )
         {
             for( t_CKUINT i = scope.size(); i > 0; i-- )
-            { if( val = (*scope[i-1])[id] ) break; }
+            { if( val = (*scope[i-1])[xid] ) break; }
 
             // look in commit buffer
-            if( !val && (commit_map.find(id) != commit_map.end()) )
-                val = commit_map[id];
+            if( !val && (commit_map.find(xid) != commit_map.end()) )
+                val = commit_map[xid];
         }
         else
         {
-            val = (*scope.front())[id];
+            val = (*scope.front())[xid];
             // look in commit buffer
-            if( !val && (commit_map.find(id) != commit_map.end()) )
-                val = commit_map[id];
+            if( !val && (commit_map.find(xid) != commit_map.end()) )
+                val = commit_map[xid];
         }
 
         return (T)val;
@@ -459,11 +459,11 @@ struct Chuck_UGen_Info : public Chuck_VM_Object
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Type
 // desc: class containing information about a type
-//-----------------------------------------------------------------------------
+//-----------------------------------------------------------------------------_id
 struct Chuck_Type : public Chuck_VM_Object
 {
     // type id
-    te_Type id;
+    te_Type xid;
     // type name
     string name;
     // type parent (could be NULL)
@@ -498,7 +498,7 @@ public:
     Chuck_Type( te_Type _id = te_null, const string & _n = "", 
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     {
-        id = _id; name = _n; parent = _p; size = _s; owner = NULL; 
+        xid = _id; name = _n; parent = _p; size = _s; owner = NULL; 
         array_type = NULL; array_depth = 0; obj_size = 0;
         info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
         ugen_info = NULL; is_complete = TRUE; has_constructor = FALSE;
@@ -511,7 +511,7 @@ public:
     void reset()
     {
         // fprintf( stderr, "type: %s %i\n", c_name(), (t_CKUINT)this );
-        id = te_void; 
+        xid = te_void; 
         size = array_depth = obj_size = 0;
         is_copy = FALSE;
 
@@ -535,7 +535,7 @@ public:
         this->reset();
 
         // copy
-        this->id = rhs.id;
+        this->xid = rhs.xid;
         this->name = rhs.name;
         this->parent = rhs.parent;
         this->obj_size = rhs.obj_size;
@@ -730,14 +730,14 @@ t_CKBOOL type_engine_import_ugen_ctrl( Chuck_Env * env, const char * type, const
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env );
 
 // helpers
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & id, int pos );
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol id, int pos );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & xid, int pos );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol xid, int pos );
 t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
 t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err, t_CKBOOL print = TRUE );
 Chuck_Type  * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs );
 Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
-Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & id );
-Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol id );
+Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & xid );
+Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol xid );
 Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path );
 
 // array verify

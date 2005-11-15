@@ -81,7 +81,7 @@ public:
     // instructions computed
     t_CKUINT cycles;
     // shred id
-    t_CKUINT id;
+    t_CKUINT xid;
     // parent
     t_CKUINT parent;
     // current state, 0 = inactive, 1 = active, 2 = wait, 3 = deleted
@@ -140,7 +140,7 @@ public:
 public:
     Shred_Stat() { this->clear(); num_diffs = 8; data = NULL; time = NULL; }
     void clear()
-    { id = 0; parent = 0; state = 0; cycles = 0; activations = 0;
+    { xid = 0; parent = 0; state = 0; cycles = 0; activations = 0;
       average_ctrl = 0.0; spork_time = 0.0; active_time = 0.0; wake_time = 0.0;
       free_time = 0.0; name = "no name"; owner = "none"; source = "nowhere";
       while( diffs.size() ) diffs.pop(); diff_total = 0.0;
@@ -171,8 +171,8 @@ public:
     void remove_shred( Chuck_VM_Shred * shred );
 
 public:
-    Shred_Stat * get_shred( t_CKUINT id )
-    { mutex.acquire(); Shred_Stat * s = shreds[id]; mutex.release(); return s; }
+    Shred_Stat * get_shred( t_CKUINT xid )
+    { mutex.acquire(); Shred_Stat * s = shreds[xid]; mutex.release(); return s; }
     void get_shreds( std::vector<Shred_Stat *> & out, 
                      std::map<Shred_Stat *, Shred_Stat *> & d );
     static t_CKBOOL activations_yes;

@@ -67,7 +67,7 @@ static void handle_overflow( Chuck_VM_Shred * shred, Chuck_VM * vm )
     // we have a problem
     fprintf( stderr, 
         "[chuck](VM): Exception StackOverflow in shred[id=%d:%s]\n",
-        shred->id, shred->name.c_str() );
+        shred->xid, shred->name.c_str() );
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -2375,7 +2375,7 @@ void Chuck_Instr_Time_Advance::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // we have a problem
         fprintf( stderr, 
             "[chuck](VM): DestTimeNegativeException: '%.6f' in shred[id=%d:%s]\n",
-            *sp, shred->id, shred->name.c_str() );
+            *sp, shred->xid, shred->name.c_str() );
         // do something!
         shred->is_running = FALSE;
         shred->is_done = TRUE;
@@ -2844,7 +2844,7 @@ error:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): ArrayOutofBounds in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
-             shred->id, shred->name.c_str(), shred->pc, i );
+             shred->xid, shred->name.c_str(), shred->pc, i );
 
     // do something!
     shred->is_running = FALSE;
@@ -2923,7 +2923,7 @@ error:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): InternalArrayMap error in shred[id=%d:%s], PC=[%d], index=[%s]\n", 
-             shred->id, shred->name.c_str(), shred->pc, key->str.c_str() );
+             shred->xid, shred->name.c_str(), shred->pc, key->str.c_str() );
 
     // do something!
     shred->is_running = FALSE;
@@ -3021,7 +3021,7 @@ error:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): ArrayOutofBounds in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
-             shred->id, shred->name.c_str(), shred->pc, i );
+             shred->xid, shred->name.c_str(), shred->pc, i );
 
     // do something!
     shred->is_running = FALSE;
@@ -3071,7 +3071,7 @@ error:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): NullPointerException: shred[id=%d:%s:(%d)], PC=[%d]\n", 
-             shred->id, shred->name.c_str(), shred->pc );
+             shred->xid, shred->name.c_str(), shred->pc );
 
     // do something!
     shred->is_running = FALSE;
@@ -3112,7 +3112,7 @@ error:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): NullPointerException: shred[id=%d:%s], PC=[%d]\n", 
-             shred->id, shred->name.c_str(), shred->pc );
+             shred->xid, shred->name.c_str(), shred->pc );
 
     // do something!
     shred->is_running = FALSE;
@@ -3292,14 +3292,14 @@ null_pointer:
     // we have a problem
     fprintf( stderr, 
         "[chuck](VM): NullPointerException: (during string op) in shred[id=%d:%s]\n",
-        shred->id, shred->name.c_str() );
+        shred->xid, shred->name.c_str() );
     goto done;
 
 invalid_op:
     // we have a problem
     fprintf( stderr,
         "[chuck](VM): InvalidStringOpException: '%d' in shred[id=%d:%s]\n",
-        m_val, shred->id, shred->name.c_str() );
+        m_val, shred->xid, shred->name.c_str() );
     goto done;
 
 done:

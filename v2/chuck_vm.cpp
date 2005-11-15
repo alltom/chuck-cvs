@@ -786,22 +786,22 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         // set the current time
         shred->start = m_shreduler->now_system;
         // set the id
-        shred->id = msg->param;
+        shred->xid = msg->param;
         // set the now
         shred->now = shred->wake_time = m_shreduler->now_system;
         // set the vm
         shred->vm_ref = this;
         // add it to the parent
         if( shred->parent )
-            shred->parent->children[shred->id] = shred;
+            shred->parent->children[shred->xid] = shred;
 
         // replace
         if( m_shreduler->remove( out ) && m_shreduler->shredule( shred ) )
         {
             EM_error3( "[chuck](VM): replacing shred %i (%s) with %i (%s)...",
-                       out->id, mini(out->name.c_str()), shred->id, mini(shred->name.c_str()) );
+                       out->xid, mini(out->name.c_str()), shred->xid, mini(shred->name.c_str()) );
             this->free( out, TRUE, FALSE );
-            retval = shred->id;
+            retval = shred->xid;
         
             // tracking new shred
             CK_TRACK( Chuck_Stats::instance()->add_shred( shred ) );
@@ -811,7 +811,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         else
         {
             EM_error3( "[chuck](VM): shreduler ERROR replacing shred %i...",
-                       out->id );
+                       out->xid );
             shred->release();
             retval = 0;
             goto done;
@@ -828,16 +828,16 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 goto done;
             }
 
-            t_CKINT id = m_shred_id;
+            t_CKINT xid = m_shred_id;
             Chuck_VM_Shred * shred = NULL;
-            while( id >= 0 && m_shreduler->remove( shred = m_shreduler->lookup( id ) ) == 0 )
-                id--;
-            if( id >= 0 )
+            while( xid >= 0 && m_shreduler->remove( shred = m_shreduler->lookup( xid ) ) == 0 )
+                xid--;
+            if( xid >= 0 )
             {
                 EM_error3( "[chuck](VM): removing recent shred: %i (%s)...", 
-                           id, mini(shred->name.c_str()) );
+                           xid, mini(shred->name.c_str()) );
                 this->free( shred, TRUE );
-                retval = id;
+                retval = xid;
             }
             else
             {
@@ -871,15 +871,15 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_REMOVEALL )
     {
-        t_CKUINT id = m_shred_id;
+        t_CKUINT xid = m_shred_id;
         EM_error3( "[chuck](VM): removing all (%i) shreds...", m_num_shreds );
         Chuck_VM_Shred * shred = NULL;
 
-        while( m_num_shreds && id > 0 )
+        while( m_num_shreds && xid > 0 )
         {
-            if( m_shreduler->remove( shred = m_shreduler->lookup( id ) ) )
+            if( m_shreduler->remove( shred = m_shreduler->lookup( xid ) ) )
                 this->free( shred, TRUE );
-            id--;
+            xid--;
         }
         
         m_shred_id = 0;
@@ -887,13 +887,13 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_ADD )
     {
-        t_CKUINT id = 0;
-        if( msg->shred ) id = this->spork( msg->shred )->id;
-        else id = this->spork( msg->code, NULL )->id;
+        t_CKUINT xid = 0;
+        if( msg->shred ) xid = this->spork( msg->shred )->xid;
+        else xid = this->spork( msg->code, NULL )->xid;
         
         const char * s = ( msg->shred ? msg->shred->name.c_str() : msg->code->name.c_str() );
-        EM_error3( "[chuck](VM): sporking incoming shred: %i (%s)...", id, mini(s) );
-        retval = id;
+        EM_error3( "[chuck](VM): sporking incoming shred: %i (%s)...", xid, mini(s) );
+        retval = xid;
         goto done;
     }
     else if( msg->type == MSG_KILL )
@@ -1038,12 +1038,12 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
     // set the now
     shred->now = shred->wake_time = m_shreduler->now_system;
     // set the id
-    shred->id = next_id();
+    shred->xid = next_id();
     // set the vm
     shred->vm_ref = this;
     // add it to the parent
     if( shred->parent )
-        shred->parent->children[shred->id] = shred;
+        shred->parent->children[shred->xid] = shred;
     // shredule it
     m_shreduler->shredule( shred );
     // count
@@ -1083,7 +1083,7 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
 
     // tell parent
     if( shred->parent )
-        shred->parent->children.erase( shred->id );
+        shred->parent->children.erase( shred->xid );
 
     // track remove shred
     CK_TRACK( Chuck_Stats::instance()->remove_shred( shred ) );
@@ -1299,7 +1299,7 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     // set the instr
     instr = c->instr;
     // zero out the id
-    id = 0;
+    xid = 0;
 
     // initialize
     initialize_object( this, &t_shred );
@@ -1724,13 +1724,13 @@ t_CKBOOL Chuck_VM_Shreduler::remove( Chuck_VM_Shred * out )
 // name: get()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT id )
+Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT xid )
 {
     Chuck_VM_Shred * shred = shred_list;
     
     while( shred )
     {
-        if( shred->id == id )
+        if( shred->xid == xid )
             return shred;
 
         shred = shred->next;
@@ -1742,7 +1742,7 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT id )
     for( iter = blocked.begin(); iter != blocked.end(); iter++ )
     {
         shred = (*iter).second;
-        if( shred->id == id )
+        if( shred->xid == xid )
             return shred;
     }
     
@@ -1759,7 +1759,7 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT id )
 struct SortByID
 {
     bool operator() ( const Chuck_VM_Shred * lhs, const Chuck_VM_Shred * rhs )
-    {    return lhs->id < rhs->id; }
+    {    return lhs->xid < rhs->xid; }
 };
 
 
@@ -1817,7 +1817,7 @@ void Chuck_VM_Shreduler::status( )
         
         fprintf( stdout, 
             "    [shred id]: %ld  [source]: %s  [spork time]: %.2fs ago%s\n",
-            shred->id, mini( shred->name.c_str() ),
+            shred->xid, mini( shred->name.c_str() ),
             (now_system-shred->start)/(float)Digitalio::sampling_rate(),
             shred->event ? " (blocked)" : "" );
     }    
