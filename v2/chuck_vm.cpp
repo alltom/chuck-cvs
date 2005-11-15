@@ -1769,7 +1769,7 @@ struct SortByID
 // name: status()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_VM_Shreduler::status( )
+void Chuck_VM_Shreduler::status( Chuck_VM_Status * status )
 {
     Chuck_VM_Shred * shred = shred_list;
 
@@ -1782,9 +1782,12 @@ void Chuck_VM_Shreduler::status( )
     t_CKUINT sec = s / srate;
     s = s - (sec*(srate));
     // float millisecond = s / (float)(srate) * 1000.0f;
-
-    fprintf( stdout, "[chuck](VM): status (now == %ldh%ldm%lds, %.1f samps) ...\n",
-             h, m, sec, now_system );
+    
+    status->srate = srate;
+    status->now_system = now_system;
+    status->t_second = sec;
+    status->t_minute = m;
+    status->t_hour = h;
     
     // get list of shreds
     vector<Chuck_VM_Shred *> list;
@@ -1807,18 +1810,84 @@ void Chuck_VM_Shreduler::status( )
     std::sort( list.begin(), list.end(), byid );
     
     // print status
-    char buffer[1024];
+    status->clear();
     for( t_CKUINT i = 0; i < list.size(); i++ )
     {
         shred = list[i];
-        char * s = buffer, * ss = buffer;
-        strcpy( buffer, shred->name.c_str() );
-        while( *s++ ) if( *s == '/' ) { ss = s+1; }
-        
+        status->list.push_back( new Chuck_VM_Shred_Status(
+            shred->xid, shred->name, shred->start, shred->event != NULL ) );
+    }    
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: status()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_VM_Shreduler::status( )
+{
+    Chuck_VM_Shred_Status * shred = NULL;
+
+    this->status( &m_status );
+    t_CKUINT h = m_status.t_hour;
+    t_CKUINT m = m_status.t_minute;
+    t_CKUINT sec = m_status.t_second;
+    fprintf( stdout, "[chuck](VM): status (now == %ldh%ldm%lds, %.1f samps) ...\n",
+             h, m, sec, m_status.now_system );
+
+    // print status
+    for( t_CKUINT i = 0; i < m_status.list.size(); i++ )
+    {
+        shred = m_status.list[i];
         fprintf( stdout, 
             "    [shred id]: %ld  [source]: %s  [spork time]: %.2fs ago%s\n",
             shred->xid, mini( shred->name.c_str() ),
-            (now_system-shred->start)/(float)Digitalio::sampling_rate(),
-            shred->event ? " (blocked)" : "" );
-    }    
+            (m_status.now_system - shred->start) / m_status.srate,
+            shred->has_event ? " (blocked)" : "" );
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_VM_Status()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_VM_Status::Chuck_VM_Status()
+{
+    srate = 0;
+    now_system = 0;
+    t_second = t_minute = t_hour = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_VM_Status()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_VM_Status::~Chuck_VM_Status()
+{
+    this->clear();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: clear()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_VM_Status::clear()
+{
+    for( t_CKUINT i = 0; i < list.size(); i++ )
+    {
+        SAFE_DELETE( list[i] );
+    }
+    
+    list.clear();
 }

@@ -1,5 +1,7 @@
 1.2.0.4
 ---
+  - (added) Envelope.duration( dur ), Envelope.duration()
+  - (added) Envelope.keyOn(), Envelope.keyOff();
   - (fixed) chuck.lex compatibility under some linux
   - (fixed) std.fabs() now works correctly
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs

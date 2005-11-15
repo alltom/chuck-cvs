@@ -210,6 +210,58 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_VM_Shred_Status
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_VM_Shred_Status : Chuck_Object
+{
+public:
+    t_CKUINT xid;
+    string name;
+    t_CKTIME start;
+    t_CKBOOL has_event;    
+
+public:
+    Chuck_VM_Shred_Status( t_CKUINT _id, const string & n, t_CKTIME _start, t_CKBOOL e )
+    {
+        xid = _id;
+        name = n;
+        start = _start;
+        has_event = e;
+    }
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_VM_Status
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_VM_Status : Chuck_Object
+{
+public:
+    Chuck_VM_Status();
+    ~Chuck_VM_Status();
+    void clear();
+    
+public:
+    // sample rate
+    t_CKUINT srate;
+    // now
+    t_CKTIME now_system;
+    // for display
+    t_CKUINT t_second;
+    t_CKUINT t_minute;
+    t_CKUINT t_hour;
+    // list of shred status
+    vector<Chuck_VM_Shred_Status *> list;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_VM_Shreduler
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -237,6 +289,7 @@ public: // high-level shred interface
     t_CKBOOL replace( Chuck_VM_Shred * out, Chuck_VM_Shred * in );
     Chuck_VM_Shred * lookup( t_CKUINT xid );
     void status( );
+    void status( Chuck_VM_Status * status );
 
 public: // for event related shred queue
     t_CKBOOL add_blocked( Chuck_VM_Shred * shred );
@@ -261,6 +314,9 @@ public:
     Chuck_UGen * m_bunghole;
     t_CKUINT m_num_dac_channels;
     t_CKUINT m_num_adc_channels;
+    
+    // status cache
+    Chuck_VM_Status m_status;
 };
 
 
