@@ -36,8 +36,8 @@
 #include "chuck_vm.h"
 #include "chuck_compile.h"
 
-#include <map>
 #include <string>
+#include <map>
 
 using namespace std;
 

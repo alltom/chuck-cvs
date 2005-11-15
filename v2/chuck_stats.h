@@ -42,9 +42,9 @@
 
 #include "util_thread.h"
 
+#include <string>
 #include <map>
 #include <queue>
-#include <string>
 
 
 // forward reference

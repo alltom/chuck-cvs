@@ -56,10 +56,10 @@ int setenv( const char *n, const char *v, int i )
 
 #ifdef AJAY
 
-#include "chuck_type.h"
-#include "chuck_oo.h"
+#include "util_thread.h"
 using namespace std;
 
+// VCR functions
 CK_DLL_CTOR( VCR_ctor );
 CK_DLL_MFUN( VCR_load );
 CK_DLL_MFUN( VCR_reset );
@@ -72,6 +72,15 @@ CK_DLL_MFUN( VCR_size );
 CK_DLL_MFUN( VCR_name );
 
 static t_CKUINT VCR_offset_data = 0;
+
+// Skot functions
+CK_DLL_CTOR( Skot_ctor );
+CK_DLL_MFUN( Skot_prompt );
+CK_DLL_MFUN( Skot_more );
+CK_DLL_MFUN( Skot_getLine );
+CK_DLL_MFUN( Skot_can_wait );
+
+static t_CKUINT Skot_offset_data = 0;
 
 #endif
 
@@ -237,6 +246,35 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
+    type_engine_import_class_end( env );
+
+
+    // begin class (Skot)
+    if( !type_engine_import_class_begin( env, "Skot", "Event",
+                                         env->global(), Skot_ctor ) )
+        return FALSE;
+
+    // add member variable
+    Skot_offset_data = type_engine_import_mvar( env, "int", "@Skot_data", FALSE );
+    if( Skot_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add prompt()
+    func = make_new_mfun( "Event", "prompt", Skot_prompt );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add ready()
+    func = make_new_mfun( "int", "more", Skot_more );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add getString()
+    func = make_new_mfun( "string", "getLine", Skot_getLine );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add can_wait()
+    func = make_new_mfun( "int", "can_wait", Skot_can_wait );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end class
     type_engine_import_class_end( env );
 
     return TRUE;
@@ -701,6 +739,178 @@ CK_DLL_MFUN( VCR_name )
 {
     ColumnReader * vcr = (ColumnReader*)OBJ_MEMBER_INT(SELF, VCR_offset_data);
     RETURN->v_string = &(vcr->s);
+}
+
+
+class LineEvent : public Chuck_Event
+{
+public:
+    LineEvent( Chuck_Event * SELF );
+    ~LineEvent();
+
+public:
+    void prompt();
+    t_CKBOOL more();
+    string getLine();
+    t_CKBOOL can_wait();
+    void enqueue( const string & line )
+    { m_q.push( line ); }
+
+    Chuck_Event * SELF;
+
+protected:
+    queue<string> m_q;
+};
+
+// global variables
+t_CKBOOL g_le_launched = FALSE;
+t_CKBOOL g_le_wait = TRUE;
+CHUCK_THREAD g_tid_le = 0;
+map<LineEvent *, LineEvent *> g_le_map;
+XMutex g_le_mutex;
+
+
+void * le_cb( void * p )
+{
+    char line[2048];
+    map<LineEvent *, LineEvent *>::iterator iter;
+    LineEvent * le = NULL;
+
+    // loop
+    while( true )
+    {
+        // wait
+        while( g_le_wait )
+            usleep( 10000 );
+
+        // do the prompt
+        if( !cin.getline( line, 2048 ) ) break;
+
+        // lock
+        g_le_mutex.acquire();
+        // go through
+        for( iter = g_le_map.begin(); iter != g_le_map.end(); iter++ )
+        {
+            // get the line event
+            le = (*iter).first;
+            // add to its queue
+            le->enqueue( line );
+            // broadcast it
+            le->SELF->queue_broadcast();
+        }
+        // unlock
+        g_le_mutex.release();
+
+        // reset wait
+        g_le_wait = TRUE;
+    }
+    
+    return NULL;
+}
+
+
+LineEvent::LineEvent( Chuck_Event * SELF )
+{
+    // launch the cb
+    if( !g_le_launched )
+    {
+#ifndef __PLATFORM_WIN32__
+        pthread_create( &g_tid_le, NULL, le_cb, NULL );
+#else
+        g_tid_le = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)le_cb, NULL, 0, 0 );
+#endif
+        g_le_launched = TRUE;
+    }
+
+    // lock
+    g_le_mutex.acquire();
+    // add
+    g_le_map[this] = this;
+    this->SELF = SELF;
+    // unlock
+    g_le_mutex.release();
+}
+
+LineEvent::~LineEvent()
+{
+    // do nothing
+}
+
+void LineEvent::prompt()
+{
+    // signal
+    g_le_wait = FALSE;
+}
+
+t_CKBOOL LineEvent::more()
+{
+    // more
+    return m_q.size() > 0;
+}
+
+string LineEvent::getLine()
+{
+    string ret;
+
+    // lock
+    g_le_mutex.acquire();
+    // get next line
+    if( m_q.size() )
+    {
+        // get it
+        ret = m_q.front();
+        // dequeue it
+        m_q.pop();
+    }
+    else
+    {
+        ret = "[ERROR -> getLine() called on empty Skot]";
+    }
+    // unlock
+    g_le_mutex.release();
+
+    return ret;
+}
+
+t_CKBOOL LineEvent::can_wait()
+{
+    return !more();
+}
+
+
+// Skot
+CK_DLL_CTOR( Skot_ctor )
+{
+    LineEvent * le = new LineEvent((Chuck_Event *)SELF);
+    OBJ_MEMBER_INT(SELF, Skot_offset_data) = (t_CKINT)le;
+}
+
+CK_DLL_MFUN( Skot_prompt )
+{
+    LineEvent * le = (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
+    le->prompt();
+    RETURN->v_int = (t_CKINT)(SELF);
+}
+
+CK_DLL_MFUN( Skot_more )
+{
+    LineEvent * le = (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
+    RETURN->v_int = le->more();
+}
+
+CK_DLL_MFUN( Skot_getLine )
+{
+    LineEvent * le = (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
+    // TODO: memory leak
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    a->str = le->getLine();
+    RETURN->v_string = a;
+}
+
+CK_DLL_MFUN( Skot_can_wait )
+{
+    LineEvent * le = (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
+    RETURN->v_int = le->can_wait();
 }
 
 

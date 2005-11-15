@@ -46,6 +46,7 @@
   typedef void * THREAD_RETURN;
   typedef void * (*THREAD_FUNCTION)(void *);
   typedef pthread_mutex_t MUTEX;
+  #define CHUCK_THREAD pthread_t
 #elif defined(__PLATFORM_WIN32__)
   #include <windows.h>
   #include <process.h>
@@ -54,6 +55,7 @@
   typedef unsigned THREAD_RETURN;
   typedef unsigned (__stdcall *THREAD_FUNCTION)(void *);
   typedef CRITICAL_SECTION MUTEX;
+  #define CHUCK_THREAD HANDLE
 #endif
 
 

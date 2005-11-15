@@ -51,13 +51,9 @@
 
 #include <signal.h>
 #ifndef __PLATFORM_WIN32__
-  #define CHUCK_THREAD pthread_t
-  #include <pthread.h>
   #include <unistd.h>
   #include <netinet/in.h>
   #include <arpa/inet.h>
-#else 
-  #define CHUCK_THREAD HANDLE
 #endif
 
 
