@@ -45,6 +45,7 @@ CK_DLL_SFUN( rand_impl );
 CK_DLL_SFUN( randf_impl );
 CK_DLL_SFUN( rand2f_impl );
 CK_DLL_SFUN( rand2_impl );
+CK_DLL_SFUN( srand_impl );
 CK_DLL_SFUN( sgn_impl );
 CK_DLL_SFUN( system_impl );
 CK_DLL_SFUN( atoi_impl );

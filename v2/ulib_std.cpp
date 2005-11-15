@@ -124,6 +124,10 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     QUERY->add_sfun( QUERY, rand2f_impl, "float", "rand2f" ); //! rand between min and max
     QUERY->add_arg( QUERY, "float", "min" );
     QUERY->add_arg( QUERY, "float", "max" );
+    
+    // add srand
+    QUERY->add_sfun( QUERY, srand_impl, "void", "srand" );
+    QUERY->add_arg( QUERY, "int", "seed" );
 
     // add sgn
     QUERY->add_sfun( QUERY, sgn_impl, "float", "sgn" ); //! return sign of value (-1, 0, 1)
@@ -345,20 +349,31 @@ CK_DLL_SFUN( rand2_impl ) // inclusive.
 {
     int min = *(int *)ARGS, max = *((int *)ARGS + 1);
     int range = max - min; 
-    if ( range == 0 ) { 
-     RETURN->v_int = min;
+    if ( range == 0 )
+    {
+        RETURN->v_int = min;
     }
     //else if ( range < RAND_MAX / 2 ) { 
     //  RETURN->v_int = ( range > 0 ) ? min + irand_exclusive(1 + range) : max + irand_exclusive ( -range + 1 ) ;
     //}
-    else { 
-      if ( range > 0 ) { 
-        RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
-      }
-      else { 
-        RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
-      }
+    else
+    {
+        if( range > 0 )
+        { 
+            RETURN->v_int = min + (int) ( (1.0 + range) * ( ::rand()/(RAND_MAX+1.0) ) );
+        }
+        else
+        { 
+            RETURN->v_int = min - (int) ( (-range + 1.0) * ( ::rand()/(RAND_MAX+1.0) ) );
+        }
     }
+}
+
+// srand
+CK_DLL_SFUN( srand_impl )
+{
+    t_CKINT seed = GET_CK_INT(ARGS);
+    ::srand( seed );
 }
 
 // sgn
