@@ -153,13 +153,17 @@ CK_DLL_CTRL( Envelope_ctrl_rate );
 CK_DLL_CTRL( Envelope_ctrl_target );
 CK_DLL_CTRL( Envelope_cget_target );
 CK_DLL_CTRL( Envelope_ctrl_time );
+CK_DLL_CTRL( Envelope_ctrl_duration );
 CK_DLL_CTRL( Envelope_ctrl_value );
 CK_DLL_CTRL( Envelope_cget_value );
+CK_DLL_CTRL( Envelope_ctrl_keyOn0 );
 CK_DLL_CTRL( Envelope_ctrl_keyOn );
+CK_DLL_CTRL( Envelope_ctrl_keyOff0 );
 CK_DLL_CTRL( Envelope_ctrl_keyOff );
 CK_DLL_CGET( Envelope_cget_rate );
 CK_DLL_CGET( Envelope_cget_target );
 CK_DLL_CGET( Envelope_cget_time );
+CK_DLL_CGET( Envelope_cget_duration );
 CK_DLL_CGET( Envelope_cget_value );
 
 // Filter

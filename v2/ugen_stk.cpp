@@ -1610,8 +1610,15 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //member variable
     Envelope_offset_data = type_engine_import_mvar ( env, "int", "@Envelope_data", FALSE );
     if ( Envelope_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    func = make_new_mfun ( "int", "keyOn", Envelope_ctrl_keyOn0 ); //! ramp to 1.0
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
     func = make_new_mfun ( "int", "keyOn", Envelope_ctrl_keyOn ); //! ramp to 1.0
     func->add_arg ( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "int", "keyOff", Envelope_ctrl_keyOff0 ); //! ramp to 0.0
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     func = make_new_mfun ( "int", "keyOff", Envelope_ctrl_keyOff ); //! ramp to 0.0
@@ -1630,6 +1637,13 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     func = make_new_mfun ( "float", "time", Envelope_cget_time ); //! time to reach target
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "dur", "duration", Envelope_ctrl_duration ); //! time to reach target
+    func->add_arg ( "dur", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "dur", "duration", Envelope_cget_duration ); //! time to reach target
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     func = make_new_mfun ( "float", "rate", Envelope_ctrl_rate ); //! rate of change 
@@ -24207,7 +24221,6 @@ CK_DLL_CTRL( Envelope_ctrl_time )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: Envelope_cget_time()
 // desc: CGET function ...
@@ -24216,6 +24229,29 @@ CK_DLL_CGET( Envelope_cget_time )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     RETURN->v_float = (t_CKFLOAT) 1.0 / ( d->rate * Stk::sampleRate() ) ;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Envelope_ctrl_duration()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Envelope_ctrl_duration )
+{
+    Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
+    d->setTime( GET_NEXT_FLOAT(ARGS) / Stk::sampleRate() );
+    RETURN->v_float = (t_CKFLOAT) 1.0 / d->rate;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Envelope_cget_duration()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Envelope_cget_duration )
+{
+    Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
+    RETURN->v_float = (t_CKFLOAT) 1.0 / ( d->rate ) ;
 }
 
 
@@ -24289,6 +24325,18 @@ CK_DLL_CGET( Envelope_cget_value )
 
 
 //-----------------------------------------------------------------------------
+// name: Envelope_ctrl_keyOn0()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Envelope_ctrl_keyOn0 )
+{
+    Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
+    d->keyOn();
+    RETURN->v_int = 1;
+}
+
+
+//-----------------------------------------------------------------------------
 // name: Envelope_ctrl_keyOn()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -24296,9 +24344,27 @@ CK_DLL_CTRL( Envelope_ctrl_keyOn )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     if( GET_NEXT_INT(ARGS) )
+    {
         d->keyOn();
+        RETURN->v_int = 1;
+    }
     else
+    {
         d->keyOff();
+        RETURN->v_int = 0;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Envelope_ctrl_keyOff0()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Envelope_ctrl_keyOff0 )
+{
+    Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
+    d->keyOff();
+    RETURN->v_int = 1;
 }
 
 
@@ -24310,9 +24376,15 @@ CK_DLL_CTRL( Envelope_ctrl_keyOff )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     if( !GET_NEXT_INT(ARGS) )
+    {
         d->keyOn();
+        RETURN->v_int = 0;
+    }
     else
+    {
         d->keyOff();
+        RETURN->v_int = 1;
+    }
 }
 
 
