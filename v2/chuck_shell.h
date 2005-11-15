@@ -33,11 +33,13 @@
 #define __CHUCK_SHELL_H__
 
 #include "chuck_def.h"
-#include "chuck_vm.h"
-#include "chuck_compile.h"
+#include "chuck_errmsg.h"
+//#include "chuck_vm.h"
+//#include "chuck_compile.h"
 
 #include <string>
 #include <map>
+#include <vector>
 
 using namespace std;
 
@@ -55,20 +57,19 @@ typedef string Chuck_Shell_Response;
 //-----------------------------------------------------------------------------
 class Chuck_Shell
 {
-friend class Chuck_Shell_Mode;
 public:
     Chuck_Shell();
     ~Chuck_Shell();
     
-    t_CKBOOL init( Chuck_VM *, Chuck_Compiler *, Chuck_Shell_UI * );
+    t_CKBOOL init( Chuck_Shell_UI * );
     void run();
     t_CKBOOL execute( string &, string & );
     void close();
     void kill();
 
 public: // HACK-GE: these were moved from protected for win32
-    vector< Chuck_Shell_VM * > vms;
-    Chuck_VM * process_vm;
+    vector < Chuck_Shell_VM * > vms;
+    //Chuck_VM * process_vm;
     Chuck_Shell_VM * current_vm;
     t_CKBOOL save_current_vm; // if true, do not delete the current vm 
 
@@ -84,8 +85,14 @@ public: // HACK-GE: these were moved from protected for win32
     map < string, string > contexts;
 
 protected:
-    // helper functions
-    void do_code( string & );
+	// helper functions
+	void do_aliases();
+	void do_variables();
+	
+	// code helper functions
+	void start_code();
+    void continue_code( string & );
+    void end_code( string &, string & );
     void do_code_context( string & );
     void string_hash( string &, string & );
     
@@ -101,10 +108,23 @@ protected:
     // code entry variables
     t_CKBOOL code_entry_active;
     t_CKUINT scope;
+
     string code;
     map < string, string > codes;
 
 public: // HACK-GE: moved from protected for win32
+
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell::CodeContext
+// desc: ...
+//-----------------------------------------------------------------------------
+struct CodeContext
+{
+	string name;
+	string hash_name;
+	CodeContext * parent;
+	vector < string > vars;
+};
 
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command

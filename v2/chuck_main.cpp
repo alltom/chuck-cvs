@@ -425,7 +425,6 @@ int main( int argc, char ** argv )
 	// shell initialization without vm
 	if( enable_shell && no_vm)
 	{
-        Chuck_Shell_Mode * mode = NULL;
         Chuck_Shell_UI * ui = NULL;
 
         // instantiate
@@ -444,7 +443,7 @@ int main( int argc, char ** argv )
         }
         
         // initialize
-        if( !g_shell->init( NULL, NULL, ui ) )
+        if( !g_shell->init( ui ) )
         {
             fprintf( stderr, "[chuck]: error starting shell...\n" );
             exit( 1 );
@@ -493,7 +492,6 @@ int main( int argc, char ** argv )
 	// shell initialization without vm
 	if( enable_shell )
 	{
-        Chuck_Shell_Mode * mode = NULL;
         Chuck_Shell_UI * ui = NULL;
 
         // instantiate
@@ -512,7 +510,7 @@ int main( int argc, char ** argv )
         }
         
         // initialize
-        if( !g_shell->init( vm, compiler, ui ) )
+        if( !g_shell->init( ui ) )
         {
             fprintf( stderr, "[chuck]: error starting shell...\n" );
             exit( 1 );
@@ -634,7 +632,7 @@ int main( int argc, char ** argv )
 	// does the VM reset its priority to normal before exiting?
 	if( enable_shell )
 		while( g_shell != NULL )
-			;
+			usleep(10000);
 
     return 0;
 }

@@ -196,15 +196,18 @@ void tokenize_string( string str, vector< string > & tokens)
 //-----------------------------------------------------------------------------
 void * shell_cb( void * p )
 {
+	Chuck_Shell * shell;
     // log
     EM_log( CK_LOG_INFO, "starting thread routine for shell..." );
     EM_pushlog();
 
     // assuming this is absolutely necessary, an assert may be better
-    assert( g_shell != NULL );
+    assert( p != NULL );
 
+	shell = ( Chuck_Shell * ) p;
+	
     // run the shell
-    g_shell->run();
+    shell->run();
     
     // delete and set to NULL
     SAFE_DELETE( g_shell );
@@ -226,7 +229,7 @@ void * shell_cb( void * p )
 Chuck_Shell::Chuck_Shell()
 {
     ui = NULL;
-    process_vm = NULL;
+    // process_vm = NULL;
     current_vm = NULL;
     initialized = FALSE;
     stop = FALSE;
@@ -260,8 +263,7 @@ Chuck_Shell::~Chuck_Shell()
 // name: init()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
-                            Chuck_Shell_UI * ui )
+t_CKBOOL Chuck_Shell::init( Chuck_Shell_UI * ui )
 {
     // log
     EM_log( CK_LOG_SYSTEM, "initializing chuck shell..." );
@@ -283,7 +285,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Compiler * compiler,
     }
     this->ui = ui;
     
-    process_vm = vm;
+    //process_vm = vm;
 
     Chuck_Shell_Network_VM * cspv = new Chuck_Shell_Network_VM();
     if( !cspv->init( "localhost", 8888 ) )
@@ -460,92 +462,19 @@ t_CKBOOL Chuck_Shell::execute( string & in, string & out )
 
     // first find out if this is code to run
     if( !code_entry_active && in[in.find_first_not_of( " \t\v\n" )] == '{' )
-    {
-        code = "";
-        code_entry_active = TRUE;
-        scope = 0;
-    }
+    	start_code();
     
     if( code_entry_active )
     {
-        if( in.find( "{" ) != string::npos )
-        // increase the scope one level and change the prompt
-        {
-            char buf[16];
-            scope++;
-#ifndef __PLATFORM_WIN32__
-            snprintf( buf, 16, "code %2d> ", scope );
-#else
-            sprintf( buf, "code %2d> ", scope);
-#endif
-            prompt = buf;
-        }
-        
-        if( in.find( "}" ) != string::npos )
-        // decrease the scope one level and change the prompt
-        {
-            char buf[16];
-            scope--;
-#ifndef __PLATFORM_WIN32__
-            snprintf( buf, 16, "code %2d> ", scope );
-#else
-            sprintf( buf, "code %2d> ", scope);
-#endif
-            prompt = buf;
-        }
-        
-        // collect this line as ChucK code
-        code += in + "\n";
-
-        if( scope == 0 )
-        // the end of this code block -- lets execute it on the current_vm
-        {
-            // end code_entry mode, stop collecting lines of ChucK code
-            code_entry_active = FALSE;
-            
-            // open a temporary file
-            char * tmp_filepath = tmpnam( NULL );
-            FILE * tmp_file = fopen( tmp_filepath, "w" );
-            
-            //strip opening and closing braces
-            int k = code.find( "{" );
-            string head = string( code, 0, k );
-            code = string( code, k + 1, code.size() - k - 1 );
-            
-            k = code.rfind( "}" );
-            string tail = string( code, k + 1, code.size() - k - 1 );
-            code = string( code, 0, k );
-            
-            // print out the code (for debugging)
-            printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
-            printf( "--start code--\n%s\n--end code--\n", code.c_str() );
-            
-            // write the code to the temp file
-            fprintf( tmp_file, "%s", code.c_str() );
-            fclose( tmp_file );
-
-            string argv = string( "+ " ) + tmp_filepath;
-            
-            if( this->execute( argv, out ) )
-                ;
-            
-            // delete the file
-#ifndef __PLATFORM_WIN32__
-            unlink( tmp_filepath );
-#else
-            // delete the file...
-#endif // __PLATFORM_WIN32__
-            
-            prompt = variables["COMMAND_PROMPT"];
-            in = string( tail );
-        }
+    continue_code( in );
     
-    if( code_entry_active )
-        return TRUE;
+    if( code_entry_active == FALSE )
+	    end_code( in, out );
+	else
+	// collect the next line of code
+		return TRUE;
     }
     
-
-
     // divide the string into white space separated substrings
     tokenize_string( in, vec );
     
@@ -583,6 +512,109 @@ t_CKBOOL Chuck_Shell::execute( string & in, string & out )
 }
 
 //-----------------------------------------------------------------------------
+// name: start_code()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::start_code()
+{
+	code = "";
+	code_entry_active = TRUE;
+	scope = 0;
+}
+
+//-----------------------------------------------------------------------------
+// name: continue_code()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::continue_code( string & in )
+{
+	if( in.find( "{" ) != string::npos )
+	// increase the scope one level and change the prompt
+	{
+		char buf[16];
+		scope++;
+#ifndef __PLATFORM_WIN32__
+		snprintf( buf, 16, "code %2d> ", scope );
+#else
+		sprintf( buf, "code %2d> ", scope);
+#endif
+		prompt = buf;
+	}
+	
+	if( in.find( "}" ) != string::npos )
+	// decrease the scope one level and change the prompt
+	{
+		char buf[16];
+		scope--;
+#ifndef __PLATFORM_WIN32__
+		snprintf( buf, 16, "code %2d> ", scope );
+#else
+		sprintf( buf, "code %2d> ", scope);
+#endif
+		prompt = buf;
+	}
+	
+	// collect this line as ChucK code
+	code += in + "\n";
+
+	if( scope == 0 )
+	// the end of this code block -- lets execute it on the current_vm
+		code_entry_active = FALSE;
+}
+
+//-----------------------------------------------------------------------------
+// name: end_code()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::end_code( string & in, string & out )
+{
+	// open a temporary file
+	char * tmp_filepath = tmpnam( NULL );
+	FILE * tmp_file = fopen( tmp_filepath, "w" );
+	
+	//strip opening and closing braces
+	int k = code.find( "{" );
+	string head = string( code, 0, k );
+	code = string( code, k + 1, code.size() - k - 1 );
+	
+	k = code.rfind( "}" );
+	string tail = string( code, k + 1, code.size() - k - 1 );
+	code = string( code, 0, k );
+	
+	// print out the code (for debugging)
+	printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
+	printf( "--start code--\n%s\n--end code--\n", code.c_str() );
+	
+	// write the code to the temp file
+	fprintf( tmp_file, "%s", code.c_str() );
+	fclose( tmp_file );
+
+	string argv = string( "+ " ) + tmp_filepath;
+	
+	if( this->execute( argv, out ) )
+		;
+	
+	// delete the file
+#ifndef __PLATFORM_WIN32__
+	unlink( tmp_filepath );
+#else
+	// delete the file...
+#endif // __PLATFORM_WIN32__
+	
+	prompt = variables["COMMAND_PROMPT"];
+	in = string( tail );
+}
+
+//-----------------------------------------------------------------------------
+// name: do_context()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::do_code_context( string & )
+{
+	
+}
+
+//-----------------------------------------------------------------------------
 // name: close()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -598,10 +630,12 @@ void Chuck_Shell::close()
 void Chuck_Shell::kill()
 {
     stop = TRUE;
+    /*
     if( process_vm != NULL )
     {
         process_vm->stop();
     }
+    */
 }
 
 //-----------------------------------------------------------------------------
