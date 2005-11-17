@@ -229,12 +229,11 @@ void * shell_cb( void * p )
 Chuck_Shell::Chuck_Shell()
 {
     ui = NULL;
-    // process_vm = NULL;
+    process_vm = NULL;
     current_vm = NULL;
     initialized = FALSE;
     stop = FALSE;
     code_entry_active = FALSE;
-    save_current_vm = FALSE;
 }
 
 //-----------------------------------------------------------------------------
@@ -261,7 +260,7 @@ Chuck_Shell::~Chuck_Shell()
 // name: init()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_Shell::init( Chuck_Shell_UI * ui )
+t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
 {
     // log
     EM_log( CK_LOG_SYSTEM, "initializing chuck shell..." );
@@ -283,7 +282,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_Shell_UI * ui )
     }
     this->ui = ui;
     
-    //process_vm = vm;
+    process_vm = vm;
 
     Chuck_Shell_Network_VM * cspv = new Chuck_Shell_Network_VM();
     if( !cspv->init( "localhost", 8888 ) )
@@ -292,14 +291,13 @@ t_CKBOOL Chuck_Shell::init( Chuck_Shell_UI * ui )
         SAFE_DELETE( cspv );
         return FALSE;
     }
+	
+	current_vm = cspv;
+    vms.push_back( current_vm->copy() );
 
-    vms = vector< Chuck_Shell_VM * > ();
-    vms.push_back( cspv );
-
-    current_vm = cspv;
-    save_current_vm = true;
+	process_vm = vm;
     
-    code_entry_active = false;
+    code_entry_active = FALSE;
     code = "";    
     
     // init default variables
@@ -633,6 +631,7 @@ void Chuck_Shell::do_code_context( string & )
 void Chuck_Shell::close()
 {
     stop = TRUE;
+    // 
 }
 
 //-----------------------------------------------------------------------------
@@ -642,12 +641,12 @@ void Chuck_Shell::close()
 void Chuck_Shell::kill()
 {
     stop = TRUE;
-    /*
+    
     if( process_vm != NULL )
     {
         process_vm->stop();
     }
-    */
+    
 }
 
 //-----------------------------------------------------------------------------
@@ -659,6 +658,17 @@ t_CKBOOL Chuck_Shell_Network_VM::init( const string & hostname, t_CKINT port )
     this->hostname = hostname;
     this->port = port;
     return TRUE;
+}
+
+//-----------------------------------------------------------------------------
+// name: copy()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Shell_VM * Chuck_Shell_Network_VM::copy()
+{
+	Chuck_Shell_Network_VM * net_vm = new Chuck_Shell_Network_VM();
+	net_vm->init( hostname, port );
+    return net_vm;
 }
 
 //-----------------------------------------------------------------------------
@@ -1220,7 +1230,8 @@ t_CKBOOL Chuck_Shell::Command_VM::init( Chuck_Shell * caller )
     temp = new Command_VMSwap();
     temp->init( caller );
     commands["swap"] = temp;
-    commands["="] = temp;
+    commands["<"] = temp;
+    commands["<-"] = temp;
     allocated_commands.push_back( temp );
     
     temp = new Command_VMAttachAdd();
@@ -1267,7 +1278,7 @@ void Chuck_Shell::Command_VM::execute( vector< string > & argv,
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VMAttach::execute( vector< string > & argv,
+void Chuck_Shell::Command_VMAttach::execute( vector < string > & argv,
                                              string & out )
 {
     string hostname;
@@ -1275,8 +1286,9 @@ void Chuck_Shell::Command_VMAttach::execute( vector< string > & argv,
     
     /* parse the hostname:port */
     if( argv.size() == 0 )
-        /* no hostname:port specified, use default */
+	/* no hostname:port specified, use default */
     {
+		argv.push_back( "localhost:8888" );
         hostname = "localhost";
         port = 8888;
     }
@@ -1286,9 +1298,11 @@ void Chuck_Shell::Command_VMAttach::execute( vector< string > & argv,
         int i = argv[0].find( ":" );
 
         if( i == string::npos )
+		// couldn't find a port number; use the default
         {
             hostname = argv[0];
             port = 8888;
+			argv[0] += ":8888";
         }
         
         else
@@ -1310,10 +1324,8 @@ void Chuck_Shell::Command_VMAttach::execute( vector< string > & argv,
         //  {
             
         //  }
-        if( !caller->save_current_vm )
-            SAFE_DELETE( caller->current_vm );
+		SAFE_DELETE( caller->current_vm );
         caller->current_vm = new_vm;
-        caller->save_current_vm = FALSE;
         out += argv[0] + " is now current VM\n";
     }
     else 
@@ -1331,9 +1343,8 @@ void Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
                                           string & out )
 {
     char buf[16];
-    
-    caller->vms.push_back( caller->current_vm );
-    caller->save_current_vm = TRUE;
+    	
+    caller->vms.push_back( caller->current_vm->copy() );
     
 #ifndef __PLATFORM_WIN32__
     snprintf( buf, 16, "%u", caller->vms.size() - 1 );
@@ -1367,7 +1378,6 @@ void Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
         else
         {
             SAFE_DELETE( caller->vms[vm_no] );
-            caller->vms[vm_no] = NULL;
         }
     }
 }
@@ -1395,9 +1405,7 @@ void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
         return;
     }
     
-    if( !caller->save_current_vm )
-        SAFE_DELETE( caller->current_vm );
-    caller->save_current_vm = TRUE;
+	SAFE_DELETE( caller->current_vm );
     caller->current_vm = caller->vms[new_vm];
     out += "current VM is now " + caller->current_vm->fullname() + "\n";
     
@@ -1419,13 +1427,16 @@ void Chuck_Shell::Command_VMList::execute( vector< string > & argv,
     
     for( i = 0; i < len; i++ )
     {
+		if( caller->vms[i] != NULL )
+		{
 #ifndef __PLATFORM_WIN32__
-        snprintf( buf, 16, "%u", i );
+			snprintf( buf, 16, "%u", i );
 #else
-        sprintf( buf, "%u", i );
+			sprintf( buf, "%u", i );
 #endif // __PLATFORM_WIN32__
-        out += string( "VM " ) + buf + ": " + 
-               caller->vms[i]->fullname() + "\n";
+			out += string( "VM " ) + buf + ": " + 
+				   caller->vms[i]->fullname() + "\n";
+		}
     }
     
     if( argv.size() > 0 )
@@ -1439,8 +1450,7 @@ void Chuck_Shell::Command_VMList::execute( vector< string > & argv,
 void Chuck_Shell::Command_VMAttachAdd::execute( vector< string > & argv,
                                                 string & out )
 {
-//  caller->commands["vm"]->execute( argv, out );
-//  vm_add( vector< string >(), out );
+	
 }
 
 //-----------------------------------------------------------------------------

@@ -443,7 +443,7 @@ int main( int argc, char ** argv )
         }
         
         // initialize
-        if( !g_shell->init( ui ) )
+        if( !g_shell->init( NULL, ui ) )
         {
             fprintf( stderr, "[chuck]: error starting shell...\n" );
             exit( 1 );
@@ -510,7 +510,7 @@ int main( int argc, char ** argv )
         }
         
         // initialize
-        if( !g_shell->init( ui ) )
+        if( !g_shell->init( vm, ui ) )
         {
             fprintf( stderr, "[chuck]: error starting shell...\n" );
             exit( 1 );

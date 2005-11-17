@@ -34,7 +34,7 @@
 
 #include "chuck_def.h"
 #include "chuck_errmsg.h"
-//#include "chuck_vm.h"
+#include "chuck_vm.h"
 //#include "chuck_compile.h"
 
 #include <string>
@@ -61,7 +61,7 @@ public:
     Chuck_Shell();
     ~Chuck_Shell();
     
-    t_CKBOOL init( Chuck_Shell_UI * );
+    t_CKBOOL init( Chuck_VM * process_vm, Chuck_Shell_UI * );
     void run();
     t_CKBOOL execute( string &, string & );
     void close();
@@ -69,9 +69,8 @@ public:
 
 public: // HACK-GE: these were moved from protected for win32
     vector < Chuck_Shell_VM * > vms;
-    //Chuck_VM * process_vm;
+    Chuck_VM * process_vm;
     Chuck_Shell_VM * current_vm;
-    t_CKBOOL save_current_vm; // if true, do not delete the current vm 
 
     //forward declaration
     class Command;
@@ -428,6 +427,7 @@ public: // HACK-GE: moved from protected for win32
 class Chuck_Shell_VM
 {
 public:
+	virtual Chuck_Shell_VM * copy()=0;
     virtual t_CKBOOL add_shred( const vector< string > &, string & )=0;
     virtual t_CKBOOL remove_shred( const vector< string > &, string & )=0;
     virtual t_CKBOOL remove_all( string & )=0;
@@ -445,6 +445,7 @@ public:
 class Chuck_Shell_Network_VM : public Chuck_Shell_VM
 {
 public:
+	Chuck_Shell_VM * copy();
     t_CKBOOL init( const string &, t_CKINT );
     t_CKBOOL add_shred( const vector< string > &, string & );
     t_CKBOOL remove_shred( const vector< string > &, string & );
