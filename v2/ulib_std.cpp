@@ -76,6 +76,7 @@ static t_CKUINT VCR_offset_data = 0;
 // Skot functions
 CK_DLL_CTOR( Skot_ctor );
 CK_DLL_MFUN( Skot_prompt );
+CK_DLL_MFUN( Skot_prompt2 );
 CK_DLL_MFUN( Skot_more );
 CK_DLL_MFUN( Skot_getLine );
 CK_DLL_MFUN( Skot_can_wait );
@@ -266,6 +267,11 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "Event", "prompt", Skot_prompt );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add prompt()
+    func = make_new_mfun( "Event", "prompt", Skot_prompt2 );
+    func->add_arg( "string", "what" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add ready()
     func = make_new_mfun( "int", "more", Skot_more );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -393,15 +399,31 @@ CK_DLL_SFUN( system_impl )
 // aoti
 CK_DLL_SFUN( atoi_impl )
 {
-    const char * v = GET_CK_STRING(ARGS)->str.c_str();
-    RETURN->v_int = atoi( v );
+    Chuck_String * str = GET_CK_STRING(ARGS);
+    if( str )
+    {
+        const char * v = str->str.c_str();
+        RETURN->v_int = atoi( v );
+    }
+    else
+    {
+        RETURN->v_int = 0;
+    }
 }
 
 // atof
 CK_DLL_SFUN( atof_impl )
 {
-    const char * v = GET_CK_STRING(ARGS)->str.c_str();
-    RETURN->v_float = atof( v );
+    Chuck_String * str = GET_CK_STRING(ARGS);
+    if( str )
+    {
+        const char * v = GET_CK_STRING(ARGS)->str.c_str();
+        RETURN->v_float = atof( v );
+    }
+    else
+    {
+        RETURN->v_float = 0.0;
+    }
 }
 
 // itoa
@@ -764,7 +786,7 @@ public:
     ~LineEvent();
 
 public:
-    void prompt();
+    void prompt( const string & what = "" );
     t_CKBOOL more();
     string getLine();
     t_CKBOOL can_wait();
@@ -783,6 +805,7 @@ t_CKBOOL g_le_wait = TRUE;
 CHUCK_THREAD g_tid_le = 0;
 map<LineEvent *, LineEvent *> g_le_map;
 XMutex g_le_mutex;
+string g_le_what;
 
 
 void * le_cb( void * p )
@@ -799,6 +822,7 @@ void * le_cb( void * p )
             usleep( 10000 );
 
         // do the prompt
+        cout << g_le_what << " ";
         if( !cin.getline( line, 2048 ) ) break;
 
         // lock
@@ -851,8 +875,10 @@ LineEvent::~LineEvent()
     // do nothing
 }
 
-void LineEvent::prompt()
+void LineEvent::prompt( const string & what )
 {
+    // set what
+    g_le_what = what;
     // signal
     g_le_wait = FALSE;
 }
@@ -904,6 +930,14 @@ CK_DLL_MFUN( Skot_prompt )
 {
     LineEvent * le = (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
     le->prompt();
+    RETURN->v_int = (t_CKINT)(SELF);
+}
+
+CK_DLL_MFUN( Skot_prompt2 )
+{
+    LineEvent * le = (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
+    const char * v = GET_CK_STRING(ARGS)->str.c_str();
+    le->prompt( v );
     RETURN->v_int = (t_CKINT)(SELF);
 }
 
