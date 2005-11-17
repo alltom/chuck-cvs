@@ -4,6 +4,7 @@
   - (added) Envelope.keyOn(), Envelope.keyOff();
   - (added) std.srand( int ) : seed random number generator
   - (fixed) chuck.lex compatibility under some linux
+  - (fixed) std.atoi() std.atof() no longer crash on null string
   - (fixed) std.fabs() now works correctly
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs
 
