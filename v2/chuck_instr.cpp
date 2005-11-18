@@ -2519,7 +2519,7 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         push_( reg_sp, (t_CKUINT)array );
     }
     else assert( FALSE );
-        
+
     return;
 
 out_of_memory:
