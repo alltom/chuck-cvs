@@ -324,7 +324,7 @@ int main( int argc, char ** argv )
             //     enable_shell = TRUE;
             else if( !strcmp(argv[i], "--shell") || !strcmp( argv[i], "-e" ) )
             {   enable_shell = TRUE; vm_halt = FALSE; }
-            else if( !strcmp(argv[i], "--no-vm") )
+            else if( !strcmp(argv[i], "--empty") )
                 no_vm = TRUE;
             else if( !strncmp(argv[i], "--srate", 7) )
                 srate = atoi( argv[i]+7 ) > 0 ? atoi( argv[i]+7 ) : srate;
@@ -413,7 +413,7 @@ int main( int argc, char ** argv )
     // set priority
     Chuck_VM::our_priority = g_priority;
 
-    if ( !files && vm_halt && !enable_shell)
+    if ( !files && vm_halt && !enable_shell )
     {
         fprintf( stderr, "[chuck]: no input files... (try --help)\n" );
         exit( 1 );
@@ -423,7 +423,7 @@ int main( int argc, char ** argv )
     EM_setlog( log_level );
 	
 	// shell initialization without vm
-	if( enable_shell && no_vm)
+	if( enable_shell && no_vm )
 	{
         Chuck_Shell_UI * ui = NULL;
 
@@ -439,7 +439,7 @@ int main( int argc, char ** argv )
         if( !ui->init() )
         {
             fprintf( stderr, "[chuck]: error starting shell UI...\n" );
-            exit(1);
+            exit( 1 );
         }
         
         // initialize
@@ -456,6 +456,13 @@ int main( int argc, char ** argv )
 		
 		return 0;
 	}
+
+    // make sure vm
+    if( no_vm )
+    {
+        fprintf( stderr, "[chuck]: '--empty' can only be used with shell...\n" );
+        exit( 1 );
+    }
 	
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
@@ -489,7 +496,7 @@ int main( int argc, char ** argv )
     signal( SIGPIPE, signal_pipe );
 #endif
 
-	// shell initialization without vm
+	// shell initialization
 	if( enable_shell )
 	{
         Chuck_Shell_UI * ui = NULL;

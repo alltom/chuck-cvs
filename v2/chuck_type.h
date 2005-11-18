@@ -749,6 +749,7 @@ Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
 // conversion
 const char * type_path( a_Id_List path );
 a_Id_List str2list( const string & path );
+a_Id_List str2list( const string & path, t_CKBOOL & is_array );
 const char * howmuch2str( te_HowMuch how_much );
 
 // default types

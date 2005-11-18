@@ -4089,7 +4089,8 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
     }
 
     // make path
-    a_Id_List path = str2list( type );
+    t_CKUINT array_depth = 0;
+    a_Id_List path = str2list( type, array_depth );
     if( !path )
     {
         // error
@@ -4099,6 +4100,14 @@ t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type,
     }
     // make type decl
     a_Type_Decl type_decl = new_type_decl( path, FALSE, 0 );
+    // check for array
+    if( array_depth )
+    {
+        // add the array
+        type_decl->array = new_array_sub( NULL, 0 );
+        // set the depth
+        type_decl->array->depth = array_depth;
+    }
     // make var decl
     a_Var_Decl var_decl = new_var_decl( (char *)name, NULL, 0 );
     // make var decl list
@@ -4360,11 +4369,34 @@ t_CKBOOL verify_array( a_Array_Sub array )
 //-----------------------------------------------------------------------------
 a_Id_List str2list( const string & path )
 {
+    t_CKUINT dummy;
+    return str2list( path, dummy );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: str2list()
+// desc: convert str to list
+//-----------------------------------------------------------------------------
+a_Id_List str2list( const string & path, t_CKUINT & array_depth )
+{
     t_CKINT len = path.length();
     t_CKINT i, j;
     string curr;
     a_Id_List list = NULL;
     char last = '\0';
+
+    // look for []
+    array_depth = 0;
+    while( len > 2 && path[len-1] == ']' && path[len-2] == '[' )
+    {
+        // flag it
+        array_depth++;
+        // shorten len
+        len -= 2;
+    }
 
     // loop backwards
     for( i = len - 1; i >= 0; i-- )

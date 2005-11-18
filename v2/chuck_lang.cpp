@@ -234,6 +234,7 @@ error:
 
 
 
+static t_CKUINT shred_offset_args = 0;
 //-----------------------------------------------------------------------------
 // name: init_class_shred()
 // desc: ...
@@ -242,6 +243,7 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
     Chuck_DL_Func * func = NULL;
+    Chuck_DL_Value * value = NULL;
 
     // log
     EM_log( CK_LOG_SYSTEM, "class 'shred'" );
@@ -268,6 +270,10 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     // add yield()
     func = make_new_mfun( "void", "yield", shred_yield );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add args
+    shred_offset_args = type_engine_import_mvar( env, "string[]", "args", TRUE );
+    if( shred_offset_args == CK_INVALID_OFFSET ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
