@@ -65,7 +65,7 @@ public:
     void run();
     t_CKBOOL execute( string &, string & );
     void close();
-    void kill();
+    void exit();
 
 public: // HACK-GE: these were moved from protected for win32
     vector < Chuck_Shell_VM * > vms;
@@ -80,6 +80,11 @@ public: // HACK-GE: these were moved from protected for win32
     map < string, string > variables;
     map < string, Command * > commands;
     vector < Command * > allocated_commands;
+	
+	map < string, string > saved_code;
+	
+	// helper functions
+	t_CKBOOL do_glob( const string &, string &, vector < string > & );
 
 protected:
 	// helper functions
@@ -89,7 +94,7 @@ protected:
 	// code helper functions
 	void start_code();
     void continue_code( string & );
-    void end_code( string &, string & );
+    void do_code( string & );
     void do_code_context( string & );
     void string_hash( string &, string & );
     
@@ -107,7 +112,6 @@ protected:
     t_CKUINT scope;
 
     string code;
-    map < string, string > codes;
 
 public: // HACK-GE: moved from protected for win32
 
@@ -381,12 +385,22 @@ public: // HACK-GE: moved from protected for win32
 // name: class Chuck_Shell::Command_CodeDelete
 // desc: ...
 //-----------------------------------------------------------------------------
-    class Command_CodeDelete : public Command
+	class Command_CodeDelete : public Command
     {
     public:
         void execute( vector< string > &, string & );
     };
-
+	
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell::Command_CodeAdd
+// desc: ...
+//-----------------------------------------------------------------------------
+    class Command_CodeAdd : public Command
+    {
+	public:
+        void execute( vector< string > &, string & );
+    };
+	
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeList
 // desc: ...
@@ -397,6 +411,16 @@ public: // HACK-GE: moved from protected for win32
         void execute( vector< string > &, string & );
     };
 
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell::Command_CodePrint
+// desc: ...
+//-----------------------------------------------------------------------------
+    class Command_CodePrint : public Command
+    {
+    public:
+        void execute( vector< string > &, string & );
+    };
+	
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_CodeWrite
 // desc: ...
@@ -416,7 +440,21 @@ public: // HACK-GE: moved from protected for win32
     public:
         void execute( vector< string > &, string & );
     };
-
+	
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell::Command_Help
+// desc: ...
+//-----------------------------------------------------------------------------
+    class Command_Help : public Command
+    {
+    public:
+		t_CKBOOL init( Chuck_Shell * );
+        void execute( vector< string > &, string & );
+	
+	private:
+		map < string, string > command_help;
+    };
+	
 };
 
 

@@ -394,6 +394,11 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
     commands["source"] = temp;
     commands["."] = temp;
     allocated_commands.push_back( temp );
+	
+    temp = new Command_Code();
+    temp->init( this );
+    commands["code"] = temp;
+    allocated_commands.push_back( temp );
     
     // flag
     initialized = TRUE;
@@ -479,10 +484,9 @@ t_CKBOOL Chuck_Shell::execute( string & in, string & out )
     continue_code( in );
     
     if( code_entry_active == FALSE )
-	    end_code( in, out );
-	else
-	// collect the next line of code
-		return TRUE;
+	    do_code( out );
+	
+	return TRUE;
     }
     
     // divide the string into white space separated substrings
@@ -573,10 +577,10 @@ void Chuck_Shell::continue_code( string & in )
 }
 
 //-----------------------------------------------------------------------------
-// name: end_code()
+// name: do_code()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::end_code( string & in, string & out )
+void Chuck_Shell::do_code( string & out )
 {
 	// open a temporary file
 	char * tmp_filepath = tmpnam( NULL );
@@ -592,8 +596,8 @@ void Chuck_Shell::end_code( string & in, string & out )
 	code = string( code, 0, k );
 	
 	// print out the code (for debugging)
-	printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
-	printf( "--start code--\n%s\n--end code--\n", code.c_str() );
+	// printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
+	// printf( "--start code--\n%s\n--end code--\n", code.c_str() );
 	
 	// write the code to the temp file
 	fprintf( tmp_file, "%s", code.c_str() );
@@ -612,7 +616,6 @@ void Chuck_Shell::end_code( string & in, string & out )
 #endif // __PLATFORM_WIN32__
 	
 	prompt = variables["COMMAND_PROMPT"];
-	in = string( tail );
 }
 
 //-----------------------------------------------------------------------------
@@ -638,15 +641,12 @@ void Chuck_Shell::close()
 // name: kill()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::kill()
+void Chuck_Shell::exit()
 {
     stop = TRUE;
     
     if( process_vm != NULL )
-    {
-        process_vm->stop();
-    }
-    
+        process_vm->stop();    
 }
 
 //-----------------------------------------------------------------------------
@@ -701,7 +701,7 @@ t_CKBOOL Chuck_Shell_Network_VM::add_shred( const vector< string > & files,
         return_val = TRUE;
     else
     {
-        out += "add command failed\n";
+        out += "error: add command failed\n";
         return_val = FALSE;
     }
 
@@ -743,7 +743,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_shred( const vector< string > & ids,
         return_val = TRUE;
     else
     {
-        out += "remove command failed\n";
+        out += "error: remove command failed\n";
         return_val = FALSE;
     }
 
@@ -767,7 +767,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_all( string & out )
     argv[0] = "--removeall";
     if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
     {
-        out += "removeall command failed\n";
+        out += "error: removeall command failed\n";
         return_val = FALSE;
     }
 
@@ -786,7 +786,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_last( string & out )
     argv[0] = "--";
     if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
     {
-        out += "removelast command failed\n";
+        out += "error: removelast command failed\n";
         return_val = FALSE;
     }
     
@@ -823,13 +823,13 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
         return_val = TRUE;
     else
     {
-        out += "replace command failed\n";
+        out += "error: replace command failed\n";
         return_val = FALSE;
     }
     
     if( vec.size() % 2 != 0 )
     {
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
         return FALSE;
     }
     
@@ -867,7 +867,7 @@ t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
     else
     {
         return_val = FALSE;
-        out += "kill command failed";
+        out += "error: kill command failed";
     }
     
     return return_val;
@@ -911,7 +911,7 @@ void Chuck_Shell::Command_Add::execute( vector< string > & argv,
                                         string & out )
 {
     if( caller->current_vm == NULL)
-        out += "not attached to a VM\n";
+        out += "error: not attached to a VM\n";
     else
         caller->current_vm->add_shred( argv, out );
 }
@@ -924,7 +924,7 @@ void Chuck_Shell::Command_Remove::execute( vector< string > & argv,
                                            string & out )
 {
     if( caller->current_vm == NULL)
-        out += "not attached to a VM\n";
+        out += "error: not attached to a VM\n";
     else
         caller->current_vm->remove_shred( argv, out );
 }
@@ -937,12 +937,12 @@ void Chuck_Shell::Command_Removeall::execute( vector< string > & argv,
                                               string & out )
 {
     if( caller->current_vm == NULL)
-        out += "not attached to a VM\n";
+        out += "error: not attached to a VM\n";
     else
         caller->current_vm->remove_all( out );
 
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -953,12 +953,12 @@ void Chuck_Shell::Command_Removelast::execute( vector< string > & argv,
                                                string & out )
 {
     if( caller->current_vm == NULL)
-        out += "not attached to a VM\n";
+        out += "error: not attached to a VM\n";
     else
         caller->current_vm->remove_last( out );
     
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -969,7 +969,7 @@ void Chuck_Shell::Command_Replace::execute( vector< string > & argv,
                                             string & out )
 {
     if( caller->current_vm == NULL)
-        out += "not attached to a VM\n";
+        out += "error: not attached to a VM\n";
     else
         caller->current_vm->replace_shred( argv, out );
 }
@@ -983,7 +983,7 @@ void Chuck_Shell::Command_Kill::execute( vector< string > & argv,
 {
     caller->current_vm->kill( out );
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -994,9 +994,14 @@ void Chuck_Shell::Command_Close::execute( vector< string > & argv,
                                           string & out )
 {
     caller->close();
-    out += "closing chuck shell.  Bye!\n";
+    
+	out += "closing chuck shell.  Bye!\n";
+	
+	if( g_shell != NULL )
+		out += "NOTE: in-process VM still running; type ^C to exit\n";
+	
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -1006,7 +1011,7 @@ void Chuck_Shell::Command_Close::execute( vector< string > & argv,
 void Chuck_Shell::Command_Exit::execute( vector< string > & argv,
                                          string & out )
 {
-    caller->kill();
+    caller->exit();
     if( argv.size() > 0 )
         out += "ignoring excess arguments...\n";
 }
@@ -1074,16 +1079,16 @@ void Chuck_Shell::Command_Cd::execute( vector< string > & argv,
     if( argv.size() < 1 )
     {
         if( chdir( getenv( "HOME" ) ) )
-            out += "cd command failed\n";
+            out += "error: cd command failed\n";
     }
     else
     {
         if( chdir( argv[0].c_str() ) )
-            out += "cd command failed\n";
+            out += "error: cd command failed\n";
     }
     
 #else
-    out += "command not yet supported on Win32!\n";
+    out += "error: command not yet supported on Win32!\n";
 #endif //__PLATFORM_WIN32__
 }
 
@@ -1099,9 +1104,9 @@ void Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
     out += string( cwd ) + "\n";
     free( cwd );
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 #else
-    out += "command not yet supported on Win32!\n";
+    out += "error: command not yet supported on Win32!\n";
 #endif
 }
 
@@ -1124,7 +1129,7 @@ void Chuck_Shell::Command_Alias::execute( vector< string > & argv,
         {
             // see if the alias exists in the map
             if( caller->aliases.find( argv[i] ) == caller->aliases.end() )
-                out += "alias " + argv[i] + " not found\n";
+                out += "error: alias " + argv[i] + " not found\n";
             else
                 out += "alias " + argv[i] + "='" + 
                        caller->aliases[argv[i]] + "'\n";
@@ -1162,9 +1167,7 @@ void Chuck_Shell::Command_Unalias::execute( vector< string > & argv,
     for( i = 0; i < len; i++ )
     {
         if( caller->aliases.find( argv[i] ) == caller->aliases.end() )
-        {
-            out += "alias " + argv[i] + " not found\n";
-        }
+            out += "error: alias " + argv[i] + " not found\n";
         
         else
             caller->aliases.erase( argv[i] );
@@ -1185,13 +1188,30 @@ void Chuck_Shell::Command_Source::execute( vector< string > & argv,
     for( i = 0; i < len; i++ )
     {
         FILE * source_file = fopen( argv[i].c_str(), "r" );
-        while( fgets( line_buf, 255, source_file ) != NULL )
-        {
-            line = string( line_buf );
-            caller->execute( line, temp );
-            out += temp;
-        }
+		
+		if( source_file == NULL )
+			out += "error: unable to open file " + argv[i];
+		
+		else
+		{
+			while( fgets( line_buf, 255, source_file ) != NULL )
+			{
+				line = string( line_buf );
+				caller->execute( line, temp );
+				out += temp;
+			}
+		}
     }
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_Help::execute( vector< string > & argv,
+                                           string & out )
+{
+	out += "";
 }
 
 //-----------------------------------------------------------------------------
@@ -1264,7 +1284,7 @@ void Chuck_Shell::Command_VM::execute( vector< string > & argv,
 {
     if( commands.find( argv[0] ) == commands.end() )
     // command doesn't exist
-        out += "vm " + argv[0] + ": command not found\n";
+        out += "error: vm " + argv[0] + ": command not found\n";
     else
     // call the mapped command
     {
@@ -1309,7 +1329,7 @@ void Chuck_Shell::Command_VMAttach::execute( vector < string > & argv,
         {
             port = strtol( argv[0].c_str() + i + 1, NULL, 10 );
             if( port == 0 /* && errno == EINVAL */ )
-                out += string( "invalid port '" ) + 
+                out += string( "error: invalid port '" ) + 
                 	   string( argv[0].c_str() + i + 1 ) + "'\n";
             else
                 hostname = string( argv[0], 0, i );
@@ -1329,10 +1349,10 @@ void Chuck_Shell::Command_VMAttach::execute( vector < string > & argv,
         out += argv[0] + " is now current VM\n";
     }
     else 
-        out += "unable to attach to " + argv[0] + "\n";
+        out += "error: unable to attach to " + argv[0] + "\n";
     
     if( argv.size() > 1 )
-        out += "ignoring excess arguments...";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -1343,7 +1363,13 @@ void Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
                                           string & out )
 {
     char buf[16];
-    	
+	
+	if( caller->current_vm == NULL )
+	{
+		out += "error: no VM to save\n";
+		return;
+	}
+	
     caller->vms.push_back( caller->current_vm->copy() );
     
 #ifndef __PLATFORM_WIN32__
@@ -1355,7 +1381,7 @@ void Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
     out += caller->current_vm->fullname() + " saved as VM " + buf + "\n";
     
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -1374,7 +1400,7 @@ void Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
         vm_no = strtoul( argv[i].c_str(), NULL, 10 );
         if( vm_no == 0 && errno == EINVAL || caller->vms.size() <= vm_no || 
             caller->vms[vm_no] == NULL )
-            out += "invalid VM id: " + argv[i] + "\n";
+            out += "error: invalid VM id: " + argv[i] + "\n";
         else
         {
             SAFE_DELETE( caller->vms[vm_no] );
@@ -1393,7 +1419,7 @@ void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     
     if( argv.size() < 1 )
     {
-        out += string( "too few arguments...\n" );
+        out += string( "error: too few arguments\n" );
         return;
     }
     
@@ -1401,7 +1427,7 @@ void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     if( new_vm >= caller->vms.size() || new_vm < 0 || 
         caller->vms[new_vm] == NULL )
     {
-        out += string( "invalid VM: " ) + argv[0];
+        out += string( "error: invalid VM: " ) + argv[0] + "\n";
         return;
     }
     
@@ -1410,7 +1436,7 @@ void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     out += "current VM is now " + caller->current_vm->fullname() + "\n";
     
     if( argv.size() > 1 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -1423,7 +1449,8 @@ void Chuck_Shell::Command_VMList::execute( vector< string > & argv,
     char buf[16];
     int i, len = caller->vms.size();
     
-    out += string("current VM: ") + caller->current_vm->fullname() + "\n";
+	if( caller->current_vm != NULL )
+		out += string("current VM: ") + caller->current_vm->fullname() + "\n";
     
     for( i = 0; i < len; i++ )
     {
@@ -1440,7 +1467,7 @@ void Chuck_Shell::Command_VMList::execute( vector< string > & argv,
     }
     
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "warning: ignoring excess arguments\n";
 }
 
 //-----------------------------------------------------------------------------
@@ -1463,6 +1490,42 @@ t_CKBOOL Chuck_Shell::Command_Code::init( Chuck_Shell * caller )
     
     Command::init( caller );
     
+	temp = new Command_CodeSave();
+	temp->init( caller );
+	commands["save"] = temp;
+	allocated_commands.push_back( temp );
+	
+	temp = new Command_CodeList();
+	temp->init( caller );
+	commands["list"] = temp;
+	allocated_commands.push_back( temp );
+	
+	temp = new Command_CodePrint();
+	temp->init( caller );
+	commands["print"] = temp;
+	allocated_commands.push_back( temp );
+	
+	temp = new Command_CodeDelete();
+	temp->init( caller );
+	commands["delete"] = temp;
+	allocated_commands.push_back( temp );
+	
+	temp = new Command_CodeWrite();
+	temp->init( caller );
+	commands["write"] = temp;
+	allocated_commands.push_back( temp );
+	
+	temp = new Command_CodeRead();
+	temp->init( caller );
+	commands["read"] = temp;
+	allocated_commands.push_back( temp );
+	
+	temp = new Command_CodeAdd();
+	temp->init( caller );
+	commands["add"] = temp;
+	commands["+"] = temp;
+	allocated_commands.push_back( temp );
+	
     return TRUE;
 }
 
@@ -1488,7 +1551,7 @@ void Chuck_Shell::Command_Code::execute( vector< string > & argv,
 {
     if( commands.find( argv[0] ) == commands.end() )
     // command doesn't exist
-        out += "code " + argv[0] + ": command not found\n";
+        out += "error: code " + argv[0] + ": command not found\n";
     else
     // call the mapped command
     {
@@ -1497,4 +1560,270 @@ void Chuck_Shell::Command_Code::execute( vector< string > & argv,
         command->execute( argv, out );
     }
 }
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodeSave::execute( vector < string > & argv,
+											 string & out )
+{
+	if( argv.size() < 1 )
+		out += "error: please specify a name to identify the code\n";
+	
+	else
+	{
+		if( caller->code == "" )
+			out += "error: no code to save\n";
+		
+		else
+			caller->saved_code[argv[0]] = caller->code;
+		
+		if( argv.size() > 1 )
+			out += "warning: ignoring excess arguments\n";
+	}
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodeList::execute( vector < string > & argv,
+											 string & out )
+{
+	map < string, string >::iterator i = caller->saved_code.begin(), 
+	                                 end = caller->saved_code.end();
+	for( ; i != end; i++ )
+		out += i->first + "\n";
+	
+	if( argv.size() > 0 )
+		out += "warning: ignoring excess arguments\n";
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
+											 string & out )
+{
+	if( argv.size() == 0 )
+	{
+		if( caller->code != "" )
+			caller->do_code( out );
+		
+		else
+			out += "error: no code to add\n";
+	}
+	
+	else
+	{
+		for( int i = 0, len = argv.size(); i < len; i++ )
+		// iterate through all of the arguments, add the saved codes
+		{
+			if( caller->saved_code.find( argv[i] ) == 
+				caller->saved_code.end() )
+				out += "error: code " + argv[i] + " not found\n";
+			
+			else
+			{
+				caller->code = caller->saved_code[argv[i]];
+				caller->do_code( out );
+			}
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodePrint::execute( vector < string > & argv,
+											  string & out )
+{
+	if( argv.size() == 0 )
+	{
+		if( caller->code != "" )
+			out += caller->code + "\n";
+		
+		else
+			out += "error: no code to print\n";
+	}
+	
+	else
+	{
+		for( int i = 0, len = argv.size(); i < len; i++ )
+		{
+			if( caller->saved_code.find( argv[i] ) == 
+				caller->saved_code.end() )
+				out += "error: code " + argv[i] + " not found\n";
+			
+			else
+			{
+				string code = caller->saved_code[argv[i]];
+				
+				//strip opening and closing braces
+				int k = code.find( "{" );
+				code = string( code, k + 1, code.size() - k - 1 );
+				
+				k = code.rfind( "}" );
+				code = string( code, 0, k );
+				
+				out += argv[i] + ":\n";
+				out += code + "\n";
+			}
+		}
+	}
+}	
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodeDelete::execute( vector < string > & argv,
+											   string & out )
+{
+	if( argv.size() == 0 )
+		out += "error: specify the code to delete\n";
+	
+	else
+	{
+		for( int i = 0, len = argv.size(); i < len; i++ )
+		{
+			if( caller->saved_code.find( argv[i] ) == 
+				caller->saved_code.end() )
+				out += "error: code " + argv[i] + " not found\n";
+			
+			else
+			{
+				caller->saved_code.erase( argv[i] );
+			}
+		}
+	}
+}	
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodeWrite::execute( vector < string > & argv,
+											  string & out )
+{
+	if( argv.size() < 1 )
+		out += "error: insufficient arguments\n";
+	
+	else
+	{
+		if( caller->saved_code.find( argv[0] ) == caller->saved_code.end() )
+		// this code doesnt exist!
+			out += "error: code " + argv[0] + " not found\n";
+
+		else
+		{
+			string filename;
+			string code = caller->saved_code[argv[0]];
+			FILE * write_file;
+			
+			if( argv.size() >= 2 )
+			// use second argument as filename
+				filename = argv[1];
+
+			else
+			// append .ck to the code name to get the file name
+				filename = argv[0] + ".ck";
+			
+			// open the file
+			write_file = fopen( filename.c_str(), "w" );
+			if( write_file == NULL )
+				out += "error: unable to open " + filename + " for writing\n";
+			
+			else
+			{
+				//strip opening and closing braces
+				int k = code.find( "{" );
+				code = string( code, k + 1, code.size() - k - 1 );
+				
+				k = code.rfind( "}" );
+				code = string( code, 0, k );
+				
+				// write code to the file
+				if( fprintf( write_file, "%s", code.c_str() ) < 0 )
+					out += "error: unable to write to " + filename + "\n";
+				
+				fclose( write_file );
+			}
+		}
+	}
+	
+	if( argv.size() > 2 )
+		out += "warning: ignoring excess arguments\n";
+}	
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
+											 string & out )
+{
+	if( argv.size() < 1 )
+		out += "error: insufficient arguments\n";
+	
+	else
+	{
+		string code_name;
+		FILE * read_file;
+		
+		if( argv.size() >= 2 )
+			// use second argument as the code_name
+			code_name = argv[1];
+
+		else
+			// remove the file extension to get the code_name
+			// or use the whole filename if there is no extension
+		{
+			int k = argv[0].rfind( "." );
+
+			if( k == string::npos )
+				code_name = argv[1];
+
+			else
+				code_name = string( argv[0], 0, k );
+		}
+		
+		// open the file
+		read_file = fopen( argv[0].c_str(), "r" );
+		if( read_file == NULL )
+			out += "error: unable to open " + argv[0] + " for reading\n";
+		
+		else
+		{
+			string code = "";
+			char buffer[256], * result = fgets( buffer, 256, read_file );
+			
+			if( result == NULL )
+				out += "error: unable to read " + argv[0] + 
+					", or file is empty\n";
+
+			else
+			{
+				while( result != NULL )
+				{
+					code += buffer;
+					result = fgets( buffer, 256, read_file );
+				}
+				
+				// do_code() expects braces around the code
+				code = "{" + code + "}\n";
+				
+				caller->saved_code[code_name] = code;
+			}
+			
+			fclose( read_file );
+		}
+	}
+	
+	if( argv.size() > 2 )
+		out += "warning: ignoring excess arguments\n";
+}	
 
