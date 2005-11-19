@@ -22,7 +22,7 @@ spork ~ hi( e );
 // yield current shred (without advancing time)
 // ... allow other shreds to start running ...
 // (alternative: advance time to allow all shreds to start running)
-1::second => now;
+me.yield();
 
 // signal all shreds waiting on event e
 e.broadcast();
