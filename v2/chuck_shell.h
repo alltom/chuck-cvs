@@ -82,9 +82,13 @@ public: // HACK-GE: these were moved from protected for win32
     vector < Command * > allocated_commands;
 	
 	map < string, string > saved_code;
-	
+
+    string code;
+
 	// helper functions
 	t_CKBOOL do_glob( const string &, string &, vector < string > & );
+    void do_code( string & );
+    void do_code_context( string & );
 
 protected:
 	// helper functions
@@ -94,8 +98,6 @@ protected:
 	// code helper functions
 	void start_code();
     void continue_code( string & );
-    void do_code( string & );
-    void do_code_context( string & );
     void string_hash( string &, string & );
     
     Chuck_Shell_UI * ui;
@@ -110,8 +112,6 @@ protected:
     // code entry variables
     t_CKBOOL code_entry_active;
     t_CKUINT scope;
-
-    string code;
 
 public: // HACK-GE: moved from protected for win32
 
