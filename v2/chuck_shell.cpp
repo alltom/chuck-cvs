@@ -49,35 +49,6 @@ using namespace std;
 extern Chuck_Shell * g_shell;
 
 //-----------------------------------------------------------------------------
-// name: divide_string
-// desc: divides string into substrings, each separated by an arbitrarily long 
-//       sequence of any characters in edge.  
-//-----------------------------------------------------------------------------
-void divide_string( string str, const string & edge, 
-                    vector< string > & substrings)
-{
-    string tmp = " ";
-    string qq = "\"'";
-    str.append( " " );
-
-    int i = str.find_first_not_of( edge ), j = 0;
-    if( i != 0 )
-    {
-        tmp[0] = str[i - 1];
-    }
-    
-    for(;;)
-    {
-        j = str.find_first_of( tmp, i );
-        if( j == string::npos )
-            break;
-        substrings.push_back( string( str, i, j - i ) );
-        i = str.find_first_not_of( edge, j );
-        tmp[0] = str[i - 1];
-    }
-}
-
-//-----------------------------------------------------------------------------
 // name: tokenize_string
 // desc: divides a string into space separated tokens, respecting single and 
 //      double quotes
@@ -280,6 +251,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
         fprintf( stderr, "[chuck](via shell): NULL ui passed to Chuck_Shell::init\n" );
         return FALSE;
     }
+	
     this->ui = ui;
     
     process_vm = vm;
@@ -330,6 +302,11 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
     temp->init( this );
     commands["-"] = temp;
     commands["remove"] = temp;
+    allocated_commands.push_back( temp );
+    
+    temp = new Command_Status();
+    temp->init( this );
+    commands["status"] = temp;
     allocated_commands.push_back( temp );
     
     temp = new Command_Removeall();
@@ -429,6 +406,10 @@ void Chuck_Shell::run()
     string command;
     string result;
 
+	ui->next_result( "Welcome to ChucK Shell.  \n" );
+	ui->next_result( "Type \"help\" for more information, " );
+	ui->next_result( "or \"help command_name\" for information about \"command_name\".\n" );
+	
     // loop
     for( ; !stop; )
     {
@@ -514,12 +495,17 @@ t_CKBOOL Chuck_Shell::execute( string & in, string & out )
         out += vec[0] + ": command not found\n";
         return FALSE;
     }
+	
     else
     // execute the command
     {
         Command * command = commands[vec[0]];
         vec.erase( vec.begin() );
-        command->execute( vec, out );
+        if( command->execute( vec, out ) == 0 )
+			return TRUE;
+		
+		else
+			return FALSE;
     }
         
     return TRUE;
@@ -763,7 +749,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_all( string & out )
 {
     int return_val = TRUE;
     long int j = 0;
-    char ** argv = new char * [1];
+    char ** argv = new char *;
     argv[0] = "--removeall";
     if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
     {
@@ -782,7 +768,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_last( string & out )
 {
     int return_val = TRUE;
     long int j = 0;
-    char ** argv = new char * [1];
+    char ** argv = new char *;
     argv[0] = "--";
     if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
     {
@@ -800,6 +786,12 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_last( string & out )
 t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
                                         string & out )
 {
+	if( vec.size() < 2 )
+	{
+		out += "error: insufficient arguments\n";
+		return FALSE;
+	}
+	
     long int i = 0;
     t_CKBOOL return_val;
     int j, str_len, vec_len = vec.size() + 1;
@@ -807,8 +799,7 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     
     /* prepare an argument vector to submit to otf_send_cmd */
     /* first, specify an add command */
-    argv[0] = new char [sizeof( "--replace" )];
-    strncpy( argv[0], "--replace", sizeof( "--replace" ) );
+    argv[0] = "--replace";
     
     /* copy ids/files into argv */
     for( j = 1; j < vec_len; j++ )
@@ -821,7 +812,8 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     /* send the command */
     if( otf_send_cmd( vec_len, argv, i, hostname.c_str(), port ) )
         return_val = TRUE;
-    else
+    
+	else
     {
         out += "error: replace command failed\n";
         return_val = FALSE;
@@ -847,7 +839,23 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Shell_Network_VM::status( string & out )
 {
-    return TRUE;
+	char ** argv = new char *;
+	t_CKBOOL return_val = FALSE;
+	long int j = 0;
+	
+	argv[0] = "--status";
+	if( otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+		return_val = TRUE;
+	
+	else
+	{
+		return_val = FALSE;
+		out += "error: status command failed\n";
+	}
+	
+	delete argv;
+	
+    return return_val;
 }
 
 //-----------------------------------------------------------------------------
@@ -856,7 +864,7 @@ t_CKBOOL Chuck_Shell_Network_VM::status( string & out )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
 {
-    char ** argv = new char * [1];
+    char ** argv = new char *;
     long int j = 0;
     t_CKBOOL return_val;
     
@@ -864,12 +872,15 @@ t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
     
     if( otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
         return_val = TRUE;
-    else
+    
+	else
     {
         return_val = FALSE;
         out += "error: kill command failed";
     }
     
+	delete argv;
+	
     return return_val;
 }
 
@@ -904,93 +915,204 @@ t_CKBOOL Chuck_Shell::Command::init( Chuck_Shell * caller )
 }
 
 //-----------------------------------------------------------------------------
-// name: execute()
+// name: usage()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Add::execute( vector< string > & argv,
-                                        string & out )
+string Chuck_Shell::Command::usage()
 {
-    if( caller->current_vm == NULL)
-        out += "error: not attached to a VM\n";
-    else
-        caller->current_vm->add_shred( argv, out );
+	return "no usage specified";
+}
+
+//-----------------------------------------------------------------------------
+// name: long_usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command::long_usage()
+{
+	return "no usage specified";
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Remove::execute( vector< string > & argv,
-                                           string & out )
+t_CKINT Chuck_Shell::Command_Add::execute( vector< string > & argv,
+										   string & out )
 {
+	t_CKINT result = 0;
+	
     if( caller->current_vm == NULL)
+	{
         out += "error: not attached to a VM\n";
+		result = -1;
+	}
+	
+	else if( argv.size() < 1 )
+	{
+		out += "usage: " + usage() + "\n";
+		result = -1;
+	}
+	
     else
-        caller->current_vm->remove_shred( argv, out );
+	{
+        result = caller->current_vm->add_shred( argv, out );
+	}
+
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_Add::usage()
+{
+	return "add file ...";
+}
+										   
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Shell::Command_Remove::execute( vector< string > & argv,
+											  string & out )
+{
+	t_CKINT result = 0;
+	
+    if( caller->current_vm == NULL)
+	{
+        out += "error: not attached to a VM\n";
+		result = -1;
+	}
+	
+	else if( argv.size() < 1 )
+	{
+		out += "usage: " + usage() + "\n";
+		result = -1;
+	}
+	
+    else
+        result = caller->current_vm->remove_shred( argv, out );
+	
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_Remove::usage()
+{
+	return "remove shred_number ...";
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Removeall::execute( vector< string > & argv, 
+t_CKINT Chuck_Shell::Command_Removeall::execute( vector< string > & argv, 
                                               string & out )
 {
+	t_CKINT result = 0;
+	
     if( caller->current_vm == NULL)
+	{
         out += "error: not attached to a VM\n";
+		result = -1;
+	}
+	
+	else if( argv.size() > 0 )
+	{
+		out += "usage " + usage() + "\n";
+		result = -1;
+	}
+	
     else
-        caller->current_vm->remove_all( out );
+        result = caller->current_vm->remove_all( out );
 
-    if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+	return result;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Removelast::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Removelast::execute( vector< string > & argv,
                                                string & out )
 {
+	t_CKINT result = -1;
+	
     if( caller->current_vm == NULL)
         out += "error: not attached to a VM\n";
     else
-        caller->current_vm->remove_last( out );
+        result = caller->current_vm->remove_last( out );
     
     if( argv.size() > 0 )
         out += "warning: ignoring excess arguments\n";
+	
+	return result;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Replace::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Replace::execute( vector< string > & argv,
                                             string & out )
 {
     if( caller->current_vm == NULL)
         out += "error: not attached to a VM\n";
     else
         caller->current_vm->replace_shred( argv, out );
+	
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Kill::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Status::execute( vector< string > & argv,
+										   string & out )
+{
+	t_CKINT result = 0;
+	
+    if( caller->current_vm == NULL)
+	{
+        out += "error: not attached to a VM\n";
+		result = -1;
+	}
+	
+	else if( argv.size() > 0 )
+	{
+		out += "usage: " + usage() + "\n";
+		result = -1;
+	}
+	
+    else
+        result = caller->current_vm->status( out );
+	
+	return result;
+}
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Shell::Command_Kill::execute( vector< string > & argv,
                                          string & out )
 {
     caller->current_vm->kill( out );
     if( argv.size() > 0 )
         out += "warning: ignoring excess arguments\n";
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Close::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Close::execute( vector< string > & argv,
                                           string & out )
 {
     caller->close();
@@ -1002,25 +1124,27 @@ void Chuck_Shell::Command_Close::execute( vector< string > & argv,
 	
     if( argv.size() > 0 )
         out += "warning: ignoring excess arguments\n";
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Exit::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Exit::execute( vector< string > & argv,
                                          string & out )
 {
     caller->exit();
     if( argv.size() > 0 )
         out += "ignoring excess arguments...\n";
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Ls::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
                                        string & out )
 {
 #ifndef __PLATFORM_WIN32__
@@ -1037,7 +1161,7 @@ void Chuck_Shell::Command_Ls::execute( vector< string > & argv,
         }
         
         closedir( dir_handle );
-        return;
+        return 0;
         }
     
     int i, len = argv.size();
@@ -1066,13 +1190,14 @@ void Chuck_Shell::Command_Ls::execute( vector< string > & argv,
 #else
     out += "command not yet supported on Win32!\n";
 #endif // __PLATFORM_WIN32__
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Cd::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
                                        string & out )
 {
 #ifndef __PLATFORM_WIN32__
@@ -1090,13 +1215,14 @@ void Chuck_Shell::Command_Cd::execute( vector< string > & argv,
 #else
     out += "error: command not yet supported on Win32!\n";
 #endif //__PLATFORM_WIN32__
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
                                         string & out )
 {
 #ifndef __PLATFORM_WIN32__
@@ -1108,13 +1234,14 @@ void Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
 #else
     out += "error: command not yet supported on Win32!\n";
 #endif
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Alias::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Alias::execute( vector< string > & argv,
                                           string & out )
 {
     int i, j, len = argv.size();
@@ -1152,14 +1279,14 @@ void Chuck_Shell::Command_Alias::execute( vector< string > & argv,
             out += "alias " + i->first + "='" + i->second + "'\n";
     }
     
-
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Unalias::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Unalias::execute( vector< string > & argv,
                                             string & out )
 {
     int i, len = argv.size();
@@ -1172,13 +1299,14 @@ void Chuck_Shell::Command_Unalias::execute( vector< string > & argv,
         else
             caller->aliases.erase( argv[i] );
     }
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Source::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Source::execute( vector< string > & argv,
                                            string & out )
 {
     int i, len = argv.size();
@@ -1202,16 +1330,18 @@ void Chuck_Shell::Command_Source::execute( vector< string > & argv,
 			}
 		}
     }
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Help::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Help::execute( vector< string > & argv,
                                            string & out )
 {
 	out += "";
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -1279,7 +1409,7 @@ Chuck_Shell::Command_VM::~Command_VM()
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VM::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_VM::execute( vector< string > & argv,
                                        string & out )
 {
     if( commands.find( argv[0] ) == commands.end() )
@@ -1292,17 +1422,19 @@ void Chuck_Shell::Command_VM::execute( vector< string > & argv,
         argv.erase( argv.begin() );
         command->execute( argv, out );
     }
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VMAttach::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_VMAttach::execute( vector < string > & argv,
                                              string & out )
 {
     string hostname;
     int port;
+	t_CKINT result = 0;
     
     /* parse the hostname:port */
     if( argv.size() == 0 )
@@ -1328,38 +1460,51 @@ void Chuck_Shell::Command_VMAttach::execute( vector < string > & argv,
         else
         {
             port = strtol( argv[0].c_str() + i + 1, NULL, 10 );
-            if( port == 0 /* && errno == EINVAL */ )
+            if( port == 0 )
                 out += string( "error: invalid port '" ) + 
                 	   string( argv[0].c_str() + i + 1 ) + "'\n";
+			
             else
                 hostname = string( argv[0], 0, i );
         }
     }
-        
+	
     if( port != 0 )
     {
+		//string temp;
+		
         Chuck_Shell_Network_VM * new_vm = new Chuck_Shell_Network_VM();
         new_vm->init( hostname, port );
-        //if( !new_vm->test() )
-        //  {
-            
-        //  }
+		
+        /*if( !new_vm->status( temp ) )
+		{
+            SAFE_DELETE( new_vm );
+			result = -1;
+		}*/
+		
 		SAFE_DELETE( caller->current_vm );
-        caller->current_vm = new_vm;
-        out += argv[0] + " is now current VM\n";
+		caller->current_vm = new_vm;
+		out += argv[0] + " is now current VM\n";
+		result = 0;
     }
-    else 
+    
+	else 
+	{
         out += "error: unable to attach to " + argv[0] + "\n";
+		result = -1;
+	}
     
     if( argv.size() > 1 )
         out += "warning: ignoring excess arguments\n";
+	
+	return result;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
                                           string & out )
 {
     char buf[16];
@@ -1367,7 +1512,7 @@ void Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
 	if( caller->current_vm == NULL )
 	{
 		out += "error: no VM to save\n";
-		return;
+		return -1;
 	}
 	
     caller->vms.push_back( caller->current_vm->copy() );
@@ -1382,15 +1527,15 @@ void Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
     
     if( argv.size() > 0 )
         out += "warning: ignoring excess arguments\n";
+	
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
-// warning: this function will do a multiple free if the vm numbers supplied
-// are all associated with the same VM
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
                                              string & out )
 {
     int i = 0, vm_no, len = argv.size();
@@ -1406,13 +1551,14 @@ void Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
             SAFE_DELETE( caller->vms[vm_no] );
         }
     }
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
                                            string & out )
 {
     int new_vm;
@@ -1420,7 +1566,7 @@ void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     if( argv.size() < 1 )
     {
         out += string( "error: too few arguments\n" );
-        return;
+        return -1;
     }
     
     new_vm = strtol( argv[0].c_str(), NULL, 10 );
@@ -1428,7 +1574,7 @@ void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
         caller->vms[new_vm] == NULL )
     {
         out += string( "error: invalid VM: " ) + argv[0] + "\n";
-        return;
+        return -1;
     }
     
 	SAFE_DELETE( caller->current_vm );
@@ -1437,14 +1583,15 @@ void Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     
     if( argv.size() > 1 )
         out += "warning: ignoring excess arguments\n";
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VMList::execute( vector< string > & argv,
-                                           string & out )
+t_CKINT Chuck_Shell::Command_VMList::execute( vector< string > & argv,
+											  string & out )
 {
     char buf[16];
     int i, len = caller->vms.size();
@@ -1468,16 +1615,33 @@ void Chuck_Shell::Command_VMList::execute( vector< string > & argv,
     
     if( argv.size() > 0 )
         out += "warning: ignoring excess arguments\n";
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_VMAttachAdd::execute( vector< string > & argv,
-                                                string & out )
+t_CKINT Chuck_Shell::Command_VMAttachAdd::execute( vector< string > & argv,
+												   string & out )
 {
+	t_CKINT result = 0;
+	string exec = string( "vm @ " ) + ( argv.size() > 0 ? argv[0] : "" );
 	
+	if( caller->execute( exec, out ) )
+	{
+		exec = "vm + ";
+		if( caller->execute( exec, out ) )
+			result = 0;
+		
+		else
+			result = -1;
+	}
+		
+	else
+		result = -1;
+	
+	return result;
 }
 
 //-----------------------------------------------------------------------------
@@ -1546,7 +1710,7 @@ Chuck_Shell::Command_Code::~Command_Code()
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_Code::execute( vector< string > & argv,
+t_CKINT Chuck_Shell::Command_Code::execute( vector< string > & argv,
                                          string & out )
 {
     if( commands.find( argv[0] ) == commands.end() )
@@ -1559,13 +1723,14 @@ void Chuck_Shell::Command_Code::execute( vector< string > & argv,
         argv.erase( argv.begin() );
         command->execute( argv, out );
     }
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodeSave::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_CodeSave::execute( vector < string > & argv,
 											 string & out )
 {
 	if( argv.size() < 1 )
@@ -1582,13 +1747,14 @@ void Chuck_Shell::Command_CodeSave::execute( vector < string > & argv,
 		if( argv.size() > 1 )
 			out += "warning: ignoring excess arguments\n";
 	}
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodeList::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_CodeList::execute( vector < string > & argv,
 											 string & out )
 {
 	map < string, string >::iterator i = caller->saved_code.begin(), 
@@ -1598,13 +1764,14 @@ void Chuck_Shell::Command_CodeList::execute( vector < string > & argv,
 	
 	if( argv.size() > 0 )
 		out += "warning: ignoring excess arguments\n";
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
 											 string & out )
 {
 	if( argv.size() == 0 )
@@ -1632,13 +1799,14 @@ void Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
 			}
 		}
 	}
+	return 0;
 }
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodePrint::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_CodePrint::execute( vector < string > & argv,
 											  string & out )
 {
 	if( argv.size() == 0 )
@@ -1674,13 +1842,14 @@ void Chuck_Shell::Command_CodePrint::execute( vector < string > & argv,
 			}
 		}
 	}
+	return 0;
 }	
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodeDelete::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_CodeDelete::execute( vector < string > & argv,
 											   string & out )
 {
 	if( argv.size() == 0 )
@@ -1700,13 +1869,14 @@ void Chuck_Shell::Command_CodeDelete::execute( vector < string > & argv,
 			}
 		}
 	}
+	return 0;
 }	
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodeWrite::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_CodeWrite::execute( vector < string > & argv,
 											  string & out )
 {
 	if( argv.size() < 1 )
@@ -1757,13 +1927,14 @@ void Chuck_Shell::Command_CodeWrite::execute( vector < string > & argv,
 	
 	if( argv.size() > 2 )
 		out += "warning: ignoring excess arguments\n";
+	return 0;
 }	
 
 //-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
+t_CKINT Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
 											 string & out )
 {
 	if( argv.size() < 1 )
@@ -1825,5 +1996,6 @@ void Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
 	
 	if( argv.size() > 2 )
 		out += "warning: ignoring excess arguments\n";
+	return 0;
 }	
 

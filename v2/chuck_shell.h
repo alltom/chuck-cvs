@@ -123,7 +123,9 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         virtual t_CKBOOL init( Chuck_Shell * );
-        virtual void execute( vector< string > &, string & ) = 0;
+        virtual t_CKINT execute( vector< string > &, string & ) = 0;
+		virtual string usage();
+		virtual string long_usage();
     
     protected:
         Chuck_Shell * caller;
@@ -138,7 +140,7 @@ public: // HACK-GE: moved from protected for win32
     public:
         ~Command_VM();
         t_CKBOOL init( Chuck_Shell * );
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     
     protected:
         map < string, Command * > commands;
@@ -152,7 +154,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_VMAdd : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -162,7 +164,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_VMRemove : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 
 //-----------------------------------------------------------------------------
@@ -172,7 +174,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_VMAttach : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -182,7 +184,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_VMList : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -192,7 +194,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_VMSwap : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -202,7 +204,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_VMAttachAdd : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -212,7 +214,8 @@ public: // HACK-GE: moved from protected for win32
     class Command_Add : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector < string > &, string & );
+		string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -222,17 +225,28 @@ public: // HACK-GE: moved from protected for win32
     class Command_Remove : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector < string > &, string & );
+		string usage();
     };
     
 //-----------------------------------------------------------------------------
+// name: class Chuck_Shell::Command_Status
+// desc: ...
+//-----------------------------------------------------------------------------
+    class Command_Status : public Command
+    {
+    public:
+        t_CKINT execute( vector < string > &, string & );
+    };
+    
+	//-----------------------------------------------------------------------------
 // name: class Chuck_Shell::Command_Removeall
 // desc: ...
 //-----------------------------------------------------------------------------
     class Command_Removeall : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -242,7 +256,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Removelast : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -252,7 +266,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Replace : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -262,7 +276,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Kill : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -272,7 +286,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Close : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -282,7 +296,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Exit : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -292,7 +306,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Ls : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -302,7 +316,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Cd : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -312,7 +326,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Pwd : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -322,7 +336,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Alias : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -332,7 +346,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Unalias : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -342,7 +356,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Source : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -354,7 +368,7 @@ public: // HACK-GE: moved from protected for win32
     public:
         ~Command_Code();
         t_CKBOOL init( Chuck_Shell * );
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
         
     private:
         map < string, Command * > commands;
@@ -368,7 +382,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_CodeContext : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
     
 //-----------------------------------------------------------------------------
@@ -378,7 +392,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_CodeSave : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 
 //-----------------------------------------------------------------------------
@@ -388,7 +402,7 @@ public: // HACK-GE: moved from protected for win32
 	class Command_CodeDelete : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 	
 //-----------------------------------------------------------------------------
@@ -398,7 +412,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_CodeAdd : public Command
     {
 	public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 	
 //-----------------------------------------------------------------------------
@@ -408,7 +422,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_CodeList : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 
 //-----------------------------------------------------------------------------
@@ -418,7 +432,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_CodePrint : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 	
 //-----------------------------------------------------------------------------
@@ -428,7 +442,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_CodeWrite : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 
 //-----------------------------------------------------------------------------
@@ -438,7 +452,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_CodeRead : public Command
     {
     public:
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
     };
 	
 //-----------------------------------------------------------------------------
@@ -449,7 +463,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
 		t_CKBOOL init( Chuck_Shell * );
-        void execute( vector< string > &, string & );
+        t_CKINT execute( vector< string > &, string & );
 	
 	private:
 		map < string, string > command_help;
