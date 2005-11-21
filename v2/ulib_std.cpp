@@ -846,7 +846,8 @@ protected:
 // global variables
 t_CKBOOL g_le_launched = FALSE;
 t_CKBOOL g_le_wait = TRUE;
-CHUCK_THREAD g_tid_le = 0;
+// CHUCK_THREAD g_tid_le = 0;
+extern CHUCK_THREAD g_tid_whatever;
 map<LineEvent *, LineEvent *> g_le_map;
 XMutex g_le_mutex;
 string g_le_what;
@@ -902,9 +903,9 @@ LineEvent::LineEvent( Chuck_Event * SELF )
     if( !g_le_launched )
     {
 #ifndef __PLATFORM_WIN32__
-        pthread_create( &g_tid_le, NULL, le_cb, NULL );
+        pthread_create( &g_tid_whatever, NULL, le_cb, NULL );
 #else
-        g_tid_le = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)le_cb, NULL, 0, 0 );
+        g_tid_whatever = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)le_cb, NULL, 0, 0 );
 #endif
         g_le_launched = TRUE;
     }
