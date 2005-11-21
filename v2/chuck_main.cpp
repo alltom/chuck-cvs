@@ -139,7 +139,7 @@ extern "C" void signal_int( int sig_num )
 #ifndef __PLATFORM_WIN32__
         // pthread_kill( g_tid_otf, 2 );
         if( g_tid_otf ) pthread_cancel( g_tid_otf );
-        if( g_tid_whatever ) pthread_cancel( g_tid_whatever );
+        if( g_tid_whatever ) pthread_kill( g_tid_whatever );
         // if( g_tid_otf ) usleep( 50000 );
         SAFE_DELETE( vm );
 #else
