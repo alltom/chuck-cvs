@@ -88,7 +88,9 @@ CK_DLL_MFUN( StrTok_set );
 CK_DLL_MFUN( StrTok_reset );
 CK_DLL_MFUN( StrTok_more );
 CK_DLL_MFUN( StrTok_next );
-CK_DLL_MFUN( StrTok_getNext );
+CK_DLL_MFUN( StrTok_next2 );
+CK_DLL_MFUN( StrTok_get );
+CK_DLL_MFUN( StrTok_size );
 
 static t_CKUINT StrTok_offset_data = 0;
 
@@ -323,9 +325,19 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "string", "next", StrTok_next );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    // add next()
-    func = make_new_mfun( "void", "getNext", StrTok_getNext );
+    // add get()
+    func = make_new_mfun( "void", "get", StrTok_next2 );
     func->add_arg( "string", "out" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add get()
+    func = make_new_mfun( "void", "get", StrTok_get );
+    func->add_arg( "int", "index" );
+    func->add_arg( "string", "out" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add size()
+    func = make_new_mfun( "int", "size", StrTok_size );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end class
@@ -1024,17 +1036,21 @@ public:
     void set( const string & line );
     void reset();
     t_CKBOOL more();
-    void read();
     string next();
+    string get( t_CKINT index );
+    t_CKINT size();
 
 protected:
     istringstream * m_ss;
     string m_next;
+    vector<string> m_tokens;
+    vector<string>::size_type m_index;
 };
 
 StrTok::StrTok()
 {
     m_ss = NULL;
+    m_index = 0;
 }
 
 StrTok::~StrTok()
@@ -1044,49 +1060,44 @@ StrTok::~StrTok()
 
 void StrTok::set( const string & line )
 {
+    string s;
+
     // delete
     SAFE_DELETE( m_ss );
     // alloc
     m_ss = new istringstream( line );
     // read
     reset();
+    m_tokens.clear();
+    while( (*m_ss) >> s )
+        m_tokens.push_back( s );    
 }
 
 void StrTok::reset()
 {
-    if( !m_ss ) return;
-
-    // move to beginning
-    m_ss->seekg( 0, ios::beg );
-    // do next
-    read();
+    m_index = 0;
 }
 
 t_CKBOOL StrTok::more()
 {
-    return m_next != "";
-}
-
-void StrTok::read()
-{
-    // reset
-    m_next = "";
-    // something to read
-    if( m_ss )
-    {
-        // read
-        (*m_ss) >> m_next;
-    }
+    return m_index < m_tokens.size();
 }
 
 string StrTok::next()
 {
-    // copy
-    string ret = m_next;
-    // read more
-    read();
+    if( !more() ) return "";
+    return m_tokens[m_index++];
+}
 
-    return ret;
+string StrTok::get( t_CKINT index )
+{
+    if( index >= (t_CKINT)m_tokens.size() ) return "";
+    return m_tokens[index];
+}
+
+t_CKINT StrTok::size()
+{
+    return (t_CKINT)m_tokens.size();
 }
 
 CK_DLL_CTOR( StrTok_ctor )
@@ -1123,13 +1134,28 @@ CK_DLL_MFUN( StrTok_next )
     RETURN->v_string = a;
 }
 
-CK_DLL_MFUN( StrTok_getNext )
+CK_DLL_MFUN( StrTok_next2 )
 {
     StrTok * tokens = (StrTok *)OBJ_MEMBER_INT(SELF, StrTok_offset_data);
     Chuck_String * a = GET_CK_STRING(ARGS);
     string s = tokens->next();
     if( a ) a->str = s;
+    RETURN->v_string = a;
 }
 
+CK_DLL_MFUN( StrTok_get )
+{
+    StrTok * tokens = (StrTok *)OBJ_MEMBER_INT(SELF, StrTok_offset_data);
+    t_CKINT index = GET_NEXT_INT(ARGS);
+    Chuck_String * a = GET_NEXT_STRING(ARGS);
+    string s = tokens->get( index );
+    if( a ) a->str = s;
+}
+
+CK_DLL_MFUN( StrTok_size )
+{
+    StrTok * tokens = (StrTok *)OBJ_MEMBER_INT(SELF, StrTok_offset_data);
+    RETURN->v_int = tokens->size();
+}
 
 #endif
