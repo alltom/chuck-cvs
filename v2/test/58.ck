@@ -1,6 +1,5 @@
 Skot skot;
 
-
 while( true )
 {
     // prompt
