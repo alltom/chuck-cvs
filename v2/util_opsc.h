@@ -390,20 +390,19 @@ class OSC_Address_Space;
 class UDP_Transmitter;
 class UDP_Receiver; 
 
-class OSC_Transmitter { 
-
+class OSC_Transmitter
+{
 protected: 
     char              _buffer[2048];
     OSCbuf            _osc;
     UDP_Transmitter * _out;
     bool              _holdMessage;
+
 public:
-
     OSC_Transmitter();
-
     OSC_Transmitter( UDP_Transmitter * out) ;
-    
-    ~OSC_Transmitter();
+    virtual ~OSC_Transmitter();
+
     void init();
     void setHost( char * host, int port);
     void addMessage( char * address, char * args, ...);
@@ -446,33 +445,37 @@ struct OSCMesg {
 struct XMutex;
 struct XThread;
 
-class UDP_Subscriber { 
+class UDP_Subscriber
+{
 public:
-		virtual int& port() = 0; //get/set the value of the subscriber's current port. 
-		virtual void onReceive( char * mesg, int mesgLen ) = 0;
+    virtual ~UDP_Subscriber() {}
+
+public:
+    virtual int& port() = 0; // get/set the value of the subscriber's current port. 
+    virtual void onReceive( char * mesg, int mesgLen ) = 0;
+
 protected: 
-		virtual bool subscribe( int port );
-		virtual bool unsubscribe();
+    virtual bool subscribe( int port );
+    virtual bool unsubscribe();
 };
 
 
-class OSC_Receiver : private UDP_Subscriber { 
-    
+class OSC_Receiver : private UDP_Subscriber
+{
 protected:
+    // UDP_Receiver*  _in;
 
-//    UDP_Receiver*  _in;
-
-//    bool           _listening;
-//    char           _inbuf[OSCINBUFSIZE];
-//    int            _inbufsize;
-//    int            _mesglen;
+    // bool           _listening;
+    // char           _inbuf[OSCINBUFSIZE];
+    // int            _inbufsize;
+    // int            _mesglen;
 	int			   _port;
 	int			   _tmp_port;
 	void		   onReceive( char * mesg, int mesgLen);
 	int &		   port();
 
     XMutex*        _io_mutex;
-    //XThread*       _io_thread;
+    // XThread*       _io_thread;
     OSCMesg        _meep;
     OSCMesg        *_inbox;
     int             _inbox_size;
@@ -488,7 +491,7 @@ public:
     
     OSC_Receiver();
     OSC_Receiver(UDP_Receiver* in);
-    ~OSC_Receiver();
+    virtual ~OSC_Receiver();
     
     //setup //takedown
     void init();
@@ -513,7 +516,6 @@ public:
     OSCMesg *next_read();
 
 
-
     bool has_mesg();
     bool get_mesg(OSCMesg* bucket);
 
@@ -526,14 +528,15 @@ public:
 
 enum osc_datatype { OSC_UNTYPED, OSC_NOARGS, OSC_INT, OSC_FLOAT, OSC_STRING, OSC_BLOB, OSC_NTYPE };
 
-struct opsc_data { 
-
+struct opsc_data
+{
     osc_datatype t;    
     OSCTimeTag timetag;
     int i;
     unsigned int u;
     float f;
     char * s;
+
     opsc_data() { 
         t = OSC_UNTYPED;
         s = NULL;
@@ -541,7 +544,6 @@ struct opsc_data {
     ~opsc_data() { 
         s = NULL;
     }
-
 };
 
 #define OSC_ADDRESS_QUEUE_MAX 32768
@@ -550,10 +552,10 @@ struct opsc_data {
 
 typedef class OSC_Address_Space OSCSrc;
 
-class OSC_Address_Space : public Chuck_Event { 
 
+class OSC_Address_Space : public Chuck_Event
+{
 protected:
-
     OSC_Receiver * _receiver;
     XMutex*        _buffer_mutex;
     char  _spec[512];
@@ -576,13 +578,12 @@ protected:
 	void scanSpec();
 
 public:
-
     Chuck_Object * SELF; 
     Chuck_String p_str;
     OSC_Address_Space();
     OSC_Address_Space( char * spec );
     OSC_Address_Space( char * addr, char * type );
-    ~OSC_Address_Space();
+    virtual ~OSC_Address_Space();
 
     // initialization
     void   init();
@@ -608,7 +609,6 @@ public:
     char * next_string();
     char * next_string_dup();
     char * next_blob();
-
 };
 
 

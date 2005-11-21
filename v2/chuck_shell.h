@@ -59,7 +59,7 @@ class Chuck_Shell
 {
 public:
     Chuck_Shell();
-    ~Chuck_Shell();
+    virtual ~Chuck_Shell();
     
     t_CKBOOL init( Chuck_VM * process_vm, Chuck_Shell_UI * );
     void run();
@@ -479,6 +479,9 @@ public: // HACK-GE: moved from protected for win32
 class Chuck_Shell_VM
 {
 public:
+    virtual ~Chuck_Shell_VM() {}
+
+public:
 	virtual Chuck_Shell_VM * copy()=0;
     virtual t_CKBOOL add_shred( const vector< string > &, string & )=0;
     virtual t_CKBOOL remove_shred( const vector< string > &, string & )=0;
@@ -497,6 +500,9 @@ public:
 class Chuck_Shell_Network_VM : public Chuck_Shell_VM
 {
 public:
+    virtual ~Chuck_Shell_Network_VM() {}
+
+public:
 	Chuck_Shell_VM * copy();
     t_CKBOOL init( const string &, t_CKINT );
     t_CKBOOL add_shred( const vector< string > &, string & );
@@ -512,12 +518,16 @@ private:
     string hostname;
     t_CKINT port;
 };
+
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_UI
 // desc: superclass to various types of Chuck UIs
 //-----------------------------------------------------------------------------
 class Chuck_Shell_UI
 {
+public:
+    virtual ~Chuck_Shell_UI() {}
+
 public:
     virtual t_CKBOOL init();
     virtual t_CKBOOL next_command( const string &, string & ) = 0;

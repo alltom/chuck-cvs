@@ -965,49 +965,49 @@ enum udp_stat { UDP_NOINIT, UDP_UNBOUND, UDP_BOUND, UDP_READY, UDP_ERROR, UDP_NU
 /* in the .h so that OSC can subclass it
 
 class UDP_Subscriber { 
-		virtual void onRecieve( char * mesg, int mesgLen ) = 0;
-		virtual bool subscribe( int port );
-		virtual bool unsubscribe();
-		virtual int& port(); //get/set the value of the subscriber's current port. 
+        virtual void onRecieve( char * mesg, int mesgLen ) = 0;
+        virtual bool subscribe( int port );
+        virtual bool unsubscribe();
+        virtual int& port(); //get/set the value of the subscriber's current port. 
 }
   
 */
 
 class DefUDP_Subscriber : public UDP_Subscriber { 
 public:
-		int _port;
-		void onReceive ( char * mesg, int mesgLen ) {} //ignore
-		int& port() { return _port; }
+        int _port;
+        void onReceive ( char * mesg, int mesgLen ) {} //ignore
+        int& port() { return _port; }
 };
 
 class UDP_Port_Listener { 
 private:
     UDP_Receiver*  m_in;
-	bool		   m_port;
-	    
-	XThread*       m_thread;
-	XMutex*		   m_mutex;
+    bool           m_port;
+        
+    XThread*       m_thread;
+    XMutex*        m_mutex;
 
     char           m_inbuf[OSCINBUFSIZE];
     int            m_inbufsize;
 
-	vector < UDP_Subscriber * > m_subscribers;
-	queue < UDP_Subscriber * > m_free;
+    vector < UDP_Subscriber * > m_subscribers;
+    queue < UDP_Subscriber * > m_free;
 
 public:
-	UDP_Port_Listener( int port );
-	~UDP_Port_Listener();
-	void init();
-	bool bind_to_port(int port);
-	void close();
-	bool listen();
-	int recv_mesg();
-	bool add ( UDP_Subscriber * );
-	bool drop ( UDP_Subscriber * );
-	int  nsubs(); 
+    UDP_Port_Listener( int port );
+    ~UDP_Port_Listener();
+    void init();
+    bool bind_to_port(int port);
+    void close();
+    bool listen();
+    int recv_mesg();
+    bool add ( UDP_Subscriber * );
+    bool drop ( UDP_Subscriber * );
+    int  nsubs(); 
 
-	bool		   listening;
-	
+    bool           listening;
+    
 };
 
 
@@ -1016,16 +1016,16 @@ class UDP_Port_Manager {
 
 private:
 
-	static UDP_Port_Manager* _inst;
-	map < int, UDP_Port_Listener* > _listeners;
+    static UDP_Port_Manager* _inst;
+    map < int, UDP_Port_Listener* > _listeners;
 
 public:
 
-	static UDP_Port_Manager* instance();
-	UDP_Port_Manager();
-	void init();
-	bool subscribe ( UDP_Subscriber * sub, int port );
-	bool unsubscribe ( UDP_Subscriber * sub );
+    static UDP_Port_Manager* instance();
+    UDP_Port_Manager();
+    void init();
+    bool subscribe ( UDP_Subscriber * sub, int port );
+    bool unsubscribe ( UDP_Subscriber * sub );
 };
 
 
@@ -1051,7 +1051,7 @@ public:
     bool bind_to_port(int port);
     int recv_next(char *buffer, int size);   
     void close_sock();
-	udp_stat status();
+    udp_stat status();
     
 };
 
@@ -1067,7 +1067,7 @@ public:
     UDP_Transmitter() { 
         _status = UDP_NOINIT; 
     }
-    ~UDP_Transmitter() {}
+    virtual ~UDP_Transmitter() {}
     void  init();
     
     void  set_host(char * hostaddress, int port);
@@ -1079,81 +1079,81 @@ public:
 
 UDP_Port_Manager * UDP_Port_Manager::_inst = NULL;
 UDP_Port_Manager * UDP_Port_Manager::instance() { 
-	if (_inst == NULL ) { 
-		_inst = new UDP_Port_Manager();
-		assert ( _inst );
-	}
-	return _inst; 
+    if (_inst == NULL ) { 
+        _inst = new UDP_Port_Manager();
+        assert ( _inst );
+    }
+    return _inst; 
 }
 
 UDP_Port_Manager::UDP_Port_Manager() {
-	init();
+    init();
 }
 
 void
 UDP_Port_Manager::init() {
-	_listeners.clear();
+    _listeners.clear();
 }
 
 bool
 UDP_Port_Manager::subscribe ( UDP_Subscriber * sub, int port ) { 
-	if ( _listeners.count( port ) == 0 ) { 
-		EM_log (CK_LOG_INFO, "PortManager:  starting Listener on %d", port );
-		_listeners[port] = new UDP_Port_Listener( port ); //make a new listener on this port
-	}
-	return _listeners[port]->add( sub );
+    if ( _listeners.count( port ) == 0 ) { 
+        EM_log (CK_LOG_INFO, "PortManager:  starting Listener on %d", port );
+        _listeners[port] = new UDP_Port_Listener( port ); //make a new listener on this port
+    }
+    return _listeners[port]->add( sub );
 }
 
 bool
 UDP_Port_Manager::unsubscribe( UDP_Subscriber * sub ) { 
-	if ( sub->port() < 0 ) { 
-		EM_log ( CK_LOG_INFO, "error, subscriber's port < 0, return false" );
-		return false; 
-	}
-	if ( _listeners.count( sub->port() ) == 0 ) { 
-		EM_log ( CK_LOG_INFO, "error, cannot unsubscribe: port %d not in use", sub->port() );
-		return false; 
-	}
-	else { 
-		int pp = sub->port();
-		UDP_Port_Listener* listener = _listeners[pp]; 
-		bool ret = listener->drop( sub );
-		//check empty 
-		if ( listener->nsubs() == 0 ) { 
-			EM_log( CK_LOG_INFO, "PortManager: Listener on port %d is empty - removing", sub->port() );			
-			delete listener;
-			_listeners.erase( pp );
-		}
-		return ret; 
-	}
+    if ( sub->port() < 0 ) { 
+        EM_log ( CK_LOG_INFO, "error, subscriber's port < 0, return false" );
+        return false; 
+    }
+    if ( _listeners.count( sub->port() ) == 0 ) { 
+        EM_log ( CK_LOG_INFO, "error, cannot unsubscribe: port %d not in use", sub->port() );
+        return false; 
+    }
+    else { 
+        int pp = sub->port();
+        UDP_Port_Listener* listener = _listeners[pp]; 
+        bool ret = listener->drop( sub );
+        //check empty 
+        if ( listener->nsubs() == 0 ) { 
+            EM_log( CK_LOG_INFO, "PortManager: Listener on port %d is empty - removing", sub->port() );         
+            delete listener;
+            _listeners.erase( pp );
+        }
+        return ret; 
+    }
 
 }
 
 UDP_Port_Listener::UDP_Port_Listener( int port ) : 
-	m_inbufsize( OSCINBUFSIZE ),
-		listening( false )	
-	{ 
-	init();
-	m_in->bind_to_port( port );
-	listen();
+    m_inbufsize( OSCINBUFSIZE ),
+        listening( false )  
+    { 
+    init();
+    m_in->bind_to_port( port );
+    listen();
 }
 
 UDP_Port_Listener::~UDP_Port_Listener() { 
-	//fprintf(stderr , "port listener destructor\n"); 
-	close();
-	// usleep( 10 );	// do we need this ? 
-	delete m_in;
-	delete m_mutex;
-	delete m_thread;
+    //fprintf(stderr , "port listener destructor\n"); 
+    close();
+    // usleep( 10 );    // do we need this ? 
+    delete m_in;
+    delete m_mutex;
+    delete m_thread;
 }
 
 void
 UDP_Port_Listener::init() { 
-	memset( (void*)m_inbuf, '\0', m_inbufsize * sizeof(char) );
-	m_thread = new XThread();
-	m_mutex  = new XMutex();
-	m_in = new UDP_Receiver();
-	m_in->init();
+    memset( (void*)m_inbuf, '\0', m_inbufsize * sizeof(char) );
+    m_thread = new XThread();
+    m_mutex  = new XMutex();
+    m_in = new UDP_Receiver();
+    m_in->init();
 }
 
 int
@@ -1162,18 +1162,18 @@ UDP_Port_Listener::nsubs() { return m_subscribers.size(); }
 bool
 UDP_Port_Listener::add( UDP_Subscriber * sub ) { 
     m_mutex->acquire();
-	if ( find ( m_subscribers.begin(), m_subscribers.end(), sub ) == m_subscribers.end() ) { 
-		EM_log (CK_LOG_INFO, "UDP_Port_Listener: adding subscriber" );
-		m_subscribers.push_back( sub );
-		sub->port() = m_port;	
-		m_mutex->release();
-		return true;
-	}
-	else { 
-		EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
-		m_mutex->release();
-		return false;
-	}
+    if ( find ( m_subscribers.begin(), m_subscribers.end(), sub ) == m_subscribers.end() ) { 
+        EM_log (CK_LOG_INFO, "UDP_Port_Listener: adding subscriber" );
+        m_subscribers.push_back( sub );
+        sub->port() = m_port;   
+        m_mutex->release();
+        return true;
+    }
+    else { 
+        EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
+        m_mutex->release();
+        return false;
+    }
 }
 
 
@@ -1181,19 +1181,19 @@ bool
 UDP_Port_Listener::drop( UDP_Subscriber * sub ) { 
 
     m_mutex->acquire();
-	vector < UDP_Subscriber * >::iterator m_iter = find ( m_subscribers.begin(), m_subscribers.end(), sub );
-	if ( m_iter != m_subscribers.end() ) { 
-		EM_log (CK_LOG_INFO, "UDP_Port_Listener: dropping subscriber" );
-		m_subscribers.erase( m_iter );
-		sub->port() = -1;
-		m_mutex->release();
-		return true;
-	}
-	else { 
-		EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
-		m_mutex->release();
-		return false;
-	}
+    vector < UDP_Subscriber * >::iterator m_iter = find ( m_subscribers.begin(), m_subscribers.end(), sub );
+    if ( m_iter != m_subscribers.end() ) { 
+        EM_log (CK_LOG_INFO, "UDP_Port_Listener: dropping subscriber" );
+        m_subscribers.erase( m_iter );
+        sub->port() = -1;
+        m_mutex->release();
+        return true;
+    }
+    else { 
+        EM_log (CK_LOG_INFO, "UDP_Port_Listener::add - error subscriber already exists" );
+        m_mutex->release();
+        return false;
+    }
 }
 
 
@@ -1205,14 +1205,14 @@ THREAD_RETURN ( THREAD_TYPE udp_port_listener_thread ) ( void * data )
     if( Chuck_VM::our_priority != 0x7fffffff )
         Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
 
-	EM_log ( CK_LOG_INFO, "UDP_Port_Listener:: starting receive loop\n" );
-	int mLen;
+    EM_log ( CK_LOG_INFO, "UDP_Port_Listener:: starting receive loop\n" );
+    int mLen;
     do {
         mLen = upl->recv_mesg();
         usleep( 10 );
     } while( mLen != 0 );
 
-	EM_log ( CK_LOG_INFO, "UDP_Port_Listener:: receive loop terminated\n" );
+    EM_log ( CK_LOG_INFO, "UDP_Port_Listener:: receive loop terminated\n" );
 
     return (THREAD_RETURN)0;
 }
@@ -1223,35 +1223,35 @@ THREAD_RETURN ( THREAD_TYPE udp_port_listener_thread ) ( void * data )
 //was made. 
 bool
 UDP_Port_Listener::listen() { 
-	if ( !listening && m_in->status() != UDP_ERROR ) { 
-		listening = true;
-		m_thread->start( udp_port_listener_thread, (void*) this );
-		return true;
-	}
-	return false;
+    if ( !listening && m_in->status() != UDP_ERROR ) { 
+        listening = true;
+        m_thread->start( udp_port_listener_thread, (void*) this );
+        return true;
+    }
+    return false;
 }
 
 bool
 UDP_Port_Listener::bind_to_port(int port) {
-	return m_in->bind_to_port( port );
+    return m_in->bind_to_port( port );
 }
 
 void
 UDP_Port_Listener::close() { 
-	if ( m_in->status() == UDP_BOUND ) { 
-		listening = false;
-		m_in->close_sock();
-	}
+    if ( m_in->status() == UDP_BOUND ) { 
+        listening = false;
+        m_in->close_sock();
+    }
 }
 
 int
 UDP_Port_Listener::recv_mesg() { 
-	int mLen = m_in->recv_next( m_inbuf, m_inbufsize );
-	
-	if ( mLen == 0 ) { 
-		EM_log( CK_LOG_INFO, "recvLen 0 on socket, returning 0" );
-		return 0;
-	}
+    int mLen = m_in->recv_next( m_inbuf, m_inbufsize );
+    
+    if ( mLen == 0 ) { 
+        EM_log( CK_LOG_INFO, "recvLen 0 on socket, returning 0" );
+        return 0;
+    }
 
     m_mutex->acquire();
     for ( int i = 0 ; i < m_subscribers.size(); i++ ) {
@@ -1259,36 +1259,36 @@ UDP_Port_Listener::recv_mesg() {
     }
     m_mutex->release();
 
-	return mLen;
+    return mLen;
 }
 
 
 //UDP_Subscriber
 bool
 UDP_Subscriber::subscribe( int p ) { 
-	if ( port() >= 0 ) return false; //already subscribed 
-	else if ( UDP_Port_Manager::instance()->subscribe( this, p ) ) 
-	{ 
-		port() = p;
-		return true;
-	}
-	else 
-	{ 
-		port() = -1;
-		return false;
-	}
+    if ( port() >= 0 ) return false; //already subscribed 
+    else if ( UDP_Port_Manager::instance()->subscribe( this, p ) ) 
+    { 
+        port() = p;
+        return true;
+    }
+    else 
+    { 
+        port() = -1;
+        return false;
+    }
 }
 
 bool 
 UDP_Subscriber::unsubscribe() { 
-	if ( port() < 0 ) return false; //currently unsubscribed
-	else if ( UDP_Port_Manager::instance()->unsubscribe( this ) ) { 
-		port() = -1;
-		return true;
-	}
-	else {
-		return false; //could not unsubscribe? 
-	}
+    if ( port() < 0 ) return false; //currently unsubscribed
+    else if ( UDP_Port_Manager::instance()->unsubscribe( this ) ) { 
+        port() = -1;
+        return true;
+    }
+    else {
+        return false; //could not unsubscribe? 
+    }
 }
 
 
@@ -1311,13 +1311,13 @@ UDP_Receiver::init() {
 bool
 UDP_Receiver::bind_to_port(int port) { 
 
-	// Fill in the interface information
-	_status =  ( ck_bind ( _sock, port ) ) ?  UDP_BOUND : UDP_ERROR ;
-	if ( _status == UDP_ERROR ) { 
-		EM_log( CK_LOG_SYSTEM, "[chuck](via OSC): cannot bind to %d!\n", port); 
-		return false;
-	}
-	return true;
+    // Fill in the interface information
+    _status =  ( ck_bind ( _sock, port ) ) ?  UDP_BOUND : UDP_ERROR ;
+    if ( _status == UDP_ERROR ) { 
+        EM_log( CK_LOG_SYSTEM, "[chuck](via OSC): cannot bind to %d!\n", port); 
+        return false;
+    }
+    return true;
 }
 
 udp_stat
@@ -1476,39 +1476,39 @@ OSC_Transmitter::addMessage( char *address, char * args, ...) {
 
 void
 OSC_Transmitter::startMessage( char * spec ) { 
-	char * comma = strchr( spec, ',');
-	char * space = strchr ( spec, ' ');
-	int coff = ( comma == NULL ) ? strlen(spec) : comma - spec; 
-	int spoff = ( space == NULL ) ? strlen(spec) : space - spec; 
-	int off = min ( coff, spoff );
-	startMessage( spec, spec + off );
+    char * comma = strchr( spec, ',');
+    char * space = strchr ( spec, ' ');
+    int coff = ( comma == NULL ) ? strlen(spec) : comma - spec; 
+    int spoff = ( space == NULL ) ? strlen(spec) : space - spec; 
+    int off = min ( coff, spoff );
+    startMessage( spec, spec + off );
 }
 
 void
 OSC_Transmitter::startMessage( char * address, char* args ) { 
 //    OSC_writeAddressAndTypes( &_osc, address, args );
-	char addrfix[512];
-	int addrlen = strlen( address );
-	int mx = strlen(address) + strlen(args) + 1; //either we need to add a comma to args,
-	// or it's got junk in it. 
-	//char addrfix[] = new char[mx]; //(char*) malloc( mx * sizeof( char ) );
-	strcpy ( addrfix, address );
-	addrfix[addrlen] = '\0';
-	addrfix[addrlen+1] = ',';
-	char * argptr = addrfix + (addrlen + 2);
-	char * p_args = args;
-	while ( *p_args != '\0' ) { 
-		if ( *p_args != ',' && *p_args != ' ' ) {
-			*argptr = *p_args; 
-			argptr++;
-		}
-		p_args++;
-	}	
-	*argptr = '\0';
+    char addrfix[512];
+    int addrlen = strlen( address );
+    int mx = strlen(address) + strlen(args) + 1; //either we need to add a comma to args,
+    // or it's got junk in it. 
+    //char addrfix[] = new char[mx]; //(char*) malloc( mx * sizeof( char ) );
+    strcpy ( addrfix, address );
+    addrfix[addrlen] = '\0';
+    addrfix[addrlen+1] = ',';
+    char * argptr = addrfix + (addrlen + 2);
+    char * p_args = args;
+    while ( *p_args != '\0' ) { 
+        if ( *p_args != ',' && *p_args != ' ' ) {
+            *argptr = *p_args; 
+            argptr++;
+        }
+        p_args++;
+    }   
+    *argptr = '\0';
 
     OSC_writeAddressAndTypes( &_osc, addrfix, addrfix + addrlen + 1);  //expects the ',' before spec tag.
-//	delete[] addrfix;
-	//free ( (void*)addrfix );
+//  delete[] addrfix;
+    //free ( (void*)addrfix );
     tryMessage();
 }
 
@@ -1605,18 +1605,18 @@ OSC_Receiver::OSC_Receiver():
 
 OSC_Receiver::OSC_Receiver(UDP_Receiver* in) {
 //    _in   = in;
-	_port = -1;
+    _port = -1;
 }
 
 void 
 OSC_Receiver::init(){ 
-	_port = -1;
+    _port = -1;
 //   _in->init();
 }
 
-OSC_Receiver::~OSC_Receiver() {
-
-	stopListening();
+OSC_Receiver::~OSC_Receiver()
+{
+    stopListening();
     for ( int i=0; i < _inbox_size; i++ ) { 
         if ( _inbox[i].payload ) { 
             free ( _inbox[i].payload );
@@ -1624,7 +1624,6 @@ OSC_Receiver::~OSC_Receiver() {
         }
         free ( _inbox );
     }
-	
 
     //delete _in;
 }
@@ -1651,54 +1650,54 @@ OSC_Receiver::port() { return _port; }
 
 void 
 OSC_Receiver::onReceive( char * mesg, int mesgLen ) { 
-	handle_mesg( mesg, mesgLen );
+    handle_mesg( mesg, mesgLen );
 }
 
 void
 OSC_Receiver::bind_to_port(int port ) { 
-	_tmp_port = port;
+    _tmp_port = port;
 //    _in->bind_to_port(port);
 }
 
 bool
 OSC_Receiver::listen( int port ) { 
-	bind_to_port ( port );
-	return listen();
+    bind_to_port ( port );
+    return listen();
 }
 
 void
 OSC_Receiver::stopListening() { 
-	unsubscribe();
+    unsubscribe();
 }
 
 bool
 OSC_Receiver::listen() { 
-	unsubscribe(); //in case we're connected. 
-	return subscribe( _tmp_port );
-	/*
+    unsubscribe(); //in case we're connected. 
+    return subscribe( _tmp_port );
+    /*
     if ( !_listening ) { 
         _listening = true;
         _io_thread->start( osc_recv_thread, (void*)this );
     }
     return _listening;
-	*/
+    */
 }
 
 
 
 void
 OSC_Receiver::close_sock() { 
-	unsubscribe();
+    unsubscribe();
 //   _in->close_sock();
 }
 
 void
 OSC_Receiver::recv_mesg() { 
-	//this is when OSC_Receiver was 
-	//used as the port-manager.  now this code ( and callback ) are in UDP_Port_Listener interface,
-	//which OSC_Receiver subclasses 
-	/*
-	_mesglen = _in->recv_next( _inbuf, _inbufsize );
+    //this is when OSC_Receiver was 
+    //used as the port-manager.  now this code ( and callback ) are in UDP_Port_Listener interface,
+    //which OSC_Receiver subclasses 
+    /*
+    _mesglen = _in->recv_next( _inbuf, _inbufsize );
    if ( _mesglen > 0 ) { 
        //parse();
        handle_mesg(_inbuf, _mesglen);
@@ -2050,48 +2049,48 @@ OSC_Address_Space::setReceiver(OSC_Receiver * recv) {
 
 void
 OSC_Address_Space::setSpec( char *addr, char * types ) { 
-	strncpy ( _spec, addr, 512 );
-	strncat ( _spec, "," , 512);
-	strncat ( _spec, types, 512 );
-	scanSpec();
+    strncpy ( _spec, addr, 512 );
+    strncat ( _spec, "," , 512);
+    strncat ( _spec, types, 512 );
+    scanSpec();
     _needparse = true; 
     parseSpec(); 
 }
 
 void   
 OSC_Address_Space::setSpec( char *c ) { 
-	strncpy ( _spec, c, 512); 
-	scanSpec();
+    strncpy ( _spec, c, 512); 
+    scanSpec();
     _needparse = true; 
     parseSpec(); 
 }
  
 void
 OSC_Address_Space::scanSpec() { //this allows for sloppy-ish definitions in type string
-	//assumes that a potential spec is already in _spec;
-	char * pread;
-	char * pwrite;
-	pread = pwrite = (char*)_spec;
-	bool in_type = false;
-	while ( *pread != '\0' ) { 
-		if ( *pread == ',' || *pread == ' ' ) { 
-			if ( !in_type ) {
-				in_type = true;
-				*pwrite = ',';
-				pwrite++;
-			} //otherwise, we ignore
-		}
-		else { 
-			if ( pwrite != pread ) { *pwrite = *pread; }
-			pwrite++;
-		}
-		pread++;
-	}
-	if ( !in_type ) {
-		//no type args found, add a comma to indicate a zero-arg string. 
-		*(pwrite++) = ',';
-	}
-	*pwrite = '\0'; //if pread terminates, so does pwrite. 
+    //assumes that a potential spec is already in _spec;
+    char * pread;
+    char * pwrite;
+    pread = pwrite = (char*)_spec;
+    bool in_type = false;
+    while ( *pread != '\0' ) { 
+        if ( *pread == ',' || *pread == ' ' ) { 
+            if ( !in_type ) {
+                in_type = true;
+                *pwrite = ',';
+                pwrite++;
+            } //otherwise, we ignore
+        }
+        else { 
+            if ( pwrite != pread ) { *pwrite = *pread; }
+            pwrite++;
+        }
+        pread++;
+    }
+    if ( !in_type ) {
+        //no type args found, add a comma to indicate a zero-arg string. 
+        *(pwrite++) = ',';
+    }
+    *pwrite = '\0'; //if pread terminates, so does pwrite. 
 }
 
 void
@@ -2122,7 +2121,7 @@ OSC_Address_Space::parseSpec() {
 void
 OSC_Address_Space::resizeQueue( int n ) { 
         if ( n <= _queueSize ) return; //only grows
-		
+        
         _buffer_mutex->acquire();
 
         //it's possible that between the test above and now, 
@@ -2354,7 +2353,7 @@ OSC_Address_Space::queue_mesg ( OSCMesg* m )
                 _vals[i].s = (char *) realloc ( _vals[i].s, clen * sizeof(char) );
                 memcpy ( _vals[i].s, data, clen ); //make a copy of the data...
                 //fprintf(stderr, "add string |%s| ( %d ) \n", _vals[i].s, clen  );
-				data += (((clen-1) >> 2) + 1) << 2;
+                data += (((clen-1) >> 2) + 1) << 2;
                 //data += clen + 4 - clen % 4;
             break;
             case 'b':
