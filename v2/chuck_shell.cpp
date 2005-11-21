@@ -1248,7 +1248,7 @@ t_CKINT Chuck_Shell::Command_Alias::execute( vector< string > & argv,
                                              string & out )
 {
     t_CKINT i, len = argv.size();
-    string::type_size j;
+    string::size_type j;
     string a, b;
     
     for( i = 0; i < len; i++ )
