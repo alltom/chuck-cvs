@@ -43,7 +43,7 @@ class Chuck_Console : public Chuck_Shell_UI
 {
 public:
     Chuck_Console();
-    ~Chuck_Console();
+    virtual ~Chuck_Console();
 
     t_CKBOOL init();
     t_CKBOOL next_command( const string &, string &);

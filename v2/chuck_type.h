@@ -155,7 +155,7 @@ public:
     // -1 base, 0 current, 1 climb
     T lookup( S_Symbol xid, t_CKINT climb = 1 )
     {
-        Chuck_VM_Object * val; assert( scope.size() != 0 );
+        Chuck_VM_Object * val = NULL; assert( scope.size() != 0 );
 
         if( climb == 0 )
         {
