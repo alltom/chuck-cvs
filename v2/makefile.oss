@@ -3,7 +3,7 @@ CXX=gcc
 LEX=flex
 YACC=bison
 INCLUDES=
-FLAGS=-D__LINUX_OSS__ -O3 -c -Wall
+FLAGS=-D__LINUX_OSS__ -O3 -c
 LIBS=-lpthread -lstdc++ -ldl -lm
 SF_OBJ=util_sndfile.o
 
