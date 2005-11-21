@@ -533,7 +533,7 @@ void Chuck_Shell::continue_code( string & in )
         char buf[16];
         scope++;
 #ifndef __PLATFORM_WIN32__
-        snprintf( buf, 16, "code %2d> ", scope );
+        snprintf( buf, 16, "code %2d> ", (int)scope );
 #else
         sprintf( buf, "code %2d> ", scope);
 #endif
@@ -546,7 +546,7 @@ void Chuck_Shell::continue_code( string & in )
         char buf[16];
         scope--;
 #ifndef __PLATFORM_WIN32__
-        snprintf( buf, 16, "code %2d> ", scope );
+        snprintf( buf, 16, "code %2d> ", (int)scope );
 #else
         sprintf( buf, "code %2d> ", scope);
 #endif
@@ -890,7 +890,7 @@ t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
 string Chuck_Shell_Network_VM::fullname()
 {
     char buf[16];
-    sprintf( buf, ":%u", port );
+    sprintf( buf, ":%u", (int)port );
     
     return hostname + buf;
 }
