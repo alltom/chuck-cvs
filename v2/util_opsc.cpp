@@ -1248,13 +1248,14 @@ int
 UDP_Port_Listener::recv_mesg() { 
     int mLen = m_in->recv_next( m_inbuf, m_inbufsize );
     
-    if ( mLen == 0 ) { 
+    if( mLen == 0 ) { 
         EM_log( CK_LOG_INFO, "recvLen 0 on socket, returning 0" );
         return 0;
     }
 
     m_mutex->acquire();
-    for ( int i = 0 ; i < m_subscribers.size(); i++ ) {
+    vector<UDP_Subscriber *>::size_type i;
+    for( i = 0 ; i < m_subscribers.size(); i++ ) {
         m_subscribers[i]->onReceive( m_inbuf, mLen );
     }
     m_mutex->release();
@@ -1485,13 +1486,14 @@ OSC_Transmitter::startMessage( char * spec ) {
 }
 
 void
-OSC_Transmitter::startMessage( char * address, char* args ) { 
-//    OSC_writeAddressAndTypes( &_osc, address, args );
+OSC_Transmitter::startMessage( char * address, char* args )
+{ 
+    // OSC_writeAddressAndTypes( &_osc, address, args );
     char addrfix[512];
     int addrlen = strlen( address );
-    int mx = strlen(address) + strlen(args) + 1; //either we need to add a comma to args,
+    // int mx = strlen(address) + strlen(args) + 1; // either we need to add a comma to args,
     // or it's got junk in it. 
-    //char addrfix[] = new char[mx]; //(char*) malloc( mx * sizeof( char ) );
+    // char addrfix[] = new char[mx]; // (char*) malloc( mx * sizeof( char ) );
     strcpy ( addrfix, address );
     addrfix[addrlen] = '\0';
     addrfix[addrlen+1] = ',';
