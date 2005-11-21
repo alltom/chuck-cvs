@@ -1247,7 +1247,8 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_Alias::execute( vector< string > & argv,
                                              string & out )
 {
-    t_CKINT i, j, len = argv.size();
+    t_CKINT i, len = argv.size();
+    string::type_size j;
     string a, b;
     
     for( i = 0; i < len; i++ )
@@ -1550,7 +1551,9 @@ t_CKINT Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
         vm_no = strtoul( argv[i].c_str(), NULL, 10 );
         if( vm_no == 0 && errno == EINVAL || caller->vms.size() <= vm_no || 
             caller->vms[vm_no] == NULL )
+        {
             out += "error: invalid VM id: " + argv[i] + "\n";
+        }
         else
         {
             SAFE_DELETE( caller->vms[vm_no] );
