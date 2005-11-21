@@ -870,7 +870,7 @@ void * le_cb( void * p )
         if( !g_vm ) break;
 
         // do the prompt
-        cout << g_le_what << " ";
+        cout << g_le_what;
         cout.flush();
         if( !cin.getline( line, 2048 ) ) break;
 
@@ -928,6 +928,7 @@ void LineEvent::prompt( const string & what )
 {
     // set what
     g_le_what = what;
+    if( g_le_what != "" ) g_le_what += " ";
     // signal
     g_le_wait = FALSE;
 }
