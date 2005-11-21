@@ -361,7 +361,7 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
             {
                 // print it
                 EM_error2( 0, "MidiIn: couldn't open MIDI port %i...", device_num );
-                const char * e = err.getMessage().c_str();
+                // const char * e = err.getMessage().c_str();
                 // EM_error2( 0, "...(%s)", err.getMessage().c_str() );
             }
             delete cbuf;
@@ -554,7 +554,7 @@ t_CKBOOL MidiOutManager::open( MidiOut * mout, t_CKINT device_num )
             {
                 // print it
                 EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
-                const char * e = err.getMessage().c_str();
+                // const char * e = err.getMessage().c_str();
                 // EM_error2( 0, "...(%s)", err.getMessage().c_str() );
             }
             return FALSE;

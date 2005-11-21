@@ -213,7 +213,7 @@ Chuck_Shell::Chuck_Shell()
 //-----------------------------------------------------------------------------
 Chuck_Shell::~Chuck_Shell()
 {
-    t_CKINT i, len = allocated_commands.size();    
+    vector<string>::size_type i, len = allocated_commands.size();    
 
     //iterate through commands, delete the associated heap data
     for( i = 0; i != len; i++ )
@@ -665,7 +665,7 @@ t_CKBOOL Chuck_Shell_Network_VM::add_shred( const vector< string > & files,
 {
     t_CKINT i = 0;
     t_CKBOOL return_val;
-    t_CKINT j, str_len, vec_len = files.size() + 1;
+    vector<string>::size_type j, str_len, vec_len = files.size() + 1;
     char ** argv = new char * [ vec_len ];
     
     /* prepare an argument vector to submit to otf_send_cmd */
@@ -707,7 +707,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_shred( const vector< string > & ids,
 {
     t_CKINT i = 0;
     t_CKBOOL return_val;
-    t_CKINT j, str_len, vec_len = ids.size() + 1;
+    vector<string>::size_type j, str_len, vec_len = ids.size() + 1;
     char ** argv = new char * [ vec_len ];
     
     /* prepare an argument vector to submit to otf_send_cmd */
@@ -793,7 +793,7 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     
     t_CKINT i = 0;
     t_CKBOOL return_val;
-    t_CKINT j, str_len, vec_len = vec.size() + 1;
+    vector<string>::size_type j, str_len, vec_len = vec.size() + 1;
     char ** argv = new char * [ vec_len ];
     
     /* prepare an argument vector to submit to otf_send_cmd */
@@ -1247,7 +1247,7 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_Alias::execute( vector< string > & argv,
                                              string & out )
 {
-    t_CKINT i, len = argv.size();
+    vector<string>::size_type i, len = argv.size();
     string::size_type j;
     string a, b;
     
@@ -1293,7 +1293,7 @@ t_CKINT Chuck_Shell::Command_Alias::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_Unalias::execute( vector< string > & argv,
                                                string & out )
 {
-    t_CKINT i, len = argv.size();
+    vector<string>::size_type i, len = argv.size();
     
     for( i = 0; i < len; i++ )
     {
@@ -1314,7 +1314,7 @@ t_CKINT Chuck_Shell::Command_Unalias::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_Source::execute( vector< string > & argv,
                                               string & out )
 {
-    t_CKINT i, len = argv.size();
+    vector<string>::size_type i, len = argv.size();
     char line_buf[255];
     string line, temp;
 
@@ -1404,7 +1404,7 @@ t_CKBOOL Chuck_Shell::Command_VM::init( Chuck_Shell * caller )
 //-----------------------------------------------------------------------------
 Chuck_Shell::Command_VM::~Command_VM()
 {
-    t_CKINT i, len = allocated_commands.size();
+    vector<string>::size_type i, len = allocated_commands.size();
      
     //iterate through commands, delete the associated heap data
     for( i = 0; i != len; i++ )
@@ -1544,8 +1544,7 @@ t_CKINT Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
                                                 string & out )
 {
-    t_CKINT i = 0, vm_no;
-    vector<string>::size_type len = argv.size();
+    vector<string>::size_type i = 0, vm_no, len = argv.size();
     
     for( ; i < len; i++ )
     {
@@ -1605,7 +1604,7 @@ t_CKINT Chuck_Shell::Command_VMList::execute( vector< string > & argv,
                                               string & out )
 {
     char buf[16];
-    t_CKINT i, len = caller->vms.size();
+    vector<string>::size_type i, len = caller->vms.size();
     
     if( caller->current_vm != NULL )
         out += string("current VM: ") + caller->current_vm->fullname() + "\n";
@@ -1711,7 +1710,7 @@ t_CKBOOL Chuck_Shell::Command_Code::init( Chuck_Shell * caller )
 //-----------------------------------------------------------------------------
 Chuck_Shell::Command_Code::~Command_Code()
 {
-    t_CKINT i, len = allocated_commands.size();
+    vector<string>::size_type i, len = allocated_commands.size();
     
     //iterate through commands, delete the associated heap data
     for( i = 0; i != len; i++ )
@@ -1774,7 +1773,7 @@ t_CKINT Chuck_Shell::Command_CodeSave::execute( vector < string > & argv,
 t_CKINT Chuck_Shell::Command_CodeList::execute( vector < string > & argv,
                                                 string & out )
 {
-    map < string, string >::iterator i = caller->saved_code.begin(), 
+    map< string, string >::iterator i = caller->saved_code.begin(), 
                                      end = caller->saved_code.end();
     for( ; i != end; i++ )
         out += i->first + "\n";
@@ -1803,9 +1802,10 @@ t_CKINT Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
     
     else
     {
-        for( t_CKINT i = 0, len = argv.size(); i < len; i++ )
-        // iterate through all of the arguments, add the saved codes
+        vector<string>::size_type i, len;
+        for( i = 0, len = argv.size(); i < len; i++ )
         {
+            // iterate through all of the arguments, add the saved codes
             if( caller->saved_code.find( argv[i] ) == 
                 caller->saved_code.end() )
                 out += "error: code " + argv[i] + " not found\n";
@@ -1838,7 +1838,8 @@ t_CKINT Chuck_Shell::Command_CodePrint::execute( vector < string > & argv,
     
     else
     {
-        for( t_CKINT i = 0, len = argv.size(); i < len; i++ )
+        vector<string>::size_type i, len;
+        for( i = 0, len = argv.size(); i < len; i++ )
         {
             if( caller->saved_code.find( argv[i] ) == 
                 caller->saved_code.end() )
@@ -1850,7 +1851,7 @@ t_CKINT Chuck_Shell::Command_CodePrint::execute( vector < string > & argv,
                 string code = caller->saved_code[argv[i]];
                 
                 // strip opening and closing braces
-                t_CKINT k = code.find( "{" );
+                string::size_type k = code.find( "{" );
                 code = string( code, k + 1, code.size() - k - 1 );
                 
                 k = code.rfind( "}" );
@@ -1878,7 +1879,8 @@ t_CKINT Chuck_Shell::Command_CodeDelete::execute( vector < string > & argv,
     }
     else
     {
-        for( t_CKINT i = 0, len = argv.size(); i < len; i++ )
+        vector<string>::size_type i, len;
+        for( i = 0, len = argv.size(); i < len; i++ )
         {
             if( caller->saved_code.find( argv[i] ) == 
                 caller->saved_code.end() )
