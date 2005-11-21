@@ -7,6 +7,8 @@
   - (fixed) std.atoi() std.atof() no longer crash on null string
   - (fixed) std.fabs() now works correctly
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs
+  - (fixed) missing base class virtual destructors (thanks rasmus)
+  - (fixed) most -Wall warnings
 
 ---
 1.2.0.3
