@@ -459,9 +459,10 @@ public:
 
 public:
     // constructor
-    Chuck_DLL( const char * xid = NULL ) {
-        m_handle = NULL; m_done_query = FALSE;
-        m_id = xid ? xid : ""; m_query_func = NULL; }
+    Chuck_DLL( const char * xid = NULL )
+        : m_handle(NULL), m_id(xid ? xid : ""),
+        m_done_query(FALSE), m_query_func(NULL) 
+    { }
     // destructor
     ~Chuck_DLL() { this->unload(); }
 
