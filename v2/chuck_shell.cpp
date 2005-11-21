@@ -1544,7 +1544,8 @@ t_CKINT Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
                                                 string & out )
 {
-    t_CKINT i = 0, vm_no, len = argv.size();
+    t_CKINT i = 0, vm_no;
+    vector<string>::size_type len = argv.size();
     
     for( ; i < len; i++ )
     {
@@ -1570,7 +1571,7 @@ t_CKINT Chuck_Shell::Command_VMRemove::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
                                               string & out )
 {
-    t_CKINT new_vm;
+    vector<string>::size_type new_vm = 0;
     
     if( argv.size() < 1 )
     {
@@ -1984,7 +1985,7 @@ t_CKINT Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
         {
             // remove the file extension to get the code_name
             // or use the whole filename if there is no extension
-            t_CKINT k = argv[0].rfind( "." );
+            string::size_type k = argv[0].rfind( "." );
 
             if( k == string::npos )
                 code_name = argv[1];
