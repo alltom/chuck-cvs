@@ -18,7 +18,7 @@ while( true )
         while( perry.more() )
         {
             // get it
-            perry.getNext( out );
+            perry.next( out );
             <<< out >>>;
         }
     }   

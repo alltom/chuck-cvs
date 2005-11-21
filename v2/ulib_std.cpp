@@ -90,6 +90,7 @@ CK_DLL_MFUN( StrTok_more );
 CK_DLL_MFUN( StrTok_next );
 CK_DLL_MFUN( StrTok_next2 );
 CK_DLL_MFUN( StrTok_get );
+CK_DLL_MFUN( StrTok_get2 );
 CK_DLL_MFUN( StrTok_size );
 
 static t_CKUINT StrTok_offset_data = 0;
@@ -326,12 +327,17 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add get()
-    func = make_new_mfun( "void", "get", StrTok_next2 );
+    func = make_new_mfun( "string", "next", StrTok_next2 );
     func->add_arg( "string", "out" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add get()
-    func = make_new_mfun( "void", "get", StrTok_get );
+    func = make_new_mfun( "string", "get", StrTok_get );
+    func->add_arg( "int", "index" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add get()
+    func = make_new_mfun( "string", "get", StrTok_get2 );
     func->add_arg( "int", "index" );
     func->add_arg( "string", "out" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1147,9 +1153,20 @@ CK_DLL_MFUN( StrTok_get )
 {
     StrTok * tokens = (StrTok *)OBJ_MEMBER_INT(SELF, StrTok_offset_data);
     t_CKINT index = GET_NEXT_INT(ARGS);
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    string s = tokens->get( index );
+    a->str = s;
+    RETURN->v_string = a;
+}
+
+CK_DLL_MFUN( StrTok_get2 )
+{
+    StrTok * tokens = (StrTok *)OBJ_MEMBER_INT(SELF, StrTok_offset_data);
+    t_CKINT index = GET_NEXT_INT(ARGS);
     Chuck_String * a = GET_NEXT_STRING(ARGS);
     string s = tokens->get( index );
     if( a ) a->str = s;
+    RETURN->v_string = a;
 }
 
 CK_DLL_MFUN( StrTok_size )

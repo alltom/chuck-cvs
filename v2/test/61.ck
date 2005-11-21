@@ -6,7 +6,7 @@ string out;
 tokens.set( "a b c 3.343 2.3" );
 
 // get size
-<<< tokens.size() >>>;
+<<< "number of tokens:", tokens.size() >>>;
 
 // print out
 tokens.get( 0, out ); <<< out >>>;
