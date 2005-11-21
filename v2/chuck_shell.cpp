@@ -1244,7 +1244,8 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
 t_CKINT Chuck_Shell::Command_Alias::execute( vector< string > & argv,
                                           string & out )
 {
-    int i, j, len = argv.size();
+    // GEWANG: changed from int
+    string::size_type i, j, len = argv.size();
     string a, b;
     
     for( i = 0; i < len; i++ )

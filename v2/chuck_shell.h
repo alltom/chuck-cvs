@@ -122,6 +122,10 @@ public: // HACK-GE: moved from protected for win32
     class Command
     {
     public:
+        // virtual destructor (gewang)
+        virtual ~Command() { }
+
+    public:
         virtual t_CKBOOL init( Chuck_Shell * );
         virtual t_CKINT execute( vector< string > &, string & ) = 0;
 		virtual string usage();

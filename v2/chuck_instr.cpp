@@ -3506,8 +3506,6 @@ void Chuck_Instr_Init_Loop_Counter::execute( Chuck_VM * vm, Chuck_VM_Shred * shr
 
     // copy it
     (*(t_CKINT *)m_val) = *sp >= 0 ? *sp : -*sp;
-
-    t_CKINT x = *(t_CKINT *)m_val;
 }
 
 

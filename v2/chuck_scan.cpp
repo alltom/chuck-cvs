@@ -1284,8 +1284,8 @@ t_CKBOOL type_engine_scan1_func_def( Chuck_Env * env, a_Func_Def f )
 {
     a_Arg_List arg_list = NULL;
     t_CKUINT count = 0;
-    t_CKBOOL has_code = FALSE;
-    Chuck_Value * v = NULL;
+    // t_CKBOOL has_code = FALSE;
+    // Chuck_Value * v = NULL;
 
     // if not imported, then check to make sure no reserved word conflict
     // if( f->s_type != ae_func_builtin )  // TODO: fix this
@@ -2393,18 +2393,18 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
     Chuck_Value * value = NULL;
     Chuck_Func * func = NULL;
 
-    Chuck_Type * parent = NULL;
+    // Chuck_Type * parent = NULL;
     Chuck_Value * overload = NULL;
-    Chuck_Value * override = NULL;
+    // Chuck_Value * override = NULL;
     Chuck_Value * v = NULL;
-    Chuck_Func * parent_func = NULL;
+    // Chuck_Func * parent_func = NULL;
     a_Arg_List arg_list = NULL;
-    t_CKBOOL parent_match = FALSE;
+    // t_CKBOOL parent_match = FALSE;
     string func_name = S_name(f->name);
     vector<Chuck_Value *> values;
     vector<a_Arg_List> symbols;
     t_CKUINT count = 0;
-    t_CKBOOL has_code = FALSE;  // use this for both user and imported
+    // t_CKBOOL has_code = FALSE;  // use this for both user and imported
 
     // see if we are already in a function definition
     if( env->func != NULL )

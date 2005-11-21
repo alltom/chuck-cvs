@@ -504,9 +504,6 @@ t_CKBOOL Chuck_VM::start_audio( )
 t_CKBOOL Chuck_VM::run( )
 {
     m_running = TRUE;
-    Chuck_VM_Shred * shred = NULL;
-    Chuck_Msg * msg = NULL;
-    Chuck_Event * event = NULL;
 
     // log
     EM_log( CK_LOG_SYSTEM, "starting virtual machine..." );

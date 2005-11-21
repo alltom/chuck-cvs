@@ -243,7 +243,6 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
 {
     // init as base class
     Chuck_DL_Func * func = NULL;
-    Chuck_DL_Value * value = NULL;
 
     // log
     EM_log( CK_LOG_SYSTEM, "class 'shred'" );
