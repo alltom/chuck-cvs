@@ -829,7 +829,7 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     }
     
 /* clean up heap data */
-    for( j = 0; j < vec_len; j++ )
+    for( j = 1; j < vec_len; j++ )
         delete[] argv[j];
     delete[] argv;
     
