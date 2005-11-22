@@ -294,11 +294,14 @@ int main( int argc, char ** argv )
     t_CKBOOL block = FALSE;
     t_CKBOOL enable_shell = FALSE;
     t_CKBOOL no_vm = FALSE;
-    t_CKINT  log_level = CK_LOG_SYSTEM_ERROR;
+    t_CKINT  log_level = CK_LOG_CORE;
 
     t_CKUINT files = 0;
     t_CKUINT count = 1;
     t_CKINT i;
+    
+    // set log level
+    EM_setlog( log_level );
 
     // parse command line args
     for( i = 1; i < argc; i++ )
@@ -380,10 +383,18 @@ int main( int argc, char ** argv )
                 version();
                 exit( 2 );
             }
-            else if( otf_send_cmd( argc, argv, i, g_host, g_port ) )
-                exit( 0 );
             else
             {
+                // boost log level
+                g_otf_log = CK_LOG_CORE;
+                int is_otf = FALSE;
+                if( otf_send_cmd( argc, argv, i, g_host, g_port, &is_otf ) )
+                    exit( 0 );
+                    
+                // is otf
+                if( is_otf ) exit( 1 );
+
+                // done
                 fprintf( stderr, "[chuck]: invalid flag '%s'\n", argv[i] );
                 usage();
                 exit( 1 );
@@ -422,9 +433,6 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-    // set log level
-    EM_setlog( log_level );
-	
 	// shell initialization without vm
 	if( enable_shell && no_vm )
 	{

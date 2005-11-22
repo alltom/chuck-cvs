@@ -59,7 +59,7 @@ void EM_newline( );
 #define CK_LOG_WARNING          4
 #define CK_LOG_SEVERE           3
 #define CK_LOG_SYSTEM           2
-#define CK_LOG_SYSTEM_ERROR     1
+#define CK_LOG_CORE             1
 #define CK_LOG_NONE             0  // set this to log nothing
 
 void EM_log( int, c_constr, ... );

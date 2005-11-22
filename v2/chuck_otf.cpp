@@ -56,6 +56,9 @@ extern t_CKUINT g_sigpipe_mode;
 extern "C" void signal_int( int );
 extern "C" void signal_pipe( int );
 
+// log level
+t_CKUINT g_otf_log = CK_LOG_INFO;
+
 
 //-----------------------------------------------------------------------------
 // name: otf_hton( )
@@ -275,11 +278,11 @@ ck_socket otf_send_connect( const char * host, int port )
     }
 
     if( strcmp( host, "127.0.0.1" ) )
-        fprintf( stderr, "[chuck]: connecting to %s on port %i via TCP...\n", host, port );
+        EM_log( g_otf_log, "connecting to %s on port %i via TCP...", host, port );
     
     if( !ck_connect( sock, host, port ) )
     {
-        fprintf( stderr, "[chuck]: cannot open TCP socket on %s:%i...\n", host, port );
+        fprintf( stderr, "cannot open TCP socket on %s:%i...\n", host, port );
         ck_close( sock );
         return NULL;
     }
@@ -296,13 +299,15 @@ ck_socket otf_send_connect( const char * host, int port )
 // name: otf_send_cmd()
 // desc: ...
 //-----------------------------------------------------------------------------
-int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int port )
+int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int port,
+                  int * is_otf )
 {
     Net_Msg msg;
     g_sigpipe_mode = 1;
     int tasks_total = 0, tasks_done = 0;
     ck_socket dest = NULL;
-    
+    if( is_otf ) *is_otf = TRUE;
+
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
         if( ++i >= argc )
@@ -407,7 +412,10 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
         ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     else
+    {
+        if( is_otf ) *is_otf = FALSE;
         return 0;
+    }
         
     // send
     msg.type = MSG_DONE;
@@ -420,10 +428,12 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
     if( ck_recv( dest, (char *)&msg, sizeof(msg) ) )
     {
         otf_ntoh( &msg );
-        fprintf( stderr, "[chuck(remote)]: operation %s\n", ( msg.param ? "successful" : "failed (sorry)" ) );
         if( !msg.param )
-            fprintf( stderr, "(reason): %s\n", 
-                ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) ) ;
+        {
+            fprintf( stderr, "[chuck(remote)]:operation failed (sorry)" );
+            fprintf( stderr, "...(reason: %s)\n", 
+                ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) );
+        }
     }
     else
     {

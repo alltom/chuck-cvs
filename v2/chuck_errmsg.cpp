@@ -51,14 +51,14 @@ static int lineNum = 1;
 static char g_buffer[1024] = "";
 static char g_lasterror[1024] = "[chuck]: (no error)";
 // log globals
-int g_loglevel = CK_LOG_SYSTEM_ERROR;
+int g_loglevel = CK_LOG_CORE;
 int g_logstack = 0;
 XMutex g_logmutex;
 
 // name
 static const char * g_str[] = {
     "NONE",         // 0
-    "SYSTEM_ERROR", // 1
+    "CKCORE",       // 1
     "SYSTEM",       // 2
     "SEVERE",       // 3
     "WARN!!",       // 4
