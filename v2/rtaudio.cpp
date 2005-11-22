@@ -2578,6 +2578,7 @@ void RtApiCore :: callbackEvent( AudioDeviceID deviceId, void *inData, void *out
       return;
     }
   }
+  /*
   // chuck
   else if( info->usingCallback && (stream_.mode == DUPLEX && deviceId != id) )
   {
@@ -2589,7 +2590,7 @@ void RtApiCore :: callbackEvent( AudioDeviceID deviceId, void *inData, void *out
           memcpy(outBufferList->mBuffers[handle->index[0]].mData,
                  stream_.userBuffer,
                  outBufferList->mBuffers[handle->index[0]].mDataByteSize);
-  }
+  }*/
 
 
   if ( stream_.mode == OUTPUT || ( stream_.mode == DUPLEX && deviceId == id ) ) {
