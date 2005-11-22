@@ -1203,9 +1203,6 @@ bool RtApiOss :: probeDeviceOpen(int device, StreamMode mode, int channels,
   else
     stream_.mode = mode;
 
-  // chuck
-  stream_.sub_mode = mode;
-
   // Setup the buffer conversion information structure.
   if ( stream_.doConvertBuffer[mode] ) {
     if (mode == INPUT) { // convert device to user buffer
@@ -1311,7 +1308,6 @@ void RtApiOss :: closeStream()
   }
 
   stream_.mode = UNINITIALIZED;
-  stream_.sub_mode = UNINITIALIZED;
 }
 
 void RtApiOss :: startStream()
@@ -2364,9 +2360,6 @@ bool RtApiCore :: probeDeviceOpen( int device, StreamMode mode, int channels,
       stream_.mode = mode;
   }
 
-  // chuck
-  stream_.sub_mode = mode;
-
   // Setup the device property listener for over/underload.
   err = AudioDeviceAddPropertyListener( id, iChannel, isInput,
                                         kAudioDeviceProcessorOverload,
@@ -2435,7 +2428,6 @@ void RtApiCore :: closeStream()
   }
 
   stream_.mode = UNINITIALIZED;
-  stream_.sub_mode = UNINITIALIZED;
 }
 
 void RtApiCore :: startStream()
@@ -2578,20 +2570,6 @@ void RtApiCore :: callbackEvent( AudioDeviceID deviceId, void *inData, void *out
       return;
     }
   }
-  /*
-  // chuck
-  else if( info->usingCallback && (stream_.mode == DUPLEX && deviceId != id) )
-  {
-      if( stream_.sub_mode == INPUT )
-          memcpy(stream_.userBuffer,
-                 inBufferList->mBuffers[handle->index[1]].mData,
-                 inBufferList->mBuffers[handle->index[1]].mDataByteSize);
-      else
-          memcpy(outBufferList->mBuffers[handle->index[0]].mData,
-                 stream_.userBuffer,
-                 outBufferList->mBuffers[handle->index[0]].mDataByteSize);
-  }*/
-
 
   if ( stream_.mode == OUTPUT || ( stream_.mode == DUPLEX && deviceId == id ) ) {
 

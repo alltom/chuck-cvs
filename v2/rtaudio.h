@@ -189,7 +189,6 @@ protected:
     int device[2];          // Playback and record, respectively.
     void *apiHandle;        // void pointer for API specific stream handle information
     StreamMode mode;         // OUTPUT, INPUT, or DUPLEX.
-    StreamMode sub_mode;
     StreamState state;       // STOPPED or RUNNING
     char *userBuffer;
     char *deviceBuffer;
@@ -208,7 +207,7 @@ protected:
     ConvertInfo convertInfo[2];
 
     RtApiStream()
-      :apiHandle(0), sub_mode((enum RtApi::StreamMode)-75), userBuffer(0), deviceBuffer(0) {}
+      :apiHandle(0), mode((enum RtApi::StreamMode)-75), userBuffer(0), deviceBuffer(0) {}
   };
 
   // A protected device structure for audio devices.
