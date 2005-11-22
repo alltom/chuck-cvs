@@ -263,6 +263,7 @@ void RtAudio::initialize( RtAudioApi api )
 RtApi :: RtApi()
 {
   stream_.mode = UNINITIALIZED;
+  fprintf( stderr, "mode: %d", stream_.mode );
   stream_.state = STREAM_STOPPED;
   stream_.apiHandle = 0;
   MUTEX_INITIALIZE(&stream_.mutex);
@@ -289,6 +290,7 @@ void RtApi :: openStream( int outputDevice, int outputChannels,
                          RtAudioFormat format, int sampleRate,
                          int *bufferSize, int numberOfBuffers )
 {
+    fprintf( stderr, "mode: %d", stream_.mode );
   if ( stream_.mode != UNINITIALIZED ) {
     sprintf(message_, "(via rtaudio): only one open stream allowed per class instance.");
     error(RtError::INVALID_STREAM);
@@ -3442,7 +3444,6 @@ RtApiAlsa :: ~RtApiAlsa()
 
 void RtApiAlsa :: initialize(void)
 {
-  mode = UNINITIALIZED;
   int card, subdevice, result;
   char name[64];
   const char *cardId;
