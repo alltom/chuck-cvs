@@ -9,8 +9,8 @@
 
     RtAudio WWW site: http://music.mcgill.ca/~gary/rtaudio/
 
-    RtAudio: a realtime audio i/o C++ class
-    Copyright (c) 2001-2004 Gary P. Scavone
+    RtAudio: realtime audio i/o C++ classes
+    Copyright (c) 2001-2005 Gary P. Scavone
 
     Permission is hereby granted, free of charge, to any person
     obtaining a copy of this software and associated documentation files
@@ -37,7 +37,7 @@
 */
 /************************************************************************/
 
-// RtAudio: Version 3.0.1, 22 March 2004
+// RtAudio: Version 3.0.2 (14 October 2005)
 
 #ifndef __RTAUDIO_H
 #define __RTAUDIO_H
@@ -60,6 +60,7 @@ using namespace std;
     typedef unsigned long ThreadHandle;
     typedef CRITICAL_SECTION StreamMutex;
   #endif
+
 #else // Various unix flavors with pthread support.
   #include <pthread.h>
 
@@ -133,17 +134,27 @@ class RtApi
 {
 public:
 
+  enum StreamState {
+    STREAM_STOPPED,
+    STREAM_RUNNING
+  };
+
   RtApi();
   virtual ~RtApi();
   void openStream( int outputDevice, int outputChannels,
                    int inputDevice, int inputChannels,
                    RtAudioFormat format, int sampleRate,
                    int *bufferSize, int numberOfBuffers );
+  void openStream( int outputDevice, int outputChannels,
+                   int inputDevice, int inputChannels,
+                   RtAudioFormat format, int sampleRate,
+                   int *bufferSize, int *numberOfBuffers );
   virtual void setStreamCallback( RtAudioCallback callback, void *userData ) = 0;
   virtual void cancelStreamCallback() = 0;
   int getDeviceCount(void);
   RtAudioDeviceInfo getDeviceInfo( int device );
   char * const getStreamBuffer();
+  RtApi::StreamState getStreamState() const;
   virtual void tickStream() = 0;
   virtual void closeStream();
   virtual void startStream() = 0;
@@ -164,9 +175,13 @@ protected:
     UNINITIALIZED = -75
   };
 
-  enum StreamState {
-    STREAM_STOPPED,
-    STREAM_RUNNING
+  // A protected structure used for buffer conversion.
+  struct ConvertInfo {
+    int channels;
+    int inJump, outJump;
+    RtAudioFormat inFormat, outFormat;
+    std::vector<int> inOffset;
+    std::vector<int> outOffset;
   };
 
   // A protected structure for audio streams.
@@ -190,10 +205,10 @@ protected:
     RtAudioFormat deviceFormat[2]; // Playback and record, respectively.
     StreamMutex mutex;
     CallbackInfo callbackInfo;
-    //XXX VC6 throws an error using UNINITIALIZED ( protected member ) 
+    ConvertInfo convertInfo[2];
+
     RtApiStream()
-       :apiHandle(0), sub_mode((enum RtApi::StreamMode)-75), userBuffer(0), deviceBuffer(0) {}
-    //      mode(UNINITIALIZED), state(STREAM_STOPPED),
+      :apiHandle(0), sub_mode((enum RtApi::StreamMode)-75), userBuffer(0), deviceBuffer(0) {}
   };
 
   // A protected device structure for audio devices.
@@ -224,7 +239,7 @@ protected:
   typedef float Float32;
   typedef double Float64;
 
-  char message_[256];
+  char message_[1024];
   int nDevices_;
   std::vector<RtApiDevice> devices_;
   RtApiStream stream_;
@@ -288,7 +303,7 @@ protected:
     Protected method used to perform format, channel number, and/or interleaving
     conversions between the user and device buffers.
   */
-  void convertStreamBuffer( StreamMode mode );
+  void convertBuffer( char *outBuffer, char *inBuffer, ConvertInfo &info );
 
   //! Protected common method used to perform byte-swapping on buffers.
   void byteSwapBuffer( char *buffer, int samples, RtAudioFormat format );
@@ -357,6 +372,20 @@ public:
            RtAudioFormat format, int sampleRate,
            int *bufferSize, int numberOfBuffers, RtAudioApi api=UNSPECIFIED );
 
+  //! An overloaded constructor which opens a stream and also returns \c numberOfBuffers parameter via pointer argument.
+  /*!
+    See the previous constructor call for details.  This overloaded
+    version differs only in that it takes a pointer argument for the
+    \c numberOfBuffers parameter and returns the value used by the
+    audio device (which may be different from that requested).  Note
+    that the \c numberofBuffers parameter is not used with the Linux
+    Jack, Macintosh CoreAudio, and Windows ASIO APIs.
+  */
+  RtAudio( int outputDevice, int outputChannels,
+           int inputDevice, int inputChannels,
+           RtAudioFormat format, int sampleRate,
+           int *bufferSize, int *numberOfBuffers, RtAudioApi api=UNSPECIFIED );
+
   //! The destructor.
   /*!
     Stops and closes an open stream and devices and deallocates
@@ -395,6 +424,20 @@ public:
                    int inputDevice, int inputChannels,
                    RtAudioFormat format, int sampleRate,
                    int *bufferSize, int numberOfBuffers );
+
+  //! A public method for opening a stream and also returning \c numberOfBuffers parameter via pointer argument.
+  /*!
+    See the previous function call for details.  This overloaded
+    version differs only in that it takes a pointer argument for the
+    \c numberOfBuffers parameter and returns the value used by the
+    audio device (which may be different from that requested).  Note
+    that the \c numberofBuffers parameter is not used with the Linux
+    Jack, Macintosh CoreAudio, and Windows ASIO APIs.
+  */
+  void openStream( int outputDevice, int outputChannels,
+                   int inputDevice, int inputChannels,
+                   RtAudioFormat format, int sampleRate,
+                   int *bufferSize, int *numberOfBuffers );
 
   //! A public method which sets a user-defined callback function for a given stream.
   /*!
@@ -641,6 +684,53 @@ public:
   void setStreamCallback( RtAudioCallback callback, void *userData );
   void cancelStreamCallback();
 
+  public:
+  // \brief Internal structure that provide debug information on the state of a running DSound device.
+  struct RtDsStatistics {
+    // \brief Sample Rate.
+    long sampleRate;
+    // \brief The size of one sample * number of channels on the input device.
+    int inputFrameSize; 
+    // \brief The size of one sample * number of channels on the output device.
+    int outputFrameSize; 
+    /* \brief The number of times the read pointer had to be adjusted to avoid reading from an unsafe buffer position.
+     *
+     * This field is only used when running in DUPLEX mode. INPUT mode devices just wait until the data is 
+     * available.
+     */
+    int numberOfReadOverruns;
+    // \brief The number of times the write pointer had to be adjusted to avoid writing in an unsafe buffer position.
+    int numberOfWriteUnderruns;
+    // \brief Number of bytes by attribute to buffer configuration by which writing must lead the current write pointer.
+    int writeDeviceBufferLeadBytes;
+    // \brief Number of bytes by attributable to the device driver by which writing must lead the current write pointer on this output device.
+    unsigned long writeDeviceSafeLeadBytes;
+    // \brief Number of bytes by which reading must trail the current read pointer on this input device.
+    unsigned long readDeviceSafeLeadBytes; 
+    /* \brief Estimated latency in seconds. 
+    *
+    * For INPUT mode devices, based the latency of the device's safe read pointer, plus one buffer's
+    * worth of additional latency.
+    *
+    * For OUTPUT mode devices, the latency of the device's safe write pointer, plus N buffers of 
+    * additional buffer latency.
+    *
+    * For DUPLEX devices, the sum of latencies for both input and output devices. DUPLEX devices
+    * also back off the read pointers an additional amount in order to maintain synchronization 
+    * between out-of-phase read and write pointers. This time is also included.
+    *
+    * Note that most software packages report latency between the safe write pointer 
+    * and the software lead pointer, excluding the hardware device's safe write pointer 
+    * latency. Figures of 1 or 2ms of latency on Windows audio devices are invariably of this type.
+    * The reality is that hardware devices often have latencies of 30ms or more (often much 
+    * higher for duplex operation).
+    */
+
+    double latency;
+  };
+  // \brief Report on the current state of a running DSound device.
+  static RtDsStatistics getDsStatistics();
+
   private:
 
   void initialize(void);
@@ -648,6 +738,12 @@ public:
   bool probeDeviceOpen( int device, StreamMode mode, int channels, 
                         int sampleRate, RtAudioFormat format,
                         int *bufferSize, int numberOfBuffers );
+
+  bool coInitialized;
+  bool buffersRolling;
+  long duplexPrerollBytes;
+  static RtDsStatistics statistics;
+
 };
 
 #endif
@@ -681,6 +777,9 @@ public:
   bool probeDeviceOpen( int device, StreamMode mode, int channels, 
                         int sampleRate, RtAudioFormat format,
                         int *bufferSize, int numberOfBuffers );
+
+  bool coInitialized;
+
 };
 
 #endif
