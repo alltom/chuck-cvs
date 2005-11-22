@@ -144,6 +144,7 @@ public: // HACK-GE: moved from protected for win32
         ~Command_VM();
         t_CKBOOL init( Chuck_Shell * );
         t_CKINT execute( vector< string > &, string & );
+		string usage();
     
     protected:
         map < string, Command * > commands;
@@ -372,6 +373,7 @@ public: // HACK-GE: moved from protected for win32
         ~Command_Code();
         t_CKBOOL init( Chuck_Shell * );
         t_CKINT execute( vector< string > &, string & );
+		string usage();
         
     private:
         map < string, Command * > commands;

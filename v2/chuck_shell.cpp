@@ -1432,17 +1432,31 @@ Chuck_Shell::Command_VM::~Command_VM()
 t_CKINT Chuck_Shell::Command_VM::execute( vector< string > & argv,
                                           string & out )
 {
-    if( commands.find( argv[0] ) == commands.end() )
+	if( argv.size() < 1)
+		out += "usage: " + usage() + "\n";
+
+    else if( commands.find( argv[0] ) == commands.end() )
     // command doesn't exist
         out += "error: vm " + argv[0] + ": command not found\n";
-    else
+
+	else
     // call the mapped command
     {
         Command * command = commands[argv[0]];
         argv.erase( argv.begin() );
         command->execute( argv, out );
     }
+	
     return 0;
+}
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_VM::usage()
+{
+	return "vm vm_command [args]...";
 }
 
 //-----------------------------------------------------------------------------
@@ -1738,11 +1752,13 @@ Chuck_Shell::Command_Code::~Command_Code()
 t_CKINT Chuck_Shell::Command_Code::execute( vector< string > & argv,
                                             string & out )
 {
-    if( commands.find( argv[0] ) == commands.end() )
-    {
+	if( argv.size() < 1)
+		out += "usage: " + usage() + "\n";
+	
+    else if( commands.find( argv[0] ) == commands.end() )
         // command doesn't exist
         out += "error: code " + argv[0] + ": command not found\n";
-    }
+
     else
     {
         // call the mapped command
@@ -1752,6 +1768,15 @@ t_CKINT Chuck_Shell::Command_Code::execute( vector< string > & argv,
     }
 
     return 0;
+}
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_Code::usage()
+{
+	return "code code_command [args]...";
 }
 
 //-----------------------------------------------------------------------------
