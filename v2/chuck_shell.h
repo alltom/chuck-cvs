@@ -86,7 +86,7 @@ public: // HACK-GE: these were moved from protected for win32
 
 	// helper functions
 	t_CKBOOL do_glob( const string &, string &, vector < string > & );
-    void do_code( string & );
+    void do_code( string &, string &, string command = "+ " );
     void do_code_context( string & );
 
 protected:

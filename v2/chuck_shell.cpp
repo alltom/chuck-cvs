@@ -478,7 +478,7 @@ t_CKBOOL Chuck_Shell::execute( string & in, string & out )
 			string tail = string( code, k + 1, code.size() - k - 1 );
 			code = string( code, 0, k );
 			
-			do_code( out );
+			do_code( code, out );
 			
 			tokenize_string( tail, vec );
 			
@@ -588,7 +588,7 @@ void Chuck_Shell::continue_code( string & in )
 // name: do_code()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Shell::do_code( string & out )
+void Chuck_Shell::do_code( string & code, string & out, string command )
 {
     // open a temporary file
     char * tmp_filepath = tmpnam( NULL );
@@ -602,7 +602,7 @@ void Chuck_Shell::do_code( string & out )
     fprintf( tmp_file, "%s", code.c_str() );
     fclose( tmp_file );
 
-    string argv = string( "+ " ) + tmp_filepath;
+    string argv = string( command ) + tmp_filepath;
 
     if( this->execute( argv, out ) )
         ;
@@ -1833,7 +1833,7 @@ t_CKINT Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
     if( argv.size() == 0 )
     {
         if( caller->code != "" )
-            caller->do_code( out );
+            caller->do_code( caller->code, out );
         
         else
             out += "error: no code to add\n";
@@ -1850,7 +1850,7 @@ t_CKINT Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
                 out += "error: code " + argv[i] + " not found\n";
             
             else
-                caller->do_code( out );
+                caller->do_code( caller->code, out );
         }
     }
 
