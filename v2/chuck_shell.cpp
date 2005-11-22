@@ -465,12 +465,31 @@ t_CKBOOL Chuck_Shell::execute( string & in, string & out )
     
     if( code_entry_active )
     {
-    continue_code( in );
+		continue_code( in );
     
-    if( code_entry_active == FALSE )
-        do_code( out );
-    
-    return TRUE;
+		if( code_entry_active == FALSE )
+		{
+			//strip opening and closing braces
+			string::size_type k = code.find( "{" );
+			string head = string( code, 0, k );
+			code = string( code, k + 1, code.size() - k - 1 );
+			
+			k = code.rfind( "}" );
+			string tail = string( code, k + 1, code.size() - k - 1 );
+			code = string( code, 0, k );
+			
+			do_code( out );
+			
+			tokenize_string( tail, vec );
+			
+			if( vec.size() > 0 )
+			{
+				string temp = "code save " + vec[0];
+				execute( temp, out );
+			}
+		}
+		
+		return TRUE;
     }
     
     // divide the string into white space separated substrings
@@ -574,15 +593,6 @@ void Chuck_Shell::do_code( string & out )
     // open a temporary file
     char * tmp_filepath = tmpnam( NULL );
     FILE * tmp_file = fopen( tmp_filepath, "w" );
-    
-    //strip opening and closing braces
-    string::size_type k = code.find( "{" );
-    string head = string( code, 0, k );
-    code = string( code, k + 1, code.size() - k - 1 );
-    
-    k = code.rfind( "}" );
-    string tail = string( code, k + 1, code.size() - k - 1 );
-    code = string( code, 0, k );
     
     // print out the code (for debugging)
     // printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
@@ -1815,10 +1825,7 @@ t_CKINT Chuck_Shell::Command_CodeAdd::execute( vector < string > & argv,
                 out += "error: code " + argv[i] + " not found\n";
             
             else
-            {
-                caller->code = caller->saved_code[argv[i]];
                 caller->do_code( out );
-            }
         }
     }
 
@@ -1853,13 +1860,6 @@ t_CKINT Chuck_Shell::Command_CodePrint::execute( vector < string > & argv,
             else
             {
                 string code = caller->saved_code[argv[i]];
-                
-                // strip opening and closing braces
-                string::size_type k = code.find( "{" );
-                code = string( code, k + 1, code.size() - k - 1 );
-                
-                k = code.rfind( "}" );
-                code = string( code, 0, k );
                 
                 out += argv[i] + ":\n";
                 out += code + "\n";
@@ -1944,13 +1944,6 @@ t_CKINT Chuck_Shell::Command_CodeWrite::execute( vector < string > & argv,
             }
             else
             {
-                //strip opening and closing braces
-                string::size_type k = code.find( "{" );
-                code = string( code, k + 1, code.size() - k - 1 );
-                
-                k = code.rfind( "}" );
-                code = string( code, 0, k );
-                
                 // write code to the file
                 if( fprintf( write_file, "%s", code.c_str() ) < 0 )
                     out += "error: unable to write to " + filename + "\n";
@@ -2020,9 +2013,6 @@ t_CKINT Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
                     code += buffer;
                     result = fgets( buffer, 256, read_file );
                 }
-                
-                // do_code() expects braces around the code
-                code = "{" + code + "}\n";
                 
                 caller->saved_code[code_name] = code;
             }

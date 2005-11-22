@@ -35,7 +35,6 @@
 #include "chuck_def.h"
 #include "chuck_errmsg.h"
 #include "chuck_vm.h"
-//#include "chuck_compile.h"
 
 #include <string>
 #include <map>
@@ -466,11 +465,7 @@ public: // HACK-GE: moved from protected for win32
     class Command_Help : public Command
     {
     public:
-		t_CKBOOL init( Chuck_Shell * );
         t_CKINT execute( vector< string > &, string & );
-	
-	private:
-		map < string, string > command_help;
     };
 	
 };
