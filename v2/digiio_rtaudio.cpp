@@ -478,7 +478,11 @@ BOOL__ Digitalio::tick( )
 void Digitalio::shutdown()
 {
     if( !m_init ) return;
-    if( m_start ) m_rtaudio->stopStream();
+    if( m_start )
+    {
+        if( m_use_cb ) m_rtaudio->cancelStreamCallback();
+        m_rtaudio->stopStream();
+    }
     
     m_rtaudio->closeStream();
     SAFE_DELETE( m_rtaudio );
