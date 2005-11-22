@@ -223,7 +223,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
         if( m_use_cb )
         {
             // log
-            EM_log( CK_LOG_FINE, "initializing callback..." );
+            EM_log( CK_LOG_INFO, "initializing callback..." );
             if( !callback )
             {
                 if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
@@ -236,8 +236,8 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
         }
     } catch( RtError err ) {
         // log
-        EM_log( CK_LOG_FINE, "exception caught: '%s'...", err.getMessageString() );
-        EM_log( CK_LOG_FINE, "trying %d input %d output...", 0, m_num_channels_out );
+        EM_log( CK_LOG_INFO, "exception caught: '%s'...", err.getMessageString() );
+        EM_log( CK_LOG_INFO, "trying %d input %d output...", 0, m_num_channels_out );
         try {
             m_buffer_size = buffer_size;
             // try output only
@@ -249,7 +249,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
             if( m_use_cb )
             {
                 // log
-                EM_log( CK_LOG_FINE, "initializing callback..." );
+                EM_log( CK_LOG_INFO, "initializing callback (again)..." );
                 if( !callback )
                 {
                     if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );

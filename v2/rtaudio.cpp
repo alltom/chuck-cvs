@@ -263,7 +263,6 @@ void RtAudio::initialize( RtAudioApi api )
 RtApi :: RtApi()
 {
   stream_.mode = UNINITIALIZED;
-  fprintf( stderr, "mode: %d", stream_.mode );
   stream_.state = STREAM_STOPPED;
   stream_.apiHandle = 0;
   MUTEX_INITIALIZE(&stream_.mutex);
@@ -290,7 +289,6 @@ void RtApi :: openStream( int outputDevice, int outputChannels,
                          RtAudioFormat format, int sampleRate,
                          int *bufferSize, int numberOfBuffers )
 {
-    fprintf( stderr, "mode: %d", stream_.mode );
   if ( stream_.mode != UNINITIALIZED ) {
     sprintf(message_, "(via rtaudio): only one open stream allowed per class instance.");
     error(RtError::INVALID_STREAM);
@@ -4596,8 +4594,9 @@ void RtApiAlsa :: setStreamCallback(RtAudioCallback callback, void *userData)
   // program is run as root or suid.
   pthread_attr_t attr;
   pthread_attr_init(&attr);
-  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
-  pthread_attr_setschedpolicy(&attr, SCHED_RR);
+  // chuck
+  // pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  // pthread_attr_setschedpolicy(&attr, SCHED_RR);
 
   int err = pthread_create(&info->thread, &attr, alsaCallbackHandler, &stream_.callbackInfo);
   pthread_attr_destroy(&attr);
