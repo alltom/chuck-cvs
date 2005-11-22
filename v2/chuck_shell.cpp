@@ -36,6 +36,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <ctype.h>
 #ifndef __PLATFORM_WIN32__
  #include <unistd.h>
  #include <sys/param.h>
