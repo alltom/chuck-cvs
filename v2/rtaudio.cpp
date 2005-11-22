@@ -192,7 +192,7 @@ void RtAudio::initialize( RtAudioApi api )
   if ( rtapi_ ) return;
   if ( api > 0 ) {
     // No compiled support for specified API value.
-    throw RtError( "RtAudio: no compiled support for specified API argument!", RtError::INVALID_PARAMETER );
+    throw RtError( "(via rtaudio): no compiled support for specified API!", RtError::INVALID_PARAMETER );
   }
 
   // No specified API ... search for "best" option.
@@ -256,7 +256,7 @@ void RtAudio::initialize( RtAudioApi api )
 
   if ( rtapi_ == 0 ) {
     // No devices found.
-    throw RtError( "RtAudio: no devices found for compiled audio APIs!", RtError::NO_DEVICES_FOUND );
+    throw RtError( "(via rtaudio): no devices found for compiled audio APIs!", RtError::NO_DEVICES_FOUND );
   }
 }
 
@@ -294,7 +294,7 @@ void RtApi :: openStream( int outputDevice, int outputChannels,
     error(RtError::INVALID_STREAM);
   }
 
-  if (outputChannels < 1 && inputChannels < 1) {
+  if ( outputChannels < 1 && inputChannels < 1 ) {
     sprintf(message_,"(via rtaudio): one or both 'channel' parameters must be greater than zero.");
     error(RtError::INVALID_PARAMETER);
   }
@@ -351,9 +351,9 @@ void RtApi :: openStream( int outputDevice, int outputChannels,
         result = probeDeviceOpen(device, mode, channels, sampleRate,
                                  format, bufferSize, numberOfBuffers);
       if ( result == SUCCESS ) break;
-      errorMessages.append( "    " );
+      errorMessages.append( "... " );
       errorMessages.append( message_ );
-      errorMessages.append( "\n" );
+      // errorMessages.append( "\n" );
       if ( outputDevice > 0 ) break;
       clearStreamInfo();
     }
@@ -386,9 +386,9 @@ void RtApi :: openStream( int outputDevice, int outputChannels,
         result = probeDeviceOpen( device, mode, channels, sampleRate,
                                   format, bufferSize, numberOfBuffers );
       if ( result == SUCCESS ) break;
-      errorMessages.append( "    " );
+      errorMessages.append( "... " );
       errorMessages.append( message_ );
-      errorMessages.append( "\n" );
+      // errorMessages.append( "\n" );
       if ( inputDevice > 0 ) break;
     }
   }
@@ -425,7 +425,7 @@ RtApi::StreamState RtApi :: getStreamState( void ) const
 RtAudioDeviceInfo RtApi :: getDeviceInfo( int device )
 {
   if (device > (int) devices_.size() || device < 1) {
-    sprintf(message_, "(via rtaudio): invalid device specifier (%d)!", device);
+    sprintf(message_, "(via rtaudio): invalid device specifier (%d)...", device);
     error(RtError::INVALID_DEVICE);
   }
 
