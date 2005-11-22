@@ -50,7 +50,7 @@
   #if defined(__MACOSX_CORE__)
 #define BUFFER_SIZE_DEFAULT          256
   #else
-#define BUFFER_SIZE_DEFAULT          1024
+#define BUFFER_SIZE_DEFAULT          512
   #endif
 #define NUM_BUFFERS_DEFAULT          8
 #define NUM_CHANNELS_DEFAULT         2       // number of channels

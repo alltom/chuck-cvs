@@ -3,6 +3,9 @@
   - (added) Envelope.duration( dur ), Envelope.duration()
   - (added) Envelope.keyOn(), Envelope.keyOff();
   - (added) std.srand( int ) : seed random number generator
+  - (added) RtAudio 3.2.0 -> much better latency under Window DS
+            (thanks to Gary Scavone and Robin Davies)
+  - (fixed) default bufsize=256 under OSX and 512 under all other
   - (fixed) chuck.lex compatibility under some linux
   - (fixed) std.atoi() std.atof() no longer crash on null string
   - (fixed) std.fabs() now works correctly
