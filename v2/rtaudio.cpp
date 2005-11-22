@@ -2365,7 +2365,7 @@ bool RtApiCore :: probeDeviceOpen( int device, StreamMode mode, int channels,
   }
 
   // chuck
-  stream_.mode = mode;
+  stream_.sub_mode = mode;
 
   // Setup the device property listener for over/underload.
   err = AudioDeviceAddPropertyListener( id, iChannel, isInput,
