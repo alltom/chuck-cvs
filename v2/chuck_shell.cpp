@@ -175,9 +175,11 @@ void * shell_cb( void * p )
 
     // assuming this is absolutely necessary, an assert may be better
     assert( p != NULL );
-
-    shell = ( Chuck_Shell * ) p;
     
+	shell = ( Chuck_Shell * ) p;
+    
+	//atexit( wait_for_shell );
+	
     // run the shell
     shell->run();
     
@@ -307,6 +309,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
     temp = new Command_Status();
     temp->init( this );
     commands["status"] = temp;
+    commands["^"] = temp;
     allocated_commands.push_back( temp );
     
     temp = new Command_Removeall();
@@ -1588,7 +1591,7 @@ t_CKINT Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     }
     
     SAFE_DELETE( caller->current_vm );
-    caller->current_vm = caller->vms[new_vm];
+    caller->current_vm = caller->vms[new_vm]->copy();
     out += "current VM is now " + caller->current_vm->fullname() + "\n";
     
     if( argv.size() > 1 )
