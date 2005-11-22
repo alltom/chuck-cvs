@@ -3442,6 +3442,7 @@ RtApiAlsa :: ~RtApiAlsa()
 
 void RtApiAlsa :: initialize(void)
 {
+  mode = UNINITIALIZED;
   int card, subdevice, result;
   char name[64];
   const char *cardId;

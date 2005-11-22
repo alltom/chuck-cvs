@@ -4,7 +4,7 @@ LEX=flex
 YACC=bison
 INCLUDES=-I/usr/include/directx/
 FLAGS=-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ $(INCLUDES) -O3 -c
-LIBS=-ldsound -ldxguid -lwinmm -lstdc++ -lm
+LIBS=-ldsound -ldxguid -lwinmm -lstdc++ -lm -lole32
 SF_OBJ=util_sndfile.o
 
 ifneq ($(CHUCK_DEBUG),)
