@@ -15,6 +15,7 @@
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs
   - (fixed) missing base class virtual destructors (thanks rasmus)
   - (fixed) most -Wall warnings
+  - (fixed) CK_LOG_SYSTEM_ERROR now CK_LOG_CORE
 
 ---
 1.2.0.3
