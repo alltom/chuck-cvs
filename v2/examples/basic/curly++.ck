@@ -2,7 +2,7 @@
 // %> chuck moe++ larry++ curly++
 
 // impulse to filter to dac
-sndbuf i => JCRev r => dac;
+sndbuf i => NRev r => dac;
 
 // load glottal ooo
 "special:glot_ooo" => i.read;
@@ -17,7 +17,7 @@ while( true )
     // set the current sample/impulse
     0 => i.pos;
     // randomize gain
-    math.cos(v) * std.rand2f( 1.5, 2.0 ) => r.gain;
+    math.cos(v) * std.rand2f( 1.5, 2.0 ) => i.gain;
     v + .05 => v;
     // advance time
     81.0::ms => now;

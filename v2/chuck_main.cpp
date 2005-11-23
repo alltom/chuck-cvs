@@ -403,6 +403,9 @@ int main( int argc, char ** argv )
         else
             files++;
     }
+
+    // log level
+    EM_setlog( log_level );
     
     // probe
     if( probe )
