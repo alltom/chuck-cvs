@@ -409,7 +409,7 @@ void Chuck_Shell::run()
     string command;
     string result;
 
-    ui->next_result( "welcome to chuck shell...\n" );
+    ui->next_result( "welcome to chuck shell!\n" );
     // ui->next_result( "(type \"help\" for more information)\n" );
     
     // loop
@@ -800,7 +800,7 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
 {
     if( vec.size() < 2 )
     {
-        out += "error: insufficient arguments\n";
+        out += "error: insufficient arguments...\n";
         return FALSE;
     }
     
@@ -833,7 +833,7 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     
     if( vec.size() % 2 != 0 )
     {
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
         return FALSE;
     }
     
@@ -1061,7 +1061,7 @@ t_CKINT Chuck_Shell::Command_Removelast::execute( vector< string > & argv,
         result = caller->current_vm->remove_last( out );
     
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
     
     return result;
 }
@@ -1117,7 +1117,7 @@ t_CKINT Chuck_Shell::Command_Kill::execute( vector< string > & argv,
 {
     caller->current_vm->kill( out );
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
 
     return 0;
 }
@@ -1131,13 +1131,13 @@ t_CKINT Chuck_Shell::Command_Close::execute( vector< string > & argv,
 {
     caller->close();
     
-    out += "closing chuck shell.  Bye!\n";
+    out += "closing chuck shell...  bye!\n";
     
     if( g_shell != NULL )
-        out += "NOTE: in-process VM still running; type ^C to exit\n";
+        out += "(note: in-process VM still running, hit ctrl-c to exit)\n";
     
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+        out += "(warning: ignoring excess arguments...)\n";
 
     return 0;
 }
@@ -1246,7 +1246,7 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
     out += string( cwd ) + "\n";
     free( cwd );
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
 #else
     out += "error: command not yet supported on Win32!\n";
 #endif
@@ -1455,7 +1455,7 @@ t_CKINT Chuck_Shell::Command_VM::execute( vector< string > & argv,
 //-----------------------------------------------------------------------------
 string Chuck_Shell::Command_VM::usage()
 {
-	return "vm [command] [args]...";
+	return "vm [command] [args] ...";
 }
 
 //-----------------------------------------------------------------------------
@@ -1528,7 +1528,7 @@ t_CKINT Chuck_Shell::Command_VMAttach::execute( vector < string > & argv,
     }
     
     if( argv.size() > 1 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
     
     return result;
 }
@@ -1559,7 +1559,7 @@ t_CKINT Chuck_Shell::Command_VMAdd::execute( vector< string > & argv,
     out += caller->current_vm->fullname() + " saved as VM " + buf + "\n";
     
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
     
     return 0;
 }
@@ -1601,7 +1601,7 @@ t_CKINT Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     
     if( argv.size() < 1 )
     {
-        out += string( "error: too few arguments\n" );
+        out += string( "error: too few arguments...\n" );
         return -1;
     }
     
@@ -1618,7 +1618,7 @@ t_CKINT Chuck_Shell::Command_VMSwap::execute( vector< string > & argv,
     out += "current VM is now " + caller->current_vm->fullname() + "\n";
     
     if( argv.size() > 1 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
 
     return 0;
 }
@@ -1651,7 +1651,7 @@ t_CKINT Chuck_Shell::Command_VMList::execute( vector< string > & argv,
     }
     
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
 
     return 0;
 }
@@ -1775,7 +1775,7 @@ t_CKINT Chuck_Shell::Command_Code::execute( vector< string > & argv,
 //-----------------------------------------------------------------------------
 string Chuck_Shell::Command_Code::usage()
 {
-	return "code [command] [args]...";
+	return "code [command] [args] ...";
 }
 
 //-----------------------------------------------------------------------------
@@ -1798,7 +1798,7 @@ t_CKINT Chuck_Shell::Command_CodeSave::execute( vector < string > & argv,
             caller->saved_code[argv[0]] = caller->code;
         
         if( argv.size() > 1 )
-            out += "warning: ignoring excess arguments\n";
+            out += "warning: ignoring excess arguments...\n";
     }
 
     return 0;
@@ -1817,7 +1817,7 @@ t_CKINT Chuck_Shell::Command_CodeList::execute( vector < string > & argv,
         out += i->first + "\n";
     
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
 
     return 0;
 }
@@ -1933,7 +1933,7 @@ t_CKINT Chuck_Shell::Command_CodeWrite::execute( vector < string > & argv,
 {
     if( argv.size() < 1 )
     {
-        out += "error: insufficient arguments\n";
+        out += "error: insufficient arguments...\n";
     }
     else
     {
@@ -1978,7 +1978,7 @@ t_CKINT Chuck_Shell::Command_CodeWrite::execute( vector < string > & argv,
     }
     
     if( argv.size() > 2 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
 
     return 0;
 }   
@@ -1992,7 +1992,7 @@ t_CKINT Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
 {
     if( argv.size() < 1 )
     {
-        out += "error: insufficient arguments\n";
+        out += "error: insufficient arguments...\n";
     }
     else
     {
@@ -2046,7 +2046,7 @@ t_CKINT Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
     }
     
     if( argv.size() > 2 )
-        out += "warning: ignoring excess arguments\n";
+        out += "warning: ignoring excess arguments...\n";
 
     return 0;
 }   
