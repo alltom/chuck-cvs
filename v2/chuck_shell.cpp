@@ -250,7 +250,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
     // ui
     if( ui == NULL )
     {
-        fprintf( stderr, "[chuck](via shell): NULL ui passed to Chuck_Shell::init\n" );
+        fprintf( stderr, "[chuck](via shell): NULL ui passed to Chuck_Shell::init..." );
         return FALSE;
     }
     
@@ -261,7 +261,7 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
     Chuck_Shell_Network_VM * cspv = new Chuck_Shell_Network_VM();
     if( !cspv->init( "localhost", 8888 ) )
     {
-        fprintf( stderr, "[chuck](via shell): error initializing process VM\n" );
+        fprintf( stderr, "[chuck](via shell): error initializing process VM..." );
         SAFE_DELETE( cspv );
         return FALSE;
     }
@@ -409,9 +409,8 @@ void Chuck_Shell::run()
     string command;
     string result;
 
-    ui->next_result( "Welcome to ChucK Shell.  \n" );
-    ui->next_result( "Type \"help\" for more information, " );
-    ui->next_result( "or \"help command_name\" for information about \"command_name\".\n" );
+    ui->next_result( "welcome to chuck shell...\n" );
+    // ui->next_result( "(type \"help\" for more information)\n" );
     
     // loop
     for( ; !stop; )
@@ -1456,7 +1455,7 @@ t_CKINT Chuck_Shell::Command_VM::execute( vector< string > & argv,
 //-----------------------------------------------------------------------------
 string Chuck_Shell::Command_VM::usage()
 {
-	return "vm vm_command [args]...";
+	return "vm [command] [args]...";
 }
 
 //-----------------------------------------------------------------------------
@@ -1776,7 +1775,7 @@ t_CKINT Chuck_Shell::Command_Code::execute( vector< string > & argv,
 //-----------------------------------------------------------------------------
 string Chuck_Shell::Command_Code::usage()
 {
-	return "code code_command [args]...";
+	return "code [command] [args]...";
 }
 
 //-----------------------------------------------------------------------------
