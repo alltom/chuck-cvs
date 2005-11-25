@@ -1204,7 +1204,69 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     }
     
 #else
-    out += "command not yet supported on Win32!\n";
+    
+    if( argv.size() == 0 )
+    {
+		DWORD i, k = 64;
+		LPTSTR cwd = new char [k];
+		WIN32_FIND_DATA find_data;
+
+		i = GetCurrentDirectory( k - 2, cwd );
+		
+		if( i >= k )
+		{
+			SAFE_DELETE_ARRAY( cwd );
+			cwd = new char [i + 2];
+			GetCurrentDirectory( i, cwd );
+		}
+    
+		i = strlen( cwd );
+		cwd[i] = '\\';
+		cwd[i + 1] = '*';
+		cwd[i + 2] = 0;
+
+		HANDLE find_handle = FindFirstFile( cwd, &find_data );
+        
+		out += string( find_data.cFileName ) + "\n";
+
+        while( FindNextFile( find_handle, &find_data ) )
+			out += string( find_data.cFileName ) + "\n";
+        
+        FindClose( find_handle );
+        return 0;
+    }
+    
+    int i, len = argv.size();
+    t_CKBOOL print_parent_name = len > 1 ? TRUE : FALSE;
+    
+    for( i = 0; i < len; i++ )
+    {
+		int j = argv[i].size() + 3;
+		WIN32_FIND_DATA find_data;
+		LPTSTR dir = new char [j];
+		strncpy( dir, argv[i].c_str(), j );
+        dir[j - 3] = '\\';
+		dir[j - 2] = '*';
+		dir[j - 1] = 0;
+
+        if( print_parent_name )
+            out += argv[i] + ":\n";
+        
+		HANDLE find_handle = FindFirstFile( dir, &find_data );
+        
+		out += string( find_data.cFileName ) + "\n";
+
+        while( FindNextFile( find_handle, &find_data ) )
+			out += string( find_data.cFileName ) + "\n";
+        
+		if( print_parent_name )
+			out += "\n";
+
+        FindClose( find_handle );
+    }
+    
+
+
 #endif // __PLATFORM_WIN32__
     return 0;
 }
@@ -1229,7 +1291,15 @@ t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
     }
     
 #else
-    out += "error: command not yet supported on Win32!\n";
+	if( argv.size() < 1 )
+		out += "usage: " + usage() + "\n";
+
+	else
+	{
+		if( !SetCurrentDirectory( argv[0].c_str() ) )
+			out += "error: cd command failed";
+	}
+
 #endif //__PLATFORM_WIN32__
     return 0;
 }
@@ -1248,7 +1318,20 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
     if( argv.size() > 0 )
         out += "warning: ignoring excess arguments...\n";
 #else
-    out += "error: command not yet supported on Win32!\n";
+    DWORD i, k = 256;
+	LPTSTR cwd = new char [k];
+	i = GetCurrentDirectory( k, cwd );
+	
+	if( i >= k )
+	{
+		SAFE_DELETE_ARRAY( cwd );
+		cwd = new char [i];
+		GetCurrentDirectory( i, cwd );
+	}
+	
+	out += string( cwd ) + "\n";
+
+	SAFE_DELETE_ARRAY( cwd );
 #endif
     return 0;
 }
