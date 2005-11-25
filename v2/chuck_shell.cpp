@@ -644,7 +644,7 @@ void Chuck_Shell::exit()
     stop = TRUE;
     
     if( process_vm != NULL )
-        process_vm->stop();    
+        process_vm->stop();
 }
 
 //-----------------------------------------------------------------------------

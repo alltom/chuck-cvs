@@ -502,7 +502,7 @@ class Chuck_Shell_Network_VM : public Chuck_Shell_VM
 {
 public:
     virtual ~Chuck_Shell_Network_VM() {}
-
+	
 public:
 	Chuck_Shell_VM * copy();
     t_CKBOOL init( const string &, t_CKINT );
@@ -514,12 +514,40 @@ public:
     t_CKBOOL status( string & );
     t_CKBOOL kill( string & );
     string fullname();
-
+	
 private: 
-    string hostname;
+		string hostname;
     t_CKINT port;
 };
-
+/*
+//-----------------------------------------------------------------------------
+// name: class Chuck_Shell_Network_VM
+// desc: VM across the network
+//-----------------------------------------------------------------------------
+class Chuck_Shell_Process_VM : public Chuck_Shell_VM
+{
+public:
+    virtual ~Chuck_Shell_Process_VM() {}
+	
+public:
+	Chuck_Shell_VM * copy();
+    t_CKBOOL init( const string &, t_CKINT );
+    t_CKBOOL add_shred( const vector< string > &, string & );
+    t_CKBOOL remove_shred( const vector< string > &, string & );
+    t_CKBOOL remove_all( string & );
+    t_CKBOOL remove_last( string & );
+    t_CKBOOL replace_shred( const vector< string > &, string & );
+    t_CKBOOL status( string & );
+    t_CKBOOL kill( string & );
+    string fullname();
+	
+	t_CKUINT last_shred_id();
+	
+private: 
+	Chuck_VM * vm;
+	Chuck_Compiler * compiler;
+};
+*/
 //-----------------------------------------------------------------------------
 // name: class Chuck_Shell_UI
 // desc: superclass to various types of Chuck UIs
