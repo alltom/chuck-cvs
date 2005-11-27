@@ -259,7 +259,6 @@ t_CKBOOL little_endian = FALSE;
 // filter member data offset
 
 static t_CKUINT BandedWG_offset_data = 0;
-//static t_CKUINT BandedWG_offset_data = 0;
 static t_CKUINT BlowBotl_offset_data = 0;
 static t_CKUINT BlowHole_offset_data = 0;
 static t_CKUINT Bowed_offset_data = 0;
@@ -306,6 +305,7 @@ static t_CKUINT WvIn_offset_data = 0;
 static t_CKUINT WvOut_offset_data = 0;
 static t_CKUINT StifKarp_offset_data = 0;
 static t_CKUINT PitShift_offset_data = 0;
+static t_CKUINT BLT_offset_data = 0;
 
 static t_CKUINT Mesh2D_offset_data = 0 ;
 
@@ -2354,9 +2354,81 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
     
+
+    //------------------------------------------------------------------------
+    // begin BLT (BandLtd)
+    //------------------------------------------------------------------------
+
+    if ( !type_engine_import_ugen_begin( env, "BLT", "UGen", env->global(), 
+         BLT_ctor, BLT_tick, BLT_pmsg ) ) return FALSE;
+
+    // member variable
+    // all subclasses of BLT must use this offset, as this is where the 
+    // inherited functions will look for the object
+    // the other option would be to keep SubClass_offset_data, but assign
+    // the value to BLT_offset_data.  
+    BLT_offset_data = type_engine_import_mvar( env, "int", "@BLT_data", FALSE );
+    if ( BLT_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    func = make_new_mfun ( "float", "phase", BLT_ctrl_phase ); //!set phase
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "phase", BLT_cget_phase ); //!get phase 
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "freq", BLT_ctrl_freq ); //!set freq
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "freq", BLT_cget_freq ); //!get freq 
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "int", "harmonics", BLT_ctrl_harmonics ); //!set harmonics
+    func->add_arg ( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "int", "harmonics", BLT_cget_harmonics ); //!get harmonics 
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    // end the class import
+    type_engine_import_class_end( env );
     
-    
-    //Mesh2D 
+
+    //------------------------------------------------------------------------
+    // begin Blit
+    //------------------------------------------------------------------------
+
+    if ( !type_engine_import_ugen_begin( env, "Blit", "BLT", env->global(), 
+         Blit_ctor, Blit_tick, Blit_pmsg ) ) return FALSE; 
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //------------------------------------------------------------------------
+    // begin BlitSaw
+    //------------------------------------------------------------------------
+
+    if ( !type_engine_import_ugen_begin( env, "BlitSaw", "BLT", env->global(), 
+         BlitSaw_ctor, BlitSaw_tick, BlitSaw_pmsg ) ) return FALSE;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //------------------------------------------------------------------------
+    // begin BlitSquare
+    //------------------------------------------------------------------------
+
+    if ( !type_engine_import_ugen_begin( env, "BlitSquare", "BLT", env->global(), 
+         BlitSquare_ctor, BlitSquare_tick, BlitSquare_pmsg ) ) return FALSE;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    // Mesh2D 
     if ( !type_engine_import_ugen_begin( env, "Mesh2D", "UGen", env->global(), 
                                          Mesh2D_ctor, Mesh2D_tick, Mesh2D_pmsg ) ) return FALSE;
     //member variable
@@ -8085,6 +8157,294 @@ class Wurley : public FM
 
 
 
+/***************************************************/
+/*! \class Blit
+    \brief STK band-limited impulse train class.
+
+    This class generates a band-limited impulse train using a
+    closed-form algorithm reported by Stilson and Smith in "Alias-Free
+    Digital Synthesis of Classic Analog Waveforms", 1996.  The user
+    can specify both the fundamental frequency of the impulse train
+    and the number of harmonics contained in the resulting signal.
+
+    The signal is normalized so that the peak value is +/-1.0.
+
+    If nHarmonics is 0, then the signal will contain all harmonics up
+    to half the sample rate.  Note, however, that this setting may
+    produce aliasing in the signal when the frequency is changing (no
+    automatic modification of the number of harmonics is performed by
+    the setFrequency() function).
+
+    Original code by Robin Davies, 2005.
+    Revisions by Gary Scavone for STK, 2005.
+*/
+/***************************************************/
+
+class BLT
+{
+public:
+    virtual ~BLT() {}
+
+    virtual void setPhase( MY_FLOAT phase ) = 0;
+    virtual void setFrequency( MY_FLOAT freq ) = 0;
+    virtual void setHarmonics( unsigned int harmonics ) = 0;
+
+    t_CKFLOAT getValuePhase() { return m_phase; }
+    t_CKFLOAT getValueFreq() { return m_freq; }
+    t_CKFLOAT getValueHarmonics() { return m_harmonics; }
+
+public:
+    t_CKFLOAT m_phase;
+    t_CKFLOAT m_freq;
+    t_CKINT m_harmonics;
+};
+
+#ifndef STK_BLIT_H
+#define STK_BLIT_H
+
+
+class Blit : public BLT
+{
+ public:
+  //! Default constructor that initializes BLIT frequency to 220 Hz.
+  Blit( MY_FLOAT frequency = 220.0 );
+
+  //! Class destructor.
+  virtual ~Blit();
+
+  //! Resets the oscillator state and phase to 0.
+  void reset();
+
+  //! Set the phase of the signal.
+  /*!
+    Set the phase of the signal, in the range 0 to 1.
+  */
+  virtual void setPhase( MY_FLOAT phase ) { phase_ = ONE_PI * phase; }
+
+  //! Get the current phase of the signal.
+  /*!
+    Get the phase of the signal, in the range [0 to 1.0).
+  */
+  MY_FLOAT getPhase() const { return phase_ / ONE_PI; }
+
+  //! Set the impulse train rate in terms of a frequency in Hz.
+  virtual void setFrequency( MY_FLOAT frequency );
+
+  //! Set the number of harmonics generated in the signal.
+  /*!
+    This function sets the number of harmonics contained in the
+    resulting signal.  It is equivalent to (2 * M) + 1 in the BLIT
+    algorithm.  The default value of 0 sets the algorithm for maximum
+    harmonic content (harmonics up to half the sample rate).  This
+    parameter is not checked against the current sample rate and
+    fundamental frequency.  Thus, aliasing can result if one or more
+    harmonics for a given fundamental frequency exceeds fs / 2.  This
+    behavior was chosen over the potentially more problematic solution
+    of automatically modifying the M parameter, which can produce
+    audible clicks in the signal.
+  */
+  virtual void setHarmonics( unsigned int nHarmonics = 0 );
+
+  //! Compute one output sample.
+  MY_FLOAT tick();
+
+ protected:
+
+  void updateHarmonics( void );
+  MY_FLOAT computeSample( void );
+
+  unsigned int nHarmonics_;
+  unsigned int m_;
+  MY_FLOAT rate_;
+  MY_FLOAT phase_;
+  MY_FLOAT p_;
+
+};
+
+#endif
+
+
+
+
+/***************************************************/
+/*! \class BlitSaw
+    \brief STK band-limited sawtooth wave class.
+
+    This class generates a band-limited sawtooth waveform using a
+    closed-form algorithm reported by Stilson and Smith in "Alias-Free
+    Digital Synthesis of Classic Analog Waveforms", 1996.  The user
+    can specify both the fundamental frequency of the sawtooth and the
+    number of harmonics contained in the resulting signal.
+
+    If nHarmonics is 0, then the signal will contain all harmonics up
+    to half the sample rate.  Note, however, that this setting may
+    produce aliasing in the signal when the frequency is changing (no
+    automatic modification of the number of harmonics is performed by
+    the setFrequency() function).
+
+    Based on initial code of Robin Davies, 2005.
+    Modified algorithm code by Gary Scavone, 2005.
+*/
+/***************************************************/
+
+#ifndef STK_BLITSAW_H
+#define STK_BLITSAW_H
+
+class BlitSaw : public BLT
+{
+ public:
+  //! Class constructor.
+  BlitSaw( MY_FLOAT frequency = 220.0 );
+
+  //! Class destructor.
+  virtual ~BlitSaw();
+
+  //! Resets the oscillator state and phase to 0.
+  void reset();
+
+  //! Set the phase of the signal.
+  /*!
+    Set the phase of the signal, in the range 0 to 1.
+  */
+  virtual void setPhase( MY_FLOAT phase ) { phase_ = ONE_PI * phase; }
+  
+  //! Set the sawtooth oscillator rate in terms of a frequency in Hz.
+  virtual void setFrequency( MY_FLOAT frequency );
+
+  //! Set the number of harmonics generated in the signal.
+  /*!
+    This function sets the number of harmonics contained in the
+    resulting signal.  It is equivalent to (2 * M) + 1 in the BLIT
+    algorithm.  The default value of 0 sets the algorithm for maximum
+    harmonic content (harmonics up to half the sample rate).  This
+    parameter is not checked against the current sample rate and
+    fundamental frequency.  Thus, aliasing can result if one or more
+    harmonics for a given fundamental frequency exceeds fs / 2.  This
+    behavior was chosen over the potentially more problematic solution
+    of automatically modifying the M parameter, which can produce
+    audible clicks in the signal.
+  */
+  virtual void setHarmonics( unsigned int nHarmonics = 0 );
+
+  //! Compute one output sample.
+  MY_FLOAT tick();
+
+ protected:
+
+  void updateHarmonics( void );
+  MY_FLOAT computeSample( void );
+
+  unsigned int nHarmonics_;
+  unsigned int m_;
+  MY_FLOAT rate_;
+  MY_FLOAT phase_;
+  MY_FLOAT p_;
+  MY_FLOAT C2_;
+  MY_FLOAT a_;
+  MY_FLOAT state_;
+
+};
+
+#endif
+
+
+
+
+/***************************************************/
+/*! \class BlitSquare
+    \brief STK band-limited square wave class.
+
+    This class generates a band-limited square wave signal.  It is
+    derived in part from the approach reported by Stilson and Smith in
+    "Alias-Free Digital Synthesis of Classic Analog Waveforms", 1996.
+    The algorithm implemented in this class uses a SincM function with
+    an even M value to achieve a bipolar bandlimited impulse train.
+    This signal is then integrated to achieve a square waveform.  The
+    integration process has an associated DC offset but that is
+    subtracted off the output signal.
+
+    The user can specify both the fundamental frequency of the
+    waveform and the number of harmonics contained in the resulting
+    signal.
+
+    If nHarmonics is 0, then the signal will contain all harmonics up
+    to half the sample rate.  Note, however, that this setting may
+    produce aliasing in the signal when the frequency is changing (no
+    automatic modification of the number of harmonics is performed by
+    the setFrequency() function).
+
+    Based on initial code of Robin Davies, 2005.
+    Modified algorithm code by Gary Scavone, 2005.
+*/
+/***************************************************/
+
+#ifndef STK_BLITSQUARE_H
+#define STK_BLITSQUARE_H
+
+class BlitSquare : public BLT
+{
+ public:
+  //! Default constructor that initializes BLIT frequency to 220 Hz.
+  BlitSquare( MY_FLOAT frequency = 220.0 );
+
+  //! Class destructor.
+  virtual ~BlitSquare();
+
+  //! Resets the oscillator state and phase to 0.
+  void reset();
+
+  //! Set the phase of the signal.
+  /*!
+    Set the phase of the signal, in the range 0 to 1.
+  */
+  virtual void setPhase( MY_FLOAT phase ) { phase_ = ONE_PI * phase; }
+
+  //! Get the current phase of the signal.
+  /*!
+    Get the phase of the signal, in the range [0 to 1.0).
+  */
+  MY_FLOAT getPhase() const { return phase_ / ONE_PI; }
+
+  //! Set the impulse train rate in terms of a frequency in Hz.
+  virtual void setFrequency( MY_FLOAT frequency );
+
+  //! Set the number of harmonics generated in the signal.
+  /*!
+    This function sets the number of harmonics contained in the
+    resulting signal.  It is equivalent to (2 * M) + 1 in the BLIT
+    algorithm.  The default value of 0 sets the algorithm for maximum
+    harmonic content (harmonics up to half the sample rate).  This
+    parameter is not checked against the current sample rate and
+    fundamental frequency.  Thus, aliasing can result if one or more
+    harmonics for a given fundamental frequency exceeds fs / 2.  This
+    behavior was chosen over the potentially more problematic solution
+    of automatically modifying the M parameter, which can produce
+    audible clicks in the signal.
+  */
+  virtual void setHarmonics( unsigned int nHarmonics = 0 );
+
+  //! Compute one output sample.
+  MY_FLOAT tick();
+
+ protected:
+
+  void updateHarmonics( void );
+  MY_FLOAT computeSample( void );
+
+  unsigned int nHarmonics_;
+  unsigned int m_;
+  MY_FLOAT rate_;
+  MY_FLOAT phase_;
+  MY_FLOAT p_;
+  MY_FLOAT offset_;
+  MY_FLOAT m_output;
+};
+
+#endif
+
+
+
+
 /*********************************************************/
 /*
   Definition of SKINI Message Types and Special Symbols
@@ -9131,6 +9491,366 @@ MY_FLOAT *BiQuad :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 
   return vec;
 }
+
+
+
+
+/***************************************************/
+/*! \class Blit
+    \brief STK band-limited impulse train class.
+
+    This class generates a band-limited impulse train using a
+    closed-form algorithm reported by Stilson and Smith in "Alias-Free
+    Digital Synthesis of Classic Analog Waveforms", 1996.  The user
+    can specify both the fundamental frequency of the impulse train
+    and the number of harmonics contained in the resulting signal.
+
+    The signal is normalized so that the peak value is +/-1.0.
+
+    If nHarmonics is 0, then the signal will contain all harmonics up
+    to half the sample rate.  Note, however, that this setting may
+    produce aliasing in the signal when the frequency is changing (no
+    automatic modification of the number of harmonics is performed by
+    the setFrequency() function).
+
+    Original code by Robin Davies, 2005.
+    Revisions by Gary Scavone for STK, 2005.
+*/
+/***************************************************/
+
+#include <cmath>
+#include <limits>
+ 
+Blit:: Blit( MY_FLOAT frequency )
+{
+  nHarmonics_ = 0;
+  this->setFrequency( frequency );
+  this->reset();
+}
+
+Blit :: ~Blit()
+{
+}
+
+void Blit :: reset()
+{
+  phase_ = 0.0;
+  // lastOutput_ = 0;
+}
+
+void Blit :: setFrequency( MY_FLOAT frequency )
+{
+#if defined(_STK_DEBUG_)
+  errorString_ << "Blit::setFrequency: frequency = " << frequency << '.';
+  handleError( StkError::DEBUG_WARNING );
+#endif
+
+  p_ = Stk::sampleRate() / frequency;
+  rate_ = ONE_PI / p_;
+  this->updateHarmonics();
+}
+
+void Blit :: setHarmonics( unsigned int nHarmonics )
+{
+  nHarmonics_ = nHarmonics;
+  this->updateHarmonics();
+}
+
+void Blit :: updateHarmonics( void )
+{
+  if ( nHarmonics_ <= 0 ) {
+    unsigned int maxHarmonics = (unsigned int) floor( 0.5 * p_ );
+    m_ = 2 * maxHarmonics + 1;
+  }
+  else
+    m_ = 2 * nHarmonics_ + 1;
+
+#if defined(_STK_DEBUG_)
+  errorString_ << "Blit::updateHarmonics: nHarmonics_ = " << nHarmonics_ << ", m_ = " << m_ << '.';
+  handleError( StkError::DEBUG_WARNING );
+#endif
+}
+
+MY_FLOAT Blit :: tick( void )
+{
+  // The code below implements the SincM algorithm of Stilson and
+  // Smith with an additional scale factor of P / M applied to
+  // normalize the output.
+
+  // A fully optimized version of this code would replace the two sin
+  // calls with a pair of fast sin oscillators, for which stable fast
+  // two-multiply algorithms are well known. In the spirit of STK,
+  // which favors clarity over performance, the optimization has not
+  // been made here.
+
+  MY_FLOAT output;
+
+  // Avoid a divide by zero at the sinc peak, which has a limiting
+  // value of 1.0.
+  MY_FLOAT denominator = sin( phase_ );
+  if ( denominator <= std::numeric_limits<MY_FLOAT>::epsilon() ) {
+    output = 1.0;
+  } else {
+    output =  sin( m_ * phase_ );
+    output /= m_ * denominator;
+  }
+
+  phase_ += rate_;
+  if ( phase_ >= ONE_PI ) phase_ -= ONE_PI;
+
+  return output;
+}
+
+
+
+
+/***************************************************/
+/*! \class BlitSaw
+    \brief STK band-limited sawtooth wave class.
+
+    This class generates a band-limited sawtooth waveform using a
+    closed-form algorithm reported by Stilson and Smith in "Alias-Free
+    Digital Synthesis of Classic Analog Waveforms", 1996.  The user
+    can specify both the fundamental frequency of the sawtooth and the
+    number of harmonics contained in the resulting signal.
+
+    If nHarmonics is 0, then the signal will contain all harmonics up
+    to half the sample rate.  Note, however, that this setting may
+    produce aliasing in the signal when the frequency is changing (no
+    automatic modification of the number of harmonics is performed by
+    the setFrequency() function).
+
+    Based on initial code of Robin Davies, 2005.
+    Modified algorithm code by Gary Scavone, 2005.
+*/
+/***************************************************/
+
+BlitSaw:: BlitSaw( MY_FLOAT frequency )
+{
+  nHarmonics_ = 0;
+  this->reset();
+  this->setFrequency( frequency );
+}
+
+BlitSaw :: ~BlitSaw()
+{
+}
+
+void BlitSaw :: reset()
+{
+  phase_ = 0.0f;
+  state_ = 0.0;
+  // lastOutput_ = 0;
+}
+
+void BlitSaw :: setFrequency( MY_FLOAT frequency )
+{
+#if defined(_STK_DEBUG_)
+  errorString_ << "BlitSaw::setFrequency: frequency = " << frequency << '.';
+  handleError( StkError::DEBUG_WARNING );
+#endif
+
+  p_ = Stk::sampleRate() / frequency;
+  C2_ = 1 / p_;
+  rate_ = ONE_PI * C2_;
+  this->updateHarmonics();
+}
+
+void BlitSaw :: setHarmonics( unsigned int nHarmonics )
+{
+  nHarmonics_ = nHarmonics;
+  this->updateHarmonics();
+
+  // I found that the initial DC offset could be minimized with an
+  // initial state setting as given below.  This initialization should
+  // only happen before starting the oscillator for the first time
+  // (but after setting the frequency and number of harmonics).  I
+  // struggled a bit to decide where best to put this and finally
+  // settled on here.  In general, the user shouldn't be messing with
+  // the number of harmonics once the oscillator is running because
+  // this is automatically taken care of in the setFrequency()
+  // function.  (GPS - 1 October 2005)
+  state_ = -0.5 * a_;
+}
+
+void BlitSaw :: updateHarmonics( void )
+{
+  if ( nHarmonics_ <= 0 ) {
+    unsigned int maxHarmonics = (unsigned int) floor( 0.5 * p_ );
+    m_ = 2 * maxHarmonics + 1;
+  }
+  else
+    m_ = 2 * nHarmonics_ + 1;
+
+  a_ = m_ / p_;
+
+#if defined(_STK_DEBUG_)
+  errorString_ << "BlitSaw::updateHarmonics: nHarmonics_ = " << nHarmonics_ << ", m_ = " << m_ << '.';
+  handleError( StkError::DEBUG_WARNING );
+#endif
+}
+
+MY_FLOAT BlitSaw :: tick( void )
+{
+  // The code below implements the BLIT algorithm of Stilson and
+  // Smith, followed by a summation and filtering operation to produce
+  // a sawtooth waveform.  After experimenting with various approaches
+  // to calculate the average value of the BLIT over one period, I
+  // found that an estimate of C2_ = 1.0 / period (in samples) worked
+  // most consistently.  A "leaky integrator" is then applied to the
+  // difference of the BLIT output and C2_. (GPS - 1 October 2005)
+
+  // A fully  optimized version of this code would replace the two sin 
+  // calls with a pair of fast sin oscillators, for which stable fast 
+  // two-multiply algorithms are well known. In the spirit of STK,
+  // which favors clarity over performance, the optimization has 
+  // not been made here.
+
+  MY_FLOAT output;
+
+  // Avoid a divide by zero, or use of a denormalized divisor 
+  // at the sinc peak, which has a limiting value of m_ / p_.
+  MY_FLOAT denominator = sin( phase_ );
+  if ( fabs(denominator) <= std::numeric_limits<MY_FLOAT>::epsilon() )
+    output = a_;
+  else {
+    output =  sin( m_ * phase_ );
+    output /= p_ * denominator;
+  }
+
+  output += state_ - C2_;
+  state_ = output * 0.995;
+
+  phase_ += rate_;
+  if ( phase_ >= ONE_PI ) phase_ -= ONE_PI;
+
+  return output;
+}
+
+
+
+
+/***************************************************/
+/*! \class BlitSquare
+    \brief STK band-limited square wave class.
+
+    This class generates a band-limited square wave signal.  It is
+    derived in part from the approach reported by Stilson and Smith in
+    "Alias-Free Digital Synthesis of Classic Analog Waveforms", 1996.
+    The algorithm implemented in this class uses a SincM function with
+    an even M value to achieve a bipolar bandlimited impulse train.
+    This signal is then integrated to achieve a square waveform.  The
+    integration process has an associated DC offset but that is
+    subtracted off the output signal.
+
+    The user can specify both the fundamental frequency of the
+    waveform and the number of harmonics contained in the resulting
+    signal.
+
+    If nHarmonics is 0, then the signal will contain all harmonics up
+    to half the sample rate.  Note, however, that this setting may
+    produce aliasing in the signal when the frequency is changing (no
+    automatic modification of the number of harmonics is performed by
+    the setFrequency() function).
+
+    Based on initial code of Robin Davies, 2005.
+    Modified algorithm code by Gary Scavone, 2005.
+*/
+/***************************************************/
+
+BlitSquare:: BlitSquare( MY_FLOAT frequency )
+{
+  nHarmonics_ = 0;
+  this->setFrequency( frequency );
+  this->reset();
+}
+
+BlitSquare :: ~BlitSquare()
+{
+}
+
+void BlitSquare :: reset()
+{
+  phase_ = 0.0;
+  m_output = 0;
+}
+
+void BlitSquare :: setFrequency( MY_FLOAT frequency )
+{
+#if defined(_STK_DEBUG_)
+  errorString_ << "BlitSquare::setFrequency: frequency = " << frequency << '.';
+  handleError( StkError::DEBUG_WARNING );
+#endif
+
+  // By using an even value of the parameter M, we get a bipolar blit
+  // waveform at half the blit frequency.  Thus, we need to scale the
+  // frequency value here by 2.0. (GPS, 2005).
+  p_ = 2.0 * Stk::sampleRate() / frequency;
+  rate_ = ONE_PI / p_;
+  this->updateHarmonics();
+}
+
+void BlitSquare :: setHarmonics( unsigned int nHarmonics )
+{
+  nHarmonics_ = nHarmonics;
+  this->updateHarmonics();
+}
+
+void BlitSquare :: updateHarmonics( void )
+{
+  // Make sure we end up with an even value of the parameter M here.
+  if ( nHarmonics_ <= 0 ) {
+    unsigned int maxHarmonics = (unsigned int) floor( 0.5 * p_ );
+    m_ = 2 * maxHarmonics;
+  }
+  else
+    m_ = 2 * nHarmonics_;
+
+  // This offset value was derived empirically. (GPS, 2005)
+  offset_ = 1.0 - 0.5 * m_ / p_;
+
+#if defined(_STK_DEBUG_)
+  errorString_ << "BlitSquare::updateHarmonics: nHarmonics_ = " << nHarmonics_ << ", m_ = " << m_ << '.';
+  handleError( StkError::DEBUG_WARNING );
+#endif
+}
+
+MY_FLOAT BlitSquare :: tick( void )
+{
+  MY_FLOAT temp = m_output;
+
+  // A fully  optimized version of this would replace the two sin calls
+  // with a pair of fast sin oscillators, for which stable fast 
+  // two-multiply algorithms are well known. In the spirit of STK,
+  // which favors clarity over performance, the optimization has 
+  // not been made here.
+
+  // Avoid a divide by zero, or use of a denomralized divisor
+  // at the sinc peak, which has a limiting value of 1.0.
+  MY_FLOAT denominator = sin( phase_ );
+  if ( fabs( denominator )  < std::numeric_limits<MY_FLOAT>::epsilon() ) {
+    // Inexact comparison safely distinguishes betwen *close to zero*, and *close to PI*.
+    if ( phase_ < 0.1f || phase_ > TWO_PI - 0.1f )
+      m_output = 1.0;
+    else
+      m_output = -1.0;
+  }
+  else {
+    m_output =  sin( m_ * phase_ );
+    m_output /= p_ * denominator;
+  }
+
+  m_output += temp;
+
+  phase_ += rate_;
+  if ( phase_ >= TWO_PI ) phase_ -= TWO_PI;
+
+  return m_output - offset_;
+}
+
+
+
+
 /***************************************************/
 /*! \class BlowBotl
     \brief STK blown bottle instrument class.
@@ -28050,6 +28770,155 @@ CK_DLL_CGET( WvOut_cget_autoPrefix )
     WvOut * w = (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data );
     RETURN->v_string = &w->autoPrefix;
 }
+
+
+//-----------------------------------------------------------------------------
+// BLT
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( BLT_ctor )
+{ /* do nothing here */ }
+
+CK_DLL_DTOR( BLT_dtor )
+{ /* do nothing here */ }
+
+CK_DLL_TICK( BLT_tick )
+{
+    fprintf( stderr, "BLT is virtual!\n" );
+    return TRUE;
+}
+
+CK_DLL_PMSG( BLT_pmsg )
+{
+    return TRUE;
+}
+
+CK_DLL_CTRL( BLT_ctrl_phase )
+{
+    BLT * blt = (BLT *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    blt->setPhase( f );
+    blt->m_phase = f;
+    RETURN->v_float = f;
+}
+
+CK_DLL_CGET( BLT_cget_phase )
+{
+    BLT * blt = (BLT *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    RETURN->v_float = blt->getValuePhase();
+}
+
+CK_DLL_CTRL( BLT_ctrl_freq )
+{
+    BLT * blt = (BLT *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    blt->setFrequency( f );
+    blt->m_freq = f;
+    RETURN->v_float = f;
+}
+
+CK_DLL_CGET( BLT_cget_freq )
+{
+    BLT * blt = (BLT *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    RETURN->v_float = blt->getValueFreq();
+}
+
+CK_DLL_CTRL( BLT_ctrl_harmonics )
+{
+    BLT * blt = (BLT *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    t_CKINT i = GET_CK_INT(ARGS);
+    if( i < 0 ) i = -i;
+    blt->setHarmonics( i );
+    blt->m_harmonics = i;
+    RETURN->v_int = i;
+}
+
+CK_DLL_CGET( BLT_cget_harmonics )
+{
+    BLT * blt = (BLT *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    RETURN->v_int = blt->getValueHarmonics();
+}
+
+
+//-----------------------------------------------------------------------------
+// Blit
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( Blit_ctor )
+{
+    Blit * blit = new Blit;
+    OBJ_MEMBER_UINT(SELF, BLT_offset_data ) = (t_CKUINT)blit;
+}
+
+CK_DLL_DTOR( Blit_dtor )
+{
+    delete (Blit *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+}
+
+CK_DLL_TICK( Blit_tick )
+{
+    Blit * blit = (Blit *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    *out = blit->tick();
+    return TRUE;
+}
+
+CK_DLL_PMSG( Blit_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// BlitSaw
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( BlitSaw_ctor )
+{
+    BlitSaw * blit = new BlitSaw;
+    OBJ_MEMBER_UINT(SELF, BLT_offset_data ) = (t_CKUINT)blit;
+}
+
+CK_DLL_DTOR( BlitSaw_dtor )
+{
+    delete (BlitSaw *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+}
+
+CK_DLL_TICK( BlitSaw_tick )
+{
+    BlitSaw * blit = (BlitSaw *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    *out = blit->tick();
+    return TRUE;
+}
+
+CK_DLL_PMSG( BlitSaw_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// BlitSquare
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( BlitSquare_ctor )
+{
+    BlitSquare * blit = new BlitSquare;
+    OBJ_MEMBER_UINT(SELF, BLT_offset_data ) = (t_CKUINT)blit;
+}
+
+CK_DLL_DTOR( BlitSquare_dtor )
+{
+    delete (BlitSquare *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+}
+
+CK_DLL_TICK( BlitSquare_tick )
+{
+    BlitSquare * blit = (BlitSquare *)OBJ_MEMBER_UINT(SELF, BLT_offset_data );
+    *out = blit->tick();
+    return TRUE;
+}
+
+CK_DLL_PMSG( BlitSquare_pmsg )
+{
+    return TRUE;
+}
+
 
 //-----------------------------------------------------------------------------
 // name: Mesh2D ctor
