@@ -8198,7 +8198,7 @@ public:
 
     t_CKFLOAT getValuePhase() { return m_phase; }
     t_CKFLOAT getValueFreq() { return m_freq; }
-    t_CKFLOAT getValueHarmonics() { return m_harmonics; }
+    t_CKINT getValueHarmonics() { return m_harmonics; }
 
 public:
     t_CKFLOAT m_phase;

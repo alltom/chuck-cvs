@@ -7,7 +7,7 @@
 //--------------------------------------------
 
 // device to open (see: chuck --probe)
-1 => int device;
+0 => int device;
 
 MidiIn min;
 MidiMsg msg;

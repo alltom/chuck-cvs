@@ -265,7 +265,37 @@ CK_DLL_PMSG( SubNoise_pmsg );
 CK_DLL_CTRL( SubNoise_ctrl_rate );
 CK_DLL_CGET( SubNoise_cget_rate );
 
-// JCRev 
+// BLT
+CK_DLL_CTOR( BLT_ctor );
+CK_DLL_DTOR( BLT_dtor );
+CK_DLL_TICK( BLT_tick );
+CK_DLL_PMSG( BLT_pmsg );
+CK_DLL_CTRL( BLT_ctrl_phase );
+CK_DLL_CGET( BLT_cget_phase );
+CK_DLL_CTRL( BLT_ctrl_freq );
+CK_DLL_CGET( BLT_cget_freq );
+CK_DLL_CTRL( BLT_ctrl_harmonics );
+CK_DLL_CGET( BLT_cget_harmonics );
+
+// Blit
+CK_DLL_CTOR( Blit_ctor );
+CK_DLL_DTOR( Blit_dtor );
+CK_DLL_TICK( Blit_tick );
+CK_DLL_PMSG( Blit_pmsg );
+
+// BlitSaw
+CK_DLL_CTOR( BlitSaw_ctor );
+CK_DLL_DTOR( BlitSaw_dtor );
+CK_DLL_TICK( BlitSaw_tick );
+CK_DLL_PMSG( BlitSaw_pmsg );
+
+// BlitSquare
+CK_DLL_CTOR( BlitSquare_ctor );
+CK_DLL_DTOR( BlitSquare_dtor );
+CK_DLL_TICK( BlitSquare_tick );
+CK_DLL_PMSG( BlitSquare_pmsg );
+
+// JCRev
 CK_DLL_CTOR( JCRev_ctor );
 CK_DLL_DTOR( JCRev_dtor );
 CK_DLL_TICK( JCRev_tick );

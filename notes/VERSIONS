@@ -2,11 +2,16 @@
 ---
   - (added) Envelope.duration( dur ), Envelope.duration()
   - (added) Envelope.keyOn(), Envelope.keyOff();
+  - (added) PitShift.mix( float ), PitShift.mix()
+            (originally effectMix)
   - (added) std.srand( int ) : seed random number generator
   - (added) update to RtAudio 3.2.0 -> much lower latency: Window DS
             (thanks to Gary Scavone and Robin Davies)
   - (added) update to RtMidi 1.0.4 -> improved midi: linux ALSA
             (thanks to Gary Scavone and Pedro Lopez-Cabanillas)
+  - (added) bandlimited ugens: Blit, BlitSaw, BlitSquare
+            (thanks to Robin Davies for implementation,
+             Gary Scavone for putting them in STK)
   - (fixed) default bufsize=256 under OSX and 512 under all other
   - (fixed) chuck + foof garbled error message
   - (fixed) chuck.lex compatibility under some linux
