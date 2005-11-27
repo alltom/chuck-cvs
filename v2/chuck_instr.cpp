@@ -2409,9 +2409,26 @@ void Chuck_Instr_Event_Wait::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( sp, 1 );
 
     Chuck_Event * event = (Chuck_Event *)(*sp);
-    
+
+    // check for null
+    if( !event ) goto null_pointer;
+
     // wait
     event->wait( shred, vm );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (null Event wait) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
