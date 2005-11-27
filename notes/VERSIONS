@@ -12,6 +12,8 @@
   - (added) bandlimited ugens: Blit, BlitSaw, BlitSquare
             (thanks to Robin Davies for implementation,
              Gary Scavone for putting them in STK)
+  - (added) examples/foo.ck foo2.ck tick.ck tick2.ck
+            (foo2 shows using Blit, tick.ck is a simple counter)
   - (fixed) default bufsize=256 under OSX and 512 under all other
   - (fixed) chuck + foof garbled error message
   - (fixed) chuck.lex compatibility under some linux
