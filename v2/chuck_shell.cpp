@@ -603,8 +603,9 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
 
     string argv = string( command ) + tmp_filepath;
 
-    if( this->execute( argv, out ) )
-        ;
+    this->execute( argv, out );
+    // if( this->execute( argv, out ) )
+    //    ;
     
     // delete the file
 #ifndef __PLATFORM_WIN32__
