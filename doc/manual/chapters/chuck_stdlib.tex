@@ -13,10 +13,14 @@ the standard library in ChucK. \\
 \example
 
 \begin{verbatim}
-        std.rand2f( 100.0, 1000.0 ) => stdout;
+        <<< std.rand2f( 100.0, 1000.0 ) >>>;
 \end{verbatim}
 
-\chuckfunction{ float abs ( float value );}
+
+\chuckfunction{ int abs ( int value );}
+
+
+\chuckfunction{ float fabs ( float value );}
 
 
 \chuckfunction{ int rand ( );}
@@ -80,7 +84,7 @@ returns the shred ID\\
 }
 
 \chuckmultifunction{ int spork ( string path );}{
-same as add
+same as add/+
 }
 
 \chuckmultifunction{ int remove ( int id );}{
@@ -94,7 +98,8 @@ returns shred ID , or 0 on error
 }
 
 \chuckmultifunction{ int status ( );}{
-display current status of VM\\
+display current status of VM \\
+same functionality as status/\^ \\
 (see example/status.ck)
 }
 
@@ -106,7 +111,7 @@ standard math functions
 \example
 
 \begin{verbatim}
-        math.sin( math.pi /2.0 ) => stdout;
+        <<< math.sin( math.pi /2.0 ) >>>;
 \end{verbatim}
 
 \chuckfunction{ float sin ( float x );}

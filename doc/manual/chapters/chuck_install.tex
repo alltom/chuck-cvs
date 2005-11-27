@@ -8,8 +8,10 @@ Scavone). None of the compiler/vm has any OS-depedent code.
 
 \section{Binary Installation}
 
-The binary distributions include a directory called bin/ instead of src/ that contains the precompiled binary of ChucK for your operating system. The binary distribution is a great introduction to ChucK but once you are comfortable we suggest that you compile ChucK on your own system so that it is optimized for your hardware. 
 
+The binary distributions include a directory called bin/ that contains the precompiled binary of ChucK for your operating system. The binary distribution is a great introduction to ChucK but once you are comfortable we suggest that you compile ChucK on your own system so that it is optimized for your hardware. 
+
+\subsection{OS X}
 1. Go to the bin/ directory (replace chuck-x.x.x.x-exe with the actual 
 directory name):
 
@@ -17,8 +19,32 @@ directory name):
    \prompt cd chuck-x.x.x.x-exe/bin
 }
 
-2. Skip to 3 in the next section.
+2. Install it using the script included.
 
+\chuckterm{
+    \prompt sudo make install
+}
+
+3. Test to make sure it is was installed properly.
+
+\chuckterm{
+    \prompt chuck
+}
+
+
+\subsection{Windows}
+
+1. Place chuck.exe (found in the 'bin' folder)into the c:\textbackslash windowss\textbackslash system32\textbackslash
+
+2. Open a command window found in start-\textgreater run
+
+\includegraphics{images/startmenu}
+
+3. Type cmd and press return
+
+\includegraphics{images/cmd}
+
+4. Type chuck and press return
 
 \section{Source Installation}
 
@@ -46,6 +72,10 @@ for example, for MacOS X:
 
 \chuckterm{\prompt make osx}
 
+for example, for Windows:
+
+\chuckterm{\prompt make win32}
+
 3. If you would like to install chuck (cp into /usr/bin by default). If you 
 don't like the destination, simply edit the makefile under `install', or 
 skip this step altogether. (we recommend putting it somewhere in your 
@@ -54,6 +84,13 @@ path, it makes on-the-fly programming easier)
 \chuckterm{
    \# (optional: edit the makefile first)\\
    \prompt make install
+}
+
+You may need to have administrator privileges in order to install ChucK. If you 
+have admin access then you can use the sudo command to install.
+
+\chuckterm{
+   \prompt sudo make install
 }
 
 4. If you haven't gotten any egregious error messages up to this point, 
@@ -70,7 +107,9 @@ current directory. For a quick sanity check, execute the following (use
 other problem - please let us know and we will do our best to provide 
 support) 
 
-5. You are ready to ChucK. If this is your first time programming in 
+\rule{1in}{.5pt}
+
+You are ready to ChucK. If this is your first time programming in 
 ChucK, you may want to look at the documentation, or take the ChucK 
 Tutorial ( \href{http://chuck.cs.princeton.edu/doc}{http://chuck.cs.princeton.edu/doc/}). 
 
