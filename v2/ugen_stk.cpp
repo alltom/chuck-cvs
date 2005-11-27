@@ -2206,6 +2206,13 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "shift", PitShift_cget_shift ); //! degree of pitch shifting
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun ( "float", "mix", PitShift_ctrl_effectMix ); //! mix level
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "mix", PitShift_cget_effectMix ); //! mix level
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
     func = make_new_mfun ( "float", "effectMix", PitShift_ctrl_effectMix ); //! mix level
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
