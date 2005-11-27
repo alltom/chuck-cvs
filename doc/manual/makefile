@@ -18,4 +18,4 @@ open:
 
 
 clean:
-	rm .DS_Store chapters/.DS_Store *aux *log *toc *out chapters/*aux *~ chapters/*~ styles/*~ 
+	rm -f .DS_Store chapters/.DS_Store *aux *log *toc *out chapters/*aux *~ chapters/*~ styles/*~ 
