@@ -490,7 +490,11 @@ int main( int argc, char ** argv )
     // allocate the compiler
     compiler = g_compiler = new Chuck_Compiler;
     // initialize the compiler
-    compiler->initialize( vm );
+    if( !compiler->initialize( vm ) )
+    {
+        fprintf( stderr, "[chuck]: error initializing compiler...\n" );
+        exit( 1 );
+    }
     // enable dump
     compiler->emitter->dump = dump;
     // set auto depend

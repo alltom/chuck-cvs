@@ -4497,7 +4497,7 @@ a_Arg_List make_dll_arg_list( Chuck_DL_Func * dl_fun )
         }
 
         // type
-        type_decl = new_type_decl( type_path, TRUE, 0 );
+        type_decl = new_type_decl( type_path, FALSE, 0 );
         // TODO: fix this
         assert( type_decl );
 
@@ -4544,7 +4544,8 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static )
     }
 
     // type decl
-    type_decl = new_type_decl( type_path, 1, 0 );
+    // old: type_decl = new_type_decl( type_path, 1, 0 );
+    type_decl = new_type_decl( type_path, 0, 0 );
     assert( type_decl );
     if( !type_decl )
     {

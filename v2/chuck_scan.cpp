@@ -2504,6 +2504,18 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
     // make sure
     assert( f->ret_type != NULL );
 
+    // primitive
+    if( (isprim( f->ret_type ) /*|| isa( f->ret_type, &t_string )*/)
+        && f->type_decl->ref )  // TODO: string
+    {
+        EM_error2( f->type_decl->linepos,
+            "cannot declare references (@) of primitive type '%s'...",
+            f->ret_type->c_name() );
+        EM_error2( f->type_decl->linepos,
+            "...(primitive types: 'int', 'float', 'time', 'dur')" );
+        goto error;
+    }
+
     // look up types for the function arguments
     arg_list = f->arg_list;
     // count
@@ -2540,6 +2552,18 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
         //        count, S_name(arg_list->var_decl->xid) );
         //    goto error;
         //}
+
+        // primitive
+        if( (isprim( arg_list->type ) /*|| isa( arg_list->type, &t_string )*/)
+            && arg_list->type_decl->ref )  // TODO: string
+        {
+            EM_error2( arg_list->type_decl->linepos,
+                "cannot declare references (@) of primitive type '%s'...",
+                arg_list->type->c_name() );
+            EM_error2( arg_list->type_decl->linepos,
+                "...(primitive types: 'int', 'float', 'time', 'dur')" );
+            goto error;
+        }
 
         // check if array
         if( arg_list->var_decl->array != NULL )
