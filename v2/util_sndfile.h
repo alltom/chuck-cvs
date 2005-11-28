@@ -117,13 +117,8 @@
 
 #ifdef __MACOSX_CORE__
 #define CPU_CLIPS_POSITIVE 1
-#if TARGET_RT_BIG_ENDIAN
 #define CPU_IS_BIG_ENDIAN 1
 #define CPU_IS_LITTLE_ENDIAN 0
-#else
-#define CPU_IS_BIG_ENDIAN 0
-#define CPU_IS_LITTLE_ENDIAN 1
-#endif
 #define HAVE_PREAD 1
 #define HAVE_PWRITE 1
 #define OS_IS_MACOSX 1
@@ -2448,12 +2443,6 @@ extern word gsm_FAC [8] ;
 
 #define     HAVE_LRINT_REPLACEMENT  0
 
-#if (defined (__MACH__) && defined (__APPLE__) && defined (__i386__))
-	#define HAVE_LRINT 1
-	#define HAVE_LRINTF 1
-#endif
-
-
 #if (HAVE_LRINT && HAVE_LRINTF)
 
     /*
@@ -2540,7 +2529,7 @@ extern word gsm_FAC [8] ;
         return res [1] ;
     } /* double2int */
 
-#elif (defined (__MACH__) && defined (__APPLE__) && defined (__ppc__))
+#elif (defined (__MACH__) && defined (__APPLE__))
 
     /* For Apple MacOSX. */
 
@@ -2589,8 +2578,10 @@ extern word gsm_FAC [8] ;
     // #warning "Replacing these functions with a standard C cast."
     #endif
 
-	#define lrint(dbl)      ((long) (dbl))
-	#define lrintf(flt)     ((long) (flt))
+
+    #define lrint(dbl)      ((long) (dbl))
+    #define lrintf(flt)     ((long) (flt))
+
 #endif
 
 
