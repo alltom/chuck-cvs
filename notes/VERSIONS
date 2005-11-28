@@ -17,8 +17,10 @@
   - (fixed) default bufsize=256 under OSX and 512 under all other
   - (fixed) chuck + foof garbled error message
   - (fixed) chuck.lex compatibility under some linux
-  - (fixed) std.atoi() std.atof() no longer crash on null string
-  - (fixed) std.fabs() now works correctly
+  - (fixed) waiting on null event: no longer crashes VM
+  - (fixed) function arguments: no longer allow reference to primitive types
+  - (fixed) std.atoi() std.atof(): no longer crash on null string
+  - (fixed) std.fabs(): now works correctly
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs
   - (fixed) missing base class virtual destructors (thanks rasmus)
   - (fixed) most -Wall warnings
