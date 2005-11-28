@@ -2371,6 +2371,71 @@ string type_engine_print_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member membe
 
 
 //-----------------------------------------------------------------------------
+// name: find_func_match()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Func * find_func_match( Chuck_Func * up, a_Exp args, t_CKBOOL implicit )
+{
+    a_Exp e;
+    a_Arg_List e1;
+    t_CKUINT count;
+    Chuck_Func * func;
+
+    // up is the list of functions in single class / namespace
+    while( up )
+    {
+        func = up;
+        // loop
+        while( func )
+        {
+            e = args;
+            e1 = func->def->arg_list;
+            count = 1;
+
+            // check arguments against the definition
+            while( e )
+            {
+                // check for extra arguments
+                if( e1 == NULL ) goto moveon;
+
+                // no match
+                if( !isa( e->type, e1->type ) )
+                {
+                    // TODO: fix this for overload implicit cast (multiple matches)
+                    if( implicit && *e->type == t_int && *e1->type == t_float )
+                    {
+                        // int to float
+                        e->cast_to = &t_float;
+                    }
+                    else goto moveon; // type mismatch
+                }
+
+                e = e->next;
+                e1 = e1->next;
+                count++;
+            }
+
+            // check for extra arguments
+            if( e1 == NULL ) return func;
+
+moveon:
+            // next func
+            func = func->next;
+        }
+
+        // go up
+        if( up->up ) up = up->up->func_ref;
+        else up = NULL;
+    }
+
+    // not found
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_check_exp_func_call()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2405,59 +2470,10 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
         if( !a ) return NULL;
     }
 
-    a_Exp e;
-    a_Arg_List e1;
-    t_CKUINT count;
-
-    // up is the list of functions in single class / namespace
-    while( up )
-    {
-        func = up;
-        // loop
-        while( func )
-        {
-            e = args;
-            e1 = func->def->arg_list;
-            count = 1;
-
-            // check arguments against the definition
-            while( e )
-            {
-                // check for extra arguments
-                if( e1 == NULL ) goto moveon;
-
-                // no match
-                if( !isa( e->type, e1->type ) )
-                {
-                    // TODO: fix this for overload implicit cast
-                    if( *e->type == t_int && *e1->type == t_float )
-                    {
-                        // int to float
-                        e->cast_to = &t_float;
-                    }
-                    else goto moveon; // type mismatch
-                }
-
-                e = e->next;
-                e1 = e1->next;
-                count++;
-            }
-
-            // anything left
-            if( e1 != NULL ) goto moveon; // missing arguments
-            else goto found; // found match
-
-moveon:
-            // next func
-            func = func->next;
-        }
-
-        // go up
-        if( up->up ) up = up->up->func_ref;
-        else up = NULL;
-    }
-
-found:
+    // look for a match
+    func = find_func_match( up, args, FALSE );
+    // look for a match (with implicit cast)
+    if( !func ) func = find_func_match( up, args, TRUE );
 
     // no func
     if( !func )

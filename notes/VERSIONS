@@ -19,6 +19,7 @@
   - (fixed) chuck.lex compatibility under some linux
   - (fixed) waiting on null event: no longer crashes VM
   - (fixed) function arguments: no longer allow reference to primitive types
+  - (fixed) function: correctly select overloaded functions w/ implicit cast
   - (fixed) std.atoi() std.atof(): no longer crash on null string
   - (fixed) std.fabs(): now works correctly
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs
