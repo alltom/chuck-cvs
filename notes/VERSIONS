@@ -22,7 +22,10 @@
   - (fixed) std.atoi() std.atof(): no longer crash on null string
   - (fixed) std.fabs(): now works correctly
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs
-  - (fixed) missing base class virtual destructors (thanks rasmus)
+  - (fixed) missing base class virtual destructors;
+            FreeBSD/g++ compatibility (thanks rasmus)
+  - (fixed) util_sndfile compatibility MacOSX/Intel
+            (thanks stefan werner)
   - (fixed) most -Wall warnings
   - (fixed) CK_LOG_SYSTEM_ERROR now CK_LOG_CORE
 
