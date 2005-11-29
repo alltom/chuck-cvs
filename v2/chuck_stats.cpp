@@ -71,11 +71,11 @@ void Chuck_Stats::add_shred( Chuck_VM_Shred * shred )
 {
     assert( vm != NULL );
     assert( shred->stat == NULL );
-    assert( shred->id != 0 );
+    assert( shred->xid != 0 );
     
     Shred_Stat * stat = new Shred_Stat;
-    stat->id = shred->id;
-    stat->parent = shred->parent ? shred->parent->id : 0;
+    stat->xid = shred->xid;
+    stat->parent = shred->parent ? shred->parent->xid : 0;
     stat->state = 0; // inactive
     stat->shred_ref = shred;
     stat->spork_time = shred->wake_time;
@@ -90,7 +90,7 @@ void Chuck_Stats::add_shred( Chuck_VM_Shred * shred )
     }
     if( shred->parent )
     {
-        Shred_Stat * another = shreds[shred->parent->id];
+        Shred_Stat * another = shreds[shred->parent->xid];
         another->mutex.acquire();
         another->children.push_back( stat );
         another->mutex.release();
@@ -100,7 +100,7 @@ void Chuck_Stats::add_shred( Chuck_VM_Shred * shred )
     shred->stat = stat;
     // add
     mutex.acquire();
-    shreds[shred->id] = stat;
+    shreds[shred->xid] = stat;
     mutex.release();
 }
 
@@ -212,7 +212,7 @@ void Chuck_Stats::remove_shred( Chuck_VM_Shred * shred )
     stat->free_time = vm->shreduler()->now_system;
     // remove
     mutex.acquire();
-    shreds.erase( shreds.find( stat->id ) );
+    shreds.erase( shreds.find( stat->xid ) );
     done.push_back( stat );
     mutex.release();
 }
