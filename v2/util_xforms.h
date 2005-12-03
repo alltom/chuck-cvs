@@ -36,6 +36,10 @@
 
 #include <math.h>
 
+// c linkage
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
 
 // complex type
 typedef struct { float re ; float im ; } complex;
@@ -50,11 +54,6 @@ typedef struct { float modulus ; float phase ; } polar;
 #define FFT_FORWARD 1
 #define FFT_INVERSE 0
 #define make_window hanning
-
-// c linkage
-#if ( defined( __cplusplus ) || defined( _cplusplus ) )
-  extern "C" {
-#endif
 
 // make the window
 void hanning( float * window, unsigned long length );
