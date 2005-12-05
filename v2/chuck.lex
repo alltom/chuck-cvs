@@ -1,4 +1,5 @@
 
+
 D           [0-9]
 L           [a-zA-Z_]
 H           [a-fA-F0-9]
@@ -64,6 +65,22 @@ int char_pos = 1;
 // define error handling
 #define YY_FATAL_ERROR(msg) EM_error2( 0, msg )
 
+#if defined(_cplusplus) || defined(__cplusplus)
+extern "C" {
+#endif
+
+  int yywrap(void);
+  void adjust();
+  c_str strip_lit( c_str str );
+  c_str alloc_str( c_str str );
+  long htol( c_str str );
+  int comment();
+  int block_comment();
+
+#if defined(_cplusplus) || defined(__cplusplus)
+}
+#endif
+
 // yywrap()
 int yywrap( void )
 {
@@ -126,26 +143,31 @@ long htol( c_str str )
     return n;
 }
 
-int comment();
-int block_comment();
-
 // block comment hack (thanks to unput/yytext_ptr inconsistency)
 #define block_comment_hack loop: \
-	while ((c = input()) != '*' && c != 0 && c != EOF ) \
+    while ((c = yyinput()) != '*' && c != 0 && c != EOF ) \
         if( c == '\n' ) EM_newline(); \
-	if( c == EOF ) adjust(); \
-	else if( (c1 = input()) != '/' && c != 0 ) \
-	{ \
-		unput(c1); \
-		goto loop; \
-	}\
+    if( c == EOF ) adjust(); \
+    else if( (c1 = yyinput()) != '/' && c != 0 ) \
+    { \
+        unput(c1); \
+        goto loop; \
+    } \
     if( c != 0 ) adjust();
+
+// comment hack
+#define comment_hack \
+    while ((c = yyinput()) != '\n' && c != '\r' && c != 0 && c != EOF ); \
+    if (c != 0) { \
+       adjust(); \
+       if (c == '\n') EM_newline(); \
+    }
 
 %}
 
 %%
 
-"//"                    { adjust(); comment(); continue; }
+"//"                    { char c; adjust(); comment_hack; continue; }
 "/*"                    { char c, c1; adjust(); block_comment_hack; continue; }
 " "                     { adjust(); continue; }
 "\t"                    { adjust(); continue; }
@@ -249,12 +271,13 @@ typeof                  { adjust(); return TYPEOF; }
 
 %%
 
+/*
 // comment
 int comment()
 {
     char c;
 
-    while ((c = input()) != '\n' && c != '\r' && c != 0 && c != EOF );
+    while ((c = yyinput()) != '\n' && c != '\r' && c != 0 && c != EOF );
 
     if (c != 0) { 
        adjust(); 
@@ -265,28 +288,28 @@ int comment()
 }
 
 // block comment
-/* int block_comment()
+int block_comment()
 {
-	char c, c1;
+    char c, c1;
 
 loop:
-	while ((c = input()) != '*' && c != 0 && c != EOF )
+    while ((c = yyinput()) != '*' && c != 0 && c != EOF )
         if( c == '\n' ) EM_newline();
 
-	if( c == EOF )
+    if( c == EOF )
     {
         adjust();
         return 1;
     }
     
-	if( (c1 = input()) != '/' && c != 0 )
-	{
-		unput(c1);
-		goto loop;
-	}
+    if( (c1 = yyinput()) != '/' && c != 0 )
+    {
+        unput(c1);
+        goto loop;
+    }
     
     if( c != 0 ) adjust();
 
-	return 0;
+    return 0;
 }
 */
