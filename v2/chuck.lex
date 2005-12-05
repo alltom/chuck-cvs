@@ -145,10 +145,10 @@ long htol( c_str str )
 
 // block comment hack (thanks to unput/yytext_ptr inconsistency)
 #define block_comment_hack loop: \
-    while ((c = yyinput()) != '*' && c != 0 && c != EOF ) \
+    while ((c = input()) != '*' && c != 0 && c != EOF ) \
         if( c == '\n' ) EM_newline(); \
     if( c == EOF ) adjust(); \
-    else if( (c1 = yyinput()) != '/' && c != 0 ) \
+    else if( (c1 = input()) != '/' && c != 0 ) \
     { \
         unput(c1); \
         goto loop; \
@@ -157,7 +157,7 @@ long htol( c_str str )
 
 // comment hack
 #define comment_hack \
-    while ((c = yyinput()) != '\n' && c != '\r' && c != 0 && c != EOF ); \
+    while ((c = input()) != '\n' && c != '\r' && c != 0 && c != EOF ); \
     if (c != 0) { \
        adjust(); \
        if (c == '\n') EM_newline(); \
