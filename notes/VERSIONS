@@ -1,3 +1,4 @@
+
 1.2.0.4
 ---
   - (added) Envelope.duration( dur ), Envelope.duration()
@@ -12,8 +13,10 @@
   - (added) bandlimited ugens: Blit, BlitSaw, BlitSquare
             (thanks to Robin Davies for implementation,
              Gary Scavone for putting them in STK)
-  - (added) examples/foo.ck foo2.ck tick.ck tick2.ck
+  - (added) examples/basic/foo.ck foo2.ck tick.ck tick2.ck
             (foo2 shows using Blit, tick.ck is a simple counter)
+  - (added) examples/class/dinky.ck try.ck
+            (creating and using class to make instruments)
   - (fixed) default bufsize=256 under OSX and 512 under all other
   - (fixed) chuck + foof garbled error message
   - (fixed) chuck.lex compatibility under some linux
@@ -25,8 +28,6 @@
   - (fixed) basic/moe.ck larry.ck currly.ck use fabs
   - (fixed) missing base class virtual destructors;
             FreeBSD/g++ compatibility (thanks rasmus)
-  - (fixed) util_sndfile compatibility MacOSX/Intel
-            (thanks stefan werner)
   - (fixed) most -Wall warnings
   - (fixed) CK_LOG_SYSTEM_ERROR now CK_LOG_CORE
 
