@@ -1,5 +1,7 @@
 // uses the Dinky class
-// (run dinky.ck before running this, for now...
+// (run dinky.ck before running this, for now...)
+//
+//     > chuck dinky try
 //
 // NOTE: in a future version of chuck...
 //       1. we will have better dependency/include system
