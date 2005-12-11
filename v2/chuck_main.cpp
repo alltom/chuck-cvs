@@ -212,6 +212,32 @@ void uh( )
 
 
 //-----------------------------------------------------------------------------
+// name: init_shell()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_shell( Chuck_Shell * shell, Chuck_Shell_UI * ui, Chuck_VM * vm )
+{
+    // initialize shell UI
+    if( !ui->init() )
+    {
+        fprintf( stderr, "[chuck]: error starting shell UI...\n" );
+        return FALSE;
+    }
+
+    // initialize
+    if( !shell->init( vm, ui ) )
+    {
+        fprintf( stderr, "[chuck]: error starting shell...\n" );
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: get_count()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -439,36 +465,17 @@ int main( int argc, char ** argv )
 	// shell initialization without vm
 	if( enable_shell && no_vm )
 	{
-        Chuck_Shell_UI * ui = NULL;
-
         // instantiate
         g_shell = new Chuck_Shell;
-        
-        // instantiate mode
-
-        // instantiate shell UI
-        ui = new Chuck_Console();
-
-        // initialize shell UI
-        if( !ui->init() )
-        {
-            fprintf( stderr, "[chuck]: error starting shell UI...\n" );
-            exit( 1 );
-        }
-        
         // initialize
-        if( !g_shell->init( NULL, ui ) )
-        {
-            fprintf( stderr, "[chuck]: error starting shell...\n" );
+        if( !init_shell( g_shell, new Chuck_Console, NULL ) )
             exit( 1 );
-        }
-        
         // no vm is needed, just start running the shell now
 		g_shell->run();
-		
+        // clean up
 		SAFE_DELETE( g_shell );
-		
-		return 0;
+        // done
+		exit( 0 );
 	}
 
     // make sure vm
@@ -517,29 +524,11 @@ int main( int argc, char ** argv )
 	// shell initialization
 	if( enable_shell )
 	{
-        Chuck_Shell_UI * ui = NULL;
-
         // instantiate
         g_shell = new Chuck_Shell;
-        
-        // instantiate mode
-
-        // instantiate shell UI
-        ui = new Chuck_Console();
-
-        // initialize shell UI
-        if( !ui->init() )
-        {
-            fprintf( stderr, "[chuck]: error starting shell UI...\n" );
-            exit(1);
-        }
-        
         // initialize
-        if( !g_shell->init( vm, ui ) )
-        {
-            fprintf( stderr, "[chuck]: error starting shell...\n" );
+        if( !init_shell( g_shell, new Chuck_Console, vm ) )
             exit( 1 );
-        }
     }
 
     // reset count
