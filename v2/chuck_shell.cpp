@@ -602,7 +602,12 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
     fclose( tmp_file );
 
     string argv = string( command ) + tmp_filepath;
+<<<<<<< chuck_shell.cpp
 
+
+=======
+
+>>>>>>> 1.46
     this->execute( argv, out );
     // if( this->execute( argv, out ) )
     //    ;
@@ -1205,6 +1210,132 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     }
     
 #else
+<<<<<<< chuck_shell.cpp
+    
+
+    if( argv.size() == 0 )
+
+    {
+
+		DWORD i, k = 64;
+
+		LPTSTR cwd = new char [k];
+
+		WIN32_FIND_DATA find_data;
+
+
+
+		i = GetCurrentDirectory( k - 2, cwd );
+
+		
+
+		if( i >= k )
+
+		{
+
+			SAFE_DELETE_ARRAY( cwd );
+
+			cwd = new char [i + 2];
+
+			GetCurrentDirectory( i, cwd );
+
+		}
+
+    
+
+		i = strlen( cwd );
+
+		cwd[i] = '\\';
+
+		cwd[i + 1] = '*';
+
+		cwd[i + 2] = 0;
+
+
+
+		HANDLE find_handle = FindFirstFile( cwd, &find_data );
+
+        
+
+		out += string( find_data.cFileName ) + "\n";
+
+
+
+        while( FindNextFile( find_handle, &find_data ) )
+
+			out += string( find_data.cFileName ) + "\n";
+
+        
+
+        FindClose( find_handle );
+
+        return 0;
+
+    }
+
+    
+
+    int i, len = argv.size();
+
+    t_CKBOOL print_parent_name = len > 1 ? TRUE : FALSE;
+
+    
+
+    for( i = 0; i < len; i++ )
+
+    {
+
+		int j = argv[i].size() + 3;
+
+		WIN32_FIND_DATA find_data;
+
+		LPTSTR dir = new char [j];
+
+		strncpy( dir, argv[i].c_str(), j );
+
+        dir[j - 3] = '\\';
+
+		dir[j - 2] = '*';
+
+		dir[j - 1] = 0;
+
+
+
+        if( print_parent_name )
+
+            out += argv[i] + ":\n";
+
+        
+
+		HANDLE find_handle = FindFirstFile( dir, &find_data );
+
+        
+
+		out += string( find_data.cFileName ) + "\n";
+
+
+
+        while( FindNextFile( find_handle, &find_data ) )
+
+			out += string( find_data.cFileName ) + "\n";
+
+        
+
+		if( print_parent_name )
+
+			out += "\n";
+
+
+
+        FindClose( find_handle );
+
+    }
+
+    
+
+
+
+=======
     
     if( argv.size() == 0 )
     {
@@ -1267,6 +1398,7 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     }
     
 
+>>>>>>> 1.46
 
 #endif // __PLATFORM_WIN32__
     return 0;
@@ -1298,7 +1430,7 @@ t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
 	else
 	{
 		if( !SetCurrentDirectory( argv[0].c_str() ) )
-			out += "error: cd command failed";
+			out += "error: cd command failed\n";
 	}
 
 #endif //__PLATFORM_WIN32__
@@ -1319,6 +1451,34 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
     if( argv.size() > 0 )
         out += "warning: ignoring excess arguments...\n";
 #else
+<<<<<<< chuck_shell.cpp
+    DWORD i, k = 256;
+
+	LPTSTR cwd = new char [k];
+
+	i = GetCurrentDirectory( k, cwd );
+
+	
+
+	if( i >= k )
+
+	{
+
+		SAFE_DELETE_ARRAY( cwd );
+
+		cwd = new char [i];
+
+		GetCurrentDirectory( i, cwd );
+
+	}
+
+	
+
+	out += string( cwd ) + "\n";
+
+
+
+=======
     DWORD i, k = 256;
 	LPTSTR cwd = new char [k];
 	i = GetCurrentDirectory( k, cwd );
@@ -1332,6 +1492,7 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
 	
 	out += string( cwd ) + "\n";
 
+>>>>>>> 1.46
 	SAFE_DELETE_ARRAY( cwd );
 #endif
     return 0;
