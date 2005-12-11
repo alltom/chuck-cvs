@@ -1298,7 +1298,7 @@ t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
 	else
 	{
 		if( !SetCurrentDirectory( argv[0].c_str() ) )
-			out += "error: cd command failed";
+			out += "error: cd command failed\n";
 	}
 
 #endif //__PLATFORM_WIN32__
