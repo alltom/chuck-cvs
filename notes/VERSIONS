@@ -32,6 +32,7 @@
   - (fixed) most -Wall warnings
   - (fixed) CK_LOG_SYSTEM_ERROR now CK_LOG_CORE
 
+
 ---
 1.2.0.3
   (API changes again)
