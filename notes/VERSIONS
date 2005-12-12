@@ -17,6 +17,7 @@
             (foo2 shows using Blit, tick.ck is a simple counter)
   - (added) examples/class/dinky.ck try.ck
             (creating and using class to make instruments)
+  - (fixed) sndbuf.read now closes file handle and sets curf
   - (fixed) default bufsize=256 under OSX and 512 under all other
   - (fixed) chuck + foof garbled error message
   - (fixed) chuck.lex compatibility under some linux
