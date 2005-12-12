@@ -1428,8 +1428,7 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos)
     
     d->curf = pos;
     
-    //set curf within bounds
-    
+    //set curf within bounds    
     if( d->loop )
     {
         while ( d->curf >= d->num_frames ) d->curf -= d->num_frames;
@@ -1440,6 +1439,7 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos)
         if( d->curf < 0 ) d->curf = 0;
         else if( d->curf >= d->num_frames ) d->curf = d->num_frames;
     }
+
     //sets curr to correct position ( account for channels ) 
     d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
 }
@@ -1742,9 +1742,9 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 
         d->buffer[rawsize] = d->buffer[0];
     }
-    // read file
-    else
+    else // read file
     {
+        // stat the file first
         struct stat s;
         if( stat( filename, &s ) )
         {
@@ -1752,24 +1752,38 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
             return;
         }
 
+        // open it
         SF_INFO info;
         info.format = 0;
-        char * format = strrchr ( filename, '.');
-        if ( format && strcmp ( format, ".raw" ) == 0 ) { 
+        char * format = strrchr( filename, '.');
+        if( format && strcmp( format, ".raw" ) == 0 )
+        { 
             fprintf( stderr, "[chuck](via sndbuf) %s :: type is '.raw'...\n    assuming 16 bit signed mono (PCM)\n", filename );
             info.format = SF_FORMAT_RAW | SF_FORMAT_PCM_16 | SF_ENDIAN_CPU ;
             info.channels = 1;
             info.samplerate = 44100;
         }
 
-        SNDFILE* file = sf_open(filename, SFM_READ, &info);
-        t_CKINT er = sf_error(file);
-        if(er) fprintf( stderr, "[chuck](via sndbuf): sndfile error '%i' opening '%s'...\n", er, filename );
+        // open the handle
+        SNDFILE * file = sf_open( filename, SFM_READ, &info );
+        t_CKINT er = sf_error( file );
+        if( er )
+        {
+            fprintf( stderr, "[chuck](via sndbuf): sndfile error '%i' opening '%s'...\n", er, filename );
+            fprintf( stderr, "[chuck](via sndbuf): (reason: %s)\n", sf_strerror( file ) );
+            if( file ) sf_close( file );
+            // escape
+            return;
+        }
+
+        // allocate
         t_CKINT size = info.channels * info.frames;
         d->buffer = new SAMPLE[size+1];
         d->chan = 0;
         d->num_frames = info.frames;
         d->num_channels = info.channels;
+        
+        // read
         sf_seek(file, 0, SEEK_SET );
 #if defined(CK_S_DOUBLE)
         d->num_samples = sf_read_double( file, d->buffer, size );
@@ -1779,12 +1793,18 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         // fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
         d->samplerate = info.samplerate;
 
+        // check
         if( d->num_samples != (t_CKUINT)size )
         {
             fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
                      d->num_samples, size, filename );
+            sf_close( file );
             return;
         }
+
+        // closing file handle
+        sf_close( file );
+
         // fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
     }
 
@@ -1793,6 +1813,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
     // set the rate
     d->rate = d->sampleratio;
     d->curr = d->buffer;
+    d->curf = 0;
     d->eob = d->buffer + d->num_samples;
 }
 
