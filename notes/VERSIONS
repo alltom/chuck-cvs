@@ -1,6 +1,8 @@
-
 1.2.0.4
 ---
+  - (added) The ChucK Manual (pdf)
+            fantastic work by Adam Tindale and other documentors
+            see doc/chuck.pdf
   - (added) Envelope.duration( dur ), Envelope.duration()
   - (added) Envelope.keyOn(), Envelope.keyOff();
   - (added) PitShift.mix( float ), PitShift.mix()

@@ -7,16 +7,39 @@ version: 1.2.x.x (dracula)
 ChucK home:
     http://chuck.cs.princeton.edu/
 
+Got questions?
+    http://chuck.cs.princeton.edu/community.html
+
+email us:
+    gewang@cs.princeton.edu
+
 online version of this document:
     http://chuck.cs.princeton.edu/doc/build/
 
 ---
 
-If you are using the executable, you only need to put chuck (osx) or 
-chuck.exe (win32) in your path.  On osx, go to the bin/ directory 
-and type 'sudo make install', and enter your password.  On win32, put 
-bin/chuck.exe in c:\windows\system32\.  If that is the case, you can skip 
-the rest of this document.
+If you are using the executable, you only need to put chuck (osx) or
+chuck.exe (win32) in your path.
+
+On MacOS X (using Terminal): go to the bin/ directory and type:
+
+    sudo cp chuck /usr/bin/
+    (enter your password when prompted)
+
+    sudo chmod 755 /usr/bin/chuck
+    (now you can run chuck from any directory using Terminal)
+
+On win32: put bin\chuck.exe in c:\windows\system32\
+
+At this point, you should be able to invoke 'chuck' from either Terminal 
+(in OSX) or 'cmd' under windowsm, from any directory:
+
+    > chuck
+    [chuck]: no input files... (try --help)
+
+(this is the correct output, since we didn't specify the files to run)
+
+If that is the case, you can skip the rest of this document.
 
 ---
 
