@@ -337,6 +337,108 @@ All ugen's have at least the following three parameters:
 \end{chuckitemize}
 }
 
+\ugenheading{events}
+
+\chuckugen{
+\ugen{Event}
+\begin{chuckitemize}
+\item event handler
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .signal} {\it signals first waiting shred}
+\item {\bf .broadcast} {\it signals all shreds}
+
+\end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{MidiIn}
+\begin{chuckitemize}
+\item MIDI receiver
+\end{chuckitemize}
+extends Event
+\control
+\begin{chuckitemize}
+\item {\bf .open} (int, READ/WRITE) {\it set port to receive}
+\item {\bf .recv} (MidiMsg, READ) {\it receives MIDI input}
+\end{chuckitemize}
+(see MIDI tutorial)
+}
+
+\chuckugen{
+\ugen{MidiOut}
+\begin{chuckitemize}
+\item MIDI sender
+\end{chuckitemize}
+extends Event
+\control
+\begin{chuckitemize}
+\item {\bf .open} (int, READ/WRITE) {\it set port to send}
+\item {\bf .send} (MidiMsg, WRITE) {\it sends MIDI output}
+\end{chuckitemize}
+(see MIDI tutorial)
+}
+
+\chuckugen{
+\ugen{MidiMsg}
+\begin{chuckitemize}
+\item MIDI data holder
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .data1} (int, READ/WRITE) {\it first byte of data}
+\item {\bf .data2} (int, READ/WRITE) {\it second byte of data}
+\item {\bf .data3} (int, READ/WRITE) {\it third byte of data}
+\end{chuckitemize}
+(see MIDI tutorial)
+}
+
+
+
+\chuckugen{
+\ugen{OscRecv}
+\begin{chuckitemize}
+\item Open Sound Control receiver
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .port} (int, READ/WRITE) {\it set port to receive}
+\item {\bf .listen} () {\it starts object listening to port}
+\item {\bf .event} (string(name), string(type), READ/WRITE) {\it define string for event to receive}
+\end{chuckitemize}
+(see events tutorial)
+}
+
+\chuckugen{
+\ugen{OscSend}
+\begin{chuckitemize}
+\item Open Sound Control sender
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .setHost} (string(host), int(port), READ/WRITE) {\it set port on the host to receive}
+\item {\bf .startMsg} (string(name), string(type), READ/WRITE)  {\it  define string for event to send}
+\end{chuckitemize}
+(see events tutorial)
+}
+
+\chuckugen{
+\ugen{OscEvent}
+\begin{chuckitemize}
+\item Open Sound Control event
+\end{chuckitemize}
+extends Event
+\control
+\begin{chuckitemize}
+\item {\bf .nextMsg} (int, READ) {\it the number of messages in queue}
+\item {\bf .getFloat} (float, READ) {\it gets float from message}
+\item {\bf .getInt} (int, READ) {\it gets int from message}
+\end{chuckitemize}
+(see events tutorial)
+}
+
+
 \newpage
 %\bigugenheading{STK}
 \ugenheading{STK - Instruments}

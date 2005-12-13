@@ -111,7 +111,7 @@ ChucK contains built-in MIDI classes to allow for interaction with MIDI based so
 \end{verbatim}
 
 
-MidiIn is a subclass of Event, as as such can be ChucKed to now. MidiIn then takes a MidiMsg object to its  .recv() method to access the MIDI data.
+MidiIn is a subclass of Event, as as such can be ChucKed to now. MidiIn then takes a MidiMsg object to its .recv() method to access the MIDI data.
  As a default, MidiIn events trigger the broadcast() event behavior.
  
 
@@ -122,7 +122,7 @@ In addition to MIDI, ChucK has OSC communication classes as well:
     ...
 
     //create our OSC receiver
-    OSC_Recv orec;
+    OscRecv orec;
     // port 6449
     6449 => orec.port;
     // start listening (launch thread)
@@ -132,18 +132,18 @@ In addition to MIDI, ChucK has OSC communication classes as well:
     { 
         // create an address in the receiver 
         // and store it in a new variable.
-        orec.event("/sndbuf/buf/rate,f") @=> OSC_Addr rate_addr; 
+        orec.event("/sndbuf/buf/rate,f") @=> OscEvent oscdata; 
 
         while ( true )
         { 
-            rate_addr => now; //wait for events to arrive.
+            oscdata => now; //wait for events to arrive.
 
             // grab the next message from the queue. 
-            while( rate_addr.nextMesg() != 0 )
+            while( oscdata.nextMesg() != 0 )
             { 
                 // getFloat fetches the expected float
                 // as indicated in the type string ",f"
-                buf.play( rate_addr.getFloat() );
+                buf.play( oscdata.getFloat() );
                 0 => buf.pos;
             }
         }       
@@ -152,9 +152,9 @@ In addition to MIDI, ChucK has OSC communication classes as well:
     ...
 \end{verbatim}
 
-The OSC\_Recv class listens for incoming OSC packets on the specified port. Each instance of OSC\_Recv can create OSC\_Addr objects using its event() method to listen for packets at any valid OSC Address pattern.
+The OscRecv class listens for incoming OSC packets on the specified port. Each instance of OscRecv can create OscEvent objects using its event() method to listen for packets at any valid OSC address pattern.
 
-An OSC\_Addr object can then be ChucKed to now to wait for messages to arrive, after which the nextMesg() and get\{Float\textbar String\textbar Int\}() methods can be used to fetch message data.
+An OscEvent event can then be ChucKed to now to wait for messages to arrive, after which the nextMesg() and get\{Float\textbar String\textbar Int\}() methods can be used to fetch message data.
  
 
 \section{creating custom events}
