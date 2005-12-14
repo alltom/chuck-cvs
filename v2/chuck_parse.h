@@ -38,6 +38,8 @@
 #include "chuck_absyn.h"
 
 #include <stdio.h>
+#include <string>
+#include <vector>
 
 
 // 'C' specification necessary for windows to link properly
@@ -57,6 +59,59 @@ FILE * open_cat_ck( c_str filename );
 t_CKBOOL chuck_parse( c_constr fname, FILE * fd = NULL );
 // reset the parser
 void reset_parse( );
+
+// syntax types (for highlighting)
+enum SyntaxType
+{
+    COMMA = 0,
+    SEMICOLON,
+    DBLCOLON,
+    PAREN,
+    DOT,
+    CHUCK_OP,
+    OPERATOR,
+    KEYWORD,
+    DEBUG_PRINT,
+    SPORK,
+    INT,
+    FLOAT,
+    STRING,
+    COMMENT,
+    OTHER,
+
+    NUM_SYNTAX_TYPES
+};
+
+// token info
+struct SyntaxToken
+{
+    // the token
+    std::string token;
+    // type
+    t_CKUINT type;
+
+    // from the beginning of line
+    std::string::size_type begin;
+    // from the beginning of line
+    std::string::size_type end;
+};
+
+// token list
+struct SyntaxTokenList
+{
+    std::vector<SyntaxToken> list;
+    std::vector<SyntaxToken>::size_type howmany;
+};
+
+// token query
+struct SyntaxQuery
+{
+public:
+    t_CKBOOL parseLine( const std::string & line,
+                        SyntaxTokenList & tokens );
+};
+
+
 
 
 #endif
