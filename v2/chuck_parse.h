@@ -122,12 +122,13 @@ struct SyntaxTokenList
     // copy constructor
     SyntaxTokenList( const SyntaxTokenList & rhs )
     {
-        // how big
-        std::vector<SyntaxToken>::size_type size = ( rhs.howmany > 0 ? rhs.howmany :  2 );
-        // allocate
-        list.resize( size );
         // copy
         howmany = rhs.howmany;
+        // allocate
+        list.resize( howmany );
+        // copy
+        for( std::vector<SyntaxToken>::size_type i = 0; i < howmany; i++ )
+            list[i] = rhs.list[i];
     }
 };
 
