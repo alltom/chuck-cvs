@@ -117,8 +117,7 @@ struct SyntaxToken
 struct SyntaxTokenList
 {
     std::vector<SyntaxToken> list;
-    std::vector<SyntaxToken>::size_type howmany;
-    
+    std::vector<SyntaxToken>::size_type howmany;    
     // copy constructor
     SyntaxTokenList( const SyntaxTokenList & rhs )
     {
@@ -130,6 +129,9 @@ struct SyntaxTokenList
         for( std::vector<SyntaxToken>::size_type i = 0; i < howmany; i++ )
             list[i] = rhs.list[i];
     }
+	SyntaxTokenList() { 
+		howmany = 0;
+	}
 };
 
 
