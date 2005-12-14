@@ -99,6 +99,9 @@ struct SyntaxToken
     std::string::size_type begin;
     // from the beginning of line
     std::string::size_type end;
+    
+    // constructor
+    SyntaxToken() : type(0) { }
 };
 
 

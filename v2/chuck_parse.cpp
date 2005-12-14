@@ -33,6 +33,7 @@
 #include "chuck_parse.h"
 #include "chuck_errmsg.h"
 #include <string.h>
+using namespace std;
 
 
 // global
@@ -95,4 +96,19 @@ void reset_parse( )
 {
     // empty file name
     EM_change_file( NULL );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: parseLine()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL SyntaxQuery::parseLine( const std::string & line, SyntaxTokenList & tokens )
+{
+    // clear the token list
+    tokens.howmany = 0;
+
+    return TRUE;
 }
