@@ -102,6 +102,14 @@ struct SyntaxToken
     
     // constructor
     SyntaxToken() : type(0) { }
+    // copy constructor
+    SyntaxToken( const SyntaxToken & rhs )
+    {
+        token = rhs.token;
+        type = rhs.type;
+        begin = rhs.begin;
+        end = rhs.end;
+    }
 };
 
 
@@ -110,6 +118,17 @@ struct SyntaxTokenList
 {
     std::vector<SyntaxToken> list;
     std::vector<SyntaxToken>::size_type howmany;
+    
+    // copy constructor
+    SyntaxTokenList( const SyntaxTokenList & rhs )
+    {
+        // how big
+        std::vector<SyntaxToken>::size_type size = ( rhs.howmany > 0 ? rhs.howmany :  2 );
+        // allocate
+        list.resize( size );
+        // copy
+        howmany = rhs.howmany;
+    }
 };
 
 
