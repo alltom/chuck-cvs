@@ -2,10 +2,8 @@ Skot skot;
 
 while( true )
 {
-    // prompt
-    skot.prompt();
-    // wait for it
-    skot => now;
+    // prompt and wait
+    skot.prompt("enter data:") => now;
     // get the results
     while( skot.more() )
     {

@@ -38,8 +38,6 @@
 #include "chuck_absyn.h"
 
 #include <stdio.h>
-#include <string>
-#include <vector>
 
 
 // 'C' specification necessary for windows to link properly
@@ -59,6 +57,12 @@ FILE * open_cat_ck( c_str filename );
 t_CKBOOL chuck_parse( c_constr fname, FILE * fd = NULL );
 // reset the parser
 void reset_parse( );
+
+
+// syntax highlighting tools
+#include <string>
+#include <vector>
+
 
 // syntax types (for highlighting)
 enum SyntaxType
@@ -82,6 +86,7 @@ enum SyntaxType
     NUM_SYNTAX_TYPES
 };
 
+
 // token info
 struct SyntaxToken
 {
@@ -96,12 +101,14 @@ struct SyntaxToken
     std::string::size_type end;
 };
 
+
 // token list
 struct SyntaxTokenList
 {
     std::vector<SyntaxToken> list;
     std::vector<SyntaxToken>::size_type howmany;
 };
+
 
 // token query
 struct SyntaxQuery
