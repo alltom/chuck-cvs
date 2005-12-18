@@ -143,6 +143,7 @@ a_Program g_program = NULL;
 %type <exp> tilda_expression
 %type <exp> cast_expression
 %type <exp> unary_expression
+%type <exp> dur_expression
 %type <exp> postfix_expression
 %type <exp> primary_expression
 %type <exp> decl_expression
@@ -494,7 +495,7 @@ cast_expression
         ;
         
 unary_expression
-        : postfix_expression                { $$ = $1; }
+        : dur_expression                    { $$ = $1; }
         | PLUSPLUS unary_expression
             { $$ = new_exp_from_unary( ae_op_plusplus, $2, EM_lineNum ); }
         | MINUSMINUS unary_expression
@@ -523,6 +524,12 @@ unary_operator
         // | S_AND                             { $$ = ae_op_s_and; }
         ;
 
+dur_expression
+        : postfix_expression
+        | dur_expression COLONCOLON postfix_expression
+            { $$ = new_exp_from_dur( $1, $3, EM_lineNum ); }
+        ;
+            
 postfix_expression
         : primary_expression                { $$ = $1; }
         | postfix_expression array_exp
@@ -537,8 +544,6 @@ postfix_expression
             { $$ = new_exp_from_postfix( $1, ae_op_plusplus, EM_lineNum ); }
         | postfix_expression MINUSMINUS
             { $$ = new_exp_from_postfix( $1, ae_op_minusminus, EM_lineNum ); }
-        | postfix_expression COLONCOLON primary_expression
-            { $$ = new_exp_from_dur( $1, $3, EM_lineNum ); }
         ;
 
 primary_expression

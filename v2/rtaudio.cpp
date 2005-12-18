@@ -2865,7 +2865,7 @@ int jackCallbackHandler(jack_nframes_t nframes, void *infoPointer)
     EM_log( CK_LOG_SYSTEM, "RtApiJack: callback handler error..." );
     EM_pushlog();
     EM_log( CK_LOG_INFO, "(%s)", exception.getMessageString() );
-    EM_poplog():
+    EM_poplog();
     return 0;
   }
 
