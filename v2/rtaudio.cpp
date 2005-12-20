@@ -6812,7 +6812,7 @@ void RtApiDs :: stopStream()
       if ( FAILED(result) ) {
         sprintf(message_, "RtApiDs: Unable to lock buffer during playback (%s): %s.",
                 devices_[stream_.device[0]].name.c_str(), getErrorString(result));
-        error(RtError::DRIVER_ERROR);
+        error(RtError::DRIVER_ERROR, TRUE);
       }
 
       // Zero the free space
@@ -7239,7 +7239,7 @@ void RtApiDs :: tickStream()
     if ( FAILED(result) ) {
       sprintf(message_, "RtApiDs: Unable to lock buffer during playback (%s): %s.",
               devices_[stream_.device[0]].name.c_str(), getErrorString(result));
-      error(RtError::DRIVER_ERROR);
+      error(RtError::DRIVER_ERROR, TRUE);
     }
 
     // Copy our buffer into the DS buffer
@@ -7466,9 +7466,18 @@ extern "C" unsigned __stdcall callbackHandler(void *ptr)
       EM_log( CK_LOG_SYSTEM, "RtApiDs: callback thread error..." );
       EM_pushlog();
       EM_log( CK_LOG_INFO, "(%s)", exception.getMessageString() );
-      EM_log( CK_LOG_INFO, "closing thread..." );
-      EM_poplog();
-      break;
+      if( exception.getContinue() )
+      {
+          EM_log( CK_LOG_INFO, "closing overridden - continuing..." );
+          EM_poplog();
+          usleep( 10000 );
+      }
+      else
+      {
+          EM_log( CK_LOG_INFO, "closing thread..." );
+          EM_poplog();
+          break;
+      }
     }
   }
 
@@ -8519,7 +8528,7 @@ extern "C" void *callbackHandler(void *ptr)
 
 // This method can be modified to control the behavior of error
 // message reporting and throwing.
-void RtApi :: error(RtError::Type type)
+void RtApi :: error(RtError::Type type, long cont)
 {
   if (type == RtError::WARNING) {
 #if defined(__CHUCK_DEBUG__)
@@ -8537,7 +8546,7 @@ void RtApi :: error(RtError::Type type)
 #if defined(__RTAUDIO_DEBUG__)
     fprintf(stderr, "[chuck](via rtaudio): %s\n", message_);
 #endif
-    throw RtError(std::string(message_), type);
+    throw RtError(std::string(message_), type, cont);
   }
 }
 

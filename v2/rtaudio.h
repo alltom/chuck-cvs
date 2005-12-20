@@ -290,7 +290,7 @@ protected:
   void clearStreamInfo();
 
   //! Protected common error method to allow global control over error handling.
-  void error( RtError::Type type );
+  void error( RtError::Type type, long cont = FALSE );
 
   /*!
     Protected common method used to check whether a stream is open.
