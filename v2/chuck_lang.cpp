@@ -1047,6 +1047,7 @@ CK_DLL_CTOR( MidiIn_ctor )
 CK_DLL_DTOR( MidiIn_dtor )
 {
     delete (MidiIn *)OBJ_MEMBER_INT(SELF, MidiIn_offset_data);
+    OBJ_MEMBER_INT(SELF, MidiIn_offset_data) = 0;
 }
 
 CK_DLL_MFUN( MidiIn_open )
@@ -1119,6 +1120,7 @@ CK_DLL_CTOR( MidiOut_ctor )
 CK_DLL_DTOR( MidiOut_dtor )
 {
     delete (MidiOut *)OBJ_MEMBER_INT(SELF, MidiOut_offset_data);
+    OBJ_MEMBER_INT(SELF, MidiOut_offset_data) = 0;
 }
 
 CK_DLL_MFUN( MidiOut_open )
@@ -1182,6 +1184,7 @@ CK_DLL_CTOR( MidiRW_ctor )
 CK_DLL_DTOR( MidiRW_dtor )
 {
     delete (MidiRW *)OBJ_MEMBER_INT(SELF, MidiRW_offset_data);
+    OBJ_MEMBER_INT(SELF, MidiRW_offset_data) = 0;
 }
 
 CK_DLL_MFUN( MidiRW_open )
@@ -1234,6 +1237,7 @@ CK_DLL_CTOR( MidiMsgOut_ctor )
 CK_DLL_DTOR( MidiMsgOut_dtor )
 {
     delete (MidiMsgOut *)OBJ_MEMBER_INT(SELF, MidiMsgOut_offset_data);
+    OBJ_MEMBER_INT(SELF, MidiMsgOut_offset_data) = 0;
 }
 
 CK_DLL_MFUN( MidiMsgOut_open )
@@ -1273,6 +1277,7 @@ CK_DLL_CTOR( MidiMsgIn_ctor )
 CK_DLL_DTOR( MidiMsgIn_dtor )
 {
     delete (MidiMsgIn *)OBJ_MEMBER_INT(SELF, MidiMsgIn_offset_data);
+    OBJ_MEMBER_INT(SELF, MidiMsgIn_offset_data) = 0;
 }
 
 CK_DLL_MFUN( MidiMsgIn_open )
