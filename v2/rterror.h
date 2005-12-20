@@ -37,8 +37,11 @@ protected:
   Type type_;
 
 public:
+  long continue_;
+
   //! The constructor.
-  RtError(const std::string& message, Type type = RtError::UNSPECIFIED) : message_(message), type_(type){}
+  RtError(const std::string& message, Type type = RtError::UNSPECIFIED, long c = 0 )
+      : message_(message), type_(type), continue_(c) {}
 
   //! The destructor.
   virtual ~RtError(void) {};
@@ -54,6 +57,9 @@ public:
 
   //! Returns the thrown error message as a C string.
   virtual const char *getMessageString(void) { return message_.c_str(); }
+
+  // don't stop
+  virtual const long getContinue() { return continue_; }
 };
 
 #endif

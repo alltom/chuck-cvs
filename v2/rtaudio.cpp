@@ -7470,7 +7470,7 @@ extern "C" unsigned __stdcall callbackHandler(void *ptr)
       {
           EM_log( CK_LOG_INFO, "closing overridden - continuing..." );
           EM_poplog();
-          usleep( 10000 );
+          usleep( 100000 );
       }
       else
       {
