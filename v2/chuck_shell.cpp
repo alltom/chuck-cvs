@@ -171,7 +171,6 @@ void * shell_cb( void * p )
     Chuck_Shell * shell;
     // log
     EM_log( CK_LOG_INFO, "starting thread routine for shell..." );
-    EM_pushlog();
 
     // assuming this is absolutely necessary, an assert may be better
     assert( p != NULL );
@@ -187,7 +186,6 @@ void * shell_cb( void * p )
     SAFE_DELETE( g_shell );
     // perhaps let shell destructor clean up mode and ui?
     
-    EM_poplog();
     EM_log( CK_LOG_INFO, "exiting thread routine for shell..." );
 
     return NULL;
@@ -237,8 +235,6 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
 {
     // log
     EM_log( CK_LOG_SYSTEM, "initializing chuck shell..." );
-    // push log
-    EM_pushlog();
     
     // check
     if( initialized == TRUE )
@@ -383,9 +379,6 @@ t_CKBOOL Chuck_Shell::init( Chuck_VM * vm, Chuck_Shell_UI * ui )
     // flag
     initialized = TRUE;
     
-    // pop log
-    EM_poplog();
-
     return TRUE;
 }
 
@@ -397,8 +390,7 @@ void Chuck_Shell::run()
 {
     // log
     EM_log( CK_LOG_SYSTEM, "running chuck shell..." );
-    EM_pushlog();
-    
+
     // make sure
     if(initialized == FALSE)
     {
@@ -436,7 +428,6 @@ void Chuck_Shell::run()
     }
     
     // log
-    EM_poplog();
     EM_log( CK_LOG_SYSTEM, "exiting chuck shell..." );
 }
 
