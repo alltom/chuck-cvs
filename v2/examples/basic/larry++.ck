@@ -10,7 +10,7 @@ i => biquad f3 => g;
 
 // set the filter's pole radius
 0.800 => f.prad; .995 => f2.prad; .995 => f3.prad;
-// set equal gain zeros
+// set equal gain zeroes
 1 => f.eqzs; 1 => f2.eqzs; 1 => f3.eqzs;
 // initialize float variable
 0.0 => float v => float v2;

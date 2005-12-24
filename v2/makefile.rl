@@ -1,5 +1,6 @@
 
 CXX=gcc
+CXX_LINK=g++
 LEX=flex
 YACC=bison
 INCLUDES=
@@ -39,7 +40,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	util_string.o util_thread.o util_xforms.o util_opsc.o $(SF_OBJ)
 
 chuck: $(OBJS)
-	$(CXX) -o chuck $(OBJS) $(LIBS)
+	$(CXX_LINK) -o chuck $(OBJS) $(LIBS)
 
 chuck.tab.o: chuck.tab.c
 	$(CXX) $(FLAGS) chuck.tab.c

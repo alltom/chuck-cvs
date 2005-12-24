@@ -413,6 +413,8 @@ void Chuck_Shell::run()
             // result.clear();
             result = "";
             
+			//printf( "chuck_shell::run\n" );
+			
             // execute the command
             execute( command, result );
 
@@ -948,7 +950,7 @@ t_CKINT Chuck_Shell::Command_Add::execute( vector< string > & argv,
     
     if( caller->current_vm == NULL)
     {
-        out += "error: not attached to a VM\n";
+        out += "add: error: not attached to a VM\n";
         result = -1;
     }
     
@@ -986,7 +988,7 @@ t_CKINT Chuck_Shell::Command_Remove::execute( vector< string > & argv,
     
     if( caller->current_vm == NULL)
     {
-        out += "error: not attached to a VM\n";
+        out += "remove: error: not attached to a VM\n";
         result = -1;
     }
     
@@ -1022,7 +1024,7 @@ t_CKINT Chuck_Shell::Command_Removeall::execute( vector< string > & argv,
     
     if( caller->current_vm == NULL)
     {
-        out += "error: not attached to a VM\n";
+        out += "removeall: error: not attached to a VM\n";
         result = -1;
     }
     
@@ -1039,6 +1041,15 @@ t_CKINT Chuck_Shell::Command_Removeall::execute( vector< string > & argv,
 }
 
 //-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_Removeall::usage()
+{
+    return "removeall";
+}
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -1048,14 +1059,23 @@ t_CKINT Chuck_Shell::Command_Removelast::execute( vector< string > & argv,
     t_CKINT result = -1;
     
     if( caller->current_vm == NULL)
-        out += "error: not attached to a VM\n";
+        out += "removelast: error: not attached to a VM\n";
     else
         result = caller->current_vm->remove_last( out );
     
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments...\n";
+        out += "removelast: warning: ignoring excess arguments...\n";
     
     return result;
+}
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_Removelast::usage()
+{
+    return "removelast";
 }
 
 //-----------------------------------------------------------------------------
@@ -1066,11 +1086,23 @@ t_CKINT Chuck_Shell::Command_Replace::execute( vector< string > & argv,
                                                string & out )
 {
     if( caller->current_vm == NULL)
-        out += "error: not attached to a VM\n";
-    else
-        caller->current_vm->replace_shred( argv, out );
+	{
+        out += "replace: error: not attached to a VM\n";
+		return -1;
+	}
+	
+	caller->current_vm->replace_shred( argv, out );
     
     return 0;
+}
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_Replace::usage()
+{
+    return "replace shred_id file ...";
 }
 
 //-----------------------------------------------------------------------------
@@ -1084,7 +1116,7 @@ t_CKINT Chuck_Shell::Command_Status::execute( vector< string > & argv,
     
     if( caller->current_vm == NULL)
     {
-        out += "error: not attached to a VM\n";
+        out += "status: error: not attached to a VM\n";
         result = -1;
     }
     
@@ -1098,6 +1130,15 @@ t_CKINT Chuck_Shell::Command_Status::execute( vector< string > & argv,
         result = caller->current_vm->status( out );
     
     return result;
+}
+
+//-----------------------------------------------------------------------------
+// name: usage()
+// desc: ...
+//-----------------------------------------------------------------------------
+string Chuck_Shell::Command_Status::usage()
+{
+    return "status";
 }
 
 //-----------------------------------------------------------------------------
@@ -1160,6 +1201,12 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     if( argv.size() == 0 )
     {
         DIR * dir_handle = opendir( "." );
+		if( dir_handle == NULL )
+		{
+			out += "ls: error: unable to open directory .\n";
+			return -1;
+		}
+		
         dirent * dir_entity = readdir( dir_handle );
         
         while( dir_entity != NULL )
@@ -1178,6 +1225,12 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     for( i = 0; i < len; i++ )
     {
         DIR * dir_handle = opendir( argv[i].c_str() );
+		if( dir_handle == NULL )
+		{
+			out += "ls: error: unable to open directory " + argv[i] + "\n";
+			continue;
+		}
+		
         dirent * dir_entity = readdir( dir_handle );
         
         if( print_parent_name )

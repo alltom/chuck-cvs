@@ -241,6 +241,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector < string > &, string & );
+		string usage();
     };
     
 	//-----------------------------------------------------------------------------
@@ -251,6 +252,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -261,6 +263,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -271,6 +274,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -281,6 +285,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		//string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -291,6 +296,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		//string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -301,6 +307,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		//string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -311,6 +318,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		//string usage();
     };
     
 //-----------------------------------------------------------------------------
@@ -321,6 +329,7 @@ public: // HACK-GE: moved from protected for win32
     {
     public:
         t_CKINT execute( vector< string > &, string & );
+		//string usage();
     };
     
 //-----------------------------------------------------------------------------
