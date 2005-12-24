@@ -59,7 +59,7 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "class 'object'" );
+    EM_log( CK_LOG_SEVERE, "class 'object'" );
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), object_ctor ) )
@@ -111,7 +111,7 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
 {
     Chuck_DL_Func * func = NULL;
 
-    EM_log( CK_LOG_SYSTEM, "class 'ugen'" );
+    EM_log( CK_LOG_SEVERE, "class 'ugen'" );
 
     //the type argument IS t_ugen here - there's no other use of this function
     //why are we using t_ugen here instead of type ( or vice versa ) ? PLD
@@ -188,7 +188,7 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
     Chuck_Value * value = NULL;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "class 'event'" );
+    EM_log( CK_LOG_SEVERE, "class 'event'" );
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), event_ctor ) )
@@ -245,7 +245,7 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "class 'shred'" );
+    EM_log( CK_LOG_SEVERE, "class 'shred'" );
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
@@ -300,7 +300,7 @@ t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "class 'string'" );
+    EM_log( CK_LOG_SEVERE, "class 'string'" );
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
@@ -346,7 +346,7 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     Chuck_DL_Func * func = NULL;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "class 'array'" );
+    EM_log( CK_LOG_SEVERE, "class 'array'" );
 
     // init as base class
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )

@@ -99,7 +99,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
 Chuck_Emitter * emit_engine_init( Chuck_Env * env )
 {
     // log
-    EM_log( CK_LOG_SYSTEM, "initializing emitter..." );
+    EM_log( CK_LOG_SEVERE, "initializing emitter..." );
 
     // TODO: ensure this in a better way
     assert( sizeof(t_CKUINT) == sizeof(void *) );

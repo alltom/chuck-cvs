@@ -520,7 +520,7 @@ int main( int argc, char ** argv )
     count = 1;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "starting compilation..." );
+    EM_log( CK_LOG_SEVERE, "starting compilation..." );
     // push indent
     EM_pushlog();
 

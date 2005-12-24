@@ -341,7 +341,7 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     EM_pushlog();
 
     // log
-    EM_log( CK_LOG_SYSTEM, "initializing 'dac'..." );
+    EM_log( CK_LOG_SEVERE, "initializing 'dac'..." );
     // allocate dac and adc
     m_num_dac_channels = g_t_dac->ugen_info->num_ins;
     m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
@@ -351,7 +351,7 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     m_dac->lock();
 
     // log
-    EM_log( CK_LOG_SYSTEM, "initializing 'adc'..." );
+    EM_log( CK_LOG_SEVERE, "initializing 'adc'..." );
     m_num_adc_channels = g_t_adc->ugen_info->num_outs;
     m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
     stereo_ctor( m_adc, NULL );
@@ -360,7 +360,7 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     m_adc->lock();
 
     // log
-    EM_log( CK_LOG_SYSTEM, "initializing 'blackhole'..." );
+    EM_log( CK_LOG_SEVERE, "initializing 'blackhole'..." );
     m_bunghole = new Chuck_UGen;
     m_bunghole->add_ref();
     m_bunghole->lock();
@@ -452,7 +452,7 @@ t_CKBOOL Chuck_VM::shutdown()
     SAFE_DELETE( m_shreduler );
 
     // log
-    EM_log( CK_LOG_SYSTEM, "clearing shreds..." );
+    EM_log( CK_LOG_SEVERE, "clearing shreds..." );
     // terminate shreds
     Chuck_VM_Shred * curr = m_shreds, * prev = NULL;
     while( curr )
@@ -514,7 +514,7 @@ t_CKBOOL Chuck_VM::run( )
     if( m_audio )
     {
         // log
-        EM_log( CK_LOG_SYSTEM, "starting real-time audio..." );
+        EM_log( CK_LOG_SEVERE, "starting real-time audio..." );
         if( !m_bbq->digi_out()->initialize( ) )
         {
             m_last_error = "cannot open audio output (option: use --silent/-s)";
@@ -525,7 +525,7 @@ t_CKBOOL Chuck_VM::run( )
     }
 
     // log
-    EM_log( CK_LOG_SYSTEM, "virtual machine running..." );
+    EM_log( CK_LOG_SEVERE, "virtual machine running..." );
     // pop indent
     EM_poplog();
 
@@ -677,7 +677,7 @@ t_CKBOOL Chuck_VM::pause( )
 t_CKBOOL Chuck_VM::stop( )
 {
     // log
-    EM_log( CK_LOG_SYSTEM, "requesting STOP virtual machine..." );
+    EM_log( CK_LOG_SEVERE, "requesting STOP virtual machine..." );
 
     m_running = FALSE;
     Digitalio::m_end = TRUE;

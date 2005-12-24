@@ -154,7 +154,7 @@ Chuck_Env * Chuck_Env::instance()
 Chuck_Env * type_engine_init( Chuck_VM * vm )
 {
     // log
-    EM_log( CK_LOG_SYSTEM, "initializing type checker..." );
+    EM_log( CK_LOG_SEVERE, "initializing type checker..." );
     // push indent level
     EM_pushlog();
 
@@ -193,7 +193,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     t_CKDUR week = day * 7.0;
 
     // add internal classes
-    EM_log( CK_LOG_SYSTEM, "adding base classes..." );
+    EM_log( CK_LOG_SEVERE, "adding base classes..." );
     EM_pushlog();
     init_class_object( env, &t_object );
     init_class_array( env, &t_array );
@@ -202,7 +202,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
 
-    EM_log( CK_LOG_SYSTEM, "class 'class'" );
+    EM_log( CK_LOG_SEVERE, "class 'class'" );
     t_class.info = new Chuck_Namespace;
     t_class.info->add_ref();
     t_thread.info = new Chuck_Namespace;
