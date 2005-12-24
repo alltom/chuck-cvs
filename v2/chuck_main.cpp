@@ -58,7 +58,7 @@
 
 
 // current version
-#define CK_VERSION "1.2.0.5-rc1 (dracula)"
+const char CK_VERSION[] = "1.2.0.5-rc1 (dracula)";
 
 
 // global variables
