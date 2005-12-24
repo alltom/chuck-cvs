@@ -34,6 +34,7 @@
 #include "chuck_lang.h"
 #include "chuck_errmsg.h"
 #include "chuck_otf.h"
+#include "chuck_bbq.h"
 
 #include "ugen_osc.h"
 #include "ugen_xxx.h"
@@ -570,4 +571,19 @@ error:
     EM_poplog();
 
     return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: all_detach()
+// desc: called during cleanup to close all open file handles
+//-----------------------------------------------------------------------------
+extern "C" void all_detach()
+{
+    // close stk file handles
+    stk_detach( 0, NULL );
+    // close midi file handles
+    midirw_detach();
 }

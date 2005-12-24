@@ -98,21 +98,6 @@ ck_socket g_sock = NULL;
 
 
 //-----------------------------------------------------------------------------
-// name: all_detach()
-// desc: called during cleanup to close all open file handles
-//-----------------------------------------------------------------------------
-extern "C" void all_detach()
-{
-    // close stk file handles
-    stk_detach( 0, NULL );
-    // close midi file handles
-    midirw_detach();
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: signal_int()
 // desc: ...
 //-----------------------------------------------------------------------------

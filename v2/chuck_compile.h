@@ -100,6 +100,10 @@ protected: // internal
 };
 
 
+// call this to detach all open files
+extern "C" void all_detach();
+
+
 
 
 #endif
