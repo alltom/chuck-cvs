@@ -583,8 +583,20 @@ void Chuck_Shell::continue_code( string & in )
 void Chuck_Shell::do_code( string & code, string & out, string command )
 {
     // open a temporary file
+#if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
+	char tmp_dir[] = "/tmp";
+	char tmp_filepath[] = "/tmp/chuck_file.XXXXX";
+	int fd = mkstemp( tmp_filepath );
+	if( fd == -1 )
+	{
+		out += "shell: error: unable to create tmpfile at " + tmp_dir + "\n";
+	}
+	
+	FILE * tmp_file = fdopen( fd, "r" );
+#else
     char * tmp_filepath = tmpnam( NULL );
     FILE * tmp_file = fopen( tmp_filepath, "w" );
+#endif
     
     // print out the code (for debugging)
     // printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
@@ -604,7 +616,7 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
 #ifndef __PLATFORM_WIN32__
     unlink( tmp_filepath );
 #else
-    // delete the file...
+    DeleteFile( tmp_filepath );
 #endif // __PLATFORM_WIN32__
     
     prompt = variables["COMMAND_PROMPT"];
@@ -1150,7 +1162,7 @@ t_CKINT Chuck_Shell::Command_Kill::execute( vector< string > & argv,
 {
     caller->current_vm->kill( out );
     if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments...\n";
+        out += "kill: warning: ignoring excess arguments...\n";
 
     return 0;
 }
@@ -1170,7 +1182,7 @@ t_CKINT Chuck_Shell::Command_Close::execute( vector< string > & argv,
         out += "(note: in-process VM still running, hit ctrl-c to exit)\n";
     
     if( argv.size() > 0 )
-        out += "(warning: ignoring excess arguments...)\n";
+        out += "close: warning: ignoring excess arguments...\n";
 
     return 0;
 }
@@ -1184,7 +1196,7 @@ t_CKINT Chuck_Shell::Command_Exit::execute( vector< string > & argv,
 {
     caller->exit();
     if( argv.size() > 0 )
-        out += "ignoring excess arguments...\n";
+        out += "exit: warning: ignoring excess arguments...\n";
 
     return 0;
 }
@@ -1327,12 +1339,13 @@ t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
     if( argv.size() < 1 )
     {
         if( chdir( getenv( "HOME" ) ) )
-            out += "error: cd command failed\n";
+            out += "cd: error: command failed\n";
     }
+	
     else
     {
         if( chdir( argv[0].c_str() ) )
-            out += "error: cd command failed\n";
+            out += "cd: error: command failed\n";
     }
     
 #else
@@ -1342,7 +1355,7 @@ t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
 	else
 	{
 		if( !SetCurrentDirectory( argv[0].c_str() ) )
-			out += "error: cd command failed\n";
+			out += "cd: error: command failed\n";
 	}
 
 #endif //__PLATFORM_WIN32__
@@ -1360,8 +1373,6 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
     char * cwd = getcwd( NULL, 0 );
     out += string( cwd ) + "\n";
     free( cwd );
-    if( argv.size() > 0 )
-        out += "warning: ignoring excess arguments...\n";
 #else
     DWORD i, k = 256;
 	LPTSTR cwd = new char [k];
@@ -1378,6 +1389,10 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
 
 	SAFE_DELETE_ARRAY( cwd );
 #endif
+	
+	if( argv.size() > 0 )
+        out += "pwd: warning: ignoring excess arguments...\n";
+	
     return 0;
 }
 
@@ -1401,7 +1416,7 @@ t_CKINT Chuck_Shell::Command_Alias::execute( vector< string > & argv,
         {
             // see if the alias exists in the map
             if( caller->aliases.find( argv[i] ) == caller->aliases.end() )
-                out += "error: alias " + argv[i] + " not found\n";
+                out += "alias: error: alias " + argv[i] + " not found\n";
             else
                 out += "alias " + argv[i] + "='" + 
                        caller->aliases[argv[i]] + "'\n";
