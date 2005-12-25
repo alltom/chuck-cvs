@@ -506,7 +506,7 @@ t_CKBOOL Chuck_VM::run( )
     m_running = TRUE;
 
     // log
-    EM_log( CK_LOG_SYSTEM, "starting virtual machine..." );
+    EM_log( CK_LOG_SYSTEM, "running virtual machine..." );
     // push indent
     EM_pushlog();
 
