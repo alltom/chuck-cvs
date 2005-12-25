@@ -1,7 +1,6 @@
 1.2.0.5
 ---
   - (fixed) (internal) type checker re-instantiation patched
-  - (fixed) (internal) detach_all() moved to chuck_compile
 
 
 1.2.0.4
