@@ -584,15 +584,26 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
 {
     // open a temporary file
 #if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
-	char tmp_dir[] = "/tmp";
-	char tmp_filepath[] = "/tmp/chuck_file.XXXXX";
-	int fd = mkstemp( tmp_filepath );
-	if( fd == -1 )
-	{
-		out += "shell: error: unable to create tmpfile at " + tmp_dir + "\n";
-	}
-	
-	FILE * tmp_file = fdopen( fd, "r" );
+  char tmp_dir[] = "/tmp";
+  char * tmp_filepath = new char [32];
+  strncpy( tmp_filepath, "/tmp/chuck_file.XXXXXX", 32 );
+  int fd = mkstemp( tmp_filepath );
+  if( fd == -1 )
+    {
+      out += string( "shell: error: unable to create tmpfile at " ) + tmp_dir + "\n";
+      delete[] tmp_filepath;
+      prompt = variables["COMMAND_PROMPT"];
+      return;
+    }
+  
+  FILE * tmp_file = fdopen( fd, "w+" );
+  if( tmp_file == NULL )
+    {
+      out += string( "shell: error: unable to reopen tmpfile at " ) + tmp_filepath + "\n";
+      delete[] tmp_filepath;
+      prompt = variables["COMMAND_PROMPT"];
+      return;
+    }
 #else
     char * tmp_filepath = tmpnam( NULL );
     FILE * tmp_file = fopen( tmp_filepath, "w" );
@@ -618,7 +629,11 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
 #else
     DeleteFile( tmp_filepath );
 #endif // __PLATFORM_WIN32__
-    
+
+#if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
+    delete[] tmp_filepath;
+#endif
+
     prompt = variables["COMMAND_PROMPT"];
 }
 
