@@ -537,6 +537,10 @@ void * otf_cb( void * p )
                     otf_ntoh( &msg );
                 }
             }
+            else
+            {
+                usleep( 10000 );
+            }
         }
         
         otf_hton( &ret );
