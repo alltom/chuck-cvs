@@ -584,35 +584,31 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
 {
     // open a temporary file
 #if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
-  char tmp_dir[] = "/tmp";
-  char * tmp_filepath = new char [32];
-  strncpy( tmp_filepath, "/tmp/chuck_file.XXXXXX", 32 );
-  int fd = mkstemp( tmp_filepath );
-  if( fd == -1 )
+	char tmp_dir[] = "/tmp";
+	char * tmp_filepath = new char [32];
+	strncpy( tmp_filepath, "/tmp/chuck_file.XXXXXX", 32 );
+	int fd = mkstemp( tmp_filepath );
+	if( fd == -1 )
     {
-      out += string( "shell: error: unable to create tmpfile at " ) + tmp_dir + "\n";
-      delete[] tmp_filepath;
-      prompt = variables["COMMAND_PROMPT"];
-      return;
+		out += string( "shell: error: unable to create tmpfile at " ) + tmp_dir + "\n";
+		delete[] tmp_filepath;
+		prompt = variables["COMMAND_PROMPT"];
+		return;
     }
-  
-  FILE * tmp_file = fdopen( fd, "w+" );
-  if( tmp_file == NULL )
+	
+	FILE * tmp_file = fdopen( fd, "w+" );
+	if( tmp_file == NULL )
     {
-      out += string( "shell: error: unable to reopen tmpfile at " ) + tmp_filepath + "\n";
-      delete[] tmp_filepath;
-      prompt = variables["COMMAND_PROMPT"];
-      return;
+		out += string( "shell: error: unable to reopen tmpfile at " ) + tmp_filepath + "\n";
+		delete[] tmp_filepath;
+		prompt = variables["COMMAND_PROMPT"];
+		return;
     }
 #else
     char * tmp_filepath = tmpnam( NULL );
     FILE * tmp_file = fopen( tmp_filepath, "w" );
 #endif
-    
-    // print out the code (for debugging)
-    // printf( "head: %s\ntail: %s\n", head.c_str(), tail.c_str() );
-    // printf( "--start code--\n%s\n--end code--\n", code.c_str() );
-    
+        
     // write the code to the temp file
     fprintf( tmp_file, "%s", code.c_str() );
     fclose( tmp_file );
