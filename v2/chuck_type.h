@@ -350,7 +350,9 @@ struct Chuck_Context : public Chuck_VM_Object
 struct Chuck_Env : public Chuck_VM_Object
 {
 public:
+    static t_CKBOOL startup();
     static Chuck_Env * instance();
+    static t_CKBOOL shutdown();
 
 private:
     static Chuck_Env * our_instance;

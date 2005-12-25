@@ -130,18 +130,44 @@ Chuck_Env * Chuck_Env::our_instance = NULL;
 
 
 //-----------------------------------------------------------------------------
+// name: startup()
+// desc:
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Env::startup()
+{
+    assert( our_instance == NULL );
+    our_instance = new Chuck_Env;
+    assert( our_instance != NULL );
+    
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: instance()
 // desc: ...
 //-----------------------------------------------------------------------------
 Chuck_Env * Chuck_Env::instance()
 {
-    if( !our_instance )
-    {
-        our_instance = new Chuck_Env;
-        assert( our_instance != NULL );
-    }
-
     return our_instance;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: shutdown()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_Env::shutdown()
+{
+    assert( our_instance != NULL );
+    SAFE_DELETE( our_instance );
+    assert( our_instance == NULL );
+
+    return TRUE;
 }
 
 
@@ -159,6 +185,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     EM_pushlog();
 
     // allocate a new env
+    if( !Chuck_Env::startup() ) return NULL;
+    // get the instance
     Chuck_Env * env = Chuck_Env::instance();
     // set the name of global namespace
     env->global()->name = "global";
@@ -316,6 +344,31 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     EM_poplog();
 
     return env;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_shutdown()
+// desc: ...
+//-----------------------------------------------------------------------------
+void type_engine_shutdown( Chuck_Env * env )
+{
+    // log
+    EM_log( CK_LOG_SEVERE, "shutting down type checker..." );
+
+    // shut it down
+    Chuck_Env::shutdown();
+    
+    // TODO: free these properly
+    SAFE_RELEASE( t_object.info );
+    SAFE_RELEASE( t_array.info );
+    SAFE_RELEASE( t_string.info );
+    SAFE_RELEASE( t_ugen.info );
+    SAFE_RELEASE( t_shred.info );
+    SAFE_RELEASE( t_event.info );
+    SAFE_RELEASE( t_class.info );
+    SAFE_RELEASE( t_thread.info );
 }
 
 
