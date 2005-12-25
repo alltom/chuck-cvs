@@ -93,12 +93,11 @@ t_CKBOOL Chuck_Compiler::initialize( Chuck_VM * vm )
     // push indent level
     EM_pushlog();
 
-    // log
     // allocate the type checker
     env = type_engine_init( vm );
     // add reference
     env->add_ref();
-
+    
     // allocate the emitter
     emitter = emit_engine_init( env );
     // add reference
