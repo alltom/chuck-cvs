@@ -501,7 +501,7 @@ void * otf_cb( void * p )
         otf_ntoh( &msg );
         if( n != sizeof(msg) )
         {
-            fprintf( stderr, "[chuck]: 0-length packet...\n", (int)client );
+            fprintf( stderr, "[chuck]: 0-length packet...\n" );
             usleep( 40000 );
             ck_close( client );
             continue;
