@@ -144,7 +144,7 @@ public:
     t_CKUINT recv( MidiMsg * msg );
 
 public:
-    CBuffer * m_buffer;
+    CBufferAdvance * m_buffer;
     t_CKUINT m_read_index;
     RtMidiIn * min;
     t_CKBOOL m_valid;
@@ -172,7 +172,7 @@ protected:
     ~MidiInManager();
 
     static std::vector<RtMidiIn *> the_mins;
-    static std::vector<CBuffer *> the_bufs;
+    static std::vector<CBufferAdvance *> the_bufs;
 };
 
 

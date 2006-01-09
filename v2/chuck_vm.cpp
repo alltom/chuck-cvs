@@ -295,7 +295,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         EM_log( CK_LOG_SYSTEM, "devices adc: %ld dac: %d (default 0)", adc, dac );
     }
     EM_log( CK_LOG_SYSTEM, "channels in: %ld out: %d", 2, 2 );
-    
+
     // at least set the sample rate and buffer size
     m_bbq->set_srate( srate );
     m_bbq->set_bufsize( buffer_size );
@@ -372,22 +372,18 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     m_shreduler->m_num_dac_channels = m_num_dac_channels;
     m_shreduler->m_num_adc_channels = m_num_adc_channels;
 
-    // if real-time audio enabled
-    if( m_audio )
+    // log
+    EM_log( CK_LOG_SYSTEM, "initializing '%s' audio...", m_audio ? "real-time" : "fake-time" );
+    // init bbq
+    if( !m_bbq->initialize( 2, Digitalio::m_sampling_rate, 16, 
+        Digitalio::m_buffer_size, Digitalio::m_num_buffers,
+        Digitalio::m_dac_n, Digitalio::m_adc_n,
+        m_block, this, m_audio ) )
     {
-        // log
-        EM_log( CK_LOG_SYSTEM, "initializing real-time audio..." );
-        // init bbq
-        if( !m_bbq->initialize( 2, Digitalio::m_sampling_rate, 16, 
-            Digitalio::m_buffer_size, Digitalio::m_num_buffers,
-            Digitalio::m_dac_n, Digitalio::m_adc_n,
-            m_block, this ) )
-        {
-            m_last_error = "cannot initialize audio device (try using --silent/-s)";
-            // pop indent
-            EM_poplog();
-            return FALSE;
-        }
+        m_last_error = "cannot initialize audio device (try using --silent/-s)";
+        // pop indent
+        EM_poplog();
+        return FALSE;
     }
 
     // pop indent
@@ -600,7 +596,7 @@ t_CKBOOL Chuck_VM::compute()
             // track shred deactivation
             CK_TRACK( if( shred ) Chuck_Stats::instance()->deactivate_shred( shred ) );
         }
-            
+
         // set to false for now
         iterate = FALSE;
 

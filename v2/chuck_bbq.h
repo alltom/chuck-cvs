@@ -95,6 +95,7 @@ public:
                        DWORD__ adc = 0,
                        DWORD__ block = TRUE,
                        Chuck_VM * vm_ref = NULL,
+                       BOOL__  rt_audio = TRUE,
                        void * callback = NULL,
                        void * data = NULL );
     void set_srate( DWORD__ srate );

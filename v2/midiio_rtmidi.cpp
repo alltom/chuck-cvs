@@ -47,7 +47,7 @@
 #define BUFFER_SIZE 8192
 
 std::vector<RtMidiIn *> MidiInManager::the_mins;
-std::vector<CBuffer *> MidiInManager::the_bufs;
+std::vector<CBufferAdvance *> MidiInManager::the_bufs;
 std::vector<RtMidiOut *> MidiOutManager::the_mouts;
 
 
@@ -342,7 +342,7 @@ t_CKBOOL MidiInManager::open( MidiIn * min, t_CKINT device_num )
     if( device_num >= (t_CKINT)the_mins.capacity() || !the_mins[device_num] )
     {
         // allocate the buffer
-        CBuffer * cbuf = new CBuffer;
+        CBufferAdvance * cbuf = new CBufferAdvance;
         if( !cbuf->initialize( BUFFER_SIZE, sizeof(MidiMsg) ) )
         {
             if( !min->m_suppress_output )
@@ -453,7 +453,7 @@ void MidiInManager::cb_midi_input( double deltatime, std::vector<unsigned char> 
                                    void * userData )
 {
     unsigned int nBytes = msg->size();
-    CBuffer * cbuf = (CBuffer *)userData;
+    CBufferAdvance * cbuf = (CBufferAdvance *)userData;
     MidiMsg m;
     if( nBytes >= 1 ) m.data[0] = msg->at(0);
     if( nBytes >= 2 ) m.data[1] = msg->at(1);

@@ -52,14 +52,14 @@
 
 
 //-----------------------------------------------------------------------------
-// name: class CBuffer
+// name: class CBufferAdvance
 // desc: circular buffer
 //-----------------------------------------------------------------------------
-class CBuffer
+class CBufferAdvance
 {
 public:
-    CBuffer();
-    ~CBuffer();
+    CBufferAdvance();
+    ~CBufferAdvance();
 
 public:
     BOOL__ initialize( UINT__ num_elem, UINT__ width );

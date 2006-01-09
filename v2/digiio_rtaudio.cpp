@@ -177,7 +177,7 @@ void Digitalio::probe()
 BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                               DWORD__ bps, DWORD__ buffer_size, 
                               DWORD__ num_buffers, DWORD__ block,
-                              Chuck_VM * vm_ref,
+                              Chuck_VM * vm_ref, BOOL__ rt_audio,
                               void * callback, void * data )
 {
     if( m_init )
@@ -195,61 +195,38 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     m_end = 0;
     m_block = block;
 
-    // allocate RtAudio
-    try { m_rtaudio = new RtAudio( ); }
-    catch( RtError err )
+    // if real-time audio
+    if( rt_audio )
     {
-        // problem finding audio devices, most likely
-        EM_error2( 0, "%s", err.getMessageString() );
-        return m_init = FALSE;
-    }
-
-    // log
-    EM_log( CK_LOG_FINE, "initializing RtAudio..." );
-    // push indent
-    EM_pushlog();
-
-    // open device
-    try {
-        // log
-        EM_log( CK_LOG_FINE, "trying %d input %d output...", 
-                m_num_channels_in, m_num_channels_out );
-        // open RtAudio
-        m_rtaudio->openStream(
-            m_dac_n, m_num_channels_out, m_adc_n, m_num_channels_in,
-            CK_RTAUDIO_FORMAT, sampling_rate,
-            (int *)&m_buffer_size, num_buffers );
-        // set callback
-        if( m_use_cb )
+        // allocate RtAudio
+        try { m_rtaudio = new RtAudio( ); }
+        catch( RtError err )
         {
-            // log
-            EM_log( CK_LOG_INFO, "initializing callback..." );
-            if( !callback )
-            {
-                if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
-                else m_rtaudio->setStreamCallback( &cb2, vm_ref );
-            }
-            else
-            {
-                m_rtaudio->setStreamCallback( (RtAudioCallback)callback, data );
-            }
+            // problem finding audio devices, most likely
+            EM_error2( 0, "%s", err.getMessageString() );
+            return m_init = FALSE;
         }
-    } catch( RtError err ) {
+
         // log
-        EM_log( CK_LOG_INFO, "exception caught: '%s'...", err.getMessageString() );
-        EM_log( CK_LOG_INFO, "trying %d input %d output...", 0, m_num_channels_out );
+        EM_log( CK_LOG_FINE, "initializing RtAudio..." );
+        // push indent
+        EM_pushlog();
+
+        // open device
         try {
-            m_buffer_size = buffer_size;
-            // try output only
+            // log
+            EM_log( CK_LOG_FINE, "trying %d input %d output...", 
+                    m_num_channels_in, m_num_channels_out );
+            // open RtAudio
             m_rtaudio->openStream(
-                m_dac_n, m_num_channels_out, 0, 0,
-                RTAUDIO_FLOAT32, sampling_rate,
+                m_dac_n, m_num_channels_out, m_adc_n, m_num_channels_in,
+                CK_RTAUDIO_FORMAT, sampling_rate,
                 (int *)&m_buffer_size, num_buffers );
             // set callback
             if( m_use_cb )
             {
                 // log
-                EM_log( CK_LOG_INFO, "initializing callback (again)..." );
+                EM_log( CK_LOG_INFO, "initializing callback..." );
                 if( !callback )
                 {
                     if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
@@ -261,14 +238,41 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                 }
             }
         } catch( RtError err ) {
-            EM_error2( 0, "%s", err.getMessageString() );
-            SAFE_DELETE( m_rtaudio );
-            return m_init = FALSE;
+            // log
+            EM_log( CK_LOG_INFO, "exception caught: '%s'...", err.getMessageString() );
+            EM_log( CK_LOG_INFO, "trying %d input %d output...", 0, m_num_channels_out );
+            try {
+                m_buffer_size = buffer_size;
+                // try output only
+                m_rtaudio->openStream(
+                    m_dac_n, m_num_channels_out, 0, 0,
+                    RTAUDIO_FLOAT32, sampling_rate,
+                    (int *)&m_buffer_size, num_buffers );
+                // set callback
+                if( m_use_cb )
+                {
+                    // log
+                    EM_log( CK_LOG_INFO, "initializing callback (again)..." );
+                    if( !callback )
+                    {
+                        if( block ) m_rtaudio->setStreamCallback( &cb, vm_ref );
+                        else m_rtaudio->setStreamCallback( &cb2, vm_ref );
+                    }
+                    else
+                    {
+                        m_rtaudio->setStreamCallback( (RtAudioCallback)callback, data );
+                    }
+                }
+            } catch( RtError err ) {
+                EM_error2( 0, "%s", err.getMessageString() );
+                SAFE_DELETE( m_rtaudio );
+                return m_init = FALSE;
+            }
         }
-    }
 
-    // pop indent
-    EM_poplog();
+        // pop indent
+        EM_poplog();
+    }
 
     if( m_use_cb )
     {

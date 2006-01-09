@@ -2726,7 +2726,7 @@ class Instrmnt : public Stk
 
 
 /***************************************************/
-/*! \class Filter
+/*! \class Filter (renamed to Filter_Stk)
     \brief STK filter class.
 
     This class implements a generic structure which
@@ -2758,21 +2758,21 @@ class Instrmnt : public Stk
 #define __FILTER_H
 
 
-class Filter : public Stk
+class Filter_Stk : public Stk
 {
 public:
   //! Default constructor creates a zero-order pass-through "filter".
-  Filter(void);
+  Filter_Stk(void);
 
   //! Overloaded constructor which takes filter coefficients.
   /*!
     An StkError can be thrown if either \e nb or \e na is less than
     one, or if the a[0] coefficient is equal to zero.
   */
-  Filter(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients);
+  Filter_Stk(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients);
 
   //! Class destructor.
-  virtual ~Filter(void);
+  virtual ~Filter_Stk(void);
 
   //! Clears all internal states of the filter.
   void clear(void);
@@ -2864,7 +2864,7 @@ public:
 #define __DELAY_H
 
 
-class Delay : public Filter
+class Delay : public Filter_Stk
 {
 public:
 
@@ -3081,7 +3081,7 @@ public: // SWAP formerly protected
 #define __BIQUAD_H
 
 
-class BiQuad : public Filter
+class BiQuad : public Filter_Stk
 {
 public:
 
@@ -3595,7 +3595,7 @@ public:
 #define __TWOZERO_H
 
 
-class TwoZero : public Filter // formerly protected Filter
+class TwoZero : public Filter_Stk // formerly protected Filter
 {
  public:
   //! Default constructor creates a second-order pass-through filter.
@@ -3889,7 +3889,7 @@ public: // SWAP formerly protected
 #define __POLEZERO_H
 
 
-class PoleZero : public Filter // formerly protected Filter
+class PoleZero : public Filter_Stk // formerly protected Filter
 {
  public:
 
@@ -4187,7 +4187,7 @@ public: // SWAP formerly protected
 #define __ONEZERO_H
 
 
-class OneZero : public Filter // formerly protected Filter
+class OneZero : public Filter_Stk // formerly protected Filter
 {
  public:
 
@@ -4375,7 +4375,7 @@ class BlowHole : public Instrmnt
 #if !defined(__ONEPOLE_H)
 #define __ONEPOLE_H
 
-class OnePole : public Filter // formerly protected Filter
+class OnePole : public Filter_Stk // formerly protected Filter
 {
 public:
 
@@ -7705,7 +7705,7 @@ class TubeBell : public FM
 #define __TWOPOLE_H
 
 
-class TwoPole : public Filter // formerly protected Filter
+class TwoPole : public Filter_Stk // formerly protected Filter
 {
  public:
 
@@ -9395,11 +9395,11 @@ MY_FLOAT BeeThree :: tick()
 
 #include <math.h>
 
-BiQuad :: BiQuad() : Filter()
+BiQuad :: BiQuad() : Filter_Stk()
 {
   MY_FLOAT B[3] = {1.0, 0.0, 0.0};
   MY_FLOAT A[3] = {1.0, 0.0, 0.0};
-  Filter::setCoefficients( 3, B, 3, A );
+  Filter_Stk::setCoefficients( 3, B, 3, A );
 }
 
 BiQuad :: ~BiQuad()
@@ -9408,7 +9408,7 @@ BiQuad :: ~BiQuad()
 
 void BiQuad :: clear(void)
 {
-  Filter::clear();
+  Filter_Stk::clear();
 }
 
 void BiQuad :: setB0(MY_FLOAT b0)
@@ -9465,17 +9465,17 @@ void BiQuad :: setEqualGainZeroes()
 
 void BiQuad :: setGain(MY_FLOAT theGain)
 {
-  Filter::setGain(theGain);
+  Filter_Stk::setGain(theGain);
 }
 
 MY_FLOAT BiQuad :: getGain(void) const
 {
-  return Filter::getGain();
+  return Filter_Stk::getGain();
 }
 
 MY_FLOAT BiQuad :: lastOut(void) const
 {
-  return Filter::lastOut();
+  return Filter_Stk::lastOut();
 }
 
 MY_FLOAT BiQuad :: tick(MY_FLOAT sample)
@@ -11090,7 +11090,7 @@ MY_FLOAT Delay :: contentsAt(unsigned long tapDelay) const
 
 MY_FLOAT Delay :: lastOut(void) const
 {
-  return Filter::lastOut();
+  return Filter_Stk::lastOut();
 }
 
 MY_FLOAT Delay :: nextOut(void) const
@@ -12208,7 +12208,7 @@ void FMVoices :: controlChange(int number, MY_FLOAT value)
 
 #include <stdio.h>
 
-Filter :: Filter()
+Filter_Stk :: Filter_Stk()
 {
   // The default constructor should setup for pass-through.
   gain = 1.0;
@@ -12224,7 +12224,7 @@ Filter :: Filter()
   this->clear();
 }
 
-Filter :: Filter(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
+Filter_Stk :: Filter_Stk(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
 {
   char message[256];
 
@@ -12252,7 +12252,7 @@ Filter :: Filter(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficient
   this->setCoefficients(nB, bCoefficients, nA, aCoefficients);
 }
 
-Filter :: ~Filter()
+Filter_Stk :: ~Filter_Stk()
 {
   delete [] b;
   delete [] a;
@@ -12260,7 +12260,7 @@ Filter :: ~Filter()
   delete [] outputs;
 }
 
-void Filter :: clear(void)
+void Filter_Stk :: clear(void)
 {
   int i;
   for (i=0; i<nB; i++)
@@ -12269,7 +12269,7 @@ void Filter :: clear(void)
     outputs[i] = 0.0;
 }
 
-void Filter :: setCoefficients(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
+void Filter_Stk :: setCoefficients(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
 {
   int i;
   char message[256];
@@ -12317,7 +12317,7 @@ void Filter :: setCoefficients(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT
   }
 }
 
-void Filter :: setNumerator(int nb, MY_FLOAT *bCoefficients)
+void Filter_Stk :: setNumerator(int nb, MY_FLOAT *bCoefficients)
 {
   int i;
   char message[256];
@@ -12341,7 +12341,7 @@ void Filter :: setNumerator(int nb, MY_FLOAT *bCoefficients)
     b[i] = bCoefficients[i];
 }
 
-void Filter :: setDenominator(int na, MY_FLOAT *aCoefficients)
+void Filter_Stk :: setDenominator(int na, MY_FLOAT *aCoefficients)
 {
   int i;
   char message[256];
@@ -12379,22 +12379,22 @@ void Filter :: setDenominator(int na, MY_FLOAT *aCoefficients)
   }
 }
 
-void Filter :: setGain(MY_FLOAT theGain)
+void Filter_Stk :: setGain(MY_FLOAT theGain)
 {
   gain = theGain;
 }
 
-MY_FLOAT Filter :: getGain(void) const
+MY_FLOAT Filter_Stk :: getGain(void) const
 {
   return gain;
 }
 
-MY_FLOAT Filter :: lastOut(void) const
+MY_FLOAT Filter_Stk :: lastOut(void) const
 {
   return outputs[0];
 }
 
-MY_FLOAT Filter :: tick(MY_FLOAT sample)
+MY_FLOAT Filter_Stk :: tick(MY_FLOAT sample)
 {
   int i;
 
@@ -12414,7 +12414,7 @@ MY_FLOAT Filter :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *Filter :: tick(MY_FLOAT *vec, unsigned int vectorSize)
+MY_FLOAT *Filter_Stk :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
     vec[i] = tick(vec[i]);
@@ -14452,14 +14452,14 @@ MY_FLOAT Noise :: lastOut() const
 /***************************************************/
 
 
-OnePole :: OnePole() : Filter()
+OnePole :: OnePole() : Filter_Stk()
 {
   MY_FLOAT B = 0.1;
   MY_FLOAT A[2] = {1.0, -0.9};
-  Filter::setCoefficients( 1, &B, 2, A );
+  Filter_Stk::setCoefficients( 1, &B, 2, A );
 }
 
-OnePole :: OnePole(MY_FLOAT thePole) : Filter()
+OnePole :: OnePole(MY_FLOAT thePole) : Filter_Stk()
 {
   MY_FLOAT B;
   MY_FLOAT A[2] = {1.0, -0.9};
@@ -14471,7 +14471,7 @@ OnePole :: OnePole(MY_FLOAT thePole) : Filter()
     B = (MY_FLOAT) (1.0 + thePole);
 
   A[1] = -thePole;
-  Filter::setCoefficients( 1, &B, 2,  A );
+  Filter_Stk::setCoefficients( 1, &B, 2,  A );
 }
 
 OnePole :: ~OnePole()    
@@ -14480,7 +14480,7 @@ OnePole :: ~OnePole()
 
 void OnePole :: clear(void)
 {
-  Filter::clear();
+  Filter_Stk::clear();
 }
 
 void OnePole :: setB0(MY_FLOAT b0)
@@ -14506,17 +14506,17 @@ void OnePole :: setPole(MY_FLOAT thePole)
 
 void OnePole :: setGain(MY_FLOAT theGain)
 {
-  Filter::setGain(theGain);
+  Filter_Stk::setGain(theGain);
 }
 
 MY_FLOAT OnePole :: getGain(void) const
 {
-  return Filter::getGain();
+  return Filter_Stk::getGain();
 }
 
 MY_FLOAT OnePole :: lastOut(void) const
 {
-  return Filter::lastOut();
+  return Filter_Stk::lastOut();
 }
 
 MY_FLOAT OnePole :: tick(MY_FLOAT sample)
@@ -14550,14 +14550,14 @@ MY_FLOAT *OnePole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 /***************************************************/
 
 
-OneZero :: OneZero() : Filter()
+OneZero :: OneZero() : Filter_Stk()
 {
   MY_FLOAT B[2] = {0.5, 0.5};
   MY_FLOAT A = 1.0;
-  Filter::setCoefficients( 2, B, 1, &A );
+  Filter_Stk::setCoefficients( 2, B, 1, &A );
 }
 
-OneZero :: OneZero(MY_FLOAT theZero) : Filter()
+OneZero :: OneZero(MY_FLOAT theZero) : Filter_Stk()
 {
   MY_FLOAT B[2];
   MY_FLOAT A = 1.0;
@@ -14569,7 +14569,7 @@ OneZero :: OneZero(MY_FLOAT theZero) : Filter()
     B[0] = 1.0 / ((MY_FLOAT) 1.0 - theZero);
 
   B[1] = -theZero * B[0];
-  Filter::setCoefficients( 2, B, 1,  &A );
+  Filter_Stk::setCoefficients( 2, B, 1,  &A );
 }
 
 OneZero :: ~OneZero(void)
@@ -14578,7 +14578,7 @@ OneZero :: ~OneZero(void)
 
 void OneZero :: clear(void)
 {
-  Filter::clear();
+  Filter_Stk::clear();
 }
 
 void OneZero :: setB0(MY_FLOAT b0)
@@ -14604,17 +14604,17 @@ void OneZero :: setZero(MY_FLOAT theZero)
 
 void OneZero :: setGain(MY_FLOAT theGain)
 {
-  Filter::setGain(theGain);
+  Filter_Stk::setGain(theGain);
 }
 
 MY_FLOAT OneZero :: getGain(void) const
 {
-  return Filter::getGain();
+  return Filter_Stk::getGain();
 }
 
 MY_FLOAT OneZero :: lastOut(void) const
 {
-  return Filter::lastOut();
+  return Filter_Stk::lastOut();
 }
 
 MY_FLOAT OneZero :: tick(MY_FLOAT sample)
@@ -15460,12 +15460,12 @@ MY_FLOAT Plucked :: tick()
 /***************************************************/
 
 
-PoleZero :: PoleZero() : Filter()
+PoleZero :: PoleZero() : Filter_Stk()
 {
   // Default setting for pass-through.
   MY_FLOAT B[2] = {1.0, 0.0};
   MY_FLOAT A[2] = {1.0, 0.0};
-  Filter::setCoefficients( 2, B, 2, A );
+  Filter_Stk::setCoefficients( 2, B, 2, A );
 }
 
 PoleZero :: ~PoleZero()
@@ -15474,7 +15474,7 @@ PoleZero :: ~PoleZero()
 
 void PoleZero :: clear(void)
 {
-  Filter::clear();
+  Filter_Stk::clear();
 }
 
 void PoleZero :: setB0(MY_FLOAT b0)
@@ -15510,17 +15510,17 @@ void PoleZero :: setBlockZero(MY_FLOAT thePole)
 
 void PoleZero :: setGain(MY_FLOAT theGain)
 {
-  Filter::setGain(theGain);
+  Filter_Stk::setGain(theGain);
 }
 
 MY_FLOAT PoleZero :: getGain(void) const
 {
-  return Filter::getGain();
+  return Filter_Stk::getGain();
 }
 
 MY_FLOAT PoleZero :: lastOut(void) const
 {
-  return Filter::lastOut();
+  return Filter_Stk::lastOut();
 }
 
 MY_FLOAT PoleZero :: tick(MY_FLOAT sample)
@@ -18779,14 +18779,14 @@ MY_FLOAT TubeBell :: tick()
 
 #include <math.h>
 
-TwoPole :: TwoPole() : Filter()
+TwoPole :: TwoPole() : Filter_Stk()
 {
   MY_FLOAT B = 1.0;
   MY_FLOAT A[3] = {1.0, 0.0, 0.0};
   m_resFreq = 440.0;
   m_resRad = 0.0;
   m_resNorm = false;
-  Filter::setCoefficients( 1, &B, 3, A );
+  Filter_Stk::setCoefficients( 1, &B, 3, A );
 }
 
 TwoPole :: ~TwoPole()
@@ -18795,7 +18795,7 @@ TwoPole :: ~TwoPole()
 
 void TwoPole :: clear(void)
 {
-  Filter::clear();
+  Filter_Stk::clear();
 }
 
 void TwoPole :: setB0(MY_FLOAT b0)
@@ -18828,17 +18828,17 @@ void TwoPole :: setResonance(MY_FLOAT frequency, MY_FLOAT radius, bool normalize
 
 void TwoPole :: setGain(MY_FLOAT theGain)
 {
-  Filter::setGain(theGain);
+  Filter_Stk::setGain(theGain);
 }
 
 MY_FLOAT TwoPole :: getGain(void) const
 {
-  return Filter::getGain();
+  return Filter_Stk::getGain();
 }
 
 MY_FLOAT TwoPole :: lastOut(void) const
 {
-  return Filter::lastOut();
+  return Filter_Stk::lastOut();
 }
 
 MY_FLOAT TwoPole :: tick(MY_FLOAT sample)
@@ -18874,13 +18874,13 @@ MY_FLOAT *TwoPole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 
 #include <math.h>
 
-TwoZero :: TwoZero() : Filter()
+TwoZero :: TwoZero() : Filter_Stk()
 {
   MY_FLOAT B[3] = {1.0, 0.0, 0.0};
   MY_FLOAT A = 1.0;
   m_notchFreq = 440.0;
   m_notchRad = 0.0;
-  Filter::setCoefficients( 3, B, 1, &A );
+  Filter_Stk::setCoefficients( 3, B, 1, &A );
 }
 
 TwoZero :: ~TwoZero()
@@ -18889,7 +18889,7 @@ TwoZero :: ~TwoZero()
 
 void TwoZero :: clear(void)
 {
-  Filter::clear();
+  Filter_Stk::clear();
 }
 
 void TwoZero :: setB0(MY_FLOAT b0)
@@ -18923,17 +18923,17 @@ void TwoZero :: setNotch(MY_FLOAT frequency, MY_FLOAT radius)
 
 void TwoZero :: setGain(MY_FLOAT theGain)
 {
-  Filter::setGain(theGain);
+  Filter_Stk::setGain(theGain);
 }
 
 MY_FLOAT TwoZero :: getGain(void) const
 {
-  return Filter::getGain();
+  return Filter_Stk::getGain();
 }
 
 MY_FLOAT TwoZero :: lastOut(void) const
 {
-  return Filter::lastOut();
+  return Filter_Stk::lastOut();
 }
 
 MY_FLOAT TwoZero :: tick(MY_FLOAT sample)
@@ -25380,7 +25380,7 @@ CK_DLL_CTRL( ADSR_ctrl_keyOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Filter_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Filter_offset_data ) = (t_CKUINT)new Filter;
+    OBJ_MEMBER_UINT(SELF, Filter_offset_data ) = (t_CKUINT)new Filter_Stk;
 }
 
 
@@ -25390,7 +25390,7 @@ CK_DLL_CTOR( Filter_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Filter_dtor )
 {
-    delete (Filter *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
+    delete (Filter_Stk *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
 }
 
 
@@ -25400,7 +25400,7 @@ CK_DLL_DTOR( Filter_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Filter_tick )
 {
-    Filter * d = (Filter *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
+    Filter_Stk * d = (Filter_Stk *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
     *out = d->tick( in );
     return TRUE;
 }

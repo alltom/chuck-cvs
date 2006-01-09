@@ -111,6 +111,7 @@ public:
                               DWORD__ num_buffers = NUM_BUFFERS_DEFAULT,
                               DWORD__ block = TRUE,
                               Chuck_VM * vm_ref = NULL,
+                              BOOL__  rt_audio = TRUE,
                               void * callback = NULL, void * data = NULL );
     static void shutdown();
     static void probe();

@@ -39,10 +39,10 @@
 
 
 //-----------------------------------------------------------------------------
-// name: Cbuffer()
+// name: CBufferAdvance()
 // desc: constructor
 //-----------------------------------------------------------------------------
-CBuffer::CBuffer()
+CBufferAdvance::CBufferAdvance()
 {
     m_data = NULL;
     m_data_width = m_write_offset = m_max_elem = 0; // = m_read_offset
@@ -52,10 +52,10 @@ CBuffer::CBuffer()
 
 
 //-----------------------------------------------------------------------------
-// name: ~CBuffer()
+// name: ~CBufferAdvance()
 // desc: destructor
 //-----------------------------------------------------------------------------
-CBuffer::~CBuffer()
+CBufferAdvance::~CBufferAdvance()
 {
     this->cleanup();
 }
@@ -67,7 +67,7 @@ CBuffer::~CBuffer()
 // name: initialize()
 // desc: initialize
 //-----------------------------------------------------------------------------
-BOOL__ CBuffer::initialize( UINT__ num_elem, UINT__ width )
+BOOL__ CBufferAdvance::initialize( UINT__ num_elem, UINT__ width )
 {
     // cleanup
     cleanup();
@@ -92,7 +92,7 @@ BOOL__ CBuffer::initialize( UINT__ num_elem, UINT__ width )
 // name: cleanup()
 // desc: cleanup
 //-----------------------------------------------------------------------------
-void CBuffer::cleanup()
+void CBufferAdvance::cleanup()
 {
     if( !m_data )
         return;
@@ -111,7 +111,7 @@ void CBuffer::cleanup()
 // name: UINT__ join()
 // desc: shred can call this to get an index into the vector of read pointers
 //-----------------------------------------------------------------------------
-UINT__ CBuffer::join( Chuck_Event * event )
+UINT__ CBufferAdvance::join( Chuck_Event * event )
 {
     // index of new pointer that will be pushed back
     UINT__ read_offset_index;
@@ -141,7 +141,7 @@ UINT__ CBuffer::join( Chuck_Event * event )
 // name: resign
 // desc: shred quits buffer; frees its index
 //-----------------------------------------------------------------------------
-void CBuffer::resign( UINT__ read_offset_index )
+void CBufferAdvance::resign( UINT__ read_offset_index )
 {
     // make sure read_offset_index passed in is valid
     if( read_offset_index < 0 || read_offset_index >= m_read_offsets.size() )
@@ -159,7 +159,7 @@ void CBuffer::resign( UINT__ read_offset_index )
 // name: put()
 // desc: put
 //-----------------------------------------------------------------------------
-/*void CBuffer::put( void * data, UINT__ num_elem )
+/*void CBufferAdvance::put( void * data, UINT__ num_elem )
 {
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
@@ -182,7 +182,7 @@ void CBuffer::resign( UINT__ read_offset_index )
 }*/
 
 
-void CBuffer::put( void * data, UINT__ num_elem )
+void CBufferAdvance::put( void * data, UINT__ num_elem )
 {
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
@@ -224,7 +224,7 @@ void CBuffer::put( void * data, UINT__ num_elem )
 // name: get()
 // desc: get
 //-----------------------------------------------------------------------------
-/*UINT__ CBuffer::get( void * data, UINT__ num_elem )
+/*UINT__ CBufferAdvance::get( void * data, UINT__ num_elem )
 {
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
@@ -261,7 +261,7 @@ void CBuffer::put( void * data, UINT__ num_elem )
 }*/
 
 
-BOOL__ CBuffer::empty( UINT__ read_offset_index )
+BOOL__ CBufferAdvance::empty( UINT__ read_offset_index )
 {
     // make sure index is valid
     if( read_offset_index >= m_read_offsets.size() )
@@ -276,7 +276,7 @@ BOOL__ CBuffer::empty( UINT__ read_offset_index )
 }
 
 
-UINT__ CBuffer::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
+UINT__ CBufferAdvance::get( void * data, UINT__ num_elem, UINT__ read_offset_index )
 {
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
