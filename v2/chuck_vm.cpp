@@ -499,6 +499,20 @@ t_CKBOOL Chuck_VM::start_audio( )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::run( )
 {
+    // check if init
+    if( m_dac == NULL )
+    {
+        m_last_error = "VM and/or synthesis not initialized...";
+        return FALSE;
+    }
+
+    // check if already running
+    if( m_running )
+    {
+        m_last_error = "virtual machine already running...";
+        return FALSE;
+    }
+
     m_running = TRUE;
 
     // log
