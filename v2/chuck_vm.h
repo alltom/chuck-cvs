@@ -301,6 +301,7 @@ public: // for event related shred queue
 public:
     // time and audio
     t_CKTIME now_system;
+    t_CKBOOL rt_audio;
     BBQ * bbq;
 
     // shreds to be shreduled

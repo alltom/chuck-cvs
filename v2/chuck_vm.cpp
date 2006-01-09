@@ -268,7 +268,8 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     EM_log( CK_LOG_SYSTEM, "allocating shreduler..." );
     // allocate shreduler
     m_shreduler = new Chuck_VM_Shreduler;
-    m_shreduler->bbq = m_audio ? m_bbq : NULL;
+    m_shreduler->bbq = m_bbq;
+    m_shreduler->rt_audio = enable_audio;
 
     // log
     EM_log( CK_LOG_SYSTEM, "allocating messaging buffers..." );
@@ -480,6 +481,7 @@ t_CKBOOL Chuck_VM::start_audio( )
     // audio
     if( !m_audio_started && m_audio )
     {
+        EM_log( CK_LOG_SEVERE, "starting real-time audio..." );
         m_bbq->digi_out()->start();
         m_bbq->digi_in()->start();
     }
@@ -521,10 +523,10 @@ t_CKBOOL Chuck_VM::run( )
     EM_pushlog();
 
     // audio
-    if( m_audio )
-    {
+    //if( m_audio )
+    //{
         // log
-        EM_log( CK_LOG_SEVERE, "starting real-time audio..." );
+        EM_log( CK_LOG_SEVERE, "initializing audio buffers..." );
         if( !m_bbq->digi_out()->initialize( ) )
         {
             m_last_error = "cannot open audio output (option: use --silent/-s)";
@@ -532,7 +534,7 @@ t_CKBOOL Chuck_VM::run( )
         }
 
         m_bbq->digi_in()->initialize( );
-    }
+    //}
 
     // log
     EM_log( CK_LOG_SEVERE, "virtual machine running..." );
@@ -540,7 +542,7 @@ t_CKBOOL Chuck_VM::run( )
     EM_poplog();
 
     // run
-    if( !m_audio || m_block ) this->run( -1 );
+    if( m_block ) this->run( -1 );
     else
     {
         // compute shreds before first sample
@@ -1422,8 +1424,15 @@ t_CKBOOL Chuck_VM_Shred::run( Chuck_VM * vm )
 //-----------------------------------------------------------------------------
 Chuck_VM_Shreduler::Chuck_VM_Shreduler()
 {
-    shred_list = NULL;
     now_system = 0;
+    rt_audio = FALSE;
+    bbq = NULL;
+    shred_list = NULL;
+    m_dac = NULL;
+    m_adc = NULL;
+    m_bunghole = NULL;
+    m_num_dac_channels = 0;
+    m_num_adc_channels = 0;
 }
 
 
@@ -1596,7 +1605,7 @@ void Chuck_VM_Shreduler::advance( )
     BBQ * audio = this->bbq;
 
     // tick in
-    if( audio )
+    if( rt_audio )
     {
         audio->digi_in()->tick_in( &l, &r );
         m_adc->m_multi_chan[0]->m_current = l * m_adc->m_multi_chan[0]->m_gain;
@@ -1618,8 +1627,7 @@ void Chuck_VM_Shreduler::advance( )
     m_bunghole->system_tick( this->now_system );
 
     // tick
-    if( audio )
-        audio->digi_out()->tick_out( l, r );
+    audio->digi_out()->tick_out( l, r );
 }
 
 

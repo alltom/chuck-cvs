@@ -418,7 +418,7 @@ int main( int argc, char ** argv )
 
     // log level
     EM_setlog( log_level );
-    
+
     // probe
     if( probe )
     {
@@ -436,6 +436,8 @@ int main( int argc, char ** argv )
     
     // check buffer size
     buffer_size = next_power_2( buffer_size-1 );
+    // check mode and blocking
+    if( !enable_audio && !block ) block = TRUE;
     // audio, boost
     if( !set_priority && !block ) g_priority = g_priority_low;
     if( !set_priority && !enable_audio ) g_priority = 0x7fffffff;

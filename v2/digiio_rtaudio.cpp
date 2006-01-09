@@ -195,6 +195,9 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     m_end = 0;
     m_block = block;
 
+    // if rt_audio is false, then set block to FALSE to avoid deadlock
+    if( !rt_audio ) m_block = FALSE;
+
     // if real-time audio
     if( rt_audio )
     {
@@ -277,7 +280,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     if( m_use_cb )
     {
         // log
-        EM_log( CK_LOG_FINE, "allocating buffers for %d x %d samples...",
+        EM_log( CK_LOG_SEVERE, "allocating buffers for %d x %d samples...",
                 m_buffer_size, num_channels );
         // allocate buffers
         m_buffer_in = new SAMPLE[m_buffer_size * num_channels];
