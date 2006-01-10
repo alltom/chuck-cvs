@@ -403,8 +403,10 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         if( m_xrun ) m_xrun--;
     }
     else
+    {
         // reset
         m_xrun = 0;
+    }
 
     // copy local buffer to be rendered
     if( !m_end ) memcpy( buffer, m_buffer_out, len );
