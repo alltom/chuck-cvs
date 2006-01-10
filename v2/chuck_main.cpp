@@ -44,6 +44,7 @@
 #include "chuck_otf.h"
 #include "chuck_shell.h"
 #include "chuck_console.h"
+#include "chuck_globals.h"
 
 #include "ugen_stk.h"
 #include "util_thread.h"
@@ -55,10 +56,6 @@
   #include <netinet/in.h>
   #include <arpa/inet.h>
 #endif
-
-
-// current version
-const char CK_VERSION[] = "1.2.0.5-rc1 (dracula)";
 
 
 // global variables
@@ -73,13 +70,6 @@ const char CK_VERSION[] = "1.2.0.5-rc1 (dracula)";
   t_CKINT g_priority_low = 0x7fffffff;
 #endif
 
-// global virtual machine
-Chuck_VM * g_vm = NULL;
-// global compiler
-Chuck_Compiler * g_compiler = NULL;
-// the shell
-Chuck_Shell * g_shell = NULL;
-
 // thread id for otf thread
 CHUCK_THREAD g_tid_otf = 0;
 // thread id for shell
@@ -91,8 +81,6 @@ CHUCK_THREAD g_tid_whatever = 0;
 char g_host[256] = "127.0.0.1";
 // default destination host port
 int g_port = 8888;
-// default socket
-ck_socket g_sock = NULL;
 
 
 
@@ -145,7 +133,6 @@ extern "C" void signal_int( int sig_num )
 
 
 
-t_CKUINT g_sigpipe_mode = 0;
 //-----------------------------------------------------------------------------
 // name: signal_pipe()
 // desc: ...
