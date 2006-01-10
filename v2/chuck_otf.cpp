@@ -33,6 +33,7 @@
 #include "chuck_otf.h"
 #include "chuck_compile.h"
 #include "chuck_errmsg.h"
+#include "chuck_globals.h"
 #include "util_thread.h"
 // #include "util_network.h"
 
@@ -46,13 +47,7 @@
 #include <unistd.h>
 #endif
 
-// global
-extern Chuck_VM * g_vm;
-extern Chuck_Compiler * g_compiler;
-extern ck_socket g_sock;
-// extern char g_host[256];
-// extern int g_port;
-extern t_CKUINT g_sigpipe_mode;
+
 extern "C" void signal_int( int );
 extern "C" void signal_pipe( int );
 

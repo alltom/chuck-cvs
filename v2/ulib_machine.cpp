@@ -33,6 +33,7 @@
 #include "ulib_machine.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
+#include "chuck_globals.h"
 
 
 
@@ -100,7 +101,6 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
 
 
 
-extern Chuck_VM * g_vm;
 static Chuck_VM * the_vm = NULL;
 static Chuck_Compiler * the_compiler = NULL;
 static proc_msg_func the_func = NULL;
