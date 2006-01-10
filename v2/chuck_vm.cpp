@@ -286,8 +286,7 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 
     // log
     EM_log( CK_LOG_SYSTEM, "real-time audio: %s", enable_audio ? "YES" : "NO" );
-    if( enable_audio )
-        EM_log( CK_LOG_SYSTEM, "mode: %s", block ? "BLOCKING" : "CALLBACK" );
+    EM_log( CK_LOG_SYSTEM, "mode: %s", block ? "BLOCKING" : "CALLBACK" );
     EM_log( CK_LOG_SYSTEM, "sample rate: %ld", srate );
     if( enable_audio )
     {
