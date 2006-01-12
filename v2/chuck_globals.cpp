@@ -31,6 +31,10 @@
 // date: spring 2006
 //-----------------------------------------------------------------------------
 #include "chuck_globals.h"
+#include "chuck_bbq.h"
+#include "ugen_stk.h"
+#include <stdlib.h>
+#include <stdio.h>
 
 
 // current version
@@ -46,3 +50,31 @@ Chuck_Shell * g_shell = NULL;
 t_CKUINT g_sigpipe_mode = 0;
 // default socket
 ck_socket g_sock = NULL;
+
+
+//-----------------------------------------------------------------------------
+// name: all_detach()
+// desc: called during cleanup to close all open file handles
+//-----------------------------------------------------------------------------
+extern "C" void all_detach()
+{
+    // close stk file handles
+    stk_detach( 0, NULL );
+    // close midi file handles
+    midirw_detach();
+}
+
+
+//-----------------------------------------------------------------------------
+// name: signal_pipe()
+// desc: ...
+//-----------------------------------------------------------------------------
+extern "C" void signal_pipe( int sig_num )
+{
+    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (no connection)...\n" );
+    if( g_sigpipe_mode )
+    {
+        all_detach();
+        // exit( 2 );
+    }
+}

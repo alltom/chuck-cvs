@@ -36,6 +36,7 @@
 #include "chuck_errmsg.h"
 #include "chuck_dl.h"
 #include "chuck_type.h"
+#include "chuck_globals.h"
 #include "ugen_xxx.h"
 
 #include <vector>
@@ -47,9 +48,6 @@ using namespace std;
   #include <unistd.h>
   #include <pthread.h>
 #endif
-
-// function to close open audio and midi file handles
-extern "C" void all_detach();
 
 
 

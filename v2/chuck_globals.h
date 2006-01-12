@@ -60,6 +60,12 @@ extern t_CKUINT g_sigpipe_mode;
 extern ck_socket g_sock;
 
 
+// global detach
+extern "C" void all_detach();
+// sigpipe function
+extern "C" void signal_pipe( int sig_num );
+
+
 
 
 #endif

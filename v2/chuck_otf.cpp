@@ -48,8 +48,8 @@
 #endif
 
 
-extern "C" void signal_int( int );
-extern "C" void signal_pipe( int );
+// extern "C" void signal_int( int );
+
 
 // log level
 t_CKUINT g_otf_log = CK_LOG_INFO;

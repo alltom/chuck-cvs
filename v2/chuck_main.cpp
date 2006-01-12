@@ -46,7 +46,6 @@
 #include "chuck_console.h"
 #include "chuck_globals.h"
 
-#include "ugen_stk.h"
 #include "util_thread.h"
 #include "util_network.h"
 
@@ -128,23 +127,6 @@ extern "C" void signal_int( int sig_num )
 #endif
     
     exit(2);
-}
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: signal_pipe()
-// desc: ...
-//-----------------------------------------------------------------------------
-extern "C" void signal_pipe( int sig_num )
-{
-    fprintf( stderr, "[chuck]: sigpipe handled - broken pipe (no connection)...\n" );
-    if( g_sigpipe_mode )
-    {
-        all_detach();
-        exit( 2 );
-    }
 }
 
 
