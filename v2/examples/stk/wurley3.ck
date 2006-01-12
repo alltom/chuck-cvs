@@ -38,4 +38,3 @@ fun void play( float note, float velocity )
     std.mtof( note ) => wurlies[which].freq;
     velocity => wurlies[which].noteOn;
 }
-
