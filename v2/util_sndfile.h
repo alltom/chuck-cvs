@@ -49,6 +49,9 @@
 //          Ari Lazier (alazier@alumni.princeton.edu)
 // libsndfile: Erik de Castro Lopo (erikd@mega-nerd.com)
 //-----------------------------------------------------------------------------
+#ifndef __UTIL_SNDFILE_H__
+#define __UTIL_SNDFILE_H__
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -2682,3 +2685,5 @@ extern word gsm_FAC [8] ;
 **
 ** arch-tag: 253aea6d-6299-46fd-8d06-bc5f6224c8fe
 */
+
+#endif
