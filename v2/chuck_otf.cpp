@@ -48,7 +48,7 @@
 #endif
 
 
-// extern "C" void signal_int( int );
+extern "C" void signal_int( int );
 
 
 // log level
