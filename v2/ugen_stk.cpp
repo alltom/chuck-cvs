@@ -1041,7 +1041,12 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     func = make_new_mfun ( "int", "which", Shakers_cget_which ); //! select instrument
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    func = make_new_mfun ( "void", "controlChange", Shakers_ctrl_controlChange ); //! control change
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     
     // end the class import
@@ -1297,6 +1302,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun ( "void", "controlChange", FM_ctrl_controlChange ); //! control change
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
     type_engine_import_class_end( env );
@@ -8154,6 +8163,9 @@ class Wurley : public FM
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
   void noteOn(MY_FLOAT amplitude) { noteOn ( baseFrequency, amplitude ); }
+  
+  // CHUCK HACK:
+  virtual void controlChange( int which, MY_FLOAT value );
 
   //! Compute one output sample.
   MY_FLOAT tick();
@@ -8866,7 +8878,7 @@ MY_FLOAT ADSR :: tick()
       value = target;
       rate = decayRate;
       target = sustainLevel;
-        state = DECAY;
+      state = DECAY;
     }
     break;
 
@@ -17452,7 +17464,9 @@ void Shakers :: controlChange(int number, MY_FLOAT value)
         lastRatchetPos = (int) value;
     }
   }
-  else if (number == __SK_ModFrequency_) { // 4 ... decay
+  // else if (number == __SK_ModFrequency_) { // 4 ... decay
+  // CHUCK HACK: (actually this fixes things?)
+  else if (number == __SK_FootControl_) { // 4 ... decay
     if (instType != 3 && instType != 10) {
       systemDecay = defDecays[instType] + ((value - 64.0) *
                                            decayScale[instType] *
@@ -17473,7 +17487,9 @@ void Shakers :: controlChange(int number, MY_FLOAT value)
       for (i=0;i<nFreqs;i++) gains[i] *= ((128-value)/100.0 + 0.36);
     }
   }
-  else if (number == __SK_FootControl_) { // 11 ... number of objects
+  // else if (number == __SK_FootControl_) { // 11 ... number of objects
+  // CHUCK HACK: (actually this fixes things?)
+  else if (number == __SK_Expression_) { // 11 ... number of objects
     if (instType == 5) // bamboo
       nObjects = (MY_FLOAT) (value * defObjs[instType] / 64.0) + 0.3;
     else
@@ -20060,6 +20076,25 @@ MY_FLOAT Wurley :: tick()
   lastOutput = temp * 0.5;
   return lastOutput;
 }
+
+// CHUCK HACK:
+void Wurley :: controlChange( int which, MY_FLOAT value )
+{
+  if( which == 3 )
+  {
+    adsr[0]->setAllTimes( 0.001, 1.50 * value, 0.0, 0.04);
+    adsr[1]->setAllTimes( 0.001, 1.50 * value, 0.0, 0.04);
+    adsr[2]->setAllTimes( 0.001, 0.25 * value, 0.0, 0.04);
+    adsr[3]->setAllTimes( 0.001, 0.15 * value, 0.0, 0.04);
+  }
+  else
+  {
+    // call parent
+    FM::controlChange( which, value );
+  }
+}
+
+
 /***************************************************/
 /*! \class WvIn
     \brief STK audio data input base class.
@@ -26323,6 +26358,19 @@ CK_DLL_CTRL( FM_ctrl_control2 )
 
 
 //-----------------------------------------------------------------------------
+// name: FM_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FM_ctrl_controlChange )
+{
+    FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
+    fm->controlChange( i, f );
+}
+
+
+//-----------------------------------------------------------------------------
 // name: FM_ctrl_afterTouch()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -27853,6 +27901,19 @@ CK_DLL_CTRL( Shakers_ctrl_which )
     t_CKINT c = GET_CK_INT(ARGS);
     s->setupNum( c );
     RETURN->v_int = (t_CKINT) s->m_noteNum ;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Shakers_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Shakers_ctrl_controlChange )
+{
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Shakers_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    s->controlChange( i, f );
 }
 
 

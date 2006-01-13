@@ -375,6 +375,7 @@ CK_DLL_CTRL( FM_ctrl_modDepth );
 CK_DLL_CTRL( FM_ctrl_modSpeed );
 CK_DLL_CTRL( FM_ctrl_control1 );
 CK_DLL_CTRL( FM_ctrl_control2 );
+CK_DLL_CTRL( FM_ctrl_controlChange );
 CK_DLL_CTRL( FM_ctrl_afterTouch );
 CK_DLL_CGET( FM_cget_freq );
 CK_DLL_CGET( FM_cget_modDepth );
@@ -793,6 +794,7 @@ CK_DLL_CTRL( Shakers_ctrl_which );
 CK_DLL_CTRL( Shakers_ctrl_noteOn );
 CK_DLL_CTRL( Shakers_ctrl_noteOff );
 CK_DLL_CTRL( Shakers_ctrl_freq );
+CK_DLL_CTRL( Shakers_ctrl_controlChange );
 
 CK_DLL_CGET( Shakers_cget_which );
 CK_DLL_CGET( Shakers_cget_freq );
