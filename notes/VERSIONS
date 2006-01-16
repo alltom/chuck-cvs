@@ -1,7 +1,11 @@
 ---
 1.2.0.5
+  - (added) FM.controlChange( int, float ) affects FM subclasses:
+    BeeThree, FMVoices, HevyMetl, PercFlut, Rhodey, TubeBell, Wurley
+  - (added) Shakers.controlChange( int, float )
   - (fixed) (internal) type checker re-instantiation patched
-  - (fixed) (internal) detach_all() moved to chuck_compile
+  - (fixed) (internal) detach_all() moved to chuck_globals.cpp
+  - (fixed) (internal) global variables moved to chuck_globals.cpp
 
 
 ---
