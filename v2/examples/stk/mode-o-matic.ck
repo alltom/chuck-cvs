@@ -60,15 +60,15 @@ spork ~ echo_Shred();
 while( true )
 {
     //presets 
-    if ( std.randf() > 0.9 ) { 
+    if ( std.randf() > 0.9 )
         std.rand2 (0,8) => modey.preset;
-    }
+
     // position
     std.rand2f( 0.2, 0.8 ) => modey.strikePosition;
     // frequency...
     scale[std.rand2(0,scale.cap()-1)] => int freq;
-    110.0 * math.pow( 1.05946, (std.rand2(0,3)*12)
-                      + freq ) => modey.freq;
+    std.mtof( 45 + std.rand2(0,4)*12 + freq ) => modey.freq;
+
     // pluck it!
     std.rand2f( 0.2, 0.6 ) => modey.strike;
 
