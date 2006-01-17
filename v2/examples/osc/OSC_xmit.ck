@@ -1,4 +1,4 @@
-// launch with opensound_demo_recv.ck
+// launch with OSC_recv.ck
 
 // the sender
 OscSend xmit;

@@ -1,4 +1,4 @@
-// (launch with opensound_demo_send.ck)
+// (launch with OSC_send.ck)
 
 // the patch
 sndbuf buf => dac;
@@ -26,7 +26,7 @@ while ( true )
     // grab the next message from the queue. 
     while ( oe.nextMsg() != 0 )
     { 
-        // getFloat fetches the expected float (as indicated by ",f")
+        // getFloat fetches the expected float (as indicated by "f")
         oe.getFloat() => buf.play;
         // print
         <<< "got (via OSC):", buf.play() >>>;
