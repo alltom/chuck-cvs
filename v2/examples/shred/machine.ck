@@ -1,6 +1,8 @@
 // on-the-fly shred management
-// this is kind of using the OTF command add/remove/replace,
-// but this is done from code and can be timed
+
+// this is kind of like using the OTF commands 
+//     add / remove / replace etc.
+// except this is done from code and also can be timed.
 // (this is also a hack for including other files)
 
 // infinite time loop 
