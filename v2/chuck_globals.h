@@ -58,6 +58,8 @@ extern Chuck_Shell * g_shell;
 extern t_CKUINT g_sigpipe_mode;
 // global socket
 extern ck_socket g_sock;
+// global port
+extern t_CKINT g_port;
 
 
 // global detach

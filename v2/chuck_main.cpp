@@ -78,8 +78,6 @@ CHUCK_THREAD g_tid_whatever = 0;
 
 // default destination host name
 char g_host[256] = "127.0.0.1";
-// default destination host port
-int g_port = 8888;
 
 
 

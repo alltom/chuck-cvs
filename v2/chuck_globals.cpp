@@ -50,6 +50,8 @@ Chuck_Shell * g_shell = NULL;
 t_CKUINT g_sigpipe_mode = 0;
 // default socket
 ck_socket g_sock = NULL;
+// default port
+t_CKINT g_port = 8888;
 
 
 //-----------------------------------------------------------------------------
