@@ -2036,6 +2036,7 @@ OSC_Address_Space::init() {
     _dataSize = 0;
     _cur_mesg = NULL;
     _queue = NULL;
+	_cur_value = 0;
     _current_data = NULL;
     _buffer_mutex = new XMutex();
 }
@@ -2253,12 +2254,16 @@ OSC_Address_Space::next_mesg() {
 bool
 OSC_Address_Space::vcheck( osc_datatype tt ) { 
 
-    if ( _cur_value >= _dataSize ) { 
-        fprintf( stderr, "[chuck](via OSC): OSC_Address_Space: read beyond message size...\n" );
+	if ( !_cur_mesg ) { 
+		EM_log( CK_LOG_SEVERE, "[chuck]: OscEvent: getVal(): nextMsg() must be called before reading data..." );
+		return false;
+	}
+    if ( _cur_value < 0 || _cur_value >= _dataSize ) { 
+		EM_log( CK_LOG_SEVERE, "[chuck]: OscEvent: read position %d outside message ...\n", _cur_value );
         return false;
     }
     if ( _cur_mesg[_cur_value].t != tt ) { 
-        fprintf( stderr, "[chuck](via OSC): error -> requested type %d != %d\n", _cur_mesg[_cur_value].t, tt  );
+		EM_log( CK_LOG_SEVERE, "[chuck]: OscEvent: error -> requested type %d != %d\n", _cur_mesg[_cur_value].t, tt  );
         return false;
     }
 
