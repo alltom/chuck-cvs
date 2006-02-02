@@ -128,8 +128,7 @@ t_CKBOOL kb_initscr()
         return FALSE;
     }
 
-    // g_save = term;
-    memcpy( g_save, term, sizeof(g_save) );
+    g_save = term;
                 
     term.c_lflag &= ~ICANON;
     term.c_lflag &= ~ECHO;

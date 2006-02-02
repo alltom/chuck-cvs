@@ -706,6 +706,7 @@ void KBHitManager::shutdown()
 {
     EM_log( CK_LOG_INFO, "shutting down KBHitManager..." );
     SAFE_DELETE( the_buf );
+    kb_endwin();
 
     the_onoff = FALSE;
     the_init = FALSE;
