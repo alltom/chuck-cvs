@@ -50,6 +50,15 @@ int setenv( const char *n, const char *v, int i )
 
 #endif
 
+// KBHit
+CK_DLL_CTOR( KBHit_ctor );
+CK_DLL_MFUN( KBHit_prompt );
+CK_DLL_MFUN( KBHit_more );
+CK_DLL_MFUN( KBHit_getchar );
+CK_DLL_MFUN( KBHit_can_wait );
+
+static t_CKUINT KBHit_offset_data = 0;
+
 #ifdef AJAY
 
 #include <sstream>
@@ -208,10 +217,40 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     // seed the rand
     srand( time( NULL ) );
 
-#ifdef AJAY
-
     Chuck_DL_Func * func = NULL;
     Chuck_Env * env = Chuck_Env::instance();
+    
+/*    // KBHit
+    // begin class (KBHit)
+    if( !type_engine_import_class_begin( env, "KBHit", "Event",
+                                         env->global(), KBHit_ctor ) )
+        return FALSE;
+
+    // add member variable
+    KBHit_offset_data = type_engine_import_mvar( env, "int", "@KBHit_data", FALSE );
+    if( KBHit_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add prompt()
+    func = make_new_mfun( "Event", "prompt", KBHit_prompt );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add more()
+    func = make_new_mfun( "int", "more", KBHit_more );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add getchar()
+    func = make_new_mfun( "int", "getchar", KBHit_getchar );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add can_wait()
+    func = make_new_mfun( "int", "can_wait", KBHit_can_wait );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end class
+    type_engine_import_class_end( env );
+*/
+
+#ifdef AJAY
 
     // begin class
     // init base class
@@ -351,19 +390,20 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 
     return TRUE;
 
+#else
+
+    return TRUE;
+
+#endif
+
 error:
 
     // end the class import
     type_engine_import_class_end( env );
     
     return FALSE;
-
-#else
-
-    return TRUE;
-
-#endif
 }
+
 
 #define RAND_INV_RANGE(r) (RAND_MAX / (r))
 
