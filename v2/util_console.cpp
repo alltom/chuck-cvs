@@ -88,6 +88,7 @@ void io_addhistory( const char * addme )
 }
 
 
+// code thanks to Luke Lin (wdlin@CCCA.NCTU.edu.tw)
 // kb hit
 #ifndef __PLATFORM_WIN32__
   #include <string.h>
