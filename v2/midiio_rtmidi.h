@@ -149,7 +149,6 @@ public:
     RtMidiIn * min;
     t_CKBOOL m_valid;
     t_CKUINT m_device_num;
-    t_CKUINT m_ref_count;
     Chuck_Object * SELF;
     t_CKBOOL m_suppress_output;
 };

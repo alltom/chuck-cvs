@@ -34,8 +34,11 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include "util_buffers.h"
+#include "util_console.h"
 #include "util_math.h"
 #include "util_string.h"
+#include "util_thread.h"
 #include "chuck_type.h"
 #include "chuck_instr.h"
 
@@ -52,7 +55,10 @@ int setenv( const char *n, const char *v, int i )
 
 // KBHit
 CK_DLL_CTOR( KBHit_ctor );
-CK_DLL_MFUN( KBHit_prompt );
+CK_DLL_MFUN( KBHit_on );
+CK_DLL_MFUN( KBHit_off );
+CK_DLL_MFUN( KBHit_state );
+CK_DLL_MFUN( KBHit_hit );
 CK_DLL_MFUN( KBHit_more );
 CK_DLL_MFUN( KBHit_getchar );
 CK_DLL_MFUN( KBHit_can_wait );
@@ -105,6 +111,68 @@ CK_DLL_MFUN( StrTok_size );
 static t_CKUINT StrTok_offset_data = 0;
 
 #endif
+
+
+//-----------------------------------------------------------------------------
+// name: class KBHit
+// desc: kbhit class
+//-----------------------------------------------------------------------------
+class KBHit : public Chuck_Event
+{
+public:
+    KBHit();
+    ~KBHit();
+
+public:
+    t_CKBOOL open();
+    t_CKBOOL close();
+    void on();
+    void off();
+    t_CKBOOL good() { return m_valid; }
+    t_CKBOOL state() { return m_onoff; }
+
+public:
+    void set_echo( t_CKBOOL echo ) { m_echo = echo; }
+    t_CKBOOL get_echo() { return m_echo; }
+
+public:
+    t_CKBOOL empty();
+    t_CKINT getch();
+
+public:
+    CBufferAdvance * m_buffer;
+    t_CKUINT m_read_index;
+    t_CKBOOL m_valid;
+    t_CKBOOL m_onoff;
+    t_CKBOOL m_echo;
+    Chuck_Object * SELF;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class KBHitManager
+// desc: ...
+//-----------------------------------------------------------------------------
+class KBHitManager
+{
+public:
+    static t_CKBOOL init();
+    static void shutdown();
+    static void on();
+    static void off();
+    static t_CKBOOL open( KBHit * kb );
+    static t_CKBOOL close( KBHit * kb );
+
+public:
+    static CBufferAdvance * the_buf;
+    static t_CKUINT the_onoff;
+    static t_CKBOOL the_init;
+    static XThread the_thread;
+};
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -220,7 +288,7 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     Chuck_DL_Func * func = NULL;
     Chuck_Env * env = Chuck_Env::instance();
     
-/*    // KBHit
+    // KBHit
     // begin class (KBHit)
     if( !type_engine_import_class_begin( env, "KBHit", "Event",
                                          env->global(), KBHit_ctor ) )
@@ -230,8 +298,20 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     KBHit_offset_data = type_engine_import_mvar( env, "int", "@KBHit_data", FALSE );
     if( KBHit_offset_data == CK_INVALID_OFFSET ) goto error;
 
-    // add prompt()
-    func = make_new_mfun( "Event", "prompt", KBHit_prompt );
+    // add on()
+    func = make_new_mfun( "void", "on", KBHit_on );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add off()
+    func = make_new_mfun( "void", "off", KBHit_off );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add state()
+    func = make_new_mfun( "void", "state", KBHit_state );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add hit()
+    func = make_new_mfun( "Event", "hit", KBHit_hit );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add more()
@@ -248,7 +328,10 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 
     // end class
     type_engine_import_class_end( env );
-*/
+
+    // start it
+    KBHitManager::init();
+
 
 #ifdef AJAY
 
@@ -609,6 +692,275 @@ CK_DLL_SFUN( dbtorms_impl )
     t_CKFLOAT v = GET_CK_FLOAT(ARGS);
     RETURN->v_float = dbtorms(v);
 }
+
+
+
+
+// static
+CBufferAdvance * KBHitManager::the_buf = NULL;
+t_CKBOOL KBHitManager::the_onoff = 0;
+t_CKBOOL KBHitManager::the_init = FALSE;
+XThread KBHitManager::the_thread;
+#define BUFFER_SIZE 1024
+
+
+#ifndef __PLATFORM_WIN32__
+static void * kb_loop( void * )
+#else
+static unsigned int __stdcall kb_loop( void * )
+#endif
+{
+    t_CKINT c;
+    EM_log( CK_LOG_INFO, "starting kb loop..." );
+
+    // go
+    while( KBHitManager::the_init )
+    {
+        // if on
+        if( KBHitManager::the_onoff )
+        {
+            // see if we have kb hit
+            while( kb_hit() )
+            {
+                // get the next char
+                c = kb_getch();
+                // queue it
+                KBHitManager::the_buf->put( &c, 1 );
+            }
+        }
+
+        // wait
+        usleep( 50000 );
+    }
+
+    return 0;
+}
+
+
+// init
+t_CKBOOL KBHitManager::init()
+{
+    // sanity check
+    if( the_buf ) return FALSE;
+
+    EM_log( CK_LOG_INFO, "initializing KBHitManager..." );
+    the_buf = new CBufferAdvance;
+    if( !the_buf->initialize( BUFFER_SIZE, sizeof(t_CKINT) ) )
+    {
+        EM_log( CK_LOG_SEVERE, "KBHitManager: couldn't allocate central KB buffer..." );
+        SAFE_DELETE( the_buf );
+        return FALSE;
+    }
+
+    the_onoff = FALSE;
+    the_init = TRUE;
+    the_thread.start( kb_loop, NULL );
+
+    return TRUE;
+}
+
+
+// shutdown
+void KBHitManager::shutdown()
+{
+    EM_log( CK_LOG_INFO, "shutting down KBHitManager..." );
+    SAFE_DELETE( the_buf );
+
+    the_onoff = FALSE;
+    the_init = FALSE;
+}
+
+
+// on()
+void KBHitManager::on()
+{
+    the_onoff++;
+    if( !kb_ready() )
+        kb_initscr();
+}
+
+
+// off()
+void KBHitManager::off()
+{
+    the_onoff--;
+    if( kb_ready() && the_onoff == 0 )
+        kb_endwin();
+}
+
+
+// open()
+t_CKBOOL KBHitManager::open( KBHit * kb )
+{
+    if( the_buf == NULL ) return FALSE;
+    if( kb->m_buffer != NULL ) return FALSE;
+
+    EM_log( CK_LOG_INFO, "adding KBHit..." );
+    // init the kb
+    kb->m_buffer = the_buf;
+    // read index
+    kb->m_read_index = kb->m_buffer->join( (Chuck_Event *)kb->SELF );
+
+    return TRUE;
+}
+
+
+// close()
+t_CKBOOL KBHitManager::close( KBHit * kb )
+{
+    if( the_buf == NULL ) return FALSE;
+    if( kb->m_buffer == NULL ) return FALSE;
+
+    EM_log( CK_LOG_INFO, "removing KBHit..." );
+    // unjoin
+    kb->m_buffer->resign( kb->m_read_index );
+    // done
+    kb->m_read_index = 0;
+
+    return TRUE;
+}
+
+
+// KBHit
+KBHit::KBHit()
+{
+    m_buffer = NULL;
+    m_read_index = 0;
+    m_valid = FALSE;
+    m_onoff = FALSE;
+    m_echo = FALSE;
+    SELF = NULL;
+}
+
+
+// ~KBHit()
+KBHit::~KBHit()
+{
+    this->close();
+}
+
+
+// open()
+t_CKBOOL KBHit::open()
+{
+    return KBHitManager::open( this );
+}
+
+
+// close()
+t_CKBOOL KBHit::close()
+{
+    return KBHitManager::close( this );
+}
+
+
+// on()
+void KBHit::on()
+{
+    if( m_onoff == FALSE )
+    {
+        KBHitManager::on();
+        m_onoff = TRUE;
+    }
+}
+
+
+// off()
+void KBHit::off()
+{
+    if( m_onoff == TRUE )
+    {
+        KBHitManager::off();
+        m_onoff = FALSE;
+    }
+}
+
+
+// empty
+t_CKBOOL KBHit::empty()
+{
+    if( m_buffer == NULL ) return TRUE;
+    if( m_onoff == FALSE ) return TRUE;
+    if( m_read_index == 0 ) return TRUE;
+    return m_buffer->empty( m_read_index );
+}
+
+
+// getch
+t_CKINT KBHit::getch()
+{
+    t_CKINT c;
+    if( empty() ) return 0;
+    m_buffer->get( &c, 1, m_read_index );
+    return c;
+}
+
+
+// ctor
+CK_DLL_CTOR( KBHit_ctor )
+{
+    KBHit * kb = new KBHit;
+    kb->SELF = SELF;
+    OBJ_MEMBER_INT(SELF, KBHit_offset_data) = (t_CKINT)kb;
+}
+
+
+// on
+CK_DLL_MFUN( KBHit_on )
+{
+    KBHit * kb = (KBHit *)(OBJ_MEMBER_INT(SELF, KBHit_offset_data));
+    kb->on();
+}
+
+
+// off
+CK_DLL_MFUN( KBHit_off )
+{
+    KBHit * kb = (KBHit *)(OBJ_MEMBER_INT(SELF, KBHit_offset_data));
+    kb->off();
+}
+
+
+// state
+CK_DLL_MFUN( KBHit_state )
+{
+    KBHit * kb = (KBHit *)(OBJ_MEMBER_INT(SELF, KBHit_offset_data));
+    RETURN->v_int = kb->state();
+}
+
+
+// hit
+CK_DLL_MFUN( KBHit_hit )
+{
+    KBHit * kb = (KBHit *)(OBJ_MEMBER_INT(SELF, KBHit_offset_data));
+    RETURN->v_object = SELF;
+}
+
+
+// more
+CK_DLL_MFUN( KBHit_more )
+{
+    KBHit * kb = (KBHit *)(OBJ_MEMBER_INT(SELF, KBHit_offset_data));
+    RETURN->v_int = (kb->empty() == FALSE);
+}
+
+
+// getchar
+CK_DLL_MFUN( KBHit_getchar )
+{
+    KBHit * kb = (KBHit *)(OBJ_MEMBER_INT(SELF, KBHit_offset_data));
+    RETURN->v_int = kb->getch();
+}
+
+
+// can wait
+CK_DLL_MFUN( KBHit_can_wait )
+{
+    KBHit * kb = (KBHit *)(OBJ_MEMBER_INT(SELF, KBHit_offset_data));
+    RETURN->v_int = kb->empty();
+}
+
+
 
 
 #ifdef AJAY

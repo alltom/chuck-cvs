@@ -46,6 +46,7 @@ t_CKBOOL kb_initscr();
 void kb_endwin();
 t_CKINT kb_hit();
 t_CKINT kb_getch();
+t_CKBOOL kb_ready();
 
 
 #endif

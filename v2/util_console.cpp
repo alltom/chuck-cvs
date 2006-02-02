@@ -109,10 +109,11 @@ void io_addhistory( const char * addme )
 
 // global
 static t_CKINT g_c;
+static t_CKBOOL g_init;
 
 
 // on entering mode
-t_CKBOOL initscr()
+t_CKBOOL kb_initscr()
 {
 #ifndef __PLATFORM_WIN32__
     struct termios term;
@@ -143,6 +144,7 @@ t_CKBOOL initscr()
 
 #endif
 
+    g_init = TRUE;
     return TRUE;
 }
 
@@ -157,6 +159,8 @@ void kb_endwin()
     ioctl( 0, TCSETA, &g_save );
 #endif
 #endif
+
+    g_init = FALSE;
 }
 
 
@@ -175,6 +179,7 @@ t_CKINT kb_hit()
 #endif
 }
 
+
 // get
 t_CKINT kb_getch()
 {
@@ -183,4 +188,11 @@ t_CKINT kb_getch()
 #else
     return (t_CKINT)::getch();
 #endif
+}
+
+
+// ready
+t_CKBOOL kb_ready()
+{
+    return g_init;
 }
