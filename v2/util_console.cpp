@@ -124,11 +124,12 @@ t_CKBOOL kb_initscr()
     if( ioctl( 0, TCGETA, &term ) == -1 )
 #endif
     { 
-        EM_log( CK_LOG_SYSTEM,"(kbhit disabled): standard input not a tty!");
+        EM_log( CK_LOG_SEVERE,"(kbhit disabled): standard input not a tty!");
         return FALSE;
     }
 
-    g_save = term;
+    // g_save = term;
+    memcpy( g_save, term, sizeof(g_save) );
                 
     term.c_lflag &= ~ICANON;
     term.c_lflag &= ~ECHO;
