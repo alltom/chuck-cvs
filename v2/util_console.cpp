@@ -30,6 +30,7 @@
 // date: Autumn 2005
 //-----------------------------------------------------------------------------
 #include "util_console.h"
+#include "chuck_errmsg.h"
 #include <stdio.h>
 #ifdef __USE_READLINE__
  #include <readline/readline.h>
@@ -89,14 +90,14 @@ void io_addhistory( const char * addme )
 
 // kb hit
 #ifndef __PLATFORM_WIN32__
-  #include <stdio.h>
   #include <string.h>
   #include <termios.h>
+  #include <unistd.h>
+  #include <sys/ioctl.h>
 
   // global
   static struct termios g_save;
 #else
-  #include <stdio.h>
   #include <conio.h>
 #endif
 

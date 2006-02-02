@@ -27,6 +27,7 @@
 // desc: utility for console I/O
 //
 // author: Spencer Salazar (ssalazar@princeton.edu)
+//         Ge Wang (gewang@cs.princeton.edu)
 // date: Autumn 2005
 //-----------------------------------------------------------------------------
 #ifndef __UTIL_CONSOLE_H__
@@ -39,6 +40,12 @@ char * io_readline( const char * );
 
 // add a line to the history
 void io_addhistory( const char * );
+
+// kb hit emulation
+t_CKBOOL kb_initscr();
+void kb_endwin();
+t_CKINT kb_hit();
+t_CKINT kb_getch();
 
 
 #endif
