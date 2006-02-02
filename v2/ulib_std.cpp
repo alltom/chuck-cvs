@@ -169,7 +169,7 @@ public:
     static CBufferAdvance * the_buf;
     static t_CKUINT the_onoff;
     static t_CKBOOL the_init;
-    static XThread the_thread;
+    static XThread * the_thread;
 };
 
 
@@ -700,7 +700,7 @@ CK_DLL_SFUN( dbtorms_impl )
 CBufferAdvance * KBHitManager::the_buf = NULL;
 t_CKBOOL KBHitManager::the_onoff = 0;
 t_CKBOOL KBHitManager::the_init = FALSE;
-XThread KBHitManager::the_thread;
+XThread * KBHitManager::the_thread;
 #define BUFFER_SIZE 1024
 
 
@@ -754,7 +754,8 @@ t_CKBOOL KBHitManager::init()
 
     the_onoff = FALSE;
     the_init = TRUE;
-    the_thread.start( kb_loop, NULL );
+    the_thread = new XThread;
+    the_thread->start( kb_loop, NULL );
 
     return TRUE;
 }

@@ -196,3 +196,4 @@ t_CKBOOL kb_ready()
 {
     return g_init;
 }
+
