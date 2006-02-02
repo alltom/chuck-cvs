@@ -670,7 +670,7 @@ static unsigned int __stdcall kb_loop( void * )
         }
 
         // wait
-        usleep( 50000 );
+        usleep( 5000 );
     }
 
     return 0;
