@@ -801,6 +801,7 @@ void KBHit::on()
     if( m_onoff == FALSE )
     {
         KBHitManager::on();
+        open();
         m_onoff = TRUE;
     }
 }
@@ -812,6 +813,7 @@ void KBHit::off()
     if( m_onoff == TRUE )
     {
         KBHitManager::off();
+        open();
         m_onoff = FALSE;
     }
 }
@@ -822,7 +824,7 @@ t_CKBOOL KBHit::empty()
 {
     if( m_buffer == NULL ) return TRUE;
     if( m_onoff == FALSE ) return TRUE;
-    if( m_read_index == 0 ) return TRUE;
+    // if( m_read_index == 0 ) return TRUE;
     return m_buffer->empty( m_read_index );
 }
 
@@ -841,8 +843,9 @@ t_CKINT KBHit::getch()
 CK_DLL_CTOR( KBHit_ctor )
 {
     KBHit * kb = new KBHit;
-    kb->SELF = SELF;
     OBJ_MEMBER_INT(SELF, KBHit_offset_data) = (t_CKINT)kb;
+    kb->SELF = SELF;
+    kb->on();
 }
 
 
