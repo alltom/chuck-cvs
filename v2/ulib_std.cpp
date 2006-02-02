@@ -113,66 +113,6 @@ static t_CKUINT StrTok_offset_data = 0;
 #endif
 
 
-//-----------------------------------------------------------------------------
-// name: class KBHit
-// desc: kbhit class
-//-----------------------------------------------------------------------------
-class KBHit : public Chuck_Event
-{
-public:
-    KBHit();
-    ~KBHit();
-
-public:
-    t_CKBOOL open();
-    t_CKBOOL close();
-    void on();
-    void off();
-    t_CKBOOL good() { return m_valid; }
-    t_CKBOOL state() { return m_onoff; }
-
-public:
-    void set_echo( t_CKBOOL echo ) { m_echo = echo; }
-    t_CKBOOL get_echo() { return m_echo; }
-
-public:
-    t_CKBOOL empty();
-    t_CKINT getch();
-
-public:
-    CBufferAdvance * m_buffer;
-    t_CKUINT m_read_index;
-    t_CKBOOL m_valid;
-    t_CKBOOL m_onoff;
-    t_CKBOOL m_echo;
-    Chuck_Object * SELF;
-};
-
-
-
-
-//-----------------------------------------------------------------------------
-// name: class KBHitManager
-// desc: ...
-//-----------------------------------------------------------------------------
-class KBHitManager
-{
-public:
-    static t_CKBOOL init();
-    static void shutdown();
-    static void on();
-    static void off();
-    static t_CKBOOL open( KBHit * kb );
-    static t_CKBOOL close( KBHit * kb );
-
-public:
-    static CBufferAdvance * the_buf;
-    static t_CKUINT the_onoff;
-    static t_CKBOOL the_init;
-    static XThread * the_thread;
-};
-
-
 
 
 //-----------------------------------------------------------------------------
