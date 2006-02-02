@@ -91,7 +91,11 @@ void io_addhistory( const char * addme )
 // kb hit
 #ifndef __PLATFORM_WIN32__
   #include <string.h>
+#ifdef __PLATFORM_MACOSX__
   #include <termios.h>
+#else
+  #include <termio.h>
+#endif
   #include <unistd.h>
   #include <sys/ioctl.h>
 
@@ -111,8 +115,12 @@ t_CKBOOL initscr()
 {
 #ifndef __PLATFORM_WIN32__
     struct termios term;
- 
-    if( ioctl( 0, TIOCGETA, &term ) == -1 ) 
+
+#ifdef __PLATFORM_MACOSX__
+    if( ioctl( 0, TIOCGETA, &term ) == -1 )
+#else
+    if( ioctl( 0, TCGETA, &term ) == -1 )
+#endif
     { 
         EM_log( CK_LOG_SYSTEM,"(kbhit disabled): standard input not a tty!");
         return FALSE;
@@ -125,8 +133,13 @@ t_CKBOOL initscr()
 
     term.c_cc[VMIN] = 0;
     term.c_cc[VTIME]=0;  
-                
+
+#ifdef __PLATFORM_MACOSX__
     ioctl( 0, TIOCSETA, &term );
+#else
+    ioctl( 0, TCSETA, &term );
+#endif
+
 #endif
 
     return TRUE;
@@ -137,7 +150,11 @@ t_CKBOOL initscr()
 void kb_endwin()
 {
 #ifndef __PLATFORM_WIN32__
+#ifdef __PLATFORM_MACOSX__
     ioctl( 0, TIOCSETA, &g_save );
+#else
+    ioctl( 0, TCSETA, &g_save );
+#endif
 #endif
 }
 
