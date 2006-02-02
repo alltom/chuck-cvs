@@ -85,3 +85,83 @@ void io_addhistory( const char * addme )
 	
 #endif
 }
+
+
+// kb hit
+#ifndef __PLATFORM_WIN32__
+  #include <stdio.h>
+  #include <string.h>
+  #include <termios.h>
+
+  // global
+  static struct termios g_save;
+#else
+  #include <stdio.h>
+  #include <conio.h>
+#endif
+
+
+// global
+static t_CKINT g_c;
+
+
+// on entering mode
+t_CKBOOL initscr()
+{
+#ifndef __PLATFORM_WIN32__
+    struct termios term;
+ 
+    if( ioctl( 0, TIOCGETA, &term ) == -1 ) 
+    { 
+        EM_log( CK_LOG_SYSTEM,"(kbhit disabled): standard input not a tty!");
+        return FALSE;
+    }
+
+    g_save = term;
+                
+    term.c_lflag &= ~ICANON;
+    term.c_lflag &= ~ECHO;
+
+    term.c_cc[VMIN] = 0;
+    term.c_cc[VTIME]=0;  
+                
+    ioctl( 0, TIOCSETA, &term );
+#endif
+
+    return TRUE;
+}
+
+
+// on exit
+void kb_endwin()
+{
+#ifndef __PLATFORM_WIN32__
+    ioctl( 0, TIOCSETA, &g_save );
+#endif
+}
+
+
+// hit
+t_CKINT kb_hit()
+{
+#ifndef __PLATFORM_WIN32__
+    int ifkeyin;
+    char c;
+    ifkeyin = read( 0, &c, 1 );
+    g_c = (t_CKINT)c;
+
+    return(ifkeyin);
+#else
+    return (t_CKINT)kbhit();
+#endif
+}
+
+// get
+t_CKINT kb_getch()
+{
+#ifndef __PLATFORM_WIN32__
+    return g_c;
+#else
+    return (t_CKINT)::getch();
+#endif
+}
