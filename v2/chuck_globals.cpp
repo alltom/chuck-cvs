@@ -33,6 +33,7 @@
 #include "chuck_globals.h"
 #include "chuck_bbq.h"
 #include "ugen_stk.h"
+#include "ulib_std.h"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -64,6 +65,8 @@ extern "C" void all_detach()
     stk_detach( 0, NULL );
     // close midi file handles
     midirw_detach();
+    // shutdown kb loop
+    KBHitManager::shutdown();
 }
 
 
