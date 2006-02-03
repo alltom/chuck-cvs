@@ -29,4 +29,3 @@ while( true )
         <<< "ascii:", c >>>;
     }
 }
-
