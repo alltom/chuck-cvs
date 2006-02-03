@@ -1,5 +1,7 @@
+// computer key input, with sound
 KBHit kb;
 
+// patch
 impulse i => biquad f => dac;
 // set the filter's pole radius
 .99 => f.prad;
@@ -10,17 +12,21 @@ impulse i => biquad f => dac;
 // set filter gain
 .5 => f.gain;
 
-int c;
+// time-loop
 while( true )
 {
+    // wait on event
     kb => now;
-
+    // generate impulse
     1.0 => i.next;
+
+    // loop through 1 or more keys
     while( kb.more() )
     {
-        kb.getchar() => c;
-        std.mtof( c ) => f.pfreq;
-        <<< c >>>;
+        // set filtre freq
+        kb.getchar() => int c => std.mtof => f.pfreq;
+        // print int value
+        <<< "ascii:", c >>>;
     }
 }
 
