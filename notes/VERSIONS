@@ -1,5 +1,7 @@
 ---
 1.2.0.5
+  - (added) Keyboard Input
+  - (added) - KBHit event class (see examples/event/kb*.ck)
   - (added) FM.controlChange( int, float ) affects FM subclasses:
     BeeThree, FMVoices, HevyMetl, PercFlut, Rhodey, TubeBell, Wurley
   - (added) Shakers.controlChange( int, float )
