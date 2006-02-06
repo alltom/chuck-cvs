@@ -492,7 +492,6 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
 
     t_CKUINT i; Chuck_UGen * ugen;
 
-    m_last = m_current;
     // inc time
     m_time = now;
     // initial sum
@@ -545,16 +544,19 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
         if( tick ) m_valid = tick( this, m_sum, &m_current );
         if( !m_valid ) m_current = 0.0f;
         m_current *= m_gain * m_pan;
+        m_last = m_current;
         return m_valid;
     }
     else if( m_op < 0 ) // UGEN_OP_PASS
     {
         // pass through
         m_current = m_sum;
+        m_last = m_current;
         return TRUE;
     }
     else // UGEN_OP_STOP
         m_current = 0.0f;
     
+    m_last = m_current;
     return TRUE;
 }

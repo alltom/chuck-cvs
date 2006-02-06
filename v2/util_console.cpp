@@ -115,7 +115,6 @@ static t_CKBOOL g_init;
 // on entering mode
 t_CKBOOL kb_initscr()
 {
-    fprintf( stderr, "**************************" );
     if( g_init ) return FALSE;
 
 #ifndef __PLATFORM_WIN32__
