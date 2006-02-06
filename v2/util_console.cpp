@@ -115,6 +115,9 @@ static t_CKBOOL g_init;
 // on entering mode
 t_CKBOOL kb_initscr()
 {
+    fprintf( stderr, "**************************" );
+    if( g_init ) return FALSE;
+
 #ifndef __PLATFORM_WIN32__
     struct termios term;
 
@@ -152,6 +155,8 @@ t_CKBOOL kb_initscr()
 // on exit
 void kb_endwin()
 {
+    if( !g_init ) return;
+
 #ifndef __PLATFORM_WIN32__
 #ifdef __PLATFORM_MACOSX__
     ioctl( 0, TIOCSETA, &g_save );

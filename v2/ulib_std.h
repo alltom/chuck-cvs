@@ -121,7 +121,7 @@ public:
 
 public:
     static CBufferAdvance * the_buf;
-    static t_CKUINT the_onoff;
+    static t_CKINT the_onoff;
     static t_CKBOOL the_init;
     static XThread * the_thread;
 };
