@@ -94,14 +94,14 @@ void io_addhistory( const char * addme )
   #include <string.h>
 #ifdef __PLATFORM_MACOSX__
   #include <termios.h>
+  static struct termios g_save;
 #else
   #include <termio.h>
+  static struct termio g_save;
 #endif
+
   #include <unistd.h>
   #include <sys/ioctl.h>
-
-  // global
-  static struct termios g_save;
 #else
   #include <conio.h>
 #endif
@@ -118,17 +118,21 @@ t_CKBOOL kb_initscr()
     if( g_init ) return FALSE;
 
 #ifndef __PLATFORM_WIN32__
-    struct termios term;
 
 #ifdef __PLATFORM_MACOSX__
+    struct termios term;
     if( ioctl( 0, TIOCGETA, &term ) == -1 )
 #else
+    struct termio term;
     if( ioctl( 0, TCGETA, &term ) == -1 )
 #endif
     { 
-        EM_log( CK_LOG_SEVERE,"(kbhit disabled): standard input not a tty!");
+        EM_log( CK_LOG_SEVERE, "(kbhit disabled): standard input not a tty!");
         return FALSE;
     }
+
+    // log
+    EM_log( CK_LOG_INFO, "starting kb hit immediate mode..." );
 
     g_save = term;
                 
@@ -177,7 +181,10 @@ t_CKINT kb_hit()
     ifkeyin = read( 0, &c, 1 );
     g_c = (t_CKINT)c;
 
-    return(ifkeyin);
+    // log
+    EM_log( CK_LOG_FINE, "kb hit! %i : %c", ifkeyin, c );
+
+    return (ifkeyin);
 #else
     return (t_CKINT)kbhit();
 #endif
