@@ -51,6 +51,10 @@ int setenv( const char *n, const char *v, int i )
     return !SetEnvironmentVariable(n, v);
 }
 
+#else
+
+#include <unistd.h>
+
 #endif
 
 // KBHit
