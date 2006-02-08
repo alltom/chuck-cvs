@@ -26,4 +26,4 @@ X x;
 x.set(a);
 
 // test
-if( o.x == 10 ) <<<"success">>>;
+if( a.x == 10 ) <<<"success">>>;

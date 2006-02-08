@@ -2401,6 +2401,7 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
     a_Arg_List arg_list = NULL;
     // t_CKBOOL parent_match = FALSE;
     string func_name = S_name(f->name);
+    string orig_name = func_name;
     vector<Chuck_Value *> values;
     vector<a_Arg_List> symbols;
     t_CKUINT count = 0;
@@ -2438,10 +2439,19 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
                     overload->name.c_str() );
                 return FALSE;
             }
-
-            // make the new name
-            func_name += "@" + itoa( ++overload->func_num_overloads ) + "@" + env->curr->name;
         }
+    }
+
+    // if overload
+    if( overload )
+    {
+        // make the new name
+        func_name += "@" + itoa( ++overload->func_num_overloads ) + "@" + env->curr->name;
+    }
+    else
+    {
+        // make name using 0
+        func_name += "@0@" + env->curr->name;
     }
 
     // make sure a code segment is in stmt - else we should push scope
@@ -2628,6 +2638,13 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
     env->curr->value.add( value->name, value );
     // enter the name into the function table
     env->curr->func.add( func->name, func );
+
+    // add for orig name
+    if( !overload )
+    {
+        env->curr->value.add( orig_name, value );
+        env->curr->func.add( func->name, func );
+    }
 
     // if overload
     if( overload )
