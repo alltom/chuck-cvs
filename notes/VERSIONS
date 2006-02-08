@@ -2,6 +2,8 @@
 1.2.0.5
   - (added) Keyboard Input (immediate mode)...
   - (added) 'KBHit' event class (see examples/event/kb*.ck)
+  - (added) int math.isinf( float ) // infinity test
+  - (added) int math.isnan( float ) // NaN test
   - (added) FM.controlChange( int, float ) affects FM subclasses:
     BeeThree, FMVoices, HevyMetl, PercFlut, Rhodey, TubeBell, Wurley
   - (added) Shakers.controlChange( int, float )
