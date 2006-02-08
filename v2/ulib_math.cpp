@@ -34,6 +34,10 @@
 #include "util_math.h"
 #include "ulib_std.h"
 
+#ifdef __PLATFORM_WIN32__
+#include <float.h>
+#endif
+
 
 static double g_pi = ONE_PI;
 static double g_twopi = TWO_PI;
@@ -160,6 +164,14 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_sfun( QUERY, max_impl, "float", "max" );
     QUERY->add_arg( QUERY, "float", "x" );
     QUERY->add_arg( QUERY, "float", "y" );
+
+    // isinf
+    QUERY->add_sfun( QUERY, isinf_impl, "int", "isinf" );
+    QUERY->add_arg( QUERY, "float", "x" );
+
+    // isnan
+    QUERY->add_sfun( QUERY, isnan_impl, "int", "isnan" );
+    QUERY->add_arg( QUERY, "float", "x" );
 
     // nextpow2
     QUERY->add_sfun( QUERY, nextpow2_impl, "int", "nextpow2" );
@@ -384,6 +396,28 @@ CK_DLL_SFUN( max_impl )
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
     t_CKFLOAT y = *((t_CKFLOAT *)ARGS + 1);
     RETURN->v_float = x > y ? x : y;
+}
+
+// isinf
+CK_DLL_SFUN( isinf_impl )
+{
+    t_CKFLOAT x = GET_CK_FLOAT(ARGS);
+#ifdef __PLATFORM_WIN32__
+    RETURN->v_int = !_finite( x );
+#else
+    RETURN->v_int = ::isinf( x );
+#endif
+}
+
+// isnan
+CK_DLL_SFUN( isnan_impl )
+{
+    t_CKFLOAT x = GET_CK_FLOAT(ARGS);
+#ifdef __PLATFORM_WIN32__
+    RETURN->v_int = ::_isnan( x );
+#else
+    RETURN->v_int = ::isnan( x );
+#endif;
 }
 
 // nextpow2 - thanks to Niklas Werner, via music-dsp
