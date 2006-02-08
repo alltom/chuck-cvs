@@ -403,9 +403,9 @@ CK_DLL_SFUN( isinf_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
 #ifdef __PLATFORM_WIN32__
-    RETURN->v_int = !::_finite( x );
+    RETURN->v_int = !_finite( x );
 #else
-    RETURN->v_int = ::isinf( x );
+    RETURN->v_int = isinf( x );
 #endif
 }
 
@@ -414,9 +414,9 @@ CK_DLL_SFUN( isnan_impl )
 {
     t_CKFLOAT x = GET_CK_FLOAT(ARGS);
 #ifdef __PLATFORM_WIN32__
-    RETURN->v_int = ::_isnan( x );
+    RETURN->v_int = _isnan( x );
 #else
-    RETURN->v_int = ::isnan( x );
+    RETURN->v_int = isnan( x );
 #endif
 }
 
