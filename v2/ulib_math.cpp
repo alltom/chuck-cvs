@@ -417,7 +417,7 @@ CK_DLL_SFUN( isnan_impl )
     RETURN->v_int = ::_isnan( x );
 #else
     RETURN->v_int = ::isnan( x );
-#endif;
+#endif
 }
 
 // nextpow2 - thanks to Niklas Werner, via music-dsp
