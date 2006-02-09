@@ -7,6 +7,7 @@
   - (added) .controlChange( int, float ) to following:
               BandedWG
               BlowBotl
+              BlowHole
               FM (affects BeeThree, FMVoices, HevyMetl,
                   PercFlut, Rhodey, TubeBell, Wurley)
               Shakers
