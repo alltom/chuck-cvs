@@ -450,6 +450,34 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun ( "float", "noiseGain", BlowBotl_ctrl_noiseGain ); //! noiseGain
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "noiseGain", BlowBotl_cget_noiseGain ); //! noiseGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "vibratoFreq", BlowBotl_ctrl_vibratoFreq ); //! vibratoFreq
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "vibratoFreq", BlowBotl_cget_vibratoFreq ); //! vibratoFreq
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "vibratoGain", BlowBotl_ctrl_vibratoGain ); //! vibratoGain
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "vibratoGain", BlowBotl_cget_vibratoGain ); //! vibratoGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "volume", BlowBotl_ctrl_volume ); //! volume
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "volume", BlowBotl_cget_volume ); //! volume
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -4111,7 +4139,12 @@ class BlowBotl : public Instrmnt
 
  public: // SWAP formerly protected  
  
-  double m_rate;
+  t_CKFLOAT m_rate; // CHUCK
+  t_CKFLOAT m_noiseGain;
+  t_CKFLOAT m_vibratoFreq;
+  t_CKFLOAT m_vibratoGain;
+  t_CKFLOAT m_volume;
+
   JetTabl *jetTable;
   BiQuad *resonator;
   PoleZero *dcBlock;
@@ -4123,7 +4156,7 @@ class BlowBotl : public Instrmnt
   MY_FLOAT vibratoGain;
   MY_FLOAT outputGain;
 
-  MY_FLOAT baseFrequency; // chuck data
+  MY_FLOAT baseFrequency; // CHUCK: chuck data
 };
 
 #endif
@@ -9919,8 +9952,6 @@ MY_FLOAT BlitSquare :: tick( void )
 
 BlowBotl :: BlowBotl()
 {
-
-  m_rate = 1.0;
   jetTable = new JetTabl();
 
   dcBlock = new PoleZero();
@@ -9940,8 +9971,17 @@ BlowBotl :: BlowBotl()
   noise = new Noise();
   noiseGain = 20.0;
 
-    maxPressure = (MY_FLOAT) 0.0;
-    baseFrequency = 0.0; // chuck data
+  maxPressure = (MY_FLOAT) 0.0;
+
+  // CHUCK added later
+  outputGain = 1.0;
+
+  // CHUCK
+  baseFrequency = 0.0;
+  m_rate = .02;
+  m_vibratoFreq = vibrato->m_freq / 12.0;
+  m_vibratoGain = vibratoGain;
+  m_volume = 1.0;
 }
 
 BlowBotl :: ~BlowBotl()
@@ -10038,16 +10078,28 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): BlowBotl: Control value greater than 128.0!" << std::endl;
   }
 
-  if (number == __SK_NoiseLevel_) // 4
-    noiseGain = norm * 30.0;
-  else if (number == __SK_ModFrequency_) // 11
-    vibrato->setFrequency( norm * 12.0 );
-  else if (number == __SK_ModWheel_) // 1
-    vibratoGain = norm * 0.4;
-  else if (number == __SK_AfterTouch_Cont_) // 128
-    adsr->setTarget( norm );
+  if( number == __SK_NoiseLevel_ ) // 4
+  {
+      noiseGain = norm * 30.0;
+      m_noiseGain = norm; // chuck
+  }
+  else if( number == __SK_ModFrequency_ ) // 11
+  {
+      vibrato->setFrequency( norm * 12.0 );
+      m_vibratoFreq = norm; // chuck
+  }
+  else if( number == __SK_ModWheel_ ) // 1
+  {
+      vibratoGain = norm * 0.4;
+      m_vibratoGain = norm;
+  }
+  else if( number == __SK_AfterTouch_Cont_ ) // 128
+  {
+      adsr->setTarget( norm );
+      m_volume = norm;
+  }
   else
-    std::cerr << "[chuck](via STK): BlowBotl: Undefined Control Number (" << number << ")!!" << std::endl;
+      std::cerr << "[chuck](via STK): BlowBotl: Undefined Control Number (" << number << ")!!" << std::endl;
 
 #if defined(_STK_DEBUG_)
   std::cerr << "[chuck](via STK): BlowBotl: controlChange number = " << number << ", value = " << value << std::endl;
@@ -22590,12 +22642,12 @@ CK_DLL_CTRL( BlowBotl_ctrl_rate )
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->m_rate = f;
-    RETURN->v_float = (t_CKFLOAT) p->m_rate ;
+    RETURN->v_float = (t_CKFLOAT)p->m_rate;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: BlowBotl_cget_rate ()
+// name: BlowBotl_cget_rate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowBotl_cget_rate )
@@ -22615,6 +22667,102 @@ CK_DLL_CTRL( BlowBotl_ctrl_controlChange )
     t_CKINT i = GET_NEXT_INT(ARGS);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( i, f );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_ctrl_noiseGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowBotl_ctrl_noiseGain )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 4, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_cget_noiseGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BlowBotl_cget_noiseGain )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_ctrl_vibratoFreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowBotl_ctrl_vibratoFreq )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 11, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_cget_vibratoFreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BlowBotl_cget_vibratoFreq )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_ctrl_vibratoGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowBotl_ctrl_vibratoGain )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 1, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_cget_vibratoGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BlowBotl_cget_vibratoGain )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_ctrl_volume()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowBotl_ctrl_volume )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 128, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)p->m_volume;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_cget_volume()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BlowBotl_cget_volume )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_volume;
 }
 
 

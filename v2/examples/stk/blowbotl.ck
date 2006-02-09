@@ -1,3 +1,5 @@
+// STK BlowBotl
+
 // patch
 BlowBotl bottle => dac;
 
@@ -7,25 +9,17 @@ BlowBotl bottle => dac;
 // infinite time loop
 while( true )
 {
-    std.rand2f( 0, 128 ) => float noisegain;
-    std.rand2f( 0, 128 ) => float vibratofreq;
-    std.rand2f( 0, 128 ) => float vibratogain;
-    std.rand2f( 0, 128 ) => float volume;
+    // ding!
+    std.rand2f( 0, 1 ) => bottle.noiseGain;
+    std.rand2f( 0, 1 ) => bottle.vibratoFreq;
+    std.rand2f( 0, 1 ) => bottle.vibratoGain;
+    std.rand2f( 0, 1 ) => bottle.volume;
 
     <<< "---", "" >>>;
-    <<< "noise gain:", noisegain >>>;
-    <<< "vibrato freq:", vibratofreq >>>;
-    <<< "vibrato gain:", vibratogain >>>;
-    <<< "volume:", volume >>>;
-
-    // noise gain
-    bottle.controlChange( 4, noisegain );
-    // vibrato freq
-    bottle.controlChange( 11, vibratofreq );
-    // vibrato gain
-    bottle.controlChange( 1, vibratogain );
-    // volume
-    bottle.controlChange( 128, volume );
+    <<< "noise gain:", bottle.noiseGain() >>>;
+    <<< "vibrato freq:", bottle.vibratoFreq() >>>;
+    <<< "vibrato gain:", bottle.vibratoGain() >>>;
+    <<< "volume:", bottle.volume() >>>;
 
     // set freq
     scale[std.rand2(0,scale.cap()-1)] + 57 => std.mtof => bottle.freq;

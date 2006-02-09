@@ -485,6 +485,14 @@ CK_DLL_CGET( BlowBotl_cget_freq );
 CK_DLL_CTRL( BlowBotl_ctrl_rate );
 CK_DLL_CGET( BlowBotl_cget_rate );
 CK_DLL_CTRL( BlowBotl_ctrl_controlChange );
+CK_DLL_CTRL( BlowBotl_ctrl_noiseGain );
+CK_DLL_CGET( BlowBotl_cget_noiseGain );
+CK_DLL_CTRL( BlowBotl_ctrl_vibratoFreq );
+CK_DLL_CGET( BlowBotl_cget_vibratoFreq );
+CK_DLL_CTRL( BlowBotl_ctrl_vibratoGain );
+CK_DLL_CGET( BlowBotl_cget_vibratoGain );
+CK_DLL_CTRL( BlowBotl_ctrl_volume );
+CK_DLL_CGET( BlowBotl_cget_volume );
 
 // BlowHole
 CK_DLL_CTOR( BlowHole_ctor );
