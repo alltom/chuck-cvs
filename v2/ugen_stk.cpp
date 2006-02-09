@@ -10143,10 +10143,11 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
 
 BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
 {
+  // chuck data
+  m_rate = 1.0;
+  m_frequency = 220.0;
+  m_reed = 0.5;
 
-   m_rate = 1.0;
-   m_frequency = 220.0;
-   m_reed = 0.5;
   length = (long) (Stk::sampleRate() / lowestFrequency + 1);
   // delays[0] is the delay line between the reed and the register vent.
   delays[0] = (DelayL *) new DelayL( 5.0 * Stk::sampleRate() / 22050.0, 100 );
