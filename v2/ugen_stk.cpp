@@ -629,6 +629,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun ( "void", "controlChange", Brass_ctrl_controlChange ); //! control change
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -23322,6 +23326,20 @@ CK_DLL_CGET( Brass_cget_lip )
     Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     RETURN->v_float = (t_CKFLOAT) b->m_lip ;
 }
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Brass_ctrl_controlChange )
+{
+    Brass_ * p = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    p->imp->controlChange( i, f );
+}
+
 
 
 

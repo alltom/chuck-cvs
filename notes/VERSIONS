@@ -6,9 +6,10 @@
   - (added) int math.isnan( float ) // NaN test
   - (added) .controlChange( int, float ) to following:
               BandedWG
-              BlowBotl
-              BlowHole
-              Bowed
+              BlowBotl (see examples/stk/blowbotl.ck)
+              BlowHole (see examples/stk/blowhole.ck)
+              Bowed    (see examples/stk/bowed.ck)
+              Brass    (see examples/stk/brass.ck)
               FM (affects BeeThree, FMVoices, HevyMetl,
                   PercFlut, Rhodey, TubeBell, Wurley)
               Shakers

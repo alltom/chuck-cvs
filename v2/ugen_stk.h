@@ -548,6 +548,7 @@ CK_DLL_CTRL( Brass_ctrl_rate );
 CK_DLL_CGET( Brass_cget_rate );
 CK_DLL_CTRL( Brass_ctrl_lip );
 CK_DLL_CGET( Brass_cget_lip );
+CK_DLL_CTRL( Brass_ctrl_controlChange );
 
 // Clarinet
 CK_DLL_CTOR( Clarinet_ctor );
