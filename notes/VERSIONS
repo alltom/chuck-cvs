@@ -7,6 +7,7 @@
   - (added) FM.controlChange( int, float ) affects FM subclasses:
     BeeThree, FMVoices, HevyMetl, PercFlut, Rhodey, TubeBell, Wurley
   - (added) Shakers.controlChange( int, float )
+  - (added) examples/stk/modulate.ck
   - (fixed) impulse.last() no longer has extra samp delay
             (thanks to Mike McGonagle for reporting)
   - (fixed) class inheritance now handles the first overloaded
