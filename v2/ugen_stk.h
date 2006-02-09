@@ -522,6 +522,7 @@ CK_DLL_CTRL( Bowed_ctrl_vibrato );
 CK_DLL_CGET( Bowed_cget_freq );
 CK_DLL_CGET( Bowed_cget_rate );
 CK_DLL_CGET( Bowed_cget_vibrato );
+CK_DLL_CTRL( Bowed_ctrl_controlChange );
 
 // BowTabl
 CK_DLL_CTOR( BowTabl_ctor );

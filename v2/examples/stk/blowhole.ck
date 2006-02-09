@@ -10,11 +10,11 @@ while( true )
   // change parameters
   if( std.rand2f(0,1) > .75 )
   {
-    std.rand2f( 32, 128 ) => float stiffness;
-    std.rand2f( 32, 128 ) => float noisegain;
+    std.rand2f( 0, 128 ) => float stiffness;
+    std.rand2f( 0, 128 ) => float noisegain;
     std.rand2f( 0, 128 ) => float tonehole;
     std.rand2f( 0, 128 ) => float register;
-    std.rand2f( 32, 128 ) => float pressure;
+    std.rand2f( 0, 128 ) => float pressure;
 
     <<< "going...", "" >>>;
     <<< "reed stiffness:", stiffness >>>;

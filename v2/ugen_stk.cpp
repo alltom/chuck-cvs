@@ -570,6 +570,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "vibrato", Bowed_cget_vibrato ); //!    
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun ( "void", "controlChange", Bowed_ctrl_controlChange ); //! control change
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
     type_engine_import_class_end( env );
@@ -22997,6 +23001,17 @@ CK_DLL_CGET( Bowed_cget_rate )
 }
 
 
+//-----------------------------------------------------------------------------
+// name: Bowed_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Bowed_ctrl_controlChange )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    p->controlChange( i, f );
+}
 
 
 // Chorus
