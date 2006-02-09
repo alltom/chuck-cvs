@@ -449,6 +449,7 @@ CK_DLL_CTRL( BandedWG_ctrl_bowRate );
 CK_DLL_CGET( BandedWG_cget_bowRate );
 CK_DLL_CTRL( BandedWG_ctrl_bowPressure );
 CK_DLL_CGET( BandedWG_cget_bowPressure );
+CK_DLL_CTRL( BandedWG_ctrl_controlChange );
 CK_DLL_CTRL( BandedWG_ctrl_startBowing );
 CK_DLL_CTRL( BandedWG_ctrl_stopBowing );
 CK_DLL_CTRL( BandedWG_ctrl_pluck );
@@ -483,6 +484,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_freq );
 CK_DLL_CGET( BlowBotl_cget_freq );
 CK_DLL_CTRL( BlowBotl_ctrl_rate );
 CK_DLL_CGET( BlowBotl_cget_rate );
+CK_DLL_CTRL( BlowBotl_ctrl_controlChange );
 
 // BlowHole
 CK_DLL_CTOR( BlowHole_ctor );

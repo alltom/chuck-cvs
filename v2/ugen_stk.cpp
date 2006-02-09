@@ -395,6 +395,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "strikePosition", BandedWG_cget_strikePosition ); //! strike Position
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun ( "void", "controlChange", BandedWG_ctrl_controlChange ); //! control change
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
 
     // end the class import
     type_engine_import_class_end( env );
@@ -439,6 +444,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "rate", BlowBotl_cget_rate ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "void", "controlChange", BlowBotl_ctrl_controlChange ); //! control change
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -22160,6 +22170,18 @@ CK_DLL_CTRL( BandedWG_ctrl_stopBowing )
 }
 
 
+//-----------------------------------------------------------------------------
+// name: BandedWG_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BandedWG_ctrl_controlChange )
+{
+    BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, BandedWG_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT v = GET_NEXT_FLOAT(ARGS);
+    f->controlChange( i, v );
+}
+
 
 // BiQuad
 struct BiQuad_
@@ -22561,6 +22583,19 @@ CK_DLL_CGET( BlowBotl_cget_rate )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
     RETURN->v_float = (t_CKFLOAT) p->m_rate ;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowBotl_ctrl_controlChange )
+{
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    p->controlChange( i, f );
 }
 
 

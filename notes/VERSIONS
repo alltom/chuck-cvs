@@ -4,11 +4,12 @@
   - (added) 'KBHit' event class (see examples/event/kb*.ck)
   - (added) int math.isinf( float ) // infinity test
   - (added) int math.isnan( float ) // NaN test
-  - (added) BandedWG.controlChange( int, float )
-  - (added) Shakers.controlChange( int, float )
-  - (added) FM.controlChange( int, float );
-            affects FM subclasses: BeeThree, FMVoices, HevyMetl,
-            PercFlut, Rhodey, TubeBell, Wurley
+  - (added) .controlChange( int, float ) to following:
+              BandedWG
+              BlowBotl
+              FM (affects BeeThree, FMVoices, HevyMetl,
+                  PercFlut, Rhodey, TubeBell, Wurley)
+              Shakers
   - (added) examples/stk/modulate.ck
   - (fixed) impulse.last() no longer has extra samp delay
             (thanks to Mike McGonagle for reporting)
