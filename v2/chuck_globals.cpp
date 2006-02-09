@@ -53,6 +53,8 @@ t_CKUINT g_sigpipe_mode = 0;
 ck_socket g_sock = NULL;
 // default port
 t_CKINT g_port = 8888;
+// thread id for whatever
+CHUCK_THREAD g_tid_whatever = 0;
 
 
 //-----------------------------------------------------------------------------

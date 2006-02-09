@@ -35,6 +35,7 @@
 
 #include "chuck_def.h"
 #include "util_network.h"
+#include "util_thread.h"
 
 
 
@@ -60,6 +61,8 @@ extern t_CKUINT g_sigpipe_mode;
 extern ck_socket g_sock;
 // global port
 extern t_CKINT g_port;
+// thread id for whatever
+extern CHUCK_THREAD g_tid_whatever;
 
 
 // global detach
