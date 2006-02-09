@@ -73,8 +73,6 @@
 CHUCK_THREAD g_tid_otf = 0;
 // thread id for shell
 CHUCK_THREAD g_tid_shell = 0;
-// thread id for whatever
-CHUCK_THREAD g_tid_whatever = 0;
 
 // default destination host name
 char g_host[256] = "127.0.0.1";
