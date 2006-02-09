@@ -505,6 +505,7 @@ CK_DLL_CGET( BlowHole_cget_tonehole );
 CK_DLL_CGET( BlowHole_cget_freq );
 CK_DLL_CGET( BlowHole_cget_vent );
 CK_DLL_CGET( BlowHole_cget_reed );
+CK_DLL_CTRL( BlowHole_ctrl_controlChange );
 
 // Bowed
 CK_DLL_CTOR( Bowed_ctor );

@@ -515,6 +515,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "rate", BlowHole_cget_rate ); //! rate of change
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun ( "void", "controlChange", BlowHole_ctrl_controlChange ); //! control change
+    func->add_arg ( "int", "ctrl" );
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -10169,6 +10173,9 @@ void BlowHole :: setFrequency(MY_FLOAT frequency)
   if (delay <= 0.0) delay = 0.3;
   else if (delay > length) delay = length;
   delays[1]->setDelay(delay);
+
+  // CHUCK
+  m_frequency = frequency;
 }
 
 void BlowHole :: setVent(MY_FLOAT newValue)
@@ -10284,7 +10291,7 @@ void BlowHole :: controlChange(int number, MY_FLOAT value)
     reedTable->setSlope( -0.44 + (0.26 * norm) ); 
    }
   else if (number == __SK_NoiseLevel_) // 4
-    noiseGain = ( norm * 0.4);
+    noiseGain = ( norm * 0.4 );
   else if (number == __SK_ModFrequency_) // 11
     this->setTonehole( norm );
   else if (number == __SK_ModWheel_) // 1
@@ -22607,7 +22614,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_controlChange )
 CK_DLL_CTOR( BlowHole_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, BlowHole_offset_data) = (t_CKUINT) new BlowHole( 44100 );
+    OBJ_MEMBER_UINT(SELF, BlowHole_offset_data) = (t_CKUINT) new BlowHole( 30 );
 }
 
 
@@ -22811,6 +22818,18 @@ CK_DLL_CGET( BlowHole_cget_reed )
     RETURN->v_float = (t_CKFLOAT) p->m_reed ;
 }
 
+
+//-----------------------------------------------------------------------------
+// name: BlowHole_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowHole_ctrl_controlChange )
+{
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    p->controlChange( i, f );
+}
 
 
 // Bowed

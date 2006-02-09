@@ -7,9 +7,9 @@ BlowHole hole => dac;
 // infinite time loop
 while( true )
 {
-    // change parameters
-    if( std.rand2f(0,1) > .75 )
-    {
+  // change parameters
+  if( std.rand2f(0,1) > .75 )
+  {
     std.rand2f( 32, 128 ) => float stiffness;
     std.rand2f( 32, 128 ) => float noisegain;
     std.rand2f( 0, 128 ) => float tonehole;
@@ -33,16 +33,16 @@ while( true )
     hole.controlChange( 1, register );
     // breath pressue
     hole.controlChange( 128, pressure );
-    }
+  }
 
-    // set freq
-    scale[std.rand2(0,scale.cap()-1)] => int note;
-    33 + std.rand2(0,4)*12 + note => std.mtof => hole.freq;
-    <<< "note: ", std.ftom( hole.freq() ) >>>;
+  // set freq
+  scale[std.rand2(0,scale.cap()-1)] => int note;
+  33 + std.rand2(0,4)*12 + note => std.mtof => hole.freq;
+  <<< "note: ", std.ftom( hole.freq() ) >>>;
 
-    // go
-    .8 => hole.noteOn;
+  // go
+  .8 => hole.noteOn;
 
-    // advance time
-    1::second => now;
+  // advance time
+  1::second => now;
 }
