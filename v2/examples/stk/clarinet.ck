@@ -4,7 +4,7 @@
 // patch
 Clarinet clair => JCRev r => dac;
 .75 => r.gain;
-.15 => r.mix;
+.1 => r.mix;
 
 // our notes
 [ 61, 63, 65, 66, 68, 66, 65, 63, 61 ] @=> int notes[];

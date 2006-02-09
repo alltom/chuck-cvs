@@ -564,6 +564,7 @@ CK_DLL_CTRL( Clarinet_ctrl_freq );
 CK_DLL_CGET( Clarinet_cget_freq );
 CK_DLL_CTRL( Clarinet_ctrl_rate );
 CK_DLL_CGET( Clarinet_cget_rate );
+CK_DLL_CTRL( Clarinet_ctrl_controlChange );
 
 // Flute
 CK_DLL_CTOR( Flute_ctor );

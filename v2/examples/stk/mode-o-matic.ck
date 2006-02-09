@@ -54,7 +54,7 @@ fun void echo_Shred( )
 spork ~ echo_Shred();
 
 // scale
-[ 0, 2, 4, 7 ] @=> int scale[];
+[ 0, 2, 4, 7, 9, 11 ] @=> int scale[];
 
 // our main loop
 while( true )
