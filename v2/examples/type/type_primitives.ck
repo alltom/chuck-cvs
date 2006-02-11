@@ -27,6 +27,6 @@ now => time t;
 <<<t>>>;
 
 // we advance time, and now will change to reflect 
-<<<"waiting 10 seconds...";
+<<<"waiting 10 seconds...">>>;
 10::second => now;
 <<<now>>>;
