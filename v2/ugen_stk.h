@@ -557,18 +557,26 @@ CK_DLL_CTOR( Brass_ctor );
 CK_DLL_DTOR( Brass_dtor );
 CK_DLL_TICK( Brass_tick );
 CK_DLL_PMSG( Brass_pmsg );
-CK_DLL_CTRL( Brass_ctrl_noteOn );
-CK_DLL_CTRL( Brass_ctrl_noteOff );
-CK_DLL_CTRL( Brass_ctrl_startBlowing );
-CK_DLL_CTRL( Brass_ctrl_stopBlowing );
-CK_DLL_CTRL( Brass_ctrl_clear );
 CK_DLL_CTRL( Brass_ctrl_freq );
 CK_DLL_CGET( Brass_cget_freq );
-CK_DLL_CTRL( Brass_ctrl_rate );
-CK_DLL_CGET( Brass_cget_rate );
 CK_DLL_CTRL( Brass_ctrl_lip );
 CK_DLL_CGET( Brass_cget_lip );
+CK_DLL_CTRL( Brass_ctrl_slide );
+CK_DLL_CGET( Brass_cget_slide );
+CK_DLL_CTRL( Brass_ctrl_vibratoFreq );
+CK_DLL_CGET( Brass_cget_vibratoFreq );
+CK_DLL_CTRL( Brass_ctrl_vibratoGain );
+CK_DLL_CGET( Brass_cget_vibratoGain );
+CK_DLL_CTRL( Brass_ctrl_clear );
+CK_DLL_CTRL( Brass_ctrl_volume );
+CK_DLL_CGET( Brass_cget_volume );
+CK_DLL_CTRL( Brass_ctrl_noteOn );
+CK_DLL_CTRL( Brass_ctrl_noteOff );
 CK_DLL_CTRL( Brass_ctrl_controlChange );
+CK_DLL_CTRL( Brass_ctrl_startBlowing );
+CK_DLL_CTRL( Brass_ctrl_stopBlowing );
+CK_DLL_CTRL( Brass_ctrl_rate );
+CK_DLL_CGET( Brass_cget_rate );
 
 // Clarinet
 CK_DLL_CTOR( Clarinet_ctor );
@@ -653,8 +661,6 @@ CK_DLL_CGET( Mandolin_cget_pluckPos );
 CK_DLL_CGET( Mandolin_cget_bodySize );
 CK_DLL_CGET( Mandolin_cget_stringDamping );
 CK_DLL_CGET( Mandolin_cget_stringDetune );
-
-
 
 // Modal
 CK_DLL_CTOR( Modal_ctor );

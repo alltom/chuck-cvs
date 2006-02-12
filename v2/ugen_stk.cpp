@@ -344,58 +344,58 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "noteOn", BandedWG_ctrl_noteOn ); //! noteOn
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", BandedWG_ctrl_noteOff ); //! noteOff
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pluck", BandedWG_ctrl_pluck ); //! pluck waveguide
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBowing", BandedWG_ctrl_startBowing ); //! pluck waveguide
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBowing", BandedWG_ctrl_stopBowing ); //! pluck waveguide
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BandedWG_ctrl_freq ); //! strike Position
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BandedWG_cget_freq ); //! strike Position
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "bowRate", BandedWG_ctrl_bowRate ); //! strike Position
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "bowRate", BandedWG_cget_bowRate ); //! strike Position
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "bowPressure", BandedWG_ctrl_bowPressure ); //! strike Position
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "bowPressure", BandedWG_cget_bowPressure ); //! strike Position
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "preset", BandedWG_ctrl_preset ); //! strike Position
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "preset", BandedWG_cget_preset ); //! strike Position
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "strikePosition", BandedWG_ctrl_strikePosition ); //! strike Position
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "strikePosition", BandedWG_cget_strikePosition ); //! strike Position
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", BandedWG_ctrl_controlChange ); //! control change
     func->add_arg ( "int", "ctrl" );
@@ -419,33 +419,33 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "noteOn", BlowBotl_ctrl_noteOn ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", BlowBotl_ctrl_noteOff ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBlowing", BlowBotl_ctrl_startBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBlowing", BlowBotl_ctrl_stopBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BlowBotl_ctrl_freq ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BlowBotl_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", BlowBotl_ctrl_rate ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", BlowBotl_cget_rate ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", BlowBotl_ctrl_controlChange ); //! control change
     func->add_arg ( "int", "ctrl" );
@@ -454,31 +454,31 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "noiseGain", BlowBotl_ctrl_noiseGain ); //! noiseGain
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noiseGain", BlowBotl_cget_noiseGain ); //! noiseGain
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoFreq", BlowBotl_ctrl_vibratoFreq ); //! vibratoFreq
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoFreq", BlowBotl_cget_vibratoFreq ); //! vibratoFreq
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", BlowBotl_ctrl_vibratoGain ); //! vibratoGain
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", BlowBotl_cget_vibratoGain ); //! vibratoGain
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "volume", BlowBotl_ctrl_volume ); //! volume
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "volume", BlowBotl_cget_volume ); //! volume
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -609,31 +609,31 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "bowPosition", Bowed_ctrl_bowPos ); //! bowPos
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "bowPosition", Bowed_cget_bowPos ); //! bowPos
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoFreq", Bowed_ctrl_vibratoFreq ); //! vibratoFreq
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoFreq", Bowed_cget_vibratoFreq ); //! vibratoFreq
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", Bowed_ctrl_vibratoGain ); //! vibratoGain
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", Bowed_cget_vibratoGain ); //! vibratoGain
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "volume", Bowed_ctrl_volume ); //! volume
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "volume", Bowed_cget_volume ); //! volume
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", Bowed_ctrl_controlChange ); //! control change
     func->add_arg ( "int", "ctrl" );
@@ -655,48 +655,90 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Brass_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "noteOn", Brass_ctrl_noteOn ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", Brass_ctrl_noteOff ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "clear", Brass_ctrl_clear ); //! clear instrument
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBlowing", Brass_ctrl_startBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBlowing", Brass_ctrl_stopBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Brass_ctrl_freq ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Brass_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Brass_ctrl_rate ); //! rate of change
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Brass_cget_rate ); //! rate of change
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", Brass_ctrl_controlChange ); //! control change
     func->add_arg ( "int", "ctrl" );
     func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
@@ -714,37 +756,37 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Clarinet_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "noteOn", Clarinet_ctrl_noteOn ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", Clarinet_ctrl_noteOff ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "clear", Clarinet_ctrl_clear ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBlowing", Clarinet_ctrl_startBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBlowing", Clarinet_ctrl_stopBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Clarinet_ctrl_freq ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Clarinet_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Clarinet_ctrl_rate ); //! rate of change
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Clarinet_cget_rate ); //! rate of change
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", Clarinet_ctrl_controlChange ); //! control change
     func->add_arg ( "int", "ctrl" );
@@ -766,58 +808,58 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Flute_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "noteOn", Flute_ctrl_noteOn ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", Flute_ctrl_noteOff ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "clear", Flute_ctrl_clear ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBlowing", Flute_ctrl_startBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBlowing", Flute_ctrl_stopBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Flute_ctrl_freq ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Flute_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Flute_ctrl_rate ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Flute_cget_rate ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "jetReflection", Flute_ctrl_jetReflection ); //! rate of change
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "jetReflection", Flute_cget_jetReflection ); //! rate of change
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "jetDelay", Flute_ctrl_jetDelay ); //! rate of change
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "jetDelay", Flute_cget_jetDelay ); //! rate of change
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "endReflection", Flute_ctrl_endReflection ); //! rate of change
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "endReflection", Flute_cget_endReflection ); //! rate of change
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -836,46 +878,46 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Mandolin_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "pluck", Mandolin_ctrl_pluck );  //! pluck string with given amplitude 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Mandolin_ctrl_freq ); //! string frequency 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Mandolin_cget_freq ); //! string frequency 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pluckPos", Mandolin_ctrl_pluckPos ); //! set pluck position ( 0-1) along string
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pluckPos", Mandolin_cget_pluckPos ); //! set pluck position ( 0-1) along string
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "bodySize", Mandolin_ctrl_bodySize ); //! modify instrument size
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "bodySize", Mandolin_cget_bodySize ); //! modify instrument size
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stringDamping", Mandolin_ctrl_stringDamping ); //! control string damping
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stringDamping", Mandolin_cget_stringDamping ); //! control string damping
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stringDetune", Mandolin_ctrl_stringDetune ); //! control detuning of string pair
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stringDetune", Mandolin_cget_stringDetune ); //! control detuning of string pair
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "afterTouch", Mandolin_ctrl_afterTouch ); //!aftertouch
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     
     // end the class import
@@ -894,95 +936,95 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( ModalBar_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "strike", ModalBar_ctrl_strike ); //! strike bar
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "damp", ModalBar_ctrl_damp ); //! damp bar
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", ModalBar_ctrl_noteOn ); //! start note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", ModalBar_ctrl_noteOff ); //! stop note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "clear", ModalBar_ctrl_clear ); //! reset
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     func = make_new_mfun ( "int", "preset", ModalBar_ctrl_preset ); //! choose preset
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "preset", ModalBar_cget_preset ); //! choose preset
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", ModalBar_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", ModalBar_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "strikePosition", ModalBar_ctrl_strikePosition ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "strikePosition", ModalBar_cget_strikePosition ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stickHardness", ModalBar_ctrl_stickHardness ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stickHardness", ModalBar_cget_stickHardness ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "masterGain", ModalBar_ctrl_masterGain ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "masterGain", ModalBar_cget_masterGain ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "directGain", ModalBar_ctrl_directGain ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "directGain", ModalBar_cget_directGain ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     func = make_new_mfun ( "int", "mode", ModalBar_ctrl_mode ); //! choose mode
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "mode", ModalBar_cget_mode ); //! choose mode
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modeRatio", ModalBar_ctrl_modeRatio ); //! mode edit
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modeRatio", ModalBar_cget_modeRatio ); //! mode edit
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modeRadius", ModalBar_ctrl_modeRadius ); //! mode dit
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modeRadius", ModalBar_cget_modeRadius ); //! mode dit
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modeGain", ModalBar_ctrl_modeGain ); //! mode edit
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modeGain", ModalBar_cget_modeGain ); //! mode edit
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1001,46 +1043,46 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Moog_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "noteOn", Moog_ctrl_noteOn ); //! start note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Moog_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Moog_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modSpeed", Moog_ctrl_modSpeed ); //! modulation speed
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modSpeed", Moog_cget_modSpeed ); //! modulation speed
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modDepth", Moog_ctrl_modDepth ); //! modulation depth
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modDepth", Moog_cget_modDepth ); //! modulation depth
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "filterQ", Moog_ctrl_filterQ ); //! filter Q value
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "filterQ", Moog_cget_filterQ ); //! filter Q value
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "filterSweepRate", Moog_ctrl_filterSweepRate ); //! filter sweep rate
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "filterSweepRate", Moog_cget_filterSweepRate ); //! filter sweep rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "afterTouch", Moog_ctrl_afterTouch ); // aftertouch
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
         
     // end the class import
@@ -1058,44 +1100,44 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Saxofony_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "noteOn", Saxofony_ctrl_noteOn ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", Saxofony_ctrl_noteOff ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "clear", Saxofony_ctrl_clear ); //! clear instrument
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBlowing", Saxofony_ctrl_startBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBlowing", Saxofony_ctrl_stopBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Saxofony_ctrl_freq ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Saxofony_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Saxofony_ctrl_rate ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Saxofony_cget_rate ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "blowPosition", Saxofony_ctrl_blowPosition ); //! lip stiffness
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "blowPosition", Saxofony_cget_blowPosition ); //! lip stiffness
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1114,22 +1156,22 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Shakers_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "freq", Shakers_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Shakers_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", Shakers_ctrl_noteOn ); //! start shake with given amplitude
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", Shakers_ctrl_noteOff ); //! stop shake
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "which", Shakers_ctrl_which ); //! select instrument
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "which", Shakers_cget_which ); //! select instrument
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1155,26 +1197,26 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Sitar_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "pluck", Sitar_ctrl_pluck ); //! 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", Sitar_ctrl_noteOn ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", Sitar_ctrl_noteOff ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "clear", Sitar_ctrl_clear ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Sitar_ctrl_freq ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Sitar_cget_freq ); 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1193,47 +1235,47 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( StifKarp_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "pluck", StifKarp_ctrl_pluck ); //! 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", StifKarp_ctrl_noteOn ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", StifKarp_ctrl_noteOff ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "clear", StifKarp_ctrl_clear ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", StifKarp_ctrl_freq ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", StifKarp_cget_freq ); 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pickupPosition", StifKarp_ctrl_pickupPosition ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pickupPosition", StifKarp_cget_pickupPosition ); 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stretch", StifKarp_ctrl_stretch ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stretch", StifKarp_cget_stretch ); 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "baseLoopGain", StifKarp_ctrl_baseLoopGain ); 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "baseLoopGain", StifKarp_cget_baseLoopGain ); 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1252,89 +1294,89 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( VoicForm_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "freq", VoicForm_ctrl_freq ); //! frequency 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", VoicForm_cget_freq ); //! frequency 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "phoneme", VoicForm_ctrl_phoneme ); //! select phoneme  ( above ) 
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "phoneme", VoicForm_cget_phoneme ); //! select phoneme  ( above ) 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", VoicForm_ctrl_noteOn ); //! start note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", VoicForm_ctrl_noteOff ); //! stop note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "speak", VoicForm_ctrl_speak ); //! start singing
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "quiet", VoicForm_ctrl_quiet ); //! stop singing
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "voiced", VoicForm_ctrl_voiced ); //! set mix for voiced component
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "voiced", VoicForm_cget_voiced ); //! set mix for voiced component
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "unVoiced", VoicForm_ctrl_unVoiced ); //! set mix for unvoiced component
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "unVoiced", VoicForm_cget_unVoiced ); //! set mix for unvoiced component
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pitchSweepRate", VoicForm_ctrl_pitchSweepRate ); //! pitch sweep
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pitchSweepRate", VoicForm_cget_pitchSweepRate ); //! pitch sweep
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "voiceMix", VoicForm_ctrl_voiceMix ); //! voiced/unvoiced mix
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "voiceMix", VoicForm_cget_voiceMix ); //! voiced/unvoiced mix
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "setPhoneme", VoicForm_ctrl_selPhoneme ); //! select phoneme by number
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "setPhoneme", VoicForm_cget_selPhoneme ); //! select phoneme by number
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoFreq", VoicForm_ctrl_vibratoFreq );//! vibrato
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoFreq", VoicForm_cget_vibratoFreq );//! vibrato
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", VoicForm_ctrl_vibratoGain );//! vibrato depth
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", VoicForm_cget_vibratoGain );//! vibrato depth
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "loudness", VoicForm_ctrl_loudness ); //! 'loudness' of voicee
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "loudness", VoicForm_cget_loudness ); //! 'loudness' of voicee
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1360,38 +1402,38 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "freq", FM_ctrl_freq ); //!set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", FM_cget_freq ); //!set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", FM_ctrl_noteOn );  //! trigger note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", FM_ctrl_noteOff ); //! end note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modDepth", FM_ctrl_modDepth ); //!modulation Depth
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modSpeed", FM_ctrl_modSpeed ); //!modulation Speed
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "afterTouch", FM_ctrl_afterTouch ); //!aftertouch
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "control1", FM_ctrl_control1 ); //! FM control 1
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "control2", FM_ctrl_control2 ); //! FM control 2
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", FM_ctrl_controlChange ); //! control change
     func->add_arg ( "int", "ctrl" );
@@ -1412,7 +1454,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "noteOn", BeeThree_ctrl_noteOn ); //!trigger note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1429,34 +1471,34 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "noteOn", FMVoices_ctrl_noteOn );
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", FMVoices_ctrl_freq ); //!voice frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", FMVoices_cget_freq ); //!voice frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vowel", FMVoices_ctrl_vowel ); //!select vowel
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "spectralTilt", FMVoices_ctrl_spectralTilt ); //! spectral tilt
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "lfoSpeed", FMVoices_ctrl_lfoSpeed ); //!speed of LFO
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "lfoDepth", FMVoices_ctrl_lfoDepth ); //!depth of LFO
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "adsrTarget", FMVoices_ctrl_adsrTarget ); //!adsr targets
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1472,7 +1514,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "noteOn", HevyMetl_ctrl_noteOn ); //! trigger note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1488,14 +1530,14 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "freq", PercFlut_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", PercFlut_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", PercFlut_ctrl_noteOn ); //!trigger note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1512,14 +1554,14 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "freq", Rhodey_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Rhodey_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", Rhodey_ctrl_noteOn ); //! trigger note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1535,14 +1577,14 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "freq", TubeBell_ctrl_freq );  //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", TubeBell_cget_freq );  //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", TubeBell_ctrl_noteOn ); //!  trigger note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     
     // end the class import
@@ -1559,14 +1601,14 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "freq", Wurley_ctrl_freq ); //! set frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Wurley_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOn", Wurley_ctrl_noteOn ); //! trigger note
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1587,17 +1629,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Delay_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "dur", "delay", Delay_ctrl_delay ); //! length of delay
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "delay", Delay_cget_delay ); //! length of delay
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", Delay_ctrl_max ); //! max delay (buffer size) 
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", Delay_cget_max ); //! max delay (buffer size) 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // delay 'subs' not actually extending . 
@@ -1617,17 +1659,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( DelayA_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "dur", "delay", DelayA_ctrl_delay ); //! length of delay
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "delay", DelayA_cget_delay ); //! length of delay
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", DelayA_ctrl_max ); //! max delay ( buffer size ) 
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", DelayA_cget_max ); //! max delay ( buffer size ) 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1646,17 +1688,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( DelayL_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "dur", "delay", DelayL_ctrl_delay ); //! length of delay
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "delay", DelayL_cget_delay ); //! length of delay
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", DelayL_ctrl_max ); //! max delay ( buffer size ) 
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", DelayL_cget_max ); //! max delay ( buffer size ) 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1674,24 +1716,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Echo_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "dur", "delay", Echo_ctrl_delay ); //! length of echo
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "delay", Echo_cget_delay ); //! length of echo
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", Echo_ctrl_max ); //! max delay
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "max", Echo_cget_max ); //! max delay
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", Echo_ctrl_mix ); //! mix level ( wet/dry ) 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", Echo_cget_mix ); //! mix level ( wet/dry ) 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1712,53 +1754,53 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Envelope_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun ( "int", "keyOn", Envelope_ctrl_keyOn0 ); //! ramp to 1.0
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "keyOn", Envelope_ctrl_keyOn ); //! ramp to 1.0
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "keyOff", Envelope_ctrl_keyOff0 ); //! ramp to 0.0
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "keyOff", Envelope_ctrl_keyOff ); //! ramp to 0.0
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "target", Envelope_ctrl_target ); //! ramp to arbitrary value.
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "target", Envelope_cget_target ); //! ramp to arbitrary value.
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "time", Envelope_ctrl_time ); //! time to reach target
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "time", Envelope_cget_time ); //! time to reach target
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "duration", Envelope_ctrl_duration ); //! time to reach target
     func->add_arg ( "dur", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "dur", "duration", Envelope_cget_duration ); //! time to reach target
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Envelope_ctrl_rate ); //! rate of change 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", Envelope_cget_rate ); //! rate of change 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "value", Envelope_ctrl_value ); //! set immediate value
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "value", Envelope_cget_value ); //! set immediate value
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1774,54 +1816,54 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
                         ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
     func = make_new_mfun ( "int", "keyOn", ADSR_ctrl_keyOn ); //! start the attack for non-zero values
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "keyOff", ADSR_ctrl_keyOff ); //! start release for non-zero values
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "attackTime", ADSR_ctrl_attackTime ); //! attack time
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "attackRate", ADSR_ctrl_attackRate ); //! attack rate
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "attackRate", ADSR_cget_attackRate ); //! attack rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "decayTime", ADSR_ctrl_decayTime ); //! decay time 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "decayRate", ADSR_ctrl_decayRate ); //! decay rate
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "decayRate", ADSR_cget_decayRate ); //! decay rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "sustainLevel", ADSR_ctrl_sustainLevel ); //! sustain level
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "sustainLevel", ADSR_cget_sustainLevel ); //! sustain level
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "releaseTime", ADSR_ctrl_releaseTime ); //! release time 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "releaseRate", ADSR_ctrl_releaseRate ); //! release rate
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "releaseRate", ADSR_cget_releaseRate ); //! release rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "state", ADSR_cget_state ); //! attack=0, decay=1 , sustain=2, release=3, done=4
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1843,65 +1885,65 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( BiQuad_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "b2", BiQuad_ctrl_b2 ); //! b2 coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b2", BiQuad_cget_b2 ); //! b2 coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", BiQuad_ctrl_b1 ); //! b1 coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", BiQuad_cget_b1 ); //! b1 coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", BiQuad_ctrl_b0 ); //! b0 coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", BiQuad_cget_b0 ); //! b0 coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a2", BiQuad_ctrl_a2 ); //! a2 coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a2", BiQuad_cget_a2 ); //! a2 coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a1", BiQuad_ctrl_a1 ); //! a1 coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a1", BiQuad_cget_a1 ); //! a1 coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a0", BiQuad_cget_a0 ); //! a0 coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pfreq", BiQuad_ctrl_pfreq );  //! set resonance frequency (poles)
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "prad", BiQuad_ctrl_prad ); //! pole radius (less than 1 to be stable)
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "zfreq", BiQuad_ctrl_zfreq ); //! notch frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "zrad", BiQuad_ctrl_zrad ); //! zero radius
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "norm", BiQuad_ctrl_norm ); //! normalization
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "eqzs", BiQuad_ctrl_eqzs ); //! equal gain zeroes
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1919,7 +1961,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Filter_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "string", "coefs", Filter_ctrl_coefs );
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // Filter subclasses
@@ -1940,24 +1982,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     
     func = make_new_mfun ( "float", "a1", OnePole_ctrl_a1 ); //! filter coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a1", OnePole_cget_a1 ); //! filter coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", OnePole_ctrl_b0 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", OnePole_cget_b0 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pole", OnePole_ctrl_pole ); //! set pole position along real axis of z-plane
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "pole", OnePole_cget_pole ); //! set pole position along real axis of z-plane
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -1976,45 +2018,45 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( TwoPole_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "a1", TwoPole_ctrl_a1 ); //! filter coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a1", TwoPole_cget_a1 ); //! filter coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a2", TwoPole_ctrl_a2 ); //! filter coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a2", TwoPole_cget_a2 ); //! filter coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", TwoPole_ctrl_b0 ); //! filter coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", TwoPole_cget_b0 ); //! filter coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", TwoPole_ctrl_freq ); //! filter resonance frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", TwoPole_cget_freq ); //! filter resonance frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "radius", TwoPole_ctrl_radius ); //! filter resonance radius
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "radius", TwoPole_cget_radius ); //! filter resonance radius
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "norm", TwoPole_ctrl_norm ); //! toggle filter normalization 
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "norm", TwoPole_cget_norm ); //! toggle filter normalization 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2032,24 +2074,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( OneZero_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "zero", OneZero_ctrl_zero ); //! set zero position
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "zero", OneZero_cget_zero ); //! set zero position
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", OneZero_ctrl_b0 ); //! filter coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", OneZero_cget_b0 ); //! filter coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", OneZero_ctrl_b1 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", OneZero_cget_b1 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2067,38 +2109,38 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( TwoZero_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "b0", TwoZero_ctrl_b0 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", TwoZero_cget_b0 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", TwoZero_ctrl_b1 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", TwoZero_cget_b1 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b2", TwoZero_ctrl_b2 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b2", TwoZero_cget_b2 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", TwoZero_ctrl_freq ); //! filter notch frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", TwoZero_cget_freq ); //! filter notch frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "radius", TwoZero_ctrl_radius ); //! filter notch radius
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "radius", TwoZero_cget_radius ); //! filter notch radius
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2116,38 +2158,38 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( PoleZero_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "a1", PoleZero_ctrl_a1 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "a1", PoleZero_cget_a1 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", PoleZero_ctrl_b0 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b0", PoleZero_cget_b0 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", PoleZero_ctrl_b1 ); //! filter coefficient 
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "b1", PoleZero_cget_b1 ); //! filter coefficient 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "blockZero", PoleZero_ctrl_blockZero ); //! DC blocking filter with given pole position
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "blockZero", PoleZero_cget_blockZero ); //! DC blocking filter with given pole position
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "allpass", PoleZero_ctrl_allpass ); //!allpass filter with given coefficient
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "allpass", PoleZero_cget_allpass ); //!allpass filter with given coefficient
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2169,10 +2211,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( JCRev_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "mix", JCRev_ctrl_mix ); //! mix level
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", JCRev_cget_mix ); //! mix level
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2190,10 +2232,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( NRev_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "mix", NRev_ctrl_mix ); // set effect mix
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", NRev_cget_mix ); // set effect mix
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2210,10 +2252,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( PRCRev_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "mix", PRCRev_ctrl_mix ); //! mix level
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", PRCRev_cget_mix ); //! mix level
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2231,24 +2273,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Chorus_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "modFreq", Chorus_ctrl_modFreq ); //! modulation frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modFreq", Chorus_cget_modFreq ); //! modulation frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modDepth", Chorus_ctrl_modDepth ); //! modulation depth
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "modDepth", Chorus_cget_modDepth ); //! modulation depth
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", Chorus_ctrl_mix ); //! effect mix
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", Chorus_cget_mix ); //! effect mix
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2266,24 +2308,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Modulate_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "vibratoRate", Modulate_ctrl_vibratoRate );  //! set rate of vibrato
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoRate", Modulate_cget_vibratoRate );  //! set rate of vibrato
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", Modulate_ctrl_vibratoGain ); //! gain for vibrato
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vibratoGain", Modulate_cget_vibratoGain ); //! gain for vibrato
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "randomGain", Modulate_ctrl_randomGain ); //!  gain for random contribution
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "randomGain", Modulate_cget_randomGain ); //!  gain for random contribution
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2301,24 +2343,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( PitShift_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "shift", PitShift_ctrl_shift ); //! degree of pitch shifting
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "shift", PitShift_cget_shift ); //! degree of pitch shifting
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", PitShift_ctrl_effectMix ); //! mix level
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "mix", PitShift_cget_effectMix ); //! mix level
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "effectMix", PitShift_ctrl_effectMix ); //! mix level
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "effectMix", PitShift_cget_effectMix ); //! mix level
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2336,10 +2378,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( SubNoise_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "int", "rate", SubNoise_ctrl_rate ); //! subsampling rate
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "rate", SubNoise_cget_rate ); //! subsampling rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2358,17 +2400,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( WvIn_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "rate", WvIn_ctrl_rate ); //! playback rate
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", WvIn_cget_rate ); //! playback rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "path", WvIn_ctrl_path ); //! specifies file to be played
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "path", WvIn_cget_path ); //! specifies file to be played
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
     // end the class import
@@ -2385,24 +2427,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "freq", WaveLoop_ctrl_freq ); //! set frequency of playback ( loops / second )
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", WaveLoop_cget_freq ); //! set frequency of playback ( loops / second )
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "addPhase", WaveLoop_ctrl_phase ); //! offset by phase
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "addPhase", WaveLoop_cget_phase ); //! offset by phase
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "addPhaseOffset", WaveLoop_ctrl_phaseOffset ); //! set phase offset
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "addPhaseOffset", WaveLoop_cget_phaseOffset ); //! set phase offset
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2419,44 +2461,44 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( WvOut_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "string", "matFilename", WvOut_ctrl_matFilename ); //!open matlab file for writing
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "sndFilename", WvOut_ctrl_sndFilename ); //!open snd file for writing
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "wavFilename", WvOut_ctrl_wavFilename ); //!open WAVE file for writing
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "rawFilename", WvOut_ctrl_rawFilename ); //!open raw file for writing
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "aifFilename", WvOut_ctrl_aifFilename ); //!open AIFF file for writing
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "filename", WvOut_cget_filename ); //!get filename
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "record", WvOut_ctrl_record ); // !start/stop output
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "record", WvOut_cget_record ); // !start/stop output
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "closeFile", WvOut_ctrl_closeFile ); //! close file properly
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "autoPrefix", WvOut_ctrl_autoPrefix ); //! set/get auto prefix string
     func->add_arg ( "string", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "string", "autoPrefix", WvOut_cget_autoPrefix ); //! set/get auto prefix string
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2479,24 +2521,24 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun ( "float", "phase", BLT_ctrl_phase ); //!set phase
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "phase", BLT_cget_phase ); //!get phase 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BLT_ctrl_freq ); //!set freq
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BLT_cget_freq ); //!get freq 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "harmonics", BLT_ctrl_harmonics ); //!set harmonics
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "harmonics", BLT_cget_harmonics ); //!get harmonics 
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2544,22 +2586,22 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     
     func = make_new_mfun ( "int", "nx", Mesh2D_ctrl_nx ); //! nx
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "int", "nx", Mesh2D_cget_nx ); //! nx
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     func = make_new_mfun ( "int", "ny", Mesh2D_ctrl_ny ); //! nx
     func->add_arg ( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     func = make_new_mfun ( "int", "ny", Mesh2D_cget_ny ); //! nx
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     func = make_new_mfun ( "float", "inputPosition", Mesh2D_ctrl_input_position ); //! nx
     func->add_arg ( "float", "xval" );
     func->add_arg ( "float", "yval" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     func = make_new_mfun ( "float", "decay", Mesh2D_ctrl_decay ); //! nx
     func->add_arg ( "float", "value" );
@@ -2571,16 +2613,16 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "noteOn", Mesh2D_ctrl_note_on ); //! start 
     func->add_arg ( "float", "note" );
     func->add_arg ( "float", "vel" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     func = make_new_mfun ( "float", "noteOff", Mesh2D_ctrl_note_off ); //! stop
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     func = make_new_mfun ( "int", "controlChange", Mesh2D_ctrl_control_change ); //! select instrument
     func->add_arg ( "int", "ctrl" );
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
         
     // end the class import
     type_engine_import_class_end( env );
@@ -5275,7 +5317,7 @@ class FormSwep : public BiQuad
     target values.  A sweep rate of 0.0 will produce no
     change in resonance parameters.  
   */
-  void setSweepRate(MY_FLOAT aRate);    
+  void setSweepRate(MY_FLOAT aRate);
 
   //! Set the sweep rate in terms of a time value in seconds.
   /*!
@@ -5283,7 +5325,7 @@ class FormSwep : public BiQuad
     given time for the formant parameters to reach
     their target values.
   */
-  void setSweepTime(MY_FLOAT aTime);    
+  void setSweepTime(MY_FLOAT aTime);
 
   //! Input one sample to the filter and return one output.
   MY_FLOAT tick(MY_FLOAT sample);
@@ -7099,7 +7141,7 @@ class SingWave : public Stk
   void setSweepRate(MY_FLOAT aRate);
 
   //! Set the gain rate.
-  void setGainRate(MY_FLOAT aRate);    
+  void setGainRate(MY_FLOAT aRate);
 
   //! Set the gain target value.
   void setGainTarget(MY_FLOAT target);
@@ -9016,6 +9058,8 @@ MY_FLOAT *ADSR :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 
   return vec;
 }
+
+
 /***************************************************/
 /*! \class BandedWG
     \brief Banded waveguide modeling class.
@@ -9498,6 +9542,8 @@ MY_FLOAT BeeThree :: tick()
   lastOutput = temp * 0.125;
   return lastOutput;
 }
+
+
 /***************************************************/
 /*! \class BiQuad
     \brief STK biquad (two-pole, two-zero) filter class.
@@ -9619,8 +9665,6 @@ MY_FLOAT *BiQuad :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 }
 
 
-
-
 /***************************************************/
 /*! \class Blit
     \brief STK band-limited impulse train class.
@@ -9726,8 +9770,6 @@ MY_FLOAT Blit :: tick( void )
 
   return output;
 }
-
-
 
 
 /***************************************************/
@@ -9854,8 +9896,6 @@ MY_FLOAT BlitSaw :: tick( void )
 }
 
 
-
-
 /***************************************************/
 /*! \class BlitSquare
     \brief STK band-limited square wave class.
@@ -9973,8 +10013,6 @@ MY_FLOAT BlitSquare :: tick( void )
 
   return m_output - offset_;
 }
-
-
 
 
 /***************************************************/
@@ -10153,6 +10191,8 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): BlowBotl: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
+
 /***************************************************/
 /*! \class BlowHole
     \brief STK clarinet physical model with one
@@ -10426,6 +10466,8 @@ void BlowHole :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): BlowHole: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
+
 /***************************************************/
 /*! \class BowTabl
     \brief STK bowed string table class.
@@ -10488,6 +10530,8 @@ MY_FLOAT *BowTabl :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 
   return vec;
 }
+
+
 /***************************************************/
 /*! \class Bowed
     \brief STK bowed string instrument class.
