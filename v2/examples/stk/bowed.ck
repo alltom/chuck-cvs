@@ -7,29 +7,18 @@ Bowed bow => dac;
 // infinite time loop
 while( true )
 {
-    std.rand2f( 0, 128 ) => float pressure;
-    std.rand2f( 0, 128 ) => float position;
-    std.rand2f( 0, 128 ) => float vibratofreq;
-    std.rand2f( 0, 128 ) => float vibratogain;
-    std.rand2f( 0, 128 ) => float volume;
+    std.rand2f( 0, 1 ) => bow.bowPressure;
+    std.rand2f( 0, 1 ) => bow.bowPosition;
+    std.rand2f( 0, 1 ) => bow.vibratoFreq;
+    std.rand2f( 0, 1 ) => bow.vibratoGain;
+    std.rand2f( 0, 1 ) => bow.volume;
 
     <<< "---", "" >>>;
-    <<< "bow pressure:", pressure >>>;
-    <<< "bow position:", position >>>;
-    <<< "vibrato freq:", vibratofreq >>>;
-    <<< "vibrato gain:", vibratogain >>>;
-    <<< "volume:", volume >>>;
-
-    // bow pressure
-    bow.controlChange( 2, pressure );
-    // bow position
-    bow.controlChange( 4, position );
-    // vibrato freq
-    bow.controlChange( 11, vibratofreq );
-    // vibrato gain
-    bow.controlChange( 1, vibratogain );
-    // volume
-    bow.controlChange( 128, volume );
+    <<< "bow pressure:", bow.bowPressure() >>>;
+    <<< "bow position:", bow.bowPosition() >>>;
+    <<< "vibrato freq:", bow.vibratoFreq() >>>;
+    <<< "vibrato gain:", bow.vibratoGain() >>>;
+    <<< "volume:", bow.volume() >>>;
 
     // set freq
     scale[std.rand2(0,scale.cap()-1)] + 57 => std.mtof => bow.freq;

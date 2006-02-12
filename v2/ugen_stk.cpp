@@ -196,8 +196,10 @@ typedef float FLOAT32;
 typedef double FLOAT64;
 
 // Boolean values
+#ifndef TRUE
 #define FALSE 0
 #define TRUE 1
+#endif
 
 // The default sampling rate.
 #define SRATE (MY_FLOAT) 44100.0
@@ -577,39 +579,60 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( Bowed_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "noteOn", Bowed_ctrl_noteOn ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", Bowed_ctrl_noteOff ); //! note off
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBowing", Bowed_ctrl_startBowing ); //! begin bowing instrument
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBowing", Bowed_ctrl_stopBowing ); //! stop bowing
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Bowed_ctrl_freq ); //!
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", Bowed_cget_freq ); //!
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Bowed_ctrl_rate ); //!
+    func = make_new_mfun ( "float", "bowPressure", Bowed_ctrl_bowPressure ); //! bowPressure
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "bowPressure", Bowed_cget_bowPressure ); //! bowPressure
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "bowPosition", Bowed_ctrl_bowPos ); //! bowPos
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
-    func = make_new_mfun ( "float", "rate", Bowed_cget_rate ); //!
+    func = make_new_mfun ( "float", "bowPosition", Bowed_cget_bowPos ); //! bowPos
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
-    func = make_new_mfun ( "float", "vibrato", Bowed_ctrl_vibrato ); //!    
+    func = make_new_mfun ( "float", "vibratoFreq", Bowed_ctrl_vibratoFreq ); //! vibratoFreq
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
-    func = make_new_mfun ( "float", "vibrato", Bowed_cget_vibrato ); //!    
+    func = make_new_mfun ( "float", "vibratoFreq", Bowed_cget_vibratoFreq ); //! vibratoFreq
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "vibratoGain", Bowed_ctrl_vibratoGain ); //! vibratoGain
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "vibratoGain", Bowed_cget_vibratoGain ); //! vibratoGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "volume", Bowed_ctrl_volume ); //! volume
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun ( "float", "volume", Bowed_cget_volume ); //! volume
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     func = make_new_mfun ( "void", "controlChange", Bowed_ctrl_controlChange ); //! control change
@@ -4582,9 +4605,17 @@ class Bowed : public Instrmnt
   //! Perform the control change specified by \e number and \e value (0.0 - 128.0).
   void controlChange(int number, MY_FLOAT value);
 
- public: // SWAP formerly protected  
-  double m_frequency; 
-  double m_rate; 
+ public: // SWAP formerly protected
+
+  // CHUCK
+  t_CKFLOAT m_frequency;
+  t_CKFLOAT m_bowPressure;
+  t_CKFLOAT m_bowPosition;
+  t_CKFLOAT m_vibratoFreq;
+  t_CKFLOAT m_vibratoGain;
+  t_CKFLOAT m_volume;
+  t_CKFLOAT m_rate;
+
   DelayL *neckDelay;
   DelayL *bridgeDelay;
   BowTabl *bowTable;
@@ -10508,10 +10539,17 @@ Bowed :: Bowed(MY_FLOAT lowestFrequency)
   adsr = new ADSR;
   adsr->setAllTimes((MY_FLOAT) 0.02,(MY_FLOAT) 0.005,(MY_FLOAT) 0.9,(MY_FLOAT) 0.01);
     
-  betaRatio = (MY_FLOAT) 0.127236;
+  betaRatio = (MY_FLOAT)0.127236;
 
   // Necessary to initialize internal variables.
   setFrequency( 220.0 );
+
+  // CHUCK
+  m_bowPressure = .5;
+  m_bowPosition = (betaRatio - .027236) / .2;
+  m_vibratoFreq = 6.12723 / 12;
+  m_vibratoGain = 0.0;
+  m_volume = 1.0;
 }
 
 Bowed :: ~Bowed()
@@ -10625,19 +10663,28 @@ void Bowed :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): Bowed: Control value greater than 128.0!" << std::endl;
   }
 
-  if (number == __SK_BowPressure_) // 2
-        bowTable->setSlope( 5.0 - (4.0 * norm) );
+  if (number == __SK_BowPressure_) { // 2
+    m_bowPressure = norm;
+    bowTable->setSlope( 5.0 - (4.0 * norm) );
+  }
   else if (number == __SK_BowPosition_) { // 4
-        betaRatio = 0.027236 + (0.2 * norm);
+    m_bowPosition = norm;
+    betaRatio = 0.027236 + (0.2 * norm);
     bridgeDelay->setDelay(baseDelay * betaRatio);
     neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio));
   }
-  else if (number == __SK_ModFrequency_) // 11
+  else if (number == __SK_ModFrequency_) { // 11
+    m_vibratoFreq = norm;
     vibrato->setFrequency( norm * 12.0 );
-  else if (number == __SK_ModWheel_) // 1
+  }
+  else if (number == __SK_ModWheel_) { // 1
+    m_vibratoGain = norm;
     vibratoGain = ( norm * 0.4 );
-  else if (number == __SK_AfterTouch_Cont_) // 128
+  }
+  else if (number == __SK_AfterTouch_Cont_) { // 128
+    m_volume = norm;
     adsr->setTarget(norm);
+  }
   else
     std::cerr << "[chuck](via STK): Bowed: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -10645,6 +10692,8 @@ void Bowed :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): Bowed: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
+
 /***************************************************/
 /*! \class Brass
     \brief STK simple brass instrument class.
@@ -23168,43 +23217,138 @@ CK_DLL_CTRL( Bowed_ctrl_freq )
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     p->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT) p->m_frequency ;
+    RETURN->v_float = (t_CKFLOAT)p->m_frequency ;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Bowed_cget_freq ()
+// name: Bowed_cget_freq()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Bowed_cget_freq )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    RETURN->v_float = (t_CKFLOAT) p->m_frequency ;
+    RETURN->v_float = (t_CKFLOAT)p->m_frequency ;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Bowed_ctrl_vibrato()
+// name: Bowed_ctrl_bowPressure()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( Bowed_ctrl_vibrato )
+CK_DLL_CTRL( Bowed_ctrl_bowPressure )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    p->setVibrato( f );
-    RETURN->v_float = (t_CKFLOAT) p->vibratoGain ;
+    p->controlChange( 2, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)p->m_bowPressure;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Bowed_cget_vibrato()
+// name: Bowed_cget_bowPressure()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
-CK_DLL_CGET( Bowed_cget_vibrato )
+CK_DLL_CGET( Bowed_cget_bowPressure )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    RETURN->v_float = (t_CKFLOAT) p->vibratoGain ;
+    RETURN->v_float = (t_CKFLOAT)p->m_bowPressure;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_ctrl_bowPos()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Bowed_ctrl_bowPos )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 4, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)p->m_bowPosition;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_cget_bowPos()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Bowed_cget_bowPos )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_bowPosition;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_ctrl_vibratoFreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Bowed_ctrl_vibratoFreq )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 11, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_cget_vibratoFreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Bowed_cget_vibratoFreq )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq ;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_ctrl_vibratoGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Bowed_ctrl_vibratoGain )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 1, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_cget_vibratoGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Bowed_cget_vibratoGain )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_ctrl_volume()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Bowed_ctrl_volume )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange( 128, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)p->m_volume;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Bowed_cget_volume()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Bowed_cget_volume )
+{
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_volume;
 }
 
 
