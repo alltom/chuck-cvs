@@ -12,32 +12,21 @@ Clarinet clair => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
-    std.rand2f( 64, 128 ) => float stiffness;
-    std.rand2f( 0, 128 ) => float noisegain;
-    std.rand2f( 0, 128 ) => float vibratofreq;
-    std.rand2f( 0, 128 ) => float vibratogain;
-    std.rand2f( 64, 128 ) => float pressure;
-
-    <<< "---", "" >>>;
-    <<< "reed stiffness:", stiffness >>>;
-    <<< "noise gain:", noisegain >>>;
-    <<< "vibrato freq:", vibratofreq >>>;
-    <<< "vibrato gain:", vibratogain >>>;
-    <<< "breath pressure:", pressure >>>;
-
     // clear
     clair.clear( 1.0 );
 
-    // reed stiffness
-    clair.controlChange( 2, stiffness );
-    // noise gain
-    clair.controlChange( 4, noisegain );
-    // vibrato freq
-    clair.controlChange( 11, vibratofreq );
-    // vibrato gain
-    clair.controlChange( 1, vibratogain );
-    // breath pressure
-    clair.controlChange( 128, pressure );
+    std.rand2f( 0, 1 ) => clair.reed;
+    std.rand2f( 0, 1 ) => clair.noiseGain;
+    std.rand2f( 0, 1 ) => clair.vibratoFreq;
+    std.rand2f( 0, 1 ) => clair.vibratoGain;
+    std.rand2f( 0, 1 ) => clair.pressure;
+
+    <<< "---", "" >>>;
+    <<< "reed stiffness:", clair.reed() >>>;
+    <<< "noise gain:", clair.noiseGain() >>>;
+    <<< "vibrato freq:", clair.vibratoFreq() >>>;
+    <<< "vibrato gain:", clair.vibratoGain() >>>;
+    <<< "breath pressure:", clair.pressure() >>>;
 
     for( int i; i < notes.cap(); i++ )
     {

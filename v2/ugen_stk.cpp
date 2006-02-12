@@ -779,6 +779,41 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun ( "float", "reed", Clarinet_ctrl_reed); //! reed
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "reed", Clarinet_cget_reed); //! reed
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "noiseGain", Clarinet_ctrl_noiseGain ); //! noiseGain
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "noiseGain", Clarinet_cget_noiseGain ); //! noiseGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "vibratoFreq", Clarinet_ctrl_vibratoFreq ); //! rvibratoFreq
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "vibratoFreq", Clarinet_cget_vibratoFreq ); //! rvibratoFreq
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "vibratoGain", Clarinet_ctrl_vibratoGain ); //! vibratoGain
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "vibratoGain", Clarinet_cget_vibratoGain ); //! vibratoGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "pressure", Clarinet_ctrl_pressure ); //! pressure
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "pressure", Clarinet_cget_pressure ); //! pressure
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -4956,6 +4991,16 @@ class Clarinet : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected
+
+  // CHUCK
+  t_CKFLOAT m_frequency;
+  t_CKFLOAT m_reed;
+  t_CKFLOAT m_noiseGain;
+  t_CKFLOAT m_vibratoFreq;
+  t_CKFLOAT m_vibratoGain;
+  t_CKFLOAT m_volume;
+  t_CKFLOAT m_rate;
+
   DelayL *delayLine;
   ReedTabl *reedTable;
   OneZero *filter;
@@ -10061,6 +10106,7 @@ BlowBotl :: BlowBotl()
   // CHUCK
   baseFrequency = 0.0;
   m_rate = .02;
+  m_noiseGain = noiseGain / 30.0;
   m_vibratoFreq = vibrato->m_freq / 12.0;
   m_vibratoGain = vibratoGain;
   m_volume = 1.0;
@@ -10227,15 +10273,6 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
 
 BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
 {
-  // chuck data
-  m_frequency = 220.0;
-  m_reed = 0.5;  // TODO: check default value
-  m_noiseGain = .2;
-  m_tonehole = 1.0;
-  m_vent = 0.0;
-  m_pressure = 1.0;
-  m_rate = 1.0;
-
   length = (long) (Stk::sampleRate() / lowestFrequency + 1);
   // delays[0] is the delay line between the reed and the register vent.
   delays[0] = (DelayL *) new DelayL( 5.0 * Stk::sampleRate() / 22050.0, 100 );
@@ -10285,6 +10322,17 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
   outputGain = (MY_FLOAT) 1.0;
   noiseGain = (MY_FLOAT) 0.2;
   vibratoGain = (MY_FLOAT) 0.01;
+
+  // set
+  setFrequency( 220.0 );
+
+  // chuck data
+  m_reed = 0.5;  // TODO: check default value
+  m_noiseGain = noiseGain / .4;
+  m_tonehole = 1.0;
+  m_vent = 0.0;
+  m_pressure = 1.0;
+  m_rate = 1.0;
 }
 
 BlowHole :: ~BlowHole()
@@ -10328,7 +10376,7 @@ void BlowHole :: setFrequency(MY_FLOAT frequency)
   delays[1]->setDelay(delay);
 
   // CHUCK
-  m_frequency = frequency;
+  m_frequency = freakency;
 }
 
 void BlowHole :: setVent(MY_FLOAT newValue)
@@ -10616,13 +10664,14 @@ void Bowed :: setFrequency(MY_FLOAT frequency)
     std::cerr << "[chuck](via STK): Bowed: setFrequency parameter is less than or equal to zero!" << std::endl;
     freakency = 220.0;
   }
-  m_frequency = freakency;
 
   // Delay = length - approximate filter delay.
   baseDelay = Stk::sampleRate() / freakency - (MY_FLOAT) 4.0;
   if ( baseDelay <= 0.0 ) baseDelay = 0.3;
   bridgeDelay->setDelay(baseDelay * betaRatio);                    // bow to bridge length
   neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio)); // bow to nut (finger) length
+
+  m_frequency = freakency;
 }
 
 void Bowed :: startBowing(MY_FLOAT amplitude, MY_FLOAT rate)
@@ -10816,14 +10865,14 @@ void Brass :: setFrequency(MY_FLOAT frequency)
     freakency = 220.0;
   }
 
-  m_frequency = freakency;
-
   // Fudge correction for filter delays.
   slideTarget = (Stk::sampleRate() / freakency * 2.0) + 3.0;
   delayLine->setDelay(slideTarget); // play a harmonic
 
   lipTarget = freakency;
   lipFilter->setResonance( freakency, 0.997 );
+
+  m_frequency = freakency;
 }
 
 void Brass :: setLip(MY_FLOAT frequency)
@@ -11070,6 +11119,17 @@ Clarinet :: Clarinet(MY_FLOAT lowestFrequency)
   outputGain = (MY_FLOAT) 1.0;
   noiseGain = (MY_FLOAT) 0.2;
   vibratoGain = (MY_FLOAT) 0.1;
+
+  // set
+  setFrequency( 220.0 );
+
+  // CHUCK
+  m_reed = .5;
+  m_noiseGain = noiseGain / .4;
+  m_vibratoFreq = 5.735 / 12;
+  m_vibratoGain = .1;
+  m_volume = 1.0;
+  m_rate = .005;
 }
 
 Clarinet :: ~Clarinet()
@@ -11101,6 +11161,8 @@ void Clarinet :: setFrequency(MY_FLOAT frequency)
   if (delay <= 0.0) delay = 0.3;
   else if (delay > length) delay = length;
   delayLine->setDelay(delay);
+
+  m_frequency = freakency;
 }
 
 void Clarinet :: startBlowing(MY_FLOAT amplitude, MY_FLOAT rate)
@@ -11172,16 +11234,26 @@ void Clarinet :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): Clarinet: Control value greater than 128.0!" << std::endl;
   }
 
-  if (number == __SK_ReedStiffness_) // 2
+  if (number == __SK_ReedStiffness_) { // 2
+    m_reed = norm;
     reedTable->setSlope((MY_FLOAT) -0.44 + ( (MY_FLOAT) 0.26 * norm ));
-  else if (number == __SK_NoiseLevel_) // 4
+  }
+  else if (number == __SK_NoiseLevel_) { // 4
+    m_noiseGain = norm;
     noiseGain = (norm * (MY_FLOAT) 0.4);
-  else if (number == __SK_ModFrequency_) // 11
+  }
+  else if (number == __SK_ModFrequency_) { // 11
+    m_vibratoFreq = norm;
     vibrato->setFrequency((norm * (MY_FLOAT) 12.0));
-  else if (number == __SK_ModWheel_) // 1
+  }
+  else if (number == __SK_ModWheel_) { // 1
+    m_vibratoGain = norm;
     vibratoGain = (norm * (MY_FLOAT) 0.5);
-  else if (number == __SK_AfterTouch_Cont_) // 128
+  }
+  else if (number == __SK_AfterTouch_Cont_) { // 128
+    m_volume = norm;
     envelope->setValue(norm);
+  }
   else
     std::cerr << "[chuck](via STK): Clarinet: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -11189,6 +11261,8 @@ void Clarinet :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): Clarinet: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
+
 /***************************************************/
 /*! \class Delay
     \brief STK non-interpolating delay line class.
@@ -23873,7 +23947,7 @@ CK_DLL_CTRL( Brass_ctrl_controlChange )
 
 
 
-
+/*
 struct Clarinet_ { 
    Clarinet * imp;
    double m_frequency;
@@ -23885,7 +23959,7 @@ struct Clarinet_ {
       m_rate = 0.5;
       m_reed = 0.5;
    }
-};
+}; */
 
 
 // Clarinet
@@ -23895,8 +23969,7 @@ struct Clarinet_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Clarinet_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Clarinet_offset_data) = (t_CKUINT)new Clarinet_( 30.0 );
-//    return new Clarinet_( 40.0 );
+    OBJ_MEMBER_UINT(SELF, Clarinet_offset_data) = (t_CKUINT)new Clarinet( 30.0 );
 }
 
 
@@ -23906,9 +23979,7 @@ CK_DLL_CTOR( Clarinet_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Clarinet_dtor )
 {
-    delete (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-//    delete ((Clarinet_ *)data)->imp;
-//    delete (Clarinet_ *)data;
+    delete (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
 }
 
 //-----------------------------------------------------------------------------
@@ -23917,8 +23988,8 @@ CK_DLL_DTOR( Clarinet_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Clarinet_tick )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    *out = b->imp->tick();
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    *out = b->tick();
     return TRUE;
 }
 
@@ -23939,9 +24010,9 @@ CK_DLL_PMSG( Clarinet_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_noteOn )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->noteOn ( b->m_frequency, f );
+    b->noteOn ( b->m_frequency, f );
 }
 
 
@@ -23951,9 +24022,9 @@ CK_DLL_CTRL( Clarinet_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_noteOff )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->noteOff ( f );
+    b->noteOff ( f );
 }
 
 
@@ -23963,9 +24034,9 @@ CK_DLL_CTRL( Clarinet_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_startBlowing )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->startBlowing ( f, b->m_rate );
+    b->startBlowing ( f, b->m_rate );
 }
 
 
@@ -23975,9 +24046,9 @@ CK_DLL_CTRL( Clarinet_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_stopBlowing )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->stopBlowing ( f );
+    b->stopBlowing ( f );
 }
 
 
@@ -23987,33 +24058,32 @@ CK_DLL_CTRL( Clarinet_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_clear )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    b->imp->clear();
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    b->clear();
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Clarinet_ctrl_freq()
+// name: Clarinet_ctrl_reed()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( Clarinet_ctrl_freq )
+CK_DLL_CTRL( Clarinet_ctrl_reed )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->m_frequency = f;
-    b->imp->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
+    b->controlChange( 2, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_reed;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Clarinet_cget_freq ()
+// name: Clarinet_cget_reed()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CGET( Clarinet_cget_freq )
+CK_DLL_CGET( Clarinet_cget_reed )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_reed;
 }
 
 
@@ -24023,23 +24093,142 @@ CK_DLL_CGET( Clarinet_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_rate )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_rate = f;
-    RETURN->v_float = (t_CKFLOAT) b->m_rate ;
+    RETURN->v_float = (t_CKFLOAT)b->m_rate;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Clarinet_cget_rate ()
+// name: Clarinet_cget_rate()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Clarinet_cget_rate )
 {
-    Clarinet_ * b = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     RETURN->v_float = (t_CKFLOAT) b->m_rate ;
 }
 
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_ctrl_freq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Clarinet_ctrl_freq )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->setFrequency( f );
+    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_cget_freq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Clarinet_cget_freq )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_ctrl_noiseGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Clarinet_ctrl_noiseGain )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 4, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_cget_noiseGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Clarinet_cget_noiseGain )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_ctrl_vibratoFreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Clarinet_ctrl_vibratoFreq )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 11, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_cget_vibratoFreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Clarinet_cget_vibratoFreq )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_ctrl_vibratoGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Clarinet_ctrl_vibratoGain )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 1, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_cget_vibratoGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Clarinet_cget_vibratoGain )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_ctrl_pressure()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Clarinet_ctrl_pressure )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 128, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_volume;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Clarinet_cget_pressure()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Clarinet_cget_pressure )
+{
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_volume;
+}
 
 //-----------------------------------------------------------------------------
 // name: Clarinet_ctrl_controlChange()
@@ -24047,10 +24236,10 @@ CK_DLL_CGET( Clarinet_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_controlChange )
 {
-    Clarinet_ * p = (Clarinet_ *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * p = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKINT i = GET_NEXT_INT(ARGS);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->imp->controlChange( i, f );
+    p->controlChange( i, f );
 }
 
 
