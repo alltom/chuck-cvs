@@ -494,58 +494,72 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if ( BlowHole_offset_data == CK_INVALID_OFFSET ) goto error;
     func = make_new_mfun ( "float", "noteOn", BlowHole_ctrl_noteOn ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "noteOff", BlowHole_ctrl_noteOff ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "startBlowing", BlowHole_ctrl_startBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "stopBlowing", BlowHole_ctrl_stopBlowing ); //! note on
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BlowHole_ctrl_freq ); //! frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "freq", BlowHole_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vent", BlowHole_ctrl_vent ); //! vent frequency
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "vent", BlowHole_cget_vent ); //! vent frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "tonehole", BlowHole_ctrl_tonehole ); //! tonehole size
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "tonehole", BlowHole_cget_tonehole ); //! tonehole size
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "reed", BlowHole_ctrl_reed ); //! reed stiffness
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "reed", BlowHole_cget_reed ); //! reed stiffness
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", BlowHole_ctrl_rate ); //! rate of change
     func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "rate", BlowHole_cget_rate ); //! rate of change
-    if( !type_engine_import_mfun( env, func ) ) goto error;    
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", BlowHole_ctrl_controlChange ); //! control change
     func->add_arg ( "int", "ctrl" );
     func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "noiseGain", BlowHole_ctrl_noiseGain ); //! noise gain
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "noiseGain", BlowHole_cget_noiseGain ); //! noise gain
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "pressure", BlowHole_ctrl_pressure ); //! breath pressure
+    func->add_arg ( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun ( "float", "pressure", BlowHole_cget_pressure ); //! breath pressure
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
@@ -4395,11 +4409,14 @@ class BlowHole : public Instrmnt
 
  public: // SWAP formerly protected  
 
-  double m_frequency;
-  double m_rate;
-  double m_tonehole;
-  double m_vent;
-  double m_reed;
+  // CHUCK
+  t_CKFLOAT m_frequency;
+  t_CKFLOAT m_reed;
+  t_CKFLOAT m_noiseGain;
+  t_CKFLOAT m_tonehole;
+  t_CKFLOAT m_vent;
+  t_CKFLOAT m_pressure;
+  t_CKFLOAT m_rate;
 
   DelayL *delays[3];
   ReedTabl *reedTable;
@@ -10144,9 +10161,13 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
 BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
 {
   // chuck data
-  m_rate = 1.0;
   m_frequency = 220.0;
-  m_reed = 0.5;
+  m_reed = 0.5;  // TODO: check default value
+  m_noiseGain = .2;
+  m_tonehole = 1.0;
+  m_vent = 0.0;
+  m_pressure = 1.0;
+  m_rate = 1.0;
 
   length = (long) (Stk::sampleRate() / lowestFrequency + 1);
   // delays[0] is the delay line between the reed and the register vent.
@@ -10164,7 +10185,7 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
 
   // Calculate the initial tonehole three-port scattering coefficient
   double r_b = 0.0075;    // main bore radius
-  r_th = 0.003;          // tonehole radius
+  r_th = 0.003;           // tonehole radius
   scatter = -pow(r_th,2) / ( pow(r_th,2) + 2*pow(r_b,2) );
 
   // Calculate tonehole coefficients
@@ -10178,7 +10199,7 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
 
   // Calculate register hole filter coefficients
   double r_rh = 0.0015;    // register vent radius
-  te = 1.4 * r_rh;       // effective length of the open hole
+  te = 1.4 * r_rh;         // effective length of the open hole
   double xi = 0.0;         // series resistance term
   double zeta = 347.23 + 2*ONE_PI*pow(r_b,2)*xi/1.1769;
   double psi = 2*ONE_PI*pow(r_b,2)*te / (ONE_PI*pow(r_rh,2));
@@ -10354,15 +10375,19 @@ void BlowHole :: controlChange(int number, MY_FLOAT value)
   if (number == __SK_ReedStiffness_) { // 2 
     m_reed = norm;
     reedTable->setSlope( -0.44 + (0.26 * norm) ); 
-   }
-  else if (number == __SK_NoiseLevel_) // 4
+  }
+  else if (number == __SK_NoiseLevel_) { // 4
+    m_noiseGain = norm;
     noiseGain = ( norm * 0.4 );
+  }
   else if (number == __SK_ModFrequency_) // 11
     this->setTonehole( norm );
   else if (number == __SK_ModWheel_) // 1
     this->setVent( norm );
-  else if (number == __SK_AfterTouch_Cont_) // 128
+  else if (number == __SK_AfterTouch_Cont_) { // 128
+    m_pressure = norm;
     envelope->setValue( norm );
+  }
   else
     std::cerr << "[chuck](via STK): BlowHole: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -22990,6 +23015,55 @@ CK_DLL_CTRL( BlowHole_ctrl_controlChange )
     t_CKINT i = GET_NEXT_INT(ARGS);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( i, f );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: BlowHole_ctrl_noiseGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowHole_ctrl_noiseGain )
+{
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange(4, f * 128.0);
+    RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowHole_cget_noiseGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BlowHole_cget_noiseGain )
+{
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowHole_ctrl_pressure()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BlowHole_ctrl_pressure )
+{
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    p->controlChange(128, f * 128.0);
+    RETURN->v_float = (t_CKFLOAT)p->m_pressure;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowHole_cget_pressure()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BlowHole_cget_pressure )
+{
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    RETURN->v_float = (t_CKFLOAT)p->m_pressure;
 }
 
 

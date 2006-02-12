@@ -10,29 +10,18 @@ while( true )
   // change parameters
   if( std.rand2f(0,1) > .75 )
   {
-    std.rand2f( 0, 128 ) => float stiffness;
-    std.rand2f( 0, 128 ) => float noisegain;
-    std.rand2f( 0, 128 ) => float tonehole;
-    std.rand2f( 0, 128 ) => float register;
-    std.rand2f( 0, 128 ) => float pressure;
+    std.rand2f( 0, 1 ) => hole.reed;
+    std.rand2f( 0, 1 ) => hole.noiseGain;
+    std.rand2f( 0, 1 ) => hole.tonehole;
+    std.rand2f( 0, 1 ) => hole.vent;
+    std.rand2f( 0, 1 ) => hole.pressure;
 
     <<< "going...", "" >>>;
-    <<< "reed stiffness:", stiffness >>>;
-    <<< "noise gain:", noisegain >>>;
-    <<< "tonehole state:", tonehole >>>;
-    <<< "register state:", register >>>;
-    <<< "breath pressue:", pressure >>>;
-
-    // reed stiffness
-    hole.controlChange( 2, stiffness );
-    // noise gain
-    hole.controlChange( 4, noisegain );
-    // tonehole state
-    hole.controlChange( 11, tonehole );
-    // register state
-    hole.controlChange( 1, register );
-    // breath pressue
-    hole.controlChange( 128, pressure );
+    <<< "reed stiffness:", hole.reed() >>>;
+    <<< "noise gain:", hole.noiseGain() >>>;
+    <<< "tonehole state:", hole.tonehole() >>>;
+    <<< "register state:", hole.vent() >>>;
+    <<< "breath pressue:", hole.pressure() >>>;
   }
 
   // set freq
