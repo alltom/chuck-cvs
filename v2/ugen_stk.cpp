@@ -680,13 +680,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "freq", Brass_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Brass_ctrl_rate ); //! rate of change
-    func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun ( "float", "rate", Brass_cget_rate ); //! rate of change
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -699,46 +692,39 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "slide", Brass_ctrl_slide ); //! slide
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "slide", Brass_cget_slide ); //! slide
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "vibratoFreq", Brass_ctrl_vibratoFreq ); //! vibratoFreq
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "vibratoFreq", Brass_cget_vibratoFreq ); //! vibratoFreq
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "vibratoGain", Brass_ctrl_vibratoGain ); //! vibratoGain
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "vibratoGain", Brass_cget_vibratoGain ); //! vibratoGain
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "volume", Brass_ctrl_volume ); //! volume
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "volume", Brass_cget_volume ); //! volume
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "rate", Brass_ctrl_rate ); //! rate of change
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun ( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
-    func->add_arg ( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun ( "float", "lip", Brass_cget_lip ); //! lip stiffness
+    func = make_new_mfun ( "float", "rate", Brass_cget_rate ); //! rate of change
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
@@ -4814,6 +4800,16 @@ class Brass: public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected  
+
+  // CHUCK
+  t_CKFLOAT m_frequency;
+  t_CKFLOAT m_rate;
+  t_CKFLOAT m_lip;
+  t_CKFLOAT m_slide;
+  t_CKFLOAT m_vibratoFreq;
+  t_CKFLOAT m_vibratoGain;
+  t_CKFLOAT m_volume;
+
   DelayA *delayLine;
   BiQuad *lipFilter;
   PoleZero *dcBlock;
@@ -10786,6 +10782,14 @@ Brass :: Brass(MY_FLOAT lowestFrequency)
 
   // Necessary to initialize variables.
   setFrequency( 220.0 );
+
+  // CHUCK
+  m_rate = .005;
+  m_lip = 0.1;
+  m_slide = length;
+  m_vibratoFreq = 6.137 / 12;
+  m_vibratoGain = 0.0;
+  m_volume = 1.0;
 }
 
 Brass :: ~Brass()
@@ -10811,6 +10815,8 @@ void Brass :: setFrequency(MY_FLOAT frequency)
     std::cerr << "[chuck](via STK): Brass: setFrequency parameter is less than or equal to zero!" << std::endl;
     freakency = 220.0;
   }
+
+  m_frequency = freakency;
 
   // Fudge correction for filter delays.
   slideTarget = (Stk::sampleRate() / freakency * 2.0) + 3.0;
@@ -10893,18 +10899,27 @@ void Brass :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): Brass: Control value greater than 128.0!" << std::endl;
   }
 
-  if (number == __SK_LipTension_)   { // 2
+  if (number == __SK_LipTension_) { // 2
     MY_FLOAT temp = lipTarget * pow( 4.0, (2.0 * norm) - 1.0 );
+    m_lip = norm;
     this->setLip(temp);
   }
-  else if (number == __SK_SlideLength_) // 4
+  else if (number == __SK_SlideLength_) { // 4
+    m_slide = norm;
     delayLine->setDelay( slideTarget * (0.5 + norm) );
-  else if (number == __SK_ModFrequency_) // 11
+  }
+  else if (number == __SK_ModFrequency_) { // 11
+    m_vibratoFreq = norm;
     vibrato->setFrequency( norm * 12.0 );
-  else if (number == __SK_ModWheel_ ) // 1
+  }
+  else if (number == __SK_ModWheel_ ) { // 1
+    m_vibratoGain = norm;
     vibratoGain = norm * 0.4;
-  else if (number == __SK_AfterTouch_Cont_) // 128
+  }
+  else if (number == __SK_AfterTouch_Cont_) { // 128
+    m_volume = norm;
     adsr->setTarget( norm );
+  }
   else
     std::cerr << "[chuck](via STK): Brass: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -23550,21 +23565,30 @@ CK_DLL_CGET( Chorus_cget_modFreq )
 }
 
 
-//Brass
-struct Brass_ { 
+// Brass
+/*
+struct Brass_
+{
    Brass * imp;
 
-   double m_frequency;
-   double m_rate;
-   double m_lip;
+   t_CKFLOAT m_frequency;
+   t_CKFLOAT m_rate;
+   t_CKFLOAT m_lip;
 
-   Brass_ ( double d ) { 
+   Brass_( t_CKFLOAT d )
+   { 
       imp = new Brass(d);
       m_frequency = 100.0;
       m_rate = 0.5;
       m_lip = 0.1;        
    }
-};
+
+   ~Brass_()
+   {
+       SAFE_DELETE( imp );
+   }
+}; */
+
 
 //-----------------------------------------------------------------------------
 // name: Brass_ctor()
@@ -23572,7 +23596,7 @@ struct Brass_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Brass_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Brass_offset_data) = (t_CKUINT) new Brass_( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Brass_offset_data) = (t_CKUINT)new Brass( 30.0 );
 }
 
 
@@ -23582,9 +23606,7 @@ CK_DLL_CTOR( Brass_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Brass_dtor )
 {
-    delete (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-//    delete (    (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data ))->imp;
-//    delete (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    delete (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
 }
 
 
@@ -23594,8 +23616,8 @@ CK_DLL_DTOR( Brass_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Brass_tick )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    *out = b->imp->tick();
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    *out = b->tick();
     return TRUE;
 }
 
@@ -23616,9 +23638,9 @@ CK_DLL_PMSG( Brass_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_noteOn )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->noteOn ( b->m_frequency, f );
+    b->noteOn( b->m_frequency, f );
 }
 
 
@@ -23628,9 +23650,9 @@ CK_DLL_CTRL( Brass_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_noteOff )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->noteOff ( f );
+    b->noteOff( f );
 }
 
 
@@ -23640,9 +23662,9 @@ CK_DLL_CTRL( Brass_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_startBlowing )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->startBlowing ( f, b->m_rate );
+    b->startBlowing( f, b->m_rate );
 }
 
 
@@ -23652,9 +23674,9 @@ CK_DLL_CTRL( Brass_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_stopBlowing )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->imp->stopBlowing ( f );
+    b->stopBlowing( f );
 }
 
 
@@ -23664,8 +23686,8 @@ CK_DLL_CTRL( Brass_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_clear )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    b->imp->clear();
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    b->clear();
 }
 
 
@@ -23675,11 +23697,10 @@ CK_DLL_CTRL( Brass_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_freq )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->m_frequency = f;
-    b->imp->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
+    b->setFrequency( f );
+    RETURN->v_float = (t_CKFLOAT)b->m_frequency ;
 }
 
 
@@ -23689,8 +23710,8 @@ CK_DLL_CTRL( Brass_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_freq )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    RETURN->v_float = (t_CKFLOAT) b->m_frequency ;
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_frequency ;
 }
 
 
@@ -23700,10 +23721,10 @@ CK_DLL_CGET( Brass_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_rate )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     b->m_rate = f;
-    RETURN->v_float = (t_CKFLOAT) b->m_rate ;
+    RETURN->v_float = (t_CKFLOAT)b->m_rate ;
 }
 
 
@@ -23713,8 +23734,8 @@ CK_DLL_CTRL( Brass_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_rate )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    RETURN->v_float = (t_CKFLOAT) b->m_rate ;
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_rate ;
 }
 
 
@@ -23724,22 +23745,117 @@ CK_DLL_CGET( Brass_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_lip )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->m_lip = f;
-    b->imp->setLip(f);
-    RETURN->v_float = (t_CKFLOAT) b->m_lip ;
+    b->controlChange( 2, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_lip;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Brass_cget_lip ()
+// name: Brass_cget_lip()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_lip )
 {
-    Brass_ * b = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    RETURN->v_float = (t_CKFLOAT) b->m_lip ;
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_lip;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_ctrl_slide()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Brass_ctrl_slide )
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 4, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_slide;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_cget_slide()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Brass_cget_slide )
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_slide;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_ctrl_vibratoFreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Brass_ctrl_vibratoFreq )
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 11, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_cget_vibratoFreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Brass_cget_vibratoFreq )
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_ctrl_vibratoGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Brass_ctrl_vibratoGain )
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 1, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_cget_vibratoGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Brass_cget_vibratoGain)
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_ctrl_volume()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Brass_ctrl_volume )
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    b->controlChange( 128, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)b->m_volume;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Brass_cget_volume()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Brass_cget_volume )
+{
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->m_volume;
 }
 
 
@@ -23749,10 +23865,10 @@ CK_DLL_CGET( Brass_cget_lip )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_controlChange )
 {
-    Brass_ * p = (Brass_ *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * p = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKINT i = GET_NEXT_INT(ARGS);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->imp->controlChange( i, f );
+    p->controlChange( i, f );
 }
 
 

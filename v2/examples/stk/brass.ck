@@ -9,29 +9,18 @@ Brass brass => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
-    std.rand2f( 64, 128 ) => float tension;
-    std.rand2f( 0, 128 ) => float length;
-    std.rand2f( 0, 128 ) => float vibratofreq;
-    std.rand2f( 0, 128 ) => float vibratogain;
-    std.rand2f( 64, 128 ) => float volume;
+    std.rand2f( 0, 1 ) => brass.lip;
+    std.rand2f( 0, 1 ) => brass.slide;
+    std.rand2f( 0, 1 ) => brass.vibratoFreq;
+    std.rand2f( 0, 1 ) => brass.vibratoGain;
+    std.rand2f( 0, 1 ) => brass.volume;
 
     <<< "---", "" >>>;
-    <<< "lip tension:", tension >>>;
-    <<< "slide length:", length >>>;
-    <<< "vibrato freq:", vibratofreq >>>;
-    <<< "vibrato gain:", vibratogain >>>;
-    <<< "volume:", volume >>>;
-
-    // lip tension
-    brass.controlChange( 2, tension );
-    // slide length
-    brass.controlChange( 4, length );
-    // vibrato freq
-    brass.controlChange( 11, vibratofreq );
-    // vibrato gain
-    brass.controlChange( 1, vibratogain );
-    // volume
-    brass.controlChange( 128, volume );
+    <<< "lip tension:", brass.lip() >>>;
+    <<< "slide length:", brass.slide() >>>;
+    <<< "vibrato freq:", brass.vibratoFreq() >>>;
+    <<< "vibrato gain:", brass.vibratoGain() >>>;
+    <<< "volume:", brass.volume() >>>;
 
     for( int i; i < notes.cap(); i++ )
     {
