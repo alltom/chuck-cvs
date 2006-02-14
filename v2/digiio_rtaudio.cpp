@@ -40,6 +40,7 @@
 #include <windows.h>
 #else
 #include <unistd.h>
+#include <sys/time.h>
 #endif
 
 // extern "C" void signal_int( int );

@@ -63,6 +63,10 @@ extern ck_socket g_sock;
 extern t_CKINT g_port;
 // real-time watchdog
 extern t_CKBOOL g_do_watchdog;
+// countermeasure priority
+extern t_CKUINT g_watchdog_countermeasure_priority;
+// watchdog timeout
+extern t_CKFLOAT g_watchdog_timeout;
 // thread id for whatever
 extern CHUCK_THREAD g_tid_whatever;
 

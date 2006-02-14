@@ -55,6 +55,14 @@ ck_socket g_sock = NULL;
 t_CKINT g_port = 8888;
 // real-time watch dog
 t_CKBOOL g_do_watchdog = FALSE;
+// countermeasure
+#ifdef __MACOSX_CORE__
+t_CKUINT g_watchdog_countermeasure_priority = 10;
+#else
+t_CKUINT g_watchdog_countermeasure_priority = 0;
+#endif
+// watchdog timeout
+t_CKFLOAT g_watchdog_timeout = 1.0;
 // thread id for whatever
 CHUCK_THREAD g_tid_whatever = 0;
 

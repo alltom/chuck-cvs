@@ -272,7 +272,12 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_shell = FALSE;
     t_CKBOOL no_vm = FALSE;
     t_CKINT  log_level = CK_LOG_CORE;
+
+#ifdef __MACOSX_CORE__
     t_CKBOOL do_watchdog = TRUE;
+#else
+    t_CKBOOL do_watchdog = FALSE;
+#endif
 
     t_CKUINT files = 0;
     t_CKUINT count = 1;
