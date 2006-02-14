@@ -2912,8 +2912,8 @@ class Instrmnt : public Stk
 
   public: // SWAP formerly protected
     MY_FLOAT lastOutput;
-
 };
+
 
 #endif
 
@@ -4276,6 +4276,13 @@ class BlowBotl : public Instrmnt
   t_CKFLOAT m_vibratoFreq;
   t_CKFLOAT m_vibratoGain;
   t_CKFLOAT m_volume;
+  
+  void setVibratoFreq(MY_FLOAT freq)
+  { vibrato->setFrequency( freq ); m_vibratoFreq = vibrato->m_freq; }
+  void setVibratoGain(MY_FLOAT gain)
+  { vibratoGain = gain; m_vibratoGain = vibratoGain; }
+  void setNoiseGain(MY_FLOAT gain)
+  { noiseGain = gain; m_noiseGain = gain; }
 
   JetTabl *jetTable;
   BiQuad *resonator;
@@ -4711,6 +4718,11 @@ class Bowed : public Instrmnt
   t_CKFLOAT m_volume;
   t_CKFLOAT m_rate;
 
+  void setVibratoFreq(MY_FLOAT freq)
+  { vibrato->setFrequency( freq ); m_vibratoFreq = vibrato->m_freq; }
+  void setVibratoGain(MY_FLOAT gain)
+  { vibratoGain = gain; m_vibratoGain = vibratoGain; }
+
   DelayL *neckDelay;
   DelayL *bridgeDelay;
   BowTabl *bowTable;
@@ -4877,6 +4889,11 @@ class Brass: public Instrmnt
   t_CKFLOAT m_vibratoGain;
   t_CKFLOAT m_volume;
 
+  void setVibratoFreq(MY_FLOAT freq)
+  { vibrato->setFrequency( freq ); m_vibratoFreq = vibrato->m_freq; }
+  void setVibratoGain(MY_FLOAT gain)
+  { vibratoGain = gain; m_vibratoGain = vibratoGain; }
+
   DelayA *delayLine;
   BiQuad *lipFilter;
   PoleZero *dcBlock;
@@ -5032,6 +5049,13 @@ class Clarinet : public Instrmnt
   t_CKFLOAT m_vibratoGain;
   t_CKFLOAT m_volume;
   t_CKFLOAT m_rate;
+
+  void setVibratoFreq(MY_FLOAT freq)
+  { vibrato->setFrequency( freq ); m_vibratoFreq = vibrato->m_freq; }
+  void setVibratoGain(MY_FLOAT gain)
+  { vibratoGain = gain; m_vibratoGain = vibratoGain; }
+  void setNoiseGain(MY_FLOAT gain)
+  { noiseGain = gain; m_noiseGain = gain; }
 
   DelayL *delayLine;
   ReedTabl *reedTable;
@@ -5319,6 +5343,13 @@ public: // SWAP formerly protected
   t_CKFLOAT m_vibratoGain;
   t_CKFLOAT m_pressure;
   t_CKFLOAT m_rate;
+ 
+  void setVibratoFreq(MY_FLOAT freq)
+  { vibrato->setFrequency( freq ); m_vibratoFreq = vibrato->m_freq; }
+  void setVibratoGain(MY_FLOAT gain)
+  { vibratoGain = gain; m_vibratoGain = vibratoGain; }
+  void setNoiseGain(MY_FLOAT gain)
+  { noiseGain = gain; m_noiseGain = gain; }
  
   DelayL *jetDelay;
   DelayL *boreDelay;
@@ -10137,12 +10168,12 @@ BlowBotl :: BlowBotl()
   resonator->setResonance(500.0, __BOTTLE_RADIUS_, true);
 
   adsr = new ADSR();
-  adsr->setAllTimes( 0.005, 0.01, 0.8, 0.010);
+  adsr->setAllTimes( 0.005, 0.01, 0.8, 0.010 );
 
   noise = new Noise();
   noiseGain = 20.0;
 
-  maxPressure = (MY_FLOAT) 0.0;
+  maxPressure = (MY_FLOAT)0.0;
 
   // CHUCK added later
   outputGain = 1.0;
@@ -10250,28 +10281,22 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): BlowBotl: Control value greater than 128.0!" << std::endl;
   }
 
-  if( number == __SK_NoiseLevel_ ) // 4
-  {
-      noiseGain = norm * 30.0;
-      m_noiseGain = norm; // chuck
+  if( number == __SK_NoiseLevel_ ) { // 4
+    noiseGain = norm * 30.0;
+    m_noiseGain = norm; // chuck
   }
   else if( number == __SK_ModFrequency_ ) // 11
-  {
-      vibrato->setFrequency( norm * 12.0 );
-      m_vibratoFreq = vibrato->m_freq; // chuck
+    setVibratoFreq( norm * 12.0 );
+  else if( number == __SK_ModWheel_ ) { // 1
+    vibratoGain = norm * 0.4;
+    m_vibratoGain = norm;
   }
-  else if( number == __SK_ModWheel_ ) // 1
-  {
-      vibratoGain = norm * 0.4;
-      m_vibratoGain = norm;
-  }
-  else if( number == __SK_AfterTouch_Cont_ ) // 128
-  {
-      adsr->setTarget( norm );
-      m_volume = norm;
+  else if( number == __SK_AfterTouch_Cont_ ) { // 128
+    adsr->setTarget( norm );
+    m_volume = norm;
   }
   else
-      std::cerr << "[chuck](via STK): BlowBotl: Undefined Control Number (" << number << ")!!" << std::endl;
+    std::cerr << "[chuck](via STK): BlowBotl: Undefined Control Number (" << number << ")!!" << std::endl;
 
 #if defined(_STK_DEBUG_)
   std::cerr << "[chuck](via STK): BlowBotl: controlChange number = " << number << ", value = " << value << std::endl;
@@ -10806,10 +10831,8 @@ void Bowed :: controlChange(int number, MY_FLOAT value)
     bridgeDelay->setDelay(baseDelay * betaRatio);
     neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio));
   }
-  else if (number == __SK_ModFrequency_) { // 11
-    vibrato->setFrequency( norm * 12.0 );
-    m_vibratoFreq = vibrato->m_freq;
-  }
+  else if (number == __SK_ModFrequency_) // 11
+    setVibratoFreq( norm * 12.0 );
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
     vibratoGain = ( norm * 0.4 );
@@ -11001,10 +11024,8 @@ void Brass :: controlChange(int number, MY_FLOAT value)
     m_slide = norm;
     delayLine->setDelay( slideTarget * (0.5 + norm) );
   }
-  else if (number == __SK_ModFrequency_) { // 11
-    vibrato->setFrequency( norm * 12.0 );
-    m_vibratoFreq = vibrato->m_freq;
-  }
+  else if (number == __SK_ModFrequency_) // 11
+    setVibratoFreq( norm * 12.0 );
   else if (number == __SK_ModWheel_ ) { // 1
     m_vibratoGain = norm;
     vibratoGain = norm * 0.4;
@@ -11288,10 +11309,8 @@ void Clarinet :: controlChange(int number, MY_FLOAT value)
     m_noiseGain = norm;
     noiseGain = (norm * (MY_FLOAT) 0.4);
   }
-  else if (number == __SK_ModFrequency_) { // 11
-    vibrato->setFrequency((norm * (MY_FLOAT) 12.0));
-    m_vibratoFreq = vibrato->m_freq;
-  }
+  else if (number == __SK_ModFrequency_) // 11
+    setVibratoFreq( norm * 12.0 );
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
     vibratoGain = (norm * (MY_FLOAT) 0.5);
@@ -12976,10 +12995,8 @@ void Flute :: controlChange(int number, MY_FLOAT value)
     m_noiseGain = norm;
     noiseGain = ( norm * 0.4);
   }
-  else if (number == __SK_ModFrequency_) { // 11
-    vibrato->setFrequency( norm * 12.0);
-    m_vibratoFreq = vibrato->m_freq;
-  }
+  else if (number == __SK_ModFrequency_) // 11
+    setVibratoFreq( norm * 12.0 );
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
     vibratoGain = ( norm * 0.4 );
@@ -22984,7 +23001,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_vibratoFreq )
 {
     BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    p->controlChange( 11, f * 128 );
+    p->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
 }
 
@@ -23495,7 +23512,7 @@ CK_DLL_CTRL( Bowed_ctrl_vibratoFreq )
 {
     Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    p->controlChange( 11, f * 128.0 );
+    p->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
 }
 
@@ -23943,7 +23960,7 @@ CK_DLL_CTRL( Brass_ctrl_vibratoFreq )
 {
     Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->controlChange( 11, f * 128.0 );
+    b->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
 }
 
@@ -24242,7 +24259,7 @@ CK_DLL_CTRL( Clarinet_ctrl_vibratoFreq )
 {
     Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->controlChange( 11, f * 128.0 );
+    b->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
 }
 
@@ -24591,7 +24608,7 @@ CK_DLL_CTRL( Flute_ctrl_vibratoFreq )
 {
     Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    b->controlChange( 11, f * 128.0 );
+    b->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
 }
 
@@ -29263,7 +29280,7 @@ CK_DLL_CGET( VoicForm_cget_selPhoneme )
 CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
     v->controlChange( __SK_ModFrequency_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibrato->m_freq;
 }

@@ -11,7 +11,7 @@ while( true )
 {
     // ding!
     std.rand2f( 0, 1 ) => bottle.noiseGain;
-    std.rand2f( 0, 1 ) => bottle.vibratoFreq;
+    std.rand2f( 0, 12 ) => bottle.vibratoFreq;
     std.rand2f( 0, 1 ) => bottle.vibratoGain;
     std.rand2f( 0, 1 ) => bottle.volume;
 

@@ -17,7 +17,7 @@ while( true )
 
     std.rand2f( 0, 1 ) => clair.reed;
     std.rand2f( 0, 1 ) => clair.noiseGain;
-    std.rand2f( 0, 1 ) => clair.vibratoFreq;
+    std.rand2f( 0, 12 ) => clair.vibratoFreq;
     std.rand2f( 0, 1 ) => clair.vibratoGain;
     std.rand2f( 0, 1 ) => clair.pressure;
 

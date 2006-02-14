@@ -9,7 +9,7 @@ while( true )
 {
     std.rand2f( 0, 1 ) => bow.bowPressure;
     std.rand2f( 0, 1 ) => bow.bowPosition;
-    std.rand2f( 0, 1 ) => bow.vibratoFreq;
+    std.rand2f( 0, 12 ) => bow.vibratoFreq;
     std.rand2f( 0, 1 ) => bow.vibratoGain;
     std.rand2f( 0, 1 ) => bow.volume;
 

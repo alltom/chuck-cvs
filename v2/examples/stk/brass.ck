@@ -11,7 +11,7 @@ while( true )
 {
     std.rand2f( 0, 1 ) => brass.lip;
     std.rand2f( 0, 1 ) => brass.slide;
-    std.rand2f( 0, 1 ) => brass.vibratoFreq;
+    std.rand2f( 0, 12 ) => brass.vibratoFreq;
     std.rand2f( 0, 1 ) => brass.vibratoGain;
     std.rand2f( 0, 1 ) => brass.volume;
 
