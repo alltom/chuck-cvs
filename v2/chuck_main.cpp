@@ -408,6 +408,10 @@ int main( int argc, char ** argv )
     if( !set_priority && !enable_audio ) g_priority = 0x7fffffff;
     // set priority
     Chuck_VM::our_priority = g_priority;
+#ifdef __MACOSX_CORE__
+    // enable watchdog
+    g_do_watchdog = TRUE;
+#endif
 
     if ( !files && vm_halt && !enable_shell )
     {

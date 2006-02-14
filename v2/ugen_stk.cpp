@@ -440,11 +440,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "freq", BlowBotl_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", BlowBotl_ctrl_rate ); //! frequency
+    func = make_new_mfun ( "float", "rate", BlowBotl_ctrl_rate ); //! attack rate
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", BlowBotl_cget_rate ); //! frequency
+    func = make_new_mfun ( "float", "rate", BlowBotl_cget_rate ); //! attack rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", BlowBotl_ctrl_controlChange ); //! control change
@@ -538,11 +538,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "reed", BlowHole_cget_reed ); //! reed stiffness
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", BlowHole_ctrl_rate ); //! rate of change
+    func = make_new_mfun ( "float", "rate", BlowHole_ctrl_rate ); //! attack rate
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", BlowHole_cget_rate ); //! rate of change
+    func = make_new_mfun ( "float", "rate", BlowHole_cget_rate ); //! attack rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", BlowHole_ctrl_controlChange ); //! control change
@@ -720,11 +720,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "volume", Brass_cget_volume ); //! volume
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Brass_ctrl_rate ); //! rate of change
+    func = make_new_mfun ( "float", "rate", Brass_ctrl_rate ); //! attack rate
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Brass_cget_rate ); //! rate of change
+    func = make_new_mfun ( "float", "rate", Brass_cget_rate ); //! attack rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
@@ -767,11 +767,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "freq", Clarinet_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Clarinet_ctrl_rate ); //! rate of change
+    func = make_new_mfun ( "float", "rate", Clarinet_ctrl_rate ); //! attack rate
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Clarinet_cget_rate ); //! rate of change
+    func = make_new_mfun ( "float", "rate", Clarinet_cget_rate ); //! attack rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "void", "controlChange", Clarinet_ctrl_controlChange ); //! control change
@@ -854,32 +854,32 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "float", "freq", Flute_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Flute_ctrl_rate ); //! frequency
+    func = make_new_mfun ( "float", "rate", Flute_ctrl_rate ); //! attack rate
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Flute_cget_rate ); //! frequency
+    func = make_new_mfun ( "float", "rate", Flute_cget_rate ); //! attack rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "jetReflection", Flute_ctrl_jetReflection ); //! rate of change
+    func = make_new_mfun ( "float", "jetReflection", Flute_ctrl_jetReflection ); //! jet reflection
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "jetReflection", Flute_cget_jetReflection ); //! rate of change
+    func = make_new_mfun ( "float", "jetReflection", Flute_cget_jetReflection ); //! jet reflection
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "jetDelay", Flute_ctrl_jetDelay ); //! rate of change
+    func = make_new_mfun ( "float", "jetDelay", Flute_ctrl_jetDelay ); //! jet delay
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "jetDelay", Flute_cget_jetDelay ); //! rate of change
+    func = make_new_mfun ( "float", "jetDelay", Flute_cget_jetDelay ); //! jet delay
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "endReflection", Flute_ctrl_endReflection ); //! rate of change
+    func = make_new_mfun ( "float", "endReflection", Flute_ctrl_endReflection ); //! end reflection
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "endReflection", Flute_cget_endReflection ); //! rate of change
+    func = make_new_mfun ( "float", "endReflection", Flute_cget_endReflection ); //! end reflection
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
@@ -1809,11 +1809,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun ( "dur", "duration", Envelope_cget_duration ); //! time to reach target
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Envelope_ctrl_rate ); //! rate of change 
+    func = make_new_mfun ( "float", "rate", Envelope_ctrl_rate ); //! attack rate 
     func->add_arg ( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun ( "float", "rate", Envelope_cget_rate ); //! rate of change 
+    func = make_new_mfun ( "float", "rate", Envelope_cget_rate ); //! attack rate 
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun ( "float", "value", Envelope_ctrl_value ); //! set immediate value

@@ -61,6 +61,8 @@ extern t_CKUINT g_sigpipe_mode;
 extern ck_socket g_sock;
 // global port
 extern t_CKINT g_port;
+// real-time watchdog
+extern t_CKBOOL g_do_watchdog;
 // thread id for whatever
 extern CHUCK_THREAD g_tid_whatever;
 

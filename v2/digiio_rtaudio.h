@@ -113,6 +113,8 @@ public:
                               Chuck_VM * vm_ref = NULL,
                               BOOL__  rt_audio = TRUE,
                               void * callback = NULL, void * data = NULL );
+    static BOOL__ watchdog_start();
+    static BOOL__ watchdog_stop();
     static void shutdown();
     static void probe();
 
