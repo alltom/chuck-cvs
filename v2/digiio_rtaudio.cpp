@@ -261,6 +261,10 @@ static unsigned int __stdcall watch_dog( void * )
     // log
     EM_log( CK_LOG_SEVERE, "starting real-time watch dog processs..." );
     
+    // boost watchdog by same priority
+    if( Chuck_VM::our_priority != 0x7fffffff )
+        Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
+
     // while going
     while( g_do_watchdog )
     {
@@ -510,7 +514,8 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     if( m_go >= start )
     {
         while( !m_out_ready && n-- ) usleep( 250 );
-        if( m_out_ready ) g_watchdog_time = get_current_time( TRUE );
+        if( m_out_ready && g_do_watchdog )
+            g_watchdog_time = get_current_time( TRUE );
         // copy local buffer to be rendered
         if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
@@ -525,7 +530,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
         // signal( SIGINT, signal_int );
 
         // timestamp
-        g_watchdog_time = get_current_time( TRUE );
+        if( g_do_watchdog ) g_watchdog_time = get_current_time( TRUE );
 
         memset( buffer, 0, len );
         m_go++;
@@ -575,11 +580,14 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         memset( buffer, 0, len );
         m_go = TRUE;
 
-        // timestamp
-        g_watchdog_time = get_current_time( TRUE );
-
         // start watchdog
-        if( g_do_watchdog ) watchdog_start();
+        if( g_do_watchdog )
+        {
+            // timestamp
+            g_watchdog_time = get_current_time( TRUE );
+            // start watchdog
+            watchdog_start();
+        }
 
         // let it go the first time
         return 0;
@@ -597,7 +605,7 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
     if( m_xrun < 6 )
     {
         // timestamp
-        g_watchdog_time = get_current_time( TRUE );
+        if( g_do_watchdog ) g_watchdog_time = get_current_time( TRUE );
         // get samples from output
         vm_ref->run( buffer_size );
         // ...
