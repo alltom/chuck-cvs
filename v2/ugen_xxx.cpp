@@ -592,6 +592,11 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // add cget: channels
     func = make_new_mfun( "int", "channels", sndbuf_cget_channels );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add cget: valueAt
+    func = make_new_mfun( "float", "valueAt", sndbuf_cget_valueAt );
+    func->add_arg( "int", "pos" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end import
     if( !type_engine_import_class_end( env ) )
@@ -1963,4 +1968,11 @@ CK_DLL_CGET( sndbuf_cget_channels )
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     //SET_NEXT_INT( out, d->num_channels );
     RETURN->v_int = d->num_channels;
+}
+
+CK_DLL_CGET( sndbuf_cget_valueAt )
+{
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    t_CKINT i = GET_CK_INT(ARGS);
+    RETURN->v_float = ( i > d->num_frames || i < 0 ) ? 0 : d->buffer[i];
 }
