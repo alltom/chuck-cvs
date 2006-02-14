@@ -220,10 +220,32 @@ static t_CKBOOL set_priority( CHUCK_THREAD tid, t_CKINT priority )
 #endif
 
 
+//-----------------------------------------------------------------------------
+// name: get_current_time()
+// desc: ...
+//-----------------------------------------------------------------------------
+static t_CKFLOAT get_current_time( t_CKBOOL fresh = TRUE )
+{
+#ifdef __PLATFORM_WIN32__
+    struct _timeb t;
+    _ftime(&t);
+    return t.time + t.millitm/1000.0;
+#else
+    static struct timeval t;
+    if( fresh ) gettimeofday(&t,NULL);
+    return t.tv_sec + (t_CKFLOAT)t.tv_usec/1000000;
+#endif
+        
+    return 0;
+}
+
+
 // watch dog globals
 static CHUCK_THREAD g_tid_synthesis = 0;
 static XThread * g_watchdog_thread = NULL;
 static t_CKBOOL g_watchdog_state = FALSE;
+static t_CKFLOAT g_watchdog_time = 0;
+
 
 //-----------------------------------------------------------------------------
 // name: watch_dog()
@@ -235,22 +257,28 @@ static void * watch_dog( void * )
 static unsigned int __stdcall watch_dog( void * )
 #endif
 {
+    t_CKFLOAT time;
     // log
     EM_log( CK_LOG_SEVERE, "starting real-time watch dog processs..." );
     
     // while going
     while( g_do_watchdog )
     {
+        // get
+        time = get_current_time( TRUE );
+        // fprintf( stderr, "last: %f now: %f\n", g_watchdog_time, time );
+
         // resting
         if( g_watchdog_state == FALSE )
         {
             // check xrun
-            if( Digitalio::m_xrun > 100 )
+            // if( Digitalio::m_xrun > 100 )
+            if( time - g_watchdog_time > 1.5 )
             {
                 // log
                 EM_log( CK_LOG_SEVERE, "real-time watchdog counter-measure activating..." );
                 // lowering priority
-                if( Chuck_VM::our_priority != 0x7fffffff )
+                if( g_tid_synthesis && Chuck_VM::our_priority != 0x7fffffff )
                     set_priority( g_tid_synthesis, 0 );
                 // set state
                 g_watchdog_state = TRUE;
@@ -259,12 +287,13 @@ static unsigned int __stdcall watch_dog( void * )
         else
         {
             // check xrun
-            if( Digitalio::m_xrun == 0 )
+            // if( Digitalio::m_xrun == 0 )
+            if( time - g_watchdog_time < 1.5 )
             {
                 // log
                 EM_log( CK_LOG_SEVERE, "real-time watchdog resting..." );
                 // raise priority
-                if( Chuck_VM::our_priority != 0x7fffffff )
+                if( g_tid_synthesis && Chuck_VM::our_priority != 0x7fffffff )
                     set_priority( g_tid_synthesis, Chuck_VM::our_priority );
                 // set state
                 g_watchdog_state = FALSE;
@@ -428,10 +457,6 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                 return m_init = FALSE;
             }
         }
-        
-        // start watchdog
-        if( g_do_watchdog )
-            watchdog_start();
 
         // pop indent
         EM_poplog();
@@ -485,6 +510,7 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
     if( m_go >= start )
     {
         while( !m_out_ready && n-- ) usleep( 250 );
+        if( m_out_ready ) g_watchdog_time = get_current_time( TRUE );
         // copy local buffer to be rendered
         if( m_out_ready && !m_end ) memcpy( buffer, m_buffer_out, len );
         // set all elements of local buffer to silence
@@ -497,6 +523,9 @@ int Digitalio::cb( char * buffer, int buffer_size, void * user_data )
             Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
         // catch SIGINT
         // signal( SIGINT, signal_int );
+
+        // timestamp
+        g_watchdog_time = get_current_time( TRUE );
 
         memset( buffer, 0, len );
         m_go++;
@@ -535,7 +564,7 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
 {
     DWORD__ len = buffer_size * sizeof(SAMPLE) * m_num_channels_out;
     Chuck_VM * vm_ref = (Chuck_VM *)user_data;
-
+    
     // priority boost
     if( !m_go && Chuck_VM::our_priority != 0x7fffffff )
     {
@@ -545,6 +574,13 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
         Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
         memset( buffer, 0, len );
         m_go = TRUE;
+
+        // timestamp
+        g_watchdog_time = get_current_time( TRUE );
+
+        // start watchdog
+        if( g_do_watchdog ) watchdog_start();
+
         // let it go the first time
         return 0;
     }
@@ -560,6 +596,8 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
     // check xrun
     if( m_xrun < 6 )
     {
+        // timestamp
+        g_watchdog_time = get_current_time( TRUE );
         // get samples from output
         vm_ref->run( buffer_size );
         // ...
