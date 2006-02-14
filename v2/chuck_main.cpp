@@ -272,6 +272,7 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_shell = FALSE;
     t_CKBOOL no_vm = FALSE;
     t_CKINT  log_level = CK_LOG_CORE;
+    t_CKBOOL do_watchdog = TRUE;
 
     t_CKUINT files = 0;
     t_CKUINT count = 1;
@@ -327,6 +328,12 @@ int main( int argc, char ** argv )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--level", 7) )
             {   g_priority = atoi( argv[i]+7 ); set_priority = TRUE; }
+            else if( !strncmp(argv[i], "--watchdog", 10) )
+            {   g_watchdog_timeout = atof( argv[i]+10 );
+                if( g_watchdog_timeout == 0 ) g_watchdog_timeout = 1.0;
+                do_watchdog = TRUE; }
+            else if( !strncmp(argv[i], "--nowatchdog", 12) )
+                do_watchdog = FALSE;
             else if( !strncmp(argv[i], "--remote", 8) )
                 strcpy( g_host, argv[i]+8 );
             else if( !strncmp(argv[i], "@", 1) )
@@ -408,10 +415,8 @@ int main( int argc, char ** argv )
     if( !set_priority && !enable_audio ) g_priority = 0x7fffffff;
     // set priority
     Chuck_VM::our_priority = g_priority;
-#ifdef __MACOSX_CORE__
-    // enable watchdog
-    g_do_watchdog = TRUE;
-#endif
+    // set watchdog
+    g_do_watchdog = do_watchdog;
 
     if ( !files && vm_halt && !enable_shell )
     {
