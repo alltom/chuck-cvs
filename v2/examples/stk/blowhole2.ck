@@ -17,11 +17,11 @@ while( true )
     std.rand2f( 0, 128 ) => float pressure;
 
     <<< "going...", "" >>>;
-    <<< "reed stiffness:", stiffness >>>;
-    <<< "noise gain:", noisegain >>>;
-    <<< "tonehole state:", tonehole >>>;
-    <<< "register state:", register >>>;
-    <<< "breath pressue:", pressure >>>;
+    <<< "reed stiffness:", stiffness, "/ 128.0" >>>;
+    <<< "noise gain:", noisegain, "/ 128.0" >>>;
+    <<< "tonehole state:", tonehole, "/ 128.0" >>>;
+    <<< "register state:", register, "/ 128.0" >>>;
+    <<< "breath pressue:", pressure, "/ 128.0" >>>;
 
     // reed stiffness
     hole.controlChange( 2, stiffness );

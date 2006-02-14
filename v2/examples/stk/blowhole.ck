@@ -4,6 +4,12 @@ BlowHole hole => dac;
 // scale
 [0, 2, 4, 7, 9, 11] @=> int scale[];
 
+<<< "reed stiffness:", hole.reed() >>>;
+<<< "noise gain:", hole.noiseGain() >>>;
+<<< "tonehole state:", hole.tonehole() >>>;
+<<< "register state:", hole.vent() >>>;
+<<< "breath pressure:", hole.pressure() >>>;
+
 // infinite time loop
 while( true )
 {
@@ -21,7 +27,7 @@ while( true )
     <<< "noise gain:", hole.noiseGain() >>>;
     <<< "tonehole state:", hole.tonehole() >>>;
     <<< "register state:", hole.vent() >>>;
-    <<< "breath pressue:", hole.pressure() >>>;
+    <<< "breath pressure:", hole.pressure() >>>;
   }
 
   // set freq

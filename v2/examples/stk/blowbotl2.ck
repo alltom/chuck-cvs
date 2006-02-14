@@ -16,10 +16,10 @@ while( true )
     std.rand2f( 0, 128 ) => float volume;
 
     <<< "---", "" >>>;
-    <<< "noise gain:", noisegain >>>;
-    <<< "vibrato freq:", vibratofreq >>>;
-    <<< "vibrato gain:", vibratogain >>>;
-    <<< "volume:", volume >>>;
+    <<< "noise gain:", noisegain, "/ 128.0" >>>;
+    <<< "vibrato freq:", vibratofreq, "/ 128.0" >>>;
+    <<< "vibrato gain:", vibratogain, "/ 128.0" >>>;
+    <<< "volume:", volume, "/ 128.0" >>>;
 
     // noise gain
     bottle.controlChange( 4, noisegain );
