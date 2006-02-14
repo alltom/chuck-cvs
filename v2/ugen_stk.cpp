@@ -10151,7 +10151,7 @@ BlowBotl :: BlowBotl()
   baseFrequency = 0.0;
   m_rate = .02;
   m_noiseGain = noiseGain / 30.0;
-  m_vibratoFreq = vibrato->m_freq / 12.0;
+  m_vibratoFreq = vibrato->m_freq;
   m_vibratoGain = vibratoGain;
   m_volume = 1.0;
 }
@@ -10258,7 +10258,7 @@ void BlowBotl :: controlChange(int number, MY_FLOAT value)
   else if( number == __SK_ModFrequency_ ) // 11
   {
       vibrato->setFrequency( norm * 12.0 );
-      m_vibratoFreq = norm; // chuck
+      m_vibratoFreq = vibrato->m_freq; // chuck
   }
   else if( number == __SK_ModWheel_ ) // 1
   {
@@ -10679,7 +10679,7 @@ Bowed :: Bowed(MY_FLOAT lowestFrequency)
   // CHUCK
   m_bowPressure = .5;
   m_bowPosition = (betaRatio - .027236) / .2;
-  m_vibratoFreq = 6.12723 / 12;
+  m_vibratoFreq = vibrato->m_freq;
   m_vibratoGain = 0.0;
   m_volume = 1.0;
 }
@@ -10807,8 +10807,8 @@ void Bowed :: controlChange(int number, MY_FLOAT value)
     neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio));
   }
   else if (number == __SK_ModFrequency_) { // 11
-    m_vibratoFreq = norm;
     vibrato->setFrequency( norm * 12.0 );
+    m_vibratoFreq = vibrato->m_freq;
   }
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
@@ -10880,7 +10880,7 @@ Brass :: Brass(MY_FLOAT lowestFrequency)
   m_rate = .005;
   m_lip = 0.1;
   m_slide = length;
-  m_vibratoFreq = 6.137 / 12;
+  m_vibratoFreq = vibrato->m_freq;
   m_vibratoGain = 0.0;
   m_volume = 1.0;
 }
@@ -11002,8 +11002,8 @@ void Brass :: controlChange(int number, MY_FLOAT value)
     delayLine->setDelay( slideTarget * (0.5 + norm) );
   }
   else if (number == __SK_ModFrequency_) { // 11
-    m_vibratoFreq = norm;
     vibrato->setFrequency( norm * 12.0 );
+    m_vibratoFreq = vibrato->m_freq;
   }
   else if (number == __SK_ModWheel_ ) { // 1
     m_vibratoGain = norm;
@@ -11172,7 +11172,7 @@ Clarinet :: Clarinet(MY_FLOAT lowestFrequency)
   // CHUCK
   m_reed = .5;
   m_noiseGain = noiseGain / .4;
-  m_vibratoFreq = 5.735 / 12;
+  m_vibratoFreq = vibrato->m_freq;
   m_vibratoGain = .1;
   m_volume = 1.0;
   m_rate = .005;
@@ -11289,8 +11289,8 @@ void Clarinet :: controlChange(int number, MY_FLOAT value)
     noiseGain = (norm * (MY_FLOAT) 0.4);
   }
   else if (number == __SK_ModFrequency_) { // 11
-    m_vibratoFreq = norm;
     vibrato->setFrequency((norm * (MY_FLOAT) 12.0));
+    m_vibratoFreq = vibrato->m_freq;
   }
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
@@ -12832,7 +12832,7 @@ Flute :: Flute(MY_FLOAT lowestFrequency)
   m_jetReflection = jetReflection;
   m_endReflection = endReflection;
   m_noiseGain = noiseGain / .4;
-  m_vibratoFreq = 5.925 / 12;
+  m_vibratoFreq = vibrato->m_freq;
   m_vibratoGain = .15;
   m_pressure = 1.0;
   m_rate = .005;
@@ -12977,8 +12977,8 @@ void Flute :: controlChange(int number, MY_FLOAT value)
     noiseGain = ( norm * 0.4);
   }
   else if (number == __SK_ModFrequency_) { // 11
-    m_vibratoFreq = norm;
     vibrato->setFrequency( norm * 12.0);
+    m_vibratoFreq = vibrato->m_freq;
   }
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
