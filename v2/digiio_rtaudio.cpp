@@ -32,6 +32,7 @@
 #include "digiio_rtaudio.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
+#include "chuck_globals.h"
 #include "rtaudio.h"
 #include "rtmidi.h"
 // #include <signal.h>
@@ -170,6 +171,161 @@ void Digitalio::probe()
 
 
 
+#ifndef __PLATFORM_WIN32__
+//-----------------------------------------------------------------------------
+// name: set_priority()
+// desc: ...
+//-----------------------------------------------------------------------------
+static t_CKBOOL set_priority( CHUCK_THREAD tid, t_CKINT priority )
+{
+    struct sched_param param;
+    int policy;
+
+    // log
+    EM_log( CK_LOG_FINE, "setting thread priority to: %ld...", priority );
+
+    // get for thread
+    if( pthread_getschedparam( tid, &policy, &param) ) 
+        return FALSE;
+
+    // priority
+    param.sched_priority = priority;
+    // policy
+    policy = SCHED_RR;
+    // set for thread
+    if( pthread_setschedparam( tid, policy, &param ) )
+        return FALSE;
+
+    return TRUE;
+}
+#else
+//-----------------------------------------------------------------------------
+// name: set_priority()
+// desc: ...
+//-----------------------------------------------------------------------------
+static t_CKBOOL set_priority( CHUCK_THREAD tid, t_CKINT priority )
+{
+    // if priority is 0 then done
+    if( !priority ) return TRUE;
+
+    // log
+    EM_log( CK_LOG_FINE, "setting thread priority to: %ld...", priority );
+
+    // set the priority the thread
+    if( !SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL ) )
+        return FALSE;
+
+    return TRUE;
+}
+#endif
+
+
+// watch dog globals
+static CHUCK_THREAD g_tid_synthesis = 0;
+static XThread * g_watchdog_thread = NULL;
+static t_CKBOOL g_watchdog_state = FALSE;
+
+//-----------------------------------------------------------------------------
+// name: watch_dog()
+// desc: ...
+//-----------------------------------------------------------------------------
+#ifndef __PLATFORM_WIN32__
+static void * watch_dog( void * )
+#else
+static unsigned int __stdcall watch_dog( void * )
+#endif
+{
+    // log
+    EM_log( CK_LOG_SEVERE, "starting real-time watch dog processs..." );
+    
+    // while going
+    while( g_do_watchdog )
+    {
+        // resting
+        if( g_watchdog_state == FALSE )
+        {
+            // check xrun
+            if( Digitalio::m_xrun > 100 )
+            {
+                // lowering priority
+                if( Chuck_VM::our_priority != 0x7fffffff )
+                    set_priority( g_tid_synthesis, 0 );
+                // set state
+                g_watchdog_state = TRUE;
+                // log
+                EM_log( CK_LOG_SEVERE, "real-time watchdog counter-measure activating..." );
+            }
+        }
+        else
+        {
+            // check xrun
+            if( Digitalio::m_xrun == 0 )
+            {
+                // raise priority
+                if( Chuck_VM::our_priority != 0x7fffffff )
+                    set_priority( g_tid_synthesis, Chuck_VM::our_priority );
+                // set state
+                g_watchdog_state = FALSE;
+                // log
+                EM_log( CK_LOG_SEVERE, "real-time watchdog resting..." );
+            }
+        }
+        
+        // advance time
+        usleep( 50000 );
+    }
+    
+    // log
+    EM_log( CK_LOG_SEVERE, "stopping real-time watch dog process..." );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: watchdog_start()
+// desc: ...
+//-----------------------------------------------------------------------------
+BOOL__ Digitalio::watchdog_start()
+{
+    // already
+    if( g_watchdog_thread )
+        return FALSE;
+
+    // flag
+    g_do_watchdog = TRUE;
+    // allocate it
+    g_watchdog_thread = new XThread;
+    // start it
+    g_watchdog_thread->start( watch_dog, NULL );
+    
+    return TRUE;
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: watchdog_stop()
+// desc: ...
+//-----------------------------------------------------------------------------
+BOOL__ Digitalio::watchdog_stop()
+{
+    // already
+    if( !g_watchdog_thread )
+        return FALSE;
+
+    // stop things
+    g_do_watchdog = FALSE;
+    // wait a bit
+    // usleep( 100000 )
+    SAFE_DELETE( g_watchdog_thread );
+    
+    return TRUE;
+}
+
+
+
+
 //-----------------------------------------------------------------------------
 // name: initialize()
 // desc: ...
@@ -272,6 +428,10 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
                 return m_init = FALSE;
             }
         }
+        
+        // start watchdog
+        if( g_do_watchdog )
+            watchdog_start();
 
         // pop indent
         EM_poplog();
@@ -379,6 +539,9 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
     // priority boost
     if( !m_go && Chuck_VM::our_priority != 0x7fffffff )
     {
+#ifndef __PLATFORM_WIN32__
+        g_tid_synthesis = pthread_self();
+#endif
         Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
         memset( buffer, 0, len );
         m_go = TRUE;
@@ -405,7 +568,7 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
     else
     {
         // reset
-        m_xrun = 0;
+        m_xrun /= 2;
     }
 
     // copy local buffer to be rendered
@@ -497,6 +660,9 @@ void Digitalio::shutdown()
     SAFE_DELETE( m_rtaudio );
     m_init = FALSE;
     m_start = FALSE;
+    
+    // stop watchdog
+    watchdog_stop();
 }
 
 
