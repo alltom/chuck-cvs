@@ -277,13 +277,13 @@ static unsigned int __stdcall watch_dog( void * )
         {
             // check xrun
             // if( Digitalio::m_xrun > 100 )
-            if( time - g_watchdog_time > 1.5 )
+            if( time - g_watchdog_time > g_watchdog_timeout )
             {
                 // log
                 EM_log( CK_LOG_SEVERE, "real-time watchdog counter-measure activating..." );
                 // lowering priority
                 if( g_tid_synthesis && Chuck_VM::our_priority != 0x7fffffff )
-                    set_priority( g_tid_synthesis, 0 );
+                    set_priority( g_tid_synthesis, g_watchdog_countermeasure_priority );
                 // set state
                 g_watchdog_state = TRUE;
             }
@@ -292,7 +292,7 @@ static unsigned int __stdcall watch_dog( void * )
         {
             // check xrun
             // if( Digitalio::m_xrun == 0 )
-            if( time - g_watchdog_time < 1.5 )
+            if( time - g_watchdog_time < g_watchdog_timeout )
             {
                 // log
                 EM_log( CK_LOG_SEVERE, "real-time watchdog resting..." );
