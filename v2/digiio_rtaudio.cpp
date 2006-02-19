@@ -38,6 +38,7 @@
 // #include <signal.h>
 #if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
 #include <windows.h>
+#include <sys/timeb.h>
 #else
 #include <unistd.h>
 #include <sys/time.h>
@@ -318,6 +319,8 @@ static unsigned int __stdcall watch_dog( void * )
     
     // log
     EM_log( CK_LOG_SEVERE, "stopping real-time watch dog process..." );
+
+    return 0;
 }
 
 
