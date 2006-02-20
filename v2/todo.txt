@@ -1,4 +1,31 @@
-todo
+todo - 2006.2.20
+---
+- multi-channel audio
+- stereo and multi-channel file out
+- fix static data
+- fix sporking member function
+- project: garbage collection
+  - release objects from all scopes
+  - implement destructors
+  - clean up type checker
+- project: finalize strings
+- project: exception handling
+
+- project: HID
+- project: file I/O
+- project: gluck
+- project: miniAudicle (osx fix)
+- project: miniAudicle (win32)
+- project: fix audicle
+- project: audicle linux build
+
+
+- array initialization
+  - multi-type [ 1, "foo" ] (done)
+  - optimize reduce if static
+
+
+todo - 2005
 ---
 - release objects from all scopes
 - array initialization
