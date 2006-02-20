@@ -929,6 +929,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //member variable
     Mandolin_offset_data = type_engine_import_mvar ( env, "int", "@Mandolin_data", FALSE );
     if( Mandolin_offset_data == CK_INVALID_OFFSET ) goto error;
+    
     func = make_new_mfun( "float", "pluck", Mandolin_ctrl_pluck );  //! pluck string with given amplitude 
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -967,8 +968,21 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "float", "stringDetune", Mandolin_cget_stringDetune ); //! control detuning of string pair
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    func = make_new_mfun( "void", "noteOn", Mandolin_ctrl_noteOn ); //! go
+    func->add_arg( "float", "velocity" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    func = make_new_mfun( "void", "noteOff", Mandolin_ctrl_noteOff ); //! stop
+    func->add_arg( "float", "velocity" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    func = make_new_mfun( "void", "controlChange", Mandolin_ctrl_controlChange ); //! control change
+    func->add_arg( "int", "which" );
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "afterTouch", Mandolin_ctrl_afterTouch ); //!aftertouch
+    func = make_new_mfun( "float", "afterTouch", Mandolin_ctrl_afterTouch ); //! aftertouch
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -5790,9 +5804,9 @@ class Mandolin : public PluckTwo
     int mic;
     long dampTime;
     bool waveDone;
-  MY_FLOAT m_bodySize;
-  MY_FLOAT m_stringDamping;
-  MY_FLOAT m_stringDetune;
+    MY_FLOAT m_bodySize;
+    // MY_FLOAT m_stringDamping;
+    // MY_FLOAT m_stringDetune;
 };
 
 #endif
@@ -13518,6 +13532,7 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
   mic = 0;
   dampTime = 0;
   waveDone = soundfile[mic]->isFinished();
+  m_bodySize = 1.0;
 }
 
 Mandolin :: ~Mandolin()
@@ -13643,6 +13658,8 @@ void Mandolin :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): Mandolin: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
+
 /***************************************************/
 /*! \class Mesh2D
     \brief Two-dimensional rectilinear waveguide mesh class.
@@ -28172,6 +28189,43 @@ CK_DLL_CTRL( Mandolin_ctrl_pluck )
 
 
 //-----------------------------------------------------------------------------
+// name: Mandolin_ctrl_noteOn()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Mandolin_ctrl_noteOn )
+{
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    m->noteOn( m->lastFrequency, f );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Mandolin_ctrl_noteOff()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Mandolin_ctrl_noteOff )
+{
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    t_CKFLOAT f = GET_CK_FLOAT(ARGS);
+    m->noteOff( f );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Mandolin_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Mandolin_ctrl_controlChange )
+{
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    m->controlChange( i, f * 128.0 );
+}
+
+
+//-----------------------------------------------------------------------------
 // name: Mandolin_ctrl_freq()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -28190,7 +28244,7 @@ CK_DLL_CTRL( Mandolin_ctrl_freq )
 CK_DLL_CGET( Mandolin_cget_freq )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    RETURN->v_float = (t_CKFLOAT) m->lastFrequency;
+    RETURN->v_float = (t_CKFLOAT)m->lastFrequency;
 }
 
 
@@ -28213,7 +28267,7 @@ CK_DLL_CTRL( Mandolin_ctrl_pluckPos )
 CK_DLL_CGET( Mandolin_cget_pluckPos )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    RETURN->v_float = (t_CKFLOAT) m->pluckPosition;
+    RETURN->v_float = (t_CKFLOAT)m->pluckPosition;
 }
 
 
@@ -28225,7 +28279,7 @@ CK_DLL_CTRL( Mandolin_ctrl_bodySize )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    m->setBodySize( f * 2.0 );
+    m->setBodySize( f );
 }
 
 
@@ -28236,7 +28290,7 @@ CK_DLL_CTRL( Mandolin_ctrl_bodySize )
 CK_DLL_CGET( Mandolin_cget_bodySize )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    RETURN->v_float = (t_CKFLOAT) m->m_bodySize;
+    RETURN->v_float = (t_CKFLOAT)m->m_bodySize;
 }
 
 
@@ -28248,7 +28302,8 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDamping )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    m->setBaseLoopGain( 0.97f + f * 0.03f );
+    m->setBaseLoopGain( f );
+    // m->setBaseLoopGain( 0.97f + f * 0.03f );
 }
 
 
@@ -28259,7 +28314,7 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDamping )
 CK_DLL_CGET( Mandolin_cget_stringDamping )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    RETURN->v_float = (t_CKFLOAT) m->m_stringDamping;
+    RETURN->v_float = (t_CKFLOAT)m->baseLoopGain;
 }
 
 
@@ -28271,7 +28326,8 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDetune )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS);
-    m->setDetune( 1.0f - 0.1f * f );
+    m->setDetune( f );
+    // m->setDetune( 1.0f - 0.1f * f );
 }
 
 
@@ -28282,7 +28338,7 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDetune )
 CK_DLL_CGET( Mandolin_cget_stringDetune )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    RETURN->v_float = (t_CKFLOAT) m->m_stringDetune;
+    RETURN->v_float = (t_CKFLOAT)m->detuning;
 }
 
 
@@ -28294,12 +28350,9 @@ CK_DLL_CTRL( Mandolin_ctrl_afterTouch )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
     t_CKFLOAT f = GET_CK_FLOAT(ARGS); 
-    //not sure what this does in stk version so we'll just call controlChange
+    // not sure what this does in stk version so we'll just call controlChange
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
-
-
-// cgets
 
 
 // Modulate

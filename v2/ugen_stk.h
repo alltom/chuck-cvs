@@ -667,18 +667,20 @@ CK_DLL_DTOR( Mandolin_dtor );
 CK_DLL_TICK( Mandolin_tick );
 CK_DLL_PMSG( Mandolin_pmsg );
 CK_DLL_CTRL( Mandolin_ctrl_freq );
-CK_DLL_CTRL( Mandolin_ctrl_pluck );
-CK_DLL_CTRL( Mandolin_ctrl_pluckPos );
-CK_DLL_CTRL( Mandolin_ctrl_bodySize );
-CK_DLL_CTRL( Mandolin_ctrl_stringDamping );
-CK_DLL_CTRL( Mandolin_ctrl_stringDetune );
-CK_DLL_CTRL( Mandolin_ctrl_afterTouch );
-
 CK_DLL_CGET( Mandolin_cget_freq );
+CK_DLL_CTRL( Mandolin_ctrl_pluckPos );
 CK_DLL_CGET( Mandolin_cget_pluckPos );
+CK_DLL_CTRL( Mandolin_ctrl_bodySize );
 CK_DLL_CGET( Mandolin_cget_bodySize );
+CK_DLL_CTRL( Mandolin_ctrl_stringDamping );
 CK_DLL_CGET( Mandolin_cget_stringDamping );
+CK_DLL_CTRL( Mandolin_ctrl_stringDetune );
 CK_DLL_CGET( Mandolin_cget_stringDetune );
+CK_DLL_CTRL( Mandolin_ctrl_controlChange );
+CK_DLL_CTRL( Mandolin_ctrl_afterTouch );
+CK_DLL_CTRL( Mandolin_ctrl_pluck );
+CK_DLL_CTRL( Mandolin_ctrl_noteOn );
+CK_DLL_CTRL( Mandolin_ctrl_noteOff );
 
 // Modal
 CK_DLL_CTOR( Modal_ctor );
