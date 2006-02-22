@@ -1,4 +1,4 @@
-// shake-cycle.ck
+// shake-cycle.ck : effects abuse
 // author: Adam Tindale
 
 // the patch
