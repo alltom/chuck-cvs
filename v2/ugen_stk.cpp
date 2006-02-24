@@ -24964,7 +24964,6 @@ CK_DLL_CGET( ModalBar_cget_directGain )
 }
 
 
-
 //-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_mode()
 // desc: CTRL function ...

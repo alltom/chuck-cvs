@@ -709,38 +709,29 @@ CK_DLL_CTRL( ModalBar_ctrl_damp );
 CK_DLL_CTRL( ModalBar_ctrl_clear );
 CK_DLL_CTRL( ModalBar_ctrl_noteOn );
 CK_DLL_CTRL( ModalBar_ctrl_noteOff );
-CK_DLL_CTRL( ModalBar_ctrl_preset );
-CK_DLL_CTRL( ModalBar_ctrl_freq );
-CK_DLL_CTRL( ModalBar_ctrl_strikePosition );
 CK_DLL_CTRL( ModalBar_ctrl_stickHardness );
-CK_DLL_CTRL( ModalBar_ctrl_masterGain );
-CK_DLL_CTRL( ModalBar_ctrl_directGain );
-CK_DLL_CTRL( ModalBar_ctrl_mode );
-CK_DLL_CTRL( ModalBar_ctrl_modeGain );
-CK_DLL_CTRL( ModalBar_ctrl_modeRatio );
-CK_DLL_CTRL( ModalBar_ctrl_modeRadius );
-
-
-CK_DLL_CTRL( ModalBar_ctrl_preset );
-CK_DLL_CTRL( ModalBar_ctrl_freq );
-CK_DLL_CTRL( ModalBar_ctrl_strikePosition );
-CK_DLL_CTRL( ModalBar_ctrl_stickHardness );
-CK_DLL_CTRL( ModalBar_ctrl_masterGain );
-CK_DLL_CTRL( ModalBar_ctrl_directGain );
-CK_DLL_CTRL( ModalBar_ctrl_mode );
-CK_DLL_CTRL( ModalBar_ctrl_modeRatio );
-CK_DLL_CTRL( ModalBar_ctrl_modeRadius );
-CK_DLL_CTRL( ModalBar_ctrl_modeGain );
-
-CK_DLL_CGET( ModalBar_cget_preset );
-CK_DLL_CGET( ModalBar_cget_freq );
-CK_DLL_CGET( ModalBar_cget_strikePosition );
 CK_DLL_CGET( ModalBar_cget_stickHardness );
+CK_DLL_CTRL( ModalBar_ctrl_strikePosition );
+CK_DLL_CGET( ModalBar_cget_strikePosition );
+CK_DLL_CTRL( ModalBar_ctrl_vibratoGain );
+CK_DLL_CGET( ModalBar_cget_vibratoGain );
+CK_DLL_CTRL( ModalBar_ctrl_vibratoFreq );
+CK_DLL_CGET( ModalBar_cget_vibratoFreq );
+CK_DLL_CTRL( ModalBar_ctrl_preset );
+CK_DLL_CGET( ModalBar_cget_preset );
+CK_DLL_CTRL( ModalBar_ctrl_freq );
+CK_DLL_CGET( ModalBar_cget_freq );
+CK_DLL_CTRL( ModalBar_ctrl_masterGain );
 CK_DLL_CGET( ModalBar_cget_masterGain );
+CK_DLL_CTRL( ModalBar_ctrl_directGain );
 CK_DLL_CGET( ModalBar_cget_directGain );
+CK_DLL_CTRL( ModalBar_ctrl_mode );
 CK_DLL_CGET( ModalBar_cget_mode );
+CK_DLL_CTRL( ModalBar_ctrl_modeRatio );
 CK_DLL_CGET( ModalBar_cget_modeRatio );
+CK_DLL_CTRL( ModalBar_ctrl_modeRadius );
 CK_DLL_CGET( ModalBar_cget_modeRadius );
+CK_DLL_CTRL( ModalBar_ctrl_modeGain );
 CK_DLL_CGET( ModalBar_cget_modeGain );
 
 
