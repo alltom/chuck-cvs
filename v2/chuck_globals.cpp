@@ -39,7 +39,7 @@
 
 
 // current version
-const char CK_VERSION[] = "1.2.0.5-rc2 (dracula)";
+const char CK_VERSION[] = "1.2.0.5-rc3 (dracula)";
 
 // global virtual machine
 Chuck_VM * g_vm = NULL;
