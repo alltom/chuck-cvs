@@ -5602,7 +5602,6 @@ class Reverb : public Stk
 
 
 
-
 /***************************************************/
 /*! \class JCRev
     \brief John Chowning's reverberator class.
@@ -5649,7 +5648,6 @@ class JCRev : public Reverb
 };
 
 #endif
-
 
 
 
@@ -5933,10 +5931,8 @@ class Mesh2D : public Instrmnt
     by Perry R. Cook and Gary P. Scavone, 1995 - 2002.
 */
 /***************************************************/
-
 #if !defined(__MODAL_H)
 #define __MODAL_H
-
 
 class Modal : public Instrmnt
 {
@@ -14267,6 +14263,8 @@ MY_FLOAT Modal :: tick()
   lastOutput = temp2;
   return lastOutput;
 }
+
+
 /***************************************************/
 /*! \class ModalBar
     \brief STK resonant bar instrument class.
