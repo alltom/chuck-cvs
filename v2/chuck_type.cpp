@@ -1942,6 +1942,11 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
             t = type_engine_check_exp( env, exp->exp );
         break;
 
+        // nil
+        case ae_primary_nil:
+            t = &t_void;
+        break;
+
         // no match
         default:
             EM_error2( exp->linepos,
@@ -2433,6 +2438,10 @@ Chuck_Func * find_func_match( Chuck_Func * up, a_Exp args, t_CKBOOL implicit )
     a_Arg_List e1;
     t_CKUINT count;
     Chuck_Func * func;
+
+    // see if args is nil
+    if( args->type == &t_void )
+        args = NULL;
 
     // up is the list of functions in single class / namespace
     while( up )
