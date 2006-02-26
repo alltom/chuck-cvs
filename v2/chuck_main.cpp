@@ -237,7 +237,7 @@ void usage()
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
-    fprintf( stderr, "               blocking|callback\n" );
+    fprintf( stderr, "               chan<N>|shell|empty|blocking|callback\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n" );
     version();
