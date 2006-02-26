@@ -50,6 +50,12 @@ CK_DLL_CTOR( stereo_ctor );
 CK_DLL_CTRL( stereo_ctrl_pan );
 CK_DLL_CGET( stereo_cget_pan );
 
+// multi
+CK_DLL_CTOR( multi_ctor );
+CK_DLL_CTRL( multi_ctrl_pan );
+CK_DLL_CGET( multi_cget_pan );
+CK_DLL_CGET( multi_cget_chan );
+
 // bunghole
 CK_DLL_TICK( bunghole_tick );
 

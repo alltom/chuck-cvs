@@ -102,6 +102,7 @@ public:
     void set_bufsize( DWORD__ bufsize );
     void set_numbufs( DWORD__ numbufs );
     void set_inouts( DWORD__ adc, DWORD__ dac );
+    void set_chans( DWORD__ ins, DWORD__ outs );
     void shutdown();
 
 public:

@@ -269,6 +269,7 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
     // examine ins and outs
     t_CKUINT outs = src->m_num_outs;
     t_CKUINT ins = this->m_num_ins;
+    t_CKUINT i;
 
     if( outs == 1 && ins == 1 )
     {
@@ -281,19 +282,7 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
         src->add_ref();
         src->add_by( this );
     }
-    else if( outs == 2 && ins == 2 )
-    {
-        // add to each channel
-        if( !this->m_multi_chan[0]->add( src->m_multi_chan[0] ) ) return FALSE;
-        if( !this->m_multi_chan[1]->add( src->m_multi_chan[1] ) ) return FALSE;
-    }
-    else if( outs == 1 && ins == 2 )
-    {
-        // add to each channel
-        if( !this->m_multi_chan[0]->add( src ) ) return FALSE;
-        if( !this->m_multi_chan[1]->add( src ) ) return FALSE;
-    }
-    else if( outs == 2 && ins == 1 )
+    else if( outs >= 2 && ins == 1 )
     {
         if( m_num_src >= m_max_src )
             return FALSE;
@@ -304,8 +293,21 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
         src->add_ref();
         src->add_by( this );
     }
+    else if( outs == 1 && ins >= 2 )
+    {
+        // add to each channel
+        for( i = 0; i < ins; i++ )
+            if( !this->m_multi_chan[i]->add( src ) ) return FALSE;
+    }
+    else if( outs >= 2 && ins >= 2 )
+    {
+        // add to each channel
+        for( i = 0; i < ins; i++ )
+            if( !this->m_multi_chan[i]->add( src->m_multi_chan[i%outs] ) ) return FALSE;
+    }
     else
     {
+        EM_error3( "internal error: unhandled UGen add: outs: %d ins: %d", outs, ins );
         assert( FALSE );
     }
 
@@ -339,6 +341,7 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
     // ins and outs
     t_CKUINT outs = src->m_num_outs;
     t_CKUINT ins = this->m_num_ins;
+    t_CKUINT i;
     t_CKBOOL ret = FALSE;
 
     // take action
@@ -359,19 +362,7 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
                 src->release();
             }
     }
-    else if( outs == 2 && ins == 2 )
-    {
-        if( !m_multi_chan[0]->remove( src->m_multi_chan[0] ) ) return FALSE;
-        if( !m_multi_chan[1]->remove( src->m_multi_chan[1] ) ) return FALSE;
-        ret = TRUE;
-    }
-    else if( outs == 1 && ins == 2 )
-    {
-        if( !m_multi_chan[0]->remove( src ) ) return FALSE;
-        if( !m_multi_chan[1]->remove( src ) ) return FALSE;
-        ret = TRUE;
-    }
-    else if( outs == 2 && ins == 1 )
+    else if( outs >= 2 && ins == 1 )
     {
         if( m_num_src == 0 ) return FALSE;
 
@@ -387,6 +378,18 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
                 src->remove_by( this );
                 src->release();
             }
+    }
+    else if( outs == 1 && ins >= 2 )
+    {
+        for( i = 0; i < ins; i++ )
+            if( !m_multi_chan[i]->remove( src ) ) return FALSE;
+        ret = TRUE;
+    }
+    else if( outs >= 2 && ins >= 2 )
+    {
+        for( i = 0; i < ins; i++ )
+            if( !m_multi_chan[i]->remove( src->m_multi_chan[i%outs] ) ) return FALSE;
+        ret = TRUE;
     }
 
     return ret;
@@ -490,7 +493,7 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     if( m_time >= now )
         return m_valid;
 
-    t_CKUINT i; Chuck_UGen * ugen;
+    t_CKUINT i; Chuck_UGen * ugen; SAMPLE multi;
 
     // inc time
     m_time = now;
@@ -526,12 +529,20 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     }
 
     // tick multiple channels
-    for( i = 0; i < m_multi_chan_size; i++ )
+    multi = 0.0f;
+    if( m_multi_chan_size )
     {
-        ugen = m_multi_chan[i];
-        if( ugen->m_time < now ) ugen->system_tick( now );
-        // multiple channels are added
-        m_sum += ugen->m_current;
+        for( i = 0; i < m_multi_chan_size; i++ )
+        {
+            ugen = m_multi_chan[i];
+            if( ugen->m_time < now ) ugen->system_tick( now );
+            // multiple channels are added
+            multi += ugen->m_current;
+        }
+    
+        // scale multi
+        multi /= m_multi_chan_size;
+        m_sum += multi;
     }
 
     // if owner

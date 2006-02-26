@@ -239,7 +239,8 @@ t_CKBOOL Chuck_VM::set_priority( t_CKINT priority, Chuck_VM * vm )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT srate,
                                t_CKUINT buffer_size, t_CKUINT num_buffers,
-                               t_CKUINT dac, t_CKUINT adc, t_CKBOOL block )
+                               t_CKUINT dac, t_CKUINT adc, t_CKUINT dac_chan,
+                               t_CKUINT adc_chan, t_CKBOOL block )
 {
     if( m_init )
     {
@@ -292,13 +293,14 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         EM_log( CK_LOG_SYSTEM, "num buffers: %ld", num_buffers );
         EM_log( CK_LOG_SYSTEM, "devices adc: %ld dac: %d (default 0)", adc, dac );
     }
-    EM_log( CK_LOG_SYSTEM, "channels in: %ld out: %d", 2, 2 );
+    EM_log( CK_LOG_SYSTEM, "channels in: %ld out: %ld", adc_chan, dac_chan );
 
     // at least set the sample rate and buffer size
     m_bbq->set_srate( srate );
     m_bbq->set_bufsize( buffer_size );
     m_bbq->set_numbufs( num_buffers );
     m_bbq->set_inouts( adc, dac );
+    m_bbq->set_chans( adc_chan, dac_chan );
 
     // pop log
     EM_poplog();
@@ -341,18 +343,20 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     // log
     EM_log( CK_LOG_SEVERE, "initializing 'dac'..." );
     // allocate dac and adc
-    m_num_dac_channels = g_t_dac->ugen_info->num_ins;
+    m_num_dac_channels = g_t_dac->ugen_info->num_ins = Digitalio::num_channels_out();
     m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
     stereo_ctor( m_dac, NULL );
+    multi_ctor( m_dac, NULL ); // TODO: remove and let type system do this
     m_dac->add_ref();
     // lock it
     m_dac->lock();
 
     // log
     EM_log( CK_LOG_SEVERE, "initializing 'adc'..." );
-    m_num_adc_channels = g_t_adc->ugen_info->num_outs;
+    m_num_adc_channels = g_t_adc->ugen_info->num_outs = Digitalio::num_channels_in();
     m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
     stereo_ctor( m_adc, NULL );
+    multi_ctor( m_adc, NULL ); // TODO: remove and let type system do this
     m_adc->add_ref();
     // lock it
     m_adc->lock();
@@ -373,7 +377,7 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     // log
     EM_log( CK_LOG_SYSTEM, "initializing '%s' audio...", m_audio ? "real-time" : "fake-time" );
     // init bbq
-    if( !m_bbq->initialize( 2, Digitalio::m_sampling_rate, 16, 
+    if( !m_bbq->initialize( m_num_dac_channels, Digitalio::m_sampling_rate, 16, 
         Digitalio::m_buffer_size, Digitalio::m_num_buffers,
         Digitalio::m_dac_n, Digitalio::m_adc_n,
         m_block, this, m_audio ) )
@@ -1589,10 +1593,10 @@ t_CKBOOL Chuck_VM_Shreduler::shredule( Chuck_VM_Shred * shred,
 
 
 //-----------------------------------------------------------------------------
-// name: advance()
+// name: advance2()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_VM_Shreduler::advance( )
+void Chuck_VM_Shreduler::advance2( )
 {
     // advance system 'now'
     this->now_system += 1;
@@ -1627,6 +1631,51 @@ void Chuck_VM_Shreduler::advance( )
     audio->digi_out()->tick_out( l, r );
 }
 
+
+
+
+//-----------------------------------------------------------------------------
+// name: advance()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_VM_Shreduler::advance( )
+{
+    // advance system 'now'
+    this->now_system += 1;
+
+    // tick the dac
+    SAMPLE frame[128];
+    SAMPLE sum = 0.0f;
+    BBQ * audio = this->bbq;
+    t_CKUINT i;
+
+    // tick in
+    if( rt_audio )
+    {
+        audio->digi_in()->tick_in( frame, m_num_adc_channels );
+        
+        // loop over channels
+        for( i = 0; i < m_num_adc_channels; i++ )
+        {
+            m_adc->m_multi_chan[i]->m_current = frame[i] * m_adc->m_multi_chan[i]->m_gain;
+            m_adc->m_multi_chan[i]->m_time = this->now_system;
+            sum += m_adc->m_multi_chan[i]->m_current;
+        }
+        m_adc->m_current = sum / m_num_adc_channels;
+        m_adc->m_time = this->now_system;
+    }
+
+    // dac
+    m_dac->system_tick( this->now_system );
+    for( i = 0; i < m_num_dac_channels; i++ )
+        frame[i] = m_dac->m_multi_chan[i]->m_current * .5f;
+
+    // suck samples
+    m_bunghole->system_tick( this->now_system );
+
+    // tick
+    audio->digi_out()->tick_out( frame, m_num_dac_channels );
+}
 
 
 

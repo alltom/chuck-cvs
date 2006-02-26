@@ -264,6 +264,8 @@ int main( int argc, char ** argv )
     t_CKUINT num_buffers = NUM_BUFFERS_DEFAULT;
     t_CKUINT dac = 0;
     t_CKUINT adc = 0;
+    t_CKUINT dac_chans = 2;
+    t_CKUINT adc_chans = 2;
     t_CKBOOL dump = FALSE;
     t_CKBOOL probe = FALSE;
     t_CKBOOL set_priority = FALSE;
@@ -274,7 +276,7 @@ int main( int argc, char ** argv )
     t_CKINT  log_level = CK_LOG_CORE;
 
 #ifdef __MACOSX_CORE__
-    t_CKBOOL do_watchdog = TRUE;
+    t_CKBOOL do_watchdog = FALSE;
 #else
     t_CKBOOL do_watchdog = FALSE;
 #endif
@@ -331,6 +333,10 @@ int main( int argc, char ** argv )
                 dac = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--adc", 5) )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
+            else if( !strncmp(argv[i], "--chan", 6) )
+                dac_chans = adc_chans = atoi( argv[i]+6 ) > 0 ? atoi( argv[i]+6 ) : 2;
+            else if( !strncmp(argv[i], "-c", 2) )
+                dac_chans = adc_chans = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : 2;
             else if( !strncmp(argv[i], "--level", 7) )
             {   g_priority = atoi( argv[i]+7 ); set_priority = TRUE; }
             else if( !strncmp(argv[i], "--watchdog", 10) )
@@ -455,7 +461,7 @@ int main( int argc, char ** argv )
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
-                         num_buffers, dac, adc, block ) )
+                         num_buffers, dac, adc, dac_chans, adc_chans, block ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );

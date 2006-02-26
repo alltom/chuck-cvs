@@ -283,6 +283,7 @@ public: // shreduling
     t_CKBOOL shredule( Chuck_VM_Shred * shred, t_CKTIME wake_time );
     Chuck_VM_Shred * get( );
     void advance( );
+    void advance2( );
 
 public: // high-level shred interface
     t_CKBOOL remove( Chuck_VM_Shred * shred );
@@ -340,7 +341,8 @@ public: // init
     t_CKBOOL initialize( t_CKBOOL enable_audio = TRUE, t_CKBOOL halt = TRUE,
                          t_CKUINT srate = 44100,
                          t_CKUINT buffer_size = 512, t_CKUINT num_buffers = 4,
-                         t_CKUINT dac = 0, t_CKUINT adc = 0, 
+                         t_CKUINT dac = 0, t_CKUINT adc = 0,
+                         t_CKUINT dac_chan = 2, t_CKUINT adc_chan = 2,
                          t_CKBOOL block = TRUE );
     t_CKBOOL initialize_synthesis( );
     t_CKBOOL shutdown();

@@ -75,10 +75,30 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 
     //! \section audio output
     
+    //-------------------------------------------------------------------------
+    // init as base class: UGen_Multi
+    //-------------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "UGen_Multi", "UGen", env->global(),
+                                        multi_ctor, NULL, NULL, 0, 0 ) )
+        return FALSE;
+
+    // add chan
+    func = make_new_mfun( "UGen", "chan", multi_cget_chan );
+    func->add_arg( "int", "which" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add pan
+    /* func = make_new_mfun( "float", "pan", multi_ctrl_pan );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "pan", multi_cget_pan );
+    if( !type_engine_import_mfun( env, func ) ) goto error; */
+
+    
     //---------------------------------------------------------------------
     // init as base class: UGen_Stereo
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "UGen_Stereo", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "UGen_Stereo", "UGen_Multi", env->global(), 
                                         stereo_ctor, NULL, NULL, 2, 2 ) )
         return FALSE;
 
@@ -610,6 +630,36 @@ error:
     type_engine_import_class_end( env );
     
     return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: multi_ctor()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( multi_ctor )
+{
+    // do nothing
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: multi_cget_chan()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( multi_cget_chan )
+{
+    // get ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    // value
+    t_CKINT index = GET_NEXT_INT( ARGS );
+    // return
+    RETURN->v_object = index >= 0 && index < ugen->m_multi_chan_size ?
+        ugen->m_multi_chan[index] : NULL ;
 }
 
 
