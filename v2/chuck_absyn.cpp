@@ -557,6 +557,19 @@ a_Exp new_exp_from_hack( a_Exp exp, int pos )
     return a;
 }
 
+a_Exp new_exp_from_nil( a_Exp exp, int pos )
+{
+    a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
+    a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
+    a->primary.s_type = ae_primary_nil;
+    a->primary.linepos = pos;
+    a->linepos = pos;
+    a->primary.self = a;
+
+    return a;
+}
+
 a_Var_Decl new_var_decl( c_str xid, a_Array_Sub array, int pos )
 {
     a_Var_Decl a = (a_Var_Decl)checked_malloc( sizeof( struct a_Var_Decl_ ) );
