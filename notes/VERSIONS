@@ -25,6 +25,7 @@
   - (added) examples/stk/modulate.ck
   - (added) --watchdog and --nowatchdog flags
             (very experiment watchdog for real-time audio)
+  - (added) () => function; // calls function();
   - (fixed) impulse.last() no longer has extra samp delay
             (thanks to Mike McGonagle for reporting)
   - (fixed) class inheritance now handles the first overloaded
