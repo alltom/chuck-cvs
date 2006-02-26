@@ -554,5 +554,5 @@ primary_expression
         | array_exp                         { $$ = new_exp_from_array_lit( $1, EM_lineNum ); }
         | L_HACK expression R_HACK          { $$ = new_exp_from_hack( $2, EM_lineNum ); }
         | LPAREN expression RPAREN          { $$ = $2; }
-		| LPAREN RPAREN                     { $$ = NULL; }
+		| LPAREN RPAREN                     { $$ = new_exp_from_nil( EM_lineNum ); }
         ;
