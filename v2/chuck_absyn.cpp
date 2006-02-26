@@ -557,7 +557,7 @@ a_Exp new_exp_from_hack( a_Exp exp, int pos )
     return a;
 }
 
-a_Exp new_exp_from_nil( a_Exp exp, int pos )
+a_Exp new_exp_from_nil( int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
     a->s_type = ae_exp_primary;

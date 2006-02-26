@@ -169,7 +169,7 @@ a_Exp new_exp_from_str( c_str str, int pos );
 a_Exp new_exp_from_if( a_Exp cond, a_Exp lhs, a_Exp rhs, int pos );
 a_Exp new_exp_decl( a_Type_Decl type_decl, a_Var_Decl_List var_decl_list, int is_static, int pos );
 a_Exp new_exp_from_hack( a_Exp exp, int pos );
-a_Exp new_exp_from_nil( a_Exp exp, int pos );
+a_Exp new_exp_from_nil( int pos );
 a_Var_Decl_List new_var_decl_list( a_Var_Decl var_decl, int pos );
 a_Var_Decl_List prepend_var_decl_list( a_Var_Decl var_decl, a_Var_Decl_List list, int pos );
 a_Var_Decl new_var_decl( c_str xid, a_Array_Sub array, int pos );
