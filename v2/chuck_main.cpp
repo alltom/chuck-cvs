@@ -311,8 +311,6 @@ int main( int argc, char ** argv )
                 block = FALSE;
             else if( !strcmp(argv[i], "--blocking") )
                 block = TRUE;
-            // else if( !strcmp(argv[i], "--console") || !strcmp( argv[i], "-c" ) )
-            //     enable_shell = TRUE;
             else if( !strcmp(argv[i], "--shell") || !strcmp( argv[i], "-e" ) )
             {   enable_shell = TRUE; vm_halt = FALSE; }
             else if( !strcmp(argv[i], "--empty") )

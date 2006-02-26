@@ -2,6 +2,15 @@
 1.2.0.5
   - (added) Keyboard Input (immediate mode)...
   - (added) 'KBHit' event class (see examples/event/kb*.ck)
+  - (added) multi-channel audio
+            - use --chan<N> or -c<N> set number of channels
+            - stereo is default (for now)
+  - (added) UGen.channels()
+  - (added) class UGen -> class UGen_Multi -> class UGen_Stereo
+  - (added) UGen UGen_Multi.chan( int )
+            use this to address individual channels
+  - (added) examples in examples/multi
+            - n.ck : n channels detuned sine
   - (added) int math.isinf( float ) // infinity test
   - (added) int math.isnan( float ) // NaN test
   - (added) .controlChange( int, float ) to following:
@@ -14,6 +23,8 @@
                   PercFlut, Rhodey, TubeBell, Wurley)
               Shakers
   - (added) examples/stk/modulate.ck
+  - (added) --watchdog and --nowatchdog flags
+            (very experiment watchdog for real-time audio)
   - (fixed) impulse.last() no longer has extra samp delay
             (thanks to Mike McGonagle for reporting)
   - (fixed) class inheritance now handles the first overloaded
