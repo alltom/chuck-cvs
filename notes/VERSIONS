@@ -29,6 +29,8 @@
             (thanks to Mike McGonagle for reporting)
   - (added) if exp: ( cond ? if_cond : else_cond )
             (thanks to Mike McGonagle for reporting)
+  - (added) math.abs( int ), math.fabs( float ), math.sgn( float )
+            (std version unchanged)
   - (fixed) impulse.last() no longer has extra samp delay
             (thanks to Mike McGonagle for reporting)
   - (fixed) class inheritance now handles the first overloaded
