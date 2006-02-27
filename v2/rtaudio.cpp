@@ -353,7 +353,7 @@ void RtApi :: openStream( int outputDevice, int outputChannels,
       if ( result == SUCCESS ) break;
       errorMessages.append( "... " );
       errorMessages.append( message_ );
-      // errorMessages.append( "\n" );
+      errorMessages.append( "\n" );
       if ( outputDevice > 0 ) break;
       clearStreamInfo();
     }
@@ -388,7 +388,7 @@ void RtApi :: openStream( int outputDevice, int outputChannels,
       if ( result == SUCCESS ) break;
       errorMessages.append( "... " );
       errorMessages.append( message_ );
-      // errorMessages.append( "\n" );
+      errorMessages.append( "\n" );
       if ( inputDevice > 0 ) break;
     }
   }
