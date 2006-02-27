@@ -1,7 +1,7 @@
 // n.ck : n-channel demo
 
 // number of channels
-dac.numChannels() => int N;
+dac.channels() => int N;
 // print
 <<< "dac has", N, "channels" >>>;
 

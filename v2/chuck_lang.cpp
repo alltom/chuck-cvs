@@ -162,10 +162,10 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add numChannels
-    func = make_new_mfun( "int", "numChannels", ugen_numChannels );
+    func = make_new_mfun( "int", "channels", ugen_numChannels );
     func->add_arg( "int", "num" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "int", "numChannels", ugen_cget_numChannels );
+    func = make_new_mfun( "int", "channels", ugen_cget_numChannels );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end

@@ -2,7 +2,7 @@
 // gewang, prc
 
 // n channels
-dac.numChannels() => int N;
+dac.channels() => int N;
 // print
 <<< "dac has", N, "channels..." >>>;
 
