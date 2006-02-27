@@ -168,7 +168,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: mix2
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "mix2", "UGen_Stereo", env->global(), 
-                                        NULL, NULL, NULL, 2, 1 ) )
+                                        NULL, NULL, NULL, 2, 2 ) )
         return FALSE;
     
     // end import
