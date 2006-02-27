@@ -26,6 +26,9 @@
   - (added) --watchdog and --nowatchdog flags
             (very experiment watchdog for real-time audio)
   - (added) () => function; // calls function();
+            (thanks to Mike McGonagle for reporting)
+  - (added) if exp: ( cond ? if_cond : else_cond )
+            (thanks to Mike McGonagle for reporting)
   - (fixed) impulse.last() no longer has extra samp delay
             (thanks to Mike McGonagle for reporting)
   - (fixed) class inheritance now handles the first overloaded
