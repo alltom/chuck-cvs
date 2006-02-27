@@ -194,6 +194,7 @@ All ugen's have at least the following three parameters:
 \item {\bf .read} - (string, WRITE only) - {\it loads file for reading}
 \item {\bf .write} - (string, WRITE only) - {\it loads a file for writing (or not)}
 \item {\bf .pos} - (int, READ/WRITE) - {\it set position (0 \textless p \textless .samples)}
+\item {\bf .valueAt} - (int, READ only) - {\it returns the value at sample index}
 \item {\bf .loop} - (int, READ/WRITE) - {\it toggle looping }
 \item {\bf .interp} - (int, READ/WRITE) - {\it set interpolation (0=drop, 1=linear, 2=sinc)}
 \item {\bf .rate} - (float, READ/WRITE) - {\it playback rate (relative to the file's natural speed)}
