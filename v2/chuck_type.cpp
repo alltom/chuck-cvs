@@ -2440,7 +2440,7 @@ Chuck_Func * find_func_match( Chuck_Func * up, a_Exp args, t_CKBOOL implicit )
     Chuck_Func * func;
 
     // see if args is nil
-    if( args && args->type == &t_void )
+    if( args->type == &t_void )
         args = NULL;
 
     // up is the list of functions in single class / namespace
