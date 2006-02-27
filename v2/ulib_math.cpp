@@ -57,8 +57,19 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     // add class
     QUERY->begin_class( QUERY, "math", "Object" );
     
+    // add abs
+    QUERY->add_sfun( QUERY, abs_impl, "int", "abs" );
+    QUERY->add_arg( QUERY, "int", "value" );
+    
+    // add fabs
+    QUERY->add_sfun( QUERY, fabs_impl, "float", "fabs" );
+    QUERY->add_arg( QUERY, "float", "value" );
+
+    // add sgn
+    QUERY->add_sfun( QUERY, sgn_impl, "float", "sgn" );
+    QUERY->add_arg( QUERY, "float", "value" );
+    
     // sin
-    //! see \example math.ck
     QUERY->add_sfun( QUERY, sin_impl, "float", "sin" );
     QUERY->add_arg( QUERY, "float", "x" );
     

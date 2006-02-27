@@ -2804,7 +2804,68 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
 //-----------------------------------------------------------------------------
 t_CKBOOL emit_engine_emit_exp_if( Chuck_Emitter * emit, a_Exp_If exp_if )
 {
-    return TRUE;
+    t_CKBOOL ret = TRUE;
+    Chuck_Instr_Branch_Op * op = NULL, * op2 = NULL;
+
+    // push the stack, allowing for new local variables
+    emit->push_scope();
+
+    // emit the condition
+    ret = emit_engine_emit_exp( emit, exp_if->cond );
+    if( !ret )
+        return FALSE;
+
+    // type of the condition
+    switch( exp_if->cond->type->xid )
+    {
+    case te_int:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        op = new Chuck_Instr_Branch_Eq_int( 0 );
+        break;
+    case te_float:
+    case te_dur:
+    case te_time:
+        // push 0
+        emit->append( new Chuck_Instr_Reg_Push_Imm2( 0.0 ) );
+        op = new Chuck_Instr_Branch_Eq_double( 0 );
+        break;
+        
+    default:
+        EM_error2( exp_if->cond->linepos,
+            "(emit): internal error: unhandled type '%s' in if condition",
+            exp_if->cond->type->name.c_str() );
+        return FALSE;
+    }
+
+    if( !ret ) return FALSE;
+
+    // append the op
+    emit->append( op );
+
+    // emit the body
+    ret = emit_engine_emit_exp( emit, exp_if->if_exp );
+    if( !ret )
+        return FALSE;
+
+    // emit the skip to the end
+    emit->append( op2 = new Chuck_Instr_Goto(0) );
+    
+    // set the op's target
+    op->set( emit->next_index() );
+
+    // emit the body
+    ret = emit_engine_emit_exp( emit, exp_if->else_exp );
+    if( !ret )
+        return FALSE;
+
+    // pop stack
+    emit->pop_scope();
+
+    // set the op2's target
+    op2->set( emit->next_index() );
+
+    return ret;
 }
 
 
