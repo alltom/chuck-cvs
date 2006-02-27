@@ -374,7 +374,9 @@ BOOL__ Digitalio::watchdog_stop()
 // name: initialize()
 // desc: ...
 //-----------------------------------------------------------------------------
-BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
+BOOL__ Digitalio::initialize( DWORD__ num_dac_channels,
+                              DWORD__ num_adc_channels,
+                              DWORD__ sampling_rate,
                               DWORD__ bps, DWORD__ buffer_size, 
                               DWORD__ num_buffers, DWORD__ block,
                               Chuck_VM * vm_ref, BOOL__ rt_audio,
@@ -383,8 +385,8 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     if( m_init )
         return FALSE;
 
-    m_num_channels_out = num_channels;
-    m_num_channels_in = num_channels;
+    m_num_channels_out = num_dac_channels;
+    m_num_channels_in = num_adc_channels;
     m_sampling_rate = sampling_rate;
     m_bps = bps;
     m_buffer_size = buffer_size;
@@ -394,6 +396,8 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
     m_go = 0;
     m_end = 0;
     m_block = block;
+
+    DWORD__ num_channels;
 
     // if rt_audio is false, then set block to FALSE to avoid deadlock
     if( !rt_audio ) m_block = FALSE;
@@ -479,6 +483,8 @@ BOOL__ Digitalio::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
 
     if( m_use_cb )
     {
+        num_channels = num_dac_channels > num_adc_channels ? 
+                       num_dac_channels : num_adc_channels;
         // log
         EM_log( CK_LOG_SEVERE, "allocating buffers for %d x %d samples...",
                 m_buffer_size, num_channels );

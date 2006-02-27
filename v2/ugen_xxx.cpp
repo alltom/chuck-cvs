@@ -188,7 +188,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //! ( like dac, ticks ugens, but no more )
     //QUERY->ugen_add( QUERY, "bunghole", NULL );
     // set funcs
-    //QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );    
+    //QUERY->ugen_func( QUERY, NULL, NULL, bunghole_tick, NULL );
     
     // add gain
     //! gain control

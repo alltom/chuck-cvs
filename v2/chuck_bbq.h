@@ -87,7 +87,9 @@ public:
     ~BBQ();
 
 public:
-    BOOL__ initialize( DWORD__ num_channels, DWORD__ sampling_rate,
+    BOOL__ initialize( DWORD__ num_dac_channels,
+                       DWORD__ num_adc_channels,
+                       DWORD__ sampling_rate,
                        DWORD__ bps,
                        DWORD__ buffer_size = BUFFER_SIZE_DEFAULT,
                        DWORD__ num_buffers = NUM_BUFFERS_DEFAULT,

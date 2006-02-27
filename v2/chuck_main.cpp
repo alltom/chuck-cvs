@@ -335,6 +335,14 @@ int main( int argc, char ** argv )
                 dac_chans = adc_chans = atoi( argv[i]+6 ) > 0 ? atoi( argv[i]+6 ) : 2;
             else if( !strncmp(argv[i], "-c", 2) )
                 dac_chans = adc_chans = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : 2;
+            else if( !strncmp(argv[i], "--out", 5) )
+                dac_chans = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 2;
+            else if( !strncmp(argv[i], "-o", 2) )
+                dac_chans = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : 2;
+            else if( !strncmp(argv[i], "--in", 4) )
+                adc_chans = atoi( argv[i]+4 ) > 0 ? atoi( argv[i]+4 ) : 2;
+            else if( !strncmp(argv[i], "-i", 2) )
+                adc_chans = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : 2;
             else if( !strncmp(argv[i], "--level", 7) )
             {   g_priority = atoi( argv[i]+7 ); set_priority = TRUE; }
             else if( !strncmp(argv[i], "--watchdog", 10) )

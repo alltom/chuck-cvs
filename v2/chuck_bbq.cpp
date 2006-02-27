@@ -83,16 +83,18 @@ BBQ::~BBQ()
 // name: initialize()
 // desc: ...
 //-----------------------------------------------------------------------------
-BOOL__ BBQ::initialize( DWORD__ num_channels, DWORD__ sampling_rate,
-                        DWORD__ bps, DWORD__ buffer_size, DWORD__ num_buffers,
-                        DWORD__ dac, DWORD__ adc, DWORD__ block, Chuck_VM * vm_ref,
-                        BOOL__ rt_audio, void * callback, void * data )
+BOOL__ BBQ::initialize( DWORD__ num_dac_channels, DWORD__ num_adc_channels,
+                        DWORD__ sampling_rate, DWORD__ bps, DWORD__ buffer_size,
+                        DWORD__ num_buffers, DWORD__ dac, DWORD__ adc, 
+                        DWORD__ block, Chuck_VM * vm_ref, BOOL__ rt_audio,
+                        void * callback, void * data )
 {
-    Digitalio::m_dac_n = dac;
-    Digitalio::m_adc_n = adc;
+    set_inouts( adc, dac );
+    set_chans( num_adc_channels, num_dac_channels );
 
     return Digitalio::initialize( 
-        num_channels, sampling_rate, bps, buffer_size, num_buffers, 
+        num_dac_channels, num_adc_channels,
+        sampling_rate, bps, buffer_size, num_buffers, 
         block, vm_ref, rt_audio, callback, data
     );
 }

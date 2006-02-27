@@ -294,6 +294,8 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
         EM_log( CK_LOG_SYSTEM, "devices adc: %ld dac: %d (default 0)", adc, dac );
     }
     EM_log( CK_LOG_SYSTEM, "channels in: %ld out: %ld", adc_chan, dac_chan );
+    m_num_adc_channels = adc_chan;
+    m_num_dac_channels = dac_chan;
 
     // at least set the sample rate and buffer size
     m_bbq->set_srate( srate );
@@ -343,7 +345,7 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     // log
     EM_log( CK_LOG_SEVERE, "initializing 'dac'..." );
     // allocate dac and adc
-    m_num_dac_channels = g_t_dac->ugen_info->num_ins = Digitalio::num_channels_out();
+    g_t_dac->ugen_info->num_ins = m_num_dac_channels;
     m_dac = (Chuck_UGen *)instantiate_and_initialize_object( g_t_dac, NULL );
     stereo_ctor( m_dac, NULL );
     multi_ctor( m_dac, NULL ); // TODO: remove and let type system do this
@@ -353,7 +355,7 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
 
     // log
     EM_log( CK_LOG_SEVERE, "initializing 'adc'..." );
-    m_num_adc_channels = g_t_adc->ugen_info->num_outs = Digitalio::num_channels_in();
+    g_t_adc->ugen_info->num_outs = m_num_adc_channels;
     m_adc = (Chuck_UGen *)instantiate_and_initialize_object( g_t_adc, NULL );
     stereo_ctor( m_adc, NULL );
     multi_ctor( m_adc, NULL ); // TODO: remove and let type system do this
@@ -377,7 +379,8 @@ t_CKBOOL Chuck_VM::initialize_synthesis( )
     // log
     EM_log( CK_LOG_SYSTEM, "initializing '%s' audio...", m_audio ? "real-time" : "fake-time" );
     // init bbq
-    if( !m_bbq->initialize( m_num_dac_channels, Digitalio::m_sampling_rate, 16, 
+    if( !m_bbq->initialize( m_num_dac_channels, m_num_adc_channels,
+        Digitalio::m_sampling_rate, 16, 
         Digitalio::m_buffer_size, Digitalio::m_num_buffers,
         Digitalio::m_dac_n, Digitalio::m_adc_n,
         m_block, this, m_audio ) )

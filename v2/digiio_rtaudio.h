@@ -104,7 +104,8 @@ struct Chuck_VM;
 class Digitalio
 {
 public:
-    static BOOL__ initialize( DWORD__ num_channels = NUM_CHANNELS_DEFAULT,
+    static BOOL__ initialize( DWORD__ num_dac_channels = NUM_CHANNELS_DEFAULT,
+                              DWORD__ num_adc_channels = NUM_CHANNELS_DEFAULT,
                               DWORD__ sampling_rate = SAMPLING_RATE_DEFAULT,
                               DWORD__ bps = BITS_PER_SAMPLE_DEFAULT,
                               DWORD__ buffer_size = BUFFER_SIZE_DEFAULT,
