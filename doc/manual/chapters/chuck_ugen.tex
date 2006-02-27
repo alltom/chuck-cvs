@@ -27,7 +27,7 @@ A Ugen's parameters can be set also using the ChucK operator (\chuckop, or -\tex
 
 \newpage
 
-All ugen's have at least the following three parameters:
+All ugen's have at least the following four parameters:
 
 \control
 \begin{chuckitemize}
@@ -39,8 +39,23 @@ All ugen's have at least the following three parameters:
     \item 1 normal processing
   \end{chuckitemize}
 \item {\bf .last} - (float, READ/WRITE) - {\it the last sample computed by the unit generator}
+\item {\bf .channels} - (int, READ only) - {\it the number channels on the UGen}
 \end{chuckitemize}
 
+All multichannel UGens also have another parameter:
+
+\control
+\begin{chuckitemize}
+\item {\bf .chan} - (int) - {\it returns a reference on a channel (0 -\textgreater N-1)}
+\end{chuckitemize}
+
+Multichannel UGens are adc, dac, pan2, mix2
+
+\example
+\begin{verbatim}
+pan2 p;
+p.chan(1) => dac.chan(4);
+\end{verbatim}
 
 \newpage
 %\bigugenheading{Standard Ugens}
@@ -52,6 +67,14 @@ All ugen's have at least the following three parameters:
 \item digital/analog converter 
 \item abstraction for underlying audio output device 
 \end{chuckitemize}
+
+\control 
+\begin{chuckitemize}
+\item {\bf .left} - (UGen) - {\it input to left channel}
+\item {\bf .right} - (UGen) - {\it input to right channel}
+\item {\bf .chan} - () - {\it input to channel N on the device (0 -\textgreater N-1)}
+\item {\bf .channels} - (int, READ only) - returns the number of channels open on device
+\end{chuckitemize}
 }
 
 \chuckugen{
@@ -60,6 +83,15 @@ All ugen's have at least the following three parameters:
 \item analog/digital converter 
 \item abstraction for underlying audio input device 
 \end{chuckitemize}
+
+\control
+\begin{chuckitemize}
+\item {\bf .left} - (UGen) - {\it output to left channel}
+\item {\bf .right} - (UGen) - {\it output to right channel}
+\item {\bf .chan} - () - {\it output to channel N on the device (0 -\textgreater N-1)}
+\item {\bf .channels} - (int, READ only) - returns the number of channels open on device
+\end{chuckitemize}
+
 }
 
 \chuckugen{
