@@ -168,6 +168,11 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "int", "channels", ugen_cget_numChannels );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add chan
+    func = make_new_mfun( "UGen", "chan", ugen_chan );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end
     type_engine_import_class_end( env );
 
@@ -909,6 +914,21 @@ CK_DLL_CGET( ugen_cget_numChannels )
     // return
     RETURN->v_int = ugen->m_multi_chan_size == 0 ? 1 : ugen->m_multi_chan_size;
 }
+
+CK_DLL_CTRL( ugen_chan )
+{
+    // get ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    t_CKINT num = GET_NEXT_INT(ARGS);
+    // check
+    if( !ugen->m_multi_chan_size && num == 0 )
+        RETURN->v_object = ugen;
+    else if( num >= 0 && num < ugen->m_multi_chan_size )
+        RETURN->v_object = ugen->m_multi_chan[num];
+    else
+        RETURN->v_object = NULL;
+}
+
 
 CK_DLL_CTOR( event_ctor )
 {

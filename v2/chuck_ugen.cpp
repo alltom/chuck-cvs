@@ -216,7 +216,8 @@ void Chuck_UGen::alloc_multi_chan( t_CKUINT num_ins, t_CKUINT num_outs )
 {
     // get max of num_ins and num_outs
     m_multi_chan_size = ( num_ins > num_outs ? num_ins : num_outs );
-    // if more than one
+
+    // if not mono
     if( m_multi_chan_size > 1 )
     {
         // allocate
