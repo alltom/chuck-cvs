@@ -673,10 +673,21 @@ CK_DLL_CTOR( stereo_ctor )
 {
     // get ugen
     Chuck_UGen * ugen = (Chuck_UGen *)SELF;
-    // set left
-    OBJ_MEMBER_UINT( SELF, stereo_offset_left ) = (t_CKUINT)(ugen->m_multi_chan[0]);
-    // set right
-    OBJ_MEMBER_UINT( SELF, stereo_offset_right ) = (t_CKUINT)(ugen->m_multi_chan[1]);
+
+    // multi
+    if( ugen->m_multi_chan_size )
+    {
+        // set left
+        OBJ_MEMBER_UINT( SELF, stereo_offset_left ) = (t_CKUINT)(ugen->m_multi_chan[0]);
+        // set right
+        OBJ_MEMBER_UINT( SELF, stereo_offset_right ) = (t_CKUINT)(ugen->m_multi_chan[1]);
+    }
+    else // mono
+    {
+        // set left and right to self
+        OBJ_MEMBER_UINT( SELF, stereo_offset_left ) = (t_CKUINT)ugen;
+        OBJ_MEMBER_UINT( SELF, stereo_offset_right ) = (t_CKUINT)ugen;
+    }
 }
 
 

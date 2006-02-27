@@ -217,16 +217,19 @@ void Chuck_UGen::alloc_multi_chan( t_CKUINT num_ins, t_CKUINT num_outs )
     // get max of num_ins and num_outs
     m_multi_chan_size = ( num_ins > num_outs ? num_ins : num_outs );
 
-    // if not mono
-    if( m_multi_chan_size > 1 )
+    // allocate
+    m_multi_chan = new Chuck_UGen *[m_multi_chan_size];
+    // zero it out, whoever call this will fill in
+    memset( m_multi_chan, 0, m_multi_chan_size * sizeof(Chuck_UGen *) );
+
+    // mono
+    if( m_multi_chan_size == 1 )
     {
-        // allocate
-        m_multi_chan = new Chuck_UGen *[m_multi_chan_size];
-        // zero it out, whoever call this will fill in
-        memset( m_multi_chan, 0, m_multi_chan_size * sizeof(Chuck_UGen *) );
-    }
-    else
+        // zero out
         m_multi_chan_size = 0;
+        // self
+        m_multi_chan[0] = this;
+    }
     
     // remember
     m_num_ins = num_ins;
