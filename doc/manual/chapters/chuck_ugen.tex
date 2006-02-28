@@ -40,12 +40,6 @@ All ugen's have at least the following four parameters:
   \end{chuckitemize}
 \item {\bf .last} - (float, READ/WRITE) - {\it the last sample computed by the unit generator}
 \item {\bf .channels} - (int, READ only) - {\it the number channels on the UGen}
-\end{chuckitemize}
-
-All multichannel UGens also have another parameter:
-
-\control
-\begin{chuckitemize}
 \item {\bf .chan} - (int) - {\it returns a reference on a channel (0 -\textgreater N-1)}
 \end{chuckitemize}
 
@@ -53,8 +47,9 @@ Multichannel UGens are adc, dac, pan2, mix2
 
 \example
 \begin{verbatim}
-pan2 p;
-p.chan(1) => dac.chan(4);
+    pan2 p;
+    // assumes you called chuck with at least --chan5 or -c5 
+    p.chan(1) => dac.chan(4);
 \end{verbatim}
 
 \newpage
@@ -369,6 +364,37 @@ p.chan(1) => dac.chan(4);
 \item {\bf .name} (string, READ/WRITE) {\it name}
 \end{chuckitemize}
 }
+
+\ugenheading{mono \textless -~ -\textgreater stereo}
+
+\chuckugen{
+\ugen{pan2}
+\begin{chuckitemize}
+\item spread mono signal to stereo
+\item see examples/stereo/moe2.ck
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .left} (UGen) {\it left (mono) channel out}
+\item {\bf .right} (UGen) {\it right (mono) channel out}
+\item {\bf .pan} (float, READ/WRITE) {\it pan location value (0 - 1)}
+\end{chuckitemize}
+}
+
+
+\chuckugen{
+\ugen{mix2}
+\begin{chuckitemize}
+\item mix stereo input down to mono channel
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {.left} - (UGen) {\it left (mono) channel in}
+\item {\bf .right} - (UGen) {\it right (mono) channel in}
+\item {\bf .pan} - (float, READ/WRITE) {\it mix parameter value (0 - 1)}
+\end{chuckitemize}
+}
+
 
 
 
