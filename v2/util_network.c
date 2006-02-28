@@ -355,7 +355,8 @@ int ck_recv( ck_socket sock, char * buffer, int len )
         while( togo > 0 )
         {
             ret = recv( sock->sock, p, togo, 0 );
-            if( ret < 0 ) return 0;
+            if( ret < 0 ) return 0; 		// negative is an error message
+            if( ret == 0 ) return len - togo;	// zero is end-of-transmission
             togo -= ret;
             p += ret;
         }
