@@ -1429,6 +1429,7 @@ table, this has no effect         */
 #define SAMPLES_PER_ZERO_CROSSING 32    /* this defines how finely the sinc function 
 is sampled for storage in the table  */
 
+// data for each sndbuf
 struct sndbuf_data
 {
     SAMPLE * buffer;
@@ -1444,15 +1445,17 @@ struct sndbuf_data
     SAMPLE * curr;
     double  curf;
     float   rate;
-    t_CKINT     interp;
+    t_CKINT interp;
     t_CKBOOL loop;
     
-    bool    sinc_table_built;
-    bool    sinc_use_table;
-    bool    sinc_use_interp;
-    t_CKINT     sinc_samples_per_zero_crossing ;
-    t_CKINT     sinc_width ;
+    bool sinc_table_built;
+    bool sinc_use_table;
+    bool sinc_use_interp;
+    t_CKINT sinc_samples_per_zero_crossing ;
+    t_CKINT sinc_width ;
     double * sinc_table ; 
+
+	// constructor
     sndbuf_data()
     {
         buffer = NULL;
@@ -1461,14 +1464,11 @@ struct sndbuf_data
         num_frames = 0;
         num_samples = 0;
 		chunks = 0;
-
         samplerate = 0;
-
         sampleratio = 1.0;
         chan = 0;
         curf = 0.0;
         rate = 1.0;
-        
         eob = NULL;
         curr = NULL;
         
@@ -1483,11 +1483,11 @@ struct sndbuf_data
     }
 };
 
-double  sndbuf_sinc  ( sndbuf_data * d, double x );
-double  sndbuf_t_sinc( sndbuf_data * d, double x );
-void    sndbuf_make_sinc( sndbuf_data * d );
-void    sndbuf_sinc_interpolate ( sndbuf_data * d, SAMPLE * out);
 
+double sndbuf_sinc( sndbuf_data * d, double x );
+double sndbuf_t_sinc( sndbuf_data * d, double x );
+void   sndbuf_make_sinc( sndbuf_data * d );
+void   sndbuf_sinc_interpolate( sndbuf_data * d, SAMPLE * out );
 
 CK_DLL_CTOR( sndbuf_ctor )
 {
@@ -1507,11 +1507,11 @@ inline void sndbuf_setpos( sndbuf_data *d, double pos )
     
     d->curf = pos;
     
-    //set curf within bounds    
+    // set curf within bounds    
     if( d->loop )
     {
-        while ( d->curf >= d->num_frames ) d->curf -= d->num_frames;
-        while ( d->curf < 0 ) d->curf += d->num_frames;
+        while( d->curf >= d->num_frames ) d->curf -= d->num_frames;
+        while( d->curf < 0 ) d->curf += d->num_frames;
     } 
     else
     {
@@ -1519,32 +1519,31 @@ inline void sndbuf_setpos( sndbuf_data *d, double pos )
         else if( d->curf >= d->num_frames ) d->curf = d->num_frames;
     }
 
-    //sets curr to correct position ( account for channels ) 
+    // sets curr to correct position ( account for channels ) 
     d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
 }
 
 inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, t_CKINT pos )
 { 
-    //boundary cases    
+    // boundary cases    
     t_CKINT nf = d->num_frames;
-    if ( d->loop ) { 
-        while ( pos >= nf ) pos -= nf;
-        while ( pos <  0  ) pos += nf;
+    if( d->loop ) { 
+        while( pos >= nf ) pos -= nf;
+        while( pos <  0  ) pos += nf;
     }
     else { 
-        if ( pos >= nf ) pos = nf-1;
-        if ( pos < 0   ) pos = 0;
+        if( pos >= nf ) pos = nf-1;
+        if( pos < 0   ) pos = 0;
     }
     
-    return d->buffer[d->chan + (long) d->curf * d->num_channels];    
+    return d->buffer[d->chan + (long)d->curf * d->num_channels];    
 }
 
-inline double sndbuf_getpos(sndbuf_data *d)
+inline double sndbuf_getpos( sndbuf_data * d )
 {
     if( !d->buffer ) return 0;
     return floor(d->curf);
 }
-
 
 CK_DLL_CTRL( sndbuf_ctrl_loop )
 {
@@ -1556,7 +1555,6 @@ CK_DLL_CTRL( sndbuf_ctrl_loop )
 CK_DLL_CGET( sndbuf_cget_loop )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    //SET_NEXT_INT( out, d->loop );
     RETURN->v_int = d->loop;
 }
 
@@ -1565,13 +1563,13 @@ CK_DLL_CGET( sndbuf_cget_loop )
 //
 // there's probably a lot in there that could be optimized, if we care to..
 
-//#define PI 3.14159265358979323846
-//wow... we are sensitive.. 
+// #define PI 3.14159265358979323846
+// wow... we are sensitive.. 
 
-inline double sndbuf_linear_interp (double * first, double * second, double * frac);
+inline double sndbuf_linear_interp( double * first, double * second, double * frac );
 bool sinc_table_built = false;
 
-void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
+void sndbuf_sinc_interpolate( sndbuf_data *d, SAMPLE * out )
 {
     signed long j;
     double factor = d->rate;
@@ -1583,34 +1581,34 @@ void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
     
     long time_i = (long)time_now;
     
-    //bounds checking now in sampleAt function...
-    if (factor<1.0) {
-        for (j= -d->sinc_width + 1 ; j < d->sinc_width; j++)
+    // bounds checking now in sampleAt function...
+    if( factor < 1.0 ) {
+        for( j = -d->sinc_width + 1; j < d->sinc_width; j++ )
         {
-            temp1 += sndbuf_sampleAt(d,time_i+j) * sndbuf_sinc(d,(double)j );
+            temp1 += sndbuf_sampleAt(d,time_i+j) * sndbuf_sinc( d, (double)j );
         }
-        *out = (SAMPLE) temp1;
+        *out = (SAMPLE)temp1;
     }
     else {
         one_over_factor = 1.0 / factor;
-        for (j= -d->sinc_width + 1; j< d->sinc_width; j++) {
-            temp1 += sndbuf_sampleAt(d,time_i+j) * one_over_factor * sndbuf_sinc(d,one_over_factor * (double) j );
+        for( j = -d->sinc_width + 1; j < d->sinc_width; j++ ) {
+            temp1 += sndbuf_sampleAt(d,time_i+j) * one_over_factor * sndbuf_sinc( d, one_over_factor * (double)j );
         } 
-        *out = (SAMPLE) temp1;
+        *out = (SAMPLE)temp1;
     }
 }
 
-void sndbuf_make_sinc( sndbuf_data * d)
+void sndbuf_make_sinc( sndbuf_data * d )
 {
     t_CKINT i;
     // fprintf(stderr, "building sinc table\n" );
-    double temp,win_freq,win;
+    double temp, win_freq, win;
     win_freq = ONE_PI / d->sinc_width / d->sinc_samples_per_zero_crossing;
     t_CKINT tabsize = d->sinc_width * d->sinc_samples_per_zero_crossing;
     
-    d->sinc_table = (double *) realloc ( d->sinc_table, tabsize * sizeof(double) );
+    d->sinc_table = (double *) realloc( d->sinc_table, tabsize * sizeof(double) );
     d->sinc_table[0] = 1.0;
-    for (i=1;i< tabsize ;i++)   {
+    for( i = 1; i < tabsize; i++ ) {
         temp = (double) i * ONE_PI / d->sinc_samples_per_zero_crossing;
         d->sinc_table[i] = (float)(sin(temp) / temp);
         win = 0.5 + 0.5 * cos(win_freq * i);
@@ -1619,44 +1617,42 @@ void sndbuf_make_sinc( sndbuf_data * d)
     d->sinc_table_built = true;
 }
 
-inline double sndbuf_linear_interp(double first_number,double second_number,double fraction)
+inline double sndbuf_linear_interp( double first_number, double second_number, double fraction )
 {
     return (first_number + ((second_number - first_number) * fraction));
 }
 
-double sndbuf_t_sinc(sndbuf_data *d, double x)
+double sndbuf_t_sinc( sndbuf_data * d, double x )
 {
     t_CKINT low;
     double temp,delta;
-    if ( !d->sinc_table_built ) sndbuf_make_sinc(d);
-    if (fabs(x)>= d->sinc_width-1)
+    if( !d->sinc_table_built ) sndbuf_make_sinc(d);
+    if( fabs(x) >= d->sinc_width-1 )
         return 0.0;
     else {
         temp = fabs(x) * (double) d->sinc_samples_per_zero_crossing;
-        low = (t_CKINT)temp;          /* these are interpolation steps */
-        if (d->sinc_use_interp) {
+        low = (t_CKINT)temp; /* these are interpolation steps */
+        if( d->sinc_use_interp ) {
             delta = temp - low;  /* and can be ommited if desired */
-            return sndbuf_linear_interp(d->sinc_table[low],d->sinc_table[low + 1],delta);
+            return sndbuf_linear_interp( d->sinc_table[low], d->sinc_table[low + 1], delta );
         }
         else return d->sinc_table[low];
     }
 }
 
-
-double sndbuf_sinc(sndbuf_data * d, double x)
+double sndbuf_sinc( sndbuf_data * d, double x )
 {
     double temp;
     
-    if(d->sinc_use_table) return sndbuf_t_sinc(d,x);
-    else        {
-        if (x==0.0) return 1.0;
+    if( d->sinc_use_table ) return sndbuf_t_sinc(d,x);
+    else {
+        if( x == 0.0 ) return 1.0;
         else {
             temp = ONE_PI * x;
             return sin(temp) / (temp);
         }
     }
 }
-
 
 CK_DLL_TICK( sndbuf_tick )
 {
@@ -1666,7 +1662,7 @@ CK_DLL_TICK( sndbuf_tick )
     // we're ticking once per sample ( system )
     // curf in samples;
     
-    if ( !d->loop && d->curr >= d->eob ) return FALSE;
+    if( !d->loop && d->curr >= d->eob ) return FALSE;
     
     // calculate frame    
     if( d->interp == SNDBUF_DROP )
@@ -1674,17 +1670,17 @@ CK_DLL_TICK( sndbuf_tick )
         *out = (SAMPLE)( (*(d->curr)) ) ;
     }
     else if( d->interp == SNDBUF_INTERP )
-    {   //samplewise linear interp
+    {   // samplewise linear interp
         double alpha = d->curf - floor(d->curf);
         *out = (SAMPLE)( (*(d->curr)) ) ;
         *out += (float)alpha * ( sndbuf_sampleAt(d, (long)d->curf+1 ) - *out );
     }
-    else if ( d->interp == SNDBUF_SINC ) {
-        //do that fancy sinc function!
+    else if( d->interp == SNDBUF_SINC ) {
+        // do that fancy sinc function!
         sndbuf_sinc_interpolate(d, out);
     }
     
-    //advance
+    // advance
     d->curf += d->rate;
     sndbuf_setpos(d, d->curf);
 
