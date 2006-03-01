@@ -776,20 +776,22 @@ CK_DLL_TICK( noise_tick )
 
 enum { NOISE_WHITE=0, NOISE_PINK, NOISE_BROWN, NOISE_FBM, NOISE_FLIP, NOISE_XOR };
 
-class CNoise_Data { 
+class CNoise_Data
+{
 private:
   SAMPLE value;
 
   t_CKFLOAT fbmH;
-  int counter;
-  int* pink_array;
-  int  pink_depth;
+  t_CKINT counter;
+  t_CKINT * pink_array;
+  t_CKINT  pink_depth;
   bool pink_rand;
-  int rand_bits;
+  t_CKINT rand_bits;
   double scale;
   double bias;
 
-  long int last;
+  t_CKINT last;
+
 public:
   CNoise_Data() { 
     value = 0; 
@@ -800,9 +802,9 @@ public:
     scale = 2.0 / (double) RAND_MAX ;
     bias = -1.0;
     pink_rand = false;
-    int randt = RAND_MAX;
+    t_CKINT randt = RAND_MAX;
     rand_bits = 0;
-    fprob = (int) ( (double)RAND_MAX * 1.0 / 32.0 );
+    fprob = (t_CKINT)( (double)RAND_MAX * 1.0 / 32.0 );
     while ( randt > 0 ) { 
       rand_bits++;
       randt = randt >> 1;
@@ -812,16 +814,16 @@ public:
   } 
   ~CNoise_Data() {}
    
-  int fprob;
+  t_CKINT fprob;
   t_CKUINT mode;
   void tick( t_CKTIME now, SAMPLE * out );
   void setMode(char * c);
 
-  int pink_tick( SAMPLE * out);
-  int brown_tick( SAMPLE * out);
-  int xor_tick( SAMPLE * out);
-  int flip_tick( SAMPLE * out);
-  int fbm_tick( SAMPLE * out);
+  t_CKINT pink_tick( SAMPLE * out);
+  t_CKINT brown_tick( SAMPLE * out);
+  t_CKINT xor_tick( SAMPLE * out);
+  t_CKINT flip_tick( SAMPLE * out);
+  t_CKINT fbm_tick( SAMPLE * out);
 };
 
 
@@ -861,20 +863,20 @@ CK_DLL_TICK( cnoise_tick)
   return TRUE;
 }
 
-int CNoise_Data::pink_tick( SAMPLE * out)
+t_CKINT CNoise_Data::pink_tick( SAMPLE * out)
 { 
   //based on Voss-McCartney
 
   if ( pink_array == NULL ) { 
-    pink_array = (int *) malloc ( sizeof ( int ) * pink_depth );
+    pink_array = (t_CKINT *) malloc ( sizeof ( t_CKINT ) * pink_depth );
     last = 0;
-    for ( int i = 0 ; i < pink_depth ; i++ ) { pink_array[i] = rand(); last += pink_array[i]; } 
+    for ( t_CKINT i = 0 ; i < pink_depth ; i++ ) { pink_array[i] = rand(); last += pink_array[i]; } 
     scale = 2.0 / ((double)RAND_MAX  * ( pink_depth + 1.0 ) );
     bias = 0.0;
     fprintf( stderr, "scale %f %f %d %d \n", scale, bias, RAND_MAX, pink_depth + 1 );
   }
 
-  int pind = 0;
+  t_CKINT pind = 0;
 
   //count trailing zeroes
   while ( pind < pink_depth && ! (counter & ( 1 << pind ) ) ) pind++;
@@ -882,7 +884,7 @@ int CNoise_Data::pink_tick( SAMPLE * out)
   //  fprintf (stderr, "counter %d pink - %d \n", counter, pind );
 
   if ( pind < pink_depth ) { 
-    int diff = rand() - pink_array[pind];
+    t_CKINT diff = rand() - pink_array[pind];
     pink_array[pind] += diff;
     last += diff;
   }
@@ -893,10 +895,10 @@ int CNoise_Data::pink_tick( SAMPLE * out)
   return TRUE;
 }
 
-int CNoise_Data::xor_tick( SAMPLE * out )
+t_CKINT CNoise_Data::xor_tick( SAMPLE * out )
 { 
-  int mask = 0;
-  for ( int i = 0; i < rand_bits ; i++ ) 
+  t_CKINT mask = 0;
+  for ( t_CKINT i = 0; i < rand_bits ; i++ ) 
     if ( rand() <= fprob ) 
       mask |= ( 1 << i );
   last = last ^ mask;  
@@ -904,9 +906,9 @@ int CNoise_Data::xor_tick( SAMPLE * out )
   return TRUE;
 }
 
-int CNoise_Data::flip_tick( SAMPLE * out )
+t_CKINT CNoise_Data::flip_tick( SAMPLE * out )
 {
-  int ind = (int) ( (double) rand_bits * rand() / ( RAND_MAX + 1.0 ) );
+  t_CKINT ind = (t_CKINT) ( (double) rand_bits * rand() / ( RAND_MAX + 1.0 ) );
  
   last = last ^ ( 1 << ind );
   //  fprintf ( stderr, "ind - %d %d %f %f", ind, last, bias, scale );
@@ -914,14 +916,14 @@ int CNoise_Data::flip_tick( SAMPLE * out )
   return TRUE;
 }
 
-int
+t_CKINT
 CNoise_Data::brown_tick( SAMPLE * out ) { 
   //brownian noise function..later!
   *out = 0;
   return TRUE;
 }
 
-int
+t_CKINT
 CNoise_Data::fbm_tick( SAMPLE * out ) { 
   //brownian noise function..later!
   *out = 0;
@@ -980,7 +982,7 @@ CK_DLL_CTRL( cnoise_ctrl_fprob )
 {
     CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT( SELF, cnoise_offset_data );
     t_CKFLOAT p= GET_CK_FLOAT(ARGS);
-    d->fprob = (int) ( (double)RAND_MAX * p );
+    d->fprob = (t_CKINT) ( (double)RAND_MAX * p );
 }
 
 
@@ -1200,7 +1202,7 @@ CK_DLL_TICK( zerox_tick )
 struct delayp_data 
 { 
     SAMPLE * buffer;
-    int bufsize;
+    t_CKINT bufsize;
     
     double now;
     double readpos;
@@ -1226,7 +1228,7 @@ struct delayp_data
     { 
         bufsize  = 2 * g_srate;
         buffer   = ( SAMPLE * ) realloc ( NULL, sizeof ( SAMPLE ) * bufsize );
-        int i;
+        t_CKINT i;
         
         for ( i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
         for ( i = 0 ; i < 3 ; i++ ) { acoeff[i] = 0; bcoeff[i] = 0; }
@@ -1287,11 +1289,11 @@ CK_DLL_TICK( delayp_tick )
     
     double diff= nowpos - lastpos;
     double d_samp = in - d->sample_last;
-    int i, smin, smax;
+    t_CKINT i, smin, smax;
     SAMPLE sampi = 0;
     if ( diff >= 0 ) { //forward.
-        smin = (int)ceil( lastpos );
-        smax = (int)floor( nowpos );
+        smin = (t_CKINT)ceil( lastpos );
+        smax = (t_CKINT)floor( nowpos );
         for ( i = smin ; i <= smax ; i++ ) { 
             sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
             //     fprintf( stderr, "new sample %d %f %f %f \n", i,  in, sampi, d->sample_last );
@@ -1299,8 +1301,8 @@ CK_DLL_TICK( delayp_tick )
         }
     }
     else { //moving in reverse
-        smin = (int)ceil( nowpos );
-        smax = (int)floor( lastpos );
+        smin = (t_CKINT)ceil( nowpos );
+        smax = (t_CKINT)floor( lastpos );
         for ( i = smin ; i <= smax ; i++ ) 
             sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
         d->buffer[i%d->bufsize] += sampi ;   
@@ -1315,7 +1317,7 @@ CK_DLL_TICK( delayp_tick )
     //trail of samples
     
     //output last sample
-    int rpos = ( (int) d->readpos ) % d->bufsize ; 
+    t_CKINT rpos = ( (t_CKINT) d->readpos ) % d->bufsize ; 
     
     //   *out = d->buffer[rpos];
     
@@ -1389,10 +1391,10 @@ CK_DLL_CTRL( delayp_ctrl_max )
 {   
     delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
     t_CKDUR nmax = GET_CK_DUR(ARGS); // rate 
-    if ( d->bufsize != (int)nmax && nmax > 1.0 ) { 
-        d->bufsize = (int)(nmax+.5); 
+    if ( d->bufsize != (t_CKINT)nmax && nmax > 1.0 ) { 
+        d->bufsize = (t_CKINT)(nmax+.5); 
         d->buffer = ( SAMPLE * ) realloc ( d->buffer, sizeof ( SAMPLE ) * d->bufsize );
-        for ( int i = 0; i < d->bufsize; i++ ) d->buffer[i] = 0;
+        for ( t_CKINT i = 0; i < d->bufsize; i++ ) d->buffer[i] = 0;
     }
     RETURN->v_dur = d->bufsize; // TODO??
 }
@@ -1442,14 +1444,14 @@ struct sndbuf_data
     SAMPLE * curr;
     double  curf;
     float   rate;
-    int     interp;
+    t_CKINT     interp;
     t_CKBOOL loop;
     
     bool    sinc_table_built;
     bool    sinc_use_table;
     bool    sinc_use_interp;
-    int     sinc_samples_per_zero_crossing ;
-    int     sinc_width ;
+    t_CKINT     sinc_samples_per_zero_crossing ;
+    t_CKINT     sinc_width ;
     double * sinc_table ; 
     sndbuf_data()
     {
@@ -1499,7 +1501,7 @@ CK_DLL_DTOR( sndbuf_dtor )
     delete d;
 }
 
-inline void sndbuf_setpos(sndbuf_data *d, double pos)
+inline void sndbuf_setpos( sndbuf_data *d, double pos )
 {
     if( !d->buffer ) return;
     
@@ -1521,10 +1523,10 @@ inline void sndbuf_setpos(sndbuf_data *d, double pos)
     d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
 }
 
-inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, int pos ) { 
-    //boundary cases
-    
-    int nf = d->num_frames;
+inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, t_CKINT pos )
+{ 
+    //boundary cases    
+    t_CKINT nf = d->num_frames;
     if ( d->loop ) { 
         while ( pos >= nf ) pos -= nf;
         while ( pos <  0  ) pos += nf;
@@ -1534,8 +1536,7 @@ inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, int pos ) {
         if ( pos < 0   ) pos = 0;
     }
     
-    return d->buffer[d->chan + (long) d->curf * d->num_channels];
-    
+    return d->buffer[d->chan + (long) d->curf * d->num_channels];    
 }
 
 inline double sndbuf_getpos(sndbuf_data *d)
@@ -1601,11 +1602,11 @@ void sndbuf_sinc_interpolate ( sndbuf_data *d, SAMPLE * out )
 
 void sndbuf_make_sinc( sndbuf_data * d)
 {
-    int i;
-    fprintf(stderr, "building sinc table\n" );
+    t_CKINT i;
+    // fprintf(stderr, "building sinc table\n" );
     double temp,win_freq,win;
     win_freq = ONE_PI / d->sinc_width / d->sinc_samples_per_zero_crossing;
-    int tabsize = d->sinc_width * d->sinc_samples_per_zero_crossing;
+    t_CKINT tabsize = d->sinc_width * d->sinc_samples_per_zero_crossing;
     
     d->sinc_table = (double *) realloc ( d->sinc_table, tabsize * sizeof(double) );
     d->sinc_table[0] = 1.0;
@@ -1625,14 +1626,14 @@ inline double sndbuf_linear_interp(double first_number,double second_number,doub
 
 double sndbuf_t_sinc(sndbuf_data *d, double x)
 {
-    int low;
+    t_CKINT low;
     double temp,delta;
     if ( !d->sinc_table_built ) sndbuf_make_sinc(d);
     if (fabs(x)>= d->sinc_width-1)
         return 0.0;
     else {
         temp = fabs(x) * (double) d->sinc_samples_per_zero_crossing;
-        low = (int)temp;          /* these are interpolation steps */
+        low = (t_CKINT)temp;          /* these are interpolation steps */
         if (d->sinc_use_interp) {
             delta = temp - low;  /* and can be ommited if desired */
             return sndbuf_linear_interp(d->sinc_table[low],d->sinc_table[low + 1],delta);
@@ -1967,40 +1968,39 @@ CK_DLL_CGET( sndbuf_cget_phase )
 CK_DLL_CTRL( sndbuf_ctrl_channel )
 { 
     sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    //unsigned int chan = * (int *) value;
-    unsigned int chan = (unsigned int)GET_CK_INT(ARGS);
+    unsigned long chan = (unsigned long)GET_CK_INT(ARGS);
     if ( chan >= 0 && chan < d->num_channels ) { 
         d->chan = chan;
     }
-    RETURN->v_int = (t_CKINT) d->chan;
+    RETURN->v_int = (t_CKINT)d->chan;
 }
 
 CK_DLL_CGET( sndbuf_cget_channel )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     //SET_NEXT_INT( out, d->chan );
-    RETURN->v_int = (t_CKINT) d->chan;
+    RETURN->v_int = (t_CKINT)d->chan;
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_pos )
 { 
     sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    int pos = GET_CK_INT(ARGS);
+    t_CKINT pos = GET_CK_INT(ARGS);
     sndbuf_setpos(d, pos);
-    RETURN->v_int = (t_CKINT) sndbuf_getpos(d); // TODO TODO TODOOO
+    RETURN->v_int = (t_CKINT)sndbuf_getpos(d); // TODO TODO TODOOO
 }
 
 CK_DLL_CGET( sndbuf_cget_pos )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    //SET_NEXT_INT( out, (int) sndbuf_getpos(d) );
-    RETURN->v_int = (t_CKINT) sndbuf_getpos(d); 
+    //SET_NEXT_INT( out, (t_CKINT) sndbuf_getpos(d) );
+    RETURN->v_int = (t_CKINT)sndbuf_getpos(d); 
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_interp )
 { 
     sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    int interp = GET_CK_INT(ARGS);
+    t_CKINT interp = GET_CK_INT(ARGS);
     d->interp = interp;
     RETURN->v_int = d->interp;
 }
