@@ -16,6 +16,9 @@
             - n.ck : n channels detuned sine
   - (added) int math.isinf( float ) // infinity test
   - (added) int math.isnan( float ) // NaN test
+            (see examples/basic/infnan.ck)
+  - (added) sndbuf.valueAt( int ) for returning sample at arbitrary pos
+            (see examples/basic/valueat.ck)
   - (added) .controlChange( int, float ) to following:
               BandedWG
               BlowBotl (see examples/stk/blowbotl.ck)

@@ -601,6 +601,14 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //func = make_new_mfun( "float", "phase_offset", sndbuf_cget_phase_offset );
     //if( !type_engine_import_mfun( env, func ) ) goto error;
 
+	// add ctrl: chunks
+	func = make_new_mfun( "int", "chunks", sndbuf_ctrl_chunks );
+	func->add_arg( "int", "frames" );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+	// add cget: chunks
+	func = make_new_mfun( "int", "chunks", sndbuf_cget_chunks );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add cget: samples
     func = make_new_mfun( "int", "samples", sndbuf_cget_samples );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -612,7 +620,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // add cget: channels
     func = make_new_mfun( "int", "channels", sndbuf_cget_channels );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    
+
     // add cget: valueAt
     func = make_new_mfun( "float", "valueAt", sndbuf_cget_valueAt );
     func->add_arg( "int", "pos" );
@@ -1427,6 +1435,8 @@ struct sndbuf_data
     t_CKUINT num_frames;
     t_CKUINT samplerate;
     t_CKUINT chan;
+	t_CKUINT chunks;
+
     double sampleratio;
     SAMPLE * eob;
     SAMPLE * curr;
@@ -1448,9 +1458,10 @@ struct sndbuf_data
         num_channels = 0;
         num_frames = 0;
         num_samples = 0;
-        
+		chunks = 0;
+
         samplerate = 0;
-        
+
         sampleratio = 1.0;
         chan = 0;
         curf = 0.0;
@@ -2001,6 +2012,19 @@ CK_DLL_CGET( sndbuf_cget_interp )
     RETURN->v_int = d->interp;
 }
 
+CK_DLL_CTRL( sndbuf_ctrl_chunks )
+{
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+	t_CKINT frames = GET_NEXT_INT(ARGS);
+    d->chunks = frames;
+	RETURN->v_int = d->chunks;
+}
+
+CK_DLL_CGET( sndbuf_cget_chunks )
+{
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+	RETURN->v_int = d->chunks;
+}
 
 CK_DLL_CTRL( sndbuf_ctrl_phase_offset )
 { 
@@ -2008,7 +2032,6 @@ CK_DLL_CTRL( sndbuf_ctrl_phase_offset )
     t_CKFLOAT phase_offset = GET_CK_FLOAT(ARGS);
     sndbuf_setpos(d, d->curf + phase_offset * (t_CKFLOAT)d->num_frames );
 }
-
 
 CK_DLL_CGET( sndbuf_cget_samples )
 {
@@ -2021,7 +2044,7 @@ CK_DLL_CGET( sndbuf_cget_length )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     //SET_NEXT_DUR( out, (t_CKDUR)d->num_frames );
-    RETURN->v_dur = (t_CKDUR)d->num_frames;
+    RETURN->v_dur = (t_CKDUR)d->num_frames / d->sampleratio;
 }
 
 CK_DLL_CGET( sndbuf_cget_channels )

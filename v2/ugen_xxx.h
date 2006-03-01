@@ -149,6 +149,8 @@ CK_DLL_CTRL( sndbuf_ctrl_phase );
 CK_DLL_CGET( sndbuf_cget_phase );
 CK_DLL_CTRL( sndbuf_ctrl_channel );
 CK_DLL_CGET( sndbuf_cget_channel );
+CK_DLL_CTRL( sndbuf_ctrl_chunks );
+CK_DLL_CGET( sndbuf_cget_chunks );
 CK_DLL_CTRL( sndbuf_ctrl_phase_offset );
 CK_DLL_CGET( sndbuf_cget_samples );
 CK_DLL_CGET( sndbuf_cget_length );
