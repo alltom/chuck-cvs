@@ -1520,9 +1520,9 @@ inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
 
 	t_CKUINT n;
 #if defined(CK_S_DOUBLE)
-    n = sf_readf_double( d->fd, d->buffer+d->chunks_read, howmuch );
+    n = sf_readf_double( d->fd, d->buffer+d->chunks_read*d->num_channels, howmuch );
 #else
-    n = sf_readf_float( d->fd, d->buffer+d->chunks_read, howmuch );
+    n = sf_readf_float( d->fd, d->buffer+d->chunks_read*d->num_channels, howmuch );
 #endif
 
 	d->chunks_read += n;
@@ -1936,7 +1936,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
     // d->interp = SNDBUF_INTERP;
     d->sampleratio = (double)d->samplerate / (double)g_srate;
     // set the rate
-    d->rate = d->sampleratio * d->rate;
+    d->rate = d->sampleratio;
     d->curr = d->buffer;
     d->curf = 0;
     d->eob = d->buffer + d->num_samples;
