@@ -1446,7 +1446,7 @@ struct sndbuf_data
     t_CKUINT chan;
     t_CKUINT chunks;
     t_CKUINT chunks_read;
-	bool * chunk_table;
+    bool * chunk_table;
 
     double sampleratio;
     SAMPLE * eob;
@@ -1475,7 +1475,7 @@ struct sndbuf_data
         num_samples = 0;
         chunks = 256;
         chunks_read = 0;
-		chunk_table = 0;
+        chunk_table = NULL;
         samplerate = 0;
         sampleratio = 1.0;
         chan = 0;
@@ -1516,30 +1516,30 @@ CK_DLL_DTOR( sndbuf_dtor )
 
 inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
 {
-	// check
-	if( d->fd == NULL ) return 0;
-	if( d->chunks_read >= d->num_frames ) return 0;
+    // check
+    if( d->fd == NULL ) return 0;
+    if( d->chunks_read >= d->num_frames ) return 0;
 
-	t_CKUINT n;
+    t_CKUINT n;
 #if defined(CK_S_DOUBLE)
     n = sf_readf_double( d->fd, d->buffer+d->chunks_read*d->num_channels, howmuch );
 #else
     n = sf_readf_float( d->fd, d->buffer+d->chunks_read*d->num_channels, howmuch );
 #endif
 
-	d->chunks_read += n;
+    d->chunks_read += n;
 
-	return n;
+    return n;
 }
 
 inline t_CKINT sndbuf_load( sndbuf_data * d, t_CKUINT where )
 {
-	if( where < d->chunks_read ) return 0;
+    if( where < d->chunks_read ) return 0;
 
     t_CKUINT toread = where - d->chunks_read + 1 + d->chunks;
-	toread -= (toread % d->chunks);
+    toread -= (toread % d->chunks);
 
-	return sndbuf_read( d, toread );
+    return sndbuf_read( d, toread );
 }
 
 inline void sndbuf_setpos( sndbuf_data *d, double pos )
@@ -1560,8 +1560,8 @@ inline void sndbuf_setpos( sndbuf_data *d, double pos )
         else if( d->curf >= d->num_frames ) d->curf = d->num_frames;
     }
 
-	t_CKINT i = (t_CKINT)d->curf;
-	if( i >= d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
+    t_CKINT i = (t_CKINT)d->curf;
+    if( i >= d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
     // sets curr to correct position ( account for channels ) 
     d->curr = d->buffer + d->chan + i * d->num_channels;
 }
@@ -1579,8 +1579,8 @@ inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, t_CKINT pos )
         if( pos < 0   ) pos = 0;
     }
 
-	t_CKUINT index = d->chan + pos * d->num_channels;
-	if( pos >= d->chunks_read && pos < d->num_frames ) sndbuf_load( d, pos );
+    t_CKUINT index = d->chan + pos * d->num_channels;
+    if( pos >= d->chunks_read && pos < d->num_frames ) sndbuf_load( d, pos );
     return d->buffer[index];
 }
 
@@ -1716,7 +1716,7 @@ CK_DLL_TICK( sndbuf_tick )
     }
     else if( d->interp == SNDBUF_INTERP )
     {
-		// samplewise linear interp
+        // samplewise linear interp
         double alpha = d->curf - floor(d->curf);
         *out = (SAMPLE)( (*(d->curr)) ) ;
         *out += (float)alpha * ( sndbuf_sampleAt(d, (long)d->curf+1 ) - *out );
@@ -1902,37 +1902,37 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         // allocate
         t_CKINT size = info.channels * info.frames;
         d->buffer = new SAMPLE[size+info.channels];
-		memset( d->buffer, 0, (size+info.channels)*sizeof(SAMPLE) );
+        memset( d->buffer, 0, (size+info.channels)*sizeof(SAMPLE) );
         d->chan = 0;
         d->num_frames = info.frames;
         d->num_channels = info.channels;
         d->samplerate = info.samplerate;
-		d->num_samples = size;
+        d->num_samples = size;
         
         // read
         sf_seek( d->fd, 0, SEEK_SET );
 
-		// no chunk
-		if( !d->chunks )
-		{
-			// read all
-			t_CKUINT f = sndbuf_read( d, d->num_frames );
-			// check
-			if( f != (t_CKUINT)d->num_frames )
-			{
-				fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
-						 f, size, filename );
-				sf_close( d->fd );
-				return;
-			}
-			// close
-			sf_close( d->fd ); d->fd = NULL;
-		}
-		else
-		{
+        // no chunk
+        if( !d->chunks )
+        {
+            // read all
+            t_CKUINT f = sndbuf_read( d, d->num_frames );
+            // check
+            if( f != (t_CKUINT)d->num_frames )
+            {
+                fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
+                         f, size, filename );
+                sf_close( d->fd );
+                return;
+            }
+            // close
+            sf_close( d->fd ); d->fd = NULL;
+        }
+        else
+        {
             // read chunk
-			sndbuf_read( d, d->chunks );
-		}
+            sndbuf_read( d, d->chunks );
+        }
     }
 
     // d->interp = SNDBUF_INTERP;
@@ -2105,6 +2105,6 @@ CK_DLL_CGET( sndbuf_cget_valueAt )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     t_CKINT i = GET_CK_INT(ARGS);
-	if( i > d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
+    if( i > d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
     RETURN->v_float = ( i > d->num_frames || i < 0 ) ? 0 : d->buffer[i];
 }
