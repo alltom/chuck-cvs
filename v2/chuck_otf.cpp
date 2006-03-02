@@ -48,7 +48,7 @@
 #endif
 
 
-extern "C" void signal_int( int );
+// extern "C" void signal_int( int );
 
 
 // log level
@@ -132,6 +132,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
     Chuck_Msg * cmd = new Chuck_Msg;
     Chuck_VM_Code * code = NULL;
     FILE * fd = NULL;
+	t_CKUINT ret = 0;
     
     // fprintf( stderr, "UDP message recv...\n" );
     if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
@@ -144,13 +145,13 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
             {
                 fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
                     mini(msg->buffer) );
-                return 0;
+				goto cleanup;
             }
         }
 
         // parse, type-check, and emit
         if( !compiler->go( msg->buffer, fd ) )
-            return 0;
+			goto cleanup;
 
         // get the code
         code = compiler->output();
@@ -173,16 +174,23 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
     {
         fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
         SAFE_DELETE(cmd);
-        return 0;
+		goto cleanup;
     }
     
     // immediate
     if( immediate )
-        return vm->process_msg( cmd );
+        ret = vm->process_msg( cmd );
+	else
+	{
+        vm->queue_msg( cmd, 1 );
+		ret = 1;
+	}
 
-    vm->queue_msg( cmd, 1 );
+cleanup:
+	// close file handle
+	if( fd ) fclose( fd );
 
-    return 1;
+    return ret;
 }
 
 
