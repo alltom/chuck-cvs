@@ -1546,7 +1546,7 @@ inline void sndbuf_setpos( sndbuf_data *d, double pos )
     
     d->curf = pos;
     
-    // set curf within bounds    
+    // set curf within bounds
     if( d->loop )
     {
         while( d->curf >= d->num_frames ) d->curf -= d->num_frames;
@@ -1713,7 +1713,8 @@ CK_DLL_TICK( sndbuf_tick )
         *out = (SAMPLE)( (*(d->curr)) ) ;
     }
     else if( d->interp == SNDBUF_INTERP )
-    {   // samplewise linear interp
+    {
+		// samplewise linear interp
         double alpha = d->curf - floor(d->curf);
         *out = (SAMPLE)( (*(d->curr)) ) ;
         *out += (float)alpha * ( sndbuf_sampleAt(d, (long)d->curf+1 ) - *out );
