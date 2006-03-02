@@ -65,12 +65,15 @@ FILE * open_cat_ck( c_str fname )
 //-----------------------------------------------------------------------------
 t_CKBOOL chuck_parse( c_constr fname, FILE * fd )
 {
+	t_CKBOOL clo = FALSE;
+
     strcpy( g_filename, fname );
 
     // test it
     if( !fd ) {
         fd = open_cat_ck( g_filename );
         if( !fd ) strcpy( g_filename, fname );
+		else clo = TRUE;
     }
 
     // reset
@@ -81,6 +84,9 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd )
 
     // parse
     if( !(yyparse( ) == 0) ) return FALSE;
+	
+	// done
+	if( clo ) fclose( fd );
 
     return TRUE;
 }
