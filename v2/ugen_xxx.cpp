@@ -601,13 +601,13 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //func = make_new_mfun( "float", "phase_offset", sndbuf_cget_phase_offset );
     //if( !type_engine_import_mfun( env, func ) ) goto error;
 
-	// add ctrl: chunks
-	func = make_new_mfun( "int", "chunks", sndbuf_ctrl_chunks );
-	func->add_arg( "int", "frames" );
-	if( !type_engine_import_mfun( env, func ) ) goto error;
-	// add cget: chunks
-	func = make_new_mfun( "int", "chunks", sndbuf_cget_chunks );
-	if( !type_engine_import_mfun( env, func ) ) goto error;
+    // add ctrl: chunks
+    func = make_new_mfun( "int", "chunks", sndbuf_ctrl_chunks );
+    func->add_arg( "int", "frames" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // add cget: chunks
+    func = make_new_mfun( "int", "chunks", sndbuf_cget_chunks );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add cget: samples
     func = make_new_mfun( "int", "samples", sndbuf_cget_samples );
@@ -1429,6 +1429,12 @@ table, this has no effect         */
 #define SAMPLES_PER_ZERO_CROSSING 32    /* this defines how finely the sinc function 
 is sampled for storage in the table  */
 
+#if defined(__CK_SNDFILE_NATIVE__)
+#include <sndfile.h>
+#else
+#include "util_sndfile.h"
+#endif
+
 // data for each sndbuf
 struct sndbuf_data
 {
@@ -1438,7 +1444,8 @@ struct sndbuf_data
     t_CKUINT num_frames;
     t_CKUINT samplerate;
     t_CKUINT chan;
-	t_CKUINT chunks;
+    t_CKUINT chunks;
+    t_CKUINT chunks_read;
 
     double sampleratio;
     SAMPLE * eob;
@@ -1451,11 +1458,13 @@ struct sndbuf_data
     bool sinc_table_built;
     bool sinc_use_table;
     bool sinc_use_interp;
-    t_CKINT sinc_samples_per_zero_crossing ;
-    t_CKINT sinc_width ;
-    double * sinc_table ; 
+    t_CKINT sinc_samples_per_zero_crossing;
+    t_CKINT sinc_width;
+    double * sinc_table;
 
-	// constructor
+    SNDFILE * fd;
+
+    // constructor
     sndbuf_data()
     {
         buffer = NULL;
@@ -1463,7 +1472,8 @@ struct sndbuf_data
         num_channels = 0;
         num_frames = 0;
         num_samples = 0;
-		chunks = 0;
+        chunks = 0;
+        chunks_read = 0;
         samplerate = 0;
         sampleratio = 1.0;
         chan = 0;
@@ -1480,6 +1490,7 @@ struct sndbuf_data
         sinc_table = NULL;
         
         loop = FALSE;
+        fd = NULL;
     }
 };
 
@@ -1501,6 +1512,34 @@ CK_DLL_DTOR( sndbuf_dtor )
     delete d;
 }
 
+inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
+{
+	// check
+	if( d->fd == NULL ) return 0;
+	if( d->chunks_read >= d->num_frames ) return 0;
+
+	t_CKUINT n;
+#if defined(CK_S_DOUBLE)
+    n = sf_readf_double( d->fd, d->buffer+d->chunks_read, howmuch );
+#else
+    n = sf_readf_float( d->fd, d->buffer+d->chunks_read, howmuch );
+#endif
+
+	d->chunks_read += n;
+
+	return n;
+}
+
+inline t_CKINT sndbuf_load( sndbuf_data * d, t_CKUINT where )
+{
+	if( where < d->chunks_read ) return 0;
+
+    t_CKUINT toread = where - d->chunks_read + 1 + d->chunks;
+	toread -= (toread % d->chunks);
+
+	return sndbuf_read( d, toread );
+}
+
 inline void sndbuf_setpos( sndbuf_data *d, double pos )
 {
     if( !d->buffer ) return;
@@ -1519,24 +1558,28 @@ inline void sndbuf_setpos( sndbuf_data *d, double pos )
         else if( d->curf >= d->num_frames ) d->curf = d->num_frames;
     }
 
+	t_CKINT i = (t_CKINT)d->curf;
+	if( i >= d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
     // sets curr to correct position ( account for channels ) 
-    d->curr = d->buffer + d->chan + (long) d->curf * d->num_channels;
+    d->curr = d->buffer + d->chan + i * d->num_channels;
 }
 
 inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, t_CKINT pos )
 { 
-    // boundary cases    
+    // boundary cases
     t_CKINT nf = d->num_frames;
     if( d->loop ) { 
-        while( pos >= nf ) pos -= nf;
+        while( pos > nf ) pos -= nf;
         while( pos <  0  ) pos += nf;
     }
     else { 
-        if( pos >= nf ) pos = nf-1;
+        if( pos > nf ) pos = nf;
         if( pos < 0   ) pos = 0;
     }
-    
-    return d->buffer[d->chan + (long)d->curf * d->num_channels];    
+
+	t_CKUINT index = d->chan + pos * d->num_channels;
+	if( pos >= d->chunks_read && pos < d->num_frames ) sndbuf_load( d, pos );
+    return d->buffer[index];
 }
 
 inline double sndbuf_getpos( sndbuf_data * d )
@@ -1688,12 +1731,6 @@ CK_DLL_TICK( sndbuf_tick )
 }
 
 
-#if defined(__CK_SNDFILE_NATIVE__)
-#include <sndfile.h>
-#else
-#include "util_sndfile.h"
-#endif
-
 #include "util_raw.h"
 
 
@@ -1706,6 +1743,12 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
     {
         delete [] d->buffer;
         d->buffer = NULL;
+    }
+
+    if( d->fd )
+    {
+        sf_close( d->fd );
+        d->fd = NULL;
     }
     
     // built in
@@ -1798,6 +1841,9 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         d->samplerate = srate;
         d->num_samples = rawsize;
 
+        // no chunking
+        d->chunks_read = d->num_frames;
+
         if( rawdata ) {
             d->buffer = new SAMPLE[rawsize+1];
             for( t_CKUINT j = 0; j < rawsize; j++ ) {
@@ -1839,53 +1885,57 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         }
 
         // open the handle
-        SNDFILE * file = sf_open( filename, SFM_READ, &info );
-        t_CKINT er = sf_error( file );
+        d->fd = sf_open( filename, SFM_READ, &info );
+        t_CKINT er = sf_error( d->fd );
         if( er )
         {
             fprintf( stderr, "[chuck](via sndbuf): sndfile error '%i' opening '%s'...\n", er, filename );
-            fprintf( stderr, "[chuck](via sndbuf): (reason: %s)\n", sf_strerror( file ) );
-            if( file ) sf_close( file );
+            fprintf( stderr, "[chuck](via sndbuf): (reason: %s)\n", sf_strerror( d->fd ) );
+            if( d->fd ) sf_close( d->fd );
             // escape
             return;
         }
 
         // allocate
         t_CKINT size = info.channels * info.frames;
-        d->buffer = new SAMPLE[size+1];
+        d->buffer = new SAMPLE[size+info.channels];
+		memset( d->buffer, 0, (size+info.channels)*sizeof(SAMPLE) );
         d->chan = 0;
         d->num_frames = info.frames;
         d->num_channels = info.channels;
+        d->samplerate = info.samplerate;
+		d->num_samples = size;
         
         // read
-        sf_seek(file, 0, SEEK_SET );
-#if defined(CK_S_DOUBLE)
-        d->num_samples = sf_read_double( file, d->buffer, size );
-#else
-        d->num_samples = sf_read_float( file, d->buffer, size );
-#endif
-        // fprintf ( stderr, "soundfile:read %d samples %d %d\n", d->num_samples, file->mode, file->error ) ;
-        d->samplerate = info.samplerate;
+        sf_seek( d->fd, 0, SEEK_SET );
 
-        // check
-        if( d->num_samples != (t_CKUINT)size )
-        {
-            fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
-                     d->num_samples, size, filename );
-            sf_close( file );
-            return;
-        }
-
-        // closing file handle
-        sf_close( file );
-
-        // fprintf(stderr, "read file : %d frames  %d chan %d rate\n", d->num_frames, d->num_channels, d->samplerate );
+		// no chunk
+		if( !d->chunks )
+		{
+			// read all
+			t_CKUINT f = sndbuf_read( d, d->num_frames );
+			// check
+			if( f != (t_CKUINT)d->num_frames )
+			{
+				fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
+						 f, size, filename );
+				sf_close( d->fd );
+				return;
+			}
+			// close
+			sf_close( d->fd ); d->fd = NULL;
+		}
+		else
+		{
+            // read chunk
+			sndbuf_read( d, d->chunks );
+		}
     }
 
     // d->interp = SNDBUF_INTERP;
     d->sampleratio = (double)d->samplerate / (double)g_srate;
     // set the rate
-    d->rate = d->sampleratio;
+    d->rate = d->sampleratio * d->rate;
     d->curr = d->buffer;
     d->curf = 0;
     d->eob = d->buffer + d->num_samples;
@@ -1989,7 +2039,6 @@ CK_DLL_CTRL( sndbuf_ctrl_pos )
 CK_DLL_CGET( sndbuf_cget_pos )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    //SET_NEXT_INT( out, (t_CKINT) sndbuf_getpos(d) );
     RETURN->v_int = (t_CKINT)sndbuf_getpos(d); 
 }
 
@@ -2004,22 +2053,21 @@ CK_DLL_CTRL( sndbuf_ctrl_interp )
 CK_DLL_CGET( sndbuf_cget_interp )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    //SET_NEXT_INT( out, d->interp );
     RETURN->v_int = d->interp;
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_chunks )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-	t_CKINT frames = GET_NEXT_INT(ARGS);
+    t_CKINT frames = GET_NEXT_INT(ARGS);
     d->chunks = frames;
-	RETURN->v_int = d->chunks;
+    RETURN->v_int = d->chunks;
 }
 
 CK_DLL_CGET( sndbuf_cget_chunks )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-	RETURN->v_int = d->chunks;
+    RETURN->v_int = d->chunks;
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_phase_offset )
@@ -2054,5 +2102,6 @@ CK_DLL_CGET( sndbuf_cget_valueAt )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     t_CKINT i = GET_CK_INT(ARGS);
+	if( i > d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
     RETURN->v_float = ( i > d->num_frames || i < 0 ) ? 0 : d->buffer[i];
 }
