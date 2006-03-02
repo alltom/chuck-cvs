@@ -1446,6 +1446,7 @@ struct sndbuf_data
     t_CKUINT chan;
     t_CKUINT chunks;
     t_CKUINT chunks_read;
+	bool * chunk_table;
 
     double sampleratio;
     SAMPLE * eob;
@@ -1472,8 +1473,9 @@ struct sndbuf_data
         num_channels = 0;
         num_frames = 0;
         num_samples = 0;
-        chunks = 0;
+        chunks = 256;
         chunks_read = 0;
+		chunk_table = 0;
         samplerate = 0;
         sampleratio = 1.0;
         chan = 0;
