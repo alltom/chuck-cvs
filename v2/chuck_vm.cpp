@@ -934,6 +934,12 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         fprintf( stderr, "      = %.6f (day)\n", m_shreduler->now_system / srate / 60.0f / 60.0f / 24.0f );
         fprintf( stderr, "      = %.6f (week)\n", m_shreduler->now_system / srate / 60.0f / 60.0f / 24.0f / 7.0f );
     }
+	else if( msg->type == MSG_RESET_ID )
+	{
+		t_CKUINT n = m_shreduler->highest();
+		m_shred_id = n;
+		fprintf( stderr, "[chuck](VM): reseting shred id to %d...\n", m_shred_id + 1 );
+	}
 
 done:
 
@@ -1713,6 +1719,27 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::get( )
     }
 
     return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: highest()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKUINT Chuck_VM_Shreduler::highest( )
+{
+    Chuck_VM_Shred * shred = shred_list;
+	t_CKUINT n = 0;
+
+	while( shred )
+	{
+		if( shred->xid > n ) n = shred->xid;
+		shred = shred->next;
+	}
+
+	return n;
 }
 
 

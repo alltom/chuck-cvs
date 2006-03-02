@@ -291,6 +291,7 @@ public: // high-level shred interface
     Chuck_VM_Shred * lookup( t_CKUINT xid );
     void status( );
     void status( Chuck_VM_Status * status );
+	t_CKUINT highest();
 
 public: // for event related shred queue
     t_CKBOOL add_blocked( Chuck_VM_Shred * shred );
@@ -459,6 +460,7 @@ enum Chuck_Msg_Type
     MSG_PAUSE,
     MSG_KILL,
     MSG_TIME,
+	MSG_RESET_ID,
     MSG_DONE
 };
 
