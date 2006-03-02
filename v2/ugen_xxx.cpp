@@ -1511,6 +1511,7 @@ CK_DLL_DTOR( sndbuf_dtor )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     if( d->buffer ) delete [] d->buffer;
+    if( d->chunk_table ) delete [] d->chunk_table;
     delete d;
 }
 
