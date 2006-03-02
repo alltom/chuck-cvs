@@ -2061,7 +2061,7 @@ CK_DLL_CTRL( sndbuf_ctrl_chunks )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     t_CKINT frames = GET_NEXT_INT(ARGS);
-    d->chunks = frames;
+    d->chunks = frames >= 0 ? frames : -frames;
     RETURN->v_int = d->chunks;
 }
 
