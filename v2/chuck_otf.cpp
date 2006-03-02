@@ -165,7 +165,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
             cmd->param = msg->param;
     }
     else if( msg->type == MSG_STATUS || msg->type == MSG_REMOVE || msg->type == MSG_REMOVEALL
-             || msg->type == MSG_KILL || msg->type == MSG_TIME )
+             || msg->type == MSG_KILL || msg->type == MSG_TIME || msg->type == MSG_RESET_ID )
     {
         cmd->type = msg->type;
         cmd->param = msg->param;
@@ -406,6 +406,14 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );
     }
+	else if( !strcmp( argv[i], "--rid" ) )
+	{
+		if( !(dest = otf_send_connect( host, port )) ) return 0;
+		msg.type = MSG_RESET_ID;
+		msg.param = 0;
+		otf_hton( &msg );
+		ck_send( dest, (char *)&msg, sizeof(msg) );
+	}
     else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
     {
         if( !(dest = otf_send_connect( host, port )) ) return 0;
