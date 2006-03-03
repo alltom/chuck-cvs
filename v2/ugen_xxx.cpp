@@ -1923,7 +1923,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
             {
                 fprintf( stderr, "[chuck](via sndbuf): read %d rather than %d frames from %s\n",
                          f, size, filename );
-                sf_close( d->fd );
+                sf_close( d->fd ); d->fd = NULL;
                 return;
             }
             // close
