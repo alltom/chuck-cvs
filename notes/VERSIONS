@@ -14,6 +14,13 @@
             use this to address individual channels
   - (added) examples in examples/multi
             - n.ck : n channels detuned sine
+            - i.ck : n channels impulse
+  - (added) sndbuf.chunks : better real-time behavior
+            - default is 256 frames
+            - can be set to arbitrary integers
+              (before the .read happens)
+            - set .chunks to 0 to read in entire file
+              (previous behavior)
   - (added) int math.isinf( float ) // infinity test
   - (added) int math.isnan( float ) // NaN test
             (see examples/basic/infnan.ck)
