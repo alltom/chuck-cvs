@@ -2169,6 +2169,6 @@ CK_DLL_CGET( sndbuf_cget_valueAt )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     t_CKINT i = GET_CK_INT(ARGS);
-    if( i > d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
+    if( d->fd ) sndbuf_load( d, i );
     RETURN->v_float = ( i > d->num_frames || i < 0 ) ? 0 : d->buffer[i];
 }
