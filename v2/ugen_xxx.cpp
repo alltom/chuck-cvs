@@ -1448,11 +1448,12 @@ struct sndbuf_data
     t_CKUINT chunks_read;
     bool * chunk_table;
 
-    double sampleratio;
     SAMPLE * eob;
     SAMPLE * curr;
-    double  curf;
-    float   rate;
+    t_CKFLOAT sampleratio;
+    t_CKFLOAT curf;
+    t_CKFLOAT rate_factor;
+    t_CKFLOAT rate;
     t_CKINT interp;
     t_CKBOOL loop;
     
@@ -1480,6 +1481,7 @@ struct sndbuf_data
         sampleratio = 1.0;
         chan = 0;
         curf = 0.0;
+        rate_factor = 1.0;
         rate = 1.0;
         eob = NULL;
         curr = NULL;
@@ -1578,7 +1580,7 @@ inline void sndbuf_setpos( sndbuf_data *d, double pos )
     }
 
     t_CKINT i = (t_CKINT)d->curf;
-    if( i >= d->chunks_read && i < d->num_frames ) sndbuf_load( d, i );
+    if( i >= d->chunks_read && i <= d->num_frames ) sndbuf_load( d, i );
     // sets curr to correct position ( account for channels ) 
     d->curr = d->buffer + d->chan + i * d->num_channels;
 }
@@ -1597,7 +1599,7 @@ inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, t_CKINT pos )
     }
 
     t_CKUINT index = d->chan + pos * d->num_channels;
-    if( pos >= d->chunks_read && pos < d->num_frames ) sndbuf_load( d, pos );
+    if( pos >= d->chunks_read && pos <= d->num_frames ) sndbuf_load( d, pos );
     return d->buffer[index];
 }
 
@@ -1724,7 +1726,7 @@ CK_DLL_TICK( sndbuf_tick )
     // we're ticking once per sample ( system )
     // curf in samples;
     
-    if( !d->loop && d->curr >= d->eob ) return FALSE;
+    if( !d->loop && d->curr >= d->eob + d->num_channels ) return FALSE;
     
     // calculate frame    
     if( d->interp == SNDBUF_DROP )
@@ -1967,7 +1969,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
     // d->interp = SNDBUF_INTERP;
     d->sampleratio = (double)d->samplerate / (double)g_srate;
     // set the rate
-    d->rate = d->sampleratio;
+    d->rate = d->sampleratio * d->rate_factor;
     d->curr = d->buffer;
     d->curf = 0;
     d->eob = d->buffer + d->num_samples;
@@ -2000,15 +2002,15 @@ CK_DLL_CTRL( sndbuf_ctrl_rate )
 {
     sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     t_CKFLOAT rate = GET_CK_FLOAT(ARGS); // rate
-    d->rate = rate * d->sampleratio; 
-    RETURN->v_float = d->rate / d->sampleratio; // TODO: (or not TODO:)
+    d->rate = rate * d->sampleratio;
+    d->rate_factor = rate;
+    RETURN->v_float = d->rate_factor; // TODO: (or not TODO:)
 }
 
 CK_DLL_CGET( sndbuf_cget_rate )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    //SET_NEXT_FLOAT( out, d->rate / d->sampleratio );
-    RETURN->v_float = d->rate / d->sampleratio;
+    RETURN->v_float = d->rate_factor;
 }
 
 
@@ -2018,13 +2020,13 @@ CK_DLL_CTRL( sndbuf_ctrl_freq )
     t_CKFLOAT freq = GET_CK_FLOAT(ARGS);  //hz
     
     d->rate = ( freq * (double) d->num_frames / (double) g_srate );
+    d->rate_factor = d->rate / d->sampleratio;
     RETURN->v_float = d->rate * (t_CKFLOAT) g_srate / ( (t_CKFLOAT) d->num_frames ); // TODO: really?
 }
 
 CK_DLL_CGET( sndbuf_cget_freq )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    //SET_NEXT_FLOAT( out, d->rate * (t_CKFLOAT) g_srate / ( (t_CKFLOAT) d->num_frames ) );
     RETURN->v_float = d->rate * (t_CKFLOAT) g_srate / ( (t_CKFLOAT) d->num_frames ); 
 }
 
