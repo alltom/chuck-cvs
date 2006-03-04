@@ -1933,9 +1933,9 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 
         // log
         EM_pushlog();
-        EM_log( CK_LOG_INFO, "channels: %d", info.channels );
-        EM_log( CK_LOG_INFO, "frames: %d", info.frames );
-        EM_log( CK_LOG_INFO, "srate: %d", info.samplerate );
+        EM_log( CK_LOG_INFO, "channels: %d", d->num_channels );
+        EM_log( CK_LOG_INFO, "frames: %d", d->num_frames );
+        EM_log( CK_LOG_INFO, "srate: %d", d->samplerate );
         EM_log( CK_LOG_INFO, "chunks: %d", d->chunks );
         EM_poplog();
 
