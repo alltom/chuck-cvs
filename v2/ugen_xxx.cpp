@@ -1446,6 +1446,8 @@ struct sndbuf_data
     t_CKUINT chan;
     t_CKUINT chunks;
     t_CKUINT chunks_read;
+    t_CKUINT chunks_total;
+    t_CKUINT chunks_size;
     bool * chunk_table;
 
     SAMPLE * eob;
@@ -1476,6 +1478,8 @@ struct sndbuf_data
         num_samples = 0;
         chunks = 256;
         chunks_read = 0;
+        chunks_total = 0;
+        chunks_size = 0;
         chunk_table = NULL;
         samplerate = 0;
         sampleratio = 1.0;
@@ -1517,24 +1521,26 @@ CK_DLL_DTOR( sndbuf_dtor )
     delete d;
 }
 
-inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
+inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT offset, t_CKUINT howmuch )
 {
     // check
     if( d->fd == NULL ) return 0;
-    if( d->chunks_read >= d->num_frames ) return 0;
+    if( offset >= d->num_frames ) return 0;
     
     // log
-    EM_log( CK_LOG_FINE, "(sndbuf): reading %d frames...", howmuch );
+    EM_log( CK_LOG_FINE, "(sndbuf): reading %d:%d frames...", offset, howmuch );
 
     // prevent overflow
-    if( howmuch > d->num_frames - d->chunks_read )
-        howmuch = d->num_frames - d->chunks_read;
+    if( howmuch > d->num_frames - offset )
+        howmuch = d->num_frames - offset;
 
     t_CKUINT n;
+    // seek
+    sf_seek( d->fd, offset, SEEK_SET );
 #if defined(CK_S_DOUBLE)
-    n = sf_readf_double( d->fd, d->buffer+d->chunks_read*d->num_channels, howmuch );
+    n = sf_readf_double( d->fd, d->buffer+offset*d->num_channels, howmuch );
 #else
-    n = sf_readf_float( d->fd, d->buffer+d->chunks_read*d->num_channels, howmuch );
+    n = sf_readf_float( d->fd, d->buffer+offset*d->num_channels, howmuch );
 #endif
 
     d->chunks_read += n;
@@ -1553,12 +1559,23 @@ inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
 
 inline t_CKINT sndbuf_load( sndbuf_data * d, t_CKUINT where )
 {
-    if( where < d->chunks_read ) return 0;
+    // map to bin
+    t_CKUINT bin = (t_CKUINT)(where / (t_CKFLOAT)d->chunks_size);
+    if( bin >= d->chunks_total ) return 0;
 
-    t_CKUINT toread = where - d->chunks_read + 1 + d->chunks;
-    toread -= (toread % d->chunks);
+    // already loaded
+    if( d->chunk_table[bin] ) return 0;
 
-    return sndbuf_read( d, toread );
+    // read it
+    t_CKINT ret = sndbuf_read( d, bin*d->chunks_size, d->chunks_size );
+
+    // flag it
+    d->chunk_table[bin] = true;
+
+    // log
+    EM_log( CK_LOG_FINER, "chunk test: pos: %d bin: %d read:%d/%d", where, bin, d->chunks_read, d->num_frames );
+
+    return ret;
 }
 
 inline void sndbuf_setpos( sndbuf_data *d, double pos )
@@ -1580,7 +1597,8 @@ inline void sndbuf_setpos( sndbuf_data *d, double pos )
     }
 
     t_CKINT i = (t_CKINT)d->curf;
-    if( i >= d->chunks_read && i <= d->num_frames ) sndbuf_load( d, i );
+    // ensure load
+    if( d->fd != NULL ) sndbuf_load( d, i );
     // sets curr to correct position ( account for channels ) 
     d->curr = d->buffer + d->chan + i * d->num_channels;
 }
@@ -1599,7 +1617,9 @@ inline SAMPLE sndbuf_sampleAt( sndbuf_data * d, t_CKINT pos )
     }
 
     t_CKUINT index = d->chan + pos * d->num_channels;
-    if( pos >= d->chunks_read && pos <= d->num_frames ) sndbuf_load( d, pos );
+    // ensure load
+    if( d->fd != NULL ) sndbuf_load( d, pos );
+    // return sample
     return d->buffer[index];
 }
 
@@ -1765,6 +1785,12 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
     {
         delete [] d->buffer;
         d->buffer = NULL;
+    }
+
+    if( d->chunk_table )
+    {
+        delete [] d->chunk_table;
+        d->chunk_table = NULL;
     }
 
     if( d->fd )
@@ -1947,7 +1973,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         if( !d->chunks )
         {
             // read all
-            t_CKUINT f = sndbuf_read( d, d->num_frames );
+            t_CKUINT f = sndbuf_read( d, 0, d->num_frames );
             // check
             if( f != (t_CKUINT)d->num_frames )
             {
@@ -1962,7 +1988,14 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         else
         {
             // read chunk
-            sndbuf_read( d, d->chunks );
+            sndbuf_load( d, 0 );
+            // reset
+            d->chunks_size = d->chunks;
+            d->chunks_total = d->num_frames / d->chunks;
+            d->chunks_total += d->num_frames % d->chunks ? 1 : 0;
+            d->chunks_read = 0;
+            d->chunk_table = new bool[d->chunks_total];
+            memset( d->chunk_table, 0, d->chunks_total * sizeof(bool) );
         }
     }
 
