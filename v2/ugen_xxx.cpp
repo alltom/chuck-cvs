@@ -1524,6 +1524,10 @@ inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
     // log
     EM_log( CK_LOG_FINE, "(sndbuf): reading %d frames...", howmuch );
 
+    // prevent overflow
+    if( howmuch > d->num_frames - d->chunks_read )
+        howmuch = d->num_frames - d->chunks_read;
+
     t_CKUINT n;
 #if defined(CK_S_DOUBLE)
     n = sf_readf_double( d->fd, d->buffer+d->chunks_read*d->num_channels, howmuch );
@@ -1768,7 +1772,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
     }
 
     // log
-    EM_log( CK_LOG_FINE, "(sndbuf): reading '%s'...", filename );
+    EM_log( CK_LOG_INFO, "(sndbuf): reading '%s'...", filename );
     
     // built in
     if( strstr(filename, "special:") )
@@ -1917,8 +1921,8 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 
         // allocate
         t_CKINT size = info.channels * info.frames;
-        d->buffer = new SAMPLE[size+d->chunks+info.channels];
-        memset( d->buffer, 0, (size+d->chunks+info.channels)*sizeof(SAMPLE) );
+        d->buffer = new SAMPLE[size+info.channels];
+        memset( d->buffer, 0, (size+info.channels)*sizeof(SAMPLE) );
         d->chan = 0;
         d->num_frames = info.frames;
         d->num_channels = info.channels;
