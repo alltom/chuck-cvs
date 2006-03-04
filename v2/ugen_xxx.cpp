@@ -1520,6 +1520,9 @@ inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
     // check
     if( d->fd == NULL ) return 0;
     if( d->chunks_read >= d->num_frames ) return 0;
+    
+    // log
+    EM_log( CK_LOG_FINE, "(sndbuf): reading %d frames...", howmuch );
 
     t_CKUINT n;
 #if defined(CK_S_DOUBLE)
@@ -1529,6 +1532,15 @@ inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT howmuch )
 #endif
 
     d->chunks_read += n;
+
+    // close
+    if( d->chunks_read >= d->num_frames )
+    {
+        // log
+        EM_log( CK_LOG_INFO, "(sndbuf): all frames read, closing file..." );
+        sf_close( d->fd );
+        d->fd = NULL;
+    }
 
     return n;
 }
@@ -1546,9 +1558,9 @@ inline t_CKINT sndbuf_load( sndbuf_data * d, t_CKUINT where )
 inline void sndbuf_setpos( sndbuf_data *d, double pos )
 {
     if( !d->buffer ) return;
-    
+
     d->curf = pos;
-    
+
     // set curf within bounds
     if( d->loop )
     {
@@ -1754,6 +1766,9 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         sf_close( d->fd );
         d->fd = NULL;
     }
+
+    // log
+    EM_log( CK_LOG_FINE, "(sndbuf): reading '%s'...", filename );
     
     // built in
     if( strstr(filename, "special:") )
@@ -1902,16 +1917,25 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 
         // allocate
         t_CKINT size = info.channels * info.frames;
-        d->buffer = new SAMPLE[size+info.channels];
-        memset( d->buffer, 0, (size+info.channels)*sizeof(SAMPLE) );
+        d->buffer = new SAMPLE[size+d->chunks+info.channels];
+        memset( d->buffer, 0, (size+d->chunks+info.channels)*sizeof(SAMPLE) );
         d->chan = 0;
         d->num_frames = info.frames;
         d->num_channels = info.channels;
         d->samplerate = info.samplerate;
         d->num_samples = size;
-        
+
+        // log
+        EM_pushlog();
+        EM_log( CK_LOG_INFO, "channels: %d", info.channels );
+        EM_log( CK_LOG_INFO, "frames: %d", info.frames );
+        EM_log( CK_LOG_INFO, "srate: %d", info.samplerate );
+        EM_log( CK_LOG_INFO, "chunks: %d", d->chunks );
+        EM_poplog();
+
         // read
         sf_seek( d->fd, 0, SEEK_SET );
+        d->chunks_read = 0;
 
         // no chunk
         if( !d->chunks )
@@ -1926,8 +1950,8 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
                 sf_close( d->fd ); d->fd = NULL;
                 return;
             }
-            // close
-            sf_close( d->fd ); d->fd = NULL;
+
+            assert( d->fd == NULL );
         }
         else
         {
