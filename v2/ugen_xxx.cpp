@@ -1528,7 +1528,7 @@ inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT offset, t_CKUINT howmuch 
     if( offset >= d->num_frames ) return 0;
     
     // log
-    EM_log( CK_LOG_FINE, "(sndbuf): reading %d:%d frames...", offset, howmuch );
+    // EM_log( CK_LOG_FINE, "(sndbuf): reading %d:%d frames...", offset, howmuch );
 
     // prevent overflow
     if( howmuch > d->num_frames - offset )
@@ -1573,7 +1573,7 @@ inline t_CKINT sndbuf_load( sndbuf_data * d, t_CKUINT where )
     d->chunk_table[bin] = true;
 
     // log
-    EM_log( CK_LOG_FINER, "chunk test: pos: %d bin: %d read:%d/%d", where, bin, d->chunks_read, d->num_frames );
+    // EM_log( CK_LOG_FINER, "chunk test: pos: %d bin: %d read:%d/%d", where, bin, d->chunks_read, d->num_frames );
 
     return ret;
 }
@@ -1987,8 +1987,6 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         }
         else
         {
-            // read chunk
-            sndbuf_load( d, 0 );
             // reset
             d->chunks_size = d->chunks;
             d->chunks_total = d->num_frames / d->chunks;
@@ -1996,6 +1994,9 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
             d->chunks_read = 0;
             d->chunk_table = new bool[d->chunks_total];
             memset( d->chunk_table, 0, d->chunks_total * sizeof(bool) );
+
+            // read chunk
+            // sndbuf_load( d, 0 );
         }
     }
 
