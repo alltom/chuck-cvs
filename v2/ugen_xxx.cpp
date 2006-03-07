@@ -1476,7 +1476,7 @@ struct sndbuf_data
         num_channels = 0;
         num_frames = 0;
         num_samples = 0;
-        chunks = 256;
+        chunks = 0;
         chunks_read = 0;
         chunks_total = 0;
         chunks_size = 0;
