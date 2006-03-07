@@ -398,6 +398,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_dac_channels,
     m_block = block;
 
     DWORD__ num_channels;
+    int bufsize = m_buffer_size;
 
     // if rt_audio is false, then set block to FALSE to avoid deadlock
     if( !rt_audio ) m_block = FALSE;
@@ -428,7 +429,7 @@ BOOL__ Digitalio::initialize( DWORD__ num_dac_channels,
             m_rtaudio->openStream(
                 m_dac_n, m_num_channels_out, m_adc_n, m_num_channels_in,
                 CK_RTAUDIO_FORMAT, sampling_rate,
-                (int *)&m_buffer_size, num_buffers );
+                &bufsize, num_buffers );
             // set callback
             if( m_use_cb )
             {
@@ -449,12 +450,12 @@ BOOL__ Digitalio::initialize( DWORD__ num_dac_channels,
             EM_log( CK_LOG_INFO, "exception caught: '%s'...", err.getMessageString() );
             EM_log( CK_LOG_INFO, "trying %d input %d output...", 0, m_num_channels_out );
             try {
-                m_buffer_size = buffer_size;
+                bufsize = buffer_size;
                 // try output only
                 m_rtaudio->openStream(
                     m_dac_n, m_num_channels_out, 0, 0,
                     RTAUDIO_FLOAT32, sampling_rate,
-                    (int *)&m_buffer_size, num_buffers );
+                    &bufsize, num_buffers );
                 // set callback
                 if( m_use_cb )
                 {
@@ -475,6 +476,13 @@ BOOL__ Digitalio::initialize( DWORD__ num_dac_channels,
                 SAFE_DELETE( m_rtaudio );
                 return m_init = FALSE;
             }
+        }
+        
+        // check bufsize
+        if( bufsize != (int)m_buffer_size )
+        {
+            EM_log( CK_LOG_SEVERE, "new buffer size: %d -> %i", m_buffer_size, bufsize );
+            m_buffer_size = bufsize;
         }
 
         // pop indent
