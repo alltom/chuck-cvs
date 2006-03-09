@@ -1,3 +1,5 @@
+// FM synthesis by hand
+
 // carrier
 sinosc c => dac;
 // modulator
@@ -6,12 +8,9 @@ sinosc m => blackhole;
 // carrier frequency
 220 => float cf;
 // modulator frequency
-550 => float mf;
+550 => float mf => m.freq;
 // index of modulation
 .5 => float index;
-
-// set modulator
-mf => m.freq;
 
 // time-loop
 while( true )
