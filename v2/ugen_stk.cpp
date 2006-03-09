@@ -27252,7 +27252,7 @@ CK_DLL_CGET( PoleZero_cget_blockZero )
 CK_DLL_CTOR( FM_ctor  )
 {
     // return new FM(4);
-    // fprintf(stderr,"error : FM is virtual - not for use! \n");
+    fprintf(stderr,"error : FM is virtual - not for use! \n");
 }
 
 

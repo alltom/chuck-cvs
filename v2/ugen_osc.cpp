@@ -268,9 +268,9 @@ CK_DLL_TICK( osc_tick )
 
     // as a rule, we store external phase control values
     // so that we can have a smooth change back to internal control -pld 
-    if ( d->sync == 2 ) d->phase = in; 
+    if( d->sync == 2 ) d->phase = in; 
 
-    *out = (SAMPLE)  d->phase;
+    *out = (SAMPLE) d->phase;
 
     // step the phase.
     // technically this should happen even with external phase control
