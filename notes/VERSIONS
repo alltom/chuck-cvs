@@ -55,6 +55,7 @@
   - (fixed) (internal) detach_all() moved to chuck_globals.cpp
   - (fixed) (internal) global variables moved to chuck_globals.cpp
   - (fixed) file handles close in compiler and parser
+  - (fixed) syntax error causing syntax errors
 
 
 ---

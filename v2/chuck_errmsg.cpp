@@ -71,12 +71,6 @@ static const char * g_str[] = {
 };
 
 
-// external
-extern "C" { 
-    extern FILE *yyin;
-}
-
-
 // intList
 typedef struct intList {int i; struct intList *rest;} *IntList;
 static IntList linePos=NULL;
@@ -296,15 +290,7 @@ t_CKBOOL EM_reset( const char * fname, FILE * fd )
     // make new intList
     linePos = intList( 0, NULL );
 
-    // TODO: if( yyin ) fclose( yyin );
-    if( fd ) yyin = fd;
-    else yyin = fopen( fname, "r" );
-    if (!yyin)
-        EM_error2( 0, "no such file or directory" );
-    else
-        fseek( yyin, 0, SEEK_SET );
-
-    return (yyin != 0);
+    return TRUE;
 }
 
 
