@@ -49,6 +49,7 @@
 
 // link with the parser
 extern "C" int yyparse( void );
+extern "C" void yyrestart( FILE * );
 
 
 // open file with .ck append as appropriate

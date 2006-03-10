@@ -39,6 +39,11 @@ using namespace std;
 // global
 static char g_filename[1024] = "";
 
+// external
+extern "C" { 
+    extern FILE *yyin;
+}
+
 
 //-----------------------------------------------------------------------------
 // name: open_cat_ck()
@@ -66,6 +71,7 @@ FILE * open_cat_ck( c_str fname )
 t_CKBOOL chuck_parse( c_constr fname, FILE * fd )
 {
 	t_CKBOOL clo = FALSE;
+    t_CKBOOL ret = FALSE;
 
     strcpy( g_filename, fname );
 
@@ -77,18 +83,35 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd )
     }
 
     // reset
-    if( EM_reset( g_filename, fd ) == FALSE ) return FALSE;
+    if( EM_reset( g_filename, fd ) == FALSE ) goto cleanup;
+
+    // lexer/parser
+    // TODO: if( yyin ) fclose( yyin );
+    // TODO: start condition?
+    if( !fd ) fd = fopen( g_filename, "r" );
+    if( !fd ) EM_error2( 0, "no such file or directory" );
+    else fseek( fd, 0, SEEK_SET );
+    // reset yyin to fd
+    yyrestart( fd );
+
+    // check
+    if( yyin == NULL ) goto cleanup;
 
     // TODO: clean g_program
     g_program = NULL;
 
     // parse
-    if( !(yyparse( ) == 0) ) return FALSE;
-	
-	// done
+    if( !(yyparse( ) == 0) ) goto cleanup;
+
+    // flag success
+    ret = TRUE;
+
+cleanup:
+
+    // done
 	if( clo ) fclose( fd );
 
-    return TRUE;
+    return ret;
 }
 
 
