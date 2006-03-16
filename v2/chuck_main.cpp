@@ -237,7 +237,7 @@ void usage()
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
-    fprintf( stderr, "               chan<N>|shell|empty|blocking|callback\n" );
+    fprintf( stderr, "               channels<N>|shell|empty|blocking|callback\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n" );
     version();
@@ -331,8 +331,8 @@ int main( int argc, char ** argv )
                 dac = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
             else if( !strncmp(argv[i], "--adc", 5) )
                 adc = atoi( argv[i]+5 ) > 0 ? atoi( argv[i]+5 ) : 0;
-            else if( !strncmp(argv[i], "--chan", 6) )
-                dac_chans = adc_chans = atoi( argv[i]+6 ) > 0 ? atoi( argv[i]+6 ) : 2;
+            else if( !strncmp(argv[i], "--channels", 10) )
+                dac_chans = adc_chans = atoi( argv[i]+10 ) > 0 ? atoi( argv[i]+10 ) : 2;
             else if( !strncmp(argv[i], "-c", 2) )
                 dac_chans = adc_chans = atoi( argv[i]+2 ) > 0 ? atoi( argv[i]+2 ) : 2;
             else if( !strncmp(argv[i], "--out", 5) )

@@ -3,7 +3,7 @@
   - (added) Keyboard Input (immediate mode)...
   - (added) 'KBHit' event class (see examples/event/kb*.ck)
   - (added) multi-channel audio
-            - use --chan<N> or -c<N> set number of channels
+            - use --channels<N> or -c<N> set number of channels
               for both input and output
             - use --out<N>/-o<N> and --in<N>/-i<N> to request
               # of input and output channels separately

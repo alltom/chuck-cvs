@@ -273,6 +273,9 @@ int otf_send_file( const char * filename, Net_Msg & msg, const char * op,
 //-----------------------------------------------------------------------------
 ck_socket otf_send_connect( const char * host, int port )
 {
+    // log
+    EM_log( CK_LOG_INFO, "otf connect: %s:%i", host, port );
+
     ck_socket sock = ck_tcp_create( 0 );
     if( !sock )
     {
@@ -311,6 +314,9 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
     ck_socket dest = NULL;
     if( is_otf ) *is_otf = TRUE;
 
+    // log
+    EM_log( CK_LOG_INFO, "examining otf command '%s'...", argv[i] );
+
     if( !strcmp( argv[i], "--add" ) || !strcmp( argv[i], "+" ) )
     {
         if( ++i >= argc )
@@ -320,13 +326,18 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
         }
 
         if( !(dest = otf_send_connect( host, port )) ) return 0;
+        EM_pushlog();
         do {
+            // log
+            EM_log( CK_LOG_INFO, "sending file '%s' for add...", mini(argv[i]) );
             msg.type = MSG_ADD;
             msg.param = 1;
             tasks_done += otf_send_file( argv[i], msg, "add", dest );
             tasks_total++;
         } while( ++i < argc );
-        
+        // log
+        EM_poplog();
+
         if( !tasks_done )
             goto error;
     }
@@ -339,20 +350,30 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
         }
 
         if( !(dest = otf_send_connect( host, port )) ) return 0;
+        EM_pushlog();
         do {
+            // log
+            EM_log( CK_LOG_INFO, "requesting removal of shred '%i'..." );
             msg.param = atoi( argv[i] );
             msg.type = MSG_REMOVE;
             otf_hton( &msg );
             ck_send( dest, (char *)&msg, sizeof(msg) );
         } while( ++i < argc );
+        // log
+        EM_poplog();
     }
     else if( !strcmp( argv[i], "--" ) )
     {
         if( !(dest = otf_send_connect( host, port )) ) return 0;
+        EM_pushlog();
+        // log
+        EM_log( CK_LOG_INFO, "requesting removal of last shred..." );
         msg.param = 0xffffffff;
         msg.type = MSG_REMOVE;
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );
+        // log
+        EM_poplog();
     }
     else if( !strcmp( argv[i], "--replace" ) || !strcmp( argv[i], "=" ) )
     {
@@ -374,17 +395,23 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
         }
 
         if( !(dest = otf_send_connect( host, port )) ) return 0;
+        EM_pushlog();
+        EM_log( CK_LOG_INFO, "requesting replace shred '%i' with '%s'...", msg.param, mini(argv[i]) );
         msg.type = MSG_REPLACE;
         if( !otf_send_file( argv[i], msg, "replace", dest ) )
             goto error;
+        EM_poplog();
     }
     else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
     {
         if( !(dest = otf_send_connect( host, port )) ) return 0;
+        EM_pushlog();
+        EM_log( CK_LOG_INFO, "requesting removeall..." );
         msg.type = MSG_REMOVEALL;
         msg.param = 0;
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );
+        EM_poplog();
     }
     else if( !strcmp( argv[i], "--kill" ) )
     {
@@ -431,10 +458,14 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
     // send
     msg.type = MSG_DONE;
     otf_hton( &msg );
+    // log
+    EM_log( CK_LOG_INFO, "otf sending request..." );
     ck_send( dest, (char *)&msg, sizeof(msg) );
 
     // set timeout
     ck_recv_timeout( dest, 0, 2000000 );
+    // log
+    EM_log( CK_LOG_INFO, "otf awaiting reply..." );
     // reply
     if( ck_recv( dest, (char *)&msg, sizeof(msg) ) )
     {
@@ -444,6 +475,10 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
             fprintf( stderr, "[chuck(remote)]:operation failed (sorry)" );
             fprintf( stderr, "...(reason: %s)\n", 
                 ( strstr( (char *)msg.buffer, ":" ) ? strstr( (char *)msg.buffer, ":" ) + 1 : (char *)msg.buffer ) );
+        }
+        else
+        {
+            EM_log( CK_LOG_INFO, "reply received..." );
         }
     }
     else

@@ -868,6 +868,7 @@ void Chuck_Event::broadcast()
 //-----------------------------------------------------------------------------
 void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
 {
+    EM_log( CK_LOG_FINE, "shred '%d' wait on event '%x'...", shred->xid, (t_CKUINT)this );
     // make sure the shred info matches the vm
     assert( shred->vm_ref == vm );
     
