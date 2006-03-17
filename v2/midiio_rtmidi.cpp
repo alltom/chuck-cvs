@@ -33,7 +33,6 @@
 //-----------------------------------------------------------------------------
 #include "midiio_rtmidi.h"
 #include "chuck_errmsg.h"
-#include <stdlib.h>
 #include <vector>
 #include <map>
 #include <fstream>
@@ -176,7 +175,7 @@ t_CKBOOL MidiOut::close( )
         return FALSE;
 
     // close
-    //MidiOutManager::close( this );
+    // MidiOutManager::close( this );
 
     m_valid = FALSE;
 
