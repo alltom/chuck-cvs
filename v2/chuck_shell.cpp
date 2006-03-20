@@ -606,7 +606,20 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
     }
 #else
     char * tmp_filepath = tmpnam( NULL );
+	if( tmp_filepath == NULL )
+	{
+		out += string( "shell: error: unable to generate tmpfile name\n" );
+		prompt = variables["COMMAND_PROMPT"];
+		return;
+	}
+	
     FILE * tmp_file = fopen( tmp_filepath, "w" );
+	if( tmp_file == NULL )
+	{
+		out += string( "shell: error: unable to open tmpfile '" ) + tmp_filepath + "'\n";
+		prompt = variables["COMMAND_PROMPT"];
+		return;
+	}
 #endif
         
     // write the code to the temp file
@@ -716,7 +729,7 @@ t_CKBOOL Chuck_Shell_Network_VM::add_shred( const vector< string > & files,
         return_val = TRUE;
     else
     {
-        out += "error: add command failed\n";
+        out += "add: error: command failed\n";
         return_val = FALSE;
     }
 
@@ -758,7 +771,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_shred( const vector< string > & ids,
         return_val = TRUE;
     else
     {
-        out += "error: remove command failed\n";
+        out += "remove: error: command failed\n";
         return_val = FALSE;
     }
 
@@ -782,7 +795,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_all( string & out )
     argv[0] = "--removeall";
     if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
     {
-        out += "error: removeall command failed\n";
+        out += "removeall: error: command failed\n";
         return_val = FALSE;
     }
 
@@ -801,7 +814,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_last( string & out )
     argv[0] = "--";
     if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
     {
-        out += "error: removelast command failed\n";
+        out += "removelast: error: command failed\n";
         return_val = FALSE;
     }
     
@@ -817,7 +830,7 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
 {
     if( vec.size() < 2 )
     {
-        out += "error: insufficient arguments...\n";
+        out += "replace: error: insufficient arguments...\n";
         return FALSE;
     }
     
@@ -844,13 +857,13 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     
     else
     {
-        out += "error: replace command failed\n";
+        out += "replace: error: command failed\n";
         return_val = FALSE;
     }
     
     if( vec.size() % 2 != 0 )
     {
-        out += "warning: ignoring excess arguments...\n";
+        out += "repalce: warning: ignoring excess arguments\n";
         return FALSE;
     }
     
@@ -879,7 +892,7 @@ t_CKBOOL Chuck_Shell_Network_VM::status( string & out )
     else
     {
         return_val = FALSE;
-        out += "error: status command failed\n";
+        out += "status: error: command failed\n";
     }
     
     delete argv;
@@ -905,7 +918,7 @@ t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
     else
     {
         return_val = FALSE;
-        out += "error: kill command failed";
+        out += "kill: error: command failed";
     }
     
     delete argv;
