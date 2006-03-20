@@ -1413,12 +1413,12 @@ CK_DLL_MFUN( HidIn_recv )
     Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
     HidMsg the_msg;
     RETURN->v_int = min->recv( &the_msg );
-    if( RETURN->v_int )
+    /*if( RETURN->v_int )
     {
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data1) = the_msg.data[0];
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data2) = the_msg.data[1];
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data3) = the_msg.data[2];
-    }
+    }*/
 }
 
 
@@ -1485,10 +1485,10 @@ CK_DLL_MFUN( HidOut_send )
     HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
     Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
     HidMsg the_msg;
-    the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data1);
+/*    the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data1);
     the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data2);
     the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data3);
-    RETURN->v_int = mout->send( &the_msg );
+*/    RETURN->v_int = mout->send( &the_msg );
 }
 
 
