@@ -191,6 +191,10 @@ SOURCE=.\digiio_rtaudio.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\hidio_sdl.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\midiio_rtmidi.cpp
 # End Source File
 # Begin Source File
@@ -380,6 +384,10 @@ SOURCE=.\chuck_win32.h
 # Begin Source File
 
 SOURCE=.\digiio_rtaudio.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\hidio_sdl.h
 # End Source File
 # Begin Source File
 

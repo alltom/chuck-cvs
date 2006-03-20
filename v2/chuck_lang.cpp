@@ -36,6 +36,7 @@
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
 #include "midiio_rtmidi.h"
+#include "hidio_sdl.h"
 // #include "skiniio_skini.h"
 
 
@@ -437,7 +438,7 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     // end the class import
     type_engine_import_class_end( env );
 
-    
+
     // init base class
     if( !type_engine_import_class_begin( env, "MidiIn", "Event",
                                          env->global(), MidiIn_ctor ) )
@@ -529,6 +530,143 @@ error:
     
     return FALSE;
 }
+
+
+
+
+// static
+static t_CKUINT HidIn_offset_data = 0;
+static t_CKUINT HidMsg_offset_data1 = 0;
+static t_CKUINT HidMsg_offset_data2 = 0;
+static t_CKUINT HidMsg_offset_data3 = 0;
+static t_CKUINT HidMsg_offset_when = 0;
+static t_CKUINT HidOut_offset_data = 0;
+
+//-----------------------------------------------------------------------------
+// name: init_class_HID()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_HID( Chuck_Env * env )
+{
+    Chuck_DL_Func * func = NULL;
+
+    // init base class
+    if( !type_engine_import_class_begin( env, "HidMsg", "Object",
+                                         env->global(), NULL ) )
+        return FALSE;
+
+    // add member variable
+    HidMsg_offset_data1 = type_engine_import_mvar( env, "int", "data1", FALSE );
+    if( HidMsg_offset_data1 == CK_INVALID_OFFSET ) goto error;
+
+    // add member variable
+    HidMsg_offset_data2 = type_engine_import_mvar( env, "int", "data2", FALSE );
+    if( HidMsg_offset_data2 == CK_INVALID_OFFSET ) goto error;
+
+    // add member variable
+    HidMsg_offset_data3 = type_engine_import_mvar( env, "int", "data3", FALSE );
+    if( HidMsg_offset_data3 == CK_INVALID_OFFSET ) goto error;
+
+    // add member variable
+    HidMsg_offset_when = type_engine_import_mvar( env, "time", "when", FALSE );
+    if( HidMsg_offset_when == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    // init base class
+    if( !type_engine_import_class_begin( env, "HidIn", "Event",
+                                         env->global(), HidIn_ctor ) )
+        return FALSE;
+
+    // add open()
+    func = make_new_mfun( "int", "open", HidIn_open );
+    func->add_arg( "int", "port" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add good()
+    func = make_new_mfun( "int", "good", HidIn_good );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add num()
+    func = make_new_mfun( "int", "num", HidIn_num );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add name()
+    func = make_new_mfun( "string", "name", HidIn_name );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add printerr()
+    func = make_new_mfun( "void", "printerr", HidIn_printerr );
+    func->add_arg( "int", "print_or_not" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add recv()
+    func = make_new_mfun( "int", "recv", HidIn_recv );
+    func->add_arg( "HidMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add can_wait()
+    func = make_new_mfun( "int", "can_wait", HidIn_can_wait );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    HidIn_offset_data = type_engine_import_mvar( env, "int", "@HidIn_data", FALSE );
+    if( HidIn_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    // init base class
+    if( !type_engine_import_class_begin( env, "HidOut", "Object",
+                                         env->global(), HidOut_ctor ) )
+        return FALSE;
+
+    // add open()
+    func = make_new_mfun( "int", "open", HidOut_open );
+    func->add_arg( "int", "port" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add good()
+    func = make_new_mfun( "int", "good", HidOut_good );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add num()
+    func = make_new_mfun( "int", "num", HidOut_num );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add name()
+    func = make_new_mfun( "string", "name", HidOut_name );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add printerr()
+    func = make_new_mfun( "void", "printerr", HidOut_printerr );
+    func->add_arg( "int", "print_or_not" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add send()
+    func = make_new_mfun( "int", "send", HidOut_send );
+    func->add_arg( "HidMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add member variable
+    HidOut_offset_data = type_engine_import_mvar( env, "int", "@HidOut_data", FALSE );
+    if( HidOut_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
+}
+
 
 
 
@@ -1211,6 +1349,145 @@ CK_DLL_MFUN( MidiOut_send )
     the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data1);
     the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data2);
     the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, MidiMsg_offset_data3);
+    RETURN->v_int = mout->send( &the_msg );
+}
+
+
+
+//-----------------------------------------------------------------------------
+// HidIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( HidIn_ctor )
+{
+    HidIn * min = new HidIn;
+    min->SELF = SELF;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_data) = (t_CKINT)min;
+}
+
+CK_DLL_DTOR( HidIn_dtor )
+{
+    delete (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    OBJ_MEMBER_INT(SELF, HidIn_offset_data) = 0;
+}
+
+CK_DLL_MFUN( HidIn_open )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    t_CKINT port = GET_CK_INT(ARGS);
+    RETURN->v_int = min->open( port );
+}
+
+CK_DLL_MFUN( HidIn_good )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    RETURN->v_int = (t_CKINT)min->good();
+}
+
+CK_DLL_MFUN( HidIn_num )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    RETURN->v_int = min->num();
+}
+
+CK_DLL_MFUN( HidIn_printerr )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    t_CKINT print_or_not = GET_CK_INT(ARGS);
+    min->set_suppress( !print_or_not );
+}
+
+CK_DLL_MFUN( HidIn_name )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    // TODO: memory leak, please fix, Thanks.
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    // only if valid
+    // if( min->good() )
+    //     a->str = min->phin->getPortName( min->num() );
+    RETURN->v_string = a;
+}
+
+CK_DLL_MFUN( HidIn_recv )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
+    HidMsg the_msg;
+    RETURN->v_int = min->recv( &the_msg );
+    if( RETURN->v_int )
+    {
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data1) = the_msg.data[0];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data2) = the_msg.data[1];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data3) = the_msg.data[2];
+    }
+}
+
+
+CK_DLL_MFUN( HidIn_can_wait )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    RETURN->v_int = min->empty();
+}
+
+
+//-----------------------------------------------------------------------------
+// HidOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( HidOut_ctor )
+{
+    OBJ_MEMBER_INT(SELF, HidOut_offset_data) = (t_CKUINT)new HidOut;
+}
+
+CK_DLL_DTOR( HidOut_dtor )
+{
+    delete (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
+    OBJ_MEMBER_INT(SELF, HidOut_offset_data) = 0;
+}
+
+CK_DLL_MFUN( HidOut_open )
+{
+    HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
+    t_CKINT port = GET_CK_INT(ARGS);
+    RETURN->v_int = mout->open( port );
+}
+
+CK_DLL_MFUN( HidOut_good )
+{
+    HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
+    RETURN->v_int = (t_CKINT)mout->good();
+}
+
+CK_DLL_MFUN( HidOut_num )
+{
+    HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
+    RETURN->v_int = mout->num();
+}
+
+CK_DLL_MFUN( HidOut_name )
+{
+    HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
+    // TODO: memory leak, please fix, Thanks.
+    Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    // only if valid
+    // if( mout->good() )
+    //     a->str = mout->mout->getPortName( mout->num() );
+    RETURN->v_string = a;
+}
+
+CK_DLL_MFUN( HidOut_printerr )
+{
+    HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
+    t_CKINT print_or_not = GET_CK_INT(ARGS);
+    mout->set_suppress( !print_or_not );
+}
+
+CK_DLL_MFUN( HidOut_send )
+{
+    HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
+    Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
+    HidMsg the_msg;
+    the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data1);
+    the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data2);
+    the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data3);
     RETURN->v_int = mout->send( &the_msg );
 }
 

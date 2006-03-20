@@ -311,7 +311,7 @@ t_CKUINT HidIn::recv( HidMsg * msg )
 
 
 //-----------------------------------------------------------------------------
-// name: cb_hid_output
+// name: cb_hid_input
 // desc: call back
 //-----------------------------------------------------------------------------
 void HidInManager::cb_hid_input( double deltatime, std::vector<unsigned char> * msg,

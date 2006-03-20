@@ -52,6 +52,7 @@ t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_Midi( Chuck_Env * env );
 t_CKBOOL init_class_MidiRW( Chuck_Env * env );
+t_CKBOOL init_class_HID( Chuck_Env * env );
 
 
 
@@ -214,6 +215,33 @@ CK_DLL_MFUN( MidiOut_num );
 CK_DLL_MFUN( MidiOut_name );
 CK_DLL_MFUN( MidiOut_printerr );
 CK_DLL_MFUN( MidiOut_send );
+
+
+//-----------------------------------------------------------------------------
+// HidIn API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( HidIn_ctor );
+CK_DLL_DTOR( HidIn_dtor );
+CK_DLL_MFUN( HidIn_open );
+CK_DLL_MFUN( HidIn_good );
+CK_DLL_MFUN( HidIn_num );
+CK_DLL_MFUN( HidIn_name );
+CK_DLL_MFUN( HidIn_printerr );
+CK_DLL_MFUN( HidIn_recv );
+CK_DLL_MFUN( HidIn_can_wait );
+
+
+//-----------------------------------------------------------------------------
+// HidOut API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( HidOut_ctor );
+CK_DLL_DTOR( HidOut_dtor );
+CK_DLL_MFUN( HidOut_open );
+CK_DLL_MFUN( HidOut_good );
+CK_DLL_MFUN( HidOut_num );
+CK_DLL_MFUN( HidOut_name );
+CK_DLL_MFUN( HidOut_printerr );
+CK_DLL_MFUN( HidOut_send );
 
 
 //-----------------------------------------------------------------------------
