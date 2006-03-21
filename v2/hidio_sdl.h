@@ -55,12 +55,27 @@ struct HidMsg
 {
     t_CKINT dev_type;   // device type
     t_CKINT type;       // message type
-    t_CKINT id;         // element id
+    t_CKINT eid;         // element id
     t_CKFLOAT fdata[4]; // float data
 };
 
+/* device types */
+enum
+{
+    CK_HID_DEV_NONE = 0,
+    CK_HID_DEV_JOYSTICK = 1,
+    CK_HID_DEV_MOUSE = 2,
+    CK_HID_DEV_KEYBOARD = 3
+};
 
-
+/* joystick message types */
+enum
+{
+    CK_HID_ELEMENT_AXIS = 0,
+    CK_HID_ELEMENT_BUTTON = 1,
+    CK_HID_ELEMENT_HAT = 2,
+    CK_HID_ELEMENT_BALL = 3
+};
 
 //-----------------------------------------------------------------------------
 // name: struct HidOut

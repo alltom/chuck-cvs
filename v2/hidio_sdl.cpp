@@ -33,14 +33,41 @@
 // date: spring 2006
 //-----------------------------------------------------------------------------
 #include "hidio_sdl.h"
+#include "util_hid.h"
 #include "chuck_errmsg.h"
 #include <vector>
 #include <map>
 
 
-struct PhyHidDevIn
+class PhyHidDevIn
 {
-    // lies
+public:
+    PhyHidDevIn();
+    t_CKBOOL open( t_CKINT type, t_CKUINT number );
+    t_CKBOOL close();
+    
+    t_CKBOOL register_element( t_CKINT type, t_CKUINT eid );
+    t_CKBOOL unregister_element( t_CKINT type, t_CKUINT eid );
+    
+    t_CKBOOL query_element( HidMsg * query );
+
+    t_CKBOOL register_client( HidIn * client );
+    t_CKBOOL unregister_client( HidIn * client );
+    
+protected:
+    t_CKUINT refcount;
+    
+    t_CKUINT ** filter;
+    t_CKINT device_type;
+    t_CKUINT device_num;
+    
+    union 
+    {
+        SDL_Joystick * joystick;
+        // kb and mouse data here
+    };
+    
+    std::vector< HidIn * > clients;
 };
 
 struct PhyHidDevOut
@@ -58,6 +85,138 @@ struct PhyHidDevOut
 std::vector<PhyHidDevIn *> HidInManager::the_phins;
 std::vector<CBufferAdvance *> HidInManager::the_bufs;
 std::vector<PhyHidDevOut *> HidOutManager::the_phouts;
+
+
+
+//-----------------------------------------------------------------------------
+// name: PhyHidDevIn()
+// desc: constructor
+//-----------------------------------------------------------------------------
+PhyHidDevIn::PhyHidDevIn()
+{
+    filter = NULL;
+    device_type = CK_HID_DEV_NONE;
+    device_num = 0;
+    joystick = NULL;
+}
+
+//-----------------------------------------------------------------------------
+// name: open()
+// desc: opens the device of specified type and id
+//-----------------------------------------------------------------------------
+t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
+{
+    int temp;
+    
+    switch( type )
+    {
+        case CK_HID_DEV_JOYSTICK:
+            joystick = SDL_JoystickOpen( number );
+            if( !joystick )
+                return FALSE;
+            
+            filter = new t_CKUINT * [4];
+            filter[0] = NULL;
+            filter[1] = NULL;
+            filter[2] = NULL;
+            filter[3] = NULL;
+            
+            temp = SDL_JoystickNumAxes( joystick );
+            if( temp > 0 )
+                filter[CK_HID_ELEMENT_AXIS] = new t_CKUINT[temp];
+            else if( temp == 0 )
+                filter[CK_HID_ELEMENT_AXIS] = NULL;
+            else
+            {
+                close();
+                return FALSE;
+            }
+                
+            temp = SDL_JoystickNumButtons( joystick );
+            if( temp > 0 )
+                filter[CK_HID_ELEMENT_BUTTON] = new t_CKUINT[temp];
+            else if( temp == 0 )
+                filter[CK_HID_ELEMENT_BUTTON] = NULL;
+            else
+            {
+                close();
+                return FALSE;
+            }
+                
+            temp = SDL_JoystickNumHats( joystick );
+            if( temp > 0 )
+                filter[CK_HID_ELEMENT_HAT] = new t_CKUINT[temp];
+            else if( temp == 0 )
+                filter[CK_HID_ELEMENT_HAT] = NULL;
+            else
+            {
+                close();
+                return FALSE;
+            }
+                
+            temp = SDL_JoystickNumBalls( joystick );
+            if( temp > 0 )
+                filter[CK_HID_ELEMENT_BALL] = new t_CKUINT[temp];
+            else if( temp == 0 )
+                filter[CK_HID_ELEMENT_BALL] = NULL;
+            else
+            {
+                close();
+                return FALSE;
+            }
+                
+            break;
+            
+        case CK_HID_DEV_MOUSE:
+        case CK_HID_DEV_KEYBOARD:
+            EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed; device-type support incomplete" );
+            return FALSE;
+            break;
+                
+        default:
+            EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed; unknown device-type" );
+            return FALSE;
+    }
+}
+
+//-----------------------------------------------------------------------------
+// name: close()
+// desc: closes the device, deallocates all associated data
+//-----------------------------------------------------------------------------
+t_CKBOOL PhyHidDevIn::close()
+{
+    switch( device_type )
+    {
+        case CK_HID_DEV_JOYSTICK:
+            if( filter != NULL )
+            {
+                if( filter[0] != NULL )
+                    delete[] filter[0];
+                if( filter[1] != NULL )
+                    delete[] filter[1];
+                if( filter[2] != NULL )
+                    delete[] filter[2];
+                if( filter[3] != NULL )
+                    delete[] filter[3];
+                delete[] filter;
+             
+                filter = NULL;
+            }            
+            
+            if( joystick != NULL )
+                SDL_JoystickClose( joystick );
+            joystick = NULL;
+            
+            device_type = CK_HID_DEV_NONE;
+            device_num = 0;
+            
+            break;
+            
+        default:
+            EM_log( CK_LOG_WARNING, "PhyHidDevIn: close operation failed; device not opened" );
+            return FALSE;
+    }
+}
 
 
 
@@ -191,11 +350,14 @@ HidInManager::HidInManager()
 {
     the_phins.resize( 1024 );
     the_bufs.resize( 1024 );
+    
+    SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
 }
 
 
 HidInManager::~HidInManager()
 {
+    SDL_Quit();
     // yeah right
 }
 
@@ -397,3 +559,5 @@ t_CKBOOL HidOutManager::open( HidOut * hout, t_CKINT device_num )
     // done
     return TRUE;
 }
+
+
