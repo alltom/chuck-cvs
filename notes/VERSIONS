@@ -1,7 +1,5 @@
 ---
 1.2.0.5
-  - (added) Keyboard Input (immediate mode)...
-  - (added) 'KBHit' event class (see examples/event/kb*.ck)
   - (added) multi-channel audio
             - use --channels<N> or -c<N> set number of channels
               for both input and output
@@ -15,6 +13,10 @@
   - (added) examples in examples/multi
             - n.ck : n channels detuned sine
             - i.ck : n channels impulse
+  - (added) HID support (author: Spencer Salazar)
+  - (added) 'HidIn' event class (see examples/hid/*.ck)
+  - (added) Terminal Keyboard Input (immediate mode, separate from HID)
+  - (added) 'KBHit' event class (see examples/event/kb*.ck)
   - (added) sndbuf.chunks : better real-time behavior
             - default is 256 frames
             - can be set to arbitrary integers
