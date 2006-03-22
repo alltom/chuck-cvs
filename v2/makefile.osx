@@ -46,8 +46,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o \
 	ulib_opsc.o util_buffers.o util_console.o util_math.o util_network.o \
 	util_raw.o util_string.o util_thread.o util_xforms.o util_opsc.o \
-	util_hid.o \
-	$(SF_OBJ)
+	util_hid.o $(SF_OBJ)
 
 chuck: $(OBJS)
 	$(CXX_LINK) -o chuck $(OBJS) $(LIBS)
