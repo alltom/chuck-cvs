@@ -407,6 +407,8 @@ t_CKBOOL HidIn::open( t_CKINT device_type, t_CKINT device_num )
 
 void HidInManager::init()
 {
+    // log
+    EM_log( CK_LOG_INFO, "initializing HID..." );
     assert( has_init == FALSE );
 
     // allocate the matrix
@@ -426,6 +428,8 @@ void HidInManager::init()
 
 void HidInManager::cleanup()
 {
+    // log
+    EM_log( CK_LOG_INFO, "shutting down HID..." );
     // stop
     SDL_Quit();
     // flag
@@ -435,6 +439,9 @@ void HidInManager::cleanup()
     if( the_thread != NULL )
         SAFE_DELETE( the_thread );
 
+    // init
+    has_init = FALSE;        
+    
     // yeah right
 }
 
