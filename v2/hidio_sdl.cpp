@@ -430,17 +430,18 @@ void HidInManager::cleanup()
 {
     // log
     EM_log( CK_LOG_INFO, "shutting down HID..." );
-    // stop
-    SDL_Quit();
-    // flag
-    thread_going = FALSE;
 
     // clean up
     if( the_thread != NULL )
         SAFE_DELETE( the_thread );
 
+    // stop
+    SDL_Quit();
+    // flag
+    thread_going = FALSE;
+
     // init
-    has_init = FALSE;        
+    has_init = FALSE;
     
     // yeah right
 }

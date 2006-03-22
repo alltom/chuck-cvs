@@ -19,7 +19,8 @@ echo.delay() * 3 => echo3.max => echo3.delay;
 echo.gain() * .5 => echo2.gain;
 echo2.gain() * .5 => echo3.gain;
 .5 => n.gain;
-440 => float value => f.pfreq;
+440 => f.pfreq;
+0 => float value;
 1 => float factor;
 
 // open joystick
