@@ -88,6 +88,7 @@ struct PhyHidDevOut
 #define BUFFER_SIZE 8192
 
 std::vector< std::vector<PhyHidDevIn *> > HidInManager::the_matrix;
+XThread * HidInManager::the_thread = NULL;
 std::vector<PhyHidDevOut *> HidOutManager::the_phouts;
 
 
@@ -470,6 +471,15 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
     hin->m_read_index = hin->m_buffer->join( (Chuck_Event *)hin->SELF );
     hin->m_device_num = (t_CKUINT)device_num;
 
+    // start thread
+    if( the_thread == NULL )
+    {
+        // allocate
+        the_thread = new XThread;
+        // start
+        the_thread->start( cb_hid_input, NULL );
+    }
+
     // done
     return TRUE;
 }
@@ -527,9 +537,13 @@ t_CKUINT HidIn::recv( HidMsg * msg )
 // name: cb_hid_input
 // desc: call back
 //-----------------------------------------------------------------------------
-void HidInManager::cb_hid_input( double deltatime, std::vector<unsigned char> * msg,
-                                 void * userData )
+#ifndef __PLATFORM_WIN32__
+void * HidInManager::cb_hid_input( void * stuff )
+#else
+unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
+#endif 
 {
+    return 0;
 }
 
 

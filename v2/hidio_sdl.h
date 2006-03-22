@@ -37,6 +37,7 @@
 
 #include "chuck_def.h"
 #include "util_buffers.h"
+#include "util_thread.h"
 
 
 
@@ -172,13 +173,18 @@ public:
     static t_CKBOOL open( HidIn * hin, t_CKINT device_type, t_CKINT device_num );
     static t_CKBOOL close( HidIn * hin );
 
-    static void cb_hid_input( double deltatime, std::vector<unsigned char> * msg,
-                              void * userData );
+#ifndef __PLATFORM_WIN32__
+    static void * cb_hid_input( void * );
+#else
+    static unsigned __stdcall cb_hid_input( void * );
+#endif
+
 protected:
     HidInManager();
     ~HidInManager();
 
     static std::vector< std::vector<PhyHidDevIn *> > the_matrix;
+    static XThread * the_thread;
 };
 
 
