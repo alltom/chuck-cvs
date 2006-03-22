@@ -34,6 +34,7 @@
 #include "chuck_bbq.h"
 #include "ugen_stk.h"
 #include "ulib_std.h"
+#include "hidio_sdl.h"
 #include <stdlib.h>
 #include <stdio.h>
 

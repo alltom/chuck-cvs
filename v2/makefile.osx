@@ -31,7 +31,7 @@ endif
 
 #-----------------------------------------------------------------------------
 # by default, ChucK uses a custom skeleton libsdl for joystick support...
-# uncomment the next 3 lines to use libsdl on your system
+# uncomment the next 2 lines to use libsdl on your system
 #-----------------------------------------------------------------------------
 #FLAGS+= -D__CK_SDL_NATIVE__
 #LIBS+= -lsdl
