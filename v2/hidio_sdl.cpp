@@ -1,3 +1,4 @@
+
 /*----------------------------------------------------------------------------
     ChucK Concurrent, On-the-fly Audio Programming Language
       Compiler and Virtual Machine
@@ -572,10 +573,13 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
         }
 
         // find the queue
-        CBufferAdvance * cbuf = the_matrix[type][num]->cbuf;
-        assert( cbuf != NULL );
-        // queue the thing
-        cbuf->put( &msg, 1 );
+        if( the_matrix[type][num] != NULL )
+        {
+            CBufferAdvance * cbuf = the_matrix[type][num]->cbuf;
+            assert( cbuf != NULL );
+            // queue the thing
+            cbuf->put( &msg, 1 );
+        }
     }
     
     // log
