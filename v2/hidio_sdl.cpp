@@ -37,12 +37,14 @@
 #include "chuck_errmsg.h"
 #include <vector>
 #include <map>
+using namespace std;
 
 
 struct PhyHidDevIn
 {
 public:
     PhyHidDevIn();
+    ~PhyHidDevIn();
     t_CKBOOL open( t_CKINT type, t_CKUINT number );
     t_CKBOOL close();
     
@@ -53,7 +55,10 @@ public:
 
     t_CKBOOL register_client( HidIn * client );
     t_CKBOOL unregister_client( HidIn * client );
-    
+
+public:
+    CBufferAdvance * cbuf;
+
 protected:
     t_CKUINT refcount;
     
@@ -82,8 +87,7 @@ struct PhyHidDevOut
 //-----------------------------------------------------------------------------
 #define BUFFER_SIZE 8192
 
-std::vector<PhyHidDevIn *> HidInManager::the_phins;
-std::vector<CBufferAdvance *> HidInManager::the_bufs;
+std::vector< std::vector<PhyHidDevIn *> > HidInManager::the_matrix;
 std::vector<PhyHidDevOut *> HidOutManager::the_phouts;
 
 
@@ -98,7 +102,21 @@ PhyHidDevIn::PhyHidDevIn()
     device_type = CK_HID_DEV_NONE;
     device_num = 0;
     joystick = NULL;
+    cbuf = NULL;
 }
+
+
+//-----------------------------------------------------------------------------
+// name: ~PhyHidDevIn()
+// desc: destructor
+//-----------------------------------------------------------------------------
+PhyHidDevIn::~PhyHidDevIn()
+{
+    // check
+    if( device_type != CK_HID_DEV_NONE )
+        this->close();
+}
+
 
 //-----------------------------------------------------------------------------
 // name: open()
@@ -131,9 +149,9 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             
             temp = SDL_JoystickNumAxes( joystick );
             if( temp > 0 )
-                filter[CK_HID_ELEMENT_AXIS] = new t_CKUINT[temp];
+                filter[CK_HID_JOYSTICK_AXIS] = new t_CKUINT[temp];
             else if( temp == 0 )
-                filter[CK_HID_ELEMENT_AXIS] = NULL;
+                filter[CK_HID_JOYSTICK_AXIS] = NULL;
             else
             {
                 close();
@@ -142,9 +160,9 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
                 
             temp = SDL_JoystickNumButtons( joystick );
             if( temp > 0 )
-                filter[CK_HID_ELEMENT_BUTTON] = new t_CKUINT[temp];
+                filter[CK_HID_JOYSTICK_BUTTON] = new t_CKUINT[temp];
             else if( temp == 0 )
-                filter[CK_HID_ELEMENT_BUTTON] = NULL;
+                filter[CK_HID_JOYSTICK_BUTTON] = NULL;
             else
             {
                 close();
@@ -153,9 +171,9 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
                 
             temp = SDL_JoystickNumHats( joystick );
             if( temp > 0 )
-                filter[CK_HID_ELEMENT_HAT] = new t_CKUINT[temp];
+                filter[CK_HID_JOYSTICK_HAT] = new t_CKUINT[temp];
             else if( temp == 0 )
-                filter[CK_HID_ELEMENT_HAT] = NULL;
+                filter[CK_HID_JOYSTICK_HAT] = NULL;
             else
             {
                 close();
@@ -164,9 +182,9 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
                 
             temp = SDL_JoystickNumBalls( joystick );
             if( temp > 0 )
-                filter[CK_HID_ELEMENT_BALL] = new t_CKUINT[temp];
+                filter[CK_HID_JOYSTICK_BALL] = new t_CKUINT[temp];
             else if( temp == 0 )
-                filter[CK_HID_ELEMENT_BALL] = NULL;
+                filter[CK_HID_JOYSTICK_BALL] = NULL;
             else
             {
                 close();
@@ -186,11 +204,23 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             return FALSE;
     }
 
+    // allocate the buffer
+    cbuf = new CBufferAdvance;
+    if( !cbuf->initialize( BUFFER_SIZE, sizeof(HidMsg) ) )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed: cannot initialize buffer" );
+        this->close();
+        return FALSE;
+    }
+
     device_type = type;
     device_num = number;
 
+
     return TRUE;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: close()
@@ -198,6 +228,14 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
 //-----------------------------------------------------------------------------
 t_CKBOOL PhyHidDevIn::close()
 {
+    // check
+    if( cbuf != NULL )
+    {
+        // delete
+        SAFE_DELETE( cbuf );
+        // TODO: release references from cbuf?
+    }
+
     switch( device_type )
     {
         case CK_HID_DEV_JOYSTICK:
@@ -363,8 +401,14 @@ t_CKBOOL HidIn::open( t_CKINT device_type, t_CKINT device_num )
 
 HidInManager::HidInManager()
 {
-    the_phins.resize( 1024 );
-    the_bufs.resize( 1024 );
+    // allocate the matrix
+    the_matrix.resize( CK_HID_DEV_COUNT );
+    // resize each vector
+    for( vector<vector<PhyHidDevIn *> >::size_type i = 0; i < the_matrix.size(); i++ )
+    {
+        // allocate
+        the_matrix[i].resize( CK_MAX_HID_DEVICES );
+    }
     
     SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
 }
@@ -379,56 +423,48 @@ HidInManager::~HidInManager()
 
 t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_num )
 {
-    // see if port not already open
-    if( device_num >= (t_CKINT)the_phins.capacity() || !the_phins[device_num] )
+    // check type
+    if( device_type < 1 || device_type >= CK_HID_DEV_COUNT )
     {
-        // allocate the buffer
-        CBufferAdvance * cbuf = new CBufferAdvance;
-        if( !cbuf->initialize( BUFFER_SIZE, sizeof(HidMsg) ) )
+        // log
+        EM_log( CK_LOG_WARNING, "HidInManager: open() failed -> invalid type '%d'...", 
+            device_type );
+        return FALSE;
+    }
+
+    // get the vector
+    vector<PhyHidDevIn *> & v = the_matrix[device_type];
+
+    // see if port not already open
+    if( device_num >= (t_CKINT)v.capacity() || !v[device_num] )
+    {
+        // allocate
+        PhyHidDevIn * phin = new PhyHidDevIn;
+        // open
+        if( !phin->open( device_type, device_num ) )
         {
-            if( !hin->m_suppress_output )
-                EM_error2( 0, "HidIn: couldn't allocate CBuffer for port %i...", device_num );
-            delete cbuf;
+            // log
+            EM_error2( 0, "HidIn: couldn't open HID device %d:%d...", device_type, device_num );
+            SAFE_DELETE( phin );
             return FALSE;
         }
 
-        // allocate
-        PhyHidDevIn * phin = new PhyHidDevIn;
-        /*
-        try {
-            rtmin->openPort( device_num );
-            rtmin->setCallback( cb_midi_input, cbuf );
-        } catch( RtError & err ) {
-            if( !min->m_suppress_output )
-            {
-                // print it
-                EM_error2( 0, "MidiIn: couldn't open MIDI port %i...", device_num );
-                err.getMessage();
-                // const char * e = err.getMessage().c_str();
-                // EM_error2( 0, "...(%s)", err.getMessage().c_str() );
-            }
-            delete cbuf;
-            return FALSE;
-        }*/
-
         // resize?
-        if( device_num >= (t_CKINT)the_phins.capacity() )
+        if( device_num >= (t_CKINT)v.capacity() )
         {
-            t_CKINT size = the_phins.capacity() * 2;
+            t_CKINT size = v.capacity() * 2;
             if( device_num >= size ) size = device_num + 1;
-            the_phins.resize( size );
-            the_bufs.resize( size );
+            v.resize( size );
         }
 
         // put cbuf and rtmin in vector for future generations
-        the_phins[device_num] = phin;
-        the_bufs[device_num] = cbuf;
+        v[device_num] = phin;
     }
 
     // set min
-    hin->phin = the_phins[device_num];
+    hin->phin = v[device_num];
     // found
-    hin->m_buffer = the_bufs[device_num];
+    hin->m_buffer = v[device_num]->cbuf;
     // get an index into your (you are min here) own buffer, 
     // and a free ticket to your own workshop
     hin->m_read_index = hin->m_buffer->join( (Chuck_Event *)hin->SELF );

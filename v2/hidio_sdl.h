@@ -60,23 +60,34 @@ struct HidMsg
     t_CKFLOAT fdata[4]; // float data
 };
 
+
 /* device types */
 enum
 {
     CK_HID_DEV_NONE = 0,
     CK_HID_DEV_JOYSTICK = 1,
     CK_HID_DEV_MOUSE = 2,
-    CK_HID_DEV_KEYBOARD = 3
+    CK_HID_DEV_KEYBOARD = 3,
+
+    CK_HID_DEV_COUNT
 };
+
 
 /* joystick message types */
 enum
 {
-    CK_HID_ELEMENT_AXIS = 0,
-    CK_HID_ELEMENT_BUTTON = 1,
-    CK_HID_ELEMENT_HAT = 2,
-    CK_HID_ELEMENT_BALL = 3
+    CK_HID_JOYSTICK_AXIS = 0,
+    CK_HID_JOYSTICK_BUTTON = 1,
+    CK_HID_JOYSTICK_HAT = 2,
+    CK_HID_JOYSTICK_BALL = 3,
+
+    CK_HID_JOYSTICK_COUNT
 };
+
+
+/* constants */
+#define CK_MAX_HID_DEVICES 1024
+
 
 //-----------------------------------------------------------------------------
 // name: struct HidOut
@@ -167,8 +178,7 @@ protected:
     HidInManager();
     ~HidInManager();
 
-    static std::vector<PhyHidDevIn *> the_phins;
-    static std::vector<CBufferAdvance *> the_bufs;
+    static std::vector< std::vector<PhyHidDevIn *> > the_matrix;
 };
 
 
