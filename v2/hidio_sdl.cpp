@@ -426,7 +426,15 @@ void HidInManager::init()
 
 void HidInManager::cleanup()
 {
+    // stop
     SDL_Quit();
+    // flag
+    thread_going = FALSE;
+
+    // clean up
+    if( the_thread != NULL )
+        SAFE_DELETE( the_thread );
+
     // yeah right
 }
 
@@ -615,6 +623,9 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
         // queue the thing
         cbuf->put( &msg, 1 );
     }
+    
+    // log
+    EM_log( CK_LOG_INFO, "HID thread exiting..." );
 
     return 0;
 }

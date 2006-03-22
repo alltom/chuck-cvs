@@ -55,13 +55,15 @@ XThread::XThread( )
 //-----------------------------------------------------------------------------
 XThread::~XThread( )
 {
+    if( thread != 0 )
+    {
 #if ( defined(__PLATFORM_MACOSX__) || defined(__PLATFORM_LINUX__) || defined(__WINDOWS_PTHREAD__) )
-    pthread_cancel(thread);
-    pthread_join(thread, NULL);
+        pthread_cancel(thread);
+        pthread_join(thread, NULL);
 #elif defined(__PLATFORM_WIN32__)
-    if( thread )
         TerminateThread((HANDLE)thread, 0);
 #endif
+    }
 }
 
 

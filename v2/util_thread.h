@@ -82,6 +82,9 @@ public:
 public:
     // test for a thread cancellation request.
     static void test( );
+    
+    // clear
+    void clear() { thread = 0; }
 
 protected:
     THREAD_HANDLE thread;
