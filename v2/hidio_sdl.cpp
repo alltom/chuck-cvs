@@ -409,20 +409,21 @@ void HidInManager::init()
 {
     // log
     EM_log( CK_LOG_INFO, "initializing HID..." );
-    assert( has_init == FALSE );
-
-    // allocate the matrix
-    the_matrix.resize( CK_HID_DEV_COUNT );
-    // resize each vector
-    for( vector<vector<PhyHidDevIn *> >::size_type i = 0; i < the_matrix.size(); i++ )
+    if( has_init == FALSE )
     {
-        // allocate
-        the_matrix[i].resize( CK_MAX_HID_DEVICES );
+        // allocate the matrix
+        the_matrix.resize( CK_HID_DEV_COUNT );
+        // resize each vector
+        for( vector<vector<PhyHidDevIn *> >::size_type i = 0; i < the_matrix.size(); i++ )
+        {
+            // allocate
+            the_matrix[i].resize( CK_MAX_HID_DEVICES );
+        }
+
+        SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
+
+        has_init = TRUE;
     }
-
-    SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
-
-    has_init = TRUE;
 }
 
 
@@ -431,18 +432,20 @@ void HidInManager::cleanup()
     // log
     EM_log( CK_LOG_INFO, "shutting down HID..." );
 
-    // clean up
-    if( the_thread != NULL )
-        SAFE_DELETE( the_thread );
-
+    /*
     // stop
     SDL_Quit();
     // flag
     thread_going = FALSE;
 
+    // clean up
+    if( the_thread != NULL )
+        SAFE_DELETE( the_thread );
+
     // init
     has_init = FALSE;
-    
+    */
+
     // yeah right
 }
 
