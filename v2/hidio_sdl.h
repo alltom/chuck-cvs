@@ -124,7 +124,7 @@ public:
     ~HidIn();
 
 public:
-    t_CKBOOL open( t_CKUINT device_num = 0 );
+    t_CKBOOL open( t_CKINT device_type, t_CKINT device_num = 0 );
     t_CKBOOL close();
     t_CKBOOL good() { return m_valid; }
     t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
@@ -144,7 +144,7 @@ public:
     CBufferAdvance * m_buffer;
     t_CKUINT m_read_index;
     t_CKBOOL m_valid;
-    t_CKUINT m_device_num;
+    t_CKINT m_device_num;
     Chuck_Object * SELF;
     t_CKBOOL m_suppress_output;
 };
@@ -157,7 +157,7 @@ void probeHidOut();
 class HidInManager
 {
 public:
-    static t_CKBOOL open( HidIn * hin, t_CKINT device_num );
+    static t_CKBOOL open( HidIn * hin, t_CKINT device_type, t_CKINT device_num );
     static t_CKBOOL close( HidIn * hin );
 
     static void cb_hid_input( double deltatime, std::vector<unsigned char> * msg,

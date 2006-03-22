@@ -247,6 +247,10 @@ SOURCE=.\util_console.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\util_hid.c
+# End Source File
+# Begin Source File
+
 SOURCE=.\util_math.c
 # End Source File
 # Begin Source File
@@ -448,6 +452,10 @@ SOURCE=.\util_buffers.h
 # Begin Source File
 
 SOURCE=.\util_console.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\util_hid.h
 # End Source File
 # Begin Source File
 

@@ -39,7 +39,7 @@
 #include <map>
 
 
-class PhyHidDevIn
+struct PhyHidDevIn
 {
 public:
     PhyHidDevIn();
@@ -107,7 +107,15 @@ PhyHidDevIn::PhyHidDevIn()
 t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
 {
     int temp;
-    
+
+    // check
+    if( device_type != CK_HID_DEV_NONE )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> already open!" );
+        return FALSE;
+    }
+
     switch( type )
     {
         case CK_HID_DEV_JOYSTICK:
@@ -177,6 +185,11 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed; unknown device-type" );
             return FALSE;
     }
+
+    device_type = type;
+    device_num = number;
+
+    return TRUE;
 }
 
 //-----------------------------------------------------------------------------
@@ -216,6 +229,8 @@ t_CKBOOL PhyHidDevIn::close()
     
     device_type = CK_HID_DEV_NONE;
     device_num = 0;
+
+    return TRUE;
 }
 
 
@@ -333,14 +348,14 @@ HidIn::~HidIn( )
 // name: open()
 // desc: open
 //-----------------------------------------------------------------------------
-t_CKBOOL HidIn::open( t_CKUINT device_num )
+t_CKBOOL HidIn::open( t_CKINT device_type, t_CKINT device_num )
 {
     // close if already opened
     if( m_valid )
         this->close();
 
     // open
-    return m_valid = HidInManager::open( this, (t_CKINT)device_num );
+    return m_valid = HidInManager::open( this, device_type, device_num );
 }
 
 
@@ -362,7 +377,7 @@ HidInManager::~HidInManager()
 }
 
 
-t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_num )
+t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_num )
 {
     // see if port not already open
     if( device_num >= (t_CKINT)the_phins.capacity() || !the_phins[device_num] )
