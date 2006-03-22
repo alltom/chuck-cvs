@@ -206,16 +206,16 @@ t_CKBOOL PhyHidDevIn::close()
             if( joystick != NULL )
                 SDL_JoystickClose( joystick );
             joystick = NULL;
-            
-            device_type = CK_HID_DEV_NONE;
-            device_num = 0;
-            
+                        
             break;
             
         default:
             EM_log( CK_LOG_WARNING, "PhyHidDevIn: close operation failed; device not opened" );
             return FALSE;
     }
+    
+    device_type = CK_HID_DEV_NONE;
+    device_num = 0;
 }
 
 
