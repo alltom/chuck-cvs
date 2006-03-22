@@ -48,6 +48,7 @@
 
 #include "util_thread.h"
 #include "util_network.h"
+#include "hidio_sdl.h"
 
 #include <signal.h>
 #ifndef __PLATFORM_WIN32__
@@ -273,6 +274,7 @@ int main( int argc, char ** argv )
     t_CKBOOL block = FALSE;
     t_CKBOOL enable_shell = FALSE;
     t_CKBOOL no_vm = FALSE;
+    t_CKBOOL load_hid = FALSE;
     t_CKINT  log_level = CK_LOG_CORE;
 
 #ifdef __MACOSX_CORE__
@@ -311,6 +313,8 @@ int main( int argc, char ** argv )
                 block = FALSE;
             else if( !strcmp(argv[i], "--blocking") )
                 block = TRUE;
+            else if( !strcmp(argv[i], "--hid") )
+                load_hid = TRUE;
             else if( !strcmp(argv[i], "--shell") || !strcmp( argv[i], "-e" ) )
             {   enable_shell = TRUE; vm_halt = FALSE; }
             else if( !strcmp(argv[i], "--empty") )
@@ -492,6 +496,9 @@ int main( int argc, char ** argv )
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
     }
+
+    // pre-load hid
+    if( load_hid ) HidInManager::init();
 
     // catch SIGINT
     signal( SIGINT, signal_int );

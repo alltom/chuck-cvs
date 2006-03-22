@@ -446,12 +446,29 @@ void HidInManager::cleanup()
     has_init = FALSE;
     */
 
+    // loop
+    for( vector<vector<PhyHidDevIn *> >::size_type i = 0; i < the_matrix.size(); i++ )
+    {
+        // loop
+        for( vector<PhyHidDevIn *>::size_type j = 0; j < the_matrix[i].size(); j++ )
+        {
+            // deallocate devices
+            SAFE_DELETE( the_matrix[i][j] );
+        }
+    }
+    
     // yeah right
 }
 
 
 t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_num )
 {
+    // init?
+    if( has_init == FALSE )
+    {
+        init();
+    }
+
     // check type
     if( device_type < 1 || device_type >= CK_HID_DEV_COUNT )
     {

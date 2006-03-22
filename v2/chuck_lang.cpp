@@ -781,7 +781,7 @@ t_CKBOOL init_class_MidiRW( Chuck_Env * env )
     type_engine_import_class_end( env );
 
     // initialize
-    HidInManager::init();
+    // HidInManager::init();
 
     return TRUE;
 
