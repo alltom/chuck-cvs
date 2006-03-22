@@ -55,7 +55,8 @@ struct HidMsg
 {
     t_CKINT dev_type;   // device type
     t_CKINT type;       // message type
-    t_CKINT eid;         // element id
+    t_CKINT eid;        // element id
+    t_CKINT idata[4];   // int data
     t_CKFLOAT fdata[4]; // float data
 };
 

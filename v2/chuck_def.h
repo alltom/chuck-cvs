@@ -124,6 +124,7 @@ typedef const char *                c_constr;
 #pragma warning (disable : 4312)  // type casts from void*
 #pragma warning (disable : 4311)  // type casts to void*
 #pragma warning (disable : 4244)  // truncation
+#pragma warning (disable : 4068)  // unknown pragma
 #endif
 
 
