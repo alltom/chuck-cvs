@@ -34,7 +34,7 @@ endif
 # uncomment the next 2 lines to use libsdl on your system
 #-----------------------------------------------------------------------------
 #FLAGS+= -D__CK_SDL_NATIVE__
-#LIBS+= -lsdl
+#LIBS+= -framework SDL
 
 OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	chuck_frame.o chuck_symbol.o chuck_table.o chuck_utils.o \

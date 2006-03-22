@@ -49,9 +49,6 @@ public:
     t_CKBOOL open( t_CKINT type, t_CKUINT number );
     t_CKBOOL close();
     
-    t_CKBOOL register_element( t_CKINT type, t_CKUINT eid );
-    t_CKBOOL unregister_element( t_CKINT type, t_CKUINT eid );
-    
     t_CKBOOL query_element( HidMsg * query );
 
     t_CKBOOL register_client( HidIn * client );
@@ -60,10 +57,7 @@ public:
 public:
     CBufferAdvance * cbuf;
 
-protected:
-    t_CKUINT refcount;
-    
-    t_CKUINT ** filter;
+protected:    
     t_CKINT device_type;
     t_CKUINT device_num;
     
@@ -102,7 +96,6 @@ std::vector<PhyHidDevOut *> HidOutManager::the_phouts;
 //-----------------------------------------------------------------------------
 PhyHidDevIn::PhyHidDevIn()
 {
-    filter = NULL;
     device_type = CK_HID_DEV_NONE;
     device_num = 0;
     joystick = NULL;
@@ -145,58 +138,6 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             if( !joystick )
                 return FALSE;
             
-            filter = new t_CKUINT * [4];
-            filter[0] = NULL;
-            filter[1] = NULL;
-            filter[2] = NULL;
-            filter[3] = NULL;
-            
-            /*
-            temp = SDL_JoystickNumAxes( joystick );
-            if( temp > 0 )
-                filter[CK_HID_JOYSTICK_AXIS] = new t_CKUINT[temp];
-            else if( temp == 0 )
-                filter[CK_HID_JOYSTICK_AXIS] = NULL;
-            else
-            {
-                close();
-                return FALSE;
-            }
-                
-            temp = SDL_JoystickNumButtons( joystick );
-            if( temp > 0 )
-                filter[CK_HID_JOYSTICK_BUTTON] = new t_CKUINT[temp];
-            else if( temp == 0 )
-                filter[CK_HID_JOYSTICK_BUTTON] = NULL;
-            else
-            {
-                close();
-                return FALSE;
-            }
-                
-            temp = SDL_JoystickNumHats( joystick );
-            if( temp > 0 )
-                filter[CK_HID_JOYSTICK_HAT] = new t_CKUINT[temp];
-            else if( temp == 0 )
-                filter[CK_HID_JOYSTICK_HAT] = NULL;
-            else
-            {
-                close();
-                return FALSE;
-            }
-                
-            temp = SDL_JoystickNumBalls( joystick );
-            if( temp > 0 )
-                filter[CK_HID_JOYSTICK_BALL] = new t_CKUINT[temp];
-            else if( temp == 0 )
-                filter[CK_HID_JOYSTICK_BALL] = NULL;
-            else
-            {
-                close();
-                return FALSE;
-            }
-            */
-                
             break;
             
         case CK_HID_DEV_MOUSE:
@@ -244,22 +185,7 @@ t_CKBOOL PhyHidDevIn::close()
 
     switch( device_type )
     {
-        case CK_HID_DEV_JOYSTICK:
-            if( filter != NULL )
-            {
-                if( filter[0] != NULL )
-                    delete[] filter[0];
-                if( filter[1] != NULL )
-                    delete[] filter[1];
-                if( filter[2] != NULL )
-                    delete[] filter[2];
-                if( filter[3] != NULL )
-                    delete[] filter[3];
-                delete[] filter;
-             
-                filter = NULL;
-            }            
-            
+        case CK_HID_DEV_JOYSTICK:            
             if( joystick != NULL )
                 SDL_JoystickClose( joystick );
             joystick = NULL;
@@ -314,7 +240,7 @@ HidOut::~HidOut()
 t_CKUINT HidOut::send( const HidMsg * msg )
 {
     if( !m_valid ) return 0;
-
+    
     return 0;
 }
 
@@ -735,6 +661,33 @@ t_CKBOOL HidOutManager::open( HidOut * hout, t_CKINT device_num )
 
     // done
     return TRUE;
+}
+
+
+extern "C" {
+extern XMutex * XMutex_create();
+extern void XMutex_acquire( XMutex * );
+extern void XMutex_release( XMutex * );
+extern void XMutex_free( XMutex * );
+}
+XMutex * XMutex_create()
+{
+    return new XMutex;
+}
+
+void XMutex_acquire( XMutex * m )
+{
+    m->acquire();
+}
+
+void XMutex_release( XMutex * m )
+{
+    m->release();
+}
+
+void XMutex_free( XMutex * m )
+{
+    SAFE_DELETE( m );
 }
 
 
