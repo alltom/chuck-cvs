@@ -80,6 +80,8 @@ extern "C" void all_detach()
     midirw_detach();
     // shutdown kb loop
     KBHitManager::shutdown();
+    // shutdown HID
+    HidInManager::cleanup();
 }
 
 
