@@ -35,6 +35,7 @@
 #include "hidio_sdl.h"
 #include "util_hid.h"
 #include "chuck_errmsg.h"
+#include <limits.h>
 #include <vector>
 #include <map>
 using namespace std;
@@ -89,6 +90,8 @@ struct PhyHidDevOut
 
 std::vector< std::vector<PhyHidDevIn *> > HidInManager::the_matrix;
 XThread * HidInManager::the_thread = NULL;
+t_CKBOOL HidInManager::thread_going = FALSE;
+t_CKBOOL HidInManager::has_init = FALSE;
 std::vector<PhyHidDevOut *> HidOutManager::the_phouts;
 
 
@@ -125,7 +128,7 @@ PhyHidDevIn::~PhyHidDevIn()
 //-----------------------------------------------------------------------------
 t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
 {
-    int temp;
+    // int temp;
 
     // check
     if( device_type != CK_HID_DEV_NONE )
@@ -148,6 +151,7 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             filter[2] = NULL;
             filter[3] = NULL;
             
+            /*
             temp = SDL_JoystickNumAxes( joystick );
             if( temp > 0 )
                 filter[CK_HID_JOYSTICK_AXIS] = new t_CKUINT[temp];
@@ -191,6 +195,7 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
                 close();
                 return FALSE;
             }
+            */
                 
             break;
             
@@ -400,8 +405,10 @@ t_CKBOOL HidIn::open( t_CKINT device_type, t_CKINT device_num )
 
 
 
-HidInManager::HidInManager()
+void HidInManager::init()
 {
+    assert( has_init == FALSE );
+
     // allocate the matrix
     the_matrix.resize( CK_HID_DEV_COUNT );
     // resize each vector
@@ -410,12 +417,14 @@ HidInManager::HidInManager()
         // allocate
         the_matrix[i].resize( CK_MAX_HID_DEVICES );
     }
-    
+
     SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
+
+    has_init = TRUE;
 }
 
 
-HidInManager::~HidInManager()
+void HidInManager::cleanup()
 {
     SDL_Quit();
     // yeah right
@@ -476,9 +485,11 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
     {
         // allocate
         the_thread = new XThread;
+        // flag
+        thread_going = TRUE;
         // start
         the_thread->start( cb_hid_input, NULL );
-    }
+   }
 
     // done
     return TRUE;
@@ -543,6 +554,68 @@ void * HidInManager::cb_hid_input( void * stuff )
 unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 #endif 
 {
+    SDL_Event event;
+    HidMsg msg;
+    t_CKINT type;
+    t_CKINT num;
+
+    // keep going
+    while( thread_going )
+    {
+        // wait for SDL event
+        SDL_WaitEvent( &event );
+        // clear
+        msg.clear();
+        // make HID msg
+        switch( event.type )
+        {
+            case SDL_JOYAXISMOTION:
+                type = CK_HID_DEV_JOYSTICK;
+                num = event.jaxis.which;
+                // msg
+                msg.type = CK_HID_JOYSTICK_AXIS;
+                msg.eid = event.jaxis.axis;
+                msg.idata[0] = event.jaxis.value;
+                msg.fdata[0] = msg.idata[0] / -((t_CKFLOAT)SHRT_MIN);
+                break;
+            case SDL_JOYBUTTONUP:
+                type = CK_HID_DEV_JOYSTICK;
+                num = event.jbutton.which;
+                // msg
+                msg.type = CK_HID_JOYSTICK_BUTTON_UP;
+                msg.eid = event.jbutton.button;
+                break;
+            case SDL_JOYBUTTONDOWN:
+                type = CK_HID_DEV_JOYSTICK;
+                num = event.jbutton.which;
+                // msg
+                msg.type = CK_HID_JOYSTICK_BUTTON_DOWN;
+                msg.eid = event.jbutton.button;
+                break;
+            case SDL_JOYHATMOTION:
+                type = CK_HID_DEV_JOYSTICK;
+                num = event.jhat.which;
+                // msg
+                msg.type = CK_HID_JOYSTICK_HAT;
+                msg.eid = event.jhat.hat;
+                msg.idata[0] = event.jhat.value;
+                break;
+            case SDL_QUIT:
+                thread_going = FALSE;
+                break;
+            default:
+                // log
+                EM_log( CK_LOG_WARNING, "HID: unsupported event type '%d'...", event.type );
+                continue;
+        }
+
+        // find the queue
+        CBufferAdvance * cbuf = the_matrix[type][num]->cbuf;
+        assert( cbuf != NULL );
+        // queue the thing
+        cbuf->put( &msg, 1 );
+    }
+
     return 0;
 }
 

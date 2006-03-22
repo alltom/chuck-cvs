@@ -54,11 +54,18 @@ struct PhyHidDevOut;
 //-----------------------------------------------------------------------------
 struct HidMsg
 {
-    t_CKINT dev_type;   // device type
     t_CKINT type;       // message type
     t_CKINT eid;        // element id
     t_CKINT idata[4];   // int data
     t_CKFLOAT fdata[4]; // float data
+
+    HidMsg()
+    { this->clear(); }
+
+    void clear()
+    {
+        memset( this, 0, sizeof(HidMsg) );
+    }
 };
 
 
@@ -78,9 +85,10 @@ enum
 enum
 {
     CK_HID_JOYSTICK_AXIS = 0,
-    CK_HID_JOYSTICK_BUTTON = 1,
-    CK_HID_JOYSTICK_HAT = 2,
-    CK_HID_JOYSTICK_BALL = 3,
+    CK_HID_JOYSTICK_BUTTON_DOWN = 1,
+    CK_HID_JOYSTICK_BUTTON_UP = 2,
+    CK_HID_JOYSTICK_HAT = 3,
+    CK_HID_JOYSTICK_BALL = 4,
 
     CK_HID_JOYSTICK_COUNT
 };
@@ -137,7 +145,7 @@ public:
     ~HidIn();
 
 public:
-    t_CKBOOL open( t_CKINT device_type, t_CKINT device_num = 0 );
+    t_CKBOOL open( t_CKINT device_type, t_CKINT device_num );
     t_CKBOOL close();
     t_CKBOOL good() { return m_valid; }
     t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
@@ -170,6 +178,8 @@ void probeHidOut();
 class HidInManager
 {
 public:
+    static void init();
+    static void cleanup();
     static t_CKBOOL open( HidIn * hin, t_CKINT device_type, t_CKINT device_num );
     static t_CKBOOL close( HidIn * hin );
 
@@ -180,11 +190,10 @@ public:
 #endif
 
 protected:
-    HidInManager();
-    ~HidInManager();
-
     static std::vector< std::vector<PhyHidDevIn *> > the_matrix;
     static XThread * the_thread;
+    static t_CKBOOL thread_going;
+    static t_CKBOOL has_init;
 };
 
 

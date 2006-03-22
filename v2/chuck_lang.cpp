@@ -536,9 +536,10 @@ error:
 
 // static
 static t_CKUINT HidIn_offset_data = 0;
-static t_CKUINT HidMsg_offset_data1 = 0;
-static t_CKUINT HidMsg_offset_data2 = 0;
-static t_CKUINT HidMsg_offset_data3 = 0;
+static t_CKUINT HidMsg_offset_type = 0;
+static t_CKUINT HidMsg_offset_which = 0;
+static t_CKUINT HidMsg_offset_idata = 0;
+static t_CKUINT HidMsg_offset_fdata = 0;
 static t_CKUINT HidMsg_offset_when = 0;
 static t_CKUINT HidOut_offset_data = 0;
 
@@ -556,16 +557,20 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
         return FALSE;
 
     // add member variable
-    HidMsg_offset_data1 = type_engine_import_mvar( env, "int", "data1", FALSE );
-    if( HidMsg_offset_data1 == CK_INVALID_OFFSET ) goto error;
+    HidMsg_offset_type = type_engine_import_mvar( env, "int", "type", FALSE );
+    if( HidMsg_offset_type == CK_INVALID_OFFSET ) goto error;
 
     // add member variable
-    HidMsg_offset_data2 = type_engine_import_mvar( env, "int", "data2", FALSE );
-    if( HidMsg_offset_data2 == CK_INVALID_OFFSET ) goto error;
+    HidMsg_offset_which = type_engine_import_mvar( env, "int", "which", FALSE );
+    if( HidMsg_offset_which == CK_INVALID_OFFSET ) goto error;
 
     // add member variable
-    HidMsg_offset_data3 = type_engine_import_mvar( env, "int", "data3", FALSE );
-    if( HidMsg_offset_data3 == CK_INVALID_OFFSET ) goto error;
+    HidMsg_offset_idata = type_engine_import_mvar( env, "int", "idata", FALSE );
+    if( HidMsg_offset_idata == CK_INVALID_OFFSET ) goto error;
+
+    // add member variable
+    HidMsg_offset_fdata = type_engine_import_mvar( env, "float", "fdata", FALSE );
+    if( HidMsg_offset_fdata == CK_INVALID_OFFSET ) goto error;
 
     // add member variable
     HidMsg_offset_when = type_engine_import_mvar( env, "time", "when", FALSE );
@@ -582,7 +587,13 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
 
     // add open()
     func = make_new_mfun( "int", "open", HidIn_open );
-    func->add_arg( "int", "port" );
+    func->add_arg( "int", "type" );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add openJoystick()
+    func = make_new_mfun( "int", "openJoystick", HidIn_open_joystick );
+    func->add_arg( "int", "num" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add good()
@@ -768,6 +779,10 @@ t_CKBOOL init_class_MidiRW( Chuck_Env * env )
 
     // end the class import
     type_engine_import_class_end( env );
+
+    // initialize
+    HidInManager::init();
+
     return TRUE;
 
 error:
@@ -1373,8 +1388,16 @@ CK_DLL_DTOR( HidIn_dtor )
 CK_DLL_MFUN( HidIn_open )
 {
     HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
-    t_CKINT port = GET_CK_INT(ARGS);
-    RETURN->v_int = min->open( port );
+    t_CKINT type = GET_NEXT_INT(ARGS);
+    t_CKINT num = GET_NEXT_INT(ARGS);
+    RETURN->v_int = min->open( type, num );
+}
+
+CK_DLL_MFUN( HidIn_open_joystick )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    t_CKINT num = GET_NEXT_INT(ARGS);
+    RETURN->v_int = min->open( CK_HID_DEV_JOYSTICK, num );
 }
 
 CK_DLL_MFUN( HidIn_good )
@@ -1413,12 +1436,13 @@ CK_DLL_MFUN( HidIn_recv )
     Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
     HidMsg the_msg;
     RETURN->v_int = min->recv( &the_msg );
-    /*if( RETURN->v_int )
+    if( RETURN->v_int )
     {
-        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data1) = the_msg.data[0];
-        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data2) = the_msg.data[1];
-        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_data3) = the_msg.data[2];
-    }*/
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_type) = the_msg.type;
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_which) = the_msg.eid;
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_idata) = the_msg.idata[0];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_fdata) = the_msg.fdata[0];
+    }
 }
 
 
@@ -1446,8 +1470,8 @@ CK_DLL_DTOR( HidOut_dtor )
 CK_DLL_MFUN( HidOut_open )
 {
     HidOut * mout = (HidOut *)OBJ_MEMBER_INT(SELF, HidOut_offset_data);
-    t_CKINT port = GET_CK_INT(ARGS);
-    RETURN->v_int = mout->open( port );
+    t_CKINT num = GET_CK_INT(ARGS);
+    RETURN->v_int = mout->open( num );
 }
 
 CK_DLL_MFUN( HidOut_good )
