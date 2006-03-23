@@ -721,10 +721,10 @@ CK_DLL_CTRL( ModalBar_ctrl_preset );
 CK_DLL_CGET( ModalBar_cget_preset );
 CK_DLL_CTRL( ModalBar_ctrl_freq );
 CK_DLL_CGET( ModalBar_cget_freq );
-CK_DLL_CTRL( ModalBar_ctrl_masterGain );
-CK_DLL_CGET( ModalBar_cget_masterGain );
 CK_DLL_CTRL( ModalBar_ctrl_directGain );
 CK_DLL_CGET( ModalBar_cget_directGain );
+CK_DLL_CTRL( ModalBar_ctrl_masterGain );
+CK_DLL_CGET( ModalBar_cget_masterGain );
 CK_DLL_CTRL( ModalBar_ctrl_mode );
 CK_DLL_CGET( ModalBar_cget_mode );
 CK_DLL_CTRL( ModalBar_ctrl_modeRatio );
@@ -733,6 +733,9 @@ CK_DLL_CTRL( ModalBar_ctrl_modeRadius );
 CK_DLL_CGET( ModalBar_cget_modeRadius );
 CK_DLL_CTRL( ModalBar_ctrl_modeGain );
 CK_DLL_CGET( ModalBar_cget_modeGain );
+CK_DLL_CTRL( ModalBar_ctrl_volume );
+CK_DLL_CGET( ModalBar_cget_volume );
+CK_DLL_CTRL( ModalBar_ctrl_controlChange );
 
 
 // Moog
