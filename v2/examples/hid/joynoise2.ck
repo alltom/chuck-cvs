@@ -34,6 +34,8 @@ echo.gain() * .5 => echo2.gain;
 echo2.gain() * .5 => echo3.gain;
 // set gain
 .5 => n.gain;
+// attack
+10::ms => e.duration;
 
 // variables
 0 => float value;
