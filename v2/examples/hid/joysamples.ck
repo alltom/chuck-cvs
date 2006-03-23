@@ -10,13 +10,13 @@ sndbuf kick => dac;
 sndbuf snare => dac;
 sndbuf hihat => dac;
 
-"examples/data/kick.wav" => kick.read;
+"../data/kick.wav" => kick.read;
 0.0 => kick.gain;
 
-"examples/data/snare.wav" => snare.read;
+"../data/snare.wav" => snare.read;
 0.0 => snare.gain;
 
-"examples/data/hihat.wav" => hihat.read;
+"../data/hihat.wav" => hihat.read;
 0.0 => hihat.gain;
 
 HidIn hi;
