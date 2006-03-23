@@ -23,6 +23,13 @@ endif
 #LIBS+= -lsndfile
 #SF_OBJ=
 
+#-----------------------------------------------------------------------------
+# by default, ChucK uses a custom skeleton libsdl for joystick support...
+# uncomment the next 2 lines to use libsdl on your system
+#-----------------------------------------------------------------------------
+#FLAGS+= -D__CK_SDL_NATIVE__
+#LIBS+= -lsdl
+
 OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	chuck_frame.o chuck_symbol.o chuck_table.o chuck_utils.o \
 	chuck_vm.o chuck_instr.o chuck_scan.o chuck_type.o chuck_emit.o \
@@ -32,7 +39,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	rtaudio.o rtmidi.o ugen_osc.o ugen_filter.o ugen_stk.o ugen_xxx.o \
 	ulib_machine.o ulib_math.o ulib_std.o ulib_opsc.o util_buffers.o \
 	util_math.o util_network.o util_raw.o util_string.o util_thread.o \
-	util_xforms.o util_opsc.o util_console.o $(SF_OBJ)
+	util_xforms.o util_opsc.o util_console.o util_hid.o $(SF_OBJ)
 
 chuck: $(OBJS)
 	$(CXX) -o chuck $(OBJS) $(LIBS)
@@ -168,6 +175,9 @@ util_buffers.o: util_buffers.h util_buffers.cpp
 
 util_console.o: util_console.h util_console.cpp
 	$(CXX) $(FLAGS) util_console.cpp
+
+util_hid.o: util_hid.h util_hid.c
+	$(CXX) $(FLAGS) util_hid.c
 
 util_math.o: util_math.h util_math.c
 	$(CXX) $(FLAGS) util_math.c
