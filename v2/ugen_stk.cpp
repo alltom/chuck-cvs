@@ -28015,9 +28015,9 @@ CK_DLL_CTRL( Moog_ctrl_afterTouch )
 CK_DLL_CTRL( Moog_ctrl_vibratoFreq )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    m->controlChange( __SK_ModFrequency_, f * 128.0 );
-    RETURN->v_float = (t_CKFLOAT)  m->m_vibratoFreq;
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    m->setModulationSpeed(f);
+    RETURN->v_float = (t_CKFLOAT)m->m_vibratoFreq;
 }
 
 
@@ -28028,7 +28028,7 @@ CK_DLL_CTRL( Moog_ctrl_vibratoFreq )
 CK_DLL_CGET( Moog_cget_vibratoFreq )
 {
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT)  m->m_vibratoFreq;
+    RETURN->v_float = (t_CKFLOAT)m->m_vibratoFreq;
 }
 
 
@@ -28694,8 +28694,8 @@ CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    v->controlChange( __SK_ModFrequency_, f * 128.0 );
-    RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibrato->m_freq;
+    v->voiced->modulator->vibrato->setFrequency( f );
+    RETURN->v_float = (t_CKFLOAT)v->voiced->modulator->vibrato->m_freq;
 }
 
 
@@ -28706,7 +28706,7 @@ CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq )
 CK_DLL_CGET( VoicForm_cget_vibratoFreq )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibrato->m_freq;
+    RETURN->v_float = (t_CKFLOAT)v->voiced->modulator->vibrato->m_freq;
 }
 
 
