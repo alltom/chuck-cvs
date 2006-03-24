@@ -3249,10 +3249,10 @@ class BandedWG : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected
-
-  double m_rate;
-  int m_preset;
-  double m_bowpressure;
+  //chuck
+  t_CKFLOAT m_rate;
+  t_CKINT m_preset;
+  t_CKFLOAT m_bowpressure;
 
   bool doPluck;
   bool trackVelocity;
@@ -9056,6 +9056,10 @@ BandedWG :: BandedWG()
 
   // chuck
   m_frequency = freakency;
+  //reverse: nothing (set directly from norm in controlChange)
+  m_bowpressure = 0.0;
+  //reverse: nothing (set directly from preset in setPreset)
+  m_preset = 0;
 }
 
 BandedWG :: ~BandedWG()
@@ -10003,11 +10007,17 @@ BlowBotl :: BlowBotl()
   outputGain = 1.0;
 
   // chuck
+  //reverse: nothing (set from directly from setFrequency)
   m_frequency = 500;
+  //reverse: nothing (set in BlowBotl_ctrl_rate only)
   m_rate = .02;
+  //reverse: norm * 30.0 (from controlChange)
   m_noiseGain = noiseGain / 30.0;
-  m_vibratoFreq = vibrato->m_freq;
-  m_vibratoGain = vibratoGain;
+  //reverse: vibratoFreq * 12.0 (from controlChange) 
+  m_vibratoFreq = vibrato->m_freq / 12.0;
+  //reverse: vibratoGain * 0.4 (from controlChange)
+  m_vibratoGain = vibratoGain / 0.4;
+  //reverse: nothing (set in controlChange)
   m_volume = 1.0;
 }
 
@@ -10222,11 +10232,19 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
   setFrequency( 220.0 );
 
   // chuck data
-  m_reed = 0.5;  // TODO: check default value
+
+  //m_reed = 0.5;  // DONE: check default value  <- old value
+  //reverse: slope =  -0.44 + (0.26 * norm)
+  m_reed = (reedTable->slope + 0.44) / 0.26;
+  //reverse: noiseGain = norm * 0.4
   m_noiseGain = noiseGain / .4;
+  //reverse: nothing  
   m_tonehole = 1.0;
+  //reverse: nothing  
   m_vent = 0.0;
+  //reverse: nothing  
   m_pressure = 1.0;
+  //reverse: nothing 
   m_rate = 1.0;
 }
 
@@ -10528,10 +10546,15 @@ Bowed :: Bowed(MY_FLOAT lowestFrequency)
   setFrequency( 220.0 );
 
   // CHUCK
-  m_bowPressure = .5;
+  //reverse: bowTable->setSlope( 5.0 - (4.0 * norm) );
+  m_bowPressure = (bowTable->slope - 5.0) / -4.0;
+  //reverse: betaRatio = 0.027236 + (0.2 * norm);
   m_bowPosition = (betaRatio - .027236) / .2;
-  m_vibratoFreq = vibrato->m_freq;
-  m_vibratoGain = 0.0;
+  //reverse: setVibratoFreq( norm * 12.0 );  
+  m_vibratoFreq = vibrato->m_freq / 12.0;
+  //reverse: vibratoGain = ( norm * 0.4 );
+  m_vibratoGain = 0.0; // vibratoGain / 0.4
+  //reverse: nothing
   m_volume = 1.0;
 }
 
@@ -10658,8 +10681,10 @@ void Bowed :: controlChange(int number, MY_FLOAT value)
     bridgeDelay->setDelay(baseDelay * betaRatio);
     neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio));
   }
-  else if (number == __SK_ModFrequency_) // 11
+  else if (number == __SK_ModFrequency_) { // 11
     setVibratoFreq( norm * 12.0 );
+    m_vibratoFreq = norm;
+    }
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
     vibratoGain = ( norm * 0.4 );
@@ -10727,11 +10752,17 @@ Brass :: Brass(MY_FLOAT lowestFrequency)
   setFrequency( 220.0 );
 
   // CHUCK
+  //reverse: nothing
   m_rate = .005;
-  m_lip = 0.1;
+  //reverse: I give up!
+  m_lip = 0.1; 
+  //reverse: this is a special variable... we'll just leave this be for now
   m_slide = length;
-  m_vibratoFreq = vibrato->m_freq;
+  //reverse: setVibratoFreq( norm * 12.0 );
+  m_vibratoFreq = vibrato->m_freq / 12.0;
+  //reverse: setVibratoGain(norm * 0.4)
   m_vibratoGain = 0.0;
+  //reverse: nothing
   m_volume = 1.0;
 }
 
@@ -11019,11 +11050,17 @@ Clarinet :: Clarinet(MY_FLOAT lowestFrequency)
   setFrequency( 220.0 );
 
   // CHUCK
-  m_reed = .5;
+  //reverse: reedTable->setSlope((MY_FLOAT) -0.44 + ( (MY_FLOAT) 0.26 * norm ))
+  m_reed = (reedTable->slope + 0.44) / 0.26;
+  //reverse: noiseGain = (norm * (MY_FLOAT) 0.4);
   m_noiseGain = noiseGain / .4;
-  m_vibratoFreq = vibrato->m_freq;
-  m_vibratoGain = .1;
+  //reverse: setVibratoFreq( norm * 12.0 );
+  m_vibratoFreq = vibrato->m_freq / 12.0;
+  //reverse: vibratoGain = (norm * (MY_FLOAT) 0.5);
+  m_vibratoGain = .1 / 0.5;
+  //reverse: nothing
   m_volume = 1.0;
+  //reverse: nothing
   m_rate = .005;
 }
 
@@ -11138,8 +11175,10 @@ void Clarinet :: controlChange(int number, MY_FLOAT value)
     m_noiseGain = norm;
     noiseGain = (norm * (MY_FLOAT) 0.4);
   }
-  else if (number == __SK_ModFrequency_) // 11
+  else if (number == __SK_ModFrequency_) { // 11
+    m_vibratoFreq = norm;
     setVibratoFreq( norm * 12.0 );
+    }
   else if (number == __SK_ModWheel_) { // 1
     m_vibratoGain = norm;
     vibratoGain = (norm * (MY_FLOAT) 0.5);
@@ -12684,14 +12723,23 @@ Flute :: Flute(MY_FLOAT lowestFrequency)
   lastFrequency = 220.0;
 
   // CHUCK
+  //reverse: nothing
   m_frequency = lastFrequency;
+  //reverse: nothing (see setJetDelay)
   m_jetDelay = jetRatio;
+  //reverse: nothing
   m_jetReflection = jetReflection;
+  //reverse: nothing
   m_endReflection = endReflection;
+  //reverse: noiseGain = norm * 0.4
   m_noiseGain = noiseGain / .4;
-  m_vibratoFreq = vibrato->m_freq;
-  m_vibratoGain = .15;
+  //reverse: same * 12.0
+  m_vibratoFreq = vibrato->m_freq / 12.0;
+  //reverse: same * 0.4
+  m_vibratoGain = .15 / 0.4;
+  //reverse: nothing
   m_pressure = 1.0;
+  //reverse: nothing
   m_rate = .005;
 }
 
@@ -13360,6 +13408,7 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
   mic = 0;
   dampTime = 0;
   waveDone = soundfile[mic]->isFinished();
+  //reverse: nothing
   m_bodySize = 1.0;
 }
 
@@ -14147,6 +14196,15 @@ ModalBar :: ModalBar()
 
   // Set the resonances for preset 0 (marimba).
   setPreset( 0 );
+
+  // chuck
+  m_frequency = baseFrequency;
+  //reverse: same as before
+  m_vibratoGain = vibratoGain / 0.3;
+  //reverse: same as before
+  m_vibratoFreq = vibrato->m_freq / 12.0;
+  m_volume = 1.0;
+
 }
 
 ModalBar :: ~ModalBar()
@@ -14415,8 +14473,11 @@ Moog :: Moog()
   modDepth = (MY_FLOAT) 0.0;
 
   // chuck
+  //reverse: loops[1]->setFrequency(mSpeed);
   m_vibratoFreq = loops[1]->m_freq;
-  m_vibratoGain = modDepth;
+  //reverse: modDepth = mDepth * (MY_FLOAT) 0.5;
+  m_vibratoGain = modDepth / 0.5;
+  //reverse: nothing
   m_volume = 1.0;
 }  
 
