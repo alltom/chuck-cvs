@@ -750,13 +750,20 @@ CK_DLL_CTRL( Moog_ctrl_modDepth );
 CK_DLL_CTRL( Moog_ctrl_filterQ );
 CK_DLL_CTRL( Moog_ctrl_filterSweepRate );
 CK_DLL_CTRL( Moog_ctrl_afterTouch );
+CK_DLL_CTRL( Moog_ctrl_vibratoFreq );
+CK_DLL_CTRL( Moog_ctrl_vibratoGain );
+CK_DLL_CTRL( Moog_ctrl_volume );
 
 CK_DLL_CGET( Moog_cget_freq );
 CK_DLL_CGET( Moog_cget_modSpeed );
 CK_DLL_CGET( Moog_cget_modDepth );
 CK_DLL_CGET( Moog_cget_filterQ );
 CK_DLL_CGET( Moog_cget_filterSweepRate );
+CK_DLL_CGET( Moog_cget_vibratoFreq );
+CK_DLL_CGET( Moog_cget_vibratoGain );
+CK_DLL_CGET( Moog_cget_volume );
 
+CK_DLL_CTRL( Moog_ctrl_controlChange );
 
 // PercFlut
 CK_DLL_CTOR( PercFlut_ctor );
@@ -820,14 +827,27 @@ CK_DLL_DTOR( Saxofony_dtor );
 CK_DLL_TICK( Saxofony_tick );
 CK_DLL_PMSG( Saxofony_pmsg );
 CK_DLL_CTRL( Saxofony_ctrl_freq );
-CK_DLL_CTRL( Saxofony_ctrl_rate );
-CK_DLL_CTRL( Saxofony_ctrl_blowPosition );
 CK_DLL_CGET( Saxofony_cget_freq );
-CK_DLL_CGET( Saxofony_cget_rate );
+CK_DLL_CTRL( Saxofony_ctrl_reed );
+CK_DLL_CGET( Saxofony_cget_reed );
+CK_DLL_CTRL( Saxofony_ctrl_aperture );
+CK_DLL_CTRL( Saxofony_cget_aperture );
+CK_DLL_CTRL( Saxofony_ctrl_noiseGain );
+CK_DLL_CGET( Saxofony_cget_noiseGain );
+CK_DLL_CTRL( Saxofony_ctrl_vibratoGain );
+CK_DLL_CGET( Saxofony_cget_vibratoGain );
+CK_DLL_CTRL( Saxofony_ctrl_vibratoFreq );
+CK_DLL_CTRL( Saxofony_cget_vibratoFreq );
+CK_DLL_CTRL( Saxofony_ctrl_blowPosition );
 CK_DLL_CGET( Saxofony_cget_blowPosition );
+CK_DLL_CTRL( Saxofony_ctrl_pressure );
+CK_DLL_CGET( Saxofony_cget_pressure );
+CK_DLL_CTRL( Saxofony_ctrl_controlChange );
 CK_DLL_CTRL( Saxofony_ctrl_startBlowing );
 CK_DLL_CTRL( Saxofony_ctrl_stopBlowing );
 CK_DLL_CTRL( Saxofony_ctrl_clear );
+CK_DLL_CTRL( Saxofony_ctrl_rate );
+CK_DLL_CGET( Saxofony_cget_rate );
 CK_DLL_CTRL( Saxofony_ctrl_noteOn );
 CK_DLL_CTRL( Saxofony_ctrl_noteOff );
 

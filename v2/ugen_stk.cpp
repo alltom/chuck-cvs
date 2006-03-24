@@ -1159,7 +1159,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "filterQ", Moog_ctrl_filterQ ); //! filter Q value
-    func->add_arg( "float", "value" );
+    func->add_arg( "float", "value" );  
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "filterQ", Moog_cget_filterQ ); //! filter Q value
@@ -1176,7 +1176,32 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-        
+    func = make_new_mfun( "float", "volume", Moog_ctrl_volume ); //! volume
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "volume", Moog_cget_volume ); //! volume
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoFreq", Moog_ctrl_vibratoFreq ); //! vibrato frequency
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoFreq", Moog_cget_vibratoFreq ); //! vibrato frequency
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoGain", Moog_ctrl_vibratoGain ); //! vibrato gain
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoGain", Moog_cget_vibratoGain ); //! vibrato gain
+    if( !type_engine_import_mfun( env, func ) ) goto error;   
+
+    func = make_new_mfun( "void", "controlChange", Moog_ctrl_controlChange ); //! control change
+    func->add_arg( "int", "ctrl" );
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -6319,6 +6344,11 @@ class Moog : public Sampler
   virtual void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected
+  //chuck
+  t_CKFLOAT m_vibratoFreq;
+  t_CKFLOAT m_vibratoGain;
+  t_CKFLOAT m_volume;
+
   FormSwep *filters[2];
   MY_FLOAT modDepth;
   MY_FLOAT filterQ;
@@ -6586,6 +6616,11 @@ class PitShift : public Stk
   MY_FLOAT *tick(MY_FLOAT *vector, unsigned int vectorSize);
 
  public: // SWAP formerly protected  
+  //chuck
+  t_CKFLOAT m_vibratoGain;
+  t_CKFLOAT m_vibratoFreq;
+  t_CKFLOAT m_volume;
+
   DelayL *delayLine[2];
   MY_FLOAT lastOutput;
   MY_FLOAT delay[2];
@@ -14662,11 +14697,13 @@ void Moog :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 void Moog :: setModulationSpeed(MY_FLOAT mSpeed)
 {
   loops[1]->setFrequency(mSpeed);
+  m_vibratoFreq = loops[1]->m_freq;
 }
 
 void Moog :: setModulationDepth(MY_FLOAT mDepth)
 {
   modDepth = mDepth * (MY_FLOAT) 0.5;
+  m_vibratoGain = mDepth;
 }
 
 MY_FLOAT Moog :: tick()
@@ -14700,12 +14737,16 @@ void Moog :: controlChange(int number, MY_FLOAT value)
     filterQ = 0.80 + ( 0.1 * norm );
   else if (number == __SK_FilterSweepRate_) // 4
     filterRate = norm * 0.0002;
-  else if (number == __SK_ModFrequency_) // 11
-    this->setModulationSpeed( norm * 12.0 );
-  else if (number == __SK_ModWheel_)  // 1
+  else if (number == __SK_ModFrequency_) { // 11
+     this->setModulationSpeed( norm * 12.0 );
+     }
+  else if (number == __SK_ModWheel_) { // 1
     this->setModulationDepth( norm );
-  else if (number == __SK_AfterTouch_Cont_) // 128
+    }
+  else if (number == __SK_AfterTouch_Cont_) { // 128
     adsr->setTarget( norm );
+    m_volume = norm;
+    }
   else
     std::cerr << "[chuck](via STK): Moog: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -28784,6 +28825,89 @@ CK_DLL_CTRL( Moog_ctrl_afterTouch )
 }
 
 
+//-----------------------------------------------------------------------------
+// name: Moog_ctrl_vibratoFreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Moog_ctrl_vibratoFreq )
+{
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
+    m->controlChange( __SK_ModFrequency_, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)  m->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Moog_cget_vibratoFreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Moog_cget_vibratoFreq )
+{
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    RETURN->v_float = (t_CKFLOAT)  m->m_vibratoFreq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Moog_ctrl_vibratoGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Moog_ctrl_vibratoGain )
+{
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
+    m->controlChange( __SK_ModWheel_, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)  m->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Moog_cget_vibratoGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Moog_cget_vibratoGain )
+{
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    RETURN->v_float = (t_CKFLOAT)  m->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Moog_ctrl_volume()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Moog_ctrl_volume )
+{
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
+    m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)  m->m_volume;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Moog_cget_volume()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Moog_cget_volume )
+{
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    RETURN->v_float = (t_CKFLOAT)  m->m_volume;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Moog_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Moog_ctrl_controlChange )
+{
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    m->controlChange( i, f );
+}
 
 
 // NRev
