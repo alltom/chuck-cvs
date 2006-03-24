@@ -1242,20 +1242,66 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "freq", Saxofony_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "rate", Saxofony_ctrl_rate ); //! frequency
+    func = make_new_mfun( "float", "rate", Saxofony_ctrl_rate ); //! rate
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "rate", Saxofony_cget_rate ); //! frequency
+    func = make_new_mfun( "float", "rate", Saxofony_cget_rate ); //! rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "blowPosition", Saxofony_ctrl_blowPosition ); //! lip stiffness
+    func = make_new_mfun( "float", "stiffness", Saxofony_ctrl_reed ); //! stiffness
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "blowPosition", Saxofony_cget_blowPosition ); //! lip stiffness
+    func = make_new_mfun( "float", "stiffness", Saxofony_cget_reed ); //! stiffness
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "float", "aperture", Saxofony_ctrl_aperture ); //! aperture
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "aperture", Saxofony_cget_aperture ); //! aperture
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "noiseGain", Saxofony_ctrl_noiseGain ); //! noiseGain
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "noiseGain", Saxofony_cget_noiseGain ); //! noiseGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoGain", Saxofony_ctrl_vibratoGain ); //! vibratoGain
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoGain", Saxofony_cget_vibratoGain ); //! vibratoGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoFreq", Saxofony_ctrl_vibratoFreq ); //! vibratoFreq
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "vibratoFreq", Saxofony_cget_vibratoFreq ); //! vibratoFreq
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "blowPosition", Saxofony_ctrl_blowPosition ); //! blowPosition
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "blowPosition", Saxofony_cget_blowPosition ); //! blowPosition
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "pressure", Saxofony_ctrl_pressure ); //! pressure
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "pressure", Saxofony_cget_pressure ); //! pressure
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "void", "controlChange", Saxofony_ctrl_controlChange ); //! control change
+    func->add_arg( "int", "ctrl" );
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -7049,6 +7095,15 @@ class Saxofony : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected
+  // chuck
+  t_CKFLOAT m_frequency;
+  t_CKFLOAT m_rate;
+  t_CKFLOAT m_stiffness;
+  t_CKFLOAT m_aperture;
+  t_CKFLOAT m_noiseGain;
+  t_CKFLOAT m_vibratoGain;
+  t_CKFLOAT m_pressure;
+
   DelayL *delays[2];
   ReedTabl *reedTable;
   OneZero *filter;
@@ -16881,6 +16936,21 @@ Saxofony :: Saxofony(MY_FLOAT lowestFrequency)
   outputGain = (MY_FLOAT) 0.3;
   noiseGain = (MY_FLOAT) 0.2;
   vibratoGain = (MY_FLOAT) 0.1;
+
+  // TODO: what is default?
+  m_frequency = length >> 1;
+  // assuming 1.0 velocity
+  m_rate = .005;
+  // reverse: reedTable->setSlope( 0.1 + (0.4 * norm) )
+  m_stiffness = reedTable->slope - .1 / .4;
+  // reverse: reedTable->setOffset(0.4 + ( norm * 0.6));
+  m_aperture =  reedTable->offSet - .4 / .6;
+  // reverse: noiseGain = ( norm * 0.4 );
+  m_noiseGain = noiseGain / .4;
+  // reverse: vibratoGain = ( norm * 0.5 );
+  m_vibratoGain = vibratoGain / .5;
+  // pressure from envelope
+  m_pressure = envelope->value;
 }
 
 Saxofony :: ~Saxofony()
@@ -16908,6 +16978,9 @@ void Saxofony :: setFrequency(MY_FLOAT frequency)
     std::cerr << "[chuck](via STK): Saxofony: setFrequency parameter is less than or equal to zero!" << std::endl;
     freakency = 220.0;
   }
+
+  // chuck
+  m_frequency = freakency;
 
   MY_FLOAT delay = (Stk::sampleRate() / freakency) - (MY_FLOAT) 3.0;
   if (delay <= 0.0) delay = 0.3;
@@ -16997,20 +17070,30 @@ void Saxofony :: controlChange(int number, MY_FLOAT value)
     std::cerr << "[chuck](via STK): Saxofony: Control value greater than 128.0!" << std::endl;
   }
 
-  if (number == __SK_ReedStiffness_) // 2
+  if (number == __SK_ReedStiffness_) { // 2
     reedTable->setSlope( 0.1 + (0.4 * norm) );
-  else if (number == __SK_NoiseLevel_) // 4
+    m_stiffness = norm;
+  }
+  else if (number == __SK_NoiseLevel_) { // 4
     noiseGain = ( norm * 0.4 );
+    m_noiseGain = norm;
+  }
   else if (number == 29) // 29
     vibrato->setFrequency( norm * 12.0 );
-  else if (number == __SK_ModWheel_) // 1
+  else if (number == __SK_ModWheel_) { // 1
     vibratoGain = ( norm * 0.5 );
-  else if (number == __SK_AfterTouch_Cont_) // 128
+    m_vibratoGain = norm;
+  }
+  else if (number == __SK_AfterTouch_Cont_) { // 128
     envelope->setValue( norm );
+    m_pressure = norm;
+  }
   else if (number == 11) // 11
     this->setBlowPosition( norm );
-  else if (number == 26) // reed table offset
+  else if (number == 26) { // reed table offset
     reedTable->setOffset(0.4 + ( norm * 0.6));
+    m_aperture = norm;
+  }
   else
     std::cerr << "[chuck](via STK): Saxofony: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -17019,6 +17102,8 @@ void Saxofony :: controlChange(int number, MY_FLOAT value)
 #endif
 
 }
+
+
 /***************************************************/
 /*! \class Shakers
     \brief PhISEM and PhOLIES class.
@@ -25367,29 +25452,13 @@ CK_DLL_CGET( Sitar_cget_freq  )
 }
 
 
-
-//Saxofony
-struct Saxofony_ { 
-   Saxofony * imp;
-
-   double m_frequency;
-   double m_rate;
-
-   Saxofony_ ( double d ) { 
-      imp = new Saxofony(d);
-      m_frequency = 100.0;
-      m_rate = 0.5;
-   }
-};
-
-
 //-----------------------------------------------------------------------------
 // name: Saxofony_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Saxofony_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Saxofony_offset_data) = (t_CKUINT)new Saxofony_( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Saxofony_offset_data) = (t_CKUINT)new Saxofony( 30.0 );
 }
 
 
@@ -25399,9 +25468,9 @@ CK_DLL_CTOR( Saxofony_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Saxofony_dtor )
 {
-    Saxofony_ * d = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    delete d->imp;
+    Saxofony * d = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     delete d;
+    OBJ_MEMBER_UINT(SELF, Saxofony_offset_data) = 0;
 }
 
 
@@ -25411,8 +25480,8 @@ CK_DLL_DTOR( Saxofony_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Saxofony_tick )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    *out = b->imp->tick();
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    *out = b->tick();
     return TRUE;
 }
 
@@ -25433,9 +25502,9 @@ CK_DLL_PMSG( Saxofony_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_noteOn )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->noteOn ( b->m_frequency, f );
+    b->noteOn( b->m_frequency, f );
 }
 
 
@@ -25445,9 +25514,9 @@ CK_DLL_CTRL( Saxofony_ctrl_noteOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_noteOff )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->noteOff ( f );
+    b->noteOff( f );
 }
 
 
@@ -25457,9 +25526,9 @@ CK_DLL_CTRL( Saxofony_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_startBlowing )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->startBlowing ( f, b->m_rate );
+    b->startBlowing( f, b->m_rate );
 }
 
 
@@ -25469,9 +25538,9 @@ CK_DLL_CTRL( Saxofony_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_stopBlowing )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->stopBlowing ( f );
+    b->stopBlowing( f );
 }
 
 
@@ -25481,8 +25550,8 @@ CK_DLL_CTRL( Saxofony_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_clear )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    b->imp->clear();
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    b->clear();
 }
 
 
@@ -25492,10 +25561,9 @@ CK_DLL_CTRL( Saxofony_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_freq )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->m_frequency = f;
-    b->imp->setFrequency( f );
+    b->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT)b->m_frequency;
 }
 
@@ -25506,7 +25574,7 @@ CK_DLL_CTRL( Saxofony_ctrl_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_freq )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_frequency;
 }
 
@@ -25517,7 +25585,7 @@ CK_DLL_CGET( Saxofony_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_rate )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
@@ -25530,7 +25598,7 @@ CK_DLL_CTRL( Saxofony_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_rate )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
 }
 
@@ -25541,10 +25609,10 @@ CK_DLL_CGET( Saxofony_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_blowPosition )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->setBlowPosition(f);
-    RETURN->v_float = (t_CKFLOAT)b->imp->position;
+    b->setBlowPosition(f);
+    RETURN->v_float = (t_CKFLOAT)b->position;
 }
 
 
@@ -25554,14 +25622,171 @@ CK_DLL_CTRL( Saxofony_ctrl_blowPosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_blowPosition )
 {
-    Saxofony_ * b = (Saxofony_ *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    RETURN->v_float = (t_CKFLOAT)b->imp->position;
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->position;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_ctrl_reed()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Saxofony_ctrl_reed )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->controlChange( 2, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)b->m_stiffness;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_cget_reed()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Saxofony_cget_reed )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_stiffness;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_ctrl_aperture()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Saxofony_ctrl_aperture )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->controlChange( 26, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)b->m_aperture;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_cget_aperture()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Saxofony_cget_aperture )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_aperture;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_ctrl_noiseGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Saxofony_ctrl_noiseGain )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->controlChange( 4, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_cget_noiseGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Saxofony_cget_noiseGain )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_ctrl_vibratoFreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Saxofony_ctrl_vibratoFreq )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->vibrato->setFrequency( f );
+    RETURN->v_float = (t_CKFLOAT)b->vibrato->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_cget_vibratoFreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Saxofony_cget_vibratoFreq )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->vibrato->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_ctrl_vibratoGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Saxofony_ctrl_vibratoGain )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->controlChange( 1, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_cget_vibratoGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Saxofony_cget_vibratoGain )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_ctrl_pressure()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Saxofony_ctrl_pressure )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->controlChange( 128, f * 128 );
+    RETURN->v_float = (t_CKFLOAT)b->m_pressure;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_cget_pressure()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Saxofony_cget_pressure )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    RETURN->v_float = (t_CKFLOAT)b->m_pressure;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Saxofony_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Saxofony_ctrl_controlChange )
+{
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->controlChange( i, f );
 }
 
 
 
 
-//StifKarp
+// StifKarp
 
 //-----------------------------------------------------------------------------
 // name: StifKarp_ctor()
