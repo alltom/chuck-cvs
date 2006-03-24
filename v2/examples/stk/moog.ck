@@ -12,11 +12,11 @@ while( true )
     // ding!
     std.rand2f( 0, 1 ) => moog.filterQ;
     std.rand2f( 0, 1 ) => moog.filterSweepRate;
-    std.rand2f( 0, 1 ) => moog.modSpeed;
-    std.rand2f( 0, 60 ) => moog.modDepth;
+    std.rand2f( 0, 12 ) => moog.modSpeed;
+    std.rand2f( 0, 1 ) => moog.modDepth;
     std.rand2f( 0, 1 ) => moog.volume;
-    std.rand2f( 0, 1 ) => moog.vibratoFreq;
-    std.rand2f( 0, 1 ) => moog.vibratoGain;
+    //std.rand2f( 0, 12 ) => moog.vibratoFreq;
+    //std.rand2f( 0, 1 ) => moog.vibratoGain;
 
     <<< "---", "" >>>;
     <<< "filterQ", moog.filterQ() >>>;
