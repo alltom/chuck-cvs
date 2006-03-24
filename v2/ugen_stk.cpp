@@ -260,17 +260,18 @@ t_CKBOOL little_endian = FALSE;
 // static t_CKUINT g_srate = 0;
 // filter member data offset
 
+static t_CKUINT Instrmnt_offset_data = 0;
 static t_CKUINT BandedWG_offset_data = 0;
-static t_CKUINT BlowBotl_offset_data = 0;
-static t_CKUINT BlowHole_offset_data = 0;
-static t_CKUINT Bowed_offset_data = 0;
-static t_CKUINT Brass_offset_data = 0;
-static t_CKUINT Clarinet_offset_data = 0;
-static t_CKUINT Flute_offset_data = 0;
-static t_CKUINT Mandolin_offset_data = 0;
-static t_CKUINT ModalBar_offset_data = 0;
-static t_CKUINT Moog_offset_data = 0;
-static t_CKUINT Saxofony_offset_data = 0;
+//static t_CKUINT BlowBotl_offset_data = 0;
+//static t_CKUINT BlowHole_offset_data = 0;
+//static t_CKUINT Bowed_offset_data = 0;
+//static t_CKUINT Brass_offset_data = 0;
+//static t_CKUINT Clarinet_offset_data = 0;
+//static t_CKUINT Flute_offset_data = 0;
+//static t_CKUINT Mandolin_offset_data = 0;
+//static t_CKUINT ModalBar_offset_data = 0;
+//static t_CKUINT Moog_offset_data = 0;
+//static t_CKUINT Saxofony_offset_data = 0;
 static t_CKUINT Shakers_offset_data = 0;
 static t_CKUINT Sitar_offset_data = 0;
 static t_CKUINT VoicForm_offset_data = 0;
@@ -331,6 +332,40 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! \sectionMain STK
 
     //! \section stk - instruments
+
+    //------------------------------------------------------------------------
+    // begin Instrmnt ugen
+    //------------------------------------------------------------------------
+
+    if( !type_engine_import_ugen_begin( env, "StkInstrument", "UGen", env->global(), 
+                        Instrmnt_ctor, Instrmnt_tick, Instrmnt_pmsg ) ) return FALSE;
+    // member variable
+    Instrmnt_offset_data = type_engine_import_mvar ( env, "int", "@Instrmnt_data", FALSE );
+    if( Instrmnt_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    func = make_new_mfun( "float", "noteOn", Instrmnt_ctrl_noteOn ); //! note on
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "noteOff", Instrmnt_ctrl_noteOff ); //! note off
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "freq", Instrmnt_ctrl_freq ); //! frequency
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "freq", Instrmnt_cget_freq ); //! frequency
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "void", "controlChange", Instrmnt_ctrl_controlChange ); //! control change
+    func->add_arg( "int", "ctrl" );
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
 
     //------------------------------------------------------------------------
     // begin BandedWG ugen
@@ -411,19 +446,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin BlowBotl ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "BlowBotl", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "BlowBotl", "StkInstrument", env->global(), 
                         BlowBotl_ctor, BlowBotl_tick, BlowBotl_pmsg ) ) return FALSE;
-    //member variable
-    BlowBotl_offset_data = type_engine_import_mvar ( env, "int", "@BlowBotl_data", FALSE );
-    if( BlowBotl_offset_data == CK_INVALID_OFFSET ) goto error;
-
-    func = make_new_mfun( "float", "noteOn", BlowBotl_ctrl_noteOn ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", BlowBotl_ctrl_noteOff ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // BlowBotl_offset_data = type_engine_import_mvar ( env, "int", "@BlowBotl_data", FALSE );
+    // if( BlowBotl_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "startBlowing", BlowBotl_ctrl_startBlowing ); //! note on
     func->add_arg( "float", "value" );
@@ -433,23 +460,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "freq", BlowBotl_ctrl_freq ); //! frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", BlowBotl_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     func = make_new_mfun( "float", "rate", BlowBotl_ctrl_rate ); //! attack rate
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "rate", BlowBotl_cget_rate ); //! attack rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "void", "controlChange", BlowBotl_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "noiseGain", BlowBotl_ctrl_noiseGain ); //! noiseGain
@@ -489,18 +504,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin BlowHole ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "BlowHole", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "BlowHole", "StkInstrument", env->global(), 
                         BlowHole_ctor, BlowHole_tick, BlowHole_pmsg ) ) return FALSE;
-    //member variable
-    BlowHole_offset_data = type_engine_import_mvar ( env, "int", "@BlowHole_data", FALSE );
-    if( BlowHole_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "noteOn", BlowHole_ctrl_noteOn ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", BlowHole_ctrl_noteOff ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // BlowHole_offset_data = type_engine_import_mvar ( env, "int", "@BlowHole_data", FALSE );
+    // if( BlowHole_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "startBlowing", BlowHole_ctrl_startBlowing ); //! note on
     func->add_arg( "float", "value" );
@@ -508,13 +516,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "float", "stopBlowing", BlowHole_ctrl_stopBlowing ); //! note on
     func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", BlowHole_ctrl_freq ); //! frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", BlowHole_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "vent", BlowHole_ctrl_vent ); //! vent frequency
@@ -545,11 +546,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "rate", BlowHole_cget_rate ); //! attack rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "void", "controlChange", BlowHole_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     func = make_new_mfun( "float", "noiseGain", BlowHole_ctrl_noiseGain ); //! noise gain
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -572,18 +568,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Bowed ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "Bowed", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Bowed", "StkInstrument", env->global(), 
                         Bowed_ctor, Bowed_tick, Bowed_pmsg ) ) return FALSE;
-    //member variable
-    Bowed_offset_data = type_engine_import_mvar ( env, "int", "@Bowed_data", FALSE );
-    if( Bowed_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "noteOn", Bowed_ctrl_noteOn ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", Bowed_ctrl_noteOff ); //! note off
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // Bowed_offset_data = type_engine_import_mvar ( env, "int", "@Bowed_data", FALSE );
+    // if( Bowed_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "startBowing", Bowed_ctrl_startBowing ); //! begin bowing instrument
     func->add_arg( "float", "value" );
@@ -591,13 +580,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "float", "stopBowing", Bowed_ctrl_stopBowing ); //! stop bowing
     func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Bowed_ctrl_freq ); //!
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Bowed_cget_freq ); //!
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "bowPressure", Bowed_ctrl_bowPressure ); //! bowPressure
@@ -634,11 +616,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "float", "volume", Bowed_cget_volume ); //! volume
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "void", "controlChange", Bowed_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
     type_engine_import_class_end( env );
@@ -648,18 +625,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Brass ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "Brass", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Brass", "StkInstrument", env->global(), 
                         Brass_ctor, Brass_tick, Brass_pmsg ) ) return FALSE;
-    //member variable
-    Brass_offset_data = type_engine_import_mvar ( env, "int", "@Brass_data", FALSE );
-    if( Brass_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "noteOn", Brass_ctrl_noteOn ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", Brass_ctrl_noteOff ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // Brass_offset_data = type_engine_import_mvar ( env, "int", "@Brass_data", FALSE );
+    // if( Brass_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "clear", Brass_ctrl_clear ); //! clear instrument
     func->add_arg( "float", "value" );
@@ -673,23 +643,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "freq", Brass_ctrl_freq ); //! frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Brass_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     func = make_new_mfun( "float", "lip", Brass_ctrl_lip ); //! lip stiffness
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "lip", Brass_cget_lip ); //! lip stiffness
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "void", "controlChange", Brass_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "slide", Brass_ctrl_slide ); //! slide
@@ -735,18 +693,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Clarinet ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "Clarinet", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Clarinet", "StkInstrument", env->global(), 
                         Clarinet_ctor, Clarinet_tick, Clarinet_pmsg ) ) return FALSE;
-    //member variable
-    Clarinet_offset_data = type_engine_import_mvar ( env, "int", "@Clarinet_data", FALSE );
-    if( Clarinet_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "noteOn", Clarinet_ctrl_noteOn ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", Clarinet_ctrl_noteOff ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // Clarinet_offset_data = type_engine_import_mvar ( env, "int", "@Clarinet_data", FALSE );
+    // if( Clarinet_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "clear", Clarinet_ctrl_clear ); //! note on
     func->add_arg( "float", "value" );
@@ -760,23 +711,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "freq", Clarinet_ctrl_freq ); //! frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Clarinet_cget_freq ); //! frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     func = make_new_mfun( "float", "rate", Clarinet_ctrl_rate ); //! attack rate
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "rate", Clarinet_cget_rate ); //! attack rate
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "void", "controlChange", Clarinet_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "reed", Clarinet_ctrl_reed); //! reed
@@ -822,36 +761,22 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Flute ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "Flute", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Flute", "StkInstrument", env->global(), 
                         Flute_ctor, Flute_tick, Flute_pmsg ) ) return FALSE;
-    //member variable
-    Flute_offset_data = type_engine_import_mvar ( env, "int", "@Flute_data", FALSE );
-    if( Flute_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "noteOn", Flute_ctrl_noteOn ); //! note on
+    // member variable
+    // Flute_offset_data = type_engine_import_mvar ( env, "int", "@Flute_data", FALSE );
+    // if( Flute_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    func = make_new_mfun( "float", "clear", Flute_ctrl_clear ); //! clear
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "noteOff", Flute_ctrl_noteOff ); //! note on
+    func = make_new_mfun( "float", "startBlowing", Flute_ctrl_startBlowing ); //! startBlowing
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "clear", Flute_ctrl_clear ); //! note on
+    func = make_new_mfun( "float", "stopBlowing", Flute_ctrl_stopBlowing ); //! stopBlowing
     func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "startBlowing", Flute_ctrl_startBlowing ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "stopBlowing", Flute_ctrl_stopBlowing ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Flute_ctrl_freq ); //! frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Flute_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "rate", Flute_ctrl_rate ); //! attack rate
@@ -910,11 +835,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "pressure", Flute_cget_pressure ); //! pressure
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "controlChange", Flute_ctrl_controlChange ); //! controlChange
-    func->add_arg( "int", "which" );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -924,21 +844,15 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example mand-o-matic.ck
-    if( !type_engine_import_ugen_begin( env, "Mandolin", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Mandolin", "StkInstrument", env->global(), 
                         Mandolin_ctor, Mandolin_tick, Mandolin_pmsg ) ) return FALSE;
-    //member variable
-    Mandolin_offset_data = type_engine_import_mvar ( env, "int", "@Mandolin_data", FALSE );
-    if( Mandolin_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // member variable
+    // Mandolin_offset_data = type_engine_import_mvar ( env, "int", "@Mandolin_data", FALSE );
+    // if( Mandolin_offset_data == CK_INVALID_OFFSET ) goto error;
     
     func = make_new_mfun( "float", "pluck", Mandolin_ctrl_pluck );  //! pluck string with given amplitude 
     func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Mandolin_ctrl_freq ); //! string frequency 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Mandolin_cget_freq ); //! string frequency 
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "pluckPos", Mandolin_ctrl_pluckPos ); //! set pluck position ( 0-1) along string
@@ -968,24 +882,10 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "float", "stringDetune", Mandolin_cget_stringDetune ); //! control detuning of string pair
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    func = make_new_mfun( "void", "noteOn", Mandolin_ctrl_noteOn ); //! go
-    func->add_arg( "float", "velocity" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    func = make_new_mfun( "void", "noteOff", Mandolin_ctrl_noteOff ); //! stop
-    func->add_arg( "float", "velocity" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    func = make_new_mfun( "void", "controlChange", Mandolin_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "which" );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "afterTouch", Mandolin_ctrl_afterTouch ); //! aftertouch
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
     
     // end the class import
     type_engine_import_class_end( env );
@@ -996,11 +896,12 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example modalbot.ck
-    if( !type_engine_import_ugen_begin( env, "ModalBar", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "ModalBar", "StkInstrument", env->global(), 
                         ModalBar_ctor, ModalBar_tick, ModalBar_pmsg ) ) return FALSE;
-    //member variable
-    ModalBar_offset_data = type_engine_import_mvar ( env, "int", "@ModalBar_data", FALSE );
-    if( ModalBar_offset_data == CK_INVALID_OFFSET ) goto error;
+    
+    // member variable
+    // ModalBar_offset_data = type_engine_import_mvar ( env, "int", "@ModalBar_data", FALSE );
+    // if( ModalBar_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "strike", ModalBar_ctrl_strike ); //! strike bar
     func->add_arg( "float", "value" );
@@ -1010,31 +911,15 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "noteOn", ModalBar_ctrl_noteOn ); //! start note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", ModalBar_ctrl_noteOff ); //! stop note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     func = make_new_mfun( "float", "clear", ModalBar_ctrl_clear ); //! clear
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
 
     func = make_new_mfun( "int", "preset", ModalBar_ctrl_preset ); //! choose preset
     func->add_arg( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "int", "preset", ModalBar_cget_preset ); //! choose preset
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", ModalBar_ctrl_freq ); //! set frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", ModalBar_cget_freq ); //! set frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "stickHardness", ModalBar_ctrl_stickHardness ); //! set stickHardness
@@ -1114,11 +999,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "volume", ModalBar_cget_volume ); //! volume
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "void", "controlChange", ModalBar_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1128,21 +1008,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example moogie.ck
-    if( !type_engine_import_ugen_begin( env, "Moog", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Moog", "StkInstrument", env->global(), 
                         Moog_ctor, Moog_tick, Moog_pmsg ) ) return FALSE;
-    //member variable
-    Moog_offset_data = type_engine_import_mvar ( env, "int", "@Moog_data", FALSE );
-    if( Moog_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "noteOn", Moog_ctrl_noteOn ); //! start note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Moog_ctrl_freq ); //! set frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Moog_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // Moog_offset_data = type_engine_import_mvar ( env, "int", "@Moog_data", FALSE );
+    // if( Moog_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "modSpeed", Moog_ctrl_modSpeed ); //! modulation speed
     func->add_arg( "float", "value" );
@@ -1197,11 +1067,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "vibratoGain", Moog_cget_vibratoGain ); //! vibrato gain
     if( !type_engine_import_mfun( env, func ) ) goto error;   
 
-    func = make_new_mfun( "void", "controlChange", Moog_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1210,18 +1075,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Saxofony ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "Saxofony", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Saxofony", "StkInstrument", env->global(), 
                         Saxofony_ctor, Saxofony_tick, Saxofony_pmsg ) ) return FALSE;
-    //member variable
-    Saxofony_offset_data = type_engine_import_mvar ( env, "int", "@Saxofony_data", FALSE );
-    if( Saxofony_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "noteOn", Saxofony_ctrl_noteOn ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", Saxofony_ctrl_noteOff ); //! note on
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // Saxofony_offset_data = type_engine_import_mvar ( env, "int", "@Saxofony_data", FALSE );
+    // if( Saxofony_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "float", "clear", Saxofony_ctrl_clear ); //! clear instrument
     func->add_arg( "float", "value" );
@@ -1233,13 +1091,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "float", "stopBlowing", Saxofony_ctrl_stopBlowing ); //! note on
     func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Saxofony_ctrl_freq ); //! frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Saxofony_cget_freq ); //! frequency
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "rate", Saxofony_ctrl_rate ); //! rate
@@ -1296,11 +1147,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "pressure", Saxofony_cget_pressure ); //! pressure
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "void", "controlChange", Saxofony_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
@@ -3020,8 +2866,11 @@ class Instrmnt : public Stk
   //! Perform the control change specified by \e number and \e value (0.0 - 128.0).
   virtual void controlChange(int number, MY_FLOAT value);
 
-  public: // SWAP formerly protected
-    MY_FLOAT lastOutput;
+public: // SWAP formerly protected
+  // chuck
+  t_CKFLOAT m_frequency;
+
+  MY_FLOAT lastOutput;
 };
 
 
@@ -3579,7 +3428,6 @@ class BandedWG : public Instrmnt
   MY_FLOAT bowPosition;
   MY_FLOAT strikeAmp;
   int strikePosition;
-
 };
 
 #endif
@@ -4364,9 +4212,6 @@ class BlowBotl : public Instrmnt
   //! Decrease breath velocity with given rate of decrease.
   void stopBlowing(MY_FLOAT rate);
 
-  //! Start a note current frequency, given amplitude.
-  void noteOn(MY_FLOAT amplitude) { noteOn ( baseFrequency, amplitude ); } //chuck
-
   //! Start a note with the given frequency and amplitude.
   void noteOn(MY_FLOAT frequency, MY_FLOAT amplitude);
 
@@ -4380,8 +4225,8 @@ class BlowBotl : public Instrmnt
   void controlChange(int number, MY_FLOAT value);
 
  public: // SWAP formerly protected  
- 
-  t_CKFLOAT m_rate; // CHUCK
+  // chuck
+  t_CKFLOAT m_rate;
   t_CKFLOAT m_noiseGain;
   t_CKFLOAT m_vibratoFreq;
   t_CKFLOAT m_vibratoGain;
@@ -4404,8 +4249,6 @@ class BlowBotl : public Instrmnt
   MY_FLOAT noiseGain;
   MY_FLOAT vibratoGain;
   MY_FLOAT outputGain;
-
-  MY_FLOAT baseFrequency; // CHUCK: chuck data
 };
 
 #endif
@@ -4645,7 +4488,6 @@ class BlowHole : public Instrmnt
  public: // SWAP formerly protected  
 
   // CHUCK
-  t_CKFLOAT m_frequency;
   t_CKFLOAT m_reed;
   t_CKFLOAT m_noiseGain;
   t_CKFLOAT m_tonehole;
@@ -4820,7 +4662,6 @@ class Bowed : public Instrmnt
  public: // SWAP formerly protected
 
   // CHUCK
-  t_CKFLOAT m_frequency;
   t_CKFLOAT m_bowPressure;
   t_CKFLOAT m_bowPosition;
   t_CKFLOAT m_vibratoFreq;
@@ -4991,7 +4832,6 @@ class Brass: public Instrmnt
  public: // SWAP formerly protected  
 
   // CHUCK
-  t_CKFLOAT m_frequency;
   t_CKFLOAT m_rate;
   t_CKFLOAT m_lip;
   t_CKFLOAT m_slide;
@@ -5152,7 +4992,6 @@ class Clarinet : public Instrmnt
  public: // SWAP formerly protected
 
   // CHUCK
-  t_CKFLOAT m_frequency;
   t_CKFLOAT m_reed;
   t_CKFLOAT m_noiseGain;
   t_CKFLOAT m_vibratoFreq;
@@ -5444,7 +5283,6 @@ class Flute : public Instrmnt
 public: // SWAP formerly protected
 
   // CHUCK
-  t_CKFLOAT m_frequency;
   t_CKFLOAT m_jetDelay;
   t_CKFLOAT m_jetReflection;
   t_CKFLOAT m_endReflection;
@@ -7096,7 +6934,6 @@ class Saxofony : public Instrmnt
 
  public: // SWAP formerly protected
   // chuck
-  t_CKFLOAT m_frequency;
   t_CKFLOAT m_rate;
   t_CKFLOAT m_stiffness;
   t_CKFLOAT m_aperture;
@@ -9365,6 +9202,9 @@ BandedWG :: BandedWG()
   bowTarget = 0.0;
 
   strikeAmp = 0.0;
+
+  // chuck
+  m_frequency = freakency;
 }
 
 BandedWG :: ~BandedWG()
@@ -9522,6 +9362,9 @@ void BandedWG :: setFrequency(MY_FLOAT frequency)
 
   //int olen = (int)(delay[0].getDelay());
   //strikePosition = (int)(strikePosition*(length/modes[0])/olen);
+
+  // chuck
+  m_frequency = freakency;
 }
 
 void BandedWG :: setStrikePosition(MY_FLOAT position)
@@ -10305,11 +10148,11 @@ BlowBotl :: BlowBotl()
 
   maxPressure = (MY_FLOAT)0.0;
 
-  // CHUCK added later
+  // chuck added later
   outputGain = 1.0;
 
-  // CHUCK
-  baseFrequency = 0.0;
+  // chuck
+  m_frequency = 500;
   m_rate = .02;
   m_noiseGain = noiseGain / 30.0;
   m_vibratoFreq = vibrato->m_freq;
@@ -10341,7 +10184,9 @@ void BlowBotl :: setFrequency(MY_FLOAT frequency)
   }
 
   resonator->setResonance( freakency, __BOTTLE_RADIUS_, true );
-  baseFrequency = freakency; // chuck data
+
+  // chuck
+  m_frequency = freakency;
 }
 
 void BlowBotl :: startBlowing(MY_FLOAT amplitude, MY_FLOAT rate)
@@ -10574,7 +10419,7 @@ void BlowHole :: setFrequency(MY_FLOAT frequency)
   else if (delay > length) delay = length;
   delays[1]->setDelay(delay);
 
-  // CHUCK
+  // chuck
   m_frequency = freakency;
 }
 
@@ -10870,6 +10715,7 @@ void Bowed :: setFrequency(MY_FLOAT frequency)
   bridgeDelay->setDelay(baseDelay * betaRatio);                    // bow to bridge length
   neckDelay->setDelay(baseDelay * ((MY_FLOAT) 1.0 - betaRatio)); // bow to nut (finger) length
 
+  // chuck
   m_frequency = freakency;
 }
 
@@ -11069,6 +10915,7 @@ void Brass :: setFrequency(MY_FLOAT frequency)
   lipTarget = freakency;
   lipFilter->setResonance( freakency, 0.997 );
 
+  // chuck
   m_frequency = freakency;
 }
 
@@ -11359,6 +11206,7 @@ void Clarinet :: setFrequency(MY_FLOAT frequency)
   else if (delay > length) delay = length;
   delayLine->setDelay(delay);
 
+  // chuck
   m_frequency = freakency;
 }
 
@@ -12336,6 +12184,9 @@ FM :: FM(int operators)
   control1 = (MY_FLOAT) 1.0;
   control2 = (MY_FLOAT) 1.0;
   baseFrequency = (MY_FLOAT) 440.0;
+  
+  // chuck
+  m_frequency = baseFrequency;
 
   MY_FLOAT temp = 1.0;
   for (i=99; i>=0; i--) {
@@ -12384,6 +12235,9 @@ void FM :: setFrequency(MY_FLOAT frequency)
 
   for (int i=0; i<nOperators; i++ )
     waves[i]->setFrequency( baseFrequency * ratios[i] );
+
+  // chuck
+  m_frequency = baseFrequency;
 }
 
 void FM :: setRatio(int waveIndex, MY_FLOAT ratio)
@@ -12599,6 +12453,9 @@ void FMVoices :: setFrequency(MY_FLOAT frequency)
   gains[0] = 1.0;
   gains[1] = 1.0;
   gains[2] = 1.0;
+
+  // chuck
+  m_frequency = baseFrequency;
 }
 
 void FMVoices :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
@@ -13024,7 +12881,8 @@ void Flute :: setFrequency(MY_FLOAT frequency)
 
   boreDelay->setDelay(delay);
   jetDelay->setDelay(delay * jetRatio);
-  
+
+  // chuck
   m_frequency = frequency;
 }
 
@@ -13376,6 +13234,7 @@ MY_FLOAT HevyMetl :: tick()
 
 Instrmnt :: Instrmnt()
 {
+    m_frequency = 0;
 }
 
 Instrmnt :: ~Instrmnt()
@@ -13385,6 +13244,7 @@ Instrmnt :: ~Instrmnt()
 void Instrmnt :: setFrequency(MY_FLOAT frequency)
 {
   std::cerr << "[chuck](via STK): Instrmnt: virtual setFrequency function call!" << std::endl;
+  // m_frequency = frequency;
 }
 
 MY_FLOAT Instrmnt :: lastOut() const
@@ -13425,6 +13285,7 @@ TODO :  let's add this as two function in Chuck.
 void Instrmnt :: controlChange(int number, MY_FLOAT value)
 {
 }
+
 /***************************************************/
 /*! \class JCRev
     \brief John Chowning's reverberator class.
@@ -14216,6 +14077,7 @@ Modal :: Modal(int modes)
   strikePosition = 0.561;
 
   // chuck
+  m_frequency = baseFrequency;
   m_vibratoGain = vibratoGain;
   m_vibratoFreq = vibrato->m_freq;
   m_volume = 1.0;
@@ -14247,6 +14109,9 @@ void Modal :: setFrequency(MY_FLOAT frequency)
   baseFrequency = frequency;
   for (int i=0; i<nModes; i++ )
     this->setRatioAndRadius(i, ratios[i], radii[i]);
+
+  // chuck
+  m_frequency = baseFrequency;
 }
 
 void Modal :: setRatioAndRadius(int modeIndex, MY_FLOAT ratio, MY_FLOAT radius)
@@ -14656,6 +14521,8 @@ MY_FLOAT Modulate :: lastOut() const
 {
   return lastOutput;
 }
+
+
 /***************************************************/
 /*! \class Moog
     \brief STK moog-like swept filter sampling synthesis class.
@@ -14696,6 +14563,7 @@ Moog :: Moog()
   filterRate = (MY_FLOAT) 0.0001;
   modDepth = (MY_FLOAT) 0.0;
 
+  // chuck
   m_vibratoFreq = loops[1]->m_freq;
   m_vibratoGain = modDepth;
   m_volume = 1.0;
@@ -14721,6 +14589,9 @@ void Moog :: setFrequency(MY_FLOAT frequency)
   MY_FLOAT rate = attacks[0]->getSize() * 0.01 * baseFrequency / sampleRate();
   attacks[0]->setRate( rate );
   loops[0]->setFrequency(baseFrequency);
+
+  // chuck
+  m_frequency = baseFrequency;
 }
 
 //CHUCK wrapper
@@ -15335,6 +15206,9 @@ PercFlut :: ~PercFlut()
 void PercFlut :: setFrequency(MY_FLOAT frequency)
 {    
   baseFrequency = frequency;
+
+  // chuck
+  m_frequency = baseFrequency;
 }
 
 void PercFlut :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
@@ -15787,6 +15661,9 @@ PluckTwo :: PluckTwo(MY_FLOAT lowestFrequency)
   detuning = (MY_FLOAT) 0.995;
   lastFrequency = lowestFrequency * (MY_FLOAT) 2.0;
   lastLength = length * (MY_FLOAT) 0.5;
+
+  // chuck
+  m_frequency = lastFrequency;
 }
 
 PluckTwo :: ~PluckTwo()
@@ -15829,6 +15706,9 @@ void PluckTwo :: setFrequency(MY_FLOAT frequency)
 
   loopGain = baseLoopGain + (frequency * (MY_FLOAT) 0.000005);
   if ( loopGain > 1.0 ) loopGain = (MY_FLOAT) 0.99999;
+
+  // chuck
+  m_frequency = lastFrequency;
 }
 
 void PluckTwo :: setDetune(MY_FLOAT detune)
@@ -15938,6 +15818,9 @@ void Plucked :: setFrequency(MY_FLOAT frequency)
   delayLine->setDelay(delay);
   loopGain = 0.995 + (freakency * 0.000005);
   if ( loopGain >= 1.0 ) loopGain = (MY_FLOAT) 0.99999;
+
+  // chuck
+  m_frequency = freakency;
 }
 
 void Plucked :: pluck(MY_FLOAT amplitude)
@@ -16435,6 +16318,9 @@ void Rhodey :: setFrequency(MY_FLOAT frequency)
 
   for (int i=0; i<nOperators; i++ )
     waves[i]->setFrequency( baseFrequency * ratios[i] );
+
+  // chuck
+  m_frequency = baseFrequency;
 }
 
 void Rhodey :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
@@ -16844,6 +16730,9 @@ Sampler :: Sampler()
   attackGain = 0.25;
   loopGain = 0.25;
   whichOne = 0;
+
+  // chuck
+  m_frequency = baseFrequency;
 }  
 
 Sampler :: ~Sampler()
@@ -18324,6 +18213,9 @@ void Simple :: setFrequency(MY_FLOAT frequency)
 {
   biquad->setResonance( frequency, 0.98, true );
   loop->setFrequency(frequency);
+
+  // chuck
+  m_frequency = frequency;
 }
 
 MY_FLOAT Simple :: tick()
@@ -18429,7 +18321,7 @@ void SingWave :: normalize(MY_FLOAT newPeak)
 
 void SingWave :: setFrequency(MY_FLOAT frequency)
 {
-  m_freq = frequency;
+    m_freq = frequency;
     MY_FLOAT temp = rate;
     rate = wave->getSize() * frequency / Stk::sampleRate();
     temp -= rate;
@@ -18561,6 +18453,9 @@ void Sitar :: setFrequency(MY_FLOAT frequency)
   delayLine->setDelay(delay);
   loopGain = 0.995 + (freakency * 0.0000005);
   if (loopGain > 0.9995) loopGain = 0.9995;
+
+  // chuck
+  m_frequency = freakency;
 }
 
 void Sitar :: pluck(MY_FLOAT amplitude)
@@ -18803,6 +18698,9 @@ void StifKarp :: setFrequency(MY_FLOAT frequency)
   setStretch(stretching);
 
   combDelay->setDelay((MY_FLOAT) 0.5 * pickupPosition * lastLength); 
+
+  // chuck
+  m_frequency = lastFrequency;
 }
 
 void StifKarp :: setStretch(MY_FLOAT stretch)
@@ -19692,7 +19590,10 @@ void VoicForm :: setFrequency(MY_FLOAT frequency)
     freakency = 220.0;
   }
 
-    voiced->setFrequency( freakency );
+  voiced->setFrequency( freakency );
+
+  // chuck
+  m_frequency = freakency;
 }
 
 bool VoicForm :: setPhoneme(const char *phoneme )
@@ -20603,6 +20504,9 @@ void Wurley :: setFrequency(MY_FLOAT frequency)
   waves[1]->setFrequency(baseFrequency * ratios[1]);
   waves[2]->setFrequency(ratios[2]);    // Note here a 'fixed resonance'.
   waves[3]->setFrequency(ratios[3]);
+
+  // chuck
+  m_frequency = baseFrequency;
 }
 
 void Wurley :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
@@ -22516,6 +22420,117 @@ ck_domidi ( Instrmnt * inst, unsigned char status, unsigned char data1, unsigned
 
 
 
+
+// StkInstrument
+//-----------------------------------------------------------------------------
+// name: Instrmnt_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( Instrmnt_ctor )
+{
+    // initialize member object
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)0;
+    // fprintf( stderr,"[chuck](via STK): error : StkInstrument is virtual!\n");
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Instrmnt_dtor()
+// desc: DTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_DTOR( Instrmnt_dtor )
+{
+    // should be done already by now
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Instrmnt_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( Instrmnt_tick )
+{
+    Instrmnt * i = (Instrmnt *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    if( !out ) fprintf( stderr,"[chuck](via STK): we warned you...\n");
+    *out = i->tick();
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BlowBotl_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( Instrmnt_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Instrmnt_ctrl_noteOn()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Instrmnt_ctrl_noteOn )
+{
+    Instrmnt * i = (Instrmnt *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    i->noteOn( i->m_frequency, f );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Instrmnt_ctrl_noteOff()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Instrmnt_ctrl_noteOff )
+{
+    Instrmnt * i = (Instrmnt *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    i->noteOff( f );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Instrmnt_ctrl_freq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Instrmnt_ctrl_freq )
+{
+    Instrmnt * i = (Instrmnt *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    i->setFrequency( f );
+    RETURN->v_float = (t_CKFLOAT)i->m_frequency;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Instrmnt_cget_freq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Instrmnt_cget_freq )
+{
+    Instrmnt * i = (Instrmnt *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    RETURN->v_float = (t_CKFLOAT)i->m_frequency;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Instrmnt_ctrl_controlChange()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL(Instrmnt_ctrl_controlChange )
+{
+    Instrmnt * ii = (Instrmnt *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    ii->controlChange( i, f );
+}
+
+
+
+
 //-----------------------------------------------------------------------------
 // name: BandedWG_ctor()
 // desc: CTOR function ...
@@ -23010,7 +23025,7 @@ CK_DLL_CTRL( BiQuad_ctrl_eqzs )
 CK_DLL_CTOR( BlowBotl_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data) = (t_CKUINT) new BlowBotl();
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new BlowBotl();
 }
 
 
@@ -23020,7 +23035,7 @@ CK_DLL_CTOR( BlowBotl_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( BlowBotl_dtor )
 {
-    delete (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    delete (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 }
 
 
@@ -23030,7 +23045,7 @@ CK_DLL_DTOR( BlowBotl_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( BlowBotl_tick )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = p->tick();
     return TRUE;
 }
@@ -23047,36 +23062,12 @@ CK_DLL_PMSG( BlowBotl_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: BlowBotl_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowBotl_ctrl_noteOn )
-{
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->noteOn( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: BlowBotl_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowBotl_ctrl_noteOff )
-{
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: BlowBotl_ctrl_startBlowing()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowBotl_ctrl_startBlowing )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->startBlowing( f );
 }
@@ -23088,33 +23079,9 @@ CK_DLL_CTRL( BlowBotl_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowBotl_ctrl_stopBlowing )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->stopBlowing( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: BlowBotl_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowBotl_ctrl_freq )
-{
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)p->baseFrequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: BlowBotl_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( BlowBotl_cget_freq )
-{
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    RETURN->v_float = (t_CKFLOAT)p->baseFrequency;
 }
 
 
@@ -23124,7 +23091,7 @@ CK_DLL_CGET( BlowBotl_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowBotl_ctrl_rate )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->m_rate = f;
     RETURN->v_float = (t_CKFLOAT)p->m_rate;
@@ -23137,21 +23104,8 @@ CK_DLL_CTRL( BlowBotl_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowBotl_cget_rate )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) p->m_rate;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: BlowBotl_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowBotl_ctrl_controlChange )
-{
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->controlChange( i, f );
 }
 
 
@@ -23161,7 +23115,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_controlChange )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowBotl_ctrl_noiseGain )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 4, f * 128 );
     RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
@@ -23174,7 +23128,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowBotl_cget_noiseGain )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
 }
 
@@ -23185,7 +23139,7 @@ CK_DLL_CGET( BlowBotl_cget_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowBotl_ctrl_vibratoFreq )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
@@ -23198,7 +23152,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowBotl_cget_vibratoFreq )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
 }
 
@@ -23209,7 +23163,7 @@ CK_DLL_CGET( BlowBotl_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowBotl_ctrl_vibratoGain )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 1, f * 128 );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
@@ -23222,7 +23176,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowBotl_cget_vibratoGain )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
 }
 
@@ -23233,7 +23187,7 @@ CK_DLL_CGET( BlowBotl_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowBotl_ctrl_volume )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 128, f * 128 );
     RETURN->v_float = (t_CKFLOAT)p->m_volume;
@@ -23246,7 +23200,7 @@ CK_DLL_CTRL( BlowBotl_ctrl_volume )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowBotl_cget_volume )
 {
-    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, BlowBotl_offset_data );
+    BlowBotl * p = (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_volume;
 }
 
@@ -23259,7 +23213,7 @@ CK_DLL_CGET( BlowBotl_cget_volume )
 CK_DLL_CTOR( BlowHole_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, BlowHole_offset_data) = (t_CKUINT)new BlowHole( 30 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new BlowHole( 30 );
 }
 
 
@@ -23269,7 +23223,7 @@ CK_DLL_CTOR( BlowHole_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( BlowHole_dtor )
 {
-    delete (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    delete (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 }
 
 
@@ -23279,7 +23233,7 @@ CK_DLL_DTOR( BlowHole_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( BlowHole_tick )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = p->tick();
     return TRUE;
 }
@@ -23296,36 +23250,12 @@ CK_DLL_PMSG( BlowHole_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: BlowHole_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowHole_ctrl_noteOn )
-{
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->noteOn ( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: BlowHole_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowHole_ctrl_noteOff )
-{
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->noteOff ( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: BlowHole_ctrl_startBlowing()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_startBlowing )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->startBlowing ( f );
 }
@@ -23337,35 +23267,10 @@ CK_DLL_CTRL( BlowHole_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_stopBlowing )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->stopBlowing( f );
 }
-
-
-//-----------------------------------------------------------------------------
-// name: BlowHole_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowHole_ctrl_freq )
-{
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)p->m_frequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: BlowHole_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( BlowHole_cget_freq )
-{
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    RETURN->v_float = (t_CKFLOAT)p->m_frequency;
-}
-
 
 
 //-----------------------------------------------------------------------------
@@ -23374,7 +23279,7 @@ CK_DLL_CGET( BlowHole_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_rate )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->m_rate = f;
     RETURN->v_float = (t_CKFLOAT)p->m_rate;
@@ -23387,7 +23292,7 @@ CK_DLL_CTRL( BlowHole_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowHole_cget_rate )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_rate;
 }
 
@@ -23398,7 +23303,7 @@ CK_DLL_CGET( BlowHole_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_tonehole )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->setTonehole( f );
     RETURN->v_float = (t_CKFLOAT)p->m_tonehole;
@@ -23411,7 +23316,7 @@ CK_DLL_CTRL( BlowHole_ctrl_tonehole )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowHole_cget_tonehole )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_tonehole;
 }
 
@@ -23422,7 +23327,7 @@ CK_DLL_CGET( BlowHole_cget_tonehole )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_vent )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->setVent( f );
     RETURN->v_float = (t_CKFLOAT)p->m_vent;
@@ -23435,7 +23340,7 @@ CK_DLL_CTRL( BlowHole_ctrl_vent )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowHole_cget_vent )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_vent;
 }
 
@@ -23446,7 +23351,7 @@ CK_DLL_CGET( BlowHole_cget_vent )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_reed )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange(__SK_ReedStiffness_, f * 128.0);
     RETURN->v_float = (t_CKFLOAT)p->m_reed;
@@ -23459,23 +23364,9 @@ CK_DLL_CTRL( BlowHole_ctrl_reed )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowHole_cget_reed )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_reed;
 }
-
-
-//-----------------------------------------------------------------------------
-// name: BlowHole_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( BlowHole_ctrl_controlChange )
-{
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->controlChange( i, f );
-}
-
 
 
 //-----------------------------------------------------------------------------
@@ -23484,7 +23375,7 @@ CK_DLL_CTRL( BlowHole_ctrl_controlChange )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_noiseGain )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 4, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
@@ -23497,7 +23388,7 @@ CK_DLL_CTRL( BlowHole_ctrl_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowHole_cget_noiseGain )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_noiseGain;
 }
 
@@ -23508,7 +23399,7 @@ CK_DLL_CGET( BlowHole_cget_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( BlowHole_ctrl_pressure )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 128, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)p->m_pressure;
@@ -23521,7 +23412,7 @@ CK_DLL_CTRL( BlowHole_ctrl_pressure )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( BlowHole_cget_pressure )
 {
-    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, BlowHole_offset_data );
+    BlowHole * p = (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_pressure;
 }
 
@@ -23534,7 +23425,7 @@ CK_DLL_CGET( BlowHole_cget_pressure )
 CK_DLL_CTOR( Bowed_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Bowed_offset_data) = (t_CKUINT) new Bowed(40.0);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new Bowed(40.0);
 }
 
 
@@ -23544,7 +23435,7 @@ CK_DLL_CTOR( Bowed_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Bowed_dtor )
 {
-    delete (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    delete (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 }
 
 
@@ -23554,7 +23445,7 @@ CK_DLL_DTOR( Bowed_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Bowed_tick )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = p->tick();
     return TRUE;
 }
@@ -23571,36 +23462,12 @@ CK_DLL_PMSG( Bowed_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: Bowed_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Bowed_ctrl_noteOn )
-{
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->noteOn( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Bowed_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Bowed_ctrl_noteOff )
-{
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: Bowed_ctrl_startBowing()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_startBowing )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->startBowing( f );
 }
@@ -23612,33 +23479,9 @@ CK_DLL_CTRL( Bowed_ctrl_startBowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_stopBowing )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->stopBowing( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Bowed_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Bowed_ctrl_freq )
-{
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)p->m_frequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Bowed_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Bowed_cget_freq )
-{
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    RETURN->v_float = (t_CKFLOAT)p->m_frequency;
 }
 
 
@@ -23648,7 +23491,7 @@ CK_DLL_CGET( Bowed_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_bowPressure )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 2, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)p->m_bowPressure;
@@ -23661,7 +23504,7 @@ CK_DLL_CTRL( Bowed_ctrl_bowPressure )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Bowed_cget_bowPressure )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_bowPressure;
 }
 
@@ -23672,7 +23515,7 @@ CK_DLL_CGET( Bowed_cget_bowPressure )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_bowPos )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 4, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)p->m_bowPosition;
@@ -23685,7 +23528,7 @@ CK_DLL_CTRL( Bowed_ctrl_bowPos )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Bowed_cget_bowPos )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_bowPosition;
 }
 
@@ -23696,7 +23539,7 @@ CK_DLL_CGET( Bowed_cget_bowPos )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_vibratoFreq )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
@@ -23709,7 +23552,7 @@ CK_DLL_CTRL( Bowed_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Bowed_cget_vibratoFreq )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoFreq;
 }
 
@@ -23720,7 +23563,7 @@ CK_DLL_CGET( Bowed_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_vibratoGain )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 1, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
@@ -23733,7 +23576,7 @@ CK_DLL_CTRL( Bowed_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Bowed_cget_vibratoGain )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_vibratoGain;
 }
 
@@ -23744,7 +23587,7 @@ CK_DLL_CGET( Bowed_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_volume )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->controlChange( 128, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)p->m_volume;
@@ -23757,7 +23600,7 @@ CK_DLL_CTRL( Bowed_ctrl_volume )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Bowed_cget_volume )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)p->m_volume;
 }
 
@@ -23768,7 +23611,7 @@ CK_DLL_CGET( Bowed_cget_volume )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Bowed_ctrl_rate )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     p->m_rate = f;
     RETURN->v_float = (t_CKFLOAT) p->m_rate;
@@ -23781,21 +23624,8 @@ CK_DLL_CTRL( Bowed_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Bowed_cget_rate )
 {
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
+    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) p->m_rate;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Bowed_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Bowed_ctrl_controlChange )
-{
-    Bowed * p = (Bowed *)OBJ_MEMBER_UINT(SELF, Bowed_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->controlChange( i, f );
 }
 
 
@@ -23947,7 +23777,7 @@ struct Brass_
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Brass_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Brass_offset_data) = (t_CKUINT)new Brass( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new Brass( 30.0 );
 }
 
 
@@ -23957,7 +23787,7 @@ CK_DLL_CTOR( Brass_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Brass_dtor )
 {
-    delete (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    delete (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 }
 
 
@@ -23967,7 +23797,7 @@ CK_DLL_DTOR( Brass_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Brass_tick )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = b->tick();
     return TRUE;
 }
@@ -23984,36 +23814,12 @@ CK_DLL_PMSG( Brass_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: Brass_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Brass_ctrl_noteOn )
-{
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOn( b->m_frequency, f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Brass_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Brass_ctrl_noteOff )
-{
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: Brass_ctrl_startBlowing()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_startBlowing )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->startBlowing( f, b->m_rate );
 }
@@ -24025,7 +23831,7 @@ CK_DLL_CTRL( Brass_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_stopBlowing )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->stopBlowing( f );
 }
@@ -24037,32 +23843,8 @@ CK_DLL_CTRL( Brass_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_clear )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     b->clear();
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Brass_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Brass_ctrl_freq )
-{
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Brass_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Brass_cget_freq )
-{
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
 }
 
 
@@ -24072,7 +23854,7 @@ CK_DLL_CGET( Brass_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_rate )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
@@ -24085,7 +23867,7 @@ CK_DLL_CTRL( Brass_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_rate )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
 }
 
@@ -24096,7 +23878,7 @@ CK_DLL_CGET( Brass_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_lip )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 2, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_lip;
@@ -24109,7 +23891,7 @@ CK_DLL_CTRL( Brass_ctrl_lip )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_lip )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_lip;
 }
 
@@ -24120,7 +23902,7 @@ CK_DLL_CGET( Brass_cget_lip )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_slide )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 4, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_slide;
@@ -24133,7 +23915,7 @@ CK_DLL_CTRL( Brass_ctrl_slide )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_slide )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_slide;
 }
 
@@ -24144,7 +23926,7 @@ CK_DLL_CGET( Brass_cget_slide )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_vibratoFreq )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
@@ -24157,7 +23939,7 @@ CK_DLL_CTRL( Brass_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_vibratoFreq )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
 }
 
@@ -24168,7 +23950,7 @@ CK_DLL_CGET( Brass_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_vibratoGain )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 1, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
@@ -24181,7 +23963,7 @@ CK_DLL_CTRL( Brass_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_vibratoGain)
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
 }
 
@@ -24192,7 +23974,7 @@ CK_DLL_CGET( Brass_cget_vibratoGain)
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Brass_ctrl_volume )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 128, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_volume;
@@ -24205,22 +23987,10 @@ CK_DLL_CTRL( Brass_ctrl_volume )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Brass_cget_volume )
 {
-    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
+    Brass * b = (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_volume;
 }
 
-
-//-----------------------------------------------------------------------------
-// name: Brass_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Brass_ctrl_controlChange )
-{
-    Brass * p = (Brass *)OBJ_MEMBER_UINT(SELF, Brass_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->controlChange( i, f );
-}
 
 
 
@@ -24246,7 +24016,7 @@ struct Clarinet_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Clarinet_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Clarinet_offset_data) = (t_CKUINT)new Clarinet( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new Clarinet( 30.0 );
 }
 
 
@@ -24256,8 +24026,8 @@ CK_DLL_CTOR( Clarinet_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Clarinet_dtor )
 {
-    delete (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    OBJ_MEMBER_UINT(SELF, Clarinet_offset_data) = 0;
+    delete (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -24266,7 +24036,7 @@ CK_DLL_DTOR( Clarinet_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Clarinet_tick )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = b->tick();
     return TRUE;
 }
@@ -24283,36 +24053,12 @@ CK_DLL_PMSG( Clarinet_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: Clarinet_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Clarinet_ctrl_noteOn )
-{
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOn( b->m_frequency, f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Clarinet_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Clarinet_ctrl_noteOff )
-{
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: Clarinet_ctrl_startBlowing()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_startBlowing )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->startBlowing( f, b->m_rate );
 }
@@ -24324,7 +24070,7 @@ CK_DLL_CTRL( Clarinet_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_stopBlowing )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->stopBlowing( f );
 }
@@ -24336,7 +24082,7 @@ CK_DLL_CTRL( Clarinet_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_clear )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     b->clear();
 }
 
@@ -24347,7 +24093,7 @@ CK_DLL_CTRL( Clarinet_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_reed )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 2, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_reed;
@@ -24360,7 +24106,7 @@ CK_DLL_CTRL( Clarinet_ctrl_reed )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Clarinet_cget_reed )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_reed;
 }
 
@@ -24371,7 +24117,7 @@ CK_DLL_CGET( Clarinet_cget_reed )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_rate )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
@@ -24384,32 +24130,8 @@ CK_DLL_CTRL( Clarinet_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Clarinet_cget_rate )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) b->m_rate;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Clarinet_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Clarinet_ctrl_freq )
-{
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Clarinet_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Clarinet_cget_freq )
-{
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
 }
 
 
@@ -24419,7 +24141,7 @@ CK_DLL_CGET( Clarinet_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_noiseGain )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 4, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
@@ -24432,7 +24154,7 @@ CK_DLL_CTRL( Clarinet_ctrl_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Clarinet_cget_noiseGain )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
 }
 
@@ -24443,7 +24165,7 @@ CK_DLL_CGET( Clarinet_cget_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_vibratoFreq )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
@@ -24456,7 +24178,7 @@ CK_DLL_CTRL( Clarinet_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Clarinet_cget_vibratoFreq )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
 }
 
@@ -24467,7 +24189,7 @@ CK_DLL_CGET( Clarinet_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_vibratoGain )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 1, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
@@ -24480,7 +24202,7 @@ CK_DLL_CTRL( Clarinet_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Clarinet_cget_vibratoGain )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
 }
 
@@ -24491,7 +24213,7 @@ CK_DLL_CGET( Clarinet_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Clarinet_ctrl_pressure )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 128, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_volume;
@@ -24504,20 +24226,8 @@ CK_DLL_CTRL( Clarinet_ctrl_pressure )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Clarinet_cget_pressure )
 {
-    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
+    Clarinet * b = (Clarinet *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->m_volume;
-}
-
-//-----------------------------------------------------------------------------
-// name: Clarinet_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Clarinet_ctrl_controlChange )
-{
-    Clarinet * p = (Clarinet *)OBJ_MEMBER_UINT(SELF, Clarinet_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    p->controlChange( i, f );
 }
 
 
@@ -24548,7 +24258,7 @@ struct Flute_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Flute_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Flute_offset_data) = (t_CKUINT) new Flute( 40.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new Flute( 40.0 );
 }
 
 
@@ -24558,8 +24268,8 @@ CK_DLL_CTOR( Flute_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Flute_dtor )
 {
-    Flute * f = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
-    OBJ_MEMBER_UINT(SELF, Flute_offset_data) = 0;
+    Flute * f = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -24569,7 +24279,7 @@ CK_DLL_DTOR( Flute_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Flute_tick )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     *out = b->tick();
     return TRUE;
 }
@@ -24585,36 +24295,12 @@ CK_DLL_PMSG( Flute_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: Flute_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Flute_ctrl_noteOn )
-{
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOn( b->m_frequency, f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Flute_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Flute_ctrl_noteOff )
-{
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: Flute_ctrl_startBlowing()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_startBlowing )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->startBlowing( f, b->m_rate );
 }
@@ -24625,7 +24311,7 @@ CK_DLL_CTRL( Flute_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_stopBlowing )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->stopBlowing( f );
 }
@@ -24637,32 +24323,8 @@ CK_DLL_CTRL( Flute_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_clear )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     b->clear();
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Flute_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Flute_ctrl_freq )
-{
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Flute_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Flute_cget_freq )
-{
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
 }
 
 
@@ -24672,7 +24334,7 @@ CK_DLL_CGET( Flute_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_rate )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
@@ -24685,7 +24347,7 @@ CK_DLL_CTRL( Flute_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_rate )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
 }
 
@@ -24696,7 +24358,7 @@ CK_DLL_CGET( Flute_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_jetDelay )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setJetDelay( f);
     RETURN->v_float = (t_CKFLOAT)b->m_jetDelay;
@@ -24709,7 +24371,7 @@ CK_DLL_CTRL( Flute_ctrl_jetDelay )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_jetDelay )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_jetDelay;
 }
 
@@ -24720,7 +24382,7 @@ CK_DLL_CGET( Flute_cget_jetDelay )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_jetReflection )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setJetReflection( f);
     RETURN->v_float = (t_CKFLOAT)b->m_jetReflection;
@@ -24733,7 +24395,7 @@ CK_DLL_CTRL( Flute_ctrl_jetReflection )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_jetReflection )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_jetReflection;
 }
 
@@ -24744,7 +24406,7 @@ CK_DLL_CGET( Flute_cget_jetReflection )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_endReflection )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setEndReflection(f);
     RETURN->v_float = (t_CKFLOAT)b->m_endReflection;
@@ -24757,7 +24419,7 @@ CK_DLL_CTRL( Flute_ctrl_endReflection )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_endReflection )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_endReflection;
 }
 
@@ -24768,7 +24430,7 @@ CK_DLL_CGET( Flute_cget_endReflection )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_noiseGain )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 4, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
@@ -24781,7 +24443,7 @@ CK_DLL_CTRL( Flute_ctrl_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_noiseGain )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
 }
 
@@ -24792,7 +24454,7 @@ CK_DLL_CGET( Flute_cget_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_vibratoFreq )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setVibratoFreq( f );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
@@ -24805,7 +24467,7 @@ CK_DLL_CTRL( Flute_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_vibratoFreq )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoFreq;
 }
 
@@ -24816,7 +24478,7 @@ CK_DLL_CGET( Flute_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_vibratoGain )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 1, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
@@ -24829,7 +24491,7 @@ CK_DLL_CTRL( Flute_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_vibratoGain )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
 }
 
@@ -24840,7 +24502,7 @@ CK_DLL_CGET( Flute_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Flute_ctrl_pressure )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 128, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)b->m_pressure;
@@ -24853,21 +24515,8 @@ CK_DLL_CTRL( Flute_ctrl_pressure )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Flute_cget_pressure )
 {
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
+    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_pressure;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Flute_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Flute_ctrl_controlChange )
-{
-    Flute * b = (Flute *)OBJ_MEMBER_UINT(SELF, Flute_offset_data);
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->controlChange( i, f );
 }
 
 
@@ -24893,7 +24542,7 @@ struct ModalBar_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( ModalBar_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, ModalBar_offset_data) = (t_CKUINT)new ModalBar_();
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new ModalBar_();
 }
 
 
@@ -24903,7 +24552,7 @@ CK_DLL_CTOR( ModalBar_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( ModalBar_dtor )
 {
-    delete (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    delete (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
 }
 
 
@@ -24913,7 +24562,7 @@ CK_DLL_DTOR( ModalBar_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( ModalBar_tick )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     *out = b->modalbar.tick();
     return TRUE;
 }
@@ -24930,24 +24579,12 @@ CK_DLL_PMSG( ModalBar_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: ModalBar_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ModalBar_ctrl_noteOn )
-{
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->modalbar.noteOn( b->modalbar.baseFrequency , f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: ModalBar_ctrl_strike()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_strike )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.strike( f );
 }
@@ -24959,7 +24596,7 @@ CK_DLL_CTRL( ModalBar_ctrl_strike )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_damp )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.damp( f );
 }
@@ -24971,44 +24608,8 @@ CK_DLL_CTRL( ModalBar_ctrl_damp )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_clear )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     b->modalbar.clear();
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ModalBar_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ModalBar_ctrl_noteOff )
-{
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->modalbar.noteOn( b->modalbar.baseFrequency, f);
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ModalBar_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ModalBar_ctrl_freq )
-{
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->modalbar.setFrequency ( f );
-    RETURN->v_float = (t_CKFLOAT)b->modalbar.baseFrequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ModalBar_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( ModalBar_cget_freq )
-{
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
-    RETURN->v_float = (t_CKFLOAT)b->modalbar.baseFrequency;
 }
 
 
@@ -25018,7 +24619,7 @@ CK_DLL_CGET( ModalBar_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_preset )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     int f = GET_CK_INT(ARGS);
     b->m_preset = f;
     b->modalbar.setPreset ( f );
@@ -25032,7 +24633,7 @@ CK_DLL_CTRL( ModalBar_ctrl_preset )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_preset )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_int = (t_CKINT)b->m_preset;
 }
 
@@ -25043,7 +24644,7 @@ CK_DLL_CGET( ModalBar_cget_preset )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_strikePosition )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.setStrikePosition ( f );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.strikePosition;
@@ -25056,7 +24657,7 @@ CK_DLL_CTRL( ModalBar_ctrl_strikePosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_strikePosition )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.strikePosition;
 }
 
@@ -25067,7 +24668,7 @@ CK_DLL_CGET( ModalBar_cget_strikePosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_vibratoGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.controlChange( 11, f*128 );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.m_vibratoGain;
@@ -25080,7 +24681,7 @@ CK_DLL_CTRL( ModalBar_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_vibratoGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.m_vibratoGain;
 }
 
@@ -25091,7 +24692,7 @@ CK_DLL_CGET( ModalBar_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_vibratoFreq )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.vibrato->setFrequency( f );
     b->modalbar.m_vibratoFreq = b->modalbar.vibrato->m_freq;
@@ -25105,7 +24706,7 @@ CK_DLL_CTRL( ModalBar_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_vibratoFreq )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.m_vibratoFreq;
 }
 
@@ -25116,7 +24717,7 @@ CK_DLL_CGET( ModalBar_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_stickHardness )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.setStickHardness ( f );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.stickHardness;
@@ -25130,7 +24731,7 @@ CK_DLL_CTRL( ModalBar_ctrl_stickHardness )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_stickHardness )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.stickHardness;
 }
 
@@ -25141,7 +24742,7 @@ CK_DLL_CGET( ModalBar_cget_stickHardness )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_masterGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.setMasterGain( f );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.masterGain;
@@ -25154,7 +24755,7 @@ CK_DLL_CTRL( ModalBar_ctrl_masterGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_masterGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.masterGain;
 }
 
@@ -25165,7 +24766,7 @@ CK_DLL_CGET( ModalBar_cget_masterGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_directGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.setDirectGain( f );
     RETURN->v_float = (t_CKFLOAT) b->modalbar.directGain;
@@ -25178,7 +24779,7 @@ CK_DLL_CTRL( ModalBar_ctrl_directGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_directGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.directGain;
 }
 
@@ -25189,7 +24790,7 @@ CK_DLL_CGET( ModalBar_cget_directGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_mode )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     int i = GET_CK_INT(ARGS);
     if ( i >= 0 && i < b->modalbar.nModes )
     { 
@@ -25207,7 +24808,7 @@ CK_DLL_CTRL( ModalBar_ctrl_mode )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_mode )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_modeIndex;
 }
 
@@ -25218,7 +24819,7 @@ CK_DLL_CGET( ModalBar_cget_mode )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_modeGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.setModeGain ( b->m_modeIndex, f );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.filters[b->m_modeIndex]->getGain();
@@ -25231,7 +24832,7 @@ CK_DLL_CTRL( ModalBar_ctrl_modeGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_modeGain )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.filters[b->m_modeIndex]->getGain();
 }
 
@@ -25242,7 +24843,7 @@ CK_DLL_CGET( ModalBar_cget_modeGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_modeRatio )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     if ( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes )
     {
@@ -25259,7 +24860,7 @@ CK_DLL_CTRL( ModalBar_ctrl_modeRatio )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_modeRatio )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_modeRatio;
 }
 
@@ -25270,7 +24871,7 @@ CK_DLL_CGET( ModalBar_cget_modeRatio )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_modeRadius )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     if( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes )
     {
@@ -25287,7 +24888,7 @@ CK_DLL_CTRL( ModalBar_ctrl_modeRadius )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_modeRadius )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_modeRadius;
 }
 
@@ -25298,7 +24899,7 @@ CK_DLL_CGET( ModalBar_cget_modeRadius )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ModalBar_ctrl_volume )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->modalbar.controlChange( 128, f*128 );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.m_volume;
@@ -25311,22 +24912,11 @@ CK_DLL_CTRL( ModalBar_ctrl_volume )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ModalBar_cget_volume )
 {
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data);
+    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->modalbar.m_volume;
 }
 
 
-//-----------------------------------------------------------------------------
-// name: ModalBar_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ModalBar_ctrl_controlChange )
-{
-    ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->modalbar.controlChange( i, f );
-}
 
 
 // Sitar
@@ -25462,7 +25052,7 @@ CK_DLL_CGET( Sitar_cget_freq  )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Saxofony_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Saxofony_offset_data) = (t_CKUINT)new Saxofony( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new Saxofony( 30.0 );
 }
 
 
@@ -25472,9 +25062,9 @@ CK_DLL_CTOR( Saxofony_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Saxofony_dtor )
 {
-    Saxofony * d = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * d = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     delete d;
-    OBJ_MEMBER_UINT(SELF, Saxofony_offset_data) = 0;
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -25484,7 +25074,7 @@ CK_DLL_DTOR( Saxofony_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Saxofony_tick )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     *out = b->tick();
     return TRUE;
 }
@@ -25501,36 +25091,12 @@ CK_DLL_PMSG( Saxofony_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: Saxofony_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Saxofony_ctrl_noteOn )
-{
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOn( b->m_frequency, f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Saxofony_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Saxofony_ctrl_noteOff )
-{
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: Saxofony_ctrl_startBlowing()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_startBlowing )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->startBlowing( f, b->m_rate );
 }
@@ -25542,7 +25108,7 @@ CK_DLL_CTRL( Saxofony_ctrl_startBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_stopBlowing )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->stopBlowing( f );
 }
@@ -25554,32 +25120,8 @@ CK_DLL_CTRL( Saxofony_ctrl_stopBlowing )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_clear )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     b->clear();
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Saxofony_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Saxofony_ctrl_freq )
-{
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Saxofony_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Saxofony_cget_freq )
-{
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
-    RETURN->v_float = (t_CKFLOAT)b->m_frequency;
 }
 
 
@@ -25589,7 +25131,7 @@ CK_DLL_CGET( Saxofony_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_rate )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->m_rate = f;
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
@@ -25602,7 +25144,7 @@ CK_DLL_CTRL( Saxofony_ctrl_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_rate )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_rate;
 }
 
@@ -25613,7 +25155,7 @@ CK_DLL_CGET( Saxofony_cget_rate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_blowPosition )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setBlowPosition(f);
     RETURN->v_float = (t_CKFLOAT)b->position;
@@ -25626,7 +25168,7 @@ CK_DLL_CTRL( Saxofony_ctrl_blowPosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_blowPosition )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->position;
 }
 
@@ -25637,7 +25179,7 @@ CK_DLL_CGET( Saxofony_cget_blowPosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_reed )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 2, f * 128 );
     RETURN->v_float = (t_CKFLOAT)b->m_stiffness;
@@ -25650,7 +25192,7 @@ CK_DLL_CTRL( Saxofony_ctrl_reed )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_reed )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_stiffness;
 }
 
@@ -25661,7 +25203,7 @@ CK_DLL_CGET( Saxofony_cget_reed )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_aperture )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 26, f * 128 );
     RETURN->v_float = (t_CKFLOAT)b->m_aperture;
@@ -25674,7 +25216,7 @@ CK_DLL_CTRL( Saxofony_ctrl_aperture )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_aperture )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_aperture;
 }
 
@@ -25685,7 +25227,7 @@ CK_DLL_CGET( Saxofony_cget_aperture )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_noiseGain )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 4, f * 128 );
     RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
@@ -25698,7 +25240,7 @@ CK_DLL_CTRL( Saxofony_ctrl_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_noiseGain )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_noiseGain;
 }
 
@@ -25709,7 +25251,7 @@ CK_DLL_CGET( Saxofony_cget_noiseGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_vibratoFreq )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->vibrato->setFrequency( f );
     RETURN->v_float = (t_CKFLOAT)b->vibrato->m_freq;
@@ -25722,7 +25264,7 @@ CK_DLL_CTRL( Saxofony_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_vibratoFreq )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->vibrato->m_freq;
 }
 
@@ -25733,7 +25275,7 @@ CK_DLL_CGET( Saxofony_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_vibratoGain )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 1, f * 128 );
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
@@ -25746,7 +25288,7 @@ CK_DLL_CTRL( Saxofony_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_vibratoGain )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_vibratoGain;
 }
 
@@ -25757,7 +25299,7 @@ CK_DLL_CGET( Saxofony_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Saxofony_ctrl_pressure )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->controlChange( 128, f * 128 );
     RETURN->v_float = (t_CKFLOAT)b->m_pressure;
@@ -25770,21 +25312,8 @@ CK_DLL_CTRL( Saxofony_ctrl_pressure )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Saxofony_cget_pressure )
 {
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Saxofony_offset_data);
+    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     RETURN->v_float = (t_CKFLOAT)b->m_pressure;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Saxofony_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Saxofony_ctrl_controlChange )
-{
-    Saxofony * b = (Saxofony *)OBJ_MEMBER_UINT(SELF, ModalBar_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->controlChange( i, f );
 }
 
 
@@ -27648,8 +27177,8 @@ CK_DLL_CGET( PoleZero_cget_blockZero )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( FM_ctor  )
 {
-    // return new FM(4);
-    fprintf(stderr,"error : FM is virtual - not for use! \n");
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
+    // fprintf(stderr,"[chuck](via STK): error : FM is virtual!\n");
 }
 
 
@@ -27670,9 +27199,9 @@ CK_DLL_DTOR( FM_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( FM_tick )
 {
-    // FM * m = (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    // *out = m->tick();
-    fprintf(stderr,"error : FM tick is virtual\n");
+    FM * m = (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    fprintf(stderr,"[chuck](via STK): error : FM tick is virtual!\n");
+    *out = m->tick();
     return TRUE;
 }
 
@@ -28534,7 +28063,7 @@ CK_DLL_CGET( JCRev_cget_mix )
 CK_DLL_CTOR( Mandolin_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Mandolin_offset_data) = (t_CKUINT) new Mandolin( 50.0f );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new Mandolin( 50.0f );
 }
 
 
@@ -28544,7 +28073,7 @@ CK_DLL_CTOR( Mandolin_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Mandolin_dtor  )
 { 
-  delete (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+  delete (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 }
 
 
@@ -28554,7 +28083,7 @@ CK_DLL_DTOR( Mandolin_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Mandolin_tick )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -28576,69 +28105,9 @@ CK_DLL_PMSG( Mandolin_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Mandolin_ctrl_pluck )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->pluck( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Mandolin_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Mandolin_ctrl_noteOn )
-{
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    m->noteOn( m->lastFrequency, f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Mandolin_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Mandolin_ctrl_noteOff )
-{
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    m->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Mandolin_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Mandolin_ctrl_controlChange )
-{
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    m->controlChange( i, f * 128.0 );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Mandolin_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Mandolin_ctrl_freq )
-{
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    m->setFrequency( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Mandolin_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Mandolin_cget_freq )
-{
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
-    RETURN->v_float = (t_CKFLOAT)m->lastFrequency;
 }
 
 
@@ -28648,7 +28117,7 @@ CK_DLL_CGET( Mandolin_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Mandolin_ctrl_pluckPos )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setPluckPosition( f );
 }
@@ -28660,7 +28129,7 @@ CK_DLL_CTRL( Mandolin_ctrl_pluckPos )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Mandolin_cget_pluckPos )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)m->pluckPosition;
 }
 
@@ -28671,7 +28140,7 @@ CK_DLL_CGET( Mandolin_cget_pluckPos )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Mandolin_ctrl_bodySize )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setBodySize( f );
 }
@@ -28683,7 +28152,7 @@ CK_DLL_CTRL( Mandolin_ctrl_bodySize )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Mandolin_cget_bodySize )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)m->m_bodySize;
 }
 
@@ -28694,7 +28163,7 @@ CK_DLL_CGET( Mandolin_cget_bodySize )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Mandolin_ctrl_stringDamping )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setBaseLoopGain( f );
     // m->setBaseLoopGain( 0.97f + f * 0.03f );
@@ -28707,7 +28176,7 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDamping )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Mandolin_cget_stringDamping )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)m->baseLoopGain;
 }
 
@@ -28718,7 +28187,7 @@ CK_DLL_CGET( Mandolin_cget_stringDamping )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Mandolin_ctrl_stringDetune )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setDetune( f );
     // m->setDetune( 1.0f - 0.1f * f );
@@ -28731,7 +28200,7 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDetune )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Mandolin_cget_stringDetune )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)m->detuning;
 }
 
@@ -28742,7 +28211,7 @@ CK_DLL_CGET( Mandolin_cget_stringDetune )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Mandolin_ctrl_afterTouch )
 {
-    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Mandolin_offset_data );
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     // not sure what this does in stk version so we'll just call controlChange
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
@@ -28873,7 +28342,7 @@ CK_DLL_CGET( Modulate_cget_randomGain )
 CK_DLL_CTOR( Moog_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Moog_offset_data) = (t_CKUINT)new Moog();
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new Moog();
 }
 
 
@@ -28883,7 +28352,7 @@ CK_DLL_CTOR( Moog_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Moog_dtor  )
 { 
-  delete (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+  delete (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 }
 
 
@@ -28893,7 +28362,7 @@ CK_DLL_DTOR( Moog_dtor  )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Moog_tick )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -28910,48 +28379,12 @@ CK_DLL_PMSG( Moog_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: Moog_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Moog_ctrl_noteOn )
-{
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    m->noteOn( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Moog_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Moog_ctrl_freq )
-{
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    m->setFrequency ( f );
-    RETURN->v_float = (t_CKFLOAT) m->baseFrequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Moog_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Moog_cget_freq )
-{
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    RETURN->v_float = (t_CKFLOAT) m->baseFrequency;
-}
-
-
-//-----------------------------------------------------------------------------
 // name: Moog_ctrl_modSpeed()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_modSpeed )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->setModulationSpeed(f);
     RETURN->v_float = (t_CKFLOAT) m->loops[1]->m_freq;
@@ -28964,7 +28397,7 @@ CK_DLL_CTRL( Moog_ctrl_modSpeed )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Moog_cget_modSpeed )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) m->loops[1]->m_freq;
 }
  
@@ -28975,7 +28408,7 @@ CK_DLL_CGET( Moog_cget_modSpeed )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_modDepth )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->setModulationDepth(f);
     RETURN->v_float = (t_CKFLOAT) m->modDepth * 2.0;
@@ -28988,7 +28421,7 @@ CK_DLL_CTRL( Moog_ctrl_modDepth )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Moog_cget_modDepth )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) m->modDepth * 2.0;
 }
 
@@ -28999,7 +28432,7 @@ CK_DLL_CGET( Moog_cget_modDepth )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_filterQ )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->controlChange( __SK_FilterQ_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)  10.0 * ( m->filterQ - 0.80 );
@@ -29012,7 +28445,7 @@ CK_DLL_CTRL( Moog_ctrl_filterQ )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Moog_cget_filterQ )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)  10.0 * ( m->filterQ - 0.80 );
 }
 
@@ -29023,7 +28456,7 @@ CK_DLL_CGET( Moog_cget_filterQ )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_filterSweepRate )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->controlChange( __SK_FilterSweepRate_, f * 128.0 );
 
@@ -29037,7 +28470,7 @@ CK_DLL_CTRL( Moog_ctrl_filterSweepRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Moog_cget_filterSweepRate )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)  m->filterRate * 5000;
 }
 
@@ -29048,7 +28481,7 @@ CK_DLL_CGET( Moog_cget_filterSweepRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_afterTouch )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
 }
@@ -29060,7 +28493,7 @@ CK_DLL_CTRL( Moog_ctrl_afterTouch )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_vibratoFreq )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->controlChange( __SK_ModFrequency_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)  m->m_vibratoFreq;
@@ -29073,7 +28506,7 @@ CK_DLL_CTRL( Moog_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Moog_cget_vibratoFreq )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)  m->m_vibratoFreq;
 }
 
@@ -29084,7 +28517,7 @@ CK_DLL_CGET( Moog_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_vibratoGain )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->controlChange( __SK_ModWheel_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)  m->m_vibratoGain;
@@ -29097,7 +28530,7 @@ CK_DLL_CTRL( Moog_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Moog_cget_vibratoGain )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)  m->m_vibratoGain;
 }
 
@@ -29108,7 +28541,7 @@ CK_DLL_CGET( Moog_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Moog_ctrl_volume )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT)  m->m_volume;
@@ -29121,22 +28554,11 @@ CK_DLL_CTRL( Moog_ctrl_volume )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( Moog_cget_volume )
 {
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
+    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)  m->m_volume;
 }
 
 
-//-----------------------------------------------------------------------------
-// name: Moog_ctrl_controlChange()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Moog_ctrl_controlChange )
-{
-    Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Moog_offset_data );
-    t_CKINT i = GET_NEXT_INT(ARGS);
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    m->controlChange( i, f );
-}
 
 
 // NRev

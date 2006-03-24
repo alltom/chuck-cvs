@@ -434,6 +434,17 @@ CK_DLL_DTOR( Drummer_dtor );
 CK_DLL_TICK( Drummer_tick );
 CK_DLL_PMSG( Drummer_pmsg );
 
+// Instrmnt
+CK_DLL_CTOR( Instrmnt_ctor );
+CK_DLL_DTOR( Instrmnt_dtor );
+CK_DLL_TICK( Instrmnt_tick );
+CK_DLL_PMSG( Instrmnt_pmsg );
+CK_DLL_CTRL( Instrmnt_ctrl_freq );
+CK_DLL_CGET( Instrmnt_cget_freq );
+CK_DLL_CTRL( Instrmnt_ctrl_noteOn );
+CK_DLL_CTRL( Instrmnt_ctrl_noteOff );
+CK_DLL_CTRL( Instrmnt_ctrl_controlChange );
+
 // BandedWG
 CK_DLL_CTOR( BandedWG_ctor );
 CK_DLL_DTOR( BandedWG_dtor );
