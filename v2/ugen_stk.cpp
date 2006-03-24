@@ -1362,31 +1362,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin FM ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "FM", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "FM", "StkInstrument", env->global(), 
                         FM_ctor, FM_tick, FM_pmsg ) ) return FALSE;
 
-    //member variable
+    // member variable
     // all subclasses of FM must use this offset, as this is where the inherited 
     // functions will look for the object
     // the other option would be to keep SubClass_offset_data, but assign
     // the value to FM_offset_data.  
-    FM_offset_data = type_engine_import_mvar ( env, "int", "@FM_data", FALSE );
-    if( FM_offset_data == CK_INVALID_OFFSET ) goto error;
-
-    func = make_new_mfun( "float", "freq", FM_ctrl_freq ); //!set frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", FM_cget_freq ); //!set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOn", FM_ctrl_noteOn );  //! trigger note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", FM_ctrl_noteOff ); //! end note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // FM_offset_data = type_engine_import_mvar ( env, "int", "@FM_data", FALSE );
+    // if( FM_offset_data == CK_INVALID_OFFSET ) goto error;
+    FM_offset_data = Instrmnt_offset_data;
 
     func = make_new_mfun( "float", "modDepth", FM_ctrl_modDepth ); //!modulation Depth
     func->add_arg( "float", "value" );
@@ -1407,11 +1393,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "control2", FM_ctrl_control2 ); //! FM control 2
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "void", "controlChange", FM_ctrl_controlChange ); //! control change
-    func->add_arg( "int", "ctrl" );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
     type_engine_import_class_end( env );
@@ -1423,12 +1404,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if( !type_engine_import_ugen_begin( env, "BeeThree", "FM", env->global(), 
                         BeeThree_ctor, BeeThree_tick, BeeThree_pmsg ) ) return FALSE;
-    //member variable
-
-    func = make_new_mfun( "float", "noteOn", BeeThree_ctrl_noteOn ); //!trigger note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1440,18 +1415,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if( !type_engine_import_ugen_begin( env, "FMVoices", "FM", env->global(), 
                         FMVoices_ctor, FMVoices_tick, FMVoices_pmsg ) ) return FALSE;
-    //member variable
-
-    func = make_new_mfun( "float", "noteOn", FMVoices_ctrl_noteOn );
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", FMVoices_ctrl_freq ); //!voice frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", FMVoices_cget_freq ); //!voice frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "vowel", FMVoices_ctrl_vowel ); //!select vowel
     func->add_arg( "float", "value" );
@@ -1473,7 +1436,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1485,11 +1447,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_ugen_begin( env, "HevyMetl", "FM", env->global(), 
                         HevyMetl_ctor, HevyMetl_tick, HevyMetl_pmsg ) ) return FALSE;
 
-    func = make_new_mfun( "float", "noteOn", HevyMetl_ctrl_noteOn ); //! trigger note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1500,18 +1457,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if( !type_engine_import_ugen_begin( env, "PercFlut", "FM", env->global(), 
                         PercFlut_ctor, PercFlut_tick, PercFlut_pmsg ) ) return FALSE;
-
-    func = make_new_mfun( "float", "freq", PercFlut_ctrl_freq ); //! set frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", PercFlut_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOn", PercFlut_ctrl_noteOn ); //!trigger note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1525,18 +1470,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_ugen_begin( env, "Rhodey", "FM", env->global(), 
                         Rhodey_ctor, Rhodey_tick, Rhodey_pmsg ) ) return FALSE;
 
-    func = make_new_mfun( "float", "freq", Rhodey_ctrl_freq ); //! set frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Rhodey_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOn", Rhodey_ctrl_noteOn ); //! trigger note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1548,18 +1481,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_ugen_begin( env, "TubeBell", "FM", env->global(), 
                         TubeBell_ctor, TubeBell_tick, TubeBell_pmsg ) ) return FALSE;
 
-    func = make_new_mfun( "float", "freq", TubeBell_ctrl_freq );  //! set frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", TubeBell_cget_freq );  //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOn", TubeBell_ctrl_noteOn ); //!  trigger note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1571,17 +1492,6 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //! see \examples wurley.ck
     if( !type_engine_import_ugen_begin( env, "Wurley", "FM", env->global(), 
                         Wurley_ctor, Wurley_tick, Wurley_pmsg ) ) return FALSE; 
-
-    func = make_new_mfun( "float", "freq", Wurley_ctrl_freq ); //! set frequency
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Wurley_cget_freq ); //! set frequency
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOn", Wurley_ctrl_noteOn ); //! trigger note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
