@@ -1199,34 +1199,19 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // begin Sitar ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "Sitar", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Sitar", "StkInstrument", env->global(), 
                         Sitar_ctor, Sitar_tick, Sitar_pmsg ) ) return FALSE;
-    //member variable
-    Sitar_offset_data = type_engine_import_mvar ( env, "int", "@Sitar_data", FALSE );
-    if( Sitar_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "pluck", Sitar_ctrl_pluck ); //! 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // Sitar_offset_data = type_engine_import_mvar ( env, "int", "@Sitar_data", FALSE );
+    // if( Sitar_offset_data == CK_INVALID_OFFSET ) goto error;
 
-    func = make_new_mfun( "float", "noteOn", Sitar_ctrl_noteOn ); 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", Sitar_ctrl_noteOff ); 
+    func = make_new_mfun( "float", "pluck", Sitar_ctrl_pluck ); //! pluck
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "clear", Sitar_ctrl_clear ); 
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Sitar_ctrl_freq ); 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", Sitar_cget_freq ); 
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
 
     // end the class import
     type_engine_import_class_end( env );
@@ -24920,6 +24905,7 @@ CK_DLL_CGET( ModalBar_cget_volume )
 
 
 // Sitar
+/*
 struct Sitar_ { 
    Sitar * imp;
    double m_frequency;
@@ -24928,7 +24914,7 @@ struct Sitar_ {
       imp = new Sitar(d);
       m_frequency = 100.0;
    }
-};
+};*/
 
 
 //-----------------------------------------------------------------------------
@@ -24937,7 +24923,7 @@ struct Sitar_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Sitar_ctor )
 {
-     OBJ_MEMBER_UINT(SELF, Sitar_offset_data) = (t_CKUINT) new Sitar_( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new Sitar( 30.0 );
 }
 
 
@@ -24947,8 +24933,8 @@ CK_DLL_CTOR( Sitar_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Sitar_dtor )
 {
-    delete ((Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data ))->imp;
-    delete (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
+    Sitar * s = (Sitar *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -24958,8 +24944,8 @@ CK_DLL_DTOR( Sitar_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( Sitar_tick )
 {
-    Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    *out = b->imp->tick();
+    Sitar * b = (Sitar *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    *out = b->tick();
     return TRUE;
 }
 
@@ -24980,33 +24966,9 @@ CK_DLL_PMSG( Sitar_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Sitar_ctrl_pluck )
 {
-    Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
+    Sitar * b = (Sitar *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->pluck ( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Sitar_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Sitar_ctrl_noteOn )
-{
-    Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->noteOn ( b->m_frequency, f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Sitar_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Sitar_ctrl_noteOff )
-{
-    Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->imp->noteOff ( f );
+    b->pluck( f );
 }
 
 
@@ -25016,34 +24978,11 @@ CK_DLL_CTRL( Sitar_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( Sitar_ctrl_clear )
 {
-    Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    b->imp->clear();
+    Sitar * b = (Sitar *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    b->clear();
 }
 
 
-//-----------------------------------------------------------------------------
-// name: Sitar_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( Sitar_ctrl_freq )
-{
-    Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->m_frequency = f;
-    b->imp->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT) b->m_frequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: Sitar_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( Sitar_cget_freq  )
-{
-    Sitar_ * b = (Sitar_ *)OBJ_MEMBER_UINT(SELF, Sitar_offset_data );
-    RETURN->v_float = (t_CKFLOAT) b->m_frequency;
-}
 
 
 //-----------------------------------------------------------------------------
