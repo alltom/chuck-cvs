@@ -381,33 +381,54 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "startBowing", BandedWG_ctrl_startBowing ); //! pluck waveguide
+    func = make_new_mfun( "float", "startBowing", BandedWG_ctrl_startBowing ); //! startBowing
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "stopBowing", BandedWG_ctrl_stopBowing ); //! pluck waveguide
+    func = make_new_mfun( "float", "stopBowing", BandedWG_ctrl_stopBowing ); //! stopBowing
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "bowRate", BandedWG_ctrl_bowRate ); //! strike Position
+    func = make_new_mfun( "float", "bowRate", BandedWG_ctrl_bowRate ); //! strike bowRate
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "bowRate", BandedWG_cget_bowRate ); //! strike Position
+    func = make_new_mfun( "float", "bowRate", BandedWG_cget_bowRate ); //! strike bowRate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "bowPressure", BandedWG_ctrl_bowPressure ); //! strike Position
+    func = make_new_mfun( "float", "bowPressure", BandedWG_ctrl_bowPressure ); //! bowPressure
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "bowPressure", BandedWG_cget_bowPressure ); //! strike Position
+    func = make_new_mfun( "float", "bowPressure", BandedWG_cget_bowPressure ); //! bowPressure
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "preset", BandedWG_ctrl_preset ); //! strike Position
+    func = make_new_mfun( "float", "bowMotion", BandedWG_ctrl_bowMotion ); //! bowMotion
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "bowMotion", BandedWG_cget_bowMotion ); //! bowMotion
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "integrationConstant", BandedWG_ctrl_vibratoFreq ); //! vibratoFreq
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "integrationConstant", BandedWG_cget_vibratoFreq ); //! vibratoFreq
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "modesGain", BandedWG_ctrl_modesGain ); //! modesGain
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "modesGain", BandedWG_cget_modesGain ); //! modesGain
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "preset", BandedWG_ctrl_preset ); //! preset
     func->add_arg( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "preset", BandedWG_cget_preset ); //! strike Position
+    func = make_new_mfun( "int", "preset", BandedWG_cget_preset ); //! preset
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "strikePosition", BandedWG_ctrl_strikePosition ); //! strike Position
@@ -3252,7 +3273,9 @@ class BandedWG : public Instrmnt
   //chuck
   t_CKFLOAT m_rate;
   t_CKINT m_preset;
-  t_CKFLOAT m_bowpressure;
+  t_CKFLOAT m_bowPressure;
+  t_CKFLOAT m_bowMotion;
+  t_CKFLOAT m_modesGain;
 
   bool doPluck;
   bool trackVelocity;
@@ -9056,9 +9079,15 @@ BandedWG :: BandedWG()
 
   // chuck
   m_frequency = freakency;
-  //reverse: nothing (set directly from norm in controlChange)
-  m_bowpressure = 0.0;
-  //reverse: nothing (set directly from preset in setPreset)
+  // rate
+  m_rate = .02;
+  // reverse: nothing (set directly from norm in controlChange)
+  m_bowPressure = 0.0;
+  // reverse: bowPosition
+  m_bowMotion = bowPosition;
+  // reverse: baseGain = 0.8999999999999999 + (0.1 * norm);
+  m_modesGain = (baseGain - 0.8999999999999999) / .1;
+  // reverse: nothing (set directly from preset in setPreset)
   m_preset = 0;
 }
 
@@ -9332,7 +9361,7 @@ void BandedWG :: controlChange(int number, MY_FLOAT value)
   }
 
   if (number == __SK_BowPressure_) { // 2
-    m_bowpressure = norm;
+    m_bowPressure = norm;
     if ( norm == 0.0 )
       doPluck = true;
     else {
@@ -9344,6 +9373,7 @@ void BandedWG :: controlChange(int number, MY_FLOAT value)
     if ( !trackVelocity ) trackVelocity = true;
     bowTarget += 0.005 * (norm - bowPosition);
     bowPosition = norm;
+    m_bowMotion = norm;
     //adsr->setTarget(bowPosition);
   }
   else if (number == 8) // 8
@@ -9352,16 +9382,17 @@ void BandedWG :: controlChange(int number, MY_FLOAT value)
     //bowTarget += 0.02 * (norm - bowPosition);
     //bowPosition = norm;
     if ( trackVelocity ) trackVelocity = false;
-    maxVelocity = 0.13 * norm; 
+    maxVelocity = 0.13 * norm;
     adsr->setTarget(norm);
   }      
   else if (number == __SK_ModWheel_) { // 1
     //    baseGain = 0.9989999999 + (0.001 * norm );
-      baseGain = 0.8999999999999999 + (0.1 * norm);
+    baseGain = 0.8999999999999999 + (0.1 * norm);
     //  std::cerr << "[chuck](via STK): Yuck!" << std::endl;
     for (int i=0; i<nModes; i++)
       gains[i]=(MY_FLOAT) basegains[i]*baseGain;
     //      gains[i]=(MY_FLOAT) pow(baseGain, (int)((MY_FLOAT)delay[i].getDelay()+i));
+    m_modesGain = norm;
   }
   else if (number == __SK_ModFrequency_) // 11
     integrationConstant = norm;
@@ -10245,7 +10276,7 @@ BlowHole :: BlowHole(MY_FLOAT lowestFrequency)
   //reverse: nothing  
   m_pressure = 1.0;
   //reverse: nothing 
-  m_rate = 1.0;
+  m_rate = envelope->rate;
 }
 
 BlowHole :: ~BlowHole()
@@ -16748,9 +16779,9 @@ Saxofony :: Saxofony(MY_FLOAT lowestFrequency)
   // assuming 1.0 velocity
   m_rate = .005;
   // reverse: reedTable->setSlope( 0.1 + (0.4 * norm) )
-  m_stiffness = reedTable->slope - .1 / .4;
+  m_stiffness = (reedTable->slope - .1) / .4;
   // reverse: reedTable->setOffset(0.4 + ( norm * 0.6));
-  m_aperture =  reedTable->offSet - .4 / .6;
+  m_aperture =  (reedTable->offSet - .4) / .6;
   // reverse: noiseGain = ( norm * 0.4 );
   m_noiseGain = noiseGain / .4;
   // reverse: vibratoGain = ( norm * 0.5 );
@@ -18172,6 +18203,8 @@ void Simple :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): Simple: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
+
 /***************************************************/
 /*! \class SingWave
     \brief STK "singing" looped soundfile class.
@@ -22511,7 +22544,7 @@ CK_DLL_CTRL( BandedWG_ctrl_strikePosition )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     f->setStrikePosition( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) f->strikePosition;
+    RETURN->v_float = (t_CKFLOAT)f->strikePosition;
 }
 
 //-----------------------------------------------------------------------------
@@ -22522,7 +22555,7 @@ CK_DLL_CTRL( BandedWG_ctrl_strikePosition )
 CK_DLL_CGET( BandedWG_cget_strikePosition )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT) f->strikePosition;
+    RETURN->v_float = (t_CKFLOAT)f->strikePosition;
 }
 
 
@@ -22557,8 +22590,7 @@ CK_DLL_CTRL( BandedWG_ctrl_bowPressure )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     f->controlChange( __SK_BowPressure_, GET_NEXT_FLOAT(ARGS) * 128.0 );
-
-    RETURN->v_float = (t_CKFLOAT) f->m_bowpressure;
+    RETURN->v_float = (t_CKFLOAT)f->m_bowPressure;
 }
 
 //-----------------------------------------------------------------------------
@@ -22568,10 +22600,71 @@ CK_DLL_CTRL( BandedWG_ctrl_bowPressure )
 CK_DLL_CGET( BandedWG_cget_bowPressure )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT) f->m_bowpressure;
+    RETURN->v_float = (t_CKFLOAT)f->m_bowPressure;
 }
 
+//-----------------------------------------------------------------------------
+// name: BandedWG_ctrl_bowMotion()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BandedWG_ctrl_bowMotion )
+{
+    BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    f->controlChange( 4, GET_NEXT_FLOAT(ARGS) * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)f->m_bowMotion;
+}
 
+//-----------------------------------------------------------------------------
+// name: BandedWG_cget_bowMotion()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BandedWG_cget_bowMotion )
+{
+    BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_float = (t_CKFLOAT)f->m_bowMotion;
+}
+
+//-----------------------------------------------------------------------------
+// name: BandedWG_ctrl_vibratoFreq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BandedWG_ctrl_vibratoFreq )
+{
+    BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    f->controlChange( 4, GET_NEXT_FLOAT(ARGS) * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)f->integrationConstant;
+}
+
+//-----------------------------------------------------------------------------
+// name: BandedWG_cget_vibratoFreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BandedWG_cget_vibratoFreq )
+{
+    BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_float = (t_CKFLOAT)f->integrationConstant;
+}
+
+//-----------------------------------------------------------------------------
+// name: BandedWG_ctrl_modesGain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BandedWG_ctrl_modesGain )
+{
+    BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    f->controlChange( 1, GET_NEXT_FLOAT(ARGS) * 128.0 );
+    RETURN->v_float = (t_CKFLOAT)f->m_modesGain;
+}
+
+//-----------------------------------------------------------------------------
+// name: BandedWG_cget_modesGain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BandedWG_cget_modesGain )
+{
+    BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_float = (t_CKFLOAT)f->m_modesGain;
+}
 
 //-----------------------------------------------------------------------------
 // name: BandedWG_ctrl_preset()

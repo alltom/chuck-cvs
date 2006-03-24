@@ -450,30 +450,35 @@ CK_DLL_CTOR( BandedWG_ctor );
 CK_DLL_DTOR( BandedWG_dtor );
 CK_DLL_TICK( BandedWG_tick );
 CK_DLL_PMSG( BandedWG_pmsg );
-CK_DLL_CTRL( BandedWG_ctrl_strikePosition );
-CK_DLL_CGET( BandedWG_cget_strikePosition );
-CK_DLL_CTRL( BandedWG_ctrl_freq );
-CK_DLL_CGET( BandedWG_cget_freq );
-CK_DLL_CTRL( BandedWG_ctrl_preset );
-CK_DLL_CGET( BandedWG_cget_preset );
-CK_DLL_CTRL( BandedWG_ctrl_bowRate );
-CK_DLL_CGET( BandedWG_cget_bowRate );
 CK_DLL_CTRL( BandedWG_ctrl_bowPressure );
 CK_DLL_CGET( BandedWG_cget_bowPressure );
-CK_DLL_CTRL( BandedWG_ctrl_controlChange );
+CK_DLL_CTRL( BandedWG_ctrl_bowMotion );
+CK_DLL_CGET( BandedWG_cget_bowMotion );
+CK_DLL_CTRL( BandedWG_ctrl_strikePosition );
+CK_DLL_CGET( BandedWG_cget_strikePosition );
+CK_DLL_CTRL( BandedWG_ctrl_vibratoFreq );
+CK_DLL_CGET( BandedWG_cget_vibratoFreq );
+CK_DLL_CTRL( BandedWG_ctrl_modesGain );
+CK_DLL_CGET( BandedWG_cget_modesGain );
+CK_DLL_CTRL( BandedWG_ctrl_bowRate );
+CK_DLL_CGET( BandedWG_cget_bowRate );
+CK_DLL_CTRL( BandedWG_ctrl_preset );
+CK_DLL_CGET( BandedWG_cget_preset );
 CK_DLL_CTRL( BandedWG_ctrl_startBowing );
 CK_DLL_CTRL( BandedWG_ctrl_stopBowing );
 CK_DLL_CTRL( BandedWG_ctrl_pluck );
 CK_DLL_CTRL( BandedWG_ctrl_noteOn );
 CK_DLL_CTRL( BandedWG_ctrl_noteOff );
+CK_DLL_CTRL( BandedWG_ctrl_freq );
+CK_DLL_CGET( BandedWG_cget_freq );
+CK_DLL_CTRL( BandedWG_ctrl_controlChange );
+/*
 CK_DLL_CTRL( BandedWG_ctrl_aftertouch );
 CK_DLL_CTRL( BandedWG_ctrl_bowTarget );
-CK_DLL_CTRL( BandedWG_ctrl_modWheel );
-CK_DLL_CTRL( BandedWG_ctrl_modFreq );
 CK_DLL_CTRL( BandedWG_ctrl_sustain );
 CK_DLL_CTRL( BandedWG_ctrl_trackVelocity );
 CK_DLL_CTRL( BandedWG_ctrl_portamento );
-
+*/
 
 // BeeThree
 CK_DLL_CTOR( BeeThree_ctor );
