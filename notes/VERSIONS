@@ -18,9 +18,9 @@
   - (added) Terminal Keyboard Input (immediate mode, separate from HID)
   - (added) 'KBHit' event class (see examples/event/kb*.ck)
   - (added) sndbuf.chunks : better real-time behavior
-            - default is 256 frames
             - can be set to arbitrary integers
               (before the .read happens)
+            - default is 0 frames (no chunk)
             - set .chunks to 0 to read in entire file
               (previous behavior)
   - (added) int math.isinf( float ) // infinity test
@@ -28,15 +28,30 @@
             (see examples/basic/infnan.ck)
   - (added) sndbuf.valueAt( int ) for returning sample at arbitrary pos
             (see examples/basic/valueat.ck)
-  - (added) .controlChange( int, float ) to following:
-              BandedWG
-              BlowBotl (see examples/stk/blowbotl.ck)
-              BlowHole (see examples/stk/blowhole.ck)
-              Bowed    (see examples/stk/bowed.ck)
-              Brass    (see examples/stk/brass.ck)
-              FM (affects BeeThree, FMVoices, HevyMetl,
-                  PercFlut, Rhodey, TubeBell, Wurley)
-              Shakers
+  - (added) MASSIVE STK UPDATE
+  - (added) 'StkInstrument' class
+              .noteOn( float )
+              .noteOff( float )
+              .freq( float ) / .freq()
+              .controlChange( int, float )
+  - (added) the following now extend 'StkInstrument'
+              - BandedWG
+              - BlowBotl
+              - BlowHole
+              - Bowed
+              - Brass
+              - Clarinet
+              - Flute
+              - FM (and all its subclasses: BeeThree, FMVoices,
+                    HevyMetl, PercFlut, Rhodey, TubeBell, Wurley)
+              - Mandolin
+              - ModalBar
+              - Moog
+              - Saxofony
+              - Shakers
+              - Sitar
+              - StifKarp
+              - VoicForm
   - (added) examples/stk/modulate.ck
   - (added) --watchdog and --nowatchdog flags
             (very experiment watchdog for real-time audio)
