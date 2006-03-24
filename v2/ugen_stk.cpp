@@ -14695,6 +14695,10 @@ Moog :: Moog()
   filterQ = (MY_FLOAT) 0.85;
   filterRate = (MY_FLOAT) 0.0001;
   modDepth = (MY_FLOAT) 0.0;
+
+  m_vibratoFreq = loops[1]->m_freq;
+  m_vibratoGain = modDepth;
+  m_volume = 1.0;
 }  
 
 Moog :: ~Moog()

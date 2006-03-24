@@ -10,19 +10,21 @@ Moog moog => dac;
 while( true )
 {
     // ding!
-    std.rand2f( 0, 1 ) => float filterQ;
-    //filterQ => moog.filterQ;
-    std.rand2f( 0, 1 ) => float filterSweep;
-    filterSweep => moog.filterSweepRate;
-    std.rand2f( 0, 1 ) => float modSpeed;
-    modSpeed => moog.modSpeed;
-    std.rand2f( 0, 60 ) => float modDepth;
-    modDepth => moog.modDepth;
-    std.rand2f( 0, 1 ) => float vol;
-    vol => moog.volume;
-    std.rand2f( 0, 1 ) => float vibratoFreq;
-    vibratoFreq => moog.vibratoFreq;
-    std.rand2f( 0, 1 ) => float moog.vibratoGain;
+    std.rand2f( 0, 128 ) => float filterQ;
+    std.rand2f( 0, 128 ) => float filterSweep;
+    //filterSweep => moog.filterSweepRate;
+    //std.rand2f( 0, 1 ) => float modSpeed;
+    //modSpeed => moog.modSpeed;
+    //std.rand2f( 0, 60 ) => float modDepth;
+    std.rand2f( 0, 128 ) => float vol;
+    std.rand2f( 0, 128 ) => float vibratoFreq;
+    std.rand2f( 0, 128 ) => float vibratoGain;
+
+    moog.controlChange( 2, filterQ);
+    moog.controlChange( 4, filterSweep);
+    moog.controlChange( 11, vibratoFreq);
+    moog.controlChange( 1, vibratoGain);
+    moog.controlChange( 128, vol);
 
     <<< "---", "" >>>;
     <<< "filterQ", moog.filterQ() >>>;
