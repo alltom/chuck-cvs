@@ -934,6 +934,8 @@ CK_DLL_CTRL( StifKarp_ctrl_pickupPosition );
 CK_DLL_CGET( StifKarp_cget_pickupPosition );
 CK_DLL_CTRL( StifKarp_ctrl_stretch );
 CK_DLL_CGET( StifKarp_cget_stretch );
+CK_DLL_CTRL( StifKarp_ctrl_sustain );
+CK_DLL_CGET( StifKarp_cget_sustain );
 CK_DLL_CTRL( StifKarp_ctrl_baseLoopGain );
 CK_DLL_CGET( StifKarp_cget_baseLoopGain );
 

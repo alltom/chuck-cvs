@@ -274,7 +274,7 @@ static t_CKUINT BandedWG_offset_data = 0;
 //static t_CKUINT Saxofony_offset_data = 0;
 static t_CKUINT Shakers_offset_data = 0;
 //static t_CKUINT Sitar_offset_data = 0;
-static t_CKUINT StifKarp_offset_data = 0;
+//static t_CKUINT StifKarp_offset_data = 0;
 static t_CKUINT VoicForm_offset_data = 0;
 static t_CKUINT FM_offset_data = 0;
 //static t_CKUINT BeeThree_offset_data = 0;
@@ -1248,6 +1248,13 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "stretch", StifKarp_cget_stretch ); 
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "sustain", StifKarp_ctrl_sustain ); 
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "sustain", StifKarp_cget_sustain ); 
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "baseLoopGain", StifKarp_ctrl_baseLoopGain ); 
@@ -7606,7 +7613,10 @@ class StifKarp : public Instrmnt
   //! Perform the control change specified by \e number and \e value (0.0 - 128.0).
   void controlChange(int number, MY_FLOAT value);
 
- public: // SWAP formerly protected  
+public: // SWAP formerly protected
+    // chuck
+    t_CKFLOAT m_sustain;
+
     DelayA *delayLine;
     DelayL *combDelay;
     OneZero *filter;
@@ -18796,8 +18806,10 @@ void StifKarp :: controlChange(int number, MY_FLOAT value)
 
   if (number == __SK_PickPosition_) // 4
     setPickupPosition( norm );
-  else if (number == __SK_StringDamping_) // 11
+  else if (number == __SK_StringDamping_) { // 11
     setBaseLoopGain( 0.97 + (norm * 0.03) );
+    m_sustain = norm;
+  }
   else if (number == __SK_StringDetune_) // 1
     setStretch( 0.9 + (0.1 * (1.0 - norm)) );
   else
@@ -25253,7 +25265,7 @@ CK_DLL_CGET( Saxofony_cget_pressure )
 CK_DLL_CTOR( StifKarp_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, StifKarp_offset_data) = (t_CKUINT)new StifKarp( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new StifKarp( 30.0 );
 }
 
 
@@ -25263,7 +25275,8 @@ CK_DLL_CTOR( StifKarp_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( StifKarp_dtor )
 {
-    delete (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    delete (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -25273,7 +25286,7 @@ CK_DLL_DTOR( StifKarp_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( StifKarp_tick )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = b->tick();
     return TRUE;
 }
@@ -25295,33 +25308,9 @@ CK_DLL_PMSG( StifKarp_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( StifKarp_ctrl_pluck )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->pluck( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: StifKarp_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( StifKarp_ctrl_noteOn )
-{
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOn( b->lastFrequency, f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: StifKarp_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( StifKarp_ctrl_noteOff )
-{
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->noteOff( f );
 }
 
 
@@ -25331,32 +25320,8 @@ CK_DLL_CTRL( StifKarp_ctrl_noteOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( StifKarp_ctrl_clear )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     b->clear();
-}
-
-
-//-----------------------------------------------------------------------------
-// name: StifKarp_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( StifKarp_ctrl_freq )
-{
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT)b->lastFrequency;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: StifKarp_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( StifKarp_cget_freq )
-{
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
-    RETURN->v_float = (t_CKFLOAT)b->lastFrequency;
 }
 
 
@@ -25366,7 +25331,7 @@ CK_DLL_CGET( StifKarp_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( StifKarp_ctrl_pickupPosition )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setPickupPosition( f );
     RETURN->v_float = (t_CKFLOAT)b->pickupPosition;
@@ -25379,7 +25344,7 @@ CK_DLL_CTRL( StifKarp_ctrl_pickupPosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( StifKarp_cget_pickupPosition )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->pickupPosition;
 }
 
@@ -25390,7 +25355,7 @@ CK_DLL_CGET( StifKarp_cget_pickupPosition )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( StifKarp_ctrl_stretch )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setStretch( f );
     RETURN->v_float = (t_CKFLOAT)b->stretching;
@@ -25403,7 +25368,31 @@ CK_DLL_CTRL( StifKarp_ctrl_stretch )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( StifKarp_cget_stretch )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_float = (t_CKFLOAT)b->stretching;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: StifKarp_ctrl_sustain()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( StifKarp_ctrl_sustain )
+{
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    b->setStretch( f );
+    RETURN->v_float = (t_CKFLOAT)b->stretching;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: StifKarp_cget_sustain()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( StifKarp_cget_sustain )
+{
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->stretching;
 }
 
@@ -25414,7 +25403,7 @@ CK_DLL_CGET( StifKarp_cget_stretch )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( StifKarp_ctrl_baseLoopGain )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     b->setBaseLoopGain( f );
     RETURN->v_float = (t_CKFLOAT)b->baseLoopGain;
@@ -25427,7 +25416,7 @@ CK_DLL_CTRL( StifKarp_ctrl_baseLoopGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( StifKarp_cget_baseLoopGain )
 {
-    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, StifKarp_offset_data );
+    StifKarp * b = (StifKarp *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT)b->baseLoopGain;
 }
 
