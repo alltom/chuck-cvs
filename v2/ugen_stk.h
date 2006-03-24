@@ -959,33 +959,30 @@ CK_DLL_CTOR( VoicForm_ctor );
 CK_DLL_DTOR( VoicForm_dtor );
 CK_DLL_TICK( VoicForm_tick );
 CK_DLL_PMSG( VoicForm_pmsg );
+CK_DLL_CTRL( VoicForm_ctrl_voiceMix );
+CK_DLL_CGET( VoicForm_cget_voiceMix );
 CK_DLL_CTRL( VoicForm_ctrl_phoneme );
+CK_DLL_CGET( VoicForm_cget_phoneme );
+CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq );
+CK_DLL_CGET( VoicForm_cget_vibratoFreq );
+CK_DLL_CTRL( VoicForm_ctrl_vibratoGain );
+CK_DLL_CGET( VoicForm_cget_vibratoGain );
+CK_DLL_CTRL( VoicForm_ctrl_loudness );
+CK_DLL_CGET( VoicForm_cget_loudness );
 CK_DLL_CTRL( VoicForm_ctrl_freq );
+CK_DLL_CGET( VoicForm_cget_freq );
 CK_DLL_CTRL( VoicForm_ctrl_noteOn );
 CK_DLL_CTRL( VoicForm_ctrl_noteOff );
 CK_DLL_CTRL( VoicForm_ctrl_speak );
 CK_DLL_CTRL( VoicForm_ctrl_quiet );
 CK_DLL_CTRL( VoicForm_ctrl_voiced );
-CK_DLL_CTRL( VoicForm_ctrl_unVoiced );
-CK_DLL_CTRL( VoicForm_ctrl_pitchSweepRate );
-CK_DLL_CTRL( VoicForm_ctrl_voiceMix );
-CK_DLL_CTRL( VoicForm_ctrl_selPhoneme );
-CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq );
-CK_DLL_CTRL( VoicForm_ctrl_vibratoGain );
-CK_DLL_CTRL( VoicForm_ctrl_loudness );
-
-CK_DLL_CGET( VoicForm_cget_phoneme );
-CK_DLL_CGET( VoicForm_cget_freq );
 CK_DLL_CGET( VoicForm_cget_voiced );
+CK_DLL_CTRL( VoicForm_ctrl_unVoiced );
 CK_DLL_CGET( VoicForm_cget_unVoiced );
+CK_DLL_CTRL( VoicForm_ctrl_pitchSweepRate );
 CK_DLL_CGET( VoicForm_cget_pitchSweepRate );
-CK_DLL_CGET( VoicForm_cget_voiceMix );
+CK_DLL_CTRL( VoicForm_ctrl_selPhoneme );
 CK_DLL_CGET( VoicForm_cget_selPhoneme );
-CK_DLL_CGET( VoicForm_cget_vibratoFreq );
-CK_DLL_CGET( VoicForm_cget_vibratoGain );
-CK_DLL_CGET( VoicForm_cget_loudness );
-
-
 
 // Whistle
 CK_DLL_CTOR( Whistle_ctor );

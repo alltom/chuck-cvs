@@ -275,7 +275,7 @@ static t_CKUINT BandedWG_offset_data = 0;
 static t_CKUINT Shakers_offset_data = 0;
 //static t_CKUINT Sitar_offset_data = 0;
 //static t_CKUINT StifKarp_offset_data = 0;
-static t_CKUINT VoicForm_offset_data = 0;
+//static t_CKUINT VoicForm_offset_data = 0;
 static t_CKUINT FM_offset_data = 0;
 //static t_CKUINT BeeThree_offset_data = 0;
 //static t_CKUINT FMVoices_offset_data = 0;
@@ -1274,31 +1274,17 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example voic-o-form.ck
-    if( !type_engine_import_ugen_begin( env, "VoicForm", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "VoicForm", "StkInstrument", env->global(), 
                         VoicForm_ctor, VoicForm_tick, VoicForm_pmsg ) ) return FALSE;
-    //member variable
-    VoicForm_offset_data = type_engine_import_mvar ( env, "int", "@VoicForm_data", FALSE );
-    if( VoicForm_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "freq", VoicForm_ctrl_freq ); //! frequency 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", VoicForm_cget_freq ); //! frequency 
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // VoicForm_offset_data = type_engine_import_mvar ( env, "int", "@VoicForm_data", FALSE );
+    // if( VoicForm_offset_data == CK_INVALID_OFFSET ) goto error;
 
     func = make_new_mfun( "string", "phoneme", VoicForm_ctrl_phoneme ); //! select phoneme  ( above ) 
     func->add_arg( "string", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "string", "phoneme", VoicForm_cget_phoneme ); //! select phoneme  ( above ) 
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOn", VoicForm_ctrl_noteOn ); //! start note
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", VoicForm_ctrl_noteOff ); //! stop note
-    func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "speak", VoicForm_ctrl_speak ); //! start singing
@@ -1337,11 +1323,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "voiceMix", VoicForm_cget_voiceMix ); //! voiced/unvoiced mix
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "setPhoneme", VoicForm_ctrl_selPhoneme ); //! select phoneme by number
+    func = make_new_mfun( "int", "phonemeNum", VoicForm_ctrl_selPhoneme ); //! select phoneme by number
     func->add_arg( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "int", "setPhoneme", VoicForm_cget_selPhoneme ); //! select phoneme by number
+    func = make_new_mfun( "int", "phonemeNum", VoicForm_cget_selPhoneme ); //! select phoneme by number
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "vibratoFreq", VoicForm_ctrl_vibratoFreq );//! vibrato
@@ -19519,16 +19505,16 @@ void Vector3D :: setZ(double aval)
 
 VoicForm :: VoicForm() : Instrmnt()
 {
-  // Concatenate the STK rawwave path to the rawwave file
+    // Concatenate the STK rawwave path to the rawwave file
     voiced = new SingWave( "special:impuls20", TRUE );
     voiced->setGainRate( 0.001 );
     voiced->setGainTarget( 0.0 );
     noise = new Noise;
 
-  for ( int i=0; i<4; i++ ) {
-    filters[i] = new FormSwep;
-    filters[i]->setSweepRate( 0.001 );
-  }
+    for ( int i=0; i<4; i++ ) {
+        filters[i] = new FormSwep;
+        filters[i]->setSweepRate( 0.001 );
+    }
     
     onezero = new OneZero;
     onezero->setZero( -0.9 );
@@ -19541,7 +19527,10 @@ VoicForm :: VoicForm() : Instrmnt()
     
     m_phonemeNum = 0;
     this->setPhoneme( "eee" );
-    this->clear();    
+    this->clear();
+
+    // chuck
+    setFrequency( 440 );
 }  
 
 VoicForm :: ~VoicForm()
@@ -19579,22 +19568,24 @@ void VoicForm :: setFrequency(MY_FLOAT frequency)
   m_frequency = freakency;
 }
 
-bool VoicForm :: setPhoneme(const char *phoneme )
+bool VoicForm :: setPhoneme( const char *phoneme )
 {
     bool found = false;
     unsigned int i = 0;
-    while( i < 32 && !found ) {
-        if( !strcmp( Phonemes::name(i), phoneme ) ) {
+    while( i < 32 && !found )
+    {
+        if( !strcmp( Phonemes::name(i), phoneme ) )
+        {
             found = true;
-      filters[0]->setTargets( Phonemes::formantFrequency(i, 0), Phonemes::formantRadius(i, 0), pow(10.0, Phonemes::formantGain(i, 0 ) / 20.0) );
-      filters[1]->setTargets( Phonemes::formantFrequency(i, 1), Phonemes::formantRadius(i, 1), pow(10.0, Phonemes::formantGain(i, 1 ) / 20.0) );
-      filters[2]->setTargets( Phonemes::formantFrequency(i, 2), Phonemes::formantRadius(i, 2), pow(10.0, Phonemes::formantGain(i, 2 ) / 20.0) );
-      filters[3]->setTargets( Phonemes::formantFrequency(i, 3), Phonemes::formantRadius(i, 3), pow(10.0, Phonemes::formantGain(i, 3 ) / 20.0) );
-      setVoiced( Phonemes::voiceGain( i ) );
-      setUnVoiced( Phonemes::noiseGain( i ) );
-      m_phonemeNum = i;
+            filters[0]->setTargets( Phonemes::formantFrequency(i, 0), Phonemes::formantRadius(i, 0), pow(10.0, Phonemes::formantGain(i, 0 ) / 20.0) );
+            filters[1]->setTargets( Phonemes::formantFrequency(i, 1), Phonemes::formantRadius(i, 1), pow(10.0, Phonemes::formantGain(i, 1 ) / 20.0) );
+            filters[2]->setTargets( Phonemes::formantFrequency(i, 2), Phonemes::formantRadius(i, 2), pow(10.0, Phonemes::formantGain(i, 2 ) / 20.0) );
+            filters[3]->setTargets( Phonemes::formantFrequency(i, 3), Phonemes::formantRadius(i, 3), pow(10.0, Phonemes::formantGain(i, 3 ) / 20.0) );
+            setVoiced( Phonemes::voiceGain( i ) );
+            setUnVoiced( Phonemes::noiseGain( i ) );
+            m_phonemeNum = i;
 #if defined(_STK_DEBUG_)
-      std::cerr << "[chuck](via STK): VoicForm: found formant " << phoneme << " (number " << i << ")" << std::endl;
+            std::cerr << "[chuck](via STK): VoicForm: found formant " << phoneme << " (number " << i << ")" << std::endl;
 #endif
         }
         i++;
@@ -19646,7 +19637,10 @@ void VoicForm :: quiet()
 
 void VoicForm :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
-    setFrequency(frequency);
+    // chuck
+    if( frequency != m_frequency )
+        setFrequency(frequency);
+
     voiced->setGainTarget(amplitude);
     onepole->setPole( 0.97 - (amplitude * 0.2) );
 }
@@ -19683,48 +19677,48 @@ MY_FLOAT VoicForm :: tick()
  
 void VoicForm :: controlChange(int number, MY_FLOAT value)
 {
-  MY_FLOAT norm = value * ONE_OVER_128;
-  if ( norm < 0 ) {
-    norm = 0.0;
-    std::cerr << "[chuck](via STK): VoicForm: Control value less than zero!" << std::endl;
-  }
-  else if ( norm > 1.0 ) {
-    norm = 1.0;
-    std::cerr << "[chuck](via STK): VoicForm: Control value greater than 128.0!" << std::endl;
-  }
+    MY_FLOAT norm = value * ONE_OVER_128;
+    if ( norm < 0 ) {
+        norm = 0.0;
+        std::cerr << "[chuck](via STK): VoicForm: Control value less than zero!" << std::endl;
+    }
+    else if ( norm > 1.0 ) {
+        norm = 1.0;
+        std::cerr << "[chuck](via STK): VoicForm: Control value greater than 128.0!" << std::endl;
+    }
 
     if (number == __SK_Breath_) { // 2
         this->setVoiced( 1.0 - norm );
         this->setUnVoiced( norm );
     }
-    else if (number == __SK_FootControl_)   { // 4
-    MY_FLOAT temp = 0.0;
-        unsigned int i = (int) value;
-        if (i < 32) {
-      temp = 0.9;
-        }
-        else if (i < 64)    {
-      i -= 32;
-      temp = 1.0;
-        }
-        else if (i < 96)    {
-      i -= 64;
-      temp = 1.1;
-        }
-        else if (i < 128)   {
-      i -= 96;
-      temp = 1.2;
-        }
-        else if (i == 128)  {
-      i = 0;
-      temp = 1.4;
-        }
-    filters[0]->setTargets( temp * Phonemes::formantFrequency(i, 0), Phonemes::formantRadius(i, 0), pow(10.0, Phonemes::formantGain(i, 0 ) / 20.0) );
-    filters[1]->setTargets( temp * Phonemes::formantFrequency(i, 1), Phonemes::formantRadius(i, 1), pow(10.0, Phonemes::formantGain(i, 1 ) / 20.0) );
-    filters[2]->setTargets( temp * Phonemes::formantFrequency(i, 2), Phonemes::formantRadius(i, 2), pow(10.0, Phonemes::formantGain(i, 2 ) / 20.0) );
-    filters[3]->setTargets( temp * Phonemes::formantFrequency(i, 3), Phonemes::formantRadius(i, 3), pow(10.0, Phonemes::formantGain(i, 3 ) / 20.0) );
-    setVoiced( Phonemes::voiceGain( i ) );
-    setUnVoiced( Phonemes::noiseGain( i ) );
+    else if (number == __SK_FootControl_) { // 4
+      MY_FLOAT temp = 0.0;
+      unsigned int i = (int) value;
+      if (i < 32) {
+        temp = 0.9;
+      }
+      else if (i < 64) {
+        i -= 32;
+        temp = 1.0;
+      }
+      else if (i < 96) {
+        i -= 64;
+        temp = 1.1;
+      }
+      else if (i < 128) {
+        i -= 96;
+        temp = 1.2;
+      }
+      else if (i == 128) {
+        i = 0;
+        temp = 1.4;
+      }
+      filters[0]->setTargets( temp * Phonemes::formantFrequency(i, 0), Phonemes::formantRadius(i, 0), pow(10.0, Phonemes::formantGain(i, 0 ) / 20.0) );
+      filters[1]->setTargets( temp * Phonemes::formantFrequency(i, 1), Phonemes::formantRadius(i, 1), pow(10.0, Phonemes::formantGain(i, 1 ) / 20.0) );
+      filters[2]->setTargets( temp * Phonemes::formantFrequency(i, 2), Phonemes::formantRadius(i, 2), pow(10.0, Phonemes::formantGain(i, 2 ) / 20.0) );
+      filters[3]->setTargets( temp * Phonemes::formantFrequency(i, 3), Phonemes::formantRadius(i, 3), pow(10.0, Phonemes::formantGain(i, 3 ) / 20.0) );
+      setVoiced( Phonemes::voiceGain( i ) );
+      setUnVoiced( Phonemes::noiseGain( i ) );
     }
     else if (number == __SK_ModFrequency_) // 11
         voiced->setVibratoRate( norm * 12.0);  // 0 to 12 Hz
@@ -19733,7 +19727,7 @@ void VoicForm :: controlChange(int number, MY_FLOAT value)
     else if (number == __SK_AfterTouch_Cont_)   { // 128
         setVoiced( norm );
         onepole->setPole( 0.97 - ( norm * 0.2) );
-    }
+  }
   else
     std::cerr << "[chuck](via STK): VoicForm: Undefined Control Number (" << number << ")!!" << std::endl;
 
@@ -19741,6 +19735,7 @@ void VoicForm :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): VoicForm: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
 /***************************************************/
 /*! \class Voicer
     \brief STK voice manager class.
@@ -28912,7 +28907,7 @@ CK_DLL_CGET( SubNoise_cget_rate )
 CK_DLL_CTOR( VoicForm_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, VoicForm_offset_data) = (t_CKUINT)new VoicForm();
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new VoicForm();
 }
 
 
@@ -28922,7 +28917,7 @@ CK_DLL_CTOR( VoicForm_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( VoicForm_dtor )
 { 
-    delete (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    delete (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 }
 
 
@@ -28932,7 +28927,7 @@ CK_DLL_DTOR( VoicForm_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( VoicForm_tick )
 {
-    VoicForm * m = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * m = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     *out = m->tick();
     return TRUE;
 }
@@ -28949,36 +28944,12 @@ CK_DLL_PMSG( VoicForm_pmsg )
 
 
 //-----------------------------------------------------------------------------
-// name: VoicForm_ctrl_noteOn()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( VoicForm_ctrl_noteOn )
-{
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    v->noteOn( f );
-}
-
-
-//-----------------------------------------------------------------------------
-// name: VoicForm_ctrl_noteOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( VoicForm_ctrl_noteOff )
-{
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    v->noteOff( f );
-}
-
-
-//-----------------------------------------------------------------------------
 // name: VoicForm_ctrl_speak()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_speak )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     v->speak();
 }
 
@@ -28989,7 +28960,7 @@ CK_DLL_CTRL( VoicForm_ctrl_speak )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_quiet )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     v->quiet();
 }
 
@@ -29000,7 +28971,7 @@ CK_DLL_CTRL( VoicForm_ctrl_quiet )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_phoneme )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     const char * c = GET_CK_STRING(ARGS)->str.c_str(); 
     v->setPhoneme( c );
     RETURN->v_string = &(v->str_phoneme);
@@ -29013,32 +28984,8 @@ CK_DLL_CTRL( VoicForm_ctrl_phoneme )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_phoneme )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_string = &(v->str_phoneme);
-}
-
-
-//-----------------------------------------------------------------------------
-// name: VoicForm_ctrl_freq()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( VoicForm_ctrl_freq )
-{
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    v->setFrequency( f );
-    RETURN->v_float = (t_CKFLOAT) v->voiced->m_freq;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: VoicForm_cget_freq()
-// desc: CGET function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( VoicForm_cget_freq )
-{
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    RETURN->v_float = (t_CKFLOAT) v->voiced->m_freq;
 }
 
 
@@ -29048,7 +28995,7 @@ CK_DLL_CGET( VoicForm_cget_freq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_voiced )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->setVoiced( f );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
@@ -29061,7 +29008,7 @@ CK_DLL_CTRL( VoicForm_ctrl_voiced )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_voiced )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
@@ -29073,7 +29020,7 @@ CK_DLL_CGET( VoicForm_cget_voiced )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_unVoiced )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->setUnVoiced( f ); //not sure if this should be multiplied
     RETURN->v_float = (t_CKFLOAT) v->noiseEnv->value;
@@ -29086,7 +29033,7 @@ CK_DLL_CTRL( VoicForm_ctrl_unVoiced )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_unVoiced )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->noiseEnv->value;
 }
 
@@ -29097,7 +29044,7 @@ CK_DLL_CGET( VoicForm_cget_unVoiced )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_voiceMix )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->controlChange(__SK_Breath_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
@@ -29110,7 +29057,7 @@ CK_DLL_CTRL( VoicForm_ctrl_voiceMix )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_voiceMix )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
 
@@ -29121,9 +29068,9 @@ CK_DLL_CGET( VoicForm_cget_voiceMix )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_selPhoneme )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     int i = GET_CK_INT(ARGS); 
-    v->controlChange(__SK_FootControl_, i );
+    v->controlChange(__SK_FootControl_, i);
     RETURN->v_float = (t_CKFLOAT) v->m_phonemeNum;
 }
 
@@ -29134,7 +29081,7 @@ CK_DLL_CTRL( VoicForm_ctrl_selPhoneme )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_selPhoneme )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->m_phonemeNum;
 }
 
@@ -29145,7 +29092,7 @@ CK_DLL_CGET( VoicForm_cget_selPhoneme )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     v->controlChange( __SK_ModFrequency_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibrato->m_freq;
@@ -29158,7 +29105,7 @@ CK_DLL_CTRL( VoicForm_ctrl_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_vibratoFreq )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibrato->m_freq;
 }
 
@@ -29169,7 +29116,7 @@ CK_DLL_CGET( VoicForm_cget_vibratoFreq )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_vibratoGain )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->controlChange(__SK_ModWheel_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibratoGain;
@@ -29182,7 +29129,7 @@ CK_DLL_CTRL( VoicForm_ctrl_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_vibratoGain )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->modulator->vibratoGain;
 }
 
@@ -29193,7 +29140,7 @@ CK_DLL_CGET( VoicForm_cget_vibratoGain )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_loudness )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->controlChange(__SK_AfterTouch_Cont_, f * 128.0 );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
@@ -29206,7 +29153,7 @@ CK_DLL_CTRL( VoicForm_ctrl_loudness )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_loudness )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
 }
 
@@ -29217,7 +29164,7 @@ CK_DLL_CGET( VoicForm_cget_loudness )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( VoicForm_ctrl_pitchSweepRate )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->setPitchSweepRate( f );
     RETURN->v_float = (t_CKFLOAT) v->voiced->m_freq;
@@ -29230,7 +29177,7 @@ CK_DLL_CTRL( VoicForm_ctrl_pitchSweepRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( VoicForm_cget_pitchSweepRate )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
+    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     RETURN->v_float = (t_CKFLOAT) v->voiced->m_freq;
 }
 
@@ -29276,9 +29223,6 @@ CK_DLL_TICK( WvIn_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_PMSG( WvIn_pmsg )
 {
-    VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, VoicForm_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    v->controlChange(__SK_ModWheel_, f * 128.0 );
     return TRUE;
 }
 
