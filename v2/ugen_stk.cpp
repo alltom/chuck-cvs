@@ -273,7 +273,8 @@ static t_CKUINT BandedWG_offset_data = 0;
 //static t_CKUINT Moog_offset_data = 0;
 //static t_CKUINT Saxofony_offset_data = 0;
 static t_CKUINT Shakers_offset_data = 0;
-static t_CKUINT Sitar_offset_data = 0;
+//static t_CKUINT Sitar_offset_data = 0;
+static t_CKUINT StifKarp_offset_data = 0;
 static t_CKUINT VoicForm_offset_data = 0;
 static t_CKUINT FM_offset_data = 0;
 //static t_CKUINT BeeThree_offset_data = 0;
@@ -304,9 +305,8 @@ static t_CKUINT Chorus_offset_data = 0;
 static t_CKUINT Modulate_offset_data = 0;
 static t_CKUINT SubNoise_offset_data = 0;
 static t_CKUINT WvIn_offset_data = 0;
-// static t_CKUINT WaveLoop_offset_data = 0;
+//static t_CKUINT WaveLoop_offset_data = 0;
 static t_CKUINT WvOut_offset_data = 0;
-static t_CKUINT StifKarp_offset_data = 0;
 static t_CKUINT PitShift_offset_data = 0;
 static t_CKUINT BLT_offset_data = 0;
 
@@ -1222,32 +1222,18 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     //! see \example stifkarp.ck
-    if( !type_engine_import_ugen_begin( env, "StifKarp", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "StifKarp", "StkInstrument", env->global(), 
                         StifKarp_ctor, StifKarp_tick, StifKarp_pmsg ) ) return FALSE;
-    //member variable
-    StifKarp_offset_data = type_engine_import_mvar ( env, "int", "@StifKarp_data", FALSE );
-    if( StifKarp_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "float", "pluck", StifKarp_ctrl_pluck ); //! 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // member variable
+    // StifKarp_offset_data = type_engine_import_mvar ( env, "int", "@StifKarp_data", FALSE );
+    // if( StifKarp_offset_data == CK_INVALID_OFFSET ) goto error;
 
-    func = make_new_mfun( "float", "noteOn", StifKarp_ctrl_noteOn ); 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "noteOff", StifKarp_ctrl_noteOff ); 
+    func = make_new_mfun( "float", "pluck", StifKarp_ctrl_pluck ); //! pluck
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "clear", StifKarp_ctrl_clear ); 
     func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", StifKarp_ctrl_freq ); 
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "freq", StifKarp_cget_freq ); 
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "pickupPosition", StifKarp_ctrl_pickupPosition ); 
