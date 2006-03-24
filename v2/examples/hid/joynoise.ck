@@ -30,8 +30,9 @@ e => Echo echo3 => p;
 // set echo
 echo.delay() * 2 => echo2.max => echo2.delay;
 echo.delay() * 3 => echo3.max => echo3.delay;
-echo.gain() * .5 => echo2.gain;
-echo2.gain() * .5 => echo3.gain;
+echo.gain( .75 );
+echo.gain() * .25 => echo2.gain;
+echo2.gain() * .25 => echo3.gain;
 // set gain
 .5 => n.gain;
 // attack
