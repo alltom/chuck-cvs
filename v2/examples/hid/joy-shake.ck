@@ -24,7 +24,7 @@ while( true )
         // axis
         if( msg.type == 0 )
         {
-            if( msg.which == 0 ) 5 + (msg.fdata+1) * 300 => s.freq;
+            if( msg.which == 0 ) (msg.fdata+1) * 300 => s.freq;
             if( msg.which == 1 ) (msg.fdata+1) * 64 => s.objects;
             if( msg.which == 2 ) (msg.fdata+1) / 2.0 => s.energy;
             if( msg.which == 3 ) (msg.fdata+1) / 2.0 => s.decay;
