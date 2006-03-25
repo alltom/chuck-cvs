@@ -1171,6 +1171,34 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "int", "which", Shakers_cget_which ); //! select instrument
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "int", "preset", Shakers_ctrl_which ); //! select instrument
+    func->add_arg( "int", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "int", "preset", Shakers_cget_which ); //! select instrument
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "energy", Shakers_ctrl_energy ); //! energy
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "energy", Shakers_cget_energy ); //! energy
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "decay", Shakers_ctrl_decay ); //! decay
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "decay", Shakers_cget_decay ); //! decay
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "objects", Shakers_ctrl_objects ); //! objects
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "objects", Shakers_cget_objects ); //! objects
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "float", "freq", Shakers_ctrl_freq ); //! frequency
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -6924,6 +6952,10 @@ class Shakers : public Instrmnt
  int setupNum(int inst);
 
  public: // SWAP formerly protected
+  // chuck
+  t_CKFLOAT m_energy;
+  t_CKFLOAT m_decay;
+  t_CKFLOAT m_objects;
 
   int setFreqAndReson(int which, MY_FLOAT freq, MY_FLOAT reson);
   void setDecays(MY_FLOAT sndDecay, MY_FLOAT sysDecay);
@@ -6958,7 +6990,6 @@ class Shakers : public Instrmnt
   MY_FLOAT defObjs[NUM_INSTR];
   MY_FLOAT defDecays[NUM_INSTR];
   MY_FLOAT decayScale[NUM_INSTR];
-
 };
 
 #endif
@@ -17258,6 +17289,11 @@ Shakers :: Shakers()
   freq = 220.0;
 
   this->setupNum(instType);
+
+  // chuck
+  m_energy = totalEnergy;
+  m_decay = systemDecay;
+  m_objects = nObjects;
 }
 
 Shakers :: ~Shakers()
@@ -17731,7 +17767,13 @@ int Shakers :: setupNum(int inst)
     setFreqAndReson(0,MARA_CENTER_FREQ,MARA_RESON);
     setFinalZs(1.0,-1.0,0.0);
   }
-  m_noteNum = inst; // chuck data
+
+  // chuck
+  m_noteNum = inst;
+  m_energy = totalEnergy;
+  m_decay = systemDecay;
+  m_objects = nObjects;
+
   return rv;
 }
 
@@ -17907,10 +17949,10 @@ void Shakers :: controlChange(int number, MY_FLOAT value)
       for (i=1;i<nFreqs;i++) gains[i] *= 1.8;
     }
     if (instType != 3 && instType != 10) {
-    // reverse calculate decay setting
-    double temp = (double) (64.0 * (systemDecay-defDecays[instType])/(decayScale[instType]*(1-defDecays[instType])) + 64.0);
-    // scale gains by decay setting
-    for (i=0;i<nFreqs;i++) gains[i] *= ((128-temp)/100.0 + 0.36);
+        // reverse calculate decay setting
+        double temp = (double) (64.0 * (systemDecay-defDecays[instType])/(decayScale[instType]*(1-defDecays[instType])) + 64.0);
+        // scale gains by decay setting
+        for (i=0;i<nFreqs;i++) gains[i] *= ((128-temp)/100.0 + 0.36);
     }
   }
   else if (number == __SK_ModWheel_) { // 1 ... resonance frequency
@@ -28456,7 +28498,7 @@ CK_DLL_CTRL( Shakers_ctrl_which )
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKINT c = GET_CK_INT(ARGS);
     s->setupNum( c );
-    RETURN->v_int = (t_CKINT) s->m_noteNum;
+    RETURN->v_int = (t_CKINT)s->m_noteNum;
 }
 
 
@@ -28467,7 +28509,82 @@ CK_DLL_CTRL( Shakers_ctrl_which )
 CK_DLL_CGET( Shakers_cget_which )
 {
     Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_int = (t_CKINT) s->m_noteNum;
+    RETURN->v_int = (t_CKINT)s->m_noteNum;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Shakers_ctrl_energy()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Shakers_ctrl_energy )
+{
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT e = GET_NEXT_FLOAT(ARGS);
+    s->controlChange( 2, e * 128.0 );
+    s->m_energy = e;
+    RETURN->v_float = (t_CKFLOAT)s->m_energy;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Shakers_cget_energy()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Shakers_cget_energy )
+{
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_float = (t_CKFLOAT)s->m_energy;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Shakers_ctrl_decay()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Shakers_ctrl_decay )
+{
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT e = GET_NEXT_FLOAT(ARGS);
+    s->controlChange( 4, e * 128.0 );
+    s->m_decay = e;
+    RETURN->v_float = (t_CKFLOAT)s->m_decay;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Shakers_cget_decay()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Shakers_cget_decay )
+{
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_float = (t_CKFLOAT)s->m_decay;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Shakers_ctrl_objects()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Shakers_ctrl_objects )
+{
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    t_CKFLOAT e = GET_NEXT_FLOAT(ARGS);
+    s->controlChange( 11, e );
+    s->m_objects = e;
+    RETURN->v_float = (t_CKFLOAT)s->m_objects;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Shakers_cget_objects()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Shakers_cget_objects )
+{
+    Shakers * s = (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_float = (t_CKFLOAT)s->m_objects;
 }
 
 

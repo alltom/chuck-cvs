@@ -872,14 +872,19 @@ CK_DLL_CTOR( Shakers_ctor );
 CK_DLL_DTOR( Shakers_dtor );
 CK_DLL_TICK( Shakers_tick );
 CK_DLL_PMSG( Shakers_pmsg );
+CK_DLL_CTRL( Shakers_ctrl_energy );
+CK_DLL_CGET( Shakers_cget_energy );
+CK_DLL_CTRL( Shakers_ctrl_decay );
+CK_DLL_CGET( Shakers_cget_decay );
+CK_DLL_CTRL( Shakers_ctrl_objects );
+CK_DLL_CGET( Shakers_cget_objects );
 CK_DLL_CTRL( Shakers_ctrl_which );
+CK_DLL_CGET( Shakers_cget_which );
 CK_DLL_CTRL( Shakers_ctrl_noteOn );
 CK_DLL_CTRL( Shakers_ctrl_noteOff );
 CK_DLL_CTRL( Shakers_ctrl_freq );
-CK_DLL_CTRL( Shakers_ctrl_controlChange );
-
-CK_DLL_CGET( Shakers_cget_which );
 CK_DLL_CGET( Shakers_cget_freq );
+CK_DLL_CTRL( Shakers_ctrl_controlChange );
 
 // Simple
 CK_DLL_CTOR( Simple_ctor );
