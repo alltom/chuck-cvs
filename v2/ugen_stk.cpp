@@ -27168,6 +27168,7 @@ CK_DLL_CTRL( FM_ctrl_modDepth )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->setModulationDepth( f );
+    RETURN->v_float = f;
 }
 
 
@@ -27180,6 +27181,7 @@ CK_DLL_CTRL( FM_ctrl_modSpeed )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->setModulationSpeed( f );
+    RETURN->v_float = f;
 }
 
 
@@ -27192,6 +27194,7 @@ CK_DLL_CTRL( FM_ctrl_control1 )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->setControl1( f );
+    RETURN->v_float = f;
 }
 
 
@@ -27204,6 +27207,7 @@ CK_DLL_CTRL( FM_ctrl_control2 )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->setControl2( f );
+    RETURN->v_float = f;
 }
 
 
@@ -27216,6 +27220,7 @@ CK_DLL_CTRL( FM_ctrl_afterTouch )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+    RETURN->v_float = f;
 }
 
 
@@ -27241,7 +27246,7 @@ CK_DLL_CTOR( BeeThree_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( BeeThree_dtor  )
 { 
-  delete (BeeThree *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    delete (BeeThree *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -27286,7 +27291,7 @@ CK_DLL_CTOR( FMVoices_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( FMVoices_dtor  )
 { 
-  delete (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    delete (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
 }
 
 
@@ -27321,6 +27326,7 @@ CK_DLL_CTRL( FMVoices_ctrl_vowel )
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     voc->controlChange( __SK_Breath_, f * 128.0 );
+    RETURN->v_float = f;
 }
 
 
@@ -27333,7 +27339,9 @@ CK_DLL_CTRL( FMVoices_ctrl_spectralTilt )
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     voc->controlChange( __SK_FootControl_, f * 128.0);
+    RETURN->v_float = f;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_lfoSpeed()
@@ -27342,9 +27350,11 @@ CK_DLL_CTRL( FMVoices_ctrl_spectralTilt )
 CK_DLL_CTRL( FMVoices_ctrl_lfoSpeed )
 {
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    voc->controlChange( __SK_ModFrequency_, f * 128.0);
+    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
+    voc->setModulationSpeed( f );
+    RETURN->v_float = voc->vibrato->m_freq;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_lfoDepth()
@@ -27355,6 +27365,7 @@ CK_DLL_CTRL( FMVoices_ctrl_lfoDepth )
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     voc->controlChange( __SK_ModWheel_, f * 128.0);
+    RETURN->v_float = f;
 }
 
 
@@ -27367,6 +27378,7 @@ CK_DLL_CTRL( FMVoices_ctrl_adsrTarget )
     FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     voc->controlChange( __SK_AfterTouch_Cont_, f * 128.0);
+    RETURN->v_float = f;
 }
 
 
@@ -28115,7 +28127,6 @@ CK_DLL_CTRL( Moog_ctrl_filterSweepRate )
     Moog * m = (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     m->controlChange( __SK_FilterSweepRate_, f * 128.0 );
-
     RETURN->v_float = (t_CKFLOAT)  m->filterRate * 5000;
 }
 
