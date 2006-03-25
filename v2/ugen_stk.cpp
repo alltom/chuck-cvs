@@ -1014,18 +1014,18 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // Moog_offset_data = type_engine_import_mvar ( env, "int", "@Moog_data", FALSE );
     // if( Moog_offset_data == CK_INVALID_OFFSET ) goto error;
 
-    func = make_new_mfun( "float", "modSpeed", Moog_ctrl_modSpeed ); //! modulation speed
+    func = make_new_mfun( "float", "lfoSpeed", Moog_ctrl_modSpeed ); //! modulation speed
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "modSpeed", Moog_cget_modSpeed ); //! modulation speed
+    func = make_new_mfun( "float", "lfoSpeed", Moog_cget_modSpeed ); //! modulation speed
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "modDepth", Moog_ctrl_modDepth ); //! modulation depth
+    func = make_new_mfun( "float", "lfoDepth", Moog_ctrl_modDepth ); //! modulation depth
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "modDepth", Moog_cget_modDepth ); //! modulation depth
+    func = make_new_mfun( "float", "lfoDepth", Moog_cget_modDepth ); //! modulation depth
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "filterQ", Moog_ctrl_filterQ ); //! filter Q value
@@ -1397,26 +1397,41 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     // if( FM_offset_data == CK_INVALID_OFFSET ) goto error;
     FM_offset_data = Instrmnt_offset_data;
 
-    func = make_new_mfun( "float", "modDepth", FM_ctrl_modDepth ); //!modulation Depth
+    func = make_new_mfun( "float", "lfoDepth", FM_ctrl_modDepth ); //!modulation Depth
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "modSpeed", FM_ctrl_modSpeed ); //!modulation Speed
+    func = make_new_mfun( "float", "lfoDepth", FM_cget_modDepth ); //!modulation Depth
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "lfoSpeed", FM_ctrl_modSpeed ); //!modulation Speed
     func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "lfoSpeed", FM_cget_modSpeed ); //!modulation Speed
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "afterTouch", FM_ctrl_afterTouch ); //!aftertouch
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "control1", FM_ctrl_control1 ); //! FM control 1
+    func = make_new_mfun( "float", "afterTouch", FM_cget_afterTouch ); //!aftertouch
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "controlOne", FM_ctrl_control1 ); //! FM control 1
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "control2", FM_ctrl_control2 ); //! FM control 2
+    func = make_new_mfun( "float", "controlOne", FM_cget_control1 ); //! FM control 1
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "controlTwo", FM_ctrl_control2 ); //! FM control 2
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
+    func = make_new_mfun( "float", "controlTwo", FM_cget_control2 ); //! FM control 2
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1443,20 +1458,21 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "float", "vowel", FMVoices_cget_vowel ); //!select vowel
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "float", "spectralTilt", FMVoices_ctrl_spectralTilt ); //! spectral tilt
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "lfoSpeed", FMVoices_ctrl_lfoSpeed ); //!speed of LFO
-    func->add_arg( "float", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "float", "lfoDepth", FMVoices_ctrl_lfoDepth ); //!depth of LFO
-    func->add_arg( "float", "value" );
+    func = make_new_mfun( "float", "spectralTilt", FMVoices_cget_spectralTilt ); //! spectral tilt
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "adsrTarget", FMVoices_ctrl_adsrTarget ); //!adsr targets
     func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "adsrTarget", FMVoices_cget_adsrTarget ); //!adsr targets
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
@@ -12482,6 +12498,8 @@ void FMVoices :: controlChange(int number, MY_FLOAT value)
   std::cerr << "[chuck](via STK): FMVoices: controlChange number = " << number << ", value = " << value << std::endl;
 #endif
 }
+
+
 /***************************************************/
 /*! \class Filter
     \brief STK filter class.
@@ -24658,7 +24676,7 @@ CK_DLL_CTRL( ModalBar_ctrl_strikePosition )
 {
     ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->modalbar.setStrikePosition ( f );
+    b->modalbar.setStrikePosition( f );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.strikePosition;
 }
 
@@ -24833,7 +24851,7 @@ CK_DLL_CTRL( ModalBar_ctrl_modeGain )
 {
     ModalBar_ * b = (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    b->modalbar.setModeGain ( b->m_modeIndex, f );
+    b->modalbar.setModeGain( b->m_modeIndex, f );
     RETURN->v_float = (t_CKFLOAT)b->modalbar.filters[b->m_modeIndex]->getGain();
 }
 
@@ -24859,7 +24877,7 @@ CK_DLL_CTRL( ModalBar_ctrl_modeRatio )
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     if ( b->m_modeIndex >= 0 && b->m_modeIndex < b->modalbar.nModes )
     {
-        b->modalbar.setRatioAndRadius ( b->m_modeIndex, f , b->m_modeRadius );
+        b->modalbar.setRatioAndRadius( b->m_modeIndex, f , b->m_modeRadius );
         b->m_modeRatio = b->modalbar.ratios[b->m_modeIndex];
         RETURN->v_float = (t_CKFLOAT) b->m_modeRatio;
     }
@@ -27173,6 +27191,17 @@ CK_DLL_CTRL( FM_ctrl_modDepth )
 
 
 //-----------------------------------------------------------------------------
+// name: FM_cget_modDepth()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FM_cget_modDepth )
+{
+    FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    RETURN->v_float = fm->modDepth;
+}
+
+
+//-----------------------------------------------------------------------------
 // name: FM_ctrl_modSpeed()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -27181,7 +27210,18 @@ CK_DLL_CTRL( FM_ctrl_modSpeed )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->setModulationSpeed( f );
-    RETURN->v_float = f;
+    RETURN->v_float = fm->vibrato->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: FM_ctrl_modSpeed()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FM_cget_modSpeed )
+{
+    FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    RETURN->v_float = fm->vibrato->m_freq;
 }
 
 
@@ -27194,7 +27234,18 @@ CK_DLL_CTRL( FM_ctrl_control1 )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->setControl1( f );
-    RETURN->v_float = f;
+    RETURN->v_float = fm->control1 / 2.0;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: FM_cget_control1()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FM_cget_control1 )
+{
+    FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    RETURN->v_float = fm->control1 / 2.0;
 }
 
 
@@ -27207,7 +27258,18 @@ CK_DLL_CTRL( FM_ctrl_control2 )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->setControl2( f );
-    RETURN->v_float = f;
+    RETURN->v_float = fm->control2 / 2.0;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: FM_cget_control2()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FM_cget_control2 )
+{
+    FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    RETURN->v_float = fm->control2 / 2.0;
 }
 
 
@@ -27220,14 +27282,22 @@ CK_DLL_CTRL( FM_ctrl_afterTouch )
     FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     fm->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
-    RETURN->v_float = f;
+    RETURN->v_float = fm->adsr[1]->target;
 }
 
 
-//let's skip the controlchange members for now...
+//-----------------------------------------------------------------------------
+// name: FM_cget_afterTouch()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FM_cget_afterTouch )
+{
+    FM * fm= (FM *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
+    RETURN->v_float = fm->adsr[1]->target;
+}
 
 
-//BeeThree functions
+
 
 //-----------------------------------------------------------------------------
 // name: BeeThree_ctor()
@@ -27331,6 +27401,15 @@ CK_DLL_CTRL( FMVoices_ctrl_vowel )
 
 
 //-----------------------------------------------------------------------------
+// name: FMVoices_cget_vowel()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FMVoices_cget_vowel )
+{
+}
+
+
+//-----------------------------------------------------------------------------
 // name: FMVoices_ctrl_spectralTilt()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -27344,28 +27423,11 @@ CK_DLL_CTRL( FMVoices_ctrl_spectralTilt )
 
 
 //-----------------------------------------------------------------------------
-// name: FMVoices_ctrl_lfoSpeed()
+// name: FMVoices_cget_spectralTilt()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( FMVoices_ctrl_lfoSpeed )
+CK_DLL_CTRL( FMVoices_cget_spectralTilt )
 {
-    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    voc->setModulationSpeed( f );
-    RETURN->v_float = voc->vibrato->m_freq;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: FMVoices_ctrl_lfoDepth()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( FMVoices_ctrl_lfoDepth )
-{
-    FMVoices * voc= (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
-    voc->controlChange( __SK_ModWheel_, f * 128.0);
-    RETURN->v_float = f;
 }
 
 
@@ -27382,8 +27444,16 @@ CK_DLL_CTRL( FMVoices_ctrl_adsrTarget )
 }
 
 
+//-----------------------------------------------------------------------------
+// name: FMVoices_cget_adsrTarget()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FMVoices_cget_adsrTarget )
+{
+}
 
-//HevyMetl functions
+
+
 
 //-----------------------------------------------------------------------------
 // name: HevyMetl_ctor()

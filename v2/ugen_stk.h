@@ -655,21 +655,18 @@ CK_DLL_CTOR( FMVoices_ctor );
 CK_DLL_DTOR( FMVoices_dtor );
 CK_DLL_TICK( FMVoices_tick );
 CK_DLL_PMSG( FMVoices_pmsg );
-CK_DLL_CTRL( FMVoices_ctrl_freq );
-CK_DLL_CTRL( FMVoices_ctrl_noteOn );
 CK_DLL_CTRL( FMVoices_ctrl_vowel );
+CK_DLL_CTRL( FMVoices_cget_vowel );
 CK_DLL_CTRL( FMVoices_ctrl_spectralTilt );
-CK_DLL_CTRL( FMVoices_ctrl_lfoSpeed );
-CK_DLL_CTRL( FMVoices_ctrl_lfoDepth );
+CK_DLL_CTRL( FMVoices_cget_spectralTilt );
 CK_DLL_CTRL( FMVoices_ctrl_adsrTarget );
-CK_DLL_CGET( FMVoices_cget_freq );
+CK_DLL_CTRL( FMVoices_cget_adsrTarget );
 
 // HevyMetl
 CK_DLL_CTOR( HevyMetl_ctor );
 CK_DLL_DTOR( HevyMetl_dtor );
 CK_DLL_TICK( HevyMetl_tick );
 CK_DLL_PMSG( HevyMetl_pmsg );
-CK_DLL_CTRL( HevyMetl_ctrl_noteOn );
 
 // JetTabl
 CK_DLL_CTOR( JetTabl_ctor );
