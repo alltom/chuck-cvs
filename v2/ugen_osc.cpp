@@ -33,6 +33,7 @@
 //-----------------------------------------------------------------------------
 #include "ugen_osc.h"
 #include "chuck_type.h"
+#include "chuck_ugen.h"
 #include <math.h>
 #include <stdio.h>
 
@@ -208,7 +209,7 @@ struct Osc_Data
     {
         num = 0.0;
         freq = 220.0;
-        sync = 0; //internal 
+        sync = 0; // internal 
         width = 0.5;
         srate = g_srate;
         phase = 0.0;
@@ -254,35 +255,55 @@ CK_DLL_DTOR( osc_dtor )
 //-----------------------------------------------------------------------------
 // name: osc_tick()
 // desc: ...
+//
+// basic osx is a phasor... 
+// we use a duty-cycle rep ( 0 - 1 ) rather than angular ( 0 - TWOPI )
+// sinusoidal oscillators are special
+//
+// (maybe) as a rule, we store external phase control values
+// so that we can have a smooth change back to internal control -pld
+//
+// technically this should happen even with external phase control
+// that we'd be in the right place when translating back to internal... 
+// this was decidely inefficient and nit-picky.  -pld 
+//
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( osc_tick )
 {
-    // basic osx is a phasor... 
-    // we use a duty-cycle rep ( 0 - 1 ) rather than angular ( 0 - TWOPI )
-    // sinusoidal oscillators are special
-
     // get the data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+
+    if( d->sync == 0 && ugen->m_num_src )
+    {
+        // set freq
+        d->freq = in;
+        // phase increment
+        d->num = d->freq / d->srate;
+        // bound it
+        if( d->num >= 1.0 ) d->num -= floor( d->num );
+        else if( d->num <= 1.0 ) d->num += floor( d->num );
+    }
     // sync to now
-    // if( d->sync == 1 ) d->phase = now * d->num;
+    // else if( d->sync == 1 ) d->phase = now * d->num;
+    else if( d->sync == 2 )
+    {
+        // set freq
+        t_CKFLOAT freq = d->freq + in;
+        // phase increment
+        d->num = freq / d->srate;
+        // bound it
+        if( d->num >= 1.0 ) d->num -= floor( d->num );
+        else if( d->num <= 1.0 ) d->num += floor( d->num );
+    }
 
-    // as a rule, we store external phase control values
-    // so that we can have a smooth change back to internal control -pld 
-    if( d->sync == 2 ) d->phase = in; 
-
-    *out = (SAMPLE) d->phase;
+    // set output to current phase
+    *out = (SAMPLE)d->phase;
 
     // step the phase.
-    // technically this should happen even with external phase control
-    // that we'd be in the right place when translating back to internal... 
-    // this was decidely inefficient and nit-picky.  -pld 
-
-    if( d->sync == 0 ) 
-    {
-        d->phase += d->num;
-        // keep the phase between 0 and 1
-        if( d->phase > 1.0 ) d->phase -= 1.0;
-    }
+    d->phase += d->num;
+    // keep the phase between 0 and 1
+    if( d->phase > 1.0 ) d->phase -= 1.0;
 
     return TRUE;
 }
@@ -298,21 +319,38 @@ CK_DLL_TICK( sinosc_tick )
 {
     // get the data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
-    // sync to now
-    // if( d->sync == 1 ) d->phase = now * d->num;
-    // compute
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
 
-    if ( d->sync == 2 ) d->phase = in;
-
-    *out = (SAMPLE) ::sin( d->phase * TWO_PI );
-    // move phase
-
-    if( d->sync == 0 )
+    if( d->sync == 0 && ugen->m_num_src )
     {
-        d->phase += d->num;
-        // keep the phase between 0 and 1
-        if( d->phase > 1.0 ) d->phase -= 1.0;
+        // set freq
+        d->freq = in;
+        // phase increment
+        d->num = d->freq / d->srate;
+        // bound it
+        if( d->num >= 1.0 ) d->num -= floor( d->num );
+        else if( d->num <= 1.0 ) d->num += floor( d->num );
     }
+    // sync to now
+    // else if( d->sync == 1 ) d->phase = now * d->num;
+    else if( d->sync == 2 )
+    {
+        // set freq
+        t_CKFLOAT freq = d->freq + in;
+        // phase increment
+        d->num = freq / d->srate;
+        // bound it
+        if( d->num >= 1.0 ) d->num -= floor( d->num );
+        else if( d->num <= 1.0 ) d->num += floor( d->num );
+    }
+
+    // set output
+    *out = (SAMPLE) ::sin( d->phase * TWO_PI );
+
+    // next phase
+    d->phase += d->num;
+    // keep the phase between 0 and 1
+    if( d->phase > 1.0 ) d->phase -= 1.0;
 
     return TRUE;
 }
@@ -396,7 +434,7 @@ CK_DLL_CTRL( osc_ctrl_freq )
     // phase increment
     d->num = d->freq / d->srate;
     // bound it
-    if ( d->num >= 1.0 ) d->num -= floor( d->num );
+    if( d->num >= 1.0 ) d->num -= floor( d->num );
     // return
     RETURN->v_float = (t_CKFLOAT)d->freq;
 }

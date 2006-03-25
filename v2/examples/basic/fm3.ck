@@ -1,4 +1,4 @@
-// FM using sinosc
+// actual FM using sinosc (sync is 0)
 
 // modulator to carrier
 sinosc m => sinosc c => dac;
@@ -6,12 +6,9 @@ sinosc m => sinosc c => dac;
 // carrier frequency
 220 => float cf => c.freq;
 // modulator frequency
-550 => m.freq;
+20 => m.freq;
 // index of modulation
 200 => m.gain;
-
-// phase modulation is FM synthesis (sync is 2)
-2 => c.sync;
 
 // time-loop
 while( true )
