@@ -31,6 +31,7 @@
 //         Ananya Misra (amisra@cs.princeton.edu)
 //         Ari Lazier (alazier@cs.princeton.edu)
 //         Philip Davidson (philipd@cs.princeton.edu)
+//         Mark Daly (mdaly@cs.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ugen_stk.h"
@@ -1028,6 +1029,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "lfoDepth", Moog_cget_modDepth ); //! modulation depth
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "float", "modSpeed", Moog_ctrl_modSpeed ); //! modulation speed
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "modSpeed", Moog_cget_modSpeed ); //! modulation speed
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "modDepth", Moog_ctrl_modDepth ); //! modulation depth
+    func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "modDepth", Moog_cget_modDepth ); //! modulation depth
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
     func = make_new_mfun( "float", "filterQ", Moog_ctrl_filterQ ); //! filter Q value
     func->add_arg( "float", "value" );  
     if( !type_engine_import_mfun( env, func ) ) goto error;

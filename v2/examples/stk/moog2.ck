@@ -12,10 +12,6 @@ while( true )
     // ding!
     std.rand2f( 0, 128 ) => float filterQ;
     std.rand2f( 0, 128 ) => float filterSweep;
-    //filterSweep => moog.filterSweepRate;
-    //std.rand2f( 0, 1 ) => float modSpeed;
-    //modSpeed => moog.modSpeed;
-    //std.rand2f( 0, 60 ) => float modDepth;
     std.rand2f( 0, 128 ) => float vol;
     std.rand2f( 0, 128 ) => float vibratoFreq;
     std.rand2f( 0, 128 ) => float vibratoGain;
@@ -29,8 +25,8 @@ while( true )
     <<< "---", "" >>>;
     <<< "filterQ", moog.filterQ() >>>;
     <<< "filter sweep rate:", moog.filterSweepRate() >>>;
-    <<< "mod speed:", moog.modSpeed() >>>;
-    <<< "mod depth:", moog.modDepth() >>>;
+    <<< "mod speed:", moog.lfoSpeed() >>>;
+    <<< "mod depth:", moog.lfoDepth() >>>;
     <<< "volume:", moog.volume() >>>;
     <<< "vibrato freq:", moog.vibratoFreq() >>>;
     <<< "vibrato gain:", moog.vibratoGain() >>>;
