@@ -20,7 +20,7 @@ sinosc m => blackhole;
 
 // attack
 10::ms => e.duration;
-.5 => e.gain;
+.25 => e.gain;
 // variables
 int base;
 float a0;

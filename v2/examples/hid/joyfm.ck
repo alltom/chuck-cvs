@@ -16,7 +16,7 @@ sinosc m => blackhole;
 // modulator frequency
 550 => float mf => m.freq;
 // index of modulation
-.5 => float index;
+.25 => float index;
 // set initial gain
 0.0 => g.gain;
 
