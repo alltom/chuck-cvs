@@ -27788,6 +27788,7 @@ CK_DLL_CTRL( Mandolin_ctrl_pluckPos )
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setPluckPosition( f );
+    RETURN->v_float = f;
 }
 
 
@@ -27811,6 +27812,7 @@ CK_DLL_CTRL( Mandolin_ctrl_bodySize )
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setBodySize( f );
+    RETURN->v_float = f;
 }
 
 
@@ -27835,6 +27837,7 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDamping )
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setBaseLoopGain( f );
     // m->setBaseLoopGain( 0.97f + f * 0.03f );
+    RETURN->v_float = f;
 }
 
 
@@ -27859,6 +27862,7 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDetune )
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
     m->setDetune( f );
     // m->setDetune( 1.0f - 0.1f * f );
+    RETURN->v_float = f;
 }
 
 
@@ -28688,9 +28692,6 @@ CK_DLL_TICK( SubNoise_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_PMSG( SubNoise_pmsg )
 {
-    NRev * j = (NRev *)OBJ_MEMBER_UINT(SELF, NRev_offset_data );
-    t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    j->setEffectMix( f );
     return TRUE;
 }
 
@@ -28819,7 +28820,7 @@ CK_DLL_CTRL( VoicForm_ctrl_voiced )
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->setVoiced( f );
-    RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
+    RETURN->v_float = (t_CKFLOAT)v->voiced->envelope->value;
 }
 
 
@@ -28831,7 +28832,7 @@ CK_DLL_CGET( VoicForm_cget_voiced )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
 
-    RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
+    RETURN->v_float = (t_CKFLOAT)v->voiced->envelope->value;
 }
 
 
@@ -28844,7 +28845,7 @@ CK_DLL_CTRL( VoicForm_ctrl_unVoiced )
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->setUnVoiced( f ); //not sure if this should be multiplied
-    RETURN->v_float = (t_CKFLOAT) v->noiseEnv->value;
+    RETURN->v_float = (t_CKFLOAT)v->noiseEnv->value;
 }
 
 
@@ -28855,7 +28856,7 @@ CK_DLL_CTRL( VoicForm_ctrl_unVoiced )
 CK_DLL_CGET( VoicForm_cget_unVoiced )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT) v->noiseEnv->value;
+    RETURN->v_float = (t_CKFLOAT)v->noiseEnv->value;
 }
 
 
@@ -28868,7 +28869,7 @@ CK_DLL_CTRL( VoicForm_ctrl_voiceMix )
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     v->controlChange(__SK_Breath_, f * 128.0 );
-    RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
+    RETURN->v_float = (t_CKFLOAT)v->voiced->envelope->value;
 }
 
 
@@ -28879,7 +28880,7 @@ CK_DLL_CTRL( VoicForm_ctrl_voiceMix )
 CK_DLL_CGET( VoicForm_cget_voiceMix )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT) v->voiced->envelope->value;
+    RETURN->v_float = (t_CKFLOAT)v->voiced->envelope->value;
 }
 
 
@@ -28892,7 +28893,7 @@ CK_DLL_CTRL( VoicForm_ctrl_selPhoneme )
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     int i = GET_CK_INT(ARGS); 
     v->controlChange(__SK_FootControl_, i);
-    RETURN->v_float = (t_CKFLOAT) v->m_phonemeNum;
+    RETURN->v_float = (t_CKFLOAT)v->m_phonemeNum;
 }
 
 
@@ -28903,7 +28904,7 @@ CK_DLL_CTRL( VoicForm_ctrl_selPhoneme )
 CK_DLL_CGET( VoicForm_cget_selPhoneme )
 {
     VoicForm * v = (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT) v->m_phonemeNum;
+    RETURN->v_float = (t_CKFLOAT)v->m_phonemeNum;
 }
 
 
