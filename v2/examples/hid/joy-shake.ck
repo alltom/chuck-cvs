@@ -28,7 +28,7 @@ while( true )
             if( msg.which == 1 ) (msg.fdata+1) * 64 => s.objects;
             if( msg.which == 2 ) (msg.fdata+1) / 2.0 => s.energy;
             if( msg.which == 3 ) (msg.fdata+1) / 2.0 => s.decay;
-            <<< "freq:", s.freq(), "objects:", s.objects(), "energy:", s.energy(), "decay:", s.decay() >>>;
+            <<< "freq:", s.freq(), "objects:", s.objects(), "energy:", s.energy(), "decay:", s.decay(), "preset:", s.preset() >>>;
         }
 
         // button down
@@ -37,6 +37,7 @@ while( true )
             if( msg.which == 0 ) s.noteOn( .8 );
             if( msg.which == 2 ) { which++; (which % 22) => s.preset; }
             if( msg.which == 3 ) { which--; (which % 22) => s.preset; }
+            <<< "freq:", s.freq(), "objects:", s.objects(), "energy:", s.energy(), "decay:", s.decay(), "preset:", s.preset() >>>;
         }
     }
 }
