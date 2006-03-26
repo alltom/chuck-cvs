@@ -11,6 +11,7 @@ Saxofony sax => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
+    // set
     std.rand2f( 0, 1 ) => sax.stiffness;
     std.rand2f( 0, 1 ) => sax.aperture;
     std.rand2f( 0, 1 ) => sax.noiseGain;
@@ -19,6 +20,7 @@ while( true )
     std.rand2f( 0, 1 ) => sax.vibratoGain;
     std.rand2f( 0, 1 ) => sax.pressure;
 
+    // print
     <<< "---", "" >>>;
     <<< "stiffness:", sax.stiffness() >>>;
     <<< "aperture:", sax.aperture() >>>;

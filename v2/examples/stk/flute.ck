@@ -15,6 +15,7 @@ while( true )
     // clear
     flute.clear( 1.0 );
 
+    // set
     std.rand2f( 0, 1 ) => flute.jetDelay;
     std.rand2f( 0, 1 ) => flute.jetReflection;
     std.rand2f( 0, 1 ) => flute.endReflection;
@@ -23,6 +24,7 @@ while( true )
     std.rand2f( 0, 1 ) => flute.vibratoGain;
     std.rand2f( 0, 1 ) => flute.pressure;
 
+    // print
     <<< "---", "" >>>;
     <<< "jetDelay:", flute.jetDelay() >>>;
     <<< "jetReflection:", flute.jetReflection() >>>;

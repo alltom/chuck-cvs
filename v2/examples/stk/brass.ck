@@ -9,12 +9,14 @@ Brass brass => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
+    // set
     std.rand2f( 0, 1 ) => brass.lip;
     std.rand2f( 0, 1 ) => brass.slide;
     std.rand2f( 0, 12 ) => brass.vibratoFreq;
     std.rand2f( 0, 1 ) => brass.vibratoGain;
     std.rand2f( 0, 1 ) => brass.volume;
 
+    // print
     <<< "---", "" >>>;
     <<< "lip tension:", brass.lip() >>>;
     <<< "slide length:", brass.slide() >>>;

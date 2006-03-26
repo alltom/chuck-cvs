@@ -15,12 +15,14 @@ while( true )
     // clear
     clair.clear( 1.0 );
 
+    // set
     std.rand2f( 0, 1 ) => clair.reed;
     std.rand2f( 0, 1 ) => clair.noiseGain;
     std.rand2f( 0, 12 ) => clair.vibratoFreq;
     std.rand2f( 0, 1 ) => clair.vibratoGain;
     std.rand2f( 0, 1 ) => clair.pressure;
 
+    // print
     <<< "---", "" >>>;
     <<< "reed stiffness:", clair.reed() >>>;
     <<< "noise gain:", clair.noiseGain() >>>;

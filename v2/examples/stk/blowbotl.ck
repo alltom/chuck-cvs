@@ -15,6 +15,7 @@ while( true )
     std.rand2f( 0, 1 ) => bottle.vibratoGain;
     std.rand2f( 0, 1 ) => bottle.volume;
 
+    // print
     <<< "---", "" >>>;
     <<< "noise gain:", bottle.noiseGain() >>>;
     <<< "vibrato freq:", bottle.vibratoFreq() >>>;

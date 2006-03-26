@@ -19,6 +19,7 @@ while( true )
     std.rand2f( .5, 1 ) => bar.directGain;
     std.rand2f( .5, 1 ) => bar.masterGain;
 
+    // print
     <<< "---", "" >>>;
     <<< "preset:", bar.preset() >>>;
     <<< "stick hardness:", bar.stickHardness() >>>;

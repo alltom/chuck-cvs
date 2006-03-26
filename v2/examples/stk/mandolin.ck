@@ -11,11 +11,13 @@ Mandolin m => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
+    // set
     std.rand2f( 0, 1 ) => m.bodySize;
     std.rand2f( 0, 1 ) => m.pluckPos;
     // std.rand2f( 0, 1 ) => m.stringDamping;
     // std.rand2f( 0, 1 ) => m.stringDetune;
 
+    // print
     <<< "---", "" >>>;
     <<< "body size:", m.bodySize() >>>;
     <<< "pluck position:", m.pluckPos() >>>;

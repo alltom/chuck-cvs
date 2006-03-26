@@ -22,6 +22,7 @@ while( true )
     std.rand2f( 0, 1 ) => hole.vent;
     std.rand2f( 0, 1 ) => hole.pressure;
 
+    // print
     <<< "going...", "" >>>;
     <<< "reed stiffness:", hole.reed() >>>;
     <<< "noise gain:", hole.noiseGain() >>>;
