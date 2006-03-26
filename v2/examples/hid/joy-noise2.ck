@@ -89,5 +89,5 @@ fun void set( float value, float factor, float q )
     { .99-.09*(math.pow(2,-q)-1) => f.prad; 1 => e.gain; }
 
     if( count )
-        <<< "pan:", p.pan(), "resonance:", f.pfreq(), "filter Q:", f.prad() >>>;
+        <<< "pan:", p.pan(), "resonance:", f.pfreq(), "radius:", f.prad() >>>;
 }
