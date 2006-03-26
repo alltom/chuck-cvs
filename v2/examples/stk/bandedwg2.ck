@@ -36,7 +36,7 @@ while( true )
     <<< "bow Pressure:", bwg.bowPressure() >>>;
 
     // set freq
-	scale[std.rand2(0,scale.cap()-1)] => int winner;
+    scale[std.rand2(0,scale.cap()-1)] => int winner;
     57 + std.rand2(0,2)*12 + winner => std.mtof => bwg.freq;
     // go
     .8 => bwg.noteOn;
@@ -75,5 +75,4 @@ while( true )
     .8 => bwg.startBowing;
     1::second => now;
     1.0 => bwg.stopBowing;
-
 }

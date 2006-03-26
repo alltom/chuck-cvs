@@ -56,7 +56,7 @@ spork ~ vecho_Shred();
 while( true )
 {
     2 * std.rand2( 0,2 ) => int bphon;
-    bphon => voc.setPhoneme;
+    bphon => voc.phonemeNum;
     std.rand2f( 0.6, 0.8 ) => voc.noteOn;
 
     if( std.randf() > 0.7 )
@@ -74,7 +74,7 @@ while( true )
 
 	for( ; i < pick; i++ )
         {
-	    bphon + 1 * pick_dir => voc.setPhoneme;
+	    bphon + 1 * pick_dir => voc.phonemeNum;
             std.rand2f(.4,.6) + i*.035 => pluck;
             pluck + 0.0 * pick_dir => voc.noteOn;
             !pick_dir => pick_dir;

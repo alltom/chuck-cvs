@@ -1,4 +1,4 @@
-// STK ModalBar
+// STK BandedWG
 
 // patch
 BandedWG bwg => dac;
@@ -20,7 +20,7 @@ while( true )
     <<< "bow Pressure:", bwg.bowPressure() >>>;
 
     // set freq
-	scale[std.rand2(0,scale.cap()-1)] => int winner;
+    scale[std.rand2(0,scale.cap()-1)] => int winner;
     57 + std.rand2(0,2)*12 + winner => std.mtof => bwg.freq;
     // go
     .8 => bwg.noteOn;

@@ -5,8 +5,8 @@
 Shakers s => Chorus c1 => JCRev rev => Chorus c2 => Chorus c3 =>dac;
 
 0 => s.which;
-1. => s.gain;
-100. => float theTime;
+1 => s.gain;
+100 => float theTime;
 
 while( true )
 {

@@ -28,7 +28,7 @@ while( true )
     <<< "vibrato gain:", moog.vibratoGain() >>>;
 
     // set freq
-	scale[std.rand2(0,scale.cap()-1)] => int winner;
+    scale[std.rand2(0,scale.cap()-1)] => int winner;
     57 + std.rand2(0,2)*12 + winner => std.mtof => moog.freq;
     // go
     .8 => moog.noteOn;
