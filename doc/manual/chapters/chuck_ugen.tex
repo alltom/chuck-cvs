@@ -305,7 +305,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \chuckugen{ 
 \ugen{ sqrosc}
 \begin{chuckitemize}
-\item square wave oscillator ( pulse with fixed width of 0.5 ) 
+\item square wave oscillator 
 \end{chuckitemize}
 \control
 \begin{chuckitemize}
@@ -313,6 +313,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
 \item {\bf .sync}  (int, READ/WRITE)  {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
+\item {\bf .width}  (float, READ/WRITE)  {\it length of duty cycle (0 - 1)}
 \end{chuckitemize}
 }
 
