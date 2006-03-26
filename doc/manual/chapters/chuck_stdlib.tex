@@ -118,7 +118,8 @@ converts decibles (dB) to linear amplitude
 
 \chucknamespace{ machine }
 
-{\bf machine} is ChucK runtime interface to the virtual machine. this interface can be used to manage shreds. They are similar to the On-the-fly Programming Commands, except these are invoked from within a ChucK program, and are subject to the timing mechanism.
+{\bf machine} is ChucK runtime interface to the virtual machine. this interface can be used to manage shreds. They are similar to the On-the-fly Programming Commands, except these are invoked from within a ChucK program, and are subject to the timing mech
+anism.
 
 \chuckmultifunction{ int add ( string path );}{
 compile and spork a new shred from file at 'path' into the VM now\\
@@ -289,25 +290,24 @@ choose greater of two values
 computes the integeral (returned as int) smallest power of 2 greater than the value of x
 }
 
+\chuckmultifunction{int isinf ( float x );}{
+is x infinity?
+}
 
-\chuckmultifunction{ float pi ( );}{
+\chuckmultifunction{int isnan ( float x )}{
+is x "not a number"?
+}
+
+\chuckmultifunction{ float pi ;}{
 (currently disabled - use pi)
 }
 
 
-\chuckmultifunction{ float twopi ( );}{
+\chuckmultifunction{ float twopi ;}{
 (currently disabled)
 }
 
 
-\chuckmultifunction{ float e ( );}{
+\chuckmultifunction{ float e ;}{
 (currently disabled - use math.exp(1) )
-}
-
-\chuckmultifunction{int isinf (float);}{
-infinity test
-}
-
-\chuckmultifunction{int isnan (float)}{
-NaN test
 }
