@@ -1,5 +1,5 @@
 // name: joynoise.ck
-// desc: using joystick to control noise
+// desc: using joystick to control noise (first 3 axes + buttons)
 // author: Ge Wang
 
 // which joystick to use
@@ -41,9 +41,11 @@ echo2.gain() * .25 => echo3.gain;
 // variables
 0 => float value;
 1 => float factor;
+0 => float q;
+0 => int count;
 
 // initialize
-set( value, factor );
+set( value, factor, q );
 
 // infinite time loop
 while( true )
@@ -59,20 +61,33 @@ while( true )
 
         // axis 1: map to pfreq
         if( msg.type == 0 && msg.which == 1 )
-        { -msg.fdata => value; set( value, factor ); }
+        { -msg.fdata => value; set( value, factor, q ); }
+
+        // axis 2: map to Q
+        if( msg.type == 0 && msg.which == 2 )
+        { msg.fdata => q; set( value, factor, q ); }
 
         // button down (any)
         if( msg.type == 1 /*&& msg.which == 7*/ )
-        { e.keyOn(); msg.which + 1 => factor; set( value, factor ); }
+        { count++; if( count ) e.keyOn(); msg.which + 1 => factor; set( value, factor, q ); }
 
         // button up (any)
         if( msg.type == 2 /*&& msg.which == 7*/ )
-        { e.keyOff(); }
+        { count--; if( !count ) e.keyOff(); }
     }
 }
 
 // do actual mapping control
-fun void set( float value, float factor )
+fun void set( float value, float factor, float q )
 {
     (value * 440 + 480) * factor => f.pfreq;
+
+    // hacked q mapping
+    if( q >= 0 )
+    { .99+.009*(math.pow(2,q)-1) => f.prad; .25+.5*(1-q) => e.gain; }
+    else
+    { .99-.09*(math.pow(2,-q)-1) => f.prad; 1 => e.gain; }
+
+    if( count )
+        <<< "pan:", p.pan(), "resonance:", f.pfreq(), "radius:", f.prad() >>>;
 }
