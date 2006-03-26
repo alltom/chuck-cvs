@@ -11,7 +11,7 @@ while( true )
     // index
     int pos;
 
-    // repeat for each sample
+    // repeat this many times
     repeat( buf.samples() )
     {
         // set next sample
