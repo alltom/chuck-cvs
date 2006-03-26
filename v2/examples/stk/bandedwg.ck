@@ -28,7 +28,7 @@ while( true )
     57 + std.rand2(0,2)*12 + winner => std.mtof => bwg.freq;
 
     <<< "bow -> pluck", "" >>>;
-    std.rand2f( 0, 1 ) => bwg.pluck;
+    std.rand2f( .5, 1 ) => bwg.pluck;
     // advance time
     2::second => now;
 
