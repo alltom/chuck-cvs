@@ -274,36 +274,40 @@ CK_DLL_TICK( osc_tick )
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     Chuck_UGen * ugen = (Chuck_UGen *)SELF;
 
-    if( d->sync == 0 && ugen->m_num_src )
+    // if input
+    if( ugen->m_num_src )
     {
-        // set freq
-        d->freq = in;
-        // phase increment
-        d->num = d->freq / d->srate;
-        // bound it
-        if( d->num >= 1.0 ) d->num -= floor( d->num );
-        else if( d->num <= 1.0 ) d->num += floor( d->num );
+        if( d->sync == 0 )
+        {
+            // set freq
+            d->freq = in;
+            // phase increment
+            d->num = d->freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
+        // sync to now
+        // else if( d->sync == 1 ) d->phase = now * d->num;
+        else if( d->sync == 2 )
+        {
+            // set freq
+            t_CKFLOAT freq = d->freq + in;
+            // phase increment
+            d->num = freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
     }
-    // sync to now
-    // else if( d->sync == 1 ) d->phase = now * d->num;
-    else if( d->sync == 2 )
-    {
-        // set freq
-        t_CKFLOAT freq = d->freq + in;
-        // phase increment
-        d->num = freq / d->srate;
-        // bound it
-        if( d->num >= 1.0 ) d->num -= floor( d->num );
-        else if( d->num <= 1.0 ) d->num += floor( d->num );
-    }
-
-    // set output to current phase
-    *out = (SAMPLE)d->phase;
 
     // step the phase.
     d->phase += d->num;
     // keep the phase between 0 and 1
     if( d->phase > 1.0 ) d->phase -= 1.0;
+
+    // set output to current phase
+    *out = (SAMPLE)d->phase;
 
     return TRUE;
 }
@@ -321,36 +325,40 @@ CK_DLL_TICK( sinosc_tick )
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     Chuck_UGen * ugen = (Chuck_UGen *)SELF;
 
-    if( d->sync == 0 && ugen->m_num_src )
+    // if input
+    if( ugen->m_num_src )
     {
-        // set freq
-        d->freq = in;
-        // phase increment
-        d->num = d->freq / d->srate;
-        // bound it
-        if( d->num >= 1.0 ) d->num -= floor( d->num );
-        else if( d->num <= 1.0 ) d->num += floor( d->num );
+        if( d->sync == 0 )
+        {
+            // set freq
+            d->freq = in;
+            // phase increment
+            d->num = d->freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
+        // sync to now
+        // else if( d->sync == 1 ) d->phase = now * d->num;
+        else if( d->sync == 2 )
+        {
+            // set freq
+            t_CKFLOAT freq = d->freq + in;
+            // phase increment
+            d->num = freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
     }
-    // sync to now
-    // else if( d->sync == 1 ) d->phase = now * d->num;
-    else if( d->sync == 2 )
-    {
-        // set freq
-        t_CKFLOAT freq = d->freq + in;
-        // phase increment
-        d->num = freq / d->srate;
-        // bound it
-        if( d->num >= 1.0 ) d->num -= floor( d->num );
-        else if( d->num <= 1.0 ) d->num += floor( d->num );
-    }
-
-    // set output
-    *out = (SAMPLE) ::sin( d->phase * TWO_PI );
 
     // next phase
     d->phase += d->num;
     // keep the phase between 0 and 1
     if( d->phase > 1.0 ) d->phase -= 1.0;
+
+    // set output
+    *out = (SAMPLE) ::sin( d->phase * TWO_PI );
 
     return TRUE;
 }

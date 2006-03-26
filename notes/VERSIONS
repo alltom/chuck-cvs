@@ -35,6 +35,7 @@
               .freq( float ) / .freq()
               .controlChange( int, float )
   - (added) the following now extend 'StkInstrument'
+            (most of them have additional parameters)
               - BandedWG
               - BlowBotl
               - BlowHole
@@ -52,6 +53,8 @@
               - Sitar
               - StifKarp
               - VoicForm
+  - (added) better STK documentation
+            http://chuck.cs.princeton.edu/doc/program/ugen.html
   - (added) examples/stk/modulate.ck
   - (added) --watchdog and --nowatchdog flags
             (very experiment watchdog for real-time audio)

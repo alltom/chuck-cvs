@@ -25909,7 +25909,7 @@ CK_DLL_CTRL( Envelope_ctrl_time )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     d->setTime( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) 1.0 / ( d->rate * Stk::sampleRate() );
+    RETURN->v_float = 1.0 / ( d->rate * Stk::sampleRate() );
 }
 
 
@@ -25920,7 +25920,7 @@ CK_DLL_CTRL( Envelope_ctrl_time )
 CK_DLL_CGET( Envelope_cget_time )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
-    RETURN->v_float = (t_CKFLOAT) 1.0 / ( d->rate * Stk::sampleRate() );
+    RETURN->v_float = 1.0 / ( d->rate * Stk::sampleRate() );
 }
 
 
@@ -25932,7 +25932,7 @@ CK_DLL_CTRL( Envelope_ctrl_duration )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     d->setTime( GET_NEXT_FLOAT(ARGS) / Stk::sampleRate() );
-    RETURN->v_float = (t_CKFLOAT) 1.0 / d->rate;
+    RETURN->v_float = 1.0 / d->rate;
 }
 
 
@@ -25943,7 +25943,7 @@ CK_DLL_CTRL( Envelope_ctrl_duration )
 CK_DLL_CGET( Envelope_cget_duration )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
-    RETURN->v_float = (t_CKFLOAT) 1.0 / ( d->rate );
+    RETURN->v_float = 1.0 / d->rate;
 }
 
 
@@ -25955,7 +25955,7 @@ CK_DLL_CTRL( Envelope_ctrl_rate )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     d->setRate( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->rate;
+    RETURN->v_float = (t_CKFLOAT)d->rate;
 }
 
 
@@ -25966,7 +25966,7 @@ CK_DLL_CTRL( Envelope_ctrl_rate )
 CK_DLL_CGET( Envelope_cget_rate )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
-    RETURN->v_float = (t_CKFLOAT) d->rate;
+    RETURN->v_float = (t_CKFLOAT)d->rate;
 }
 
 
@@ -25978,7 +25978,7 @@ CK_DLL_CTRL( Envelope_ctrl_target )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     d->setTarget( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->target;
+    RETURN->v_float = (t_CKFLOAT)d->target;
 }
 
 
@@ -25989,7 +25989,7 @@ CK_DLL_CTRL( Envelope_ctrl_target )
 CK_DLL_CGET( Envelope_cget_target )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
-    RETURN->v_float = (t_CKFLOAT) d->target;
+    RETURN->v_float = (t_CKFLOAT)d->target;
 }
 
 
@@ -26001,7 +26001,7 @@ CK_DLL_CTRL( Envelope_ctrl_value )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
     d->setValue( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->value;
+    RETURN->v_float = (t_CKFLOAT)d->value;
 }
 
 
@@ -26012,7 +26012,7 @@ CK_DLL_CTRL( Envelope_ctrl_value )
 CK_DLL_CGET( Envelope_cget_value )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data );
-    RETURN->v_float = (t_CKFLOAT) d->value;
+    RETURN->v_float = (t_CKFLOAT)d->value;
 }
 
 
@@ -26133,7 +26133,9 @@ CK_DLL_PMSG( ADSR_pmsg )
 CK_DLL_CTRL( ADSR_ctrl_attackTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
-    d->setAttackTime( GET_NEXT_FLOAT(ARGS) );
+    t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
+    d->setAttackTime( t );
+    RETURN->v_float = t;
 }
 
 
@@ -26145,7 +26147,7 @@ CK_DLL_CTRL( ADSR_ctrl_attackRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     d->setAttackRate( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->attackRate;
+    RETURN->v_float = (t_CKFLOAT)d->attackRate;
 }
 
 
@@ -26156,7 +26158,7 @@ CK_DLL_CTRL( ADSR_ctrl_attackRate )
 CK_DLL_CGET( ADSR_cget_attackRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
-    RETURN->v_float = (t_CKFLOAT) d->attackRate;
+    RETURN->v_float = (t_CKFLOAT)d->attackRate;
 }
 
 
@@ -26167,7 +26169,9 @@ CK_DLL_CGET( ADSR_cget_attackRate )
 CK_DLL_CTRL( ADSR_ctrl_decayTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
-    d->setDecayTime( GET_NEXT_FLOAT(ARGS) );
+    t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
+    d->setDecayTime( t );
+    RETURN->v_float = t;
 }
 
 
@@ -26179,7 +26183,7 @@ CK_DLL_CTRL( ADSR_ctrl_decayRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     d->setDecayRate( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->decayRate;
+    RETURN->v_float = (t_CKFLOAT)d->decayRate;
 }
 
 
@@ -26190,7 +26194,7 @@ CK_DLL_CTRL( ADSR_ctrl_decayRate )
 CK_DLL_CGET( ADSR_cget_decayRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
-    RETURN->v_float = (t_CKFLOAT) d->decayRate;
+    RETURN->v_float = (t_CKFLOAT)d->decayRate;
 }
 
 
@@ -26202,7 +26206,7 @@ CK_DLL_CTRL( ADSR_ctrl_sustainLevel )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     d->setSustainLevel( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->sustainLevel;
+    RETURN->v_float = (t_CKFLOAT)d->sustainLevel;
 }
 
 
@@ -26213,7 +26217,7 @@ CK_DLL_CTRL( ADSR_ctrl_sustainLevel )
 CK_DLL_CGET( ADSR_cget_sustainLevel )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
-    RETURN->v_float = (t_CKFLOAT) d->sustainLevel;
+    RETURN->v_float = (t_CKFLOAT)d->sustainLevel;
 }
 
 
@@ -26224,7 +26228,9 @@ CK_DLL_CGET( ADSR_cget_sustainLevel )
 CK_DLL_CTRL( ADSR_ctrl_releaseTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
-    d->setReleaseTime( GET_NEXT_FLOAT(ARGS) );
+    t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
+    d->setReleaseTime( t );
+    RETURN->v_float = t;
 }
 
 
@@ -26236,7 +26242,7 @@ CK_DLL_CTRL( ADSR_ctrl_releaseRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
     d->setReleaseRate( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->releaseRate;
+    RETURN->v_float = (t_CKFLOAT)d->releaseRate;
 }
 
 
@@ -26247,7 +26253,7 @@ CK_DLL_CTRL( ADSR_ctrl_releaseRate )
 CK_DLL_CGET( ADSR_cget_releaseRate )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data );
-    RETURN->v_float = (t_CKFLOAT) d->releaseRate;
+    RETURN->v_float = (t_CKFLOAT)d->releaseRate;
 }
 
 
