@@ -1,4 +1,4 @@
-// STK ModalBar
+// STK BandedWG
 
 // patch
 BandedWG bwg => dac;
