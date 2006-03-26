@@ -54,6 +54,9 @@ generates random floating point number in the range [-1, 1]
 generates random floating point number in the range [min, max]
 }
 
+\chuckmultifunction{float srand (int value)}{
+seeds value for random number generation
+}
 \chuckmultifunction{ float sgn ( float value );}{
 computes the sign of the input as -1.0 (negative), 0 (zero), or 1.0 (positive)
 }
@@ -299,4 +302,12 @@ computes the integeral (returned as int) smallest power of 2 greater than the va
 
 \chuckmultifunction{ float e ( );}{
 (currently disabled - use math.exp(1) )
+}
+
+\chuckmultifunction{int isinf (float);}{
+infinity test
+}
+
+\chuckmultifunction{int isnan (float)}{
+NaN test
 }

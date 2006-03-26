@@ -140,7 +140,21 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item pulse generator - can set the value of the current sample
 \item default for each sample is 0 if not set
 \end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .value} - (float, READ/WRITE) - {\it set the current value} (currently broken)
+\item {\bf .next} - (float, READ/WRITE) - {\it set value of next sample}
+\end{chuckitemize}
+\example
+\chuckexample{\verbatiminput{examples/impulse_example.ck}}
+}
 
+\chuckugen{
+\ugen{ Blit}
+\begin{chuckitemize}
+\item band limited pulse generator - can set the value of the current sample
+\item default for each sample is 0 if not set
+\end{chuckitemize}
 \control
 \begin{chuckitemize}
 \item {\bf .value} - (float, READ/WRITE) - {\it set the current value} (currently broken)
@@ -233,6 +247,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item {\bf .samples} - (int, READ only) - {\it fetch number of samples}
 \item {\bf .length} - (float, READ only) - {\it fetch length in seconds}
 \item {\bf .channels} - (int, READ only) - {\it fetch number of channels}
+\item {\bf .chunks} - (int, READ/WRITE) - {\it the number of frames loaded per sample, must be set before a .read {\it (default 256)}}
 \end{chuckitemize}
 }
 
@@ -269,7 +284,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 //\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
-\item {\bf .sync}  (int, READ/WRITE) {\it sync to self (0), global(1), input(2)}
+\item {\bf .sync}  (int, READ/WRITE) {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
 \end{chuckitemize}
 }
 
@@ -305,6 +320,19 @@ Multichannel UGens are adc, dac, pan2, mix2
 \end{chuckitemize}
 }
 
+\chuckugen{
+\ugen{BlitSquare}
+\begin{chuckitemize}
+\item band limited square wave oscillator
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it oscillator frequency (Hz)}
+\item {\bf .phase} (float, READ/WRITE) {\it current phase}
+\item {\bf .harmonics} (int, READ/WRITE) {\it number of harmonics}
+\end{chuckitemize}
+}
+
 \chuckugen{ 
 \ugen{ triosc}
 \begin{chuckitemize}
@@ -336,6 +364,23 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item {\bf .width}  (float, READ/WRITE)  {\it increasing ( w \textgreater 0.5 ) or decreasing ( w \textless 0.5 ) }
 \end{chuckitemize}
 }
+
+
+\chuckugen{ 
+\ugen{ BlitSaw}
+\begin{chuckitemize}
+\item Band limited sawtooth wave oscillator
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
+\item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
+\item {\bf .harmonics}  (int, READ/WRITE) {\it number of harmonics}
+\end{chuckitemize}
+}
+
+
+
 
 \ugenheading{network}
 
@@ -403,25 +448,51 @@ Multichannel UGens are adc, dac, pan2, mix2
 %\bigugenheading{STK}
 \ugenheading{STK - Instruments}
 
+\chuckugen{
+\ugen{StkInstrument \label{ugen_STK}}
+(Imported from Instrmnt)
+\begin{chuckitemize}
+\item Super-class for STK instruments
+\end{chuckitemize}
+\verbatiminput{examples/ugen/STKinstrument.txt} 
+\control
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change - numbers are instrument specific, value range: [0.0 - 128.0] }
+\end{chuckitemize}
+}
+
+
 
 \chuckugen{ 
 \ugen{ BandedWG}
 \begin{chuckitemize}
 \item Banded waveguide modeling class
-\verbatiminput{examples/ugen/BandedWG.txt}
 \end{chuckitemize}
+\verbatiminput{examples/ugen/BandedWG.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
+
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .pluck} (float, READ/WRITE) {\it pluck waveguide}
-\item {\bf .startBowing} (float, READ/WRITE) {\it pluck waveguide}
-\item {\bf .stopBowing} (float, READ/WRITE) {\it pluck waveguide}
-\item {\bf .freq} (float, READ/WRITE) {\it strike Position}
+\item {\bf .bowPressure} (float, READ/WRITE) {\it bow pressure [0.0 - 1.0] }
+\item {\bf .bowMotion} (float, READ/WRITE) {\it bow motion [0.0 - 1.0]}
 \item {\bf .bowRate} (float, READ/WRITE) {\it strike Position}
-\item {\bf .bowPressure} (float, READ/WRITE) {\it strike Position}
-\item {\bf .preset} (int, READ/WRITE) {\it strike Position}
 \item {\bf .strikePosition} (float, READ/WRITE) {\it strike Position}
+\item {\bf .integrationConstant} - ( float , READ/WRITE ) - {\it ?? [0.0 - 1.0]}
+\item {\bf .modesGain} (float, READ/WRITE) {\it amplitude for modes [0.0 - 1.0]}
+\item {\bf .preset} (int, READ/WRITE) {\it instrument presets (0 - 3, see above)}
+\item {\bf .pluck} (float, READ/WRITE) {\it pluck instrument [0.0 - 1.0]}
+\item {\bf .startBowing} (float, READ/WRITE) {\it start bowing [0.0 - 1.0]}
+\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing [0.0 - 1.0]}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -432,14 +503,23 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK blown bottle instrument class
 \end{chuckitemize}
 \verbatiminput{examples/ugen/BlowBotl.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
-\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .rate} (float, READ/WRITE) {\it frequency}
+\item {\bf .noiseGain} - ( float , READ/WRITE ) - {\it noise component gain [0.0 - 1.0]}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .volume} - ( float , READ/WRITE ) - {\it yet another volume knob [0.0 - 1.0]}
+\item {\bf .startBowing} (float, READ/WRITE) {\it begin bowing [0.0 - 1.0]}
+\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing [0.0 - 1.0]}
+\item {\bf .rate} (float, READ/WRITE) - {\it rate of attack (sec)}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change }
 \end{chuckitemize}
 }
 
@@ -450,19 +530,25 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK clarinet physical model with one register hole and one tonehole. 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/BlowHole.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
-\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .vent} (float, READ/WRITE) {\it vent frequency}
-\item {\bf .tonehole} (float, READ/WRITE) {\it tonehole size}
-\item {\bf .reed} (float, READ/WRITE) {\it reed stiffness}
-\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\item {\bf .reed} (float, READ/WRITE) {\it reed stiffness [0.0 - 1.0]}
+\item {\bf .noiseGain} - ( float , READ/WRITE ) - {\it noise component gain [0.0 - 1.0]}
+\item {\bf .vent} (float, READ/WRITE) {\it vent frequency [0.0 - 1.0]}
+\item {\bf .pressure} (float, READ/WRITE) {\it pressure [0.0 - 1.0]}
+\item {\bf .tonehole} (float, READ/WRITE) {\it tonehole size [0.0 - 1.0]}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it start blowing [0.0 - 1.0]}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it stop blowing [0.0 - 1.0]}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change (sec) }
 \end{chuckitemize}
-
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
+\end{chuckitemize}
 }
 
 
@@ -472,15 +558,24 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK bowed string instrument class.     
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Bowed.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .startBowing} (float, READ/WRITE) {\it begin bowing instrument}
-\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing instrument}
-\item {\bf .freq} (float, READ/WRITE) 
-\item {\bf .rate} (float, READ/WRITE) 
-\item {\bf .vibrato} (float, READ/WRITE) 
+\item {\bf .bowPressure} - ( float , READ/WRITE ) - {\it bow pressure [0.0 - 1.0]}
+\item {\bf .bowPosition} - ( float , READ/WRITE ) - {\it bow position [0.0 - 1.0]}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .volume} - ( float , READ/WRITE ) - {\it volume [0.0 - 1.0]}
+\item {\bf .startBowing} (float, READ/WRITE) {\it begin bowing [0.0 - 1.0]}
+\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing [0.0 - 1.0]}
+\item {\bf .rate} (float, READ/WRITE) - {\it rate of attack (sec)}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -491,16 +586,25 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK simple brass instrument class. 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Brass.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
-\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
-\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
-\item {\bf .lip} (float, READ/WRITE) {\it lip stiffness}
+\item {\bf .lip} - ( float , READ/WRITE ) - {\it lip tension [0.0 - 1.0]}
+\item {\bf .slide} - ( float , READ/WRITE ) - {\it slide length [0.0 - 1.0]}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .volume} - ( float , READ/WRITE ) - {\it volume [0.0 - 1.0]}
+\item {\bf .clear} - ( float , WRITE only ) - {\it clear instrument}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it start blowing [0.0 - 1.0]}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it stop blowing [0.0 - 1.0]}
+\item {\bf .rate} (float, READ/WRITE) {\it rate of change (sec) }
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -511,15 +615,25 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK clarinet physical model class. 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Clarinet.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
-\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
-\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOff}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\item {\bf .reed} - ( float , READ/WRITE ) - {\it reed stiffness [0.0 - 1.0]}
+\item {\bf .noiseGain} - ( float , READ/WRITE ) - {\it noise component gain [0.0 - 1.0]}
+\item {\bf .clear} - ( ) - {\it clear instrument}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .pressure} - ( float , READ/WRITE ) - {\it pressure/volume [0.0 - 1.0]}
+\item {\bf .startBlowing} - ( float , WRITE only ) - {\it start blowing [0.0 - 1.0]}
+\item {\bf .stopBlowing} - ( float , WRITE only ) - {\it stop blowing [0.0 - 1.0]}
+\item {\bf .rate} - ( float , READ/WRITE ) - {\it rate of attack (sec)}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -530,18 +644,27 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK flute physical model class. 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Flute.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
-\item {\bf .startBlowing} (float, READ/WRITE) {\it noteOn}
-\item {\bf .stopBlowing} (float, READ/WRITE) {\it noteOn}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
-\item {\bf .jetReflection} (float, READ/WRITE) {\it rate of change}
-\item {\bf .jetDelay} (float, READ/WRITE) {\it rate of change}
-\item {\bf .endReflection} (float, READ/WRITE) {\it rate of change}
+\item {\bf .jetDelay} - ( float , READ/WRITE ) - {\it jet delay [...]}
+|item {\bf .jetReflection} - ( float , READ/WRITE ) - {\it jet reflection [...]}
+\item {\bf .endReflection} - ( float , READ/WRITE ) - {\it end delay [...]}
+\item {\bf .noiseGain} - ( float , READ/WRITE ) - {\it noise component gain [0.0 - 1.0]}
+\item {\bf .clear} - ( ) - {\it clear instrument}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .pressure} - ( float , READ/WRITE ) - {\it pressure/volume [0.0 - 1.0]}
+\item {\bf .startBowing} (float, READ/WRITE) {\it begin bowing [0.0 - 1.0]}
+\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing [0.0 - 1.0]}
+\item {\bf .rate} (float, READ/WRITE) - {\it rate of attack (sec)}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -553,15 +676,22 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item see examples/mand-o-matic.ck 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Mandolin.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .pluck} (float, WRITE only) {\it pluck string with given amplitude}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .pluckPos} (float, READ/WRITE) {\it set pluck position (0--1) along string}
-\item {\bf .bodySize} (float, READ/WRITE) {\it modify instrument size}
-\item {\bf .stringDamping} (float, READ/WRITE) {\it control string damping}
-\item {\bf .stringDetune} (float, READ/WRITE) {\it control detuning of string pair}
-\item {\bf .aftertouch} (float, READ/WRITE) {\it aftertouch}
+\item {\bf .bodySize} (float, READ/WRITE) {\it body size (percentage)}
+\item {\bf .pluckPos} (float, READ/WRITE) {\it pluck position [0.0 - 1.0]}
+\item {\bf .stringDamping} (float, READ/WRITE) {\it string damping [0.0 - 1.0]}
+\item {\bf .stringDetune} (float, READ/WRITE) {\it detuning of string pair [0.0 - 1.0]}
+\item {\bf .afterTouch} (float, READ/WRITE) {\it aftertouch (currently unsupported)}
+\item {\bf .pluck} - ( float , WRITE only ) - {\it pluck instrument [0.0 - 1.0]}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -573,23 +703,31 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item see examples/modalbot.ck 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/ModalBar.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .strike} (float, READ/WRITE) {\it strike bar}
-\item {\bf .damp} (float, READ/WRITE) {\it damp bar}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .clear} (float, READ/WRITE) {\it reset}
-\item {\bf .preset} (float, READ/WRITE) {\it choose preset}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .strikePosition} (float, READ/WRITE) {\it set frequency}
-\item {\bf .stickHardness} (float, READ/WRITE) {\it set frequency}
-\item {\bf .masterGain} (float, READ/WRITE) {\it set frequency}
-\item {\bf .directGain} (float, READ/WRITE) {\it set frequency}
-\item {\bf .mode} (int, READ/WRITE) {\it choose mode}
-\item {\bf .modeRatio} (float, READ/WRITE) {\it  mode edit}
-\item {\bf .modeRadius} (float, READ/WRITE) {\it mode edit}
-\item {\bf .modeGain} (float, READ/WRITE) {\it  mode edit}
+\item {\bf .stickHardness} - ( float , READ/WRITE ) - {\it stick hardness [0.0 - 1.0]}
+\item {\bf .strikePosition} - ( float , READ/WRITE ) - {\it strike position [0.0 - 1.0]}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .directGain} - ( float , READ/WRITE ) - {\it direct gain [0.0 - 1.0]}
+\item {\bf .masterGain} - ( float , READ/WRITE ) - {\it master gain [0.0 - 1.0]}
+\item {\bf .volume} - ( float , READ/WRITE ) - {\it volume [0.0 - 1.0]}
+\item {\bf .preset} - ( int , READ/WRITE ) - {\it choose preset (see above)}
+\item {\bf .strike} - ( float , WRITE only ) - {\it strike bar [0.0 - 1.0]}
+\item {\bf .damp} - ( float , WRITE only ) - {\it damp bar [0.0 - 1.0]}
+\item {\bf .clear} - ( ) - {\it reset [none]}
+\item {\bf .mode} - ( int , READ/WRITE ) - {\it select mode [0.0 - 1.0]}
+\item {\bf .modeRatio} - ( float , READ/WRITE ) - {\it edit selected mode ratio [...]}
+\item {\bf .modeRadius} - ( float , READ/WRITE ) - {\it edit selected mode radius [0.0 - 1.0]}
+\item {\bf .modeGain} - ( float , READ/WRITE ) - {\it edit selected mode gain [0.0 - 1.0]}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -601,15 +739,21 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item see examples/moogie.ck 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Moog.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .modSpeed} (float, READ/WRITE) {\it modulation speed}
-\item {\bf .modDepth} (float, READ/WRITE) {\it modulation depth}
-\item {\bf .filterQ} (float, READ/WRITE) {\it filter Q value}
-\item {\bf .filterSweepRate} (float, READ/WRITE) {\it filter sweep rate}
-\item {\bf .aftertouch} (float, WRITE only) {\it aftertouch}
+\item {\bf .filterQ} - ( float , READ/WRITE ) - {\it filter Q value [0.0 - 1.0]}
+\item {\bf .filterSweepRate} - ( float , READ/WRITE ) - {\it filter sweep rate [0.0 - 1.0]}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .afterTouch} - ( float , WRITE only ) - {\it aftertouch [0.0 - 1.0]}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -620,16 +764,27 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK faux conical bore reed instrument class.
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Saxofony.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .noteOff} (float, WRITE only) {\it noteOff}
-\item {\bf .clear} (float, WRITE only) {\it clear instrument}
-\item {\bf .startBlowing} (float, WRITE only) {\it noteOn}
-\item {\bf .stopBlowing} (float, WRITE only) {\it noteOff}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .rate} (float, READ/WRITE) {\it rate of change}
-\item {\bf .blowPosition} (float, READ/WRITE) {\it lip stiffness}
+\item {\bf .stiffness} - ( float , READ/WRITE ) - {\it reed stiffness [0.0 - 1.0]}
+\item {\bf .aperture} - ( float , READ/WRITE ) - {\it reed aperture [0.0 - 1.0]}
+\item {\bf .blowPosition} - ( float , READ/WRITE ) - {\it lip stiffness [0.0 - 1.0]}
+\item {\bf .noiseGain} - ( float , READ/WRITE ) - {\it noise component gain [0.0 - 1.0]}
+\item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
+\item {\bf .clear} - ( ) - {\it clear instrument}
+\item {\bf .pressure} - ( float , READ/WRITE ) - {\it pressure/volume [0.0 - 1.0]}
+\item {\bf .startBowing} (float, READ/WRITE) {\it begin bowing [0.0 - 1.0]}
+\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing [0.0 - 1.0]}
+\item {\bf .rate} (float, READ/WRITE) - {\it rate of attack (sec)}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -641,12 +796,20 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item see examples/shake-o-matic.ck 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Shakers.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .noteOn} (float, READ/WRITE) {\it start shake with a given amplitude}
-\item {\bf .noteOff} (float, READ/WRITE) {\it stop shake}
-\item {\bf .which} (int, READ/WRITE) {\it select instrument}
+\item {\bf .preset} - ( int , READ/WRITE ) - {\it select instrument (0 - 22; see above)}
+\item {\bf .energy} - ( float , READ/WRITE ) - {\it shake energy [0.0 - 1.0]}
+\item {\bf .decay} - ( float , READ/WRITE ) - {\it system decay [0.0 - 1.0]}
+\item {\bf .objects} - ( float , READ/WRITE ) - {\it number of objects [0.0 - 128.0]}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change }
 \end{chuckitemize}
 }
 
@@ -657,13 +820,18 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item STK sitar string model class. 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/Sitar.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .pluck} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .clear} (float, READ/WRITE) {\it clear instrument}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf .pluck} (float, WRITE only) {\it pluck string [0.0 - 1.0]}
+\item {\bf .clear} () {\it reset}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -674,16 +842,22 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item see examples/stifkarp.ck 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/StifKarp.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .pluck} (float, WRITE only) {\it noteOn}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .noteOff} (float, WRITE only) {\it noteOff}
-\item {\bf .clear} (float, WRITE only) {\it clear instrument}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .pickupPosition} (float, READ/WRITE) 
-\item {\bf .stretch} (float, READ/WRITE) 
-\item {\bf .baseLoopGain} (float, READ/WRITE) 
+\item {\bf .pickupPosition} - ( float , READ/WRITE ) - {\it pickup position [0.0 - 1.0]}
+\item {\bf .sustain} - ( float , READ/WRITE ) - {\it string sustain [0.0 - 1.0]}
+\item {\bf .stretch} - ( float , READ/WRITE ) - {\it string stretch [0.0 - 1.0]}
+\item {\bf .pluck} - ( float , WRITE only ) - pluck string [0.0 - 1.0]
+\item {\bf .baseLoopGain} - ( float , READ/WRITE ) - {\it ?? [0.0 - 1.0]}
+\item {\bf .clear} - ( ) - {\it reset instrument}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change }
 \end{chuckitemize}
 }
 
@@ -695,22 +869,27 @@ Multichannel UGens are adc, dac, pan2, mix2
 \item see examples/voic-o-form.ck 
 \end{chuckitemize}
 \verbatiminput{examples/ugen/VoicForm.txt}
+extends \hypertarget{ugen_STK}{StkInstrument}
 \control
 \begin{chuckitemize}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
 \item {\bf .phoneme} (string, READ/WRITE) {\it select phoneme ( above )}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .speak} (float, READ/WRITE) {\it start singing}
-\item {\bf .quiet} (float, READ/WRITE) {\it stop singing}
-\item {\bf .voiced} (float, READ/WRITE) {\it set mix for voiced component}
-\item {\bf .unVoiced} (float, READ/WRITE) {\it set mix for unvoiced componenet}
-\item {\bf .pitchSweepRate} (float, READ/WRITE) {\it pitch sweep}
-\item {\bf .voiceMix} (float, READ/WRITE) {\it voiced/unvoiced mix}
-\item {\bf .setPhoneme} (int, READ/WRITE) {\it set phoneme by number}
-\item {\bf .vibratoFreq} (float, READ/WRITE) {\it vibrato}
-\item {\bf .vibratoGain} (float, READ/WRITE) {\it vibrato depth}
-\item {\bf .loudness} (float, READ/WRITE) {\it 'loudness' of voice}
+\item {\bf .phonemeNum} - ( int , READ/WRITE ) - {\it select phoneme by number [0.0 - 128.0]}
+\item {\bf .speak} (float, WRITE only) {\it start singing [0.0 - 1.0]}
+\item {\bf .quiet} (float, WRITE only) {\it stop singing [0.0 - 1.0]}
+\item {\bf .voiced} (float, READ/WRITE) {\it set mix for voiced component [0.0 - 1.0]}
+\item {\bf .unVoiced} (float, READ/WRITE) {\it set mix for unvoiced componenet [0.0 - 1.0]}
+\item {\bf .pitchSweepRate} (float, READ/WRITE) {\it pitch sweep [0.0 - 1.0]}
+\item {\bf .voiceMix} (float, READ/WRITE) {\it voiced/unvoiced mix [0.0 - 1.0]}
+\item {\bf .vibratoFreq} (float, READ/WRITE) {\it vibrato frequency (Hz)}
+\item {\bf .vibratoGain} (float, READ/WRITE) {\it  vibrato gain [0.0 - 1.0]}
+\item {\bf .loudness} (float, READ/WRITE) {\it  'loudness' of voice [0.0 - 1.0]}
+\end{chuckitemize}
+{\it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -725,14 +904,18 @@ Multichannel UGens are adc, dac, pan2, mix2
 \verbatiminput{examples/ugen/FM.txt}
 \control
 \begin{chuckitemize}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .noteOn} (float, READ/WRITE) {\it noteOn}
-\item {\bf .noteOff} (float, READ/WRITE) {\it noteOff}
-\item {\bf .modDepth} (float, READ/WRITE) {\it modulation depth}
-\item {\bf .modSpeed} (float, READ/WRITE) {\it modulation speed}
-\item {\bf .afterTouch} (float, READ/WRITE) {\it aftertouch}
-\item {\bf .control1} (float, READ/WRITE) {\it FM control 1}
-\item {\bf .control2} (float, READ/WRITE) {\it FM control 2}
+\item {\bf .lfoSpeed} (float, READ/WRITE) {\it modulation speed (Hz)}
+\item {\bf .lfoDepth} (float, READ/WRITE) {\it modulation depth [0.0 - 1.0]}
+\item {\bf .afterTouch} (float, READ/WRITE) {\it aftertouch [0.0 - 1.0]}
+\item {\bf .control1} (float, READ/WRITE) {\it FM control 1 [instrument specific]}
+\item {\bf .control2} (float, READ/WRITE) {\it FM control 2 [instrument specific]}
+\end{chuckitemize}
+{it (inherited from StkInstrument)}
+\begin{chuckitemize}
+\item {\bf .noteOn} - (float velocity) - {\it trigger note on}
+\item {\bf .noteOff} - (float velocity) - {\it trigger note off}
+\item {\bf .freq} - (float frequency) - {\it set/get frequency (Hz)}
+\item {\bf .controlChange} - (int number, float value) - {\it assert control change}
 \end{chuckitemize}
 }
 
@@ -747,7 +930,7 @@ extends \hypertarget{ugen_FM}{FM}
 
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf (see super classes)}
 \end{chuckitemize}
 }
 
@@ -762,13 +945,9 @@ extends \hypertarget{ugen_FM}{FM}
 
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
-\item {\bf .vowel} (float, WRITE only) {\it select vowel}
-\item {\bf .spectralTilt} (float, WRITE only) {\it spectral tilt}
-\item {\bf .lfoSpeed} (float, WRITE only) {\it speed of LFO}
-\item {\bf .lfoDepth} (float,WRITE only) {\it depth of LFO}
-\item {\bf .adsrTarget} (float, WRITE only) {\it adsr targets}
+\item {\bf .vowel} (float, WRITE only) {\it select vowel [0.0 - 1.0]}
+\item {\bf .spectralTilt} (float, WRITE only) {\it spectral tilt [0.0 - 1.0]}
+\item {\bf .adsrTarget} (float, WRITE only) {\it adsr targets [0.0 - 1.0]}
 \end{chuckitemize}
 }
 
@@ -783,7 +962,7 @@ extends \hypertarget{ugen_FM}{FM}
 
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
+\item {\bf (see super classes)}
 \end{chuckitemize}
 }
 
@@ -798,8 +977,7 @@ extends \hypertarget{ugen_FM}{FM}
 
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf (see super classes)}
 \end{chuckitemize}
 }
 
@@ -815,8 +993,7 @@ extends \hypertarget{ugen_FM}{FM}
  
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf (see super classes)}
 \end{chuckitemize}
 }
 
@@ -830,8 +1007,7 @@ extends \hypertarget{ugen_FM}{FM}
 \verbatiminput{examples/ugen/TubeBell.txt}
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf (see super classes)}
 \end{chuckitemize}
 }
 
@@ -846,8 +1022,7 @@ extends \hypertarget{ugen_FM}{FM}
 
 \control
 \begin{chuckitemize}
-\item {\bf .noteOn} (float, WRITE only) {\it noteOn}
-\item {\bf .freq} (float, READ/WRITE) {\it frequency}
+\item {\bf (see super classes)}
 \end{chuckitemize}
 }
 
@@ -927,6 +1102,7 @@ extends \hypertarget{ugen_FM}{FM}
 \item {\bf .target} (float, READ/WRITE) {\it ramp to arbitrary value}
 \item {\bf .time} (float, READ/WRITE) {\it time to reach target}
 \item {\bf .rate} (float, READ/WRITE) {\it rate of change}
+\item {\bf .duration} (dur, READ/WRITE) {\it duration of steady state}
 \item {\bf .value} (float, READ/WRITE) {\it set immediate value}
 \end{chuckitemize}
 }
@@ -1324,3 +1500,50 @@ extends Event
 \end{chuckitemize}
 (see events tutorial)
 }
+
+\chuckugen{
+\ugen{KBHit}
+\begin{chuckitemize}
+\item ascii keyboard event
+\end{chuckitemize}
+extends Event
+\control
+\begin{chuckitemize}
+\item {\bf .getchar} (int, READ) {\it ascii value}
+\item {\bf .more} (int, READ only) {\it returns 1 if multiple keys have been pressed}
+\end{chuckitemize}
+(see events tutorial)
+}
+
+
+\chuckugen{
+\ugen{HidIn}
+\begin{chuckitemize}
+\item HID  receiver
+\end{chuckitemize}
+extends Event
+\control
+\begin{chuckitemize}
+\item {\bf .openJoystick} (int, READ/WRITE) {\it set port to receive}
+\item {\bf .recv} (HidMsg, READ only) {\it receives HID input}
+\end{chuckitemize}
+(see events tutorial)
+}
+
+
+
+\chuckugen{
+\ugen{HidMsg}
+\begin{chuckitemize}
+\item HID data holder
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .type} (int, READ/WRITE) {\it type of data (member variable)}
+\item {\bf .which} (int, READ/WRITE) {\it type of data (member variable)}
+\item {\bf .idata} (int, READ/WRITE) {\it data (member variable)}
+\item {\bf .fdata} (int, READ/WRITE) {\it  data (member variable)}
+\end{chuckitemize}
+(see events tutorial)
+}
+
