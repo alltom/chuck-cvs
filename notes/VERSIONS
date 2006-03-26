@@ -64,6 +64,35 @@
             (thanks to Mike McGonagle for reporting)
   - (added) math.abs( int ), math.fabs( float ), math.sgn( float )
             (std version unchanged)
+  - (added) new examples
+              - basic/infnan.ck
+                     /fm.ck fm2.ck fm3.ck
+                     /valueat.ck
+              - event/kb.ck kb2.ck
+              - hid/joy.ck
+                   /joy-fm.ck
+                   /joy-noise.ck
+                   /joy-shake.ck
+              - multi/i.ck
+                     /n.ck
+                     /we-robot.ck
+              - osc/s.ck
+                   /r.ck
+              - stk/bandedwg.ck
+                   /blowbotl.ck
+                   /blowhole.ck
+                   /bowed.ck
+                   /brass.ck
+                   /clarinet.ck
+                   /flute.ck
+                   /mandolin.ck
+                   /modalbar.ck
+                   /saxofony.ck
+                   /stifkarp.ck
+  - (fixed) sinsoc, triosc, sqrosc, phasor:
+              - .sync( 0 ) uses input signal to modulate frequency
+              - .sync( 2 ) uses input signal to modulate phase
+                (FM synthesis)
   - (fixed) impulse.last() no longer has extra samp delay
             (thanks to Mike McGonagle for reporting)
   - (fixed) class inheritance now handles the first overloaded
