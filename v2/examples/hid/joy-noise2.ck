@@ -1,5 +1,5 @@
 // name: joynoise.ck
-// desc: using joystick to control noise
+// desc: using joystick to control noise (first 3 axes + buttons)
 // author: Ge Wang
 
 // which joystick to use
@@ -63,8 +63,8 @@ while( true )
         if( msg.type == 0 && msg.which == 1 )
         { -msg.fdata => value; set( value, factor, q ); }
 
-        // axis 3: map to Q
-        if( msg.type == 0 && msg.which == 3 )
+        // axis 2: map to Q
+        if( msg.type == 0 && msg.which == 2 )
         { msg.fdata => q; set( value, factor, q ); }
 
         // button down (any)
@@ -87,4 +87,7 @@ fun void set( float value, float factor, float q )
     { .99+.009*(math.pow(2,q)-1) => f.prad; .25+.5*(1-q) => e.gain; }
     else
     { .99-.09*(math.pow(2,-q)-1) => f.prad; 1 => e.gain; }
+
+    if( count )
+        <<< "pan:", p.pan(), "resonance:", f.pfreq(), "filter Q:", f.prad() >>>;
 }

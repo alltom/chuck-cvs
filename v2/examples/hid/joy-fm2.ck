@@ -1,6 +1,5 @@
 // name: joy-fm.ck
-// desc: program which uses the first two axes of a connected joystick
-// to control the modulation frequency and index of modulation for FM synthesis
+// desc: uses first 3 axes of a joystick to control mf, cf, and index for FM
 // author: Spencer Salazar
 
 // which joystick
@@ -52,7 +51,7 @@ while( true )
         {
             if( msg.which == 0 ) msg.fdata => a0;
             else if( msg.which == 1 ) msg.fdata => a1;
-            else if( msg.which == 3 ) msg.fdata => a2;
+            else if( msg.which == 2 ) msg.fdata => a2;
             set( base, a0, a1, a2 );
         }
 
