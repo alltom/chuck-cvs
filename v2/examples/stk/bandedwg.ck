@@ -15,17 +15,18 @@ while( true )
     std.rand2f( 0, 1 ) => bwg.strikePosition;
     std.rand2(0, 3) => bwg.preset;
 
+    // set freq
+    scale[std.rand2(0,scale.cap()-1)] => int winner;
+    57 + std.rand2(0,2)*12 + winner => std.mtof => bwg.freq;
+
     // print some parameters
     <<< "---", "" >>>;
     <<< "preset:", bwg.preset() >>>;    
     <<< "bow rate:", bwg.bowRate() >>>;
     <<< "bow Pressure:", bwg.bowPressure() >>>;
     <<< "strike position:", bwg.strikePosition() >>>;
+    <<< "frequency:", bwg.freq() >>>;
     <<< "---", "" >>>;
-
-    // set freq
-    scale[std.rand2(0,scale.cap()-1)] => int winner;
-    57 + std.rand2(0,2)*12 + winner => std.mtof => bwg.freq;
 
     <<< "bow -> pluck", "" >>>;
     std.rand2f( .5, 1 ) => bwg.pluck;
