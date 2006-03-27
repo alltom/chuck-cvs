@@ -3335,6 +3335,7 @@ class BandedWG : public Instrmnt
   t_CKFLOAT m_bowPressure;
   t_CKFLOAT m_bowMotion;
   t_CKFLOAT m_modesGain;
+  t_CKFLOAT m_strikePosition;
 
   bool doPluck;
   bool trackVelocity;
@@ -9151,6 +9152,8 @@ BandedWG :: BandedWG()
   m_modesGain = (baseGain - 0.8999999999999999) / .1;
   // reverse: nothing (set directly from preset in setPreset)
   m_preset = 0;
+  // reverse: not used
+  m_strikePosition = 0;
 }
 
 BandedWG :: ~BandedWG()
@@ -9316,6 +9319,7 @@ void BandedWG :: setFrequency(MY_FLOAT frequency)
 void BandedWG :: setStrikePosition(MY_FLOAT position)
 {
   strikePosition = (int)(delay[0].getDelay() * position / 2.0);
+  m_strikePosition = position;
 }
 
 void BandedWG :: startBowing(MY_FLOAT amplitude, MY_FLOAT rate)
@@ -22619,7 +22623,7 @@ CK_DLL_CTRL( BandedWG_ctrl_strikePosition )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     f->setStrikePosition( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT)f->strikePosition;
+    RETURN->v_float = (t_CKFLOAT)f->m_strikePosition;
 }
 
 //-----------------------------------------------------------------------------
@@ -22630,7 +22634,7 @@ CK_DLL_CTRL( BandedWG_ctrl_strikePosition )
 CK_DLL_CGET( BandedWG_cget_strikePosition )
 {
     BandedWG * f = (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
-    RETURN->v_float = (t_CKFLOAT)f->strikePosition;
+    RETURN->v_float = (t_CKFLOAT)f->m_strikePosition;
 }
 
 

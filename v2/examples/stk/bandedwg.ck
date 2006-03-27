@@ -18,9 +18,9 @@ while( true )
     // print some parameters
     <<< "---", "" >>>;
     <<< "preset:", bwg.preset() >>>;    
-    <<< "strike position:", bwg.strikePosition() >>>;
     <<< "bow rate:", bwg.bowRate() >>>;
     <<< "bow Pressure:", bwg.bowPressure() >>>;
+    <<< "strike position:", bwg.strikePosition() >>>;
     <<< "---", "" >>>;
 
     // set freq
