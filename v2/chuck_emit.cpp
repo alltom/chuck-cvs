@@ -1578,18 +1578,18 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         // reverse
         if( ( left == te_dur && right == te_time ) ) // time % dur = dur
         {
-            emit->append( instr = new Chuck_Instr_Mod_double_Reverse );
+            emit->append( instr = new Chuck_Instr_Mod_double_Assign );
         }
         else // other types
         {
             switch( left )
             {
             case te_int:
-                emit->append( instr = new Chuck_Instr_Mod_int_Reverse );
+                emit->append( instr = new Chuck_Instr_Mod_int_Assign );
                 break;
             case te_float:
             case te_dur:
-                emit->append( instr = new Chuck_Instr_Mod_double_Reverse );
+                emit->append( instr = new Chuck_Instr_Mod_double_Assign );
                 break;
 
             default: break;
