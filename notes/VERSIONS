@@ -1,4 +1,9 @@
 ---
+1.2.0.5b
+  - (fixed) adc bug
+  - (fixed) %=> bug
+
+---
 1.2.0.5
   - (added) multi-channel audio
             - use --channels<N> or -c<N> set number of channels
