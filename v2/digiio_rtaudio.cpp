@@ -953,6 +953,7 @@ DigitalIn::~DigitalIn()
 BOOL__ DigitalIn::initialize( )
 {
     m_data = new SAMPLE[Digitalio::buffer_size() * Digitalio::num_channels_in()];
+    memset( m_data, 0, Digitalio::buffer_size() * Digitalio::num_channels_in() * sizeof(SAMPLE) );
     // set the buffer to the beginning of the local buffer
     m_data_ptr_in = Digitalio::m_use_cb ? m_data
         : (SAMPLE *)Digitalio::audio()->getStreamBuffer();
@@ -961,6 +962,8 @@ BOOL__ DigitalIn::initialize( )
         Digitalio::buffer_size() * Digitalio::num_channels_in();
     // set the read pointer to the local pointer
     Digitalio::m_read_ptr = &m_data_ptr_in;
+    // invalidate
+    m_data_ptr_in = m_data_max_in;
 
     return TRUE;
 }
@@ -1012,7 +1015,6 @@ BOOL__ DigitalIn::tick_in( SAMPLE * s )
 {
     if( !prepare_tick_in() )
         return 0;
-
     *s = *m_data_ptr_in++;
 
     return TRUE;
