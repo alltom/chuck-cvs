@@ -240,6 +240,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
+    /*
     //----------------------------------
     // begin delay ugen
     //----------------------------------
@@ -298,6 +299,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+    */
 
 
     return TRUE;
@@ -1031,6 +1033,8 @@ CK_DLL_CTRL( gQ_ctrl_rad )
 
 
 
+/*
+
 //-----------------------------------------------------------------------------
 // name: allpass
 // desc: allpass filter
@@ -1191,3 +1195,5 @@ CK_DLL_CTRL( delayL_ctrl_delay )
 CK_DLL_CTRL( delayL_ctrl_max )
 {
 }
+
+*/
