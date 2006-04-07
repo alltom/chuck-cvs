@@ -1082,7 +1082,11 @@ CK_DLL_CTRL( Vector3D_ctrl_x );
 CK_DLL_CTRL( Vector3D_ctrl_y );
 CK_DLL_CTRL( Vector3D_ctrl_z );  
 
-
+// JetTable
+CK_DLL_CTOR( JetTabl_ctor );
+CK_DLL_DTOR( JetTabl_dtor );
+CK_DLL_TICK( JetTabl_tick );
+CK_DLL_PMSG( JetTabl_pmsg );
 
 // Mesh2D
 CK_DLL_CTOR( Mesh2D_ctor );

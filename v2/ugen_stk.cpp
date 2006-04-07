@@ -310,6 +310,7 @@ static t_CKUINT WvIn_offset_data = 0;
 static t_CKUINT WvOut_offset_data = 0;
 static t_CKUINT PitShift_offset_data = 0;
 static t_CKUINT BLT_offset_data = 0;
+static t_CKUINT JetTabl_offset_data = 0;
 
 static t_CKUINT Mesh2D_offset_data = 0;
 
@@ -2514,6 +2515,21 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     type_engine_import_class_end( env );
 
 
+    //------------------------------------------------------------------------
+    // begin JetTable
+    //------------------------------------------------------------------------
+
+    if( !type_engine_import_ugen_begin( env, "JetTabl", "UGen", env->global(), 
+         JetTabl_ctor, JetTabl_tick, JetTabl_pmsg ) ) return FALSE;
+
+    // member variable
+    JetTabl_offset_data = type_engine_import_mvar( env, "int", "@JetTabl_data", FALSE );
+    if( JetTabl_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    
     // Mesh2D 
     if( !type_engine_import_ugen_begin( env, "Mesh2D", "UGen", env->global(), 
                                          Mesh2D_ctor, Mesh2D_tick, Mesh2D_pmsg ) ) return FALSE;
@@ -13456,6 +13472,7 @@ MY_FLOAT *JetTabl :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 
   return vec;
 }
+
 /***************************************************/
 /*! \class Mandolin
     \brief STK mandolin instrument model class.
@@ -29730,13 +29747,44 @@ CK_DLL_PMSG( BlitSquare_pmsg )
 
 
 //-----------------------------------------------------------------------------
+// name: JetTable
+// desc: ...
+//-----------------------------------------------------------------------------
+
+CK_DLL_CTOR( JetTabl_ctor )
+{
+    JetTabl * j = new JetTabl;
+    OBJ_MEMBER_UINT(SELF, JetTabl_offset_data) = (t_CKUINT)j;
+}
+
+CK_DLL_DTOR( JetTabl_dtor )
+{
+    JetTabl * j = (JetTabl *)OBJ_MEMBER_UINT(SELF, JetTabl_offset_data);
+    delete j;
+    OBJ_MEMBER_UINT(SELF, JetTabl_offset_data) = 0;
+}
+
+CK_DLL_TICK( JetTabl_tick )
+{
+    JetTabl * j = (JetTabl *)OBJ_MEMBER_UINT(SELF, JetTabl_offset_data);
+    *out = j->tick( in );
+    return TRUE;
+}
+
+CK_DLL_PMSG( JetTabl_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
 // name: Mesh2D ctor
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
 
 CK_DLL_CTOR( Mesh2D_ctor ) { 
     Mesh2D * m = new Mesh2D( 2,2 );
-    OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data ) = (t_CKUINT) m;
+    OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data ) = (t_CKUINT)m;
 }
 
 
@@ -29746,19 +29794,19 @@ CK_DLL_DTOR( Mesh2D_dtor ) {
 }
 
 
-CK_DLL_TICK ( Mesh2D_tick ) { 
+CK_DLL_TICK( Mesh2D_tick ) { 
     Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
     *out = m->tick( in );
     return TRUE;
 }
 
-CK_DLL_PMSG ( Mesh2D_pmsg ) { 
+CK_DLL_PMSG( Mesh2D_pmsg ) { 
     return TRUE;
 }
+
 CK_DLL_CTRL( Mesh2D_ctrl_nx ) { 
     Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data );
     m->setNX( GET_NEXT_INT ( ARGS ) );
-    
 }
 
 CK_DLL_CTRL( Mesh2D_ctrl_ny ) { 
