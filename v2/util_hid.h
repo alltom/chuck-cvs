@@ -30,6 +30,13 @@ U.S.A.
 // date: spring 2006
 //-----------------------------------------------------------------------------
 
+extern "C"
+{
+    extern int number_of_mice();
+    extern int open_mouse( int mouse );
+    extern int close_mouse( int mouse );
+}
+
 // except as noted, everything below is straight from SDL
 
 #pragma mark >begin:../include/SDL_joystick.h
@@ -58,7 +65,7 @@ U.S.A.
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL joystick event handling */
@@ -92,7 +99,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* General data types used by the SDL library */
@@ -540,7 +547,7 @@ extern DECLSPEC void SDLCALL SDL_JoystickClose(SDL_Joystick *joystick);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Main include header for the SDL library */
@@ -574,7 +581,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_main_h
@@ -1264,7 +1271,7 @@ extern DECLSPEC char * SDLCALL SDL_getenv(const char *name);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Simple error message routines for SDL */
@@ -1514,7 +1521,7 @@ extern DECLSPEC void SDLCALL SDL_Error(SDL_errorcode code);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* This file provides a general interface for SDL to read and write
@@ -1815,7 +1822,7 @@ extern DECLSPEC void SDLCALL SDL_FreeRW(SDL_RWops *area);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_timer_h
@@ -2121,7 +2128,7 @@ extern DECLSPEC SDL_bool SDLCALL SDL_RemoveTimer(SDL_TimerID t);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Access to the raw audio mixing buffer for the SDL library */
@@ -2157,7 +2164,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Macros for determining the byte-order of this platform */
@@ -2622,7 +2629,7 @@ extern DECLSPEC void SDLCALL SDL_CloseAudio(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* This is the CD-audio control API for Simple DirectMedia Layer */
@@ -2984,7 +2991,7 @@ extern DECLSPEC void SDLCALL SDL_CDClose(SDL_CD *cdrom);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL joystick event handling */
@@ -3342,7 +3349,7 @@ extern DECLSPEC void SDLCALL SDL_JoystickClose(SDL_Joystick *joystick);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL event handling */
@@ -3376,7 +3383,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL application focus event handling */
@@ -3624,7 +3631,7 @@ extern DECLSPEC Uint8 SDLCALL SDL_GetAppState(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL keyboard event handling */
@@ -3658,7 +3665,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_keysym_h
@@ -4254,7 +4261,7 @@ extern DECLSPEC char * SDLCALL SDL_GetKeyName(SDLKey key);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL mouse event handling */
@@ -4288,7 +4295,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Header file for access to the SDL raw framebuffer window */
@@ -4324,7 +4331,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_mutex_h
@@ -6013,7 +6020,7 @@ extern DECLSPEC int SDLCALL SDL_ShowCursor(int toggle);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL quit event handling */
@@ -6551,7 +6558,7 @@ extern DECLSPEC Uint8 SDLCALL SDL_EventState(Uint8 type, int state);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.h,v 1.3 2006/03/21 20:31:28 sds-chuck Exp $";
+ "@(#) $Id: util_hid.h,v 1.4 2006/04/08 15:16:53 sds-chuck Exp $";
 #endif
 
 /* This header defines the current SDL version */

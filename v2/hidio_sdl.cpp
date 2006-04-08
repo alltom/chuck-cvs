@@ -65,6 +65,7 @@ protected:
     union 
     {
         SDL_Joystick * joystick;
+        // no mouse data needed
         // kb and mouse data here
     };
     
@@ -142,6 +143,14 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             break;
             
         case CK_HID_DEV_MOUSE:
+            if( open_mouse( (int) number ) )
+            {
+                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid mouse number %d", number );
+                return FALSE;
+            }
+            
+            break;
+            
         case CK_HID_DEV_KEYBOARD:
             EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed; device-type support incomplete" );
             return FALSE;
@@ -191,6 +200,10 @@ t_CKBOOL PhyHidDevIn::close()
                 SDL_JoystickClose( joystick );
             joystick = NULL;
                         
+            break;
+            
+        case CK_HID_DEV_MOUSE:
+            close_mouse( device_num );
             break;
             
         default:
@@ -541,28 +554,64 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
                 msg.idata[0] = event.jaxis.value;
                 msg.fdata[0] = msg.idata[0] / -((t_CKFLOAT)SHRT_MIN);
                 break;
+                
             case SDL_JOYBUTTONUP:
                 type = CK_HID_DEV_JOYSTICK;
                 num = event.jbutton.which;
                 // msg
-                msg.type = CK_HID_JOYSTICK_BUTTON_UP;
+                msg.type = CK_HID_BUTTON_UP;
                 msg.eid = event.jbutton.button;
                 break;
+                
             case SDL_JOYBUTTONDOWN:
                 type = CK_HID_DEV_JOYSTICK;
                 num = event.jbutton.which;
-                // msg
-                msg.type = CK_HID_JOYSTICK_BUTTON_DOWN;
+                // msg 
+                msg.type = CK_HID_BUTTON_DOWN;
                 msg.eid = event.jbutton.button;
                 break;
+                
             case SDL_JOYHATMOTION:
                 type = CK_HID_DEV_JOYSTICK;
                 num = event.jhat.which;
-                // msg
+                // msg 
                 msg.type = CK_HID_JOYSTICK_HAT;
                 msg.eid = event.jhat.hat;
                 msg.idata[0] = event.jhat.value;
                 break;
+                
+            case SDL_MOUSEBUTTONDOWN:
+                type = CK_HID_DEV_MOUSE;
+                num = event.button.state;
+                // msg
+                msg.type = CK_HID_BUTTON_DOWN;
+                msg.eid = event.button.button;
+                //fprintf( stderr, "mouse %3d button %2d down\n", event.button.state,
+                //         event.button.button );
+                break;
+                
+            case SDL_MOUSEBUTTONUP:
+                type = CK_HID_DEV_MOUSE;
+                num = event.button.state;
+                // msg
+                msg.type = CK_HID_BUTTON_DOWN;
+                msg.eid = event.button.button;
+                //fprintf( stderr, "mouse %3d button %2d up\n", event.button.state,
+                //         event.button.button );
+                break;
+                
+            case SDL_MOUSEMOTION:
+                type = CK_HID_DEV_MOUSE;
+                num = event.motion.state;
+                // msg
+                msg.type = CK_HID_MOUSE_MOTION;
+                msg.eid = 0;
+                msg.idata[0] = event.motion.xrel;
+                msg.idata[1] = event.motion.yrel;
+                //fprintf( stderr, "mouse %3d x %3d y %3d\n", event.motion.state,
+                //         event.motion.xrel, event.motion.yrel );
+                break;
+                
             case SDL_QUIT:
                 thread_going = FALSE;
                 break;
@@ -668,12 +717,14 @@ t_CKBOOL HidOutManager::open( HidOut * hout, t_CKINT device_num )
 }
 
 
-extern "C" {
-extern XMutex * XMutex_create();
-extern void XMutex_acquire( XMutex * );
-extern void XMutex_release( XMutex * );
-extern void XMutex_free( XMutex * );
+extern "C"
+{
+    extern XMutex * XMutex_create();
+    extern void XMutex_acquire( XMutex * );
+    extern void XMutex_release( XMutex * );
+    extern void XMutex_free( XMutex * );
 }
+
 XMutex * XMutex_create()
 {
     return new XMutex;

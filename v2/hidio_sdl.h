@@ -58,7 +58,9 @@ struct HidMsg
     t_CKINT eid;        // element id
     t_CKINT idata[4];   // int data
     t_CKFLOAT fdata[4]; // float data
-
+    
+    //t_CKINT x, y;
+    
     HidMsg()
     { this->clear(); }
 
@@ -85,10 +87,11 @@ enum
 enum
 {
     CK_HID_JOYSTICK_AXIS = 0,
-    CK_HID_JOYSTICK_BUTTON_DOWN = 1,
-    CK_HID_JOYSTICK_BUTTON_UP = 2,
+    CK_HID_BUTTON_DOWN = 1,
+    CK_HID_BUTTON_UP = 2,
     CK_HID_JOYSTICK_HAT = 3,
     CK_HID_JOYSTICK_BALL = 4,
+    CK_HID_MOUSE_MOTION = 5,
 
     CK_HID_JOYSTICK_COUNT
 };
