@@ -541,6 +541,15 @@ static t_CKUINT HidMsg_offset_which = 0;
 static t_CKUINT HidMsg_offset_idata = 0;
 static t_CKUINT HidMsg_offset_fdata = 0;
 static t_CKUINT HidMsg_offset_when = 0;
+static t_CKUINT HidMsg_offset_deltax = 0;
+static t_CKUINT HidMsg_offset_deltay = 0;
+static t_CKUINT HidMsg_offset_axis_position = 0;
+static t_CKUINT HidMsg_offset_scaled_axis_position = 0;
+static t_CKUINT HidMsg_offset_hat_position = 0;
+static t_CKUINT HidMsg_offset_x = 0;
+static t_CKUINT HidMsg_offset_y = 0;
+static t_CKUINT HidMsg_offset_scaled_x = 0;
+static t_CKUINT HidMsg_offset_scaled_y = 0;
 static t_CKUINT HidOut_offset_data = 0;
 
 //-----------------------------------------------------------------------------
@@ -576,6 +585,14 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     HidMsg_offset_when = type_engine_import_mvar( env, "time", "when", FALSE );
     if( HidMsg_offset_when == CK_INVALID_OFFSET ) goto error;
 
+    // add member variable
+    HidMsg_offset_deltax = type_engine_import_mvar( env, "int", "deltaX", FALSE );
+    if( HidMsg_offset_deltax == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
+    HidMsg_offset_deltay = type_engine_import_mvar( env, "int", "deltaY", FALSE );
+    if( HidMsg_offset_deltay == CK_INVALID_OFFSET ) goto error;
+        
     // end the class import
     type_engine_import_class_end( env );
 
@@ -595,7 +612,12 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_mfun( "int", "openJoystick", HidIn_open_joystick );
     func->add_arg( "int", "num" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
+    
+    // add openMouse()
+    func = make_new_mfun( "int", "openMouse", HidIn_open_mouse );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
     // add good()
     func = make_new_mfun( "int", "good", HidIn_good );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1400,6 +1422,13 @@ CK_DLL_MFUN( HidIn_open_joystick )
     RETURN->v_int = min->open( CK_HID_DEV_JOYSTICK, num );
 }
 
+CK_DLL_MFUN( HidIn_open_mouse )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    t_CKINT num = GET_NEXT_INT(ARGS);
+    RETURN->v_int = min->open( CK_HID_DEV_MOUSE, num );
+}
+
 CK_DLL_MFUN( HidIn_good )
 {
     HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
@@ -1442,6 +1471,8 @@ CK_DLL_MFUN( HidIn_recv )
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_which) = the_msg.eid;
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_idata) = the_msg.idata[0];
         OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_fdata) = the_msg.fdata[0];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_deltax) = the_msg.idata[0];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_deltay) = the_msg.idata[1];
     }
 }
 

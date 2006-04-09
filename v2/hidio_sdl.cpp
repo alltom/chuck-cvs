@@ -143,7 +143,7 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             break;
             
         case CK_HID_DEV_MOUSE:
-            if( open_mouse( (int) number ) )
+            if( Mouse_open( (int) number ) )
             {
                 EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid mouse number %d", number );
                 return FALSE;
@@ -203,7 +203,7 @@ t_CKBOOL PhyHidDevIn::close()
             break;
             
         case CK_HID_DEV_MOUSE:
-            close_mouse( device_num );
+            Mouse_close( device_num );
             break;
             
         default:
@@ -361,6 +361,7 @@ void HidInManager::init()
         }
 
         SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
+        Mouse_init();
 
         has_init = TRUE;
     }
@@ -375,6 +376,7 @@ void HidInManager::cleanup()
     /*
     // stop
     SDL_Quit();
+    Mouse_quit();
     // flag
     thread_going = FALSE;
 
@@ -534,6 +536,11 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
     HidMsg msg;
     t_CKINT type;
     t_CKINT num;
+#ifdef __CK_HID_TWO_THREADS__
+    XThread hid_thread2;
+    hid_thread2.start( cb_hid_input2, NULL );
+    // will be destructed after returning
+#endif /* __CK_HID_TWO_THREADS__ */
 
     // keep going
     while( thread_going )
@@ -586,18 +593,14 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
                 // msg
                 msg.type = CK_HID_BUTTON_DOWN;
                 msg.eid = event.button.button;
-                //fprintf( stderr, "mouse %3d button %2d down\n", event.button.state,
-                //         event.button.button );
                 break;
                 
             case SDL_MOUSEBUTTONUP:
                 type = CK_HID_DEV_MOUSE;
                 num = event.button.state;
                 // msg
-                msg.type = CK_HID_BUTTON_DOWN;
+                msg.type = CK_HID_BUTTON_UP;
                 msg.eid = event.button.button;
-                //fprintf( stderr, "mouse %3d button %2d up\n", event.button.state,
-                //         event.button.button );
                 break;
                 
             case SDL_MOUSEMOTION:
@@ -608,8 +611,6 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
                 msg.eid = 0;
                 msg.idata[0] = event.motion.xrel;
                 msg.idata[1] = event.motion.yrel;
-                //fprintf( stderr, "mouse %3d x %3d y %3d\n", event.motion.state,
-                //         event.motion.xrel, event.motion.yrel );
                 break;
                 
             case SDL_QUIT:
@@ -637,6 +638,31 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
     return 0;
 }
 
+//-----------------------------------------------------------------------------
+// name: cb_hid_input2
+// desc: call back.  If the native version of SDL is used, then SDL's event 
+// loop wont automatically poll for mouse and keyboard events (because chuck 
+// uses custom mouse and keyboard polling functions).  
+//-----------------------------------------------------------------------------
+#ifdef __CK_HID_TWO_THREADS__
+#ifndef __PLATFORM_WIN32__
+void * HidInManager::cb_hid_input2( void * )
+#else
+unsigned __stdcall HidInManager::cb_hid_input2( void * )
+#endif /* __PLATFORM_WIN32__ */
+{
+    
+    while( thread_going )
+    {
+        usleep( 10 );
+        Mouse_poll();
+    }
+    
+    EM_log( CK_LOG_INFO, "HID thread 2 exiting..." );
+}
+
+
+#endif /* __CK_HID_TWO_THREADS__ */
 
 
 

@@ -39,8 +39,11 @@
 #include "util_buffers.h"
 #include "util_thread.h"
 
-
-
+#ifdef __CK_SDL_NATIVE__
+#ifdef __PLATFORM_MACOSX__
+#define __CK_HID_TWO_THREADS__
+#endif /* __PLATFORM_MACOSX__ */
+#endif /* __CK_SDL_NATIVE__ */
 
 // forward reference
 struct PhyHidDevIn;
@@ -192,6 +195,14 @@ public:
     static unsigned __stdcall cb_hid_input( void * );
 #endif
 
+#ifdef __CK_HID_TWO_THREADS__
+#ifndef __PLATFORM_WIN32__
+    static void * cb_hid_input2( void * );
+#else
+    static unsigned __stdcall cb_hid_input2( void * );
+#endif /* __PLATFORM_WIN32__ */
+#endif /* __CK_HID_TWO_THREADS__ */
+    
 protected:
     static std::vector< std::vector<PhyHidDevIn *> > the_matrix;
     static XThread * the_thread;
