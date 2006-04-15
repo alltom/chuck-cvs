@@ -51,6 +51,7 @@
 //-----------------------------------------------------------------------------
 #include "util_sndfile.h"
 #include "chuck_def.h"
+#include <math.h>
 
 /*
  * Copyright 1992 by Jutta Degener and Carsten Bormann, Technische
