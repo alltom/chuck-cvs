@@ -123,6 +123,8 @@
 #ifdef __INTEL_MAC__
 #define CPU_IS_BIG_ENDIAN 0
 #define CPU_IS_LITTLE_ENDIAN 1
+#define HAVE_LRINTF 1
+#define HAVE_LRINT 1
 #else
 #define CPU_IS_BIG_ENDIAN 1
 #define CPU_IS_LITTLE_ENDIAN 0
