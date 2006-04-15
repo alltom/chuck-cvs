@@ -1,7 +1,7 @@
 DESTDIR=/usr/bin
 
 current: 
-	@echo "[chuck build]: please use one of the following configurations:"; echo "   make linux-alsa, make linux-jack, make linux-oss, make osx, or make win32"
+	@echo "[chuck build]: please use one of the following configurations:"; echo "   make linux-alsa, make linux-jack, make linux-oss, make osx, make osx-intell, or make win32"
 
 install:
 	cp $(wildcard chuck chuck.exe) $(DESTDIR)/
@@ -9,6 +9,9 @@ install:
 
 osx: 
 	-make -f makefile.osx
+
+osx-intel:
+	-make -f makefile.osx-intel
 
 linux-oss: 
 	-make -f makefile.oss 
