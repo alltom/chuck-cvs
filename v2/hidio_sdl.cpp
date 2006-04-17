@@ -589,7 +589,7 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
                 
             case SDL_MOUSEBUTTONDOWN:
                 type = CK_HID_DEV_MOUSE;
-                num = event.button.state;
+                num = event.button.x;
                 // msg
                 msg.type = CK_HID_BUTTON_DOWN;
                 msg.eid = event.button.button;
@@ -597,7 +597,7 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
                 
             case SDL_MOUSEBUTTONUP:
                 type = CK_HID_DEV_MOUSE;
-                num = event.button.state;
+                num = event.button.x;
                 // msg
                 msg.type = CK_HID_BUTTON_UP;
                 msg.eid = event.button.button;
@@ -605,7 +605,7 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
                 
             case SDL_MOUSEMOTION:
                 type = CK_HID_DEV_MOUSE;
-                num = event.motion.state;
+                num = event.motion.x;
                 // msg
                 msg.type = CK_HID_MOUSE_MOTION;
                 msg.eid = 0;

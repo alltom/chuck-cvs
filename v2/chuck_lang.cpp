@@ -592,7 +592,35 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     // add member variable
     HidMsg_offset_deltay = type_engine_import_mvar( env, "int", "deltaY", FALSE );
     if( HidMsg_offset_deltay == CK_INVALID_OFFSET ) goto error;
-        
+    
+    // add member variable
+    HidMsg_offset_axis_position = type_engine_import_mvar( env, "int", "axis_position", FALSE );
+    if( HidMsg_offset_axis_position == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
+    HidMsg_offset_scaled_axis_position = type_engine_import_mvar( env, "float", "scaled_axis_position", FALSE );
+    if( HidMsg_offset_scaled_axis_position == CK_INVALID_OFFSET ) goto error;
+    
+    // add is_axis_motion()
+    func = make_new_mfun( "int", "is_axis_motion", HidMsg_is_axis_motion );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_button_down()
+    func = make_new_mfun( "int", "is_button_down", HidMsg_is_button_down );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_button_up()
+    func = make_new_mfun( "int", "is_button_up", HidMsg_is_button_up );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_mouse_motion()
+    func = make_new_mfun( "int", "is_mouse_motion", HidMsg_is_mouse_motion );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_hat_motion()
+    func = make_new_mfun( "int", "is_hat_motion", HidMsg_is_hat_motion );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1392,6 +1420,39 @@ CK_DLL_MFUN( MidiOut_send )
 
 
 //-----------------------------------------------------------------------------
+// HidMsg API
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( HidMsg_is_axis_motion )
+{
+    RETURN->v_int = ( ( t_CKINT ) OBJ_MEMBER_INT( SELF, HidMsg_offset_type ) == 
+                      CK_HID_JOYSTICK_AXIS ? 1 : 0 );
+}
+
+CK_DLL_MFUN( HidMsg_is_button_down )
+{
+    RETURN->v_int = ( ( t_CKINT ) OBJ_MEMBER_INT( SELF, HidMsg_offset_type ) == 
+                      CK_HID_BUTTON_DOWN ? 1 : 0 );
+}
+
+CK_DLL_MFUN( HidMsg_is_button_up )
+{
+    RETURN->v_int = ( ( t_CKINT ) OBJ_MEMBER_INT( SELF, HidMsg_offset_type ) == 
+                      CK_HID_BUTTON_UP ? 1 : 0 );
+}
+
+CK_DLL_MFUN( HidMsg_is_mouse_motion )
+{
+    RETURN->v_int = ( ( t_CKINT ) OBJ_MEMBER_INT( SELF, HidMsg_offset_type ) == 
+                      CK_HID_MOUSE_MOTION ? 1 : 0 );
+}
+
+CK_DLL_MFUN( HidMsg_is_hat_motion )
+{
+    RETURN->v_int = ( ( t_CKINT ) OBJ_MEMBER_INT( SELF, HidMsg_offset_type ) == 
+                      CK_HID_JOYSTICK_HAT ? 1 : 0 );
+}
+
+//-----------------------------------------------------------------------------
 // HidIn API
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( HidIn_ctor )
@@ -1471,8 +1532,14 @@ CK_DLL_MFUN( HidIn_recv )
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_which) = the_msg.eid;
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_idata) = the_msg.idata[0];
         OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_fdata) = the_msg.fdata[0];
+        
+        // mouse motion specific member variables
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_deltax) = the_msg.idata[0];
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_deltay) = the_msg.idata[1];
+        
+        // axis motion specific member variables
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_axis_position) = the_msg.idata[0];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_scaled_axis_position) = the_msg.fdata[0];
     }
 }
 

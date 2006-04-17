@@ -220,13 +220,12 @@ CK_DLL_MFUN( MidiOut_send );
 //-----------------------------------------------------------------------------
 // HidMsg API
 //-----------------------------------------------------------------------------
-/*
 CK_DLL_MFUN( HidMsg_is_axis_motion );
 CK_DLL_MFUN( HidMsg_is_button_down );
 CK_DLL_MFUN( HidMsg_is_button_up );
 CK_DLL_MFUN( HidMsg_is_mouse_motion );
 CK_DLL_MFUN( HidMsg_is_hat_motion );
-*/
+
 //-----------------------------------------------------------------------------
 // HidIn API
 //-----------------------------------------------------------------------------
