@@ -1,0 +1,82 @@
+// name: clix2.ck
+// desc: typing-based instrument, quantized, multi-channel
+// author: Ge
+
+// computer key input, with sound
+KBHit kb;
+
+// time
+4096::samp => dur T;
+
+// patch
+impulse i => biquad f => Envelope e => JCRev r;
+// set the filter's pole radius
+.99 => f.prad;
+// set equal gain zeros
+1 => f.eqzs;
+// initialize float variable
+0.0 => float v;
+// set filter gain
+.5 => f.gain;
+// envelope rise/fall time
+2::ms => e.duration;
+// reverb mix
+.02 => r.mix;
+
+// strengths
+[1.0, 0.2, 0.3, 0.2, 0.4, 0.1, 0.2, 0.1,
+0.5, 0.1, 0.3, 0.2, 0.4, 0.1, 0.2, 0.1,
+0.8, 0.1, 0.3, 0.2, 0.5, 0.1, 0.2, 0.1,
+0.4, 0.1, 0.3, 0.2, 0.3, 0.1, 0.2, 0.1] @=> float mygains[];
+
+// capacity
+mygains.cap() => int N;
+// period duration
+N * T => dur period;
+
+// last unen
+UGen @ last;
+// total number of channels
+dac.channels() => int C;
+// keep track of which
+int which;
+
+// time-loop
+while( true )
+{
+    // wait on event
+    kb => now;
+
+    // synch
+    T - (now%T) => now;
+
+    // loop through 1 or more keys
+    while( kb.more() )
+    {
+        // figure out period
+        (now % period / period * N) $ int => int index;
+        // generate impulse
+        mygains[index] => i.next;
+        // set filtre freq
+        kb.getchar() => int c => std.mtof => f.pfreq;
+        // print int value
+        <<< "ascii:", c, "velocity:", mygains[index], "channel:", which >>>;
+
+        // disconnect from previous
+        if( last != NULL ) r =< last;
+        // the dac channel to connect
+        dac.chan(which) @=> last;
+        // the next channel
+        (which + 1) % C => which;
+        // connect revert to dac channel
+        r => last;
+
+        // open
+        e.keyOn();
+        // advance time
+        T-2::ms => now;
+        // close
+        e.keyOff();
+        2::ms => now;
+    }
+}
