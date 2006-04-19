@@ -626,9 +626,9 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
         if( the_matrix[type][num] != NULL )
         {
             CBufferAdvance * cbuf = the_matrix[type][num]->cbuf;
-            assert( cbuf != NULL );
+            if( cbuf != NULL )
             // queue the thing
-            cbuf->put( &msg, 1 );
+	            cbuf->put( &msg, 1 );
         }
     }
     

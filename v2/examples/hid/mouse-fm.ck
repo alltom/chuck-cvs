@@ -1,8 +1,8 @@
 // name: mouse-fm.ck
-// desc: uses first 3 axes of a joystick to control mf and index for FM
+// desc: uses first X/Y axes of a mouse to control mf and index for FM
 // author: Spencer Salazar
 
-// which joystick
+// which mouse
 0 => int device;
 
 // modulator to carrier

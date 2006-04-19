@@ -44,6 +44,16 @@
 #else /* __CK_SDL_NATIVE__ */
 /* use the customized SDL joystick support utilities */
 
+#ifdef __WINDOWS_DS__
+
+/* WinUser.h won't include rawinput stuff without this... */
+
+#if (_WIN32_WINNT < 0x0501) && defined( __WINDOWS_RAWINPUT__ )
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
+#endif /* __WINDOWS_DS__ */
+
 // except as noted, everything below is straight from SDL
 
 #pragma mark >begin:../include/SDL_types.h
@@ -72,7 +82,7 @@
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* General data types used by the SDL library */
@@ -196,7 +206,7 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* General fatal signal handling code for SDL */
@@ -248,7 +258,7 @@ void SDL_UninstallParachute(void)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Main include header for the SDL library */
@@ -282,7 +292,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_main_h
@@ -344,7 +354,7 @@ extern C_LINKAGE int SDL_main(int argc, char *argv[]);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* General data types used by the SDL library */
@@ -1096,7 +1106,7 @@ extern DECLSPEC char * SDLCALL SDL_getenv(const char *name);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Simple error message routines for SDL */
@@ -1346,7 +1356,7 @@ extern DECLSPEC void SDLCALL SDL_Error(SDL_errorcode code);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* This file provides a general interface for SDL to read and write
@@ -1647,7 +1657,7 @@ extern DECLSPEC void SDLCALL SDL_FreeRW(SDL_RWops *area);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_timer_h
@@ -1953,7 +1963,7 @@ extern DECLSPEC SDL_bool SDLCALL SDL_RemoveTimer(SDL_TimerID t);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Access to the raw audio mixing buffer for the SDL library */
@@ -1989,7 +1999,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Macros for determining the byte-order of this platform */
@@ -2454,7 +2464,7 @@ extern DECLSPEC void SDLCALL SDL_CloseAudio(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* This is the CD-audio control API for Simple DirectMedia Layer */
@@ -2816,7 +2826,7 @@ extern DECLSPEC void SDLCALL SDL_CDClose(SDL_CD *cdrom);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL joystick event handling */
@@ -3174,7 +3184,7 @@ extern DECLSPEC void SDLCALL SDL_JoystickClose(SDL_Joystick *joystick);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL event handling */
@@ -3208,7 +3218,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL application focus event handling */
@@ -3456,7 +3466,7 @@ extern DECLSPEC Uint8 SDLCALL SDL_GetAppState(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL keyboard event handling */
@@ -3490,7 +3500,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_keysym_h
@@ -4086,7 +4096,7 @@ extern DECLSPEC char * SDLCALL SDL_GetKeyName(SDLKey key);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL mouse event handling */
@@ -4120,7 +4130,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Header file for access to the SDL raw framebuffer window */
@@ -4156,7 +4166,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_mutex_h
@@ -5846,7 +5856,7 @@ extern DECLSPEC int SDLCALL SDL_ShowCursor(int toggle);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL quit event handling */
@@ -6384,7 +6394,7 @@ extern DECLSPEC Uint8 SDLCALL SDL_EventState(Uint8 type, int state);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* This header defines the current SDL version */
@@ -6899,7 +6909,7 @@ extern DECLSPEC void SDLCALL SDL_Quit(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* General fatal signal handling code for SDL */
@@ -7071,7 +7081,7 @@ void SDL_UninstallParachute(void)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Simple error handling in SDL */
@@ -7107,7 +7117,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* This file defines a structure that carries language-independent
@@ -7174,7 +7184,7 @@ typedef struct SDL_error {
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_thread_c_h
@@ -7622,7 +7632,6 @@ extern void XMutex_free( XMutex * );
 #ifndef __PLATFORM_WIN32__
 #include <unistd.h>
 #else
-#define WIN32_MEAN_AND_LEAN
 #include <windows.h>
 #endif
 
@@ -7757,7 +7766,7 @@ int SDL_PushEvent(SDL_Event *event)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* This is the joystick API for Simple DirectMedia Layer */
@@ -7793,7 +7802,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Useful functions and variables from SDL_events.c */
@@ -7881,7 +7890,7 @@ extern int SDL_TranslateUNICODE;
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Useful functions and variables from SDL_joystick.c */
@@ -7926,7 +7935,7 @@ extern int SDL_PrivateJoystickButton(SDL_Joystick *joystick,
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* This is the system specific header for the SDL joystick API */
@@ -9417,7 +9426,7 @@ void SDL_SYS_JoystickQuit(void)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* Win32 MultiMedia Joystick driver, contributed by Andrei de A. Formiga */
@@ -9842,7 +9851,7 @@ void SetMMerror(char *function, int code)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.11 2006/04/17 06:46:32 sds-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.12 2006/04/19 06:07:02 sds-chuck Exp $";
 #endif
 
 /* This is the system specific header for the SDL joystick API */
@@ -12644,11 +12653,933 @@ int Mouse_close( int mouse )
 
 /* end of macosx_hidmanager.c ... */
 
-#else /* __PLATFORM_MACOSX__ */
+#elif defined( __WINDOWS_DS__ )
+
+static int available_mice = 0;
+
+#if defined( __WINDOWS_RAWINPUT__ )
+/*****************************************************************************
+ *
+ *  DirectX on Windows XP doesnt support accessing multiple mice.  Instead 
+ *  we are supposed to use RawInput/WM_INPUT.  Uhh, awesome.  Most of this 
+ *  code copied from Ryan Gordon's ManyMouse project.  
+ *
+ *****************************************************************************/
+
+static char * open_mice = NULL;
+
+/*
+ * Support for Windows via the WM_INPUT message.
+ *
+ * Please see the file LICENSE in the source's root directory.
+ *
+ *  This file written by Ryan C. Gordon.
+ */
+
+/* WinUser.h won't include rawinput stuff without this... */
+#if (_WIN32_WINNT < 0x0501)
+#undef _WIN32_WINNT
+#define _WIN32_WINNT 0x0501
+#endif
+
+
+#include <windows.h>
+
+/* Cygwin's headers don't have WM_INPUT right now... */
+#ifndef WM_INPUT
+#define WM_INPUT 0x00FF
+#endif
+
+/* that should be enough, knock on wood. */
+#define MAX_MICE 1024
+
+static int did_api_lookup = 0;
+static HWND raw_hwnd = NULL;
+static const char *class_name = "ChucKRawInputCatcher";
+static const char *win_name = "ChucKRawInputMsgWindow";
+static ATOM class_atom = 0;
+static CRITICAL_SECTION mutex;
+
+typedef struct
+{
+    HANDLE handle;
+    char name[256];
+} MouseStruct;
+static MouseStruct mice[MAX_MICE];
+
+
+/*
+ * The RawInput APIs only exist in Windows XP and later, so you want this
+ *  to fail gracefully on earlier systems instead of refusing to start the
+ *  process due to missing symbols. To this end, we do a symbol lookup on
+ *  User32.dll, etc to get the entry points.
+ *
+ * A lot of these are available all the way back to the start of win32 in
+ *  Windows 95 and WinNT 3.1, but just so you don't have to track down any
+ *  import libraries, I've added those here, too. That fits well with the
+ *  idea of just adding the sources to your build and going forward.
+ */
+static UINT (WINAPI *pGetRawInputDeviceList)(
+    PRAWINPUTDEVICELIST pRawInputDeviceList,
+    PUINT puiNumDevices,
+    UINT cbSize
+);
+/* !!! FIXME: use unicode version */
+static UINT (WINAPI *pGetRawInputDeviceInfoA)(
+    HANDLE hDevice,
+    UINT uiCommand,
+    LPVOID pData,
+    PUINT pcbSize
+);
+static BOOL (WINAPI *pRegisterRawInputDevices)(
+    PCRAWINPUTDEVICE pRawInputDevices,
+    UINT uiNumDevices,
+    UINT cbSize
+);
+static LRESULT (WINAPI *pDefRawInputProc)(
+    PRAWINPUT *paRawInput,
+    INT nInput,
+    UINT cbSizeHeader
+);
+static UINT (WINAPI *pGetRawInputBuffer)(
+    PRAWINPUT pData,
+    PUINT pcbSize,
+    UINT cbSizeHeader
+);
+static UINT (WINAPI *pGetRawInputData)(
+    HRAWINPUT hRawInput,
+    UINT uiCommand,
+    LPVOID pData,
+    PUINT pcbSize,
+    UINT cbSizeHeader
+);
+static LONG (WINAPI *pRegQueryValueExA)(
+    HKEY hKey,
+    LPCTSTR lpValueName,
+    LPDWORD lpReserved,
+    LPDWORD lpType,
+    LPBYTE lpData,
+    LPDWORD lpcbData
+);
+static LONG (WINAPI *pRegOpenKeyExA)(
+    HKEY hKey,
+    LPCTSTR lpSubKey,
+    DWORD ulOptions,
+    REGSAM samDesired,
+    PHKEY phkResult
+);
+static LONG (WINAPI *pRegCloseKey)(
+    HKEY hKey
+);
+static HWND (WINAPI *pCreateWindowExA)(
+    DWORD dwExStyle,
+    LPCTSTR lpClassName,
+    LPCTSTR lpWindowName,
+    DWORD dwStyle,
+    int x,
+    int y,
+    int nWidth,
+    int nHeight,
+    HWND hWndParent,
+    HMENU hMenu,
+    HINSTANCE hInstance,
+    LPVOID lpParam
+);
+static ATOM (WINAPI *pRegisterClassExA)(
+    CONST WNDCLASSEX *lpwcx
+);
+static LRESULT (WINAPI *pDefWindowProcA)(
+    HWND hWnd,
+    UINT Msg,
+    WPARAM wParam,
+    LPARAM lParam
+);
+static BOOL (WINAPI *pUnregisterClassA)(
+    LPCTSTR lpClassName,
+    HINSTANCE hInstance
+);
+static HMODULE (WINAPI *pGetModuleHandleA)(
+    LPCTSTR lpModuleName
+);
+static BOOL (WINAPI *pPeekMessageA)(
+    LPMSG lpMsg,
+    HWND hWnd,
+    UINT wMsgFilterMin,
+    UINT wMsgFilterMax,
+    UINT wRemoveMsg
+);
+static BOOL (WINAPI *pTranslateMessage)(
+    const MSG *lpMsg
+);
+static LRESULT (WINAPI *pDispatchMessageA)(
+    const MSG *lpmsg
+);
+static BOOL (WINAPI *pDestroyWindow)(
+    HWND hWnd
+);
+static void (WINAPI *pInitializeCriticalSection)(
+  LPCRITICAL_SECTION lpCriticalSection
+);
+static void (WINAPI *pEnterCriticalSection)(
+  LPCRITICAL_SECTION lpCriticalSection
+);
+static void (WINAPI *pLeaveCriticalSection)(
+  LPCRITICAL_SECTION lpCriticalSection
+);
+static void (WINAPI *pDeleteCriticalSection)(
+  LPCRITICAL_SECTION lpCriticalSection
+);
+
+static int symlookup(HMODULE dll, void **addr, const char *sym)
+{
+    *addr = GetProcAddress(dll, sym);
+    if (*addr == NULL)
+    {
+        FreeLibrary(dll);
+        return(0);
+    } /* if */
+
+    return(1);
+} /* symlookup */
+
+static int find_api_symbols(void)
+{
+    HMODULE dll;
+
+    if (did_api_lookup)
+        return(1);
+
+    #define LOOKUP(x) { if (!symlookup(dll, (void **) &p##x, #x)) return(0); }
+    /*dll = LoadLibrary("user32.dll");
+    if (dll == NULL)
+        return(0);*/
+
+    LOOKUP(GetRawInputDeviceInfoA);
+    LOOKUP(RegisterRawInputDevices);
+    LOOKUP(GetRawInputDeviceList);
+    LOOKUP(DefRawInputProc);
+    LOOKUP(GetRawInputBuffer);
+    LOOKUP(GetRawInputData);
+    LOOKUP(CreateWindowExA);
+    LOOKUP(RegisterClassExA);
+    LOOKUP(UnregisterClassA);
+    LOOKUP(DefWindowProcA);
+    LOOKUP(PeekMessageA);
+    LOOKUP(TranslateMessage);
+    LOOKUP(DispatchMessageA);
+    LOOKUP(DestroyWindow);
+
+    /*dll = LoadLibrary("advapi32.dll");
+    if (dll == NULL)
+        return(0);*/
+
+    LOOKUP(RegOpenKeyExA);
+    LOOKUP(RegQueryValueExA);
+    LOOKUP(RegCloseKey);
+
+    /*dll = LoadLibrary("kernel32.dll");
+    if (dll == NULL)
+        return(0);*/
+
+    LOOKUP(GetModuleHandleA);
+    LOOKUP(InitializeCriticalSection);
+    LOOKUP(EnterCriticalSection);
+    LOOKUP(LeaveCriticalSection);
+    LOOKUP(DeleteCriticalSection);
+
+    #undef LOOKUP
+
+    did_api_lookup = 1;
+    return(1);
+} /* find_api_symbols */
+
+
+
+static void queue_from_rawinput(const RAWINPUT *raw)
+{
+    int i;
+    const RAWINPUTHEADER *header = &raw->header;
+    const RAWMOUSE *mouse = &raw->data.mouse;
+    SDL_Event event;
+
+    if (raw->header.dwType != RIM_TYPEMOUSE)
+        return;
+
+    for (i = 0; i < available_mice; i++)  /* find the device for event. */
+    {
+        if (mice[i].handle == header->hDevice)
+            break;
+    } /* for */
+
+    if (i == available_mice)
+        return;  /* not found?! */
+
+    /*
+     * RAWINPUT packs a bunch of events into one, so we split it up into
+     *  a bunch of ManyMouseEvents here and store them in an internal queue.
+     *  Then ManyMouse_PollEvent() just shuffles items off that queue
+     *  without any complicated processing.
+     */
+
+	if( !open_mice[i] )
+		/* device not open */
+		return;
+
+    pEnterCriticalSection(&mutex);
+
+    if (mouse->usFlags & MOUSE_MOVE_ABSOLUTE)
+    {
+        /* !!! FIXME: How do we get the min and max values for absmotion? */
+		event.motion.x = i;
+        event.type = SDL_MOUSEMOTION;
+		event.motion.xrel = mouse->lLastX;
+        event.motion.yrel = mouse->lLastY;
+        SDL_PushEvent( &event );
+    }
+
+    else /*if (mouse->usFlags & MOUSE_MOVE_RELATIVE)*/
+    {/*
+        event.type = MANYMOUSE_EVENT_RELMOTION;
+        if (mouse->lLastX != 0)
+        {
+            event.item = 0;
+            event.value = mouse->lLastX;
+            queue_event(&event);
+        }
+
+        if (mouse->lLastY != 0)
+        {
+            event.item = 1;
+            event.value = mouse->lLastY;
+            queue_event(&event);
+        }*/
+    }
+
+    #define QUEUE_BUTTON(y) { \
+        if (mouse->usButtonFlags & RI_MOUSE_BUTTON_##y##_DOWN) { \
+            event.button.button = y-1; \
+            event.button.x = i; \
+			event.type = SDL_MOUSEBUTTONDOWN; \
+            SDL_PushEvent(&event); \
+        } \
+        if (mouse->usButtonFlags & RI_MOUSE_BUTTON_##y##_UP) { \
+            event.button.button = y-1; \
+            event.button.x = i; \
+			event.type = SDL_MOUSEBUTTONUP; \
+            SDL_PushEvent(&event); \
+        } \
+    }
+
+    QUEUE_BUTTON(1);
+    QUEUE_BUTTON(2);
+    QUEUE_BUTTON(3);
+    QUEUE_BUTTON(4);
+    QUEUE_BUTTON(5);
+
+    #undef QUEUE_BUTTON
+
+#if 0
+    if (mouse->usButtonFlags & RI_MOUSE_WHEEL)
+    {
+        if (mouse->usButtonData != 0)  /* !!! FIXME: can this ever be zero? */
+        {
+            event.type = MANYMOUSE_EVENT_SCROLL;
+            event.item = 0;  /* !!! FIXME: horizontal wheel? */
+            event.value = (mouse->usButtonData > 0) ? 1 : -1;
+            queue_event(&event);
+        } /* if */
+    } /* if */
+#endif
+    pLeaveCriticalSection(&mutex);
+} /* queue_from_rawinput */
+
+
+static void wminput_handler(WPARAM wParam, LPARAM lParam)
+{
+    UINT dwSize = 0;
+    LPBYTE lpb;
+
+    pGetRawInputData((HRAWINPUT) lParam, RID_INPUT, NULL, &dwSize,
+                      sizeof (RAWINPUTHEADER));
+
+    if (dwSize < sizeof (RAWINPUT))
+        return;  /* unexpected packet? */
+
+    lpb = (LPBYTE) malloc(dwSize);
+    if (lpb == NULL) 
+        return;
+    if (pGetRawInputData((HRAWINPUT) lParam, RID_INPUT, lpb, &dwSize,
+                          sizeof (RAWINPUTHEADER)) != dwSize)
+        return;
+
+    queue_from_rawinput((RAWINPUT *) lpb);
+} /* wminput_handler */
+
+
+static LRESULT CALLBACK RawWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+{
+    if (Msg == WM_INPUT)
+        wminput_handler(wParam, lParam);
+
+    else if (Msg == WM_DESTROY)
+        return(0);
+
+    return pDefWindowProcA(hWnd, Msg, wParam, lParam);
+} /* RawWndProc */
+
+
+static int init_event_queue(void)
+{
+    HINSTANCE hInstance = pGetModuleHandleA(NULL);
+    WNDCLASSEX wce;
+    RAWINPUTDEVICE rid;
+
+    ZeroMemory(&wce, sizeof (wce));
+    wce.cbSize = sizeof(WNDCLASSEX);
+    wce.lpfnWndProc = RawWndProc;
+    wce.lpszClassName = class_name;
+    wce.hInstance = hInstance;
+    class_atom = pRegisterClassExA(&wce);
+    if (class_atom == 0)
+        return(0);
+
+    raw_hwnd = pCreateWindowExA(0, class_name, win_name, WS_OVERLAPPEDWINDOW,
+                        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+                        CW_USEDEFAULT, HWND_MESSAGE, NULL, hInstance, NULL);
+
+    if (raw_hwnd == NULL)
+        return(0);
+
+    pInitializeCriticalSection(&mutex);
+
+    ZeroMemory(&rid, sizeof (rid));
+    rid.usUsagePage = 1; /* GenericDesktop page */
+    rid.usUsage = 2; /* GeneralDestop Mouse usage. */
+    rid.dwFlags = RIDEV_INPUTSINK;
+    rid.hwndTarget = raw_hwnd;
+    if (!pRegisterRawInputDevices(&rid, 1, sizeof (rid)))
+    {
+        pDeleteCriticalSection(&mutex);
+        return(0);
+    } /* if */
+
+    return(1);
+} /* init_event_queue */
+
+
+static void cleanup_window(void)
+{
+    if (raw_hwnd)
+    {
+        MSG Msg;
+        pDestroyWindow(raw_hwnd);
+        while (pPeekMessageA(&Msg, raw_hwnd, 0, 0, PM_REMOVE))
+        {
+            pTranslateMessage(&Msg);
+            pDispatchMessageA(&Msg);
+        } /* while */
+        raw_hwnd = 0;
+    } /* if */
+
+    if (class_atom)
+    {
+        pUnregisterClassA(class_name, pGetModuleHandleA(NULL));
+        class_atom = 0;
+    } /* if */
+} /* cleanup_window */
+
+
+static int accept_device(const RAWINPUTDEVICELIST *dev)
+{
+    const char rdp_ident[] = "\\??\\Root#RDP_MOU#0000#";
+    char *buf = NULL;
+    UINT ct = 0;
+
+    if (dev->dwType != RIM_TYPEMOUSE)
+        return(0);  /* keyboard or some other fruity thing. */
+
+    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, NULL, &ct) < 0)
+        return(0);
+
+    /* ct == is chars, not bytes, but we used the ASCII version. */
+    buf = (char *) malloc(ct);
+    if (buf == NULL)
+        return(0);
+
+    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, buf, &ct) < 0)
+        return(0);
+
+    /*
+     * Apparently there's a fake "RDP" device...I guess this is
+     *  "Remote Desktop Protocol" for controlling the system pointer
+     *  remotely via Windows Remote Desktop, but that's just a guess.
+     * At any rate, we don't want that device, so skip it if detected.
+     *
+     * Idea for this found here:
+     *   http://link.mywwwserver.com/~jstookey/arcade/rawmouse/raw_mouse.c
+     */
+
+    /* avoiding memcmp here so we don't get a C runtime dependency... */
+    if (ct >= sizeof (rdp_ident) - 1)
+    {
+        int i;
+        for (i = 0; i < sizeof (rdp_ident) - 1; i++)
+        {
+            if (buf[i] != rdp_ident[i])
+                break;
+        } /* for */
+
+        if (i == sizeof (rdp_ident) - 1)
+            return(0);  /* this is an RDP thing. Skip this device. */
+    } /* if */
+
+    return(1);  /* we want this device. */
+} /* accept_device */
+
+
+/* !!! FIXME: this code sucks. */
+static void get_device_product_name(char *name, size_t namesize,
+                                     const RAWINPUTDEVICELIST *dev)
+{
+    const char regkeyroot[] = "System\\CurrentControlSet\\Enum\\";
+    const char default_device_name[] = "Unidentified input device";
+    DWORD outsize = namesize;
+    DWORD regtype = REG_SZ;
+    char *buf = NULL;
+    char *ptr = NULL;
+    char *keyname = NULL;
+    UINT i = 0;
+    UINT ct = 0;
+    LONG rc = 0;
+    HKEY hkey;
+
+    *name = '\0';  /* really insane default. */
+    if (sizeof (default_device_name) >= namesize)
+        return;
+
+    /* in case we can't stumble upon something better... */
+    CopyMemory(name, default_device_name, sizeof (default_device_name));
+
+    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, NULL, &ct) < 0)
+        return;
+
+    /* ct == is chars, not bytes, but we used the ASCII version. */
+    buf = (char *) malloc(ct+1);
+    keyname = (char *) malloc(ct + sizeof (regkeyroot));
+    if ((buf == NULL) || (keyname == NULL))
+        return;
+
+    if (pGetRawInputDeviceInfoA(dev->hDevice, RIDI_DEVICENAME, buf, &ct) < 0)
+        return;
+
+    /*
+     * This string tap dancing gets us a registry keyname in this form:
+     *   SYSTEM\CurrentControlSet\Enum\BUSTYPE\DEVICECLASS\DEVICEID
+     * (those are my best-guess for the actual elements, but the format
+     *  appears to be sound.)
+     */
+    ct -= 4;
+    buf += 4;  /* skip the "\\??\\" on the front of the string. */
+    for (i = 0, ptr = buf; i < ct; i++, ptr++)  /* convert '#' to '\\' ... */
+    {
+        if (*ptr == '#')
+            *ptr = '\\';
+        else if (*ptr == '{')  /* hit the GUID part of the string. */
+            break;
+    } /* for */
+
+    *ptr = '\0';
+    CopyMemory(keyname, regkeyroot, sizeof (regkeyroot) - 1);
+    CopyMemory(keyname + (sizeof (regkeyroot) - 1), buf, i + 1);
+    rc = pRegOpenKeyExA(HKEY_LOCAL_MACHINE, keyname, 0, KEY_READ, &hkey);
+    if (rc != ERROR_SUCCESS)
+        return;
+
+    rc = pRegQueryValueExA(hkey, "DeviceDesc", NULL, &regtype, name, &outsize);
+    pRegCloseKey(hkey);
+    if (rc != ERROR_SUCCESS)
+    {
+        /* msdn says failure may mangle the buffer, so default it again. */
+        CopyMemory(name, default_device_name, sizeof (default_device_name));
+        return;
+    } /* if */
+    name[namesize-1] = '\0';  /* just in case. */
+} /* get_device_product_name */
+
+
+static void init_mouse(const RAWINPUTDEVICELIST *dev)
+{
+    MouseStruct *mouse = &mice[available_mice];
+
+    if (accept_device(dev))
+    {
+        ZeroMemory(mouse, sizeof (MouseStruct));
+        get_device_product_name(mouse->name, sizeof (mouse->name), dev);
+        mouse->handle = dev->hDevice;
+        available_mice++;  /* we're good. */
+    } /* if */
+} /* init_mouse */
+
+
+static int windows_wminput_init(void)
+{
+    RAWINPUTDEVICELIST *devlist = NULL;
+    UINT ct = 0;
+    UINT i;
+
+    available_mice = 0;
+
+    if (!find_api_symbols())  /* only supported on WinXP and later. */
+        return(0);
+
+    pGetRawInputDeviceList(NULL, &ct, sizeof (RAWINPUTDEVICELIST));
+    if (ct == 0)  /* no devices. */
+        return(0);
+
+    devlist = (PRAWINPUTDEVICELIST) malloc(sizeof (RAWINPUTDEVICELIST) * ct);
+    pGetRawInputDeviceList(devlist, &ct, sizeof (RAWINPUTDEVICELIST));
+    for (i = 0; i < ct; i++)
+        init_mouse(&devlist[i]);
+
+    if (!init_event_queue())
+    {
+        cleanup_window();
+        available_mice = 0;
+    } /* if */
+
+    return(available_mice);
+} /* windows_wminput_init */
+
+
+static void windows_wminput_quit(void)
+{
+    /* unregister WM_INPUT devices... */
+    RAWINPUTDEVICE rid;
+    ZeroMemory(&rid, sizeof (rid));
+    rid.usUsagePage = 1; /* GenericDesktop page */
+    rid.usUsage = 2; /* GeneralDestop Mouse usage. */
+    rid.dwFlags |= RIDEV_REMOVE;
+    pRegisterRawInputDevices(&rid, 1, sizeof (rid));
+    cleanup_window();
+    available_mice = 0;
+    pDeleteCriticalSection(&mutex);
+} /* windows_wminput_quit */
+
+
+static const char *windows_wminput_name(unsigned int index)
+{
+    if (index < available_mice)
+        return(mice[index].name);
+    return(NULL);
+} /* windows_wminput_name */
+
+#if 0
+/*
+ * Windows doesn't send a WM_INPUT event when you unplug a mouse,
+ *  so we try to do a basic query by device handle here; if the
+ *  query fails, we assume the device has vanished and generate a
+ *  disconnect.
+ */
+static int check_for_disconnects()
+{
+    /*
+     * (i) is static so we iterate through all mice round-robin and check
+     *  one mouse per call to ManyMouse_PollEvent(). This makes this test O(1).
+     */
+    static unsigned int i = 0;
+    MouseStruct *mouse = NULL;
+
+    if (++i >= available_mice)  /* check first in case of redetect */
+        i = 0;
+
+    mouse = &mice[i];
+    if (mouse->handle != NULL)  /* not NULL == still plugged in. */
+    {
+        UINT size = 0;
+        UINT rc = pGetRawInputDeviceInfoA(mouse->handle, RIDI_DEVICEINFO,
+                                          NULL, &size);
+        if (rc == (UINT) -1)  /* failed...probably unplugged... */
+        {
+            mouse->handle = NULL;
+            ev->type = MANYMOUSE_EVENT_DISCONNECT;
+            ev->device = i;
+            return(1);
+        } /* if */
+    } /* if */
+
+    return(0);  /* no disconnect event this time. */
+} /* check_for_disconnects */
+#endif /* 0 */
+
+static int windows_wminput_poll()
+{
+    MSG Msg;  /* run the queue for WM_INPUT messages, etc ... */
+    int found = 0;
+
+    if (!found)
+    {
+        /* pump Windows for new hardware events... */
+        while (pPeekMessageA(&Msg, raw_hwnd, 0, 0, PM_REMOVE))
+        {
+            pTranslateMessage(&Msg);
+            pDispatchMessageA(&Msg);
+        } /* while */
+    } /* if */
+
+    /*
+     * Check for disconnects if queue is totally empty and Windows didn't
+     *  report anything new at this time. This ensures that we don't send a
+     *  disconnect event through ManyMouse and then later give a valid
+     *  event to the app for a device that is now missing.
+     */
+	/*
+    if (!found)
+        found = check_for_disconnects(ev);
+	*/
+    return(found);
+} /* windows_wminput_poll */
+
+
+/* end of windows_wminput.c ... */
+
+#endif /* defined( __WINDOWS_RAWINPUT__ ) */
+
+/*****************************************************************************
+ *
+ *  Spencer's DirectInput HID mouse implementation
+ *  Has pre-WinXP support, but doesn't work with multiple mice on WinXP.
+ *
+ *****************************************************************************/
+
+#include <dinput.h>
+
+
+struct win32_mouse
+{
+	LPDIRECTINPUTDEVICE lpdiMouse;
+	char open;
+	DIMOUSESTATE previous_state;
+};
+typedef struct win32_mouse win32_mouse;
+
+static win32_mouse * wmice;
+//static int available_mice;
+static LPDIRECTINPUT lpdi;
+static int use_rawinput = 0;
+
+
+static BOOL CALLBACK DIEnumMouseProc1( LPCDIDEVICEINSTANCE lpddi,
+									   LPVOID pvRef )
+{
+	available_mice++;		
+
+	return DIENUM_CONTINUE;
+}
+
+static BOOL CALLBACK DIEnumMouseProc2( LPCDIDEVICEINSTANCE lpddi,
+									   LPVOID pvRef )
+{
+	int * lpInt = pvRef;
+	int i = * ( int * ) lpInt;
+	GUID guid = lpddi->guidProduct;
+
+	if( i >= available_mice )
+	{
+		return DIENUM_CONTINUE;
+	}
+
+	if( lpdi->lpVtbl->CreateDevice( lpdi, &guid, &wmice[i].lpdiMouse, NULL )
+		!= DI_OK )
+	{
+		wmice[i].open = -1;
+		return DIENUM_CONTINUE;
+	}
+
+
+	if( wmice[i].lpdiMouse->lpVtbl->SetDataFormat( wmice[i].lpdiMouse, &c_dfDIMouse ) != DI_OK )
+	{
+		wmice[i].open = -1;
+		return DIENUM_CONTINUE;
+	}
+
+	return DIENUM_CONTINUE;
+}
 
 void Mouse_init()
 {
-    
+	HINSTANCE hInstance = GetModuleHandleA( NULL );
+	int i = 0;
+
+	available_mice = 0;
+	use_rawinput = 0;
+
+#ifdef __WINDOWS_RAWINPUT__
+	open_mice = NULL;
+
+	if( windows_wminput_init() )
+	{
+		fprintf( stderr, "%d mice available\n", available_mice );
+		use_rawinput = 1;
+		open_mice = ( char * ) malloc( sizeof( char * ) * available_mice );
+		memset( open_mice, 0, sizeof( char * ) * available_mice );
+		return;
+	}
+#endif /* __WINDOWS_RAWINPUT__ */
+
+
+	if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, &lpdi, NULL) != DI_OK )
+	{
+		return;
+	}
+
+	if( lpdi->lpVtbl->EnumDevices( lpdi, DIDEVTYPE_MOUSE, DIEnumMouseProc1, 
+								   NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
+	{
+		return;
+	}
+
+	if( available_mice )
+	{
+		wmice = ( win32_mouse * ) malloc( sizeof( win32_mouse ) * available_mice );
+		memset( wmice, 0, sizeof( win32_mouse ) * available_mice );
+
+
+		if( lpdi->lpVtbl->EnumDevices( lpdi, DIDEVTYPE_MOUSE, DIEnumMouseProc2, 
+									   &i, DIEDFL_ATTACHEDONLY ) != DI_OK )
+		{
+			free( wmice );
+			return;
+		}
+	}
+}
+
+void Mouse_poll()
+{
+ 	int i, j;
+	DIMOUSESTATE dims;
+
+#ifdef __WINDOWS_RAWINPUT__
+	if( use_rawinput )
+	{
+		windows_wminput_poll();
+		return;
+	}
+#endif /* WINDOWS_RAWINPUT__ */
+
+	for( i = 0; i < available_mice; i++ )
+	{
+		if( wmice[i].open == 1 )
+		{
+			wmice[i].lpdiMouse->lpVtbl->GetDeviceState( wmice[i].lpdiMouse, 
+													   sizeof( dims ), &dims );
+			if( dims.lX != 0 || dims.lY != 0 )
+			{
+				SDL_Event event;
+				event.type = SDL_MOUSEMOTION;
+				event.motion.x = i;
+				event.motion.xrel = dims.lX;
+				event.motion.yrel = dims.lY;
+				SDL_PushEvent( &event );
+			}
+
+			for( j = 0; j < 4; j++ )
+			{
+				if( ( dims.rgbButtons[j] & 0x80 ) && 
+					!( wmice[i].previous_state.rgbButtons[j] & 0x80 ) )
+				{
+					SDL_Event event;
+					event.type = SDL_MOUSEBUTTONDOWN;
+					event.button.button = j;
+					event.button.x = i;
+					SDL_PushEvent( &event );
+				}
+
+				else if( !( dims.rgbButtons[j] & 0x80 ) && 
+						 wmice[i].previous_state.rgbButtons[j] & 0x80 )
+				{
+					SDL_Event event;
+					event.type = SDL_MOUSEBUTTONUP;
+					event.button.button = j;
+					event.button.x = i;
+					SDL_PushEvent( &event );
+				}
+			}
+
+			wmice[i].previous_state = dims;
+		}
+	}
+}
+
+void Mouse_quit()
+{
+#ifdef __WINDOWS_RAWINPUT__
+	if( use_rawinput )
+	{
+		windows_wminput_quit();
+		free( open_mice );
+		return;
+	}
+#endif /* __WINDOWS_RAWINPUT__ */
+	if( lpdi != NULL )
+		lpdi->lpVtbl->Release( lpdi );
+	if( wmice != NULL )
+		free( wmice );
+}
+
+int Mouse_open( int mouse )
+{
+#ifdef __WINDOWS_RAWINPUT__
+	if( use_rawinput )
+	{
+		assert( open_mice != NULL );
+		if( mouse < 0 || mouse >= available_mice )
+			return -1;
+		open_mice[mouse] = 1;
+		return 0;
+	}
+#endif /* __WINDOWS_RAWINPUT__ */
+	if( mouse >= 0 && mouse < available_mice && wmice[mouse].open != -1 )
+	{
+		wmice[mouse].open = 1;
+		wmice[mouse].lpdiMouse->lpVtbl->Acquire( wmice[mouse].lpdiMouse );
+		return 0;
+	}
+
+    return -1;
+}
+
+int Mouse_close( int mouse )
+{
+#ifdef __WINDOWS_RAWINPUT__
+	if( use_rawinput )
+	{
+		assert( open_mice != NULL );
+		if( mouse < 0 || mouse >= available_mice )
+			return -1;
+		open_mice[mouse] = 0;
+		return 0;
+	}
+#endif /* WINDOWS_RAWINPUT__ */
+	if( mouse >= 0 && mouse < available_mice && wmice[mouse].open != -1 )
+	{
+		wmice[mouse].lpdiMouse->lpVtbl->Unacquire( wmice[mouse].lpdiMouse );
+		wmice[mouse].open = 0;
+		return 0;
+	}
+
+    return -1;
+}
+
+int Mouse_count()
+{
+    return available_mice;
+}
+
+#else /* Linux */
+
+void Mouse_init()
+{
+
 }
 
 void Mouse_poll()
@@ -12675,8 +13606,6 @@ int Mouse_count()
 {
     return 0;
 }
-
-
 
 #endif /* __PLATFORM_MACOSX__ */
 
