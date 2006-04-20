@@ -2,7 +2,7 @@
 // desc: typing-based instrument, quantized
 // author: Ge
 
-// computer key input, with sound
+// computer keyboard input via terminal
 KBHit kb;
 
 // time
@@ -10,24 +10,21 @@ KBHit kb;
 
 // patch
 impulse i => biquad f => Envelope e => JCRev r => dac;
+
 // set the filter's pole radius
 .99 => f.prad;
 // set equal gain zeros
 1 => f.eqzs;
-// initialize float variable
-0.0 => float v;
-// set filter gain
-.5 => f.gain;
 // envelope rise/fall time
-2::ms => e.duration;
+1::ms => e.duration;
 // reverb mix
 .02 => r.mix;
 
 // strengths
-[1.0, 0.2, 0.3, 0.2, 0.4, 0.1, 0.2, 0.1,
-0.5, 0.1, 0.3, 0.2, 0.4, 0.1, 0.2, 0.1,
-0.8, 0.1, 0.3, 0.2, 0.5, 0.1, 0.2, 0.1,
-0.4, 0.1, 0.3, 0.2, 0.3, 0.1, 0.2, 0.1] @=> float mygains[];
+[ 1.0, 0.2, 0.3, 0.2, 0.4, 0.1, 0.2, 0.1,
+  0.5, 0.1, 0.3, 0.2, 0.4, 0.1, 0.2, 0.1,
+  0.8, 0.1, 0.3, 0.2, 0.5, 0.1, 0.2, 0.1,
+  0.4, 0.1, 0.3, 0.2, 0.3, 0.1, 0.2, 0.1 ] @=> float mygains[];
 
 // capacity
 mygains.cap() => int N;
