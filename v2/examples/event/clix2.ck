@@ -1,6 +1,6 @@
 // name: clix2.ck
 // desc: typing-based instrument, quantized, multi-channel
-// author: Ge
+// author: Ge Wang and Perry Cook
 
 // computer keyboard input via terminal
 KBHit kb;

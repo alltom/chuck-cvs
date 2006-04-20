@@ -1,6 +1,6 @@
 // name: clix.ck
 // desc: typing-based instrument, quantized
-// author: Ge
+// author: Ge Wang + Perry Cook
 
 // computer keyboard input via terminal
 KBHit kb;
