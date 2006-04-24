@@ -1943,18 +1943,20 @@ void Chuck_Instr_Assign_Primitive2::execute( Chuck_VM * vm, Chuck_VM_Shred * shr
 void Chuck_Instr_Assign_Object::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-    Chuck_VM_Object ** obj = NULL;
+    Chuck_VM_Object ** obj = NULL, * done = NULL;
 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // the previous reference
     obj = (Chuck_VM_Object **)(*(reg_sp+1));
-    // release any previous reference
-    if( *obj ) (*obj)->release();
+    // save the reference (release should come after, in case same object)
+    done = *obj;
     // copy popped value into memory
     *obj = (Chuck_VM_Object *)(*(reg_sp));
     // add reference
     if( *obj ) (*obj)->add_ref();
+    // release
+    if( done ) done->release();
 
     // copy
     // memcpy( (void *)*(reg_sp+1), *obj, sizeof(t_CKUINT) );
