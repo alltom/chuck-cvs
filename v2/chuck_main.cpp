@@ -63,8 +63,8 @@
   t_CKINT g_priority = 80;
   t_CKINT g_priority_low = 60;
 #elif defined(__PLATFORM_WIN32__)
-  t_CKINT g_priority = 0;
-  t_CKINT g_priority_low = 0;
+  t_CKINT g_priority = 10;
+  t_CKINT g_priority_low = 5;
 #else
   t_CKINT g_priority = 0x7fffffff;
   t_CKINT g_priority_low = 0x7fffffff;
