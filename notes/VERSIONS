@@ -1,4 +1,9 @@
 ---
+1.2.0.6
+  - (added) win32 - boost thread priority default on win32 from 0 to 5
+
+
+---
 1.2.0.5b
   - (fixed) adc bug
   - (fixed) %=> bug
