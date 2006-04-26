@@ -532,9 +532,13 @@ struct opsc_data
 {
     osc_datatype t;    
     OSCTimeTag timetag;
-    int i;
-    unsigned int u;
-    float f;
+
+	union { 
+		int i;
+		unsigned int u;
+		float f;
+	};
+
     char * s;
 
     opsc_data() { 

@@ -1,4 +1,4 @@
-//----------------------------|
+ //----------------------------|
 // on-the-fly synchronization
 // adapted from Perry's ChucK Drummin' + Ge's sine poops
 //
