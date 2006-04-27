@@ -314,7 +314,7 @@ static unsigned int __stdcall watch_dog( void * )
         }
         
         // advance time
-        usleep( 50000 );
+        usleep( 40000 );
     }
     
     // log

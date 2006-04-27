@@ -351,7 +351,7 @@ int main( int argc, char ** argv )
             {   g_priority = atoi( argv[i]+7 ); set_priority = TRUE; }
             else if( !strncmp(argv[i], "--watchdog", 10) )
             {   g_watchdog_timeout = atof( argv[i]+10 );
-                if( g_watchdog_timeout == 0 ) g_watchdog_timeout = 0.5;
+                if( g_watchdog_timeout <= 0 ) g_watchdog_timeout = 0.5;
                 do_watchdog = TRUE; }
             else if( !strncmp(argv[i], "--nowatchdog", 12) )
                 do_watchdog = FALSE;
