@@ -63,7 +63,7 @@ t_CKUINT g_watchdog_countermeasure_priority = 10;
 t_CKUINT g_watchdog_countermeasure_priority = 0;
 #endif
 // watchdog timeout
-t_CKFLOAT g_watchdog_timeout = 1.0;
+t_CKFLOAT g_watchdog_timeout = 0.5;
 // thread id for whatever
 CHUCK_THREAD g_tid_whatever = 0;
 
