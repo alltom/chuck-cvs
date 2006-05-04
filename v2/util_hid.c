@@ -82,7 +82,7 @@
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* General data types used by the SDL library */
@@ -206,7 +206,7 @@ enum { SDL_PRESSED = 0x01, SDL_RELEASED = 0x00 };
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* General fatal signal handling code for SDL */
@@ -258,7 +258,7 @@ void SDL_UninstallParachute(void)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Main include header for the SDL library */
@@ -292,7 +292,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_main_h
@@ -354,7 +354,7 @@ extern C_LINKAGE int SDL_main(int argc, char *argv[]);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* General data types used by the SDL library */
@@ -1106,7 +1106,7 @@ extern DECLSPEC char * SDLCALL SDL_getenv(const char *name);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Simple error message routines for SDL */
@@ -1356,7 +1356,7 @@ extern DECLSPEC void SDLCALL SDL_Error(SDL_errorcode code);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* This file provides a general interface for SDL to read and write
@@ -1657,7 +1657,7 @@ extern DECLSPEC void SDLCALL SDL_FreeRW(SDL_RWops *area);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_timer_h
@@ -1963,7 +1963,7 @@ extern DECLSPEC SDL_bool SDLCALL SDL_RemoveTimer(SDL_TimerID t);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Access to the raw audio mixing buffer for the SDL library */
@@ -1999,7 +1999,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Macros for determining the byte-order of this platform */
@@ -2464,7 +2464,7 @@ extern DECLSPEC void SDLCALL SDL_CloseAudio(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* This is the CD-audio control API for Simple DirectMedia Layer */
@@ -2826,7 +2826,7 @@ extern DECLSPEC void SDLCALL SDL_CDClose(SDL_CD *cdrom);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL joystick event handling */
@@ -3184,7 +3184,7 @@ extern DECLSPEC void SDLCALL SDL_JoystickClose(SDL_Joystick *joystick);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL event handling */
@@ -3218,7 +3218,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL application focus event handling */
@@ -3466,7 +3466,7 @@ extern DECLSPEC Uint8 SDLCALL SDL_GetAppState(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL keyboard event handling */
@@ -3500,7 +3500,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_keysym_h
@@ -4096,7 +4096,7 @@ extern DECLSPEC char * SDLCALL SDL_GetKeyName(SDLKey key);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL mouse event handling */
@@ -4130,7 +4130,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Header file for access to the SDL raw framebuffer window */
@@ -4166,7 +4166,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_mutex_h
@@ -5856,7 +5856,7 @@ extern DECLSPEC int SDLCALL SDL_ShowCursor(int toggle);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Include file for SDL quit event handling */
@@ -6394,7 +6394,7 @@ extern DECLSPEC Uint8 SDLCALL SDL_EventState(Uint8 type, int state);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* This header defines the current SDL version */
@@ -6909,7 +6909,7 @@ extern DECLSPEC void SDLCALL SDL_Quit(void);
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* General fatal signal handling code for SDL */
@@ -7081,7 +7081,7 @@ void SDL_UninstallParachute(void)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Simple error handling in SDL */
@@ -7117,7 +7117,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* This file defines a structure that carries language-independent
@@ -7184,7 +7184,7 @@ typedef struct SDL_error {
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 #ifndef _SDL_thread_c_h
@@ -7766,7 +7766,7 @@ int SDL_PushEvent(SDL_Event *event)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* This is the joystick API for Simple DirectMedia Layer */
@@ -7802,7 +7802,7 @@ static char rcsid =
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Useful functions and variables from SDL_events.c */
@@ -7890,7 +7890,7 @@ extern int SDL_TranslateUNICODE;
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Useful functions and variables from SDL_joystick.c */
@@ -7935,7 +7935,7 @@ extern int SDL_PrivateJoystickButton(SDL_Joystick *joystick,
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* This is the system specific header for the SDL joystick API */
@@ -9426,7 +9426,7 @@ void SDL_SYS_JoystickQuit(void)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* Win32 MultiMedia Joystick driver, contributed by Andrei de A. Formiga */
@@ -9851,7 +9851,7 @@ void SetMMerror(char *function, int code)
 
 #ifdef SAVE_RCSID
 static char rcsid =
- "@(#) $Id: util_hid.c,v 1.15 2006/04/24 04:28:45 gw-chuck Exp $";
+ "@(#) $Id: util_hid.c,v 1.16 2006/05/04 20:18:27 sds-chuck Exp $";
 #endif
 
 /* This is the system specific header for the SDL joystick API */
@@ -13577,34 +13577,212 @@ int Mouse_count()
 
 #else /* Linux */
 
+
+#include <sys/types.h>
+#include <sys/uio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <dirent.h>
+#include <assert.h>
+#include <sys/select.h>
+
+struct ps2_mouse_msg
+{
+    /*
+     unsigned button1:1;
+     unsigned button2:1;
+     unsigned button3:1;
+     unsigned always1:1;
+     unsigned x_reverse_motion:1;
+     unsigned y_reverse_motion:1;
+     unsigned unused:2;
+     */
+    unsigned unused:2;
+    unsigned y_reverse_motion:1;
+    unsigned x_reverse_motion:1;
+    unsigned always1:1;
+    unsigned button3:1;
+    unsigned button2:1;
+    unsigned button1:1;
+    signed dx:8;
+    signed dy:8;
+};
+typedef struct ps2_mouse_msg ps2_mouse_msg;
+#define CK_HID_MOUSEMSGSIZE 3
+
+struct linux_mouse
+{
+    int fd;
+    char open;
+    ps2_mouse_msg last;
+};
+typedef struct linux_mouse linux_mouse;
+
+static int available_mice = 0;
+static linux_mouse * mice;
+static max_fd = 0;
+
+#define CK_HID_DIR "/dev/input"
+#define CK_HID_MOUSEFILE "mouse%d"
+#define CK_HID_STRBUFSIZE 1024
+
 void Mouse_init()
 {
-
+    DIR * dir_handle;
+    struct dirent * dir_entity;
+    int mouse_no, i;
+    char buf[CK_HID_STRBUFSIZE];
+    
+    available_mice = 0;
+    
+    dir_handle = opendir( CK_HID_DIR );
+    if( dir_handle == NULL )
+        return;    
+    
+    while( dir_entity = readdir( dir_handle ) )
+        if( sscanf( dir_entity->d_name, CK_HID_MOUSEFILE, &mouse_no ) )
+            available_mice++;
+    
+    rewinddir( dir_handle );
+    mice = ( linux_mouse * ) malloc( sizeof( linux_mouse ) * available_mice );
+    if( mice == NULL )
+    {
+        available_mice = 0;
+        closedir( dir_handle );
+        return;
+    }
+    i = 0;
+    
+    while( ( dir_entity = readdir( dir_handle ) ) && i < available_mice )
+    {
+        if( sscanf( dir_entity->d_name, CK_HID_MOUSEFILE, &mouse_no ) )
+        {
+            snprintf( buf, CK_HID_STRBUFSIZE, "%s/%s", 
+                      CK_HID_DIR, dir_entity->d_name );
+            if( ( mice[i].fd = open( buf, O_RDONLY | O_NONBLOCK ) ) >= 0 )
+            { 
+                mice[i].open = 0;
+                mice[i].last.button1 = 0;
+                mice[i].last.button2 = 0;
+                mice[i].last.button3 = 0;
+                if( mice[i].fd > max_fd )
+                    max_fd = mice[i].fd;
+                i++;
+            }
+            else
+                EM_log( CK_LOG_WARNING, "hid: unable to open %s/%s for reading, check permissions if you wish to use mouse devices" );
+        }
+    }
+    
+    if( i < available_mice )
+        available_mice = i;
+    
+    fprintf( stderr, "here\n" );
+    closedir( dir_handle );
+    max_fd++;
 }
 
 void Mouse_poll()
 {
+    int i, r;
+    struct ps2_mouse_msg msg;
+    SDL_Event event;
+    fd_set fdset;
+    struct timeval timeout = { 0, 0 };
     
+    FD_ZERO( &fdset );
+    
+    for( i = 0; i < available_mice; i++ )
+        FD_SET( mice[i].fd, &fdset );
+    
+    if( select( max_fd, &fdset, 0, 0, &timeout ) )
+    {
+        for( i = 0; i < available_mice; i++ )
+        {
+            
+            if( mice[i].open && FD_ISSET( mice[i].fd, &fdset ) && 
+                read( mice[i].fd, &msg, CK_HID_MOUSEMSGSIZE ) )
+            {
+                if( mice[i].last.button1 ^ msg.button1 )
+                {
+                    fprintf( stderr, "button 1 down\n" );
+                    event.type = msg.button1 ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+                    event.button.x = i;
+                    event.button.button = 0;
+                    SDL_PushEvent( &event );
+                }
+                
+                if( mice[i].last.button2 ^ msg.button2 )
+                {
+                    fprintf( stderr, "button 2 down\n" );
+                    event.type = msg.button2 ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+                    event.button.x = i;
+                    event.button.button = 1;
+                    SDL_PushEvent( &event );
+                }
+                
+                if( mice[i].last.button3 ^ msg.button3 )
+                {
+                    fprintf( stderr, "button 3 down\n" );
+                    event.type = msg.button3 ? SDL_MOUSEBUTTONDOWN : SDL_MOUSEBUTTONUP;
+                    event.button.x = i;
+                    event.button.button = 2;
+                    SDL_PushEvent( &event );
+                }
+                
+                if( msg.dx || msg.dy )
+                {
+                    event.type = SDL_MOUSEMOTION;
+                    event.motion.x = i;
+                    event.motion.xrel = msg.dx;
+                    event.motion.yrel = msg.dy;
+                    SDL_PushEvent( &event );
+                }
+                
+                mice[i].last = msg;
+            }
+        }    
+    }
 }
 
 void Mouse_quit()
 {
+    int i;
     
+    for( i = 0; i < available_mice; i++ )
+    {
+        close( mice[i].fd );
+    }
+    
+    free( mice );
+    available_mice = 0;
 }
 
 int Mouse_open( int mouse )
 {
-    return -1;
+    if( mouse >= 0 && mouse < available_mice )
+    {   
+        mice[mouse].open = 1;
+        return 0;
+    }
+    
+    return -1;   
 }
 
 int Mouse_close( int mouse )
 {
+    if( mouse >= 0 && mouse < available_mice )
+    {
+        mice[mouse].open = 0;
+        return 0;
+    }
+    
     return -1;
 }
 
 int Mouse_count()
 {
-    return 0;
+    return available_mice;
 }
 
 #endif /* __PLATFORM_MACOSX__ */
