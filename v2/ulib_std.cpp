@@ -114,6 +114,16 @@ CK_DLL_MFUN( StrTok_size );
 
 static t_CKUINT StrTok_offset_data = 0;
 
+// Cereal functions
+CK_DLL_CTOR( Cereal_ctor );
+CK_DLL_MFUN( Cereal_open );
+CK_DLL_MFUN( Cereal_close );
+CK_DLL_MFUN( Cereal_send );
+CK_DLL_MFUN( Cereal_recv );
+CK_DLL_MFUN( Cereal_more );
+
+static t_CKUINT Cereal_offset_data = 0;
+
 #endif
 
 
@@ -410,6 +420,41 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 
     // add size()
     func = make_new_mfun( "int", "size", StrTok_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end class
+    type_engine_import_class_end( env );
+
+    // begin class (Cereal)
+    if( !type_engine_import_class_begin( env, "Cereal", "Object",
+                                         env->global(), Cereal_ctor ) )
+        return FALSE;
+
+    // add member
+    Cereal_offset_data = type_engine_import_mvar( env, "int", "@Cereal_data", FALSE );
+    if( Cereal_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add open()
+    func = make_new_mfun( "int", "open", Cereal_open );
+    func->add_arg( "string", "name" );
+    func->add_arg( "int", "baudrate" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add close()
+    func = make_new_mfun( "void", "close", Cereal_close );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add more()
+    func = make_new_mfun( "int", "more", Cereal_more );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add send()
+    func = make_new_mfun( "int", "send", Cereal_send );
+    func->add_arg( "int", "bite" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add recv()
+    func = make_new_mfun( "int", "recv", Cereal_recv );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end class
@@ -1515,5 +1560,220 @@ CK_DLL_MFUN( StrTok_size )
     StrTok * tokens = (StrTok *)OBJ_MEMBER_INT(SELF, StrTok_offset_data);
     RETURN->v_int = tokens->size();
 }
+
+
+#ifdef __PLATFORM_WIN32__
+
+
+// jeff's cereal
+class Serial
+{
+public:
+    // one stop bit, 8 bits, no parity
+	Serial();
+	~Serial();
+
+	unsigned read( char * buffer, unsigned numberOfBytesToRead );
+	unsigned write( char * buffer, unsigned numberOfBytesToWrite );
+
+	void write( char c );
+	char read();
+
+	unsigned available() const;
+
+    t_CKBOOL open( char * port, t_CKUINT baudrate );
+	void close();
+
+private:
+	HANDLE serialFile;
+};
+
+
+Serial::Serial( )
+{
+    serialFile = NULL;
+}
+
+Serial::~Serial( )
+{
+	close();
+}
+
+t_CKBOOL Serial::open( char * port, t_CKUINT baudrate )
+{
+    if( serialFile )
+        close();
+
+	// open port
+	serialFile = CreateFile( port,
+							 GENERIC_READ | GENERIC_WRITE,
+							 0,
+							 0,
+							 OPEN_EXISTING,
+							 FILE_ATTRIBUTE_NORMAL,
+							 0 );
+	if( serialFile == INVALID_HANDLE_VALUE ) 
+	{
+		if( GetLastError() == ERROR_FILE_NOT_FOUND ) 
+		{
+            EM_log( CK_LOG_SYSTEM, "error: cannot open serial port '%s'...", port );
+		}
+        else
+        {
+            EM_log( CK_LOG_SYSTEM, "error opening serial port '%s'...", port ); 
+        }
+
+        return FALSE;
+	}
+
+	// set params
+	DCB dcbSerialParams = {0};
+	dcbSerialParams.DCBlength = sizeof( dcbSerialParams );
+	if( !GetCommState( serialFile, &dcbSerialParams) ) 
+	{
+        EM_log( CK_LOG_SYSTEM, "error getting serial state..." );
+        close();
+        return FALSE;
+	}
+
+    dcbSerialParams.BaudRate = baudrate;
+	dcbSerialParams.ByteSize = 8;
+	dcbSerialParams.StopBits = ONESTOPBIT;
+	dcbSerialParams.Parity = NOPARITY;
+	if( !SetCommState( serialFile, &dcbSerialParams ) )
+	{
+        EM_log( CK_LOG_SYSTEM, "error setting serial state..." );
+        close();
+        return FALSE;
+	}
+
+	// SET TIMEOUTS
+    /*
+	COMMTIMEOUTS timeouts = {0};
+	timeouts.ReadIntervalTimeout = 50;
+	timeouts.ReadTotalTimeoutConstant = 50;
+	timeouts.ReadTotalTimeoutMultiplier = 10;
+	timeouts.WriteTotalTimeoutConstant= 50;
+	timeouts.WriteTotalTimeoutMultiplier = 10;
+	if( !SetCommTimeouts( serialFile, &timeouts ) )
+	{
+		//error occureed. Inform user
+	}
+	*/
+
+    return TRUE;
+}
+
+void Serial::close()
+{
+    if( serialFile )
+    {
+	    CloseHandle( serialFile );
+        serialFile = NULL;
+    }
+}
+
+void Serial::write( char c )
+{
+	write( &c, 1 );
+}
+
+char Serial::read()
+{
+	char c = '\0';
+	read( &c, 1 );
+	return c;
+}
+
+unsigned Serial::available() const
+{
+	struct _COMSTAT status;
+    unsigned long etat;
+
+    if( serialFile )
+    {
+	    ClearCommError( serialFile, &etat, &status);
+        return status.cbInQue;
+    }
+
+    return 0;
+}
+
+// try to read numberOfBytesToRead into buffer, return how many bytes read
+unsigned Serial::read( char * buffer, unsigned numberOfBytesToRead )
+{
+	DWORD bytesRead = 0;
+    if( serialFile )
+	    ReadFile( serialFile, buffer, numberOfBytesToRead, &bytesRead, NULL );
+	return bytesRead;
+}
+
+// try to write numberOfBytesToWrite to serial from buffer, return how many bytes written
+unsigned Serial::write( char * buffer, unsigned numberOfBytesToWrite )
+{
+	DWORD bytesWritten = 0;
+    if( serialFile )
+	    WriteFile( serialFile, buffer, numberOfBytesToWrite, &bytesWritten, NULL );
+	return bytesWritten;
+}
+
+
+// ctor
+CK_DLL_CTOR( Cereal_ctor )
+{
+    OBJ_MEMBER_UINT(SELF, Cereal_offset_data) = (t_CKUINT)new Serial;
+}
+
+// open
+CK_DLL_MFUN( Cereal_open )
+{
+    Serial * s = (Serial *)OBJ_MEMBER_UINT(SELF, Cereal_offset_data);
+    Chuck_String * str = GET_NEXT_STRING(ARGS);
+    t_CKINT i = GET_NEXT_INT(ARGS);
+
+    // close
+    s->close();
+
+    if( str )
+        RETURN->v_int = s->open( (char *)str->str.c_str(), i );
+    else
+        RETURN->v_int = 0;
+}
+
+// close
+CK_DLL_MFUN( Cereal_close )
+{
+    Serial * s = (Serial *)OBJ_MEMBER_UINT(SELF, Cereal_offset_data);
+    s->close();
+}
+
+// more
+CK_DLL_MFUN( Cereal_more )
+{
+    Serial * s = (Serial *)OBJ_MEMBER_UINT(SELF, Cereal_offset_data);
+    RETURN->v_int = s->available();
+}
+
+// send
+CK_DLL_MFUN( Cereal_send )
+{
+    Serial * s = (Serial *)OBJ_MEMBER_UINT(SELF, Cereal_offset_data);
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    s->write( i );
+    RETURN->v_int = i;
+}
+
+// recv
+CK_DLL_MFUN( Cereal_recv )
+{
+    Serial * s = (Serial *)OBJ_MEMBER_UINT(SELF, Cereal_offset_data);
+    if( s->available() )
+        RETURN->v_int = (t_CKINT)s->read();
+    else
+        RETURN->v_int = 0;
+}
+
+#endif
+
 
 #endif
