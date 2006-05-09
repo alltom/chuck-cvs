@@ -646,6 +646,11 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func->add_arg( "int", "num" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
+    // add openKeyboard()
+    func = make_new_mfun( "int", "openKeyboard", HidIn_open_keyboard );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
     // add good()
     func = make_new_mfun( "int", "good", HidIn_good );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1488,6 +1493,13 @@ CK_DLL_MFUN( HidIn_open_mouse )
     HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
     t_CKINT num = GET_NEXT_INT(ARGS);
     RETURN->v_int = min->open( CK_HID_DEV_MOUSE, num );
+}
+
+CK_DLL_MFUN( HidIn_open_keyboard )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    t_CKINT num = GET_NEXT_INT(ARGS);
+    RETURN->v_int = min->open( CK_HID_DEV_KEYBOARD, num );
 }
 
 CK_DLL_MFUN( HidIn_good )

@@ -138,8 +138,12 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
         case CK_HID_DEV_JOYSTICK:
             joystick = SDL_JoystickOpen( number );
             if( !joystick )
+            {
+                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid joystick number %d", number );
                 return FALSE;
-            
+            }
+                
+                
             break;
             
         case CK_HID_DEV_MOUSE:
@@ -152,8 +156,12 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             break;
             
         case CK_HID_DEV_KEYBOARD:
-            EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed; device-type support incomplete" );
-            return FALSE;
+            if( Keyboard_open( (int) number ) )
+            {
+                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid keyboard number %d", number );
+                return FALSE;
+            }
+            
             break;
                 
         default:
@@ -204,6 +212,10 @@ t_CKBOOL PhyHidDevIn::close()
             
         case CK_HID_DEV_MOUSE:
             Mouse_close( device_num );
+            break;
+            
+        case CK_HID_DEV_KEYBOARD:
+            Keyboard_close( device_num );
             break;
             
         default:
@@ -362,6 +374,7 @@ void HidInManager::init()
 
         SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
         Mouse_init();
+        Keyboard_init();
 
         has_init = TRUE;
     }
@@ -377,6 +390,7 @@ void HidInManager::cleanup()
     // stop
     SDL_Quit();
     Mouse_quit();
+    Keyboard_quit();
     // flag
     thread_going = FALSE;
 
@@ -611,6 +625,22 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
                 msg.eid = 0;
                 msg.idata[0] = event.motion.xrel;
                 msg.idata[1] = event.motion.yrel;
+                break;
+                
+            case SDL_KEYDOWN:
+                type = CK_HID_DEV_KEYBOARD;
+                num = event.button.x;
+                // msg
+                msg.type = CK_HID_BUTTON_DOWN;
+                msg.eid = event.button.button;
+                break;
+                
+            case SDL_KEYUP:
+                type = CK_HID_DEV_KEYBOARD;
+                num = event.button.x;
+                // msg
+                msg.type = CK_HID_BUTTON_UP;
+                msg.eid = event.button.button;
                 break;
                 
             case SDL_QUIT:
