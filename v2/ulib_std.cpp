@@ -1689,6 +1689,7 @@ unsigned Serial::available() const
 {
 	struct _COMSTAT status;
     unsigned long etat;
+    memset( &status, 0, sizeof(status) );
 
     if( serialFile )
     {
