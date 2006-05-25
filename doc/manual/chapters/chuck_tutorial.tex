@@ -3,6 +3,8 @@
 \section{{\it The} Chuck Tutorial}
 Hello ChucK: 
 
+\textit{This tutorial was written for the command line version of ChucK (currently the most stable and widely supported).  Other methods of running ChucK includes the miniAudicle (OS X only for now) and the Audicle (in pre-pre-alpha).  The code is the same, but the way to run them differs, depending the ChucK system.}
+
 The first thing we are going to do is do generate a sine wave and send it to the speaker so we can hear it. We can do this easily in ChucK by connecting audio processing modules (unit generators) and having them work together to compute the sound. 
 
 We start with a blank ChucK program and add the following line of code:
@@ -34,7 +36,7 @@ Let's now run this (assuming you saved the file as `foo.ck'):
 
 \chuckterm{\prompt chuck foo.ck}
 
-This would cause the sound to play for 2 seconds, during which time audio data is processed (and heard), after which the program exits (since it has reached the end). For now, we can just take the second line of code to mean ``let time pass for 2 seconds (and let audio compute during that time)''. If you want to play it indefinitely, we could write a loop:
+This would cause the sound to play for 2 seconds (the :: operator simply multiplies the arguments), during which time audio data is processed (and heard), after which the program exits (since it has reached the end). For now, we can just take the second line of code to mean ``let time pass for 2 seconds (and let audio compute during that time)''. If you want to play it indefinitely, we could write a loop:
 
 \begin{verbatim}
         // connect sine oscillator to D/A convertor (sound card)
@@ -47,6 +49,8 @@ This would cause the sound to play for 2 seconds, during which time audio data i
 \end{verbatim}
 
 In ChucK, this is called a `time-loop' (in fact this is an `infinite time loop'). This program executes (and generate/process audio) indefinitely. Try running this program. 
+
+\paragraph*{IMPORTANT:} perhaps more important than how to run ChucK is how to \textit{stop} ChucK.  To stop a ongoing ChucK program from the command line, hit (ctrl - c).
 
 So far, since all we are doing is advancing time; it doesn't really matter (for now) what value we advance time by - (we used 2::second here, but we could have used any number of `ms', `second', `minute', `hour', `day', and even `week'), and the result would be the same. It is good to keep in mind from this example that almost everything in ChucK happens naturally from the timing. 
 
