@@ -4,11 +4,13 @@ We tried to make ChucK as easy as possible to build and re-use. All
 sources files - headers source for compiler, vm, and audio engine - are 
 in the same directory (they run in the same address space anyway). Platforms 
 differences are abstracted to the lowest level (in part thanks to Gary 
-Scavone). None of the compiler/vm has any OS-depedent code. 
+Scavone). None of the compiler/vm has any OS-depedent code.
+
+There are also pre-compiled executables available for OS X and Windows.
 
 \section{Binary Installation}
 
-The binary distributions include a directory called bin/ that contains the precompiled binary of ChucK for your operating system. The binary distribution is a great introduction to ChucK but once you are comfortable we suggest that you compile ChucK on your own system so that it is optimized for your hardware. 
+The binary distributions include a directory called bin/ that contains the precompiled binary of ChucK for your operating system. The binary distribution is a great introduction to ChucK but once you are comfortable we suggest that you compile ChucK on your own system so that it is optimized for your system. 
 
 \subsection{OS X}
 1. The terminal is located in the Utilities/ folder in the Applications/ folder of your hard drive. In the terminal go to the bin/ directory (replace chuck-x.x.x.x-exe with the actual directory name):
@@ -20,8 +22,16 @@ The binary distributions include a directory called bin/ that contains the preco
 2. Install it using the script included.
 
 \chuckterm{
-    \prompt sudo make install
+    \prompt sudo cp chuck /usr/bin/
 }
+
+(enter password when prompted)
+
+\chuckterm{    
+    \prompt sudo chmod 755 /usr/bin/chuck
+}
+
+Now you should be able to run 'chuck' from any directory.
 
 3. Test to make sure it is was installed properly.
 
@@ -29,10 +39,16 @@ The binary distributions include a directory called bin/ that contains the preco
     \prompt chuck
 }
 
+You should see the following message (which is the correct behavior):
+
+\chuckterm{
+    [chuck]: no input files... (try --help)
+}
+
 
 \subsection{Windows}
 
-1. Place chuck.exe (found in the 'bin' folder)into the c:\textbackslash windowss\textbackslash system32\textbackslash
+1. Place chuck.exe (found in the 'bin' folder) into c:\textbackslash windowss\textbackslash system32\textbackslash
 
 2. Open a command window found in start-\textgreater run
 
@@ -42,7 +58,13 @@ The binary distributions include a directory called bin/ that contains the preco
 
 \includegraphics{images/cmd}
 
-4. Type chuck and press return
+4. Type chuck and press return, you should see:
+
+\chuckterm{
+    \prompt chuck
+    
+    [chuck]: no input files... (try --help)
+}
 
 \section{Source Installation}
 
@@ -61,7 +83,7 @@ directory name):
 \chuckterm{
    \prompt make\\
    \chuckbuild: please use one of the following configurations:\\
-       make osx, make linux-oss, make linux-alsa, make win32
+       make osx, make osx-intel, make linux-oss, make linux-alsa, make linux-jack, make win32
 }
 
 Now, type the command corresponding to your platform... 
