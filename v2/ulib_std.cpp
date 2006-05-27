@@ -425,6 +425,7 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     // end class
     type_engine_import_class_end( env );
 
+#if defined(__PLATFORM_WIN32__)
     // begin class (Cereal)
     if( !type_engine_import_class_begin( env, "Cereal", "Object",
                                          env->global(), Cereal_ctor ) )
@@ -459,6 +460,7 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 
     // end class
     type_engine_import_class_end( env );
+#endif
 
     return TRUE;
 
