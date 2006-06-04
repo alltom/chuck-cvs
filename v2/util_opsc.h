@@ -412,7 +412,7 @@ public:
     
     void startMessage( char * spec );
     void startMessage( char * address, char * args );
-    void addInt( int i );
+    void addInt( int4byte i ); // gewang: changed from int
     void addFloat( float f );
     void addString( char * s);
     bool packetReady();
@@ -533,9 +533,9 @@ struct opsc_data
     osc_datatype t;    
     OSCTimeTag timetag;
 
-	union { 
-		int i;
-		unsigned int u;
+	union {
+		int4byte i;  // gewang: changed from int
+		unsigned long u;  // gewang: changed from unsigned int
 		float f;
 	};
 
@@ -595,24 +595,24 @@ public:
     void   setSpec(char *addr, char * type );
     void   setReceiver( OSC_Receiver * recv );
 
-    //distribution
+    // distribution
     bool   try_queue_mesg ( OSCMesg * o );
     bool   message_matches ( OSCMesg * o );
     void   queue_mesg ( OSCMesg * o );
 
-    //loop functions
+    // loop functions
     bool   has_mesg();
     bool   next_mesg();
 
     void   wait ( Chuck_VM_Shred * shred, Chuck_VM * vm );
 
-    //
-    bool   vcheck( osc_datatype tt );
-    int    next_int();
-    float  next_float();
-    char * next_string();
-    char * next_string_dup();
-    char * next_blob();
+    // get functions
+    bool     vcheck( osc_datatype tt );
+    int4byte next_int(); // gewang: changed from int
+    float    next_float();
+    char *   next_string();
+    char *   next_string_dup();
+    char *   next_blob();
 };
 
 
