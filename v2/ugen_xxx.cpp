@@ -35,6 +35,7 @@
 #include "ugen_xxx.h"
 #include "chuck_type.h"
 #include "chuck_ugen.h"
+#include "chuck_vm.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -517,7 +518,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "string", "read", sndbuf_ctrl_read );
     func->add_arg( "string", "read" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    // add cget: read // bad
+    // add cget: read // area
     //func = make_new_mfun( "string", "read", sndbuf_cget_read );
     //if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -925,7 +926,7 @@ CNoise_Data::brown_tick( SAMPLE * out ) {
 
 t_CKINT
 CNoise_Data::fbm_tick( SAMPLE * out ) { 
-  //brownian noise function..later!
+  //non-brownian noise function..later!
   *out = 0;
   return TRUE;
 }
@@ -1201,28 +1202,34 @@ CK_DLL_TICK( zerox_tick )
 
 struct delayp_data 
 { 
-    SAMPLE * buffer;
-    t_CKINT bufsize;
+
+    SAMPLE *	buffer;
+    t_CKINT		bufsize;
     
-    double now;
-    double readpos;
+	t_CKTIME	now;
+
+    double		readpos;   //readpos ( moves at constant speed, sample per sample
+    double		writepos; // relative to read position
     
-    double writepos; // relative to readpos
+    t_CKTIME	offset; // distance between read and write
     
-    double writeoff;
+    t_CKDUR		offset_start; 
+    t_CKDUR		offset_target;
+
+    t_CKTIME	move_end_time; //target time
+    t_CKDUR		move_duration; //time we started shift
     
-    double writeoff_start; 
-    double writeoff_target;
-    double writeoff_target_time; //target time
-    double writeoff_window_time; //time we started shift
+    SAMPLE		last_sample;
+    t_CKDUR		last_offset;
     
-    SAMPLE sample_last;
-    double writeoff_last;
-    
-    double acoeff[2];
-    double bcoeff[2];
-    SAMPLE outputs[3];
-    SAMPLE inputs[3];
+#ifdef _DEBUG
+	int			lasti;
+#endif
+
+    double		acoeff[2];
+    double		bcoeff[2];
+    SAMPLE		outputs[3];
+    SAMPLE		inputs[3];
     
     delayp_data() 
     { 
@@ -1232,19 +1239,28 @@ struct delayp_data
         
         for ( i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
         for ( i = 0 ; i < 3 ; i++ ) { acoeff[i] = 0; bcoeff[i] = 0; }
-        acoeff[0] = 1.0;
+        
+		acoeff[0] = 1.0;
         acoeff[1] = -.99;
         bcoeff[0] = 1.0;
         bcoeff[1] = -1.0;
-        readpos  = 0.0;
         
-        writeoff  = 1000.0; 
-        writeoff_last = 1000.0;
-        writeoff_start = 1000.0;
-        writeoff_target = 1000.0;
-        sample_last = 0;
-        writeoff_window_time = 1.0;
-        writeoff_target_time = 0.0;
+		readpos  = 0.0;        
+
+		now				= 0.0;
+
+        offset			= 0.0; 
+        last_offset		= 0.0;
+        offset_start	= 0.0;
+        offset_target	= 0.0;
+
+        move_duration	= 1.0;
+        move_end_time	= 0.0;
+
+#ifdef _DEBUG
+		lasti		= -1;
+#endif
+        last_sample = 0;
     }
 };
 
@@ -1265,51 +1281,74 @@ CK_DLL_PMSG( delayp_pmsg )
     return TRUE;
 }
 
+
 CK_DLL_TICK( delayp_tick )
 {
     delayp_data * d = (delayp_data *)OBJ_MEMBER_UINT( SELF, delayp_offset_data );
     if ( !d->buffer ) return FALSE;
 
-    // bad
-    t_CKTIME now = 0.0;
+    // area
+    d->now = ((Chuck_UGen*)SELF)->shred->vm_ref->shreduler()->now_system;
     
-    //calculate new write-offset position
-    if ( now >= d->writeoff_target_time || d->writeoff_window_time == 0 ) d->writeoff = d->writeoff_target;
+    //calculate new write-offset position ( we interpolate if we've been assigned a new write-offset )
+    if ( d->now >= d->move_end_time || d->move_duration == 0 ) d->offset = d->offset_target;
     else  { 
-        double dt = ( now - d->writeoff_target_time ) / ( d->writeoff_window_time ); 
-        d->writeoff = d->writeoff_target + dt * ( d->writeoff_target - d->writeoff_start );
+        double dt = 1.0 + ( d->now - d->move_end_time ) / ( d->move_duration ); 
+        d->offset = d->offset_start + dt * ( d->offset_target - d->offset_start );
         //      fprintf (stderr, "dt %f, off %f , start %f target %f\n", dt, d->writeoff,  d->writeoff_start, d->writeoff_target );
     }
     
     //find locations in buffer...
-    double lastpos = d->writeoff_last + d->readpos - 1.0 ;
-    double nowpos  = d->writeoff + d->readpos;
+    double write		= (d->readpos )			+ d->offset;
+    double last_write	= (d->readpos - 1.0)	+ d->last_offset ;
     
     //linear interpolation.  will introduce some lowpass/aliasing.
+    double write_delta  = write - last_write;
+    double sample_delta = in - d->last_sample;
+
+	double duck_constant = 0.69;
+
+	
+	double gee = fabs(write_delta) - 1.0;
+
+	if ( gee < 24.0 ) { 
+		double head_contact = ( gee > 0 ) ? exp ( - duck_constant * gee ) : 1.0;
+		t_CKINT i, smin, smax, sampi;
+	    SAMPLE sampf = 0;
+		if ( write_delta >= 0 ) { //forward.
+			smin = (t_CKINT) floor ( last_write );
+			smax = (t_CKINT) floor ( write );
+			for ( i = smin+1 ; i <= smax ; i++ ) { 
+				sampf = d->last_sample + sample_delta * ( double(i) - last_write ) / write_delta;
+				sampi = ( i + d->bufsize * 2 ) % d->bufsize;
+#ifdef _DEBUG 
+				if ( d->lasti == sampi ) { 
+					fprintf(stderr, "over!\n");
+				}
+				d->lasti = sampi;
+#endif
+				d->buffer[sampi] += sampf * head_contact ;
+			}
+		}
+		else { //moving in reverse
+			smin = (t_CKINT) floor ( write );
+			smax = (t_CKINT) floor ( last_write );
+			for ( i = smin+1 ; i <= smax ; i++ ) { 
+				sampf = d->last_sample + sample_delta * ( double(i) - last_write ) / write_delta;
+				sampi = ( i + d->bufsize * 2 ) % d->bufsize;
+#ifdef _DEBUG
+				if ( d->lasti == sampi ) { 
+					fprintf(stderr, "over!\n");
+				}
+				d->lasti = sampi;
+#endif
+				d->buffer[sampi] += sampf * head_contact;   
+			}
+		}
+	}
     
-    double diff= nowpos - lastpos;
-    double d_samp = in - d->sample_last;
-    t_CKINT i, smin, smax;
-    SAMPLE sampi = 0;
-    if ( diff >= 0 ) { //forward.
-        smin = (t_CKINT)ceil( lastpos );
-        smax = (t_CKINT)floor( nowpos );
-        for ( i = smin ; i <= smax ; i++ ) { 
-            sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
-            //     fprintf( stderr, "new sample %d %f %f %f \n", i,  in, sampi, d->sample_last );
-            d->buffer[i%d->bufsize] += sampi;
-        }
-    }
-    else { //moving in reverse
-        smin = (t_CKINT)ceil( nowpos );
-        smax = (t_CKINT)floor( lastpos );
-        for ( i = smin ; i <= smax ; i++ ) 
-            sampi = d->sample_last + d_samp * ( (double) i - lastpos ) / diff ;
-        d->buffer[i%d->bufsize] += sampi ;   
-    }
-    
-    d->writeoff_last = d->writeoff;
-    d->sample_last = in;
+    d->last_offset = d->offset;
+    d->last_sample = in;
     
     
     //output should go through a dc blocking filter, for cases where 
@@ -1317,13 +1356,16 @@ CK_DLL_TICK( delayp_tick )
     //trail of samples
     
     //output last sample
-    t_CKINT rpos = ( (t_CKINT) d->readpos ) % d->bufsize ; 
+    
+	t_CKINT rpos = (t_CKINT) fmod( d->readpos, d->bufsize ) ; 
     
     //   *out = d->buffer[rpos];
-    
+
+	/*    
+    // did i try to write a dc blocking filter? 
     d->outputs[0] =  0.0;
     d->inputs [0] =  d->buffer[rpos];
-    
+
     d->outputs[0] += d->bcoeff[1] * d->inputs[1];
     d->inputs [1] =  d->inputs[0];
     
@@ -1331,15 +1373,17 @@ CK_DLL_TICK( delayp_tick )
     
     d->outputs[0] += -d->acoeff[1] * d->outputs[1];
     d->outputs[1] =  d->outputs[0];
-    
+
+    //clear at readpos ( write doesn't !)
     *out = d->outputs[0];
-    
+	*/
+
+	*out = d->buffer[rpos];
     
     d->buffer[rpos] = 0; //clear once it's been read
-    d->readpos++;
-    
-    while ( d->readpos > d->bufsize ) d->readpos -= d->bufsize; 
-    return TRUE;
+	d->readpos = fmod ( d->readpos + 1.0 , double( d->bufsize ) );
+ 
+	return TRUE;
     
 }
 
@@ -1347,25 +1391,27 @@ CK_DLL_CTRL( delayp_ctrl_delay )
 {
     delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
     t_CKDUR target = GET_CK_DUR(ARGS); // rate     
-    // bad
-    t_CKTIME now = 0.0;
-    if ( target != d->writeoff_target ) {
-        if ( target > d->bufsize ) { 
+    // area
+
+    if ( target != d->offset_target ) {
+	    if ( target > d->bufsize ) { 
             fprintf( stderr, "[chuck](via delayp): delay time %f over max!  set max first!\n", target);
             return;
         }
-        d->writeoff_target = target;
-        d->writeoff_start = d->writeoff_last;
-        d->writeoff_target_time = now + d->writeoff_window_time; 
+        d->offset_target = target;
+        d->offset_start  = d->last_offset;
+
+		t_CKTIME snow = ((Chuck_UGen*)SELF)->shred->now;
+        d->move_end_time = snow + d->move_duration; 
     }
-    RETURN->v_dur = d->writeoff_last; // TODO:
+    RETURN->v_dur = d->last_offset; // TODO:
 }
 
 CK_DLL_CGET( delayp_cget_delay )
 {
     delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
     //SET_NEXT_DUR( out, d->writeoff_last );
-    RETURN->v_dur = d->writeoff_last; // TODO:
+    RETURN->v_dur = d->last_offset; // TODO:
 }
 
 CK_DLL_CTRL( delayp_ctrl_window )
@@ -1373,17 +1419,16 @@ CK_DLL_CTRL( delayp_ctrl_window )
     delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
     t_CKDUR window = GET_CK_DUR(ARGS); // rate     
     if ( window >= 0 ) {
-        d->writeoff_window_time = window;
+        d->move_duration = window;
         //fprintf ( stderr, "set window time %f , %f , %d \n", d->writeoff_window_time, d->writeoff, d->bufsize );
     }
-    RETURN->v_dur = d->writeoff_last; // TODO:
+    RETURN->v_dur = d->move_duration; // TODO:
 }
 
 CK_DLL_CGET( delayp_cget_window )
 {
     delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
-    //SET_NEXT_DUR( out, d->writeoff_last );
-    RETURN->v_dur = d->writeoff_last; // TODO:
+    RETURN->v_dur = d->move_duration; // TODO:
 }
 
 
