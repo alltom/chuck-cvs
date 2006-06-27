@@ -8,7 +8,8 @@ HidMsg msg;
 if( !hi.openJoystick( 0 ) ) me.exit();
 
 // patch
-Shakers s => dac;
+Shakers s => JCRev r => dac;
+.02 => r.mix;
 
 int which;
 

@@ -3566,6 +3566,9 @@ void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     }
     else
         assert( FALSE );
+
+    // flush
+    fflush( stderr );
 }
 
 const char * Chuck_Instr_Hack::params() const
@@ -3652,6 +3655,9 @@ void Chuck_Instr_Gack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     }
 
     fprintf( stderr, "\n" );
+    
+    // flush
+    fflush( stderr );
 }
 
 const char * Chuck_Instr_Gack::params() const
