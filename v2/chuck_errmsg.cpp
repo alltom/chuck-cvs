@@ -143,6 +143,7 @@ void EM_error( int pos, const char * message, ... )
     vsprintf( g_buffer, message, ap );
     va_end(ap);
     fprintf(stderr, "\n");
+    fflush( stderr );
     strcat( g_lasterror, g_buffer );
 }
 
@@ -170,6 +171,7 @@ void EM_error2( int line, const char * message, ... )
 
     strcat( g_lasterror, g_buffer );
     fprintf( stderr, "\n" );
+    fflush( stderr );
 }
 
 
@@ -196,6 +198,7 @@ void EM_error2b( int line, const char * message, ... )
 
     strcat( g_lasterror, g_buffer );
     fprintf( stdout, "\n" );
+    fflush( stderr );
 }
 
 
@@ -214,6 +217,7 @@ void EM_error3( const char * message, ... )
 
     strcat( g_lasterror, g_buffer );
     fprintf( stderr, "\n" );
+    fflush( stderr );
 }
 
 
@@ -241,6 +245,7 @@ void EM_log( int level, const char * message, ... )
     va_end( ap );
 
     fprintf( stderr, "\n" );
+    fflush( stderr );
     g_logmutex.release();
 }
 
