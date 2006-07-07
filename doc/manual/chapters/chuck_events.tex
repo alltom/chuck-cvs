@@ -91,7 +91,7 @@ ChucK contains built-in MIDI classes to allow for interaction with MIDI based so
     MidiMsg msg;
     MidiOut mout;
 
-    //open midi receiver, exit on fail
+    // open midi receiver, exit on fail
     if ( min.open(0) ) me.exit(); 
 
     while( true )
@@ -121,7 +121,7 @@ In addition to MIDI, ChucK has OSC communication classes as well:
 \begin{verbatim}
     ...
 
-    //create our OSC receiver
+    // create our OSC receiver
     OscRecv orec;
     // port 6449
     6449 => orec.port;
