@@ -1,5 +1,7 @@
 // patch
-Blit s => dac;
+Blit s => JCRev r => dac;
+.5 => s.gain;
+.05 => r.mix;
 
 // an array
 [ 0, 2, 4, 7, 9, 11 ] @=> int hi[];

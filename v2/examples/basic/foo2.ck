@@ -4,7 +4,7 @@ p.left => JCRev r1 => dac.left;
 p.right => JCRev r2 => dac.right;
 
 // initial settings
-.25 => s.gain;
+.5 => s.gain;
 .1 => r1.mix;
 .2 => r2.mix;
 
