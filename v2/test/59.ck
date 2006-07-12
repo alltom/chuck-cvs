@@ -1,6 +1,7 @@
 PRC perry;
 Skot skot;
 
+// declare this out here
 string out;
 
 // infinite event loop

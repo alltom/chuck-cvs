@@ -1,5 +1,7 @@
+// instantiate
 Skot skot;
 
+// infinite event loop
 while( true )
 {
     // prompt and wait
@@ -7,6 +9,7 @@ while( true )
     // get the results
     while( skot.more() )
     {
+        // get and print
         <<< skot.getLine() >>>;
     }
 }
