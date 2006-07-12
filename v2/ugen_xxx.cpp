@@ -32,16 +32,24 @@
 // date: Spring 2004
 //       Summer 2005 - updated
 //-----------------------------------------------------------------------------
-#include "ugen_xxx.h"
-#include "chuck_type.h"
-#include "chuck_ugen.h"
-#include "chuck_vm.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <limits.h>
+
+#if defined(__CK_SNDFILE_NATIVE__)
+#include <sndfile.h>
+#else
+#include "util_sndfile.h"
+#endif
+
+#include "ugen_xxx.h"
+#include "chuck_type.h"
+#include "chuck_ugen.h"
+#include "chuck_vm.h"
+
 #include <fstream>
 using namespace std;
 
@@ -1473,12 +1481,6 @@ table, this has no effect         */
 
 #define SAMPLES_PER_ZERO_CROSSING 32    /* this defines how finely the sinc function 
 is sampled for storage in the table  */
-
-#if defined(__CK_SNDFILE_NATIVE__)
-#include <sndfile.h>
-#else
-#include "util_sndfile.h"
-#endif
 
 // data for each sndbuf
 struct sndbuf_data
