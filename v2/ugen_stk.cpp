@@ -27972,8 +27972,8 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDetune )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    m->setDetune( f );
-    // m->setDetune( 1.0f - 0.1f * f );
+    // m->setDetune( f );
+    m->setDetune( 1.0f - 0.1f * f );
     RETURN->v_float = f;
 }
 

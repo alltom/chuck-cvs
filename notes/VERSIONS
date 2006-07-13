@@ -3,7 +3,7 @@
   - (added) support for Mac OS X on Intel: (make osx-intel)
   - (added) win32 - boost thread priority default from 0 to 5
   - (fixed) obj @=> obj now ref counts correctly
-
+  - (fixed) STK Mandolin.detune( float f ) changed
 
 ---
 1.2.0.5b
