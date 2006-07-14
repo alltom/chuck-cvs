@@ -694,6 +694,8 @@ CK_DLL_CTRL( Mandolin_ctrl_afterTouch );
 CK_DLL_CTRL( Mandolin_ctrl_pluck );
 CK_DLL_CTRL( Mandolin_ctrl_noteOn );
 CK_DLL_CTRL( Mandolin_ctrl_noteOff );
+CK_DLL_CTRL( Mandolin_ctrl_bodyIR );
+CK_DLL_CGET( Mandolin_cget_bodyIR );
 
 // Modal
 CK_DLL_CTOR( Modal_ctor );

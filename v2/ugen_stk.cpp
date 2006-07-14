@@ -888,6 +888,13 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "afterTouch", Mandolin_ctrl_afterTouch ); //! aftertouch
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "string", "bodyIR", Mandolin_ctrl_bodyIR ); //! read body impulse response
+    func->add_arg( "string", "path" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "string", "bodyIR", Mandolin_cget_bodyIR ); //! get path
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
     type_engine_import_class_end( env );
@@ -5670,6 +5677,9 @@ class Mandolin : public PluckTwo
 
   //! Set the body size (a value of 1.0 produces the "default" size).
   void setBodySize(MY_FLOAT size);
+
+  //! Set the body impulse response
+  bool setBodyIR( const char * path, bool isRaw );
 
   //! Compute one output sample.
   virtual MY_FLOAT tick();
@@ -13508,6 +13518,7 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
 {
   // Concatenate the STK rawwave path to the rawwave files
   soundfile[0] = new WvIn( "special:mand1", TRUE );
+  /*
   soundfile[1] = new WvIn( "special:mand1", TRUE );
   soundfile[2] = new WvIn( "special:mand1", TRUE );
   soundfile[3] = new WvIn( "special:mand1", TRUE );
@@ -13519,6 +13530,9 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
   soundfile[9] = new WvIn( "special:mand1", TRUE );
   soundfile[10] = new WvIn( "special:mand1", TRUE );
   soundfile[11] = new WvIn( "special:mand1", TRUE );
+  */
+  for( int i = 1; i <= 11; i ++ )
+      soundfile[i] = soundfile[0];
 
   directBody = 1.0;
   mic = 0;
@@ -13528,10 +13542,16 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
   m_bodySize = 1.0;
 }
 
+bool Mandolin :: setBodyIR( const char * path, bool isRaw )
+{
+    soundfile[0]->openFile( path, isRaw );
+    return true;
+}
+
 Mandolin :: ~Mandolin()
 {
-  for ( int i=0; i<12; i++ )
-    delete soundfile[i];
+    for( int i=0; i<12; i++ )
+        SAFE_DELETE( soundfile[i] );
 }
 
 void Mandolin :: pluck(MY_FLOAT amplitude)
@@ -13587,7 +13607,7 @@ void Mandolin :: setBodySize(MY_FLOAT size)
 {
   m_bodySize = size;
   // Scale the commuted body response by its sample rate (22050).
-  MY_FLOAT rate = size * 22050.0 / Stk::sampleRate();
+  MY_FLOAT rate = size * soundfile[mic]->sampleRate() / Stk::sampleRate();
   for ( int i=0; i<12; i++ )
     soundfile[i]->setRate(rate);
 }
@@ -27947,8 +27967,8 @@ CK_DLL_CTRL( Mandolin_ctrl_stringDamping )
 {
     Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS);
-    m->setBaseLoopGain( f );
-    // m->setBaseLoopGain( 0.97f + f * 0.03f );
+    // m->setBaseLoopGain( f );
+    m->setBaseLoopGain( 0.97f + f * 0.03f );
     RETURN->v_float = f;
 }
 
@@ -27999,6 +28019,30 @@ CK_DLL_CTRL( Mandolin_ctrl_afterTouch )
     t_CKFLOAT f = GET_NEXT_FLOAT(ARGS); 
     // not sure what this does in stk version so we'll just call controlChange
     m->controlChange( __SK_AfterTouch_Cont_, f * 128.0 );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Mandolin_ctrl_bodyIR()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Mandolin_ctrl_bodyIR )
+{
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    Chuck_String * str = GET_NEXT_STRING(ARGS);
+    m->setBodyIR( str->str.c_str(), strstr(str->str.c_str(), ".raw") != NULL );
+    RETURN->v_string = str;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Mandolin_cget_bodyIR()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Mandolin_cget_bodyIR )
+{
+    Mandolin * m = (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data );
+    RETURN->v_string = &(m->soundfile[0]->str_filename);    
 }
 
 
