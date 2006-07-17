@@ -1521,7 +1521,7 @@ public:
 struct Chuck_Instr_Alloc_Word : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Alloc_Word( t_CKUINT offset  )
+    Chuck_Instr_Alloc_Word( t_CKUINT offset )
     { this->set( offset ); }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1537,7 +1537,7 @@ public:
 struct Chuck_Instr_Alloc_Word2 : public Chuck_Instr_Unary_Op
 {
 public:
-    Chuck_Instr_Alloc_Word2( t_CKUINT offset  )
+    Chuck_Instr_Alloc_Word2( t_CKUINT offset )
     { this->set( offset ); }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

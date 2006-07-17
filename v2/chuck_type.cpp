@@ -2295,7 +2295,6 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     t_CKBOOL is_obj = FALSE;
     t_CKBOOL is_ref = FALSE;
 
-
     // loop through the variables
     while( list != NULL )
     {
@@ -2440,7 +2439,7 @@ Chuck_Func * find_func_match( Chuck_Func * up, a_Exp args, t_CKBOOL implicit )
     Chuck_Func * func;
 
     // see if args is nil
-    if( args->type == &t_void )
+    if( args && args->type == &t_void )
         args = NULL;
 
     // up is the list of functions in single class / namespace
