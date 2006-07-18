@@ -2059,7 +2059,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
 
         // increment
         if( equals( unary->exp->type, &t_int ) )
-            emit->append( new Chuck_Instr_Inc_int );
+            emit->append( new Chuck_Instr_PreInc_int );
         else
         {
             EM_error2( unary->linepos, 
@@ -2080,7 +2080,7 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
 
         // decrement
         if( equals( unary->exp->type, &t_int ) )
-            emit->append( new Chuck_Instr_Dec_int );
+            emit->append( new Chuck_Instr_PreDec_int );
         else
         {
             EM_error2( unary->linepos, 
@@ -2397,7 +2397,7 @@ t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postf
     {
     case ae_op_plusplus:
         if( equals( postfix->exp->type, &t_int ) )
-            emit->append( new Chuck_Instr_Inc_int );
+            emit->append( new Chuck_Instr_PostInc_int );
         else
         {
             EM_error2( postfix->linepos,
@@ -2409,7 +2409,7 @@ t_CKBOOL emit_engine_emit_exp_postfix( Chuck_Emitter * emit, a_Exp_Postfix postf
 
     case ae_op_minusminus:
         if( equals( postfix->exp->type, &t_int ) )
-            emit->append( new Chuck_Instr_Dec_int );
+            emit->append( new Chuck_Instr_PostDec_int );
         else
         {
             EM_error2( postfix->linepos,

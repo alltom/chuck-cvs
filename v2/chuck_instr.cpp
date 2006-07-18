@@ -94,7 +94,7 @@ void Chuck_Instr_Add_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_PreInc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
@@ -104,19 +104,42 @@ void Chuck_Instr_Inc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( reg_sp, 1 );
     // increment value
     (**(reg_sp))++;
-    // value
+    // value on stack
     push_( the_sp, **(reg_sp) );
 }
 
 
 
 
-
 //-----------------------------------------------------------------------------
-// name: class Chuck_Instr_Dec_int
+// name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
-void Chuck_Instr_Dec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+void Chuck_Instr_PostInc_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
+    t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
+    t_CKINT *   ptr;
+
+    // pointer
+    pop_( reg_sp, 1 );
+    // copy
+    ptr = *reg_sp;
+    // value on stack
+    push_( the_sp, **(reg_sp) );
+    // increment value
+    (*(ptr))++;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_PreDec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
     t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
@@ -126,8 +149,32 @@ void Chuck_Instr_Dec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( reg_sp, 1 );
     // decrement value
     (**(reg_sp))--;
-    // value
+    // value on stack
     push_( the_sp, **(reg_sp) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_PostDec_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // t_CKBYTE *& mem_sp = (t_CKBYTE *&)shred->mem->sp;
+    t_CKINT **& reg_sp = (t_CKINT **&)shred->reg->sp;
+    t_CKINT *&  the_sp = (t_CKINT *&)shred->reg->sp;
+    t_CKINT *   ptr;
+
+    // pointer
+    pop_( reg_sp, 1 );
+    // copy
+    ptr = *reg_sp;
+    // value on stack
+    push_( the_sp, **(reg_sp) );
+    // decrement value
+    (*(ptr))--;
 }
 
 

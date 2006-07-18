@@ -154,10 +154,10 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_Instr_Inc_int
+// name: struct Chuck_Instr_PreInc_int
 // desc: ...
 //-----------------------------------------------------------------------------
-struct Chuck_Instr_Inc_int : public Chuck_Instr
+struct Chuck_Instr_PreInc_int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -167,10 +167,36 @@ public:
 
 
 //-----------------------------------------------------------------------------
-// name: struct Chuck_Instr_Dec_int
+// name: struct Chuck_Instr_PostInc_int
 // desc: ...
 //-----------------------------------------------------------------------------
-struct Chuck_Instr_Dec_int : public Chuck_Instr
+struct Chuck_Instr_PostInc_int : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_PreDec_int
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_PreDec_int : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_PostDec_int
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_PostDec_int : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );

@@ -1,9 +1,14 @@
+1 => int a;
+
+<<< a++ + a++ + a >>>;
+
 public class X
 {
     int i;
-    float f;
-
-    <<< i, f >>>;
+    static int j;
 }
 
-X a, b, c;
+X x;
+x.i++;
+<<< x.i++ + x.i++ + x.i >>>;
+<<< X.j++ + X.j++ + X.j >>>;
