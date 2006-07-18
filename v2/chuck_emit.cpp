@@ -2634,6 +2634,9 @@ t_CKBOOL emit_engine_emit_exp_func_call( Chuck_Emitter * emit,
                                          a_Exp_Func_Call func_call,
                                          t_CKBOOL spork )
 {
+    // note: spork situations are now taken care in exp_spork...
+    // please look at that one before modifying this one!
+
     // make sure there are args, and not sporking
     if( func_call->args && !spork )
     {
@@ -3476,9 +3479,17 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     if( !emit_engine_emit_func_args( emit, exp ) )
         return FALSE;
 
+    // emit func pointer on sporker shred
+    if( !emit_engine_emit_exp( emit, exp->func ) )
+    {
+        EM_error2( exp->linepos,
+                   "(emit): internal error in evaluating function call..." );
+        return FALSE;
+    }
+
     // push the current code
     emit->stack.push_back( emit->code );
-    // make a new one
+    // make a new one (spork~exp shred)
     emit->code = new Chuck_Code;
     // handle need this
     emit->code->need_this = exp->ck_func->is_member;
@@ -3489,9 +3500,18 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     // emit the stack depth - we don't know this yet
     emit->append( op );
 
+    // call the func on sporkee shred
+    if( !emit_engine_emit_exp_func_call(
+           emit,
+           exp->ck_func,
+           exp->ret_type,
+           exp->linepos,
+           TRUE ) )
+       return FALSE;
+
     // emit the function call, with special flag
-    if( !emit_engine_emit_exp_func_call( emit, exp, TRUE ) )
-        return FALSE;
+    // if( !emit_engine_emit_exp_func_call( emit, exp, TRUE ) )
+    //     return FALSE;
 
     // done
     emit->append( new Chuck_Instr_EOC );
@@ -3504,9 +3524,9 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
     exp->ck_vm_code = code;
     // add reference
     exp->ck_vm_code->add_ref();
-    //code->name = string("spork~exp");
+    // code->name = string("spork~exp");
 
-    // restore the code
+    // restore the code to sporker shred
     assert( emit->stack.size() > 0 );
     emit->code = emit->stack.back();
     // pop
@@ -3523,7 +3543,7 @@ t_CKBOOL emit_engine_emit_spork( Chuck_Emitter * emit, a_Exp_Func_Call exp )
 
     // emit instruction that will put the code on the stack
     emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)code ) );
-    // emit spork instruction
+    // emit spork instruction - this will copy, func, args, this
     emit->append( new Chuck_Instr_Spork( size ) );
 
     return TRUE;

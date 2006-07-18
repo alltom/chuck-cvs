@@ -2370,6 +2370,7 @@ void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKUINT this_ptr = NULL;
 
     // pop the stack
     pop_( reg_sp, 1 );
@@ -2377,6 +2378,18 @@ void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     Chuck_VM_Code * code = *(Chuck_VM_Code **)reg_sp;
     // spork it
     Chuck_VM_Shred * sh = vm->spork( code, shred );
+    // pop the stack
+    pop_( reg_sp, 1 );
+    // get the func
+    Chuck_Func * func = (Chuck_Func *)(*reg_sp);
+    // need this?
+    if( func->is_member )
+    {
+        // pop the stack
+        pop_( reg_sp, 1 );
+        // get this
+        this_ptr = *reg_sp;
+    }
     // copy args
     if( m_val )
     {
@@ -2384,6 +2397,13 @@ void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         memcpy( sh->reg->sp, shred->reg->sp, m_val );
         sh->reg->sp += m_val;
     }
+    // copy this, if need
+    if( func->is_member )
+    {
+        push_( (t_CKUINT*&)sh->reg->sp, this_ptr );
+    }
+    // copy func
+    push_( (t_CKUINT*&)sh->reg->sp, (t_CKUINT)func );
     // push the stack
     push_( reg_sp, (t_CKUINT)sh );
 }
