@@ -2370,7 +2370,7 @@ void Chuck_Instr_Func_Return::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 void Chuck_Instr_Spork::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
-    t_CKUINT this_ptr = NULL;
+    t_CKUINT this_ptr = 0;
 
     // pop the stack
     pop_( reg_sp, 1 );
