@@ -1,8 +1,23 @@
-// multiple declarations
-float a, b, c;
+// sporking
 
-2 => a;
-3*a => b;
-a + b => c;
+public class X
+{
+    int i;
 
-if( c == 8 ) <<< "success" >>>;
+    fun void foo() { <<< "foo:", i >>>; }
+    fun void bar( float a ) { <<< "bar:", a >>>; }
+    fun void go() { spork ~ bar( 1 ); }
+    fun static void y() { <<< "success" >>>; }
+}
+
+// make x
+X x;
+2 => x.i;
+
+spork ~ x.foo();
+spork ~ x.bar( 3 );
+x.go();
+spork ~ X.y();
+
+// wait
+me.yield();
