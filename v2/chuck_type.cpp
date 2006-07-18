@@ -1176,10 +1176,32 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary )
 }
 
 
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_ensure_no_multi_decl()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_ensure_no_multi_decl( a_Exp exp, const char * op_str )
+{
+    // go
+    if( exp->s_type == ae_exp_decl && exp->decl.num_var_decls > 1 )
+    {
+        // multiple declarations on left side
+        EM_error2( exp->linepos,
+            "cannot '%s' from/to a multi-variable declaration", op_str );
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+
 // helper macros
 #define LR( L, R )      if( (left->xid == L) && (right->xid == R) )
 #define COMMUTE( L, R ) if( ( (left->xid == L) && (right->xid == R) ) || \
                             ( (left->xid == R) && (right->xid == L) ) )
+
 
 //-----------------------------------------------------------------------------
 // name: type_engine_check_op()
@@ -1190,7 +1212,12 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
 {
     t_CKTYPE left = lhs->type, right = rhs->type;
     assert( left && right );
-    
+
+    // make sure not involve multiple declarations (for now)
+    if( !type_engine_ensure_no_multi_decl( lhs, op2str(op) ) ||
+        !type_engine_ensure_no_multi_decl( rhs, op2str(op) ) )
+        return FALSE;
+
     // if lhs is multi-value, then check separately
     if( (lhs->next && op != ae_op_chuck && !isa( right, &t_function)) || rhs->next )
     {
@@ -2325,19 +2352,6 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         // is ref
         is_ref = decl->type->ref;
 
-        // if this is an object
-        if( is_obj && !is_ref )
-        {
-            // for now - no good for static, since we need separate
-            // initialization which we don't have
-            if( value->is_static )
-            {
-                EM_error2( var_decl->linepos,
-                    "cannot declare static nonprimitive objects (yet)..." );
-                return FALSE;
-            }
-        }
-
         // if array, then check to see if empty []
         if( var_decl->array && var_decl->array->exp_list != NULL )
         {
@@ -2374,6 +2388,18 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
             value->offset = env->class_def->info->class_data_size;
             // move the size
             env->class_def->info->class_data_size += type->size;
+
+            // if this is an object
+            if( is_obj && !is_ref )
+            {
+                // for now - no good for static, since we need separate
+                // initialization which we don't have
+                EM_error2( var_decl->linepos,
+                    "cannot declare static non-primitive objects (yet)..." );
+                EM_error2( var_decl->linepos,
+                    "...(hint: declare as ref (@) & initialize outside for now)" );
+                return FALSE;
+            }
         }
         else // local variable
         {

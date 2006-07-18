@@ -1096,6 +1096,8 @@ t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     {
         // get the decl
         var_decl = list->var_decl;
+        // count
+        decl->num_var_decls++;
 
         // scan if array
         if( var_decl->array != NULL )

@@ -1120,6 +1120,20 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Reg_Pop_Word3
+// desc: pop arbitrary num of word from reg stack
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Reg_Pop_Word3 : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Reg_Pop_Word3( t_CKUINT num ) { this->set( num ); }
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Reg_Pop_Mem
 // desc: pop word, and copy it to the mem stack
 //-----------------------------------------------------------------------------
@@ -1482,6 +1496,20 @@ public:
 struct Chuck_Instr_Mem_Pop_Word2 : public Chuck_Instr
 {
 public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Mem_Pop_Word2
+// desc: pop a value from mem stack
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Mem_Pop_Word3 : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Mem_Pop_Word3( t_CKUINT num ) { this->set( num ); }
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
 };
 
