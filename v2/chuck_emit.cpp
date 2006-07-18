@@ -366,7 +366,10 @@ t_CKBOOL emit_engine_emit_stmt( Chuck_Emitter * emit, a_Stmt stmt, t_CKBOOL pop 
                 // HACK!
                 while( exp )
                 {
-                    if( exp->type->size == 4 || exp->s_type == ae_exp_decl )
+                    // if decl, then expect only one word per var
+                    if( exp->s_type == ae_exp_decl )
+                        emit->append( new Chuck_Instr_Reg_Pop_Word3( exp->decl.num_var_decls ) );
+                    else if( exp->type->size == 4 )
                         emit->append( new Chuck_Instr_Reg_Pop_Word );
                     else if( exp->type->size == 8 )
                         emit->append( new Chuck_Instr_Reg_Pop_Word2 );
