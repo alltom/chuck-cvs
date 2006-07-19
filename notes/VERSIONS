@@ -3,12 +3,13 @@
   - (added) support for Mac OS X on Intel: (make osx-intel)
   - (added) win32 - boost thread priority default from 0 to 5
   - (added) Mandolin.bodyIR( string path ): set body impulse response
-  - (added) support for mouse input on OS X, Windows, Linux 
-            through 'HidIn' class
-  - (added) support for keyboard input on OS X, Windows through 'HidIn' class
-  - (added) new examples
-              - hid/mouse-fm.ck
-                   /keyboard-flute.ck
+  - (added) HID: support for mouse input on OS X, Windows, Linux 
+              through 'HidIn' class
+  - (added) HID: support for keyboard input on OS X, Windows
+              through 'HidIn' class
+  - (added) new HID examples:
+              hid/mouse-fm.ck
+                 /keyboard-flute.ck
   - (fixed) multiple declarations now behave correctly:
                 (example: int a, b, c;)
   - (fixed) now possible to spork non-static member functions
