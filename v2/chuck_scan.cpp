@@ -211,7 +211,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     a_Class_Body body = class_def->body;
 
     // log
-    EM_log( CK_LOG_FINEST, "scanning class definition '%s'...",
+    EM_log( CK_LOG_FINER, "scanning class definition '%s'...",
         S_name(class_def->name->xid) );
     // push indent
     EM_pushlog();
@@ -221,7 +221,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     if( class_def->home != NULL )
     {
         // log
-        EM_log( CK_LOG_FINEST, "target namespace: '%s'",
+        EM_log( CK_LOG_FINER, "target namespace: '%s'",
             class_def->home->name.c_str() );
         // set the new type as current
         env->nspc_stack.push_back( env->curr );
@@ -260,7 +260,11 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     the_class->info = env->context->new_Chuck_Namespace();
     SAFE_ADD_REF( the_class->info );
     the_class->info->name = the_class->name;
-    the_class->info->parent = env->curr;
+    // if public class, then set parent to context
+    // ... allowing the class to address current context
+    if( env->context->public_class_def == class_def )
+    { the_class->info->parent = env->context->nspc; }
+    else { the_class->info->parent = env->curr; }
     the_class->func = NULL;
     the_class->def = class_def;
     // add code
