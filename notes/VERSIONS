@@ -2,8 +2,18 @@
 1.2.0.6
   - (added) support for Mac OS X on Intel: (make osx-intel)
   - (added) win32 - boost thread priority default from 0 to 5
+  - (fixed) multiple declarations now behave correctly:
+                (example: int a, b, c;)
+  - (fixed) now possible to spork non-static member functions
+                (example: Foo foo; spork ~ foo.go();)
+  - (fixed) sporking fixed in general
+  - (fixed) pre/post ++/-- now work correctly
+                (example: int i; <<< i++ + i++ * ++i >>>;)
+  - (fixed) public classes can now internally reference non-public
+            classes in the same file
   - (fixed) obj @=> obj now ref counts correctly
   - (fixed) STK Mandolin.detune( float f ) changed
+  - (fixed) STK Mandolin.damping( float f ) changed
 
 ---
 1.2.0.5b
