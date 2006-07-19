@@ -172,6 +172,10 @@ RtMidiOut :: RtMidiOut() : RtMidi()
 #include <CoreMIDI/CoreMIDI.h>
 #include <CoreAudio/HostTime.h>
 
+// CoreMIDI naming helper function prototypes
+static void readable_name(MIDIEndpointRef end, char *buffer, int bufsize);
+static int get_device_name(SInt32 uniqueid, char*buffer, int bufsize);
+
 // A structure to hold variables related to the CoreMIDI API
 // implementation.
 struct CoreMidiData {
@@ -181,6 +185,154 @@ struct CoreMidiData {
   MIDIEndpointRef destinationId;
   unsigned long long lastTime;
 };
+
+// ******
+// API: OS-X
+// helper functions
+// *****
+
+// coreMIDI port naming helper function
+/*
+  This wraps up the code to take a passed-in endpoint and work out
+  a nice human-readable name for it.
+
+  For the moment, this function will return firstly the device name +
+  port name, or if we can work out what external devices are hooked
+  in, that name. It only grabs the very first connected device name.
+
+  NB. won't get connected devices correctly before 10.3.
+*/
+static void readable_name(MIDIEndpointRef end, char *buffer, int bufsize)
+{  
+    MIDIEntityRef ent = NULL;
+    MIDIDeviceRef dev = NULL;
+    int ii, count, length, ret;
+    SInt32 *idarray;
+    CFDataRef data = NULL;
+    CFStringRef s;
+
+    buffer[0] = '\0';
+  
+    if( MIDIObjectGetDataProperty(end, kMIDIPropertyConnectionUniqueID, &data) == 0)
+    {
+        length = CFDataGetLength(data) / sizeof(SInt32);
+        idarray = (SInt32 *) CFDataGetBytePtr(data);
+        count = 0;
+        for (ii = 0; ii < length; ii++) {
+            if (bufsize < 3)
+                break;
+            if (count > 0) {
+                strcpy(buffer, ", ");
+                buffer += 2;
+                bufsize -= 2;
+            }
+      
+            if (get_device_name(idarray[ii], buffer, bufsize) == 0) {
+                count++;
+                bufsize -= strlen(buffer);
+                buffer += strlen(buffer);
+            }
+        }
+
+        CFRelease(data);
+        if (count > 0)
+            return;
+    }
+
+    char * mid = buffer;
+    // build up the name of the enclosing device, if it can be found.
+    if (MIDIEndpointGetEntity(end, &ent) == 0) {
+        if (MIDIEntityGetDevice(ent, &dev) == 0) {
+            if (MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &s) == 0) {
+                CFStringGetCString(s, buffer, bufsize, 0);
+                bufsize -= strlen(buffer) + 1;
+                buffer += strlen(buffer);
+
+                CFRelease(s);
+            }
+        }
+    }
+
+    // ge
+    char buffy[128];
+    // Now add the port/endpoint name.
+    // no need to update buffer pointer. Last item.
+    if (MIDIObjectGetStringProperty(end, kMIDIPropertyName, &s) == 0) {
+        CFStringGetCString(s, buffy, 128, 0);
+        CFRelease(s);
+        
+        // copy if different
+        if( strcmp( mid, buffy ) && strlen(buffy) < bufsize ) {
+            *buffer = ' ';
+            buffer++;
+            strcpy( buffer, buffy );
+        }
+    }
+}
+
+
+// port naming helper function (External devices)
+/*
+  Uses the midiojectfindbyuniqueid function to hunt down the relevant
+  device and copies its name into the buffer provided. We don't know
+  what type of device we'll get back, so we first throw away any
+  external flags (We don't care), and then cast it up to device which
+  is the thing which has a useful name.
+
+  If it can't find one, return -1. 0 returned on success.
+*/
+static int get_device_name(SInt32 uniqueid, char *buffer, int bufsize)
+{
+    int ret;
+    void *object;
+    MIDIObjectType type;
+
+    MIDIDeviceRef dev = NULL;
+    MIDIEntityRef ent = NULL;
+    MIDIEndpointRef end = NULL;
+    CFStringRef name = NULL;
+
+    ret = MIDIObjectFindByUniqueID(uniqueid, &object, &type);
+    if (ret < 0)
+        return -1;
+
+    // now clear any external flag.
+    if (type > 0) 
+        type = type & (~kMIDIObjectType_ExternalMask);
+
+    if (type == kMIDIObjectType_Device) {
+        dev = (MIDIDeviceRef) object;
+    } else  if (type == kMIDIObjectType_Entity) {
+        ent = (MIDIEntityRef) object;
+        if (MIDIEntityGetDevice(ent, &dev)) {
+            return -1;
+        }
+    } if (type == kMIDIObjectType_Source ||
+        type == kMIDIObjectType_Destination) {
+        end = (MIDIEndpointRef) object;
+        if (MIDIEndpointGetEntity(end, &ent)) {
+            return -1;
+        }
+        if (MIDIEntityGetDevice(ent, &dev)) {
+            return -1;
+        }
+    } else {
+        // unknown type
+        printf("Unknown type %d returned from findobject\n", (int) type);
+        CFRelease(object);
+        return -1;
+    }
+
+    MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &name);
+    CFStringGetCString(name, buffer, bufsize, 0);
+    CFRelease(name);
+
+    return 0;
+}
+
+
+
+
 
 //*********************************************************************//
 //  API: OS-X
@@ -443,10 +595,13 @@ std::string RtMidiIn :: getPortName( unsigned int portNumber )
     error( RtError::INVALID_PARAMETER );
   }
   portRef = MIDIGetSource( portNumber );
-
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030  
+  readable_name(portRef, name, sizeof(name));
+#else
   MIDIObjectGetStringProperty( portRef, kMIDIPropertyName, &nameRef );
   CFStringGetCString( nameRef, name, sizeof(name), 0);
   CFRelease( nameRef );
+#endif
   std::string stringName = name;
   return stringName;
 }
@@ -474,10 +629,13 @@ std::string RtMidiOut :: getPortName( unsigned int portNumber )
     error( RtError::INVALID_PARAMETER );
   }
   portRef = MIDIGetDestination( portNumber );
-
+#if MAC_OS_X_VERSION_MAX_ALLOWED >= 1030
+  readable_name(portRef, name, sizeof(name));
+#else
   MIDIObjectGetStringProperty( portRef, kMIDIPropertyName, &nameRef );
   CFStringGetCString( nameRef, name, sizeof(name), 0);
   CFRelease( nameRef );
+#endif
   std::string stringName = name;
   return stringName;
 }

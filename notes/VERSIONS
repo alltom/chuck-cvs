@@ -10,6 +10,8 @@
   - (added) new HID examples:
               hid/mouse-fm.ck
                  /keyboard-flute.ck
+  - (added) OS X: --probe human-readable MIDI names
+              (thanks to Bruce Murphy)
   - (fixed) multiple declarations now behave correctly:
                 (example: int a, b, c;)
   - (fixed) now possible to spork non-static member functions
@@ -22,6 +24,7 @@
   - (fixed) obj @=> obj now ref counts correctly
   - (fixed) STK Mandolin.detune( float f ) changed
   - (fixed) STK Mandolin.damping( float f ) changed
+  - new examples:
 
 
 ---
