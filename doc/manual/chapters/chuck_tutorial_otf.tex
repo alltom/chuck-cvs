@@ -1,18 +1,19 @@
 \section{On-the-fly-programming}
+\textbf{by Adam Tindale}\\
 
 Navigate to the examples folder in the ChucK distribution then run the following command:
 
 \chuckterm{\prompt chuck moe.ck}
 
-In this case, ChucK will run whatever is in {\bf moe.ck}. You can replace {\bf moe.ck} with the name of another ChucK file. If this script is a just a loop that never ends then we need to stop ChucK eventually. Simply press CONTROL-C (hold control and press c). This is the kill process key in the terminal. 
+In this case, ChucK will run whatever is in {\bf moe.ck}. You can replace {\bf moe.ck} with the name of another ChucK file. If this script is a just a loop that never ends then we need to stop ChucK eventually. Simply press CTRL-C (hold control and press c). This is the "kill process" hotkey in the terminal. 
 
-Where is the ChucK power that was promised to you? You can add multiple copies of the same script if you like: 
+Some first things to try is to test the concurrency (running multiple ChucK files in parallel) are moe, larry, and curly. First, run them each individually ( run chuck on {\bf moe.ck}, {\bf larry.ck}, or {\bf curly.ck} as shown above).  Then, run them all in parallel, like this:
 
 \chuckterm{\prompt chuck moe.ck larry.ck curly.ck}
 
-Again, if any of these scripts will go on forever then you have to use the magic CONTROL-C to halt ChucK. Why would you do that? If the script has some random number generators or something like that then you end up with some nice ChucK chaos not just copies of the same patch! Give it a try. 
-
-Some first things to try to test the concurrency (running multiple ChucK files in parallel) are moe, larry, and curly. To listen to {\bf moe.ck}, {\bf larry.ck}, or {\bf curly.ck} together type: They are written to go in and out of phase with each other. 
+They are written to go in and out of phase with each other.  Again, if any of these scripts will go on forever then you have to use CTRL-C to halt ChucK. 
+%Why would you do that? If the script has some random number generators or something like that then you end up with some nice ChucK chaos not just copies of the same patch! 
+Give it a try. 
 
 Also try the improved versions of our little friends: {\bf larry++.ck curly++.ck moe++.ck} 
 
@@ -37,7 +38,7 @@ What hapenned? That is the power. We added test1.ck. It was added as the first s
 
 You can ask ChucK how he is doing by typing chuck \doubledash status The shortcut is chuck \^ ChucK will answer in the other window where we left him running. He will tell you what shreds there are and what their id numbers are. He will also tell you how long he has been running. 
 
-When you have had enough of ChucK you can go to the other window and use your fancy CONTROL-C trick or you can type chuck \doubledash kill in your original window.   
+When you have had enough of ChucK you can go to the other window and use your fancy CTRL-C trick or you can type chuck \doubledash kill in your original window.   
 
 \chuckterm{\prompt chuck \doubledash kill}
 

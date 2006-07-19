@@ -1,4 +1,5 @@
 \section{Working with MIDI}
+\textbf{by Adam Tindale}\\
 
 Adding a MIDI controller is a great way to add variety to your ChucK patches. Conversely, ChucK offers a simple and powerful way to utilize a MIDI controller for making music.  
 
@@ -30,17 +31,15 @@ When opening ports it is suggested that you check whether the {\bf .open} functi
 
 \begin{verbatim}
     MidiIn min;
-    min.open(0) => int AmIOpen;
+    min.open( 0 ) => int AmIOpen;
 
-    if(!AmIOpen){
-         me.exit();
-    }
+    if( !AmIOpen ) { me.exit(); }
 \end{verbatim}
 
-We can do this in fewer lines of code. We can put the min.open(0) in the condition of the {\bf if} statement. This way min.open will return true or false (which is represented as ints with a value of 1 or 0). The {\bf !} will give the opposite return value of min.open. Now the statement will mean if min.open doesn't return true then exit. Get it?
+We can do this in fewer lines of code. We can put the min.open(0) in the condition of the {\bf if} statement. This way min.open will return true or false (which is represented as ints with a value of 1 or 0). The {\bf !} will give the opposite return value of min.open. Now the statement will mean if min.open doesn't return true then exit. Yeah?
 
 \begin{verbatim}
-    if( !min.open(0) ){me.exit();}
+    if( !min.open(0) ) { me.exit(); }
 \end{verbatim}
 
 \section*{Getting MIDI}
