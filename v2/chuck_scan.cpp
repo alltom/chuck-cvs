@@ -265,6 +265,7 @@ t_CKBOOL type_engine_scan0_class_def( Chuck_Env * env, a_Class_Def class_def )
     if( env->context->public_class_def == class_def )
     { the_class->info->parent = env->context->nspc; }
     else { the_class->info->parent = env->curr; }
+    // TODO: add ref to the parent?
     the_class->func = NULL;
     the_class->def = class_def;
     // add code
