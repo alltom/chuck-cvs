@@ -24,7 +24,6 @@
   - (fixed) obj @=> obj now ref counts correctly
   - (fixed) STK Mandolin.detune( float f ) changed
   - (fixed) STK Mandolin.damping( float f ) changed
-  - new examples:
 
 
 ---

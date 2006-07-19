@@ -16,7 +16,7 @@ pan.right => NRev r2 => dac.right;
 // set gain
 .5 => g.gain;
 // set mix
-.2 => r1.mix => r2.mix;
+.1 => r1.mix => r2.mix;
 
 // the pegs (0 not used - for easy indexing)
 sndbuf pegs[4];

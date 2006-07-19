@@ -11,7 +11,8 @@ introduces a truly concurrent programming model that embeds timing
 directly in the program flow.  Other potentially useful features include 
 the ability to write/change programs on-the-fly.
 
-who it is for: audio/multimedia researchers, developers, composers, and performers
+who it is for: audio/multimedia researchers, developers, composers, and 
+performers
 
 what this distribution includes:
   - ChucK compiler
@@ -23,7 +24,6 @@ supported platforms:
   - MacOS X (CoreAudio)
   - Linux (ALSA/OSS)
   - Windows/Cygwin (DirectSound)
-  - SGI (coming soon)
 
 authors:
   see AUTHORS  

@@ -63,7 +63,8 @@ directory name):
 
    %> make
    [chuck build]: please use one of the following configurations:
-       make osx, make linux-oss, make linux-alsa, make win32
+       make osx, make osx-intel, make win32,
+       make linux-oss, make linux-alsa, or make linux-jack
 
 Now, type the command corresponding to your platform... 
 
