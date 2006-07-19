@@ -15,10 +15,12 @@
   - (fixed) STK Mandolin.detune( float f ) changed
   - (fixed) STK Mandolin.damping( float f ) changed
 
+
 ---
 1.2.0.5b
   - (fixed) adc bug
   - (fixed) %=> bug
+
 
 ---
 1.2.0.5
