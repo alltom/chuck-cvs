@@ -2,6 +2,7 @@
 1.2.0.6
   - (added) support for Mac OS X on Intel: (make osx-intel)
   - (added) win32 - boost thread priority default from 0 to 5
+  - (added) Mandolin.bodyIR( string path ): set body impulse response
   - (fixed) multiple declarations now behave correctly:
                 (example: int a, b, c;)
   - (fixed) now possible to spork non-static member functions
