@@ -63,14 +63,20 @@ directory name):
 
    %> make
    [chuck build]: please use one of the following configurations:
-       make osx, make osx-intel, make win32,
+       make osx-ppc, make osx-intel, make win32,
        make linux-oss, make linux-alsa, or make linux-jack
 
 Now, type the command corresponding to your platform... 
 
-for example, for MacOS X:
+for example, for MacOS X (PowerPC):
 
-   %> make osx
+   %> make osx-ppc
+
+or for MacOS X (Intel):
+
+   %> make osx-intel
+
+etc...
 
 ---
 
