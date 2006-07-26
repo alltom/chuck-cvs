@@ -4,15 +4,17 @@
 // author: Perry Cook
 
 sinosc row => dac;
-sinosc  col => dac;
+sinosc col => dac;
 
 // frequencies
-[1209.0,1336.0,1477.0] @=> float cols[];
-[697.0,770.0,852.0,941.0] @=> float rows[];
+[1209.0, 1336.0, 1477.0] @=> float cols[];
+[697.0, 770.0, 852.0, 941.0] @=> float rows[];
 
 // if you want to look up by number ( 0 - 9, *, # )
-fun int key2col( int key ) { if( !key ) return 1; return (key - 1) % 3; }
-fun int key2row( int key ) { if( !key ) return 3; return (key - 1) / 3; }
+fun int key2col( int key )
+{ if( !key ) return 1; return (key - 1) % 3; }
+fun int key2row( int key )
+{ if( !key ) return 3; return (key - 1) / 3; }
 
 0 => int i;
 int r,c,n;

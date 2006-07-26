@@ -34,7 +34,7 @@ fun void clap( sndbuf buffy, int max, float factor )
         for( 0 => int count; count < seq.cap(); count++ )
         {
             // set gain
-            seq[count] => buffy.gain;
+            seq[count] * 2 => buffy.gain;
             // clap!
             0 => buffy.pos;
             // let time go by
