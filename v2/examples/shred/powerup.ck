@@ -22,7 +22,7 @@ fun void sweep( float st, float inc, time end)
     // keep going until we've passed the end time sent in by the control thread.
     while ( now < end )
     {
-	( now - my_start ) / 1.0::second => my_seconds; 
+        ( now - my_start ) / 1.0::second => my_seconds; 
         math.max ( my_seconds * 4.0, 1.0 ) * 0.1  => z.gain; 
         z.freq() + inc * -0.02  => z.freq;
         10::ms => now;

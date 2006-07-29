@@ -21,26 +21,29 @@ int r,c,n;
 
 // go!
 while (i < 7) {
-   1.0 => row.gain;
-   1.0 => col.gain;
-   std.rand2(0,3) => r;
-   std.rand2(0,2) => c;
-   1 + r * 3 + c => n;
-   if (n==11) 0 => n;
-   if (n==10)  {
-       <<< r , c, "*" >>>;
-   }
-   else if (n==12) {
-       <<< r , c, "#" >>>;
-   }
-   else
-       <<< r , c, n >>>;
-   rows[r] => row.freq;
-   cols[c] => col.freq;
-   0.1 :: second => now;
-   0.0 => row.gain;
-   0.0 => col.gain;
-   0.05 :: second => now;
-   i + 1 => i;
+    .5 => row.gain;
+    .5 => col.gain;
+    std.rand2(0,3) => r;
+    std.rand2(0,2) => c;
+    1 + r * 3 + c => n;
+
+    if (n==11) 0 => n;
+    if (n==10) {
+        <<< r , c, "*" >>>;
+    }
+    else if (n==12) {
+        <<< r , c, "#" >>>;
+    }
+    else
+        <<< r , c, n >>>;
+
+    rows[r] => row.freq;
+    cols[c] => col.freq;
+
+    0.1 :: second => now;
+    0.0 => row.gain;
+    0.0 => col.gain;
+    0.05 :: second => now;
+    i + 1 => i;
 }
 
