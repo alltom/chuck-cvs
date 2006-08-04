@@ -13,6 +13,9 @@ osx-ppc:
 osx-intel:
 	-make -f makefile.osx-intel
 
+osx-ub:
+	-make -f makefile.osx-ub
+
 linux-oss: 
 	-make -f makefile.oss 
 

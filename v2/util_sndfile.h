@@ -120,7 +120,7 @@
 
 #ifdef __MACOSX_CORE__
 #define CPU_CLIPS_POSITIVE 1
-#ifdef __INTEL_MAC__
+#ifdef __LITTLE_ENDIAN__
 #define CPU_IS_BIG_ENDIAN 0
 #define CPU_IS_LITTLE_ENDIAN 1
 #define HAVE_LRINTF 1
@@ -2470,7 +2470,7 @@ extern word gsm_FAC [8] ;
     #define __USE_ISOC99    1
 
 
-#elif ( defined (WIN32) || defined (_WIN32) || defined(__PLATFORM_WIN32__) || defined(__INTEL_MAC__) )
+#elif ( defined (WIN32) || defined (_WIN32) || defined(__PLATFORM_WIN32__) || defined(__LITTLE_ENDIAN__) )
 
     #undef      HAVE_LRINT_REPLACEMENT
     #define     HAVE_LRINT_REPLACEMENT  1
