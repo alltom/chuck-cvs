@@ -222,6 +222,25 @@ void version()
 {
     fprintf( stderr, "\n" );
     fprintf( stderr, "chuck version: %s\n", CK_VERSION );
+#if defined(__PLATFORM_WIN32__)
+    fprintf( stderr, "   exe target: microsoft win32\n" );
+#elif defined(__WINDOWS_DS__)
+    fprintf( stderr, "   exe target: microsoft win32 + cygwin\n" );
+#elif defined(__LINUX_ALSA__)
+    fprintf( stderr, "   exe target: linux (alsa)\n" );
+#elif defined(__LINUX_OSS__)
+    fprintf( stderr, "   exe target: linux (oss)\n" ):
+#elif defined(__LINUX_JACK__)
+    fprintf( stderr, "   exe target: linux (jack)\n" );
+#elif defined(__MACOSX_UB__)
+    fprintf( stderr, "   exe target: mac os x : universal binary\n" );
+#elif defined(__MACOSX_CORE__) && defined(__LITTLE_ENDIAN)
+    fprintf( stderr, "   exe target: mac os x : intel\n" );
+#elif defined(__MACOSX_CORE__)
+    fprintf( stderr, "   exe target: mac os x : powerpc\n" );
+#else
+    fprintf( stderr, "   exe target: uh... unknown\n" );
+#endif
     fprintf( stderr, "   http://chuck.cs.princeton.edu/\n\n" );
 }
 
