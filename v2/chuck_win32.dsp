@@ -435,10 +435,6 @@ SOURCE=.\ulib_math.h
 # End Source File
 # Begin Source File
 
-SOURCE=.\ulib_net.h
-# End Source File
-# Begin Source File
-
 SOURCE=.\ulib_opsc.h
 # End Source File
 # Begin Source File

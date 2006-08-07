@@ -166,9 +166,6 @@ ulib_machine.o: ulib_machine.h ulib_machine.cpp
 ulib_math.o: ulib_math.h ulib_math.cpp
 	$(CXX) $(FLAGS) ulib_math.cpp
 
-ulib_net.o: ulib_net.h ulib_net.cpp
-	$(CXX) $(FLAGS) ulib_net.cpp
-
 ulib_std.o: ulib_std.h ulib_std.cpp
 	$(CXX) $(FLAGS) ulib_std.cpp
 
