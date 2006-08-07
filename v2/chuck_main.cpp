@@ -234,7 +234,7 @@ void version()
     fprintf( stderr, "   exe target: linux (jack)\n" );
 #elif defined(__MACOSX_UB__)
     fprintf( stderr, "   exe target: mac os x : universal binary\n" );
-#elif defined(__MACOSX_CORE__) && defined(__LITTLE_ENDIAN)
+#elif defined(__MACOSX_CORE__) && defined(__LITTLE_ENDIAN__)
     fprintf( stderr, "   exe target: mac os x : intel\n" );
 #elif defined(__MACOSX_CORE__)
     fprintf( stderr, "   exe target: mac os x : powerpc\n" );
