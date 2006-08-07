@@ -229,7 +229,7 @@ void version()
 #elif defined(__LINUX_ALSA__)
     fprintf( stderr, "   exe target: linux (alsa)\n" );
 #elif defined(__LINUX_OSS__)
-    fprintf( stderr, "   exe target: linux (oss)\n" ):
+    fprintf( stderr, "   exe target: linux (oss)\n" );
 #elif defined(__LINUX_JACK__)
     fprintf( stderr, "   exe target: linux (jack)\n" );
 #elif defined(__MACOSX_UB__)
