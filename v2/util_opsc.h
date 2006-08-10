@@ -262,8 +262,10 @@ University of California, Berkeley.
   /* In Metrowerks you can set ints to be 2 or 4 bytes on 68K, but long is
      always 4 bytes */
     typedef long int4byte;
+    // ISSUE: 64-bit
 #else
     typedef int int4byte;
+    // ISSUE: 64-bit
 #endif
 
 /* The maximum depth of bundles within bundles within bundles within...

@@ -730,7 +730,7 @@ void Chuck_Instr_Reg_Push_Maybe::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
 //-----------------------------------------------------------------------------
 void Chuck_Instr_Reg_Push_Deref::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
-    if( m_size == 4 )
+    if( m_size == 4 ) // ISSUE: 64-bit
     {
         t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
         push_( reg_sp, *((t_CKUINT *)m_val) );
@@ -2272,12 +2272,12 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     mem_sp -= push;
     
     // push the return
-    if( m_val == 4 )
+    if( m_val == 4 ) // ISSUE: 64-bit
     {
         // push the return args
         push_( reg_sp, retval.v_uint );
     }
-    else if( m_val == 8 )
+    else if( m_val == 8 ) // ISSUE: 64-bit
     {
         // push the return args
         t_CKFLOAT *& sp_double = (t_CKFLOAT *&)reg_sp;
@@ -2358,12 +2358,12 @@ void Chuck_Instr_Func_Call_Static::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     mem_sp -= push;
 
     // push the return
-    if( m_val == 4 )
+    if( m_val == 4 ) // ISSUE: 64-bit
     {
         // push the return args
         push_( reg_sp, retval.v_uint );
     }
-    else if( m_val == 8 )
+    else if( m_val == 8 ) // ISSUE: 64-bit
     {
         // push the return args
         t_CKFLOAT *& sp_double = (t_CKFLOAT *&)reg_sp;
@@ -2596,7 +2596,7 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
 
     // allocate the array
-    if( m_type_ref->size == 4 )
+    if( m_type_ref->size == 4 ) // ISSUE: 64-bit
     {
         // pop the values
         pop_( reg_sp, m_length );
@@ -2614,7 +2614,7 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         // push the pointer
         push_( reg_sp, (t_CKUINT)array );
     }
-    else if( m_type_ref->size == 8 )
+    else if( m_type_ref->size == 8 ) // ISSUE: 64-bit
     {
         // pop the values
         pop_( reg_sp, 2 * m_length );
@@ -2722,7 +2722,7 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
     if( capacity >= top )
     {
         // check size
-        if( size == 4 )
+        if( size == 4 ) // ISSUE: 64-bit
         {
             Chuck_Array4 * base = new Chuck_Array4( is_obj, *capacity );
             if( !base ) goto out_of_memory;
@@ -2907,7 +2907,7 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     pop_( sp, 2 );
 
     // 4 or 8
-    if( m_size == 4 )
+    if( m_size == 4 ) // ISSUE: 64-bit
     {
         // get array
         Chuck_Array4 * arr = (Chuck_Array4 *)(*sp);
@@ -2929,7 +2929,7 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             push_( sp, val );
         }
     }
-    else if( m_size == 8 )
+    else if( m_size == 8 ) // ISSUE: 64-bit
     {
         // get array
         Chuck_Array8 * arr = (Chuck_Array8 *)(*sp);
@@ -2986,7 +2986,7 @@ void Chuck_Instr_Array_Map_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     pop_( sp, 2 );
 
     // 4 or 8
-    if( m_size == 4 )
+    if( m_size == 4 ) // ISSUE: 64-bit
     {
         // get array
         Chuck_Array4 * arr = (Chuck_Array4 *)(*sp);
@@ -3008,7 +3008,7 @@ void Chuck_Instr_Array_Map_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
             push_( sp, val );
         }
     }
-    else if( m_size == 8 )
+    else if( m_size == 8 ) // ISSUE: 64-bit
     {
         // get array
         Chuck_Array8 * arr = (Chuck_Array8 *)(*sp);
@@ -3084,7 +3084,7 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
     }
 
     // 4 or 8
-    if( m_size == 4 )
+    if( m_size == 4 ) // ISSUE: 64-bit
     {
         // get arry
         Chuck_Array4 * arr = base;
@@ -3106,7 +3106,7 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
             push_( sp, val );
         }
     }
-    else if( m_size == 8 )
+    else if( m_size == 8 ) // ISSUE: 64-bit
     {
         // get array
         Chuck_Array8 * arr = (Chuck_Array8 *)(base);
@@ -3176,8 +3176,8 @@ void Chuck_Instr_Dot_Member_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     else
     {
         // 4 or 8
-        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)data) ); }
-        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); }
+        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)data) ); } // ISSUE: 64-bit
+        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); } // ISSUE: 64-bit
         else assert( FALSE );
     }
 
@@ -3267,8 +3267,8 @@ void Chuck_Instr_Dot_Static_Data::execute( Chuck_VM * vm, Chuck_VM_Shred * shred
     else
     {
         // 4 or 8
-        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)data) ); }
-        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); }
+        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)data) ); } // ISSUE: 64-bit
+        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)data) ); } // ISSUE: 64-bit
         else assert( FALSE );
     }
 }
@@ -3294,8 +3294,8 @@ void Chuck_Instr_Dot_Static_Import_Data::execute( Chuck_VM * vm, Chuck_VM_Shred 
     else
     {
         // 4 or 8
-        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)m_addr) ); }
-        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)m_addr) ); }
+        if( m_size == 4 ) { push_( sp, *((t_CKUINT *)m_addr) ); } // ISSUE: 64-bit
+        else if( m_size == 8 ) { push_float( sp, *((t_CKFLOAT *)m_addr) ); } // ISSUE: 64-bit
         else assert( FALSE );
     }
 }
@@ -3642,7 +3642,7 @@ Chuck_Instr_Hack::~Chuck_Instr_Hack()
 void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // look at the type
-    if( m_type_ref->size == 4 )
+    if( m_type_ref->size == 4 ) // ISSUE: 64-bit
     {
         t_CKINT * sp = (t_CKINT *)shred->reg->sp;
         if( !isa( m_type_ref, &t_string ) )
@@ -3651,7 +3651,7 @@ void Chuck_Instr_Hack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         else
             fprintf( stderr, "\"%s\" : (%s)\n", ((Chuck_String *)*(sp-1))->str.c_str(), m_type_ref->c_name() );
     }
-    else if( m_type_ref->size == 8 )
+    else if( m_type_ref->size == 8 ) // ISSUE: 64-bit
     {
         t_CKFLOAT * sp = (t_CKFLOAT *)shred->reg->sp;
         // print it
@@ -3718,7 +3718,7 @@ void Chuck_Instr_Gack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         Chuck_Type * type = m_type_refs[i];
 
         // look at the type
-        if( type->size == 4 )
+        if( type->size == 4 ) // ISSUE: 64-bit
         {
             t_CKINT * sp = (t_CKINT *)the_sp;
             if( !isa( type, &t_string ) )
@@ -3735,7 +3735,7 @@ void Chuck_Instr_Gack::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
             the_sp += 4;
         }
-        else if( type->size == 8 )
+        else if( type->size == 8 ) // ISSUE: 64-bit
         {
             t_CKFLOAT * sp = (t_CKFLOAT *)the_sp;
             // print it
