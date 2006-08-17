@@ -4,7 +4,7 @@ CXX_LINK=g++
 LEX=flex
 YACC=bison
 INCLUDES=
-FLAGS=-D__MACOSX_CORE__ -D__MACOSX_UB__ -O3 -c -arch ppc -arch i386 \
+FLAGS=-D__MACOSX_CORE__ -D__MACOSX_UB__ -c -arch ppc -arch i386 \
       -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
 	-framework IOKit -framework Carbon -lstdc++ -lm \
@@ -17,6 +17,8 @@ endif
 
 ifneq ($(CHUCK_DEBUG),)
 FLAGS+= -g
+else
+FLAGS+= -O3
 endif
 
 ifneq ($(CHUCK_STRICT),)
