@@ -109,7 +109,7 @@ fun void swap( )
 
 MandPlayer mand;
 ClarPlayer clar;
-gain g => JCRev j => Echo e => dac;
+Gain g => JCRev j => Echo e => dac;
 0.95 => j.gain;
 0.2 => j.mix;
 

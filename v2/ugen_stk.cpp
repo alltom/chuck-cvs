@@ -1828,6 +1828,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //member variable
     BiQuad_offset_data = type_engine_import_mvar ( env, "int", "@BiQuad_data", FALSE );
     if( BiQuad_offset_data == CK_INVALID_OFFSET ) goto error;
+
     func = make_new_mfun( "float", "b2", BiQuad_ctrl_b2 ); //! b2 coefficient
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1870,16 +1871,28 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "float", "pfreq", BiQuad_cget_pfreq );  //! get resonance frequency (poles)
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "float", "prad", BiQuad_ctrl_prad ); //! pole radius (less than 1 to be stable)
     func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "prad", BiQuad_cget_prad ); //! pole radius (less than 1 to be stable)
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "zfreq", BiQuad_ctrl_zfreq ); //! notch frequency
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "float", "zfreq", BiQuad_cget_zfreq ); //! notch frequency
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "float", "zrad", BiQuad_ctrl_zrad ); //! zero radius
     func->add_arg( "float", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "float", "zrad", BiQuad_cget_zrad ); //! zero radius
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "norm", BiQuad_ctrl_norm ); //! normalization
@@ -11962,6 +11975,7 @@ void Echo :: set( MY_FLOAT max )
     length = (long)max + 2;
     MY_FLOAT delay = delayLine ? delayLine->getDelay() : length>>1;
     if( delayLine ) delete delayLine;
+    if( delay >= max ) delay = max;
     delayLine = new Delay(length>>1, length);
     this->clear();
     this->setDelay(delay+.5);
@@ -23041,6 +23055,17 @@ CK_DLL_CTRL( BiQuad_ctrl_pfreq )
 
 
 //-----------------------------------------------------------------------------
+// name: BiQuad_cget_pfreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BiQuad_cget_pfreq )
+{
+    BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
+    RETURN->v_float = (t_CKFLOAT)f->pfreq;
+}
+
+
+//-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_prad()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -23049,6 +23074,17 @@ CK_DLL_CTRL( BiQuad_ctrl_prad )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     f->prad = GET_NEXT_FLOAT(ARGS);
     f->biquad.setResonance( f->pfreq, f->prad, f->norm != 0 );
+    RETURN->v_float = (t_CKFLOAT)f->prad;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BiQuad_cget_prad()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BiQuad_cget_prad )
+{
+    BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     RETURN->v_float = (t_CKFLOAT)f->prad;
 }
 
@@ -23067,6 +23103,17 @@ CK_DLL_CTRL( BiQuad_ctrl_zfreq )
 
 
 //-----------------------------------------------------------------------------
+// name: BiQuad_cget_zfreq()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BiQuad_cget_zfreq )
+{
+    BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
+    RETURN->v_float = (t_CKFLOAT)f->zfreq;
+}
+
+
+//-----------------------------------------------------------------------------
 // name: BiQuad_ctrl_zrad()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -23075,6 +23122,17 @@ CK_DLL_CTRL( BiQuad_ctrl_zrad )
     BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     f->zrad = GET_NEXT_FLOAT(ARGS);
     f->biquad.setNotch( f->zfreq, f->zrad );
+    RETURN->v_float = f->zrad;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BiQuad_cget_zrad()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BiQuad_cget_zrad )
+{
+    BiQuad_ * f = (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data );
     RETURN->v_float = f->zrad;
 }
 

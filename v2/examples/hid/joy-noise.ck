@@ -14,7 +14,7 @@ if( !hi.openJoystick( device ) ) me.exit();
 <<< "joystick ready...", "" >>>;
 
 // patch
-Noise n => BiQuad f => Envelope e => pan2 p => dac;
+Noise n => BiQuad f => Envelope e => Pan2 p => dac;
 e => Echo echo => p;
 e => Echo echo2 => p;
 e => Echo echo3 => p;

@@ -12,7 +12,7 @@ xmit.setHost( "localhost", 6449 );
 0 => int ct;
 0.25 => float res;
 
-[55, 57, 55, 58, 55, 59, 53] => int notes[];
+[55, 57, 55, 58, 55, 59, 53] @=> int notes[];
 7 => int nnote;
 0 => int idx;
 

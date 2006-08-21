@@ -77,6 +77,7 @@ CK_DLL_CTRL( BiQuad_ctrl_b1 );
 CK_DLL_CTRL( BiQuad_ctrl_b0 );
 CK_DLL_CTRL( BiQuad_ctrl_a2 );
 CK_DLL_CTRL( BiQuad_ctrl_a1 );
+CK_DLL_CGET( BiQuad_ctrl_a0 );
 CK_DLL_CTRL( BiQuad_ctrl_pfreq );
 CK_DLL_CTRL( BiQuad_ctrl_prad );
 CK_DLL_CTRL( BiQuad_ctrl_zfreq );
@@ -89,6 +90,10 @@ CK_DLL_CGET( BiQuad_cget_b0 );
 CK_DLL_CGET( BiQuad_cget_a2 );
 CK_DLL_CGET( BiQuad_cget_a1 );
 CK_DLL_CGET( BiQuad_cget_a0 );
+CK_DLL_CTRL( BiQuad_cget_pfreq );
+CK_DLL_CTRL( BiQuad_cget_prad );
+CK_DLL_CTRL( BiQuad_cget_zfreq );
+CK_DLL_CTRL( BiQuad_cget_zrad );
 
 // Chorus
 CK_DLL_CTOR( Chorus_ctor );

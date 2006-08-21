@@ -18,7 +18,7 @@ spork ~ timer();
 // sweep shred
 fun void sweep( float st, float inc, float end, int c)
 {
-    n => TwoPole z => pan2 p => dac; 
+    n => TwoPole z => Pan2 p => dac; 
     1  => z.norm;
     0.1 => z.gain;
     t => float dt;

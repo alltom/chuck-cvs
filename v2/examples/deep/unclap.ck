@@ -23,7 +23,7 @@ SndBuf clapper2 => dac.right;
 .5 => float shift_factor;
 
 // one clapper
-fun void clap( sndbuf buffy, int max, float factor )
+fun void clap( SndBuf buffy, int max, float factor )
 {
     1 => int shifts;
 
