@@ -9,5 +9,5 @@ SinOsc lfo => dac;
 while( true )
 {
     <<< lfo.last(), "" >>>;
-    10::ms => now;
+    50::ms => now;
 }
