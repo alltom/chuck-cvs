@@ -1,5 +1,5 @@
 // step generator, zero crossing detector, dac
-step s => zerox z  => dac;
+Step s => ZeroX z => dac;
 1.0 => float v;
 
 // infnite time-loop

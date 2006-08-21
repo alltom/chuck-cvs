@@ -23,7 +23,7 @@ T - (now % T) => now;
 .5::T => now;
 
 // construct the patch
-sndbuf buf => gain g => dac;
+SndBuf buf => Gain g => dac;
 "data/hihat-open.wav" => buf.read;
 .5 => g.gain;
 

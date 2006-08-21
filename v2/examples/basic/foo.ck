@@ -2,7 +2,7 @@
 // a chuck is born...
 // its first words:
 
-sinosc s => JCRev r => dac;
+SinOsc s => JCRev r => dac;
 .2 => s.gain;
 .1 => r.mix;
 

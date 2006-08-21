@@ -82,6 +82,22 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 
     Chuck_DL_Func * func = NULL;
 
+    // deprecate
+    type_engine_register_deprecate( env, "dac", "DAC" );
+    type_engine_register_deprecate( env, "adc", "ADC" );
+    type_engine_register_deprecate( env, "pan2", "Pan2" );
+    type_engine_register_deprecate( env, "mix2", "Mix2" );
+    type_engine_register_deprecate( env, "gain", "Gain" );
+    type_engine_register_deprecate( env, "noise", "Noise" );
+    type_engine_register_deprecate( env, "cnoise", "CNoise" );
+    type_engine_register_deprecate( env, "impulse", "Impulse" );
+    type_engine_register_deprecate( env, "step", "Step" );
+    type_engine_register_deprecate( env, "halfrect", "HalfRect" );
+    type_engine_register_deprecate( env, "fullrect", "FullRect" );
+    type_engine_register_deprecate( env, "zerox", "ZeroX" );
+    type_engine_register_deprecate( env, "delayp", "DelayP" );
+    type_engine_register_deprecate( env, "sndbuf", "SndBuf" );
+
     //! \section audio output
     
     //-------------------------------------------------------------------------
@@ -140,7 +156,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: dac
     //---------------------------------------------------------------------
-    if( !(g_t_dac = type_engine_import_ugen_begin( env, "dac", "UGen_Stereo", env->global(), 
+    if( !(g_t_dac = type_engine_import_ugen_begin( env, "DAC", "UGen_Stereo", env->global(), 
                                                    NULL, NULL, NULL, 2, 2 )) )
         return FALSE;
 
@@ -154,7 +170,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: adc
     //---------------------------------------------------------------------
-    if( !(g_t_adc = type_engine_import_ugen_begin( env, "dac", "UGen_Stereo", env->global(), 
+    if( !(g_t_adc = type_engine_import_ugen_begin( env, "ADC", "UGen_Stereo", env->global(), 
                                                    NULL, NULL, NULL, 0, 2 )) )
         return FALSE;
 
@@ -165,7 +181,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: pan2
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "pan2", "UGen_Stereo", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Pan2", "UGen_Stereo", env->global(), 
                                         NULL, NULL, NULL, 2, 2 ) )
         return FALSE;
     
@@ -176,7 +192,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: mix2
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "mix2", "UGen_Stereo", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Mix2", "UGen_Stereo", env->global(), 
                                         NULL, NULL, NULL, 2, 2 ) )
         return FALSE;
     
@@ -207,7 +223,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: gain
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "gain", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Gain", "UGen", env->global(), 
                                         NULL, NULL, NULL ) )
         return FALSE;
     // end import
@@ -228,7 +244,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: noise
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "noise", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Noise", "UGen", env->global(), 
                                         NULL, noise_tick, NULL ) )
         return FALSE;
 
@@ -246,7 +262,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: cnoise
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "cnoise", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "CNoise", "UGen", env->global(), 
                                         cnoise_ctor, cnoise_tick, NULL ) )
         return FALSE;
 
@@ -295,7 +311,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: impulse
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "impulse", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Impulse", "UGen", env->global(), 
                                         impulse_ctor, impulse_tick, NULL ) )
         return FALSE;
 
@@ -346,7 +362,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: step
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "step", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Step", "UGen", env->global(), 
                                         step_ctor, step_tick, NULL ) )
         return FALSE;
 
@@ -374,8 +390,6 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_class_end( env ) )
         return FALSE;
     
-    //! \section filters
-    
     // add halfrect
     //! half wave rectifier
     //! for half-wave rectification. 
@@ -385,7 +399,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: halfrect
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "halfrect", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "HalfRect", "UGen", env->global(), 
                                         NULL, halfrect_tick, NULL ) )
         return FALSE;
 
@@ -402,7 +416,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: fullrect
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "fullrect", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "FullRect", "UGen", env->global(), 
                                         NULL, fullrect_tick, NULL ) )
         return FALSE;
 
@@ -421,7 +435,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: zerox
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "zerox", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "ZeroX", "UGen", env->global(), 
                                         zerox_ctor, zerox_tick, NULL ) )
         return FALSE;
 
@@ -450,7 +464,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: delayp
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "delayp", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "DelayP", "UGen", env->global(), 
                                         delayp_ctor, delayp_tick, delayp_pmsg ) )
         return FALSE;
 
@@ -514,7 +528,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: sndbuf
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "sndbuf", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "SndBuf", "UGen", env->global(), 
                                         sndbuf_ctor, sndbuf_tick, NULL ) )
         return FALSE;
 

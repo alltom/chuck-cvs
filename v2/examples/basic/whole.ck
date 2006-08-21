@@ -1,7 +1,7 @@
 // another candidate for lamest demo
 
 // patch
-sinosc s => JCRev r => dac;
+SinOsc s => JCRev r => dac;
 .5 => r.gain;
 .075 => r.mix;
 

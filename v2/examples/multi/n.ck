@@ -6,7 +6,7 @@ dac.channels() => int N;
 <<< "dac has", N, "channels" >>>;
 
 // make osc bank
-sinosc s[N];
+SinOsc s[N];
 // connect to individual channels
 for( int i; i < N; i++ )
 {

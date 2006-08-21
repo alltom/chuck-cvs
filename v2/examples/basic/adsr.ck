@@ -1,6 +1,6 @@
 // run white noise through ADSR envelope
 // (also see envelope.ck)
-noise n => ADSR e => dac;
+Noise n => ADSR e => dac;
 
 // infinite time-loop
 while( true )

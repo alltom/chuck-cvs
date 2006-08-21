@@ -1,5 +1,5 @@
 // bandlimited ugens (Blit, BlitSaw, BlitSquare)
-Blit s => pan2 p;
+Blit s => Pan2 p;
 p.left => JCRev r1 => dac.left;
 p.right => JCRev r2 => dac.right;
 

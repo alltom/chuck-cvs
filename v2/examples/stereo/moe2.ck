@@ -1,5 +1,5 @@
 // impulse to filter to dac
-impulse i => biquad f => pan2 p => dac;
+Impulse i => BiQuad f => Pan2 p => dac;
 // set the filter's pole radius
 .99 => f.prad; 
 // set equal gain zeros

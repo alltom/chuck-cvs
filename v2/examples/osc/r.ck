@@ -1,7 +1,7 @@
 // (launch with s.ck)
 
 // the patch
-sinosc s => JCRev r => dac;
+SinOsc s => JCRev r => dac;
 .5 => s.gain;
 .1 => r.mix;
 

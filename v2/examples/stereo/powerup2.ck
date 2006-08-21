@@ -2,7 +2,7 @@
 // - philipd, stereo gewang
 
 0.0 => float t;
-noise n;
+Noise n;
 
 // timer shred
 fun void timer() { 

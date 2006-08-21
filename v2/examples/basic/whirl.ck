@@ -1,4 +1,4 @@
-sinosc s => dac;
+SinOsc s => dac;
 
 0.0 => float t;
 while( true )

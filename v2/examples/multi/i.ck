@@ -7,7 +7,7 @@ dac.channels() => int N;
 int i;
 
 // make osc bank
-impulse s[N];
+Impulse s[N];
 // connect to individual channels
 for( int i; i < N; i++ )
 {

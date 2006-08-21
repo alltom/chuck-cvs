@@ -1,7 +1,7 @@
 // FM using sinosc
 
 // modulator to carrier
-sinosc m => sinosc c => dac;
+SinOsc m => SinOsc c => dac;
 
 // carrier frequency
 220 => float cf => c.freq;

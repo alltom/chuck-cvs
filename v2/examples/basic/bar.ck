@@ -1,6 +1,6 @@
 // point of attack for random otf demo
 
-sinosc s => dac;
+SinOsc s => dac;
 .2 => s.gain;
 
 // an array: add stuff

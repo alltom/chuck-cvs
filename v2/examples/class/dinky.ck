@@ -11,7 +11,7 @@
 public class Dinky
 {
     // impulse to filter to dac
-    impulse i => biquad f => Envelope e;
+    Impulse i => BiQuad f => Envelope e;
     // set the filter's pole radius
     .99 => f.prad;
     // set equal gain zeros

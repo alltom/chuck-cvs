@@ -367,6 +367,8 @@ private:
         context->filename = "@[global]";
         // remember
         global_nspc = global_context.nspc; SAFE_ADD_REF(global_nspc);
+        // deprecated stuff
+        deprecated.clear(); deprecate_level = 1;
         // clear
         this->reset();
     }
@@ -405,6 +407,11 @@ public:
     map<string, t_CKBOOL> key_words;
     map<string, t_CKBOOL> key_types;
     map<string, t_CKBOOL> key_values;
+
+    // deprecated types
+    map<string, string> deprecated;
+    // level - 0:stop, 1:warn, 2:ignore
+    t_CKINT deprecate_level;
 
     // destructor
     virtual ~Chuck_Env() { }
@@ -730,6 +737,8 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
 t_CKBOOL type_engine_import_ugen_ctrl( Chuck_Env * env, const char * type, const char * name,
                                        f_ctrl ctrl, t_CKBOOL write, t_CKBOOL read );
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env );
+t_CKBOOL type_engine_register_deprecate( Chuck_Env * env, 
+                                         const string & former, const string & latter );
 
 // helpers
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & xid, int pos );

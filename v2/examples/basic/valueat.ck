@@ -1,5 +1,5 @@
 // (see sndbuf.ck or otf_01.ck for non-insane usage of sndbuf)
-sndbuf buf;
+SndBuf buf;
 "../data/kick.wav" => buf.read;
 
 // the patch (no sndbuf involved)

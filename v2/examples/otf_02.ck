@@ -20,7 +20,7 @@
 T - (now % T) => now;
 
 // construct the patch
-sndbuf buf => gain g => dac;
+SndBuf buf => Gain g => dac;
 "data/hihat.wav" => buf.read;
 .25 => g.gain;
 

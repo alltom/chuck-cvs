@@ -1,5 +1,5 @@
 // noise generator, biquad filter, dac (audio output) 
-noise n => biquad f => dac;
+Noise n => BiQuad f => dac;
 // set biquad pole radius
 .99 => f.prad;
 // set biquad gain

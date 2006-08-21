@@ -15,7 +15,7 @@ while( now < later )
 }
 
 // patch
-sinosc s => JCRev r => dac;
+SinOsc s => JCRev r => dac;
 .025 => r.mix;
 f => s.freq;
 

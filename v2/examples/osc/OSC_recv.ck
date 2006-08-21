@@ -1,7 +1,7 @@
 // (launch with OSC_send.ck)
 
 // the patch
-sndbuf buf => dac;
+SndBuf buf => dac;
 // load the file
 "../data/snare.wav" => buf.read;
 // don't play yet

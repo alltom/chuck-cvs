@@ -2,7 +2,7 @@
 // - philipd
 
 // global noise source 
-noise n;
+Noise n;
 
 // sweep shred
 fun void sweep( float st, float inc, time end)

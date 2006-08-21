@@ -6,7 +6,7 @@
 0 => int device;
 
 // modulator to carrier
-sinosc m => sinosc c => Envelope e => dac;
+SinOsc m => SinOsc c => Envelope e => dac;
 
 // carrier frequency
 220 => c.freq;

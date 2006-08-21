@@ -3,8 +3,8 @@
 //       (play this into analog phones to call random people)
 // author: Perry Cook
 
-sinosc row => dac;
-sinosc col => dac;
+SinOsc row => dac;
+SinOsc col => dac;
 
 // frequencies
 [1209.0, 1336.0, 1477.0] @=> float cols[];

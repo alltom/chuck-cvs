@@ -23,7 +23,7 @@ T - (now % T) => now;
 T => now;
 
 // construct the patch
-sndbuf buf => gain g => dac;
+SndBuf buf => Gain g => dac;
 "data/snare-hop.wav" => buf.read;
 .6 => g.gain;
 

@@ -2,7 +2,7 @@
 // this demo is not
 
 // connect impulse generator
-impulse i => dac;
+Impulse i => dac;
 .5 => i.gain;
 
 // emit impulse every so often

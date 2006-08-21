@@ -3694,6 +3694,42 @@ Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol xid )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_find_deprecated_type()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Type * type_engine_find_deprecated_type( Chuck_Env * env, a_Id_List path )
+{
+    S_Symbol xid = NULL;
+    Chuck_Type * t = NULL;
+    std::string actual;
+
+    // find mapping
+    if( env->deprecated.find( S_name(path->xid) ) == env->deprecated.end() )
+        return NULL;
+
+    // get
+    actual = env->deprecated[S_name(path->xid)];
+
+    // get base type
+    Chuck_Type * type = env->curr->lookup_type( actual, TRUE );
+    if( !type ) return NULL;
+    else
+    {
+        // check level
+        if( env->deprecate_level < 2 )
+        {
+            EM_error2( path->linepos, "deprecated: '%s' --> use: '%s'...",
+                type_path( path ), actual.c_str() );
+        }
+    }
+
+    return type;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_find_type()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -3705,9 +3741,17 @@ Chuck_Type * type_engine_find_type( Chuck_Env * env, a_Id_List path )
     Chuck_Type * type = env->curr->lookup_type( path->xid, TRUE );
     if( !type )
     {
-        EM_error2( path->linepos, "undefined type '%s'...",
-            type_path( path ) );
-        return NULL;
+        // check level
+        if( env->deprecate_level > 0 )
+            type = type_engine_find_deprecated_type( env, path );
+
+        // error
+        if( !type )
+        {
+            EM_error2( path->linepos, "undefined type '%s'...",
+                type_path( path ) );
+            return NULL;
+        }
     }
     // start the namespace
     Chuck_Namespace * nspc = type->info;
@@ -4286,6 +4330,21 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
     // cleanup
     delete_id_list( path );
 
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_register_deprecate()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_register_deprecate( Chuck_Env * env, 
+                                         const string & former,
+                                         const string & latter )
+{
+    env->deprecated[former] = latter;
     return TRUE;
 }
 

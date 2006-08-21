@@ -20,7 +20,7 @@
 T - (now % T) => now;
 
 // connect patch
-sinosc s => dac;
+SinOsc s => dac;
 .25 => s.gain;
 
 // scale (in semitones)

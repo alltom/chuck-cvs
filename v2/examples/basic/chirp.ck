@@ -1,7 +1,7 @@
 // po-tweet!
 
 // patch
-sinosc s => dac;
+SinOsc s => dac;
 // gain
 .4 => s.gain;
 

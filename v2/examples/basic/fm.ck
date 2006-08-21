@@ -1,9 +1,9 @@
 // FM synthesis by hand
 
 // carrier
-sinosc c => dac;
+SinOsc c => dac;
 // modulator
-sinosc m => blackhole;
+SinOsc m => blackhole;
 
 // carrier frequency
 220 => float cf;

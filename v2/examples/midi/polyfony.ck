@@ -32,7 +32,7 @@ NoteEvent on;
 Event @ us[128];
 
 // the base patch
-gain g => JCRev r => dac;
+Gain g => JCRev r => dac;
 .1 => g.gain;
 .2 => r.mix;
 

@@ -5,8 +5,8 @@
 // date: Summer 2006
 
 // our patch
-sndbuf clapper1 => dac.left;
-sndbuf clapper2 => dac.right;
+SndBuf clapper1 => dac.left;
+SndBuf clapper2 => dac.right;
 
 // load built-in sounds
 "special:glot_ahh" => clapper1.read;

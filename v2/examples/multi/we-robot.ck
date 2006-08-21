@@ -9,11 +9,11 @@ dac.channels() => int N;
 // delays
 DelayL d[N];
 // gains
-gain g3[N];
+Gain g3[N];
 
 // our patch - feedforward part
-adc => gain g;
-adc => gain g2 => dac;
+adc => Gain g;
+adc => Gain g2 => dac;
 
 // set delays
 for( int i; i < N; i++ )

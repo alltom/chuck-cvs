@@ -2,11 +2,11 @@
 // %> chuck moe++ larry++ curly++
 
 // impulse to filter to dac
-sndbuf i => biquad f => gain g => JCRev r => dac;
+SndBuf i => BiQuad f => Gain g => JCRev r => dac;
 // second formant
-i => biquad f2 => g;
+i => BiQuad f2 => g;
 // third formant
-i => biquad f3 => g;
+i => BiQuad f3 => g;
 
 // set the filter's pole radius
 0.800 => f.prad; .995 => f2.prad; .995 => f3.prad;

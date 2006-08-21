@@ -20,7 +20,7 @@
 T - (now % T) => now;
 
 // construct the patch
-sndbuf buf => gain g => dac;
+SndBuf buf => Gain g => dac;
 "data/kick.wav" => buf.read;
 .5 => g.gain;
 

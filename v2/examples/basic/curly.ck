@@ -1,7 +1,8 @@
 // run each stooge, or run three stooges concurrently
 // %> chuck moe larry curly
+
 // impulse to filter to dac
-impulse i => biquad f => dac;
+Impulse i => BiQuad f => dac;
 // set the filter's pole radius
 .99 => f.prad; 
 // set equal gain zeros

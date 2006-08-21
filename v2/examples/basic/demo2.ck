@@ -5,19 +5,19 @@
 .1 => dac.gain;
 
 // connect
-sinosc a => dac;
+SinOsc a => dac;
 110.0 => a.freq;
 1::second => now;
-sinosc b => dac;
+SinOsc b => dac;
 220.0 => b.freq;
 1::second => now;
-sinosc c => dac;
+SinOsc c => dac;
 440.0 => c.freq;
 1::second => now;
-sinosc d => dac;
+SinOsc d => dac;
 880.0 => d.freq;
 1::second => now;
-sinosc e => dac;
+SinOsc e => dac;
 1760.0 => e.freq;
 1::second => now;
 

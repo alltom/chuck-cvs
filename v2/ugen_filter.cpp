@@ -55,6 +55,18 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
     Chuck_DL_Func * func = NULL;
 
+    // deprecate
+    type_engine_register_deprecate( env, "filter", "Filter" );
+    type_engine_register_deprecate( env, "biquad", "BiQuad" );
+    type_engine_register_deprecate( env, "onepole", "OnePole" );
+    type_engine_register_deprecate( env, "onezero", "OneZero" );
+    type_engine_register_deprecate( env, "twopole", "TwoPole" );
+    type_engine_register_deprecate( env, "twozero", "TwoZero" );
+    type_engine_register_deprecate( env, "delay", "Delay" );
+    type_engine_register_deprecate( env, "delayl", "DelayL" );
+    type_engine_register_deprecate( env, "delaya", "DelayA" );
+
+    /*
     //---------------------------------------------------------------------
     // init as base class: filter
     //---------------------------------------------------------------------
@@ -240,7 +252,6 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
-    /*
     //----------------------------------
     // begin delay ugen
     //----------------------------------
@@ -303,13 +314,14 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
 
     return TRUE;
-
+/*
 error:
 
     // end the class import
     type_engine_import_class_end( env );
 
     return FALSE;
+*/
 }
 
 

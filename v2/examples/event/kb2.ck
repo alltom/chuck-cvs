@@ -2,7 +2,7 @@
 KBHit kb;
 
 // patch
-impulse i => biquad f => dac;
+Impulse i => BiQuad f => dac;
 // set the filter's pole radius
 .99 => f.prad;
 // set equal gain zeros

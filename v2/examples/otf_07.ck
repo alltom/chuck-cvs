@@ -20,7 +20,7 @@
 T - (now % T) => now;
 
 // construct the patch
-sndbuf buf => gain g => JCRev r => dac;
+SndBuf buf => Gain g => JCRev r => dac;
 "data/snare.wav" => buf.read;
 .5 => g.gain;
 .05 => r.mix;
@@ -54,31 +54,31 @@ while( true )
     }
     else
     {
-            .9 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
-            .3 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
-            .3 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
+        .9 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
+        .3 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
+        .3 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
 
-            .9 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
-            .3 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
-            .3 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
+        .9 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
+        .3 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
+        .3 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
 
-            .9 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
-            .3 => buf.gain;
-            where => buf.pos;
-            .25::T => now;
+        .9 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
+        .3 => buf.gain;
+        where => buf.pos;
+        .25::T => now;
     }
 }

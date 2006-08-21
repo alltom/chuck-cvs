@@ -1,5 +1,5 @@
 // step gen to dac
-step s => dac;
+Step s => dac;
 .5 => float v;
 
 // infinite time-loop

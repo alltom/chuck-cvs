@@ -257,7 +257,8 @@ void usage()
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
-    fprintf( stderr, "               channels<N>|shell|empty|blocking|callback\n" );
+    fprintf( stderr, "               channels<N>|out<N>|in<N>|shell|empty|level<N>|\n" );
+    fprintf( stderr, "               blocking|callback|deprecate:{stop|warn|ignore}\n" );
     fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n" );
     version();
@@ -295,6 +296,7 @@ int main( int argc, char ** argv )
     t_CKBOOL no_vm = FALSE;
     t_CKBOOL load_hid = FALSE;
     t_CKINT  log_level = CK_LOG_CORE;
+    t_CKINT  deprecate_level = 1; // warn
 
 #ifdef __MACOSX_CORE__
     t_CKBOOL do_watchdog = FALSE;
@@ -392,6 +394,21 @@ int main( int argc, char ** argv )
                 log_level = argv[i][9] ? atoi( argv[i]+9 ) : CK_LOG_INFO;
             else if( !strncmp(argv[i], "-v", 2) )
                 log_level = argv[i][2] ? atoi( argv[i]+2 ) : CK_LOG_INFO;
+            else if( !strncmp(argv[i], "--deprecate", 11) )
+            {
+                // get the rest
+                string arg = argv[i]+11;
+                if( arg == ":stop" ) deprecate_level = 0;
+                else if( arg == ":warn" ) deprecate_level = 1;
+                else if( arg == ":ignore" ) deprecate_level = 2;
+                else
+                {
+                    // error
+                    fprintf( stderr, "[chuck]: invalid arguments for '--deprecate'...\n" );
+                    fprintf( stderr, "[chuck]: ... (looking for :stop, :warn, or :ignore)\n" );
+                    exit( 1 );
+                }
+            }
             else if( !strcmp( argv[i], "--probe" ) )
                 probe = TRUE;
             else if( !strcmp( argv[i], "--poop" ) )
@@ -535,6 +552,9 @@ int main( int argc, char ** argv )
         if( !init_shell( g_shell, new Chuck_Console, vm ) )
             exit( 1 );
     }
+
+    // set deprecate
+    compiler->env->deprecate_level = deprecate_level;
 
     // reset count
     count = 1;

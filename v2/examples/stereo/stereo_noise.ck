@@ -1,5 +1,5 @@
 // the patch, note pan2 is stereo
-noise n => pan2 p => dac;
+Noise n => Pan2 p => dac;
 .1 => n.gain;
 
 // variable

@@ -9,7 +9,7 @@ KBHit kb;
 4096::samp => dur T;
 
 // patch
-impulse i => biquad f => Envelope e => JCRev r => dac;
+Impulse i => BiQuad f => Envelope e => JCRev r => dac;
 
 // set the filter's pole radius
 .99 => f.prad;

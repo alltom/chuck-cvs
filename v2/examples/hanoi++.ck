@@ -9,7 +9,7 @@
 8 => int factor;
 
 // gain to pan to dac
-gain g => pan2 pan;
+Gain g => Pan2 pan;
 // stereo from here
 pan.left => NRev r1 => dac.left;
 pan.right => NRev r2 => dac.right;
@@ -19,7 +19,7 @@ pan.right => NRev r2 => dac.right;
 .1 => r1.mix => r2.mix;
 
 // the pegs (0 not used - for easy indexing)
-sndbuf pegs[4];
+SndBuf pegs[4];
 
 // load files
 "data/snare-chili.wav" => pegs[1].read;

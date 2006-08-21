@@ -12,7 +12,7 @@
 Dinky imp;
 
 // connect the rest of the patch
-gain g => NRev r => Echo e => Echo e2 => dac;
+Gain g => NRev r => Echo e => Echo e2 => dac;
 // direct/dry
 g => dac;
 e => dac;

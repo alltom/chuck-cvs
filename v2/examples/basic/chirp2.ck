@@ -1,7 +1,7 @@
 // more chirping...
 
 // patch with envelope and pan
-sinosc s => Envelope e => pan2 p => dac;
+SinOsc s => Envelope e => Pan2 p => dac;
 // gain
 .5 => s.gain;
 

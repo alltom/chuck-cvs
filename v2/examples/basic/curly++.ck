@@ -2,7 +2,7 @@
 // %> chuck moe++ larry++ curly++
 
 // impulse to filter to dac
-sndbuf i => NRev r => dac;
+SndBuf i => NRev r => dac;
 
 // load glottal ooo
 "special:glot_ooo" => i.read;

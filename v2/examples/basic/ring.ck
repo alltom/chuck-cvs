@@ -12,8 +12,8 @@
 //--------------------------------------------
 
 // the patch
-adc => gain g => dac;
-sinosc s => g;
+adc => Gain g => dac;
+SinOsc s => g;
 
 // multiply inputs at g
 3 => g.op;

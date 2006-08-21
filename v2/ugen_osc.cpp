@@ -55,11 +55,19 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
     Chuck_DL_Func * func = NULL;
 
+    // register deprecate
+    type_engine_register_deprecate( env, "osc", "Osc" );
+    type_engine_register_deprecate( env, "phasor", "Phasor" );
+    type_engine_register_deprecate( env, "sinosc", "SinOsc" );
+    type_engine_register_deprecate( env, "triosc", "TriOsc" );
+    type_engine_register_deprecate( env, "sawosc", "SawOsc" );
+    type_engine_register_deprecate( env, "pulseosc", "PulseOsc" );
+    type_engine_register_deprecate( env, "sqrosc", "SqrOsc" );
 
     //---------------------------------------------------------------------
     // init as base class: osc
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "osc", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Osc", "UGen", env->global(), 
                                         osc_ctor, osc_tick, osc_pmsg ) )
         return FALSE;
 
@@ -101,7 +109,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // phasor
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "phasor", "osc", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "Phasor", "Osc", env->global(), 
                                         NULL, sinosc_tick, NULL ) )
         return FALSE;
 
@@ -111,7 +119,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // sinosc
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "sinosc", "osc", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "SinOsc", "Osc", env->global(), 
                                         NULL, sinosc_tick, NULL ) )
         return FALSE;
 
@@ -122,7 +130,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // triosc - triangle oscillator
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "triosc", "osc", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "TriOsc", "Osc", env->global(), 
                                         NULL, triosc_tick, NULL ) )
         return FALSE;
 
@@ -137,7 +145,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // sawosc - sawtooth oscillator  (  0 | 1  triangle wave  )
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "sawosc", "triosc", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "SawOsc", "TriOsc", env->global(), 
                                         sawosc_ctor, NULL, NULL ) )
         return FALSE;
 
@@ -152,7 +160,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // pulseosc - pulse-width oscillator
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "pulseosc", "osc", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "PulseOsc", "Osc", env->global(), 
                                         NULL, pulseosc_tick, NULL ) )
         return FALSE;
 
@@ -167,7 +175,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // sqrosc - square_wave oscillator ( 0.5 pulse ) 
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "sqrosc", "pulseosc", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "SqrOsc", "PulseOsc", env->global(), 
                                         sqrosc_ctor, NULL, NULL ) )
         return FALSE;
 

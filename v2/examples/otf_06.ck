@@ -19,7 +19,7 @@
 .5::second => dur T;
 T - (now % T) => now;
 
-sinosc s => JCRev r => dac;
+SinOsc s => JCRev r => dac;
 .05 => s.gain;
 .25 => r.mix;
 

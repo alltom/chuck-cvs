@@ -1,5 +1,5 @@
 // run white noise through envelope
-noise n => Envelope e => dac;
+Noise n => Envelope e => dac;
 
 // infinite time-loop
 while( true )

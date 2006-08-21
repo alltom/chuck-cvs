@@ -2,10 +2,10 @@
 // gewang, prc
 
 // our patch - feedforward part
-adc => gain g => DelayL d => dac;
-adc => gain g2 => dac;
+adc => Gain g => DelayL d => dac;
+adc => Gain g2 => dac;
 // feedback
-d => gain g3 => d;
+d => Gain g3 => d;
 
 // set parameters
 15::ms => d.delay;

@@ -2,7 +2,7 @@
 // super lame
 
 // global gain
-gain g => dac;
+Gain g => dac;
 // set gain
 .5 => g.gain;
 
@@ -13,7 +13,7 @@ gain g => dac;
 while( x > 0 )
 {
     // connect to gain
-    sinosc s => g;
+    SinOsc s => g;
     // change frequency
     freq => s.freq;
     freq * 2.0 => freq;
