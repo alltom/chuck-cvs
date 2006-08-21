@@ -79,8 +79,14 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "freq", osc_ctrl_freq );
     func->add_arg( "float", "hz" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    // add ctrl: freq
     func = make_new_mfun( "float", "freq", osc_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add ctrl: period
+    func = make_new_mfun( "dur", "period", osc_ctrl_period );
+    func->add_arg( "dur", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "dur", "period", osc_cget_period );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add ctrl: sfreq ( == freq ) 
@@ -444,13 +450,13 @@ CK_DLL_TICK( pulseosc_tick )
 CK_DLL_CTRL( osc_ctrl_freq )
 {
     // get data
-    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data);
     // set freq
     d->freq = GET_CK_FLOAT(ARGS);
     // phase increment
     d->num = d->freq / d->srate;
     // bound it
-    if( d->num >= 1.0 ) d->num -= floor( d->num );
+    if( d->num >= 1.0 ) d->num -= ::floor( d->num );
     // return
     RETURN->v_float = (t_CKFLOAT)d->freq;
 }
@@ -465,9 +471,52 @@ CK_DLL_CTRL( osc_ctrl_freq )
 CK_DLL_CGET( osc_cget_freq )
 {
     // get data
-    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data);
     // return
     RETURN->v_float = (t_CKFLOAT)d->freq;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: osc_ctrl_period()
+// desc: set oscillator period
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( osc_ctrl_period )
+{
+    // get data
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data);
+    t_CKDUR period = GET_CK_DUR(ARGS);
+    // test
+    if( period == 0.0 ) d->freq = 0.0;
+    // set freq
+    else d->freq = 1 / (period / d->srate);
+    d->num = d->freq / d->srate;
+    // bound it
+    if( d->num >= 1.0 ) d->num -= ::floor( d->num );
+    // return
+    RETURN->v_dur = period;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: osc_cget_period()
+// desc: get oscillator period
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( osc_cget_period )
+{
+    // get data
+    Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data);
+    t_CKDUR period = 0;
+
+    // get period
+    if( d->freq != 0.0 ) period = 1 / d->freq * d->srate;
+
+    // return
+    RETURN->v_dur = period;
 }
 
 

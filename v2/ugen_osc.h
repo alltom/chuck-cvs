@@ -47,6 +47,8 @@ CK_DLL_TICK( osc_tick );
 CK_DLL_PMSG( osc_pmsg );
 CK_DLL_CTRL( osc_ctrl_freq );
 CK_DLL_CGET( osc_cget_freq );
+CK_DLL_CTRL( osc_ctrl_period );
+CK_DLL_CGET( osc_cget_period );
 CK_DLL_CTRL( osc_ctrl_phase );
 CK_DLL_CGET( osc_cget_phase );
 CK_DLL_CTRL( osc_ctrl_width );
