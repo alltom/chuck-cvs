@@ -22,6 +22,8 @@
          mix2  --> Mix2
   - (added) --deprecate:X flag
             X can be stop, warn, or ignore - default is warn
+  - (fixed) STK Echo.max no longer gives incorrect warnings
+  - (fixed) linux makefiles now respects CC/CFLAGS/CXX (Cedric Krier)
 
 
 ---
