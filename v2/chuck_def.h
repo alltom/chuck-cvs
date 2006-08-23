@@ -106,10 +106,10 @@ typedef const char *                c_constr;
 #define ck_min(x,y)                 ( x <= y ? x : y )
 
 // dedenormal
-#define CK_DDN_SINGLE(f)                 f = ( f >= 0 ? \
+#define CK_DDN_SINGLE(f)            f = ( f >= 0 ? \
         ( ( f > (t_CKSINGLE)1e-15 && f < (t_CKSINGLE)1e15 ) ? f : (t_CKSINGLE)0.0 ) : \
         ( ( f < (t_CKSINGLE)-1e-15 && f > (t_CKSINGLE)-1e15 ) ? f : (t_CKSINGLE)0.0 ) )
-#define CK_DDN_DOUBLE(f)                 f = ( f >= 0 ? \
+#define CK_DDN_DOUBLE(f)            f = ( f >= 0 ? \
         ( ( f > (t_CKDOUBLE)1e-15 && f < (t_CKDOUBLE)1e15 ) ? f : 0.0 ) : \
         ( ( f < (t_CKDOUBLE)-1e-15 && f > (t_CKDOUBLE)-1e15 ) ? f : 0.0 ) )
 
