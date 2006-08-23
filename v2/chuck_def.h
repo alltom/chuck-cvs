@@ -76,9 +76,11 @@ typedef const char *                c_constr;
 #ifdef CK_S_DOUBLE
 #define SAMPLE                      double
 #define SILENCE                     0.0
+#define CK_DDN                      CK_DDN_DOUBLE
 #else
 #define SAMPLE                      float
 #define SILENCE                     0.0f
+#define CK_DDN                      CK_DDN_SINGLE
 #endif
 
 // bool
@@ -99,8 +101,18 @@ typedef const char *                c_constr;
 #define SAFE_REF_ASSIGN(lhs,rhs)    { SAFE_RELEASE(lhs); (lhs) = (rhs); SAFE_ADD_REF(lhs); }
 #endif
 
+// max + min
 #define ck_max(x,y)                 ( x >= y ? x : y )
 #define ck_min(x,y)                 ( x <= y ? x : y )
+
+// dedenormal
+#define CK_DDN_SINGLE(f)                 f = ( f >= 0 ? \
+        ( ( f > (t_CKSINGLE)1e-15 && f < (t_CKSINGLE)1e15 ) ? f : (t_CKSINGLE)0.0 ) : \
+        ( ( f < (t_CKSINGLE)-1e-15 && f > (t_CKSINGLE)-1e15 ) ? f : (t_CKSINGLE)0.0 ) )
+#define CK_DDN_DOUBLE(f)                 f = ( f >= 0 ? \
+        ( ( f > (t_CKDOUBLE)1e-15 && f < (t_CKDOUBLE)1e15 ) ? f : 0.0 ) : \
+        ( ( f < (t_CKDOUBLE)-1e-15 && f > (t_CKDOUBLE)-1e15 ) ? f : 0.0 ) )
+
 
 // tracking
 #if defined(__CHUCK_STAT_TRACK__)

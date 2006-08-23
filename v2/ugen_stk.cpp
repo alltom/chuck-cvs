@@ -41,7 +41,14 @@
 #include <string.h>
 #include <time.h>
 
+#if 1
 #define MY_FLOAT double
+#define CK_STK_DDN CK_DDN_DOUBLE
+#else
+#define MY_FLOAT float
+#define CK_STK_DDN CK_DDN_SINGLE
+#endif
+
 // see stk_query()...
 
 
@@ -9163,7 +9170,7 @@ BandedWG :: BandedWG()
   bowTabl->setSlope( 3.0 );
 
   adsr = new ADSR;
-  adsr->setAllTimes( 0.02, 0.005, 0.9, 0.01);
+  adsr->setAllTimes( 0.02, 0.005, 0.9, 0.01 );
 
   freakency = 220.0;
   setPreset(0);
@@ -9725,15 +9732,19 @@ MY_FLOAT BiQuad :: lastOut(void) const
 
 MY_FLOAT BiQuad :: tick(MY_FLOAT sample)
 {
-  inputs[0] = gain * sample;
-  outputs[0] = b[0] * inputs[0] + b[1] * inputs[1] + b[2] * inputs[2];
-  outputs[0] -= a[2] * outputs[2] + a[1] * outputs[1];
-  inputs[2] = inputs[1];
-  inputs[1] = inputs[0];
-  outputs[2] = outputs[1];
-  outputs[1] = outputs[0];
+    inputs[0] = gain * sample;
+    outputs[0] = b[0] * inputs[0] + b[1] * inputs[1] + b[2] * inputs[2];
+    outputs[0] -= a[2] * outputs[2] + a[1] * outputs[1];
+    inputs[2] = inputs[1];
+    inputs[1] = inputs[0];
+    outputs[2] = outputs[1];
+    outputs[1] = outputs[0];
 
-  return outputs[0];
+    // gewang: dedenormal
+    CK_STK_DDN(outputs[1]);
+    CK_STK_DDN(outputs[2]);
+
+    return outputs[0];
 }
 
 MY_FLOAT *BiQuad :: tick(MY_FLOAT *vec, unsigned int vectorSize)
@@ -11623,22 +11634,24 @@ MY_FLOAT DelayA :: nextOut(void)
 
 MY_FLOAT DelayA :: tick(MY_FLOAT sample)
 {
-  inputs[inPoint++] = sample;
+    inputs[inPoint++] = sample;
 
-  // Increment input pointer modulo length.
-  if (inPoint == length)
+    // Increment input pointer modulo length.
+    if (inPoint == length)
     inPoint -= length;
 
-  outputs[0] = nextOut();
-  doNextOut = true;
+    outputs[0] = nextOut();
+    doNextOut = true;
 
-  // Save the allpass input and increment modulo length.
-  apInput = inputs[outPoint++];
-  if (outPoint == length)
+    // Save the allpass input and increment modulo length.
+    apInput = inputs[outPoint++];
+    if (outPoint == length)
     outPoint -= length;
 
-  return outputs[0];
+    return outputs[0];
 }
+
+
 /***************************************************/
 /*! \class DelayL
     \brief STK linear interpolating delay line class.
@@ -13403,47 +13416,67 @@ void JCRev :: clear()
 
 MY_FLOAT JCRev :: tick(MY_FLOAT input)
 {
-  MY_FLOAT temp, temp0, temp1, temp2, temp3, temp4, temp5, temp6;
-  MY_FLOAT filtout;
+    MY_FLOAT temp, temp0, temp1, temp2, temp3, temp4, temp5, temp6;
+    MY_FLOAT filtout;
 
-  temp = allpassDelays[0]->lastOut();
-  temp0 = allpassCoefficient * temp;
-  temp0 += input;
-  allpassDelays[0]->tick(temp0);
-  temp0 = -(allpassCoefficient * temp0) + temp;
-    
-  temp = allpassDelays[1]->lastOut();
-  temp1 = allpassCoefficient * temp;
-  temp1 += temp0;
-  allpassDelays[1]->tick(temp1);
-  temp1 = -(allpassCoefficient * temp1) + temp;
-    
-  temp = allpassDelays[2]->lastOut();
-  temp2 = allpassCoefficient * temp;
-  temp2 += temp1;
-  allpassDelays[2]->tick(temp2);
-  temp2 = -(allpassCoefficient * temp2) + temp;
-    
-  temp3 = temp2 + (combCoefficient[0] * combDelays[0]->lastOut());
-  temp4 = temp2 + (combCoefficient[1] * combDelays[1]->lastOut());
-  temp5 = temp2 + (combCoefficient[2] * combDelays[2]->lastOut());
-  temp6 = temp2 + (combCoefficient[3] * combDelays[3]->lastOut());
+    // gewang: dedenormal
+    CK_STK_DDN(input);
 
-  combDelays[0]->tick(temp3);
-  combDelays[1]->tick(temp4);
-  combDelays[2]->tick(temp5);
-  combDelays[3]->tick(temp6);
+    temp = allpassDelays[0]->lastOut();
+    temp0 = allpassCoefficient * temp;
+    temp0 += input;
+    // gewang: dedenormal
+    CK_STK_DDN(temp0);
+    allpassDelays[0]->tick(temp0);
+    temp0 = -(allpassCoefficient * temp0) + temp;
 
-  filtout = temp3 + temp4 + temp5 + temp6;
+    temp = allpassDelays[1]->lastOut();
+    temp1 = allpassCoefficient * temp;
+    temp1 += temp0;
+    // gewang: dedenormal
+    CK_STK_DDN(temp1);
+    allpassDelays[1]->tick(temp1);
+    temp1 = -(allpassCoefficient * temp1) + temp;
 
-  lastOutput[0] = effectMix * (outLeftDelay->tick(filtout));
-  lastOutput[1] = effectMix * (outRightDelay->tick(filtout));
-  temp = (1.0 - effectMix) * input;
-  lastOutput[0] += temp;
-  lastOutput[1] += temp;
-    
-  return (lastOutput[0] + lastOutput[1]) * 0.5;
+    temp = allpassDelays[2]->lastOut();
+    temp2 = allpassCoefficient * temp;
+    temp2 += temp1;
+    // gewang: dedenormal
+    CK_STK_DDN(temp2);
+    allpassDelays[2]->tick(temp2);
+    temp2 = -(allpassCoefficient * temp2) + temp;
+
+    temp3 = temp2 + (combCoefficient[0] * combDelays[0]->lastOut());
+    temp4 = temp2 + (combCoefficient[1] * combDelays[1]->lastOut());
+    temp5 = temp2 + (combCoefficient[2] * combDelays[2]->lastOut());
+    temp6 = temp2 + (combCoefficient[3] * combDelays[3]->lastOut());
+
+    // gewang: dedenormal
+    CK_STK_DDN(temp3);
+    CK_STK_DDN(temp4);
+    CK_STK_DDN(temp5);
+    CK_STK_DDN(temp6);
+
+    combDelays[0]->tick(temp3);
+    combDelays[1]->tick(temp4);
+    combDelays[2]->tick(temp5);
+    combDelays[3]->tick(temp6);
+
+    filtout = temp3 + temp4 + temp5 + temp6;
+
+    // gewang: dedenormal
+    CK_STK_DDN(filtout);
+
+    lastOutput[0] = effectMix * (outLeftDelay->tick(filtout));
+    lastOutput[1] = effectMix * (outRightDelay->tick(filtout));
+    temp = (1.0 - effectMix) * input;
+    lastOutput[0] += temp;
+    lastOutput[1] += temp;
+
+    return (lastOutput[0] + lastOutput[1]) * 0.5;
 }
+
+
 /***************************************************/
 /*! \class JetTabl
     \brief STK jet table class.
@@ -14814,49 +14847,66 @@ void NRev :: clear()
 
 MY_FLOAT NRev :: tick(MY_FLOAT input)
 {
-  MY_FLOAT temp, temp0, temp1, temp2, temp3;
-  int i;
+    MY_FLOAT temp, temp0, temp1, temp2, temp3;
+    int i;
 
-  temp0 = 0.0;
-  for (i=0; i<6; i++) {
-    temp = input + (combCoefficient[i] * combDelays[i]->lastOut());
-    temp0 += combDelays[i]->tick(temp);
-  }
-  for (i=0; i<3; i++)   {
-    temp = allpassDelays[i]->lastOut();
-    temp1 = allpassCoefficient * temp;
-    temp1 += temp0;
-    allpassDelays[i]->tick(temp1);
-    temp0 = -(allpassCoefficient * temp1) + temp;
-  }
+    // gewang: dedenormal
+    CK_STK_DDN(input);
+
+    temp0 = 0.0;
+    for (i=0; i<6; i++) {
+        temp = input + (combCoefficient[i] * combDelays[i]->lastOut());
+        // gewang: dedenormal
+        CK_STK_DDN(temp);
+        temp0 += combDelays[i]->tick(temp);
+    }
+
+    for (i=0; i<3; i++) {
+        temp = allpassDelays[i]->lastOut();
+        temp1 = allpassCoefficient * temp;
+        temp1 += temp0;
+        // gewang: dedenormal
+        CK_STK_DDN(temp1);
+        allpassDelays[i]->tick(temp1);
+        temp0 = -(allpassCoefficient * temp1) + temp;
+    }
 
     // One-pole lowpass filter.
-  lowpassState = 0.7*lowpassState + 0.3*temp0;
-  temp = allpassDelays[3]->lastOut();
-  temp1 = allpassCoefficient * temp;
-  temp1 += lowpassState;
-  allpassDelays[3]->tick(temp1);
-  temp1 = -(allpassCoefficient * temp1) + temp;
-    
-  temp = allpassDelays[4]->lastOut();
-  temp2 = allpassCoefficient * temp;
-  temp2 += temp1;
-  allpassDelays[4]->tick(temp2);
-  lastOutput[0] = effectMix*(-(allpassCoefficient * temp2) + temp);
-    
-  temp = allpassDelays[5]->lastOut();
-  temp3 = allpassCoefficient * temp;
-  temp3 += temp1;
-  allpassDelays[5]->tick(temp3);
-  lastOutput[1] = effectMix*(-(allpassCoefficient * temp3) + temp);
+    lowpassState = 0.7*lowpassState + 0.3*temp0;
+    // gewang: dedenormal
+    CK_STK_DDN(lowpassState);
+    temp = allpassDelays[3]->lastOut();
+    temp1 = allpassCoefficient * temp;
+    temp1 += lowpassState;
+    // gewang: dedenormal
+    CK_STK_DDN(temp1);
+    allpassDelays[3]->tick(temp1);
+    temp1 = -(allpassCoefficient * temp1) + temp;
 
-  temp = (1.0 - effectMix) * input;
-  lastOutput[0] += temp;
-  lastOutput[1] += temp;
-    
-  return (lastOutput[0] + lastOutput[1]) * 0.5;
+    temp = allpassDelays[4]->lastOut();
+    temp2 = allpassCoefficient * temp;
+    temp2 += temp1;
+    // gewang: dedenormal
+    CK_STK_DDN(temp2);
+    allpassDelays[4]->tick(temp2);
+    lastOutput[0] = effectMix*(-(allpassCoefficient * temp2) + temp);
 
+    temp = allpassDelays[5]->lastOut();
+    temp3 = allpassCoefficient * temp;
+    temp3 += temp1;
+    // gewang: dedenormal
+    CK_STK_DDN(temp3);
+    allpassDelays[5]->tick(temp3);
+    lastOutput[1] = effectMix*(-(allpassCoefficient * temp3) + temp);
+
+    temp = (1.0 - effectMix) * input;
+    lastOutput[0] += temp;
+    lastOutput[1] += temp;
+
+    return (lastOutput[0] + lastOutput[1]) * 0.5;
 }
+
+
 /***************************************************/
 /*! \class Noise
     \brief STK noise generator.
@@ -15002,11 +15052,14 @@ MY_FLOAT OnePole :: lastOut(void) const
 
 MY_FLOAT OnePole :: tick(MY_FLOAT sample)
 {
-  inputs[0] = gain * sample;
-  outputs[0] = b[0] * inputs[0] - a[1] * outputs[1];
-  outputs[1] = outputs[0];
+    inputs[0] = gain * sample;
+    outputs[0] = b[0] * inputs[0] - a[1] * outputs[1];
+    outputs[1] = outputs[0];
 
-  return outputs[0];
+    // gewang: dedenormal
+    CK_STK_DDN(outputs[1]);
+
+    return outputs[0];
 }
 
 MY_FLOAT *OnePole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
@@ -15180,32 +15233,44 @@ void PRCRev :: clear()
 
 MY_FLOAT PRCRev :: tick(MY_FLOAT input)
 {
-  MY_FLOAT temp, temp0, temp1, temp2, temp3;
+    MY_FLOAT temp, temp0, temp1, temp2, temp3;
 
-  temp = allpassDelays[0]->lastOut();
-  temp0 = allpassCoefficient * temp;
-  temp0 += input;
-  allpassDelays[0]->tick(temp0);
-  temp0 = -(allpassCoefficient * temp0) + temp;
-    
-  temp = allpassDelays[1]->lastOut();
-  temp1 = allpassCoefficient * temp;
-  temp1 += temp0;
-  allpassDelays[1]->tick(temp1);
-  temp1 = -(allpassCoefficient * temp1) + temp;
-    
-  temp2 = temp1 + (combCoefficient[0] * combDelays[0]->lastOut());
-  temp3 = temp1 + (combCoefficient[1] * combDelays[1]->lastOut());
+    // gewang: dedenormal
+    CK_STK_DDN(input);
 
-  lastOutput[0] = effectMix * (combDelays[0]->tick(temp2));
-  lastOutput[1] = effectMix * (combDelays[1]->tick(temp3));
-  temp = (MY_FLOAT) (1.0 - effectMix) * input;
-  lastOutput[0] += temp;
-  lastOutput[1] += temp;
-    
-  return (lastOutput[0] + lastOutput[1]) * (MY_FLOAT) 0.5;
+    temp = allpassDelays[0]->lastOut();
+    temp0 = allpassCoefficient * temp;
+    temp0 += input;
+    // gewang: dedenormal
+    CK_STK_DDN(temp0);
+    allpassDelays[0]->tick(temp0);
+    temp0 = -(allpassCoefficient * temp0) + temp;
 
+    temp = allpassDelays[1]->lastOut();
+    temp1 = allpassCoefficient * temp;
+    temp1 += temp0;
+    // gewang: dedenormal
+    CK_STK_DDN(temp1);
+    allpassDelays[1]->tick(temp1);
+    temp1 = -(allpassCoefficient * temp1) + temp;
+
+    temp2 = temp1 + (combCoefficient[0] * combDelays[0]->lastOut());
+    temp3 = temp1 + (combCoefficient[1] * combDelays[1]->lastOut());
+
+    // gewang: dedenormal
+    CK_STK_DDN(temp2);
+    CK_STK_DDN(temp3);
+
+    lastOutput[0] = effectMix * (combDelays[0]->tick(temp2));
+    lastOutput[1] = effectMix * (combDelays[1]->tick(temp3));
+    temp = (MY_FLOAT) (1.0 - effectMix) * input;
+    lastOutput[0] += temp;
+    lastOutput[1] += temp;
+
+    return (lastOutput[0] + lastOutput[1]) * (MY_FLOAT) 0.5;
 }
+
+
 /***************************************************/
 /*! \class PercFlut
     \brief STK percussive flute FM synthesis instrument.
@@ -16018,12 +16083,15 @@ MY_FLOAT PoleZero :: lastOut(void) const
 
 MY_FLOAT PoleZero :: tick(MY_FLOAT sample)
 {
-  inputs[0] = gain * sample;
-  outputs[0] = b[0] * inputs[0] + b[1] * inputs[1] - a[1] * outputs[1];
-  inputs[1] = inputs[0];
-  outputs[1] = outputs[0];
+    inputs[0] = gain * sample;
+    outputs[0] = b[0] * inputs[0] + b[1] * inputs[1] - a[1] * outputs[1];
+    inputs[1] = inputs[0];
+    outputs[1] = outputs[0];
 
-  return outputs[0];
+    // gewang: dedenormal
+    CK_STK_DDN(outputs[1]);
+
+    return outputs[0];
 }
 
 MY_FLOAT *PoleZero :: tick(MY_FLOAT *vec, unsigned int vectorSize)
@@ -19321,6 +19389,8 @@ MY_FLOAT TubeBell :: tick()
   lastOutput = temp * 0.5;
   return lastOutput;
 }
+
+
 /***************************************************/
 /*! \class TwoPole
     \brief STK two-pole filter class.
@@ -19401,12 +19471,16 @@ MY_FLOAT TwoPole :: lastOut(void) const
 
 MY_FLOAT TwoPole :: tick(MY_FLOAT sample)
 {
-  inputs[0] = gain * sample;
-  outputs[0] = b[0] * inputs[0] - a[2] * outputs[2] - a[1] * outputs[1];
-  outputs[2] = outputs[1];
-  outputs[1] = outputs[0];
+    inputs[0] = gain * sample;
+    outputs[0] = b[0] * inputs[0] - a[2] * outputs[2] - a[1] * outputs[1];
+    outputs[2] = outputs[1];
+    outputs[1] = outputs[0];
 
-  return outputs[0];
+    // gewang: dedenormal
+    CK_STK_DDN(outputs[1]);
+    CK_STK_DDN(outputs[2]);
+
+    return outputs[0];
 }
 
 MY_FLOAT *TwoPole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
