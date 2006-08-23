@@ -23,6 +23,9 @@
   - (added) --deprecate:X flag
             X can be stop, warn, or ignore - default is warn
   - (added) STK BiQuad get functions pfreq, prad, zfreq, zrad
+  - (fixed) floating point denormals no longer cause potentially
+            massive CPU usage on intel processors, this includes
+            BiQuad, OnePole, TwoPole, PoleZero, JCRev, PRCRev, NRev
   - (fixed) STK Echo.max no longer gives incorrect warnings
   - (fixed) linux makefiles now respects CC/CFLAGS/CXX (Cedric Krier)
 
