@@ -60,7 +60,7 @@ while( true )
     Std.rand2f( 0.2, 0.8 ) => karp.pickupPosition;
     // frequency...
     scale[Std.rand2(0,scale.cap()-1)] => int freq;
-    220.0 * Math.pow( 1.05946, (Std.rand2(0,2)*12)
+    220.0 * math.pow( 1.05946, (Std.rand2(0,2)*12)
                       +freq ) => karp.freq;
     // pluck it!
     0.0 => karp.stretch;
