@@ -135,6 +135,8 @@ static t_CKUINT Cereal_offset_data = 0;
 //-----------------------------------------------------------------------------
 DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 {
+    // get global
+    Chuck_Env * env = Chuck_Env::instance();
     // set name
     QUERY->setname( QUERY, "Std" );
 
@@ -142,8 +144,11 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     std.rand2f( 100.0, 1000.0 ) => stdout;
     */
 
+    // register deprecate
+    type_engine_register_deprecate( env, "std", "Std" );
+
     // begin class
-    QUERY->begin_class( QUERY, "std", "Object" );
+    QUERY->begin_class( QUERY, "Std", "Object" );
 
     // add abs
     QUERY->add_sfun( QUERY, abs_impl, "int", "abs" );
@@ -240,7 +245,6 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     srand( time( NULL ) );
 
     Chuck_DL_Func * func = NULL;
-    Chuck_Env * env = Chuck_Env::instance();
     
     // KBHit
     // begin class (KBHit)

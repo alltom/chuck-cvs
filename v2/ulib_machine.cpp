@@ -31,6 +31,7 @@
 // date: Spring 2004
 //-----------------------------------------------------------------------------
 #include "ulib_machine.h"
+#include "chuck_type.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
 #include "chuck_globals.h"
@@ -44,6 +45,9 @@
 //-----------------------------------------------------------------------------
 DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
 {
+    // get global env instance
+    Chuck_Env * env = Chuck_Env::instance();
+    // set name of this query
     QUERY->setname( QUERY, "Machine" );
 
     /*! \nameinfo
@@ -55,8 +59,11 @@ DLL_QUERY machine_query( Chuck_DL_Query * QUERY )
       to the timing mechanism.
     */
 
+    // register deprecate
+    type_engine_register_deprecate( env, "machine", "Machine" );
+
     // class
-    QUERY->begin_class( QUERY, "machine", "Object" );
+    QUERY->begin_class( QUERY, "Machine", "Object" );
 
     // add add
     //! compile and spork a new shred from file at 'path' into the VM now

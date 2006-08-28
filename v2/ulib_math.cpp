@@ -30,6 +30,7 @@
 //         Perry R. Cook (prc@cs.princeton.edu)
 // date: Spring 2004
 //-----------------------------------------------------------------------------
+#include "chuck_type.h"
 #include "ulib_math.h"
 #include "util_math.h"
 #include "ulib_std.h"
@@ -47,6 +48,8 @@ static double g_e = ::exp( 1.0 );
 // query
 DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 {
+    // get global
+    Chuck_Env * env = Chuck_Env::instance();
     // name
     QUERY->setname( QUERY, "Math" );
 
@@ -54,8 +57,11 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     math.sin( math.pi /2.0 ) => stdout;
     */
 
+    // register deprecate
+    type_engine_register_deprecate( env, "math", "Math" );
+
     // add class
-    QUERY->begin_class( QUERY, "math", "Object" );
+    QUERY->begin_class( QUERY, "Math", "Object" );
     
     // add abs
     QUERY->add_sfun( QUERY, abs_impl, "int", "abs" );

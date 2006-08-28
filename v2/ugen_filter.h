@@ -40,6 +40,38 @@
 // query
 DLL_QUERY filter_query( Chuck_DL_Query * query );
 
+// LPF
+CK_DLL_CTOR( LPF_ctor );
+CK_DLL_DTOR( LPF_dtor );
+CK_DLL_TICK( LPF_tick );
+CK_DLL_PMSG( LPF_pmsg );
+CK_DLL_CTRL( LPF_ctrl_freq );
+CK_DLL_CGET( LPF_cget_freq );
+
+// HPF
+CK_DLL_CTOR( HPF_ctor );
+CK_DLL_DTOR( HPF_dtor );
+CK_DLL_TICK( HPF_tick );
+CK_DLL_PMSG( HPF_pmsg );
+CK_DLL_CTRL( HPF_ctrl_freq );
+CK_DLL_CGET( HPF_cget_freq );
+
+// BPF
+CK_DLL_CTOR( BPF_ctor );
+CK_DLL_DTOR( BPF_dtor );
+CK_DLL_TICK( BPF_tick );
+CK_DLL_PMSG( BPF_pmsg );
+CK_DLL_CTRL( BPF_ctrl_freq );
+CK_DLL_CGET( BPF_cget_freq );
+
+// BRF
+CK_DLL_CTOR( BRF_ctor );
+CK_DLL_DTOR( BRF_dtor );
+CK_DLL_TICK( BRF_tick );
+CK_DLL_PMSG( BRF_pmsg );
+CK_DLL_CTRL( BRF_ctrl_freq );
+CK_DLL_CGET( BRF_cget_freq );
+
 // filter
 CK_DLL_CTOR( filter_ctor );
 CK_DLL_DTOR( filter_dtor );
