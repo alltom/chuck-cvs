@@ -15,34 +15,34 @@ Shakers shake => JCRev r => dac;
 while( true )
 {
     // frequency..
-    if ( std.randf() > 0.25 )
+    if ( Std.randf() > 0.25 )
     {
-        std.rand2( 0, 22 ) => shake.which;
-        std.mtof( std.rand2f( 0.0, 128.0 ) ) => shake.freq;
+        Std.rand2( 0, 22 ) => shake.which;
+        Std.mtof( Std.rand2f( 0.0, 128.0 ) ) => shake.freq;
         <<< "instrument #:", shake.which() >>>;
     }
 
     // shake it!
-    std.rand2f( 0.8, 1.3 ) => shake.noteOn;
+    Std.rand2f( 0.8, 1.3 ) => shake.noteOn;
 
-    if( std.randf() > 0.8 )
+    if( Std.randf() > 0.8 )
     { 500::ms => now; }
-    else if( std.randf() > .85 )
+    else if( Std.randf() > .85 )
     { 250::ms => now; }
-    else if( std.randf() > -0.9 )
+    else if( Std.randf() > -0.9 )
     { .125::second => now; }
     else
     {
         1 => int i => int pick_dir;
         // how many times
-        4 * std.rand2( 1, 5 ) => int pick;
+        4 * Std.rand2( 1, 5 ) => int pick;
         0.0 => float pluck;
         0.7 / pick => float inc;
         // time loop
         for( ; i < pick; i++ )
         {
             75::ms => now;
-            std.rand2f(.2,.3) + i*inc => pluck;
+            Std.rand2f(.2,.3) + i*inc => pluck;
             pluck + -.2 * pick_dir => shake.noteOn;
             // simulate pluck direction
             !pick_dir => pick_dir;

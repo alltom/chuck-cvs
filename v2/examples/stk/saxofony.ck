@@ -12,13 +12,13 @@ Saxofony sax => JCRev r => dac;
 while( true )
 {
     // set
-    std.rand2f( 0, 1 ) => sax.stiffness;
-    std.rand2f( 0, 1 ) => sax.aperture;
-    std.rand2f( 0, 1 ) => sax.noiseGain;
-    std.rand2f( 0, 1 ) => sax.blowPosition;
-    std.rand2f( 0, 12 ) => sax.vibratoFreq;
-    std.rand2f( 0, 1 ) => sax.vibratoGain;
-    std.rand2f( 0, 1 ) => sax.pressure;
+    Std.rand2f( 0, 1 ) => sax.stiffness;
+    Std.rand2f( 0, 1 ) => sax.aperture;
+    Std.rand2f( 0, 1 ) => sax.noiseGain;
+    Std.rand2f( 0, 1 ) => sax.blowPosition;
+    Std.rand2f( 0, 12 ) => sax.vibratoFreq;
+    Std.rand2f( 0, 1 ) => sax.vibratoGain;
+    Std.rand2f( 0, 1 ) => sax.pressure;
 
     // print
     <<< "---", "" >>>;
@@ -31,11 +31,11 @@ while( true )
     <<< "pressure:", sax.pressure() >>>;
 
     // factor
-    std.rand2f( .75, 2 ) => float factor;
+    Std.rand2f( .75, 2 ) => float factor;
 
     for( int i; i < notes.cap(); i++ )
     {
-        play( 12 + notes[i], std.rand2f( .6, .9 ) );
+        play( 12 + notes[i], Std.rand2f( .6, .9 ) );
         300::ms * factor => now;
     }
 }
@@ -44,6 +44,6 @@ while( true )
 fun void play( float note, float velocity )
 {
     // start the note
-    std.mtof( note ) => sax.freq;
+    Std.mtof( note ) => sax.freq;
     velocity => sax.noteOn;
 }

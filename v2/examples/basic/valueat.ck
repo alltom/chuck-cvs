@@ -3,7 +3,7 @@ SndBuf buf;
 "../data/kick.wav" => buf.read;
 
 // the patch (no sndbuf involved)
-impulse i => dac;
+Impulse i => dac;
 
 // infinite time-loop
 while( true )

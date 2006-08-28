@@ -4,7 +4,7 @@
 while( true )
 {
     // print out machine status (same as chuck ^)
-    machine.status();
+    Machine.status();
     // every so often
     3::second => now;
 }

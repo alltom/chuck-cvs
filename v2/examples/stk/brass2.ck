@@ -9,11 +9,11 @@ Brass brass => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
-    std.rand2f( 64, 128 ) => float tension;
-    std.rand2f( 0, 128 ) => float length;
-    std.rand2f( 0, 128 ) => float vibratofreq;
-    std.rand2f( 0, 128 ) => float vibratogain;
-    std.rand2f( 64, 128 ) => float volume;
+    Std.rand2f( 64, 128 ) => float tension;
+    Std.rand2f( 0, 128 ) => float length;
+    Std.rand2f( 0, 128 ) => float vibratofreq;
+    Std.rand2f( 0, 128 ) => float vibratogain;
+    Std.rand2f( 64, 128 ) => float volume;
 
     <<< "---", "" >>>;
     <<< "lip tension:", tension >>>;
@@ -35,7 +35,7 @@ while( true )
 
     for( int i; i < notes.cap(); i++ )
     {
-        play( 12 + notes[i], std.rand2f( .6, .9 ) );
+        play( 12 + notes[i], Std.rand2f( .6, .9 ) );
         300::ms => now;
     }
 }
@@ -44,6 +44,6 @@ while( true )
 fun void play( float note, float velocity )
 {
     // start the note
-    std.mtof( note ) => brass.freq;
+    Std.mtof( note ) => brass.freq;
     velocity => brass.noteOn;
 }

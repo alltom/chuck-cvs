@@ -8,13 +8,13 @@ BlowHole hole => dac;
 while( true )
 {
   // change parameters
-  if( std.rand2f(0,1) > .75 )
+  if( Std.rand2f(0,1) > .75 )
   {
-    std.rand2f( 0, 128 ) => float stiffness;
-    std.rand2f( 0, 128 ) => float noisegain;
-    std.rand2f( 0, 128 ) => float tonehole;
-    std.rand2f( 0, 128 ) => float register;
-    std.rand2f( 0, 128 ) => float pressure;
+    Std.rand2f( 0, 128 ) => float stiffness;
+    Std.rand2f( 0, 128 ) => float noisegain;
+    Std.rand2f( 0, 128 ) => float tonehole;
+    Std.rand2f( 0, 128 ) => float register;
+    Std.rand2f( 0, 128 ) => float pressure;
 
     <<< "going...", "" >>>;
     <<< "reed stiffness:", stiffness, "/ 128.0" >>>;
@@ -36,9 +36,9 @@ while( true )
   }
 
   // set freq
-  scale[std.rand2(0,scale.cap()-1)] => int note;
-  33 + std.rand2(0,4)*12 + note => std.mtof => hole.freq;
-  <<< "note: ", std.ftom( hole.freq() ) >>>;
+  scale[Std.rand2(0,scale.cap()-1)] => int note;
+  33 + Std.rand2(0,4)*12 + note => Std.mtof => hole.freq;
+  <<< "note: ", Std.ftom( hole.freq() ) >>>;
 
   // go
   .8 => hole.noteOn;

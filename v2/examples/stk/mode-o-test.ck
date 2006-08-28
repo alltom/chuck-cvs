@@ -24,18 +24,18 @@ while( true )
     which => modey.preset;
 
     // frequency...
-    scale[std.rand2(0,scale.cap()-1)] => int freq;
-    math.mtof( 33 + (std.rand2(0,3)*12) + freq ) => modey.freq;
+    scale[Std.rand2(0,scale.cap()-1)] => int freq;
+    Math.mtof( 33 + (Std.rand2(0,3)*12) + freq ) => modey.freq;
 
     // velocity
-    std.rand2f( 0.4, 0.8 ) => float v;
+    Std.rand2f( 0.4, 0.8 ) => float v;
 
-    <<< "playing:", which, "freq:", std.ftom(modey.freq()) $ int, "vel:", v >>>;
+    <<< "playing:", which, "freq:", Std.ftom(modey.freq()) $ int, "vel:", v >>>;
 
     repeat( 4 )
     {
         // position
-        std.rand2f( 0.2, 0.8 ) => float p => modey.strikePosition;
+        Std.rand2f( 0.2, 0.8 ) => float p => modey.strikePosition;
         // strike it!
         v => modey.strike;
         // print

@@ -17,5 +17,5 @@ while( true )
     theTime::ms => now;   
 
     ( s.which() + 1 ) % 20 => s.which;
-    std.rand2f(20,140) => theTime;
+    Std.rand2f(20,140) => theTime;
 }

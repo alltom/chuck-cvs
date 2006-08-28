@@ -12,11 +12,11 @@ Clarinet clair => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
-    std.rand2f( 64, 128 ) => float stiffness;
-    std.rand2f( 0, 128 ) => float noisegain;
-    std.rand2f( 0, 128 ) => float vibratofreq;
-    std.rand2f( 0, 128 ) => float vibratogain;
-    std.rand2f( 64, 128 ) => float pressure;
+    Std.rand2f( 64, 128 ) => float stiffness;
+    Std.rand2f( 0, 128 ) => float noisegain;
+    Std.rand2f( 0, 128 ) => float vibratofreq;
+    Std.rand2f( 0, 128 ) => float vibratogain;
+    Std.rand2f( 64, 128 ) => float pressure;
 
     <<< "---", "" >>>;
     <<< "reed stiffness:", stiffness >>>;
@@ -41,7 +41,7 @@ while( true )
 
     for( int i; i < notes.cap(); i++ )
     {
-        play( 12 + notes[i], std.rand2f( .6, .9 ) );
+        play( 12 + notes[i], Std.rand2f( .6, .9 ) );
         300::ms => now;
     }
 }
@@ -50,6 +50,6 @@ while( true )
 fun void play( float note, float velocity )
 {
     // start the note
-    std.mtof( note ) => clair.freq;
+    Std.mtof( note ) => clair.freq;
     velocity => clair.noteOn;
 }

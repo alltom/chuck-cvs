@@ -16,11 +16,11 @@ while( true )
     clair.clear( 1.0 );
 
     // set
-    std.rand2f( 0, 1 ) => clair.reed;
-    std.rand2f( 0, 1 ) => clair.noiseGain;
-    std.rand2f( 0, 12 ) => clair.vibratoFreq;
-    std.rand2f( 0, 1 ) => clair.vibratoGain;
-    std.rand2f( 0, 1 ) => clair.pressure;
+    Std.rand2f( 0, 1 ) => clair.reed;
+    Std.rand2f( 0, 1 ) => clair.noiseGain;
+    Std.rand2f( 0, 12 ) => clair.vibratoFreq;
+    Std.rand2f( 0, 1 ) => clair.vibratoGain;
+    Std.rand2f( 0, 1 ) => clair.pressure;
 
     // print
     <<< "---", "" >>>;
@@ -32,7 +32,7 @@ while( true )
 
     for( int i; i < notes.cap(); i++ )
     {
-        play( 12 + notes[i], std.rand2f( .6, .9 ) );
+        play( 12 + notes[i], Std.rand2f( .6, .9 ) );
         300::ms => now;
     }
 }
@@ -41,6 +41,6 @@ while( true )
 fun void play( float note, float velocity )
 {
     // start the note
-    std.mtof( note ) => clair.freq;
+    Std.mtof( note ) => clair.freq;
     velocity => clair.noteOn;
 }

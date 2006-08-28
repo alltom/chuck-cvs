@@ -7,11 +7,11 @@ Bowed bow => dac;
 // infinite time loop
 while( true )
 {
-    std.rand2f( 0, 128 ) => float pressure;
-    std.rand2f( 0, 128 ) => float position;
-    std.rand2f( 0, 128 ) => float vibratofreq;
-    std.rand2f( 0, 128 ) => float vibratogain;
-    std.rand2f( 0, 128 ) => float volume;
+    Std.rand2f( 0, 128 ) => float pressure;
+    Std.rand2f( 0, 128 ) => float position;
+    Std.rand2f( 0, 128 ) => float vibratofreq;
+    Std.rand2f( 0, 128 ) => float vibratogain;
+    Std.rand2f( 0, 128 ) => float volume;
 
     <<< "---", "" >>>;
     <<< "bow pressure:", pressure >>>;
@@ -32,10 +32,10 @@ while( true )
     bow.controlChange( 128, volume );
 
     // set freq
-    scale[std.rand2(0,scale.cap()-1)] + 57 => std.mtof => bow.freq;
+    scale[Std.rand2(0,scale.cap()-1)] + 57 => Std.mtof => bow.freq;
     // go
     .8 => bow.noteOn;
 
     // advance time
-    std.rand2f(.8, 2)::second => now;
+    Std.rand2f(.8, 2)::second => now;
 }

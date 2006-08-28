@@ -10,10 +10,10 @@ BlowBotl bottle => dac;
 while( true )
 {
     // ding!
-    std.rand2f( 0, 1 ) => bottle.noiseGain;
-    std.rand2f( 0, 12 ) => bottle.vibratoFreq;
-    std.rand2f( 0, 1 ) => bottle.vibratoGain;
-    std.rand2f( 0, 1 ) => bottle.volume;
+    Std.rand2f( 0, 1 ) => bottle.noiseGain;
+    Std.rand2f( 0, 12 ) => bottle.vibratoFreq;
+    Std.rand2f( 0, 1 ) => bottle.vibratoGain;
+    Std.rand2f( 0, 1 ) => bottle.volume;
 
     // print
     <<< "---", "" >>>;
@@ -23,7 +23,7 @@ while( true )
     <<< "volume:", bottle.volume() >>>;
 
     // set freq
-    scale[std.rand2(0,scale.cap()-1)] + 57 => std.mtof => bottle.freq;
+    scale[Std.rand2(0,scale.cap()-1)] + 57 => Std.mtof => bottle.freq;
     // go
     .8 => bottle.noteOn;
 

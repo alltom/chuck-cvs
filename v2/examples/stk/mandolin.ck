@@ -12,10 +12,10 @@ Mandolin m => JCRev r => dac;
 while( true )
 {
     // set
-    std.rand2f( 0, 1 ) => m.bodySize;
-    std.rand2f( 0, 1 ) => m.pluckPos;
-    // std.rand2f( 0, 1 ) => m.stringDamping;
-    // std.rand2f( 0, 1 ) => m.stringDetune;
+    Std.rand2f( 0, 1 ) => m.bodySize;
+    Std.rand2f( 0, 1 ) => m.pluckPos;
+    // Std.rand2f( 0, 1 ) => m.stringDamping;
+    // Std.rand2f( 0, 1 ) => m.stringDetune;
 
     // print
     <<< "---", "" >>>;
@@ -25,11 +25,11 @@ while( true )
     <<< "string detune:", m.stringDetune() >>>;
 
     // factor
-    std.rand2f( 1, 4 ) => float factor;
+    Std.rand2f( 1, 4 ) => float factor;
 
     for( int i; i < notes.cap(); i++ )
     {
-        play( std.rand2(0,2)*12 + notes[i], std.rand2f( .6, .9 ) );
+        play( Std.rand2(0,2)*12 + notes[i], Std.rand2f( .6, .9 ) );
         100::ms * factor => now;
     }
 }
@@ -38,6 +38,6 @@ while( true )
 fun void play( float note, float velocity )
 {
     // start the note
-    std.mtof( note ) => m.freq;
+    Std.mtof( note ) => m.freq;
     velocity => m.pluck;
 }

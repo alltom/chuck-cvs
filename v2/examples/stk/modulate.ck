@@ -1,5 +1,5 @@
 // patch into gain
-sinosc s => gain g => dac;
+SinOsc s => Gain g => dac;
 Modulate mod => g;
 
 // multiply
