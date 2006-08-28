@@ -15,7 +15,7 @@ spork ~ foo() @=> Shred @ s;
 2::second => now;
 
 // remove by id
-machine.remove( s.id() );
+Machine.remove( s.id() );
 
 // wait a little more
 2::second => now;

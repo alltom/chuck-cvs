@@ -1887,7 +1887,6 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 v = env->curr->lookup_value( exp->var, FALSE );
                 if( !v )
                 {
-
                     // if in class
                     if( env->class_def )
                     {
@@ -1902,14 +1901,12 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                         v = env->curr->lookup_value( exp->var, TRUE );
                     }
 
-
                     // error
                     if( !v )
                     {
                         // checking for class scope incorrect (thanks Robin Davies)
                         if( !env->class_def /* || env->class_scope > 0 */ )
                         {
-                    
                             EM_error2( exp->linepos,
                                 "undefined variable '%s'...", S_name(exp->var) );
                             return NULL;
