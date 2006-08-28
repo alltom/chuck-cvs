@@ -11,9 +11,9 @@ StifKarp m => JCRev r => dac;
 // infinite time-loop
 while( true )
 {
-    std.rand2f( 0, 1 ) => m.pickupPosition;
-    std.rand2f( 0, 1 ) => m.sustain;
-    std.rand2f( 0, 1 ) => m.stretch;
+    Std.rand2f( 0, 1 ) => m.pickupPosition;
+    Std.rand2f( 0, 1 ) => m.sustain;
+    Std.rand2f( 0, 1 ) => m.stretch;
 
     <<< "---", "" >>>;
     <<< "pickup:", m.pickupPosition() >>>;
@@ -21,11 +21,11 @@ while( true )
     <<< "stretch:", m.stretch() >>>;
 
     // factor
-    std.rand2f( 1, 4 ) => float factor;
+    Std.rand2f( 1, 4 ) => float factor;
 
     for( int i; i < notes.cap(); i++ )
     {
-        play( std.rand2(0,2)*12 + notes[i], std.rand2f( .6, .9 ) );
+        play( Std.rand2(0,2)*12 + notes[i], Std.rand2f( .6, .9 ) );
         100::ms * factor => now;
     }
 }
@@ -34,6 +34,6 @@ while( true )
 fun void play( float note, float velocity )
 {
     // start the note
-    std.mtof( note ) => m.freq;
+    Std.mtof( note ) => m.freq;
     velocity => m.pluck;
 }

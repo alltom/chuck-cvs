@@ -22,7 +22,7 @@ while( true )
 {
     for( int i; i < notes.cap(); i++ )
     {
-        play( notes[i], std.rand2f( .3, .9 ) );
+        play( notes[i], Std.rand2f( .3, .9 ) );
         300::ms => now;
     }
 }
@@ -35,6 +35,6 @@ fun void play( float note, float velocity )
     ( which + 1 ) % wurlies.cap() => which;
 
     // start the note
-    std.mtof( note ) => wurlies[which].freq;
+    Std.mtof( note ) => wurlies[which].freq;
     velocity => wurlies[which].noteOn;
 }

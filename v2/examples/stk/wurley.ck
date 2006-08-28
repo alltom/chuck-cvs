@@ -16,11 +16,11 @@ Wurley voc=> JCRev r => dac;
 while( true )
 {
     // scale
-    scale[std.rand2(0,scale.cap()-1)] => int freq;
-    std.mtof( ( 45 + std.rand2(0,1) * 12 + freq ) ) => voc.freq;
-    std.rand2f( 0.6, 0.8 ) => voc.noteOn;
+    scale[Std.rand2(0,scale.cap()-1)] => int freq;
+    Std.mtof( ( 45 + Std.rand2(0,1) * 12 + freq ) ) => voc.freq;
+    Std.rand2f( 0.6, 0.8 ) => voc.noteOn;
 
-    if( std.randf() > 0.8 )
+    if( Std.randf() > 0.8 )
     {
         // 1000::ms => now;
         repeat( 100 )
@@ -29,7 +29,7 @@ while( true )
             10::ms => now;
         }
     }
-    else if( std.randf() > .5 )
+    else if( Std.randf() > .5 )
     {
         // 500::ms => now;
         repeat( 50 )
@@ -38,7 +38,7 @@ while( true )
             10::ms => now;
         }
     }
-    else if( std.randf() > -0.8 )
+    else if( Std.randf() > -0.8 )
     {
         250::ms => now;
 
@@ -46,13 +46,13 @@ while( true )
     else
     {
         0 => int i;
-        2 * std.rand2( 1, 3 ) => int pick;
+        2 * Std.rand2( 1, 3 ) => int pick;
         0 => int pick_dir;
         0.0 => float pluck;
 
 	for( ; i < pick; i++ )
         {
-            std.rand2f(.4,.6) + i*.035 => pluck;
+            Std.rand2f(.4,.6) + i*.035 => pluck;
             pluck + 0.03 * (i * pick_dir) => voc.noteOn;
             !pick_dir => pick_dir;
             250::ms => now;
