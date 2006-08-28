@@ -10,11 +10,11 @@ Blit s => JCRev r => dac;
 while( true )
 {
     // frequency
-    std.mtof( 33 + std.rand2(0,3) * 12 +
-        hi[std.rand2(0,hi.cap()-1)] ) => s.freq;
+    Std.mtof( 33 + Std.rand2(0,3) * 12 +
+        hi[Std.rand2(0,hi.cap()-1)] ) => s.freq;
 
     // harmonics
-    std.rand2( 1, 5 ) => s.harmonics;
+    Std.rand2( 1, 5 ) => s.harmonics;
 
     // advance time
     120::ms => now;

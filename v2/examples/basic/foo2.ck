@@ -20,8 +20,8 @@ spork ~ dopan();
 // infinite time loop
 while( true )
 {
-    std.mtof( 33 + std.rand2(0,3) * 12 +
-        hi[std.rand2(0,hi.cap()-1)] ) => s.freq;
+    Std.mtof( 33 + Std.rand2(0,3) * 12 +
+        hi[Std.rand2(0,hi.cap()-1)] ) => s.freq;
     100::ms => now;
 }
 
@@ -31,7 +31,7 @@ fun void dopan()
     float t;
     while( true )
     {
-        .5 * math.sin(t) => p.pan;
+        .5 * Math.sin(t) => p.pan;
         .01 +=> t;
         10::ms => now;
     }

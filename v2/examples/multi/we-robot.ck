@@ -23,7 +23,7 @@ for( int i; i < N; i++ )
     // feedback
     d[i] => g3[i] => d[i];
     // detune
-    30::ms + std.rand2f(-15,15)::ms => d[i].max => d[i].delay;
+    30::ms + Std.rand2f(-15,15)::ms => d[i].max => d[i].delay;
     .95 => g3[i].gain;
 }
 

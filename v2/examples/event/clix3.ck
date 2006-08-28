@@ -59,7 +59,7 @@ while( true )
         // generate impulse
         mygains[index] => i.next;
         // set filtre freq
-        c => std.mtof => f.pfreq;
+        c => Std.mtof => f.pfreq;
         // print int value
         <<< "ascii:", c, "velocity:", mygains[index] >>>;
 

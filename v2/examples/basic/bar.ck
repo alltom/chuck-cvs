@@ -9,8 +9,8 @@ SinOsc s => dac;
 while( true )
 {
     // change parameters here
-    std.mtof( 45 + std.rand2(0,0) * 12 +
-        hi[std.rand2(0,hi.cap()-1)] ) => s.freq;
+    Std.mtof( 45 + Std.rand2(0,0) * 12 +
+        hi[Std.rand2(0,hi.cap()-1)] ) => s.freq;
 
     // different rate
     200::ms => now;

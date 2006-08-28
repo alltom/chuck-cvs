@@ -11,7 +11,7 @@ Noise n => Pan2 p => dac;
 while( true )
 {
     // pan goes from -1 (left) to 1 (right)
-    math.sin(t) => p.pan;
+    Math.sin(t) => p.pan;
     // increment t (scaling by T)
     T / second * 2.5 +=> t;
 

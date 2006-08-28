@@ -17,8 +17,8 @@ while( true )
 
     // a message is kicked as soon as it is complete 
     // - type string is satisfied and bundles are closed
-    std.rand2( 30, 80 ) => xmit.addInt;
-    std.rand2f( .1, .5 ) => xmit.addFloat;
+    Std.rand2( 30, 80 ) => xmit.addInt;
+    Std.rand2f( .1, .5 ) => xmit.addFloat;
 
     // advance time
     0.2::second => now;

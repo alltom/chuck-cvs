@@ -31,9 +31,9 @@ SndBuf buf => Gain g => JCRev r => dac;
 // time loop
 while( true )
 {
-    std.rand2f(.8,.9) => buf.gain;
+    Std.rand2f(.8,.9) => buf.gain;
 
-    if( std.randf() > .5 )
+    if( Std.randf() > .5 )
     {
         0 => int i;
         while( i < 8 )

@@ -23,8 +23,8 @@ int r,c,n;
 while (i < 7) {
     .5 => row.gain;
     .5 => col.gain;
-    std.rand2(0,3) => r;
-    std.rand2(0,2) => c;
+    Std.rand2(0,3) => r;
+    Std.rand2(0,2) => c;
     1 + r * 3 + c => n;
 
     if (n==11) 0 => n;

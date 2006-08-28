@@ -5,7 +5,7 @@ Noise n => Envelope e => dac;
 while( true )
 {
     // random choose rise/fall time
-    std.rand2f(10,500)::ms => dur t => e.duration;
+    Std.rand2f(10,500)::ms => dur t => e.duration;
     // print
     <<< "rise/fall:", t/ms, "ms" >>>;
 

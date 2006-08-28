@@ -31,7 +31,7 @@ while( true )
         // check
         if( msg.is_button_down() )
         {
-            std.mtof( msg.which + 45 ) => float freq;
+            Std.mtof( msg.which + 45 ) => float freq;
             if( freq > 20000 ) continue;
 
             freq => flute.freq;

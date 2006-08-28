@@ -9,17 +9,17 @@
 while( true )
 {
     // the path is relative to where 'chuck' is invoked
-    machine.add( "../basic/moe.ck" ) => int moe;
+    Machine.add( "../basic/moe.ck" ) => int moe;
 
     // the operation is sample synchronous
     500::ms => now;
 
     // replace
-    machine.replace( moe, "../basic/wind.ck" ) => int wind;
+    Machine.replace( moe, "../basic/wind.ck" ) => int wind;
 
     500::ms => now;
 
     // remove
-    machine.remove( wind );
+    Machine.remove( wind );
 }
 

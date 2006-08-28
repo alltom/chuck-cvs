@@ -51,7 +51,7 @@ fun void handler()
         on.note => note;
         // dynamically repatch
         c => g;
-        std.mtof( note ) => c.freq;
+        Std.mtof( note ) => c.freq;
         .4 + on.velocity / 128.0 * .6 => c.startBlowing;
         off @=> us[note];
 

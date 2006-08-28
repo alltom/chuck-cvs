@@ -18,7 +18,7 @@ while( true )
     // set the current sample/impulse
     0 => i.pos;
     // control gain
-    math.cos(v) => i.gain;
+    Math.cos(v) => i.gain;
     // increment v
     .05 +=> v;
     // advance time

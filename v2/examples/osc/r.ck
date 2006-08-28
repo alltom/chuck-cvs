@@ -28,7 +28,7 @@ while( true )
         float f;
 
         // getFloat fetches the expected float (as indicated by "i f")
-        oe.getInt() => i => std.mtof => s.freq;
+        oe.getInt() => i => Std.mtof => s.freq;
         oe.getFloat() => f => s.gain;
 
         // print

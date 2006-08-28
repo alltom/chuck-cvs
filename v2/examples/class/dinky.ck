@@ -43,7 +43,7 @@ public class Dinky
 
     // t is for trigger (using MIDI notes)
     public void t( int note )
-    { t( std.mtof( note ) ); }
+    { t( Std.mtof( note ) ); }
 
     // another lazy name: c (for close)
     public void c() { e.keyOff(); }

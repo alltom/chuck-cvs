@@ -84,9 +84,9 @@ fun void set( float value, float factor, float q )
 
     // hacked q mapping
     if( q >= 0 )
-    { .99+.009*(math.pow(2,q)-1) => f.prad; .25+.5*(1-q) => e.gain; }
+    { .99+.009*(Math.pow(2,q)-1) => f.prad; .25+.5*(1-q) => e.gain; }
     else
-    { .99-.09*(math.pow(2,-q)-1) => f.prad; 1 => e.gain; }
+    { .99-.09*(Math.pow(2,-q)-1) => f.prad; 1 => e.gain; }
 
     if( count )
         <<< "pan:", p.pan(), "resonance:", f.pfreq(), "radius:", f.prad() >>>;

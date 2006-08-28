@@ -27,8 +27,8 @@ SndBuf buf => Gain g => dac;
 // time loop
 while( true )
 {
-    std.rand2f(.4,.9) => buf.gain;
-    if( std.randf() > 0.75 )
+    Std.rand2f(.4,.9) => buf.gain;
+    if( Std.randf() > 0.75 )
     {
         0 => buf.pos;
         .5::T => now;

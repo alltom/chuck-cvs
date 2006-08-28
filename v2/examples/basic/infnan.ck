@@ -3,12 +3,12 @@
 // overflow it
 repeat( 20 ) n *=> n;
 // test it
-<<< math.isinf( n ) >>>;
+<<< Math.isinf( n ) >>>;
 // bye sanity
 0 *=> n;
 // test it
-<<< math.isnan( n ) >>>;
+<<< Math.isnan( n ) >>>;
 
 // more
-<<< 1.0 / 0.0 => math.isinf >>>;
-<<< 0.0 / 0.0 => math.isnan >>>;
+<<< 1.0 / 0.0 => Math.isinf >>>;
+<<< 0.0 / 0.0 => Math.isnan >>>;

@@ -12,7 +12,7 @@ SinOsc s => JCRev r => dac;
 while( note < 128 )
 {
     // convert MIDI note to hz
-    std.mtof( note ) => s.freq;
+    Std.mtof( note ) => s.freq;
     // turn down the volume gradually
     .5 - (note/256.0) => s.gain;
 

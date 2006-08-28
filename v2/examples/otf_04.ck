@@ -33,9 +33,9 @@ SndBuf buf => Gain g => dac;
 // time loop
 while( true )
 {
-    std.rand2f(.8,.9) => buf.gain;
+    Std.rand2f(.8,.9) => buf.gain;
 
-    if( std.randf() > -.5 )
+    if( Std.randf() > -.5 )
     {
         where => buf.pos;
         2::T => now;

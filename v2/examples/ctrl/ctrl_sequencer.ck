@@ -47,7 +47,7 @@ class MandPlayer extends Player
 
     fun void noteOn ( float note, float vel )
     { 
-        std.mtof ( note ) => m.freq;
+        Std.mtof ( note ) => m.freq;
         vel => m.pluck;
     }
 }
@@ -57,7 +57,7 @@ class FlutePlayer extends Player
     PercFlut f @=> base; 
     fun void noteOn ( float note, float vel )
     { 
-        std.mtof ( note ) => f.freq;
+        Std.mtof ( note ) => f.freq;
         vel => f.noteOn;
     }
 }
@@ -67,7 +67,7 @@ class ClarPlayer extends Player
     Clarinet c @=> base;
     fun void noteOn ( float note, float vel )
     { 
-        std.mtof ( note ) => c.freq;
+        Std.mtof ( note ) => c.freq;
         vel => c.startBlowing;
     }
     fun void noteOff ( float vel )
@@ -91,17 +91,17 @@ fun void newsequence()
     for ( 0 => int i; i < seqn ; i++ )
     {
         i => order[i];		
-        55 + scale[std.rand2(0, nscale - 1)] => int note;
-        times[std.rand2(0, ntimes - 1)] => dur mydur;
-        std.rand2f( 0.75, 0.9 ) => float vel; 
+        55 + scale[Std.rand2(0, nscale - 1)] => int note;
+        times[Std.rand2(0, ntimes - 1)] => dur mydur;
+        Std.rand2f( 0.75, 0.9 ) => float vel; 
         sequence[i].set( note, vel, mydur );
     }
 }
 
 fun void swap( )
 { 
-    std.rand2(0,seqn-1) => int a;
-    ( a + std.rand2(1,seqn-1) ) % seqn => int b;
+    Std.rand2(0,seqn-1) => int a;
+    ( a + Std.rand2(1,seqn-1) ) % seqn => int b;
     order[a] => int tmp;
     order[b] => order[a];
     tmp => order[a];
@@ -136,10 +136,10 @@ while ( true )
         cur.length => now;
     }
 
-    for ( std.rand2(0,2) => int j ; j > 0 ; j-- )
+    for ( Std.rand2(0,2) => int j ; j > 0 ; j-- )
         swap();
 
-    if ( std.rand2(0, 10) > 8 )
+    if ( Std.rand2(0, 10) > 8 )
         newsequence();
 }
 

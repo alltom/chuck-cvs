@@ -13,7 +13,7 @@ Noise n => BiQuad f => dac;
 while( true )
 {
     // sweep the filter resonant frequency
-    100.0 + std.fabs(math.sin(t)) * 1000.0 => f.pfreq;
+    100.0 + Std.fabs(Math.sin(t)) * 1000.0 => f.pfreq;
     t + .01 => t;
     // advance time
     100::ms => now;

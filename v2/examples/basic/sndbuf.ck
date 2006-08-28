@@ -7,7 +7,7 @@ SndBuf buf => dac;
 while( true )
 {
     0 => buf.pos;
-    std.rand2f(.2,.9) => buf.gain;
-    std.rand2f(.5,1.5) => buf.rate;
+    Std.rand2f(.2,.9) => buf.gain;
+    Std.rand2f(.5,1.5) => buf.rate;
     100::ms => now;
 }

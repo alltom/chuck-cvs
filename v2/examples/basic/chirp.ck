@@ -38,7 +38,7 @@ fun void chirp( float src, float target, dur duration, dur tinc )
         1 +=> count;
 
         // set the freq
-        std.mtof( freq ) => s.freq;
+        Std.mtof( freq ) => s.freq;
 
         // advance time
         tinc => now;

@@ -17,13 +17,13 @@ fun void sweep( float st, float inc, time end)
     now => time my_start;
     0.0 => float my_seconds;
 
-    std.rand2f ( 0.94, 0.99 ) => z.radius;
+    Std.rand2f ( 0.94, 0.99 ) => z.radius;
 
     // keep going until we've passed the end time sent in by the control thread.
     while ( now < end )
     {
         ( now - my_start ) / 1.0::second => my_seconds; 
-        math.max ( my_seconds * 4.0, 1.0 ) * 0.1  => z.gain; 
+        Math.max( my_seconds * 4.0, 1.0 ) * 0.1  => z.gain; 
         z.freq() + inc * -0.02  => z.freq;
         10::ms => now;
     }
@@ -36,11 +36,11 @@ fun void sweep( float st, float inc, time end)
 while ( true )
 { 
     500::ms => dur d;
-    if ( std.rand2 ( 0, 10 ) > 3 ) d * 2.0 => d;
-    if ( std.rand2 ( 0, 10 ) > 6 ) d * 3.0 => d;
-    spork ~ sweep( 220.0 * std.rand2(1,8), 
-        	   880.0 + std.rand2f(100.0, 880.0), 
-		   now + std.rand2f(1.0, 3.0)::second );
+    if ( Std.rand2 ( 0, 10 ) > 3 ) d * 2.0 => d;
+    if ( Std.rand2 ( 0, 10 ) > 6 ) d * 3.0 => d;
+    spork ~ sweep( 220.0 * Std.rand2(1,8), 
+        	   880.0 + Std.rand2f(100.0, 880.0), 
+		   now + Std.rand2f(1.0, 3.0)::second );
     d => now;
 }
 

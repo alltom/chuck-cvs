@@ -24,7 +24,7 @@ while( true )
     while( kb.more() )
     {
         // set filtre freq
-        kb.getchar() => int c => std.mtof => f.pfreq;
+        kb.getchar() => int c => Std.mtof => f.pfreq;
         // print int value
         <<< "ascii:", c >>>;
     }

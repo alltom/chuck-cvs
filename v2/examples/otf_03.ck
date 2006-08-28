@@ -31,6 +31,6 @@ SndBuf buf => Gain g => dac;
 while( true )
 {
     0 => buf.pos;
-    std.rand2f(.8,.9) => buf.gain;
+    Std.rand2f(.8,.9) => buf.gain;
     1::T => now;
 }

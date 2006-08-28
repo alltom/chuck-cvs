@@ -21,7 +21,7 @@ while( true )
 {
     float f;
     if ( ct % 4 != 3 ) { 
-        std.rand2f( 0.90, 1.10 ) => f;
+        Std.rand2f( 0.90, 1.10 ) => f;
     } else { running - modrunning => float diff;
         ( 1.0 + diff ) / res => f; 
     }
