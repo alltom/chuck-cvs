@@ -745,12 +745,13 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & xid, int po
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol xid, int pos );
 t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
 t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err, t_CKBOOL print = TRUE );
+t_CKBOOL type_engine_get_deprecate( Chuck_Env * env, const string & from, string & to );
 Chuck_Type  * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs );
 Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & xid );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol xid );
+Chuck_Value * type_engine_find_value( Chuck_Env * env, const string & xid, t_CKBOOL climb, int linepos = 0 );
 Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path );
-
 // array verify
 t_CKBOOL verify_array( a_Array_Sub array );
 // make array type

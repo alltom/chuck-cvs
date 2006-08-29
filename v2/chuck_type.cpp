@@ -1884,7 +1884,8 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
             else  // look up
             {
                 // look in local scope first
-                v = env->curr->lookup_value( exp->var, FALSE );
+                // v = env->curr->lookup_value( exp->var, FALSE );
+                v = type_engine_find_value( env, S_name(exp->var), FALSE );
                 if( !v )
                 {
                     // if in class
@@ -1898,7 +1899,8 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                     if( !v )
                     {
                         // look globally
-                        v = env->curr->lookup_value( exp->var, TRUE );
+                        // v = env->curr->lookup_value( exp->var, TRUE );
+                        v = type_engine_find_value( env, S_name(exp->var), TRUE, exp->linepos );
                     }
 
                     // error
@@ -2611,6 +2613,8 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
         // set the new name
         // TODO: clear old
         exp_func->dot_member.xid = insert_symbol(func->name.c_str());
+        /*
+        // TODO: figure if this is necessary - it type checks things twice!
         // make sure the type is still the name
         if( *exp_func->type != *type_engine_check_exp( env, exp_func ) )
         {
@@ -2619,6 +2623,7 @@ t_CKTYPE type_engine_check_exp_func_call( Chuck_Env * env, a_Exp exp_func, a_Exp
                 "internal error: function type different on second check..." );
             return NULL;
         }
+        */
     }
     else assert( FALSE );
 
@@ -3691,6 +3696,26 @@ Chuck_Type * type_engine_find_type( Chuck_Namespace * nspc, S_Symbol xid )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_get_deprecate()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_get_deprecate( Chuck_Env * env, 
+                                    const string & from, string & to )
+{
+    // find mapping
+    if( env->deprecated.find( from ) == env->deprecated.end() )
+        return FALSE;
+
+    // return
+    to = env->deprecated[from];
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_find_deprecated_type()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -3701,11 +3726,8 @@ Chuck_Type * type_engine_find_deprecated_type( Chuck_Env * env, a_Id_List path )
     std::string actual;
 
     // find mapping
-    if( env->deprecated.find( S_name(path->xid) ) == env->deprecated.end() )
+    if( !type_engine_get_deprecate( env, S_name(path->xid), actual ) )
         return NULL;
-
-    // get
-    actual = env->deprecated[S_name(path->xid)];
 
     // get base type
     Chuck_Type * type = env->curr->lookup_type( actual, TRUE );
@@ -3818,6 +3840,45 @@ Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & xid )
     if(( value = type->info->lookup_value( xid, -1 ) )) return value;
     if( type->parent ) return type_engine_find_value( type->parent, xid );
     return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_find_value()
+// desc: from env...
+//-----------------------------------------------------------------------------
+Chuck_Value * type_engine_find_value( Chuck_Env * env, const string & xid,
+                                      t_CKBOOL climb, int linepos )
+{
+    Chuck_Value * value = NULL;
+    string actual;
+
+    // look up
+    if(( value = env->curr->lookup_value( xid, climb ) )) return value;
+
+    // see if deprecated if climb
+    if( climb )
+    {
+        if( !type_engine_get_deprecate( env, xid, actual ) )
+            return NULL;
+
+        // get base type
+        value = env->curr->lookup_value( actual, TRUE );
+        if( !value ) return NULL;
+        else
+        {
+            // check level
+            if( env->deprecate_level < 2 )
+            {
+                EM_error2( linepos, "deprecated: '%s' --> use: '%s'...",
+                    xid.c_str(), actual.c_str() );
+            }
+        }
+    }
+
+    return value;
 }
 
 
