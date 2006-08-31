@@ -29,6 +29,14 @@
   - (added) --deprecate:X flag
             X can be stop, warn, or ignore - default is warn
   - (added) STK BiQuad get functions pfreq, prad, zfreq, zrad
+  - (added) new UGens (adapted from SC3 Server and Pure Data)
+    --------------------------
+          LPF : lowpass filter (2nd order butterworth)
+          HPF : highpass filter (2nd order butterworth)
+          BPF : bandpass filter (2nd order butterworth)
+          BRF : bandreject filter (wnd order butterworth)
+  FilterBasic : base class to above filters
+    --------------------------
   - (fixed) floating point denormals no longer cause potentially
             massive CPU usage on intel processors, this includes
             BiQuad, OnePole, TwoPole, PoleZero, JCRev, PRCRev, NRev
