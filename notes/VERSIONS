@@ -1,25 +1,31 @@
 ---
 1.2.0.7
   - (api) deprecated --> new classes
-       sinosc  --> SinOsc
-       triosc  --> TriOsc
-       sqrosc  --> SqrOsc
-       sawosc  --> SawOsc
-     pulseosc  --> PulseOsc
-       phasor  --> Phasor
-          osc  --> Osc
-        noise  --> Noise
-       cnoise  --> CNoise
-      impulse  --> Impulse
-         step  --> Step
-     halfrect  --> HalfRect
-     fullrect  --> FullRect
-         gain  --> Gain
-        zerox  --> ZeroX
-       delayp  --> DelayP
-       sndbuf  --> SndBuf
-         pan2  --> Pan2
-         mix2  --> Mix2
+    --------------------------
+       sinosc  -->  SinOsc
+       triosc  -->  TriOsc
+       sqrosc  -->  SqrOsc
+       sawosc  -->  SawOsc
+     pulseosc  -->  PulseOsc
+       phasor  -->  Phasor
+          osc  -->  Osc
+        noise  -->  Noise
+       cnoise  -->  CNoise
+      impulse  -->  Impulse
+         step  -->  Step
+     halfrect  -->  HalfRect
+     fullrect  -->  FullRect
+         gain  -->  Gain
+        zerox  -->  ZeroX
+       delayp  -->  DelayP
+       sndbuf  -->  SndBuf
+         pan2  -->  Pan2
+         mix2  -->  Mix2
+         ****  -->  ****
+          std  -->  Std
+         math  -->  Math
+      machine  -->  Machine
+    --------------------------
   - (added) --deprecate:X flag
             X can be stop, warn, or ignore - default is warn
   - (added) STK BiQuad get functions pfreq, prad, zfreq, zrad
