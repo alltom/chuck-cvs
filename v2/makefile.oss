@@ -21,9 +21,9 @@ endif
 # by default, ChucK on linux needs libsndfile...
 # comment the next 3 lines to use a pre-configured libsndfile
 #-----------------------------------------------------------------------------
-#FLAGS+= -D__CK_SNDFILE_NATIVE__
-#LIBS+= -lsndfile
-#SF_OBJ=
+FLAGS+= -D__CK_SNDFILE_NATIVE__
+LIBS+= -lsndfile
+SF_OBJ=
 
 #-----------------------------------------------------------------------------
 # by default, ChucK uses a custom skeleton libsdl for joystick support...
