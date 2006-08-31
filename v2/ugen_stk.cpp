@@ -300,7 +300,7 @@ static t_CKUINT Echo_offset_data = 0;
 static t_CKUINT Envelope_offset_data = 0;
 static t_CKUINT ADSR_offset_data = 0;
 static t_CKUINT BiQuad_offset_data = 0;
-static t_CKUINT Filter_offset_data = 0;
+static t_CKUINT FilterStk_offset_data = 0;
 static t_CKUINT OnePole_offset_data = 0;
 static t_CKUINT TwoPole_offset_data = 0;
 static t_CKUINT OneZero_offset_data = 0;
@@ -1916,21 +1916,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
 
     //------------------------------------------------------------------------
-    // begin Filter ugen
+    // begin FilterStk ugen (orginally Filter)
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "Filter", "UGen", env->global(), 
-                        Filter_ctor, Filter_tick, Filter_pmsg ) ) return FALSE;
-    //member variable
-    Filter_offset_data = type_engine_import_mvar ( env, "int", "@Filter_data", FALSE );
-    if( Filter_offset_data == CK_INVALID_OFFSET ) goto error;
-    func = make_new_mfun( "string", "coefs", Filter_ctrl_coefs );
+    if( !type_engine_import_ugen_begin( env, "FilterStk", "UGen", env->global(), 
+                        FilterStk_ctor, FilterStk_tick, FilterStk_pmsg ) ) return FALSE;
+    // member variable
+    FilterStk_offset_data = type_engine_import_mvar ( env, "int", "@FilterStk_data", FALSE );
+    if( FilterStk_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // coefs
+    func = make_new_mfun( "string", "coefs", FilterStk_ctrl_coefs );
     func->add_arg( "string", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-
-    // Filter subclasses
-    
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1941,7 +1940,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     if( !type_engine_import_ugen_begin( env, "OnePole", "UGen", env->global(), 
                         OnePole_ctor, OnePole_tick, OnePole_pmsg ) ) return FALSE; 
-    //member variable
+    // member variable
     OnePole_offset_data = type_engine_import_mvar ( env, "int", "@OnePole_data", FALSE );
     if( OnePole_offset_data == CK_INVALID_OFFSET ) goto error;
     
@@ -2851,7 +2850,7 @@ public: // SWAP formerly protected
 
 
 /***************************************************/
-/*! \class Filter (renamed to Filter_Stk)
+/*! \class Filter (renamed to FilterStk)
     \brief STK filter class.
 
     This class implements a generic structure which
@@ -2883,21 +2882,21 @@ public: // SWAP formerly protected
 #define __FILTER_H
 
 
-class Filter_Stk : public Stk
+class FilterStk : public Stk
 {
 public:
   //! Default constructor creates a zero-order pass-through "filter".
-  Filter_Stk(void);
+  FilterStk(void);
 
   //! Overloaded constructor which takes filter coefficients.
   /*!
     An StkError can be thrown if either \e nb or \e na is less than
     one, or if the a[0] coefficient is equal to zero.
   */
-  Filter_Stk(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients);
+  FilterStk(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients);
 
   //! Class destructor.
-  virtual ~Filter_Stk(void);
+  virtual ~FilterStk(void);
 
   //! Clears all internal states of the filter.
   void clear(void);
@@ -2989,7 +2988,7 @@ public:
 #define __DELAY_H
 
 
-class Delay : public Filter_Stk
+class Delay : public FilterStk
 {
 public:
 
@@ -3206,7 +3205,7 @@ public: // SWAP formerly protected
 #define __BIQUAD_H
 
 
-class BiQuad : public Filter_Stk
+class BiQuad : public FilterStk
 {
 public:
 
@@ -3722,7 +3721,7 @@ public:
 #define __TWOZERO_H
 
 
-class TwoZero : public Filter_Stk // formerly protected Filter
+class TwoZero : public FilterStk // formerly protected Filter
 {
  public:
   //! Default constructor creates a second-order pass-through filter.
@@ -4016,7 +4015,7 @@ public: // SWAP formerly protected
 #define __POLEZERO_H
 
 
-class PoleZero : public Filter_Stk // formerly protected Filter
+class PoleZero : public FilterStk // formerly protected Filter
 {
  public:
 
@@ -4321,7 +4320,7 @@ public: // SWAP formerly protected
 #define __ONEZERO_H
 
 
-class OneZero : public Filter_Stk // formerly protected Filter
+class OneZero : public FilterStk // formerly protected Filter
 {
  public:
 
@@ -4511,7 +4510,7 @@ class BlowHole : public Instrmnt
 #if !defined(__ONEPOLE_H)
 #define __ONEPOLE_H
 
-class OnePole : public Filter_Stk // formerly protected Filter
+class OnePole : public FilterStk // formerly protected Filter
 {
 public:
 
@@ -7929,7 +7928,7 @@ class TubeBell : public FM
 #define __TWOPOLE_H
 
 
-class TwoPole : public Filter_Stk // formerly protected Filter
+class TwoPole : public FilterStk // formerly protected Filter
 {
  public:
 
@@ -9647,11 +9646,11 @@ MY_FLOAT BeeThree :: tick()
 
 #include <math.h>
 
-BiQuad :: BiQuad() : Filter_Stk()
+BiQuad :: BiQuad() : FilterStk()
 {
   MY_FLOAT B[3] = {1.0, 0.0, 0.0};
   MY_FLOAT A[3] = {1.0, 0.0, 0.0};
-  Filter_Stk::setCoefficients( 3, B, 3, A );
+  FilterStk::setCoefficients( 3, B, 3, A );
 }
 
 BiQuad :: ~BiQuad()
@@ -9660,7 +9659,7 @@ BiQuad :: ~BiQuad()
 
 void BiQuad :: clear(void)
 {
-  Filter_Stk::clear();
+  FilterStk::clear();
 }
 
 void BiQuad :: setB0(MY_FLOAT b0)
@@ -9717,17 +9716,17 @@ void BiQuad :: setEqualGainZeroes()
 
 void BiQuad :: setGain(MY_FLOAT theGain)
 {
-  Filter_Stk::setGain(theGain);
+  FilterStk::setGain(theGain);
 }
 
 MY_FLOAT BiQuad :: getGain(void) const
 {
-  return Filter_Stk::getGain();
+  return FilterStk::getGain();
 }
 
 MY_FLOAT BiQuad :: lastOut(void) const
 {
-  return Filter_Stk::lastOut();
+  return FilterStk::lastOut();
 }
 
 MY_FLOAT BiQuad :: tick(MY_FLOAT sample)
@@ -11471,7 +11470,7 @@ MY_FLOAT Delay :: contentsAt(unsigned long tapDelay) const
 
 MY_FLOAT Delay :: lastOut(void) const
 {
-  return Filter_Stk::lastOut();
+  return FilterStk::lastOut();
 }
 
 MY_FLOAT Delay :: nextOut(void) const
@@ -12603,7 +12602,7 @@ void FMVoices :: controlChange(int number, MY_FLOAT value)
 
 #include <stdio.h>
 
-Filter_Stk :: Filter_Stk()
+FilterStk :: FilterStk()
 {
   // The default constructor should setup for pass-through.
   gain = 1.0;
@@ -12619,7 +12618,7 @@ Filter_Stk :: Filter_Stk()
   this->clear();
 }
 
-Filter_Stk :: Filter_Stk(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
+FilterStk :: FilterStk(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
 {
   char message[256];
 
@@ -12647,7 +12646,7 @@ Filter_Stk :: Filter_Stk(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoe
   this->setCoefficients(nB, bCoefficients, nA, aCoefficients);
 }
 
-Filter_Stk :: ~Filter_Stk()
+FilterStk :: ~FilterStk()
 {
   delete [] b;
   delete [] a;
@@ -12655,7 +12654,7 @@ Filter_Stk :: ~Filter_Stk()
   delete [] outputs;
 }
 
-void Filter_Stk :: clear(void)
+void FilterStk :: clear(void)
 {
   int i;
   for (i=0; i<nB; i++)
@@ -12664,7 +12663,7 @@ void Filter_Stk :: clear(void)
     outputs[i] = 0.0;
 }
 
-void Filter_Stk :: setCoefficients(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
+void FilterStk :: setCoefficients(int nb, MY_FLOAT *bCoefficients, int na, MY_FLOAT *aCoefficients)
 {
   int i;
   char message[256];
@@ -12712,7 +12711,7 @@ void Filter_Stk :: setCoefficients(int nb, MY_FLOAT *bCoefficients, int na, MY_F
   }
 }
 
-void Filter_Stk :: setNumerator(int nb, MY_FLOAT *bCoefficients)
+void FilterStk :: setNumerator(int nb, MY_FLOAT *bCoefficients)
 {
   int i;
   char message[256];
@@ -12736,7 +12735,7 @@ void Filter_Stk :: setNumerator(int nb, MY_FLOAT *bCoefficients)
     b[i] = bCoefficients[i];
 }
 
-void Filter_Stk :: setDenominator(int na, MY_FLOAT *aCoefficients)
+void FilterStk :: setDenominator(int na, MY_FLOAT *aCoefficients)
 {
   int i;
   char message[256];
@@ -12774,22 +12773,22 @@ void Filter_Stk :: setDenominator(int na, MY_FLOAT *aCoefficients)
   }
 }
 
-void Filter_Stk :: setGain(MY_FLOAT theGain)
+void FilterStk :: setGain(MY_FLOAT theGain)
 {
   gain = theGain;
 }
 
-MY_FLOAT Filter_Stk :: getGain(void) const
+MY_FLOAT FilterStk :: getGain(void) const
 {
   return gain;
 }
 
-MY_FLOAT Filter_Stk :: lastOut(void) const
+MY_FLOAT FilterStk :: lastOut(void) const
 {
   return outputs[0];
 }
 
-MY_FLOAT Filter_Stk :: tick(MY_FLOAT sample)
+MY_FLOAT FilterStk :: tick(MY_FLOAT sample)
 {
   int i;
 
@@ -12809,7 +12808,7 @@ MY_FLOAT Filter_Stk :: tick(MY_FLOAT sample)
   return outputs[0];
 }
 
-MY_FLOAT *Filter_Stk :: tick(MY_FLOAT *vec, unsigned int vectorSize)
+MY_FLOAT *FilterStk :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 {
   for (unsigned int i=0; i<vectorSize; i++)
     vec[i] = tick(vec[i]);
@@ -14983,14 +14982,14 @@ MY_FLOAT Noise :: lastOut() const
 /***************************************************/
 
 
-OnePole :: OnePole() : Filter_Stk()
+OnePole :: OnePole() : FilterStk()
 {
   MY_FLOAT B = 0.1;
   MY_FLOAT A[2] = {1.0, -0.9};
-  Filter_Stk::setCoefficients( 1, &B, 2, A );
+  FilterStk::setCoefficients( 1, &B, 2, A );
 }
 
-OnePole :: OnePole(MY_FLOAT thePole) : Filter_Stk()
+OnePole :: OnePole(MY_FLOAT thePole) : FilterStk()
 {
   MY_FLOAT B;
   MY_FLOAT A[2] = {1.0, -0.9};
@@ -15002,7 +15001,7 @@ OnePole :: OnePole(MY_FLOAT thePole) : Filter_Stk()
     B = (MY_FLOAT) (1.0 + thePole);
 
   A[1] = -thePole;
-  Filter_Stk::setCoefficients( 1, &B, 2,  A );
+  FilterStk::setCoefficients( 1, &B, 2,  A );
 }
 
 OnePole :: ~OnePole()    
@@ -15011,7 +15010,7 @@ OnePole :: ~OnePole()
 
 void OnePole :: clear(void)
 {
-  Filter_Stk::clear();
+  FilterStk::clear();
 }
 
 void OnePole :: setB0(MY_FLOAT b0)
@@ -15037,17 +15036,17 @@ void OnePole :: setPole(MY_FLOAT thePole)
 
 void OnePole :: setGain(MY_FLOAT theGain)
 {
-  Filter_Stk::setGain(theGain);
+  FilterStk::setGain(theGain);
 }
 
 MY_FLOAT OnePole :: getGain(void) const
 {
-  return Filter_Stk::getGain();
+  return FilterStk::getGain();
 }
 
 MY_FLOAT OnePole :: lastOut(void) const
 {
-  return Filter_Stk::lastOut();
+  return FilterStk::lastOut();
 }
 
 MY_FLOAT OnePole :: tick(MY_FLOAT sample)
@@ -15084,14 +15083,14 @@ MY_FLOAT *OnePole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 /***************************************************/
 
 
-OneZero :: OneZero() : Filter_Stk()
+OneZero :: OneZero() : FilterStk()
 {
   MY_FLOAT B[2] = {0.5, 0.5};
   MY_FLOAT A = 1.0;
-  Filter_Stk::setCoefficients( 2, B, 1, &A );
+  FilterStk::setCoefficients( 2, B, 1, &A );
 }
 
-OneZero :: OneZero(MY_FLOAT theZero) : Filter_Stk()
+OneZero :: OneZero(MY_FLOAT theZero) : FilterStk()
 {
   MY_FLOAT B[2];
   MY_FLOAT A = 1.0;
@@ -15103,7 +15102,7 @@ OneZero :: OneZero(MY_FLOAT theZero) : Filter_Stk()
     B[0] = 1.0 / ((MY_FLOAT) 1.0 - theZero);
 
   B[1] = -theZero * B[0];
-  Filter_Stk::setCoefficients( 2, B, 1,  &A );
+  FilterStk::setCoefficients( 2, B, 1,  &A );
 }
 
 OneZero :: ~OneZero(void)
@@ -15112,7 +15111,7 @@ OneZero :: ~OneZero(void)
 
 void OneZero :: clear(void)
 {
-  Filter_Stk::clear();
+  FilterStk::clear();
 }
 
 void OneZero :: setB0(MY_FLOAT b0)
@@ -15138,17 +15137,17 @@ void OneZero :: setZero(MY_FLOAT theZero)
 
 void OneZero :: setGain(MY_FLOAT theGain)
 {
-  Filter_Stk::setGain(theGain);
+  FilterStk::setGain(theGain);
 }
 
 MY_FLOAT OneZero :: getGain(void) const
 {
-  return Filter_Stk::getGain();
+  return FilterStk::getGain();
 }
 
 MY_FLOAT OneZero :: lastOut(void) const
 {
-  return Filter_Stk::lastOut();
+  return FilterStk::lastOut();
 }
 
 MY_FLOAT OneZero :: tick(MY_FLOAT sample)
@@ -16018,12 +16017,12 @@ MY_FLOAT Plucked :: tick()
 /***************************************************/
 
 
-PoleZero :: PoleZero() : Filter_Stk()
+PoleZero :: PoleZero() : FilterStk()
 {
   // Default setting for pass-through.
   MY_FLOAT B[2] = {1.0, 0.0};
   MY_FLOAT A[2] = {1.0, 0.0};
-  Filter_Stk::setCoefficients( 2, B, 2, A );
+  FilterStk::setCoefficients( 2, B, 2, A );
 }
 
 PoleZero :: ~PoleZero()
@@ -16032,7 +16031,7 @@ PoleZero :: ~PoleZero()
 
 void PoleZero :: clear(void)
 {
-  Filter_Stk::clear();
+  FilterStk::clear();
 }
 
 void PoleZero :: setB0(MY_FLOAT b0)
@@ -16068,17 +16067,17 @@ void PoleZero :: setBlockZero(MY_FLOAT thePole)
 
 void PoleZero :: setGain(MY_FLOAT theGain)
 {
-  Filter_Stk::setGain(theGain);
+  FilterStk::setGain(theGain);
 }
 
 MY_FLOAT PoleZero :: getGain(void) const
 {
-  return Filter_Stk::getGain();
+  return FilterStk::getGain();
 }
 
 MY_FLOAT PoleZero :: lastOut(void) const
 {
-  return Filter_Stk::lastOut();
+  return FilterStk::lastOut();
 }
 
 MY_FLOAT PoleZero :: tick(MY_FLOAT sample)
@@ -19407,14 +19406,14 @@ MY_FLOAT TubeBell :: tick()
 
 #include <math.h>
 
-TwoPole :: TwoPole() : Filter_Stk()
+TwoPole :: TwoPole() : FilterStk()
 {
   MY_FLOAT B = 1.0;
   MY_FLOAT A[3] = {1.0, 0.0, 0.0};
   m_resFreq = 440.0;
   m_resRad = 0.0;
   m_resNorm = false;
-  Filter_Stk::setCoefficients( 1, &B, 3, A );
+  FilterStk::setCoefficients( 1, &B, 3, A );
 }
 
 TwoPole :: ~TwoPole()
@@ -19423,7 +19422,7 @@ TwoPole :: ~TwoPole()
 
 void TwoPole :: clear(void)
 {
-  Filter_Stk::clear();
+  FilterStk::clear();
 }
 
 void TwoPole :: setB0(MY_FLOAT b0)
@@ -19456,17 +19455,17 @@ void TwoPole :: setResonance(MY_FLOAT frequency, MY_FLOAT radius, bool normalize
 
 void TwoPole :: setGain(MY_FLOAT theGain)
 {
-  Filter_Stk::setGain(theGain);
+  FilterStk::setGain(theGain);
 }
 
 MY_FLOAT TwoPole :: getGain(void) const
 {
-  return Filter_Stk::getGain();
+  return FilterStk::getGain();
 }
 
 MY_FLOAT TwoPole :: lastOut(void) const
 {
-  return Filter_Stk::lastOut();
+  return FilterStk::lastOut();
 }
 
 MY_FLOAT TwoPole :: tick(MY_FLOAT sample)
@@ -19506,13 +19505,13 @@ MY_FLOAT *TwoPole :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 
 #include <math.h>
 
-TwoZero :: TwoZero() : Filter_Stk()
+TwoZero :: TwoZero() : FilterStk()
 {
   MY_FLOAT B[3] = {1.0, 0.0, 0.0};
   MY_FLOAT A = 1.0;
   m_notchFreq = 440.0;
   m_notchRad = 0.0;
-  Filter_Stk::setCoefficients( 3, B, 1, &A );
+  FilterStk::setCoefficients( 3, B, 1, &A );
 }
 
 TwoZero :: ~TwoZero()
@@ -19521,7 +19520,7 @@ TwoZero :: ~TwoZero()
 
 void TwoZero :: clear(void)
 {
-  Filter_Stk::clear();
+  FilterStk::clear();
 }
 
 void TwoZero :: setB0(MY_FLOAT b0)
@@ -19555,17 +19554,17 @@ void TwoZero :: setNotch(MY_FLOAT frequency, MY_FLOAT radius)
 
 void TwoZero :: setGain(MY_FLOAT theGain)
 {
-  Filter_Stk::setGain(theGain);
+  FilterStk::setGain(theGain);
 }
 
 MY_FLOAT TwoZero :: getGain(void) const
 {
-  return Filter_Stk::getGain();
+  return FilterStk::getGain();
 }
 
 MY_FLOAT TwoZero :: lastOut(void) const
 {
-  return Filter_Stk::lastOut();
+  return FilterStk::lastOut();
 }
 
 MY_FLOAT TwoZero :: tick(MY_FLOAT sample)
@@ -26517,57 +26516,57 @@ CK_DLL_CTRL( ADSR_ctrl_keyOff )
 
 
 
-//Filter
+// FilterStk
 //-----------------------------------------------------------------------------
-// name: Filter_ctor()
+// name: FilterStk_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTOR( Filter_ctor )
+CK_DLL_CTOR( FilterStk_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Filter_offset_data ) = (t_CKUINT)new Filter_Stk;
+    OBJ_MEMBER_UINT(SELF, FilterStk_offset_data ) = (t_CKUINT)new FilterStk;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Filter_dtor()
+// name: FilterStk_dtor()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_DTOR( Filter_dtor )
+CK_DLL_DTOR( FilterStk_dtor )
 {
-    delete (Filter_Stk *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
+    delete (FilterStk *)OBJ_MEMBER_UINT(SELF, FilterStk_offset_data );
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Filter_tick()
+// name: FilterStk_tick()
 // desc: TICK function ...
 //-----------------------------------------------------------------------------
-CK_DLL_TICK( Filter_tick )
+CK_DLL_TICK( FilterStk_tick )
 {
-    Filter_Stk * d = (Filter_Stk *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
+    FilterStk * d = (FilterStk *)OBJ_MEMBER_UINT(SELF, FilterStk_offset_data );
     *out = d->tick( in );
     return TRUE;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Filter_pmsg()
+// name: FilterStk_pmsg()
 // desc: PMSG function ...
 //-----------------------------------------------------------------------------
-CK_DLL_PMSG( Filter_pmsg )
+CK_DLL_PMSG( FilterStk_pmsg )
 {
     return FALSE;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: Filter_ctrl_coefs()
+// name: FilterStk_ctrl_coefs()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( Filter_ctrl_coefs )
+CK_DLL_CTRL( FilterStk_ctrl_coefs )
 {
-    // Filter * d = (Filter *)OBJ_MEMBER_UINT(SELF, Filter_offset_data );
-    fprintf( stderr, "Filter.coefs :: not implemented\n" );
+    // FilterStk * d = (FilterStk *)OBJ_MEMBER_UINT(SELF, FilterStk_offset_data );
+    fprintf( stderr, "FilterStk.coefs :: not implemented\n" );
 }
 
 

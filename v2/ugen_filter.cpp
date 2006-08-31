@@ -37,8 +37,9 @@
 
 
 static t_CKUINT g_srate = 0;
-//filter member data offset
-static t_CKUINT filter_offset_data = 0;
+static t_CKFLOAT g_radians_per_sample = 0;
+// filter member data offset
+static t_CKUINT FilterBasic_offset_data = 0;
 static t_CKUINT biquad_offset_data = 0;
 
 
@@ -50,6 +51,8 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 {
     // set srate
     g_srate = QUERY->srate;
+    // set radians per sample
+    g_radians_per_sample = TWO_PI / (t_CKFLOAT)g_srate;
     
     Chuck_Env * env = Chuck_Env::instance();
 
@@ -66,22 +69,127 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     type_engine_register_deprecate( env, "delayl", "DelayL" );
     type_engine_register_deprecate( env, "delaya", "DelayA" );
 
-    /*
     //---------------------------------------------------------------------
-    // init as base class: filter
+    // init as base class: FilterBasic
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "filter", "UGen", env->global(), 
-                                        filter_ctor, filter_tick, filter_pmsg ) )
+    if( !type_engine_import_ugen_begin( env, "FilterBasic", "UGen", env->global(), 
+                                        FilterBasic_ctor, FilterBasic_tick, FilterBasic_pmsg ) )
         return FALSE;
 
     // member variable
-    filter_offset_data = type_engine_import_mvar ( env, "int", "@filter_data", FALSE );
-    if ( filter_offset_data == CK_INVALID_OFFSET ) goto error;
+    FilterBasic_offset_data = type_engine_import_mvar( env, "int", "@FilterBasic_data", FALSE );
+    if( FilterBasic_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // freq
+    func = make_new_mfun( "float", "freq", FilterBasic_ctrl_freq );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "freq", FilterBasic_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
 
 
+    //---------------------------------------------------------------------
+    // init class: LPF
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "LPF", "FilterBasic", env->global(),
+                                        LPF_ctor, LPF_tick, LPF_pmsg ) )
+        return FALSE;
+
+    // freq
+    func = make_new_mfun( "float", "freq", LPF_ctrl_freq );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "freq", LPF_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //---------------------------------------------------------------------
+    // init class: HPF
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "HPF", "FilterBasic", env->global(),
+                                        HPF_ctor, HPF_tick, HPF_pmsg ) )
+        return FALSE;
+
+    // freq
+    func = make_new_mfun( "float", "freq", HPF_ctrl_freq );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "freq", HPF_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //---------------------------------------------------------------------
+    // init class: BPF
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "BPF", "FilterBasic", env->global(),
+                                        BPF_ctor, BPF_tick, BPF_pmsg ) )
+        return FALSE;
+
+    // freq
+    func = make_new_mfun( "float", "freq", BPF_ctrl_freq );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "freq", BPF_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // bw
+    func = make_new_mfun( "float", "bw", BPF_ctrl_bw );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "bw", BPF_cget_bw );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // set
+    func = make_new_mfun( "void", "set", BPF_ctrl_set );
+    func->add_arg( "float", "freq" );
+    func->add_arg( "float", "bw" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //---------------------------------------------------------------------
+    // init class: BRF
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "BRF", "FilterBasic", env->global(),
+                                        BRF_ctor, BRF_tick, BRF_pmsg ) )
+        return FALSE;
+
+    // freq
+    func = make_new_mfun( "float", "freq", BRF_ctrl_freq );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "freq", BRF_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // bw
+    func = make_new_mfun( "float", "bw", BRF_ctrl_bw );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "bw", BRF_cget_bw );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // set
+    func = make_new_mfun( "void", "set", BRF_ctrl_set );
+    func->add_arg( "float", "freq" );
+    func->add_arg( "float", "bw" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    
+    /*
     //---------------------------------------------------------------------
     // init as base class: biquad
     //---------------------------------------------------------------------
@@ -314,24 +422,23 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
 
     return TRUE;
-/*
+
 error:
 
     // end the class import
     type_engine_import_class_end( env );
 
     return FALSE;
-*/
 }
 
 
 
 
 //-----------------------------------------------------------------------------
-// name: filter
+// name: Filter_data
 // desc: ...
 //-----------------------------------------------------------------------------
-struct filter_data
+struct Filter_data
 {
     t_CKUINT nB;
     t_CKUINT nA;
@@ -340,7 +447,7 @@ struct filter_data
     SAMPLE * input;
     SAMPLE * output;
     
-    filter_data()
+    Filter_data()
     {
         a = b = NULL;
         alloc( 1, 1 );
@@ -383,44 +490,572 @@ struct filter_data
     }
 };
 
+
+
+
 //-----------------------------------------------------------------------------
-// name: filter_ctor()
+// name: FilterBasic_data
+// desc: ...
+//-----------------------------------------------------------------------------
+struct FilterBasic_data
+{
+    SAMPLE m_y1;
+    SAMPLE m_y2;
+    SAMPLE m_a0;
+    SAMPLE m_b1;
+    SAMPLE m_b2;
+    t_CKFLOAT m_freq;
+    t_CKFLOAT m_bw;
+    t_CKFLOAT m_db;
+    t_CKFLOAT m_rq;
+    t_CKFLOAT m_reson;
+
+    // tick_lpf
+    inline SAMPLE tick_lpf( SAMPLE in )
+    {
+        SAMPLE y0, result;
+        
+        // go: adapted from SC3's LPF
+        y0 = in + m_b1 * m_y1 + m_b2 * m_y2;
+        result = m_a0 * (y0 + 2 * m_y1 + m_y2);
+        m_y2 = m_y1;
+        m_y1 = y0;
+
+        return result;
+    }
+
+    // tick_hpf
+    inline SAMPLE tick_hpf( SAMPLE in )
+    {
+        SAMPLE y0, result;
+        
+        // go: adapted from SC3's HPF
+        y0 = in + m_b1 * m_y1 + m_b2 * m_y2;
+        result = m_a0 * (y0 - 2 * m_y1 + m_y2);
+        m_y2 = m_y1;
+        m_y1 = y0;
+
+        return result;
+    }
+
+    // tick_bpf
+    inline SAMPLE tick_bpf( SAMPLE in )
+    {
+        SAMPLE y0, result;
+        
+        // go: adapted from SC3's LPF
+        y0 = in + m_b1 * m_y1 + m_b2 * m_y2;
+        result = m_a0 * (y0 - m_y2);
+        m_y2 = m_y1;
+        m_y1 = y0;
+
+        return result;
+    }
+
+    // tick_brf
+    inline SAMPLE tick_brf( SAMPLE in )
+    {
+        SAMPLE y0, result;
+        
+        // go: adapted from SC3's HPF
+        // b1 is actually a1
+        y0 = in - m_b1 * m_y1 - m_b2 * m_y2;
+        result = m_a0 * (y0 + m_y2) + m_b1 * m_y1;
+        m_y2 = m_y1;
+        m_y1 = y0;
+
+        return result;
+    }
+};
+
+
+//-----------------------------------------------------------------------------
+// name: FilterBasic_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTOR( filter_ctor )
+CK_DLL_CTOR( FilterBasic_ctor )
 {
-    filter_data * f =  new filter_data;
-    OBJ_MEMBER_UINT( SELF, filter_offset_data ) = (t_CKUINT)f;
+    // set to zero
+    OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data) = 0;
 }
 
 
 //-----------------------------------------------------------------------------
-// name: filter_tick()
+// name: FilterBasic_tick()
 // desc: TICK function ...
 //-----------------------------------------------------------------------------
-CK_DLL_TICK( filter_tick )
+CK_DLL_TICK( FilterBasic_tick )
 {
-    filter_data * d = (filter_data *)OBJ_MEMBER_UINT(SELF, filter_offset_data );
-    *out = d->tick( in );
+    fprintf( stderr, "FilterBasic.tick() --> FitlerBasic is virtual!\n" );
     return TRUE;
 }
 
+
 //-----------------------------------------------------------------------------
-// name: filter_ctrl_coefs()
+// name: FilterBasic_ctrl_freq()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( filter_ctrl_coefs )
+CK_DLL_CTRL( FilterBasic_ctrl_freq )
 {
 }
 
+
 //-----------------------------------------------------------------------------
-// name: filter_pmsg()
+// name: FilterBasic_cget_freq()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( FilterBasic_cget_freq )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: FilterBasic_pmsg()
 // desc: PMSG function ...
 //-----------------------------------------------------------------------------
-CK_DLL_PMSG( filter_pmsg )
+CK_DLL_PMSG( FilterBasic_pmsg )
 {
     return FALSE;
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: LPF_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( LPF_ctor )
+{
+    FilterBasic_data * f =  new FilterBasic_data;
+    memset( f, 0, sizeof(FilterBasic_data) );
+    OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data) = (t_CKUINT)f;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: LPF_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( LPF_tick )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    *out = d->tick_lpf( in );
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: LPF_ctrl_freq()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( LPF_ctrl_freq )
+{
+    // implementation: adapted from SC3's LPF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT freq = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = freq * g_radians_per_sample * 0.5;
+	
+    t_CKFLOAT C = 1.0 / ::tan(pfreq);
+	t_CKFLOAT C2 = C * C;
+	t_CKFLOAT sqrt2C = C * SQRT2;
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + sqrt2C + C2);
+	t_CKFLOAT next_b1 = -2.0 * (1.0 - C2) * next_a0 ;
+	t_CKFLOAT next_b2 = -(1.f - sqrt2C + C2) * next_a0;
+
+    d->m_freq = freq;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+
+    RETURN->v_float = freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: LPF_cget_freq()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( LPF_cget_freq )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+
+    // return
+    RETURN->v_float = d->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: LPF_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( LPF_pmsg )
+{
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: HPF_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( HPF_ctor )
+{
+    FilterBasic_data * f =  new FilterBasic_data;
+    memset( f, 0, sizeof(FilterBasic_data) );
+    OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data) = (t_CKUINT)f;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: HPF_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( HPF_tick )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    *out = d->tick_hpf( in );
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: HPF_ctrl_freq()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( HPF_ctrl_freq )
+{
+    // implementation: adapted from SC3's HPF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT freq = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = freq * g_radians_per_sample * 0.5;
+	
+    t_CKFLOAT C = ::tan(pfreq);
+	t_CKFLOAT C2 = C * C;
+	t_CKFLOAT sqrt2C = C * SQRT2;
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + sqrt2C + C2);
+	t_CKFLOAT next_b1 = 2.0 * (1.0 - C2) * next_a0 ;
+	t_CKFLOAT next_b2 = -(1.0 - sqrt2C + C2) * next_a0;
+
+    d->m_freq = freq;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+
+    RETURN->v_float = freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: HPF_cget_freq()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( HPF_cget_freq )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+
+    // return
+    RETURN->v_float = d->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: HPF_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( HPF_pmsg )
+{
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( BPF_ctor )
+{
+    FilterBasic_data * f =  new FilterBasic_data;
+    memset( f, 0, sizeof(FilterBasic_data) );
+    OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data) = (t_CKUINT)f;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( BPF_tick )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    *out = d->tick_bpf( in );
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_ctrl_freq()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BPF_ctrl_freq )
+{
+    // implementation: adapted from SC3's BPF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT freq = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = freq * g_radians_per_sample;
+    t_CKFLOAT pbw = d->m_bw * pfreq * .5;
+	
+    t_CKFLOAT C = 1.0 / ::tan(pbw);
+    t_CKFLOAT D = 2.0 * ::cos(pfreq);
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + C);
+	t_CKFLOAT next_b1 = C * D * next_a0 ;
+	t_CKFLOAT next_b2 = (1.0 - C) * next_a0;
+
+    d->m_freq = freq;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+
+    RETURN->v_float = freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_cget_freq()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BPF_cget_freq )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+
+    // return
+    RETURN->v_float = d->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_ctrl_bw()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BPF_ctrl_bw )
+{
+    // implementation: adapted from SC3's BPF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT bw = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = d->m_freq * g_radians_per_sample;
+    t_CKFLOAT pbw = bw * pfreq * .5;
+	
+    t_CKFLOAT C = 1.0 / ::tan(pbw);
+    t_CKFLOAT D = 2.0 * ::cos(pfreq);
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + C);
+	t_CKFLOAT next_b1 = C * D * next_a0 ;
+	t_CKFLOAT next_b2 = (1.0 - C) * next_a0;
+
+    d->m_bw = bw;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+
+    RETURN->v_float = bw;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_cget_bw()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BPF_cget_bw )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+
+    // return
+    RETURN->v_float = d->m_bw;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_ctrl_set()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BPF_ctrl_set )
+{
+    // implementation: adapted from SC3's BPF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT freq = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT bw = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = freq * g_radians_per_sample;
+    t_CKFLOAT pbw = bw * pfreq * .5;
+	
+    t_CKFLOAT C = 1.0 / ::tan(pbw);
+    t_CKFLOAT D = 2.0 * ::cos(pfreq);
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + C);
+	t_CKFLOAT next_b1 = C * D * next_a0 ;
+	t_CKFLOAT next_b2 = (1.0 - C) * next_a0;
+
+    d->m_freq = freq;
+    d->m_bw = bw;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BPF_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( BPF_pmsg )
+{
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( BRF_ctor )
+{
+    FilterBasic_data * f =  new FilterBasic_data;
+    memset( f, 0, sizeof(FilterBasic_data) );
+    OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data) = (t_CKUINT)f;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( BRF_tick )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    *out = d->tick_brf( in );
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_ctrl_freq()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BRF_ctrl_freq )
+{
+    // implementation: adapted from SC3's BRF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT freq = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = freq * g_radians_per_sample;
+    t_CKFLOAT pbw = d->m_bw * pfreq * .5;
+	
+    t_CKFLOAT C = ::tan(pbw);
+    t_CKFLOAT D = 2.0 * ::cos(pfreq);
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + C);
+	t_CKFLOAT next_b1 = -D * next_a0 ;
+	t_CKFLOAT next_b2 = (1.f - C) * next_a0;
+
+    d->m_freq = freq;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+
+    RETURN->v_float = freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_cget_freq()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BRF_cget_freq )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+
+    // return
+    RETURN->v_float = d->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_ctrl_bw()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BRF_ctrl_bw )
+{
+    // implementation: adapted from SC3's BRF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT bw = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = d->m_freq * g_radians_per_sample;
+    t_CKFLOAT pbw = bw * pfreq * .5;
+	
+    t_CKFLOAT C = ::tan(pbw);
+    t_CKFLOAT D = 2.0 * ::cos(pfreq);
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + C);
+	t_CKFLOAT next_b1 = -D * next_a0 ;
+	t_CKFLOAT next_b2 = (1.f - C) * next_a0;
+
+    d->m_bw = bw;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+
+    RETURN->v_float = bw;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_cget_bw()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( BRF_cget_bw )
+{
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+
+    // return
+    RETURN->v_float = d->m_bw;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_ctrl_set()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( BRF_ctrl_set )
+{
+    // implementation: adapted from SC3's BRF
+    FilterBasic_data * d = (FilterBasic_data *)OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data);
+    t_CKFLOAT freq = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT bw = GET_NEXT_FLOAT(ARGS);
+	t_CKFLOAT pfreq = freq * g_radians_per_sample;
+    t_CKFLOAT pbw = bw * pfreq * .5;
+	
+    t_CKFLOAT C = ::tan(pbw);
+    t_CKFLOAT D = 2.0 * ::cos(pfreq);
+	t_CKFLOAT next_a0 = 1.0 / (1.0 + C);
+	t_CKFLOAT next_b1 = -D * next_a0 ;
+	t_CKFLOAT next_b2 = (1.f - C) * next_a0;
+
+    d->m_freq = freq;
+    d->m_bw = bw;
+    d->m_a0 = (SAMPLE)next_a0;
+    d->m_b1 = (SAMPLE)next_b1;
+    d->m_b2 = (SAMPLE)next_b2;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: BRF_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( BRF_pmsg )
+{
+    return FALSE;
+}
+
 
 
 
@@ -457,6 +1092,7 @@ struct biquad_data
     }
 };
 
+
 //-----------------------------------------------------------------------------
 // name: biquad_ctor()
 // desc: CTOR function ...
@@ -464,7 +1100,7 @@ struct biquad_data
 CK_DLL_CTOR( biquad_ctor )
 {    
     biquad_data* d = new biquad_data;
-    OBJ_MEMBER_UINT ( SELF, biquad_offset_data ) = ( t_CKUINT ) d;
+    OBJ_MEMBER_UINT( SELF, biquad_offset_data ) = ( t_CKUINT ) d;
 }
 
 //-----------------------------------------------------------------------------
@@ -483,7 +1119,7 @@ CK_DLL_TICK( biquad_tick )
     d->m_output2 = d->m_output1;
     d->m_output1 = d->m_output0;
 
-    *out = (SAMPLE) d->m_output0;
+    *out = (SAMPLE)d->m_output0;
 
     return TRUE;
 }
