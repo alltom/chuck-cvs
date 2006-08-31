@@ -171,13 +171,13 @@ CK_DLL_CGET( Envelope_cget_time );
 CK_DLL_CGET( Envelope_cget_duration );
 CK_DLL_CGET( Envelope_cget_value );
 
-// Filter
-CK_DLL_CTOR( Filter_ctor );
-CK_DLL_DTOR( Filter_dtor );
-CK_DLL_TICK( Filter_tick );
-CK_DLL_PMSG( Filter_pmsg );
-CK_DLL_CTRL( Filter_ctrl_coefs );
-CK_DLL_CGET( Filter_cget_coefs );
+// FilterStk (originally Filter)
+CK_DLL_CTOR( FilterStk_ctor );
+CK_DLL_DTOR( FilterStk_dtor );
+CK_DLL_TICK( FilterStk_tick );
+CK_DLL_PMSG( FilterStk_pmsg );
+CK_DLL_CTRL( FilterStk_ctrl_coefs );
+CK_DLL_CGET( FilterStk_cget_coefs );
 
 // OnePole
 CK_DLL_CTOR( OnePole_ctor );

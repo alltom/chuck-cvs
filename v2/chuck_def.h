@@ -92,6 +92,7 @@ typedef const char *                c_constr;
 // 3.1415926535897932384626433832795028841971693993751058209749445...
 #define ONE_PI (3.14159265358979323846)
 #define TWO_PI (2.0 * ONE_PI)
+#define SQRT2  (1.41421356237309504880)
 
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(x)              { if(x){ delete x; x = NULL; } }
