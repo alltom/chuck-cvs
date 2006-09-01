@@ -86,6 +86,28 @@ CK_DLL_CTRL( BRF_ctrl_bw );
 CK_DLL_CGET( BRF_cget_bw );
 CK_DLL_CTRL( BRF_ctrl_set );
 
+// RLPF
+CK_DLL_CTOR( RLPF_ctor );
+CK_DLL_DTOR( RLPF_dtor );
+CK_DLL_TICK( RLPF_tick );
+CK_DLL_PMSG( RLPF_pmsg );
+CK_DLL_CTRL( RLPF_ctrl_freq );
+CK_DLL_CGET( RLPF_cget_freq );
+CK_DLL_CTRL( RLPF_ctrl_reson );
+CK_DLL_CGET( RLPF_cget_reson );
+CK_DLL_CTRL( RLPF_ctrl_set );
+
+// RHPF
+CK_DLL_CTOR( RHPF_ctor );
+CK_DLL_DTOR( RHPF_dtor );
+CK_DLL_TICK( RHPF_tick );
+CK_DLL_PMSG( RHPF_pmsg );
+CK_DLL_CTRL( RHPF_ctrl_freq );
+CK_DLL_CGET( RHPF_cget_freq );
+CK_DLL_CTRL( RHPF_ctrl_reson );
+CK_DLL_CGET( RHPF_cget_reson );
+CK_DLL_CTRL( RHPF_ctrl_set );
+
 // filter
 CK_DLL_CTOR( filter_ctor );
 CK_DLL_DTOR( filter_dtor );
