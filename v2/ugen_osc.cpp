@@ -116,7 +116,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // phasor
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Phasor", "Osc", env->global(), 
-                                        NULL, sinosc_tick, NULL ) )
+                                        NULL, osc_tick, NULL ) )
         return FALSE;
 
     // end the class import
