@@ -409,7 +409,7 @@ CK_DLL_TICK( triosc_tick )
 }
 
 
-//sawosc_tick is tri_osc tick with width=0.0 or width=1.0  -pld 
+// sawosc_tick is tri_osc tick with width=0.0 or width=1.0  -pld 
 
 
 //-----------------------------------------------------------------------------
