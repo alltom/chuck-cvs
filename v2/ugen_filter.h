@@ -71,8 +71,8 @@ CK_DLL_TICK( BPF_tick );
 CK_DLL_PMSG( BPF_pmsg );
 CK_DLL_CTRL( BPF_ctrl_freq );
 CK_DLL_CGET( BPF_cget_freq );
-CK_DLL_CTRL( BPF_ctrl_bw );
-CK_DLL_CGET( BPF_cget_bw );
+CK_DLL_CTRL( BPF_ctrl_Q );
+CK_DLL_CGET( BPF_cget_Q );
 CK_DLL_CTRL( BPF_ctrl_set );
 
 // BRF
@@ -82,8 +82,8 @@ CK_DLL_TICK( BRF_tick );
 CK_DLL_PMSG( BRF_pmsg );
 CK_DLL_CTRL( BRF_ctrl_freq );
 CK_DLL_CGET( BRF_cget_freq );
-CK_DLL_CTRL( BRF_ctrl_bw );
-CK_DLL_CGET( BRF_cget_bw );
+CK_DLL_CTRL( BRF_ctrl_Q );
+CK_DLL_CGET( BRF_cget_Q );
 CK_DLL_CTRL( BRF_ctrl_set );
 
 // RLPF
@@ -93,8 +93,8 @@ CK_DLL_TICK( RLPF_tick );
 CK_DLL_PMSG( RLPF_pmsg );
 CK_DLL_CTRL( RLPF_ctrl_freq );
 CK_DLL_CGET( RLPF_cget_freq );
-CK_DLL_CTRL( RLPF_ctrl_reson );
-CK_DLL_CGET( RLPF_cget_reson );
+CK_DLL_CTRL( RLPF_ctrl_Q );
+CK_DLL_CGET( RLPF_cget_Q );
 CK_DLL_CTRL( RLPF_ctrl_set );
 
 // RHPF
@@ -104,9 +104,20 @@ CK_DLL_TICK( RHPF_tick );
 CK_DLL_PMSG( RHPF_pmsg );
 CK_DLL_CTRL( RHPF_ctrl_freq );
 CK_DLL_CGET( RHPF_cget_freq );
-CK_DLL_CTRL( RHPF_ctrl_reson );
-CK_DLL_CGET( RHPF_cget_reson );
+CK_DLL_CTRL( RHPF_ctrl_Q );
+CK_DLL_CGET( RHPF_cget_Q );
 CK_DLL_CTRL( RHPF_ctrl_set );
+
+// ResonZ
+CK_DLL_CTOR( ResonZ_ctor );
+CK_DLL_DTOR( ResonZ_dtor );
+CK_DLL_TICK( ResonZ_tick );
+CK_DLL_PMSG( ResonZ_pmsg );
+CK_DLL_CTRL( ResonZ_ctrl_freq );
+CK_DLL_CGET( ResonZ_cget_freq );
+CK_DLL_CTRL( ResonZ_ctrl_Q );
+CK_DLL_CGET( ResonZ_cget_Q );
+CK_DLL_CTRL( ResonZ_ctrl_set );
 
 // filter
 CK_DLL_CTOR( filter_ctor );
