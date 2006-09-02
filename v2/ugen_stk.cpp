@@ -1826,11 +1826,12 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     
 
 
+    /* -- using native BiQuad --
     //------------------------------------------------------------------------
     // begin BiQuad ugen
     //------------------------------------------------------------------------
 
-    if( !type_engine_import_ugen_begin( env, "BiQuad", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "BiQuadStk", "UGen", env->global(), 
                         BiQuad_ctor, BiQuad_tick, BiQuad_pmsg ) ) return FALSE;
     //member variable
     BiQuad_offset_data = type_engine_import_mvar ( env, "int", "@BiQuad_data", FALSE );
@@ -1913,6 +1914,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+    */
 
 
     //------------------------------------------------------------------------

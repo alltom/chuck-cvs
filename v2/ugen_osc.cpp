@@ -338,10 +338,12 @@ CK_DLL_TICK( sinosc_tick )
     // get the data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    t_CKBOOL inc_phase = TRUE;
 
     // if input
     if( ugen->m_num_src )
     {
+        // sync frequency to input
         if( d->sync == 0 )
         {
             // set freq
@@ -352,8 +354,14 @@ CK_DLL_TICK( sinosc_tick )
             if( d->num >= 1.0 ) d->num -= floor( d->num );
             else if( d->num <= 1.0 ) d->num += floor( d->num );
         }
-        // sync to now
-        // else if( d->sync == 1 ) d->phase = now * d->num;
+        // sync phase to input
+        else if( d->sync == 1 )
+        {
+            // set freq
+            d->phase = in;
+            inc_phase = FALSE;
+        }
+        // FM synthesis
         else if( d->sync == 2 )
         {
             // set freq
@@ -364,15 +372,24 @@ CK_DLL_TICK( sinosc_tick )
             if( d->num >= 1.0 ) d->num -= floor( d->num );
             else if( d->num <= 1.0 ) d->num += floor( d->num );
         }
+        // sync phase to now
+        // else if( d->sync == 3 )
+        // {
+        //     d->phase = now * d->num;
+        //     inc_phase = FALSE;
+        // }
     }
-
-    // next phase
-    d->phase += d->num;
-    // keep the phase between 0 and 1
-    if( d->phase > 1.0 ) d->phase -= 1.0;
 
     // set output
     *out = (SAMPLE) ::sin( d->phase * TWO_PI );
+
+    if( inc_phase )
+    {
+        // next phase
+        d->phase += d->num;
+        // keep the phase between 0 and 1
+        if( d->phase > 1.0 ) d->phase -= 1.0;
+    }
 
     return TRUE;
 }
@@ -388,17 +405,55 @@ CK_DLL_TICK( triosc_tick )
 {
     // get the data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
-    // sync to now
-    // if( d->sync == 1 ) d->phase = now * d->num;
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    t_CKBOOL inc_phase = TRUE;
+
+    // if input
+    if( ugen->m_num_src )
+    {
+        // sync frequency to input
+        if( d->sync == 0 )
+        {
+            // set freq
+            d->freq = in;
+            // phase increment
+            d->num = d->freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
+        // sync phase to input
+        else if( d->sync == 1 )
+        {
+            // set freq
+            d->phase = in;
+            inc_phase = FALSE;
+        }
+        // FM synthesis
+        else if( d->sync == 2 )
+        {
+            // set freq
+            t_CKFLOAT freq = d->freq + in;
+            // phase increment
+            d->num = freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
+        // sync to now
+        // if( d->sync == 3 )
+        // {
+        //     d->phase = now * d->num;
+        //     inc_phase = FALSE;
+        // }
+    }
+
     // compute
-
-    if ( d->sync == 2 ) d->phase = in;
-
-    if ( d->phase < d->width ) *out = (SAMPLE) ( d->width == 0.0 ) ? 1.0 : -1.0 + 2.0 * d->phase / d->width; 
+    if( d->phase < d->width ) *out = (SAMPLE) ( d->width == 0.0 ) ? 1.0 : -1.0 + 2.0 * d->phase / d->width; 
     else *out = (SAMPLE) ( d->width == 1.0 ) ? 0 : 1.0 - 2.0 * ( d->phase - d->width ) / ( 1.0 - d->width );
 
     // advance internal phase
-    if( d->sync == 0 )
+    if( inc_phase )
     {
         d->phase += d->num;
         // keep the phase between 0 and 1
@@ -420,16 +475,54 @@ CK_DLL_TICK( pulseosc_tick )
 {
     // get the data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
-    // sync to now
-    // if( d->sync == 1 ) d->phase = now * d->num;
-    // compute
-    
-    if ( d->sync == 2 ) d->phase = in;  //don't bound-check the in value...
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    t_CKBOOL inc_phase = TRUE;
 
+    // if input
+    if( ugen->m_num_src )
+    {
+        // sync frequency to input
+        if( d->sync == 0 )
+        {
+            // set freq
+            d->freq = in;
+            // phase increment
+            d->num = d->freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
+        // sync phase to input
+        else if( d->sync == 1 )
+        {
+            // set freq
+            d->phase = in;
+            inc_phase = FALSE;
+        }
+        // FM synthesis
+        else if( d->sync == 2 )
+        {
+            // set freq
+            t_CKFLOAT freq = d->freq + in;
+            // phase increment
+            d->num = freq / d->srate;
+            // bound it
+            if( d->num >= 1.0 ) d->num -= floor( d->num );
+            else if( d->num <= 1.0 ) d->num += floor( d->num );
+        }
+        // sync to now
+        // if( d->sync == 3 )
+        // {
+        //     d->phase = now * d->num;
+        //     inc_phase = FALSE;
+        // }
+    }
+
+    // compute
     *out = (SAMPLE) ( d->phase < d->width ) ? -1.0 : 1.0 ;
 
     // move phase
-    if( d->sync == 0 )
+    if( inc_phase )
     {
         d->phase += d->num;
         // keep the phase between 0 and 1
@@ -440,7 +533,7 @@ CK_DLL_TICK( pulseosc_tick )
 }
 
 
-//sqrosc_tick is pulseosc_tick at width=0.5 -pld;
+// sqrosc_tick is pulseosc_tick at width=0.5 -pld;
 
 
 //-----------------------------------------------------------------------------
@@ -665,12 +758,16 @@ CK_DLL_CTRL( osc_ctrl_sync )
     // set sync
     t_CKINT psync = d->sync;
     d->sync = GET_CK_INT(ARGS);
-    //bound ( this could be set arbitrarily high or low ) 
-    if ( d->sync < 0 || d->sync > 2 ) d->sync = 0;
-    if ( d->sync == 0 && psync != d->sync ) { 
-        //if we are switching to internal tick
-        //we need to pre-advance the phase... 
-        //this is probably stupid.  -pld
+
+    // bound ( this could be set arbitrarily high or low ) 
+    if( d->sync < 0 || d->sync > 2 )
+        d->sync = 0;
+
+    if( d->sync == 0 && psync != d->sync )
+    {
+        // if we are switching to internal tick
+        // we need to pre-advance the phase... 
+        // this is probably stupid.  -pld
         d->phase += d->num;
         // keep the phase between 0 and 1
         if( d->phase > 1.0 ) d->phase -= 1.0;
