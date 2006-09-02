@@ -29,12 +29,14 @@
   - (added) --deprecate:X flag
             X can be stop, warn, or ignore - default is warn
   - (added) STK BiQuad get functions pfreq, prad, zfreq, zrad
-  - (added) new UGens (adapted from SC3 Server and Pure Data)
+  - (added) new UGens (adapted from SC3 Server, Pure Data, CSound)
     --------------------------
           LPF : lowpass filter (2nd order butterworth)
           HPF : highpass filter (2nd order butterworth)
           BPF : bandpass filter (2nd order butterworth)
-          BRF : bandreject filter (wnd order butterworth)
+          BRF : bandreject filter (2nd order butterworth)
+         RLPF : resonant lowpass filter (2nd order)
+         RHPF : resonant highpass filter (2nd order)
   FilterBasic : base class to above filters
     --------------------------
   - (fixed) floating point denormals no longer cause potentially
@@ -42,7 +44,14 @@
             BiQuad, OnePole, TwoPole, PoleZero, JCRev, PRCRev, NRev
   - (fixed) STK Echo.max no longer gives incorrect warnings
   - (fixed) linux makefiles now respects CC/CFLAGS/CXX (Cedric Krier)
-
+  - (fixed) SinOsc/TriOsc/PulseOsc/SqrOsc/Phasor.sync now unified:
+            .sync == 0 : sync frequency to input
+            .sync == 1 : sync phase to input
+            .sync == 2 : fm synth
+            |
+      NOTE: the above changes may break/affect existing patches
+            using TriOsc, PulseOsc, or SqrOsc
+    (sorry!)
 
 ---
 1.2.0.6 (more)
