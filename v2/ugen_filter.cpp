@@ -249,13 +249,43 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
-    
-    
-    /*
+
+
     //---------------------------------------------------------------------
-    // init as base class: biquad
+    // init class: ResonZ
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "biquad", "UGen", env->global(), 
+    if( !type_engine_import_ugen_begin( env, "RHPF", "FilterBasic", env->global(),
+                                        RHPF_ctor, RHPF_tick, RHPF_pmsg ) )
+        return FALSE;
+
+    // freq
+    func = make_new_mfun( "float", "freq", RHPF_ctrl_freq );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "freq", RHPF_cget_freq );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // reson
+    func = make_new_mfun( "float", "reson", RHPF_ctrl_reson );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "reson", RHPF_cget_reson );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // set
+    func = make_new_mfun( "void", "set", RHPF_ctrl_set );
+    func->add_arg( "float", "freq" );
+    func->add_arg( "float", "reson" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //---------------------------------------------------------------------
+    // init as base class: BiQuad
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "BiQuad", "UGen", env->global(), 
                                         biquad_ctor, biquad_tick, NULL ) )
         return FALSE;
 
@@ -355,10 +385,12 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
+
+    /*
     //----------------------------------
     // begin onepole ugen
     //----------------------------------
-    if ( !type_engine_import_ugen_begin( env, "onepole", "biquad", env->global(),
+    if ( !type_engine_import_ugen_begin( env, "OnePole", "biquad", env->global(),
                                          NULL, onepole_tick, NULL ) ) return FALSE;
     // ctrl func
     func = make_new_mfun ( "float", "pole", onepole_ctrl_pole );
@@ -405,6 +437,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
+
     //----------------------------------
     // begin twozero ugen
     //----------------------------------
@@ -421,6 +454,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+
 
     //----------------------------------
     // begin delay ugen
@@ -445,6 +479,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
+
     //----------------------------------
     // begin delayA ugen
     //----------------------------------
@@ -464,6 +499,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
+
     //----------------------------------
     // begin one ugen
     //----------------------------------
@@ -481,7 +517,6 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
     */
-
 
     return TRUE;
 
@@ -1500,6 +1535,10 @@ CK_DLL_TICK( biquad_tick )
     d->m_input1 = d->m_input0;
     d->m_output2 = d->m_output1;
     d->m_output1 = d->m_output0;
+
+    // be normal
+    CK_DDN(d->m_output1);
+    CK_DDN(d->m_output2);
 
     *out = (SAMPLE)d->m_output0;
 
