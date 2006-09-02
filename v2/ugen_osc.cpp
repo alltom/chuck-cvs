@@ -287,10 +287,12 @@ CK_DLL_TICK( osc_tick )
     // get the data
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    t_CKBOOL inc_phase = TRUE;
 
     // if input
     if( ugen->m_num_src )
     {
+        // sync frequency to input
         if( d->sync == 0 )
         {
             // set freq
@@ -301,8 +303,15 @@ CK_DLL_TICK( osc_tick )
             if( d->num >= 1.0 ) d->num -= floor( d->num );
             else if( d->num <= 1.0 ) d->num += floor( d->num );
         }
-        // sync to now
-        // else if( d->sync == 1 ) d->phase = now * d->num;
+        // synch phase to input
+        else if( d->sync == 1 )
+        {
+            // set phase
+            d->phase = in;
+            // no update
+            inc_phase = FALSE;
+        }
+        // fm synthesis
         else if( d->sync == 2 )
         {
             // set freq
@@ -313,15 +322,25 @@ CK_DLL_TICK( osc_tick )
             if( d->num >= 1.0 ) d->num -= floor( d->num );
             else if( d->num <= 1.0 ) d->num += floor( d->num );
         }
+        // sync to now
+        // else if( d->sync == 3 )
+        // {
+        //     d->phase = now * d->num;
+        //     inc_phase = FALSE;
+        // }
     }
-
-    // step the phase.
-    d->phase += d->num;
-    // keep the phase between 0 and 1
-    if( d->phase > 1.0 ) d->phase -= 1.0;
 
     // set output to current phase
     *out = (SAMPLE)d->phase;
+    
+    // check
+    if( inc_phase )
+    {
+        // step the phase.
+        d->phase += d->num;
+        // keep the phase between 0 and 1
+        if( d->phase > 1.0 ) d->phase -= 1.0;
+    }
 
     return TRUE;
 }
