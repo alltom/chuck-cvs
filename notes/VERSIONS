@@ -37,6 +37,7 @@
           BRF : bandreject filter (2nd order butterworth)
          RLPF : resonant lowpass filter (2nd order)
          RHPF : resonant highpass filter (2nd order)
+       ResonZ : resonant filter (2nd order BiQuad with equal-gain zeros)
   FilterBasic : base class to above filters
     --------------------------
   - (fixed) floating point denormals no longer cause potentially
