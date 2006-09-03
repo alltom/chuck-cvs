@@ -1,12 +1,17 @@
 // our patch
-Noise n => LPF lpf => dac;
+SqrOsc so => RLPF f => dac;
+
+// set osc frequency
+50 => so.freq;
+// set Q
+10 => f.Q;
 
 // infinite time-loop
 float t;
 while( true )
 {
     // sweep the cutoff
-    Math.sin(t) * 110 => Std.fabs => Std.mtof => lpf.freq;
+    100 + Std.fabs(Math.sin(t)) * 5000 => f.freq;
     // increment t
     .005 +=> t;
     // advance time

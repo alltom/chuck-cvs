@@ -1,12 +1,15 @@
 // our patch
-Noise n => LPF lpf => dac;
+Noise n => HPF f => dac;
+
+// set gain
+.5 => f.gain;
 
 // infinite time-loop
 float t;
 while( true )
 {
     // sweep the cutoff
-    Math.sin(t) * 110 => Std.fabs => Std.mtof => lpf.freq;
+    Math.sin(t) * 110 => Std.fabs => Std.mtof => f.freq;
     // increment t
     .005 +=> t;
     // advance time

@@ -1,12 +1,15 @@
 // our patch
-Noise n => LPF lpf => dac;
+Noise n => ResonZ f => dac;
+
+// set filter Q
+1 => f.Q;
 
 // infinite time-loop
 float t;
 while( true )
 {
     // sweep the cutoff
-    Math.sin(t) * 110 => Std.fabs => Std.mtof => lpf.freq;
+    100 + Std.fabs(Math.sin(t)) * 5000 => f.freq;
     // increment t
     .005 +=> t;
     // advance time
