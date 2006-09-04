@@ -54,6 +54,7 @@
             using TriOsc, PulseOsc, or SqrOsc
     (sorry!)
 
+
 ---
 1.2.0.6 (more)
   - (added) support for Mac OS X universal binary
