@@ -40,8 +40,8 @@ U.S.A.
 
 using namespace std;
 
-#pragma mark OS X Joystick support
 #ifdef __MACOSX_CORE__
+#pragma mark OS X General HID support
 
 #include <mach/mach.h>
 #include <mach/mach_error.h>
@@ -59,6 +59,7 @@ struct OSX_Device_Element
         cookie = 0;
         num = 0;
         value = 0;
+        usage = usage_page = 0;
         min = 0;
         max = 0;
     }
@@ -69,6 +70,9 @@ struct OSX_Device_Element
     t_CKINT num;
     t_CKINT value;
     
+    t_CKINT usage_page;
+    t_CKINT usage;
+    
     t_CKINT min;
     t_CKINT max;
 };
@@ -77,21 +81,34 @@ struct OSX_Device
 {
     OSX_Device()
     {
+        configed = preconfiged = FALSE;
+        plugInInterface = NULL;
         interface = NULL;
         queue = NULL;
         strncpy( name, "Device", 256 );
         elements = NULL;
+        usage = usage_page = 0;
         buttons = -1;
         axes = -1;
         hats = -1;
         refcount = 0;
+        stop_queue = FALSE;
+        hidProperties = NULL;
     }
-        
+    
+    t_CKINT preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_type );
+    t_CKINT configure();
+    void enumerate_elements( CFArrayRef cfElements );
+    
+    IOCFPlugInInterface ** plugInInterface;
     IOHIDDeviceInterface ** interface; // device interface
     IOHIDQueueInterface ** queue; // device event queue
     
     char name[256];
     
+    t_CKBOOL preconfiged, configed;
+    
+    t_CKINT type;
     t_CKINT usage_page;
     t_CKINT usage;
     
@@ -103,6 +120,9 @@ struct OSX_Device
     t_CKINT hats;
     
     t_CKUINT refcount; // incremented on open, decremented on close
+    t_CKBOOL stop_queue; // used to indicate that the event queue should be stopped
+    
+    CFMutableDictionaryRef hidProperties;
     
     const static t_CKINT event_queue_size = 50; 
     // queues use wired kernel memory so should be set to as small as possible
@@ -111,15 +131,171 @@ struct OSX_Device
     // if states change quickly (updates are only posted on state changes)
 };
 
-vector< OSX_Device * > * joysticks = NULL;
+t_CKINT OSX_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_type )
+{
+    if( preconfiged )
+        return 0;
+    
+    // retrieve a dictionary of device properties
+    kern_return_t kern_result = IORegistryEntryCreateCFProperties( ioHIDDeviceObject, 
+                                                                   &hidProperties, 
+                                                                   kCFAllocatorDefault, 
+                                                                   kNilOptions);
+    if( kern_result != KERN_SUCCESS || hidProperties == 0 )
+    {
+        hidProperties = NULL;
+        return -1;
+    }
+    
+    switch( dev_type )
+    {
+        case CK_HID_DEV_JOYSTICK:
+            strncpy( name, "Joystick", 256 );
+            axes = 0;
+            hats = 0;
+            buttons = 0;
+            break;
+            
+        case CK_HID_DEV_MOUSE:
+            strncpy( name, "Mouse", 256 );
+            axes = 0;
+            hats = -1;
+            buttons = 0;
+            break;
+            
+        case CK_HID_DEV_KEYBOARD:
+            strncpy( name, "Keyboard", 256 );
+            axes = -1;
+            hats = -1;
+            buttons = -1;
+            break;
+    }
+
+    // get the device name, and copy it into the device record
+    CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
+                                            CFSTR( kIOHIDProductKey ) );
+    if( refCF )
+        CFStringGetCString( ( CFStringRef )refCF, name, 256, 
+                            kCFStringEncodingASCII );
+    
+    IOReturn result;
+    SInt32 score = 0;
+    result = IOCreatePlugInInterfaceForService( ioHIDDeviceObject,
+                                                kIOHIDDeviceUserClientTypeID,
+                                                kIOCFPlugInInterfaceID,
+                                                &plugInInterface,
+                                                &score);
+    if( result != kIOReturnSuccess )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        return -1;
+    }
+    
+    preconfiged = TRUE;
+    
+    return 0;
+}
+
+t_CKINT OSX_Device::configure()
+{
+    if( configed )
+        return 0;
+    
+    if( !preconfiged )
+        return -1;
+    
+    // create the device interface
+    
+    HRESULT plugInResult = S_OK;
+    plugInResult = (*plugInInterface)->QueryInterface( plugInInterface,
+                                                       CFUUIDGetUUIDBytes( kIOHIDDeviceInterfaceID ),
+                                                       ( LPVOID * ) &interface );
+    (*plugInInterface)->Release( plugInInterface );
+    plugInInterface = NULL;
+    if( plugInResult != S_OK )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        return -1;
+    }
+    
+    IOReturn result;
+    result = (*interface)->open( interface, 0 );
+    if( result != kIOReturnSuccess )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        (*interface)->Release( interface );
+        interface = NULL;
+        return -1;
+    }
+    
+    // create an event queue, so we dont have to poll individual elements
+    
+    queue = (*interface)->allocQueue( interface );
+    if( !queue )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        (*interface)->close( interface );
+        (*interface)->Release( interface );
+        interface = NULL;
+        return -1;
+    }
+    
+    result = (*queue)->create( queue, 0, event_queue_size );
+    if( result != kIOReturnSuccess )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        (*queue)->Release( queue );
+        queue = NULL;
+        (*interface)->close( interface );
+        (*interface)->Release( interface );
+        interface = NULL;
+        return -1;
+    }
+    
+    // retrieve the array of elements...
+    CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
+                                            CFSTR( kIOHIDElementKey ) );
+    if( !refCF )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        (*queue)->dispose( queue );
+        (*queue)->Release( queue );
+        queue = NULL;
+        (*interface)->close( interface );
+        (*interface)->Release( interface );
+        interface = NULL;
+        return -1;
+    }
+    
+    // ...allocate space for element records...
+    elements = new map< IOHIDElementCookie, OSX_Device_Element * >;
+    axes = 0;
+    buttons = 0;
+    hats = 0;
+    
+    // ...and parse the element array recursively
+    enumerate_elements( ( CFArrayRef ) refCF );
+    
+    CFRelease( hidProperties );
+    hidProperties = NULL;
+    
+    configed = TRUE;
+    
+    return 0;
+}
 
 //------------------------------------------------------------------------------
-// name: OSX_enumerate_device_elements
+// name: enumerate_device_elements
 // desc: perform depth depth first search on potentially nested arrays of 
-// elements on the device, 
+// elements on the device, add found elements to the vector
 //------------------------------------------------------------------------------
-static void OSX_enumerate_device_elements( CFArrayRef elements, 
-                                           OSX_Device * record )
+void OSX_Device::enumerate_elements( CFArrayRef cfElements )
 {
     CFTypeRef refCF = 0;
     CFDictionaryRef element_dictionary;
@@ -127,11 +303,11 @@ static void OSX_enumerate_device_elements( CFArrayRef elements,
     t_CKINT usage_page, usage, element_type;
     IOReturn result;
     
-    CFIndex i, len = CFArrayGetCount( elements );
+    CFIndex i, len = CFArrayGetCount( cfElements );
     for( i = 0; i < len; i++ )
     {
         // retrieve the dictionary of the ith element's data
-        refCF = CFArrayGetValueAtIndex( elements, i );
+        refCF = CFArrayGetValueAtIndex( cfElements, i );
         element_dictionary = ( CFDictionaryRef ) refCF;
         
         // get element type
@@ -179,105 +355,92 @@ static void OSX_enumerate_device_elements( CFArrayRef elements,
                             case kHIDUsage_GD_Dial:
                             case kHIDUsage_GD_Wheel:
                                 // this is an axis
-                                if( record->axes != -1 )
-                                {
-                                    element = new OSX_Device_Element; 
-                                    
-                                    element->num = record->axes;
+                                if( axes == -1 )
+                                    continue;
+                                
+                                element = new OSX_Device_Element;
+                                
+                                element->num = axes;
+                                if( this->type == CK_HID_DEV_JOYSTICK )
                                     element->type = CK_HID_JOYSTICK_AXIS;
+                                else
+                                    element->type = CK_HID_MOUSE_MOTION;
+                                element->usage = usage;
+                                element->usage_page = usage_page;
                                     
-                                    refCF = CFDictionaryGetValue( element_dictionary,
-                                                                  CFSTR( kIOHIDElementCookieKey ) );
-                                    if( !refCF || 
-                                        !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->cookie ) )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
-                                    
-                                    refCF = CFDictionaryGetValue( element_dictionary,
-                                                                  CFSTR( kIOHIDElementMinKey ) );
-                                    if( !refCF || 
-                                        !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->min ) )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
-                                    
-                                    refCF = CFDictionaryGetValue( element_dictionary,
-                                                                  CFSTR( kIOHIDElementMaxKey ) );
-                                    if( !refCF || 
-                                        !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->max ) )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
-                                    
-                                    result = ( *( record->queue ) )->addElement( record->queue, element->cookie, 0 );
-                                    if( result != kIOReturnSuccess )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
-                                    
-                                    EM_log( CK_LOG_FINE, "adding axis %d", record->axes );
-                                    
-                                    //record->axes->insert( pair< IOHIDElementCookie, OSX_Device_Element * >( element->cookie, element ) );
-                                    ( *( record->elements ) )[element->cookie] = element;
-                                    record->axes++;
+                                refCF = CFDictionaryGetValue( element_dictionary,
+                                                              CFSTR( kIOHIDElementCookieKey ) );
+                                if( !refCF || 
+                                    !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->cookie ) )
+                                {
+                                    delete element;
+                                    continue;
                                 }
+                                    
+                                refCF = CFDictionaryGetValue( element_dictionary,
+                                                              CFSTR( kIOHIDElementMinKey ) );
+                                if( !refCF || 
+                                    !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->min ) )
+                                {
+                                    delete element;
+                                    continue;
+                                }
+                                    
+                                refCF = CFDictionaryGetValue( element_dictionary,
+                                                              CFSTR( kIOHIDElementMaxKey ) );
+                                if( !refCF || 
+                                    !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->max ) )
+                                {
+                                    delete element;
+                                    continue;
+                                }
+                                    
+                                result = (*queue)->addElement( queue, element->cookie, 0 );
+                                if( result != kIOReturnSuccess )
+                                {
+                                    delete element;
+                                    continue;
+                                }
+                                    
+                                EM_log( CK_LOG_FINE, "adding axis %d", axes );
+                                
+                                (*elements)[element->cookie] = element;
+                                axes++;
                                 
                                 break;
                                 
                             case kHIDUsage_GD_Hatswitch:
                                 // this is a hat
-                                if( record->hats != -1 )
-                                {
-                                    element = new OSX_Device_Element; 
-                                    
-                                    element->type = CK_HID_JOYSTICK_HAT;
-                                    element->num = record->hats;
-                                    
-                                    refCF = CFDictionaryGetValue( element_dictionary,
-                                                                  CFSTR( kIOHIDElementCookieKey ) );
-                                    if( !refCF || 
-                                        !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->cookie ) )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
-                                    
-                                    refCF = CFDictionaryGetValue( element_dictionary,
-                                                                  CFSTR( kIOHIDElementMinKey ) );
-                                    if( !refCF || 
-                                        !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->min ) )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
-                                    
-                                    refCF = CFDictionaryGetValue( element_dictionary,
-                                                                  CFSTR( kIOHIDElementMaxKey ) );
-                                    if( !refCF || 
-                                        !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->max ) )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
-                                    
-                                    result = ( *( record->queue ) )->addElement( record->queue, element->cookie, 0 );
-                                    if( result != kIOReturnSuccess )
-                                    {
-                                        delete element;
-                                        continue;
-                                    }
+                                if( hats == -1 )
+                                    continue;
 
-                                    EM_log( CK_LOG_FINE, "adding hat %d", record->hats );
+                                element = new OSX_Device_Element; 
                                     
-                                    //record->hats->insert( pair< IOHIDElementCookie, OSX_Device_Element * >( element->cookie, element ) );
-                                    ( *( record->elements ) )[element->cookie] = element;
-                                    record->hats++;
+                                element->type = CK_HID_JOYSTICK_HAT;
+                                element->num = hats;
+                                element->usage = usage;
+                                element->usage_page = usage_page;
+                                
+                                refCF = CFDictionaryGetValue( element_dictionary,
+                                                              CFSTR( kIOHIDElementCookieKey ) );
+                                if( !refCF || 
+                                    !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->cookie ) )
+                                {
+                                    delete element;
+                                    continue;
                                 }
+                                    
+                                result = (*queue)->addElement( queue, element->cookie, 0 );
+                                if( result != kIOReturnSuccess )
+                                {
+                                    delete element;
+                                    continue;
+                                }
+                                    
+                                EM_log( CK_LOG_FINE, "adding hat %d", hats );
+                                
+                                (*elements)[element->cookie] = element;
+                                hats++;
                                 
                                 break;
                         }
@@ -286,53 +449,36 @@ static void OSX_enumerate_device_elements( CFArrayRef elements,
                         
                     case kHIDPage_Button:
                         // this is a button
-                        if( record->buttons != -1 )
+                        if( buttons == -1 )
+                            continue;
+                        
+                        element = new OSX_Device_Element; 
+                        
+                        element->type = CK_HID_BUTTON_DOWN;
+                        element->num = buttons;
+                        element->usage = usage;
+                        element->usage_page = usage_page;
+                        
+                        refCF = CFDictionaryGetValue( element_dictionary,
+                                                      CFSTR( kIOHIDElementCookieKey ) );
+                        if( !refCF || 
+                            !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->cookie ) )
                         {
-                            element = new OSX_Device_Element; 
-                            
-                            element->type = CK_HID_BUTTON_DOWN;
-                            element->num = record->buttons;
-                            
-                            refCF = CFDictionaryGetValue( element_dictionary,
-                                                          CFSTR( kIOHIDElementCookieKey ) );
-                            if( !refCF || 
-                                !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->cookie ) )
-                            {
-                                delete element;
-                                continue;
-                            }
-                            
-                            refCF = CFDictionaryGetValue( element_dictionary,
-                                                          CFSTR( kIOHIDElementMinKey ) );
-                            if( !refCF || 
-                                !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->min ) )
-                            {
-                                delete element;
-                                continue;
-                            }
-                            
-                            refCF = CFDictionaryGetValue( element_dictionary,
-                                                          CFSTR( kIOHIDElementMaxKey ) );
-                            if( !refCF || 
-                                !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->max ) )
-                            {
-                                delete element;
-                                continue;
-                            }
-                            
-                            result = ( *( record->queue ) )->addElement( record->queue, element->cookie, 0 );
-                            if( result != kIOReturnSuccess )
-                            {
-                                delete element;
-                                continue;
-                            }
-                            
-                            EM_log( CK_LOG_FINE, "adding button %d", record->buttons );
-                            
-                            //record->buttons->insert( pair< IOHIDElementCookie, OSX_Device_Element * >( element->cookie, element ) );
-                            ( *( record->elements ) )[element->cookie] = element;
-                            record->buttons++;
+                            delete element;
+                            continue;
                         }
+                            
+                        result = (*queue)->addElement( queue, element->cookie, 0 );
+                        if( result != kIOReturnSuccess )
+                        {
+                            delete element;
+                            continue;
+                        }
+                            
+                        EM_log( CK_LOG_FINE, "adding button %d", buttons );
+                        
+                        (*elements)[element->cookie] = element;
+                        buttons++;
                         
                         break;
                 }
@@ -343,31 +489,39 @@ static void OSX_enumerate_device_elements( CFArrayRef elements,
                 refCF = CFDictionaryGetValue( element_dictionary, CFSTR( kIOHIDElementKey ) );
                 if( !refCF )
                     continue;
-                
-                OSX_enumerate_device_elements( ( CFArrayRef ) refCF, record );
+                    
+                enumerate_elements( ( CFArrayRef ) refCF );
                 break;
         }
     }
 }
 
-void Joystick_init()
+vector< OSX_Device * > * joysticks = NULL;
+vector< OSX_Device * > * mice = NULL;
+vector< OSX_Device * > * keyboards = NULL;
+static t_CKBOOL g_hid_init = FALSE;
+
+void HID_init()
 {
     // verify that the joystick system has not already been initialized
-    if( joysticks != NULL )
+    if( g_hid_init == TRUE )
         return;
+    
+    g_hid_init = TRUE;
     
 	IOReturn result = kIOReturnSuccess;
 	io_iterator_t hidObjectIterator = 0;
     CFTypeRef refCF;
     t_CKINT filter_usage_page = kHIDPage_GenericDesktop;
     
-    // allocate vector of joystick device records
+    // allocate vectors of device records
     joysticks = new vector< OSX_Device * >;
+    mice = new vector< OSX_Device * >;
     
 	CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
     if( !hidMatchDictionary )
     {
-        EM_log( CK_LOG_SEVERE, "joystick: error: retrieving hidMatchDictionary, unable to initialize" );
+        EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving hidMatchDictionary, unable to initialize" );
         return;
     }
     
@@ -382,16 +536,15 @@ void Joystick_init()
                                            &hidObjectIterator );
     if( result != kIOReturnSuccess || hidObjectIterator == 0 )
     {
-        EM_log( CK_LOG_SEVERE, "joystick: error: retrieving matching services, unable to initialize" );
+        EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving matching services, unable to initialize" );
         return;
     }
 
     CFRelease( refCF );
     
     io_object_t ioHIDDeviceObject = 0;
-    CFMutableDictionaryRef hidProperties = 0;
-    kern_return_t kern_result;
     t_CKINT usage, usage_page;
+    t_CKINT joysticks_seen = 0, mice_seen = 0;
     while( ioHIDDeviceObject = IOIteratorNext( hidObjectIterator ) )
     {        
         // ascertain device information
@@ -425,135 +578,105 @@ void Joystick_init()
                 usage == kHIDUsage_GD_GamePad )
                 // this is a joystick, create a new item in the joystick array
             {
-                EM_log( CK_LOG_INFO, "joystick: configuring joystick %i", 
-                        joysticks->size() );
+                EM_log( CK_LOG_INFO, "joystick: configuring joystick %i", joysticks_seen++ );
                 EM_pushlog();
-                
-                // retrieve a dictionary of device properties
-                kern_result = IORegistryEntryCreateCFProperties( ioHIDDeviceObject, 
-                                                                 &hidProperties, 
-                                                                 kCFAllocatorDefault, 
-                                                                 kNilOptions);
-                if( kern_result != KERN_SUCCESS || hidProperties == 0 )
-                {
-                    EM_poplog();
-                    continue;
-                }
                 
                 // allocate the device record, set usage page and usage
                 OSX_Device * new_device = new OSX_Device;
+                new_device->type = CK_HID_DEV_JOYSTICK;
                 new_device->usage_page = usage_page;
                 new_device->usage = usage;
                 
-                // get the joystick name, and copy it into the device record
-                refCF = CFDictionaryGetValue( hidProperties, 
-                                              CFSTR( kIOHIDProductKey ) );
-                if( refCF )
-                    CFStringGetCString( ( CFStringRef )refCF, new_device->name, 256, 
-                                        kCFStringEncodingASCII );
+                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_JOYSTICK ) )
+                    joysticks->push_back( new_device );
                 else
-                    strncpy( new_device->name, "Joystick", 256 );
-                
-                /*** TODO: move this part into Joystick_open, wait until it is 
-                    absolutely necessary to parse the device properties  ***/
-                // create the IOKit device interface
-                SInt32 score = 0;
-                IOCFPlugInInterface ** plugInInterface = NULL;
-                result = IOCreatePlugInInterfaceForService( ioHIDDeviceObject,
-                                                            kIOHIDDeviceUserClientTypeID,
-                                                            kIOCFPlugInInterfaceID,
-                                                            &plugInInterface,
-                                                            &score);
-                if( result != kIOReturnSuccess )
                 {
-                    CFRelease( hidProperties );
-                    ( *plugInInterface )->Release( plugInInterface );
+                    EM_log( CK_LOG_INFO, "joystick: error during configuration" );
                     delete new_device;
-                    EM_poplog();
-                    continue;
                 }
-                
-                HRESULT plugInResult = S_OK;
-                plugInResult = ( *plugInInterface )->QueryInterface( plugInInterface,
-                                                                     CFUUIDGetUUIDBytes( kIOHIDDeviceInterfaceID ),
-                                                                     ( LPVOID * ) &( new_device->interface ) );
-                ( *plugInInterface )->Release( plugInInterface );
-                if( plugInResult != S_OK )
-                {
-                    CFRelease( hidProperties );
-                    delete new_device;
-                    EM_poplog();
-                    continue;
-                }
-                
-                result = ( *( new_device->interface ) )->open( new_device->interface, 0 );
-                if( result != kIOReturnSuccess )
-                {
-                    CFRelease( hidProperties );
-                    ( *( new_device->interface ) )->Release( new_device->interface );
-                    delete new_device;
-                    EM_poplog();
-                    continue;
-                }
-                
-                // create an event queue, so we dont have to poll individual elements
-                
-                new_device->queue = ( *( new_device->interface ) )->allocQueue( new_device->interface );
-                if( !new_device->queue )
-                {
-                    CFRelease( hidProperties );
-                    ( *( new_device->interface ) )->close( new_device->interface );
-                    ( *( new_device->interface ) )->Release( new_device->interface );
-                    delete new_device;
-                    EM_poplog();
-                    continue;
-                }
-                
-                result = ( *( new_device->queue ) )->create( new_device->queue, 0, 
-                                                             OSX_Device::event_queue_size );
-                if( result != kIOReturnSuccess )
-                {
-                    CFRelease( hidProperties );
-                    ( *( new_device->queue ) )->Release( new_device->queue );
-                    ( *( new_device->interface ) )->close( new_device->interface );
-                    ( *( new_device->interface ) )->Release( new_device->interface );
-                    delete new_device;
-                    EM_poplog();
-                }
-                
-                // retrieve the array of elements...
-                refCF = CFDictionaryGetValue( hidProperties, 
-                                              CFSTR( kIOHIDElementKey ) );
-                if( !refCF )
-                {
-                    CFRelease( hidProperties );
-                    ( *( new_device->queue ) )->dispose( new_device->queue );
-                    ( *( new_device->queue ) )->Release( new_device->queue );
-                    ( *( new_device->interface ) )->close( new_device->interface );
-                    ( *( new_device->interface ) )->Release( new_device->interface );
-                    delete new_device;
-                    EM_poplog();
-                    continue;
-                }
-                
-                // ...allocate space for element records...
-                new_device->elements = new map< IOHIDElementCookie, OSX_Device_Element * >;
-                new_device->axes = 0;
-                new_device->buttons = 0;
-                new_device->hats = 0;
-
-                // ...and parse the element array recursively
-                OSX_enumerate_device_elements( ( CFArrayRef ) refCF, new_device );
                 
                 EM_poplog();
+            }
+            
+            if( usage == kHIDUsage_GD_Mouse )
+                // this is a mouse
+            {
+                EM_log( CK_LOG_INFO, "mouse: configuring mouse %i", mice_seen++ );
+                EM_pushlog();
                 
-                joysticks->push_back( new_device );
-                CFRelease( hidProperties );
+                // allocate the device record, set usage page and usage
+                OSX_Device * new_device = new OSX_Device;
+                new_device->type = CK_HID_DEV_MOUSE;
+                new_device->usage_page = usage_page;
+                new_device->usage = usage;
+                
+                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_MOUSE ) )
+                    mice->push_back( new_device );
+                else
+                {
+                    EM_log( CK_LOG_INFO, "mouse: error during configuration" );
+                    delete new_device;
+                }
+                
+                EM_poplog();
             }
         }
     }
     
     IOObjectRelease( hidObjectIterator );
+}
+
+void HID_quit()
+{
+    if( g_hid_init == FALSE )
+        return;
+    g_hid_init = FALSE;
+    
+    vector< OSX_Device * >::size_type i, len = joysticks->size();
+    map< IOHIDElementCookie, OSX_Device_Element * >::iterator iter, end;
+    OSX_Device * joystick;
+    for( i = 0; i < len; i++ )
+    {
+        joystick = joysticks->at( i );
+        
+        if( joystick->elements )
+        {
+            // iterate through the axis map, delete device element records
+            end = joystick->elements->end();
+            for( iter = joystick->elements->begin(); iter != end; iter++ )
+                delete iter->second;
+            delete joystick->elements;
+            joystick->axes = NULL;
+        }
+        
+        if( joystick->interface )
+        {
+            ( *( joystick->interface ) )->close( joystick->interface );
+            ( *( joystick->interface ) )->Release( joystick->interface );
+            joystick->interface = NULL;
+        }
+        
+        if( joystick->queue )
+        {
+            ( *( joystick->queue ) )->stop( joystick->queue );
+            ( *( joystick->queue ) )->dispose( joystick->queue );
+            ( *( joystick->queue ) )->Release( joystick->queue );
+            joystick->queue = NULL;
+        }
+        
+        delete joystick;
+    }
+    
+    delete joysticks;
+    joysticks = NULL;
+}
+
+
+#pragma mark OS X Joystick support
+
+void Joystick_init()
+{
+    HID_init();
 }
 
 void Joystick_poll()
@@ -564,7 +687,6 @@ void Joystick_poll()
     // for each open device, poll the event queue
     OSX_Device * joystick;
     OSX_Device_Element * element;
-    //map< IOHIDElementCookie, OSX_Device_Element * >::iterator iter_element;
     IOReturn result;
     AbsoluteTime atZero = { 0, 0 };
     IOHIDEventStruct event;
@@ -580,6 +702,8 @@ void Joystick_poll()
             // memory in the event queue?
             result = ( *( joystick->queue ) )->getNextEvent( joystick->queue, 
                                                              &event, atZero, 0 );
+            if( result == kIOReturnUnderrun )
+                continue;
             if( result != kIOReturnSuccess )
             {
                 EM_log( CK_LOG_INFO, "joystick: warning: getNextEvent failed" );
@@ -618,46 +742,7 @@ void Joystick_poll()
 
 void Joystick_quit()
 {
-    if( joysticks == NULL )
-        return;
-    
-    vector< OSX_Device * >::size_type i, len = joysticks->size();
-    OSX_Device * joystick;
-    for( i = 0; i < len; i++ )
-    {
-        map< IOHIDElementCookie, OSX_Device_Element * >::iterator iter, end;
-        joystick = joysticks->at( i );
-        
-        if( joystick->elements )
-        {
-            // iterate through the axis map, delete device element records
-            end = joystick->elements->end();
-            for( iter = joystick->elements->begin(); iter != end; iter++ )
-                delete iter->second;
-            delete joystick->elements;
-            joystick->axes = NULL;
-        }
-                
-        if( joystick->interface )
-        {
-            ( *( joystick->interface ) )->close( joystick->interface );
-            ( *( joystick->interface ) )->Release( joystick->interface );
-            joystick->interface = NULL;
-        }
-        
-        if( joystick->queue )
-        {
-            ( *( joystick->queue ) )->stop( joystick->queue );
-            ( *( joystick->queue ) )->dispose( joystick->queue );
-            ( *( joystick->queue ) )->Release( joystick->queue );
-            joystick->queue = NULL;
-        }
-        
-        delete joystick;
-    }
-    
-    delete joysticks;
-    joysticks = NULL;
+    HID_quit();
 }
 
 int Joystick_count()
@@ -670,20 +755,23 @@ int Joystick_count()
 
 int Joystick_open( int js )
 {
-    if( joysticks == NULL )
-        return -1;
-
-    if( js < 0 || js >= joysticks->size() )
+    if( joysticks == NULL || js < 0 || js >= joysticks->size() )
         return -1;
     
     OSX_Device * joystick = joysticks->at( js );
 
     if( joystick->refcount == 0 )
     {
+        if( joystick->configure() )
+        {
+            EM_log( CK_LOG_SEVERE, "joystick: error in joystick configuration" );
+            return -1;
+        }
+        
         IOReturn result = ( *( joystick->queue ) )->start( joystick->queue );
         if( result != kIOReturnSuccess )
         {
-            EM_log( CK_LOG_INFO, "joystick: error: starting event queue" );
+            EM_log( CK_LOG_SEVERE, "joystick: error starting event queue" );
             return -1;
         }
     }
@@ -695,27 +783,26 @@ int Joystick_open( int js )
 
 int Joystick_close( int js )
 {
-    if( joysticks == NULL )
-        return -1;
-
-    if( js < 0 || js >= joysticks->size() )
+    if( joysticks == NULL || js < 0 || js >= joysticks->size() )
         return -1;
     
     OSX_Device * joystick = joysticks->at( js );
     
-    if( joystick > 0 )
+    if( joystick->refcount > 0 )
     {
         joystick->refcount--;
         
         if( joystick->refcount == 0 )
+            /* TODO: make this thread safe without using a mutex */
         {
             IOReturn result = ( *( joystick->queue ) )->stop( joystick->queue );
             if( result != kIOReturnSuccess )
             {
-                EM_log( CK_LOG_INFO, "joystick: error: stopping event queue" );
+                EM_log( CK_LOG_INFO, "joystick: error stopping event queue" );
                 return -1;
             }
         }
+        
     }
     
     else
@@ -727,7 +814,186 @@ int Joystick_close( int js )
     return 0;
 }
 
-#else
+#pragma mark OS X Mouse support
+
+void Mouse_init()
+{
+    HID_init();
+}
+
+void Mouse_poll()
+{
+    if( mice == NULL )
+        return;
+    
+    // for each open device, poll the event queue
+    OSX_Device * mouse;
+    OSX_Device_Element * element;
+    IOReturn result;
+    AbsoluteTime atZero = { 0, 0 };
+    IOHIDEventStruct event;
+    HidMsg msg;
+    
+    vector< OSX_Device * >::size_type i, len = mice->size();
+    for( i = 0; i < len; i++ )
+    {
+        if( mice->at( i )->refcount > 0 )
+        {
+            // TODO: poll axis elements directly, so we can use less 
+            // memory in the event queue?
+            mouse = mice->at( i );
+
+            result = ( *( mouse->queue ) )->getNextEvent( mouse->queue, 
+                                                          &event, atZero, 0 );
+            if( result == kIOReturnUnderrun )
+                continue;
+            if( result != kIOReturnSuccess )
+            {
+                EM_log( CK_LOG_INFO, "joystick: warning: getNextEvent failed" );
+                continue;
+            }
+            
+            element = ( *( mouse->elements ) )[event.elementCookie];
+            
+            msg.device_type = CK_HID_DEV_MOUSE;
+            msg.device_num = i;
+            msg.type = element->type;
+            msg.eid = element->num;
+            
+            switch( msg.type )
+            {
+                case CK_HID_MOUSE_MOTION:
+                    if( element->usage = kHIDUsage_GD_X )
+                    {
+                        msg.idata[0] = event.value;
+                        msg.idata[1] = 0;
+                    }
+                    
+                    else
+                    {
+                        msg.idata[0] = 0;
+                        msg.idata[1] = event.value;
+                    }
+                    
+                    break;
+                    
+                case CK_HID_BUTTON_DOWN:
+                    if( event.value == 0 )
+                        msg.type = CK_HID_BUTTON_UP;
+                    msg.idata[0] = event.value;
+                    break;
+            }
+            
+            HidInManager::push_message( msg );
+        }
+    }
+}
+
+void Mouse_quit()
+{
+    HID_quit();
+}
+
+int Mouse_count()
+{
+    return 0;
+}
+
+int Mouse_open( int m )
+{
+    if( mice == NULL || m < 0 || m >= mice->size() )
+        return -1;
+        
+    OSX_Device * mouse = mice->at( m );
+    
+    if( mouse->refcount == 0 )
+    {
+        if( mouse->configure() )
+        {
+            EM_log( CK_LOG_SEVERE, "mouse: error in mouse configuration" );
+            return -1;
+        }
+        
+        IOReturn result = ( *( mouse->queue ) )->start( mouse->queue );
+        if( result != kIOReturnSuccess )
+        {
+            EM_log( CK_LOG_SEVERE, "mouse: error starting event queue" );
+            return -1;
+        }
+    }
+    
+    mouse->refcount++;
+    
+    return 0;
+}
+
+int Mouse_close( int m )
+{
+    if( mice == NULL || m < 0 || m >= mice->size() )
+        return -1;
+    
+    OSX_Device * mouse = mice->at( m );
+    
+    if( mouse->refcount > 0 )
+    {
+        mouse->refcount--;
+        
+        // TODO: make this part thread-safe!
+        if( mouse->refcount == 0 )
+        {
+            IOReturn result = ( *( mouse->queue ) )->stop( mouse->queue );
+            if( result != kIOReturnSuccess )
+            {
+                EM_log( CK_LOG_INFO, "mouse: error stopping event queue" );
+                return -1;
+            }
+        }
+    }
+    
+    else
+    {
+        EM_log( CK_LOG_INFO, "mouse: warning: mouse %i closed when not open", m );
+        return -1;
+    }
+    
+    return 0;
+}
+
+#elif defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ )
+#pragma mark Windows joystick support
+
+void Joystick_init()
+{
+    
+}
+
+void Joystick_poll()
+{
+    
+}
+
+void Joystick_quit()
+{
+    
+}
+
+int Joystick_count()
+{
+    return 0;
+}
+
+#elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
+#pragma mark Linux joystick support
+
+int Joystick_open( int js )
+{
+    return -1;
+}
+
+int Joystick_close( int js )
+{
+    return -1;
+}
 
 void Joystick_init()
 {
@@ -758,7 +1024,6 @@ int Joystick_close( int js )
 {
     return -1;
 }
-
 
 #endif
 

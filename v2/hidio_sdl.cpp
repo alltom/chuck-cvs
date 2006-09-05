@@ -88,6 +88,7 @@ std::vector< std::vector<PhyHidDevIn *> > HidInManager::the_matrix;
 XThread * HidInManager::the_thread = NULL;
 t_CKBOOL HidInManager::thread_going = FALSE;
 t_CKBOOL HidInManager::has_init = FALSE;
+CBufferSimple * HidInManager::msg_buffer = NULL;
 std::vector<PhyHidDevOut *> HidOutManager::the_phouts;
 
 
@@ -136,13 +137,13 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
     switch( type )
     {
         case CK_HID_DEV_JOYSTICK:
-            joystick = SDL_JoystickOpen( number );
-            if( !joystick )
+            /*
+            joystick = SDL_JoystickOpen( number );*/
+            if( /*!joystick*/ Joystick_open( (int) number ) )
             {
                 EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid joystick number %d", number );
                 return FALSE;
-            }
-                
+            }            
                 
             break;
             
@@ -204,9 +205,10 @@ t_CKBOOL PhyHidDevIn::close()
     switch( device_type )
     {
         case CK_HID_DEV_JOYSTICK:            
-            if( joystick != NULL )
+            /*if( joystick != NULL )
                 SDL_JoystickClose( joystick );
-            joystick = NULL;
+            joystick = NULL;*/
+            Joystick_close( device_num );
                         
             break;
             
@@ -371,8 +373,12 @@ void HidInManager::init()
             // allocate
             the_matrix[i].resize( CK_MAX_HID_DEVICES );
         }
-
+        
+        msg_buffer = new CBufferSimple;
+        msg_buffer->initialize( 1000, sizeof( HidMsg ) );
+        
         SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
+        Joystick_init();
         Mouse_init();
         Keyboard_init();
 
@@ -389,6 +395,7 @@ void HidInManager::cleanup()
     /*
     // stop
     SDL_Quit();
+    Joystick_quit();
     Mouse_quit();
     Keyboard_quit();
     // flag
@@ -398,6 +405,12 @@ void HidInManager::cleanup()
     if( the_thread != NULL )
         SAFE_DELETE( the_thread );
 
+    if( msg_buffer )
+    {
+        msg_buffer->cleanup();
+        SAFE_DELETE( msg_buffer );
+    }
+     
     // init
     has_init = FALSE;
     */
@@ -481,7 +494,7 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
         thread_going = TRUE;
         // start
         the_thread->start( cb_hid_input, NULL );
-   }
+    }
 
     // done
     return TRUE;
@@ -534,7 +547,19 @@ t_CKUINT HidIn::recv( HidMsg * msg )
 }
 
 
+//-----------------------------------------------------------------------------
+// name: cb_hid_input
+// desc: called by device implementations to push a message onto the buffer
+//-----------------------------------------------------------------------------
+void HidInManager::push_message( HidMsg & msg )
+{
+    msg_buffer->put( &msg, 1 );
+}
 
+extern "C" void push_message( HidMsg msg )
+{
+    HidInManager::push_message( msg );
+}
 
 //-----------------------------------------------------------------------------
 // name: cb_hid_input
@@ -546,10 +571,8 @@ void * HidInManager::cb_hid_input( void * stuff )
 unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 #endif 
 {
-    SDL_Event event;
     HidMsg msg;
-    t_CKINT type;
-    t_CKINT num;
+    
 #ifdef __CK_HID_TWO_THREADS__
     XThread hid_thread2;
     hid_thread2.start( cb_hid_input2, NULL );
@@ -560,102 +583,21 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
     while( thread_going )
     {
         // wait for SDL event
-        SDL_WaitEvent( &event );
-        // clear
-        msg.clear();
-        // make HID msg
-        switch( event.type )
+        // SDL_WaitEvent( &event );
+        while( msg_buffer->get( &msg, 1 ) == 0 )
         {
-            case SDL_JOYAXISMOTION:
-                type = CK_HID_DEV_JOYSTICK;
-                num = event.jaxis.which;
-                // msg
-                msg.type = CK_HID_JOYSTICK_AXIS;
-                msg.eid = event.jaxis.axis;
-                msg.idata[0] = event.jaxis.value;
-                msg.fdata[0] = msg.idata[0] / -((t_CKFLOAT)SHRT_MIN);
-                break;
-                
-            case SDL_JOYBUTTONUP:
-                type = CK_HID_DEV_JOYSTICK;
-                num = event.jbutton.which;
-                // msg
-                msg.type = CK_HID_BUTTON_UP;
-                msg.eid = event.jbutton.button;
-                break;
-                
-            case SDL_JOYBUTTONDOWN:
-                type = CK_HID_DEV_JOYSTICK;
-                num = event.jbutton.which;
-                // msg 
-                msg.type = CK_HID_BUTTON_DOWN;
-                msg.eid = event.jbutton.button;
-                break;
-                
-            case SDL_JOYHATMOTION:
-                type = CK_HID_DEV_JOYSTICK;
-                num = event.jhat.which;
-                // msg 
-                msg.type = CK_HID_JOYSTICK_HAT;
-                msg.eid = event.jhat.hat;
-                msg.idata[0] = event.jhat.value;
-                break;
-                
-            case SDL_MOUSEBUTTONDOWN:
-                type = CK_HID_DEV_MOUSE;
-                num = event.button.x;
-                // msg
-                msg.type = CK_HID_BUTTON_DOWN;
-                msg.eid = event.button.button;
-                break;
-                
-            case SDL_MOUSEBUTTONUP:
-                type = CK_HID_DEV_MOUSE;
-                num = event.button.x;
-                // msg
-                msg.type = CK_HID_BUTTON_UP;
-                msg.eid = event.button.button;
-                break;
-                
-            case SDL_MOUSEMOTION:
-                type = CK_HID_DEV_MOUSE;
-                num = event.motion.x;
-                // msg
-                msg.type = CK_HID_MOUSE_MOTION;
-                msg.eid = 0;
-                msg.idata[0] = event.motion.xrel;
-                msg.idata[1] = event.motion.yrel;
-                break;
-                
-            case SDL_KEYDOWN:
-                type = CK_HID_DEV_KEYBOARD;
-                num = event.button.x;
-                // msg
-                msg.type = CK_HID_BUTTON_DOWN;
-                msg.eid = event.button.button;
-                break;
-                
-            case SDL_KEYUP:
-                type = CK_HID_DEV_KEYBOARD;
-                num = event.button.x;
-                // msg
-                msg.type = CK_HID_BUTTON_UP;
-                msg.eid = event.button.button;
-                break;
-                
-            case SDL_QUIT:
-                thread_going = FALSE;
-                break;
-            default:
-                // log
-                EM_log( CK_LOG_WARNING, "HID: unsupported event type '%d'...", event.type );
-                continue;
+            usleep( 10 );
+            Joystick_poll();
+            Mouse_poll();
+            Keyboard_poll();
         }
+        // clear
+        //msg.clear();
 
         // find the queue
-        if( the_matrix[type][num] != NULL )
+        if( the_matrix[msg.device_type][msg.device_num] != NULL )
         {
-            CBufferAdvance * cbuf = the_matrix[type][num]->cbuf;
+            CBufferAdvance * cbuf = the_matrix[msg.device_type][msg.device_num]->cbuf;
             if( cbuf != NULL )
             // queue the thing
 	            cbuf->put( &msg, 1 );

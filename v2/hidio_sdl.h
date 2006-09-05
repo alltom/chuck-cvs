@@ -35,9 +35,11 @@
 #ifndef __HID_IO_H__
 #define __HID_IO_H__
 
+#ifdef __cplusplus
 #include "chuck_def.h"
 #include "util_buffers.h"
 #include "util_thread.h"
+#endif
 
 #ifdef __CK_SDL_NATIVE__
 #ifdef __PLATFORM_MACOSX__
@@ -57,13 +59,14 @@ struct PhyHidDevOut;
 //-----------------------------------------------------------------------------
 struct HidMsg
 {
-    t_CKINT type;       // message type
-    t_CKINT eid;        // element id
-    t_CKINT idata[4];   // int data
-    t_CKFLOAT fdata[4]; // float data
+    t_CKINT device_type; // device type
+    t_CKINT device_num;  // device number
+    t_CKINT type;        // message type
+    t_CKINT eid;         // element id
+    t_CKINT idata[4];    // int data
+    t_CKFLOAT fdata[4];  // float data
     
-    //t_CKINT x, y;
-    
+#ifdef __cplusplus
     HidMsg()
     { this->clear(); }
 
@@ -71,6 +74,7 @@ struct HidMsg
     {
         memset( this, 0, sizeof(HidMsg) );
     }
+#endif
 };
 
 
@@ -78,9 +82,9 @@ struct HidMsg
 enum
 {
     CK_HID_DEV_NONE = 0,
-    CK_HID_DEV_JOYSTICK = 1,
-    CK_HID_DEV_MOUSE = 2,
-    CK_HID_DEV_KEYBOARD = 3,
+    CK_HID_DEV_JOYSTICK,
+    CK_HID_DEV_MOUSE,
+    CK_HID_DEV_KEYBOARD,
 
     CK_HID_DEV_COUNT
 };
@@ -90,19 +94,21 @@ enum
 enum
 {
     CK_HID_JOYSTICK_AXIS = 0,
-    CK_HID_BUTTON_DOWN = 1,
-    CK_HID_BUTTON_UP = 2,
-    CK_HID_JOYSTICK_HAT = 3,
-    CK_HID_JOYSTICK_BALL = 4,
-    CK_HID_MOUSE_MOTION = 5,
+    CK_HID_BUTTON_DOWN,
+    CK_HID_BUTTON_UP,
+    CK_HID_JOYSTICK_HAT,
+    CK_HID_JOYSTICK_BALL,
+    CK_HID_MOUSE_MOTION,
+    CK_HID_MOUSE_WHEEL,
 
-    CK_HID_JOYSTICK_COUNT
+    CK_HID_MSG_COUNT
 };
 
 
 /* constants */
 #define CK_MAX_HID_DEVICES 1024
 
+#ifdef __cplusplus
 
 //-----------------------------------------------------------------------------
 // name: struct HidOut
@@ -195,6 +201,8 @@ public:
     static unsigned __stdcall cb_hid_input( void * );
 #endif
 
+    static void push_message( HidMsg & msg );
+    
 #ifdef __CK_HID_TWO_THREADS__
 #ifndef __PLATFORM_WIN32__
     static void * cb_hid_input2( void * );
@@ -206,6 +214,7 @@ public:
 protected:
     static std::vector< std::vector<PhyHidDevIn *> > the_matrix;
     static XThread * the_thread;
+    static CBufferSimple * msg_buffer;
     static t_CKBOOL thread_going;
     static t_CKBOOL has_init;
 };
@@ -224,7 +233,7 @@ protected:
     static std::vector<PhyHidDevOut *> the_phouts;
 };
 
-
+#endif
 
 
 #endif
