@@ -982,9 +982,6 @@ int Joystick_count()
     return 0;
 }
 
-#elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
-#pragma mark Linux joystick support
-
 int Joystick_open( int js )
 {
     return -1;
@@ -994,6 +991,9 @@ int Joystick_close( int js )
 {
     return -1;
 }
+
+#elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
+#pragma mark Linux joystick support
 
 void Joystick_init()
 {
