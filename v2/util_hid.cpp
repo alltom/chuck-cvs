@@ -979,7 +979,7 @@ struct win32_joystick
 		caps.dwSize = sizeof( DIDEVCAPS );
 	}
 
-	LPDIRECTINPUTDEVICE lpdiJoystick;
+	LPDIRECTINPUTDEVICE2 lpdiJoystick;
 	DIJOYSTATE2 last_state;
 	DIDEVCAPS caps;
 
@@ -990,8 +990,8 @@ struct win32_joystick
 
 };
 
-const static LONG axis_min = -32767;
-const static LONG axis_max = 32767;
+const static LONG axis_min = -255;
+const static LONG axis_max = 255;
 
 
 static vector< win32_joystick * > * joysticks;
@@ -1003,7 +1003,7 @@ static BOOL CALLBACK DIEnumJoystickProc( LPCDIDEVICEINSTANCE lpddi,
 	GUID guid = lpddi->guidProduct;
 	win32_joystick * js = new win32_joystick;
 
-	if( lpdi->CreateDevice( guid, &js->lpdiJoystick, NULL ) != DI_OK )
+	if( lpdi->CreateDevice( guid, ( LPDIRECTINPUTDEVICE * )&js->lpdiJoystick, NULL ) != DI_OK )
 	{
 		delete js;
 		return DIENUM_CONTINUE;
@@ -1029,7 +1029,7 @@ static BOOL CALLBACK DIEnumJoystickObjectsProc( LPCDIDEVICEOBJECTINSTANCE lpdido
 	diprg.lMin = axis_min; 
 	diprg.lMax = axis_max; 
 
-	if( lpdiJoystick->SetProperty(DIPROP_RANGE, &diprg.diph) != DI_OK )
+	if( lpdiJoystick->SetProperty( DIPROP_RANGE, &diprg.diph ) != DI_OK )
 	{
 		
 	}
@@ -1046,8 +1046,8 @@ void Joystick_init()
 
     HINSTANCE hInstance = GetModuleHandle( NULL );
 
-	if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION,
-							&lpdi, NULL) != DI_OK )
+	if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
+						   &lpdi, NULL) != DI_OK )
 		return;
 
 	joysticks = new vector< win32_joystick * >;
@@ -1077,6 +1077,9 @@ void Joystick_poll()
 		{
 			// TODO: convert this to buffered input, or maybe notifications
 			DIJOYSTATE2 state;
+			
+			joystick->lpdiJoystick->Poll();
+
 			if( joystick->lpdiJoystick->GetDeviceState( sizeof( DIJOYSTATE2 ), &state ) 
 				!= DI_OK )
 			{
@@ -1150,6 +1153,22 @@ void Joystick_poll()
 				HidInManager::push_message( msg );
 			}
 
+			for( int j = 0; j < joystick->caps.dwButtons && j < 128; j++ )
+			{
+				if( ( state.rgbButtons[j] & 0x80 ) ^ 
+					( joystick->last_state.rgbButtons[j] & 0x80 ) )
+				{
+					msg.clear();
+					msg.device_num = i;
+					msg.device_type = CK_HID_DEV_JOYSTICK;
+					msg.eid = j;
+					msg.type = ( state.rgbButtons[j] & 0x80 ) ? CK_HID_BUTTON_DOWN : 
+																CK_HID_BUTTON_UP;
+					msg.idata[0] = ( state.rgbButtons[j] & 0x80 ) ? 1 : 0;
+					HidInManager::push_message( msg );
+				}
+			}
+
 			joystick->last_state = state;
 		}
 
@@ -1212,7 +1231,7 @@ int Joystick_open( int js )
 	{
 		if( joystick->lpdiJoystick->EnumObjects( DIEnumJoystickObjectsProc, 
 												 joystick->lpdiJoystick, 
-												 DIDFT_ABSAXIS ) != DI_OK )
+												 DIDFT_AXIS ) != DI_OK )
 		{
 			return -1;
 		}
@@ -1281,6 +1300,21 @@ int Keyboard_close( int js )
 {
     return -1;
 }
+
+struct win32_mouse
+{
+	win32_mouse()
+	{
+		lpdiMouse = NULL;
+		memset( &last_state, 0, sizeof( last_state ) );
+	}
+
+	LPDIRECTINPUTDEVICE lpdiMouse;
+	DIMOUSESTATE last_state;
+
+	t_CKUINT refcount;
+
+};
 
 void Mouse_init()
 {
