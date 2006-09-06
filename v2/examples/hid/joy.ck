@@ -5,6 +5,8 @@ HidMsg msg;
 // open joystick 0, exit on fail
 if( !hi.openJoystick( 0 ) ) me.exit();
 
+<<< "joystick ready", "" >>>;
+
 // infinite event loop
 while( true )
 {

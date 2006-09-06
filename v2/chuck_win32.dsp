@@ -247,7 +247,16 @@ SOURCE=.\util_console.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\util_hid.c
+SOURCE=.\util_hid.cpp
+
+!IF  "$(CFG)" == "chuck_win32 - Win32 Release"
+
+!ELSEIF  "$(CFG)" == "chuck_win32 - Win32 Debug"
+
+# ADD CPP /GX
+
+!ENDIF 
+
 # End Source File
 # Begin Source File
 

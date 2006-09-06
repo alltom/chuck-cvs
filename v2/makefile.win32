@@ -3,12 +3,14 @@ CXX=gcc
 LEX=flex
 YACC=bison
 INCLUDES=-I/usr/include/directx/
-FLAGS=-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ $(INCLUDES) -O3 -c 
+FLAGS=-D__WINDOWS_DS__ -D__WINDOWS_PTHREAD__ $(INCLUDES) -c
 LIBS=-ldsound -ldinput -ldxguid -lwinmm -lstdc++ -lm -lole32 
 SF_OBJ=util_sndfile.o
 
 ifneq ($(CHUCK_DEBUG),)
 FLAGS+= -g
+else
+FLAGS+= -O3
 endif
 
 ifneq ($(CHUCK_STRICT),)

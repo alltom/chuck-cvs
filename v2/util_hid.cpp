@@ -496,9 +496,9 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
     }
 }
 
-vector< OSX_Device * > * joysticks = NULL;
-vector< OSX_Device * > * mice = NULL;
-vector< OSX_Device * > * keyboards = NULL;
+static vector< OSX_Device * > * joysticks = NULL;
+static vector< OSX_Device * > * mice = NULL;
+static vector< OSX_Device * > * keyboards = NULL;
 static t_CKBOOL g_hid_init = FALSE;
 
 void HID_init()
@@ -962,35 +962,356 @@ int Mouse_close( int m )
 #elif defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ )
 #pragma mark Windows joystick support
 
+#include <windows.h>
+#define DIRECTINPUT_VERSION 0x0500
+#include <dinput.h>
+
+struct win32_joystick
+{
+	win32_joystick()
+	{
+		lpdiJoystick = NULL;
+		refcount = 0;
+		needs_close = FALSE;
+		strncpy( name, "Joystick", MAX_PATH );
+		memset( &last_state, 0, sizeof( last_state ) );
+		memset( &caps, 0, sizeof( caps ) );
+		caps.dwSize = sizeof( DIDEVCAPS );
+	}
+
+	LPDIRECTINPUTDEVICE lpdiJoystick;
+	DIJOYSTATE2 last_state;
+	DIDEVCAPS caps;
+
+	char name[MAX_PATH];
+
+	t_CKUINT refcount;
+	t_CKBOOL needs_close;
+
+};
+
+const static LONG axis_min = -32767;
+const static LONG axis_max = 32767;
+
+
+static vector< win32_joystick * > * joysticks;
+static LPDIRECTINPUT lpdi = NULL;
+
+static BOOL CALLBACK DIEnumJoystickProc( LPCDIDEVICEINSTANCE lpddi,
+										 LPVOID pvRef )
+{
+	GUID guid = lpddi->guidProduct;
+	win32_joystick * js = new win32_joystick;
+
+	if( lpdi->CreateDevice( guid, &js->lpdiJoystick, NULL ) != DI_OK )
+	{
+		delete js;
+		return DIENUM_CONTINUE;
+	}
+
+	joysticks->push_back( js );
+
+	return DIENUM_CONTINUE;
+}
+
+static BOOL CALLBACK DIEnumJoystickObjectsProc( LPCDIDEVICEOBJECTINSTANCE lpdidoi,
+											    LPVOID pvRef )
+{
+	LPDIRECTINPUTDEVICE lpdiJoystick = ( LPDIRECTINPUTDEVICE ) pvRef;
+
+	DIPROPRANGE diprg; 
+
+	// set axis minimum and maximum range
+	diprg.diph.dwSize = sizeof(DIPROPRANGE); 
+	diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
+	diprg.diph.dwHow = DIPH_BYID; 
+	diprg.diph.dwObj = lpdidoi->dwType; 
+	diprg.lMin = axis_min; 
+	diprg.lMax = axis_max; 
+
+	if( lpdiJoystick->SetProperty(DIPROP_RANGE, &diprg.diph) != DI_OK )
+	{
+		
+	}
+
+	return DIENUM_CONTINUE;
+}
+
 void Joystick_init()
 {
-    
+	if( lpdi != NULL )
+		return;
+
+	EM_log( CK_LOG_INFO, "initializing joystick" );
+
+    HINSTANCE hInstance = GetModuleHandle( NULL );
+
+	if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION,
+							&lpdi, NULL) != DI_OK )
+		return;
+
+	joysticks = new vector< win32_joystick * >;
+	if( lpdi->EnumDevices( DIDEVTYPE_JOYSTICK, DIEnumJoystickProc, 
+						   NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
+	{
+		delete joysticks;
+		joysticks = NULL;
+		lpdi->Release();
+		lpdi = NULL;
+		return;
+	}
 }
 
 void Joystick_poll()
 {
-    
+	if( !joysticks )
+		return;
+
+	win32_joystick * joystick;
+	HidMsg msg;
+	vector< win32_joystick * >::size_type i, len = joysticks->size();
+	for( i = 0; i < len; i++ )
+	{
+		joystick = joysticks->at( i );
+		if( joystick->refcount )
+		{
+			// TODO: convert this to buffered input, or maybe notifications
+			DIJOYSTATE2 state;
+			if( joystick->lpdiJoystick->GetDeviceState( sizeof( DIJOYSTATE2 ), &state ) 
+				!= DI_OK )
+			{
+				EM_log( CK_LOG_WARNING, "joystick: GetDeviceState failed for %s", joystick->name );
+				continue;
+			}
+
+			if( state.lX != joystick->last_state.lX )
+			{
+				msg.clear();
+				msg.device_num = i;
+				msg.device_type = CK_HID_DEV_JOYSTICK;
+				msg.eid = 0;
+				msg.type = CK_HID_JOYSTICK_AXIS;
+                msg.fdata[0] = ((float)state.lX)/((float)axis_max);
+				HidInManager::push_message( msg );
+			}
+
+			if( state.lY != joystick->last_state.lY )
+			{
+				msg.clear();
+				msg.device_num = i;
+				msg.device_type = CK_HID_DEV_JOYSTICK;
+				msg.eid = 1;
+				msg.type = CK_HID_JOYSTICK_AXIS;
+                msg.fdata[0] = ((float)state.lY)/((float)axis_max);
+				HidInManager::push_message( msg );
+			}
+
+			if( state.lZ != joystick->last_state.lZ )
+			{
+				msg.clear();
+				msg.device_num = i;
+				msg.device_type = CK_HID_DEV_JOYSTICK;
+				msg.eid = 2;
+				msg.type = CK_HID_JOYSTICK_AXIS;
+                msg.fdata[0] = ((float)state.lZ)/((float)axis_max);
+				HidInManager::push_message( msg );
+			}
+
+			if( state.lRx != joystick->last_state.lRx )
+			{
+				msg.clear();
+				msg.device_num = i;
+				msg.device_type = CK_HID_DEV_JOYSTICK;
+				msg.eid = 3;
+				msg.type = CK_HID_JOYSTICK_AXIS;
+                msg.fdata[0] = ((float)state.lRx)/((float)axis_max);
+				HidInManager::push_message( msg );
+			}
+
+			if( state.lRy != joystick->last_state.lRy )
+			{
+				msg.clear();
+				msg.device_num = i;
+				msg.device_type = CK_HID_DEV_JOYSTICK;
+				msg.eid = 4;
+				msg.type = CK_HID_JOYSTICK_AXIS;
+                msg.fdata[0] = ((float)state.lRy)/((float)axis_max);
+				HidInManager::push_message( msg );
+			}
+
+			if( state.lRz != joystick->last_state.lRz )
+			{
+				msg.clear();
+				msg.device_num = i;
+				msg.device_type = CK_HID_DEV_JOYSTICK;
+				msg.eid = 5;
+				msg.type = CK_HID_JOYSTICK_AXIS;
+                msg.fdata[0] = ((float)state.lRz)/((float)axis_max);
+				HidInManager::push_message( msg );
+			}
+
+			joystick->last_state = state;
+		}
+
+		else if( joystick->needs_close )
+		{
+			joystick->needs_close = FALSE;
+			joystick->lpdiJoystick->Unacquire();
+		}
+	}
+
 }
 
 void Joystick_quit()
 {
-    
+	if( joysticks )
+	{
+		win32_joystick * joystick;
+		vector< win32_joystick * >::size_type i, len = joysticks->size();
+		for( i = 0; i < len; i++ )
+		{
+			joystick = joysticks->at( i );
+
+			if( joystick->refcount > 0 || joystick->needs_close)
+			{
+				joystick->needs_close = FALSE;
+				joystick->refcount = 0;
+				joystick->lpdiJoystick->Unacquire();
+			}
+
+			joystick->lpdiJoystick->Release();
+			delete joystick;
+		}
+
+		delete joysticks;
+		joysticks = NULL;
+	}
+
+	if( lpdi )
+	{
+		lpdi->Release();
+		lpdi = NULL;
+	}
 }
 
 int Joystick_count()
 {
-    return 0;
+    if( !joysticks )
+		return 0;
+	return joysticks->size();
 }
 
 int Joystick_open( int js )
 {
-    return -1;
+	if( !joysticks || js < 0 || js >= joysticks->size() )
+		return -1;
+
+	win32_joystick * joystick = joysticks->at( js );
+
+	if( joystick->refcount == 0 )
+	{
+		if( joystick->lpdiJoystick->EnumObjects( DIEnumJoystickObjectsProc, 
+												 joystick->lpdiJoystick, 
+												 DIDFT_ABSAXIS ) != DI_OK )
+		{
+			return -1;
+		}
+
+		if( joystick->lpdiJoystick->GetCapabilities( &joystick->caps ) != DI_OK )
+		{
+			return -1;
+		}
+
+		if( joystick->lpdiJoystick->SetDataFormat( &c_dfDIJoystick2 ) != DI_OK )
+		{
+			return -1;
+		}
+
+		if( joystick->lpdiJoystick->Acquire() != DI_OK )
+		{
+			return -1;
+		}
+	}
+	
+	joystick->refcount++;
+	
+    return 0;
 }
 
 int Joystick_close( int js )
 {
+	if( !joysticks || js < 0 || js >= joysticks->size() )
+		return -1;
+
+	win32_joystick * joystick = joysticks->at( js );
+
+	joystick->refcount--;
+
+	joystick->needs_close = TRUE;
+
+	return 0;
+}
+
+void Keyboard_init()
+{
+    
+}
+
+void Keyboard_poll()
+{
+    
+}
+
+void Keyboard_quit()
+{
+    
+}
+
+int Keyboard_count()
+{
+    return 0;
+}
+
+int Keyboard_open( int js )
+{
     return -1;
 }
+
+int Keyboard_close( int js )
+{
+    return -1;
+}
+
+void Mouse_init()
+{
+    
+}
+
+void Mouse_poll()
+{
+    
+}
+
+void Mouse_quit()
+{
+    
+}
+
+int Mousek_count()
+{
+    return 0;
+}
+
+int Mouse_open( int js )
+{
+    return -1;
+}
+
+int Mouse_close( int js )
+{
+    return -1;
+}
+
 
 #elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
 #pragma mark Linux joystick support

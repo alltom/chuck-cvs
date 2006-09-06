@@ -62,13 +62,6 @@ protected:
     t_CKINT device_type;
     t_CKUINT device_num;
     
-    union 
-    {
-        SDL_Joystick * joystick;
-        // no mouse data needed
-        // kb and mouse data here
-    };
-    
     std::vector< HidIn * > clients;
 };
 
@@ -101,7 +94,6 @@ PhyHidDevIn::PhyHidDevIn()
 {
     device_type = CK_HID_DEV_NONE;
     device_num = 0;
-    joystick = NULL;
     cbuf = NULL;
 }
 
@@ -137,9 +129,7 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
     switch( type )
     {
         case CK_HID_DEV_JOYSTICK:
-            /*
-            joystick = SDL_JoystickOpen( number );*/
-            if( /*!joystick*/ Joystick_open( (int) number ) )
+            if( Joystick_open( (int) number ) )
             {
                 EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid joystick number %d", number );
                 return FALSE;
@@ -204,10 +194,7 @@ t_CKBOOL PhyHidDevIn::close()
 
     switch( device_type )
     {
-        case CK_HID_DEV_JOYSTICK:            
-            /*if( joystick != NULL )
-                SDL_JoystickClose( joystick );
-            joystick = NULL;*/
+        case CK_HID_DEV_JOYSTICK:
             Joystick_close( device_num );
                         
             break;
@@ -363,6 +350,7 @@ void HidInManager::init()
 {
     // log
     EM_log( CK_LOG_INFO, "initializing HID..." );
+	EM_pushlog();
     if( has_init == FALSE )
     {
         // allocate the matrix
@@ -377,13 +365,14 @@ void HidInManager::init()
         msg_buffer = new CBufferSimple;
         msg_buffer->initialize( 1000, sizeof( HidMsg ) );
         
-        SDL_Init( SDL_INIT_VIDEO | SDL_INIT_JOYSTICK ); // VIDEO is necessary...
         Joystick_init();
         Mouse_init();
         Keyboard_init();
 
         has_init = TRUE;
     }
+
+	EM_poplog();
 }
 
 
@@ -393,17 +382,17 @@ void HidInManager::cleanup()
     EM_log( CK_LOG_INFO, "shutting down HID..." );
 
     /*
-    // stop
-    SDL_Quit();
-    Joystick_quit();
-    Mouse_quit();
-    Keyboard_quit();
     // flag
     thread_going = FALSE;
 
-    // clean up
+	// clean up
     if( the_thread != NULL )
         SAFE_DELETE( the_thread );
+
+	// stop
+    Joystick_quit();
+    Mouse_quit();
+    Keyboard_quit();
 
     if( msg_buffer )
     {
@@ -572,18 +561,10 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 #endif 
 {
     HidMsg msg;
-    
-#ifdef __CK_HID_TWO_THREADS__
-    XThread hid_thread2;
-    hid_thread2.start( cb_hid_input2, NULL );
-    // will be destructed after returning
-#endif /* __CK_HID_TWO_THREADS__ */
 
     // keep going
     while( thread_going )
     {
-        // wait for SDL event
-        // SDL_WaitEvent( &event );
         while( msg_buffer->get( &msg, 1 ) == 0 )
         {
             usleep( 10 );
@@ -591,8 +572,6 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
             Mouse_poll();
             Keyboard_poll();
         }
-        // clear
-        //msg.clear();
 
         // find the queue
         if( the_matrix[msg.device_type][msg.device_num] != NULL )
@@ -609,34 +588,6 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 
     return 0;
 }
-
-//-----------------------------------------------------------------------------
-// name: cb_hid_input2
-// desc: call back.  If the native version of SDL is used, then SDL's event 
-// loop wont automatically poll for mouse and keyboard events (because chuck 
-// uses custom mouse and keyboard polling functions).  
-//-----------------------------------------------------------------------------
-#ifdef __CK_HID_TWO_THREADS__
-#ifndef __PLATFORM_WIN32__
-void * HidInManager::cb_hid_input2( void * )
-#else
-unsigned __stdcall HidInManager::cb_hid_input2( void * )
-#endif /* __PLATFORM_WIN32__ */
-{
-    
-    while( thread_going )
-    {
-        usleep( 10 );
-        Mouse_poll();
-    }
-    
-    EM_log( CK_LOG_INFO, "HID thread 2 exiting..." );
-}
-
-
-#endif /* __CK_HID_TWO_THREADS__ */
-
-
 
 //-----------------------------------------------------------------------------
 // name: probeHidIn()
@@ -679,20 +630,6 @@ t_CKBOOL HidOutManager::open( HidOut * hout, t_CKINT device_num )
     {
         // allocate
         PhyHidDevOut * phout = new PhyHidDevOut;
-        /*
-        try {
-            rtmout->openPort( device_num );
-        } catch( RtError & err ) {
-            if( !mout->m_suppress_output )
-            {
-                // print it
-                EM_error2( 0, "MidiOut: couldn't open MIDI port %i...", device_num );
-                err.getMessage();
-                // const char * e = err.getMessage().c_str();
-                // EM_error2( 0, "...(%s)", err.getMessage().c_str() );
-            }
-            return FALSE;
-        }*/
 
         // resize?
         if( device_num >= (t_CKINT)the_phouts.capacity() )
