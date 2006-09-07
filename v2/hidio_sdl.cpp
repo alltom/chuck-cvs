@@ -36,6 +36,9 @@
 #include "hidio_sdl.h"
 #include "util_hid.h"
 #include "chuck_errmsg.h"
+
+#include <unistd.h>
+
 #include <limits.h>
 #include <vector>
 #include <map>
