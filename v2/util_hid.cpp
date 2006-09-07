@@ -959,12 +959,47 @@ int Mouse_close( int m )
     return 0;
 }
 
-#elif defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ )
+void Keyboard_init()
+{
+    
+}
+
+void Keyboard_poll()
+{
+    
+}
+
+void Keyboard_quit()
+{
+    
+}
+
+int Keyboard_count()
+{
+    return 0;
+}
+
+int Keyboard_open( int js )
+{
+    return -1;
+}
+
+int Keyboard_close( int js )
+{
+    return -1;
+}
+
+#elif ( defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) ) && !defined( USE_RAWINPUT )
+/*****************************************************************************
+ Windows joystick support
+ *****************************************************************************/
 #pragma mark Windows joystick support
 
 #include <windows.h>
 #define DIRECTINPUT_VERSION 0x0500
 #include <dinput.h>
+
+static LPDIRECTINPUT lpdi = NULL;
 
 struct win32_joystick
 {
@@ -990,18 +1025,21 @@ struct win32_joystick
 
 };
 
-const static LONG axis_min = -255;
-const static LONG axis_max = 255;
+const static LONG axis_min = -32767;
+const static LONG axis_max = 32767;
 
 
 static vector< win32_joystick * > * joysticks;
-static LPDIRECTINPUT lpdi = NULL;
 
 static BOOL CALLBACK DIEnumJoystickProc( LPCDIDEVICEINSTANCE lpddi,
 										 LPVOID pvRef )
 {
 	GUID guid = lpddi->guidProduct;
 	win32_joystick * js = new win32_joystick;
+
+	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
+
+	strncpy( js->name, lpddi->tszProductName, MAX_PATH );
 
 	if( lpdi->CreateDevice( guid, ( LPDIRECTINPUTDEVICE * )&js->lpdiJoystick, NULL ) != DI_OK )
 	{
@@ -1039,16 +1077,25 @@ static BOOL CALLBACK DIEnumJoystickObjectsProc( LPCDIDEVICEOBJECTINSTANCE lpdido
 
 void Joystick_init()
 {
-	if( lpdi != NULL )
+	if( joysticks != NULL )
 		return;
 
 	EM_log( CK_LOG_INFO, "initializing joystick" );
+	EM_pushlog();
 
     HINSTANCE hInstance = GetModuleHandle( NULL );
 
-	if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
-						   &lpdi, NULL) != DI_OK )
-		return;
+	if( lpdi == NULL )
+	{
+		if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
+							   &lpdi, NULL) != DI_OK )
+		{
+			lpdi = NULL;
+			EM_log( CK_LOG_SEVERE, "error: unable to initialize DirectInput, initialization failed" );
+			EM_poplog();
+			return;
+		}
+	}
 
 	joysticks = new vector< win32_joystick * >;
 	if( lpdi->EnumDevices( DIDEVTYPE_JOYSTICK, DIEnumJoystickProc, 
@@ -1058,8 +1105,12 @@ void Joystick_init()
 		joysticks = NULL;
 		lpdi->Release();
 		lpdi = NULL;
+		EM_log( CK_LOG_SEVERE, "error: unable to enumerate devices, initialization failed" );
+		EM_poplog();
 		return;
 	}
+
+	EM_poplog();
 }
 
 void Joystick_poll()
@@ -1266,9 +1317,525 @@ int Joystick_close( int js )
 
 	joystick->refcount--;
 
-	joystick->needs_close = TRUE;
+	if( joystick->refcount < 1 )
+		joystick->needs_close = TRUE;
 
 	return 0;
+}
+
+/*****************************************************************************
+ Windows keyboard support
+ *****************************************************************************/
+#pragma mark Windows keyboards support
+
+#define DINPUT_KEYBUFFER_SIZE 256
+
+struct win32_keyboard
+{
+	win32_keyboard()
+	{
+		lpdiKeyboard = NULL;
+		refcount = 0;
+		needs_close = FALSE;
+		strncpy( name, "Keyboard", MAX_PATH );
+		memset( &last_state, 0, DINPUT_KEYBUFFER_SIZE );
+	}
+
+	LPDIRECTINPUTDEVICE2 lpdiKeyboard;
+	char last_state[DINPUT_KEYBUFFER_SIZE];
+	DIDEVCAPS caps;
+
+	char name[MAX_PATH];
+
+	t_CKUINT refcount;
+	t_CKBOOL needs_close;
+
+};
+
+static vector< win32_keyboard * > * keyboards;
+
+static BOOL CALLBACK DIEnumKeyboardProc( LPCDIDEVICEINSTANCE lpddi,
+										 LPVOID pvRef )
+{
+	GUID guid = lpddi->guidProduct;
+	win32_keyboard * keyboard = new win32_keyboard;
+
+	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
+
+	strncpy( keyboard->name, lpddi->tszProductName, MAX_PATH );
+
+	if( lpdi->CreateDevice( guid,
+							( LPDIRECTINPUTDEVICE * ) &keyboard->lpdiKeyboard,
+							NULL ) != DI_OK )
+	{
+		delete keyboard;
+		EM_log( CK_LOG_WARNING, "error: unable to initialize device %s", 
+				lpddi->tszProductName );
+		return DIENUM_CONTINUE;
+	}
+
+	keyboards->push_back( keyboard );
+
+	return DIENUM_CONTINUE;
+}
+
+void Keyboard_init()
+{
+	if( keyboards != NULL )
+		return;
+
+	EM_log( CK_LOG_INFO, "initializing keyboard" );
+	EM_pushlog();
+
+    HINSTANCE hInstance = GetModuleHandle( NULL );
+
+	if( lpdi == NULL )
+	{
+		if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
+							   &lpdi, NULL) != DI_OK )
+		{
+			lpdi = NULL;
+			EM_log( CK_LOG_SEVERE, "error: unable to initialize DirectInput, initialization failed" );
+			EM_poplog();
+			return;
+		}
+	}
+
+	keyboards = new vector< win32_keyboard * >;
+	if( lpdi->EnumDevices( DIDEVTYPE_KEYBOARD, DIEnumKeyboardProc, 
+						   NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
+	{
+		delete keyboards;
+		keyboards = NULL;
+		lpdi->Release();
+		lpdi = NULL;
+		EM_log( CK_LOG_SEVERE, "error: unable to enumerate devices, initialization failed" );
+		EM_poplog();
+		return;
+	}
+
+	EM_poplog();
+}
+
+void Keyboard_poll()
+{
+	if( !keyboards )
+		return;
+
+	win32_keyboard * keyboard;
+	HidMsg msg;
+	vector< win32_keyboard * >::size_type i, len = keyboards->size();
+	for( i = 0; i < len; i++ )
+	{
+		keyboard = keyboards->at( i );
+		if( keyboard->refcount )
+		{
+			// TODO: convert this to buffered input, or maybe notifications
+			char state[DINPUT_KEYBUFFER_SIZE];
+			
+			keyboard->lpdiKeyboard->Poll();
+
+			if( keyboard->lpdiKeyboard->GetDeviceState( DINPUT_KEYBUFFER_SIZE, state ) 
+				!= DI_OK )
+			{
+				EM_log( CK_LOG_WARNING, "keyboard: GetDeviceState failed for %s", 
+						keyboard->name );
+				continue;
+			}
+
+			for( int j = 0; j < DINPUT_KEYBUFFER_SIZE; j++ )
+			{
+				if( ( state[j] & 0x80 ) ^ ( keyboard->last_state[j] & 0x80 ) )
+				{
+					msg.clear();
+					msg.device_num = i;
+					msg.device_type = CK_HID_DEV_KEYBOARD;
+					msg.type = ( state[j] & 0x80 ) ? CK_HID_BUTTON_DOWN :
+													 CK_HID_BUTTON_UP;
+					msg.eid = j;
+					msg.idata[0] = ( state[j] & 0x80 ) ? 1 : 0;
+					HidInManager::push_message( msg );
+				}
+			}
+
+			memcpy( keyboard->last_state, state, DINPUT_KEYBUFFER_SIZE );
+		}
+
+		else if( keyboard->needs_close )
+		{
+			keyboard->needs_close = FALSE;
+			keyboard->lpdiKeyboard->Unacquire();
+		}
+	}
+}
+
+void Keyboard_quit()
+{
+	if( keyboards )
+	{
+		win32_keyboard * keyboard;
+		vector< win32_keyboard * >::size_type i, len = keyboards->size();
+		for( i = 0; i < len; i++ )
+		{
+			keyboard = keyboards->at( i );
+
+			if( keyboard->refcount > 0 || keyboard->needs_close)
+			{
+				keyboard->needs_close = FALSE;
+				keyboard->refcount = 0;
+				keyboard->lpdiKeyboard->Unacquire();
+			}
+
+			keyboard->lpdiKeyboard->Release();
+			delete keyboard;
+		}
+
+		delete keyboards;
+		keyboards = NULL;
+	}
+
+	if( lpdi )
+	{
+		lpdi->Release();
+		lpdi = NULL;
+	}
+}
+
+int Keyboard_count()
+{
+    if( !keyboards )
+		return 0;
+	return keyboards->size();
+}
+
+int Keyboard_open( int k )
+{
+	if( !keyboards || k < 0 || k >= keyboards->size() )
+		return -1;
+
+	win32_keyboard * keyboard = keyboards->at( k );
+
+	if( keyboard->refcount == 0 )
+	{
+		if( keyboard->lpdiKeyboard->SetDataFormat( &c_dfDIKeyboard ) != DI_OK )
+		{
+			return -1;
+		}
+
+		if( keyboard->lpdiKeyboard->Acquire() != DI_OK )
+		{
+			return -1;
+		}
+	}
+	
+	keyboard->refcount++;
+	
+    return 0;
+}
+
+int Keyboard_close( int k )
+{
+	if( !keyboards || k < 0 || k >= keyboards->size() )
+		return -1;
+
+	win32_keyboard * keyboard = keyboards->at( k );
+
+	keyboard->refcount--;
+
+	if( keyboard->refcount < 1 )
+		keyboard->needs_close = TRUE;
+
+	return 0;
+}
+
+/*****************************************************************************
+ Windows mouse support
+ *****************************************************************************/
+#pragma mark Windows mouse support
+
+struct win32_mouse
+{
+	win32_mouse()
+	{
+		refcount = 0;
+		needs_close = FALSE;
+
+		lpdiMouse = NULL;
+		memset( &last_state, 0, sizeof( last_state ) );
+	}
+
+	LPDIRECTINPUTDEVICE2 lpdiMouse;
+	DIMOUSESTATE last_state;
+
+	char name[MAX_PATH];
+
+	t_CKUINT refcount;
+	t_CKBOOL needs_close;
+};
+
+static vector< win32_mouse * > * mice;
+
+static BOOL CALLBACK DIEnumMouseProc( LPCDIDEVICEINSTANCE lpddi,
+									  LPVOID pvRef )
+{
+	GUID guid = lpddi->guidProduct;
+	win32_mouse * mouse = new win32_mouse;
+
+	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
+
+	strncpy( mouse->name, lpddi->tszProductName, MAX_PATH );
+
+	if( lpdi->CreateDevice( guid, ( LPDIRECTINPUTDEVICE * ) &mouse->lpdiMouse,
+							NULL ) != DI_OK )
+	{
+		delete mouse;
+		return DIENUM_CONTINUE;
+	}
+
+	mice->push_back( mouse );
+
+	return DIENUM_CONTINUE;
+}
+
+void Mouse_init()
+{
+	if( mice != NULL )
+		return;
+
+	EM_log( CK_LOG_INFO, "initializing mouse" );
+	EM_pushlog();
+
+    HINSTANCE hInstance = GetModuleHandle( NULL );
+
+	if( lpdi == NULL )
+	{
+		if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
+							   &lpdi, NULL) != DI_OK )
+		{
+			lpdi = NULL;
+			EM_poplog();
+			return;
+		}
+	}
+
+	mice = new vector< win32_mouse * >;
+	if( lpdi->EnumDevices( DIDEVTYPE_MOUSE, DIEnumMouseProc, 
+						   NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
+	{
+		delete mice;
+		mice = NULL;
+		lpdi->Release();
+		lpdi = NULL;
+		EM_poplog();
+		return;
+	}
+
+	EM_poplog();
+}
+
+void Mouse_poll()
+{
+	if( !mice )
+		return;
+
+	win32_mouse * mouse;
+	HidMsg msg;
+	vector< win32_mouse * >::size_type i, len = mice->size();
+	for( i = 0; i < len; i++ )
+	{
+		mouse = mice->at( i );
+		if( mouse->refcount )
+		{
+			// TODO: convert this to buffered input, or maybe notifications
+			DIMOUSESTATE state;
+			
+			mouse->lpdiMouse->Poll();
+
+			if( mouse->lpdiMouse->GetDeviceState( sizeof( DIMOUSESTATE ), &state ) 
+				!= DI_OK )
+			{
+				EM_log( CK_LOG_WARNING, "mouse: GetDeviceState failed for %s", mouse->name );
+				continue;
+			}
+
+			if( state.lX != 0 || state.lY != 0 )
+			{
+				msg.clear();
+				msg.device_num = i;
+				msg.device_type = CK_HID_DEV_MOUSE;
+				msg.type = CK_HID_MOUSE_MOTION;
+				msg.eid = 0;
+				msg.idata[0] = state.lX;
+				msg.idata[1] = state.lY;
+				HidInManager::push_message( msg );
+			}
+
+			for( int j = 0; j < 4; j++ )
+			{
+				if( ( state.rgbButtons[j] & 0x80 ) ^
+					( mouse->last_state.rgbButtons[j] & 0x80 ) )
+				{
+					msg.clear();
+					msg.device_num = i;
+					msg.device_type = CK_HID_DEV_MOUSE;
+					msg.type = ( state.rgbButtons[j] & 0x80 ) ? CK_HID_BUTTON_DOWN :
+																CK_HID_BUTTON_UP;
+					msg.eid = j;
+					msg.idata[0] = ( state.rgbButtons[j] & 0x80 ) ? 1 : 0;
+					HidInManager::push_message( msg );
+				}
+			}
+
+			mouse->last_state = state;
+		}
+
+		else if( mouse->needs_close )
+		{
+			mouse->needs_close = FALSE;
+			mouse->lpdiMouse->Unacquire();
+		}
+	}
+}
+
+void Mouse_quit()
+{
+	if( mice )
+	{
+		win32_mouse * mouse;
+		vector< win32_mouse * >::size_type i, len = mice->size();
+		for( i = 0; i < len; i++ )
+		{
+			mouse = mice->at( i );
+
+			if( mouse->refcount > 0 || mouse->needs_close)
+			{
+				mouse->needs_close = FALSE;
+				mouse->refcount = 0;
+				mouse->lpdiMouse->Unacquire();
+			}
+
+			mouse->lpdiMouse->Release();
+			delete mouse;
+		}
+
+		delete mice;
+		mice = NULL;
+	}
+
+	if( lpdi )
+	{
+		lpdi->Release();
+		lpdi = NULL;
+	}
+}
+
+int Mouse_count()
+{
+    if( !mice )
+		return 0;
+	return mice->size();
+}
+
+int Mouse_open( int m )
+{
+	if( !mice || m < 0 || m >= mice->size() )
+		return -1;
+
+	win32_mouse * mouse = mice->at( m );
+
+	if( mouse->refcount == 0 )
+	{
+		if( mouse->lpdiMouse->SetDataFormat( &c_dfDIMouse ) != DI_OK )
+		{
+			return -1;
+		}
+
+		if( mouse->lpdiMouse->Acquire() != DI_OK )
+		{
+			return -1;
+		}
+	}
+	
+	mouse->refcount++;
+
+	return 0;
+}
+
+int Mouse_close( int m )
+{
+	if( !mice || m < 0 || m >= mice->size() )
+		return -1;
+
+	win32_mouse * mouse = mice->at( m );
+
+	mouse->refcount--;
+
+	if( mouse->refcount < 1 )
+		mouse->needs_close = TRUE; // let the polling thread take care of it
+
+	return 0;
+}
+
+#elif defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) && defined( USE_RAWINPUT )
+
+void Joystick_init()
+{
+    
+}
+
+void Joystick_poll()
+{
+    
+}
+
+void Joystick_quit()
+{
+    
+}
+
+int Joystick_count()
+{
+    return 0;
+}
+
+int Joystick_open( int js )
+{
+    return -1;
+}
+
+int Joystick_close( int js )
+{
+    return -1;
+}
+
+void Mouse_init()
+{
+    
+}
+
+void Mouse_poll()
+{
+    
+}
+
+void Mouse_quit()
+{
+    
+}
+
+int Mousek_count()
+{
+    return 0;
+}
+
+int Mouse_open( int js )
+{
+    return -1;
+}
+
+int Mouse_close( int js )
+{
+    return -1;
 }
 
 void Keyboard_init()
@@ -1301,20 +1868,38 @@ int Keyboard_close( int js )
     return -1;
 }
 
-struct win32_mouse
+#elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
+#pragma mark Linux joystick support
+
+void Joystick_init()
 {
-	win32_mouse()
-	{
-		lpdiMouse = NULL;
-		memset( &last_state, 0, sizeof( last_state ) );
-	}
+    
+}
 
-	LPDIRECTINPUTDEVICE lpdiMouse;
-	DIMOUSESTATE last_state;
+void Joystick_poll()
+{
+    
+}
 
-	t_CKUINT refcount;
+void Joystick_quit()
+{
+    
+}
 
-};
+int Joystick_count()
+{
+    return 0;
+}
+
+int Joystick_open( int js )
+{
+    return -1;
+}
+
+int Joystick_close( int js )
+{
+    return -1;
+}
 
 void Mouse_init()
 {
@@ -1346,36 +1931,32 @@ int Mouse_close( int js )
     return -1;
 }
 
-
-#elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
-#pragma mark Linux joystick support
-
-void Joystick_init()
+void Keyboard_init()
 {
     
 }
 
-void Joystick_poll()
+void Keyboard_poll()
 {
     
 }
 
-void Joystick_quit()
+void Keyboard_quit()
 {
     
 }
 
-int Joystick_count()
+int Keyboard_count()
 {
     return 0;
 }
 
-int Joystick_open( int js )
+int Keyboard_open( int js )
 {
     return -1;
 }
 
-int Joystick_close( int js )
+int Keyboard_close( int js )
 {
     return -1;
 }

@@ -39,7 +39,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	rtaudio.o rtmidi.o ugen_osc.o ugen_filter.o ugen_stk.o ugen_xxx.o \
 	ulib_machine.o ulib_math.o ulib_std.o ulib_opsc.o util_buffers.o \
 	util_math.o util_network.o util_raw.o util_string.o util_thread.o \
-	util_xforms.o util_opsc.o util_console.o util_hid.o util_hid2.o $(SF_OBJ)
+	util_xforms.o util_opsc.o util_console.o util_hid.o $(SF_OBJ)
 
 chuck: $(OBJS)
 	$(CXX) -o chuck $(OBJS) $(LIBS)
@@ -176,11 +176,8 @@ util_buffers.o: util_buffers.h util_buffers.cpp
 util_console.o: util_console.h util_console.cpp
 	$(CXX) $(FLAGS) util_console.cpp
 
-util_hid.o: util_hid.h util_hid.c
-	$(CXX) $(FLAGS) util_hid.c
-
-util_hid2.o: util_hid.h util_hid.cpp
-	$(CXX) -o util_hid2.o $(FLAGS) util_hid.cpp
+util_hid.o: util_hid.h util_hid.cpp
+	$(CXX) $(FLAGS) util_hid.cpp
 
 util_math.o: util_math.h util_math.c
 	$(CXX) $(FLAGS) util_math.c
