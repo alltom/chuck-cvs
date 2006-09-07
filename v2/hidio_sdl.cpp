@@ -37,7 +37,11 @@
 #include "util_hid.h"
 #include "chuck_errmsg.h"
 
+#ifndef __PLATFORM_WIN32__
 #include <unistd.h>
+#else
+#include "chuck_def.h"
+#endif
 
 #include <limits.h>
 #include <vector>
