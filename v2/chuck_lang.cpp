@@ -536,6 +536,8 @@ error:
 
 // static
 static t_CKUINT HidIn_offset_data = 0;
+static t_CKUINT HidMsg_offset_device_type = 0;
+static t_CKUINT HidMsg_offset_device_num = 0;
 static t_CKUINT HidMsg_offset_type = 0;
 static t_CKUINT HidMsg_offset_which = 0;
 static t_CKUINT HidMsg_offset_idata = 0;
@@ -543,8 +545,9 @@ static t_CKUINT HidMsg_offset_fdata = 0;
 static t_CKUINT HidMsg_offset_when = 0;
 static t_CKUINT HidMsg_offset_deltax = 0;
 static t_CKUINT HidMsg_offset_deltay = 0;
-static t_CKUINT HidMsg_offset_axis_position = 0;
-static t_CKUINT HidMsg_offset_scaled_axis_position = 0;
+static t_CKUINT HidMsg_offset_axis_position = 0; // deprecated
+static t_CKUINT HidMsg_offset_axis_position2 = 0;
+static t_CKUINT HidMsg_offset_scaled_axis_position = 0; // deprecated
 static t_CKUINT HidMsg_offset_hat_position = 0;
 static t_CKUINT HidMsg_offset_x = 0;
 static t_CKUINT HidMsg_offset_y = 0;
@@ -566,13 +569,21 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
         return FALSE;
 
     // add member variable
+    HidMsg_offset_device_type = type_engine_import_mvar( env, "int", "deviceType", FALSE );
+    if( HidMsg_offset_device_type == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
+    HidMsg_offset_device_num = type_engine_import_mvar( env, "int", "deviceNum", FALSE );
+    if( HidMsg_offset_device_num == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
     HidMsg_offset_type = type_engine_import_mvar( env, "int", "type", FALSE );
     if( HidMsg_offset_type == CK_INVALID_OFFSET ) goto error;
-
+    
     // add member variable
     HidMsg_offset_which = type_engine_import_mvar( env, "int", "which", FALSE );
     if( HidMsg_offset_which == CK_INVALID_OFFSET ) goto error;
-
+    
     // add member variable
     HidMsg_offset_idata = type_engine_import_mvar( env, "int", "idata", FALSE );
     if( HidMsg_offset_idata == CK_INVALID_OFFSET ) goto error;
@@ -598,27 +609,51 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     if( HidMsg_offset_axis_position == CK_INVALID_OFFSET ) goto error;
     
     // add member variable
+    HidMsg_offset_axis_position2 = type_engine_import_mvar( env, "float", "axisPosition", FALSE );
+    if( HidMsg_offset_axis_position2 == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
     HidMsg_offset_scaled_axis_position = type_engine_import_mvar( env, "float", "scaled_axis_position", FALSE );
     if( HidMsg_offset_scaled_axis_position == CK_INVALID_OFFSET ) goto error;
+        
+    // add is_axis_motion()
+    func = make_new_mfun( "int", "is_axis_motion", HidMsg_is_axis_motion ); // deprecated
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // add is_axis_motion()
-    func = make_new_mfun( "int", "is_axis_motion", HidMsg_is_axis_motion );
+    func = make_new_mfun( "int", "isAxisMotion", HidMsg_is_axis_motion );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // add is_button_down()
-    func = make_new_mfun( "int", "is_button_down", HidMsg_is_button_down );
+    func = make_new_mfun( "int", "is_button_down", HidMsg_is_button_down ); // deprecated
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_button_down()
+    func = make_new_mfun( "int", "isButtonDown", HidMsg_is_button_down );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // add is_button_up()
-    func = make_new_mfun( "int", "is_button_up", HidMsg_is_button_up );
+    func = make_new_mfun( "int", "is_button_up", HidMsg_is_button_up ); // deprecated
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_button_up()
+    func = make_new_mfun( "int", "isButtonUp", HidMsg_is_button_up );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // add is_mouse_motion()
-    func = make_new_mfun( "int", "is_mouse_motion", HidMsg_is_mouse_motion );
+    func = make_new_mfun( "int", "is_mouse_motion", HidMsg_is_mouse_motion ); // deprecated
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_mouse_motion()
+    func = make_new_mfun( "int", "isMouseMotion", HidMsg_is_mouse_motion );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // add is_hat_motion()
-    func = make_new_mfun( "int", "is_hat_motion", HidMsg_is_hat_motion );
+    func = make_new_mfun( "int", "is_hat_motion", HidMsg_is_hat_motion ); // deprecated
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add is_hat_motion()
+    func = make_new_mfun( "int", "isHatMotion", HidMsg_is_hat_motion );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
@@ -1540,6 +1575,8 @@ CK_DLL_MFUN( HidIn_recv )
     RETURN->v_int = min->recv( &the_msg );
     if( RETURN->v_int )
     {
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_device_type) = the_msg.device_type;
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_device_num) = the_msg.device_num;
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_type) = the_msg.type;
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_which) = the_msg.eid;
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_idata) = the_msg.idata[0];
@@ -1552,6 +1589,7 @@ CK_DLL_MFUN( HidIn_recv )
         // axis motion specific member variables
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_axis_position) = the_msg.idata[0];
         OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_scaled_axis_position) = the_msg.fdata[0];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_axis_position2) = the_msg.fdata[0];
     }
 }
 
