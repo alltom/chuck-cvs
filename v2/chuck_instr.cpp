@@ -32,8 +32,6 @@
 //-----------------------------------------------------------------------------
 #include <math.h>
 #include <limits.h>
-#include <typeinfo>
-using namespace std;
 
 #include "chuck_type.h"
 #include "chuck_instr.h"
@@ -42,6 +40,9 @@ using namespace std;
 #include "chuck_bbq.h"
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
+
+#include <typeinfo>
+using namespace std;
 
 
 
