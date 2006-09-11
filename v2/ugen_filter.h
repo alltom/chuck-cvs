@@ -47,6 +47,9 @@ CK_DLL_TICK( FilterBasic_tick );
 CK_DLL_PMSG( FilterBasic_pmsg );
 CK_DLL_CTRL( FilterBasic_ctrl_freq );
 CK_DLL_CGET( FilterBasic_cget_freq );
+CK_DLL_CTRL( FilterBasic_ctrl_Q );
+CK_DLL_CGET( FilterBasic_cget_Q );
+CK_DLL_CTRL( FilterBasic_ctrl_set );
 
 // LPF
 CK_DLL_CTOR( LPF_ctor );

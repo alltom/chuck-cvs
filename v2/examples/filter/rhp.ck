@@ -1,10 +1,12 @@
 // our patch
-SqrOsc so => RHPF f => dac;
+SqrOsc so => HPF f => dac;
 
 // set osc frequency
 50 => so.freq;
 // set Q
 10 => f.Q;
+// set gain
+.5 => f.gain;
 
 // infinite time-loop
 float t;

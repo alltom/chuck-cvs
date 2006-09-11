@@ -87,10 +87,24 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "freq", FilterBasic_cget_freq );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // Q
+    func = make_new_mfun( "float", "Q", FilterBasic_ctrl_Q );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "Q", FilterBasic_cget_Q );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // set
+    func = make_new_mfun( "float", "set", FilterBasic_ctrl_set );
+    func->add_arg( "float", "freq" );
+    func->add_arg( "float", "Q" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
 
 
+    /*
     //---------------------------------------------------------------------
     // init class: LPF
     //---------------------------------------------------------------------
@@ -125,6 +139,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+    */
 
 
     //---------------------------------------------------------------------
@@ -192,7 +207,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init class: RLPF
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "RLPF", "FilterBasic", env->global(),
+    if( !type_engine_import_ugen_begin( env, "LPF", "FilterBasic", env->global(),
                                         RLPF_ctor, RLPF_tick, RLPF_pmsg ) )
         return FALSE;
 
@@ -223,7 +238,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init class: RHPF
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "RHPF", "FilterBasic", env->global(),
+    if( !type_engine_import_ugen_begin( env, "HPF", "FilterBasic", env->global(),
                                         RHPF_ctor, RHPF_tick, RHPF_pmsg ) )
         return FALSE;
 
@@ -884,6 +899,33 @@ CK_DLL_CTRL( FilterBasic_ctrl_freq )
 // desc: CGET function
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( FilterBasic_cget_freq )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: FilterBasic_ctrl_Q()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FilterBasic_ctrl_Q )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: FilterBasic_cget_Q()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( FilterBasic_cget_Q )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: FilterBasic_ctrl_set()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( FilterBasic_ctrl_set )
 {
 }
 
