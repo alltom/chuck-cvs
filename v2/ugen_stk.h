@@ -55,18 +55,12 @@ CK_DLL_CTRL( ADSR_ctrl_decayRate );
 CK_DLL_CTRL( ADSR_ctrl_sustainLevel );
 CK_DLL_CTRL( ADSR_ctrl_releaseTime );
 CK_DLL_CTRL( ADSR_ctrl_releaseRate );
-CK_DLL_CTRL( ADSR_ctrl_target );
-CK_DLL_CTRL( ADSR_ctrl_value );
-CK_DLL_CTRL( ADSR_ctrl_keyOn );
-CK_DLL_CTRL( ADSR_ctrl_keyOn0 );
-CK_DLL_CTRL( ADSR_ctrl_keyOff );
-CK_DLL_CTRL( ADSR_ctrl_keyOff0 );
+CK_DLL_CTRL( ADSR_ctrl_set );
+CK_DLL_CTRL( ADSR_ctrl_set2 );
 CK_DLL_CGET( ADSR_cget_attackRate );
 CK_DLL_CGET( ADSR_cget_decayRate );
 CK_DLL_CGET( ADSR_cget_sustainLevel );
 CK_DLL_CGET( ADSR_cget_releaseRate );
-CK_DLL_CGET( ADSR_cget_target );
-CK_DLL_CGET( ADSR_cget_value );
 CK_DLL_CGET( ADSR_cget_state );
 
 // BiQuad

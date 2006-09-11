@@ -1766,23 +1766,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example adsr.ck
     if( !type_engine_import_ugen_begin( env, "ADSR", "Envelope", env->global(), 
-                        ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
-
-    /*
-    func = make_new_mfun( "int", "keyOn", ADSR_ctrl_keyOn ); //! start the attack for non-zero values
-    func->add_arg( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "int", "keyOff", ADSR_ctrl_keyOff ); //! start release for non-zero values
-    func->add_arg( "int", "value" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "int", "keyOn", ADSR_ctrl_keyOn0 ); //! start the attack for non-zero values
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    func = make_new_mfun( "int", "keyOff", ADSR_ctrl_keyOff0 ); //! start release for non-zero values
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    */
+                                        ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
 
     func = make_new_mfun( "float", "attackTime", ADSR_ctrl_attackTime ); //! attack time
     func->add_arg( "float", "value" );
@@ -1822,6 +1806,20 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "releaseRate", ADSR_cget_releaseRate ); //! release rate
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "void", "set", ADSR_ctrl_set ); //! set
+    func->add_arg( "float", "attackTime" );
+    func->add_arg( "float", "decayTime" );
+    func->add_arg( "float", "sustainLevel" );
+    func->add_arg( "float", "releaseTime" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "void", "set", ADSR_ctrl_set2 ); //! set
+    func->add_arg( "dur", "attackDuration" );
+    func->add_arg( "dur", "decayDuration" );
+    func->add_arg( "float", "sustainLevel" );
+    func->add_arg( "dur", "releaseDuration" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "int", "state", ADSR_cget_state ); //! attack=0, decay=1 , sustain=2, release=3, done=4
@@ -26477,52 +26475,6 @@ CK_DLL_CGET( ADSR_cget_releaseRate )
 
 
 //-----------------------------------------------------------------------------
-// name: ADSR_ctrl_target()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ADSR_ctrl_target )
-{
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    d->setTarget( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT)d->target;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ADSR_cget_target()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( ADSR_cget_target )
-{
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_float = (t_CKFLOAT) d->target;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ADSR_ctrl_value()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ADSR_ctrl_value )
-{
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    d->setValue( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = (t_CKFLOAT) d->value;
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ADSR_cget_value()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CGET( ADSR_cget_value )
-{
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_float = (t_CKFLOAT) d->value;
-}
-
-
-//-----------------------------------------------------------------------------
 // name: ADSR_cget_state()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
@@ -26534,52 +26486,38 @@ CK_DLL_CGET( ADSR_cget_state )
 
 
 //-----------------------------------------------------------------------------
-// name: ADSR_ctrl_keyOn()
+// name: ADSR_ctrl_set()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( ADSR_ctrl_keyOn )
+CK_DLL_CTRL( ADSR_ctrl_set )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    if( GET_NEXT_INT(ARGS) )
-        d->keyOn();
-    else
-        d->keyOff();
+    ADSR * e = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    t_CKFLOAT a = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT d = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT s = GET_NEXT_FLOAT(ARGS);
+    t_CKFLOAT r = GET_NEXT_FLOAT(ARGS);
+    e->setAttackTime( a );
+    e->setDecayTime( d );
+    e->setSustainLevel( s );
+    e->setReleaseTime( r );
 }
 
 
 //-----------------------------------------------------------------------------
-// name: ADSR_ctrl_keyOn0()
+// name: ADSR_ctrl_set2()
 // desc: CTRL function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTRL( ADSR_ctrl_keyOn0 )
+CK_DLL_CTRL( ADSR_ctrl_set2 )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    d->keyOn();
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ADSR_ctrl_keyOff()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ADSR_ctrl_keyOff )
-{
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    if( !GET_NEXT_INT(ARGS) )
-        d->keyOn();
-    else
-        d->keyOff();
-}
-
-
-//-----------------------------------------------------------------------------
-// name: ADSR_ctrl_keyOff0()
-// desc: CTRL function ...
-//-----------------------------------------------------------------------------
-CK_DLL_CTRL( ADSR_ctrl_keyOff0 )
-{
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    d->keyOff();
+    ADSR * e = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    t_CKDUR a = GET_NEXT_DUR(ARGS);
+    t_CKDUR d = GET_NEXT_DUR(ARGS);
+    t_CKFLOAT s = GET_NEXT_FLOAT(ARGS);
+    t_CKDUR r = GET_NEXT_DUR(ARGS);
+    e->setAttackTime( a / Stk::sampleRate() );
+    e->setDecayTime( d / Stk::sampleRate() );
+    e->setSustainLevel( s );
+    e->setReleaseTime( r / Stk::sampleRate() );
 }
 
 
