@@ -617,12 +617,12 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add ctrl: phase_offset
-    func = make_new_mfun( "float", "phase_offset", sndbuf_ctrl_phase_offset );
-    func->add_arg( "float", "phase_offset" );
+    func = make_new_mfun( "float", "phaseOffset", sndbuf_ctrl_phase_offset );
+    func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     // add cget: phase_offset
-    //func = make_new_mfun( "float", "phase_offset", sndbuf_cget_phase_offset );
-    //if( !type_engine_import_mfun( env, func ) ) goto error;
+    // func = make_new_mfun( "float", "phaseOffset", sndbuf_cget_phase_offset );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add ctrl: chunks
     func = make_new_mfun( "int", "chunks", sndbuf_ctrl_chunks );
