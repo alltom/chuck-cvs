@@ -49,6 +49,10 @@
        ResonZ : resonant filter (BiQuad with equal-gain zeros)
   FilterBasic : base class to above filters
     --------------------------
+  - (added) new HidIn static variables for HidMsg message and device types
+  - (added) HidMsg fields to determine device type and number
+  - (added) HidMsg functions with capitalization rather than underscores 
+            (underscored functions deprecated)
   - (fixed) floating point denormals no longer cause potentially
             massive CPU usage on intel processors, this includes
             BiQuad, OnePole, TwoPole, PoleZero, JCRev, PRCRev, NRev
