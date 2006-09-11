@@ -16,7 +16,7 @@ while( true )
     // key on - start attack
     e.keyOn();
     // advance time by 800 ms
-    800::ms => now;
+    500::ms => now;
     // key off - start release
     e.keyOff();
     // advance time by 800 ms
