@@ -95,7 +95,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // set
-    func = make_new_mfun( "float", "set", FilterBasic_ctrl_set );
+    func = make_new_mfun( "void", "set", FilterBasic_ctrl_set );
     func->add_arg( "float", "freq" );
     func->add_arg( "float", "Q" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
