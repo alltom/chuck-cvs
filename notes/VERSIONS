@@ -21,6 +21,12 @@
        sndbuf  -->  SndBuf
          pan2  -->  Pan2
          mix2  -->  Mix2
+      onepole  -->  OnePole
+      onezero  -->  OneZero
+     polezero  -->  PoleZero
+      twopole  -->  TwoPole
+      twozero  -->  TwoZero
+       biquad  -->  BiQuad
          ****  -->  ****
           std  -->  Std
          math  -->  Math
@@ -37,7 +43,7 @@
           BRF : bandreject filter (2nd order butterworth)
          RLPF : resonant lowpass filter (2nd order)
          RHPF : resonant highpass filter (2nd order)
-       ResonZ : resonant filter (2nd order BiQuad with equal-gain zeros)
+       ResonZ : resonant filter (BiQuad with equal-gain zeros)
   FilterBasic : base class to above filters
     --------------------------
   - (fixed) floating point denormals no longer cause potentially
@@ -52,7 +58,8 @@
             |
       NOTE: the above changes may break/affect existing patches
             using TriOsc, PulseOsc, or SqrOsc
-    (sorry!)
+  - (fixed) ADSR now handles keyOff() before sustain state
+  - (fixed) ADSR now correctly inherits Envelope
 
 
 ---

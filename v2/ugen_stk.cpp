@@ -299,7 +299,7 @@ static t_CKUINT DelayA_offset_data = 0;
 static t_CKUINT DelayL_offset_data = 0;
 static t_CKUINT Echo_offset_data = 0;
 static t_CKUINT Envelope_offset_data = 0;
-static t_CKUINT ADSR_offset_data = 0;
+// static t_CKUINT Envelope_offset_data = 0;
 static t_CKUINT BiQuad_offset_data = 0;
 static t_CKUINT FilterStk_offset_data = 0;
 static t_CKUINT OnePole_offset_data = 0;
@@ -1768,6 +1768,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_ugen_begin( env, "ADSR", "Envelope", env->global(), 
                         ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
 
+    /*
     func = make_new_mfun( "int", "keyOn", ADSR_ctrl_keyOn ); //! start the attack for non-zero values
     func->add_arg( "int", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1781,6 +1782,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "int", "keyOff", ADSR_ctrl_keyOff0 ); //! start release for non-zero values
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    */
 
     func = make_new_mfun( "float", "attackTime", ADSR_ctrl_attackTime ); //! attack time
     func->add_arg( "float", "value" );
@@ -2787,6 +2789,8 @@ public:
   MY_FLOAT decayRate;
   MY_FLOAT sustainLevel;
   MY_FLOAT releaseRate;
+  // chuck
+  MY_FLOAT m_releaseTime;
 };
 
 #endif
@@ -8971,6 +8975,7 @@ ADSR :: ADSR() : Envelope()
   decayRate = (MY_FLOAT) 0.001;
   sustainLevel = (MY_FLOAT) 0.5;
   releaseRate = (MY_FLOAT) 0.01;
+  m_releaseTime = (MY_FLOAT) -1.0; // not used
   state = ATTACK;
 }
 
@@ -8987,6 +8992,12 @@ void ADSR :: keyOn()
 
 void ADSR :: keyOff()
 {
+  // chuck
+  if( m_releaseTime > 0 )
+  {
+      releaseRate = value / (m_releaseTime * Stk::sampleRate());
+  }
+
   target = (MY_FLOAT) 0.0;
   rate = releaseRate;
   state = RELEASE;
@@ -9026,6 +9037,9 @@ void ADSR :: setReleaseRate(MY_FLOAT aRate)
     releaseRate = -aRate;
   }
   else releaseRate = aRate;
+
+  // chuck
+  m_releaseTime = -1.0;
 }
 
 void ADSR :: setAttackTime(MY_FLOAT aTime)
@@ -9057,6 +9071,9 @@ void ADSR :: setReleaseTime(MY_FLOAT aTime)
     releaseRate = sustainLevel / ( -aTime * Stk::sampleRate() );
   }
   else releaseRate = sustainLevel / ( aTime * Stk::sampleRate() );
+
+  // chuck
+  m_releaseTime = aTime;
 }
 
 void ADSR :: setAllTimes(MY_FLOAT aTime, MY_FLOAT dTime, MY_FLOAT sLevel, MY_FLOAT rTime)
@@ -26288,7 +26305,11 @@ CK_DLL_CTRL( Envelope_ctrl_keyOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( ADSR_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, ADSR_offset_data) = (t_CKUINT)new ADSR;
+    // TODO: fix this horrid thing
+    Envelope * e = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    SAFE_DELETE(e);
+
+    OBJ_MEMBER_UINT(SELF, Envelope_offset_data) = (t_CKUINT)new ADSR;
 }
 
 
@@ -26298,7 +26319,7 @@ CK_DLL_CTOR( ADSR_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( ADSR_dtor )
 {
-    delete (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    delete (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
 }
 
 
@@ -26308,7 +26329,7 @@ CK_DLL_DTOR( ADSR_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( ADSR_tick )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     *out = in * d->tick();
     return TRUE;
 }
@@ -26330,7 +26351,7 @@ CK_DLL_PMSG( ADSR_pmsg )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_attackTime )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
     d->setAttackTime( t );
     RETURN->v_float = t;
@@ -26343,7 +26364,7 @@ CK_DLL_CTRL( ADSR_ctrl_attackTime )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_attackRate )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setAttackRate( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT)d->attackRate;
 }
@@ -26355,7 +26376,7 @@ CK_DLL_CTRL( ADSR_ctrl_attackRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ADSR_cget_attackRate )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     RETURN->v_float = (t_CKFLOAT)d->attackRate;
 }
 
@@ -26366,7 +26387,7 @@ CK_DLL_CGET( ADSR_cget_attackRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_decayTime )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
     d->setDecayTime( t );
     RETURN->v_float = t;
@@ -26379,7 +26400,7 @@ CK_DLL_CTRL( ADSR_ctrl_decayTime )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_decayRate )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setDecayRate( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT)d->decayRate;
 }
@@ -26391,7 +26412,7 @@ CK_DLL_CTRL( ADSR_ctrl_decayRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ADSR_cget_decayRate )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     RETURN->v_float = (t_CKFLOAT)d->decayRate;
 }
 
@@ -26402,7 +26423,7 @@ CK_DLL_CGET( ADSR_cget_decayRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_sustainLevel )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setSustainLevel( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT)d->sustainLevel;
 }
@@ -26414,7 +26435,7 @@ CK_DLL_CTRL( ADSR_ctrl_sustainLevel )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ADSR_cget_sustainLevel )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     RETURN->v_float = (t_CKFLOAT)d->sustainLevel;
 }
 
@@ -26425,7 +26446,7 @@ CK_DLL_CGET( ADSR_cget_sustainLevel )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_releaseTime )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
     d->setReleaseTime( t );
     RETURN->v_float = t;
@@ -26438,7 +26459,7 @@ CK_DLL_CTRL( ADSR_ctrl_releaseTime )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_releaseRate )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setReleaseRate( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT)d->releaseRate;
 }
@@ -26450,7 +26471,7 @@ CK_DLL_CTRL( ADSR_ctrl_releaseRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ADSR_cget_releaseRate )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     RETURN->v_float = (t_CKFLOAT)d->releaseRate;
 }
 
@@ -26461,7 +26482,7 @@ CK_DLL_CGET( ADSR_cget_releaseRate )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_target )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setTarget( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT)d->target;
 }
@@ -26473,7 +26494,7 @@ CK_DLL_CTRL( ADSR_ctrl_target )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ADSR_cget_target )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     RETURN->v_float = (t_CKFLOAT) d->target;
 }
 
@@ -26484,7 +26505,7 @@ CK_DLL_CGET( ADSR_cget_target )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_value )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setValue( GET_NEXT_FLOAT(ARGS) );
     RETURN->v_float = (t_CKFLOAT) d->value;
 }
@@ -26496,7 +26517,7 @@ CK_DLL_CTRL( ADSR_ctrl_value )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ADSR_cget_value )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     RETURN->v_float = (t_CKFLOAT) d->value;
 }
 
@@ -26507,7 +26528,7 @@ CK_DLL_CGET( ADSR_cget_value )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( ADSR_cget_state )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     RETURN->v_int = (t_CKINT) d->state;
 }
 
@@ -26518,7 +26539,7 @@ CK_DLL_CGET( ADSR_cget_state )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_keyOn )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     if( GET_NEXT_INT(ARGS) )
         d->keyOn();
     else
@@ -26532,7 +26553,7 @@ CK_DLL_CTRL( ADSR_ctrl_keyOn )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_keyOn0 )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->keyOn();
 }
 
@@ -26543,7 +26564,7 @@ CK_DLL_CTRL( ADSR_ctrl_keyOn0 )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_keyOff )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     if( !GET_NEXT_INT(ARGS) )
         d->keyOn();
     else
@@ -26557,7 +26578,7 @@ CK_DLL_CTRL( ADSR_ctrl_keyOff )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( ADSR_ctrl_keyOff0 )
 {
-    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, ADSR_offset_data);
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->keyOff();
 }
 
