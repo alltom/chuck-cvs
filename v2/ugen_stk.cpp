@@ -9044,6 +9044,7 @@ void ADSR :: setDecayTime(MY_FLOAT aTime)
     decayRate = 1.0 / ( -aTime * Stk::sampleRate() );
   }
   else if( aTime == 0.0 ) {
+    // printf("[chuck](via ADSR): zero decay time not allowed ... correcting!\n");
     decayRate = FLT_MAX; // a big number
   }
   else decayRate = 1.0 / ( aTime * Stk::sampleRate() );
@@ -9107,6 +9108,15 @@ MY_FLOAT ADSR :: tick()
       rate = decayRate;
       target = sustainLevel;
       state = DECAY;
+
+      // TODO: check this
+      if( decayRate >= FLT_MAX ) // big number
+      {
+          // go directly to sustain;
+          state = SUSTAIN;
+          value = sustainLevel;
+          rate = 0.0;
+      }
     }
     break;
 
