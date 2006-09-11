@@ -35,6 +35,9 @@
   - (added) --deprecate:X flag
             X can be stop, warn, or ignore - default is warn
   - (added) STK BiQuad get functions pfreq, prad, zfreq, zrad
+  - (added) ADSR functions:
+            void .set( dur a, dur d, float s, dur r );
+            void .set( float a, float d, float s, float r );
   - (added) new UGens (adapted from SC3 Server, Pure Data, CSound)
     --------------------------
           LPF : lowpass filter (2nd order butterworth)
