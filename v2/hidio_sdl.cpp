@@ -391,12 +391,15 @@ void HidInManager::cleanup()
     /*
     // flag
     thread_going = FALSE;
+     
+    // break Hid_wait();
+    Hid_quit();
 
 	// clean up
     if( the_thread != NULL )
         SAFE_DELETE( the_thread );
 
-	// stop
+	// clean up subsystems
     Joystick_quit();
     Mouse_quit();
     Keyboard_quit();
@@ -421,8 +424,6 @@ void HidInManager::cleanup()
             SAFE_DELETE( the_matrix[i][j] );
         }
     }
-    
-    // yeah right
 }
 
 
@@ -549,7 +550,14 @@ t_CKUINT HidIn::recv( HidMsg * msg )
 //-----------------------------------------------------------------------------
 void HidInManager::push_message( HidMsg & msg )
 {
-    msg_buffer->put( &msg, 1 );
+    // find the queue
+    if( the_matrix[msg.device_type][msg.device_num] != NULL )
+    {
+        CBufferAdvance * cbuf = the_matrix[msg.device_type][msg.device_num]->cbuf;
+        if( cbuf != NULL )
+            // queue the thing
+            cbuf->put( &msg, 1 );
+    }
 }
 
 extern "C" void push_message( HidMsg msg )
@@ -572,22 +580,7 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
     // keep going
     while( thread_going )
     {
-        while( msg_buffer->get( &msg, 1 ) == 0 )
-        {
-            usleep( 10 );
-            Joystick_poll();
-            Mouse_poll();
-            Keyboard_poll();
-        }
-
-        // find the queue
-        if( the_matrix[msg.device_type][msg.device_num] != NULL )
-        {
-            CBufferAdvance * cbuf = the_matrix[msg.device_type][msg.device_num]->cbuf;
-            if( cbuf != NULL )
-            // queue the thing
-	            cbuf->put( &msg, 1 );
-        }
+        Hid_poll();
     }
     
     // log
@@ -656,35 +649,6 @@ t_CKBOOL HidOutManager::open( HidOut * hout, t_CKINT device_num )
 
     // done
     return TRUE;
-}
-
-
-extern "C"
-{
-    extern XMutex * XMutex_create();
-    extern void XMutex_acquire( XMutex * );
-    extern void XMutex_release( XMutex * );
-    extern void XMutex_free( XMutex * );
-}
-
-XMutex * XMutex_create()
-{
-    return new XMutex;
-}
-
-void XMutex_acquire( XMutex * m )
-{
-    m->acquire();
-}
-
-void XMutex_release( XMutex * m )
-{
-    m->release();
-}
-
-void XMutex_free( XMutex * m )
-{
-    SAFE_DELETE( m );
 }
 
 

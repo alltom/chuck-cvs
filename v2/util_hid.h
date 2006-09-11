@@ -30,17 +30,18 @@ U.S.A.
 // date: spring 2006
 //-----------------------------------------------------------------------------
 
-#ifdef __cplusplus
-extern "C"
-{
-#endif /* __cplusplus */
-    
+#include <string>
+
+extern void Hid_init();
+extern void Hid_poll();
+extern void Hid_quit();
+
 extern void Joystick_init();
 extern void Joystick_poll();
 extern void Joystick_quit();
 extern int Joystick_count();
 extern int Joystick_open( int js );
-extern int Joystick_open_name( const char * name );
+extern int Joystick_open( std::string & name );
 extern int Joystick_close( int js );
 extern const char * Joystick_name( int js );
 
@@ -49,7 +50,7 @@ extern void Mouse_poll();
 extern void Mouse_quit();
 extern int Mouse_count();
 extern int Mouse_open( int m );
-extern int Mouse_open_name( const char * name );
+extern int Mouse_open( std::string & name );
 extern int Mouse_close( int m );
 extern const char * Mouse_name( int m );
     
@@ -58,10 +59,6 @@ extern void Keyboard_poll();
 extern void Keyboard_quit();
 extern int Keyboard_count();
 extern int Keyboard_open( int kb );
-extern int Keyboard_open_name( const char * name );
+extern int Keyboard_open( std::string & name );
 extern int Keyboard_close( int kb );
 extern const char * Keyboard_name( int kb );
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */

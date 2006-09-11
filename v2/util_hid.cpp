@@ -52,6 +52,9 @@ using namespace std;
 #include <IOKit/hid/IOHIDKeys.h>
 #include <CoreFoundation/CoreFoundation.h>
 
+void Hid_callback( void * target, IOReturn result, 
+                   void * refcon, void * sender );
+
 struct OSX_Device_Element
 {
     OSX_Device_Element()
@@ -88,11 +91,12 @@ struct OSX_Device
         strncpy( name, "Device", 256 );
         elements = NULL;
         usage = usage_page = 0;
+        type = num = 0;
         buttons = -1;
         axes = -1;
         hats = -1;
         refcount = 0;
-        stop_queue = FALSE;
+        stop_queue = add_to_run_loop = FALSE;
         hidProperties = NULL;
     }
     
@@ -109,18 +113,22 @@ struct OSX_Device
     t_CKBOOL preconfiged, configed;
     
     t_CKINT type;
+    t_CKINT num;
     t_CKINT usage_page;
     t_CKINT usage;
     
+    map< IOHIDElementCookie, OSX_Device_Element * > * elements;
     /* Note: setting any of these to -1 informs the element enumerating 
         method that we are not interested in that particular element type */
-    map< IOHIDElementCookie, OSX_Device_Element * > * elements;
     t_CKINT buttons;
     t_CKINT axes;
     t_CKINT hats;
     
     t_CKUINT refcount; // incremented on open, decremented on close
+    t_CKBOOL add_to_run_loop; // used to indicate that the event source needs to be added to the run loop 
     t_CKBOOL stop_queue; // used to indicate that the event queue should be stopped
+    
+    CFRunLoopSourceRef eventSource;
     
     CFMutableDictionaryRef hidProperties;
     
@@ -257,6 +265,35 @@ t_CKINT OSX_Device::configure()
         return -1;
     }
     
+    // set up the call back mechanism
+    result = (*queue)->createAsyncEventSource( queue, &eventSource );
+    if( result != kIOReturnSuccess )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        (*queue)->dispose( queue );
+        (*queue)->Release( queue );
+        queue = NULL;
+        (*interface)->close( interface );
+        (*interface)->Release( interface );
+        interface = NULL;
+        return -1;
+    }
+    
+    result = (*queue)->setEventCallout( queue, Hid_callback, NULL, this );
+    if( result != kIOReturnSuccess )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+        (*queue)->dispose( queue );
+        (*queue)->Release( queue );
+        queue = NULL;
+        (*interface)->close( interface );
+        (*interface)->Release( interface );
+        interface = NULL;
+        return -1;
+    }
+
     // retrieve the array of elements...
     CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
                                             CFSTR( kIOHIDElementKey ) );
@@ -275,9 +312,9 @@ t_CKINT OSX_Device::configure()
     
     // ...allocate space for element records...
     elements = new map< IOHIDElementCookie, OSX_Device_Element * >;
-    axes = 0;
-    buttons = 0;
-    hats = 0;
+    // axes = 0;
+    // buttons = 0;
+    // hats = 0;
     
     // ...and parse the element array recursively
     enumerate_elements( ( CFArrayRef ) refCF );
@@ -499,9 +536,12 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
 static vector< OSX_Device * > * joysticks = NULL;
 static vector< OSX_Device * > * mice = NULL;
 static vector< OSX_Device * > * keyboards = NULL;
+
+CFRunLoopRef rlHid;
+CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
 static t_CKBOOL g_hid_init = FALSE;
 
-void HID_init()
+void Hid_init()
 {
     // verify that the joystick system has not already been initialized
     if( g_hid_init == TRUE )
@@ -584,6 +624,7 @@ void HID_init()
                 // allocate the device record, set usage page and usage
                 OSX_Device * new_device = new OSX_Device;
                 new_device->type = CK_HID_DEV_JOYSTICK;
+                new_device->num = joysticks->size();
                 new_device->usage_page = usage_page;
                 new_device->usage = usage;
                 
@@ -626,7 +667,140 @@ void HID_init()
     IOObjectRelease( hidObjectIterator );
 }
 
-void HID_quit()
+void Hid_poll()
+{
+    if( rlHid == NULL )
+        rlHid = CFRunLoopGetCurrent();
+    
+    OSX_Device * device;
+    vector< OSX_Device * >::size_type i, len = joysticks->size();
+    for( i = 0; i < len; i++ )
+    {
+        device = joysticks->at( i );
+        if( device->add_to_run_loop )
+        {
+            EM_log( CK_LOG_INFO, "joystick: adding device %i to run loop", i );
+            device->add_to_run_loop = FALSE;
+            CFRunLoopAddSource( rlHid, device->eventSource, 
+                                kCFRunLoopChuckHidMode );
+        }
+        
+        if( device->stop_queue )
+        {
+            device->stop_queue = FALSE;
+            
+            CFRunLoopRemoveSource( rlHid, device->eventSource, 
+                                   kCFRunLoopChuckHidMode );
+            
+            IOReturn result = ( *( device->queue ) )->stop( device->queue );
+            if( result != kIOReturnSuccess )
+                EM_log( CK_LOG_INFO, "joystick: error stopping event queue" );
+        }
+    }
+    
+    len = mice->size();
+    for( i = 0; i < len; i++ )
+    {
+        device = mice->at( i );
+        if( device->add_to_run_loop )
+        {
+            EM_log( CK_LOG_INFO, "mouse: adding device %i to run loop", i );
+            device->add_to_run_loop = FALSE;
+            CFRunLoopAddSource( rlHid, device->eventSource, 
+                                kCFRunLoopChuckHidMode );
+        }
+        
+        if( device->stop_queue )
+        {
+            device->stop_queue = FALSE;
+            
+            CFRunLoopRemoveSource( rlHid, device->eventSource, 
+                                   kCFRunLoopChuckHidMode );
+            
+            IOReturn result = ( *( device->queue ) )->stop( device->queue );
+            if( result != kIOReturnSuccess )
+                EM_log( CK_LOG_INFO, "mouse: error stopping event queue" );
+        }
+    }
+    
+    CFRunLoopRunInMode( kCFRunLoopChuckHidMode, 60 * 60 * 24, false );
+}
+
+void Hid_callback( void * target, IOReturn result, 
+                   void * refcon, void * sender)
+{
+    OSX_Device * device = ( OSX_Device * ) refcon;
+    OSX_Device_Element * element;
+    AbsoluteTime atZero = { 0, 0 };
+    IOHIDEventStruct event;
+    HidMsg msg;
+    
+    while( result == kIOReturnSuccess )
+    {
+        
+        result = ( *( device->queue ) )->getNextEvent( device->queue, 
+                                                       &event, atZero, 0 );
+        if( result == kIOReturnUnderrun )
+            break;
+        if( result != kIOReturnSuccess )
+        {
+            EM_log( CK_LOG_INFO, "hid: warning: getNextEvent failed" );
+            break;
+        }
+        
+        element = ( *( device->elements ) )[event.elementCookie];
+        
+        msg.device_type = device->type;
+        msg.device_num = device->num;
+        msg.type = element->type;
+        msg.eid = element->num;
+        
+        switch( msg.type )
+        {
+            case CK_HID_JOYSTICK_AXIS:
+                // quick and dirty scaling of the value to [-1.0, 1.0]
+                msg.fdata[0] = ((t_CKFLOAT)(event.value - element->min)) * 2.0 / ((t_CKFLOAT)(element->max - element->min)) - 1.0;
+                break;
+                
+            case CK_HID_JOYSTICK_HAT:
+                msg.idata[0] = event.value;
+                break;
+                
+            case CK_HID_MOUSE_MOTION:
+                if( element->usage = kHIDUsage_GD_X )
+                {
+                    msg.idata[0] = event.value;
+                    msg.idata[1] = 0;
+                }
+                
+                else
+                {
+                    msg.idata[0] = 0;
+                    msg.idata[1] = event.value;
+                }
+                
+                break;
+                
+            case CK_HID_BUTTON_DOWN:
+                if( event.value == 0 )
+                    msg.type = CK_HID_BUTTON_UP;
+                msg.idata[0] = event.value;
+                break;
+        }
+        
+        HidInManager::push_message( msg );
+    }
+}
+
+void Hid_quit()
+{
+    // stop the run loop; since thread_going is FALSE, the poll thread will exit
+    if( rlHid )
+        CFRunLoopStop( rlHid );  
+    rlHid = NULL;
+}
+
+void Hid_quit2()
 {
     if( g_hid_init == FALSE )
         return;
@@ -658,7 +832,8 @@ void HID_quit()
         
         if( joystick->queue )
         {
-            ( *( joystick->queue ) )->stop( joystick->queue );
+            if( joystick->refcount > 0 )
+                ( *( joystick->queue ) )->stop( joystick->queue );
             ( *( joystick->queue ) )->dispose( joystick->queue );
             ( *( joystick->queue ) )->Release( joystick->queue );
             joystick->queue = NULL;
@@ -676,7 +851,7 @@ void HID_quit()
 
 void Joystick_init()
 {
-    HID_init();
+    Hid_init();
 }
 
 void Joystick_poll()
@@ -685,64 +860,15 @@ void Joystick_poll()
         return;
     
     // for each open device, poll the event queue
-    OSX_Device * joystick;
-    OSX_Device_Element * element;
-    IOReturn result;
-    AbsoluteTime atZero = { 0, 0 };
-    IOHIDEventStruct event;
-    HidMsg msg;
-    
     vector< OSX_Device * >::size_type i, len = joysticks->size();
     for( i = 0; i < len; i++ )
-    {
-        joystick = joysticks->at( i );
-        if( joystick->refcount > 0 )
-        {
-            // TODO: poll axis elements directly, so we can use less 
-            // memory in the event queue?
-            result = ( *( joystick->queue ) )->getNextEvent( joystick->queue, 
-                                                             &event, atZero, 0 );
-            if( result == kIOReturnUnderrun )
-                continue;
-            if( result != kIOReturnSuccess )
-            {
-                EM_log( CK_LOG_INFO, "joystick: warning: getNextEvent failed" );
-                continue;
-            }
-            
-            element = ( *( joystick->elements ) )[event.elementCookie];
-            
-            msg.device_type = CK_HID_DEV_JOYSTICK;
-            msg.device_num = i;
-            msg.type = element->type;
-            msg.eid = element->num;
-            
-            switch( msg.type )
-            {
-                case CK_HID_JOYSTICK_AXIS:
-                    // quick and dirty scaling of the value to [-1.0, 1.0]
-                    msg.fdata[0] = ((t_CKFLOAT)(event.value - element->min)) * 2.0 / ((t_CKFLOAT)(element->max - element->min)) - 1.0;
-                    break;
-                    
-                case CK_HID_JOYSTICK_HAT:
-                    msg.idata[0] = event.value;
-                    break;
-                    
-                case CK_HID_BUTTON_DOWN:
-                    if( event.value == 0 )
-                        msg.type = CK_HID_BUTTON_UP;
-                    msg.idata[0] = event.value;
-                    break;
-            }
-            
-            HidInManager::push_message( msg );
-        }
-    }
+        if( joysticks->at( i )->refcount > 0 )
+            Hid_callback( NULL, kIOReturnSuccess, joysticks->at( i ), NULL );
 }
 
 void Joystick_quit()
 {
-    HID_quit();
+    Hid_quit2();
 }
 
 int Joystick_count()
@@ -774,6 +900,10 @@ int Joystick_open( int js )
             EM_log( CK_LOG_SEVERE, "joystick: error starting event queue" );
             return -1;
         }
+
+        joystick->add_to_run_loop = TRUE;
+        if( rlHid )
+            CFRunLoopStop( rlHid );
     }
     
     joystick->refcount++;
@@ -793,16 +923,11 @@ int Joystick_close( int js )
         joystick->refcount--;
         
         if( joystick->refcount == 0 )
-            /* TODO: make this thread safe without using a mutex */
         {
-            IOReturn result = ( *( joystick->queue ) )->stop( joystick->queue );
-            if( result != kIOReturnSuccess )
-            {
-                EM_log( CK_LOG_INFO, "joystick: error stopping event queue" );
-                return -1;
-            }
+            joystick->stop_queue = TRUE;
+            if( rlHid )
+                CFRunLoopStop( rlHid );
         }
-        
     }
     
     else
@@ -818,7 +943,7 @@ int Joystick_close( int js )
 
 void Mouse_init()
 {
-    HID_init();
+    Hid_init();
 }
 
 void Mouse_poll()
@@ -826,72 +951,16 @@ void Mouse_poll()
     if( mice == NULL )
         return;
     
-    // for each open device, poll the event queue
-    OSX_Device * mouse;
-    OSX_Device_Element * element;
-    IOReturn result;
-    AbsoluteTime atZero = { 0, 0 };
-    IOHIDEventStruct event;
-    HidMsg msg;
-    
+    // for each open device, poll the event queue    
     vector< OSX_Device * >::size_type i, len = mice->size();
     for( i = 0; i < len; i++ )
-    {
         if( mice->at( i )->refcount > 0 )
-        {
-            // TODO: poll axis elements directly, so we can use less 
-            // memory in the event queue?
-            mouse = mice->at( i );
-
-            result = ( *( mouse->queue ) )->getNextEvent( mouse->queue, 
-                                                          &event, atZero, 0 );
-            if( result == kIOReturnUnderrun )
-                continue;
-            if( result != kIOReturnSuccess )
-            {
-                EM_log( CK_LOG_INFO, "joystick: warning: getNextEvent failed" );
-                continue;
-            }
-            
-            element = ( *( mouse->elements ) )[event.elementCookie];
-            
-            msg.device_type = CK_HID_DEV_MOUSE;
-            msg.device_num = i;
-            msg.type = element->type;
-            msg.eid = element->num;
-            
-            switch( msg.type )
-            {
-                case CK_HID_MOUSE_MOTION:
-                    if( element->usage = kHIDUsage_GD_X )
-                    {
-                        msg.idata[0] = event.value;
-                        msg.idata[1] = 0;
-                    }
-                    
-                    else
-                    {
-                        msg.idata[0] = 0;
-                        msg.idata[1] = event.value;
-                    }
-                    
-                    break;
-                    
-                case CK_HID_BUTTON_DOWN:
-                    if( event.value == 0 )
-                        msg.type = CK_HID_BUTTON_UP;
-                    msg.idata[0] = event.value;
-                    break;
-            }
-            
-            HidInManager::push_message( msg );
-        }
-    }
+            Hid_callback( NULL, kIOReturnSuccess, mice->at( i ), NULL );
 }
 
 void Mouse_quit()
 {
-    HID_quit();
+    Hid_quit2();
 }
 
 int Mouse_count()
@@ -920,6 +989,10 @@ int Mouse_open( int m )
             EM_log( CK_LOG_SEVERE, "mouse: error starting event queue" );
             return -1;
         }
+        
+        mouse->add_to_run_loop = TRUE;
+        if( rlHid )
+            CFRunLoopStop( rlHid );        
     }
     
     mouse->refcount++;
@@ -938,15 +1011,11 @@ int Mouse_close( int m )
     {
         mouse->refcount--;
         
-        // TODO: make this part thread-safe!
         if( mouse->refcount == 0 )
         {
-            IOReturn result = ( *( mouse->queue ) )->stop( mouse->queue );
-            if( result != kIOReturnSuccess )
-            {
-                EM_log( CK_LOG_INFO, "mouse: error stopping event queue" );
-                return -1;
-            }
+            mouse->stop_queue = TRUE;
+            if( rlHid )
+                CFRunLoopStop( rlHid );
         }
     }
     
@@ -959,9 +1028,10 @@ int Mouse_close( int m )
     return 0;
 }
 
+#pragma mark OS X Keyboard support
 void Keyboard_init()
 {
-    
+    Hid_init();
 }
 
 void Keyboard_poll()
@@ -971,7 +1041,7 @@ void Keyboard_poll()
 
 void Keyboard_quit()
 {
-    
+    Hid_quit2();
 }
 
 int Keyboard_count()
@@ -991,8 +1061,30 @@ int Keyboard_close( int js )
 
 #elif ( defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) ) && !defined( USE_RAWINPUT )
 /*****************************************************************************
- Windows joystick support
- *****************************************************************************/
+Windows general HID support
+*****************************************************************************/
+#pragma mark Window general HID support
+
+void Hid_init()
+{
+    
+}
+
+void Hid_poll()
+{
+    Joystick_poll();
+    Keyboard_poll();
+    Mouse_poll();
+}
+
+void Hid_quit()
+{
+    
+}
+
+/*****************************************************************************
+Windows joystick support
+*****************************************************************************/
 #pragma mark Windows joystick support
 
 #include <windows.h>
@@ -1823,7 +1915,7 @@ void Mouse_quit()
     
 }
 
-int Mousek_count()
+int Mouse_count()
 {
     return 0;
 }
@@ -1869,6 +1961,31 @@ int Keyboard_close( int js )
 }
 
 #elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
+/*****************************************************************************
+Linux general HID support
+*****************************************************************************/
+#pragma mark Linux general HID support
+
+void Hid_init()
+{
+    
+}
+
+void Hid_poll()
+{
+    Joystick_poll();
+    Keyboard_poll();
+    Mouse_poll();
+}
+
+void Hid_quit()
+{
+    
+}
+
+/*****************************************************************************
+Linux joystick support
+*****************************************************************************/
 #pragma mark Linux joystick support
 
 void Joystick_init()

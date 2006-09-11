@@ -620,7 +620,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_mfun( "int", "is_axis_motion", HidMsg_is_axis_motion ); // deprecated
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    // add is_axis_motion()
+    // add isAxisMotion()
     func = make_new_mfun( "int", "isAxisMotion", HidMsg_is_axis_motion );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
@@ -628,7 +628,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_mfun( "int", "is_button_down", HidMsg_is_button_down ); // deprecated
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    // add is_button_down()
+    // add isButtonDown()
     func = make_new_mfun( "int", "isButtonDown", HidMsg_is_button_down );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
@@ -636,7 +636,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_mfun( "int", "is_button_up", HidMsg_is_button_up ); // deprecated
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    // add is_button_up()
+    // add isButtonUp()
     func = make_new_mfun( "int", "isButtonUp", HidMsg_is_button_up );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
@@ -644,7 +644,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_mfun( "int", "is_mouse_motion", HidMsg_is_mouse_motion ); // deprecated
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    // add is_mouse_motion()
+    // add isMouseMotion()
     func = make_new_mfun( "int", "isMouseMotion", HidMsg_is_mouse_motion );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
@@ -652,10 +652,10 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_mfun( "int", "is_hat_motion", HidMsg_is_hat_motion ); // deprecated
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    // add is_hat_motion()
+    // add isHatMotion()
     func = make_new_mfun( "int", "isHatMotion", HidMsg_is_hat_motion );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -715,7 +715,57 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     // add member variable
     HidIn_offset_data = type_engine_import_mvar( env, "int", "@HidIn_data", FALSE );
     if( HidIn_offset_data == CK_INVALID_OFFSET ) goto error;
-
+    
+    // add static variable joystick
+    if( !type_engine_import_svar( env, "int", "joystick", TRUE, 
+                                  (t_CKUINT)&CK_HID_DEV_JOYSTICK ) )
+        goto error;
+    
+    // add static variable mouse
+    if( !type_engine_import_svar( env, "int", "mouse", TRUE, 
+                                  (t_CKUINT)&CK_HID_DEV_MOUSE ) )
+        goto error;
+    
+    // add static variable keyboard
+    if( !type_engine_import_svar( env, "int", "keyboard", TRUE, 
+                                  (t_CKUINT)&CK_HID_DEV_KEYBOARD ) )
+        goto error;
+    
+    // add static variable joystickAxis
+    if( !type_engine_import_svar( env, "int", "joystickAxis", TRUE, 
+                                  (t_CKUINT)&CK_HID_JOYSTICK_AXIS ) )
+        goto error;
+    
+    // add static variable buttonDown
+    if( !type_engine_import_svar( env, "int", "buttonDown", TRUE, 
+                                  (t_CKUINT)&CK_HID_BUTTON_DOWN ) )
+        goto error;
+    
+    // add static variable buttonUp
+    if( !type_engine_import_svar( env, "int", "buttonUp", TRUE, 
+                                  (t_CKUINT)&CK_HID_BUTTON_UP ) )
+        goto error;
+    
+    // add static variable joystickHat
+    if( !type_engine_import_svar( env, "int", "joystickHat", TRUE, 
+                                  (t_CKUINT)&CK_HID_JOYSTICK_HAT ) )
+        goto error;
+    
+    // add static variable joystickBall
+    if( !type_engine_import_svar( env, "int", "joystickBall", TRUE, 
+                                  (t_CKUINT)&CK_HID_JOYSTICK_BALL ) )
+        goto error;
+    
+    // add static variable mouseMotion
+    if( !type_engine_import_svar( env, "int", "mouseMotion", TRUE, 
+                                  (t_CKUINT)&CK_HID_MOUSE_MOTION ) )
+        goto error;
+    
+    // add static variable mouseWheel
+    if( !type_engine_import_svar( env, "int", "mouseWheel", TRUE, 
+                                  (t_CKUINT)&CK_HID_MOUSE_WHEEL ) )
+        goto error;
+    
     // end the class import
     type_engine_import_class_end( env );
     
