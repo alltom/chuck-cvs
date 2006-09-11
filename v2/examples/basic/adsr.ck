@@ -1,16 +1,24 @@
-// run white noise through ADSR envelope
+// an ADSR envelope
 // (also see envelope.ck)
-Noise n => ADSR e => dac;
+SinOsc s => ADSR e => dac;
+
+// set a, d, s, and r
+e.set( 10::ms, 8::ms, .5, 500::ms );
+// set gain
+.5 => s.gain;
 
 // infinite time-loop
 while( true )
 {
+    // choose freq
+    Std.rand2( 20, 120 ) => Std.mtof => s.freq;
+
     // key on - start attack
-    1 => e.keyOn;
+    e.keyOn();
     // advance time by 800 ms
     800::ms => now;
     // key off - start release
-    1 => e.keyOff;
+    e.keyOff();
     // advance time by 800 ms
     800::ms => now;
 }
