@@ -10,14 +10,14 @@ The first thing we are going to do is do generate a sine wave and send it to the
 We start with a blank ChucK program and add the following line of code:
 \begin{verbatim}
         // connect sine oscillator to D/A convertor (sound card)
-        sinosc s => dac;
+        SinOsc s => dac;
 \end{verbatim}
 
 NOTE: by default, a ChucK program starts executing from the first instruction in the top-level (global) scope.
 
 The above does several things:
 \begin{enumerate}
-\item it creates a new unit generator of type `sinosc' (sine oscillator), and stores its reference in variable `s'.
+\item it creates a new unit generator of type `SinOsc' (sine oscillator), and stores its reference in variable `s'.
 \item `dac' (D/A convertor) is a special unit generator (created by the system) which is our abstraction for the underlying audio interface.
 \item we are using the ChucK operator (\chuckop) to ChucK `s' to `dac'. In ChucK, when one unit generator is ChucKed to another, we connect them. We can think of this line as setting up a data flow from `s', a signal generator, to `dac', the sound card/speaker. Collectively, we will call this a `patch'. 
 \end{enumerate}
@@ -26,7 +26,7 @@ The above is a valid ChucK program, but all it does so far is make the connectio
 
 \begin{verbatim}
         // connect sine oscillator to D/A convertor (sound card)
-        sinosc s => dac;
+        SinOsc s => dac;
 
         // allow 2 seconds to pass
         2::second => now;
@@ -40,7 +40,7 @@ This would cause the sound to play for 2 seconds (the :: operator simply multipl
 
 \begin{verbatim}
         // connect sine oscillator to D/A convertor (sound card)
-        sinosc s => dac;
+        SinOsc s => dac;
 
         // loop in time
         while( true ) {
@@ -58,12 +58,12 @@ Now, let's try changing the frequency randomly every 100ms:
 \begin{verbatim}
 
         // make our patch
-        sinosc s => dac;
+        SinOsc s => dac;
 
-        // time-loop, in which the osc's frequency is changed every 100 ms
+        // time-loop, in which the Osc's frequency is changed every 100 ms
         while( true ) {
             100::ms => now;
-            std.rand2f(30.0, 1000.0) => s.freq;
+            Std.rand2f(30.0, 1000.0) => s.freq;
         }
 \end{verbatim}
 
@@ -84,7 +84,7 @@ Concurrency in ChucK:
 Now let's write another (slightly longer) program:
 \begin{verbatim}
         // impulse to filter to dac
-        impulse i => biquad f => dac;
+        Impulse i => biquad f => dac;
         // set the filter's pole radius
         .99 => f.prad;
         // set equal gain zero's
@@ -98,7 +98,7 @@ Now let's write another (slightly longer) program:
             // set the current sample/impulse
             1.0 => i.next;
             // sweep the filter resonant frequency
-            std.fabs(math.sin(v)) * 4000.0 => f.pfreq;
+            Std.fabs(Math.sin(v)) * 4000.0 => f.pfreq;
             // increment v
             v + .1 => v;
             // advance time

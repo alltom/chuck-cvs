@@ -16,15 +16,15 @@ Some examples:
 \begin{verbatim}
     // a unit generator patch - the signal flow is apparent
     // (in this case, => connects two unit generators)
-    sinosc b => gain g => biquad f => dac;
+    SinOsc b => Gain g => biquad f => dac;
 
     // add 4 to foo, chuck result to new 'int' variable 'bar'
     // (in this case, => assigns a value to a variable (int)
     4 + foo => int bar;
 
     // chuck values to a function == function call
-    // (same as math.rand2f( 30, 1000))
-    ( 30, 1000 ) => math.rand2f;
+    // (same as Math.rand2f( 30, 1000))
+    ( 30, 1000 ) => Math.rand2f;
 \end{verbatim}
 
 There are many other well-defined uses of the ChucK operator, depending on the context.
@@ -138,10 +138,10 @@ ChucK implicitly casts int values to float when float is expected, but not the o
     4.8 $ int => int foo;  // foo == 4
 
     // this function expects two floats
-    math.rand2f( 30.0, 1000.0 );
+    Math.rand2f( 30.0, 1000.0 );
 
     // this is ok because of implicit cast
-    math.rand2f( 30, 1000 );
+    Math.rand2f( 30, 1000 );
 \end{verbatim}
  
 

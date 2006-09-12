@@ -85,12 +85,12 @@ hmmmm, toast...
 
 as in rec.ck, one patch to write to file is:
 \begin{verbatim}
-        dac => gain g => WvOut w => blackhole;
+        dac => Gain g => WvOut w => blackhole;
 \end{verbatim}
 the blackhole drives the WvOut, which in turns sucks
-samples from gain and then the dac.  The WvOut
+samples from Gain and then the dac.  The WvOut
 can also be placed before the dac:
 \begin{verbatim}
-        noise n => WvOut w => dac;
+        Noise n => WvOut w => dac;
 \end{verbatim}
 The WvOut writes to file, and also pass through the incoming samples.

@@ -21,11 +21,11 @@ At long last, ChucK is stereo! Accessing the stereo capabilities of ChucK are re
     adc.left => dac.right;
 \end{verbatim}
 
-If you have your great UGen network going and you want to throw it somewhere in the stereo field you can use {\bf pan2}. You can use the {\bf .pan} function to move your sound between left (-1) and right (1).
+If you have your great UGen network going and you want to throw it somewhere in the stereo field you can use {\bf Pan2}. You can use the {\bf .pan} function to move your sound between left (-1) and right (1).
 
 \begin{verbatim}
     // this is  a stereo connection to the dac
-    sinosc s => pan2 p => dac;
+    SinOsc s => Pan2 p => dac;
     1 => p.pan;
     while(1::second => now){
         // this will flip the pan from left to right
@@ -34,10 +34,10 @@ If you have your great UGen network going and you want to throw it somewhere in 
 \end{verbatim}
 
 
-You can also mix down your stereo signal to a mono signal using the {\bf mix2} object. 
+You can also mix down your stereo signal to a mono signal using the {\bf Mix2} object. 
 
 \begin{verbatim}
-   adc => mix2 m => dac.left;
+   adc => Mix2 m => dac.left;
 \end{verbatim}
 
-If you remove the mix2 in the chain and replace it with a gain object it will act the same way. When you connect a stereo object to a mono object it will sum the inputs. You will get the same effect as if you connect two mono signals to the input of another mono signal. 
+If you remove the Mix2 in the chain and replace it with a Gain object it will act the same way. When you connect a stereo object to a mono object it will sum the inputs. You will get the same effect as if you connect two mono signals to the input of another mono signal. 

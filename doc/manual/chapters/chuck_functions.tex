@@ -47,10 +47,10 @@ You can also use the ChucK operator to call functions!
     hey( 1, 2 ) => int result;
 
     // several in a row
-    ( 10, 3000 ) => std.math => std.abs => float foo;
+    ( 10, 3000 ) => Std.math => Std.abs => float foo;
 
     // same
-    std.abs( std.math( 10, 3000 ) ) => float foo;
+    Std.abs( Std.math( 10, 3000 ) ) => float foo;
 \end{verbatim}
  
 \section{overloading}

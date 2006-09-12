@@ -120,7 +120,7 @@ a longer program: otf\_06.ck from examples:
     T - (now % T) => now;
 
     // our patch
-    sinosc s => JCRev r => dac;
+    SinOsc s => JCRev r => dac;
     // initialize
     .05 => s.gain;
     .25 => r.mix;
@@ -132,14 +132,14 @@ a longer program: otf\_06.ck from examples:
     while( true )
     {
         // pick something from the scale
-        scale[ math.rand2(0,4) ] => float freq;
+        scale[ Math.rand2(0,4) ] => float freq;
         // get the final freq
-        std.mtof( 69 + (std.rand2(0,3)*12 + freq) ) => s.freq;
+        Std.mtof( 69 + (Std.rand2(0,3)*12 + freq) ) => s.freq;
         // reset phase for extra bandwidth
         0 => s.phase;
 
         // advance time
-        if( std.randf() > -.5 ) .25::T => now;
+        if( Std.randf() > -.5 ) .25::T => now;
         else .5::T => now;
     }
 \end{verbatim}

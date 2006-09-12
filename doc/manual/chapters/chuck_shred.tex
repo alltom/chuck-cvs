@@ -103,12 +103,12 @@ You can get the shred id:
 
 These functions are common to all shreds, but yield() and exit() are commonly used with the current shred.
  
-\section{using machine.add()}
+\section{using Machine.add()}
 
-machine.add( string path ) takes the path to a chuck program, and sporks it. Unlike spork ~, there is no parent-child relationship between the shred that calls the function and the new shred that is added. This is useful for dynamically running stored programs.
+Machine.add( string path ) takes the path to a chuck program, and sporks it. Unlike spork ~, there is no parent-child relationship between the shred that calls the function and the new shred that is added. This is useful for dynamically running stored programs.
 \begin{verbatim}
     // spork "foo.ck"
-    machine.add( "foo.ck" );
+    Machine.add( "foo.ck" );
 \end{verbatim}
 
 Presently, this returns the id of the new shred, not a reference to the shred. This will likely be changed in the future.
@@ -116,16 +116,16 @@ Presently, this returns the id of the new shred, not a reference to the shred. T
 Similarly, you can remove shreds from the virtual machine.
 \begin{verbatim}
     // add
-    machine.add( "foo.ck" ) => int id;
+    Machine.add( "foo.ck" ) => int id;
 
     // remove shred with id
-    machine.remove( id );
+    Machine.remove( id );
 
     // add
-    machine.add( "boo.ck" ) => id
+    Machine.add( "boo.ck" ) => id
 
     // replace shred with "bar.ck"
-    machine.replace( id, "bar.ck" );
+    Machine.replace( id, "bar.ck" );
 \end{verbatim}
  
 

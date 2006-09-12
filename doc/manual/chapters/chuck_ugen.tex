@@ -19,8 +19,8 @@ A Ugen's parameters can be set also using the ChucK operator (\chuckop, or -\tex
 
 \begin{verbatim}
         //connect sine oscillator to dac
-        sinosc osc => dac;
-        // set the osc's frequency to 60.0 hz
+        SinOsc osc => dac;
+        // set the Osc's frequency to 60.0 hz
         60.0 => osc.freq;
 \end{verbatim}
   (see examples/osc.ck)
@@ -43,11 +43,11 @@ All ugen's have at least the following four parameters:
 \item {\bf .chan} - (int) - {\it returns a reference on a channel (0 -\textgreater N-1)}
 \end{chuckitemize}
 
-Multichannel UGens are adc, dac, pan2, mix2
+Multichannel UGens are adc, dac, Pan2, Mix2
 
 \example
 \begin{verbatim}
-    pan2 p;
+    Pan2 p;
     // assumes you called chuck with at least --chan5 or -c5 
     p.chan(1) => dac.chan(4);
 \end{verbatim}
@@ -99,7 +99,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{
-\ugen{ gain}
+\ugen{ Gain}
 \begin{chuckitemize}
 \item gain control 
 \item (NOTE - all unit generators can themselves change their gain) 
@@ -127,7 +127,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \ugenheading{wave forms}
 
 \chuckugen{
-\ugen{ noise}
+\ugen{ Noise}
 \begin{chuckitemize}
 \item white noise generator
 \item see examples/noise.ck examples/powerup.ck
@@ -135,7 +135,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{
-\ugen{ impulse}
+\ugen{ Impulse}
 \begin{chuckitemize}
 \item pulse generator - can set the value of the current sample
 \item default for each sample is 0 if not set
@@ -165,9 +165,9 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{
-\ugen{ step}
+\ugen{ Step}
 \begin{chuckitemize}
-\item step generator - like impulse, but once a value is set, it is held for all following samples, until value is set again 
+\item step generator - like Impulse, but once a value is set, it is held for all following samples, until value is set again 
 \item see examples/step.ck 
 \end{chuckitemize}
 \control
@@ -183,7 +183,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \ugenheading{filters}
 
 \chuckugen{
-\ugen{ halfrect}
+\ugen{ HalfRect}
 \begin{chuckitemize}
 \item half wave rectifier 
 \item for half-wave rectification 
@@ -191,14 +191,14 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{
-\ugen{ fullrect}
+\ugen{ FullRect}
 \begin{chuckitemize}
 \item full wave rectifier 
 \end{chuckitemize}
 }
 
 \chuckugen{
-\ugen{ zerox}
+\ugen{ ZeroX}
 \begin{chuckitemize}
 \item zero crossing detector 
 \item emits a single pulse at the the zero crossing in the direction of the zero crossing
@@ -209,7 +209,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \ugenheading{delays}
 
 \chuckugen{
-\ugen{ delayp}
+\ugen{ DelayP}
 \begin{chuckitemize}
 \item variable write delay
 \end{chuckitemize}
@@ -224,7 +224,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \ugenheading{sound files}
 
 \chuckugen{
-\ugen{ sndbuf}
+\ugen{ SndBuf}
 \begin{chuckitemize}
 \item sound buffer ( now interpolating ) 
 \item reads from a variety of file formats 
@@ -255,7 +255,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 
 
 \chuckugen{ 
-\ugen{ phasor}
+\ugen{ Phasor}
 \begin{chuckitemize}
 \item simple ramp generator ( 0 to 1 ) 
 \item this can be fed into other oscillators ( with sync mode of 2 ) 
@@ -272,7 +272,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{ 
-\ugen{ sinosc}
+\ugen{SinOsc}
 \begin{chuckitemize}
 \item sine oscillator  
 \item (see examples/osc.ck)  
@@ -287,7 +287,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{ 
-\ugen{ pulseosc}
+\ugen{ PulseOsc}
 \begin{chuckitemize}
 \item pulse oscillators 
 \item a pulse wave oscillator with variable width. 
@@ -303,7 +303,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{ 
-\ugen{ sqrosc}
+\ugen{ SqrOsc}
 \begin{chuckitemize}
 \item square wave oscillator 
 \end{chuckitemize}
@@ -331,7 +331,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{ 
-\ugen{ triosc}
+\ugen{ TriOsc}
 \begin{chuckitemize}
 \item triangle wave oscillator 
 \end{chuckitemize}
@@ -346,7 +346,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 }
 
 \chuckugen{ 
-\ugen{ sawosc}
+\ugen{ SawOsc}
 \begin{chuckitemize}
 \item sawtooth wave oscillator ( triangle, width forced to 0.0 or 1.0 ) 
 \end{chuckitemize}
@@ -409,7 +409,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 \ugenheading{mono \textless -~ -\textgreater stereo}
 
 \chuckugen{
-\ugen{pan2}
+\ugen{Pan2}
 \begin{chuckitemize}
 \item spread mono signal to stereo
 \item see examples/stereo/moe2.ck
@@ -424,7 +424,7 @@ Multichannel UGens are adc, dac, pan2, mix2
 
 
 \chuckugen{
-\ugen{mix2}
+\ugen{Mix2}
 \begin{chuckitemize}
 \item mix stereo input down to mono channel
 \end{chuckitemize}

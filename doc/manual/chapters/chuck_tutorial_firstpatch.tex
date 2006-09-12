@@ -6,12 +6,12 @@ The first thing we are going to do is do generate a sine wave and send to the sp
 We start with a blank ChucK program, and add the following line of code: (by default, a ChucK program starts executing from the first instruction in the top-level (global) scope).
 \begin{verbatim}
         // connect sine oscillator to D/A convertor (sound card)
-        sinosc s => dac;
+        SinOsc s => dac;
 \end{verbatim}
 
 The above does several things: 
 
-(1) it creates a new unit generator of type `sinosc' (sine oscillator), and store its reference in variable `s'. 
+(1) it creates a new unit generator of type `SinOsc' (sine oscillator), and store its reference in variable `s'. 
 
 (2) `dac' (D/A convertor) is a special unit generator (created by the system) which is our abstraction for the underlying audio interface. 
 
@@ -23,7 +23,7 @@ The above is a valid ChucK program, but all it does so far is make the connectio
 
 \begin{verbatim}
         // connect sine oscillator to D/A convertor (sound card)
-        sinosc s => dac;
+        SinOsc s => dac;
 
         // allow 2 seconds to pass
         2::second => now;
@@ -37,7 +37,7 @@ This would cause the sound to play for 2 seconds, during which time audio data i
 
 \begin{verbatim}
         // connect sine oscillator to D/A convertor (sound card)
-        sinosc s => dac;
+        SinOsc s => dac;
 
         // loop in time
         while( true ) {
@@ -53,12 +53,12 @@ Now, let's try changing the frequency randomly every 100ms:
 \begin{verbatim}
 
         // make our patch
-        sinosc s => dac;
+        SinOsc s => dac;
 
-        // time-loop, in which the osc's frequency is changed every 100 ms
+        // time-loop, in which the Osc's frequency is changed every 100 ms
         while( true ) {
             100::ms => now;
-            std.rand2f(30.0, 1000.0) => s.freq;
+            Std.rand2f(30.0, 1000.0) => s.freq;
         }
 \end{verbatim}
 

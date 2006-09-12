@@ -7,9 +7,9 @@ The existing libraries are organized by namespaces in ChucK.
 They are as follows. 
 
 
-\chucknamespace{std}
+\chucknamespace{Std}
 
-{\bf std} is a standard library in ChucK, which includes utility functions, random number generation, unit conversions and absolute value.
+{\bf Std} is a standard library in ChucK, which includes utility functions, random number generation, unit conversions and absolute value.
 
 \example
 
@@ -19,7 +19,7 @@ They are as follows.
     while( true )
     {
         // generate random float (and print)
-        <<< std.rand2f( 100.0, 1000.0 ) >>>;
+        <<< Std.rand2f( 100.0, 1000.0 ) >>>;
         // wait a bit
         50::ms => now;
     }
@@ -116,9 +116,9 @@ converts decibles (dB) to linear amplitude
 }
 
 
-\chucknamespace{ machine }
+\chucknamespace{ Machine }
 
-{\bf machine} is ChucK runtime interface to the virtual machine. this interface can be used to manage shreds. They are similar to the On-the-fly Programming Commands, except these are invoked from within a ChucK program, and are subject to the timing mech
+{\bf Machine} is ChucK runtime interface to the virtual machine. this interface can be used to manage shreds. They are similar to the On-the-fly Programming Commands, except these are invoked from within a ChucK program, and are subject to the timing mech
 anism.
 
 \chuckmultifunction{ int add ( string path );}{
@@ -152,16 +152,16 @@ iterally causes the VM to crash. the very last resort; use with care. Thanks.
 }
 
 
-\chucknamespace{ math }
+\chucknamespace{ Math }
 
 
-{\bf math} contains the standard math functions. all trignometric functions expects angles to be in radians. 
+{\bf Math} contains the standard math functions. all trignometric functions expects angles to be in radians. 
 
 \example
 
 \begin{verbatim}
     // print sine of pi/2
-    <<<< math.sin( pi / 2.0 ) >>>;
+    <<<< Math.sin( pi / 2.0 ) >>>;
 \end{verbatim}
 
 \chuckmultifunction{ float sin ( float x );}{
@@ -309,5 +309,5 @@ is x "not a number"?
 
 
 \chuckmultifunction{ float e ;}{
-(currently disabled - use math.exp(1) )
+(currently disabled - use Math.exp(1) )
 }

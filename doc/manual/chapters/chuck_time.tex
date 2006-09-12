@@ -193,13 +193,13 @@ See events for a more complete discussion of using events!
 The advancement of time can occur at any point in the code.
 \begin{verbatim}
     // our patch: sine oscillator -> dac
-    sinosc s => dac;
+    SinOsc s => dac;
 
     // infinite time loop
     while( true )
     {
         // randomly choose frequency from 30 to 1000
-        std.rand2f( 30, 1000 ) => s.freq;
+        Std.rand2f( 30, 1000 ) => s.freq;
 
         // advance time by 100 millisecond
         100::ms => now;
