@@ -670,7 +670,10 @@ void Hid_init()
 void Hid_poll()
 {
     if( rlHid == NULL )
+    {
+        // TODO: set up dummy source for the run loop
         rlHid = CFRunLoopGetCurrent();
+    }
     
     OSX_Device * device;
     vector< OSX_Device * >::size_type i, len = joysticks->size();
