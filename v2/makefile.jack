@@ -10,7 +10,7 @@ LIBS=-lasound -ljack -lstdc++ -ldl -lm
 SF_OBJ=util_sndfile.o
 
 ifneq ($(CHUCK_DEBUG),)
-FLAGS+= -g
+FLAGS+= -g -O0
 endif
 
 ifneq ($(CHUCK_STRICT),)

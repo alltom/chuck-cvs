@@ -2072,8 +2072,10 @@ public:
     int js_num;   // /dev/input/js# <-- the #
 };
 
+#define __LITTLE_ENDIAN__
 struct ps2_mouse_event
 {
+#ifdef __BIG_ENDIAN__
     unsigned unused:2;
     unsigned y_reverse_motion:1;
     unsigned x_reverse_motion:1;
@@ -2083,7 +2085,20 @@ struct ps2_mouse_event
     unsigned button1:1;
     signed dx:8;
     signed dy:8;
-};
+#elif defined( __LITTLE_ENDIAN__ )
+    unsigned button1:1;
+    unsigned button2:1;
+    unsigned button3:1;
+    unsigned always1:1;
+    unsigned x_reverse_motion:1;
+    unsigned y_reverse_motion:1;
+    unsigned unused:2;
+    signed dx:8;
+    signed dy:8;
+#else
+#error unknown endian mode (both __LITTLE_ENDIAN__ and __BIG_ENDIAN__ undefined)
+#endif
+} __attribute__ ((__packed__));
 
 class linux_mouse : public linux_device
 {
@@ -2104,7 +2119,7 @@ public:
         {
             if( len < sizeof( event ) )
             {
-                EM_log( CK_LOG_WARNING, "mouse: read event from mouse %i smaller than expected, ignoring", num );
+                EM_log( CK_LOG_WARNING, "mouse: read event from mouse %i smaller than expected (%i), ignoring", num, len );
                 continue;
             }
             
@@ -2123,7 +2138,7 @@ public:
             {
                 msg.device_type = CK_HID_DEV_MOUSE;
                 msg.device_num = num;
-                msg.eid = 1;
+                msg.eid = 0;
                 msg.type = event.button1 ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
                 msg.idata[0] = event.button1;
                 HidInManager::push_message( msg );
@@ -2163,11 +2178,20 @@ static vector< linux_mouse * > * mice = NULL;
 static map< int, linux_device * > * device_map = NULL;
 
 static pollfd * pollfds = NULL;
-#define DEFAULT_POLLFDS_SIZE (16)
+#define DEFAULT_POLLFDS_SIZE (1)
 static size_t pollfds_size = 0;
 static size_t pollfds_end = 0;
 static int hid_channel_r = -1; // HID communications channel, read fd
 static int hid_channel_w = -1; // HID communications channel, write fd
+
+struct hid_channel_msg
+{
+    int action;
+#define HID_CHANNEL_OPEN 1
+#define HID_CHANNEL_CLOSE 0
+#define HID_CHANNEL_QUIT -1
+    linux_device * device;
+};
 
 static t_CKBOOL g_hid_init = FALSE;
 
@@ -2176,7 +2200,7 @@ void Hid_init()
     if( g_hid_init )
         return;
     
-    pollfds = ( pollfd * ) malloc( sizeof( pollfd ) * DEFAULT_POLLFDS_SIZE );
+    pollfds = new pollfd[DEFAULT_POLLFDS_SIZE];
     pollfds_size = DEFAULT_POLLFDS_SIZE;
     pollfds_end = 0;
     
@@ -2190,6 +2214,9 @@ void Hid_init()
     hid_channel_r = filedes[0];
     hid_channel_w = filedes[1];
     
+    int fd_flags = fcntl( hid_channel_r, F_GETFL );
+	fcntl( hid_channel_r, F_SETFL, fd_flags | O_NONBLOCK );
+    
     /* right now, the hid_channel is just used as a dummy file descriptor
        passed to poll, such that poll will work/block even when there are
        no open devices.  In the future hid_channel could also be used to 
@@ -2197,7 +2224,7 @@ void Hid_init()
     pollfds[0].fd = hid_channel_r;
     pollfds[0].events = POLLIN;
     pollfds[0].revents = 0;
-    pollfds_end++;
+    pollfds_end = 1;
     
     device_map = new map< int, linux_device * >;
     
@@ -2206,64 +2233,64 @@ void Hid_init()
 
 void Hid_poll()
 {
-    if( !g_hid_init || !joysticks )
+    if( !g_hid_init )
         return;
-    
-    vector< linux_joystick * >::size_type i, len = joysticks->size();
-    linux_joystick * joystick;
-    for( i = 0; i < len; i++ )
+
+    hid_channel_msg hcm;
+    while( poll( pollfds, pollfds_end, -1 ) > 0 )
     {
-        joystick = joysticks->at( i );
-        
-        if( joystick->needs_open )
-        {
-            joystick->needs_open = FALSE;
-            // TODO: pollfds bounds checking + realloc!
-            if( pollfds_end >= pollfds_size )
-            {
-                pollfds = ( pollfd * ) realloc( pollfds, pollfds_size * 2 );
-            }
-            
-            pollfds[pollfds_end].fd = joystick->fd;
-            pollfds[pollfds_end].events = POLLIN;
-            pollfds[pollfds_end].revents = 0;
-            joystick->pollfds_i = pollfds_end;
-            ( *device_map )[joystick->fd] = joystick;
-            pollfds_end++;
-        }
-        
-        if( joystick->needs_close )
-        {
-            joystick->needs_close = FALSE;
-            // TODO: pollfds bounds checking
-            
-            // erase the closing entry by copying the last entry into it
-            // this is okay even when joystick->pollfds_i == pollfds_end
-            // because we decrement pollfds_end
-            pollfds[joystick->pollfds_i] = pollfds[pollfds_end - 1];
-            pollfds_end--;
-            close( joystick->fd );
-            device_map->erase( joystick->fd );
-        }
-    }
-    
-    if( poll( pollfds, pollfds_end, 1 ) > 0 )
-    {
-        for( int i = 0; i < pollfds_end; i++ )
+        for( int i = 1; i < pollfds_end; i++ )
         {
             if( pollfds[i].revents & POLLIN )
             {
-                if( pollfds[i].fd == hid_channel_r )
+                ( *device_map )[pollfds[i].fd]->callback();
+                pollfds[i].revents = 0;
+            }
+        }
+        
+        if( pollfds[0].revents & POLLIN )
+        {
+            while( read( hid_channel_r, &hcm, sizeof( hcm ) ) > 0 )
+            {
+                if( hcm.action == HID_CHANNEL_OPEN )
                 {
-                    
+                    if( pollfds_end >= pollfds_size )
+                    {
+                        pollfds_size = pollfds_end * 2;
+                        pollfd * t_pollfds = new pollfd[pollfds_size];
+                        memcpy( t_pollfds, pollfds, pollfds_end * sizeof( pollfd ) );
+                        delete[] pollfds;
+                        pollfds = t_pollfds;
+                    }
+
+                    pollfds[pollfds_end].fd = hcm.device->fd;
+                    pollfds[pollfds_end].events = POLLIN;
+                    pollfds[pollfds_end].revents = 0;
+                    hcm.device->pollfds_i = pollfds_end;
+                    ( *device_map )[hcm.device->fd] = hcm.device;
+                    pollfds_end++;
                 }
                 
-                else
+                else if( hcm.action == HID_CHANNEL_CLOSE )
                 {
-                    ( *device_map )[pollfds[i].fd]->callback();
-                    pollfds[i].revents = 0;
+                    // erase the closing entry by copying the last entry into it
+                    // this is okay even when joystick->pollfds_i == pollfds_end
+                    // because we decrement pollfds_end
+                    pollfds[hcm.device->pollfds_i] = pollfds[pollfds_end - 1];
+                    pollfds_end--;
+                    close( hcm.device->fd );
+                    device_map->erase( hcm.device->fd );
                 }
+                
+                else if( hcm.action == HID_CHANNEL_QUIT )
+                {
+                    close( hid_channel_r );
+                    return;
+                }
+
             }
+            
+            break;
         }
     }
 }
@@ -2273,6 +2300,13 @@ void Hid_quit()
     if( !g_hid_init )
         return;
     
+    hid_channel_msg hcm = { HID_CHANNEL_QUIT, NULL };
+    write( hid_channel_w, &hcm, sizeof( hcm ) );
+    close( hid_channel_w );
+        
+    delete[] pollfds;
+    delete device_map;
+        
     g_hid_init = FALSE;
 }
 
@@ -2322,8 +2356,11 @@ void Joystick_init()
                 js = new linux_joystick;
                 js->js_num = js_num;
                 js->num = joysticks->size();
-                ioctl( fd, JSIOCGNAME( CK_HID_NAMESIZE ), js->name );
-                close( fd ); // no need to keep the file open
+                if( fd >= 0 )
+                {
+                    ioctl( fd, JSIOCGNAME( CK_HID_NAMESIZE ), js->name );
+                    close( fd ); // no need to keep the file open
+                }
                 strncpy( js->filename, buf, CK_HID_STRBUFSIZE );
                 joysticks->push_back( js );
                 EM_log( CK_LOG_INFO, "joystick: found device %s", js->name );
@@ -2372,13 +2409,12 @@ int Joystick_open( int js )
     {
         if( ( joystick->fd = open( joystick->filename, O_RDONLY | O_NONBLOCK ) ) < 0 )
         {
-            char buf[1024];
-            strerror_r( errno, buf, 1024 );
-            EM_log( CK_LOG_SEVERE, "joystick: unable to open %s: %s", joystick->filename, buf );
+            EM_log( CK_LOG_SEVERE, "joystick: unable to open %s: %s", joystick->filename, strerror( errno ) );
             return -1;
         }
         
-        joystick->needs_open = TRUE;
+        hid_channel_msg hcm = { HID_CHANNEL_OPEN, joystick };
+        write( hid_channel_w, &hcm, sizeof( hcm ) );
     }
     
     joystick->refcount++;
@@ -2396,7 +2432,11 @@ int Joystick_close( int js )
     joystick->refcount--;
     
     if( joystick->refcount == 0 )
-        joystick->needs_close = TRUE;
+    {
+        hid_channel_msg hcm = { HID_CHANNEL_CLOSE, joystick };
+        write( hid_channel_w, &hcm, sizeof( hcm ) );
+    }
+    
     
     return 0;
 }
@@ -2441,7 +2481,8 @@ void Mouse_init()
                 mouse->m_num = m_num;
                 mouse->num = mice->size();
                 //ioctl( fd, JSIOCGNAME( CK_HID_NAMESIZE ), js->name );
-                close( fd ); // no need to keep the file open
+                if( fd >= 0 )
+                    close( fd ); // no need to keep the file open
                 strncpy( mouse->filename, buf, CK_HID_STRBUFSIZE );
                 mice->push_back( mouse );
                 //EM_log( CK_LOG_INFO, "mouse: found device %s", mouse->name );
@@ -2461,22 +2502,67 @@ void Mouse_poll()
 
 void Mouse_quit()
 {
+    if( mice == NULL )
+        return;
     
+    vector< linux_mouse * >::size_type i, len = mice->size();
+    
+    for( i = 0; i < len; i++ )
+        delete mice->at( i );
+    
+    delete mice;
+    mice = NULL;
 }
 
-int Mousek_count()
+int Mouse_count()
 {
+    if( !mice )
+        return 0;
+    return mice->size();
+}
+
+int Mouse_open( int m )
+{
+    if( mice == NULL || m < 0 || m >= mice->size() )
+        return -1;
+    
+    linux_mouse * mouse = mice->at( m );
+        
+    if( mouse->refcount == 0 )
+    {
+        if( ( mouse->fd = open( mouse->filename, O_RDONLY | O_NONBLOCK ) ) < 0 )
+        {
+            EM_log( CK_LOG_SEVERE, "mouse: unable to open %s: %s", mouse->filename, strerror( errno ) );
+            return -1;
+        }
+        
+        mouse->needs_open = TRUE;
+        hid_channel_msg hcm = { HID_CHANNEL_OPEN, mouse };
+        write( hid_channel_w, &hcm, sizeof( hcm ) );
+    }
+    
+    mouse->refcount++;
+    
     return 0;
 }
 
-int Mouse_open( int js )
+int Mouse_close( int m )
 {
-    return -1;
-}
-
-int Mouse_close( int js )
-{
-    return -1;
+    if( mice == NULL || m < 0 || m >= mice->size() )
+        return -1;
+    
+    linux_mouse * mouse = mice->at( m );
+    
+    mouse->refcount--;
+    
+    if( mouse->refcount == 0 )
+    {
+        mouse->needs_close = TRUE;
+        hid_channel_msg hcm = { HID_CHANNEL_CLOSE, mouse };
+        write( hid_channel_w, &hcm, sizeof( hcm ) );
+    }
+    
+    return 0;
 }
 
 void Keyboard_init()
