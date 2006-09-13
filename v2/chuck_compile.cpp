@@ -44,6 +44,8 @@
 #include "ulib_std.h"
 #include "ulib_opsc.h"
 
+using namespace std;
+
 
 
 

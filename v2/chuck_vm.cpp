@@ -39,7 +39,6 @@
 #include "chuck_globals.h"
 #include "ugen_xxx.h"
 
-#include <vector>
 using namespace std;
 
 #if defined(__PLATFORM_WIN32__)

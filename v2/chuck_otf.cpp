@@ -35,7 +35,6 @@
 #include "chuck_errmsg.h"
 #include "chuck_globals.h"
 #include "util_thread.h"
-// #include "util_network.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -47,12 +46,14 @@
 #include <unistd.h>
 #endif
 
+using namespace std;
 
 // extern "C" void signal_int( int );
 
-
 // log level
 t_CKUINT g_otf_log = CK_LOG_INFO;
+
+
 
 
 //-----------------------------------------------------------------------------

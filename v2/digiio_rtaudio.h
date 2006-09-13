@@ -77,10 +77,10 @@
 // #define INTERNAL_TO_SAMPLE(s) ( (SAMPLE)((SAMPLE)s / S_MAX) )
 
 // types
+#define BOOL__                 DWORD__
 #define DWORD__                unsigned long
 #define SINT__                 long
 #define UINT__                 DWORD__
-#define BOOL__                 DWORD__
 #define BYTE__                 unsigned char
 
 

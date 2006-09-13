@@ -56,7 +56,7 @@ struct Chuck_Code
 {
 public:
     // name
-    string name;
+    std::string name;
     // stack depth
     t_CKUINT stack_depth;
     // need this
@@ -64,14 +64,14 @@ public:
     // frame
     Chuck_Frame * frame;
     // code
-    vector<Chuck_Instr *> code;
+    std::vector<Chuck_Instr *> code;
 
     // continue stack
-    vector<Chuck_Instr_Goto *> stack_cont;
+    std::vector<Chuck_Instr_Goto *> stack_cont;
     // break stack
-    vector<Chuck_Instr_Goto *> stack_break;
+    std::vector<Chuck_Instr_Goto *> stack_break;
     // return stack
-    vector<Chuck_Instr_Goto *> stack_return;
+    std::vector<Chuck_Instr_Goto *> stack_return;
     
     // constructor
     Chuck_Code( )
@@ -109,9 +109,9 @@ struct Chuck_Emitter : public Chuck_VM_Object
     Chuck_Func * func;
 
     // code stack
-    vector<Chuck_Code *> stack;
+    std::vector<Chuck_Code *> stack;
     // locals
-    vector<Chuck_Local *> locals;
+    std::vector<Chuck_Local *> locals;
 
     // dump
     t_CKBOOL dump;
@@ -136,13 +136,13 @@ struct Chuck_Emitter : public Chuck_VM_Object
     void push_scope( )
     { assert( code != NULL ); code->frame->push_scope(); }
     // alloc local
-    Chuck_Local * alloc_local( t_CKUINT size, const string & name, t_CKBOOL is_ref )
+    Chuck_Local * alloc_local( t_CKUINT size, const std::string & name, t_CKBOOL is_ref )
     { assert( code != NULL ); return code->frame->alloc_local( size, name, is_ref ); }
     // pop scope
     void pop_scope( );
 
     // default durations
-    t_CKBOOL find_dur( const string & name, t_CKDUR * out );
+    t_CKBOOL find_dur( const std::string & name, t_CKDUR * out );
 };
 
 

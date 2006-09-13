@@ -37,6 +37,8 @@
 #include "chuck_errmsg.h"
 #include "chuck_instr.h"
 
+using namespace std;
+
 
 
 

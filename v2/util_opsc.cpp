@@ -40,6 +40,8 @@
 #include "chuck_errmsg.h"
 #include "chuck_vm.h"
 
+using namespace std;
+
 
 // FROM PLATFORM.H -UDP TRANSMITTER / RECEIVER 
 

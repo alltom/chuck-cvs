@@ -36,6 +36,8 @@
 #include "chuck_vm.h"
 #include "util_string.h"
 
+using namespace std;
+
 
 
 

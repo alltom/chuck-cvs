@@ -69,9 +69,6 @@
   #endif
 #endif
 
-#include <vector>
-using namespace std;
-
 struct Chuck_VM;
 
 

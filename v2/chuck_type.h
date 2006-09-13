@@ -39,7 +39,6 @@
 #include "chuck_oo.h"
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
-using namespace std;
 
 
 
@@ -84,7 +83,7 @@ public:
     ~Chuck_Scope() { this->pop(); }
 
     // push scope
-    void push() { scope.push_back( new map<S_Symbol, Chuck_VM_Object *> ); }
+    void push() { scope.push_back( new std::map<S_Symbol, Chuck_VM_Object *> ); }
 
     // pop scope
     void pop()
@@ -133,7 +132,7 @@ public:
     }
 
     // add
-    void add( const string & xid, Chuck_VM_Object * value )
+    void add( const std::string & xid, Chuck_VM_Object * value )
     { this->add( insert_symbol(xid.c_str()), value ); }
     void add( S_Symbol xid, Chuck_VM_Object * value )
     {
@@ -148,9 +147,9 @@ public:
     }
 
     // lookup id
-    T operator []( const string & xid )
+    T operator []( const std::string & xid )
     { return (T)this->lookup( xid ); }
-    T lookup( const string & xid, t_CKINT climb = 1 )
+    T lookup( const std::string & xid, t_CKINT climb = 1 )
     { return (T)this->lookup( insert_symbol(xid.c_str()), climb ); }
     // -1 base, 0 current, 1 climb
     T lookup( S_Symbol xid, t_CKINT climb = 1 )
@@ -186,7 +185,7 @@ public:
     }
 
     // get list of top level
-    void get_toplevel( vector<Chuck_VM_Object *> & out )
+    void get_toplevel( std::vector<Chuck_VM_Object *> & out )
     {
         assert( scope.size() != 0 );
         std::map<S_Symbol, Chuck_VM_Object *>::iterator iter;
@@ -194,7 +193,7 @@ public:
         // clear the out
         out.clear();
         // get the front of the array
-        map<S_Symbol, Chuck_VM_Object *> * m = scope.front();
+        std::map<S_Symbol, Chuck_VM_Object *> * m = scope.front();
 
         // go through map
         for( iter = m->begin(); iter != m->end(); iter++ )
@@ -205,7 +204,7 @@ public:
     }
 
 protected:
-    std::vector<map<S_Symbol, Chuck_VM_Object *> *> scope;
+    std::vector<std::map<S_Symbol, Chuck_VM_Object *> *> scope;
     std::map<S_Symbol, Chuck_VM_Object *> commit_map;
 };
 
@@ -240,7 +239,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
     t_CKUINT class_data_size;
 
     // name
-    string name;
+    std::string name;
     // top-level code
     Chuck_VM_Code * pre_ctor;
     // type that contains this
@@ -255,13 +254,13 @@ struct Chuck_Namespace : public Chuck_VM_Object
     virtual ~Chuck_Namespace() { /* TODO: SAFE_RELEASE( this->parent ); */ }
 
     // look up type
-    Chuck_Type * lookup_type( const string & name, t_CKINT climb = 1 );
+    Chuck_Type * lookup_type( const std::string & name, t_CKINT climb = 1 );
     Chuck_Type * lookup_type( S_Symbol name, t_CKINT climb = 1 );
     // look up value
-    Chuck_Value * lookup_value( const string & name, t_CKINT climb = 1 );
+    Chuck_Value * lookup_value( const std::string & name, t_CKINT climb = 1 );
     Chuck_Value * lookup_value( S_Symbol name, t_CKINT climb = 1 );
     // look up func
-    Chuck_Func * lookup_func( const string & name, t_CKINT climb = 1 );
+    Chuck_Func * lookup_func( const std::string & name, t_CKINT climb = 1 );
     Chuck_Func * lookup_func( S_Symbol name, t_CKINT climb = 1 );
 
     // commit the maps
@@ -277,11 +276,11 @@ struct Chuck_Namespace : public Chuck_VM_Object
     }
 
     // get top level types
-    void get_types( vector<Chuck_Type *> & out );
+    void get_types( std::vector<Chuck_Type *> & out );
     // get top level values
-    void get_values( vector<Chuck_Value *> & out );
+    void get_values( std::vector<Chuck_Value *> & out );
     // get top level functions
-    void get_funcs( vector<Chuck_Func *> & out );
+    void get_funcs( std::vector<Chuck_Func *> & out );
 };
 
 
@@ -294,7 +293,7 @@ struct Chuck_Namespace : public Chuck_VM_Object
 struct Chuck_Context : public Chuck_VM_Object  
 {
     // src_name
-    string filename;
+    std::string filename;
     // parse tree
     a_Program parse_tree;
     // context namespace
@@ -335,7 +334,7 @@ struct Chuck_Context : public Chuck_VM_Object
 
     // special alloc
     Chuck_Type * new_Chuck_Type();
-    Chuck_Value * new_Chuck_Value( Chuck_Type * t, const string & name );
+    Chuck_Value * new_Chuck_Value( Chuck_Type * t, const std::string & name );
     Chuck_Func * new_Chuck_Func();
     Chuck_Namespace * new_Chuck_Namespace();
 };
@@ -383,11 +382,11 @@ public:
     // global namespace
     Chuck_Namespace * global() { return global_nspc; }
     // namespace stack
-    vector<Chuck_Namespace *> nspc_stack;
+    std::vector<Chuck_Namespace *> nspc_stack;
     // expression namespace
     Chuck_Namespace * curr;
     // class stack
-    vector<Chuck_Type *> class_stack;
+    std::vector<Chuck_Type *> class_stack;
     // current class definition
     Chuck_Type * class_def;
     // current function definition
@@ -396,20 +395,20 @@ public:
     t_CKUINT class_scope;
 
     // current contexts in memory
-    vector<Chuck_Context *> contexts;
+    std::vector<Chuck_Context *> contexts;
     // current context
     Chuck_Context * context;
 
     // control scope (for break, continue)
-    vector<a_Stmt> breaks;
+    std::vector<a_Stmt> breaks;
 
     // reserved words
-    map<string, t_CKBOOL> key_words;
-    map<string, t_CKBOOL> key_types;
-    map<string, t_CKBOOL> key_values;
+    std::map<std::string, t_CKBOOL> key_words;
+    std::map<std::string, t_CKBOOL> key_types;
+    std::map<std::string, t_CKBOOL> key_values;
 
     // deprecated types
-    map<string, string> deprecated;
+    std::map<std::string, std::string> deprecated;
     // level - 0:stop, 1:warn, 2:ignore
     t_CKINT deprecate_level;
 
@@ -474,7 +473,7 @@ struct Chuck_Type : public Chuck_VM_Object
     // type id
     te_Type xid;
     // type name
-    string name;
+    std::string name;
     // type parent (could be NULL)
     Chuck_Type * parent;
     // size (in bytes)
@@ -504,7 +503,7 @@ struct Chuck_Type : public Chuck_VM_Object
 
 public:
     // constructor
-    Chuck_Type( te_Type _id = te_null, const string & _n = "", 
+    Chuck_Type( te_Type _id = te_null, const std::string & _n = "", 
                 Chuck_Type * _p = NULL, t_CKUINT _s = 0 )
     {
         xid = _id; name = _n; parent = _p; size = _s; owner = NULL; 
@@ -570,10 +569,10 @@ public:
       *n = *this; return n; }
     
     // to string
-    string ret;
-    const string & str()
+    std::string ret;
+    const std::string & str()
     { ret = name;
-      for( t_CKUINT i = 0; i < array_depth; i++ ) ret += string("[]");
+      for( t_CKUINT i = 0; i < array_depth; i++ ) ret += std::string("[]");
       return ret; }
     // to c
     const char * c_name()
@@ -592,7 +591,7 @@ struct Chuck_Value : public Chuck_VM_Object
     // type
     Chuck_Type * type;
     // name
-    string name;
+    std::string name;
     // offset
     t_CKUINT offset;
     // addr
@@ -617,7 +616,7 @@ struct Chuck_Value : public Chuck_VM_Object
     t_CKINT func_num_overloads;
 
     // constructor
-    Chuck_Value( Chuck_Type * t, const string & n, void * a = NULL,
+    Chuck_Value( Chuck_Type * t, const std::string & n, void * a = NULL,
                  t_CKBOOL c = FALSE, t_CKBOOL acc = 0, Chuck_Namespace * o = NULL,
                  Chuck_Type * oc = NULL, t_CKUINT s = 0 )
     { type = t; SAFE_ADD_REF(type); // add reference
@@ -650,7 +649,7 @@ struct Chuck_Value : public Chuck_VM_Object
 struct Chuck_Func : public Chuck_VM_Object
 {
     // name
-    string name;
+    std::string name;
     // func def from parser
     a_Func_Def def;
     // code
@@ -694,10 +693,10 @@ t_CKBOOL type_engine_unload_context( Chuck_Env * env );
 
 // type check a program into the env
 t_CKBOOL type_engine_check_prog( Chuck_Env * env, a_Program prog, 
-                                 const string & filename );
+                                 const std::string & filename );
 // make a context
 Chuck_Context * type_engine_make_context( a_Program prog,
-                                          const string & filename );
+                                          const std::string & filename );
 // type check a context into the env
 t_CKBOOL type_engine_check_context( Chuck_Env * env,
                                     Chuck_Context * context,
@@ -707,7 +706,7 @@ t_CKBOOL type_engine_check_stmt( Chuck_Env * env, a_Stmt stmt );
 // type check an expression
 t_CKTYPE type_engine_check_exp( Chuck_Env * env, a_Exp exp );
 // add an chuck dll into the env
-t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & nspc );
+t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const std::string & nspc );
 // type equality
 t_CKBOOL operator ==( const Chuck_Type & lhs, const Chuck_Type & rhs );
 t_CKBOOL operator !=( const Chuck_Type & lhs, const Chuck_Type & rhs );
@@ -738,19 +737,19 @@ t_CKBOOL type_engine_import_ugen_ctrl( Chuck_Env * env, const char * type, const
                                        f_ctrl ctrl, t_CKBOOL write, t_CKBOOL read );
 t_CKBOOL type_engine_import_class_end( Chuck_Env * env );
 t_CKBOOL type_engine_register_deprecate( Chuck_Env * env, 
-                                         const string & former, const string & latter );
+                                         const std::string & former, const std::string & latter );
 
 // helpers
-t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const string & xid, int pos );
+t_CKBOOL type_engine_check_reserved( Chuck_Env * env, const std::string & xid, int pos );
 t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol xid, int pos );
 t_CKBOOL type_engine_check_primitive( Chuck_Type * type );
-t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, string & err, t_CKBOOL print = TRUE );
-t_CKBOOL type_engine_get_deprecate( Chuck_Env * env, const string & from, string & to );
+t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, std::string & err, t_CKBOOL print = TRUE );
+t_CKBOOL type_engine_get_deprecate( Chuck_Env * env, const std::string & from, std::string & to );
 Chuck_Type  * type_engine_find_common_anc( Chuck_Type * lhs, Chuck_Type * rhs );
 Chuck_Type  * type_engine_find_type( Chuck_Env * env, a_Id_List path );
-Chuck_Value * type_engine_find_value( Chuck_Type * type, const string & xid );
+Chuck_Value * type_engine_find_value( Chuck_Type * type, const std::string & xid );
 Chuck_Value * type_engine_find_value( Chuck_Type * type, S_Symbol xid );
-Chuck_Value * type_engine_find_value( Chuck_Env * env, const string & xid, t_CKBOOL climb, int linepos = 0 );
+Chuck_Value * type_engine_find_value( Chuck_Env * env, const std::string & xid, t_CKBOOL climb, int linepos = 0 );
 Chuck_Namespace * type_engine_find_nspc( Chuck_Env * env, a_Id_List path );
 // array verify
 t_CKBOOL verify_array( a_Array_Sub array );
@@ -760,8 +759,8 @@ Chuck_Type * new_array_type( Chuck_Env * env, Chuck_Type * array_parent,
                              Chuck_Namespace * owner_nspc );
 // conversion
 const char * type_path( a_Id_List path );
-a_Id_List str2list( const string & path );
-a_Id_List str2list( const string & path, t_CKBOOL & is_array );
+a_Id_List str2list( const std::string & path );
+a_Id_List str2list( const std::string & path, t_CKBOOL & is_array );
 const char * howmuch2str( te_HowMuch how_much );
 
 // default types

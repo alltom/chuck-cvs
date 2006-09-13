@@ -40,6 +40,8 @@
 #include "util_string.h"
 #include "ugen_xxx.h"
 
+using namespace std;
+
 
 
 

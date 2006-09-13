@@ -43,8 +43,7 @@
 
 #include <string>
 #include <map>
-using namespace std;
-
+#include <vector>
 
 
 
@@ -123,7 +122,7 @@ public:
     t_CKUINT num_instr;
 
     // name of this code
-    string name;
+    std::string name;
     // the depth of any function arguments
     t_CKUINT stack_depth;
     // whether the function needs 'this' pointer or not
@@ -172,7 +171,7 @@ public: // machine components
     Chuck_VM_Code * code_orig; // the one to release
     Chuck_Instr ** instr;
     Chuck_VM_Shred * parent;
-    map<t_CKUINT, Chuck_VM_Shred *> children;
+    std::map<t_CKUINT, Chuck_VM_Shred *> children;
     t_CKUINT pc;
 
     // vm
@@ -192,11 +191,11 @@ public:
     t_CKBOOL is_done;
     t_CKBOOL is_running;
     Chuck_Event * event;  // event shred is waiting on
-    map<Chuck_UGen *, Chuck_UGen *> m_ugen_map;
+    std::map<Chuck_UGen *, Chuck_UGen *> m_ugen_map;
 
 public: // id
     t_CKUINT xid;
-    string name;
+    std::string name;
 
 public:
     Chuck_VM_Shred * prev;
@@ -217,12 +216,12 @@ struct Chuck_VM_Shred_Status : Chuck_Object
 {
 public:
     t_CKUINT xid;
-    string name;
+    std::string name;
     t_CKTIME start;
     t_CKBOOL has_event;    
 
 public:
-    Chuck_VM_Shred_Status( t_CKUINT _id, const string & n, t_CKTIME _start, t_CKBOOL e )
+    Chuck_VM_Shred_Status( t_CKUINT _id, const std::string & n, t_CKTIME _start, t_CKBOOL e )
     {
         xid = _id;
         name = n;
@@ -255,7 +254,7 @@ public:
     t_CKUINT t_minute;
     t_CKUINT t_hour;
     // list of shred status
-    vector<Chuck_VM_Shred_Status *> list;
+	std::vector<Chuck_VM_Shred_Status *> list;
 };
 
 
@@ -414,7 +413,7 @@ protected:
     t_CKBOOL m_init;
     // t_CKBOOL m_running;  -> moved to public
     t_CKBOOL m_audio_started;
-    string m_last_error;
+    std::string m_last_error;
 
     // shred
     Chuck_VM_Shred * m_shreds;
