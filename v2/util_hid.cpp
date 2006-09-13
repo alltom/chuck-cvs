@@ -970,7 +970,7 @@ int Mouse_count()
 {
     if( mice == NULL )
         return 0;
-    return mice.size();
+    return mice->size();
 }
 
 int Mouse_open( int m )
