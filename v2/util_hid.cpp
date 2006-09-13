@@ -965,7 +965,9 @@ void Mouse_quit()
 
 int Mouse_count()
 {
-    return 0;
+    if( mice == NULL )
+        return 0;
+    return mice.size();
 }
 
 int Mouse_open( int m )
@@ -1049,12 +1051,12 @@ int Keyboard_count()
     return 0;
 }
 
-int Keyboard_open( int js )
+int Keyboard_open( int k )
 {
     return -1;
 }
 
-int Keyboard_close( int js )
+int Keyboard_close( int k )
 {
     return -1;
 }
@@ -1072,6 +1074,7 @@ void Hid_init()
 
 void Hid_poll()
 {
+    usleep( 10 );
     Joystick_poll();
     Keyboard_poll();
     Mouse_poll();
@@ -1966,21 +1969,308 @@ Linux general HID support
 *****************************************************************************/
 #pragma mark Linux general HID support
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <dirent.h>
+#include <linux/unistd.h>
+#include <string.h>
+#include <fcntl.h>
+#include <sys/poll.h>
+#include <sys/ioctl.h>
+#include <errno.h>
+#include <linux/joystick.h>
+
+#define CK_HID_DIR "/dev/input"
+#define CK_HID_MOUSEFILE "mouse%d"
+#define CK_HID_JOYSTICKFILE "js%d"
+#define CK_HID_STRBUFSIZE (1024)
+#define CK_HID_NAMESIZE (128)
+
+class linux_device
+{
+public:
+    linux_device()
+    {
+        fd = -1;
+        num = -1;
+        refcount = 0;
+        pollfds_i = 0;
+        filename[0] = '\0';
+        needs_open = needs_close = FALSE;
+        strncpy( name, "Joystick", 128 );
+    }
+    
+    virtual void callback() = 0;
+    
+    int fd;       // file descriptor
+    t_CKINT num; // index in the joysticks vector
+    
+    t_CKUINT refcount;
+    
+    size_t pollfds_i;
+    
+    t_CKBOOL needs_open;
+    t_CKBOOL needs_close;
+    
+    char filename[CK_HID_STRBUFSIZE];
+    char name[CK_HID_NAMESIZE];
+};
+
+class linux_joystick : public linux_device
+{
+public:
+    linux_joystick() : linux_device()
+    {
+        js_num = -1;
+    }
+    
+    virtual void callback()
+    {        
+        js_event event;
+        HidMsg msg;
+        ssize_t len;
+                
+        while( ( len = read( fd, &event, sizeof( event ) ) ) > 0 )
+        {
+            if( len < sizeof( event ) )
+            {
+                EM_log( CK_LOG_WARNING, "joystick: read event from %s smaller than expected, ignoring", name );
+                continue;
+            }
+            
+            if( event.type == JS_EVENT_INIT )
+                continue;
+            
+            msg.device_type = CK_HID_DEV_JOYSTICK;
+            msg.device_num = num;
+            msg.eid = event.number;
+            
+            switch( event.type )
+            {
+                case JS_EVENT_BUTTON:
+                    msg.type = event.value ? CK_HID_BUTTON_DOWN : 
+                                             CK_HID_BUTTON_UP;
+                    msg.idata[0] = event.value;
+                    break;
+                case JS_EVENT_AXIS:
+                    msg.type = CK_HID_JOYSTICK_AXIS;
+                    msg.fdata[0] = ((t_CKFLOAT)event.value) / ((t_CKFLOAT) SHRT_MAX);
+                    break;
+                default:
+                    EM_log( CK_LOG_WARNING, "joystick: unknown event type from %s, ignoring", name );
+                    continue;
+            }
+            
+            HidInManager::push_message( msg );
+        }
+    }
+    
+    int js_num;   // /dev/input/js# <-- the #
+};
+
+struct ps2_mouse_event
+{
+    unsigned unused:2;
+    unsigned y_reverse_motion:1;
+    unsigned x_reverse_motion:1;
+    unsigned always1:1;
+    unsigned button3:1;
+    unsigned button2:1;
+    unsigned button1:1;
+    signed dx:8;
+    signed dy:8;
+};
+
+class linux_mouse : public linux_device
+{
+public:
+    linux_mouse() : linux_device()
+    {
+        m_num = -1;
+        memset( &last_event, 0, sizeof( last_event ) );
+    }
+    
+    virtual void callback()
+    {        
+        ps2_mouse_event event;
+        HidMsg msg;
+        ssize_t len;
+                
+        while( ( len = read( fd, &event, sizeof( event ) ) ) > 0 )
+        {
+            if( len < sizeof( event ) )
+            {
+                EM_log( CK_LOG_WARNING, "mouse: read event from mouse %i smaller than expected, ignoring", num );
+                continue;
+            }
+            
+            if( event.dx || event.dy )
+            {
+                msg.device_type = CK_HID_DEV_MOUSE;
+                msg.device_num = num;
+                msg.eid = 0;
+                msg.type = CK_HID_MOUSE_MOTION;
+                msg.idata[0] = event.dx;
+                msg.idata[1] = event.dy;
+                HidInManager::push_message( msg );
+            }
+            
+            if( event.button1 ^ last_event.button1 )
+            {
+                msg.device_type = CK_HID_DEV_MOUSE;
+                msg.device_num = num;
+                msg.eid = 1;
+                msg.type = event.button1 ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+                msg.idata[0] = event.button1;
+                HidInManager::push_message( msg );
+            }
+            
+            if( event.button2 ^ last_event.button2 )
+            {
+                msg.device_type = CK_HID_DEV_MOUSE;
+                msg.device_num = num;
+                msg.eid = 2;
+                msg.type = event.button2 ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+                msg.idata[0] = event.button2;
+                HidInManager::push_message( msg );
+            }
+            
+            if( event.button3 ^ last_event.button3 )
+            {
+                msg.device_type = CK_HID_DEV_MOUSE;
+                msg.device_num = num;
+                msg.eid = 3;
+                msg.type = event.button3 ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+                msg.idata[0] = event.button3;
+                HidInManager::push_message( msg );
+            }
+            
+            memcpy( &last_event, &event, sizeof( last_event ) );
+        }
+    }
+    
+    int m_num;   // /dev/input/mouse# <-- the #
+    ps2_mouse_event last_event;
+};
+
+static vector< linux_joystick * > * joysticks = NULL;
+static vector< linux_mouse * > * mice = NULL;
+
+static map< int, linux_device * > * device_map = NULL;
+
+static pollfd * pollfds = NULL;
+#define DEFAULT_POLLFDS_SIZE (16)
+static size_t pollfds_size = 0;
+static size_t pollfds_end = 0;
+static int hid_channel_r = -1; // HID communications channel, read fd
+static int hid_channel_w = -1; // HID communications channel, write fd
+
+static t_CKBOOL g_hid_init = FALSE;
+
 void Hid_init()
 {
+    if( g_hid_init )
+        return;
     
+    pollfds = ( pollfd * ) malloc( sizeof( pollfd ) * DEFAULT_POLLFDS_SIZE );
+    pollfds_size = DEFAULT_POLLFDS_SIZE;
+    pollfds_end = 0;
+    
+    int filedes[2];
+    if( pipe( filedes ) )
+    {
+        EM_log( CK_LOG_SEVERE, "hid: unable to create pipe, initialization failed" );
+        return;
+    }
+    
+    hid_channel_r = filedes[0];
+    hid_channel_w = filedes[1];
+    
+    /* right now, the hid_channel is just used as a dummy file descriptor
+       passed to poll, such that poll will work/block even when there are
+       no open devices.  In the future hid_channel could also be used to 
+       communicate between the VM thread and the HID thread */
+    pollfds[0].fd = hid_channel_r;
+    pollfds[0].events = POLLIN;
+    pollfds[0].revents = 0;
+    pollfds_end++;
+    
+    device_map = new map< int, linux_device * >;
+    
+    g_hid_init = TRUE;
 }
 
 void Hid_poll()
 {
-    Joystick_poll();
-    Keyboard_poll();
-    Mouse_poll();
+    if( !g_hid_init || !joysticks )
+        return;
+    
+    vector< linux_joystick * >::size_type i, len = joysticks->size();
+    linux_joystick * joystick;
+    for( i = 0; i < len; i++ )
+    {
+        joystick = joysticks->at( i );
+        
+        if( joystick->needs_open )
+        {
+            joystick->needs_open = FALSE;
+            // TODO: pollfds bounds checking + realloc!
+            if( pollfds_end >= pollfds_size )
+            {
+                pollfds = ( pollfd * ) realloc( pollfds, pollfds_size * 2 );
+            }
+            
+            pollfds[pollfds_end].fd = joystick->fd;
+            pollfds[pollfds_end].events = POLLIN;
+            pollfds[pollfds_end].revents = 0;
+            joystick->pollfds_i = pollfds_end;
+            ( *device_map )[joystick->fd] = joystick;
+            pollfds_end++;
+        }
+        
+        if( joystick->needs_close )
+        {
+            joystick->needs_close = FALSE;
+            // TODO: pollfds bounds checking
+            
+            // erase the closing entry by copying the last entry into it
+            // this is okay even when joystick->pollfds_i == pollfds_end
+            // because we decrement pollfds_end
+            pollfds[joystick->pollfds_i] = pollfds[pollfds_end - 1];
+            pollfds_end--;
+            close( joystick->fd );
+            device_map->erase( joystick->fd );
+        }
+    }
+    
+    if( poll( pollfds, pollfds_end, 1 ) > 0 )
+    {
+        for( int i = 0; i < pollfds_end; i++ )
+        {
+            if( pollfds[i].revents & POLLIN )
+            {
+                if( pollfds[i].fd == hid_channel_r )
+                {
+                    
+                }
+                
+                else
+                {
+                    ( *device_map )[pollfds[i].fd]->callback();
+                    pollfds[i].revents = 0;
+                }
+            }
+        }
+    }
 }
 
 void Hid_quit()
 {
+    if( !g_hid_init )
+        return;
     
+    g_hid_init = FALSE;
 }
 
 /*****************************************************************************
@@ -1990,7 +2280,56 @@ Linux joystick support
 
 void Joystick_init()
 {
+    if( joysticks != NULL )
+        return;
     
+    EM_log( CK_LOG_INFO, "initializing joysticks" );
+    EM_pushlog();
+        
+    joysticks = new vector< linux_joystick * >;
+        
+    DIR * dir_handle;
+    struct dirent * dir_entity;
+    struct stat stat_buf;
+    int js_num, fd, i;
+    uid_t uid = geteuid();
+    gid_t gid = getegid();
+    char buf[CK_HID_STRBUFSIZE];
+    linux_joystick * js;
+
+    dir_handle = opendir( CK_HID_DIR );
+    if( dir_handle == NULL )
+    {
+        if( errno == EACCES )
+            EM_log( CK_LOG_WARNING, "hid: error opening %s, unable to initialize joystick", CK_HID_DIR );
+        EM_poplog();
+        return;
+    }
+    
+    while( dir_entity = readdir( dir_handle ) )
+    {
+        if( sscanf( dir_entity->d_name, CK_HID_JOYSTICKFILE, &js_num ) )
+        {
+            snprintf( buf, CK_HID_STRBUFSIZE, "%s/%s", CK_HID_DIR, 
+                      dir_entity->d_name );
+            if( ( fd = open( buf, O_RDONLY | O_NONBLOCK ) ) >= 0 || 
+                errno == EACCES ) /* wait to report access errors until the 
+                                     device is actually opened */
+            {
+                js = new linux_joystick;
+                js->js_num = js_num;
+                js->num = joysticks->size();
+                ioctl( fd, JSIOCGNAME( CK_HID_NAMESIZE ), js->name );
+                close( fd ); // no need to keep the file open
+                strncpy( js->filename, buf, CK_HID_STRBUFSIZE );
+                joysticks->push_back( js );
+                EM_log( CK_LOG_INFO, "joystick: found device %s", js->name );
+            }
+        }
+    }
+
+    closedir( dir_handle );
+    EM_poplog();
 }
 
 void Joystick_poll()
@@ -2000,26 +2339,115 @@ void Joystick_poll()
 
 void Joystick_quit()
 {
+    if( joysticks == NULL )
+        return;
     
+    vector< linux_joystick * >::size_type i, len = joysticks->size();
+    
+    for( i = 0; i < len; i++ )
+        delete joysticks->at( i );
+    
+    delete joysticks;
+    joysticks = NULL;
 }
 
 int Joystick_count()
 {
-    return 0;
+    if( joysticks == NULL )
+        return 0;
+    return joysticks->size();
 }
 
 int Joystick_open( int js )
 {
-    return -1;
+    if( joysticks == NULL || js < 0 || js >= joysticks->size() )
+        return -1;
+    
+    linux_joystick * joystick = joysticks->at( js );
+        
+    if( joystick->refcount == 0 )
+    {
+        if( ( joystick->fd = open( joystick->filename, O_RDONLY | O_NONBLOCK ) ) < 0 )
+        {
+            char buf[1024];
+            strerror_r( errno, buf, 1024 );
+            EM_log( CK_LOG_SEVERE, "joystick: unable to open %s: %s", joystick->filename, buf );
+            return -1;
+        }
+        
+        joystick->needs_open = TRUE;
+    }
+    
+    joystick->refcount++;
+    
+    return 0;
 }
 
 int Joystick_close( int js )
 {
-    return -1;
+    if( joysticks == NULL || js < 0 || js >= joysticks->size() )
+        return -1;
+    
+    linux_joystick * joystick = joysticks->at( js );
+    
+    joystick->refcount--;
+    
+    if( joystick->refcount == 0 )
+        joystick->needs_close = TRUE;
+    
+    return 0;
 }
 
 void Mouse_init()
 {
+    if( mice != NULL )
+        return;
+    
+    EM_log( CK_LOG_INFO, "initializing mice" );
+    EM_pushlog();
+        
+    mice = new vector< linux_mouse * >;
+        
+    DIR * dir_handle;
+    struct dirent * dir_entity;
+    struct stat stat_buf;
+    int m_num, fd, i;
+    char buf[CK_HID_STRBUFSIZE];
+    linux_mouse * mouse;
+
+    dir_handle = opendir( CK_HID_DIR );
+    if( dir_handle == NULL )
+    {
+        if( errno == EACCES )
+            EM_log( CK_LOG_WARNING, "hid: error opening %s, unable to initialize mice", CK_HID_DIR );
+        EM_poplog();
+        return;
+    }
+    
+    while( dir_entity = readdir( dir_handle ) )
+    {
+        if( sscanf( dir_entity->d_name, CK_HID_MOUSEFILE, &m_num ) )
+        {
+            snprintf( buf, CK_HID_STRBUFSIZE, "%s/%s", CK_HID_DIR, 
+                      dir_entity->d_name );
+            if( ( fd = open( buf, O_RDONLY | O_NONBLOCK ) ) >= 0 || 
+                errno == EACCES ) /* wait to report access errors until the 
+                                     device is actually opened */
+            {
+                mouse = new linux_mouse;
+                mouse->m_num = m_num;
+                mouse->num = mice->size();
+                //ioctl( fd, JSIOCGNAME( CK_HID_NAMESIZE ), js->name );
+                close( fd ); // no need to keep the file open
+                strncpy( mouse->filename, buf, CK_HID_STRBUFSIZE );
+                mice->push_back( mouse );
+                //EM_log( CK_LOG_INFO, "mouse: found device %s", mouse->name );
+            }
+        }
+    }
+
+    closedir( dir_handle );
+    EM_poplog();
     
 }
 

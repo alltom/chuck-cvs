@@ -372,6 +372,8 @@ void HidInManager::init()
         msg_buffer = new CBufferSimple;
         msg_buffer->initialize( 1000, sizeof( HidMsg ) );
         
+        Hid_init();
+        
         Joystick_init();
         Mouse_init();
         Keyboard_init();
