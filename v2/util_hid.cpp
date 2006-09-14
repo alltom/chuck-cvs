@@ -175,7 +175,7 @@ t_CKINT OSX_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_typ
             strncpy( name, "Keyboard", 256 );
             axes = -1;
             hats = -1;
-            buttons = -1;
+            buttons = 0;
             break;
     }
 
@@ -376,6 +376,7 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
             case kIOHIDElementTypeInput_Misc:
             case kIOHIDElementTypeInput_Button:
             case kIOHIDElementTypeInput_Axis:
+            case kIOHIDElementTypeInput_ScanCodes:
                 // an input of some sort
                 switch( usage_page )
                 {
@@ -485,8 +486,15 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                         break;
                         
                     case kHIDPage_Button:
+                    case kHIDPage_KeyboardOrKeypad:
                         // this is a button
                         if( buttons == -1 )
+                            continue;
+                        
+                        /* filter out error and reserved usages*/
+                        if( !( usage_page == kHIDPage_KeyboardOrKeypad &&
+                               usage >= kHIDUsage_KeyboardA &&
+                               usage <= kHIDUsage_KeyboardRightGUI ) )
                             continue;
                         
                         element = new OSX_Device_Element; 
@@ -539,6 +547,7 @@ static vector< OSX_Device * > * keyboards = NULL;
 
 CFRunLoopRef rlHid;
 CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
+CFRunLoopSourceRef cfrlDummySource;
 static t_CKBOOL g_hid_init = FALSE;
 
 void Hid_init()
@@ -557,6 +566,7 @@ void Hid_init()
     // allocate vectors of device records
     joysticks = new vector< OSX_Device * >;
     mice = new vector< OSX_Device * >;
+    keyboards = new vector< OSX_Device * >;
     
 	CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
     if( !hidMatchDictionary )
@@ -584,7 +594,7 @@ void Hid_init()
     
     io_object_t ioHIDDeviceObject = 0;
     t_CKINT usage, usage_page;
-    t_CKINT joysticks_seen = 0, mice_seen = 0;
+    t_CKINT joysticks_seen = 0, mice_seen = 0, keyboards_seen = 0;
     while( ioHIDDeviceObject = IOIteratorNext( hidObjectIterator ) )
     {        
         // ascertain device information
@@ -661,20 +671,74 @@ void Hid_init()
                 
                 EM_poplog();
             }
+
+            if( usage == kHIDUsage_GD_Keyboard || usage == kHIDUsage_GD_Keypad )
+                // this is a keyboard
+            {
+                EM_log( CK_LOG_INFO, "keyboard: configuring keyboard %i", 
+                        keyboards_seen++ );
+                EM_pushlog();
+                
+                // allocate the device record, set usage page and usage
+                OSX_Device * new_device = new OSX_Device;
+                new_device->type = CK_HID_DEV_KEYBOARD;
+                new_device->usage_page = usage_page;
+                new_device->usage = usage;
+                
+                if( !new_device->preconfigure( ioHIDDeviceObject, 
+                                               CK_HID_DEV_KEYBOARD ) )
+                    keyboards->push_back( new_device );
+                else
+                {
+                    EM_log( CK_LOG_INFO, 
+                            "keyboard: error during configuration" );
+                    delete new_device;
+                }
+                
+                EM_poplog();
+            }
         }
     }
     
     IOObjectRelease( hidObjectIterator );
 }
 
+// callback for the CFRunLoop dummy source
+void Hid_cfrl_callback( void * info )
+{
+    CFRunLoopStop( rlHid );
+}
+
 void Hid_poll()
 {
     if( rlHid == NULL )
     {
-        // TODO: set up dummy source for the run loop
         rlHid = CFRunLoopGetCurrent();
+        
+        // we set up a dummy source to use in case no hid devices are open.
+        // this is important because the CFRunLoop will stop immediately if it
+        // has no sources.  Thus, Hid_poll() will run without ever blocking on
+        // input, which will kill the CPU.  So we set up a dummy source that is
+        // always present, but never activates.  
+        CFRunLoopSourceContext cfrlSourceContext;
+        cfrlSourceContext.version = 0;
+        cfrlSourceContext.info = NULL;
+        cfrlSourceContext.retain = NULL;
+        cfrlSourceContext.release = NULL;
+        cfrlSourceContext.copyDescription = NULL;
+        cfrlSourceContext.equal = NULL;
+        cfrlSourceContext.hash = NULL;
+        cfrlSourceContext.schedule = NULL;
+        cfrlSourceContext.cancel = NULL;
+        cfrlSourceContext.perform = Hid_cfrl_callback;
+        
+        cfrlDummySource = CFRunLoopSourceCreate( kCFAllocatorDefault, 0, 
+                                                 &cfrlSourceContext );
+        CFRunLoopAddSource( rlHid, cfrlDummySource, kCFRunLoopChuckHidMode );
     }
     
+    // TODO: set this up to use a pipe or circular buffer, so that we dont have
+    // to iterate through every device
     OSX_Device * device;
     vector< OSX_Device * >::size_type i, len = joysticks->size();
     for( i = 0; i < len; i++ )
@@ -723,6 +787,31 @@ void Hid_poll()
             IOReturn result = ( *( device->queue ) )->stop( device->queue );
             if( result != kIOReturnSuccess )
                 EM_log( CK_LOG_INFO, "mouse: error stopping event queue" );
+        }
+    }
+    
+    len = keyboards->size();
+    for( i = 0; i < len; i++ )
+    {
+        device = keyboards->at( i );
+        if( device->add_to_run_loop )
+        {
+            EM_log( CK_LOG_INFO, "keyboard: adding device %i to run loop", i );
+            device->add_to_run_loop = FALSE;
+            CFRunLoopAddSource( rlHid, device->eventSource, 
+                                kCFRunLoopChuckHidMode );
+        }
+        
+        if( device->stop_queue )
+        {
+            device->stop_queue = FALSE;
+            
+            CFRunLoopRemoveSource( rlHid, device->eventSource, 
+                                   kCFRunLoopChuckHidMode );
+            
+            IOReturn result = ( *( device->queue ) )->stop( device->queue );
+            if( result != kIOReturnSuccess )
+                EM_log( CK_LOG_INFO, "keyboard: error stopping event queue" );
         }
     }
     
@@ -788,6 +877,8 @@ void Hid_callback( void * target, IOReturn result,
                 if( event.value == 0 )
                     msg.type = CK_HID_BUTTON_UP;
                 msg.idata[0] = event.value;
+                if( msg.device_type == CK_HID_DEV_KEYBOARD )
+                    msg.eid = element->usage;
                 break;
         }
         
@@ -1051,17 +1142,69 @@ void Keyboard_quit()
 
 int Keyboard_count()
 {
-    return 0;
+    if( keyboards == NULL )
+        return -1;
+    return keyboards->size();
 }
 
 int Keyboard_open( int k )
 {
-    return -1;
+    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
+        return -1;
+    
+    OSX_Device * keyboard = keyboards->at( k );
+    
+    if( keyboard->refcount == 0 )
+    {
+        if( keyboard->configure() )
+        {
+            EM_log( CK_LOG_SEVERE, "keyboard: error in keyboard configuration" );
+            return -1;
+        }
+        
+        IOReturn result = ( *( keyboard->queue ) )->start( keyboard->queue );
+        if( result != kIOReturnSuccess )
+        {
+            EM_log( CK_LOG_SEVERE, "keyboard: error starting event queue" );
+            return -1;
+        }
+        
+        keyboard->add_to_run_loop = TRUE;
+        if( rlHid )
+            CFRunLoopStop( rlHid );
+    }
+    
+    keyboard->refcount++;
+    
+    return 0;
 }
 
 int Keyboard_close( int k )
 {
-    return -1;
+    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
+        return -1;
+    
+    OSX_Device * keyboard = keyboards->at( k );
+    
+    if( keyboard->refcount > 0 )
+    {
+        keyboard->refcount--;
+        
+        if( keyboard->refcount == 0 )
+        {
+            keyboard->stop_queue = TRUE;
+            if( rlHid )
+                CFRunLoopStop( rlHid );
+        }
+    }
+    
+    else
+    {
+        EM_log( CK_LOG_INFO, "keyboard: warning: keyboard %i closed when not open", k );
+        return -1;
+    }
+    
+    return 0;
 }
 
 #elif ( defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) ) && !defined( USE_RAWINPUT )
