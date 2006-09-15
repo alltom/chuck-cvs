@@ -47,7 +47,7 @@ while( true )
     // loop over messages
     while( hi.recv( msg ) )
     {
-        if( msg.is_mouse_motion() )
+        if( msg.isMouseMotion() )
         {
             msg.deltaX * .001 + a0 => a0;
             //else if( msg.which == 1 ) msg.fdata => a1;
@@ -55,7 +55,7 @@ while( true )
             set( base, a0, a1, a2 );
         }
 
-        else if( msg.is_button_down() )
+        else if( msg.isButtonDown() )
         {
             msg.which => base;
             count++;
@@ -63,7 +63,7 @@ while( true )
             set( base, a0, a1, a2 );
         }
 
-        else if( msg.is_button_up() )
+        else if( msg.isButtonUp() )
         {
             msg.which => base;
             count--;

@@ -70,47 +70,21 @@ struct HidMsg
 
 
 /* device types */
-/*
-enum
-{
-    CK_HID_DEV_NONE = 0,
-    CK_HID_DEV_JOYSTICK,
-    CK_HID_DEV_MOUSE,
-    CK_HID_DEV_KEYBOARD,
+static const t_CKUINT CK_HID_DEV_NONE = 0;
+static const t_CKUINT CK_HID_DEV_JOYSTICK = 1;
+static const t_CKUINT CK_HID_DEV_MOUSE = 2;
+static const t_CKUINT CK_HID_DEV_KEYBOARD = 3;
+static const t_CKUINT CK_HID_DEV_COUNT = 4;
 
-    CK_HID_DEV_COUNT
-};
-*/
-const t_CKUINT CK_HID_DEV_NONE = 0;
-const t_CKUINT CK_HID_DEV_JOYSTICK = 1;
-const t_CKUINT CK_HID_DEV_MOUSE = 2;
-const t_CKUINT CK_HID_DEV_KEYBOARD = 3;
-const t_CKUINT CK_HID_DEV_COUNT = 4;
-
-/* joystick message types */
-/*
-enum
-{
-    CK_HID_JOYSTICK_AXIS = 0,
-    CK_HID_BUTTON_DOWN,
-    CK_HID_BUTTON_UP,
-    CK_HID_JOYSTICK_HAT,
-    CK_HID_JOYSTICK_BALL,
-    CK_HID_MOUSE_MOTION,
-    CK_HID_MOUSE_WHEEL,
-
-    CK_HID_MSG_COUNT
-};
-*/
-
-const t_CKUINT CK_HID_JOYSTICK_AXIS = 0;
-const t_CKUINT CK_HID_BUTTON_DOWN = 1;
-const t_CKUINT CK_HID_BUTTON_UP = 2;
-const t_CKUINT CK_HID_JOYSTICK_HAT = 3;
-const t_CKUINT CK_HID_JOYSTICK_BALL = 4;
-const t_CKUINT CK_HID_MOUSE_MOTION = 5;
-const t_CKUINT CK_HID_MOUSE_WHEEL = 6;
-const t_CKUINT CK_HID_MSG_COUNT = 7;
+/* message types */
+static const t_CKUINT CK_HID_JOYSTICK_AXIS = 0;
+static const t_CKUINT CK_HID_BUTTON_DOWN = 1;
+static const t_CKUINT CK_HID_BUTTON_UP = 2;
+static const t_CKUINT CK_HID_JOYSTICK_HAT = 3;
+static const t_CKUINT CK_HID_JOYSTICK_BALL = 4;
+static const t_CKUINT CK_HID_MOUSE_MOTION = 5;
+static const t_CKUINT CK_HID_MOUSE_WHEEL = 6;
+static const t_CKUINT CK_HID_MSG_COUNT = 7;
 
 /* constants */
 #define CK_MAX_HID_DEVICES 1024

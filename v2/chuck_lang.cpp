@@ -536,6 +536,17 @@ error:
 
 // static
 static t_CKUINT HidIn_offset_data = 0;
+static t_CKUINT HidIn_offset_joystick = 0;
+static t_CKUINT HidIn_offset_mouse = 0;
+static t_CKUINT HidIn_offset_keyboard = 0;
+static t_CKUINT HidIn_offset_axis_motion = 0;
+static t_CKUINT HidIn_offset_button_down = 0;
+static t_CKUINT HidIn_offset_button_up = 0;
+static t_CKUINT HidIn_offset_joystick_hat = 0;
+static t_CKUINT HidIn_offset_joystick_ball = 0;
+static t_CKUINT HidIn_offset_mouse_motion = 0;
+static t_CKUINT HidIn_offset_mouse_wheel = 0;
+
 static t_CKUINT HidMsg_offset_device_type = 0;
 static t_CKUINT HidMsg_offset_device_num = 0;
 static t_CKUINT HidMsg_offset_type = 0;
@@ -553,6 +564,7 @@ static t_CKUINT HidMsg_offset_x = 0;
 static t_CKUINT HidMsg_offset_y = 0;
 static t_CKUINT HidMsg_offset_scaled_x = 0;
 static t_CKUINT HidMsg_offset_scaled_y = 0;
+
 static t_CKUINT HidOut_offset_data = 0;
 
 //-----------------------------------------------------------------------------
@@ -716,55 +728,45 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     HidIn_offset_data = type_engine_import_mvar( env, "int", "@HidIn_data", FALSE );
     if( HidIn_offset_data == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable joystick
-    if( !type_engine_import_svar( env, "int", "joystick", TRUE, 
-                                  (t_CKUINT)&CK_HID_DEV_JOYSTICK ) )
-        goto error;
+    // add member variable JOYSTICK
+    HidIn_offset_joystick = type_engine_import_mvar( env, "int", "JOYSTICK", FALSE ); 
+    if( HidIn_offset_joystick == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable mouse
-    if( !type_engine_import_svar( env, "int", "mouse", TRUE, 
-                                  (t_CKUINT)&CK_HID_DEV_MOUSE ) )
-        goto error;
+    // add member variable KEYBOARD
+    HidIn_offset_keyboard = type_engine_import_mvar( env, "int", "KEYBOARD", FALSE ); 
+    if( HidIn_offset_keyboard == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable keyboard
-    if( !type_engine_import_svar( env, "int", "keyboard", TRUE, 
-                                  (t_CKUINT)&CK_HID_DEV_KEYBOARD ) )
-        goto error;
+    // add member variable MOUSE
+    HidIn_offset_mouse = type_engine_import_mvar( env, "int", "MOUSE", FALSE ); 
+    if( HidIn_offset_mouse == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable joystickAxis
-    if( !type_engine_import_svar( env, "int", "joystickAxis", TRUE, 
-                                  (t_CKUINT)&CK_HID_JOYSTICK_AXIS ) )
-        goto error;
+    // add member variable AXIS_MOTION
+    HidIn_offset_axis_motion = type_engine_import_mvar( env, "int", "AXIS_MOTION", FALSE ); 
+    if( HidIn_offset_axis_motion == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable buttonDown
-    if( !type_engine_import_svar( env, "int", "buttonDown", TRUE, 
-                                  (t_CKUINT)&CK_HID_BUTTON_DOWN ) )
-        goto error;
+    // add member variable BUTTON_DOWN
+    HidIn_offset_button_down = type_engine_import_mvar( env, "int", "BUTTON_DOWN", FALSE ); 
+    if( HidIn_offset_button_down == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable buttonUp
-    if( !type_engine_import_svar( env, "int", "buttonUp", TRUE, 
-                                  (t_CKUINT)&CK_HID_BUTTON_UP ) )
-        goto error;
+    // add member variable BUTTON_UP
+    HidIn_offset_button_up = type_engine_import_mvar( env, "int", "BUTTON_UP", FALSE ); 
+    if( HidIn_offset_button_up == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable joystickHat
-    if( !type_engine_import_svar( env, "int", "joystickHat", TRUE, 
-                                  (t_CKUINT)&CK_HID_JOYSTICK_HAT ) )
-        goto error;
+    // add member variable JOYSTICK_HAT
+    HidIn_offset_joystick_hat = type_engine_import_mvar( env, "int", "JOYSTICK_HAT", FALSE ); 
+    if( HidIn_offset_joystick_hat == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable joystickBall
-    if( !type_engine_import_svar( env, "int", "joystickBall", TRUE, 
-                                  (t_CKUINT)&CK_HID_JOYSTICK_BALL ) )
-        goto error;
+    // add member variable JOYSTICK_BALL
+    HidIn_offset_joystick_ball = type_engine_import_mvar( env, "int", "JOYSTICK_BALL", FALSE ); 
+    if( HidIn_offset_joystick_ball == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable mouseMotion
-    if( !type_engine_import_svar( env, "int", "mouseMotion", TRUE, 
-                                  (t_CKUINT)&CK_HID_MOUSE_MOTION ) )
-        goto error;
+    // add member variable MOUSE_MOTION
+    HidIn_offset_mouse_motion = type_engine_import_mvar( env, "int", "MOUSE_MOTION", FALSE ); 
+    if( HidIn_offset_mouse_motion == CK_INVALID_OFFSET ) goto error;
     
-    // add static variable mouseWheel
-    if( !type_engine_import_svar( env, "int", "mouseWheel", TRUE, 
-                                  (t_CKUINT)&CK_HID_MOUSE_WHEEL ) )
-        goto error;
+    // add member variable MOUSE_WHEEL
+    HidIn_offset_mouse_wheel = type_engine_import_mvar( env, "int", "MOUSE_WHEEL", FALSE ); 
+    if( HidIn_offset_mouse_wheel == CK_INVALID_OFFSET ) goto error;
     
     // end the class import
     type_engine_import_class_end( env );
@@ -1550,6 +1552,18 @@ CK_DLL_CTOR( HidIn_ctor )
     HidIn * min = new HidIn;
     min->SELF = SELF;
     OBJ_MEMBER_INT(SELF, HidIn_offset_data) = (t_CKINT)min;
+    
+    // initialize hacked "static" "constants"
+    OBJ_MEMBER_INT(SELF, HidIn_offset_joystick) = (t_CKINT)CK_HID_DEV_JOYSTICK;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_mouse) = (t_CKINT)CK_HID_DEV_MOUSE;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_keyboard) = (t_CKINT)CK_HID_DEV_KEYBOARD;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_axis_motion) = (t_CKINT)CK_HID_JOYSTICK_AXIS;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_button_down) = (t_CKINT)CK_HID_BUTTON_DOWN;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_button_up) = (t_CKINT)CK_HID_BUTTON_UP;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_joystick_hat) = (t_CKINT)CK_HID_JOYSTICK_HAT;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_joystick_ball) = (t_CKINT)CK_HID_JOYSTICK_BALL;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_mouse_motion) = (t_CKINT)CK_HID_MOUSE_MOTION;
+    OBJ_MEMBER_INT(SELF, HidIn_offset_mouse_wheel) = (t_CKINT)CK_HID_MOUSE_WHEEL;
 }
 
 CK_DLL_DTOR( HidIn_dtor )

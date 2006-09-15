@@ -91,8 +91,6 @@ t_CKBOOL HidInManager::has_init = FALSE;
 CBufferSimple * HidInManager::msg_buffer = NULL;
 std::vector<PhyHidDevOut *> HidOutManager::the_phouts;
 
-
-
 //-----------------------------------------------------------------------------
 // name: PhyHidDevIn()
 // desc: constructor

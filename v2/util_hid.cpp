@@ -492,8 +492,8 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                             continue;
                         
                         /* filter out error and reserved usages*/
-                        if( !( usage_page == kHIDPage_KeyboardOrKeypad &&
-                               usage >= kHIDUsage_KeyboardA &&
+                        if( usage_page == kHIDPage_KeyboardOrKeypad &&
+                            !( usage >= kHIDUsage_KeyboardA &&
                                usage <= kHIDUsage_KeyboardRightGUI ) )
                             continue;
                         

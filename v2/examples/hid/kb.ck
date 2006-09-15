@@ -15,7 +15,7 @@ while( true )
     while( hi.recv( msg ) )
     {
         // check for action type
-        if( msg.is_button_down() )
+        if( msg.isButtonDown() )
         {
             <<< "down:", msg.which >>>;
         }

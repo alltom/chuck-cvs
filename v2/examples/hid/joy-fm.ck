@@ -47,15 +47,15 @@ while( true )
     // loop over messages
     while( hi.recv( msg ) )
     {
-        if( msg.type == 0 )
+        if( msg.isAxisMotion() )
         {
-            if( msg.which == 0 ) msg.fdata => a0;
-            else if( msg.which == 1 ) msg.fdata => a1;
-            else if( msg.which == 2 ) msg.fdata => a2;
+            if( msg.which == 0 ) msg.axisPosition => a0;
+            else if( msg.which == 1 ) msg.axisPosition => a1;
+            else if( msg.which == 2 ) msg.axisPosition => a2;
             set( base, a0, a1, a2 );
         }
 
-        else if( msg.type == 1 )
+        else if( msg.isButtonDown() )
         {
             msg.which => base;
             count++;
@@ -63,7 +63,7 @@ while( true )
             set( base, a0, a1, a2 );
         }
 
-        else if( msg.type == 2 )
+        else if( msg.isButtonUp() )
         {
             msg.which => base;
             count--;

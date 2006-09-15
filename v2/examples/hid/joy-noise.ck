@@ -56,23 +56,23 @@ while( true )
     while( hi.recv( msg ) )
     {
         // axis 0: map to pan
-        if( msg.type == 0 && msg.which == 0 )
-        { msg.fdata => p.pan; }
+        if( msg.isAxisMotion() && msg.which == 0 )
+        { msg.axisPosition => p.pan; }
 
         // axis 1: map to pfreq
-        if( msg.type == 0 && msg.which == 1 )
-        { -msg.fdata => value; set( value, factor, q ); }
+        if( msg.isAxisMotion() && msg.which == 1 )
+        { -msg.axisPosition => value; set( value, factor, q ); }
 
         // axis 2: map to Q
-        if( msg.type == 0 && msg.which == 2 )
-        { msg.fdata => q; set( value, factor, q ); }
+        if( msg.isAxisMotion() && msg.which == 2 )
+        { msg.axisPosition => q; set( value, factor, q ); }
 
         // button down (any)
-        if( msg.type == 1 /*&& msg.which == 7*/ )
+        if( msg.isButtonDown()  )
         { count++; if( count ) e.keyOn(); msg.which + 1 => factor; set( value, factor, q ); }
 
         // button up (any)
-        if( msg.type == 2 /*&& msg.which == 7*/ )
+        if( msg.isButtonUp() )
         { count--; if( !count ) e.keyOff(); }
     }
 }
