@@ -468,8 +468,9 @@ CK_DLL_TICK( triosc_tick )
     }
 
     // compute
-    if( d->phase < d->width ) *out = (SAMPLE) ( d->width == 0.0 ) ? 1.0 : -1.0 + 2.0 * d->phase / d->width; 
-    else *out = (SAMPLE) ( d->width == 1.0 ) ? 0 : 1.0 - 2.0 * ( d->phase - d->width ) / ( 1.0 - d->width );
+    t_CKFLOAT phase = d->phase + .25; if( phase > 1.0 ) phase -= 1.0;
+    if( phase < d->width ) *out = (SAMPLE) (d->width == 0.0) ? 1.0 : -1.0 + 2.0 * phase / d->width; 
+    else *out = (SAMPLE) (d->width == 1.0) ? 0 : 1.0 - 2.0 * (phase - d->width) / (1.0 - d->width);
 
     // advance internal phase
     if( inc_phase )
@@ -538,7 +539,7 @@ CK_DLL_TICK( pulseosc_tick )
     }
 
     // compute
-    *out = (SAMPLE) ( d->phase < d->width ) ? -1.0 : 1.0 ;
+    *out = (SAMPLE) (d->phase < d->width) ? 1.0 : -1.0;
 
     // move phase
     if( inc_phase )
