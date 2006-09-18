@@ -2695,6 +2695,8 @@ public:
   MY_FLOAT value;
   MY_FLOAT target;
   MY_FLOAT rate;
+  MY_FLOAT m_target; // chuck
+  MY_FLOAT m_time; // chuck
   int state;
 };
 
@@ -12110,10 +12112,12 @@ MY_FLOAT *Echo :: tick(MY_FLOAT *vec, unsigned int vectorSize)
 #include <stdio.h>
 
 Envelope :: Envelope(void) : Stk()
-{    
+{
   target = (MY_FLOAT) 0.0;
   value = (MY_FLOAT) 0.0;
   rate = (MY_FLOAT) 0.001;
+  m_target = 1.0;
+  m_time = rate * Stk::sampleRate();
   state = 0;
 }
 
@@ -12123,7 +12127,7 @@ Envelope :: ~Envelope(void)
 
 void Envelope :: keyOn(void)
 {
-  target = (MY_FLOAT) 1.0;
+  target = (MY_FLOAT) m_target;
   if (value != target) state = 1;
 }
 
@@ -12141,22 +12145,33 @@ void Envelope :: setRate(MY_FLOAT aRate)
   }
   else
     rate = aRate;
+    
+  m_time = rate * Stk::sampleRate() / m_target;
+  if( m_time < 0.0 ) m_time = -m_time;
 }
 
 void Envelope :: setTime(MY_FLOAT aTime)
 {
   if (aTime < 0.0) {
     printf("[chuck](via Envelope): negative times not allowed ... correcting!\n");
-    rate = 1.0 / (-aTime * Stk::sampleRate());
+    rate = m_target / (-aTime * Stk::sampleRate());
   }
+  else if( aTime == 0.0 )
+    rate = FLT_MAX;
   else
-    rate = 1.0 / (aTime * Stk::sampleRate());
+    rate = m_target / (aTime * Stk::sampleRate());
+    
+  m_time = aTime;
+  if( m_time < 0.0 ) m_time = -m_time;
 }
 
 void Envelope :: setTarget(MY_FLOAT aTarget)
 {
-  target = aTarget;
+  target = m_target = aTarget;
   if (value != target) state = 1;
+  
+  // set time
+  setTime( m_time );
 }
 
 void Envelope :: setValue(MY_FLOAT aValue)
@@ -26122,7 +26137,7 @@ CK_DLL_CTRL( Envelope_ctrl_time )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setTime( GET_NEXT_FLOAT(ARGS) );
-    RETURN->v_float = 1.0 / ( d->rate * Stk::sampleRate() );
+    RETURN->v_float = d->m_time;
 }
 
 
@@ -26133,7 +26148,7 @@ CK_DLL_CTRL( Envelope_ctrl_time )
 CK_DLL_CGET( Envelope_cget_time )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_float = 1.0 / ( d->rate * Stk::sampleRate() );
+    RETURN->v_float = d->m_time;
 }
 
 
