@@ -40,12 +40,10 @@
             void .set( float a, float d, float s, float r );
   - (added) new UGens (adapted from SC3 Server, Pure Data, CSound)
     --------------------------
-          LPF : lowpass filter (2nd order butterworth)
-          HPF : highpass filter (2nd order butterworth)
+          LPF : resonant lowpass filter (2nd order butterworth)
+          HPF : resonant highpass filter (2nd order butterworth)
           BPF : bandpass filter (2nd order butterworth)
           BRF : bandreject filter (2nd order butterworth)
-         RLPF : resonant lowpass filter (2nd order)
-         RHPF : resonant highpass filter (2nd order)
        ResonZ : resonant filter (BiQuad with equal-gain zeros)
   FilterBasic : base class to above filters
     --------------------------
@@ -65,6 +63,7 @@
             |
       NOTE: the above changes may break/affect existing patches
             using TriOsc, PulseOsc, or SqrOsc
+  - (fixed) TriOsc/PulseOsc/SqrOsc phase consistent with convention
   - (fixed) ADSR now handles keyOff() before sustain state
   - (fixed) ADSR now correctly inherits Envelope
 
