@@ -51,6 +51,7 @@
   - (added) HidMsg fields to determine device type and number
   - (added) HidMsg functions with capitalization rather than underscores 
             (underscored functions deprecated)
+  - (added) .period for all oscillators
   - (fixed) floating point denormals no longer cause potentially
             massive CPU usage on intel processors, this includes
             BiQuad, OnePole, TwoPole, PoleZero, JCRev, PRCRev, NRev
