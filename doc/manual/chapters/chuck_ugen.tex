@@ -180,7 +180,7 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 
 }
 
-\ugenheading{filters}
+\ugenheading{basic signal processing}
 
 \chuckugen{
 \ugen{ HalfRect}
@@ -206,20 +206,238 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 \end{chuckitemize}
 }
 
-\ugenheading{delays}
 
-\chuckugen{
-\ugen{ DelayP}
+\ugenheading{filters}
+
+\chuckugen{ 
+\ugen{BiQuad}
 \begin{chuckitemize}
-\item variable write delay
+\item BiQuad (two-pole, two-zero) filter class. 
 \end{chuckitemize}
+\verbatiminput{examples/ugen/BiQuad.txt}
 \control
 \begin{chuckitemize}
-\item {\bf .delay} - (dur, READ/WRITE) - {\it delay before subsequent values emerge }
-\item {\bf .window} - (dur, READ/WRITE) - {\it time for 'write head' to move}
-\item {\bf .max} - (dur, READ/WRITE) - {\it max delay possible. trashes buffer, so do it first!}
+\item {\bf .b2} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a2} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a0} (float, READ only) {\it filter coefficient}
+
+\item {\bf .pfreq} (float, READ/WRITE) {\it set resonance frequency (poles)}
+\item {\bf .prad} (float, READ/WRITE) {\it pole radius (<= 1 to be stable)}
+\item {\bf .zfreq} (float, READ/WRITE) {\it notch frequency}
+\item {\bf .zrad} (float, READ/WRITE) {\it zero radius}
+\item {\bf .norm} (float, READ/WRITE) {\it normalization}
+\item {\bf .eqzs} (float, READ/WRITE) {\it equal gain zeroes}
 \end{chuckitemize}
 }
+
+
+\chuckugen{ 
+\ugen{ OnePole}
+\begin{chuckitemize}
+\item STK one-pole filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/OnePole.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .pole} (float, READ/WRITE) {\it set pole position along real axis of z-plane}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ TwoPole}
+\begin{chuckitemize}
+\item STK two-pole filter class. 
+\item see examples/powerup.ck 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/TwoPole.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .a2} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it  filter coefficient}
+\item {\bf .freq} (float, READ/WRITE) {\it filter resonance frequency}
+\item {\bf .radius} (float, READ/WRITE) {\it filter resonance radius}
+\item {\bf .norm} (float, READ/WRITE) {\it toggle filter normalization}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ OneZero}
+\begin{chuckitemize}
+\item STK one-zero filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/OneZero.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .zero} (float, READ/WRITE) {\it  set zero position}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ TwoZero}
+\begin{chuckitemize}
+\item STK two-zero filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/TwoZero.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b2} (float, READ/WRITE) {\it  filter coefficient}
+\item {\bf .freq} (float, READ/WRITE) {\it filter notch frequency}
+\item {\bf .radius} (float, READ/WRITE) {\it filter notch radius}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ PoleZero}
+\begin{chuckitemize}
+\item STK one-pole, one-zero filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/PoleZero.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
+\item {\bf .b1} (float, READ/WRITE) {\it  filter coefficient}
+\item {\bf .blockZero} (float, READ/WRITE) {\it DC blocking filter with given pole position}
+\item {\bf .allpass} (float, READ/WRITE) {\it allpass filter with given coefficient}
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ Filter}
+\begin{chuckitemize}
+\item STK filter class. 
+\end{chuckitemize}
+\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .coefs} (string, WRITE only) 
+\end{chuckitemize}
+}
+
+
+\chuckugen{ 
+\ugen{ LPF}
+\begin{chuckitemize}
+\item Resonant low pass filter.  2nd order Butterworth. (In the future, this class may be expanded so that order and type of filter can be set.)
+\end{chuckitemize}
+extends FilterBasic
+
+%\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it cutoff frequency (Hz)} 
+\item {\bf .Q} (float, READ/WRITE) {\it resonance (default is 1)} 
+\item {\bf .set} (float, float WRITE only) {\it set freq and Q} 
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ HPF}
+\begin{chuckitemize}
+\item Resonant high pass filter.  2nd order Butterworth. (In the future, this class may be expanded so that order and type of filter can be set.)
+\end{chuckitemize}
+extends FilterBasic
+
+%\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it cutoff frequency (Hz)} 
+\item {\bf .Q} (float, READ/WRITE) {\it resonance (default is 1)} 
+\item {\bf .set} (float, float WRITE only) {\it set freq and Q} 
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ BPF}
+\begin{chuckitemize}
+\item Band pass filter.  2nd order Butterworth. (In the future, this class may be expanded so that order and type of filter can be set.)
+\end{chuckitemize}
+extends FilterBasic
+
+%\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it center frequency (Hz)} 
+\item {\bf .Q} (float, READ/WRITE) {\it Q (default is 1)} 
+\item {\bf .set} (float, float WRITE only) {\it set freq and Q} 
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ BRF}
+\begin{chuckitemize}
+\item Band reject filter.  2nd order Butterworth. (In the future, this class may be expanded so that order and type of filter can be set.)
+\end{chuckitemize}
+extends FilterBasic
+
+%\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it center frequency (Hz)} 
+\item {\bf .Q} (float, READ/WRITE) {\it Q (default is 1)} 
+\item {\bf .set} (float, float WRITE only) {\it set freq and Q} 
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ ResonZ}
+\begin{chuckitemize}
+\item Resonance filter.  Same as BiQuad with equal gain zeros.
+\end{chuckitemize}
+extends FilterBasic
+
+%\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it center frequency (Hz)} 
+\item {\bf .Q} (float, READ/WRITE) {\it Q (default is 1)} 
+\item {\bf .set} (float, float WRITE only) {\it set freq and Q} 
+\end{chuckitemize}
+}
+
+\chuckugen{ 
+\ugen{ FilterBasic}
+\begin{chuckitemize}
+\item base class, don't instantiate.
+\end{chuckitemize}
+%\verbatiminput{examples/ugen/Filter.txt}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it cutoff/center frequency (Hz)} 
+\item {\bf .Q} (float, READ/WRITE) {\it resonance/Q} 
+\item {\bf .set} (float, float WRITE only) {\it set freq and Q} 
+\end{chuckitemize}
+}
+
+%\ugenheading{delays}
+%
+%\chuckugen{
+%\ugen{ DelayP}
+%\begin{chuckitemize}
+%\item variable write delay
+%\end{chuckitemize}
+%\control
+%\begin{chuckitemize}
+%\item {\bf .delay} - (dur, READ/WRITE) - {\it delay before subsequent values emerge }
+%\item {\bf .window} - (dur, READ/WRITE) - {\it time for 'write head' to move}
+%\item {\bf .max} - (dur, READ/WRITE) - {\it max delay possible. trashes buffer, so do it first!}
+%\end{chuckitemize}
+%}
 
 \ugenheading{sound files}
 
@@ -244,7 +462,7 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 \item {\bf .freq} - (float, READ/WRITE) - {\it playback rate (file loops/second)}
 \item {\bf .phase} - (float, READ/WRITE) - {\it set phase position (0-1)}
 \item {\bf .channel} - (int, READ/WRITE) - {\it select channel (0 \textless x \textless .channels) }
-//\item {\bf .phase\underline{ }offset} - (float, READ/WRITE) - {\it set a phase offset}
+\item {\bf .phaseOffset} - (float, READ/WRITE) - {\it set a phase offset}
 \item {\bf .samples} - (int, READ only) - {\it fetch number of samples}
 \item {\bf .length} - (float, READ only) - {\it fetch length in seconds}
 \item {\bf .channels} - (int, READ only) - {\it fetch number of channels}
@@ -1096,7 +1314,8 @@ extends \hypertarget{ugen_FM}{FM}
 \item {\bf .keyOn} (int, WRITE only) {\it ramp to 1.0}
 \item {\bf .keyOff} (int, WRITE only) {\it ramp to 0.0}
 \item {\bf .target} (float, READ/WRITE) {\it ramp to arbitrary value}
-\item {\bf .time} (float, READ/WRITE) {\it time to reach target}
+\item {\bf .time} (float, READ/WRITE) {\it time to reach target (in second)}
+\item {\bf .duration} (dur, READ/WRITE) {\it time to reach target}
 \item {\bf .rate} (float, READ/WRITE) {\it rate of change}
 \item {\bf .duration} (dur, READ/WRITE) {\it duration of steady state}
 \item {\bf .value} (float, READ/WRITE) {\it set immediate value}
@@ -1126,127 +1345,6 @@ extends \hypertarget{ugen_FM}{FM}
 \end{chuckitemize}
 }
 
-\ugenheading{STK - Filters}
-
-\chuckugen{ 
-\ugen{ BiQuad}
-\begin{chuckitemize}
-\item STK biquad (two-pole, two-zero) filter class. 
-\end{chuckitemize}
-\verbatiminput{examples/ugen/BiQuad.txt}
-\control
-\begin{chuckitemize}
-\item {\bf .b2} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .a2} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .a0} (float, READ only) {\it filter coefficient}
-
-\item {\bf .pfreq} (float, WRITE only) {\it set resonance frequency (poles)}
-\item {\bf .prad} (float, WRITE only) {\it pole radius (less than 1 to be stable)}
-\item {\bf .zfreq} (float, WRITE only) {\it notch frequency}
-\item {\bf .zrad} (float, WRITE only) {\it zero radius}
-\item {\bf .norm} (float, WRITE only) {\it normalization}
-\item {\bf .eqzs} (float, WRITE only) {\it equal gain zeroes}
-\end{chuckitemize}
-}
-
-
-\chuckugen{ 
-\ugen{ Filter}
-\begin{chuckitemize}
-\item STK filter class. 
-\end{chuckitemize}
-\verbatiminput{examples/ugen/Filter.txt}
-\control
-\begin{chuckitemize}
-\item {\bf .coefs} (string, WRITE only) 
-\end{chuckitemize}
-}
-
-
-\chuckugen{ 
-\ugen{ OnePole}
-\begin{chuckitemize}
-\item STK one-pole filter class. 
-\end{chuckitemize}
-\verbatiminput{examples/ugen/OnePole.txt}
-\control
-\begin{chuckitemize}
-\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .pole} (float, READ/WRITE) {\it set pole position along real axis of z-plane}
-\end{chuckitemize}
-}
-
-
-\chuckugen{ 
-\ugen{ TwoPole}
-\begin{chuckitemize}
-\item STK two-pole filter class. 
-\item see examples/powerup.ck 
-\end{chuckitemize}
-\verbatiminput{examples/ugen/TwoPole.txt}
-\control
-\begin{chuckitemize}
-\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .a2} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b0} (float, READ/WRITE) {\it  filter coefficient}
-\item {\bf .freq} (float, READ/WRITE) {\it filter resonance frequency}
-\item {\bf .radius} (float, READ/WRITE) {\it filter resonance radius}
-\item {\bf .norm} (float, READ/WRITE) {\it toggle filter normalization}
-\end{chuckitemize}
-}
-
-
-\chuckugen{ 
-\ugen{ OneZero}
-\begin{chuckitemize}
-\item STK one-zero filter class. 
-\end{chuckitemize}
-\verbatiminput{examples/ugen/OneZero.txt}
-\control
-\begin{chuckitemize}
-\item {\bf .zero} (float, READ/WRITE) {\it  set zero position}
-\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
-\end{chuckitemize}
-}
-
-
-\chuckugen{ 
-\ugen{ TwoZero}
-\begin{chuckitemize}
-\item STK two-zero filter class. 
-\end{chuckitemize}
-\verbatiminput{examples/ugen/TwoZero.txt}
-\control
-\begin{chuckitemize}
-\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b1} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b2} (float, READ/WRITE) {\it  filter coefficient}
-\item {\bf .freq} (float, READ/WRITE) {\it filter notch frequency}
-\item {\bf .radius} (float, READ/WRITE) {\it filter notch radius}
-\end{chuckitemize}
-}
-
-
-\chuckugen{ 
-\ugen{ PoleZero}
-\begin{chuckitemize}
-\item STK one-pole, one-zero filter class. 
-\end{chuckitemize}
-\verbatiminput{examples/ugen/PoleZero.txt}
-\control
-\begin{chuckitemize}
-\item {\bf .a1} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b0} (float, READ/WRITE) {\it filter coefficient}
-\item {\bf .b1} (float, READ/WRITE) {\it  filter coefficient}
-\item {\bf .blockZero} (float, READ/WRITE) {\it DC blocking filter with given pole position}
-\item {\bf .allpass} (float, READ/WRITE) {\it allpass filter with given coefficient}
-\end{chuckitemize}
-}
 
 \ugenheading{STK - Reverbs}
 
