@@ -1,4 +1,4 @@
-        step s => dac;  
+        Step s => dac;  
         -1.0 => float amp;  
         // square wave using step  
         while( true ) {      
