@@ -221,7 +221,8 @@ Note: The associative capacity of an array is not defined, so objects used in th
 
 \section{array assignment}
 
-Arrays are objects. So when we declare an array, we are actually (1) declaring a reference to array (reference variable) and (2) instantiating a new array and reference assigned to the variable. A (null) reference is a reference variable that points to no object or null. A null reference to an array can be created in this fasion:
+Arrays are objects. So when we declare an array, we are actually (1) declaring a reference to array (reference variable) and (2) instantiating a new array and reference assigned to the variable. A (null) reference is a reference variable that points to no
+ object or null. A null reference to an array can be created in this fasion:
 \begin{verbatim}
     // declare array reference (by not specifying a capacity)
     int foo[];
@@ -265,7 +266,7 @@ Like other objects, it is possible make multiple references to a single array. L
     // they reference the same array, changing one is like changing the other
     5 => the_array[0];
     <<< foo[0] >>>; // should be 5
-\eng{verbatim}
+\end{verbatim}
 
 It is possible to reference sub-sections of multi-dimensional arrays.
 \begin{verbatim}
