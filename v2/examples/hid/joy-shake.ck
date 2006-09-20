@@ -23,7 +23,7 @@ while( true )
     while( hi.recv( msg ) )
     {
         // axis
-        if( msg.type == HidIn.joystickAxis )
+        if( msg.isAxisMotion() )
         {
             if( msg.which == 0 ) (msg.axisPosition+1) / 2.0 => s.energy;
             if( msg.which == 1 ) (msg.axisPosition+1) * 64 => s.objects;
@@ -33,7 +33,7 @@ while( true )
         }
 
         // button down
-        if( msg.type == HidIn.buttonDown )
+        if( msg.isButtonDown() )
         {
             if( msg.which == 0 ) s.noteOn( .8 );
             if( msg.which == 2 ) { which++; (which % 22) => s.preset; }
