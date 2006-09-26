@@ -1354,6 +1354,40 @@ void Joystick_init()
 	EM_poplog();
 }
 
+t_CKINT Joystick_translate_POV( DWORD v )
+{
+#define CK_POV_CENTER 0
+#define CK_POV_UP 1
+#define CK_POV_RIGHT 2
+#define CK_POV_DOWN 4
+#define CK_POV_LEFT 8
+
+#define CK_POV_UP_LBORDER 29250
+#define CK_POV_UP_RBORDER 6750
+#define CK_POV_RIGHT_LBORDER 2250
+#define CK_POV_RIGHT_RBORDER 15750
+#define CK_POV_DOWN_LBORDER 11250
+#define CK_POV_DOWN_RBORDER 24750
+#define CK_POV_LEFT_LBORDER 20250
+#define CK_POV_LEFT_RBORDER 33750
+
+	t_CKINT r = 0;
+
+	if( LOWORD(v) == 0xffff )
+		return CK_POV_CENTER;
+
+	if( v > CK_POV_UP_LBORDER || v < CK_POV_UP_RBORDER )
+		r |= CK_POV_UP;
+	if( v > CK_POV_RIGHT_LBORDER && v < CK_POV_RIGHT_RBORDER )
+		r |= CK_POV_RIGHT;
+	if( v > CK_POV_DOWN_LBORDER && v < CK_POV_DOWN_RBORDER )
+		r |= CK_POV_DOWN;
+	if( v > CK_POV_LEFT_LBORDER && v < CK_POV_LEFT_RBORDER )
+		r |= CK_POV_LEFT;
+
+	return r;
+}
+
 void Joystick_poll()
 {
 	if( !joysticks )
@@ -1445,7 +1479,36 @@ void Joystick_poll()
 				HidInManager::push_message( msg );
 			}
 
-			for( int j = 0; j < joystick->caps.dwButtons && j < 128; j++ )
+			for( int j = 0; j < 2; j++ )
+			{
+				if( state.rglSlider[j] != joystick->last_state.rglSlider[j] )
+				{
+					msg.clear();
+					msg.device_num = i;
+					msg.device_type = CK_HID_DEV_JOYSTICK;
+					msg.eid = 5 + j;
+					msg.type = CK_HID_JOYSTICK_AXIS;
+		            msg.fdata[0] = ((float)state.rglSlider[j])/((float)axis_max);
+					HidInManager::push_message( msg );
+				}
+			}
+
+			for( j = 0; j < joystick->caps.dwPOVs && j < 4; j++ )
+			{
+				if( state.rgdwPOV[j] != joystick->last_state.rgdwPOV[j] )
+				{
+					msg.clear();
+					msg.device_num = i;
+					msg.device_type = CK_HID_DEV_JOYSTICK;
+					msg.eid = j;
+					msg.type = CK_HID_JOYSTICK_HAT;
+					msg.idata[0] = Joystick_translate_POV( state.rgdwPOV[j] );
+					msg.fdata[0] = (t_CKFLOAT)state.rgdwPOV[j];
+					HidInManager::push_message( msg );
+				}
+			}
+
+			for( j = 0; j < joystick->caps.dwButtons && j < 128; j++ )
 			{
 				if( ( state.rgbButtons[j] & 0x80 ) ^ 
 					( joystick->last_state.rgbButtons[j] & 0x80 ) )
