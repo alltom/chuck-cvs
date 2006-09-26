@@ -244,9 +244,8 @@ CK_DLL_MFUN( osc_send_startMesg ) {
 //-----------------------------------------------
 CK_DLL_MFUN( osc_send_startMesg_spec ) { 
     OSC_Transmitter* xmit = (OSC_Transmitter *)OBJ_MEMBER_INT(SELF, osc_send_offset_data);
-    Chuck_String* address = GET_NEXT_STRING(ARGS);
-    Chuck_String* args = GET_NEXT_STRING(ARGS);
-    xmit->startMessage( (char*) address->str.c_str(), (char*) args->str.c_str() );
+    Chuck_String* spec = GET_NEXT_STRING(ARGS);
+    xmit->startMessage( (char*) spec->str.c_str() );
 }
 
 //----------------------------------------------
