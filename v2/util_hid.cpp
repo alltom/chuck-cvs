@@ -1213,14 +1213,43 @@ Windows general HID support
 *****************************************************************************/
 #pragma mark Window general HID support
 
+#include <windows.h>
+#define DIRECTINPUT_VERSION 0x0500
+#include <dinput.h>
+
+/* for performance, we use device event notifications to tell us when a device 
+   has new data.  However, serial devices don't seem to support event 
+   notification, so we have to fall back to the periodic sleeping and polling.  
+   g_wait_function is usually set to call WaitForSingleObject (wait for event
+   notification), but devices for which SetEventNotification fails will replace
+   it with a wrapper around usleep.  */
+static HANDLE g_device_event = NULL;
+static void (*g_wait_function)() = NULL;
+
+static void Hid_wait_usleep()
+{
+	usleep( 10 );
+}
+
+static void Hid_wait_event()
+{
+	WaitForSingleObject( g_device_event, INFINITE );
+}
+
 void Hid_init()
 {
-    
+    if( g_device_event != NULL )
+		return;
+
+	g_device_event = CreateEvent( NULL, FALSE, FALSE, NULL );
+	if( g_device_event == NULL )
+		EM_log( CK_LOG_SEVERE, "hid: error: unable to create event (win32 error %i)", GetLastError() );
+	g_wait_function = Hid_wait_event;
 }
 
 void Hid_poll()
 {
-    usleep( 10 );
+    g_wait_function();
     Joystick_poll();
     Keyboard_poll();
     Mouse_poll();
@@ -1228,17 +1257,18 @@ void Hid_poll()
 
 void Hid_quit()
 {
-    
+	SetEvent( g_device_event );
+	/*if( g_device_event != NULL )
+	{
+		CloseHandle( g_device_event );
+		g_device_event = NULL;
+	}*/
 }
 
 /*****************************************************************************
 Windows joystick support
 *****************************************************************************/
 #pragma mark Windows joystick support
-
-#include <windows.h>
-#define DIRECTINPUT_VERSION 0x0500
-#include <dinput.h>
 
 static LPDIRECTINPUT lpdi = NULL;
 
@@ -1396,6 +1426,7 @@ void Joystick_poll()
 	win32_joystick * joystick;
 	HidMsg msg;
 	vector< win32_joystick * >::size_type i, len = joysticks->size();
+	int j;
 	for( i = 0; i < len; i++ )
 	{
 		joystick = joysticks->at( i );
@@ -1479,7 +1510,7 @@ void Joystick_poll()
 				HidInManager::push_message( msg );
 			}
 
-			for( int j = 0; j < 2; j++ )
+			for( j = 0; j < 2; j++ )
 			{
 				if( state.rglSlider[j] != joystick->last_state.rglSlider[j] )
 				{
@@ -1531,6 +1562,7 @@ void Joystick_poll()
 		{
 			joystick->needs_close = FALSE;
 			joystick->lpdiJoystick->Unacquire();
+			joystick->lpdiJoystick->SetEventNotification( NULL );
 		}
 	}
 
@@ -1601,8 +1633,15 @@ int Joystick_open( int js )
 			return -1;
 		}
 
+		if( joystick->lpdiJoystick->SetEventNotification( g_device_event ) != DI_OK )
+		{
+			// fallback to sleep+poll mode
+			g_wait_function = Hid_wait_usleep;
+		}
+
 		if( joystick->lpdiJoystick->Acquire() != DI_OK )
 		{
+			joystick->lpdiJoystick->SetEventNotification( NULL );
 			return -1;
 		}
 	}
