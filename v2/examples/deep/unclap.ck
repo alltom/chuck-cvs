@@ -9,14 +9,14 @@ SndBuf clapper1 => dac.left;
 SndBuf clapper2 => dac.right;
 
 // load built-in sounds
-"special:glot_ahh" => clapper1.read;
-"special:glot_ooo" => clapper2.read;
+"special:glot_ahh" => clapper1.read; 3.0 => clapper1.gain;
+"special:glot_ooo" => clapper2.read; 3.0 => clapper2.gain;
 
 // the full "clapping music" figure
 [.5, .5, 1, .5, 1, 1, .5, 1 ] @=> float seq[];
 
 // length of quarter note
-.36::second => dur quarter;
+.4::second => dur quarter;
 // how many measures per shift
 3 => int shift_period;
 // how much to shift by (in quarter notes)
@@ -44,7 +44,7 @@ fun void clap( SndBuf buffy, int max, float factor )
             {
                 <<< "shift!!!", "" >>>;
                 seq[count]*factor*quarter => now;
-                1 => shifts;
+                0 => shifts;
             }
         }
     }
