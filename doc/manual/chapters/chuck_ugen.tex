@@ -1613,13 +1613,16 @@ extends Event
 \chuckugen{
 \ugen{HidIn}
 \begin{chuckitemize}
-\item HID  receiver
+\item HID receiver
 \end{chuckitemize}
 extends Event
 \control
 \begin{chuckitemize}
-\item {\bf .openJoystick} (int, READ/WRITE) {\it set port to receive}
-\item {\bf .recv} (HidMsg, READ only) {\it receives HID input}
+\item {\bf .openJoystick} (int(which), WRITE only) {\it open joystick number}
+\item {\bf .openMouse} (int(which), WRITE only) {\it open mouse number}
+\item {\bf .openKeyboard} (int(which), WRITE only) {\it open keyboard number}
+\item {\bf .num} () {\it return joystick/mouse/keyboard number}
+\item {\bf .recv} (HidMsg, READ only) {\it writes the next message available for this device to the argument}
 \end{chuckitemize}
 (see events tutorial)
 }
@@ -1633,10 +1636,18 @@ extends Event
 \end{chuckitemize}
 \control
 \begin{chuckitemize}
-\item {\bf .type} (int, READ/WRITE) {\it type of data (member variable)}
-\item {\bf .which} (int, READ/WRITE) {\it type of data (member variable)}
+\item {\bf .isAxisMotion} (int, READ only) {\it non-zero if this message corresponds to movement of a joystick axis}
+\item {\bf .isButtonDown} (int, READ only) {\it non-zero if this message corresponds to button down or key down of any device type}
+\item {\bf .isButtonUp} (int, READ only) {\it non-zero if this message corresponds to button up or key up of any device type}
+\item {\bf .isMouseMotion} (int, READ only) {\it non-zero if this message corresponds to motion of a pointing device}
+\item {\bf .isHatMotion} (int, READ only) {\it non-zero if this message corresponds to motion of a joystick hat, point-of-view switch, or directional pad}
+\item {\bf .which} (int, READ/WRITE) {\it HID element number (member variable)}
+\item {\bf .axisPosition} (float, READ/WRITE) {\it position of joystick axis in the range [-1.0, 1.0] (member variable)}
+\item {\bf .deltaX} (float, READ/WRITE) {\it change in X axis of pointing device (member variable)}
+\item {\bf .deltaY} (float, READ/WRITE) {\it change in Y axis of pointing device (member variable)}
+\item {\bf .type} (int, READ/WRITE) {\it message/HID element type (member variable)}
 \item {\bf .idata} (int, READ/WRITE) {\it data (member variable)}
-\item {\bf .fdata} (int, READ/WRITE) {\it  data (member variable)}
+\item {\bf .fdata} (int, READ/WRITE) {\it data (member variable)}
 \end{chuckitemize}
 (see events tutorial)
 }
