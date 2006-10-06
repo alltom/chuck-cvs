@@ -859,7 +859,7 @@ void Hid_callback( void * target, IOReturn result,
                 break;
                 
             case CK_HID_MOUSE_MOTION:
-                if( element->usage = kHIDUsage_GD_X )
+                if( element->usage == kHIDUsage_GD_X )
                 {
                     msg.idata[0] = event.value;
                     msg.idata[1] = 0;
