@@ -1305,7 +1305,7 @@ static vector< win32_joystick * > * joysticks;
 static BOOL CALLBACK DIEnumJoystickProc( LPCDIDEVICEINSTANCE lpddi,
 										 LPVOID pvRef )
 {
-	GUID guid = lpddi->guidProduct;
+	GUID guid = lpddi->guidInstance;
 	win32_joystick * js = new win32_joystick;
 
 	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
@@ -1700,7 +1700,7 @@ static vector< win32_keyboard * > * keyboards;
 static BOOL CALLBACK DIEnumKeyboardProc( LPCDIDEVICEINSTANCE lpddi,
 										 LPVOID pvRef )
 {
-	GUID guid = lpddi->guidProduct;
+	GUID guid = lpddi->guidInstance;
 	win32_keyboard * keyboard = new win32_keyboard;
 
 	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
@@ -1921,7 +1921,7 @@ static vector< win32_mouse * > * mice;
 static BOOL CALLBACK DIEnumMouseProc( LPCDIDEVICEINSTANCE lpddi,
 									  LPVOID pvRef )
 {
-	GUID guid = lpddi->guidProduct;
+	GUID guid = lpddi->guidInstance;
 	win32_mouse * mouse = new win32_mouse;
 
 	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
