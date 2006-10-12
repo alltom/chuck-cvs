@@ -10,7 +10,7 @@ lowpass => Delay delay => lowpass;
 // our radius
 .99999 => float R;
 // our delay order
-300 => float L;
+100 => float L;
 // set delay
 L::samp => delay.delay;
 // set dissipation factor
