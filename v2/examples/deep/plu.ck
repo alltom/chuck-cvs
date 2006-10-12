@@ -3,14 +3,14 @@
 // author: Ge Wang (gewang@cs.princeton.edu)
 
 // feedforward
-Impulse imp => OneZero lowpass  => dac;
+Impulse imp => OneZero lowpass => dac;
 // feedback
 lowpass => Delay delay => lowpass;
 
 // our radius
 .99999 => float R;
 // our delay order
-1000 => float L;
+300 => float L;
 // set delay
 L::samp => delay.delay;
 // set dissipation factor
