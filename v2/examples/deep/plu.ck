@@ -3,14 +3,14 @@
 // author: Ge Wang (gewang@cs.princeton.edu)
 
 // feedforward
-Impulse imp => OneZero lowpass => dac;
+Noise imp => OneZero lowpass => dac;
 // feedback
 lowpass => Delay delay => lowpass;
 
 // our radius
 .99999 => float R;
 // our delay order
-100 => float L;
+500 => float L;
 // set delay
 L::samp => delay.delay;
 // set dissipation factor
@@ -18,8 +18,12 @@ Math.pow( R, L ) => delay.gain;
 // place zero
 -1 => lowpass.zero;
 
-// fire an impulse
-1.0 => imp.next;
+// fire excitation
+1 => imp.gain;
+// for one delay round trip
+L::samp => now;
+// done
+0 => imp.gain;
 
 // advance time
-12::second => now;
+(Math.log(.0001) / Math.log(R))::samp => now;
