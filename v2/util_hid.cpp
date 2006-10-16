@@ -23,7 +23,7 @@ U.S.A.
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: util_hid.c
+// file: util_hid.cpp
 // desc: refactored HID joystick, keyboard, mouse support
 //
 // author: Spencer Salazar (ssalazar@cs.princeton.edu)
@@ -2228,10 +2228,12 @@ Linux general HID support
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <linux/joystick.h>
+#include <linux/input.h>
 
-#define CK_HID_DIR "/dev/input"
-#define CK_HID_MOUSEFILE "mouse%d"
-#define CK_HID_JOYSTICKFILE "js%d"
+#define CK_HID_DIR ("/dev/input")
+#define CK_HID_MOUSEFILE ("mouse%d")
+#define CK_HID_JOYSTICKFILE ("js%d")
+#define CK_HID_EVDEVFILE ("event%d")
 #define CK_HID_STRBUFSIZE (1024)
 #define CK_HID_NAMESIZE (128)
 
@@ -2246,13 +2248,13 @@ public:
         pollfds_i = 0;
         filename[0] = '\0';
         needs_open = needs_close = FALSE;
-        strncpy( name, "Joystick", 128 );
+        strncpy( name, "Joystick", CK_HID_NAMESIZE );
     }
     
     virtual void callback() = 0;
     
     int fd;       // file descriptor
-    t_CKINT num; // index in the joysticks vector
+    t_CKINT num; // index in the respective device vector {joysticks, mice, keyboards}
     
     t_CKUINT refcount;
     
@@ -2417,8 +2419,45 @@ public:
     ps2_mouse_event last_event;
 };
 
+class linux_keyboard : public linux_device
+{
+public:
+    linux_keyboard() : linux_device()
+    {
+    }
+    
+    virtual void callback()
+    {
+        input_event event;
+        HidMsg msg;
+        ssize_t len;
+                
+        while( ( len = read( fd, &event, sizeof( event ) ) ) > 0 )
+        {
+            if( len < sizeof( event ) )
+            {
+                EM_log( CK_LOG_WARNING, "keyboard: read event from keyboard %i smaller than expected (%i), ignoring", num, len );
+                continue;
+            }
+            
+            if( event.value == 2 )
+                continue;
+            
+            msg.clear();
+            msg.device_type = CK_HID_DEV_KEYBOARD;
+            msg.device_num = num;
+            msg.type = event.value ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = event.code;
+            msg.idata[0] = event.value;
+            
+            HidInManager::push_message( msg );
+        }
+    }
+};
+
 static vector< linux_joystick * > * joysticks = NULL;
 static vector< linux_mouse * > * mice = NULL;
+static vector< linux_keyboard * > * keyboards = NULL;
 
 static map< int, linux_device * > * device_map = NULL;
 
@@ -2521,6 +2560,7 @@ void Hid_poll()
                     // erase the closing entry by copying the last entry into it
                     // this is okay even when joystick->pollfds_i == pollfds_end
                     // because we decrement pollfds_end
+                    ( *device_map )[pollfds[pollfds_end - 1].fd]->pollfds_i = hcm.device->pollfds_i;  
                     pollfds[hcm.device->pollfds_i] = pollfds[pollfds_end - 1];
                     pollfds_end--;
                     close( hcm.device->fd );
@@ -2810,9 +2850,90 @@ int Mouse_close( int m )
     return 0;
 }
 
+#define test_bit( array, bit )    (array[bit/8] & (1<<(bit%8)))
+
+void Keyboard_configure( const char * filename )
+{
+    struct stat statbuf;
+    int fd, devmajor, devminor;
+    linux_keyboard * keyboard;
+    unsigned char relcaps[(REL_MAX / 8) + 1];
+    unsigned char abscaps[(ABS_MAX / 8) + 1];
+    unsigned char keycaps[(KEY_MAX / 8) + 1];
+    
+    if( stat( filename, &statbuf ) == -1 )
+        return;
+
+    if( S_ISCHR( statbuf.st_mode ) == 0 )
+        return; /* not a character device... */
+    
+    devmajor = ( statbuf.st_rdev & 0xFF00 ) >> 8;
+    devminor = ( statbuf.st_rdev & 0x00FF );
+    if ( ( devmajor != 13 ) || ( devminor < 64 ) || ( devminor > 96 ) )
+        return; /* not an evdev. */
+    
+    if( ( fd = open( filename, O_RDONLY | O_NONBLOCK ) ) < 0 )
+        return;
+        
+    memset( relcaps, 0, sizeof( relcaps ) );
+    memset( abscaps, 0, sizeof( abscaps ) );
+    memset( keycaps, 0, sizeof( keycaps ) );
+    
+    if( ioctl( fd, EVIOCGBIT( EV_KEY, sizeof( keycaps ) ), keycaps ) == -1 )
+        return;
+    
+    if( test_bit( keycaps, BTN_MISC ) )
+        return;
+    
+    keyboard = new linux_keyboard;
+    keyboard->num = keyboards->size();
+    ioctl( fd, EVIOCGNAME( CK_HID_NAMESIZE ), keyboard->name );
+    if( fd >= 0 )
+        close( fd ); // no need to keep the file open
+    strncpy( keyboard->filename, filename, CK_HID_STRBUFSIZE );
+    keyboards->push_back( keyboard );
+    EM_log( CK_LOG_INFO, "keyboard: found device %s", keyboard->name );
+}
+
 void Keyboard_init()
 {
+    if( keyboards != NULL )
+        return;
     
+    EM_log( CK_LOG_INFO, "initializing keyboards" );
+    EM_pushlog();
+        
+    keyboards = new vector< linux_keyboard * >;
+        
+    DIR * dir_handle;
+    struct dirent * dir_entity;
+    
+    int m_num;
+        
+    char buf[CK_HID_STRBUFSIZE];
+    
+    dir_handle = opendir( CK_HID_DIR );
+    if( dir_handle == NULL )
+    {
+        if( errno == EACCES )
+            EM_log( CK_LOG_WARNING, "hid: error opening %s, unable to initialize keyboards", CK_HID_DIR );
+        EM_poplog();
+        return;
+    }
+    
+    while( dir_entity = readdir( dir_handle ) )
+    {
+        if( sscanf( dir_entity->d_name, CK_HID_EVDEVFILE, &m_num ) )
+        {
+            snprintf( buf, CK_HID_STRBUFSIZE, "%s/%s", CK_HID_DIR, 
+                      dir_entity->d_name );
+            Keyboard_configure( buf );
+        }
+    }
+
+    closedir( dir_handle );
+    EM_poplog();
+
 }
 
 void Keyboard_poll()
@@ -2827,17 +2948,51 @@ void Keyboard_quit()
 
 int Keyboard_count()
 {
+    if( keyboards == NULL )
+        return 0;
+    return keyboards->size();
+}
+
+int Keyboard_open( int k )
+{
+    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
+        return -1;
+    
+    linux_keyboard * keyboard = keyboards->at( k );
+        
+    if( keyboard->refcount == 0 )
+    {
+        if( ( keyboard->fd = open( keyboard->filename, O_RDONLY | O_NONBLOCK ) ) < 0 )
+        {
+            EM_log( CK_LOG_SEVERE, "keyboard: unable to open %s: %s", keyboard->filename, strerror( errno ) );
+            return -1;
+        }
+        
+        hid_channel_msg hcm = { HID_CHANNEL_OPEN, keyboard };
+        write( hid_channel_w, &hcm, sizeof( hcm ) );
+    }
+    
+    keyboard->refcount++;
+    
     return 0;
 }
 
-int Keyboard_open( int js )
+int Keyboard_close( int k )
 {
-    return -1;
-}
-
-int Keyboard_close( int js )
-{
-    return -1;
+    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
+        return -1;
+    
+    linux_keyboard * keyboard = keyboards->at( k );
+    
+    keyboard->refcount--;
+    
+    if( keyboard->refcount == 0 )
+    {
+        hid_channel_msg hcm = { HID_CHANNEL_CLOSE, keyboard };
+        write( hid_channel_w, &hcm, sizeof( hcm ) );
+    }
+    
+    return 0;
 }
 
 #endif
