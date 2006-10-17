@@ -35,61 +35,18 @@
 #ifndef __HID_IO_H__
 #define __HID_IO_H__
 
-#ifdef __cplusplus
 #include "chuck_def.h"
 #include "util_buffers.h"
 #include "util_thread.h"
-#endif
+
+#include "util_hid.h"
 
 // forward reference
 struct PhyHidDevIn;
 struct PhyHidDevOut;
 
-//-----------------------------------------------------------------------------
-// definitions
-//-----------------------------------------------------------------------------
-struct HidMsg
-{
-    t_CKINT device_type; // device type
-    t_CKINT device_num;  // device number
-    t_CKINT type;        // message type
-    t_CKINT eid;         // element id
-    t_CKINT idata[4];    // int data
-    t_CKFLOAT fdata[4];  // float data
-    
-#ifdef __cplusplus
-    HidMsg()
-    { this->clear(); }
-
-    void clear()
-    {
-        memset( this, 0, sizeof(HidMsg) );
-    }
-#endif
-};
-
-
-/* device types */
-static const t_CKUINT CK_HID_DEV_NONE = 0;
-static const t_CKUINT CK_HID_DEV_JOYSTICK = 1;
-static const t_CKUINT CK_HID_DEV_MOUSE = 2;
-static const t_CKUINT CK_HID_DEV_KEYBOARD = 3;
-static const t_CKUINT CK_HID_DEV_COUNT = 4;
-
-/* message types */
-static const t_CKUINT CK_HID_JOYSTICK_AXIS = 0;
-static const t_CKUINT CK_HID_BUTTON_DOWN = 1;
-static const t_CKUINT CK_HID_BUTTON_UP = 2;
-static const t_CKUINT CK_HID_JOYSTICK_HAT = 3;
-static const t_CKUINT CK_HID_JOYSTICK_BALL = 4;
-static const t_CKUINT CK_HID_MOUSE_MOTION = 5;
-static const t_CKUINT CK_HID_MOUSE_WHEEL = 6;
-static const t_CKUINT CK_HID_MSG_COUNT = 7;
-
 /* constants */
 #define CK_MAX_HID_DEVICES 1024
-
-#ifdef __cplusplus
 
 //-----------------------------------------------------------------------------
 // name: struct HidOut
@@ -124,9 +81,6 @@ public:
     t_CKBOOL m_suppress_output;
 };
 
-
-
-
 //-----------------------------------------------------------------------------
 // name: class HidIn
 // desc: HID input
@@ -152,6 +106,7 @@ public:
 public:
     t_CKBOOL empty();
     t_CKUINT recv( HidMsg * msg );
+    std::string name();
 
 public:
     PhyHidDevIn * phin;
@@ -163,10 +118,8 @@ public:
     t_CKBOOL m_suppress_output;
 };
 
-
 void probeHidIn();
 void probeHidOut();
-
 
 class HidInManager
 {
@@ -205,8 +158,5 @@ protected:
 
     static std::vector<PhyHidDevOut *> the_phouts;
 };
-
-#endif
-
 
 #endif

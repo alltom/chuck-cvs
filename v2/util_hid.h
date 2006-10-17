@@ -30,8 +30,50 @@ U.S.A.
 // date: spring 2006
 //-----------------------------------------------------------------------------
 
-#include <string>
+#ifndef __UTIL_HID_H__
+#define __UTIL_HID_H__
 
+//-----------------------------------------------------------------------------
+// definitions
+//-----------------------------------------------------------------------------
+struct HidMsg
+{
+    t_CKINT device_type; // device type
+    t_CKINT device_num;  // device number
+    t_CKINT type;        // message type
+    t_CKINT eid;         // element id
+    t_CKINT idata[4];    // int data
+    t_CKFLOAT fdata[4];  // float data
+    
+#ifdef __cplusplus
+    HidMsg()
+    { this->clear(); }
+
+    void clear()
+    {
+        memset( this, 0, sizeof(HidMsg) );
+    }
+#endif
+};
+
+/* device types */
+static const t_CKUINT CK_HID_DEV_NONE = 0;
+static const t_CKUINT CK_HID_DEV_JOYSTICK = 1;
+static const t_CKUINT CK_HID_DEV_MOUSE = 2;
+static const t_CKUINT CK_HID_DEV_KEYBOARD = 3;
+static const t_CKUINT CK_HID_DEV_COUNT = 4;
+
+/* message types */
+static const t_CKUINT CK_HID_JOYSTICK_AXIS = 0;
+static const t_CKUINT CK_HID_BUTTON_DOWN = 1;
+static const t_CKUINT CK_HID_BUTTON_UP = 2;
+static const t_CKUINT CK_HID_JOYSTICK_HAT = 3;
+static const t_CKUINT CK_HID_JOYSTICK_BALL = 4;
+static const t_CKUINT CK_HID_MOUSE_MOTION = 5;
+static const t_CKUINT CK_HID_MOUSE_WHEEL = 6;
+static const t_CKUINT CK_HID_MSG_COUNT = 7;
+
+/* functions */
 extern void Hid_init();
 extern void Hid_poll();
 extern void Hid_quit();
@@ -41,16 +83,20 @@ extern void Joystick_poll();
 extern void Joystick_quit();
 extern int Joystick_count();
 extern int Joystick_open( int js );
-extern int Joystick_open( std::string & name );
+extern int Joystick_open( const char * name );
 extern int Joystick_close( int js );
 extern const char * Joystick_name( int js );
+
+extern int Joystick_axes( int js );
+extern int Joystick_buttons( int js );
+extern int Joystick_hats( int js );
 
 extern void Mouse_init();
 extern void Mouse_poll();
 extern void Mouse_quit();
 extern int Mouse_count();
 extern int Mouse_open( int m );
-extern int Mouse_open( std::string & name );
+extern int Mouse_open( const char * name );
 extern int Mouse_close( int m );
 extern const char * Mouse_name( int m );
     
@@ -59,6 +105,8 @@ extern void Keyboard_poll();
 extern void Keyboard_quit();
 extern int Keyboard_count();
 extern int Keyboard_open( int kb );
-extern int Keyboard_open( std::string & name );
+extern int Keyboard_open( const char * name );
 extern int Keyboard_close( int kb );
 extern const char * Keyboard_name( int kb );
+
+#endif

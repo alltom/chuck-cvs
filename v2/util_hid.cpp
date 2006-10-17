@@ -1033,6 +1033,14 @@ int Joystick_close( int js )
     return 0;
 }
 
+const char * Joystick_name( int js )
+{
+    if( !joysticks || js < 0 || js >= joysticks->size() )
+        return NULL;
+    
+    return joysticks->at( js )->name;
+}
+
 #pragma mark OS X Mouse support
 
 void Mouse_init()
@@ -1664,6 +1672,14 @@ int Joystick_close( int js )
 		joystick->needs_close = TRUE;
 
 	return 0;
+}
+
+const char * Joystick_name( int js )
+{
+    if( !joysticks || js < 0 || js >= joysticks->size() )
+        return NULL;
+    
+    return joysticks->at( js )->name;
 }
 
 /*****************************************************************************
@@ -2726,6 +2742,14 @@ int Joystick_close( int js )
     return 0;
 }
 
+const char * Joystick_name( int js )
+{
+    if( joysticks == NULL || js < 0 || js >= joysticks->size() )
+        return NULL;
+    
+    return joysticks->at( js )->name;
+}
+
 void Mouse_init()
 {
     if( mice != NULL )
@@ -2746,8 +2770,7 @@ void Mouse_init()
     dir_handle = opendir( CK_HID_DIR );
     if( dir_handle == NULL )
     {
-        if( errno == EACCES )
-            EM_log( CK_LOG_WARNING, "hid: error opening %s, unable to initialize mice", CK_HID_DIR );
+        EM_log( CK_LOG_WARNING, "hid: error opening %s, unable to initialize mice", CK_HID_DIR );
         EM_poplog();
         return;
     }
@@ -2879,11 +2902,34 @@ void Keyboard_configure( const char * filename )
     memset( abscaps, 0, sizeof( abscaps ) );
     memset( keycaps, 0, sizeof( keycaps ) );
     
+    int num_keys = 0;
     if( ioctl( fd, EVIOCGBIT( EV_KEY, sizeof( keycaps ) ), keycaps ) == -1 )
         return;
+        
+    if( ioctl( fd, EVIOCGBIT( EV_REL, sizeof( relcaps ) ), relcaps ) != -1 )
+    {
+        for( int i = 0; i < sizeof( relcaps ); i++ )
+            if( relcaps[i] )
+                return;
+    }
     
-    if( test_bit( keycaps, BTN_MISC ) )
-        return;
+    if( ioctl( fd, EVIOCGBIT( EV_ABS, sizeof( abscaps ) ), abscaps ) != -1 )
+    {
+        for( int i = 0; i < sizeof( abscaps ); i++ )
+            if( abscaps[i] )
+                return;
+    }
+    
+    for( int i = 0; i < sizeof( keycaps ); i++ )
+    {
+        for( int j = 0; j < 8; j++ )
+        {
+            if( keycaps[i] & ( 1 << j ) )
+                num_keys++;
+        }
+    }
+    
+    printf( "%s has %i keys\n", filename, num_keys );
     
     keyboard = new linux_keyboard;
     keyboard->num = keyboards->size();

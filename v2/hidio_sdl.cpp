@@ -56,6 +56,7 @@ public:
     ~PhyHidDevIn();
     t_CKBOOL open( t_CKINT type, t_CKUINT number );
     t_CKBOOL close();
+    std::string name();
     
     t_CKBOOL query_element( HidMsg * query );
 
@@ -223,7 +224,24 @@ t_CKBOOL PhyHidDevIn::close()
     return TRUE;
 }
 
-
+//-----------------------------------------------------------------------------
+// name: name()
+// desc: retrieve device name
+//-----------------------------------------------------------------------------
+string PhyHidDevIn::name()
+{
+    if( device_type == CK_HID_DEV_NONE )
+        return "";
+    
+    switch( device_type )
+    {
+        case CK_HID_DEV_JOYSTICK:
+#if defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
+            return Joystick_name( device_num );
+#endif
+            break;
+    }
+}
 
 //-----------------------------------------------------------------------------
 // name: HidOut()
@@ -510,7 +528,7 @@ t_CKBOOL HidIn::close()
         return FALSE;
 
     // close
-    // HidInManager::close( this );
+    //HidInManager::close( this );
 
     m_valid = FALSE;
 
@@ -534,8 +552,8 @@ t_CKBOOL HidIn::empty()
 
 
 //-----------------------------------------------------------------------------
-// name: get()
-// desc: get message
+// name: recv()
+// desc: receive message
 //-----------------------------------------------------------------------------
 t_CKUINT HidIn::recv( HidMsg * msg )
 {
@@ -543,6 +561,14 @@ t_CKUINT HidIn::recv( HidMsg * msg )
     return m_buffer->get( msg, 1, m_read_index );
 }
 
+//-----------------------------------------------------------------------------
+// name: name()
+// desc: get device name
+//-----------------------------------------------------------------------------
+std::string HidIn::name()
+{
+    return phin->name();
+}
 
 //-----------------------------------------------------------------------------
 // name: cb_hid_input
