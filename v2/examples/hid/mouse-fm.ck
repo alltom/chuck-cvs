@@ -37,7 +37,7 @@ HidMsg msg;
 
 // try
 if( !hi.openMouse( device ) ) me.exit();
-<<< "mouse ready...", "" >>>;
+<<< "mouse '", hi.name(), "' ready..." >>>;
 
 // infinite time loop
 while( true )

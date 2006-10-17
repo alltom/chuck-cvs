@@ -231,16 +231,30 @@ t_CKBOOL PhyHidDevIn::close()
 string PhyHidDevIn::name()
 {
     if( device_type == CK_HID_DEV_NONE )
-        return "";
+        return " ";
     
     switch( device_type )
     {
         case CK_HID_DEV_JOYSTICK:
-#if defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
+#if !defined( __WINDOWS_DS__ )
             return Joystick_name( device_num );
 #endif
             break;
+            
+        case CK_HID_DEV_MOUSE:
+#if defined( __MACOSX_CORE__ )
+            return Mouse_name( device_num );
+#endif
+            break;
+            
+        case CK_HID_DEV_KEYBOARD:
+#if defined( __MACOSX_CORE__ )
+            return Keyboard_name( device_num );
+#endif
+            break;
     }
+    
+    return " ";
 }
 
 //-----------------------------------------------------------------------------

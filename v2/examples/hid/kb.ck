@@ -3,7 +3,7 @@ HidMsg msg;
 
 // open keyboard
 if( !hi.openKeyboard( 0 ) ) me.exit();
-<<< "keyboard ready", "" >>>;
+<<< "keyboard '", hi.name(), "' ready" >>>;
 
 // infinite event loop
 while( true )

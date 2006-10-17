@@ -1132,6 +1132,14 @@ int Mouse_close( int m )
     return 0;
 }
 
+const char * Mouse_name( int m )
+{
+    if( mice == NULL || m < 0 || m >= mice->size() )
+        return NULL;
+    
+    return mice->at( m )->name;
+}
+
 #pragma mark OS X Keyboard support
 void Keyboard_init()
 {
@@ -1213,6 +1221,14 @@ int Keyboard_close( int k )
     }
     
     return 0;
+}
+
+const char * Keyboard_name( int k )
+{
+    if( keyboards == NULL || k < 0 || k >= mice->size() )
+        return NULL;
+    
+    return keyboards->at( k )->name;
 }
 
 #elif ( defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) ) && !defined( USE_RAWINPUT )
