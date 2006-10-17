@@ -242,13 +242,13 @@ string PhyHidDevIn::name()
             break;
             
         case CK_HID_DEV_MOUSE:
-#if defined( __MACOSX_CORE__ )
+#if !defined( __WINDOWS_DS__ )
             return Mouse_name( device_num );
 #endif
             break;
             
         case CK_HID_DEV_KEYBOARD:
-#if defined( __MACOSX_CORE__ )
+#if !defined( __WINDOWS_DS__ )
             return Keyboard_name( device_num );
 #endif
             break;

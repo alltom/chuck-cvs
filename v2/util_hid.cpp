@@ -2280,7 +2280,7 @@ public:
         pollfds_i = 0;
         filename[0] = '\0';
         needs_open = needs_close = FALSE;
-        strncpy( name, "Joystick", CK_HID_NAMESIZE );
+        strncpy( name, "(name unknown)", CK_HID_NAMESIZE );
     }
     
     virtual void callback() = 0;
@@ -2889,6 +2889,13 @@ int Mouse_close( int m )
     return 0;
 }
 
+const char * Mouse_name( int m )
+{
+    if( mice == NULL || m < 0 || m >= mice->size() )
+        return NULL;
+    return mice->at( m )->name;
+}
+    
 #define test_bit( array, bit )    (array[bit/8] & (1<<(bit%8)))
 
 void Keyboard_configure( const char * filename )
@@ -3055,6 +3062,14 @@ int Keyboard_close( int k )
     }
     
     return 0;
+}
+
+const char * Keyboard_name( int k )
+{
+    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
+        return NULL;
+    
+    return keyboards->at( k )->name;
 }
 
 #endif
