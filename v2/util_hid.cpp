@@ -937,7 +937,7 @@ void Hid_callback( void * target, IOReturn result,
                 else // "Y" wheel motion - the default for single wheel systems
                 {
                     msg.idata[0] = 0;
-                    msg.idata[1] = 1;
+                    msg.idata[1] = event.value;
                 }
                 
                 break;
