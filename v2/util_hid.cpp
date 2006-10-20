@@ -2390,7 +2390,8 @@ public:
     
     virtual void callback()
     {        
-        ps2_mouse_event event;
+        //ps2_mouse_event event;
+        input_event event;
         HidMsg msg;
         ssize_t len;
                 
@@ -2402,6 +2403,62 @@ public:
                 continue;
             }
             
+            switch( event.type )
+            {
+                case EV_KEY:
+                    if( event.code & BTN_MOUSE )
+                    {
+                        msg.clear();
+                        msg.device_type = CK_HID_DEV_MOUSE;
+                        msg.device_num = num;
+                        msg.eid = event.code - BTN_MOUSE;
+                        msg.type = event.value ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+                        msg.idata[0] = event.value;
+                        HidInManager::push_message( msg ); 
+                    }
+                    
+                    break;
+                
+                case EV_REL:
+                    msg.clear();
+                    msg.device_type = CK_HID_DEV_MOUSE;
+                    msg.device_num = num;
+                    
+                    switch( event.code )
+                    {
+                        case REL_X:
+                            msg.type = CK_HID_MOUSE_MOTION;
+                            msg.idata[0] = event.value;
+                            msg.idata[1] = 0;
+                            break;
+                    
+                        case REL_Y:
+                            msg.type = CK_HID_MOUSE_MOTION;
+                            msg.idata[0] = 0;
+                            msg.idata[1] = event.value;
+                            break;
+                    
+                        case REL_HWHEEL:
+                            msg.type = CK_HID_MOUSE_WHEEL;
+                            msg.idata[0] = event.value;
+                            msg.idata[1] = 0;
+                            break;
+                    
+                        case REL_Z:
+                        case REL_WHEEL:
+                            msg.type = CK_HID_MOUSE_WHEEL;
+                            msg.idata[0] = 0;
+                            msg.idata[1] = event.value;
+                            break;
+                    }
+                    
+                    HidInManager::push_message( msg );
+                    
+                    break;
+                    
+            }
+            
+/*            
             if( event.dx || event.dy )
             {
                 msg.device_type = CK_HID_DEV_MOUSE;
@@ -2442,13 +2499,14 @@ public:
                 msg.idata[0] = event.button3;
                 HidInManager::push_message( msg );
             }
-            
+            */
             memcpy( &last_event, &event, sizeof( last_event ) );
         }
     }
     
     int m_num;   // /dev/input/mouse# <-- the #
-    ps2_mouse_event last_event;
+    //ps2_mouse_event last_event;
+    input_event last_event;
 };
 
 class linux_keyboard : public linux_device
@@ -2766,6 +2824,74 @@ const char * Joystick_name( int js )
     return joysticks->at( js )->name;
 }
 
+#define test_bit( array, bit )    (array[bit/8] & (1<<(bit%8)))
+
+void Mouse_configure( const char * filename )
+{
+    struct stat statbuf;
+    int fd, devmajor, devminor, is_mouse = 0;
+    linux_mouse * mouse;
+    unsigned char relcaps[(REL_MAX / 8) + 1];
+    unsigned char abscaps[(ABS_MAX / 8) + 1];
+    unsigned char keycaps[(KEY_MAX / 8) + 1];
+    
+    if( stat( filename, &statbuf ) == -1 )
+        return;
+    
+    if( S_ISCHR( statbuf.st_mode ) == 0 )
+        return; /* not a character device... */
+    
+    devmajor = ( statbuf.st_rdev & 0xFF00 ) >> 8;
+    devminor = ( statbuf.st_rdev & 0x00FF );
+    if ( ( devmajor != 13 ) || ( devminor < 64 ) || ( devminor > 96 ) )
+        return; /* not an evdev. */
+    
+    if( ( fd = open( filename, O_RDONLY | O_NONBLOCK ) ) < 0 )
+        return;
+    
+    memset( relcaps, 0, sizeof( relcaps ) );
+    memset( abscaps, 0, sizeof( abscaps ) );
+    memset( keycaps, 0, sizeof( keycaps ) );
+    
+    //int num_keys = 0;
+    if( ioctl( fd, EVIOCGBIT( EV_KEY, sizeof( keycaps ) ), keycaps ) == -1 )
+        return;
+    
+    is_mouse = 0;
+    if( ioctl( fd, EVIOCGBIT( EV_REL, sizeof( relcaps ) ), relcaps ) != -1 )
+    {
+        fprintf( stderr, "here1\n" );
+        if( test_bit( relcaps, REL_X ) && test_bit( relcaps, REL_Y ) && 
+            test_bit( keycaps, BTN_MOUSE ) )
+        {
+            fprintf( stderr, "here2\n" );
+            is_mouse = 1;
+        }
+        
+        if( test_bit( relcaps, REL_DIAL ) )
+            is_mouse = 1;
+    }
+    
+    if( ioctl( fd, EVIOCGBIT( EV_ABS, sizeof( abscaps ) ), abscaps ) != -1 )
+    {
+        if( test_bit( abscaps, ABS_X ) && test_bit( abscaps, ABS_Y ) && 
+            ( test_bit( keycaps, BTN_MOUSE ) || test_bit( keycaps, BTN_TOUCH ) ) )
+            is_mouse = 1;
+    }
+    
+    if( !is_mouse )
+        return;
+    
+    mouse = new linux_mouse;
+    mouse->num = mice->size();
+    ioctl( fd, EVIOCGNAME( CK_HID_NAMESIZE ), mouse->name );
+    if( fd >= 0 )
+        close( fd ); // no need to keep the file open
+    strncpy( mouse->filename, filename, CK_HID_STRBUFSIZE );
+    mice->push_back( mouse );
+    EM_log( CK_LOG_INFO, "mouse: found device %s", mouse->name );
+}
+
 void Mouse_init()
 {
     if( mice != NULL )
@@ -2793,13 +2919,14 @@ void Mouse_init()
     
     while( dir_entity = readdir( dir_handle ) )
     {
-        if( sscanf( dir_entity->d_name, CK_HID_MOUSEFILE, &m_num ) )
+        if( sscanf( dir_entity->d_name, CK_HID_EVDEVFILE, &m_num ) )
         {
             snprintf( buf, CK_HID_STRBUFSIZE, "%s/%s", CK_HID_DIR, 
                       dir_entity->d_name );
-            if( ( fd = open( buf, O_RDONLY | O_NONBLOCK ) ) >= 0 || 
-                errno == EACCES ) /* wait to report access errors until the 
-                                     device is actually opened */
+            Mouse_configure( buf );
+/*            if( ( fd = open( buf, O_RDONLY | O_NONBLOCK ) ) >= 0 || 
+                errno == EACCES ) *//* wait to report access errors until the 
+                                     device is actually opened *//*
             {
                 mouse = new linux_mouse;
                 mouse->m_num = m_num;
@@ -2810,7 +2937,7 @@ void Mouse_init()
                 strncpy( mouse->filename, buf, CK_HID_STRBUFSIZE );
                 mice->push_back( mouse );
                 //EM_log( CK_LOG_INFO, "mouse: found device %s", mouse->name );
-            }
+            }*/
         }
     }
 
@@ -2896,8 +3023,6 @@ const char * Mouse_name( int m )
     return mice->at( m )->name;
 }
     
-#define test_bit( array, bit )    (array[bit/8] & (1<<(bit%8)))
-
 void Keyboard_configure( const char * filename )
 {
     struct stat statbuf;
@@ -2951,8 +3076,6 @@ void Keyboard_configure( const char * filename )
                 num_keys++;
         }
     }
-    
-    printf( "%s has %i keys\n", filename, num_keys );
     
     keyboard = new linux_keyboard;
     keyboard->num = keyboards->size();
