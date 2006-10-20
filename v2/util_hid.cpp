@@ -95,6 +95,7 @@ struct OSX_Device
         buttons = -1;
         axes = -1;
         hats = -1;
+        wheels = -1;
         refcount = 0;
         stop_queue = add_to_run_loop = FALSE;
         hidProperties = NULL;
@@ -123,6 +124,7 @@ struct OSX_Device
     t_CKINT buttons;
     t_CKINT axes;
     t_CKINT hats;
+    t_CKINT wheels;
     
     t_CKUINT refcount; // incremented on open, decremented on close
     t_CKBOOL add_to_run_loop; // used to indicate that the event source needs to be added to the run loop 
@@ -159,23 +161,26 @@ t_CKINT OSX_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_typ
     {
         case CK_HID_DEV_JOYSTICK:
             strncpy( name, "Joystick", 256 );
-            axes = 0;
-            hats = 0;
             buttons = 0;
+            axes = 0;
+            wheels = 0;
+            hats = 0;
             break;
             
         case CK_HID_DEV_MOUSE:
             strncpy( name, "Mouse", 256 );
-            axes = 0;
-            hats = -1;
             buttons = 0;
+            axes = 0;
+            wheels = 0;
+            hats = -1;
             break;
             
         case CK_HID_DEV_KEYBOARD:
             strncpy( name, "Keyboard", 256 );
-            axes = -1;
-            hats = -1;
             buttons = 0;
+            axes = -1;
+            wheels = -1;
+            hats = -1;
             break;
     }
 
@@ -391,7 +396,6 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                             case kHIDUsage_GD_Rz:
                             case kHIDUsage_GD_Slider:
                             case kHIDUsage_GD_Dial:
-                            case kHIDUsage_GD_Wheel:
                                 // this is an axis
                                 if( axes == -1 )
                                     continue;
@@ -447,6 +451,47 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                                 
                                 break;
                                 
+                            case kHIDUsage_GD_Wheel:
+                                // this is an wheel
+                                if( wheels == -1 )
+                                    continue;
+                                
+                                element = new OSX_Device_Element;
+                                
+                                element->num = wheels;
+                                if( this->type == CK_HID_DEV_JOYSTICK )
+                                    element->type = CK_HID_JOYSTICK_AXIS;
+                                else
+                                    element->type = CK_HID_MOUSE_WHEEL;
+                                element->usage = usage;
+                                element->usage_page = usage_page;
+                                
+                                refCF = CFDictionaryGetValue( element_dictionary,
+                                                              CFSTR( kIOHIDElementCookieKey ) );
+                                if( !refCF || 
+                                    !CFNumberGetValue( ( CFNumberRef ) refCF, 
+                                                       kCFNumberLongType, 
+                                                       &element->cookie ) )
+                                {
+                                    delete element;
+                                    continue;
+                                }
+                                    
+                                result = (*queue)->addElement( queue, 
+                                                               element->cookie, 
+                                                               0 );
+                                if( result != kIOReturnSuccess )
+                                {
+                                    delete element;
+                                    continue;
+                                }
+                                    
+                                EM_log( CK_LOG_FINE, "adding wheel %d", wheels );
+                                
+                                (*elements)[element->cookie] = element;
+                                wheels++;
+                                break;
+                                
                             case kHIDUsage_GD_Hatswitch:
                                 // this is a hat
                                 if( hats == -1 )
@@ -481,6 +526,9 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                                 hats++;
                                 
                                 break;
+                                
+                            default:
+                                fprintf( stderr, "unknown page: %i usage: %i\n", usage_page, usage );
                         }
                         
                         break;
@@ -526,6 +574,9 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                         buttons++;
                         
                         break;
+                        
+                    default:
+                        fprintf( stderr, "unknown page: %i usage: %i\n", usage_page, usage );
                 }
                 
                 break;
@@ -628,7 +679,7 @@ void Hid_init()
                 usage == kHIDUsage_GD_GamePad )
                 // this is a joystick, create a new item in the joystick array
             {
-                EM_log( CK_LOG_INFO, "joystick: configuring joystick %i", joysticks_seen++ );
+                EM_log( CK_LOG_INFO, "joystick: preconfiguring joystick %i", joysticks_seen++ );
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
@@ -642,7 +693,7 @@ void Hid_init()
                     joysticks->push_back( new_device );
                 else
                 {
-                    EM_log( CK_LOG_INFO, "joystick: error during configuration" );
+                    EM_log( CK_LOG_INFO, "joystick: error during preconfiguration" );
                     delete new_device;
                 }
                 
@@ -652,7 +703,7 @@ void Hid_init()
             if( usage == kHIDUsage_GD_Mouse )
                 // this is a mouse
             {
-                EM_log( CK_LOG_INFO, "mouse: configuring mouse %i", mice_seen++ );
+                EM_log( CK_LOG_INFO, "mouse: preconfiguring mouse %i", mice_seen++ );
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
@@ -665,7 +716,7 @@ void Hid_init()
                     mice->push_back( new_device );
                 else
                 {
-                    EM_log( CK_LOG_INFO, "mouse: error during configuration" );
+                    EM_log( CK_LOG_INFO, "mouse: error during preconfiguration" );
                     delete new_device;
                 }
                 
@@ -675,7 +726,7 @@ void Hid_init()
             if( usage == kHIDUsage_GD_Keyboard || usage == kHIDUsage_GD_Keypad )
                 // this is a keyboard
             {
-                EM_log( CK_LOG_INFO, "keyboard: configuring keyboard %i", 
+                EM_log( CK_LOG_INFO, "keyboard: preconfiguring keyboard %i", 
                         keyboards_seen++ );
                 EM_pushlog();
                 
@@ -691,7 +742,7 @@ void Hid_init()
                 else
                 {
                     EM_log( CK_LOG_INFO, 
-                            "keyboard: error during configuration" );
+                            "keyboard: error during preconfiguration" );
                     delete new_device;
                 }
                 
@@ -859,6 +910,7 @@ void Hid_callback( void * target, IOReturn result,
                 break;
                 
             case CK_HID_MOUSE_MOTION:
+                msg.eid = 0;
                 if( element->usage == kHIDUsage_GD_X )
                 {
                     msg.idata[0] = event.value;
@@ -869,6 +921,23 @@ void Hid_callback( void * target, IOReturn result,
                 {
                     msg.idata[0] = 0;
                     msg.idata[1] = event.value;
+                }
+                
+                break;
+                
+            case CK_HID_MOUSE_WHEEL:
+                msg.eid = 0;
+                
+                if( element->num == 1 ) // "X" wheel motion
+                {
+                    msg.idata[0] = event.value;
+                    msg.idata[1] = 0;
+                }
+                    
+                else // "Y" wheel motion - the default for single wheel systems
+                {
+                    msg.idata[0] = 0;
+                    msg.idata[1] = 1;
                 }
                 
                 break;
@@ -982,11 +1051,17 @@ int Joystick_open( int js )
 
     if( joystick->refcount == 0 )
     {
+        EM_log( CK_LOG_INFO, "joystick: configuring %s", joystick->name );
+        EM_pushlog();
+        
         if( joystick->configure() )
         {
-            EM_log( CK_LOG_SEVERE, "joystick: error in joystick configuration" );
+            EM_poplog();
+            EM_log( CK_LOG_SEVERE, "joystick: error configuring %s", joystick->name );
             return -1;
         }
+        
+        EM_poplog();
         
         IOReturn result = ( *( joystick->queue ) )->start( joystick->queue );
         if( result != kIOReturnSuccess )
@@ -1081,11 +1156,17 @@ int Mouse_open( int m )
     
     if( mouse->refcount == 0 )
     {
+        EM_log( CK_LOG_INFO, "mouse: configuring %s", mouse->name );
+        EM_pushlog();
+        
         if( mouse->configure() )
         {
-            EM_log( CK_LOG_SEVERE, "mouse: error in mouse configuration" );
+            EM_poplog();
+            EM_log( CK_LOG_SEVERE, "mouse: error configuring %s", mouse->name );
             return -1;
         }
+        
+        EM_poplog();
         
         IOReturn result = ( *( mouse->queue ) )->start( mouse->queue );
         if( result != kIOReturnSuccess )
@@ -1172,11 +1253,17 @@ int Keyboard_open( int k )
     
     if( keyboard->refcount == 0 )
     {
+        EM_log( CK_LOG_INFO, "keyboard: configuring keyboard %s", keyboard->name );
+        EM_pushlog();
+        
         if( keyboard->configure() )
         {
-            EM_log( CK_LOG_SEVERE, "keyboard: error in keyboard configuration" );
+            EM_poplog();
+            EM_log( CK_LOG_SEVERE, "keyboard: error configuring %s", keyboard->name );
             return -1;
         }
+        
+        EM_poplog();
         
         IOReturn result = ( *( keyboard->queue ) )->start( keyboard->queue );
         if( result != kIOReturnSuccess )
