@@ -1,4 +1,4 @@
-// karplus & strong plucked string filter, different excitation
+// plucked string filter, different excitation
 // Ge Wang (gewang@cs.princeton.edu)
 
 // feedforward
