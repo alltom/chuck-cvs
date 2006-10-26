@@ -49,7 +49,7 @@ while( true )
         // space
         if( c == 32 )
         {
-            <<< "skiping...", "" >>>;
+            <<< "skipping...", "" >>>;
             T => now;
             continue;
         }
