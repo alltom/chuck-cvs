@@ -236,21 +236,15 @@ string PhyHidDevIn::name()
     switch( device_type )
     {
         case CK_HID_DEV_JOYSTICK:
-#if !defined( __WINDOWS_DS__ )
             return Joystick_name( device_num );
-#endif
             break;
             
         case CK_HID_DEV_MOUSE:
-#if !defined( __WINDOWS_DS__ )
             return Mouse_name( device_num );
-#endif
             break;
             
         case CK_HID_DEV_KEYBOARD:
-#if !defined( __WINDOWS_DS__ )
             return Keyboard_name( device_num );
-#endif
             break;
     }
     

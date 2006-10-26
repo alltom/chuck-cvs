@@ -1694,6 +1694,7 @@ void Joystick_quit()
 				joystick->needs_close = FALSE;
 				joystick->refcount = 0;
 				joystick->lpdiJoystick->Unacquire();
+			    joystick->lpdiJoystick->SetEventNotification( NULL );
 			}
 
 			joystick->lpdiJoystick->Release();
@@ -1748,6 +1749,7 @@ int Joystick_open( int js )
 		{
 			// fallback to sleep+poll mode
 			g_wait_function = Hid_wait_usleep;
+            SetEvent( g_device_event );
 		}
 
 		if( joystick->lpdiJoystick->Acquire() != DI_OK )
@@ -1927,6 +1929,7 @@ void Keyboard_poll()
 		{
 			keyboard->needs_close = FALSE;
 			keyboard->lpdiKeyboard->Unacquire();
+            keyboard->lpdiKeyboard->SetEventNotification( NULL );
 		}
 	}
 }
@@ -1946,6 +1949,7 @@ void Keyboard_quit()
 				keyboard->needs_close = FALSE;
 				keyboard->refcount = 0;
 				keyboard->lpdiKeyboard->Unacquire();
+                keyboard->lpdiKeyboard->SetEventNotification( NULL );
 			}
 
 			keyboard->lpdiKeyboard->Release();
@@ -1984,8 +1988,16 @@ int Keyboard_open( int k )
 			return -1;
 		}
 
+		if( keyboard->lpdiKeyboard->SetEventNotification( g_device_event ) != DI_OK )
+		{
+			// fallback to sleep+poll mode
+			g_wait_function = Hid_wait_usleep;
+            SetEvent( g_device_event );
+		}
+
 		if( keyboard->lpdiKeyboard->Acquire() != DI_OK )
 		{
+            keyboard->lpdiKeyboard->SetEventNotification( NULL );
 			return -1;
 		}
 	}
@@ -2008,6 +2020,14 @@ int Keyboard_close( int k )
 		keyboard->needs_close = TRUE;
 
 	return 0;
+}
+
+const char * Keyboard_name( int kb )
+{
+    if( !keyboards || kb < 0 || kb >= keyboards->size() )
+        return NULL;
+    
+    return keyboards->at( kb )->name;
 }
 
 /*****************************************************************************
@@ -2132,6 +2152,18 @@ void Mouse_poll()
 				HidInManager::push_message( msg );
 			}
 
+            if( state.lZ != 0 )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_MOUSE;
+                msg.type = CK_HID_MOUSE_WHEEL;
+                msg.eid = 0;
+                msg.idata[0] = 0;
+                msg.idata[1] = state.lZ;
+                HidInManager::push_message( msg );
+            }
+
 			for( int j = 0; j < 4; j++ )
 			{
 				if( ( state.rgbButtons[j] & 0x80 ) ^
@@ -2155,6 +2187,7 @@ void Mouse_poll()
 		{
 			mouse->needs_close = FALSE;
 			mouse->lpdiMouse->Unacquire();
+            mouse->lpdiMouse->SetEventNotification( NULL );
 		}
 	}
 }
@@ -2174,6 +2207,7 @@ void Mouse_quit()
 				mouse->needs_close = FALSE;
 				mouse->refcount = 0;
 				mouse->lpdiMouse->Unacquire();
+                mouse->lpdiMouse->SetEventNotification( NULL );
 			}
 
 			mouse->lpdiMouse->Release();
@@ -2212,8 +2246,16 @@ int Mouse_open( int m )
 			return -1;
 		}
 
+		if( mouse->lpdiMouse->SetEventNotification( g_device_event ) != DI_OK )
+		{
+			// fallback to sleep+poll mode
+			g_wait_function = Hid_wait_usleep;
+            SetEvent( g_device_event );
+		}
+
 		if( mouse->lpdiMouse->Acquire() != DI_OK )
 		{
+            mouse->lpdiMouse->SetEventNotification( g_device_event );
 			return -1;
 		}
 	}
@@ -2236,6 +2278,14 @@ int Mouse_close( int m )
 		mouse->needs_close = TRUE; // let the polling thread take care of it
 
 	return 0;
+}
+
+const char * Mouse_name( int m )
+{
+    if( !mice || m < 0 || m >= mice->size() )
+        return NULL;
+    
+    return mice->at( m )->name;
 }
 
 #elif defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) && defined( USE_RAWINPUT )
