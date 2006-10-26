@@ -12146,7 +12146,7 @@ void Envelope :: setRate(MY_FLOAT aRate)
   else
     rate = aRate;
     
-  m_time = rate * Stk::sampleRate() / m_target;
+  m_time = m_target / (rate * Stk::sampleRate());
   if( m_time < 0.0 ) m_time = -m_time;
 }
 
@@ -14340,8 +14340,8 @@ void Modal :: strike(MY_FLOAT amplitude)
 
 void Modal :: noteOn(MY_FLOAT frequency, MY_FLOAT amplitude)
 {
-  this->strike(amplitude);
   this->setFrequency(frequency);
+  this->strike(amplitude);
 
 #if defined(_STK_DEBUG_)
   std::cerr << "[chuck](via STK): Modal: NoteOn frequency = " << frequency << ", amplitude = " << amplitude << std::endl;
