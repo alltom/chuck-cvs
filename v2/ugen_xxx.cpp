@@ -1496,6 +1496,186 @@ table, this has no effect         */
 #define SAMPLES_PER_ZERO_CROSSING 32    /* this defines how finely the sinc function 
 is sampled for storage in the table  */
 
+//------------------------------------------------------------------------------
+// name: MultiBuffer
+// desc: presents multiple buffers in memory as a single sequential logical
+// buffer, for constant time reallocing.  tries to be as discreet as possible,
+// so you can basically use it like a pointer.  optimized for iterative access,
+// as random access has T = O(bufsize)
+//------------------------------------------------------------------------------
+template< class _type >
+class MultiBuffer
+{
+public:
+    MultiBuffer()
+    {
+        m_size = 0;
+    }
+    
+    ~MultiBuffer()
+    {
+        deallocate();
+    }
+    
+    size_t size()
+    {
+        return m_size;
+    }
+    
+    void resize( size_t size )
+    {
+        assert( size > m_size ); // for now
+        size_t new_buffer_size = size - m_size;
+        
+        extent new_extent;
+        new_extent.position = new _type[new_buffer_size];
+        new_extent.length = new_buffer_size;
+        m_bufs.push_back( new_extent );
+        m_size = size;
+    }
+    
+    void deallocate()
+    {
+        // delete everything
+        size_t i, len = m_bufs.size();
+        for( i = 0; i < len; i++ )
+            delete[] m_bufs[i].position;
+        m_size = 0;
+    }
+    
+    class Pointer
+    {
+    public:
+        Pointer()
+        {
+            m_mb = NULL;
+            m_lpos = 0;
+            m_extent = 0;
+            m_extpos = 0;
+        }
+        
+        Pointer( MultiBuffer * mb )
+        {
+            m_mb = mb;
+            m_lpos = 0;
+            m_extent = 0;
+            m_extpos = 0;
+        }
+        
+        Pointer( const Pointer & mbp )
+        {
+            m_mb = mbp.m_mb;
+            m_lpos = mbp.m_lpos;
+            m_extent = mbp.m_extent;
+            m_extpos = mbp.m_extpos;      
+        }
+        
+        Pointer & operator=( MultiBuffer & mb )
+        {
+            m_mb = &mb;
+            m_lpos = 0;
+            m_extent = 0;
+            m_extpos = 0;
+            
+            return *this;
+        }
+        
+        Pointer & operator=( const Pointer & mbp )
+        {
+            m_mb = mbp.m_mb;
+            m_lpos = mbp.m_lpos;
+            m_extent = mbp.m_extent;
+            m_extpos = mbp.m_extpos;
+            
+            return *this;
+        }
+        
+        Pointer & operator=( size_t i )
+        {
+            reset();
+            increment( i );
+            return *this;
+        }
+
+        _type & operator*()
+        {
+            return m_mb->m_bufs[m_extent].position[m_extpos];
+        }
+        
+        Pointer operator+( size_t i ) const
+        {
+            Pointer mbp( *this );
+            mbp.increment( i );
+            return mbp;
+        }
+        
+        Pointer operator++( int )
+        {
+            Pointer mbp = *this;
+            this->increment( 1 );
+            return mbp;
+        }
+        
+        bool operator>=( const Pointer & mbp ) const
+        {
+            return ( m_lpos >= mbp.m_lpos );
+        }
+        
+        bool operator>=( const size_t i ) const
+        {
+            return ( m_lpos >= i );
+        }
+        
+        void increment( size_t i )
+        {
+            m_lpos += i;
+            if( m_lpos >= (m_mb->m_size) )
+            {
+                m_extent = m_mb->m_bufs.size();
+                m_extpos = m_lpos - m_mb->m_size;
+                return;
+            }
+            
+            extent ext_current = m_mb->m_bufs[m_extent];
+            i += m_extpos;
+            while( i >= ext_current.length )
+            {
+                i -= ext_current.length;
+                m_extent++;
+                ext_current = m_mb->m_bufs[m_extent];
+            }
+            
+            m_extpos = i;
+        }
+        
+        void reset()
+        {
+            m_lpos = 0;
+            m_extent = 0;
+            m_extpos = 0;
+        }
+        
+    protected:
+        MultiBuffer * m_mb;
+
+        size_t m_lpos; // position in logical buffer
+        size_t m_extent; // current extent
+        size_t m_extpos; // position within the extent
+    };
+    
+protected:
+    
+    struct extent
+    {
+        _type * position;
+        size_t length;
+    };
+    
+    /* data shared by a set of MultiBuffers */
+    vector< extent > m_bufs; // array of sequentially allocated buffers
+    size_t m_size; // overall size of total memory represented
+};
+
 // data for each sndbuf
 struct sndbuf_data
 {
@@ -1527,6 +1707,11 @@ struct sndbuf_data
     t_CKINT sinc_width;
     double * sinc_table;
 
+    MultiBuffer< SAMPLE > mb_buffer;
+    t_CKUINT mb_max_samples;
+    MultiBuffer< SAMPLE >::Pointer mb_record_position;
+    MultiBuffer< SAMPLE >::Pointer mb_playback_position;
+
     SNDFILE * fd;
 
     // constructor
@@ -1557,6 +1742,8 @@ struct sndbuf_data
         sinc_width = WIDTH;
         sinc_samples_per_zero_crossing = SAMPLES_PER_ZERO_CROSSING;
         sinc_table = NULL;
+        
+        mb_buffer = MultiBuffer< SAMPLE >();
         
         loop = FALSE;
         fd = NULL;
@@ -1802,14 +1989,60 @@ double sndbuf_sinc( sndbuf_data * d, double x )
 CK_DLL_TICK( sndbuf_tick )
 {
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    if( !d->buffer ) return FALSE;
     
+#ifdef CK_SNDBUF_MEMORY_BUFFER
+    // spencer's memory buffer stuff
+    if( d->fd == 0 )
+        // no file open - memory buffer mode
+    {
+        Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+        if( ugen->m_num_src ) 
+            // recording mode
+        {
+            if( d->mb_buffer.size() == 0 )
+            {
+                d->mb_buffer.resize( 44100 * 4 );   // default size: 4 seconds
+                d->mb_record_position = d->mb_buffer;
+                d->mb_playback_position = d->mb_buffer;
+            }
+            
+            if( d->mb_record_position >= d->mb_buffer.size() )
+                d->mb_buffer.resize( d->mb_buffer.size() * 2 );
+            
+            *(d->mb_record_position++) = in;
+        }
+        
+        if( d->mb_buffer.size() )
+        {
+            if( d->mb_playback_position >= d->mb_record_position )
+            {
+                if( d->loop )
+                    d->mb_playback_position = 0;
+                
+                else if( ugen->m_num_src )
+                {
+                    *out = 0;
+                    return TRUE;
+                }
+                
+                else
+                    return FALSE;
+            }
+            
+            *out = *(d->mb_playback_position++);
+        }
+        
+        return TRUE;
+    }
+#endif
+    if( !d->buffer ) return FALSE;
+
     // we're ticking once per sample ( system )
     // curf in samples;
     
     if( !d->loop && d->curr >= d->eob + d->num_channels ) return FALSE;
     
-    // calculate frame    
+    // calculate frame
     if( d->interp == SNDBUF_DROP )
     { 
         *out = (SAMPLE)( (*(d->curr)) ) ;
@@ -2072,6 +2305,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 
 CK_DLL_CTRL( sndbuf_ctrl_write )
 {
+#ifdef SPENCER_SNDBUF_WRITE
     sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     
@@ -2090,6 +2324,7 @@ CK_DLL_CTRL( sndbuf_ctrl_write )
     
     d->curr = d->buffer;
     d->eob = d->buffer + d->num_samples;
+#endif
 }
 
 
@@ -2161,6 +2396,8 @@ CK_DLL_CTRL( sndbuf_ctrl_pos )
 { 
     sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     t_CKINT pos = GET_CK_INT(ARGS);
+    if( pos >= 0 && pos < d->mb_max_samples )
+        d->mb_playback_position = pos;
     sndbuf_setpos(d, pos);
     RETURN->v_int = (t_CKINT)sndbuf_getpos(d); // TODO TODO TODOOO
 }
