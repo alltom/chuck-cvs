@@ -1496,6 +1496,7 @@ table, this has no effect         */
 #define SAMPLES_PER_ZERO_CROSSING 32    /* this defines how finely the sinc function 
 is sampled for storage in the table  */
 
+#ifdef CK_SNDBUF_MEMORY_BUFFER
 //------------------------------------------------------------------------------
 // name: MultiBuffer
 // desc: presents multiple buffers in memory as a single sequential logical
@@ -1506,6 +1507,7 @@ is sampled for storage in the table  */
 template< class _type >
 class MultiBuffer
 {
+
 public:
     MultiBuffer()
     {
@@ -1675,6 +1677,7 @@ protected:
     vector< extent > m_bufs; // array of sequentially allocated buffers
     size_t m_size; // overall size of total memory represented
 };
+#endif /* CK_SNDBUF_MEMORY_BUFFER */
 
 // data for each sndbuf
 struct sndbuf_data
@@ -1707,10 +1710,12 @@ struct sndbuf_data
     t_CKINT sinc_width;
     double * sinc_table;
 
+#ifdef CK_SNDBUF_MEMORY_BUFFER
     MultiBuffer< SAMPLE > mb_buffer;
     t_CKUINT mb_max_samples;
     MultiBuffer< SAMPLE >::Pointer mb_record_position;
     MultiBuffer< SAMPLE >::Pointer mb_playback_position;
+#endif /* CK_SNDBUF_MEMORY_BUFFER */
 
     SNDFILE * fd;
 
@@ -1743,7 +1748,9 @@ struct sndbuf_data
         sinc_samples_per_zero_crossing = SAMPLES_PER_ZERO_CROSSING;
         sinc_table = NULL;
         
+#ifdef CK_SNDBUF_MEMORY_BUFFER
         mb_buffer = MultiBuffer< SAMPLE >();
+#endif /* CK_SNDBUF_MEMORY_BUFFER */
         
         loop = FALSE;
         fd = NULL;
@@ -2034,7 +2041,7 @@ CK_DLL_TICK( sndbuf_tick )
         
         return TRUE;
     }
-#endif
+#endif /* CK_SNDBUF_MEMORY_BUFFER */
     if( !d->buffer ) return FALSE;
 
     // we're ticking once per sample ( system )
@@ -2396,8 +2403,10 @@ CK_DLL_CTRL( sndbuf_ctrl_pos )
 { 
     sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
     t_CKINT pos = GET_CK_INT(ARGS);
+#ifdef CK_SNDBUF_MEMORY_BUFFER
     if( pos >= 0 && pos < d->mb_max_samples )
         d->mb_playback_position = pos;
+#endif /* CK_SNDBUF_MEMORY_BUFFER */
     sndbuf_setpos(d, pos);
     RETURN->v_int = (t_CKINT)sndbuf_getpos(d); // TODO TODO TODOOO
 }
