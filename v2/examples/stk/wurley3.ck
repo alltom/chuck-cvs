@@ -8,7 +8,7 @@ Wurley wurlies[3];
 int which;
 
 // patch
-gain g => dac;
+Gain g => dac;
 .4 => g.gain;
 // connect the wurlies
 for( int i; i < wurlies.cap(); i++ )
