@@ -6,6 +6,7 @@
   - fixed: (win32) joystick hat messages now properly reported
   - fixed: (win32) fixed bug where joysticks of same model/product
            id would send messages through the same HidIn object
+  - fixed: (all) OSCSend.startMsg() bug
 
 
 ---
