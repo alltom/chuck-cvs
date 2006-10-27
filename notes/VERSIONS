@@ -1,6 +1,7 @@
-1.2.0.8
 ---
+1.2.0.7b
   - added: (all) HidIn.name() now returns meaningful device name
+  _ fixed: (all) fixed STK Envelope bug
   - fixed: (osx) mouse motion now correctly returns delta Y
   - fixed: (win32) joystick hat messages now properly reported
   - fixed: (win32) fixed bug where joysticks of same model/product
