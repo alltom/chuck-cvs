@@ -599,6 +599,9 @@ t_CKBOOL midirw_detach( )
         list.push_back( (*iter).second );
     for( t_CKUINT i = 0; i < list.size(); i++ )
         list[i]->close();
+    
+    // TODO: release the MidiRW
+    g_rw.clear();
 
     return out_detach( );
 }

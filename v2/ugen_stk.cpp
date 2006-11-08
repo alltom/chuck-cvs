@@ -30084,5 +30084,8 @@ t_CKBOOL stk_detach( t_CKUINT type, void * data )
         (*iter).second->closeFile();
     }
     
+    // TODO: release the WvOut
+    g_wv.clear();
+    
     return TRUE;
 }
