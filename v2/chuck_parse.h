@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 
+#include <string>
 
 // 'C' specification necessary for windows to link properly
 #ifdef __PLATFORM_WIN32__
@@ -51,17 +52,20 @@
 extern "C" int yyparse( void );
 extern "C" void yyrestart( FILE * );
 
+struct yy_buffer_state;
+typedef yy_buffer_state * YY_BUFFER_STATE;
+extern "C" YY_BUFFER_STATE yy_scan_string( const char * );
+extern "C" void yy_delete_buffer( YY_BUFFER_STATE );
 
 // open file with .ck append as appropriate
 FILE * open_cat_ck( c_str filename );
 // parse file
-t_CKBOOL chuck_parse( c_constr fname, FILE * fd = NULL );
+t_CKBOOL chuck_parse( c_constr fname, FILE * fd = NULL, const char * code = NULL );
 // reset the parser
 void reset_parse( );
 
 
 // syntax highlighting tools
-#include <string>
 #include <vector>
 
 
