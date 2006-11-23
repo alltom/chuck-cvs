@@ -1268,7 +1268,71 @@ t_CKBOOL emit_engine_emit_exp_binary( Chuck_Emitter * emit, a_Exp_Binary binary 
 
     t_CKBOOL left = FALSE;
     t_CKBOOL right = FALSE;
-
+    
+    // hack to allow && to terminate as soon as possible - spencer
+    // i.e. in ( 0 && f() ) the function f() will not be called
+    // (obviates need for boolean AND instruction)
+    if( binary->op == ae_op_and )
+    {
+        Chuck_Instr_Branch_Op * op;
+        
+        // push default result
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        
+        left = emit_engine_emit_exp( emit, binary->lhs );
+        if( !left )
+            return FALSE;        
+        
+        // compare to 0; use default result if zero
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        emit->append( op = new Chuck_Instr_Branch_Eq_int( 0 ) );
+        
+        // pop default result
+        emit->append( new Chuck_Instr_Reg_Pop_Word );
+        
+        // result of whole expression is now result of rhs
+        right = emit_engine_emit_exp( emit, binary->rhs );
+        if( !right )
+            return FALSE;
+        
+        // set branch location
+        op->set( emit->next_index() );
+        
+        return TRUE;
+    }
+    
+    // hack to allow || to terminate as soon as possible - spencer
+    // i.e. in ( 1 || f() ) the function f() will not be called
+    // (obviates need for boolean OR instruction)
+    else if( binary->op == ae_op_or )
+    {
+        Chuck_Instr_Branch_Op * op;
+        
+        // push default result
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 1 ) );
+        
+        left = emit_engine_emit_exp( emit, binary->lhs );
+        if( !left )
+            return FALSE;        
+        
+        // compare to 0; use default result if non-zero
+        emit->append( new Chuck_Instr_Reg_Push_Imm( 0 ) );
+        emit->append( op = new Chuck_Instr_Branch_Neq_int( 0 ) );
+        
+        // pop default result
+        emit->append( new Chuck_Instr_Reg_Pop_Word );
+        
+        // result of whole expression is now result of rhs
+        right = emit_engine_emit_exp( emit, binary->rhs );
+        if( !right )
+            return FALSE;
+        
+        // set branch location
+        op->set( emit->next_index() );
+        
+        return TRUE;
+    }
+    
     // emit
     left = emit_engine_emit_exp( emit, binary->lhs );
     right = emit_engine_emit_exp( emit, binary->rhs );
@@ -2763,11 +2827,15 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
     else // static
     {
         // emit the type
-        emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
+        // commented out so built-in static member variables don't have an 
+        // extra thing on the stack - spencer
+        //emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
 
         // if is a func
         if( isfunc( member->self->type ) )
         {
+            // emit the type - spencer
+            emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
             // get the func
             func = t_base->info->lookup_func( member->xid, FALSE );
             // make sure it's there
@@ -2791,6 +2859,8 @@ t_CKBOOL emit_engine_emit_exp_dot_member( Chuck_Emitter * emit,
             }
             else
             {
+                // emit the type - spencer
+                emit->append( new Chuck_Instr_Reg_Push_Imm( (t_CKUINT)t_base ) );
                 // find the offset for data
                 offset = value->offset;
                 // emit the member
