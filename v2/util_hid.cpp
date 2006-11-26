@@ -2997,11 +2997,9 @@ void Mouse_configure( const char * filename )
     is_mouse = 0;
     if( ioctl( fd, EVIOCGBIT( EV_REL, sizeof( relcaps ) ), relcaps ) != -1 )
     {
-        fprintf( stderr, "here1\n" );
         if( test_bit( relcaps, REL_X ) && test_bit( relcaps, REL_Y ) && 
             test_bit( keycaps, BTN_MOUSE ) )
         {
-            fprintf( stderr, "here2\n" );
             is_mouse = 1;
         }
         
