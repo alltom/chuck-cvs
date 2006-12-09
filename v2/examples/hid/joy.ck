@@ -16,7 +16,28 @@ while( true )
     // messages received
     while( hi.recv( msg ) )
     {
-        // print for now
-        <<< msg.type, msg.which, msg.idata, msg.fdata >>>;
+        // joystick axis motion
+        if( msg.isAxisMotion() )
+        {
+            <<< "joystick axis", msg.which, ":", msg.axisPosition >>>;
+        }
+        
+        // joystick button down
+        else if( msg.isButtonDown() )
+        {
+            <<< "joystick button", msg.which, "down" >>>;
+        }
+        
+        // joystick button up
+        else if( msg.isButtonUp() )
+        {
+            <<< "joystick button", msg.which, "up" >>>;
+        }
+        
+        // joystick hat/POV switch/d-pad motion
+        else if( msg.isHatMotion() )
+        {
+            <<< "joystick hat", msg.which, ":", msg.idata >>>;
+        }
     }
 }
