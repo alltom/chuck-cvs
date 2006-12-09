@@ -91,7 +91,7 @@ struct OSX_Device
         strncpy( name, "Device", 256 );
         elements = NULL;
         usage = usage_page = 0;
-        type = num = 0;
+        type = num = -1;
         buttons = -1;
         axes = -1;
         hats = -1;
@@ -709,6 +709,7 @@ void Hid_init()
                 // allocate the device record, set usage page and usage
                 OSX_Device * new_device = new OSX_Device;
                 new_device->type = CK_HID_DEV_MOUSE;
+                new_device->num = mice->size();
                 new_device->usage_page = usage_page;
                 new_device->usage = usage;
                 
@@ -733,6 +734,7 @@ void Hid_init()
                 // allocate the device record, set usage page and usage
                 OSX_Device * new_device = new OSX_Device;
                 new_device->type = CK_HID_DEV_KEYBOARD;
+                new_device->num = keyboards->size();
                 new_device->usage_page = usage_page;
                 new_device->usage = usage;
                 
@@ -790,6 +792,7 @@ void Hid_poll()
     
     // TODO: set this up to use a pipe or circular buffer, so that we dont have
     // to iterate through every device
+    // --> or link list?
     OSX_Device * device;
     vector< OSX_Device * >::size_type i, len = joysticks->size();
     for( i = 0; i < len; i++ )
@@ -1322,7 +1325,7 @@ const char * Keyboard_name( int k )
 /*****************************************************************************
 Windows general HID support
 *****************************************************************************/
-#pragma mark Window general HID support
+#pragma mark Windows general HID support
 
 #include <windows.h>
 #define DIRECTINPUT_VERSION 0x0500
