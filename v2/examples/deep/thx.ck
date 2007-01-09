@@ -53,7 +53,7 @@ for( 0 => i; i < 30; i++ )
 steady_samps :: samp => now;                            // steady cluster
 
 while( j < sweep_steps ) {
-    for (0 => i; i<30;  i+1 => i) {
+    for( 0 => i; i < 30; i++ ) {
         initials[i] + (deltas[i]*j) => s[i].freq;       // sweep freqs.
     }
     j + 1 => j;
@@ -68,7 +68,7 @@ while( j < hold_steps ) {                               // hold chord
 
 0 => j;
 while( j < decay_steps ) {
-    for (0 => i; i<30;  i+1 => i) {
+    for( 0 => i; i < 30;  i++) {
         0.1 * (decay_steps-j) / decay_steps => s[i].gain;       // decay gains
     }
     10 :: samp => now;
