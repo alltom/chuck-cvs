@@ -91,7 +91,7 @@ As stated above, a classes may contain data and behavior, in the form of {\it me
     Foo bar;
 
     // call compute(), store result in boo
-    Foo.compute( 1, 2 ) => int boo;
+    bar.compute( 1, 2 ) => int boo;
 \end{verbatim}
 
 \section{writing a class}
@@ -313,7 +313,7 @@ Inheritance provides us a way of efficiently sharing code between classes which 
     }
 
     // child class, which overrides the doSomething function with an addition operation
-    class Xadds extends X
+    class Xadds extends Xfunc
     { 
         fun int doSomething ( int a, int b )
         { 
@@ -322,7 +322,7 @@ Inheritance provides us a way of efficiently sharing code between classes which 
     }
 
     // child class, which overrides the doSomething function with a multiply operation 
-    class Xmuls extends X
+    class Xmuls extends Xfunc
     { 
         fun int doSomething ( int a, int b )
         { 
