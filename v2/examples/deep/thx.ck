@@ -1,4 +1,6 @@
-// THX emulator, Perry R. Cook, Jan. 8, 2007
+// THX emulatorPerry R. Cook, Jan. 8, 2007
+//   author: Perry R. Cook (Jan 8, 2007)
+// modified: Ge Wang (added parameters up top)
 
 // F-1,  B1b,   F1,  B2b,   F2,  B3b,   F3,  A5,   F4, A6
 [ 29.0, 87.5, 116.0, 175.0, 233.0, 350.0, 524.0, 880.0, 1048, 1760,
@@ -10,7 +12,7 @@
 float initials[30];
 float deltas[30];
 
-// parameters
+// parameters (play with these to control timing)
 10000 => int steady_samps;
 22000 => int sweep_steps;
 15000 => int hold_steps;
@@ -26,8 +28,10 @@ JCRev rr => dac.right;
 // reverb settings
 0.1 => rl.mix => rr.mix;
 
+// variables
 0 => int i => int j;
 
+// compute stuff
 for( 0 => i; i < 30; i++ )
 {
     // random freqs
