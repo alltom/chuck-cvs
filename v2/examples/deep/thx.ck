@@ -14,7 +14,7 @@ float deltas[30];
 
 // parameters (play with these to control timing)
 10000 => int steady_samps;
-22000 => int sweep_steps;
+20000 => int sweep_steps;
 15000 => int hold_steps;
 8000 => int decay_steps;
 
