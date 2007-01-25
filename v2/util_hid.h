@@ -116,7 +116,7 @@ extern int Mouse_open( const char * name );
 extern int Mouse_close( int m );
 extern const char * Mouse_name( int m );
 extern int Mouse_buttons( int m );
-#define __CK_HID_CURSORTRACK__
+//#define __CK_HID_CURSORTRACK__
 #ifdef __CK_HID_CURSORTRACK__
 extern int Mouse_start_cursor_track();
 extern int Mouse_stop_cursor_track();
@@ -131,7 +131,7 @@ extern int Keyboard_open( const char * name );
 extern int Keyboard_close( int kb );
 extern const char * Keyboard_name( int kb );
 
-#define __CK_HID_WIIREMOTE__
+//#define __CK_HID_WIIREMOTE__
 #ifdef __CK_HID_WIIREMOTE__
 extern void WiiRemote_init();
 extern void WiiRemote_poll();
