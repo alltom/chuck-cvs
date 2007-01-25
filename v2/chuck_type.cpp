@@ -4363,7 +4363,7 @@ t_CKBOOL type_engine_import_svar( Chuck_Env * env, const char * type,
     if( !path )
     {
         // error
-        EM_error2( 0, "... during mvar import '%s.%s'...", 
+        EM_error2( 0, "... during svar import '%s.%s'...", 
             env->class_def->c_name(), name );
         return FALSE;
     }
@@ -4750,13 +4750,14 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static )
     a_Type_Decl type_decl = NULL;
     const char * name = NULL;
     a_Arg_List arg_list = NULL;
+    t_CKUINT array_depth = 0;
 
     // fun decl TODO: fix this
     func_decl = ae_key_func;
     // static decl TODO: allow abstract
     static_decl = is_static ? ae_key_static : ae_key_instance;
     // path
-    type_path = str2list( dl_fun->type );
+    type_path = str2list( dl_fun->type, array_depth );
     if( !type_path )
     {
         // error
@@ -4778,6 +4779,20 @@ a_Func_Def make_dll_as_fun( Chuck_DL_Func * dl_fun, t_CKBOOL is_static )
         delete_id_list( type_path );
         type_path = NULL;
         goto error;
+    }
+    
+    // array types
+    // this allows us to define built-in functions that return array types
+    // however doing this without garbage collection is probably a bad idea
+    // -spencer
+    if( array_depth )
+    {
+        a_Array_Sub array_sub = new_array_sub( NULL, 0 );
+        
+        for( int i = 1; i < array_depth; i++ )
+            array_sub = prepend_array_sub( array_sub, NULL, 0 );
+        
+        type_decl = add_type_decl_array( type_decl, array_sub, 0 );
     }
 
     // name of the function
@@ -4896,16 +4911,43 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
             // add to vector
             the_funs.push_back( fun );
         }
-
+        
         // loop over member data
+        // ignored for now... -spencer
         for( j = 0; j < cl->mvars.size(); j++ )
         {
         }
-
+        
+        // the next few lines take static member variables defined by the DLL
+        // and creates a list of corresponding declarations to add to the 
+        // class definition
+        // -spencer
+        
+        // static member variable declarations
+        a_Stmt_List svar_decls = NULL;
+        
         // loop over static data
         for( j = 0; j < cl->svars.size(); j++ )
         {
+            // get type
+            a_Id_List path = str2list( cl->svars[j]->type.c_str() );
+            // make type decl
+            a_Type_Decl type_decl = new_type_decl( path, FALSE, 0 );
+            // make var decl
+            a_Var_Decl var_decl = new_var_decl( cl->svars[j]->name.c_str(), NULL, 0 );
+            // make var decl list
+            a_Var_Decl_List var_decl_list = new_var_decl_list( var_decl, 0 );
+            // make exp decl
+            a_Exp exp_decl = new_exp_decl( type_decl, var_decl_list, TRUE, 0 );
+            // add addr
+            var_decl->addr = (void *)cl->svars[j]->static_addr;
+            // prepend exp stmt to stmt list
+            svar_decls = prepend_stmt_list( new_stmt_from_expression( exp_decl, 0 ), svar_decls, 0 );
         }
+
+        // if there are any declarations, prepend them to body
+        if( svar_decls )
+            body = prepend_class_body( new_section_stmt( svar_decls, 0 ), body, 0 );
         
         // go through funs backwards, and prepend
         for( t_CKINT k = (t_CKINT)the_funs.size() - 1; k >= 0; k-- )
@@ -4913,7 +4955,7 @@ t_CKBOOL type_engine_add_dll( Chuck_Env * env, Chuck_DLL * dll, const string & d
             // add to body
             body = prepend_class_body( new_section_func_def( the_funs[k], 0 ), body, 0 );
         }
-
+        
         // construct class
         def = new_class_def( ae_key_public, name, ext, body, 0 );
         // set where to add
