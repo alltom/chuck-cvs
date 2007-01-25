@@ -252,7 +252,7 @@ public:
 
 
 
-
+#include "util_thread.h"
 //-----------------------------------------------------------------------------
 // name: Chuck_Event
 // desc: base Chuck Event class
@@ -270,6 +270,7 @@ public: // internal
     static t_CKUINT our_can_wait;
 
     std::queue<Chuck_VM_Shred *> m_queue;
+    XMutex m_queue_lock;
 };
 
 

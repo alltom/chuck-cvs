@@ -784,10 +784,12 @@ t_CKUINT Chuck_Event::our_can_wait = 0;
 //-----------------------------------------------------------------------------
 void Chuck_Event::signal()
 {
+    m_queue_lock.acquire();
     if( !m_queue.empty() )
     {
         Chuck_VM_Shred * shred = m_queue.front();
         m_queue.pop();
+        m_queue_lock.release();
         Chuck_VM_Shreduler * shreduler = shred->vm_ref->shreduler();
         shred->event = NULL;
         shreduler->remove_blocked( shred );
@@ -796,6 +798,8 @@ void Chuck_Event::signal()
         t_CKTIME *& sp = (t_CKTIME *&)shred->reg->sp;
         push_( sp, shreduler->now_system );
     }
+    else
+        m_queue_lock.release();
 }
 
 
@@ -809,7 +813,7 @@ t_CKBOOL Chuck_Event::remove( Chuck_VM_Shred * shred )
 {
     std::queue<Chuck_VM_Shred *> temp;
     t_CKBOOL removed = FALSE;
-
+    m_queue_lock.acquire();
     while( !m_queue.empty() )
     {
         if( m_queue.front() != shred )
@@ -822,6 +826,7 @@ t_CKBOOL Chuck_Event::remove( Chuck_VM_Shred * shred )
     }
 
     m_queue = temp;
+    m_queue_lock.release();
     return removed;
 }
 
@@ -836,11 +841,16 @@ t_CKBOOL Chuck_Event::remove( Chuck_VM_Shred * shred )
 void Chuck_Event::queue_broadcast()
 {
     // TODO: handle multiple VM
+    m_queue_lock.acquire();
     if( !m_queue.empty() )
     {
         Chuck_VM_Shred * shred = m_queue.front();
+        m_queue_lock.release();
         shred->vm_ref->queue_event( this, 1 );
     }
+    else
+        m_queue_lock.release();
+
 }
 
 
@@ -852,10 +862,14 @@ void Chuck_Event::queue_broadcast()
 //-----------------------------------------------------------------------------
 void Chuck_Event::broadcast()
 {
+    m_queue_lock.acquire();
     while( !m_queue.empty() )
     {
+        m_queue_lock.release();
         this->signal();
+        m_queue_lock.acquire();
     }
+    m_queue_lock.release();
 }
 
 
@@ -884,7 +898,9 @@ void Chuck_Event::wait( Chuck_VM_Shred * shred, Chuck_VM * vm )
         shred->is_running = FALSE;
 
         // add to waiting list
+        m_queue_lock.acquire();
         m_queue.push( shred );
+        m_queue_lock.release();
 
         // add event to shred
         assert( shred->event == NULL );
