@@ -1,12 +1,24 @@
 ---
+1.2.0.8
+  - fixed: (all) && now terminates early if an operand evaluates to
+           0; || terminates early if an operand evaluates to 1
+  - fixed: (all) bug accessing static members of built-in classes
+  - fixed: (all) OscSend.startMsg no longer silently fails when 
+           using a single string message specification
+  - fixed: (all) Math.atan2 now accepts the proper arguments
+  - fixed: (all) no longer spontaneously crashes when HidIn and 
+           other event based input mechanisms are firing rapidly
+
+---
 1.2.0.7b
   - added: (all) HidIn.name() now returns meaningful device name
-  _ fixed: (all) fixed STK Envelope bug
+  - fixed: (all) fixed STK Envelope bug
   - fixed: (osx) mouse motion now correctly returns delta Y
   - fixed: (win32) joystick hat messages now properly reported
   - fixed: (win32) fixed bug where joysticks of same model/product
            id would send messages through the same HidIn object
-  - fixed: (all) OSCSend.startMsg() bug
+  - fixed: (all) seg fault in OSCSend.startMsg() with single 
+           string message specification
 
 
 ---
