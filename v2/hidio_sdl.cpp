@@ -160,7 +160,18 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
             }
             
             break;
-                
+            
+#ifdef __CK_HID_WIIREMOTE__
+        case CK_HID_DEV_WIIREMOTE:
+            if( WiiRemote_open( (int) number ) )
+            {
+                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid wii remote number %d", number );
+                return FALSE;
+            }
+            
+            break;
+#endif // __CK_HID_WIIREMOTE__
+            
         default:
             EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed; unknown device-type" );
             return FALSE;
@@ -212,6 +223,12 @@ t_CKBOOL PhyHidDevIn::close()
         case CK_HID_DEV_KEYBOARD:
             Keyboard_close( device_num );
             break;
+
+#ifdef __CK_HID_WIIREMOTE__
+        case CK_HID_DEV_WIIREMOTE:
+            WiiRemote_close( device_num );
+            break;
+#endif // __CK_HID_WIIREMOTE__
             
         default:
             EM_log( CK_LOG_WARNING, "PhyHidDevIn: close operation failed; device not opened" );
@@ -246,6 +263,13 @@ string PhyHidDevIn::name()
         case CK_HID_DEV_KEYBOARD:
             return Keyboard_name( device_num );
             break;
+
+#ifdef __CK_HID_WIIREMOTE__
+        case CK_HID_DEV_WIIREMOTE:
+            return WiiRemote_name( device_num );
+            break;
+#endif // __CK_HID_WIIREMOTE__
+            
     }
     
     return " ";
@@ -401,6 +425,10 @@ void HidInManager::init()
         Joystick_init();
         Mouse_init();
         Keyboard_init();
+        
+#ifdef __CK_HID_WIIREMOTE__
+        WiiRemote_init();
+#endif
 
         has_init = TRUE;
     }
@@ -429,6 +457,7 @@ void HidInManager::cleanup()
     Joystick_quit();
     Mouse_quit();
     Keyboard_quit();
+    WiiRemote_quit();
 
     if( msg_buffer )
     {
@@ -622,6 +651,19 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 
     return 0;
 }
+
+//-----------------------------------------------------------------------------
+// name: read_tilt_sensor()
+// desc: read sudden motion sensor for PowerBook, iBook, MacBook(Pro), others?
+//-----------------------------------------------------------------------------
+t_CKBOOL HidInManager::read_tilt_sensor( t_CKINT * x, t_CKINT * y, t_CKINT * z )
+{
+    if( TiltSensor_read( x, y, z ) )
+        return TRUE;
+    
+    return FALSE;
+}
+
 
 //-----------------------------------------------------------------------------
 // name: probeHidIn()

@@ -98,7 +98,7 @@ public:
     t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
 
 public:
-    void     set_suppress( t_CKBOOL print_or_not )
+    void set_suppress( t_CKBOOL print_or_not )
     { m_suppress_output = print_or_not; }
     t_CKBOOL get_suppress()
     { return m_suppress_output; }
@@ -128,6 +128,8 @@ public:
     static void cleanup();
     static t_CKBOOL open( HidIn * hin, t_CKINT device_type, t_CKINT device_num );
     static t_CKBOOL close( HidIn * hin );
+    
+    static t_CKBOOL read_tilt_sensor( t_CKINT * x, t_CKINT * y, t_CKINT * z );
 
 #ifndef __PLATFORM_WIN32__
     static void * cb_hid_input( void * );

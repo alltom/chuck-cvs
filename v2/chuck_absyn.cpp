@@ -570,7 +570,7 @@ a_Exp new_exp_from_nil( int pos )
     return a;
 }
 
-a_Var_Decl new_var_decl( c_str xid, a_Array_Sub array, int pos )
+a_Var_Decl new_var_decl( c_constr xid, a_Array_Sub array, int pos )
 {
     a_Var_Decl a = (a_Var_Decl)checked_malloc( sizeof( struct a_Var_Decl_ ) );
     a->xid = insert_symbol(xid);

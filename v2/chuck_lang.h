@@ -225,6 +225,7 @@ CK_DLL_MFUN( HidMsg_is_button_down );
 CK_DLL_MFUN( HidMsg_is_button_up );
 CK_DLL_MFUN( HidMsg_is_mouse_motion );
 CK_DLL_MFUN( HidMsg_is_hat_motion );
+CK_DLL_MFUN( HidMsg_is_wheel_motion );
 
 //-----------------------------------------------------------------------------
 // HidIn API
@@ -241,6 +242,9 @@ CK_DLL_MFUN( HidIn_name );
 CK_DLL_MFUN( HidIn_printerr );
 CK_DLL_MFUN( HidIn_recv );
 CK_DLL_MFUN( HidIn_can_wait );
+CK_DLL_SFUN( HidIn_read_tilt_sensor );
+CK_DLL_SFUN( HidIn_start_cursor_track );
+CK_DLL_SFUN( HidIn_stop_cursor_track );
 
 
 //-----------------------------------------------------------------------------

@@ -268,7 +268,7 @@ void CK_DLL_CALL ck_add_svar( Chuck_DL_Query * query, const char * type, const c
     v->static_addr = addr;
     
     // add
-    query->curr_class->mvars.push_back( v );
+    query->curr_class->svars.push_back( v );
     query->curr_func = NULL;
 }
 

@@ -1487,16 +1487,23 @@ OSC_Transmitter::addMessage( char *address, char * args, ...)
 
 void
 OSC_Transmitter::startMessage( char * spec ) { 
+    
+    int len = strlen( spec );
+    
     char * comma = strchr( spec, ',');
     char * space = strchr ( spec, ' ');
-    int coff = ( comma == NULL ) ? strlen(spec) : comma - spec; 
-    int spoff = ( space == NULL ) ? strlen(spec) : space - spec; 
+    int coff = ( comma == NULL ) ? len : comma - spec; 
+    int spoff = ( space == NULL ) ? len : space - spec; 
     int off = min ( coff, spoff );
-    startMessage( spec, spec + off );
+    
+    if( off < len )
+        spec[off] = '\0';
+    
+    startMessage( spec, spec + off + 1 );
 }
 
 void
-OSC_Transmitter::startMessage( char * address, char* args )
+OSC_Transmitter::startMessage( char * address, char * args )
 { 
     // OSC_writeAddressAndTypes( &_osc, address, args );
     char addrfix[512];

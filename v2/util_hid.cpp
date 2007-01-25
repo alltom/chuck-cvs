@@ -51,7 +51,16 @@ using namespace std;
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <CoreFoundation/CoreFoundation.h>
+#ifdef __CK_HID_CURSORTRACK__
+#include <CoreGraphics/CoreGraphics.h>
+#endif // __CK_HID_CURSORTRACK__
 
+#ifdef __CK_HID_WIIREMOTE__
+#include <IOBluetooth/IOBluetoothUserLib.h>
+#include "util_buffers.h"
+#endif // __CK_HID_WIIREMOTE__
+
+// general hid callback, for device events
 void Hid_callback( void * target, IOReturn result, 
                    void * refcon, void * sender );
 
@@ -528,7 +537,7 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                                 break;
                                 
                             default:
-                                fprintf( stderr, "unknown page: %i usage: %i\n", usage_page, usage );
+                                EM_log( CK_LOG_INFO, "unknown page: %i usage: %i\n", usage_page, usage );
                         }
                         
                         break;
@@ -576,7 +585,7 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                         break;
                         
                     default:
-                        fprintf( stderr, "unknown page: %i usage: %i\n", usage_page, usage );
+                        EM_log( CK_LOG_INFO, "unknown page: %i usage: %i\n", usage_page, usage );
                 }
                 
                 break;
@@ -596,10 +605,132 @@ static vector< OSX_Device * > * joysticks = NULL;
 static vector< OSX_Device * > * mice = NULL;
 static vector< OSX_Device * > * keyboards = NULL;
 
-CFRunLoopRef rlHid;
-CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
-CFRunLoopSourceRef cfrlDummySource;
+// hid run loop (event dispatcher)
+static CFRunLoopRef rlHid = NULL;
+// special hid run loop mode (limits events to hid device events only)
+//static CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
+static CFStringRef kCFRunLoopChuckHidMode = kCFRunLoopDefaultMode;
+// dummy source -- the CFRunLoop will only run if it has at least one source,
+// so we need a dummy source in case there are no real ones (ie no open devices)
+static CFRunLoopSourceRef cfrlDummySource = NULL;
+// has hid been initialized?
 static t_CKBOOL g_hid_init = FALSE;
+
+static t_CKBYTE g_hid_key_table[256]; // table to translate keys to ASCII
+
+// cursor track stuff
+static t_CKINT cursorX = 0;
+static t_CKINT cursorY = 0;
+static t_CKFLOAT scaledCursorX = 0;
+static t_CKFLOAT scaledCursorY = 0;
+#ifdef __CK_HID_CURSORTRACK__
+static CFRunLoopRef rlCursorTrack = NULL;
+static t_CKBOOL g_ct_go = FALSE;
+#endif // __CK_HID_CURSORTRACK__
+
+#ifdef __CK_HID_WIIREMOTE__
+// wii remote stuff
+static CFRunLoopSourceRef cfrlWiiRemoteSource = NULL;
+static void WiiRemote_cfrl_callback( void * info );
+#endif
+
+static void Hid_key_table_init()
+{
+    memset( g_hid_key_table, 0, sizeof( g_hid_key_table ) );
+    
+    // ASCII letters
+    g_hid_key_table[kHIDUsage_KeyboardA] = 'A';
+    g_hid_key_table[kHIDUsage_KeyboardB] = 'B';
+    g_hid_key_table[kHIDUsage_KeyboardC] = 'C';
+    g_hid_key_table[kHIDUsage_KeyboardD] = 'D';
+    g_hid_key_table[kHIDUsage_KeyboardE] = 'E';
+    g_hid_key_table[kHIDUsage_KeyboardF] = 'F';
+    g_hid_key_table[kHIDUsage_KeyboardG] = 'G';
+    g_hid_key_table[kHIDUsage_KeyboardH] = 'H';
+    g_hid_key_table[kHIDUsage_KeyboardI] = 'I';
+    g_hid_key_table[kHIDUsage_KeyboardJ] = 'J';
+    g_hid_key_table[kHIDUsage_KeyboardK] = 'K';
+    g_hid_key_table[kHIDUsage_KeyboardL] = 'L';
+    g_hid_key_table[kHIDUsage_KeyboardM] = 'M';
+    g_hid_key_table[kHIDUsage_KeyboardN] = 'N';
+    g_hid_key_table[kHIDUsage_KeyboardO] = 'O';
+    g_hid_key_table[kHIDUsage_KeyboardP] = 'P';
+    g_hid_key_table[kHIDUsage_KeyboardQ] = 'Q';
+    g_hid_key_table[kHIDUsage_KeyboardR] = 'R';
+    g_hid_key_table[kHIDUsage_KeyboardS] = 'S';
+    g_hid_key_table[kHIDUsage_KeyboardT] = 'T';
+    g_hid_key_table[kHIDUsage_KeyboardU] = 'U';
+    g_hid_key_table[kHIDUsage_KeyboardV] = 'V';
+    g_hid_key_table[kHIDUsage_KeyboardW] = 'W';
+    g_hid_key_table[kHIDUsage_KeyboardX] = 'X';
+    g_hid_key_table[kHIDUsage_KeyboardY] = 'Y';
+    g_hid_key_table[kHIDUsage_KeyboardZ] = 'Z';
+    
+    // ASCII numbers
+    g_hid_key_table[kHIDUsage_Keyboard1] = '1';
+    g_hid_key_table[kHIDUsage_Keyboard2] = '2';
+    g_hid_key_table[kHIDUsage_Keyboard3] = '3';
+    g_hid_key_table[kHIDUsage_Keyboard4] = '4';
+    g_hid_key_table[kHIDUsage_Keyboard5] = '5';
+    g_hid_key_table[kHIDUsage_Keyboard6] = '6';
+    g_hid_key_table[kHIDUsage_Keyboard7] = '7';
+    g_hid_key_table[kHIDUsage_Keyboard8] = '8';
+    g_hid_key_table[kHIDUsage_Keyboard9] = '9';
+    g_hid_key_table[kHIDUsage_Keyboard0] = '0';
+    
+    // ASCII whitespace
+    g_hid_key_table[kHIDUsage_KeyboardReturnOrEnter] = '\n';
+    g_hid_key_table[kHIDUsage_KeyboardTab] = '\t';
+    g_hid_key_table[kHIDUsage_KeyboardSpacebar] = ' ';
+    
+    // ASCII symbols
+    g_hid_key_table[kHIDUsage_KeyboardHyphen] = '-';
+    g_hid_key_table[kHIDUsage_KeyboardEqualSign] = '=';
+    g_hid_key_table[kHIDUsage_KeyboardOpenBracket] = '{';
+    g_hid_key_table[kHIDUsage_KeyboardCloseBracket] = '}';
+    g_hid_key_table[kHIDUsage_KeyboardBackslash] = '\\';
+    g_hid_key_table[kHIDUsage_KeyboardNonUSPound] = '#';
+    g_hid_key_table[kHIDUsage_KeyboardSemicolon] = ';';
+    g_hid_key_table[kHIDUsage_KeyboardQuote] = '\'';
+    g_hid_key_table[kHIDUsage_KeyboardGraveAccentAndTilde] = '`';
+    g_hid_key_table[kHIDUsage_KeyboardComma] = ',';
+    g_hid_key_table[kHIDUsage_KeyboardPeriod] = '.';
+    g_hid_key_table[kHIDUsage_KeyboardSlash] = '/';
+    
+    // ASCII keypad symbols/whitespace
+    g_hid_key_table[kHIDUsage_KeypadSlash] = '/';
+    g_hid_key_table[kHIDUsage_KeypadAsterisk] = '*';
+    g_hid_key_table[kHIDUsage_KeypadHyphen] = '-';
+    g_hid_key_table[kHIDUsage_KeypadPlus] = '+';
+    g_hid_key_table[kHIDUsage_KeypadEnter] = '\n';
+    
+    // ASCII keypad numbers
+    g_hid_key_table[kHIDUsage_Keypad1] = '1';
+    g_hid_key_table[kHIDUsage_Keypad2] = '2';
+    g_hid_key_table[kHIDUsage_Keypad3] = '3';
+    g_hid_key_table[kHIDUsage_Keypad4] = '4';
+    g_hid_key_table[kHIDUsage_Keypad5] = '5';
+    g_hid_key_table[kHIDUsage_Keypad6] = '6';
+    g_hid_key_table[kHIDUsage_Keypad7] = '7';
+    g_hid_key_table[kHIDUsage_Keypad8] = '8';
+    g_hid_key_table[kHIDUsage_Keypad9] = '9';
+    g_hid_key_table[kHIDUsage_Keypad0] = '0';
+    
+    // ASCII keypad symbols
+    g_hid_key_table[kHIDUsage_KeypadPeriod] = '.';
+    g_hid_key_table[kHIDUsage_KeyboardNonUSBackslash] = '\\';
+    g_hid_key_table[kHIDUsage_KeypadEqualSign] = '=';
+    g_hid_key_table[kHIDUsage_KeypadComma] = ',';
+    g_hid_key_table[kHIDUsage_KeypadEqualSignAS400] = '=';
+}
+
+t_CKINT Hid_hwkey_to_ascii( t_CKINT hwkey )
+{
+    if( hwkey < 0 || hwkey >= sizeof( g_hid_key_table ) )
+        return -1;
+    
+    return g_hid_key_table[hwkey];
+}
 
 void Hid_init()
 {
@@ -754,6 +885,8 @@ void Hid_init()
     }
     
     IOObjectRelease( hidObjectIterator );
+    
+    Hid_key_table_init();
 }
 
 // callback for the CFRunLoop dummy source
@@ -788,6 +921,27 @@ void Hid_poll()
         cfrlDummySource = CFRunLoopSourceCreate( kCFAllocatorDefault, 0, 
                                                  &cfrlSourceContext );
         CFRunLoopAddSource( rlHid, cfrlDummySource, kCFRunLoopChuckHidMode );
+        
+#ifdef __CK_HID_WIIREMOTE__
+        // add wii remote source
+        cfrlSourceContext.version = 0;
+        cfrlSourceContext.info = NULL;
+        cfrlSourceContext.retain = NULL;
+        cfrlSourceContext.release = NULL;
+        cfrlSourceContext.copyDescription = NULL;
+        cfrlSourceContext.equal = NULL;
+        cfrlSourceContext.hash = NULL;
+        cfrlSourceContext.schedule = NULL;
+        cfrlSourceContext.cancel = NULL;
+        cfrlSourceContext.perform = WiiRemote_cfrl_callback;
+        CFRunLoopSourceRef _cfrlWiiRemoteSource = CFRunLoopSourceCreate( kCFAllocatorDefault, 
+                                                                         0, 
+                                                                         &cfrlSourceContext );
+        CFRunLoopAddSource( rlHid, _cfrlWiiRemoteSource, kCFRunLoopChuckHidMode );
+        cfrlWiiRemoteSource = _cfrlWiiRemoteSource;
+        
+        WiiRemote_cfrl_callback( NULL );
+#endif
     }
     
     // TODO: set this up to use a pipe or circular buffer, so that we dont have
@@ -883,7 +1037,6 @@ void Hid_callback( void * target, IOReturn result,
     
     while( result == kIOReturnSuccess )
     {
-        
         result = ( *( device->queue ) )->getNextEvent( device->queue, 
                                                        &event, atZero, 0 );
         if( result == kIOReturnUnderrun )
@@ -896,6 +1049,7 @@ void Hid_callback( void * target, IOReturn result,
         
         element = ( *( device->elements ) )[event.elementCookie];
         
+        msg.clear();
         msg.device_type = device->type;
         msg.device_num = device->num;
         msg.type = element->type;
@@ -904,7 +1058,7 @@ void Hid_callback( void * target, IOReturn result,
         switch( msg.type )
         {
             case CK_HID_JOYSTICK_AXIS:
-                // quick and dirty scaling of the value to [-1.0, 1.0]
+                // scale the value to [-1.0, 1.0]
                 msg.fdata[0] = ((t_CKFLOAT)(event.value - element->min)) * 2.0 / ((t_CKFLOAT)(element->max - element->min)) - 1.0;
                 break;
                 
@@ -925,6 +1079,11 @@ void Hid_callback( void * target, IOReturn result,
                     msg.idata[0] = 0;
                     msg.idata[1] = event.value;
                 }
+                
+                msg.idata[2] = cursorX;
+                msg.idata[3] = cursorY;
+                msg.fdata[0] = scaledCursorX;
+                msg.fdata[1] = scaledCursorY;
                 
                 break;
                 
@@ -948,9 +1107,16 @@ void Hid_callback( void * target, IOReturn result,
             case CK_HID_BUTTON_DOWN:
                 if( event.value == 0 )
                     msg.type = CK_HID_BUTTON_UP;
+                
                 msg.idata[0] = event.value;
+                
                 if( msg.device_type == CK_HID_DEV_KEYBOARD )
+                {
                     msg.eid = element->usage;
+                    msg.idata[1] = element->usage;
+                    msg.idata[2] = Hid_hwkey_to_ascii( element->usage );
+                }
+                
                 break;
         }
         
@@ -964,6 +1130,10 @@ void Hid_quit()
     if( rlHid )
         CFRunLoopStop( rlHid );  
     rlHid = NULL;
+    
+#ifdef __CK_HID_CURSORTRACK__
+    Mouse_stop_cursor_track();
+#endif // __CK_HID_CURSORTRACK__
 }
 
 void Hid_quit2()
@@ -1011,7 +1181,6 @@ void Hid_quit2()
     delete joysticks;
     joysticks = NULL;
 }
-
 
 #pragma mark OS X Joystick support
 
@@ -1224,6 +1393,107 @@ const char * Mouse_name( int m )
     return mice->at( m )->name;
 }
 
+#ifdef __CK_HID_CURSORTRACK__
+
+CGPoint CGEventGetLocation(CGEventRef event);
+
+CGEventRef Mouse_cursor_track_cb( CGEventTapProxy proxy, CGEventType type, 
+                                  CGEventRef event, void * refcon )
+{
+    CGPoint p = CGEventGetLocation( event );
+    
+    cursorX = ( t_CKINT ) p.x;
+    cursorY = ( t_CKINT ) p.y;
+    
+    CGDirectDisplayID display;
+    CGDisplayCount displayCount;
+    
+    if( CGGetDisplaysWithPoint( p, 1, &display, &displayCount ) == kCGErrorSuccess )
+    {
+        scaledCursorX = ( ( t_CKFLOAT ) cursorX ) / ( CGDisplayPixelsWide( display ) - 1 );
+        scaledCursorY = ( ( t_CKFLOAT ) cursorY ) / ( CGDisplayPixelsHigh( display ) - 1 );
+    }
+    
+    return event;
+}
+
+void * Mouse_cursor_track( void * )
+{
+    EM_log( CK_LOG_INFO, "hid: starting cursor track" );
+    
+    cursorX = 0;
+    cursorY = 0;
+
+    rlCursorTrack = CFRunLoopGetCurrent();
+    
+    CFMachPortRef machPort = CGEventTapCreate( kCGSessionEventTap,
+                                               kCGHeadInsertEventTap,
+                                               kCGEventTapOptionListenOnly,
+                                               CGEventMaskBit( kCGEventMouseMoved ),
+                                               Mouse_cursor_track_cb, NULL );
+    CFRunLoopSourceRef tapSource;
+    if( machPort != NULL )
+    {
+        tapSource = CFMachPortCreateRunLoopSource( NULL, machPort, 0 );
+        CFRunLoopAddSource( rlCursorTrack, tapSource, kCFRunLoopChuckHidMode );
+    }
+    
+    else
+    {
+        EM_log( CK_LOG_WARNING, "hid: cursor position listener startup failed" );
+        return 0;
+    }
+    
+    while( g_ct_go )
+        CFRunLoopRunInMode( kCFRunLoopChuckHidMode, 60 * 60 * 24, FALSE );
+    
+    CFRelease( machPort );
+    CFRelease( tapSource );
+    rlCursorTrack = NULL;
+    
+    EM_log( CK_LOG_INFO, "hid: stopping cursor track" );
+    
+    return 0;
+}
+
+int Mouse_start_cursor_track()
+{
+    if( CGEventTapCreate == NULL )
+        return -1;
+    
+    if( g_ct_go )
+        return 0;
+    
+    g_ct_go = TRUE;
+    pthread_t ct_thread;
+    
+    if( pthread_create( &ct_thread, NULL, Mouse_cursor_track, NULL ) != 0 )
+    {
+        EM_log( CK_LOG_WARNING, "hid: cursor track thread failed to start" );
+        return -1;
+    }
+    
+    return 0;
+}
+
+int Mouse_stop_cursor_track()
+{
+    if( g_ct_go )
+    {
+        g_ct_go = FALSE;
+        
+        if( rlCursorTrack )
+            CFRunLoopStop( rlCursorTrack );
+        
+        cursorX = 0;
+        cursorY = 0;
+    }
+    
+    return 0;
+}
+
+#endif /* __CK_HID_CURSORTRACK__ */
+
 #pragma mark OS X Keyboard support
 void Keyboard_init()
 {
@@ -1321,6 +1591,1076 @@ const char * Keyboard_name( int k )
     return keyboards->at( k )->name;
 }
 
+#pragma mark OS X Tilt/Sudden Motion Sensor support
+
+enum
+{
+    kSMSPowerbookDataType,
+    kSMSMacBookProDataType
+};
+
+static struct t_TiltSensor_data
+{
+    union
+    {
+        struct 
+        {
+            int8_t x;
+            int8_t y;
+            int8_t z;
+            int8_t pad[57];
+        } powerbook;
+        
+        struct 
+        {
+            int16_t x;
+            int16_t y;
+            int16_t z;
+            int8_t pad[34];
+        } macbookpro;
+    } data;
+    
+    int kernFunc;
+    char * servMatch;
+    int dataType;
+    
+    int detected; // 0 = detection not yet run, -1 = no sensor found, 1 = sensor found
+    
+    t_TiltSensor_data()
+    {
+        kernFunc = 0;
+        servMatch = NULL;
+        dataType = 0;
+        detected = 0;
+    }
+    
+} TiltSensor_data;
+
+static int TiltSensor_do_read()
+{
+    kern_return_t result;
+    mach_port_t masterPort;
+    io_iterator_t iterator;
+    io_object_t aDevice;
+    io_connect_t dataPort;
+    
+    IOItemCount structureInputSize;
+    IOByteCount structureOutputSize;
+        
+    result = IOMasterPort( MACH_PORT_NULL, &masterPort );
+    
+    CFMutableDictionaryRef matchingDictionary = IOServiceMatching( TiltSensor_data.servMatch );
+    
+    result = IOServiceGetMatchingServices( masterPort, matchingDictionary, &iterator );
+    
+    if ( result != KERN_SUCCESS )
+        return 0;
+    
+    aDevice = IOIteratorNext( iterator );
+    IOObjectRelease( iterator );
+    
+    if (aDevice == 0)
+        return 0;
+    
+    result = IOServiceOpen( aDevice, mach_task_self(), 0, &dataPort );
+    IOObjectRelease( aDevice );
+    
+    if ( result != KERN_SUCCESS )
+        return 0;
+    
+    switch ( TiltSensor_data.dataType )
+    {
+        case kSMSPowerbookDataType:
+            structureInputSize = sizeof( TiltSensor_data.data.powerbook );
+            structureOutputSize = sizeof( TiltSensor_data.data.powerbook );
+            break;
+            
+        case kSMSMacBookProDataType:
+            structureInputSize = sizeof( TiltSensor_data.data.macbookpro );
+            structureOutputSize = sizeof( TiltSensor_data.data.macbookpro );
+            break;
+            
+        default:
+            return 0;
+    }
+    
+    memset( &TiltSensor_data.data, 0, sizeof( TiltSensor_data.data ) );
+    memset( &TiltSensor_data.data, 0, sizeof( TiltSensor_data.data ) );
+    
+    result = IOConnectMethodStructureIStructureO( dataPort, 
+                                                  TiltSensor_data.kernFunc, 
+                                                  structureInputSize,
+                                                  &structureOutputSize, 
+                                                  &TiltSensor_data.data, 
+                                                  &TiltSensor_data.data );
+    
+    IOServiceClose( dataPort );
+    
+    if ( result != KERN_SUCCESS )
+        return 0;
+
+    return 1;
+}
+
+static int TiltSensor_detect()
+{
+    // try different interfaces until we find one that works
+    
+    // powerbook (OS X 10.4.8) tilt sensor interface
+    TiltSensor_data.kernFunc = 21;
+    TiltSensor_data.servMatch = "IOI2CMotionSensor";
+    TiltSensor_data.dataType = kSMSPowerbookDataType;
+    
+    if( TiltSensor_do_read() )
+        goto found;
+    
+    // hi resolution powerbook tilt sensor interface
+    TiltSensor_data.kernFunc = 21;
+    TiltSensor_data.servMatch = "PMUMotionSensor";
+    TiltSensor_data.dataType = kSMSPowerbookDataType;
+    
+    if( TiltSensor_do_read() )
+        goto found;
+    
+    // ibook tilt sensor interface
+    TiltSensor_data.kernFunc = 21;
+    TiltSensor_data.servMatch = "IOI2CMotionSensor";
+    TiltSensor_data.dataType = kSMSPowerbookDataType;
+    
+    if( TiltSensor_do_read() )
+        goto found;
+    
+    // mac book pro tilt sensor interface
+    TiltSensor_data.kernFunc = 5;
+    TiltSensor_data.servMatch = "SMCMotionSensor";
+    TiltSensor_data.dataType = kSMSMacBookProDataType;
+    
+    if( TiltSensor_do_read() )
+        goto found;
+    
+    TiltSensor_data.detected = -1;
+    
+    return 0;
+    
+found:
+        TiltSensor_data.detected = 1;
+    
+    return 1;
+}
+
+int TiltSensor_read( t_CKINT * x, t_CKINT * y, t_CKINT * z )
+{
+    if( !TiltSensor_data.detected )
+        TiltSensor_detect();
+    
+    if( TiltSensor_data.detected == -1 )
+        return 0;
+    
+    if( !TiltSensor_do_read() )
+        return 0;
+    
+    if( TiltSensor_data.dataType == kSMSPowerbookDataType )
+    {
+        if( x ) *x = TiltSensor_data.data.powerbook.x;
+        if( y ) *y = TiltSensor_data.data.powerbook.y;
+        if( z ) *z = TiltSensor_data.data.powerbook.z;
+    }
+    
+    else if( TiltSensor_data.dataType == kSMSMacBookProDataType )
+    {
+        if( x ) *x = TiltSensor_data.data.macbookpro.x;
+        if( y ) *y = TiltSensor_data.data.macbookpro.y;
+        if( z ) *z = TiltSensor_data.data.macbookpro.z;
+    }
+    
+    return 1;
+}
+
+#ifdef __CK_HID_WIIREMOTE__
+#pragma mark OS X Wii Remote support
+
+class Bluetooth_Device
+{
+public:
+    Bluetooth_Device()
+    {
+        device = NULL;
+        memset( &address, 0, sizeof( address ) );
+        strncpy( name, "Bluetooth Device", 256 );
+        interrupt_channel = NULL;
+        control_channel = NULL;
+        disconnect_notification = NULL;
+        
+        type = 0;
+        num = -1;
+        
+        refcount = 0;
+    }
+    
+    virtual ~Bluetooth_Device()
+    {
+        close();
+    }
+    
+    virtual t_CKINT open() { return -1; }
+    virtual t_CKINT connect() { return -1; }
+    virtual t_CKINT control_init() { return -1; }
+    virtual t_CKINT interrupt_init() { return -1; }
+    virtual t_CKINT disconnect() { return -1; }
+    virtual t_CKINT close() { return -1; }
+    virtual t_CKBOOL is_connected() { return FALSE; }
+    
+    virtual void control_receive( void * data, size_t size ) {};
+    virtual void interrupt_receive( void * data, size_t size ) {};
+    
+    virtual void control_send( void * data, size_t size ) {};
+    virtual void interrupt_send( void * data, size_t size ) {};
+    
+    IOBluetoothDeviceRef device;
+    BluetoothDeviceAddress address;
+    IOBluetoothL2CAPChannelRef interrupt_channel;
+    IOBluetoothL2CAPChannelRef control_channel;
+    IOBluetoothUserNotificationRef disconnect_notification;
+    char name[256];
+    
+    t_CKUINT type;
+    t_CKINT num;
+    t_CKUINT refcount;
+};
+
+class WiiRemote : public Bluetooth_Device
+{
+public:
+    WiiRemote()
+    {
+        force_feedback_enabled = FALSE;
+        motion_sensor_enabled = FALSE;
+        ir_sensor_enabled = FALSE;
+        led1 = led2 = led3 = led4 = FALSE;
+        memset( &buttons, 0, sizeof( buttons ) );
+        memset( &accels, 0, sizeof( accels ) );
+    }
+    
+    virtual t_CKINT open();
+    virtual t_CKINT connect();
+    virtual t_CKINT control_init();
+    virtual t_CKINT disconnect();
+    virtual t_CKINT close();
+    virtual t_CKBOOL is_connected();
+    
+    virtual void control_receive( void * data, size_t size );
+    virtual void interrupt_receive( void * data, size_t size );
+    
+    virtual void control_send( void * data, size_t size );
+    
+    virtual void enable_force_feedback( t_CKBOOL enable );
+    virtual void enable_motion_sensor( t_CKBOOL enable );
+    virtual void enable_ir_sensor( t_CKBOOL enable );
+    virtual void enable_leds( t_CKBOOL l1, t_CKBOOL l2, 
+                              t_CKBOOL l3, t_CKBOOL l4 );
+    
+    t_CKBOOL force_feedback_enabled;
+    t_CKBOOL motion_sensor_enabled;
+    t_CKBOOL ir_sensor_enabled;
+    t_CKBOOL led1, led2, led3, led4;
+    
+    t_CKBYTE buttons[2];
+    t_CKBYTE accels[3];
+
+    enum
+    {
+        ButtonHome = 0,
+        Button1,
+        Button2,
+        ButtonPlus,
+        ButtonMinus,
+        ButtonA,
+        ButtonB,
+        ButtonUp,
+        ButtonRight,
+        ButtonDown,
+        ButtonLeft
+    };
+};
+
+bool operator< ( BluetoothDeviceAddress a, BluetoothDeviceAddress b )
+{
+    for( int i = 0; i < 6; i++ )
+    {
+        if( a.data[i] < b.data[i] )
+            return true;
+        if( a.data[i] > b.data[i] )
+            return false;
+    }
+
+    return false;
+}
+
+vector< WiiRemote * > * wiiremotes = NULL;
+
+/* the user can open a wiimote with any id number he chooses without an error,
+and will then be sent the appropriate message when that wiimote is connected.  
+The nth wiimote is simply the nth wiimote that chuck hid detects, and since 
+there is absolutely no way to determine how many wiimotes will connect in 
+advance, this number must be left unbounded.  To support this, WiiRemote_open
+will add empty WiiRemotes to wiiremotes with refcount of 1 if it the wiimote
+its opening isnt there yet, and hope it will be opened at some future time.  
+Thus when discovering wiimotes we have to distinguish between wiimotes that have
+been discovered and wiimotes that have been opened but have not yet been 
+discovered.  all wiimotes with indices less than g_wr_next_real_wiimote have 
+actually been discovered, and anything at or above that index in wiiremotes has
+not actually been discovered, but (if its non-NULL) has been opened.  */
+static vector< WiiRemote * >::size_type g_next_real_wiimote = 0;
+
+static map< BluetoothDeviceAddress, WiiRemote * > * wr_addresses = NULL;
+static t_CKBOOL g_bt_query_active = FALSE; // is a query currently active?
+
+void Bluetooth_device_connected( void * userRefCon, 
+                                 IOBluetoothDeviceRef deviceRef,
+                                 IOReturn status )
+{
+    if( status == noErr )
+        ( ( Bluetooth_Device * ) userRefCon )->connect();
+    else
+        EM_log( CK_LOG_WARNING, "hid: error: opening Wii Remote Controller connection" );
+}
+
+void Bluetooth_device_control_event( IOBluetoothL2CAPChannelRef l2capChannel,
+                                     void * refCon,
+                                     IOBluetoothL2CAPChannelEvent * event )
+{
+    switch( event->eventType )
+    {
+        case kIOBluetoothL2CAPChannelEventTypeOpenComplete:
+            ( ( Bluetooth_Device * ) refCon )->control_init();
+            break;
+            
+        case kIOBluetoothL2CAPChannelEventTypeData:
+            ( ( Bluetooth_Device * ) refCon )->control_receive( event->u.data.dataPtr, 
+                                                                event->u.data.dataSize );
+            break;
+            
+        case kIOBluetoothL2CAPChannelEventTypeWriteComplete:
+            if( event->status != noErr )
+            {
+                EM_log( CK_LOG_WARNING, "hid: error: writing data to control L2CAP channel for '%s'", 
+                        ( ( Bluetooth_Device * ) refCon )->name );
+            }
+            
+            break;
+    }        
+}
+
+void Bluetooth_device_interrupt_event( IOBluetoothL2CAPChannelRef l2capChannel,
+                                       void * refCon,
+                                       IOBluetoothL2CAPChannelEvent * event )
+{
+    switch( event->eventType )
+    {
+        case kIOBluetoothL2CAPChannelEventTypeData:
+            ( ( Bluetooth_Device * ) refCon )->control_receive( event->u.data.dataPtr, 
+                                                                event->u.data.dataSize );
+            break;
+    }        
+}
+
+void Bluetooth_device_disconnected( void * userRefCon, 
+                                    IOBluetoothUserNotificationRef inRef, 
+                                    IOBluetoothObjectRef objectRef )
+{
+    ( ( Bluetooth_Device * ) userRefCon )->disconnect();
+}
+
+t_CKINT WiiRemote::open()
+{
+    // see if its already connected, reconnect if so
+    if( IOBluetoothDeviceIsConnected( device ) )
+    {
+        if( IOBluetoothDeviceCloseConnection( device ) != noErr )
+        {
+            EM_log( CK_LOG_WARNING, "hid: error: closing Wii Remote Controller connection" );
+            return -1;
+        }
+    }
+    
+    if( IOBluetoothDeviceOpenConnection( device, Bluetooth_device_connected,
+                                         this ) != noErr)
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: opening Wii Remote Controller connection" );
+        return -1;
+    }
+    
+    return 0;
+}
+
+t_CKINT WiiRemote::connect()
+{    
+    disconnect_notification = IOBluetoothDeviceRegisterForDisconnectNotification( device,
+                                                                                  Bluetooth_device_disconnected,
+                                                                                  this );
+    
+    if( disconnect_notification == NULL )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: registering for Wii Remote Controller disconnection notification" );
+        return -1;
+    }
+    
+    if( IOBluetoothDeviceOpenL2CAPChannelAsync( device, &control_channel, 17, 
+                                                Bluetooth_device_control_event, 
+                                                this ) != noErr )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: opening Wii Remote Controller L2CAP connection" );
+        return -1;
+    }
+    
+    if( IOBluetoothDeviceOpenL2CAPChannelAsync( device, &interrupt_channel, 19, 
+                                                Bluetooth_device_interrupt_event, 
+                                                this ) != noErr )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: opening Wii Remote Controller L2CAP connection" );
+        return -1;
+    }
+    
+    HidMsg msg;
+    
+    msg.device_num = num;
+    msg.device_type = CK_HID_DEV_WIIREMOTE;
+    msg.type = CK_HID_DEVICE_CONNECTED;
+    
+    HidInManager::push_message( msg );
+    
+    return 0;
+}
+
+t_CKINT WiiRemote::control_init()
+{
+    enable_motion_sensor( TRUE );
+    enable_ir_sensor( FALSE );
+    enable_force_feedback( FALSE );
+    enable_leds( ( num % 4 ) == 0, ( ( num - 1 ) % 4 ) == 0, 
+                 ( ( num - 2 ) % 4 ) == 0, ( ( num - 3 ) % 4 ) == 0 );
+    return 0;
+}
+
+t_CKINT WiiRemote::disconnect()
+{
+    HidMsg msg;
+    
+    msg.device_num = num;
+    msg.device_type = CK_HID_DEV_WIIREMOTE;
+    msg.type = CK_HID_DEVICE_DISCONNECTED;
+    
+    HidInManager::push_message( msg );
+    
+    IOBluetoothL2CAPChannelCloseChannel( interrupt_channel );
+    IOBluetoothObjectRelease( interrupt_channel );
+    interrupt_channel = NULL;
+    
+    IOBluetoothL2CAPChannelCloseChannel( control_channel );
+    IOBluetoothObjectRelease( control_channel );
+    control_channel = NULL;
+    
+    IOBluetoothDeviceCloseConnection( device );
+    IOBluetoothObjectRelease( device );
+    device = NULL;
+    
+    IOBluetoothUserNotificationUnregister( disconnect_notification );
+    disconnect_notification = NULL;
+    
+    return 0;
+}
+
+t_CKINT WiiRemote::close()
+{
+    if( is_connected() )
+        disconnect();
+    return 0;
+}
+
+t_CKBOOL WiiRemote::is_connected()
+{
+    if( device == NULL )
+        return FALSE;
+    return TRUE;
+}
+
+void WiiRemote::control_receive( void * data, size_t size )
+{
+    unsigned char * d = ( unsigned char * ) data;
+    HidMsg msg;
+    
+    if( ( d[1] & 0xf0 ) == 0x30 )
+        // button report
+    {
+        if( ( d[3] & 0x80 ) ^ ( buttons[1] & 0x80 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[3] & 0x80 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonHome;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[3] & 0x02 ) ^ ( buttons[1] & 0x02 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[3] & 0x02 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = Button1;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[3] & 0x01 ) ^ ( buttons[1] & 0x01 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[3] & 0x01 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = Button2;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[2] & 0x10 ) ^ ( buttons[0] & 0x10 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[2] & 0x10 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonPlus;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[3] & 0x10 ) ^ ( buttons[1] & 0x10 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[3] & 0x10 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonMinus;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[3] & 0x08 ) ^ ( buttons[1] & 0x08 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[3] & 0x08 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonA;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[3] & 0x04 ) ^ ( buttons[1] & 0x04 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[3] & 0x04 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonB;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[2] & 0x08 ) ^ ( buttons[0] & 0x08 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[2] & 0x08 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonUp;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[2] & 0x02 ) ^ ( buttons[0] & 0x02 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[2] & 0x02 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonRight;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[2] & 0x04 ) ^ ( buttons[0] & 0x04 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[2] & 0x04 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonDown;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        if( ( d[2] & 0x01 ) ^ ( buttons[0] & 0x01 ) )
+        {
+            msg.device_num = num;
+            msg.device_type = CK_HID_DEV_WIIREMOTE;
+            msg.type = ( d[2] & 0x01 ) ? CK_HID_BUTTON_DOWN : CK_HID_BUTTON_UP;
+            msg.eid = ButtonLeft;
+            
+            HidInManager::push_message( msg );
+            
+            msg.clear();
+        }
+        
+        memcpy( buttons, d + 2, sizeof( buttons ) );
+        
+        if( d[1] & 0x01 )
+        {
+            if( d[4] ^ accels[0] )
+            {
+                msg.device_num = num;
+                msg.device_type = CK_HID_DEV_WIIREMOTE;
+                msg.type = CK_HID_ACCELEROMETER;
+                msg.eid = 0;
+                msg.idata[0] = d[4];
+                
+                HidInManager::push_message( msg );
+                
+                msg.clear();            
+            }
+            
+            if( d[5] ^ accels[1] )
+            {
+                msg.device_num = num;
+                msg.device_type = CK_HID_DEV_WIIREMOTE;
+                msg.type = CK_HID_ACCELEROMETER;
+                msg.eid = 1;
+                msg.idata[0] = d[5];
+                
+                HidInManager::push_message( msg );
+                
+                msg.clear();            
+            }
+            
+            if( d[6] ^ accels[2] )
+            {
+                msg.device_num = num;
+                msg.device_type = CK_HID_DEV_WIIREMOTE;
+                msg.type = CK_HID_ACCELEROMETER;
+                msg.eid = 2;
+                msg.idata[0] = d[6];
+                
+                HidInManager::push_message( msg );
+                
+                msg.clear();            
+            }
+            
+            memcpy( accels, d + 4, sizeof( accels ) );
+        }
+    }
+}
+
+void WiiRemote::interrupt_receive( void * data, size_t size )
+{
+     
+}
+
+void WiiRemote::control_send( void * data, size_t size )
+{
+    assert( size <= 22 );
+    
+	unsigned char buf[23];
+    
+	memset( buf, 0, 23 );
+	buf[0] = 0x52;
+    memcpy( buf+1, data, size );
+	
+    if( buf[1] == 0x16 )
+        size = 23;
+	else
+        size++;
+    
+    //printf( "send (%i):", size );
+    //for( int i = 0; i < size; i++ )
+    //    printf( " %02x", buf[i] );
+    //printf( "\n" );
+    
+//    if( IOBluetoothL2CAPChannelWriteAsync( control_channel, buf, size, this ) 
+//        != noErr )
+//        EM_log( CK_LOG_WARNING, "hid: error: sending data to Wii Remote Controller %i", num );
+    
+    if( IOBluetoothL2CAPChannelWriteSync( control_channel, buf, size ) 
+        != noErr )
+        EM_log( CK_LOG_WARNING, "hid: error: sending data to Wii Remote Controller %i", num );
+}
+
+void WiiRemote::enable_force_feedback( t_CKBOOL enable )
+{
+    force_feedback_enabled = enable;
+    
+    unsigned char cmd[] = { 0x13, 0x00 };
+	if( enable )
+        cmd[1] |= 0x01;
+	//if( ir_enabled )
+    //    cmd[1] |= 0x04;    
+    
+    control_send( cmd, 2 );
+}
+
+void WiiRemote::enable_motion_sensor( t_CKBOOL enable )
+{
+    motion_sensor_enabled = enable;
+    
+    unsigned char cmd[] = { 0x12, 0x00, 0x30 };
+    if( enable )
+        cmd[2] = 0x31;
+    //if( ir_sensor_enabled )
+    //    cmd[2] = 0x33;
+    
+    control_send( cmd, 3 );
+}
+
+void WiiRemote::enable_ir_sensor( t_CKBOOL enable )
+{
+    ir_sensor_enabled = enable;
+    
+    enable_motion_sensor( motion_sensor_enabled );
+    enable_force_feedback( force_feedback_enabled );
+    
+    unsigned char cmd[] = { 0x1a, 0x00 };
+    if( enable )
+        cmd[1] |= 0x04;
+    
+    // todo: all of the write memory stuff goes here
+    
+    control_send( cmd, 2 );
+}
+
+void WiiRemote::enable_leds( t_CKBOOL l1, t_CKBOOL l2, 
+                             t_CKBOOL l3, t_CKBOOL l4 )
+{
+    led1 = l1;
+    led2 = l2;
+    led3 = l3;
+    led4 = l4;
+    
+	unsigned char cmd[] = { 0x11, 0x00 };
+	if( force_feedback_enabled )
+        cmd[1] |= 0x01;
+	if( l1 )
+        cmd[1] |= 0x10;
+	if( l2 )
+        cmd[1] |= 0x20;
+	if( l3 )
+        cmd[1] |= 0x40;
+	if( l4 )
+        cmd[1] |= 0x80;
+	
+	control_send( cmd, 2 );
+}
+
+void Bluetooth_inquiry_device_found( void * userRefCon,
+                                     IOBluetoothDeviceInquiryRef inquiryRef, 
+                                     IOBluetoothDeviceRef deviceRef )
+{
+    CFStringRef device_name = IOBluetoothDeviceGetName( deviceRef );
+    const BluetoothDeviceAddress * address = IOBluetoothDeviceGetAddress( deviceRef );
+    
+    if( device_name == NULL )
+        return;
+    
+    // is device Nintendo Wii Remote controller?
+    if( CFStringCompare( device_name, CFSTR( "Nintendo RVL-CNT-01" ), 0 ) == 0 )
+    {
+        // has this already been detected?
+        if( wr_addresses->find( *address ) == wr_addresses->end() )
+        {
+            WiiRemote * wr;
+            
+            if( g_next_real_wiimote >= wiiremotes->size() )
+            {
+                wr = new WiiRemote;
+                wiiremotes->push_back( wr );
+            }
+            
+            else if( ( *wiiremotes )[g_next_real_wiimote] == NULL )
+            {
+                wr = new WiiRemote;
+                ( *wiiremotes )[g_next_real_wiimote] = wr;
+            }
+            
+            else
+            {
+                wr = ( *wiiremotes )[g_next_real_wiimote];
+            }
+            
+            // set member data
+            wr->device = deviceRef;
+            memcpy( &wr->address, address, sizeof( BluetoothDeviceAddress ) );
+            strncpy( wr->name, "Nintendo RVL-CNT-01", 256 );
+            wr->num = g_next_real_wiimote;
+            wr->type = CK_HID_DEV_WIIREMOTE;
+            
+            ( *wr_addresses )[wr->address] = wr;
+            
+            EM_log( CK_LOG_INFO, "hid: found Wii Remote Controller" );
+            
+            if( wr->refcount )
+                wr->open();
+            
+            g_next_real_wiimote++;
+        }
+        
+        else if( !( *wr_addresses )[*address]->is_connected() )
+        {
+            WiiRemote * wr = ( *wr_addresses )[*address];
+            
+            if( wr->refcount )
+                wr->open();
+        }
+    }
+    
+    else
+    {
+        EM_log( CK_LOG_INFO, "hid: found bluetooth device" );
+    }
+}
+
+void Bluetooth_inquiry_complete( void * userRefCon,
+                                 IOBluetoothDeviceInquiryRef inquiryRef, 
+                                 IOReturn error, 
+                                 Boolean aborted )
+{
+    g_bt_query_active = FALSE;
+}
+
+int WiiRemote_query()
+{
+    EM_log( CK_LOG_INFO, "hid: performing bluetooth query" );
+    if( g_bt_query_active )
+        return 0;
+    
+    if( IOBluetoothLocalDeviceAvailable() == FALSE )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: bluetooth unavailable" );
+        return -1;
+    }
+    
+    IOBluetoothDeviceInquiryRef btDeviceInquiry = IOBluetoothDeviceInquiryCreateWithCallbackRefCon( NULL );
+        
+    if( btDeviceInquiry == NULL )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: creating bluetooth device inquiry" );
+        return -1;
+    }
+    
+    if( IOBluetoothDeviceInquirySetDeviceFoundCallback( btDeviceInquiry,
+                                                        Bluetooth_inquiry_device_found ) 
+        != noErr )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: setting bluetooth device inquiry callback" );
+        return -1;
+    }
+    
+    if( IOBluetoothDeviceInquirySetCompleteCallback( btDeviceInquiry,
+                                                     Bluetooth_inquiry_complete )
+        != noErr )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: setting bluetooth device inquiry completion callback" );
+        return -1;
+    }
+    
+    if( IOBluetoothDeviceInquirySetUpdateNewDeviceNames( btDeviceInquiry,
+                                                         TRUE )
+        != noErr )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: setting bluetooth device inquiry name update flag" );
+        return -1;
+    }
+    
+    if( IOBluetoothDeviceInquirySetInquiryLength( btDeviceInquiry, 10 ) != noErr )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: setting bluetooth inquiry length" );
+        return -1;
+    }
+    
+    if( IOBluetoothDeviceInquiryStart( btDeviceInquiry ) != noErr )
+    {
+        EM_log( CK_LOG_WARNING, "hid: error: starting bluetooth device inquiry" );
+        return -1;
+    }
+    
+    g_bt_query_active = TRUE;
+    
+    return 0;
+}
+
+/* -- WiiRemote inter-thread communication -- 
+Every IOBluetooth function needs to be called from the HID thread because none 
+of it is thread safe, and it also requires a CFRunLoop to be running at some 
+point.  So, WiiRemote_open and _close, which are called from the VM thread, put 
+open and close messages into a thread-safe circular buffer and then signal the 
+hid thread to indicate that new info is available on the cbuf.  The hid thread
+will then process any pending open/close messages in the cbuf.  
+*/
+
+struct WiiRemoteOp
+{
+    enum 
+    {
+        open,
+        close
+    } op;
+    
+    int index;
+};
+
+static CBufferSimple * WiiRemoteOp_cbuf = NULL;
+
+static void WiiRemote_cfrl_callback( void * info )
+{
+    WiiRemoteOp wro;
+    t_CKBOOL do_query = FALSE;
+    
+    while( WiiRemoteOp_cbuf->get( &wro, 1 ) )
+    {
+        if( wro.op == WiiRemoteOp::open )
+        {
+            // does it exist already?
+            if( wro.index < wiiremotes->size() )
+                // yes
+            {
+                // is the device connected?
+                if( !( *wiiremotes )[wro.index]->is_connected() )
+                    // no, so do a query
+                    do_query = TRUE;
+            }
+            
+            else
+                // no, so create it
+            {
+                while( wro.index > wiiremotes->size() )
+                    wiiremotes->push_back( NULL );
+                wiiremotes->push_back( new WiiRemote );
+                
+                do_query = TRUE;
+            }
+            
+            ( *wiiremotes )[wro.index]->refcount++;
+        }
+        
+        else if( wro.op == WiiRemoteOp::close )
+        {
+            if( wro.index < wiiremotes->size() )
+            {
+                if( --( *wiiremotes )[wro.index]->refcount == 0 )
+                    ( *wiiremotes )[wro.index]->close();
+            }
+        }
+    }
+    
+    if( do_query )
+        WiiRemote_query();
+}
+
+static void WiiRemote_signal()
+{
+    if( cfrlWiiRemoteSource )
+    {
+        CFRunLoopSourceSignal( cfrlWiiRemoteSource );
+        CFRunLoopWakeUp( rlHid );
+    }
+}
+
+#endif // __CK_HID_WIIREMOTE
+
+void WiiRemote_init()
+{
+#ifdef __CK_HID_WIIREMOTE__
+    Hid_init();
+    
+    wiiremotes = new vector< WiiRemote * >;
+    wr_addresses = new map< BluetoothDeviceAddress, WiiRemote * >;
+    WiiRemoteOp_cbuf = new CBufferSimple;
+    WiiRemoteOp_cbuf->initialize( 10, sizeof( WiiRemoteOp ) );
+#endif // __CK_HID_WIIREMOTE
+}
+
+void WiiRemote_poll()
+{
+}
+
+void WiiRemote_quit()
+{
+#ifdef __CK_HID_WIIREMOTE__
+    Hid_quit2();
+#endif // __CK_HID_WIIREMOTE
+}
+
+int WiiRemote_count()
+{    
+#ifdef __CK_HID_WIIREMOTE__
+    return wiiremotes->size();
+#else
+    return 0;
+#endif // __CK_HID_WIIREMOTE   
+}
+
+int WiiRemote_open( int wr )
+{
+#ifdef __CK_HID_WIIREMOTE__
+    WiiRemoteOp wro;
+    wro.op = WiiRemoteOp::open;
+    wro.index = wr;
+    
+    WiiRemoteOp_cbuf->put( &wro, 1 );
+    
+    WiiRemote_signal();
+    
+    return 0;
+#else
+    return -1;
+#endif // __CK_HID_WIIREMOTE
+}
+
+int WiiRemote_close( int wr )
+{
+#ifdef __CK_HID_WIIREMOTE__
+    WiiRemoteOp wro;
+    wro.op = WiiRemoteOp::close;
+    wro.index = wr;
+    
+    WiiRemoteOp_cbuf->put( &wro, 1 );
+    
+    WiiRemote_signal();
+    
+    return 0;
+#else
+    return -1;
+#endif // __CK_HID_WIIREMOTE
+}
+
+const char * WiiRemote_name( int wr )
+{
+#ifdef __CK_HID_WIIREMOTE__
+    return "";
+#else
+    return "";
+#endif // __CK_HID_WIIREMOTE
+}
+
 #elif ( defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) ) && !defined( USE_RAWINPUT )
 /*****************************************************************************
 Windows general HID support
@@ -1377,6 +2717,11 @@ void Hid_quit()
 		CloseHandle( g_device_event );
 		g_device_event = NULL;
 	}*/
+}
+
+int TiltSensor_read( t_CKINT * x, t_CKINT * y, t_CKINT * z )
+{
+    return 0;
 }
 
 /*****************************************************************************
@@ -2823,6 +4168,11 @@ void Hid_quit()
     delete device_map;
         
     g_hid_init = FALSE;
+}
+
+int TiltSensor_read( t_CKINT * x, t_CKINT * y, t_CKINT * z )
+{
+    return 0;
 }
 
 /*****************************************************************************

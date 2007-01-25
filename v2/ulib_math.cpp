@@ -101,6 +101,7 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 
     // atan2
     QUERY->add_sfun( QUERY, atan2_impl, "float", "atan2" );
+    QUERY->add_arg( QUERY, "float", "y" );
     QUERY->add_arg( QUERY, "float", "x" );
 
     // sinh
@@ -237,13 +238,13 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     
     // pi
     //! see \example math.ck
-    QUERY->add_svar( QUERY, "float", "pi", TRUE, &g_pi );
+    QUERY->add_svar( QUERY, "float", "PI", TRUE, &g_pi );
 
     // twopi
-    QUERY->add_svar( QUERY, "float", "twopi", TRUE, &g_twopi );
+    QUERY->add_svar( QUERY, "float", "TWO_PI", TRUE, &g_twopi );
 
     // e
-    QUERY->add_svar( QUERY, "float", "e", TRUE, &g_e );
+    QUERY->add_svar( QUERY, "float", "E", TRUE, &g_e );
 
     // done
     QUERY->end_class( QUERY );
