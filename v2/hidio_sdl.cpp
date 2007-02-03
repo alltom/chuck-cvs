@@ -49,83 +49,7 @@
 using namespace std;
 
 static Chuck_Hid_Driver default_drivers[CK_HID_DEV_COUNT];
-/*
-{
-//init, quit, poll, probe, count, open, open_async, close, send, name, driver name
-{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 
-{
-    Joystick_init, 
-    Joystick_quit, 
-    Joystick_poll, 
-    NULL, 
-    Joystick_count,
-    Joystick_open,
-    NULL, 
-    Joystick_close,
-    NULL,
-    Joystick_name,
-    "joystick"
-},
-
-{
-    Mouse_init, 
-    Mouse_quit, 
-    Mouse_poll, 
-    NULL, 
-    Mouse_count,
-    Mouse_open,
-    NULL,
-    Mouse_close,
-    NULL,
-    Mouse_name,
-    "mouse"
-},
-    
-{
-    Keyboard_init, 
-    Keyboard_quit, 
-    Keyboard_poll, 
-    NULL, 
-    Keyboard_count,
-    Keyboard_open,
-    NULL,
-    Keyboard_close,
-    NULL,
-    Keyboard_name,
-    "keyboard"
-},
-
-{
-    WiiRemote_init, 
-    WiiRemote_quit, 
-    WiiRemote_poll, 
-    NULL, 
-    WiiRemote_count,
-    WiiRemote_open,
-    NULL,
-    WiiRemote_close,
-    NULL,
-    WiiRemote_name,
-    "wiiremote"
-},
-
-{
-    TiltSensor_init,
-    TiltSensor_quit,
-    NULL,
-    NULL,
-    TiltSensor_count,
-    TiltSensor_open,
-    NULL,
-    TiltSensor_close,
-    NULL,
-    TiltSensor_name,
-    "tilt sensor"
-}
-
-};
-*/
 struct PhyHidDevIn
 {
 public:
@@ -648,7 +572,7 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
         {
             // log
             EM_error2( 0, "HidIn: couldn't open %s %d...", 
-                       default_drivers[device_type], device_num );
+                       default_drivers[device_type].driver_name, device_num );
             SAFE_DELETE( phin );
             return FALSE;
         }
