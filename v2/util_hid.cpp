@@ -2247,6 +2247,9 @@ const char * TiltSensor_name( int ts )
 
 int TiltSensor_read( int ts, int type, int num, HidMsg * msg )
 {
+    if( type != CK_HID_ACCELEROMETER )
+        return -1;
+    
     if( TiltSensor_data.detected == -1 )
         return -1;
     

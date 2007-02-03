@@ -859,6 +859,14 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     type_engine_import_class_end( env );
     
     // init base class
+    if( !type_engine_import_class_begin( env, "Hid", "Object",
+                                         env->global(), NULL ) )
+        return FALSE;
+    
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    // init base class
     if( !type_engine_import_class_begin( env, "HidOut", "Object",
                                          env->global(), HidOut_ctor ) )
         return FALSE;
@@ -1836,7 +1844,7 @@ CK_DLL_SFUN( HidIn_read_tilt_sensor )
 
     HidMsg msg;
     
-    if( !hi->read( 0, 0, &msg ) )
+    if( !hi->read( CK_HID_ACCELEROMETER, 0, &msg ) )
     {
         return;
     }

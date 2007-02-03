@@ -11,7 +11,7 @@ if( !hi.openTiltSensor() )
 
 while( true )
 {
-    hi.read( 0, 0, msg );
+    hi.read( 9, 0, msg );
     
     <<< msg.x, msg.y, msg.z >>>;
     
