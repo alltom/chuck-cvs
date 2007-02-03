@@ -1811,6 +1811,9 @@ CK_DLL_MFUN( HidIn_can_wait )
 
 CK_DLL_SFUN( HidIn_read_tilt_sensor )
 {
+    static HidIn * hi;
+    static t_CKBOOL hi_good = TRUE;
+    
     Chuck_Array4 * array = new Chuck_Array4( FALSE, 3 );
     array->set( 0, 0 );
     array->set( 1, 0 );
@@ -1818,15 +1821,22 @@ CK_DLL_SFUN( HidIn_read_tilt_sensor )
     
     RETURN->v_object = array;
     
-    HidIn hi;
+    if( hi_good == FALSE )
+        return;
+    
+    if( !hi )
+    {
+        hi = new HidIn;
+        if( !hi->open( CK_HID_DEV_TILTSENSOR, 0 ) )
+        {
+            hi_good = FALSE;
+            return;
+        }
+    }
+
     HidMsg msg;
     
-    if( !hi.open( CK_HID_DEV_TILTSENSOR, 0 ) )
-    {
-        return;
-    }
-    
-    if( !hi.read( 0, 0, &msg ) )
+    if( !hi->read( 0, 0, &msg ) )
     {
         return;
     }
