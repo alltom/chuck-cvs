@@ -94,6 +94,8 @@ public:
 public:
     t_CKBOOL open( t_CKINT device_type, t_CKINT device_num );
     t_CKBOOL close();
+    t_CKBOOL read( t_CKINT type, t_CKINT num, HidMsg * msg );
+    t_CKBOOL send( const HidMsg * msg );
     t_CKBOOL good() { return m_valid; }
     t_CKINT  num() { return m_valid ? (t_CKINT)m_device_num : -1; }
 
@@ -125,6 +127,7 @@ class HidInManager
 {
 public:
     static void init();
+    static void init_default_drivers();
     static void cleanup();
     static t_CKBOOL open( HidIn * hin, t_CKINT device_type, t_CKINT device_num );
     static t_CKBOOL close( HidIn * hin );
@@ -151,8 +154,8 @@ protected:
 class HidOutManager
 {
 public:
-    static t_CKBOOL open( HidOut * mout, t_CKINT device_num );
-    static t_CKBOOL close( HidOut * mout );
+    static t_CKBOOL open( HidOut * hout, t_CKINT device_num );
+    static t_CKBOOL close( HidOut * hout );
 
 protected:
     HidOutManager();

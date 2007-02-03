@@ -40,7 +40,7 @@ U.S.A.
 
 using namespace std;
 
-#ifdef __MACOSX_CORE__
+#ifdef __PLATFORM_MACOSX__
 #pragma mark OS X General HID support
 
 #include <mach/mach.h>
@@ -51,22 +51,87 @@ using namespace std;
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <CoreFoundation/CoreFoundation.h>
-#ifdef __CK_HID_CURSORTRACK__
-#include <CoreGraphics/CoreGraphics.h>
-#endif // __CK_HID_CURSORTRACK__
+//#ifdef __CK_HID_CURSORTRACK__
+#include <ApplicationServices/ApplicationServices.h>
+//#endif // __CK_HID_CURSORTRACK__
+
+#ifdef __CGEVENT_H__
+#define __CK_HID_CURSOR_TRACK__
+#endif
 
 #ifdef __CK_HID_WIIREMOTE__
 #include <IOBluetooth/IOBluetoothUserLib.h>
 #include "util_buffers.h"
 #endif // __CK_HID_WIIREMOTE__
 
-// general hid callback, for device events
+#include <IOKit/usb/IOUSBLib.h>
+
+class lockable
+{
+public:
+    void lock()
+    {
+        m_mutex.acquire();
+    }
+
+    void unlock()
+    {
+        m_mutex.release();
+    }
+
+private:
+    XMutex m_mutex;
+};
+
+class auto_lock
+// smart lock, automatically unlocks its lockable when deallocated
+// useful when used on stack
+{
+public:
+    auto_lock( lockable * _l )
+    {
+        l = _l;
+        l->lock();
+    }
+    
+    ~auto_lock()
+    {
+        l->unlock();
+    }
+    
+private:
+    lockable * l;
+};
+
+template< typename _Tp, typename _Alloc = allocator< _Tp > >
+class xvector : public vector< _Tp, _Alloc >, public lockable
+{
+};
+
+// general hid callback for device events
 void Hid_callback( void * target, IOReturn result, 
                    void * refcon, void * sender );
 
-struct OSX_Device_Element
+class OSX_Device : public lockable
 {
-    OSX_Device_Element()
+public:
+    OSX_Device()
+    {
+        refcount = 0;
+    }
+    
+    virtual ~OSX_Device() {}
+    
+    virtual void open() {};
+    virtual void close() {};
+    
+    t_CKUINT refcount; // incremented on open, decremented on close
+};
+
+class OSX_Hid_Device_Element
+{
+public:
+    OSX_Hid_Device_Element()
     {
         cookie = 0;
         num = 0;
@@ -89,9 +154,10 @@ struct OSX_Device_Element
     t_CKINT max;
 };
 
-struct OSX_Device
+class OSX_Hid_Device : public OSX_Device
 {
-    OSX_Device()
+public:
+    OSX_Hid_Device()
     {
         configed = preconfiged = FALSE;
         plugInInterface = NULL;
@@ -127,7 +193,7 @@ struct OSX_Device
     t_CKINT usage_page;
     t_CKINT usage;
     
-    map< IOHIDElementCookie, OSX_Device_Element * > * elements;
+    map< IOHIDElementCookie, OSX_Hid_Device_Element * > * elements;
     /* Note: setting any of these to -1 informs the element enumerating 
         method that we are not interested in that particular element type */
     t_CKINT buttons;
@@ -135,7 +201,6 @@ struct OSX_Device
     t_CKINT hats;
     t_CKINT wheels;
     
-    t_CKUINT refcount; // incremented on open, decremented on close
     t_CKBOOL add_to_run_loop; // used to indicate that the event source needs to be added to the run loop 
     t_CKBOOL stop_queue; // used to indicate that the event queue should be stopped
     
@@ -150,7 +215,7 @@ struct OSX_Device
     // if states change quickly (updates are only posted on state changes)
 };
 
-t_CKINT OSX_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_type )
+t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_type )
 {
     if( preconfiged )
         return 0;
@@ -219,7 +284,7 @@ t_CKINT OSX_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_typ
     return 0;
 }
 
-t_CKINT OSX_Device::configure()
+t_CKINT OSX_Hid_Device::configure()
 {
     if( configed )
         return 0;
@@ -325,7 +390,7 @@ t_CKINT OSX_Device::configure()
     }
     
     // ...allocate space for element records...
-    elements = new map< IOHIDElementCookie, OSX_Device_Element * >;
+    elements = new map< IOHIDElementCookie, OSX_Hid_Device_Element * >;
     // axes = 0;
     // buttons = 0;
     // hats = 0;
@@ -346,11 +411,11 @@ t_CKINT OSX_Device::configure()
 // desc: perform depth depth first search on potentially nested arrays of 
 // elements on the device, add found elements to the vector
 //------------------------------------------------------------------------------
-void OSX_Device::enumerate_elements( CFArrayRef cfElements )
+void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
 {
     CFTypeRef refCF = 0;
     CFDictionaryRef element_dictionary;
-    OSX_Device_Element * element;
+    OSX_Hid_Device_Element * element;
     t_CKINT usage_page, usage, element_type;
     IOReturn result;
     
@@ -409,7 +474,7 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                                 if( axes == -1 )
                                     continue;
                                 
-                                element = new OSX_Device_Element;
+                                element = new OSX_Hid_Device_Element;
                                 
                                 element->num = axes;
                                 if( this->type == CK_HID_DEV_JOYSTICK )
@@ -465,7 +530,7 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                                 if( wheels == -1 )
                                     continue;
                                 
-                                element = new OSX_Device_Element;
+                                element = new OSX_Hid_Device_Element;
                                 
                                 element->num = wheels;
                                 if( this->type == CK_HID_DEV_JOYSTICK )
@@ -506,7 +571,7 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                                 if( hats == -1 )
                                     continue;
 
-                                element = new OSX_Device_Element; 
+                                element = new OSX_Hid_Device_Element; 
                                     
                                 element->type = CK_HID_JOYSTICK_HAT;
                                 element->num = hats;
@@ -554,7 +619,7 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
                                usage <= kHIDUsage_KeyboardRightGUI ) )
                             continue;
                         
-                        element = new OSX_Device_Element; 
+                        element = new OSX_Hid_Device_Element; 
                         
                         element->type = CK_HID_BUTTON_DOWN;
                         element->num = buttons;
@@ -601,32 +666,91 @@ void OSX_Device::enumerate_elements( CFArrayRef cfElements )
     }
 }
 
-static vector< OSX_Device * > * joysticks = NULL;
-static vector< OSX_Device * > * mice = NULL;
-static vector< OSX_Device * > * keyboards = NULL;
+/* the mutexes should be acquired whenever making changes to the corresponding
+   vectors or accessing them from a non-hid thread after the hid thread has 
+   been started */
+static xvector< OSX_Hid_Device * > * joysticks = NULL;
+static xvector< OSX_Hid_Device * > * mice = NULL;
+static xvector< OSX_Hid_Device * > * keyboards = NULL;
 
 // hid run loop (event dispatcher)
 static CFRunLoopRef rlHid = NULL;
 // special hid run loop mode (limits events to hid device events only)
 //static CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
 static CFStringRef kCFRunLoopChuckHidMode = kCFRunLoopDefaultMode;
-// dummy source -- the CFRunLoop will only run if it has at least one source,
-// so we need a dummy source in case there are no real ones (ie no open devices)
-static CFRunLoopSourceRef cfrlDummySource = NULL;
+// notification port for new found devices
+static IONotificationPortRef newDeviceNotificationPort = NULL;
+static void Hid_new_device( void *refcon, io_iterator_t iterator );
+
 // has hid been initialized?
 static t_CKBOOL g_hid_init = FALSE;
+// table to translate keys to ASCII
+static t_CKBYTE g_hid_key_table[256];
+/*
+// structure to associate 
+struct Hid_Device_Record
+{
+    Hid_Device_Record( vector< OSX_Device * > * _list = NULL, int _i = -1 )
+    {
+        list = _list;
+        i = _i;
+    }
+    
+    vector< OSX_Device * > * list;
+    int i;
+};
 
-static t_CKBYTE g_hid_key_table[256]; // table to translate keys to ASCII
+// open run loop source
+static CFRunLoopSourceRef cfrlOpenSource = NULL;
+static CBufferSimple * open_queue = NULL;
+void Hid_cfrl_open( void * info )
+{
+    Hid_Device_Record record;
+    if( open_queue->get( &record, 1 ) )
+    {
+        // safe to assume that the record's contents are valid
+        ( ( *record.list )[record.i] )->open();
+    }
+}
 
+// open_async run loop source
+static CFRunLoopSourceRef cfrlOpenAsyncSource = NULL;
+static CBufferSimple * open_async_queue = NULL;
+void Hid_cfrl_open_async( void * info )
+{
+    Hid_Device_Record record;
+    if( open_queue->get( &record, 1 ) )
+    {
+        if( record.i < record.list->size() && 
+            ( *record.list )[record.i] != NULL )
+            // does it already exist?
+            ( ( *record.list )[record.i] )->open();
+        else
+            // prepare an entry for it
+        {
+            
+            while( record.i < record.list->size() )
+                record.list->push_back( NULL );
+            record.list->push_back( NULL );
+        }
+    }
+}
+
+// close run loop source
+static CFRunLoopSourceRef cfrlCloseSource = NULL;
+static CBufferSimple * close_queue = NULL;
+// quit run loop source
+static CFRunLoopSourceRef cfrlQuitSource = NULL;
+*/
 // cursor track stuff
 static t_CKINT cursorX = 0;
 static t_CKINT cursorY = 0;
 static t_CKFLOAT scaledCursorX = 0;
 static t_CKFLOAT scaledCursorY = 0;
-#ifdef __CK_HID_CURSORTRACK__
+#ifdef __CK_HID_CURSOR_TRACK__
 static CFRunLoopRef rlCursorTrack = NULL;
 static t_CKBOOL g_ct_go = FALSE;
-#endif // __CK_HID_CURSORTRACK__
+#endif // __CK_HID_CURSOR_TRACK__
 
 #ifdef __CK_HID_WIIREMOTE__
 // wii remote stuff
@@ -734,6 +858,80 @@ t_CKINT Hid_hwkey_to_ascii( t_CKINT hwkey )
 
 void Hid_init()
 {
+    Hid_key_table_init();
+    
+    rlHid = CFRunLoopGetCurrent();
+    
+    CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
+    if( !hidMatchDictionary )
+    {
+        EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving hidMatchDictionary, unable to initialize" );
+        return;
+    }
+    
+	IOReturn result = kIOReturnSuccess;
+	io_iterator_t hidObjectIterator = 0;
+    /*CFTypeRef refCF;
+    t_CKINT filter_usage_page = kHIDPage_GenericDesktop;
+    
+    refCF = ( CFTypeRef ) CFNumberCreate( kCFAllocatorDefault, 
+                                          kCFNumberLongType, 
+                                          &filter_usage_page );
+    CFDictionarySetValue( hidMatchDictionary, 
+                          CFSTR( kIOHIDPrimaryUsagePageKey ), refCF );*/
+    
+    newDeviceNotificationPort = IONotificationPortCreate( kIOMasterPortDefault );
+    
+    // set up notification for new added devices
+    CFRunLoopAddSource( rlHid, 
+                        IONotificationPortGetRunLoopSource( newDeviceNotificationPort ),
+                        kCFRunLoopChuckHidMode );
+    
+    result = IOServiceAddMatchingNotification( newDeviceNotificationPort,
+                                               kIOMatchedNotification,
+                                               hidMatchDictionary,
+                                               Hid_new_device,
+                                               NULL,
+                                               &hidObjectIterator );
+    
+    if( result != kIOReturnSuccess || hidObjectIterator == 0 )
+    {
+        EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving matching services, unable to initialize" );
+        return;
+    }
+    
+    //CFRelease( refCF );
+    
+    io_object_t ioHIDDeviceObject = 0;
+    while( ioHIDDeviceObject = IOIteratorNext( hidObjectIterator ) )
+        ;
+    IOObjectRelease( hidObjectIterator );
+    
+#ifdef __CK_HID_WIIREMOTE__
+    // add wii remote source
+    CFRunLoopSourceContext  cfrlSourceContext;
+    cfrlSourceContext.version = 0;
+    cfrlSourceContext.info = NULL;
+    cfrlSourceContext.retain = NULL;
+    cfrlSourceContext.release = NULL;
+    cfrlSourceContext.copyDescription = NULL;
+    cfrlSourceContext.equal = NULL;
+    cfrlSourceContext.hash = NULL;
+    cfrlSourceContext.schedule = NULL;
+    cfrlSourceContext.cancel = NULL;
+    cfrlSourceContext.perform = WiiRemote_cfrl_callback;
+    CFRunLoopSourceRef _cfrlWiiRemoteSource = CFRunLoopSourceCreate( kCFAllocatorDefault, 
+                                                                     0, 
+                                                                     &cfrlSourceContext );
+    CFRunLoopAddSource( rlHid, _cfrlWiiRemoteSource, kCFRunLoopChuckHidMode );
+    cfrlWiiRemoteSource = _cfrlWiiRemoteSource;
+    
+    WiiRemote_cfrl_callback( NULL );
+#endif
+}
+
+void Hid_init2()
+{
     // verify that the joystick system has not already been initialized
     if( g_hid_init == TRUE )
         return;
@@ -746,9 +944,9 @@ void Hid_init()
     t_CKINT filter_usage_page = kHIDPage_GenericDesktop;
     
     // allocate vectors of device records
-    joysticks = new vector< OSX_Device * >;
-    mice = new vector< OSX_Device * >;
-    keyboards = new vector< OSX_Device * >;
+    joysticks = new xvector< OSX_Hid_Device * >;
+    mice = new xvector< OSX_Hid_Device * >;
+    keyboards = new xvector< OSX_Hid_Device * >;
     
 	CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
     if( !hidMatchDictionary )
@@ -762,10 +960,20 @@ void Hid_init()
                                           &filter_usage_page );
     CFDictionarySetValue( hidMatchDictionary, 
                           CFSTR( kIOHIDPrimaryUsagePageKey ), refCF );
-        
+    
+    //newDeviceNotificationPort = IONotificationPortCreate( kIOMasterPortDefault );
+    
     result = IOServiceGetMatchingServices( kIOMasterPortDefault, 
                                            hidMatchDictionary, 
                                            &hidObjectIterator );
+    
+    /*result = IOServiceAddMatchingNotification( newDeviceNotificationPort,
+                                               kIOPublishNotification,
+                                               hidMatchDictionary,
+                                               Hid_new_device,
+                                               NULL,
+                                               &hidObjectIterator );
+    */
     if( result != kIOReturnSuccess || hidObjectIterator == 0 )
     {
         EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving matching services, unable to initialize" );
@@ -814,7 +1022,7 @@ void Hid_init()
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
-                OSX_Device * new_device = new OSX_Device;
+                OSX_Hid_Device * new_device = new OSX_Hid_Device;
                 new_device->type = CK_HID_DEV_JOYSTICK;
                 new_device->num = joysticks->size();
                 new_device->usage_page = usage_page;
@@ -838,7 +1046,7 @@ void Hid_init()
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
-                OSX_Device * new_device = new OSX_Device;
+                OSX_Hid_Device * new_device = new OSX_Hid_Device;
                 new_device->type = CK_HID_DEV_MOUSE;
                 new_device->num = mice->size();
                 new_device->usage_page = usage_page;
@@ -863,7 +1071,7 @@ void Hid_init()
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
-                OSX_Device * new_device = new OSX_Device;
+                OSX_Hid_Device * new_device = new OSX_Hid_Device;
                 new_device->type = CK_HID_DEV_KEYBOARD;
                 new_device->num = keyboards->size();
                 new_device->usage_page = usage_page;
@@ -885,70 +1093,148 @@ void Hid_init()
     }
     
     IOObjectRelease( hidObjectIterator );
-    
-    Hid_key_table_init();
 }
 
-// callback for the CFRunLoop dummy source
-void Hid_cfrl_callback( void * info )
+static void Hid_new_device( void * refcon, io_iterator_t iterator )
 {
-    CFRunLoopStop( rlHid );
+    EM_log( CK_LOG_INFO, "hid: new device(s) found" );
+    
+    CFTypeRef refCF = NULL;
+    
+    io_object_t ioHIDDeviceObject = 0;
+    t_CKINT usage, usage_page;
+    t_CKINT joysticks_seen = joysticks->size(), 
+        mice_seen = mice->size(), 
+        keyboards_seen = keyboards->size();
+    while( ioHIDDeviceObject = IOIteratorNext( iterator ) )
+    {        
+        // ascertain device information
+        
+        // first, determine the device usage page and usage
+        usage = usage_page = -1;
+        
+        refCF = IORegistryEntryCreateCFProperty( ioHIDDeviceObject, 
+                                                 CFSTR( kIOHIDPrimaryUsagePageKey ),
+                                                 kCFAllocatorDefault, 
+                                                 kNilOptions );
+        if( !refCF )
+            continue;
+        
+        CFNumberGetValue( ( CFNumberRef )refCF, kCFNumberLongType, &usage_page );
+        CFRelease( refCF );
+        
+        refCF = IORegistryEntryCreateCFProperty( ioHIDDeviceObject, 
+                                                 CFSTR( kIOHIDPrimaryUsageKey ),
+                                                 kCFAllocatorDefault, 
+                                                 kNilOptions);
+        if( !refCF )
+            continue;
+        
+        CFNumberGetValue( ( CFNumberRef )refCF, kCFNumberLongType, &usage );
+        CFRelease( refCF );
+        
+        if ( usage_page == kHIDPage_GenericDesktop )
+        {
+            if( usage == kHIDUsage_GD_Joystick || 
+                usage == kHIDUsage_GD_GamePad )
+                // this is a joystick, create a new item in the joystick array
+            {
+                EM_log( CK_LOG_INFO, "joystick: preconfiguring joystick %i", joysticks_seen++ );
+                EM_pushlog();
+                
+                // allocate the device record, set usage page and usage
+                OSX_Hid_Device * new_device = new OSX_Hid_Device;
+                new_device->type = CK_HID_DEV_JOYSTICK;
+                new_device->num = joysticks->size();
+                new_device->usage_page = usage_page;
+                new_device->usage = usage;
+                
+                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_JOYSTICK ) )
+                {
+                    joysticks->lock();
+                    joysticks->push_back( new_device );
+                    joysticks->unlock();
+                }
+                else
+                {
+                    EM_log( CK_LOG_INFO, "joystick: error during preconfiguration" );
+                    delete new_device;
+                }
+                
+                EM_poplog();
+            }
+            
+            if( usage == kHIDUsage_GD_Mouse )
+                // this is a mouse
+            {
+                EM_log( CK_LOG_INFO, "mouse: preconfiguring mouse %i", mice_seen++ );
+                EM_pushlog();
+                
+                // allocate the device record, set usage page and usage
+                OSX_Hid_Device * new_device = new OSX_Hid_Device;
+                new_device->type = CK_HID_DEV_MOUSE;
+                new_device->num = mice->size();
+                new_device->usage_page = usage_page;
+                new_device->usage = usage;
+                
+                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_MOUSE ) )
+                {
+                    mice->lock();
+                    mice->push_back( new_device );
+                    mice->unlock();
+                }
+                else
+                {
+                    EM_log( CK_LOG_INFO, "mouse: error during preconfiguration" );
+                    delete new_device;
+                }
+                
+                EM_poplog();
+            }
+            
+            if( usage == kHIDUsage_GD_Keyboard || usage == kHIDUsage_GD_Keypad )
+                // this is a keyboard
+            {
+                EM_log( CK_LOG_INFO, "keyboard: preconfiguring keyboard %i", 
+                        keyboards_seen++ );
+                EM_pushlog();
+                
+                // allocate the device record, set usage page and usage
+                OSX_Hid_Device * new_device = new OSX_Hid_Device;
+                new_device->type = CK_HID_DEV_KEYBOARD;
+                new_device->num = keyboards->size();
+                new_device->usage_page = usage_page;
+                new_device->usage = usage;
+                
+                if( !new_device->preconfigure( ioHIDDeviceObject, 
+                                               CK_HID_DEV_KEYBOARD ) )
+                {
+                    keyboards->lock();
+                    keyboards->push_back( new_device );
+                    keyboards->unlock();
+                }
+                else
+                {
+                    EM_log( CK_LOG_INFO, 
+                            "keyboard: error during preconfiguration" );
+                    delete new_device;
+                }
+                
+                EM_poplog();
+            }
+        }
+    }
+    
+    IOObjectRelease( iterator );
 }
 
 void Hid_poll()
-{
-    if( rlHid == NULL )
-    {
-        rlHid = CFRunLoopGetCurrent();
-        
-        // we set up a dummy source to use in case no hid devices are open.
-        // this is important because the CFRunLoop will stop immediately if it
-        // has no sources.  Thus, Hid_poll() will run without ever blocking on
-        // input, which will kill the CPU.  So we set up a dummy source that is
-        // always present, but never activates.  
-        CFRunLoopSourceContext cfrlSourceContext;
-        cfrlSourceContext.version = 0;
-        cfrlSourceContext.info = NULL;
-        cfrlSourceContext.retain = NULL;
-        cfrlSourceContext.release = NULL;
-        cfrlSourceContext.copyDescription = NULL;
-        cfrlSourceContext.equal = NULL;
-        cfrlSourceContext.hash = NULL;
-        cfrlSourceContext.schedule = NULL;
-        cfrlSourceContext.cancel = NULL;
-        cfrlSourceContext.perform = Hid_cfrl_callback;
-        
-        cfrlDummySource = CFRunLoopSourceCreate( kCFAllocatorDefault, 0, 
-                                                 &cfrlSourceContext );
-        CFRunLoopAddSource( rlHid, cfrlDummySource, kCFRunLoopChuckHidMode );
-        
-#ifdef __CK_HID_WIIREMOTE__
-        // add wii remote source
-        cfrlSourceContext.version = 0;
-        cfrlSourceContext.info = NULL;
-        cfrlSourceContext.retain = NULL;
-        cfrlSourceContext.release = NULL;
-        cfrlSourceContext.copyDescription = NULL;
-        cfrlSourceContext.equal = NULL;
-        cfrlSourceContext.hash = NULL;
-        cfrlSourceContext.schedule = NULL;
-        cfrlSourceContext.cancel = NULL;
-        cfrlSourceContext.perform = WiiRemote_cfrl_callback;
-        CFRunLoopSourceRef _cfrlWiiRemoteSource = CFRunLoopSourceCreate( kCFAllocatorDefault, 
-                                                                         0, 
-                                                                         &cfrlSourceContext );
-        CFRunLoopAddSource( rlHid, _cfrlWiiRemoteSource, kCFRunLoopChuckHidMode );
-        cfrlWiiRemoteSource = _cfrlWiiRemoteSource;
-        
-        WiiRemote_cfrl_callback( NULL );
-#endif
-    }
-    
+{    
     // TODO: set this up to use a pipe or circular buffer, so that we dont have
     // to iterate through every device
     // --> or link list?
-    OSX_Device * device;
-    vector< OSX_Device * >::size_type i, len = joysticks->size();
+    OSX_Hid_Device * device;
+    xvector< OSX_Hid_Device * >::size_type i, len = joysticks->size();
     for( i = 0; i < len; i++ )
     {
         device = joysticks->at( i );
@@ -1029,8 +1315,8 @@ void Hid_poll()
 void Hid_callback( void * target, IOReturn result, 
                    void * refcon, void * sender)
 {
-    OSX_Device * device = ( OSX_Device * ) refcon;
-    OSX_Device_Element * element;
+    OSX_Hid_Device * device = ( OSX_Hid_Device * ) refcon;
+    OSX_Hid_Device_Element * element;
     AbsoluteTime atZero = { 0, 0 };
     IOHIDEventStruct event;
     HidMsg msg;
@@ -1131,9 +1417,9 @@ void Hid_quit()
         CFRunLoopStop( rlHid );  
     rlHid = NULL;
     
-#ifdef __CK_HID_CURSORTRACK__
+#ifdef __CK_HID_CURSOR_TRACK__
     Mouse_stop_cursor_track();
-#endif // __CK_HID_CURSORTRACK__
+#endif // __CK_HID_CURSOR_TRACK__
 }
 
 void Hid_quit2()
@@ -1142,9 +1428,9 @@ void Hid_quit2()
         return;
     g_hid_init = FALSE;
     
-    vector< OSX_Device * >::size_type i, len = joysticks->size();
-    map< IOHIDElementCookie, OSX_Device_Element * >::iterator iter, end;
-    OSX_Device * joystick;
+    xvector< OSX_Hid_Device * >::size_type i, len = joysticks->size();
+    map< IOHIDElementCookie, OSX_Hid_Device_Element * >::iterator iter, end;
+    OSX_Hid_Device * joystick;
     for( i = 0; i < len; i++ )
     {
         joystick = joysticks->at( i );
@@ -1180,25 +1466,19 @@ void Hid_quit2()
     
     delete joysticks;
     joysticks = NULL;
+    
+    // TODO: delete keyboard, mouse vectors
 }
 
 #pragma mark OS X Joystick support
 
 void Joystick_init()
 {
-    Hid_init();
+    Hid_init2();
 }
 
 void Joystick_poll()
 {
-    if( joysticks == NULL )
-        return;
-    
-    // for each open device, poll the event queue
-    vector< OSX_Device * >::size_type i, len = joysticks->size();
-    for( i = 0; i < len; i++ )
-        if( joysticks->at( i )->refcount > 0 )
-            Hid_callback( NULL, kIOReturnSuccess, joysticks->at( i ), NULL );
 }
 
 void Joystick_quit()
@@ -1211,16 +1491,34 @@ int Joystick_count()
     if( joysticks == NULL )
         return 0;
     
-    return joysticks->size();
+    joysticks->lock();
+    
+    int count = joysticks->size();
+    
+    joysticks->unlock();
+    
+    return count;
 }
 
 int Joystick_open( int js )
 {
-    if( joysticks == NULL || js < 0 || js >= joysticks->size() )
+    if( joysticks == NULL || js < 0 )
         return -1;
     
-    OSX_Device * joystick = joysticks->at( js );
-
+    joysticks->lock();
+    
+    if( js >= joysticks->size() )
+    {
+        joysticks->unlock();
+        return -1;
+    }
+    
+    OSX_Hid_Device * joystick = joysticks->at( js );
+    
+    joysticks->unlock();
+    
+    joystick->lock();
+    
     if( joystick->refcount == 0 )
     {
         EM_log( CK_LOG_INFO, "joystick: configuring %s", joystick->name );
@@ -1230,6 +1528,7 @@ int Joystick_open( int js )
         {
             EM_poplog();
             EM_log( CK_LOG_SEVERE, "joystick: error configuring %s", joystick->name );
+            joystick->unlock();
             return -1;
         }
         
@@ -1239,6 +1538,7 @@ int Joystick_open( int js )
         if( result != kIOReturnSuccess )
         {
             EM_log( CK_LOG_SEVERE, "joystick: error starting event queue" );
+            joystick->unlock();
             return -1;
         }
 
@@ -1248,17 +1548,31 @@ int Joystick_open( int js )
     }
     
     joystick->refcount++;
+
+    joystick->unlock();
     
     return 0;
 }
 
 int Joystick_close( int js )
 {
-    if( joysticks == NULL || js < 0 || js >= joysticks->size() )
+    if( joysticks == NULL || js < 0 )
         return -1;
     
-    OSX_Device * joystick = joysticks->at( js );
+    joysticks->lock();
     
+    if( js >= joysticks->size() )
+    {
+        joysticks->unlock();
+        return -1;
+    }
+    
+    OSX_Hid_Device * joystick = joysticks->at( js );
+
+    joysticks->unlock();
+    
+    joystick->lock();
+
     if( joystick->refcount > 0 )
     {
         joystick->refcount--;
@@ -1266,6 +1580,8 @@ int Joystick_close( int js )
         if( joystick->refcount == 0 )
         {
             joystick->stop_queue = TRUE;
+            joystick->unlock();
+            
             if( rlHid )
                 CFRunLoopStop( rlHid );
         }
@@ -1274,6 +1590,7 @@ int Joystick_close( int js )
     else
     {
         EM_log( CK_LOG_INFO, "joystick: warning: joystick %i closed when not open", js );
+        joystick->unlock();
         return -1;
     }
     
@@ -1282,29 +1599,39 @@ int Joystick_close( int js )
 
 const char * Joystick_name( int js )
 {
-    if( !joysticks || js < 0 || js >= joysticks->size() )
+    if( !joysticks || js < 0 )
         return NULL;
     
-    return joysticks->at( js )->name;
+    joysticks->lock();
+    
+    if(  js >= joysticks->size() )
+    {
+        joysticks->unlock();
+        return NULL;
+    }
+    
+    OSX_Hid_Device * joystick = joysticks->at( js );
+    
+    joysticks->unlock();
+
+    joystick->lock();
+    
+    const char * name = joystick->name;
+    
+    joystick->unlock();
+    
+    return name;
 }
 
 #pragma mark OS X Mouse support
 
 void Mouse_init()
 {
-    Hid_init();
+    Hid_init2();
 }
 
 void Mouse_poll()
 {
-    if( mice == NULL )
-        return;
-    
-    // for each open device, poll the event queue    
-    vector< OSX_Device * >::size_type i, len = mice->size();
-    for( i = 0; i < len; i++ )
-        if( mice->at( i )->refcount > 0 )
-            Hid_callback( NULL, kIOReturnSuccess, mice->at( i ), NULL );
 }
 
 void Mouse_quit()
@@ -1316,15 +1643,34 @@ int Mouse_count()
 {
     if( mice == NULL )
         return 0;
-    return mice->size();
+    
+    mice->lock();
+    
+    int count = mice->size();
+    
+    mice->unlock();
+    
+    return count;
 }
 
 int Mouse_open( int m )
 {
-    if( mice == NULL || m < 0 || m >= mice->size() )
+    if( mice == NULL || m < 0 )
         return -1;
+    
+    mice->lock();
+    
+    if( m >= mice->size() )
+    {
+        mice->unlock();
+        return -1;
+    }
         
-    OSX_Device * mouse = mice->at( m );
+    OSX_Hid_Device * mouse = mice->at( m );
+    
+    mice->unlock();
+    
+    mouse->lock();
     
     if( mouse->refcount == 0 )
     {
@@ -1335,6 +1681,7 @@ int Mouse_open( int m )
         {
             EM_poplog();
             EM_log( CK_LOG_SEVERE, "mouse: error configuring %s", mouse->name );
+            mouse->unlock();
             return -1;
         }
         
@@ -1344,25 +1691,41 @@ int Mouse_open( int m )
         if( result != kIOReturnSuccess )
         {
             EM_log( CK_LOG_SEVERE, "mouse: error starting event queue" );
+            mouse->unlock();
             return -1;
         }
         
         mouse->add_to_run_loop = TRUE;
+        
         if( rlHid )
             CFRunLoopStop( rlHid );        
     }
     
     mouse->refcount++;
     
+    mouse->unlock();
+    
     return 0;
 }
 
 int Mouse_close( int m )
 {
-    if( mice == NULL || m < 0 || m >= mice->size() )
+    if( mice == NULL || m < 0 )
         return -1;
     
-    OSX_Device * mouse = mice->at( m );
+    mice->lock();
+    
+    if( m >= mice->size() )
+    {
+        mice->unlock();
+        return -1;
+    }
+    
+    OSX_Hid_Device * mouse = mice->at( m );
+    
+    mice->unlock();
+    
+    mouse->lock();
     
     if( mouse->refcount > 0 )
     {
@@ -1371,6 +1734,8 @@ int Mouse_close( int m )
         if( mouse->refcount == 0 )
         {
             mouse->stop_queue = TRUE;
+            mouse->unlock();
+            
             if( rlHid )
                 CFRunLoopStop( rlHid );
         }
@@ -1379,6 +1744,7 @@ int Mouse_close( int m )
     else
     {
         EM_log( CK_LOG_INFO, "mouse: warning: mouse %i closed when not open", m );
+        mouse->unlock();
         return -1;
     }
     
@@ -1387,14 +1753,31 @@ int Mouse_close( int m )
 
 const char * Mouse_name( int m )
 {
-    if( mice == NULL || m < 0 || m >= mice->size() )
+    if( mice == NULL || m < 0 )
         return NULL;
     
-    return mice->at( m )->name;
+    mice->lock();
+    
+    if( m >= mice->size() )
+    {
+        mice->unlock();
+        return NULL;
+    }
+    
+    OSX_Hid_Device * mouse = mice->at( m );
+    
+    mice->unlock();
+    
+    mouse->lock();
+    
+    const char * name = mouse->name;
+    
+    mouse->unlock();
+    
+    return name;
 }
 
-#ifdef __CK_HID_CURSORTRACK__
-
+#ifdef __CK_HID_CURSOR_TRACK__
 CGPoint CGEventGetLocation(CGEventRef event);
 
 CGEventRef Mouse_cursor_track_cb( CGEventTapProxy proxy, CGEventType type, 
@@ -1456,8 +1839,11 @@ void * Mouse_cursor_track( void * )
     return 0;
 }
 
+#endif // __CK_HID_CURSOR_TRACK__
+
 int Mouse_start_cursor_track()
 {
+#ifdef __CK_HID_CURSOR_TRACK__
     if( CGEventTapCreate == NULL )
         return -1;
     
@@ -1474,10 +1860,14 @@ int Mouse_start_cursor_track()
     }
     
     return 0;
+#else
+    return -1;
+#endif // __CK_HID_CURSOR_TRACK__
 }
 
 int Mouse_stop_cursor_track()
 {
+#ifdef __CK_HID_CURSOR_TRACK__
     if( g_ct_go )
     {
         g_ct_go = FALSE;
@@ -1488,16 +1878,16 @@ int Mouse_stop_cursor_track()
         cursorX = 0;
         cursorY = 0;
     }
-    
+#endif // __CK_HID_CURSOR_TRACK__
     return 0;
 }
 
-#endif /* __CK_HID_CURSORTRACK__ */
+//#endif /* __CK_HID_CURSORTRACK__ */
 
 #pragma mark OS X Keyboard support
 void Keyboard_init()
 {
-    Hid_init();
+    Hid_init2();
 }
 
 void Keyboard_poll()
@@ -1522,7 +1912,7 @@ int Keyboard_open( int k )
     if( keyboards == NULL || k < 0 || k >= keyboards->size() )
         return -1;
     
-    OSX_Device * keyboard = keyboards->at( k );
+    OSX_Hid_Device * keyboard = keyboards->at( k );
     
     if( keyboard->refcount == 0 )
     {
@@ -1560,7 +1950,7 @@ int Keyboard_close( int k )
     if( keyboards == NULL || k < 0 || k >= keyboards->size() )
         return -1;
     
-    OSX_Device * keyboard = keyboards->at( k );
+    OSX_Hid_Device * keyboard = keyboards->at( k );
     
     if( keyboard->refcount > 0 )
     {
@@ -1603,7 +1993,7 @@ static struct t_TiltSensor_data
 {
     union
     {
-        struct 
+        struct t_powerbook
         {
             int8_t x;
             int8_t y;
@@ -1611,7 +2001,7 @@ static struct t_TiltSensor_data
             int8_t pad[57];
         } powerbook;
         
-        struct 
+        struct t_macbookpro
         {
             int16_t x;
             int16_t y;
@@ -1623,20 +2013,24 @@ static struct t_TiltSensor_data
     int kernFunc;
     char * servMatch;
     int dataType;
+    io_connect_t dataPort;
     
     int detected; // 0 = detection not yet run, -1 = no sensor found, 1 = sensor found
+    int refcount;
     
     t_TiltSensor_data()
     {
+        refcount = 0;
         kernFunc = 0;
         servMatch = NULL;
-        dataType = 0;
+        dataType = -1;
+        dataPort = 0;
         detected = 0;
     }
     
 } TiltSensor_data;
 
-static int TiltSensor_do_read()
+static int TiltSensor_test( int kernFunc, char * servMatch, int dataType )
 {
     kern_return_t result;
     mach_port_t masterPort;
@@ -1649,17 +2043,17 @@ static int TiltSensor_do_read()
         
     result = IOMasterPort( MACH_PORT_NULL, &masterPort );
     
-    CFMutableDictionaryRef matchingDictionary = IOServiceMatching( TiltSensor_data.servMatch );
+    CFMutableDictionaryRef matchingDictionary = IOServiceMatching( servMatch );
     
     result = IOServiceGetMatchingServices( masterPort, matchingDictionary, &iterator );
     
-    if ( result != KERN_SUCCESS )
+    if( result != KERN_SUCCESS )
         return 0;
     
     aDevice = IOIteratorNext( iterator );
     IOObjectRelease( iterator );
     
-    if (aDevice == 0)
+    if( aDevice == 0 )
         return 0;
     
     result = IOServiceOpen( aDevice, mach_task_self(), 0, &dataPort );
@@ -1668,7 +2062,52 @@ static int TiltSensor_do_read()
     if ( result != KERN_SUCCESS )
         return 0;
     
-    switch ( TiltSensor_data.dataType )
+    switch( dataType )
+    {
+        case kSMSPowerbookDataType:
+            structureInputSize = sizeof( TiltSensor_data.data.powerbook );
+            structureOutputSize = sizeof( TiltSensor_data.data.powerbook );
+            break;
+            
+        case kSMSMacBookProDataType:
+            structureInputSize = sizeof( TiltSensor_data.data.macbookpro );
+            structureOutputSize = sizeof( TiltSensor_data.data.macbookpro );
+            break;
+            
+        default:
+            IOServiceClose( dataPort );
+            return 0;
+    }
+    
+    memset( &TiltSensor_data.data, 0, sizeof( TiltSensor_data.data ) );
+    memset( &TiltSensor_data.data, 0, sizeof( TiltSensor_data.data ) );
+    
+    result = IOConnectMethodStructureIStructureO( dataPort, 
+                                                  kernFunc, 
+                                                  structureInputSize,
+                                                  &structureOutputSize, 
+                                                  &TiltSensor_data.data, 
+                                                  &TiltSensor_data.data );
+    
+    if ( result != KERN_SUCCESS )
+    {
+        IOServiceClose( dataPort );
+        return 0;
+    }
+    
+    // leave dataPort open for future use
+    TiltSensor_data.dataPort = dataPort;
+
+    return 1;
+}
+
+static int TiltSensor_do_read()
+{
+    kern_return_t result;
+    IOItemCount structureInputSize;
+    IOByteCount structureOutputSize;
+
+    switch( TiltSensor_data.dataType )
     {
         case kSMSPowerbookDataType:
             structureInputSize = sizeof( TiltSensor_data.data.powerbook );
@@ -1687,18 +2126,13 @@ static int TiltSensor_do_read()
     memset( &TiltSensor_data.data, 0, sizeof( TiltSensor_data.data ) );
     memset( &TiltSensor_data.data, 0, sizeof( TiltSensor_data.data ) );
     
-    result = IOConnectMethodStructureIStructureO( dataPort, 
+    result = IOConnectMethodStructureIStructureO( TiltSensor_data.dataPort, 
                                                   TiltSensor_data.kernFunc, 
                                                   structureInputSize,
                                                   &structureOutputSize, 
                                                   &TiltSensor_data.data, 
                                                   &TiltSensor_data.data );
     
-    IOServiceClose( dataPort );
-    
-    if ( result != KERN_SUCCESS )
-        return 0;
-
     return 1;
 }
 
@@ -1706,74 +2140,134 @@ static int TiltSensor_detect()
 {
     // try different interfaces until we find one that works
     
-    // powerbook (OS X 10.4.8) tilt sensor interface
-    TiltSensor_data.kernFunc = 21;
-    TiltSensor_data.servMatch = "IOI2CMotionSensor";
-    TiltSensor_data.dataType = kSMSPowerbookDataType;
+    // ibook/powerbook (OS X 10.4.8) tilt sensor interface
+    if( TiltSensor_test( 21, "IOI2CMotionSensor", kSMSPowerbookDataType ) )
+    {
+        TiltSensor_data.kernFunc = 21;
+        TiltSensor_data.dataType = kSMSPowerbookDataType;
+        TiltSensor_data.detected = 1;
+        return 1;
+    }
     
-    if( TiltSensor_do_read() )
-        goto found;
+    // mac book (pro) tilt sensor interface
+    if( TiltSensor_test( 5, "SMCMotionSensor", kSMSMacBookProDataType ) )
+    {
+        TiltSensor_data.kernFunc = 5;
+        TiltSensor_data.dataType = kSMSMacBookProDataType;
+        TiltSensor_data.detected = 1;
+        return 1;
+    }
     
     // hi resolution powerbook tilt sensor interface
-    TiltSensor_data.kernFunc = 21;
-    TiltSensor_data.servMatch = "PMUMotionSensor";
-    TiltSensor_data.dataType = kSMSPowerbookDataType;
+    if( TiltSensor_test( 21, "PMUMotionSensor", kSMSPowerbookDataType ) )
+    {
+        TiltSensor_data.kernFunc = 21;
+        TiltSensor_data.dataType = kSMSPowerbookDataType;
+        TiltSensor_data.detected = 1;
+        return 1;
+    }
     
-    if( TiltSensor_do_read() )
-        goto found;
+    // powerbook (OS X 10.4.3?) tilt sensor interface
+    if( TiltSensor_test( 5, "IOI2CMotionSensor", kSMSPowerbookDataType ) )
+    {
+        TiltSensor_data.kernFunc = 5;
+        TiltSensor_data.dataType = kSMSPowerbookDataType;
+        TiltSensor_data.detected = 1;
+        return 1;
+    }
     
-    // ibook tilt sensor interface
-    TiltSensor_data.kernFunc = 21;
-    TiltSensor_data.servMatch = "IOI2CMotionSensor";
-    TiltSensor_data.dataType = kSMSPowerbookDataType;
-    
-    if( TiltSensor_do_read() )
-        goto found;
-    
-    // mac book pro tilt sensor interface
-    TiltSensor_data.kernFunc = 5;
-    TiltSensor_data.servMatch = "SMCMotionSensor";
-    TiltSensor_data.dataType = kSMSMacBookProDataType;
-    
-    if( TiltSensor_do_read() )
-        goto found;
+    // powerbook (OS X ?) tilt sensor interface
+    if( TiltSensor_test( 24, "IOI2CMotionSensor", kSMSPowerbookDataType ) )
+    {
+        TiltSensor_data.kernFunc = 5;
+        TiltSensor_data.dataType = kSMSPowerbookDataType;
+        TiltSensor_data.detected = 1;
+        return 1;
+    }
     
     TiltSensor_data.detected = -1;
     
     return 0;
-    
-found:
-        TiltSensor_data.detected = 1;
-    
-    return 1;
 }
 
-int TiltSensor_read( t_CKINT * x, t_CKINT * y, t_CKINT * z )
+void TiltSensor_init()
 {
-    if( !TiltSensor_data.detected )
-        TiltSensor_detect();
     
+}
+
+void TiltSensor_quit()
+{
+    if( TiltSensor_data.dataPort == 0 )
+        IOServiceClose( TiltSensor_data.dataPort );
+}
+
+void TiltSensor_probe()
+{
+    
+}
+
+int TiltSensor_count()
+{
+    if( TiltSensor_data.detected == 0 )
+        TiltSensor_detect();
+
     if( TiltSensor_data.detected == -1 )
         return 0;
     
+    else if( TiltSensor_data.detected == 1 )
+        return 1;
+    
+    return 0;
+}
+
+int TiltSensor_open( int ts )
+{
+    if( TiltSensor_data.detected == 0 )
+        TiltSensor_detect();
+    
+    if( TiltSensor_data.detected == -1 )
+        return -1;
+    
+    TiltSensor_data.refcount++;
+    
+    return 0;
+}
+
+int TiltSensor_close( int ts )
+{
+    TiltSensor_data.refcount--;
+    
+    return 0;
+}
+
+const char * TiltSensor_name( int ts )
+{
+    return "Apple Sudden Motion Sensor";
+}
+
+int TiltSensor_read( int ts, int type, int num, HidMsg * msg )
+{
+    if( TiltSensor_data.detected == -1 )
+        return -1;
+    
     if( !TiltSensor_do_read() )
-        return 0;
+        return -1;
     
     if( TiltSensor_data.dataType == kSMSPowerbookDataType )
     {
-        if( x ) *x = TiltSensor_data.data.powerbook.x;
-        if( y ) *y = TiltSensor_data.data.powerbook.y;
-        if( z ) *z = TiltSensor_data.data.powerbook.z;
+        msg->idata[0] = TiltSensor_data.data.powerbook.x;
+        msg->idata[1] = TiltSensor_data.data.powerbook.y;
+        msg->idata[2] = TiltSensor_data.data.powerbook.z;
     }
     
     else if( TiltSensor_data.dataType == kSMSMacBookProDataType )
     {
-        if( x ) *x = TiltSensor_data.data.macbookpro.x;
-        if( y ) *y = TiltSensor_data.data.macbookpro.y;
-        if( z ) *z = TiltSensor_data.data.macbookpro.z;
+        msg->idata[0] = TiltSensor_data.data.macbookpro.x;
+        msg->idata[1] = TiltSensor_data.data.macbookpro.y;
+        msg->idata[2] = TiltSensor_data.data.macbookpro.z;
     }
     
-    return 1;
+    return 0;
 }
 
 #ifdef __CK_HID_WIIREMOTE__
@@ -1839,6 +2333,7 @@ public:
         led1 = led2 = led3 = led4 = FALSE;
         memset( &buttons, 0, sizeof( buttons ) );
         memset( &accels, 0, sizeof( accels ) );
+        memset( &ir, 0xff, sizeof( ir ) );
     }
     
     virtual t_CKINT open();
@@ -1851,7 +2346,8 @@ public:
     virtual void control_receive( void * data, size_t size );
     virtual void interrupt_receive( void * data, size_t size );
     
-    virtual void control_send( void * data, size_t size );
+    virtual void control_send( const void * data, size_t size );
+    virtual void write_memory( const void * data, size_t size, unsigned long address );
     
     virtual void enable_force_feedback( t_CKBOOL enable );
     virtual void enable_motion_sensor( t_CKBOOL enable );
@@ -1866,6 +2362,7 @@ public:
     
     t_CKBYTE buttons[2];
     t_CKBYTE accels[3];
+    t_CKBYTE ir[12];
 
     enum
     {
@@ -2035,7 +2532,7 @@ t_CKINT WiiRemote::connect()
 t_CKINT WiiRemote::control_init()
 {
     enable_motion_sensor( TRUE );
-    enable_ir_sensor( FALSE );
+    enable_ir_sensor( TRUE );
     enable_force_feedback( FALSE );
     enable_leds( ( num % 4 ) == 0, ( ( num - 1 ) % 4 ) == 0, 
                  ( ( num - 2 ) % 4 ) == 0, ( ( num - 3 ) % 4 ) == 0 );
@@ -2090,8 +2587,9 @@ void WiiRemote::control_receive( void * data, size_t size )
     HidMsg msg;
     
     if( ( d[1] & 0xf0 ) == 0x30 )
-        // button report
     {
+        /* buttons */
+        
         if( ( d[3] & 0x80 ) ^ ( buttons[1] & 0x80 ) )
         {
             msg.device_num = num;
@@ -2226,6 +2724,7 @@ void WiiRemote::control_receive( void * data, size_t size )
         
         memcpy( buttons, d + 2, sizeof( buttons ) );
         
+        /* accelerometers */
         if( d[1] & 0x01 )
         {
             if( d[4] ^ accels[0] )
@@ -2269,6 +2768,41 @@ void WiiRemote::control_receive( void * data, size_t size )
             
             memcpy( accels, d + 4, sizeof( accels ) );
         }
+        
+        /* ir sensor */
+        if( d[1] & 0x02 )
+        {
+            unsigned i;
+            
+            for( i = 0; i < 4; i++ )
+            {
+                if( ( d[7 + i * 3] ^ ir[i * 3] ||
+                      d[7 + i * 3 + 1] ^ ir[i * 3 + 1] ||
+                      d[7 + i * 3 + 2] ^ ir[i * 3 + 2] ) &&
+                    ( d[7 + i * 3] != 0xff ) && 
+                    ( d[7 + i * 3 + 1] != 0xff ) && 
+                    ( d[7 + i * 3 + 2] != 0xff ) )
+                {
+                    // fprintf( stderr, "ir\n" );
+                    msg.device_num = num;
+                    msg.device_type = CK_HID_DEV_WIIREMOTE;
+                    msg.type = CK_HID_WIIREMOTE_IR;
+                    msg.eid = i;
+                    // x
+                    msg.idata[0] = d[7 + 3 * i] + ( ( d[7 + 3 * i + 2] >> 4 ) & 0x0f );
+                    // y
+                    msg.idata[1] = d[7 + 3 * i + 1] + ( ( d[7 + 3 * i + 2] >> 6 ) & 0x0f );
+                    // size
+                    msg.idata[2] = d[7 + 3 * i + 2] & 0xffff;
+                    
+                    HidInManager::push_message( msg );
+                    
+                    msg.clear();
+                }
+            }
+            
+            memcpy( ir, d + 7, sizeof( ir ) );
+        }
     }
 }
 
@@ -2277,7 +2811,7 @@ void WiiRemote::interrupt_receive( void * data, size_t size )
      
 }
 
-void WiiRemote::control_send( void * data, size_t size )
+void WiiRemote::control_send( const void * data, size_t size )
 {
     assert( size <= 22 );
     
@@ -2287,23 +2821,38 @@ void WiiRemote::control_send( void * data, size_t size )
 	buf[0] = 0x52;
     memcpy( buf+1, data, size );
 	
-    if( buf[1] == 0x16 )
-        size = 23;
-	else
-        size++;
+    size++;
     
     //printf( "send (%i):", size );
     //for( int i = 0; i < size; i++ )
     //    printf( " %02x", buf[i] );
     //printf( "\n" );
     
-//    if( IOBluetoothL2CAPChannelWriteAsync( control_channel, buf, size, this ) 
-//        != noErr )
-//        EM_log( CK_LOG_WARNING, "hid: error: sending data to Wii Remote Controller %i", num );
-    
     if( IOBluetoothL2CAPChannelWriteSync( control_channel, buf, size ) 
         != noErr )
         EM_log( CK_LOG_WARNING, "hid: error: sending data to Wii Remote Controller %i", num );
+}
+
+void WiiRemote::write_memory( const void * data, size_t size, unsigned long address )
+{
+    assert( size <= 16 );
+    
+	unsigned char cmd[22];
+    
+    memset( cmd, 0, 22 );
+    memcpy( cmd + 6, data, size );
+        
+    cmd[0] = 0x16;
+    cmd[1] = ( address >> 24 ) & 0xff;
+    cmd[2] = ( address >> 16 ) & 0xff;
+    cmd[3] = ( address >> 8 ) & 0xff;
+    cmd[4] = address & 0xff;
+    cmd[5] = size;
+    
+    if( force_feedback_enabled )
+        cmd[1] |= 0x01;
+    
+    control_send( cmd, 22 );
 }
 
 void WiiRemote::enable_force_feedback( t_CKBOOL enable )
@@ -2313,8 +2862,8 @@ void WiiRemote::enable_force_feedback( t_CKBOOL enable )
     unsigned char cmd[] = { 0x13, 0x00 };
 	if( enable )
         cmd[1] |= 0x01;
-	//if( ir_enabled )
-    //    cmd[1] |= 0x04;    
+	if( ir_sensor_enabled )
+        cmd[1] |= 0x04;    
     
     control_send( cmd, 2 );
 }
@@ -2324,10 +2873,12 @@ void WiiRemote::enable_motion_sensor( t_CKBOOL enable )
     motion_sensor_enabled = enable;
     
     unsigned char cmd[] = { 0x12, 0x00, 0x30 };
-    if( enable )
-        cmd[2] = 0x31;
-    //if( ir_sensor_enabled )
-    //    cmd[2] = 0x33;
+    if( motion_sensor_enabled )
+        cmd[2] |= 0x01;
+    if( ir_sensor_enabled )
+        cmd[2] |= 0x02;
+    if( force_feedback_enabled )
+        cmd[1] |= 0x01;
     
     control_send( cmd, 3 );
 }
@@ -2340,12 +2891,40 @@ void WiiRemote::enable_ir_sensor( t_CKBOOL enable )
     enable_force_feedback( force_feedback_enabled );
     
     unsigned char cmd[] = { 0x1a, 0x00 };
-    if( enable )
+    if( ir_sensor_enabled )
         cmd[1] |= 0x04;
-    
-    // todo: all of the write memory stuff goes here
+    if( force_feedback_enabled )
+        cmd[1] |= 0x01;
     
     control_send( cmd, 2 );
+    
+    if( ir_sensor_enabled )
+    {
+        //unsigned char en0[] = { 0x01 };
+        //write_memory( en, 1, 0x04b00030 );
+        //usleep(10000);
+
+        unsigned char en[] = { 0x08 };
+        write_memory( en, 1, 0x04b00030 );
+        //usleep(10000);
+
+        unsigned char sensitivity_block1[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x00, 0xc0 };
+        write_memory( sensitivity_block1, 9, 0x04b00000 );
+        //usleep(10000);
+
+        unsigned char sensitivity_block2[] = { 0x40, 0x00 };
+        write_memory( sensitivity_block2, 2, 0x04b0001a );
+        //usleep(10000);
+
+        unsigned char mode[] = { 0x03 };
+        write_memory( mode, 1, 0x04b00033 );
+       // usleep(10000);
+
+        //unsigned char what[] = { 0x08 };
+        //write_memory( what, 1, 0x04b00030 );
+        //usleep(10000);
+
+    }
 }
 
 void WiiRemote::enable_leds( t_CKBOOL l1, t_CKBOOL l2, 
@@ -2490,7 +3069,7 @@ int WiiRemote_query()
         return -1;
     }
     
-    if( IOBluetoothDeviceInquirySetInquiryLength( btDeviceInquiry, 10 ) != noErr )
+    if( IOBluetoothDeviceInquirySetInquiryLength( btDeviceInquiry, 20 ) != noErr )
     {
         EM_log( CK_LOG_WARNING, "hid: error: setting bluetooth inquiry length" );
         return -1;
@@ -2577,7 +3156,7 @@ static void WiiRemote_cfrl_callback( void * info )
 
 static void WiiRemote_signal()
 {
-    if( cfrlWiiRemoteSource )
+    if( cfrlWiiRemoteSource && rlHid )
     {
         CFRunLoopSourceSignal( cfrlWiiRemoteSource );
         CFRunLoopWakeUp( rlHid );
@@ -2589,7 +3168,7 @@ static void WiiRemote_signal()
 void WiiRemote_init()
 {
 #ifdef __CK_HID_WIIREMOTE__
-    Hid_init();
+    Hid_init2();
     
     wiiremotes = new vector< WiiRemote * >;
     wr_addresses = new map< BluetoothDeviceAddress, WiiRemote * >;
@@ -2605,6 +3184,15 @@ void WiiRemote_poll()
 void WiiRemote_quit()
 {
 #ifdef __CK_HID_WIIREMOTE__
+    for( vector< WiiRemote * >::size_type i = 0; i < wiiremotes->size(); i++ )
+    {
+        if( ( *wiiremotes )[i] )
+            SAFE_DELETE( ( *wiiremotes )[i] );
+    }
+    SAFE_DELETE( wiiremotes );
+    SAFE_DELETE( wr_addresses );
+    SAFE_DELETE( WiiRemoteOp_cbuf );
+    
     Hid_quit2();
 #endif // __CK_HID_WIIREMOTE
 }
@@ -4684,4 +5272,36 @@ const char * Keyboard_name( int k )
 }
 
 #endif
+
+
+#pragma mark Hid graveyard
+/***** empty functions for stuff that isn't yet cross platform *****/
+#ifndef __PLATFORM_MACOSX__
+/*** empty functions for Mac-only stuff ***/
+
+void WiiRemote_init(){}
+
+void WiiRemote_poll(){}
+void WiiRemote_quit(){}
+void WiiRemote_probe(){}
+int WiiRemote_count(){ return 0; }
+int WiiRemote_open( int wr ){ return -1; }
+int WiiRemote_open( const char * name ){ return -1; }
+int WiiRemote_close( int wr ){ return -1; }
+int WiiRemote_send( const HidMsg * msg ){ return -1; }
+const char * WiiRemote_name( int wr ){ return NULL; }
+
+void TiltSensor_init(){}
+void TiltSensor_quit(){}
+void TiltSensor_probe(){}
+int TiltSensor_count(){}
+int TiltSensor_open( int ts ){ return -1; }
+int TiltSensor_close( int ts ){ return -1; }
+int TiltSensor_read( int ts, int type, int num, HidMsg * msg ){ return -1; }
+const char * TiltSensor_name( int ts ){ return NULL; }
+
+
+#endif
+
+
 

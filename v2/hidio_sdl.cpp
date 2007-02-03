@@ -48,13 +48,91 @@
 #include <map>
 using namespace std;
 
+static Chuck_Hid_Driver default_drivers[CK_HID_DEV_COUNT];
+/*
+{
+//init, quit, poll, probe, count, open, open_async, close, send, name, driver name
+{ NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL },
 
+{
+    Joystick_init, 
+    Joystick_quit, 
+    Joystick_poll, 
+    NULL, 
+    Joystick_count,
+    Joystick_open,
+    NULL, 
+    Joystick_close,
+    NULL,
+    Joystick_name,
+    "joystick"
+},
+
+{
+    Mouse_init, 
+    Mouse_quit, 
+    Mouse_poll, 
+    NULL, 
+    Mouse_count,
+    Mouse_open,
+    NULL,
+    Mouse_close,
+    NULL,
+    Mouse_name,
+    "mouse"
+},
+    
+{
+    Keyboard_init, 
+    Keyboard_quit, 
+    Keyboard_poll, 
+    NULL, 
+    Keyboard_count,
+    Keyboard_open,
+    NULL,
+    Keyboard_close,
+    NULL,
+    Keyboard_name,
+    "keyboard"
+},
+
+{
+    WiiRemote_init, 
+    WiiRemote_quit, 
+    WiiRemote_poll, 
+    NULL, 
+    WiiRemote_count,
+    WiiRemote_open,
+    NULL,
+    WiiRemote_close,
+    NULL,
+    WiiRemote_name,
+    "wiiremote"
+},
+
+{
+    TiltSensor_init,
+    TiltSensor_quit,
+    NULL,
+    NULL,
+    TiltSensor_count,
+    TiltSensor_open,
+    NULL,
+    TiltSensor_close,
+    NULL,
+    TiltSensor_name,
+    "tilt sensor"
+}
+
+};
+*/
 struct PhyHidDevIn
 {
 public:
     PhyHidDevIn();
     ~PhyHidDevIn();
     t_CKBOOL open( t_CKINT type, t_CKUINT number );
+    t_CKBOOL read( t_CKINT element_type, t_CKINT element_num, HidMsg * msg );
     t_CKBOOL close();
     std::string name();
     
@@ -83,6 +161,7 @@ struct PhyHidDevOut
 //-----------------------------------------------------------------------------
 // global variables
 //-----------------------------------------------------------------------------
+// per-physical device buffer size
 #define BUFFER_SIZE 8192
 
 std::vector< std::vector<PhyHidDevIn *> > HidInManager::the_matrix;
@@ -131,52 +210,33 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
         EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> already open!" );
         return FALSE;
     }
-
-    switch( type )
+    
+    if( type <= CK_HID_DEV_NONE || type >= CK_HID_DEV_COUNT )
     {
-        case CK_HID_DEV_JOYSTICK:
-            if( Joystick_open( (int) number ) )
-            {
-                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid joystick number %d", number );
-                return FALSE;
-            }            
-                
-            break;
-            
-        case CK_HID_DEV_MOUSE:
-            if( Mouse_open( (int) number ) )
-            {
-                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid mouse number %d", number );
-                return FALSE;
-            }
-            
-            break;
-            
-        case CK_HID_DEV_KEYBOARD:
-            if( Keyboard_open( (int) number ) )
-            {
-                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid keyboard number %d", number );
-                return FALSE;
-            }
-            
-            break;
-            
-#ifdef __CK_HID_WIIREMOTE__
-        case CK_HID_DEV_WIIREMOTE:
-            if( WiiRemote_open( (int) number ) )
-            {
-                EM_log( CK_LOG_WARNING, "PhyHidDevIn: open() failed -> invalid wii remote number %d", number );
-                return FALSE;
-            }
-            
-            break;
-#endif // __CK_HID_WIIREMOTE__
-            
-        default:
-            EM_log( CK_LOG_WARNING, "PhyHidDevIn: open operation failed; unknown device-type" );
-            return FALSE;
+        // log
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: open() failed -> invalid device type %d", 
+                type );
+        return FALSE;
     }
-
+    
+    if( !default_drivers[type].open )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: open() failed -> %s does not support open",
+                default_drivers[type].driver_name );
+        return FALSE;
+    }
+    
+    if( default_drivers[type].open( ( int ) number ) )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: open() failed -> invalid %s number %d",
+                default_drivers[type].driver_name,
+                number );
+        return FALSE;
+    }
+    
     // allocate the buffer
     cbuf = new CBufferAdvance;
     if( !cbuf->initialize( BUFFER_SIZE, sizeof(HidMsg) ) )
@@ -190,10 +250,35 @@ t_CKBOOL PhyHidDevIn::open( t_CKINT type, t_CKUINT number )
     device_type = type;
     device_num = number;
 
-
     return TRUE;
 }
 
+//-----------------------------------------------------------------------------
+// name: read()
+// desc: query specific elements of the hid device
+//-----------------------------------------------------------------------------
+t_CKBOOL PhyHidDevIn::read( t_CKINT element_type, t_CKINT element_num, HidMsg * msg )
+{
+    if( !default_drivers[device_type].read )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: read() failed -> %s does not support read",
+                default_drivers[device_type].driver_name );
+        return FALSE;
+    }
+    
+    if( default_drivers[device_type].read( device_num, element_type, 
+                                           element_num, msg ) )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: read() failed for %s %i, element type %i, element number %i",
+                default_drivers[device_type].driver_name, device_num, 
+                element_type, element_num );
+        return FALSE;
+    }
+
+    return TRUE;
+}
 
 //-----------------------------------------------------------------------------
 // name: close()
@@ -209,30 +294,30 @@ t_CKBOOL PhyHidDevIn::close()
         // TODO: release references from cbuf?
     }
 
-    switch( device_type )
+    if( device_type <= CK_HID_DEV_NONE || device_type >= CK_HID_DEV_COUNT )
     {
-        case CK_HID_DEV_JOYSTICK:
-            Joystick_close( device_num );
-                        
-            break;
-            
-        case CK_HID_DEV_MOUSE:
-            Mouse_close( device_num );
-            break;
-            
-        case CK_HID_DEV_KEYBOARD:
-            Keyboard_close( device_num );
-            break;
-
-#ifdef __CK_HID_WIIREMOTE__
-        case CK_HID_DEV_WIIREMOTE:
-            WiiRemote_close( device_num );
-            break;
-#endif // __CK_HID_WIIREMOTE__
-            
-        default:
-            EM_log( CK_LOG_WARNING, "PhyHidDevIn: close operation failed; device not opened" );
-            return FALSE;
+        // log
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: close() failed -> invalid device type %d", 
+                device_type );
+        return FALSE;
+    }
+    
+    if( default_drivers[device_type].close )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: close() failed -> %s does not support close",
+                default_drivers[device_type].driver_name );
+        return FALSE;
+    }
+    
+    if( default_drivers[device_type].close( ( int ) device_num ) )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: close() failed -> invalid %s number %d",
+                default_drivers[device_type].driver_name,
+                device_num );
+        return FALSE;
     }
     
     device_type = CK_HID_DEV_NONE;
@@ -250,29 +335,30 @@ string PhyHidDevIn::name()
     if( device_type == CK_HID_DEV_NONE )
         return " ";
     
-    switch( device_type )
+    if( device_type <= CK_HID_DEV_NONE || device_type >= CK_HID_DEV_COUNT )
     {
-        case CK_HID_DEV_JOYSTICK:
-            return Joystick_name( device_num );
-            break;
-            
-        case CK_HID_DEV_MOUSE:
-            return Mouse_name( device_num );
-            break;
-            
-        case CK_HID_DEV_KEYBOARD:
-            return Keyboard_name( device_num );
-            break;
-
-#ifdef __CK_HID_WIIREMOTE__
-        case CK_HID_DEV_WIIREMOTE:
-            return WiiRemote_name( device_num );
-            break;
-#endif // __CK_HID_WIIREMOTE__
-            
+        // log
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: name() failed -> invalid device type %d", 
+                device_type );
+        return " ";
     }
     
-    return " ";
+    const char * _name;
+    
+    if( !default_drivers[device_type].name )
+        return default_drivers[device_type].driver_name;
+    
+    if( !( _name = default_drivers[device_type].name( ( int ) device_num ) ) )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: name() failed -> invalid %s number %d",
+                default_drivers[device_type].driver_name,
+                device_num );
+        return " ";
+    }
+    
+    return _name;
 }
 
 //-----------------------------------------------------------------------------
@@ -408,6 +494,8 @@ void HidInManager::init()
 	EM_pushlog();
     if( has_init == FALSE )
     {
+        init_default_drivers();
+        
         // allocate the matrix
         the_matrix.resize( CK_HID_DEV_COUNT );
         // resize each vector
@@ -420,64 +508,112 @@ void HidInManager::init()
         msg_buffer = new CBufferSimple;
         msg_buffer->initialize( 1000, sizeof( HidMsg ) );
         
+#ifndef __MACOSX_CORE__
         Hid_init();
+#endif // __MACOSX_CORE__
         
-        Joystick_init();
-        Mouse_init();
-        Keyboard_init();
+        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
+        {
+            if( default_drivers[i].init )
+                default_drivers[i].init();
+        }
         
-#ifdef __CK_HID_WIIREMOTE__
-        WiiRemote_init();
-#endif
-
         has_init = TRUE;
     }
 
 	EM_poplog();
 }
 
+void HidInManager::init_default_drivers()
+{
+    memset( default_drivers, 0, CK_HID_DEV_COUNT * sizeof( Chuck_Hid_Driver ) );
+    
+    default_drivers[CK_HID_DEV_JOYSTICK].init = Joystick_init;
+    default_drivers[CK_HID_DEV_JOYSTICK].quit = Joystick_quit;
+    default_drivers[CK_HID_DEV_JOYSTICK].count = Joystick_count;
+    default_drivers[CK_HID_DEV_JOYSTICK].open = Joystick_open;
+    default_drivers[CK_HID_DEV_JOYSTICK].close = Joystick_close;
+    default_drivers[CK_HID_DEV_JOYSTICK].name = Joystick_name;
+    default_drivers[CK_HID_DEV_JOYSTICK].driver_name = "joystick";
+    
+    default_drivers[CK_HID_DEV_MOUSE].init = Mouse_init;
+    default_drivers[CK_HID_DEV_MOUSE].quit = Mouse_quit;
+    default_drivers[CK_HID_DEV_MOUSE].count = Mouse_count;
+    default_drivers[CK_HID_DEV_MOUSE].open = Mouse_open;
+    default_drivers[CK_HID_DEV_MOUSE].close = Mouse_close;
+    default_drivers[CK_HID_DEV_MOUSE].name = Mouse_name;
+    default_drivers[CK_HID_DEV_MOUSE].driver_name = "mouse";
+    
+    default_drivers[CK_HID_DEV_KEYBOARD].init = Keyboard_init;
+    default_drivers[CK_HID_DEV_KEYBOARD].quit = Keyboard_quit;
+    default_drivers[CK_HID_DEV_KEYBOARD].count = Keyboard_count;
+    default_drivers[CK_HID_DEV_KEYBOARD].open = Keyboard_open;
+    default_drivers[CK_HID_DEV_KEYBOARD].close = Keyboard_close;
+    default_drivers[CK_HID_DEV_KEYBOARD].name = Keyboard_name;
+    default_drivers[CK_HID_DEV_KEYBOARD].driver_name = "keyboard";
+    
+    default_drivers[CK_HID_DEV_WIIREMOTE].init = WiiRemote_init;
+    default_drivers[CK_HID_DEV_WIIREMOTE].quit = WiiRemote_quit;
+    default_drivers[CK_HID_DEV_WIIREMOTE].count = WiiRemote_count;
+    default_drivers[CK_HID_DEV_WIIREMOTE].open = WiiRemote_open;
+    default_drivers[CK_HID_DEV_WIIREMOTE].close = WiiRemote_close;
+    default_drivers[CK_HID_DEV_WIIREMOTE].name = WiiRemote_name;
+    default_drivers[CK_HID_DEV_WIIREMOTE].driver_name = "wii remote";
+    
+    default_drivers[CK_HID_DEV_TILTSENSOR].init = TiltSensor_init;
+    default_drivers[CK_HID_DEV_TILTSENSOR].quit = TiltSensor_quit;
+    default_drivers[CK_HID_DEV_TILTSENSOR].count = TiltSensor_count;
+    default_drivers[CK_HID_DEV_TILTSENSOR].open = TiltSensor_open;
+    default_drivers[CK_HID_DEV_TILTSENSOR].close = TiltSensor_close;
+    default_drivers[CK_HID_DEV_TILTSENSOR].read = TiltSensor_read;
+    default_drivers[CK_HID_DEV_TILTSENSOR].name = TiltSensor_name;
+    default_drivers[CK_HID_DEV_TILTSENSOR].driver_name = "tilt sensor";
+}
 
 void HidInManager::cleanup()
 {
-    // log
-    EM_log( CK_LOG_INFO, "shutting down HID..." );
-
-    /*
-    // flag
-    thread_going = FALSE;
-     
-    // break Hid_wait();
-    Hid_quit();
-
-	// clean up
-    if( the_thread != NULL )
-        SAFE_DELETE( the_thread );
-
-	// clean up subsystems
-    Joystick_quit();
-    Mouse_quit();
-    Keyboard_quit();
-    WiiRemote_quit();
-
-    if( msg_buffer )
+    if( has_init )
     {
-        msg_buffer->cleanup();
-        SAFE_DELETE( msg_buffer );
-    }
-     
-    // init
-    has_init = FALSE;
-    */
-
-    // loop
-    for( vector<vector<PhyHidDevIn *> >::size_type i = 0; i < the_matrix.size(); i++ )
-    {
+        // log
+        EM_log( CK_LOG_INFO, "shutting down HID..." );
+        
         // loop
-        for( vector<PhyHidDevIn *>::size_type j = 0; j < the_matrix[i].size(); j++ )
+        for( vector<vector<PhyHidDevIn *> >::size_type i = 0; i < the_matrix.size(); i++ )
         {
-            // deallocate devices
-            SAFE_DELETE( the_matrix[i][j] );
+            // loop
+            for( vector<PhyHidDevIn *>::size_type j = 0; j < the_matrix[i].size(); j++ )
+            {
+                // deallocate devices
+                SAFE_DELETE( the_matrix[i][j] );
+            }
+        }    
+        
+        // flag
+        thread_going = FALSE;
+        
+        // break Hid_poll();
+        Hid_quit();
+        
+        // clean up
+        if( the_thread != NULL )
+            SAFE_DELETE( the_thread );
+        
+        // clean up subsystems
+        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
+        {
+            if( default_drivers[i].quit )
+                default_drivers[i].quit();
         }
+        
+        if( msg_buffer )
+        {
+            msg_buffer->cleanup();
+            SAFE_DELETE( msg_buffer );
+        }
+        
+        // init
+        has_init = FALSE;
+        //*/
     }
 }
 
@@ -511,7 +647,8 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
         if( !phin->open( device_type, device_num ) )
         {
             // log
-            EM_error2( 0, "HidIn: couldn't open HID device %d:%d...", device_type, device_num );
+            EM_error2( 0, "HidIn: couldn't open %s %d...", 
+                       default_drivers[device_type], device_num );
             SAFE_DELETE( phin );
             return FALSE;
         }
@@ -552,9 +689,6 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
     return TRUE;
 }
 
-
-
-
 //-----------------------------------------------------------------------------
 // name: close()
 // desc: close
@@ -571,9 +705,6 @@ t_CKBOOL HidIn::close()
 
     return TRUE;
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: empty()
@@ -599,12 +730,27 @@ t_CKUINT HidIn::recv( HidMsg * msg )
 }
 
 //-----------------------------------------------------------------------------
+// name: read()
+// desc: read
+//-----------------------------------------------------------------------------
+t_CKBOOL HidIn::read( t_CKINT type, t_CKINT num, HidMsg * msg )
+{
+    if( !m_valid || !phin )
+        return FALSE;
+    
+    // do read
+    return phin->read( type, num, msg );
+}
+
+//-----------------------------------------------------------------------------
 // name: name()
 // desc: get device name
 //-----------------------------------------------------------------------------
 std::string HidIn::name()
 {
-    return phin->name();
+    if( !m_valid || !phin )
+        return phin->name();
+    return "";
 }
 
 //-----------------------------------------------------------------------------
@@ -638,7 +784,9 @@ void * HidInManager::cb_hid_input( void * stuff )
 unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 #endif 
 {
-    HidMsg msg;
+#ifdef __MACOSX_CORE__
+    Hid_init();
+#endif
 
     // keep going
     while( thread_going )
@@ -651,19 +799,6 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 
     return 0;
 }
-
-//-----------------------------------------------------------------------------
-// name: read_tilt_sensor()
-// desc: read sudden motion sensor for PowerBook, iBook, MacBook(Pro), others?
-//-----------------------------------------------------------------------------
-t_CKBOOL HidInManager::read_tilt_sensor( t_CKINT * x, t_CKINT * y, t_CKINT * z )
-{
-    if( TiltSensor_read( x, y, z ) )
-        return TRUE;
-    
-    return FALSE;
-}
-
 
 //-----------------------------------------------------------------------------
 // name: probeHidIn()

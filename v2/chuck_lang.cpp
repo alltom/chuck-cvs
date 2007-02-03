@@ -564,6 +564,9 @@ static t_CKUINT HidMsg_offset_cursorx = 0;
 static t_CKUINT HidMsg_offset_cursory = 0;
 static t_CKUINT HidMsg_offset_scaledcursorx = 0;
 static t_CKUINT HidMsg_offset_scaledcursory = 0;
+static t_CKUINT HidMsg_offset_x = 0;
+static t_CKUINT HidMsg_offset_y = 0;
+static t_CKUINT HidMsg_offset_z = 0;
 static t_CKUINT HidMsg_offset_ascii = 0;
 static t_CKUINT HidMsg_offset_key = 0;
 
@@ -633,6 +636,18 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     // add member variable
     HidMsg_offset_scaledcursory = type_engine_import_mvar( env, "float", "scaledCursorY", FALSE );
     if( HidMsg_offset_scaledcursory == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
+    HidMsg_offset_x = type_engine_import_mvar( env, "int", "x", FALSE );
+    if( HidMsg_offset_x == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
+    HidMsg_offset_y = type_engine_import_mvar( env, "int", "y", FALSE );
+    if( HidMsg_offset_y == CK_INVALID_OFFSET ) goto error;
+    
+    // add member variable
+    HidMsg_offset_z = type_engine_import_mvar( env, "int", "z", FALSE );
+    if( HidMsg_offset_z == CK_INVALID_OFFSET ) goto error;
     
     // add member variable
     HidMsg_offset_axis_position = type_engine_import_mvar( env, "int", "axis_position", FALSE );
@@ -716,7 +731,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func->add_arg( "int", "type" );
     func->add_arg( "int", "num" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
+    
     // add openJoystick()
     func = make_new_mfun( "int", "openJoystick", HidIn_open_joystick );
     func->add_arg( "int", "num" );
@@ -730,6 +745,10 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     // add openKeyboard()
     func = make_new_mfun( "int", "openKeyboard", HidIn_open_keyboard );
     func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add openTiltSensor()
+    func = make_new_mfun( "int", "openTiltSensor", HidIn_open_tiltsensor );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // add good()
@@ -753,7 +772,14 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_mfun( "int", "recv", HidIn_recv );
     func->add_arg( "HidMsg", "msg" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
+    
+    // add read()
+    func = make_new_mfun( "int", "read", HidIn_read );
+    func->add_arg( "int", "type" );
+    func->add_arg( "int", "which" );
+    func->add_arg( "HidMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
     // add can_wait()
     func = make_new_mfun( "int", "can_wait", HidIn_can_wait );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1656,6 +1682,12 @@ CK_DLL_MFUN( HidIn_open_keyboard )
     RETURN->v_int = min->open( CK_HID_DEV_KEYBOARD, num );
 }
 
+CK_DLL_MFUN( HidIn_open_tiltsensor )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    RETURN->v_int = min->open( CK_HID_DEV_TILTSENSOR, 0 );
+}
+
 CK_DLL_MFUN( HidIn_good )
 {
     HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
@@ -1723,6 +1755,53 @@ CK_DLL_MFUN( HidIn_recv )
     }
 }
 
+CK_DLL_MFUN( HidIn_read )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    t_CKINT type = GET_NEXT_INT(ARGS);
+    t_CKINT num = GET_NEXT_INT(ARGS);
+    Chuck_Object * fake_msg = GET_NEXT_OBJECT(ARGS);
+    
+    HidMsg the_msg;
+    
+    RETURN->v_int = min->read( type, num, &the_msg );
+    
+    if( RETURN->v_int )
+    {
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_device_type) = the_msg.device_type;
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_device_num) = the_msg.device_num;
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_type) = the_msg.type;
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_which) = the_msg.eid;
+        
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_idata) = the_msg.idata[0];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_fdata) = the_msg.fdata[0];
+        
+        // mouse motion specific member members
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_deltax) = the_msg.idata[0];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_deltay) = the_msg.idata[1];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_cursorx) = the_msg.idata[2];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_cursory) = the_msg.idata[3];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_scaledcursorx) = the_msg.fdata[0];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_scaledcursory) = the_msg.fdata[1];
+        
+        // joystick axis specific member members
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_axis_position) = the_msg.idata[0];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_scaled_axis_position) = the_msg.fdata[0];
+        OBJ_MEMBER_FLOAT(fake_msg, HidMsg_offset_axis_position2) = the_msg.fdata[0];
+        
+        // joystick hat specific member members
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_hat_position) = the_msg.idata[0];
+        
+        // keyboard specific members
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_key) = the_msg.idata[1];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_ascii) = the_msg.idata[2];
+        
+        // accelerometer (tilt sensor, wii remote) specific members
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_x) = the_msg.idata[0];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_y) = the_msg.idata[1];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_z) = the_msg.idata[2];
+    }
+}    
 
 CK_DLL_MFUN( HidIn_can_wait )
 {
@@ -1732,15 +1811,29 @@ CK_DLL_MFUN( HidIn_can_wait )
 
 CK_DLL_SFUN( HidIn_read_tilt_sensor )
 {
-    t_CKINT x, y, z;
-    HidInManager::read_tilt_sensor( &x, &y, &z );
-    
     Chuck_Array4 * array = new Chuck_Array4( FALSE, 3 );
-    array->set( 0, x );
-    array->set( 1, y );
-    array->set( 2, z );
+    array->set( 0, 0 );
+    array->set( 1, 0 );
+    array->set( 2, 0 );
     
     RETURN->v_object = array;
+    
+    HidIn hi;
+    HidMsg msg;
+    
+    if( !hi.open( CK_HID_DEV_TILTSENSOR, 0 ) )
+    {
+        return;
+    }
+    
+    if( !hi.read( 0, 0, &msg ) )
+    {
+        return;
+    }
+    
+    array->set( 0, msg.idata[0] );
+    array->set( 1, msg.idata[1] );
+    array->set( 2, msg.idata[2] );
 }
 
 CK_DLL_SFUN( HidIn_start_cursor_track )
