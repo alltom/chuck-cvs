@@ -100,6 +100,8 @@ CK_DLL_MFUN( shred_exit );
 CK_DLL_MFUN( shred_clone );
 CK_DLL_MFUN( shred_id );
 CK_DLL_MFUN( shred_yield );
+CK_DLL_MFUN( shred_numArgs );
+CK_DLL_MFUN( shred_getArg );
 
 
 //-----------------------------------------------------------------------------

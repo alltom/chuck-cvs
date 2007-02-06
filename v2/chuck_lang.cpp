@@ -283,9 +283,18 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "void", "yield", shred_yield );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add nargs()
+    func = make_new_mfun( "int", "nargs", shred_numArgs );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add arg()
+    func = make_new_mfun( "string", "arg", shred_getArg );
+    func->add_arg( "int", "index" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add args
-    shred_offset_args = type_engine_import_mvar( env, "string[]", "args", TRUE );
-    if( shred_offset_args == CK_INVALID_OFFSET ) goto error;
+    // shred_offset_args = type_engine_import_mvar( env, "string[]", "args", TRUE );
+    // if( shred_offset_args == CK_INVALID_OFFSET ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1513,6 +1522,28 @@ CK_DLL_MFUN( shred_yield )
     derhs->is_running = FALSE;
     // reshredule
     vm->shreduler()->shredule( derhs, derhs->now );
+}
+
+CK_DLL_MFUN( shred_numArgs )
+{
+    Chuck_VM_Shred * derhs = (Chuck_VM_Shred *)SELF;
+
+    // get the number of arguments
+    RETURN->v_int = derhs->args.size();
+}
+
+CK_DLL_MFUN( shred_getArg )
+{
+    Chuck_VM_Shred * derhs = (Chuck_VM_Shred *)SELF;
+
+    // get index
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    // total
+    t_CKINT num = derhs->args.size();
+
+    Chuck_String * str = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    str->str = ( i < num ? derhs->args[i] : "" );
+    RETURN->v_string = str; 
 }
 
 CK_DLL_MFUN( string_length )

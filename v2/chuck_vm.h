@@ -196,6 +196,7 @@ public:
 public: // id
     t_CKUINT xid;
     std::string name;
+    std::vector<std::string> args;
 
 public:
     Chuck_VM_Shred * prev;

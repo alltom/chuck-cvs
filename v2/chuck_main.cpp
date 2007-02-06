@@ -612,7 +612,13 @@ int main( int argc, char ** argv )
                 count == 1 ? "instance" : "instances" );
 
         // spork it
-        while( count-- ) shred = vm->spork( code, NULL );
+        while( count-- )
+        {
+            // spork
+            shred = vm->spork( code, NULL );
+            // add args
+            shred->args = args;
+        }
 
         // pop indent
         EM_poplog();
