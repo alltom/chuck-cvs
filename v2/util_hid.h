@@ -152,7 +152,7 @@ extern int Keyboard_close( int kb );
 extern int Keyboard_send( int kb, const HidMsg * msg );
 extern const char * Keyboard_name( int kb );
 
-#define __CK_HID_WIIREMOTE__
+//#define __CK_HID_WIIREMOTE__
 extern void WiiRemote_init();
 extern void WiiRemote_poll();
 extern void WiiRemote_quit();
