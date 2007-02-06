@@ -436,10 +436,10 @@ void HidInManager::init()
         Hid_init();
 #endif // __MACOSX_CORE__
         
-        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
+        for( size_t j = 0; j < CK_HID_DEV_COUNT; j++ )
         {
-            if( default_drivers[i].init )
-                default_drivers[i].init();
+            if( default_drivers[j].init )
+                default_drivers[j].init();
         }
         
         has_init = TRUE;
@@ -523,10 +523,10 @@ void HidInManager::cleanup()
             SAFE_DELETE( the_thread );
         
         // clean up subsystems
-        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
+        for( size_t j = 0; j < CK_HID_DEV_COUNT; j++ )
         {
-            if( default_drivers[i].quit )
-                default_drivers[i].quit();
+            if( default_drivers[j].quit )
+                default_drivers[j].quit();
         }
         
         if( msg_buffer )

@@ -4228,6 +4228,8 @@ t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun )
 
     // make into func_def
     func_def = make_dll_as_fun( mfun, FALSE );
+    if( !func_def )
+        return FALSE;
     
     // add the function to class
     if( !type_engine_scan1_func_def( env, func_def ) )
@@ -4698,7 +4700,11 @@ a_Arg_List make_dll_arg_list( Chuck_DL_Func * dl_fun )
     a_Type_Decl type_decl = NULL;
     a_Var_Decl var_decl = NULL;
     a_Id_List type_path = NULL;
+    a_Id_List name_path = NULL;
+    a_Array_Sub array_sub = NULL;
     Chuck_DL_Value * arg = NULL;
+    t_CKUINT array_depth = 0;
+    t_CKUINT array_depth2 = 0;
     t_CKINT i = 0;
 
     // loop backwards
@@ -4708,7 +4714,7 @@ a_Arg_List make_dll_arg_list( Chuck_DL_Func * dl_fun )
         arg = dl_fun->args[i];
 
         // path
-        type_path = str2list( arg->type );
+        type_path = str2list( arg->type, array_depth );
         if( !type_path )
         {
             // error
@@ -4724,8 +4730,29 @@ a_Arg_List make_dll_arg_list( Chuck_DL_Func * dl_fun )
         assert( type_decl );
 
         // var
-        // TODO: arrays
-        var_decl = new_var_decl( (char *)arg->name.c_str(), NULL, 0 );
+        name_path = str2list( arg->name, array_depth2 );
+
+        
+        // sanity
+        if( array_depth && array_depth2 )
+        {
+            // error
+            EM_error2( 0, "array subscript specified incorrectly for built-in module" );
+            // TODO: cleanup
+            return NULL;
+        }
+
+        // TODO: arrays?
+        if( array_depth2 ) array_depth = array_depth2;
+        if( array_depth )
+        {
+            array_sub = new_array_sub( NULL, 0 );
+        
+            for( int i = 1; i < array_depth; i++ )
+                array_sub = prepend_array_sub( array_sub, NULL, 0 );
+        }
+
+        var_decl = new_var_decl( (char *)arg->name.c_str(), array_sub, 0 );
 
         // make new arg
         arg_list = prepend_arg_list( type_decl, var_decl, arg_list, 0 );

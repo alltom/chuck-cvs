@@ -5297,7 +5297,7 @@ const char * WiiRemote_name( int wr ){ return NULL; }
 void TiltSensor_init(){}
 void TiltSensor_quit(){}
 void TiltSensor_probe(){}
-int TiltSensor_count(){}
+int TiltSensor_count(){ return 0; }
 int TiltSensor_open( int ts ){ return -1; }
 int TiltSensor_close( int ts ){ return -1; }
 int TiltSensor_read( int ts, int type, int num, HidMsg * msg ){ return -1; }

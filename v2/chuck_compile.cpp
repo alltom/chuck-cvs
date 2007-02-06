@@ -482,16 +482,17 @@ t_CKBOOL load_module( Chuck_Env * env, f_ck_query query,
                       const char * name, const char * nspc )
 {
     Chuck_DLL * dll = NULL;
+    t_CKBOOL query_failed = FALSE;
     
     // load osc
     dll = new Chuck_DLL( name );
-    dll->load( query );
-    if( !dll->query() || !type_engine_add_dll( env, dll, nspc ) )
+    if( !dll->load( query ) || (query_failed = !dll->query()) || 
+        !type_engine_add_dll( env, dll, nspc ) )
     {
         fprintf( stderr, 
                  "[chuck]: internal error loading module '%s.%s'...\n", 
                  nspc, name );
-        if( !dll->query() )
+        if( query_failed )
             fprintf( stderr, "       %s\n", dll->last_error() );
 
         return FALSE;
