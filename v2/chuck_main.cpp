@@ -46,6 +46,7 @@
 #include "chuck_console.h"
 #include "chuck_globals.h"
 
+#include "util_string.h"
 #include "util_thread.h"
 #include "util_network.h"
 #include "hidio_sdl.h"
@@ -297,6 +298,9 @@ int main( int argc, char ** argv )
     t_CKBOOL load_hid = FALSE;
     t_CKINT  log_level = CK_LOG_CORE;
     t_CKINT  deprecate_level = 1; // warn
+
+    string   filename = "";
+    vector<string> args;
 
 #ifdef __MACOSX_CORE__
     t_CKBOOL do_watchdog = FALSE;
@@ -580,13 +584,22 @@ int main( int argc, char ** argv )
             continue;
         }
 
+        // parse out command line arguments
+        if( !extract_args( argv[i], filename, args ) )
+        {
+            // error
+            fprintf( stderr, "[chuck]: malformed filename with argument list...\n" );
+            fprintf( stderr, "    -->  '%s'", argv[i] );
+            exit( 1 );
+        }
+
         // log
-        EM_log( CK_LOG_FINE, "compiling '%s'...", argv[i] );
+        EM_log( CK_LOG_FINE, "compiling '%s'...", filename.c_str(); );
         // push indent
         EM_pushlog();
 
         // parse, type-check, and emit
-        if( !compiler->go( argv[i], NULL ) )
+        if( !compiler->go( filename, NULL ) )
             return 1;
 
         // get the code

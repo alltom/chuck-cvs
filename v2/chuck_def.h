@@ -95,11 +95,11 @@ typedef const char *                c_constr;
 #define SQRT2  (1.41421356237309504880)
 
 #ifndef SAFE_DELETE
-#define SAFE_DELETE(x)              do{ if(x){ delete x; x = NULL; } }while(0)
-#define SAFE_DELETE_ARRAY(x)        { if(x){ delete [] x; x = NULL; } }
-#define SAFE_RELEASE(x)             { if(x){ x->release(); x = NULL; } }
-#define SAFE_ADD_REF(x)             { if(x){ x->add_ref(); } }
-#define SAFE_REF_ASSIGN(lhs,rhs)    { SAFE_RELEASE(lhs); (lhs) = (rhs); SAFE_ADD_REF(lhs); }
+#define SAFE_DELETE(x)              do { if(x){ delete x; x = NULL; } } while(0)
+#define SAFE_DELETE_ARRAY(x)        do { if(x){ delete [] x; x = NULL; } } while(0)
+#define SAFE_RELEASE(x)             do { if(x){ x->release(); x = NULL; } } while(0)
+#define SAFE_ADD_REF(x)             do { if(x){ x->add_ref(); } } while(0)
+#define SAFE_REF_ASSIGN(lhs,rhs)    do { SAFE_RELEASE(lhs); (lhs) = (rhs); SAFE_ADD_REF(lhs); } while(0)
 #endif
 
 // max + min

@@ -35,6 +35,7 @@
 
 #include "chuck_def.h"
 #include <string>
+#include <vector>
 
 
 // itoa
@@ -45,7 +46,12 @@ std::string ftoa( t_CKFLOAT val, t_CKUINT precision );
 std::string tolower( const std::string & val );
 // toupper
 std::string toupper( const std::string & val );
+// trim
+std::string trim( const std::string & val );
 
+// argument extraction
+t_CKBOOL extract_args( const std::string & token, 
+                       std::string & filename, std::vector<std::string> & args );
 
 
 #endif
