@@ -594,7 +594,7 @@ int main( int argc, char ** argv )
         }
 
         // log
-        EM_log( CK_LOG_FINE, "compiling '%s'...", filename.c_str(); );
+        EM_log( CK_LOG_FINE, "compiling '%s'...", filename.c_str() );
         // push indent
         EM_pushlog();
 
