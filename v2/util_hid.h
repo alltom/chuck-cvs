@@ -78,10 +78,13 @@ static const t_CKUINT CK_HID_DEVICE_CONNECTED = 7;
 static const t_CKUINT CK_HID_DEVICE_DISCONNECTED = 8;
 static const t_CKUINT CK_HID_ACCELEROMETER = 9;
 static const t_CKUINT CK_HID_WIIREMOTE_IR = 10;
-static const t_CKUINT CK_HID_TABLET_PRESSURE = 11;
-static const t_CKUINT CK_HID_TABLET_MOTION = 12;
-static const t_CKUINT CK_HID_TABLET_ROTATION = 13;
-static const t_CKUINT CK_HID_MSG_COUNT = 14;
+static const t_CKUINT CK_HID_LED = 11;
+static const t_CKUINT CK_HID_FORCE_FEEDBACK = 12;
+static const t_CKUINT CK_HID_SPEAKER = 13;
+static const t_CKUINT CK_HID_TABLET_PRESSURE = 14;
+static const t_CKUINT CK_HID_TABLET_MOTION = 15;
+static const t_CKUINT CK_HID_TABLET_ROTATION = 16;
+static const t_CKUINT CK_HID_MSG_COUNT = 17;
 
 /* keys */
 
@@ -96,7 +99,7 @@ struct _Chuck_Hid_Driver
     int ( *open )( int );
     int ( *open_async )( int );
     int ( *close )( int );
-    int ( *send )( const HidMsg * );
+    int ( *send )( int, const HidMsg * );
     int ( *read )( int, int, int, HidMsg * );
     const char * ( *name )( int );
     const char * driver_name;
@@ -117,7 +120,7 @@ extern int Joystick_open( int js );
 extern int Joystick_open_async( int js );
 extern int Joystick_open( const char * name );
 extern int Joystick_close( int js );
-extern int Joystick_send( const HidMsg * msg );
+extern int Joystick_send( int js, const HidMsg * msg );
 extern const char * Joystick_name( int js );
 
 extern int Joystick_axes( int js );
@@ -132,7 +135,7 @@ extern int Mouse_count();
 extern int Mouse_open( int m );
 extern int Mouse_open( const char * name );
 extern int Mouse_close( int m );
-extern int Mouse_send( const HidMsg * msg );
+extern int Mouse_send( int m, const HidMsg * msg );
 extern const char * Mouse_name( int m );
 extern int Mouse_buttons( int m );
 extern int Mouse_start_cursor_track();
@@ -146,9 +149,10 @@ extern int Keyboard_count();
 extern int Keyboard_open( int kb );
 extern int Keyboard_open( const char * name );
 extern int Keyboard_close( int kb );
-extern int Keyboard_send( const HidMsg * msg );
+extern int Keyboard_send( int kb, const HidMsg * msg );
 extern const char * Keyboard_name( int kb );
 
+#define __CK_HID_WIIREMOTE__
 extern void WiiRemote_init();
 extern void WiiRemote_poll();
 extern void WiiRemote_quit();
@@ -157,7 +161,7 @@ extern int WiiRemote_count();
 extern int WiiRemote_open( int wr );
 extern int WiiRemote_open( const char * name );
 extern int WiiRemote_close( int wr );
-extern int WiiRemote_send( const HidMsg * msg );
+extern int WiiRemote_send( int wr, const HidMsg * msg );
 extern const char * WiiRemote_name( int wr );
 
 extern void TiltSensor_init();

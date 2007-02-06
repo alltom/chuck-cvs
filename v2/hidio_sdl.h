@@ -120,9 +120,6 @@ public:
     t_CKBOOL m_suppress_output;
 };
 
-void probeHidIn();
-void probeHidOut();
-
 class HidInManager
 {
 public:
@@ -132,7 +129,8 @@ public:
     static t_CKBOOL open( HidIn * hin, t_CKINT device_type, t_CKINT device_num );
     static t_CKBOOL close( HidIn * hin );
     
-    static t_CKBOOL read_tilt_sensor( t_CKINT * x, t_CKINT * y, t_CKINT * z );
+    static void probeHidIn();
+    static void probeHidOut();
 
 #ifndef __PLATFORM_WIN32__
     static void * cb_hid_input( void * );

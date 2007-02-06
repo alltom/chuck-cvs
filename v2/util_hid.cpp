@@ -51,10 +51,9 @@ using namespace std;
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <CoreFoundation/CoreFoundation.h>
-//#ifdef __CK_HID_CURSORTRACK__
 #include <ApplicationServices/ApplicationServices.h>
-//#endif // __CK_HID_CURSORTRACK__
 
+// check for OS X 10.4/CGEvent
 #ifdef __CGEVENT_H__
 #define __CK_HID_CURSOR_TRACK__
 #endif
@@ -83,25 +82,6 @@ private:
     XMutex m_mutex;
 };
 
-class auto_lock
-// smart lock, automatically unlocks its lockable when deallocated
-// useful when used on stack
-{
-public:
-    auto_lock( lockable * _l )
-    {
-        l = _l;
-        l->lock();
-    }
-    
-    ~auto_lock()
-    {
-        l->unlock();
-    }
-    
-private:
-    lockable * l;
-};
 
 template< typename _Tp, typename _Alloc = allocator< _Tp > >
 class xvector : public vector< _Tp, _Alloc >, public lockable
@@ -165,6 +145,7 @@ public:
         queue = NULL;
         strncpy( name, "Device", 256 );
         elements = NULL;
+        outputs = NULL;
         usage = usage_page = 0;
         type = num = -1;
         buttons = -1;
@@ -194,6 +175,7 @@ public:
     t_CKINT usage;
     
     map< IOHIDElementCookie, OSX_Hid_Device_Element * > * elements;
+    
     /* Note: setting any of these to -1 informs the element enumerating 
         method that we are not interested in that particular element type */
     t_CKINT buttons;
@@ -201,6 +183,13 @@ public:
     t_CKINT hats;
     t_CKINT wheels;
     
+    /* outputs are stored in a map of vectors of OSX_Hid_Device_Elements
+       Thus if ( *outputs )[CK_HID_OUTPUT_TYPE] != NULL && 
+       ( *outputs )[CK_HID_OUTPUT_TYPE]->size() > n, 
+       ( *outputs )[CK_HID_OUTPUT_TYPE]->at( n ) is the nth output of type
+       CK_HID_OUTPUT_TYPE. */
+    map< unsigned int, vector< OSX_Hid_Device_Element * > * > * outputs;
+        
     t_CKBOOL add_to_run_loop; // used to indicate that the event source needs to be added to the run loop 
     t_CKBOOL stop_queue; // used to indicate that the event queue should be stopped
     
@@ -278,6 +267,53 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
         hidProperties = NULL;
         return -1;
     }
+    
+#ifdef __LITTLE_ENDIAN__ 
+    /* MacBooks and MacBook Pros have some sort of "phantom" trackpad, which 
+       shows up in the HID registry and claims to no wheels.  The device
+       name is usually Trackpad with the manufacturer being Apple.  This may
+       disable legitimate Trackpads, but hopefully not... */
+    if( type == CK_HID_DEV_MOUSE && strncmp( "Trackpad", name, 256 ) == 0 )
+    {
+        refCF = CFDictionaryGetValue( hidProperties, 
+                                                CFSTR( kIOHIDManufacturerKey ) );
+        CFStringRef t = ( CFStringRef ) refCF;
+        if( refCF != NULL && 
+            CFStringCompare( ( CFStringRef ) refCF, CFSTR( "Apple" ), 0 ) == 0 )
+        {
+            preconfiged = TRUE;
+            configure();
+            
+            if( wheels == 0 )
+                // this is the "phantom" trackpad
+            {
+                // iterate through the element map, delete device element records
+                map< IOHIDElementCookie, OSX_Hid_Device_Element * >::iterator iter, end;                    
+                end = elements->end();
+                for( iter = elements->begin(); iter != end; iter++ )
+                    delete iter->second;
+                delete elements;
+                elements = NULL;
+                
+                if( queue )
+                {
+                    ( *queue )->dispose( queue );
+                    ( *queue )->Release( queue );
+                    queue = NULL;
+                }
+                
+                if( interface )
+                {
+                    ( *interface )->close( interface );
+                    ( *interface )->Release( interface );
+                    interface = NULL;
+                }
+                
+                return -1;
+            }
+        }
+    }
+#endif // __LITTLE_ENDIAN__
     
     preconfiged = TRUE;
     
@@ -372,34 +408,37 @@ t_CKINT OSX_Hid_Device::configure()
         interface = NULL;
         return -1;
     }
-
-    // retrieve the array of elements...
-    CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
-                                            CFSTR( kIOHIDElementKey ) );
-    if( !refCF )
+    
+    if( elements == NULL && hidProperties != NULL )
     {
+        // retrieve the array of elements...
+        CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
+                                                CFSTR( kIOHIDElementKey ) );
+        if( !refCF )
+        {
+            CFRelease( hidProperties );
+            hidProperties = NULL;
+            (*queue)->dispose( queue );
+            (*queue)->Release( queue );
+            queue = NULL;
+            (*interface)->close( interface );
+            (*interface)->Release( interface );
+            interface = NULL;
+            return -1;
+        }
+        
+        // ...allocate space for element records...
+        elements = new map< IOHIDElementCookie, OSX_Hid_Device_Element * >;
+        // axes = 0;
+        // buttons = 0;
+        // hats = 0;
+        
+        // ...and parse the element array recursively
+        enumerate_elements( ( CFArrayRef ) refCF );
+        
         CFRelease( hidProperties );
         hidProperties = NULL;
-        (*queue)->dispose( queue );
-        (*queue)->Release( queue );
-        queue = NULL;
-        (*interface)->close( interface );
-        (*interface)->Release( interface );
-        interface = NULL;
-        return -1;
     }
-    
-    // ...allocate space for element records...
-    elements = new map< IOHIDElementCookie, OSX_Hid_Device_Element * >;
-    // axes = 0;
-    // buttons = 0;
-    // hats = 0;
-    
-    // ...and parse the element array recursively
-    enumerate_elements( ( CFArrayRef ) refCF );
-    
-    CFRelease( hidProperties );
-    hidProperties = NULL;
     
     configed = TRUE;
     
@@ -650,7 +689,7 @@ void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
                         break;
                         
                     default:
-                        EM_log( CK_LOG_INFO, "unknown page: %i usage: %i\n", usage_page, usage );
+                        EM_log( CK_LOG_FINER, "unknown page: %i usage: %i\n", usage_page, usage );
                 }
                 
                 break;
@@ -661,6 +700,76 @@ void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
                     continue;
                     
                 enumerate_elements( ( CFArrayRef ) refCF );
+                break;
+                
+            case kIOHIDElementTypeOutput:
+                switch( usage_page )
+                {
+                    case kHIDPage_LEDs:
+                        /* filter out error and reserved usages */
+                        if( usage > kHIDUsage_LED_ExternalPowerConnected )
+                            continue;
+                        
+                        element = new OSX_Hid_Device_Element;
+                        
+                        refCF = CFDictionaryGetValue( element_dictionary,
+                                                      CFSTR( kIOHIDElementCookieKey ) );
+                        if( !refCF || 
+                            !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->cookie ) )
+                        {
+                            delete element;
+                            continue;
+                        }
+                        
+                        refCF = CFDictionaryGetValue( element_dictionary,
+                                                          CFSTR( kIOHIDElementMinKey ) );
+                        if( !refCF || 
+                            !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->min ) )
+                        {
+                            delete element;
+                            continue;
+                        }
+                            
+                        refCF = CFDictionaryGetValue( element_dictionary,
+                                                      CFSTR( kIOHIDElementMaxKey ) );
+                        if( !refCF || 
+                            !CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &element->max ) )
+                        {
+                            delete element;
+                            continue;
+                        }
+                            
+                        if( outputs == NULL )
+                            outputs = new map< unsigned int, vector< OSX_Hid_Device_Element * > * >;
+                        
+                        if( outputs->find( CK_HID_LED ) == outputs->end() )
+                            ( *outputs )[CK_HID_LED] = new vector< OSX_Hid_Device_Element * >;
+                            
+                        element->type = CK_HID_LED;
+                        element->num = ( *outputs )[CK_HID_LED]->size();
+                        element->usage = usage;
+                        element->usage_page = usage_page;
+                        
+                        EM_log( CK_LOG_FINE, "adding led %d", element->num );
+                        
+                        ( *outputs )[CK_HID_LED]->push_back( element );
+                        
+                        /*
+                        if( refCF )
+                        {
+                            IOHIDElementCookie cookie;
+                            IOHIDEventStruct event = { kIOHIDElementTypeOutput,
+                                cookie, 1, UpTime(), 0, NULL };
+                            CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &cookie );
+                            fprintf( stderr, "found leds\n" );
+                            ( *interface )->setElementValue( interface, cookie,
+                                                             &event, 0, 0, 0, 0 );
+                        }
+                         */
+                
+                        break;
+                }
+                
                 break;
         }
     }
@@ -1445,13 +1554,6 @@ void Hid_quit2()
             joystick->axes = NULL;
         }
         
-        if( joystick->interface )
-        {
-            ( *( joystick->interface ) )->close( joystick->interface );
-            ( *( joystick->interface ) )->Release( joystick->interface );
-            joystick->interface = NULL;
-        }
-        
         if( joystick->queue )
         {
             if( joystick->refcount > 0 )
@@ -1459,6 +1561,13 @@ void Hid_quit2()
             ( *( joystick->queue ) )->dispose( joystick->queue );
             ( *( joystick->queue ) )->Release( joystick->queue );
             joystick->queue = NULL;
+        }
+        
+        if( joystick->interface )
+        {
+            ( *( joystick->interface ) )->close( joystick->interface );
+            ( *( joystick->interface ) )->Release( joystick->interface );
+            joystick->interface = NULL;
         }
         
         delete joystick;
@@ -1973,9 +2082,53 @@ int Keyboard_close( int k )
     return 0;
 }
 
+int Keyboard_send( int k, const HidMsg * msg )
+{
+    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
+        return -1;
+    
+    OSX_Hid_Device * keyboard = ( *keyboards )[k];
+    
+    if( keyboard->outputs == NULL || // no outputs
+        keyboard->outputs->find( msg->type ) == keyboard->outputs->end() )
+        // no outputs of that type
+        return -1;
+    
+    if( msg->eid < 0 || msg->eid >= ( *( keyboard->outputs ) )[msg->type]->size() )
+        // invalid output type element number
+        return -1;
+    
+    OSX_Hid_Device_Element * output = ( *( *( keyboard->outputs ) )[msg->type] )[msg->eid];
+    
+    IOHIDEventStruct eventStruct;
+    
+    eventStruct.type = kIOHIDElementTypeOutput;
+    eventStruct.elementCookie = output->cookie;
+    eventStruct.timestamp = UpTime();
+    eventStruct.longValueSize = 0;
+    eventStruct.longValue = NULL;
+    
+    if( msg->idata[0] < output->min )
+        eventStruct.value = output->min;
+    else if( msg->idata[0] > output->max )
+        eventStruct.value = output->max;
+    else
+        eventStruct.value = msg->idata[0];
+    
+    IOReturn result;
+    result = ( *( keyboard->interface ) )->setElementValue( keyboard->interface, 
+                                                            output->cookie, 
+                                                            &eventStruct, 
+                                                            0, 0, 0, 0 );
+    if( result != kIOReturnSuccess )
+        return -1;
+    
+    return 0;
+}
+
 const char * Keyboard_name( int k )
 {
-    if( keyboards == NULL || k < 0 || k >= mice->size() )
+    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
         return NULL;
     
     return keyboards->at( k )->name;
@@ -2033,7 +2186,6 @@ static struct t_TiltSensor_data
 static int TiltSensor_test( int kernFunc, char * servMatch, int dataType )
 {
     kern_return_t result;
-    mach_port_t masterPort;
     io_iterator_t iterator;
     io_object_t aDevice;
     io_connect_t dataPort;
@@ -2041,11 +2193,9 @@ static int TiltSensor_test( int kernFunc, char * servMatch, int dataType )
     IOItemCount structureInputSize;
     IOByteCount structureOutputSize;
         
-    result = IOMasterPort( MACH_PORT_NULL, &masterPort );
-    
     CFMutableDictionaryRef matchingDictionary = IOServiceMatching( servMatch );
     
-    result = IOServiceGetMatchingServices( masterPort, matchingDictionary, &iterator );
+    result = IOServiceGetMatchingServices( kIOMasterPortDefault, matchingDictionary, &iterator );
     
     if( result != KERN_SUCCESS )
         return 0;
@@ -2276,7 +2426,7 @@ int TiltSensor_read( int ts, int type, int num, HidMsg * msg )
 #ifdef __CK_HID_WIIREMOTE__
 #pragma mark OS X Wii Remote support
 
-class Bluetooth_Device
+class Bluetooth_Device : public lockable
 {
 public:
     Bluetooth_Device()
@@ -2357,6 +2507,7 @@ public:
     virtual void enable_ir_sensor( t_CKBOOL enable );
     virtual void enable_leds( t_CKBOOL l1, t_CKBOOL l2, 
                               t_CKBOOL l3, t_CKBOOL l4 );
+    virtual void set_led( t_CKUINT led, t_CKBOOL state );
     
     t_CKBOOL force_feedback_enabled;
     t_CKBOOL motion_sensor_enabled;
@@ -2396,7 +2547,7 @@ bool operator< ( BluetoothDeviceAddress a, BluetoothDeviceAddress b )
     return false;
 }
 
-vector< WiiRemote * > * wiiremotes = NULL;
+xvector< WiiRemote * > * wiiremotes = NULL;
 
 /* the user can open a wiimote with any id number he chooses without an error,
 and will then be sent the appropriate message when that wiimote is connected.  
@@ -2410,7 +2561,7 @@ been discovered and wiimotes that have been opened but have not yet been
 discovered.  all wiimotes with indices less than g_wr_next_real_wiimote have 
 actually been discovered, and anything at or above that index in wiiremotes has
 not actually been discovered, but (if its non-NULL) has been opened.  */
-static vector< WiiRemote * >::size_type g_next_real_wiimote = 0;
+static xvector< WiiRemote * >::size_type g_next_real_wiimote = 0;
 
 static map< BluetoothDeviceAddress, WiiRemote * > * wr_addresses = NULL;
 static t_CKBOOL g_bt_query_active = FALSE; // is a query currently active?
@@ -2730,39 +2881,17 @@ void WiiRemote::control_receive( void * data, size_t size )
         /* accelerometers */
         if( d[1] & 0x01 )
         {
-            if( d[4] ^ accels[0] )
+            if( d[4] ^ accels[0] ||
+                d[5] ^ accels[1] ||
+                d[6] ^ accels[2] )
             {
                 msg.device_num = num;
                 msg.device_type = CK_HID_DEV_WIIREMOTE;
                 msg.type = CK_HID_ACCELEROMETER;
                 msg.eid = 0;
                 msg.idata[0] = d[4];
-                
-                HidInManager::push_message( msg );
-                
-                msg.clear();            
-            }
-            
-            if( d[5] ^ accels[1] )
-            {
-                msg.device_num = num;
-                msg.device_type = CK_HID_DEV_WIIREMOTE;
-                msg.type = CK_HID_ACCELEROMETER;
-                msg.eid = 1;
-                msg.idata[0] = d[5];
-                
-                HidInManager::push_message( msg );
-                
-                msg.clear();            
-            }
-            
-            if( d[6] ^ accels[2] )
-            {
-                msg.device_num = num;
-                msg.device_type = CK_HID_DEV_WIIREMOTE;
-                msg.type = CK_HID_ACCELEROMETER;
-                msg.eid = 2;
-                msg.idata[0] = d[6];
+                msg.idata[1] = d[5];
+                msg.idata[2] = d[6];
                 
                 HidInManager::push_message( msg );
                 
@@ -2786,15 +2915,14 @@ void WiiRemote::control_receive( void * data, size_t size )
                     ( d[7 + i * 3 + 1] != 0xff ) && 
                     ( d[7 + i * 3 + 2] != 0xff ) )
                 {
-                    // fprintf( stderr, "ir\n" );
                     msg.device_num = num;
                     msg.device_type = CK_HID_DEV_WIIREMOTE;
                     msg.type = CK_HID_WIIREMOTE_IR;
                     msg.eid = i;
                     // x
-                    msg.idata[0] = d[7 + 3 * i] + ( ( d[7 + 3 * i + 2] >> 4 ) & 0x0f );
+                    msg.idata[0] = d[7 + 3 * i] + ( ( d[7 + 3 * i + 2] << 4 ) & 0x300 );
                     // y
-                    msg.idata[1] = d[7 + 3 * i + 1] + ( ( d[7 + 3 * i + 2] >> 6 ) & 0x0f );
+                    msg.idata[1] = d[7 + 3 * i + 1] + ( ( d[7 + 3 * i + 2] << 2 ) & 0x300 );
                     // size
                     msg.idata[2] = d[7 + 3 * i + 2] & 0xffff;
                     
@@ -2928,6 +3056,31 @@ void WiiRemote::enable_ir_sensor( t_CKBOOL enable )
         //usleep(10000);
 
     }
+}
+
+void WiiRemote::set_led( t_CKUINT led, t_CKBOOL state )
+{
+    switch( led )
+    {
+        case 0:
+            led1 = state;
+            break;
+            
+        case 1:
+            led2 = state;
+            break;
+            
+        case 2:
+            led3 = state;
+            break;
+            
+        case 3:
+            led4 = state;
+            break;
+            
+    }
+    
+    enable_leds( led1, led2, led3, led4 );
 }
 
 void WiiRemote::enable_leds( t_CKBOOL l1, t_CKBOOL l2, 
@@ -3096,6 +3249,8 @@ point.  So, WiiRemote_open and _close, which are called from the VM thread, put
 open and close messages into a thread-safe circular buffer and then signal the 
 hid thread to indicate that new info is available on the cbuf.  The hid thread
 will then process any pending open/close messages in the cbuf.  
+
+send messages now also are carried out in the hid thread through this mechanism.  
 */
 
 struct WiiRemoteOp
@@ -3103,53 +3258,93 @@ struct WiiRemoteOp
     enum 
     {
         open,
-        close
+        close,
+        send
     } op;
     
     int index;
 };
 
 static CBufferSimple * WiiRemoteOp_cbuf = NULL;
+static CBufferSimple * WiiRemoteOp_msgbuf = NULL;
 
 static void WiiRemote_cfrl_callback( void * info )
 {
     WiiRemoteOp wro;
+    HidMsg msg;
     t_CKBOOL do_query = FALSE;
     
     while( WiiRemoteOp_cbuf->get( &wro, 1 ) )
     {
-        if( wro.op == WiiRemoteOp::open )
+        switch( wro.op )
         {
-            // does it exist already?
-            if( wro.index < wiiremotes->size() )
-                // yes
-            {
-                // is the device connected?
-                if( !( *wiiremotes )[wro.index]->is_connected() )
-                    // no, so do a query
-                    do_query = TRUE;
-            }
-            
-            else
-                // no, so create it
-            {
-                while( wro.index > wiiremotes->size() )
-                    wiiremotes->push_back( NULL );
-                wiiremotes->push_back( new WiiRemote );
+            case WiiRemoteOp::open:
+                // does it exist already?
+                if( wro.index < wiiremotes->size() )
+                    // yes
+                {
+                    // is the device connected?
+                    if( !( *wiiremotes )[wro.index]->is_connected() )
+                        // no, so do a query
+                        do_query = TRUE;
+                }
                 
-                do_query = TRUE;
-            }
+                else
+                    // no, so create it
+                {
+                    while( wro.index > wiiremotes->size() )
+                        wiiremotes->push_back( NULL );
+                    wiiremotes->push_back( new WiiRemote );
+                    
+                    do_query = TRUE;
+                }
             
-            ( *wiiremotes )[wro.index]->refcount++;
-        }
+                ( *wiiremotes )[wro.index]->refcount++;
+                
+                break;
         
-        else if( wro.op == WiiRemoteOp::close )
-        {
-            if( wro.index < wiiremotes->size() )
-            {
-                if( --( *wiiremotes )[wro.index]->refcount == 0 )
-                    ( *wiiremotes )[wro.index]->close();
-            }
+            case WiiRemoteOp::close:
+                if( wro.index < wiiremotes->size() )
+                {
+                    if( --( *wiiremotes )[wro.index]->refcount == 0 )
+                        ( *wiiremotes )[wro.index]->close();
+                }
+                
+                break;
+                
+            case WiiRemoteOp::send:
+                if( WiiRemoteOp_msgbuf->get( &msg, 1 ) )
+                {
+                    // double-check remote number for validity
+                    if( wro.index < 0 || wro.index >= wiiremotes->size() ||
+                        ( *wiiremotes )[wro.index] == NULL || 
+                        !( *wiiremotes )[wro.index]->is_connected() )
+                    {
+                        // report failure
+                        HidInManager::push_message( msg );
+                        break;
+                    }
+                    
+                    switch( msg.type )
+                    {
+                        case CK_HID_LED:
+                            if( msg.eid < 0 || msg.eid >= 4 )
+                            {
+                                // report failure
+                                HidInManager::push_message( msg );
+                                break;
+                            }
+                            
+                            ( *wiiremotes )[wro.index]->set_led( msg.eid, msg.idata[0] );
+                            
+                            break;
+                            
+                        /*case CK_HID_FORCE_FEEDBACK:
+                            if( msg.*/
+                    }
+                }
+                
+                break;
         }
     }
     
@@ -3173,10 +3368,14 @@ void WiiRemote_init()
 #ifdef __CK_HID_WIIREMOTE__
     Hid_init2();
     
-    wiiremotes = new vector< WiiRemote * >;
+    wiiremotes = new xvector< WiiRemote * >;
     wr_addresses = new map< BluetoothDeviceAddress, WiiRemote * >;
+    
     WiiRemoteOp_cbuf = new CBufferSimple;
-    WiiRemoteOp_cbuf->initialize( 10, sizeof( WiiRemoteOp ) );
+    WiiRemoteOp_cbuf->initialize( 20, sizeof( WiiRemoteOp ) );
+    
+    WiiRemoteOp_msgbuf = new CBufferSimple;
+    WiiRemoteOp_msgbuf->initialize( 100, sizeof( HidMsg ) );
 #endif // __CK_HID_WIIREMOTE
 }
 
@@ -3187,7 +3386,7 @@ void WiiRemote_poll()
 void WiiRemote_quit()
 {
 #ifdef __CK_HID_WIIREMOTE__
-    for( vector< WiiRemote * >::size_type i = 0; i < wiiremotes->size(); i++ )
+    for( xvector< WiiRemote * >::size_type i = 0; i < wiiremotes->size(); i++ )
     {
         if( ( *wiiremotes )[i] )
             SAFE_DELETE( ( *wiiremotes )[i] );
@@ -3197,7 +3396,7 @@ void WiiRemote_quit()
     SAFE_DELETE( WiiRemoteOp_cbuf );
     
     Hid_quit2();
-#endif // __CK_HID_WIIREMOTE
+#endif // __CK_HID_WIIREMOTE__
 }
 
 int WiiRemote_count()
@@ -3206,7 +3405,7 @@ int WiiRemote_count()
     return wiiremotes->size();
 #else
     return 0;
-#endif // __CK_HID_WIIREMOTE   
+#endif // __CK_HID_WIIREMOTE__
 }
 
 int WiiRemote_open( int wr )
@@ -3223,7 +3422,7 @@ int WiiRemote_open( int wr )
     return 0;
 #else
     return -1;
-#endif // __CK_HID_WIIREMOTE
+#endif // __CK_HID_WIIREMOTE__
 }
 
 int WiiRemote_close( int wr )
@@ -3240,16 +3439,61 @@ int WiiRemote_close( int wr )
     return 0;
 #else
     return -1;
-#endif // __CK_HID_WIIREMOTE
+#endif // __CK_HID_WIIREMOTE__
+}
+
+int WiiRemote_send( int wr, const HidMsg * msg )
+{
+#ifdef __CK_HID_WIIREMOTE__
+    wiiremotes->lock();
+    
+    if( wr < 0 || wr >= wiiremotes->size() )
+    {
+        wiiremotes->unlock();
+        return -1;
+    }
+    
+    WiiRemote * wiiremote = ( *wiiremotes )[wr];
+    
+    wiiremotes->unlock();
+    
+    if( wiiremote == NULL )
+        return -1;
+        
+    
+    wiiremote->lock();
+    
+    if( !wiiremote->is_connected() )
+    {
+        wiiremote->unlock();
+        return -1;
+    }
+    
+    wiiremote->unlock();
+    
+    WiiRemoteOp_msgbuf->put( ( void * )msg, 1 );
+    
+    WiiRemoteOp wro;
+    wro.op = WiiRemoteOp::send;
+    wro.index = wr;
+    
+    WiiRemoteOp_cbuf->put( &wro, 1 );
+    
+    WiiRemote_signal(); 
+    
+    return 0;
+#else
+    return -1;
+#endif
 }
 
 const char * WiiRemote_name( int wr )
 {
 #ifdef __CK_HID_WIIREMOTE__
-    return "";
+    return "Nintendo Wii Remote";
 #else
-    return "";
-#endif // __CK_HID_WIIREMOTE
+    return " ";
+#endif // __CK_HID_WIIREMOTE__
 }
 
 #elif ( defined( __PLATFORM_WIN32__ ) || defined( __WINDOWS_PTHREAD__ ) ) && !defined( USE_RAWINPUT )
@@ -3308,11 +3552,6 @@ void Hid_quit()
 		CloseHandle( g_device_event );
 		g_device_event = NULL;
 	}*/
-}
-
-int TiltSensor_read( t_CKINT * x, t_CKINT * y, t_CKINT * z )
-{
-    return 0;
 }
 
 /*****************************************************************************

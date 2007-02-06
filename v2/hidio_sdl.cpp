@@ -57,6 +57,7 @@ public:
     ~PhyHidDevIn();
     t_CKBOOL open( t_CKINT type, t_CKUINT number );
     t_CKBOOL read( t_CKINT element_type, t_CKINT element_num, HidMsg * msg );
+    t_CKBOOL send( const HidMsg * msg );
     t_CKBOOL close();
     std::string name();
     
@@ -200,7 +201,32 @@ t_CKBOOL PhyHidDevIn::read( t_CKINT element_type, t_CKINT element_num, HidMsg * 
                 element_type, element_num );
         return FALSE;
     }
+    
+    return TRUE;
+}
 
+//-----------------------------------------------------------------------------
+// name: send()
+// desc: send message to a HID device
+//-----------------------------------------------------------------------------
+t_CKBOOL PhyHidDevIn::send( const HidMsg * msg )
+{
+    if( !default_drivers[device_type].send )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: send() failed -> %s does not support send",
+                default_drivers[device_type].driver_name );
+        return FALSE;
+    }
+    
+    if( default_drivers[device_type].send( device_num, msg ) )
+    {
+        EM_log( CK_LOG_WARNING, 
+                "PhyHidDevIn: send() failed for %s %i",
+                default_drivers[device_type].driver_name, device_num );
+        return FALSE;
+    }
+    
     return TRUE;
 }
 
@@ -227,7 +253,7 @@ t_CKBOOL PhyHidDevIn::close()
         return FALSE;
     }
     
-    if( default_drivers[device_type].close )
+    if( !default_drivers[device_type].close )
     {
         EM_log( CK_LOG_WARNING, 
                 "PhyHidDevIn: close() failed -> %s does not support close",
@@ -268,10 +294,10 @@ string PhyHidDevIn::name()
         return " ";
     }
     
-    const char * _name;
-    
     if( !default_drivers[device_type].name )
         return default_drivers[device_type].driver_name;
+    
+    const char * _name;
     
     if( !( _name = default_drivers[device_type].name( ( int ) device_num ) ) )
     {
@@ -473,6 +499,7 @@ void HidInManager::init_default_drivers()
     default_drivers[CK_HID_DEV_KEYBOARD].count = Keyboard_count;
     default_drivers[CK_HID_DEV_KEYBOARD].open = Keyboard_open;
     default_drivers[CK_HID_DEV_KEYBOARD].close = Keyboard_close;
+    default_drivers[CK_HID_DEV_KEYBOARD].send = Keyboard_send;
     default_drivers[CK_HID_DEV_KEYBOARD].name = Keyboard_name;
     default_drivers[CK_HID_DEV_KEYBOARD].driver_name = "keyboard";
     
@@ -571,6 +598,7 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
         if( !phin->open( device_type, device_num ) )
         {
             // log
+            // should this use EM_log instead, with a higher log level?
             EM_error2( 0, "HidIn: couldn't open %s %d...", 
                        default_drivers[device_type].driver_name, device_num );
             SAFE_DELETE( phin );
@@ -667,14 +695,27 @@ t_CKBOOL HidIn::read( t_CKINT type, t_CKINT num, HidMsg * msg )
 }
 
 //-----------------------------------------------------------------------------
+// name: send()
+// desc: send
+//-----------------------------------------------------------------------------
+t_CKBOOL HidIn::send( const HidMsg * msg )
+{
+    if( !m_valid || !phin )
+        return FALSE;
+    
+    // do send
+    return phin->send( msg );
+}
+
+//-----------------------------------------------------------------------------
 // name: name()
 // desc: get device name
 //-----------------------------------------------------------------------------
 std::string HidIn::name()
 {
-    if( !m_valid || !phin )
+    if( m_valid && phin )
         return phin->name();
-    return "";
+    return " ";
 }
 
 //-----------------------------------------------------------------------------
@@ -728,23 +769,41 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 // name: probeHidIn()
 // desc: ...
 //-----------------------------------------------------------------------------
-void probeHidIn()
+void HidInManager::probeHidIn()
 {
+    if( !has_init )
+    {
+        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
+        {
+            if( default_drivers[i].init && default_drivers[i].probe )
+                default_drivers[i].init();
+        }
+    }
+    
+    for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
+    {
+        if( default_drivers[i].probe )
+            default_drivers[i].probe();
+    }
+    
+    if( !has_init )
+    {
+        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
+        {
+            if( default_drivers[i].quit )
+                default_drivers[i].quit();
+        }
+    }
 }
-
-
-
 
 //-----------------------------------------------------------------------------
 // name: probeHidOut()
 // desc: ...
 //-----------------------------------------------------------------------------
-void probeHidOut()
+void HidInManager::probeHidOut()
 {
+    
 }
-
-
-
 
 HidOutManager::HidOutManager()
 {
