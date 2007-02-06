@@ -780,6 +780,11 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func->add_arg( "HidMsg", "msg" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
+    // add send()
+    func = make_new_mfun( "int", "send", HidIn_send );
+    func->add_arg( "HidMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add can_wait()
     func = make_new_mfun( "int", "can_wait", HidIn_can_wait );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -799,73 +804,189 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     // add member variable
     HidIn_offset_data = type_engine_import_mvar( env, "int", "@HidIn_data", FALSE );
     if( HidIn_offset_data == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable joystick
-    HidIn_offset_joystick = type_engine_import_svar( env, "int", "JOYSTICK", TRUE,
-                                                     ( t_CKUINT ) &CK_HID_DEV_JOYSTICK ); 
-    if( HidIn_offset_joystick == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable keyboard
-    HidIn_offset_keyboard = type_engine_import_svar( env, "int", "KEYBOARD", TRUE,
-                                                     ( t_CKUINT ) &CK_HID_DEV_KEYBOARD ); 
-    if( HidIn_offset_keyboard == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable mouse
-    HidIn_offset_mouse = type_engine_import_svar( env, "int", "MOUSE", TRUE,
-                                                  ( t_CKUINT ) &CK_HID_DEV_MOUSE ); 
-    if( HidIn_offset_mouse == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable tablet
-    HidIn_offset_mouse = type_engine_import_svar( env, "int", "TABLET", TRUE,
-                                                  ( t_CKUINT ) &CK_HID_DEV_TABLET ); 
-    if( HidIn_offset_mouse == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable axisMotion
-    HidIn_offset_axis_motion = type_engine_import_svar( env, "int", "AXIS_MOTION", TRUE,
-                                                        ( t_CKUINT ) &CK_HID_JOYSTICK_AXIS ); 
-    if( HidIn_offset_axis_motion == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable buttonDown
-    HidIn_offset_button_down = type_engine_import_svar( env, "int", "BUTTON_DOWN", TRUE,
-                                                        ( t_CKUINT ) &CK_HID_BUTTON_DOWN ); 
-    if( HidIn_offset_button_down == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable buttonUp
-    HidIn_offset_button_up = type_engine_import_svar( env, "int", "BUTTON_UP", TRUE,
-                                                      ( t_CKUINT ) &CK_HID_BUTTON_UP ); 
-    if( HidIn_offset_button_up == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable joystickHat
-    HidIn_offset_joystick_hat = type_engine_import_svar( env, "int", "JOYSTICK_HAT", TRUE,
-                                                         ( t_CKUINT ) &CK_HID_JOYSTICK_HAT ); 
-    if( HidIn_offset_joystick_hat == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable joystickBall
-    HidIn_offset_joystick_ball = type_engine_import_svar( env, "int", "JOYSTICK_BALL", TRUE,
-                                                          ( t_CKUINT ) &CK_HID_JOYSTICK_BALL );
-    if( HidIn_offset_joystick_ball == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable mouseMotion
-    HidIn_offset_mouse_motion = type_engine_import_svar( env, "int", "MOUSE_MOTION", TRUE,
-                                                         ( t_CKUINT ) &CK_HID_MOUSE_MOTION );
-    if( HidIn_offset_mouse_motion == CK_INVALID_OFFSET ) goto error;
-    
-    // add member variable mouseWheel
-    HidIn_offset_mouse_wheel = type_engine_import_svar( env, "int", "MOUSE_WHEEL", TRUE,
-                                                        ( t_CKUINT ) &CK_HID_MOUSE_WHEEL ); 
-    if( HidIn_offset_mouse_wheel == CK_INVALID_OFFSET ) goto error;
-    
+        
     // end the class import
     type_engine_import_class_end( env );
     
-    // init base class
-    if( !type_engine_import_class_begin( env, "Hid", "Object",
-                                         env->global(), NULL ) )
+    // init base class Hid (copy of HidIn + constants)
+    if( !type_engine_import_class_begin( env, "Hid", "Event",
+                                         env->global(), HidIn_ctor ) )
         return FALSE;
     
+    // add open()
+    func = make_new_mfun( "int", "open", HidIn_open );
+    func->add_arg( "int", "type" );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add openJoystick()
+    func = make_new_mfun( "int", "openJoystick", HidIn_open_joystick );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add openMouse()
+    func = make_new_mfun( "int", "openMouse", HidIn_open_mouse );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add openKeyboard()
+    func = make_new_mfun( "int", "openKeyboard", HidIn_open_keyboard );
+    func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add openTiltSensor()
+    func = make_new_mfun( "int", "openTiltSensor", HidIn_open_tiltsensor );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add good()
+    func = make_new_mfun( "int", "good", HidIn_good );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add num()
+    func = make_new_mfun( "int", "num", HidIn_num );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add name()
+    func = make_new_mfun( "string", "name", HidIn_name );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add printerr()
+    func = make_new_mfun( "void", "printerr", HidIn_printerr );
+    func->add_arg( "int", "print_or_not" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add recv()
+    func = make_new_mfun( "int", "recv", HidIn_recv );
+    func->add_arg( "HidMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add read()
+    func = make_new_mfun( "int", "read", HidIn_read );
+    func->add_arg( "int", "type" );
+    func->add_arg( "int", "which" );
+    func->add_arg( "HidMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add send()
+    func = make_new_mfun( "int", "send", HidIn_send );
+    func->add_arg( "HidMsg", "msg" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add can_wait()
+    func = make_new_mfun( "int", "can_wait", HidIn_can_wait );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add readTiltSensor()
+    func = make_new_sfun( "int[]", "readTiltSensor", HidIn_read_tilt_sensor );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+    
+    // add startCursorTrack()
+    func = make_new_sfun( "void", "startCursorTrack", HidIn_start_cursor_track );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+    
+    // add stopCursorTrack()
+    func = make_new_sfun( "void", "stopCursorTrack", HidIn_stop_cursor_track );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+    
+    // add member variable
+    HidIn_offset_data = type_engine_import_mvar( env, "int", "@Hid_data", FALSE );
+    if( HidIn_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add static member variable joystick
+    if( type_engine_import_svar( env, "int", "JOYSTICK", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEV_JOYSTICK ) == FALSE )
+        goto error;
+    
+    // add static member variable keyboard
+    if( type_engine_import_svar( env, "int", "KEYBOARD", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEV_KEYBOARD ) == FALSE )
+        goto error;
+    if( HidIn_offset_keyboard == CK_INVALID_OFFSET ) goto error;
+    
+    // add static member variable mouse
+    if( type_engine_import_svar( env, "int", "MOUSE", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEV_MOUSE ) == FALSE )
+        goto error;
+    
+    // add static member variable wii_remote
+    if( type_engine_import_svar( env, "int", "WII_REMOTE", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEV_WIIREMOTE ) == FALSE )
+        goto error;
+    
+    // add static member variable wii_remote
+    if( type_engine_import_svar( env, "int", "TILT_SENSOR", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEV_TILTSENSOR ) == FALSE )
+        goto error;
+    
+    // add static member variable tablet
+    if( type_engine_import_svar( env, "int", "TABLET", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEV_TABLET ) == FALSE )
+        goto error;
+    
+    // add static member variable axisMotion
+    if( type_engine_import_svar( env, "int", "AXIS_MOTION", TRUE,
+                                 ( t_CKUINT ) &CK_HID_JOYSTICK_AXIS ) == FALSE )
+        goto error;
+    
+    // add static member variable buttonDown
+    if( type_engine_import_svar( env, "int", "BUTTON_DOWN", TRUE,
+                                 ( t_CKUINT ) &CK_HID_BUTTON_DOWN ) == FALSE )
+        goto error;
+    
+    // add static member variable buttonUp
+    if( type_engine_import_svar( env, "int", "BUTTON_UP", TRUE,
+                                 ( t_CKUINT ) &CK_HID_BUTTON_UP ) == FALSE )
+        goto error;
+    
+    // add static member variable joystickHat
+    if( type_engine_import_svar( env, "int", "JOYSTICK_HAT", TRUE,
+                                 ( t_CKUINT ) &CK_HID_JOYSTICK_HAT ) == FALSE )
+        goto error;
+    
+    // add static member variable JOYSTICK_BALL
+    if( type_engine_import_svar( env, "int", "JOYSTICK_BALL", TRUE,
+                                 ( t_CKUINT ) &CK_HID_JOYSTICK_BALL ) == FALSE )
+        goto error;
+    
+    // add static member variable mouseMotion
+    if( type_engine_import_svar( env, "int", "MOUSE_MOTION", TRUE,
+                                 ( t_CKUINT ) &CK_HID_MOUSE_MOTION ) == FALSE )
+        goto error;
+    
+    // add static member variable mouseWheel
+    if( type_engine_import_svar( env, "int", "MOUSE_WHEEL", TRUE,
+                                 ( t_CKUINT ) &CK_HID_MOUSE_WHEEL ) == FALSE )
+        goto error;
+    
+    // add static member variable DEVICE_CONNECTED
+    if( type_engine_import_svar( env, "int", "DEVICE_CONNECTED", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEVICE_CONNECTED ) == FALSE )
+        goto error;
+    
+    // add static member variable DEVICE_DISCONNECTED
+    if( type_engine_import_svar( env, "int", "DEVICE_DISCONNECTED", TRUE,
+                                 ( t_CKUINT ) &CK_HID_DEVICE_DISCONNECTED ) == FALSE )
+        goto error;
+    
+    // add static member variable ACCELEROMETER
+    if( type_engine_import_svar( env, "int", "ACCELEROMETER", TRUE,
+                                 ( t_CKUINT ) &CK_HID_ACCELEROMETER ) == FALSE )
+        goto error;
+    
+    // add static member variable LED
+    if( type_engine_import_svar( env, "int", "LED", TRUE,
+                                 ( t_CKUINT ) &CK_HID_LED ) == FALSE )
+        goto error;
+    
+    // add static member variable LED
+    if( type_engine_import_svar( env, "int", "FORCE_FEEDBACK", TRUE,
+                                 ( t_CKUINT ) &CK_HID_FORCE_FEEDBACK ) == FALSE )
+        goto error;
+    
     // end the class import
     type_engine_import_class_end( env );
     
+    /*
     // init base class
     if( !type_engine_import_class_begin( env, "HidOut", "Object",
                                          env->global(), HidOut_ctor ) )
@@ -904,7 +1025,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
 
     // end the class import
     type_engine_import_class_end( env );
-    
+    */
     return TRUE;
 
 error:
@@ -1760,6 +1881,11 @@ CK_DLL_MFUN( HidIn_recv )
         // keyboard specific variables
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_key) = the_msg.idata[1];
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_ascii) = the_msg.idata[2];
+        
+        // accelerometer (tilt sensor, wii remote) specific members
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_x) = the_msg.idata[0];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_y) = the_msg.idata[1];
+        OBJ_MEMBER_INT(fake_msg, HidMsg_offset_z) = the_msg.idata[2];        
     }
 }
 
@@ -1810,6 +1936,21 @@ CK_DLL_MFUN( HidIn_read )
         OBJ_MEMBER_INT(fake_msg, HidMsg_offset_z) = the_msg.idata[2];
     }
 }    
+
+CK_DLL_MFUN( HidIn_send )
+{
+    HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
+    Chuck_Object * fake_msg = GET_NEXT_OBJECT(ARGS);
+    
+    HidMsg the_msg;
+    the_msg.device_type = OBJ_MEMBER_INT( fake_msg, HidMsg_offset_device_type );
+    the_msg.device_num = OBJ_MEMBER_INT( fake_msg, HidMsg_offset_device_num );
+    the_msg.type = OBJ_MEMBER_INT( fake_msg, HidMsg_offset_type );
+    the_msg.eid = OBJ_MEMBER_INT( fake_msg, HidMsg_offset_which );
+    the_msg.idata[0] = OBJ_MEMBER_INT( fake_msg, HidMsg_offset_idata );
+    
+    RETURN->v_int = min->send( &the_msg );
+}
 
 CK_DLL_MFUN( HidIn_can_wait )
 {

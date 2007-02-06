@@ -243,6 +243,7 @@ CK_DLL_MFUN( HidIn_name );
 CK_DLL_MFUN( HidIn_printerr );
 CK_DLL_MFUN( HidIn_recv );
 CK_DLL_MFUN( HidIn_read );
+CK_DLL_MFUN( HidIn_send );
 CK_DLL_MFUN( HidIn_can_wait );
 CK_DLL_SFUN( HidIn_read_tilt_sensor );
 CK_DLL_SFUN( HidIn_start_cursor_track );
