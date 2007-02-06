@@ -5521,7 +5521,7 @@ const char * Keyboard_name( int k )
 #ifndef __PLATFORM_MACOSX__
 /*** empty functions for Mac-only stuff ***/
 
-int Keyboard_send( int k, const HidMsg * msg ){ return -1; }
+int Keyboard_send( int k, const HidMsg * msg ){ return -1 };
 
 void WiiRemote_init(){}
 
