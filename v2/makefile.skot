@@ -4,8 +4,11 @@ CXX_LINK=g++
 LEX=flex
 YACC=bison
 INCLUDES=
-FLAGS=-D__MACOSX_CORE__ -DAJAY -O3 -c
-LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation -framework Carbon -framework IOKit -lstdc++ -lm
+FLAGS=-D__MACOSX_CORE__ -D__MACOSX_UB__ -DAJAY -c -arch ppc -arch i386 \
+      -isysroot /Developer/SDKs/MacOSX10.4u.sdk
+LIBS=-framework CoreAudio -framework CoreMIDI -framework CoreFoundation \
+	-framework IOKit -framework Carbon -lstdc++ -lm \
+    -arch ppc -arch i386 -isysroot /Developer/SDKs/MacOSX10.4u.sdk
 SF_OBJ=util_sndfile.o
 
 ifneq ($(CHUCK_STAT),)
@@ -14,6 +17,8 @@ endif
 
 ifneq ($(CHUCK_DEBUG),)
 FLAGS+= -g
+else
+FLAGS+= -O3
 endif
 
 ifneq ($(CHUCK_STRICT),)
@@ -38,7 +43,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o \
 	ulib_opsc.o util_buffers.o util_console.o util_math.o util_network.o \
 	util_raw.o util_string.o util_thread.o util_xforms.o util_opsc.o \
-	util_hid.o util_hid2.o $(SF_OBJ)
+	util_hid.o $(SF_OBJ)
 
 chuck: $(OBJS)
 	$(CXX_LINK) -o chuck $(OBJS) $(LIBS)
@@ -163,9 +168,6 @@ ulib_machine.o: ulib_machine.h ulib_machine.cpp
 ulib_math.o: ulib_math.h ulib_math.cpp
 	$(CXX) $(FLAGS) ulib_math.cpp
 
-ulib_net.o: ulib_net.h ulib_net.cpp
-	$(CXX) $(FLAGS) ulib_net.cpp
-
 ulib_std.o: ulib_std.h ulib_std.cpp
 	$(CXX) $(FLAGS) ulib_std.cpp
 
@@ -178,11 +180,8 @@ util_buffers.o: util_buffers.h util_buffers.cpp
 util_console.o: util_console.h util_console.cpp chuck_shell.h
 	$(CXX) $(FLAGS) util_console.cpp
 
-util_hid.o: util_hid.h util_hid.c
-	$(CXX) $(FLAGS) util_hid.c
-
-util_hid2.o: util_hid.h util_hid.cpp
-	$(CXX) -o util_hid2.o $(FLAGS) util_hid.cpp
+util_hid.o: util_hid.h util_hid.cpp
+	$(CXX) $(FLAGS) util_hid.cpp
 
 util_math.o: util_math.h util_math.c
 	$(CXX) $(FLAGS) util_math.c
