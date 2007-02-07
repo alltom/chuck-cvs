@@ -508,6 +508,7 @@ void HidInManager::init_default_drivers()
     default_drivers[CK_HID_DEV_WIIREMOTE].count = WiiRemote_count;
     default_drivers[CK_HID_DEV_WIIREMOTE].open = WiiRemote_open;
     default_drivers[CK_HID_DEV_WIIREMOTE].close = WiiRemote_close;
+    default_drivers[CK_HID_DEV_WIIREMOTE].send = WiiRemote_send;
     default_drivers[CK_HID_DEV_WIIREMOTE].name = WiiRemote_name;
     default_drivers[CK_HID_DEV_WIIREMOTE].driver_name = "wii remote";
     

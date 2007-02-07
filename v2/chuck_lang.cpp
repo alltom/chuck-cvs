@@ -803,11 +803,11 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     if( !type_engine_import_sfun( env, func ) ) goto error;
     
     // add startCursorTrack()
-    func = make_new_sfun( "void", "startCursorTrack", HidIn_start_cursor_track );
+    func = make_new_sfun( "int", "startCursorTrack", HidIn_start_cursor_track );
     if( !type_engine_import_sfun( env, func ) ) goto error;
     
     // add stopCursorTrack()
-    func = make_new_sfun( "void", "stopCursorTrack", HidIn_stop_cursor_track );
+    func = make_new_sfun( "int", "stopCursorTrack", HidIn_stop_cursor_track );
     if( !type_engine_import_sfun( env, func ) ) goto error;
     
     // add member variable
@@ -890,11 +890,11 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     if( !type_engine_import_sfun( env, func ) ) goto error;
     
     // add startCursorTrack()
-    func = make_new_sfun( "void", "startCursorTrack", HidIn_start_cursor_track );
+    func = make_new_sfun( "int", "startCursorTrack", HidIn_start_cursor_track );
     if( !type_engine_import_sfun( env, func ) ) goto error;
     
     // add stopCursorTrack()
-    func = make_new_sfun( "void", "stopCursorTrack", HidIn_stop_cursor_track );
+    func = make_new_sfun( "int", "stopCursorTrack", HidIn_stop_cursor_track );
     if( !type_engine_import_sfun( env, func ) ) goto error;
     
     // add member variable
@@ -2028,16 +2028,12 @@ CK_DLL_SFUN( HidIn_read_tilt_sensor )
 
 CK_DLL_SFUN( HidIn_start_cursor_track )
 {
-#ifdef __CK_HID_CURSORTRACK__
-    Mouse_start_cursor_track();
-#endif // __CK_HID_CURSORTRACK__
+    RETURN->v_int = !Mouse_start_cursor_track();
 }
 
 CK_DLL_SFUN( HidIn_stop_cursor_track )
 {
-#ifdef __CK_HID_CURSORTRACK__
-    Mouse_stop_cursor_track();
-#endif // __CK_HID_CURSORTRACK__
+    RETURN->v_int = !Mouse_stop_cursor_track();
 }
 
 //-----------------------------------------------------------------------------

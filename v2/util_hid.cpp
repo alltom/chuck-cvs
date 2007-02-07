@@ -277,7 +277,6 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
     {
         refCF = CFDictionaryGetValue( hidProperties, 
                                                 CFSTR( kIOHIDManufacturerKey ) );
-        CFStringRef t = ( CFStringRef ) refCF;
         if( refCF != NULL && 
             CFStringCompare( ( CFStringRef ) refCF, CFSTR( "Apple" ), 0 ) == 0 )
         {
@@ -2547,7 +2546,7 @@ bool operator< ( BluetoothDeviceAddress a, BluetoothDeviceAddress b )
     return false;
 }
 
-xvector< WiiRemote * > * wiiremotes = NULL;
+static xvector< WiiRemote * > * wiiremotes = NULL;
 
 /* the user can open a wiimote with any id number he chooses without an error,
 and will then be sent the appropriate message when that wiimote is connected.  
@@ -2598,6 +2597,11 @@ void Bluetooth_device_control_event( IOBluetoothL2CAPChannelRef l2capChannel,
                         ( ( Bluetooth_Device * ) refCon )->name );
             }
             
+            break;
+            
+        case kIOBluetoothL2CAPChannelEventTypeClosed:
+            EM_log( CK_LOG_FINE, "hid: error: control L2CAP channel for '%s' closed",
+                    ( ( Bluetooth_Device * ) refCon )->name );
             break;
     }        
 }
@@ -2658,28 +2662,20 @@ t_CKINT WiiRemote::connect()
     
     if( IOBluetoothDeviceOpenL2CAPChannelAsync( device, &control_channel, 17, 
                                                 Bluetooth_device_control_event, 
-                                                this ) != noErr )
+                                                this ) != kIOReturnSuccess )
     {
         EM_log( CK_LOG_WARNING, "hid: error: opening Wii Remote Controller L2CAP connection" );
         return -1;
     }
-    
+    fprintf( stderr, "l2cap control channel ref: 0x%x\n", control_channel );
     if( IOBluetoothDeviceOpenL2CAPChannelAsync( device, &interrupt_channel, 19, 
                                                 Bluetooth_device_interrupt_event, 
-                                                this ) != noErr )
+                                                this ) != kIOReturnSuccess )
     {
         EM_log( CK_LOG_WARNING, "hid: error: opening Wii Remote Controller L2CAP connection" );
         return -1;
     }
-    
-    HidMsg msg;
-    
-    msg.device_num = num;
-    msg.device_type = CK_HID_DEV_WIIREMOTE;
-    msg.type = CK_HID_DEVICE_CONNECTED;
-    
-    HidInManager::push_message( msg );
-    
+        
     return 0;
 }
 
@@ -2690,33 +2686,54 @@ t_CKINT WiiRemote::control_init()
     enable_force_feedback( FALSE );
     enable_leds( ( num % 4 ) == 0, ( ( num - 1 ) % 4 ) == 0, 
                  ( ( num - 2 ) % 4 ) == 0, ( ( num - 3 ) % 4 ) == 0 );
+    
+    HidMsg msg;
+    
+    msg.device_num = num;
+    msg.device_type = CK_HID_DEV_WIIREMOTE;
+    msg.type = CK_HID_DEVICE_CONNECTED;
+    
+    HidInManager::push_message( msg );    
+    
     return 0;
 }
 
 t_CKINT WiiRemote::disconnect()
 {
+    if( interrupt_channel )
+    {
+        IOBluetoothL2CAPChannelCloseChannel( interrupt_channel );
+        IOBluetoothObjectRelease( interrupt_channel );
+        interrupt_channel = NULL;
+    }
+    
+    if( control_channel )
+    {
+        IOBluetoothL2CAPChannelCloseChannel( control_channel );
+        IOBluetoothObjectRelease( control_channel );
+        control_channel = NULL;
+    }
+    
+    if( device )
+    {
+        IOBluetoothDeviceCloseConnection( device );
+        IOBluetoothObjectRelease( device );
+        device = NULL;
+    }
+    
+    if( disconnect_notification )
+    {
+        IOBluetoothUserNotificationUnregister( disconnect_notification );
+        disconnect_notification = NULL;
+    }
+    
     HidMsg msg;
     
     msg.device_num = num;
     msg.device_type = CK_HID_DEV_WIIREMOTE;
     msg.type = CK_HID_DEVICE_DISCONNECTED;
     
-    HidInManager::push_message( msg );
-    
-    IOBluetoothL2CAPChannelCloseChannel( interrupt_channel );
-    IOBluetoothObjectRelease( interrupt_channel );
-    interrupt_channel = NULL;
-    
-    IOBluetoothL2CAPChannelCloseChannel( control_channel );
-    IOBluetoothObjectRelease( control_channel );
-    control_channel = NULL;
-    
-    IOBluetoothDeviceCloseConnection( device );
-    IOBluetoothObjectRelease( device );
-    device = NULL;
-    
-    IOBluetoothUserNotificationUnregister( disconnect_notification );
-    disconnect_notification = NULL;
+    HidInManager::push_message( msg );    
     
     return 0;
 }
@@ -2939,7 +2956,7 @@ void WiiRemote::control_receive( void * data, size_t size )
 
 void WiiRemote::interrupt_receive( void * data, size_t size )
 {
-     
+    
 }
 
 void WiiRemote::control_send( const void * data, size_t size )
@@ -2958,10 +2975,16 @@ void WiiRemote::control_send( const void * data, size_t size )
     //for( int i = 0; i < size; i++ )
     //    printf( " %02x", buf[i] );
     //printf( "\n" );
+    fprintf( stderr, "l2cap control channel ref: 0x%x\n", control_channel );
     
-    if( IOBluetoothL2CAPChannelWriteSync( control_channel, buf, size ) 
-        != noErr )
-        EM_log( CK_LOG_WARNING, "hid: error: sending data to Wii Remote Controller %i", num );
+    IOReturn result;
+    result = IOBluetoothL2CAPChannelWriteSync( control_channel, buf, size );
+    //IOReturn result = IOBluetoothL2CAPChannelWriteAsync( control_channel, buf, size, NULL );
+    
+    if( result != kIOReturnSuccess )
+        EM_log( CK_LOG_WARNING, 
+                "hid: error: sending data to Wii Remote Controller %i (error 0x%x)", 
+                num, result );
 }
 
 void WiiRemote::write_memory( const void * data, size_t size, unsigned long address )
@@ -3077,7 +3100,6 @@ void WiiRemote::set_led( t_CKUINT led, t_CKBOOL state )
         case 3:
             led4 = state;
             break;
-            
     }
     
     enable_leds( led1, led2, led3, led4 );
@@ -5521,10 +5543,12 @@ const char * Keyboard_name( int k )
 #ifndef __PLATFORM_MACOSX__
 /*** empty functions for Mac-only stuff ***/
 
-int Keyboard_send( int k, const HidMsg * msg ){ return -1 };
+int Mouse_start_cursor_track(){ return -1; }
+int Mouse_stop_cursor_track(){ return -1; }
+
+int Keyboard_send( int k, const HidMsg * msg ){ return -1; }
 
 void WiiRemote_init(){}
-
 void WiiRemote_poll(){}
 void WiiRemote_quit(){}
 void WiiRemote_probe(){}
