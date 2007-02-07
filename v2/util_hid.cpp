@@ -5547,6 +5547,7 @@ int Mouse_start_cursor_track(){ return -1; }
 int Mouse_stop_cursor_track(){ return -1; }
 
 int Keyboard_send( int k, const HidMsg * msg ){ return -1; }
+int WiiRemote_send( int k, const HidMsg * msg ){ return -1; }
 
 void WiiRemote_init(){}
 void WiiRemote_poll(){}

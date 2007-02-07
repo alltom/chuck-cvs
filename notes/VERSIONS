@@ -1,5 +1,7 @@
 ---
 1.2.0.8
+  - added: (all) command line argument support
+           e.g. %> chuck foo.ck:1:hello bar:2.5:"with space"
   - fixed: (all) && now terminates early if an operand evaluates to
            0; || terminates early if an operand evaluates to 1
   - fixed: (all) bug accessing static members of built-in classes
