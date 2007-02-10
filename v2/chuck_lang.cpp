@@ -545,16 +545,6 @@ error:
 
 // static
 static t_CKUINT HidIn_offset_data = 0;
-static t_CKUINT HidIn_offset_joystick = 0;
-static t_CKUINT HidIn_offset_mouse = 0;
-static t_CKUINT HidIn_offset_keyboard = 0;
-static t_CKUINT HidIn_offset_axis_motion = 0;
-static t_CKUINT HidIn_offset_button_down = 0;
-static t_CKUINT HidIn_offset_button_up = 0;
-static t_CKUINT HidIn_offset_joystick_hat = 0;
-static t_CKUINT HidIn_offset_joystick_ball = 0;
-static t_CKUINT HidIn_offset_mouse_motion = 0;
-static t_CKUINT HidIn_offset_mouse_wheel = 0;
 
 static t_CKUINT HidMsg_offset_device_type = 0;
 static t_CKUINT HidMsg_offset_device_num = 0;
@@ -910,7 +900,6 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     if( type_engine_import_svar( env, "int", "KEYBOARD", TRUE,
                                  ( t_CKUINT ) &CK_HID_DEV_KEYBOARD ) == FALSE )
         goto error;
-    if( HidIn_offset_keyboard == CK_INVALID_OFFSET ) goto error;
     
     // add static member variable mouse
     if( type_engine_import_svar( env, "int", "MOUSE", TRUE,
