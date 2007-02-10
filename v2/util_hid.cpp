@@ -51,9 +51,13 @@ using namespace std;
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <CoreFoundation/CoreFoundation.h>
-#include <ApplicationServices/ApplicationServices.h>
 
 // check for OS X 10.4/CGEvent
+#include <AvailabilityMacros.h>
+#undef MAC_OS_X_VERSION_MIN_REQUIRED
+#define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_3
+#define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_4
+#include <ApplicationServices/ApplicationServices.h>
 #ifdef __CGEVENT_H__
 #define __CK_HID_CURSOR_TRACK__
 #endif
@@ -1952,7 +1956,7 @@ void * Mouse_cursor_track( void * )
 int Mouse_start_cursor_track()
 {
 #ifdef __CK_HID_CURSOR_TRACK__
-    if( CGEventTapCreate == NULL )
+    if( &CGEventTapCreate == NULL )
         return -1;
     
     if( g_ct_go )
