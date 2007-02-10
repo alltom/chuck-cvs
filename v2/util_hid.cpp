@@ -63,6 +63,10 @@ using namespace std;
 #define __CK_HID_CURSOR_TRACK__
 #endif
 
+#ifndef __DAN__
+#undef __CK_HID_CURSOR_TRACK__
+#endif
+
 #ifdef __CK_HID_WIIREMOTE__
 #include <IOBluetooth/IOBluetoothUserLib.h>
 #include "util_buffers.h"
