@@ -55,6 +55,7 @@ using namespace std;
 // check for OS X 10.4/CGEvent
 #include <AvailabilityMacros.h>
 #undef MAC_OS_X_VERSION_MIN_REQUIRED
+#undef MAC_OS_X_VERSION_MAX_ALLOWED
 #define MAC_OS_X_VERSION_MIN_REQUIRED MAC_OS_X_VERSION_10_3
 #define MAC_OS_X_VERSION_MAX_ALLOWED MAC_OS_X_VERSION_10_4
 #include <ApplicationServices/ApplicationServices.h>
