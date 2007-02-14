@@ -99,8 +99,13 @@ class xvector : public vector< _Tp, _Alloc >, public lockable
 };
 
 // general hid callback for device events
-void Hid_callback( void * target, IOReturn result, 
-                   void * refcon, void * sender );
+static void Hid_callback( void * target, IOReturn result, 
+                          void * refcon, void * sender );
+
+static IONotificationPortRef newDeviceNotificationPort = NULL;
+static void Hid_device_removed( void * refcon, io_service_t service,
+                                natural_t messageType, void * messageArgument );
+
 
 class OSX_Device : public lockable
 {
@@ -165,6 +170,7 @@ public:
         refcount = 0;
         stop_queue = add_to_run_loop = FALSE;
         hidProperties = NULL;
+        removal_notification = NULL;
     }
     
     t_CKINT preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_type );
@@ -206,6 +212,8 @@ public:
     CFRunLoopSourceRef eventSource;
     
     CFMutableDictionaryRef hidProperties;
+    
+    io_object_t removal_notification;
     
     const static t_CKINT event_queue_size = 50; 
     // queues use wired kernel memory so should be set to as small as possible
@@ -323,6 +331,15 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
         }
     }
 #endif // __LITTLE_ENDIAN__
+    
+    result = IOServiceAddInterestNotification( newDeviceNotificationPort, 
+                                               ioHIDDeviceObject,
+                                               kIOGeneralInterest,
+                                               Hid_device_removed,
+                                               this,
+                                               &removal_notification );
+    
+    
     
     preconfiged = TRUE;
     
@@ -794,10 +811,10 @@ static xvector< OSX_Hid_Device * > * keyboards = NULL;
 // hid run loop (event dispatcher)
 static CFRunLoopRef rlHid = NULL;
 // special hid run loop mode (limits events to hid device events only)
-//static CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
-static CFStringRef kCFRunLoopChuckHidMode = kCFRunLoopDefaultMode;
+//static const CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
+static const CFStringRef kCFRunLoopChuckHidMode = kCFRunLoopDefaultMode;
 // notification port for new found devices
-static IONotificationPortRef newDeviceNotificationPort = NULL;
+//static IONotificationPortRef newDeviceNotificationPort = NULL;
 static void Hid_new_device( void *refcon, io_iterator_t iterator );
 
 // has hid been initialized?
@@ -980,50 +997,10 @@ void Hid_init()
     
     rlHid = CFRunLoopGetCurrent();
     
-    CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
-    if( !hidMatchDictionary )
-    {
-        EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving hidMatchDictionary, unable to initialize" );
-        return;
-    }
-    
-	IOReturn result = kIOReturnSuccess;
-	io_iterator_t hidObjectIterator = 0;
-    /*CFTypeRef refCF;
-    t_CKINT filter_usage_page = kHIDPage_GenericDesktop;
-    
-    refCF = ( CFTypeRef ) CFNumberCreate( kCFAllocatorDefault, 
-                                          kCFNumberLongType, 
-                                          &filter_usage_page );
-    CFDictionarySetValue( hidMatchDictionary, 
-                          CFSTR( kIOHIDPrimaryUsagePageKey ), refCF );*/
-    
-    newDeviceNotificationPort = IONotificationPortCreate( kIOMasterPortDefault );
-    
     // set up notification for new added devices
     CFRunLoopAddSource( rlHid, 
                         IONotificationPortGetRunLoopSource( newDeviceNotificationPort ),
                         kCFRunLoopChuckHidMode );
-    
-    result = IOServiceAddMatchingNotification( newDeviceNotificationPort,
-                                               kIOMatchedNotification,
-                                               hidMatchDictionary,
-                                               Hid_new_device,
-                                               NULL,
-                                               &hidObjectIterator );
-    
-    if( result != kIOReturnSuccess || hidObjectIterator == 0 )
-    {
-        EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving matching services, unable to initialize" );
-        return;
-    }
-    
-    //CFRelease( refCF );
-    
-    io_object_t ioHIDDeviceObject = 0;
-    while( ioHIDDeviceObject = IOIteratorNext( hidObjectIterator ) )
-        ;
-    IOObjectRelease( hidObjectIterator );
     
 #ifdef __CK_HID_WIIREMOTE__
     // add wii remote source
@@ -1055,7 +1032,7 @@ void Hid_init2()
         return;
     
     g_hid_init = TRUE;
-    
+        
 	IOReturn result = kIOReturnSuccess;
 	io_iterator_t hidObjectIterator = 0;
     CFTypeRef refCF;
@@ -1079,19 +1056,19 @@ void Hid_init2()
     CFDictionarySetValue( hidMatchDictionary, 
                           CFSTR( kIOHIDPrimaryUsagePageKey ), refCF );
     
-    //newDeviceNotificationPort = IONotificationPortCreate( kIOMasterPortDefault );
+    newDeviceNotificationPort = IONotificationPortCreate( kIOMasterPortDefault );
     
-    result = IOServiceGetMatchingServices( kIOMasterPortDefault, 
+    /*result = IOServiceGetMatchingServices( kIOMasterPortDefault, 
                                            hidMatchDictionary, 
-                                           &hidObjectIterator );
+                                           &hidObjectIterator );*/
     
-    /*result = IOServiceAddMatchingNotification( newDeviceNotificationPort,
-                                               kIOPublishNotification,
+    result = IOServiceAddMatchingNotification( newDeviceNotificationPort,
+                                               kIOFirstMatchNotification,
                                                hidMatchDictionary,
                                                Hid_new_device,
                                                NULL,
                                                &hidObjectIterator );
-    */
+    
     if( result != kIOReturnSuccess || hidObjectIterator == 0 )
     {
         EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving matching services, unable to initialize" );
@@ -1209,8 +1186,6 @@ void Hid_init2()
             }
         }
     }
-    
-    IOObjectRelease( hidObjectIterator );
 }
 
 static void Hid_new_device( void * refcon, io_iterator_t iterator )
@@ -1342,8 +1317,12 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
             }
         }
     }
-    
-    IOObjectRelease( iterator );
+}
+
+void Hid_device_removed( void * refcon, io_service_t service,
+                         natural_t messageType, void * messageArgument )
+{
+    fprintf( stderr, "device removed\n" );
 }
 
 void Hid_poll()
@@ -2322,6 +2301,15 @@ static int TiltSensor_detect()
         return 1;
     }
     
+    // hi resolution powerbook tilt sensor interface
+    if( TiltSensor_test( powerbookKernFunc, "PMUMotionSensor", kSMSPowerbookDataType ) )
+    {
+        TiltSensor_data.kernFunc = powerbookKernFunc;
+        TiltSensor_data.dataType = kSMSPowerbookDataType;
+        TiltSensor_data.detected = 1;
+        return 1;
+    }
+    
     // mac book (pro) tilt sensor interface
     if( TiltSensor_test( 5, "SMCMotionSensor", kSMSMacBookProDataType ) )
     {
@@ -2331,15 +2319,6 @@ static int TiltSensor_detect()
         return 1;
     }
     
-    // hi resolution powerbook tilt sensor interface
-    if( TiltSensor_test( powerbookKernFunc, "PMUMotionSensor", kSMSPowerbookDataType ) )
-    {
-        TiltSensor_data.kernFunc = powerbookKernFunc;
-        TiltSensor_data.dataType = kSMSPowerbookDataType;
-        TiltSensor_data.detected = 1;
-        return 1;
-    }
-        
     TiltSensor_data.detected = -1;
     
     return 0;
