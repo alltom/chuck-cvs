@@ -1322,7 +1322,7 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
 void Hid_device_removed( void * refcon, io_service_t service,
                          natural_t messageType, void * messageArgument )
 {
-    fprintf( stderr, "device removed\n" );
+    //fprintf( stderr, "device removed\n" );
 }
 
 void Hid_poll()
