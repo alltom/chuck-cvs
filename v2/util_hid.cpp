@@ -51,6 +51,7 @@ using namespace std;
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
 #include <CoreFoundation/CoreFoundation.h>
+#include <Carbon/Carbon.h>
 
 // check for OS X 10.4/CGEvent
 #include <AvailabilityMacros.h>
@@ -1559,7 +1560,7 @@ void Hid_quit2()
             for( iter = joystick->elements->begin(); iter != end; iter++ )
                 delete iter->second;
             delete joystick->elements;
-            joystick->axes = NULL;
+            joystick->axes = 0;
         }
         
         if( joystick->queue )
@@ -2298,10 +2299,24 @@ static int TiltSensor_detect()
 {
     // try different interfaces until we find one that works
     
-    // ibook/powerbook (OS X 10.4.8) tilt sensor interface
-    if( TiltSensor_test( 21, "IOI2CMotionSensor", kSMSPowerbookDataType ) )
+    SInt32 osx_version;
+    int powerbookKernFunc = 0;
+    
+    Gestalt( gestaltSystemVersion, &osx_version );
+    
+    if( osx_version == 0x1040 || 
+        osx_version == 0x1041 ||
+        osx_version == 0x1042 ||
+        osx_version == 0x1043 )
+        powerbookKernFunc = 24;
+    
+    else
+        powerbookKernFunc = 21;
+    
+    // ibook/powerbook (OS X 10.4.x) tilt sensor interface
+    if( TiltSensor_test( powerbookKernFunc, "IOI2CMotionSensor", kSMSPowerbookDataType ) )
     {
-        TiltSensor_data.kernFunc = 21;
+        TiltSensor_data.kernFunc = powerbookKernFunc;
         TiltSensor_data.dataType = kSMSPowerbookDataType;
         TiltSensor_data.detected = 1;
         return 1;
@@ -2317,32 +2332,14 @@ static int TiltSensor_detect()
     }
     
     // hi resolution powerbook tilt sensor interface
-    if( TiltSensor_test( 21, "PMUMotionSensor", kSMSPowerbookDataType ) )
+    if( TiltSensor_test( powerbookKernFunc, "PMUMotionSensor", kSMSPowerbookDataType ) )
     {
-        TiltSensor_data.kernFunc = 21;
+        TiltSensor_data.kernFunc = powerbookKernFunc;
         TiltSensor_data.dataType = kSMSPowerbookDataType;
         TiltSensor_data.detected = 1;
         return 1;
     }
-    
-    // powerbook (OS X 10.4.3?) tilt sensor interface
-    if( TiltSensor_test( 5, "IOI2CMotionSensor", kSMSPowerbookDataType ) )
-    {
-        TiltSensor_data.kernFunc = 5;
-        TiltSensor_data.dataType = kSMSPowerbookDataType;
-        TiltSensor_data.detected = 1;
-        return 1;
-    }
-    
-    // powerbook (OS X ?) tilt sensor interface
-    if( TiltSensor_test( 24, "IOI2CMotionSensor", kSMSPowerbookDataType ) )
-    {
-        TiltSensor_data.kernFunc = 5;
-        TiltSensor_data.dataType = kSMSPowerbookDataType;
-        TiltSensor_data.detected = 1;
-        return 1;
-    }
-    
+        
     TiltSensor_data.detected = -1;
     
     return 0;
