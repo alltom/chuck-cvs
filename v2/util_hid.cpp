@@ -43,6 +43,18 @@ using namespace std;
 #ifdef __PLATFORM_MACOSX__
 #pragma mark OS X General HID support
 
+/* TODO: ***********************************************************************
+
+Make Joystick/Mouse/Keyboard_open/_close thread safe (i.e., do all ->configure 
+and ->startQueue calls on the Hid thread).  *** DONE
+
+Make ->disconnect delete the element list *** worked around
+
+Make Keyboard, Mouse dis/reattachment work *** DONE
+
+*******************************************************************************/
+
+
 #include <mach/mach.h>
 #include <mach/mach_error.h>
 #include <IOKit/IOKitLib.h>
@@ -50,6 +62,7 @@ using namespace std;
 #include <Kernel/IOKit/hidsystem/IOHIDUsageTables.h>
 #include <IOKit/hid/IOHIDLib.h>
 #include <IOKit/hid/IOHIDKeys.h>
+#include <IOKit/IOMessage.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <Carbon/Carbon.h>
 
@@ -72,8 +85,6 @@ using namespace std;
 #include <IOBluetooth/IOBluetoothUserLib.h>
 #include "util_buffers.h"
 #endif // __CK_HID_WIIREMOTE__
-
-#include <IOKit/usb/IOUSBLib.h>
 
 class lockable
 {
@@ -98,14 +109,11 @@ class xvector : public vector< _Tp, _Alloc >, public lockable
 {
 };
 
-// general hid callback for device events
-static void Hid_callback( void * target, IOReturn result, 
-                          void * refcon, void * sender );
-
-static IONotificationPortRef newDeviceNotificationPort = NULL;
-static void Hid_device_removed( void * refcon, io_service_t service,
-                                natural_t messageType, void * messageArgument );
-
+template <typename _Key, typename _Tp, typename _Compare = less<_Key>,
+typename _Alloc = allocator<pair<const _Key, _Tp> > >
+class xmultimap : public multimap< _Key, _Tp, _Compare, _Alloc >, public lockable
+{
+};
 
 class OSX_Device : public lockable
 {
@@ -168,20 +176,42 @@ public:
         hats = -1;
         wheels = -1;
         refcount = 0;
-        stop_queue = add_to_run_loop = FALSE;
         hidProperties = NULL;
         removal_notification = NULL;
+        vendorID = productID = locationID = NULL;
+        manufacturer = product = NULL;
     }
     
-    t_CKINT preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_type );
+    ~OSX_Hid_Device()
+    {
+        cleanup();
+    }
+    
+    t_CKINT preconfigure( io_object_t ioHIDDeviceObject );
     t_CKINT configure();
     void enumerate_elements( CFArrayRef cfElements );
+    t_CKINT start();
+    t_CKINT stop();
+    t_CKBOOL is_connected() const;
+    t_CKBOOL is_same_as( io_object_t ioHIDDeviceObject ) const;
+    void disconnect();
+    void cleanup();
     
     IOCFPlugInInterface ** plugInInterface;
     IOHIDDeviceInterface ** interface; // device interface
     IOHIDQueueInterface ** queue; // device event queue
     
     char name[256];
+    
+    // uniquely identifying information
+    /* For ChucK's purposes, HID devices are uniquely identified by the tuple of
+       (USB device location, vendor ID, product ID, 
+       manufacturer name, product name ) */
+    CFNumberRef locationID;
+    CFNumberRef vendorID;
+    CFNumberRef productID;
+    CFStringRef manufacturer;
+    CFStringRef product;
     
     t_CKBOOL preconfiged, configed;
     
@@ -200,15 +230,12 @@ public:
     t_CKINT wheels;
     
     /* outputs are stored in a map of vectors of OSX_Hid_Device_Elements
-       Thus if ( *outputs )[CK_HID_OUTPUT_TYPE] != NULL && 
-       ( *outputs )[CK_HID_OUTPUT_TYPE]->size() > n, 
-       ( *outputs )[CK_HID_OUTPUT_TYPE]->at( n ) is the nth output of type
-       CK_HID_OUTPUT_TYPE. */
+        Thus if ( *outputs )[CK_HID_OUTPUT_TYPE] != NULL && 
+        ( *outputs )[CK_HID_OUTPUT_TYPE]->size() > n, 
+        ( *outputs )[CK_HID_OUTPUT_TYPE]->at( n ) is the nth output of type
+        CK_HID_OUTPUT_TYPE. */
     map< unsigned int, vector< OSX_Hid_Device_Element * > * > * outputs;
         
-    t_CKBOOL add_to_run_loop; // used to indicate that the event source needs to be added to the run loop 
-    t_CKBOOL stop_queue; // used to indicate that the event queue should be stopped
-    
     CFRunLoopSourceRef eventSource;
     
     CFMutableDictionaryRef hidProperties;
@@ -222,23 +249,90 @@ public:
     // if states change quickly (updates are only posted on state changes)
 };
 
-t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev_type )
+struct OSX_Hid_op
 {
+    enum
+    {
+        open,
+        close
+    } type;
+    
+    xvector< OSX_Hid_Device * > * v;
+    xvector< OSX_Hid_Device * >::size_type index;
+};
+
+#pragma mark global variables
+
+// hid run loop (event dispatcher)
+static CFRunLoopRef rlHid = NULL;
+// special hid run loop mode (limits events to hid device events only)
+//static const CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
+static const CFStringRef kCFRunLoopChuckHidMode = kCFRunLoopDefaultMode;
+
+// general hid callback for device events
+static void Hid_callback( void * target, IOReturn result, 
+                          void * refcon, void * sender );
+
+// CFRunLoop source for open/close device operations
+static CFRunLoopSourceRef hidOpSource = NULL;
+// cbuffer for open/close device operations
+static CBufferSimple * hid_operation_buffer = NULL;
+// callback for open/close device operations
+static void Hid_do_operation( void * info );
+
+// IO iterator for new hid devices
+// we only keep track of this so we can release it later
+io_iterator_t hid_iterator = NULL;
+
+// notification port for device add/remove events
+static IONotificationPortRef newDeviceNotificationPort = NULL;
+// callback for new devices
+static void Hid_new_devices( void * refcon, io_iterator_t iterator );
+// callback for device removal
+static void Hid_device_removed( void * refcon, io_service_t service,
+                                natural_t messageType, void * messageArgument );
+
+/* the mutexes should be acquired whenever making changes to the corresponding
+vectors or accessing them from a non-hid thread after the hid thread has 
+been started */
+static xvector< OSX_Hid_Device * > * joysticks = NULL;
+static xvector< OSX_Hid_Device * > * mice = NULL;
+static xvector< OSX_Hid_Device * > * keyboards = NULL;
+
+static xmultimap< string, OSX_Hid_Device * > * joystick_names = NULL;
+static xmultimap< string, OSX_Hid_Device * > * mouse_names = NULL;
+static xmultimap< string, OSX_Hid_Device * > * keyboard_names = NULL;
+
+// has hid been initialized?
+static t_CKBOOL g_hid_init = FALSE;
+// table to translate keys to ASCII
+static t_CKBYTE g_hid_key_table[256];
+
+// cursor track stuff
+#ifdef __CK_HID_CURSOR_TRACK__
+static t_CKINT cursorX = 0;
+static t_CKINT cursorY = 0;
+static t_CKFLOAT scaledCursorX = 0;
+static t_CKFLOAT scaledCursorY = 0;
+static CFRunLoopRef rlCursorTrack = NULL;
+static t_CKBOOL g_ct_go = FALSE;
+#endif // __CK_HID_CURSOR_TRACK__
+
+#ifdef __CK_HID_WIIREMOTE__
+// wii remote stuff
+static CFRunLoopSourceRef cfrlWiiRemoteSource = NULL;
+static void WiiRemote_cfrl_callback( void * info );
+#endif
+
+t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject )
+{
+    // can only be called in Hid thread, or if the hid thread hasnt started
+    assert( rlHid == CFRunLoopGetCurrent() || rlHid == NULL );
+
     if( preconfiged )
         return 0;
     
-    // retrieve a dictionary of device properties
-    kern_return_t kern_result = IORegistryEntryCreateCFProperties( ioHIDDeviceObject, 
-                                                                   &hidProperties, 
-                                                                   kCFAllocatorDefault, 
-                                                                   kNilOptions);
-    if( kern_result != KERN_SUCCESS || hidProperties == 0 )
-    {
-        hidProperties = NULL;
-        return -1;
-    }
-    
-    switch( dev_type )
+    switch( type )
     {
         case CK_HID_DEV_JOYSTICK:
             strncpy( name, "Joystick", 256 );
@@ -264,7 +358,19 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
             hats = -1;
             break;
     }
+    
+    // retrieve a dictionary of device properties
+    kern_return_t kern_result = IORegistryEntryCreateCFProperties( ioHIDDeviceObject, 
+                                                                   &hidProperties, 
+                                                                   kCFAllocatorDefault, 
+                                                                   kNilOptions);
 
+    if( kern_result != KERN_SUCCESS || hidProperties == NULL )
+    {
+        hidProperties = NULL;
+        return -1;
+    }
+    
     // get the device name, and copy it into the device record
     CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
                                             CFSTR( kIOHIDProductKey ) );
@@ -272,6 +378,48 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
         CFStringGetCString( ( CFStringRef )refCF, name, 256, 
                             kCFStringEncodingASCII );
     
+    // retrieve uniquely identifying information
+    if( !locationID )
+    {
+        locationID = ( CFNumberRef ) CFDictionaryGetValue( hidProperties,
+                                                           CFSTR( kIOHIDLocationIDKey ) );
+        if( locationID )
+            CFRetain( locationID );
+    }
+    
+    if( !vendorID )
+    {
+        vendorID = ( CFNumberRef ) CFDictionaryGetValue( hidProperties,
+                                                         CFSTR( kIOHIDVendorIDKey ) );
+        if( vendorID )
+            CFRetain( vendorID );
+    }
+    
+    if( !productID )
+    {
+        productID = ( CFNumberRef ) CFDictionaryGetValue( hidProperties,
+                                          CFSTR( kIOHIDProductIDKey ) );
+        if( productID )
+            CFRetain( productID );
+    }
+    
+    if( !manufacturer )
+    {
+        manufacturer = ( CFStringRef ) CFDictionaryGetValue( hidProperties,
+                                                             CFSTR( kIOHIDManufacturerKey ) );
+        if( manufacturer )
+            CFRetain( manufacturer );
+    }
+    
+    if( !product )
+    {
+        product = ( CFStringRef ) CFDictionaryGetValue( hidProperties,
+                                                        CFSTR( kIOHIDProductKey ) );
+        if( product )
+            CFRetain( product );
+    }
+    
+    // create plugin interface
     IOReturn result;
     SInt32 score = 0;
     result = IOCreatePlugInInterfaceForService( ioHIDDeviceObject,
@@ -279,6 +427,7 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
                                                 kIOCFPlugInInterfaceID,
                                                 &plugInInterface,
                                                 &score);
+    
     if( result != kIOReturnSuccess )
     {
         CFRelease( hidProperties );
@@ -294,7 +443,7 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
     if( type == CK_HID_DEV_MOUSE && strncmp( "Trackpad", name, 256 ) == 0 )
     {
         refCF = CFDictionaryGetValue( hidProperties, 
-                                                CFSTR( kIOHIDManufacturerKey ) );
+                                      CFSTR( kIOHIDManufacturerKey ) );
         if( refCF != NULL && 
             CFStringCompare( ( CFStringRef ) refCF, CFSTR( "Apple" ), 0 ) == 0 )
         {
@@ -332,14 +481,13 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
     }
 #endif // __LITTLE_ENDIAN__
     
+    // register callback for removal notification, among a few other things
     result = IOServiceAddInterestNotification( newDeviceNotificationPort, 
                                                ioHIDDeviceObject,
                                                kIOGeneralInterest,
                                                Hid_device_removed,
                                                this,
                                                &removal_notification );
-    
-    
     
     preconfiged = TRUE;
     
@@ -348,14 +496,18 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject, t_CKINT dev
 
 t_CKINT OSX_Hid_Device::configure()
 {
+    // can only be called in Hid thread, or if the hid thread hasnt started
+    assert( rlHid == NULL || rlHid == CFRunLoopGetCurrent() );
+
     if( configed )
         return 0;
     
     if( !preconfiged )
         return -1;
     
-    // create the device interface
+    EM_log( CK_LOG_INFO, "hid: configuring %s", name );
     
+    // create the device interface
     HRESULT plugInResult = S_OK;
     plugInResult = (*plugInInterface)->QueryInterface( plugInInterface,
                                                        CFUUIDGetUUIDBytes( kIOHIDDeviceInterfaceID ),
@@ -369,6 +521,7 @@ t_CKINT OSX_Hid_Device::configure()
         return -1;
     }
     
+    // open the interface
     IOReturn result;
     result = (*interface)->open( interface, 0 );
     if( result != kIOReturnSuccess )
@@ -381,7 +534,6 @@ t_CKINT OSX_Hid_Device::configure()
     }
     
     // create an event queue, so we dont have to poll individual elements
-    
     queue = (*interface)->allocQueue( interface );
     if( !queue )
     {
@@ -435,37 +587,48 @@ t_CKINT OSX_Hid_Device::configure()
         return -1;
     }
     
-    if( elements == NULL && hidProperties != NULL )
+    if( hidProperties != NULL )
     {
-        // retrieve the array of elements...
-        CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
-                                                CFSTR( kIOHIDElementKey ) );
-        if( !refCF )
+        if( elements == NULL )
         {
-            CFRelease( hidProperties );
-            hidProperties = NULL;
-            (*queue)->dispose( queue );
-            (*queue)->Release( queue );
-            queue = NULL;
-            (*interface)->close( interface );
-            (*interface)->Release( interface );
-            interface = NULL;
-            return -1;
+            // retrieve the array of elements...
+            CFTypeRef refCF = CFDictionaryGetValue( hidProperties, 
+                                                    CFSTR( kIOHIDElementKey ) );
+            if( !refCF )
+            {
+                CFRelease( hidProperties );
+                hidProperties = NULL;
+                (*queue)->dispose( queue );
+                (*queue)->Release( queue );
+                queue = NULL;
+                (*interface)->close( interface );
+                (*interface)->Release( interface );
+                interface = NULL;
+                return -1;
+            }
+            
+            // ...allocate space for element records...
+            elements = new map< IOHIDElementCookie, OSX_Hid_Device_Element * >;
+            // axes = 0;
+            // buttons = 0;
+            // hats = 0;
+            
+            // ...and parse the element array recursively
+            enumerate_elements( ( CFArrayRef ) refCF );
         }
         
-        // ...allocate space for element records...
-        elements = new map< IOHIDElementCookie, OSX_Hid_Device_Element * >;
-        // axes = 0;
-        // buttons = 0;
-        // hats = 0;
-        
-        // ...and parse the element array recursively
-        enumerate_elements( ( CFArrayRef ) refCF );
+        else
+        {
+            map< IOHIDElementCookie, OSX_Hid_Device_Element * >::iterator iter, end;
+            end = elements->end();
+            for( iter = elements->begin(); iter != end; iter++ )
+                ( *queue )->addElement( queue, iter->second->cookie, 0 );
+        }
         
         CFRelease( hidProperties );
         hidProperties = NULL;
     }
-    
+        
     configed = TRUE;
     
     return 0;
@@ -478,6 +641,9 @@ t_CKINT OSX_Hid_Device::configure()
 //------------------------------------------------------------------------------
 void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
 {
+    // can only be called in Hid thread, or if the hid thread hasnt started
+    assert( rlHid == NULL || rlHid == CFRunLoopGetCurrent() );
+
     CFTypeRef refCF = 0;
     CFDictionaryRef element_dictionary;
     OSX_Hid_Device_Element * element;
@@ -780,19 +946,6 @@ void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
                         
                         ( *outputs )[CK_HID_LED]->push_back( element );
                         
-                        /*
-                        if( refCF )
-                        {
-                            IOHIDElementCookie cookie;
-                            IOHIDEventStruct event = { kIOHIDElementTypeOutput,
-                                cookie, 1, UpTime(), 0, NULL };
-                            CFNumberGetValue( ( CFNumberRef ) refCF, kCFNumberLongType, &cookie );
-                            fprintf( stderr, "found leds\n" );
-                            ( *interface )->setElementValue( interface, cookie,
-                                                             &event, 0, 0, 0, 0 );
-                        }
-                         */
-                
                         break;
                 }
                 
@@ -801,97 +954,257 @@ void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
     }
 }
 
-/* the mutexes should be acquired whenever making changes to the corresponding
-   vectors or accessing them from a non-hid thread after the hid thread has 
-   been started */
-static xvector< OSX_Hid_Device * > * joysticks = NULL;
-static xvector< OSX_Hid_Device * > * mice = NULL;
-static xvector< OSX_Hid_Device * > * keyboards = NULL;
-
-// hid run loop (event dispatcher)
-static CFRunLoopRef rlHid = NULL;
-// special hid run loop mode (limits events to hid device events only)
-//static const CFStringRef kCFRunLoopChuckHidMode = CFSTR( "ChucKHid" );
-static const CFStringRef kCFRunLoopChuckHidMode = kCFRunLoopDefaultMode;
-// notification port for new found devices
-//static IONotificationPortRef newDeviceNotificationPort = NULL;
-static void Hid_new_device( void *refcon, io_iterator_t iterator );
-
-// has hid been initialized?
-static t_CKBOOL g_hid_init = FALSE;
-// table to translate keys to ASCII
-static t_CKBYTE g_hid_key_table[256];
-/*
-// structure to associate 
-struct Hid_Device_Record
+t_CKINT OSX_Hid_Device::start()
 {
-    Hid_Device_Record( vector< OSX_Device * > * _list = NULL, int _i = -1 )
+    // can only be called in Hid thread
+    assert( rlHid == CFRunLoopGetCurrent() );
+    
+    EM_log( CK_LOG_INFO, "hid: starting %s", name );
+    EM_pushlog();
+    
+    // configure if needed
+    if( !configed )
     {
-        list = _list;
-        i = _i;
+        // lock the device so we can mutate it
+        this->lock();
+        
+        // configure
+        if( configure() )
+        {
+            // error during configuration!
+            this->unlock();
+            
+            EM_log( CK_LOG_SEVERE, "hid: error configuring %s", name );
+            EM_poplog();
+            
+            return -1;
+        }
+        
+        this->unlock();
     }
     
-    vector< OSX_Device * > * list;
-    int i;
-};
-
-// open run loop source
-static CFRunLoopSourceRef cfrlOpenSource = NULL;
-static CBufferSimple * open_queue = NULL;
-void Hid_cfrl_open( void * info )
-{
-    Hid_Device_Record record;
-    if( open_queue->get( &record, 1 ) )
+    EM_log( CK_LOG_INFO, "hid: adding %s to run loop", name );
+    CFRunLoopAddSource( rlHid, eventSource, kCFRunLoopChuckHidMode );
+    
+    IOReturn result = ( *queue )->start( queue );
+    if( result != kIOReturnSuccess )
     {
-        // safe to assume that the record's contents are valid
-        ( ( *record.list )[record.i] )->open();
+        EM_log( CK_LOG_SEVERE, "hid: error starting event queue for %s", name );
+        EM_poplog();
+        return -1;
     }
+    
+    EM_poplog();
+    
+    return 0;
 }
 
-// open_async run loop source
-static CFRunLoopSourceRef cfrlOpenAsyncSource = NULL;
-static CBufferSimple * open_async_queue = NULL;
-void Hid_cfrl_open_async( void * info )
+t_CKINT OSX_Hid_Device::stop()
 {
-    Hid_Device_Record record;
-    if( open_queue->get( &record, 1 ) )
+    // can only be called in Hid thread
+    assert( rlHid == CFRunLoopGetCurrent() );
+    
+    if( queue )
     {
-        if( record.i < record.list->size() && 
-            ( *record.list )[record.i] != NULL )
-            // does it already exist?
-            ( ( *record.list )[record.i] )->open();
-        else
-            // prepare an entry for it
+        IOReturn result = ( *queue )->stop( queue );
+        if( result != kIOReturnSuccess )
+            EM_log( CK_LOG_INFO, "hid: error stopping event queue for %s", name );
+    }
+    
+    CFRunLoopRemoveSource( rlHid, eventSource, kCFRunLoopChuckHidMode );
+    
+    return 0;
+}
+
+t_CKBOOL OSX_Hid_Device::is_connected() const
+{
+    if( plugInInterface == NULL && interface == NULL )
+        return FALSE;
+    return TRUE;
+}
+
+t_CKBOOL OSX_Hid_Device::is_same_as( io_object_t ioHIDDeviceObject ) const
+{
+    CFMutableDictionaryRef hidProperties2 = NULL;
+    t_CKBOOL result = FALSE;
+    
+    // retrieve a dictionary of device properties
+    kern_return_t kern_result = IORegistryEntryCreateCFProperties( ioHIDDeviceObject, 
+                                                                   &hidProperties2, 
+                                                                   kCFAllocatorDefault, 
+                                                                   kNilOptions );
+    
+    if( kern_result != KERN_SUCCESS || hidProperties2 == NULL )
+    {
+        return FALSE;
+    }
+    
+    // if no "uniquely identifying" info is available, then assume its new
+    if( !locationID && !vendorID && !productID && !manufacturer && !product )
+        goto end;
+    
+    CFNumberRef locationID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
+                                                                    CFSTR( kIOHIDLocationIDKey ) );
+    if( ( locationID && !locationID2 ) || ( !locationID && locationID2 ) )
+        goto end; // not the same
+    if( locationID && locationID2 && CFNumberCompare( locationID, locationID2, NULL ) )
+        goto end; // not the same
+    
+    CFNumberRef vendorID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
+                                                                  CFSTR( kIOHIDVendorIDKey ) );
+    if( ( vendorID && !vendorID2 ) || ( !vendorID && vendorID2 ) )
+        goto end; // not the same
+    if( vendorID && vendorID2 && CFNumberCompare( vendorID, vendorID2, NULL ) )
+        goto end; // not the same
+    
+    CFNumberRef productID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
+                                                                   CFSTR( kIOHIDProductIDKey ) );
+    if( ( productID && !productID2 ) || ( !productID && productID2 ) )
+        goto end; // not the same
+    if( productID && productID2 && CFNumberCompare( productID, productID2, NULL ) )
+        goto end; // not the same
+    
+    CFStringRef manufacturer2 = ( CFStringRef ) CFDictionaryGetValue( hidProperties2,
+                                                                      CFSTR( kIOHIDManufacturerKey ) );
+    if( ( manufacturer && !manufacturer2 ) || ( !manufacturer && manufacturer2 ) )
+        goto end; // not the same
+    if( manufacturer && manufacturer2 && CFStringCompare( manufacturer, manufacturer2, 0 ) )
+        goto end; // not the same
+    
+    CFStringRef product2 = ( CFStringRef ) CFDictionaryGetValue( hidProperties2,
+                                                                 CFSTR( kIOHIDProductKey ) );
+    if( ( product && !product2 ) || ( !product && product2 ) )
+        goto end; // not the same
+    if( product && product2 && CFStringCompare( product, product2, 0 ) )
+        goto end; // not the same
+    
+    // if execution reaches this point, then they are the same
+    result = TRUE; 
+    
+end:
+    CFRelease( hidProperties2 );
+    return result;
+}
+
+//------------------------------------------------------------------------------
+// name: disconnect()
+// desc: called when device is physically disconnected from the machine.  
+// deallocates per-connection resources, but leaves stuff that should be the
+// same across connections (element list, name, other general properties, etc)
+//------------------------------------------------------------------------------
+void OSX_Hid_Device::disconnect()
+{
+    // can only be called in Hid thread, or if the hid thread hasnt started
+    assert( rlHid == NULL || rlHid == CFRunLoopGetCurrent() );
+    
+    if( plugInInterface )
+    {
+        ( *plugInInterface )->Release( plugInInterface );
+        plugInInterface = NULL;
+    }
+    
+    if( queue )
+    {
+        if( refcount )
         {
+            ( *queue )->stop( queue );
             
-            while( record.i < record.list->size() )
-                record.list->push_back( NULL );
-            record.list->push_back( NULL );
+            if( rlHid )
+                CFRunLoopRemoveSource( rlHid, eventSource, 
+                                       kCFRunLoopChuckHidMode );
         }
+        
+        ( *queue )->dispose( queue );
+        ( *queue )->Release( queue );
+        queue = NULL;
     }
+    
+    if( interface )
+    {
+        ( *interface )->close( interface );
+        ( *interface )->Release( interface );
+        interface = NULL;
+    }
+    
+    if( removal_notification )
+    {
+        IOObjectRelease( removal_notification );
+        removal_notification = NULL;
+    }
+    
+    configed = FALSE;
+    preconfiged = FALSE;
 }
 
-// close run loop source
-static CFRunLoopSourceRef cfrlCloseSource = NULL;
-static CBufferSimple * close_queue = NULL;
-// quit run loop source
-static CFRunLoopSourceRef cfrlQuitSource = NULL;
-*/
-// cursor track stuff
-static t_CKINT cursorX = 0;
-static t_CKINT cursorY = 0;
-static t_CKFLOAT scaledCursorX = 0;
-static t_CKFLOAT scaledCursorY = 0;
-#ifdef __CK_HID_CURSOR_TRACK__
-static CFRunLoopRef rlCursorTrack = NULL;
-static t_CKBOOL g_ct_go = FALSE;
-#endif // __CK_HID_CURSOR_TRACK__
+//------------------------------------------------------------------------------
+// name: cleanup()
+// desc: deallocates all resources associated with the device
+//------------------------------------------------------------------------------
+void OSX_Hid_Device::cleanup()
+{
+    // can only be called in Hid thread, or if the hid thread hasnt started
+    assert( rlHid == NULL || rlHid == CFRunLoopGetCurrent() );
 
-#ifdef __CK_HID_WIIREMOTE__
-// wii remote stuff
-static CFRunLoopSourceRef cfrlWiiRemoteSource = NULL;
-static void WiiRemote_cfrl_callback( void * info );
-#endif
+    disconnect();
+    
+    // delete all elements
+    if( elements )
+    {
+        this->lock();
+        
+        // iterate through the axis map, delete device element records
+        map< IOHIDElementCookie, OSX_Hid_Device_Element * >::iterator iter, end;
+        end = elements->end();
+        for( iter = elements->begin(); iter != end; iter++ )
+            delete iter->second;
+        delete elements;
+        elements = NULL;
+        
+        // TODO: delete outputs also
+        
+        this->unlock();
+    }
+    
+    if( hidProperties )
+    {
+        CFRelease( hidProperties );
+        hidProperties = NULL;
+    }
+    
+    this->lock();
+    
+    if( locationID )
+    {
+        CFRelease( locationID );
+        locationID = NULL;
+    }
+    
+    if( vendorID )
+    {
+        CFRelease( vendorID );
+        vendorID = NULL;
+    }
+    
+    if( productID )
+    {
+        CFRelease( productID );
+        productID = NULL;
+    }
+    
+    if( manufacturer )
+    {
+        CFRelease( manufacturer );
+        manufacturer = NULL;
+    }
+    
+    if( product )
+    {
+        CFRelease( product );
+        product = NULL;
+    }
+    
+    this->unlock();
+}
 
 static void Hid_key_table_init()
 {
@@ -997,27 +1310,47 @@ void Hid_init()
     
     rlHid = CFRunLoopGetCurrent();
     
-    // set up notification for new added devices
+    // set up notification for new added devices/removed devices
     CFRunLoopAddSource( rlHid, 
                         IONotificationPortGetRunLoopSource( newDeviceNotificationPort ),
                         kCFRunLoopChuckHidMode );
     
+    // add open/close operation source
+    CFRunLoopSourceContext opSourceContext;
+    opSourceContext.version = 0;
+    opSourceContext.info = NULL;
+    opSourceContext.retain = NULL;
+    opSourceContext.release = NULL;
+    opSourceContext.copyDescription = NULL;
+    opSourceContext.equal = NULL;
+    opSourceContext.hash = NULL;
+    opSourceContext.schedule = NULL;
+    opSourceContext.cancel = NULL;
+    opSourceContext.perform = Hid_do_operation;
+    CFRunLoopSourceRef _hidOpSource = CFRunLoopSourceCreate( kCFAllocatorDefault, 
+                                                             0, 
+                                                             &opSourceContext );
+    CFRunLoopAddSource( rlHid, _hidOpSource, kCFRunLoopChuckHidMode );
+    hidOpSource = _hidOpSource;
+    
+    Hid_do_operation( NULL );
+    
 #ifdef __CK_HID_WIIREMOTE__
     // add wii remote source
-    CFRunLoopSourceContext  cfrlSourceContext;
-    cfrlSourceContext.version = 0;
-    cfrlSourceContext.info = NULL;
-    cfrlSourceContext.retain = NULL;
-    cfrlSourceContext.release = NULL;
-    cfrlSourceContext.copyDescription = NULL;
-    cfrlSourceContext.equal = NULL;
-    cfrlSourceContext.hash = NULL;
-    cfrlSourceContext.schedule = NULL;
-    cfrlSourceContext.cancel = NULL;
-    cfrlSourceContext.perform = WiiRemote_cfrl_callback;
+    CFRunLoopSourceContext wrSourceContext;
+    wrSourceContext.version = 0;
+    wrSourceContext.info = NULL;
+    wrSourceContext.retain = NULL;
+    wrSourceContext.release = NULL;
+    wrSourceContext.copyDescription = NULL;
+    wrSourceContext.equal = NULL;
+    wrSourceContext.hash = NULL;
+    wrSourceContext.schedule = NULL;
+    wrSourceContext.cancel = NULL;
+    wrSourceContext.perform = WiiRemote_cfrl_callback;
     CFRunLoopSourceRef _cfrlWiiRemoteSource = CFRunLoopSourceCreate( kCFAllocatorDefault, 
                                                                      0, 
-                                                                     &cfrlSourceContext );
+                                                                     &wrSourceContext );
     CFRunLoopAddSource( rlHid, _cfrlWiiRemoteSource, kCFRunLoopChuckHidMode );
     cfrlWiiRemoteSource = _cfrlWiiRemoteSource;
     
@@ -1043,6 +1376,13 @@ void Hid_init2()
     mice = new xvector< OSX_Hid_Device * >;
     keyboards = new xvector< OSX_Hid_Device * >;
     
+    joystick_names = new xmultimap< string, OSX_Hid_Device * >;
+    mouse_names = new xmultimap< string, OSX_Hid_Device * >;
+    keyboard_names = new xmultimap< string, OSX_Hid_Device * >;
+    
+    hid_operation_buffer = new CBufferSimple;
+    hid_operation_buffer->initialize( 20, sizeof( OSX_Hid_op ) );
+    
 	CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
     if( !hidMatchDictionary )
     {
@@ -1058,14 +1398,10 @@ void Hid_init2()
     
     newDeviceNotificationPort = IONotificationPortCreate( kIOMasterPortDefault );
     
-    /*result = IOServiceGetMatchingServices( kIOMasterPortDefault, 
-                                           hidMatchDictionary, 
-                                           &hidObjectIterator );*/
-    
     result = IOServiceAddMatchingNotification( newDeviceNotificationPort,
                                                kIOFirstMatchNotification,
                                                hidMatchDictionary,
-                                               Hid_new_device,
+                                               Hid_new_devices,
                                                NULL,
                                                &hidObjectIterator );
     
@@ -1077,120 +1413,14 @@ void Hid_init2()
 
     CFRelease( refCF );
     
-    io_object_t ioHIDDeviceObject = 0;
-    t_CKINT usage, usage_page;
-    t_CKINT joysticks_seen = 0, mice_seen = 0, keyboards_seen = 0;
-    while( ioHIDDeviceObject = IOIteratorNext( hidObjectIterator ) )
-    {        
-        // ascertain device information
-        
-        // first, determine the device usage page and usage
-        usage = usage_page = -1;
-
-        refCF = IORegistryEntryCreateCFProperty( ioHIDDeviceObject, 
-                                                 CFSTR( kIOHIDPrimaryUsagePageKey ),
-                                                 kCFAllocatorDefault, 
-                                                 kNilOptions );
-        if( !refCF )
-            continue;
-        
-        CFNumberGetValue( ( CFNumberRef )refCF, kCFNumberLongType, &usage_page );
-        CFRelease( refCF );
-        
-        refCF = IORegistryEntryCreateCFProperty( ioHIDDeviceObject, 
-                                                 CFSTR( kIOHIDPrimaryUsageKey ),
-                                                 kCFAllocatorDefault, 
-                                                 kNilOptions);
-        if( !refCF )
-            continue;
-        
-        CFNumberGetValue( ( CFNumberRef )refCF, kCFNumberLongType, &usage );
-        CFRelease( refCF );
-        
-        if ( usage_page == kHIDPage_GenericDesktop )
-        {
-            if( usage == kHIDUsage_GD_Joystick || 
-                usage == kHIDUsage_GD_GamePad )
-                // this is a joystick, create a new item in the joystick array
-            {
-                EM_log( CK_LOG_INFO, "joystick: preconfiguring joystick %i", joysticks_seen++ );
-                EM_pushlog();
-                
-                // allocate the device record, set usage page and usage
-                OSX_Hid_Device * new_device = new OSX_Hid_Device;
-                new_device->type = CK_HID_DEV_JOYSTICK;
-                new_device->num = joysticks->size();
-                new_device->usage_page = usage_page;
-                new_device->usage = usage;
-                
-                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_JOYSTICK ) )
-                    joysticks->push_back( new_device );
-                else
-                {
-                    EM_log( CK_LOG_INFO, "joystick: error during preconfiguration" );
-                    delete new_device;
-                }
-                
-                EM_poplog();
-            }
-            
-            if( usage == kHIDUsage_GD_Mouse )
-                // this is a mouse
-            {
-                EM_log( CK_LOG_INFO, "mouse: preconfiguring mouse %i", mice_seen++ );
-                EM_pushlog();
-                
-                // allocate the device record, set usage page and usage
-                OSX_Hid_Device * new_device = new OSX_Hid_Device;
-                new_device->type = CK_HID_DEV_MOUSE;
-                new_device->num = mice->size();
-                new_device->usage_page = usage_page;
-                new_device->usage = usage;
-                
-                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_MOUSE ) )
-                    mice->push_back( new_device );
-                else
-                {
-                    EM_log( CK_LOG_INFO, "mouse: error during preconfiguration" );
-                    delete new_device;
-                }
-                
-                EM_poplog();
-            }
-
-            if( usage == kHIDUsage_GD_Keyboard || usage == kHIDUsage_GD_Keypad )
-                // this is a keyboard
-            {
-                EM_log( CK_LOG_INFO, "keyboard: preconfiguring keyboard %i", 
-                        keyboards_seen++ );
-                EM_pushlog();
-                
-                // allocate the device record, set usage page and usage
-                OSX_Hid_Device * new_device = new OSX_Hid_Device;
-                new_device->type = CK_HID_DEV_KEYBOARD;
-                new_device->num = keyboards->size();
-                new_device->usage_page = usage_page;
-                new_device->usage = usage;
-                
-                if( !new_device->preconfigure( ioHIDDeviceObject, 
-                                               CK_HID_DEV_KEYBOARD ) )
-                    keyboards->push_back( new_device );
-                else
-                {
-                    EM_log( CK_LOG_INFO, 
-                            "keyboard: error during preconfiguration" );
-                    delete new_device;
-                }
-                
-                EM_poplog();
-            }
-        }
-    }
+    Hid_new_devices( NULL, hidObjectIterator );
 }
 
-static void Hid_new_device( void * refcon, io_iterator_t iterator )
+static void Hid_new_devices( void * refcon, io_iterator_t iterator )
 {
     EM_log( CK_LOG_INFO, "hid: new device(s) found" );
+    
+    char __temp[256];
     
     CFTypeRef refCF = NULL;
     
@@ -1199,6 +1429,7 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
     t_CKINT joysticks_seen = joysticks->size(), 
         mice_seen = mice->size(), 
         keyboards_seen = keyboards->size();
+    
     while( ioHIDDeviceObject = IOIteratorNext( iterator ) )
     {        
         // ascertain device information
@@ -1232,7 +1463,70 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
                 usage == kHIDUsage_GD_GamePad )
                 // this is a joystick, create a new item in the joystick array
             {
-                EM_log( CK_LOG_INFO, "joystick: preconfiguring joystick %i", joysticks_seen++ );
+                // see if this an device that was disconnected being reconnected
+                refCF = IORegistryEntryCreateCFProperty( ioHIDDeviceObject, 
+                                                         CFSTR( kIOHIDProductKey ),
+                                                         kCFAllocatorDefault, 
+                                                         kNilOptions);
+                
+                if( refCF )
+                {
+                    CFStringGetCString( ( CFStringRef ) refCF, __temp, 256,
+                                        kCFStringEncodingASCII );
+                    CFRelease( refCF );                    
+                }
+                
+                else
+                    strncpy( __temp, "Joystick", 256 );
+                
+                pair< xmultimap< string, OSX_Hid_Device * >::const_iterator, 
+                      xmultimap< string, OSX_Hid_Device * >::const_iterator > name_range 
+                    = joystick_names->equal_range( string( __temp ) );
+                
+                xmultimap< string, OSX_Hid_Device * >::const_iterator 
+                    start = name_range.first, 
+                    end = name_range.second;
+                
+                t_CKBOOL match_found = FALSE;
+                
+                for( ; start != end; start++ )
+                {
+                    OSX_Hid_Device * old_device = ( *start ).second;
+                    if( !old_device->is_connected() && 
+                        old_device->is_same_as( ioHIDDeviceObject ) )
+                    {
+                        match_found = TRUE;
+                        
+                        EM_log( CK_LOG_INFO, "hid: joystick %s reattached", 
+                                old_device->name );
+                        
+                        if( old_device->preconfigure( ioHIDDeviceObject ) )
+                        {
+                            EM_log( CK_LOG_INFO, "hid: error during reconfiguration of %s",
+                                    old_device->name );
+                            break;
+                        }
+                        
+                        if( old_device->refcount &&
+                            !old_device->start() )
+                        {                            
+                            HidMsg msg;
+                            msg.device_type = old_device->type;
+                            msg.device_num = old_device->num;
+                            msg.type = CK_HID_DEVICE_CONNECTED;
+                            
+                            HidInManager::push_message( msg );
+                        }
+                        
+                        break;
+                    }
+                }
+                
+                if( match_found )
+                    continue;
+                
+                // create a new device record for the device
+                EM_log( CK_LOG_INFO, "hid: preconfiguring joystick %i", joysticks_seen );
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
@@ -1242,17 +1536,27 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
                 new_device->usage_page = usage_page;
                 new_device->usage = usage;
                 
-                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_JOYSTICK ) )
+                if( !new_device->preconfigure( ioHIDDeviceObject ) )
                 {
                     joysticks->lock();
                     joysticks->push_back( new_device );
                     joysticks->unlock();
+                    
+                    joystick_names->lock();
+                    joystick_names->insert( pair< string, OSX_Hid_Device * >( string( new_device->name ), 
+                                                                              new_device ) );
+                    joystick_names->unlock();
                 }
+                
                 else
                 {
-                    EM_log( CK_LOG_INFO, "joystick: error during preconfiguration" );
+                    EM_log( CK_LOG_INFO, 
+                            "hid: error during preconfiguration of joystick %i",
+                            joysticks_seen );
                     delete new_device;
                 }
+                
+                joysticks_seen++;
                 
                 EM_poplog();
             }
@@ -1260,7 +1564,70 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
             if( usage == kHIDUsage_GD_Mouse )
                 // this is a mouse
             {
-                EM_log( CK_LOG_INFO, "mouse: preconfiguring mouse %i", mice_seen++ );
+                // see if this an device that was disconnected being reconnected
+                refCF = IORegistryEntryCreateCFProperty( ioHIDDeviceObject, 
+                                                         CFSTR( kIOHIDProductKey ),
+                                                         kCFAllocatorDefault, 
+                                                         kNilOptions);
+                
+                if( refCF )
+                {
+                    CFStringGetCString( ( CFStringRef ) refCF, __temp, 256,
+                                        kCFStringEncodingASCII );
+                    CFRelease( refCF );                    
+                }
+                
+                else
+                    strncpy( __temp, "Mouse", 256 );
+                
+                pair< xmultimap< string, OSX_Hid_Device * >::const_iterator, 
+                    xmultimap< string, OSX_Hid_Device * >::const_iterator > name_range 
+                    = mouse_names->equal_range( string( __temp ) );
+                
+                xmultimap< string, OSX_Hid_Device * >::const_iterator 
+                    start = name_range.first, 
+                    end = name_range.second;
+                
+                t_CKBOOL match_found = FALSE;
+                
+                for( ; start != end; start++ )
+                {
+                    OSX_Hid_Device * old_device = ( *start ).second;
+                    if( !old_device->is_connected() && 
+                        old_device->is_same_as( ioHIDDeviceObject ) )
+                    {
+                        match_found = TRUE;
+                        
+                        EM_log( CK_LOG_INFO, "hid: mouse %s reattached", 
+                                old_device->name );
+                        
+                        if( old_device->preconfigure( ioHIDDeviceObject ) )
+                        {
+                            EM_log( CK_LOG_INFO, "hid: error during reconfiguration of %s",
+                                    old_device->name );
+                            break;
+                        }
+                        
+                        if( old_device->refcount &&
+                            !old_device->start() )
+                        {                            
+                            HidMsg msg;
+                            msg.device_type = old_device->type;
+                            msg.device_num = old_device->num;
+                            msg.type = CK_HID_DEVICE_CONNECTED;
+                            
+                            HidInManager::push_message( msg );
+                        }
+                        
+                        break;
+                    }
+                }
+                
+                if( match_found )
+                    continue;
+                
+                // create a new device record for the device
+                EM_log( CK_LOG_INFO, "hid: preconfiguring mouse %i", mice_seen );
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
@@ -1270,17 +1637,27 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
                 new_device->usage_page = usage_page;
                 new_device->usage = usage;
                 
-                if( !new_device->preconfigure( ioHIDDeviceObject, CK_HID_DEV_MOUSE ) )
+                if( !new_device->preconfigure( ioHIDDeviceObject ) )
                 {
                     mice->lock();
                     mice->push_back( new_device );
                     mice->unlock();
+                    
+                    mouse_names->lock();
+                    mouse_names->insert( pair< string, OSX_Hid_Device * >( string( new_device->name ), 
+                                                                           new_device ) );
+                    mouse_names->unlock();                    
                 }
+                
                 else
                 {
-                    EM_log( CK_LOG_INFO, "mouse: error during preconfiguration" );
+                    EM_log( CK_LOG_INFO, 
+                            "hid: error during preconfiguration of mouse %i",
+                            mice_seen );
                     delete new_device;
                 }
+                
+                mice_seen++;
                 
                 EM_poplog();
             }
@@ -1288,8 +1665,71 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
             if( usage == kHIDUsage_GD_Keyboard || usage == kHIDUsage_GD_Keypad )
                 // this is a keyboard
             {
-                EM_log( CK_LOG_INFO, "keyboard: preconfiguring keyboard %i", 
-                        keyboards_seen++ );
+                // see if this an device that was disconnected being reconnected
+                refCF = IORegistryEntryCreateCFProperty( ioHIDDeviceObject, 
+                                                         CFSTR( kIOHIDProductKey ),
+                                                         kCFAllocatorDefault, 
+                                                         kNilOptions);
+                
+                if( refCF )
+                {
+                    CFStringGetCString( ( CFStringRef ) refCF, __temp, 256,
+                                        kCFStringEncodingASCII );
+                    CFRelease( refCF );                    
+                }
+                
+                else
+                    strncpy( __temp, "Keyboard", 256 );
+                    
+                pair< xmultimap< string, OSX_Hid_Device * >::const_iterator, 
+                    xmultimap< string, OSX_Hid_Device * >::const_iterator > name_range 
+                    = keyboard_names->equal_range( string( __temp ) );
+                
+                xmultimap< string, OSX_Hid_Device * >::const_iterator 
+                    start = name_range.first, 
+                    end = name_range.second;
+                
+                t_CKBOOL match_found = FALSE;
+                
+                for( ; start != end; start++ )
+                {
+                    OSX_Hid_Device * old_device = ( *start ).second;
+                    if( !old_device->is_connected() && 
+                        old_device->is_same_as( ioHIDDeviceObject ) )
+                    {
+                        match_found = TRUE;
+                        
+                        EM_log( CK_LOG_INFO, "hid: keyboard %s reattached", 
+                                old_device->name );
+                        
+                        if( old_device->preconfigure( ioHIDDeviceObject ) )
+                        {
+                            EM_log( CK_LOG_INFO, "hid: error during reconfiguration of %s",
+                                    old_device->name );
+                            break;
+                        }
+                        
+                        if( old_device->refcount &&
+                            !old_device->start() )
+                        {                            
+                            HidMsg msg;
+                            msg.device_type = old_device->type;
+                            msg.device_num = old_device->num;
+                            msg.type = CK_HID_DEVICE_CONNECTED;
+                            
+                            HidInManager::push_message( msg );
+                        }
+                        
+                        break;
+                    }
+                }
+                
+                if( match_found )
+                    continue;
+                
+                // create a new device record for the device
+                EM_log( CK_LOG_INFO, "hid: preconfiguring keyboard %i", 
+                        keyboards_seen );
                 EM_pushlog();
                 
                 // allocate the device record, set usage page and usage
@@ -1299,19 +1739,27 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
                 new_device->usage_page = usage_page;
                 new_device->usage = usage;
                 
-                if( !new_device->preconfigure( ioHIDDeviceObject, 
-                                               CK_HID_DEV_KEYBOARD ) )
+                if( !new_device->preconfigure( ioHIDDeviceObject ) )
                 {
                     keyboards->lock();
                     keyboards->push_back( new_device );
                     keyboards->unlock();
+                    
+                    keyboard_names->lock();
+                    keyboard_names->insert( pair< string, OSX_Hid_Device * >( string( new_device->name ), 
+                                                                              new_device ) );
+                    keyboard_names->unlock();                    
                 }
+                
                 else
                 {
                     EM_log( CK_LOG_INFO, 
-                            "keyboard: error during preconfiguration" );
+                            "hid: error during preconfiguration of keyboard %i",
+                            keyboards_seen );
                     delete new_device;
                 }
+                
+                keyboards_seen++;
                 
                 EM_poplog();
             }
@@ -1322,90 +1770,30 @@ static void Hid_new_device( void * refcon, io_iterator_t iterator )
 void Hid_device_removed( void * refcon, io_service_t service,
                          natural_t messageType, void * messageArgument )
 {
-    //fprintf( stderr, "device removed\n" );
+    if( messageType == kIOMessageServiceIsTerminated && refcon )
+    {
+        OSX_Hid_Device * device = ( OSX_Hid_Device * ) refcon;
+        
+        if( device->is_connected() )
+        {
+            EM_log( CK_LOG_INFO, "hid: %s disconnected", device->name );
+            
+            device->lock();
+            device->disconnect();
+            device->unlock();
+            
+            HidMsg msg;
+            msg.device_type = device->type;
+            msg.device_num = device->num;
+            msg.type = CK_HID_DEVICE_DISCONNECTED;
+            
+            HidInManager::push_message( msg );
+        }
+    }
 }
 
 void Hid_poll()
 {    
-    // TODO: set this up to use a pipe or circular buffer, so that we dont have
-    // to iterate through every device
-    // --> or link list?
-    OSX_Hid_Device * device;
-    xvector< OSX_Hid_Device * >::size_type i, len = joysticks->size();
-    for( i = 0; i < len; i++ )
-    {
-        device = joysticks->at( i );
-        if( device->add_to_run_loop )
-        {
-            EM_log( CK_LOG_INFO, "joystick: adding device %i to run loop", i );
-            device->add_to_run_loop = FALSE;
-            CFRunLoopAddSource( rlHid, device->eventSource, 
-                                kCFRunLoopChuckHidMode );
-        }
-        
-        if( device->stop_queue )
-        {
-            device->stop_queue = FALSE;
-            
-            CFRunLoopRemoveSource( rlHid, device->eventSource, 
-                                   kCFRunLoopChuckHidMode );
-            
-            IOReturn result = ( *( device->queue ) )->stop( device->queue );
-            if( result != kIOReturnSuccess )
-                EM_log( CK_LOG_INFO, "joystick: error stopping event queue" );
-        }
-    }
-    
-    len = mice->size();
-    for( i = 0; i < len; i++ )
-    {
-        device = mice->at( i );
-        if( device->add_to_run_loop )
-        {
-            EM_log( CK_LOG_INFO, "mouse: adding device %i to run loop", i );
-            device->add_to_run_loop = FALSE;
-            CFRunLoopAddSource( rlHid, device->eventSource, 
-                                kCFRunLoopChuckHidMode );
-        }
-        
-        if( device->stop_queue )
-        {
-            device->stop_queue = FALSE;
-            
-            CFRunLoopRemoveSource( rlHid, device->eventSource, 
-                                   kCFRunLoopChuckHidMode );
-            
-            IOReturn result = ( *( device->queue ) )->stop( device->queue );
-            if( result != kIOReturnSuccess )
-                EM_log( CK_LOG_INFO, "mouse: error stopping event queue" );
-        }
-    }
-    
-    len = keyboards->size();
-    for( i = 0; i < len; i++ )
-    {
-        device = keyboards->at( i );
-        if( device->add_to_run_loop )
-        {
-            EM_log( CK_LOG_INFO, "keyboard: adding device %i to run loop", i );
-            device->add_to_run_loop = FALSE;
-            CFRunLoopAddSource( rlHid, device->eventSource, 
-                                kCFRunLoopChuckHidMode );
-        }
-        
-        if( device->stop_queue )
-        {
-            device->stop_queue = FALSE;
-            
-            CFRunLoopRemoveSource( rlHid, device->eventSource, 
-                                   kCFRunLoopChuckHidMode );
-            
-            IOReturn result = ( *( device->queue ) )->stop( device->queue );
-            if( result != kIOReturnSuccess )
-                EM_log( CK_LOG_INFO, "keyboard: error stopping event queue" );
-        }
-    }
-    
     CFRunLoopRunInMode( kCFRunLoopChuckHidMode, 60 * 60 * 24, false );
 }
 
@@ -1463,10 +1851,36 @@ void Hid_callback( void * target, IOReturn result,
                     msg.idata[1] = event.value;
                 }
                 
+#ifndef __CK_HID_CURSOR_TRACK__
+                Point p;
+                GetGlobalMouse( &p );
+                
+                msg.idata[2] = p.h;
+                msg.idata[3] = p.v;
+                
+                CGDirectDisplayID display;
+                CGDisplayCount displayCount;
+                
+                CGPoint cgp;
+                cgp.x = p.h;
+                cgp.y = p.v;
+                
+                if( CGGetDisplaysWithPoint( cgp, 1, &display, &displayCount ) ==
+                    kCGErrorSuccess )
+                {
+                    CGRect bounds = CGDisplayBounds( display );
+                    
+                    msg.fdata[0] = ( ( t_CKFLOAT ) ( p.h - bounds.origin.x ) ) /
+                                   ( bounds.size.width - 1 );
+                    msg.fdata[1] = ( ( t_CKFLOAT ) ( p.v - bounds.origin.y ) ) /
+                                   ( bounds.size.height - 1 );
+                }
+#else
                 msg.idata[2] = cursorX;
                 msg.idata[3] = cursorY;
                 msg.fdata[0] = scaledCursorX;
                 msg.fdata[1] = scaledCursorY;
+#endif // __CK_HID_CURSOR_TRACK__
                 
                 break;
                 
@@ -1507,11 +1921,59 @@ void Hid_callback( void * target, IOReturn result,
     }
 }
 
+static void Hid_do_operation( void * info )
+{
+    OSX_Hid_op op;
+    hid_operation_buffer->get( &op, 1 );
+    
+    OSX_Hid_Device * device = NULL;
+    
+    switch( op.type )
+    {
+        case OSX_Hid_op::open:
+            if( op.index >= op.v->size() )
+            {
+                EM_log( CK_LOG_SEVERE, "hid: error: no such device %i", op.index );
+                return;
+            }
+            
+            device = op.v->at( op.index );
+            
+            if( device->refcount == 0 )
+                device->start();
+                
+            device->refcount++;
+            
+            break;
+            
+        case OSX_Hid_op::close:
+            if( op.index >= op.v->size() )
+            {
+                EM_log( CK_LOG_SEVERE, "hid: error: no such device %i", op.index );
+                return;
+            }
+            
+            device = op.v->at( op.index );
+            
+            device->refcount--;
+            
+            if( device->refcount == 0 )
+                device->stop();
+            
+            break;
+            
+    }
+}
+
 void Hid_quit()
 {
     // stop the run loop; since thread_going is FALSE, the poll thread will exit
     if( rlHid )
-        CFRunLoopStop( rlHid );  
+        CFRunLoopStop( rlHid );
+
+    CFRunLoopRemoveSource( rlHid, hidOpSource, kCFRunLoopChuckHidMode );
+    CFRelease( hidOpSource );
+    
     rlHid = NULL;
     
 #ifdef __CK_HID_CURSOR_TRACK__
@@ -1525,46 +1987,117 @@ void Hid_quit2()
         return;
     g_hid_init = FALSE;
     
+    delete hid_operation_buffer;
+    
     xvector< OSX_Hid_Device * >::size_type i, len = joysticks->size();
-    map< IOHIDElementCookie, OSX_Hid_Device_Element * >::iterator iter, end;
-    OSX_Hid_Device * joystick;
     for( i = 0; i < len; i++ )
-    {
-        joystick = joysticks->at( i );
-        
-        if( joystick->elements )
-        {
-            // iterate through the axis map, delete device element records
-            end = joystick->elements->end();
-            for( iter = joystick->elements->begin(); iter != end; iter++ )
-                delete iter->second;
-            delete joystick->elements;
-            joystick->axes = 0;
-        }
-        
-        if( joystick->queue )
-        {
-            if( joystick->refcount > 0 )
-                ( *( joystick->queue ) )->stop( joystick->queue );
-            ( *( joystick->queue ) )->dispose( joystick->queue );
-            ( *( joystick->queue ) )->Release( joystick->queue );
-            joystick->queue = NULL;
-        }
-        
-        if( joystick->interface )
-        {
-            ( *( joystick->interface ) )->close( joystick->interface );
-            ( *( joystick->interface ) )->Release( joystick->interface );
-            joystick->interface = NULL;
-        }
-        
-        delete joystick;
-    }
+        delete joysticks->at( i );
     
     delete joysticks;
     joysticks = NULL;
     
-    // TODO: delete keyboard, mouse vectors
+    // TODO: delete keyboard, mouse vectors, xmultimaps
+}
+
+int Hid_count( xvector< OSX_Hid_Device * > * v )
+{
+    if( v == NULL )
+        return 0;
+    
+    v->lock();
+    
+    int count = v->size();
+    
+    v->unlock();
+    
+    return count;
+}
+
+int Hid_open( xvector< OSX_Hid_Device * > * v, int i )
+{
+    if( v == NULL || i < 0 )
+        return -1;
+    
+    v->lock();
+    
+    if( i >= v->size() )
+    {
+        v->unlock();
+        return -1;
+    }
+    
+    v->unlock();
+    
+    OSX_Hid_op op;
+    op.type = OSX_Hid_op::open;
+    op.v = v;
+    op.index = i;
+    
+    hid_operation_buffer->put( &op, 1 );
+    
+    if( hidOpSource )
+        CFRunLoopSourceSignal( hidOpSource );
+    if( rlHid )
+        CFRunLoopWakeUp( rlHid );
+    
+    return 0;
+}
+
+int Hid_close( xvector< OSX_Hid_Device * > * v, int i )
+{
+    if( v == NULL || i < 0 )
+        return -1;
+    
+    v->lock();
+    
+    if( i >= v->size() )
+    {
+        v->unlock();
+        return -1;
+    }
+    
+    v->unlock();
+    
+    OSX_Hid_op op;
+    op.type = OSX_Hid_op::close;
+    op.v = v;
+    op.index = i;
+    
+    hid_operation_buffer->put( &op, 1 );
+    
+    if( hidOpSource && rlHid )
+    {
+        CFRunLoopSourceSignal( hidOpSource );
+        CFRunLoopWakeUp( rlHid );
+    }        
+    
+    return 0;
+}
+
+const char * Hid_name( xvector< OSX_Hid_Device * > * v, int i )
+{
+    if( v == NULL || i < 0 )
+        return NULL;
+    
+    v->lock();
+    
+    if( i >= v->size() )
+    {
+        v->unlock();
+        return NULL;
+    }
+    
+    OSX_Hid_Device * device = v->at( i );
+    
+    v->unlock();
+    
+    device->lock();
+    
+    const char * name = device->name;
+    
+    device->unlock();
+    
+    return name;
 }
 
 #pragma mark OS X Joystick support
@@ -1585,139 +2118,22 @@ void Joystick_quit()
 
 int Joystick_count()
 {
-    if( joysticks == NULL )
-        return 0;
-    
-    joysticks->lock();
-    
-    int count = joysticks->size();
-    
-    joysticks->unlock();
-    
-    return count;
+    return Hid_count( joysticks );
 }
 
 int Joystick_open( int js )
 {
-    if( joysticks == NULL || js < 0 )
-        return -1;
-    
-    joysticks->lock();
-    
-    if( js >= joysticks->size() )
-    {
-        joysticks->unlock();
-        return -1;
-    }
-    
-    OSX_Hid_Device * joystick = joysticks->at( js );
-    
-    joysticks->unlock();
-    
-    joystick->lock();
-    
-    if( joystick->refcount == 0 )
-    {
-        EM_log( CK_LOG_INFO, "joystick: configuring %s", joystick->name );
-        EM_pushlog();
-        
-        if( joystick->configure() )
-        {
-            EM_poplog();
-            EM_log( CK_LOG_SEVERE, "joystick: error configuring %s", joystick->name );
-            joystick->unlock();
-            return -1;
-        }
-        
-        EM_poplog();
-        
-        IOReturn result = ( *( joystick->queue ) )->start( joystick->queue );
-        if( result != kIOReturnSuccess )
-        {
-            EM_log( CK_LOG_SEVERE, "joystick: error starting event queue" );
-            joystick->unlock();
-            return -1;
-        }
-
-        joystick->add_to_run_loop = TRUE;
-        if( rlHid )
-            CFRunLoopStop( rlHid );
-    }
-    
-    joystick->refcount++;
-
-    joystick->unlock();
-    
-    return 0;
+    return Hid_open( joysticks, js );
 }
 
 int Joystick_close( int js )
 {
-    if( joysticks == NULL || js < 0 )
-        return -1;
-    
-    joysticks->lock();
-    
-    if( js >= joysticks->size() )
-    {
-        joysticks->unlock();
-        return -1;
-    }
-    
-    OSX_Hid_Device * joystick = joysticks->at( js );
-
-    joysticks->unlock();
-    
-    joystick->lock();
-
-    if( joystick->refcount > 0 )
-    {
-        joystick->refcount--;
-        
-        if( joystick->refcount == 0 )
-        {
-            joystick->stop_queue = TRUE;
-            joystick->unlock();
-            
-            if( rlHid )
-                CFRunLoopStop( rlHid );
-        }
-    }
-    
-    else
-    {
-        EM_log( CK_LOG_INFO, "joystick: warning: joystick %i closed when not open", js );
-        joystick->unlock();
-        return -1;
-    }
-    
-    return 0;
+    return Hid_close( joysticks, js );
 }
 
 const char * Joystick_name( int js )
 {
-    if( !joysticks || js < 0 )
-        return NULL;
-    
-    joysticks->lock();
-    
-    if(  js >= joysticks->size() )
-    {
-        joysticks->unlock();
-        return NULL;
-    }
-    
-    OSX_Hid_Device * joystick = joysticks->at( js );
-    
-    joysticks->unlock();
-
-    joystick->lock();
-    
-    const char * name = joystick->name;
-    
-    joystick->unlock();
-    
-    return name;
+    return Hid_name( joysticks, js );
 }
 
 #pragma mark OS X Mouse support
@@ -1738,140 +2154,22 @@ void Mouse_quit()
 
 int Mouse_count()
 {
-    if( mice == NULL )
-        return 0;
-    
-    mice->lock();
-    
-    int count = mice->size();
-    
-    mice->unlock();
-    
-    return count;
+    return Hid_count( mice );
 }
 
 int Mouse_open( int m )
 {
-    if( mice == NULL || m < 0 )
-        return -1;
-    
-    mice->lock();
-    
-    if( m >= mice->size() )
-    {
-        mice->unlock();
-        return -1;
-    }
-        
-    OSX_Hid_Device * mouse = mice->at( m );
-    
-    mice->unlock();
-    
-    mouse->lock();
-    
-    if( mouse->refcount == 0 )
-    {
-        EM_log( CK_LOG_INFO, "mouse: configuring %s", mouse->name );
-        EM_pushlog();
-        
-        if( mouse->configure() )
-        {
-            EM_poplog();
-            EM_log( CK_LOG_SEVERE, "mouse: error configuring %s", mouse->name );
-            mouse->unlock();
-            return -1;
-        }
-        
-        EM_poplog();
-        
-        IOReturn result = ( *( mouse->queue ) )->start( mouse->queue );
-        if( result != kIOReturnSuccess )
-        {
-            EM_log( CK_LOG_SEVERE, "mouse: error starting event queue" );
-            mouse->unlock();
-            return -1;
-        }
-        
-        mouse->add_to_run_loop = TRUE;
-        
-        if( rlHid )
-            CFRunLoopStop( rlHid );        
-    }
-    
-    mouse->refcount++;
-    
-    mouse->unlock();
-    
-    return 0;
+    return Hid_open( mice, m );
 }
 
 int Mouse_close( int m )
 {
-    if( mice == NULL || m < 0 )
-        return -1;
-    
-    mice->lock();
-    
-    if( m >= mice->size() )
-    {
-        mice->unlock();
-        return -1;
-    }
-    
-    OSX_Hid_Device * mouse = mice->at( m );
-    
-    mice->unlock();
-    
-    mouse->lock();
-    
-    if( mouse->refcount > 0 )
-    {
-        mouse->refcount--;
-        
-        if( mouse->refcount == 0 )
-        {
-            mouse->stop_queue = TRUE;
-            mouse->unlock();
-            
-            if( rlHid )
-                CFRunLoopStop( rlHid );
-        }
-    }
-    
-    else
-    {
-        EM_log( CK_LOG_INFO, "mouse: warning: mouse %i closed when not open", m );
-        mouse->unlock();
-        return -1;
-    }
-    
-    return 0;
+    return Hid_close( mice, m );
 }
 
 const char * Mouse_name( int m )
 {
-    if( mice == NULL || m < 0 )
-        return NULL;
-    
-    mice->lock();
-    
-    if( m >= mice->size() )
-    {
-        mice->unlock();
-        return NULL;
-    }
-    
-    OSX_Hid_Device * mouse = mice->at( m );
-    
-    mice->unlock();
-    
-    mouse->lock();
-    
-    const char * name = mouse->name;
-    
-    mouse->unlock();
-    
-    return name;
+    return Hid_name( mice, m );
 }
 
 #ifdef __CK_HID_CURSOR_TRACK__
@@ -1999,75 +2297,17 @@ void Keyboard_quit()
 
 int Keyboard_count()
 {
-    if( keyboards == NULL )
-        return -1;
-    return keyboards->size();
+    return Hid_count( keyboards );
 }
 
 int Keyboard_open( int k )
 {
-    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
-        return -1;
-    
-    OSX_Hid_Device * keyboard = keyboards->at( k );
-    
-    if( keyboard->refcount == 0 )
-    {
-        EM_log( CK_LOG_INFO, "keyboard: configuring keyboard %s", keyboard->name );
-        EM_pushlog();
-        
-        if( keyboard->configure() )
-        {
-            EM_poplog();
-            EM_log( CK_LOG_SEVERE, "keyboard: error configuring %s", keyboard->name );
-            return -1;
-        }
-        
-        EM_poplog();
-        
-        IOReturn result = ( *( keyboard->queue ) )->start( keyboard->queue );
-        if( result != kIOReturnSuccess )
-        {
-            EM_log( CK_LOG_SEVERE, "keyboard: error starting event queue" );
-            return -1;
-        }
-        
-        keyboard->add_to_run_loop = TRUE;
-        if( rlHid )
-            CFRunLoopStop( rlHid );
-    }
-    
-    keyboard->refcount++;
-    
-    return 0;
+    return Hid_open( keyboards, k );
 }
 
 int Keyboard_close( int k )
 {
-    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
-        return -1;
-    
-    OSX_Hid_Device * keyboard = keyboards->at( k );
-    
-    if( keyboard->refcount > 0 )
-    {
-        keyboard->refcount--;
-        
-        if( keyboard->refcount == 0 )
-        {
-            keyboard->stop_queue = TRUE;
-            if( rlHid )
-                CFRunLoopStop( rlHid );
-        }
-    }
-    
-    else
-    {
-        EM_log( CK_LOG_INFO, "keyboard: warning: keyboard %i closed when not open", k );
-        return -1;
-    }
-    
-    return 0;
+    return Hid_close( keyboards, k );
 }
 
 int Keyboard_send( int k, const HidMsg * msg )
@@ -2116,10 +2356,7 @@ int Keyboard_send( int k, const HidMsg * msg )
 
 const char * Keyboard_name( int k )
 {
-    if( keyboards == NULL || k < 0 || k >= keyboards->size() )
-        return NULL;
-    
-    return keyboards->at( k )->name;
+    return Hid_name( keyboards, k );
 }
 
 #pragma mark OS X Tilt/Sudden Motion Sensor support
