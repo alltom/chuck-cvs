@@ -586,7 +586,18 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
             device_type );
         return FALSE;
     }
-
+    
+    // start thread
+    if( the_thread == NULL )
+    {
+        // allocate
+        the_thread = new XThread;
+        // flag
+        thread_going = TRUE;
+        // start
+        the_thread->start( cb_hid_input, NULL );
+    }
+    
     // get the vector
     vector<PhyHidDevIn *> & v = the_matrix[device_type];
 
@@ -626,17 +637,6 @@ t_CKBOOL HidInManager::open( HidIn * hin, t_CKINT device_type, t_CKINT device_nu
     // and a free ticket to your own workshop
     hin->m_read_index = hin->m_buffer->join( (Chuck_Event *)hin->SELF );
     hin->m_device_num = (t_CKUINT)device_num;
-
-    // start thread
-    if( the_thread == NULL )
-    {
-        // allocate
-        the_thread = new XThread;
-        // flag
-        thread_going = TRUE;
-        // start
-        the_thread->start( cb_hid_input, NULL );
-    }
 
     // done
     return TRUE;
