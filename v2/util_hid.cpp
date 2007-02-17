@@ -2186,10 +2186,15 @@ CGEventRef Mouse_cursor_track_cb( CGEventTapProxy proxy, CGEventType type,
     CGDirectDisplayID display;
     CGDisplayCount displayCount;
     
-    if( CGGetDisplaysWithPoint( p, 1, &display, &displayCount ) == kCGErrorSuccess )
+    if( CGGetDisplaysWithPoint( p, 1, &display, &displayCount ) ==
+        kCGErrorSuccess )
     {
-        scaledCursorX = ( ( t_CKFLOAT ) cursorX ) / ( CGDisplayPixelsWide( display ) - 1 );
-        scaledCursorY = ( ( t_CKFLOAT ) cursorY ) / ( CGDisplayPixelsHigh( display ) - 1 );
+        CGRect bounds = CGDisplayBounds( display );
+        
+        scaledCursorX = ( ( t_CKFLOAT ) ( p.x - bounds.origin.x ) ) /
+            ( bounds.size.width - 1 );
+        scaledCursorY = ( ( t_CKFLOAT ) ( p.y - bounds.origin.y ) ) /
+            ( bounds.size.height - 1 );
     }
     
     return event;
