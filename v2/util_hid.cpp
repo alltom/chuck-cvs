@@ -2024,7 +2024,7 @@ void Hid_quit2()
     delete keyboards;
     keyboards = NULL;
     
-    // TODO: delete keyboard, mouse vectors, xmultimaps
+    // TODO: delete xmultimaps
 }
 
 int Hid_count( xvector< OSX_Hid_Device * > * v )
