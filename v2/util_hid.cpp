@@ -1924,44 +1924,46 @@ void Hid_callback( void * target, IOReturn result,
 static void Hid_do_operation( void * info )
 {
     OSX_Hid_op op;
-    hid_operation_buffer->get( &op, 1 );
     
-    OSX_Hid_Device * device = NULL;
-    
-    switch( op.type )
+    while( hid_operation_buffer->get( &op, 1 ) )
     {
-        case OSX_Hid_op::open:
-            if( op.index >= op.v->size() )
-            {
-                EM_log( CK_LOG_SEVERE, "hid: error: no such device %i", op.index );
-                return;
-            }
-            
-            device = op.v->at( op.index );
-            
-            if( device->refcount == 0 )
-                device->start();
+        
+        OSX_Hid_Device * device = NULL;
+        
+        switch( op.type )
+        {
+            case OSX_Hid_op::open:
+                if( op.index >= op.v->size() )
+                {
+                    EM_log( CK_LOG_SEVERE, "hid: error: no such device %i", op.index );
+                    return;
+                }
                 
-            device->refcount++;
-            
-            break;
-            
-        case OSX_Hid_op::close:
-            if( op.index >= op.v->size() )
-            {
-                EM_log( CK_LOG_SEVERE, "hid: error: no such device %i", op.index );
-                return;
-            }
-            
-            device = op.v->at( op.index );
-            
-            device->refcount--;
-            
-            if( device->refcount == 0 )
-                device->stop();
-            
-            break;
-            
+                device = op.v->at( op.index );
+                
+                if( device->refcount == 0 )
+                    device->start();
+                    
+                    device->refcount++;
+                
+                break;
+                
+            case OSX_Hid_op::close:
+                if( op.index >= op.v->size() )
+                {
+                    EM_log( CK_LOG_SEVERE, "hid: error: no such device %i", op.index );
+                    return;
+                }
+                
+                device = op.v->at( op.index );
+                
+                device->refcount--;
+                
+                if( device->refcount == 0 )
+                    device->stop();
+                    
+                    break;
+        }
     }
 }
 
@@ -2035,10 +2037,11 @@ int Hid_open( xvector< OSX_Hid_Device * > * v, int i )
     
     hid_operation_buffer->put( &op, 1 );
     
-    if( hidOpSource )
+    if( hidOpSource && rlHid )
+    {
         CFRunLoopSourceSignal( hidOpSource );
-    if( rlHid )
         CFRunLoopWakeUp( rlHid );
+    }
     
     return 0;
 }
