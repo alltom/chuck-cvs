@@ -1965,6 +1965,8 @@ static void Hid_do_operation( void * info )
                     break;
         }
     }
+    
+    //sleep( 10 );
 }
 
 void Hid_quit()
@@ -1972,9 +1974,19 @@ void Hid_quit()
     // stop the run loop; since thread_going is FALSE, the poll thread will exit
     if( rlHid )
         CFRunLoopStop( rlHid );
-
-    CFRunLoopRemoveSource( rlHid, hidOpSource, kCFRunLoopChuckHidMode );
-    CFRelease( hidOpSource );
+    
+    if( hidOpSource )
+    {
+        CFRunLoopRemoveSource( rlHid, hidOpSource, kCFRunLoopChuckHidMode );
+        CFRelease( hidOpSource );
+        hidOpSource = NULL;
+    }
+    
+    if( newDeviceNotificationPort )
+    {
+        IONotificationPortDestroy( newDeviceNotificationPort );
+        newDeviceNotificationPort = NULL;
+    }
     
     rlHid = NULL;
     
@@ -1991,12 +2003,28 @@ void Hid_quit2()
     
     delete hid_operation_buffer;
     
-    xvector< OSX_Hid_Device * >::size_type i, len = joysticks->size();
+    xvector< OSX_Hid_Device * >::size_type i, len;
+
+    len = joysticks->size();
     for( i = 0; i < len; i++ )
         delete joysticks->at( i );
     
     delete joysticks;
     joysticks = NULL;
+    
+    len = mice->size();
+    for( i = 0; i < len; i++ )
+        delete mice->at( i );
+    
+    delete mice;
+    mice = NULL;
+    
+    len = keyboards->size();
+    for( i = 0; i < len; i++ )
+        delete keyboards->at( i );
+    
+    delete keyboards;
+    keyboards = NULL;
     
     // TODO: delete keyboard, mouse vectors, xmultimaps
 }
