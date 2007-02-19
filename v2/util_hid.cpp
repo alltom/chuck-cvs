@@ -1965,8 +1965,6 @@ static void Hid_do_operation( void * info )
                     break;
         }
     }
-    
-    //sleep( 10 );
 }
 
 void Hid_quit()
@@ -2062,7 +2060,7 @@ int Hid_open( xvector< OSX_Hid_Device * > * v, int i )
     op.type = OSX_Hid_op::open;
     op.v = v;
     op.index = i;
-    
+
     hid_operation_buffer->put( &op, 1 );
     
     if( hidOpSource && rlHid )
@@ -2925,7 +2923,7 @@ t_CKINT WiiRemote::connect()
         EM_log( CK_LOG_WARNING, "hid: error: opening Wii Remote Controller L2CAP connection" );
         return -1;
     }
-    fprintf( stderr, "l2cap control channel ref: 0x%x\n", control_channel );
+    //fprintf( stderr, "l2cap control channel ref: 0x%x\n", control_channel );
     if( IOBluetoothDeviceOpenL2CAPChannelAsync( device, &interrupt_channel, 19, 
                                                 Bluetooth_device_interrupt_event, 
                                                 this ) != kIOReturnSuccess )
@@ -3233,7 +3231,7 @@ void WiiRemote::control_send( const void * data, size_t size )
     //for( int i = 0; i < size; i++ )
     //    printf( " %02x", buf[i] );
     //printf( "\n" );
-    fprintf( stderr, "l2cap control channel ref: 0x%x\n", control_channel );
+    //fprintf( stderr, "l2cap control channel ref: 0x%x\n", control_channel );
     
     IOReturn result;
     result = IOBluetoothL2CAPChannelWriteSync( control_channel, buf, size );
