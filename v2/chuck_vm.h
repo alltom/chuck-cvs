@@ -487,7 +487,17 @@ struct Chuck_Msg
     t_CKUINT replyB;
     void * replyC;
 
+    std::vector<std::string> * args;
+
     Chuck_Msg() { memset( this, 0, sizeof(*this) ); }
+    ~Chuck_Msg() { SAFE_DELETE( args ); }
+    
+    void set( const std::vector<std::string> & vargs )
+    {
+        SAFE_DELETE(args);
+        args = new std::vector<std::string>;
+        (*args) = vargs;
+    }
 };
 
 

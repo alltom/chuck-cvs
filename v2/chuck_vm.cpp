@@ -805,6 +805,8 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         shred->now = shred->wake_time = m_shreduler->now_system;
         // set the vm
         shred->vm_ref = this;
+        // set args
+        if( msg->args ) shred->args = *(msg->args);
         // add it to the parent
         if( shred->parent )
             shred->parent->children[shred->xid] = shred;
@@ -902,9 +904,12 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     else if( msg->type == MSG_ADD )
     {
         t_CKUINT xid = 0;
-        if( msg->shred ) xid = this->spork( msg->shred )->xid;
-        else xid = this->spork( msg->code, NULL )->xid;
-        
+        Chuck_VM_Shred * shred = NULL;
+        if( msg->shred ) shred = this->spork( msg->shred );
+        else shred = this->spork( msg->code, NULL );
+        xid = shred->xid;
+        if( msg->args ) shred->args = *(msg->args);
+
         const char * s = ( msg->shred ? msg->shred->name.c_str() : msg->code->name.c_str() );
         EM_error3( "[chuck](VM): sporking incoming shred: %i (%s)...", xid, mini(s) );
         retval = xid;
