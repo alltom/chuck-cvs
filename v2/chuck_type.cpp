@@ -1221,11 +1221,12 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         return FALSE;
 
     // if lhs is multi-value, then check separately
-    if( (lhs->next && op != ae_op_chuck || !isa( right, &t_function)) || rhs->next )
+    if( (lhs->next && op != ae_op_chuck /*&& !isa( right, &t_function)*/ ) || rhs->next )
     {
         // TODO: implement this
         EM_error2( lhs->linepos, 
-            "this multi-value binary operation not implemented..." );
+            "multi-value (%s) operation not supported/implemented...",
+            op2str(op));
         return NULL;
     }
 
@@ -1471,6 +1472,21 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
 {
     t_CKTYPE left = lhs->type, right = rhs->type;
 
+    // chuck to function
+    if( isa( right, &t_function ) )
+    {
+        // treat this function call
+        return type_engine_check_exp_func_call( env, rhs, lhs, binary->ck_func, binary->linepos );
+    }
+
+    // multi-value not supported beyond this for now
+    if( lhs->next || rhs->next )
+    {
+        EM_error2( lhs->linepos,
+            "multi-value (=>) operation not supported/implemented..." );
+        return NULL;
+    }
+
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
     {
@@ -1507,13 +1523,6 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
         && rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
     {
         return right;
-    }
-    
-    // chuck to function
-    if( isa( right, &t_function ) )
-    {
-        // treat this function call
-        return type_engine_check_exp_func_call( env, rhs, lhs, binary->ck_func, binary->linepos );
     }
 
     // implicit cast
