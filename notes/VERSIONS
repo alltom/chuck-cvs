@@ -1,25 +1,28 @@
 ---
 1.2.0.8
-  - added: (all) command line argument support
-           e.g. %> chuck foo.ck:1:hello bar:2.5:"with space"
+  - (added) command line argument support
+            e.g. %> chuck foo.ck:1:hello bar:2.5:"with space"
                  also works with OTF commands
-           e.g. %> chuck + foo:1:yo
+            e.g. %> chuck + foo:1:yo
                  also works with Machine.add( ... )
-           e.g. // code
-                Machine.add( "foo:1:2:yo" );
-  - fixed: (all) array is now subclass of Object
-  - fixed: (all) accessing null array no longer crashes
-  - fixed: (all) connecting null UGen references no longer crashes
-  - fixed: (all) trivial (null == null) no longer evaluated as string
-  - fixed: (all) strict (x,y) => z type checking
-  - fixed: (all) && now terminates early if an operand evaluates to
-           0; || terminates early if an operand evaluates to 1
-  - fixed: (all) bug accessing static members of built-in classes
-  - fixed: (all) OscSend.startMsg no longer silently fails when 
-           using a single string message specification
-  - fixed: (all) Math.atan2 now accepts the proper arguments
-  - fixed: (all) no longer spontaneously crashes when HidIn and 
-           other event based input mechanisms are firing rapidly
+            e.g. // code
+                 Machine.add( "foo:1:2:yo" );
+  - (added) OS X: watchdog enabled
+            win32: watchdog implemtend and enabled
+            (combats chuck infinite empty loop implosion)
+  - (fixed) array is now subclass of Object
+  - (fixed) accessing null array no longer crashes (instead: exception)
+  - (fixed) connecting null UGen references no longer crashes
+  - (fixed) trivial (null == null) no longer evaluated as string
+  - (fixed) strict (x,y) => z type checking
+  - (fixed) && now terminates early if an operand evaluates to 0
+            || terminates early if an operand evaluates to 1
+  - (fixed) bug accessing static members of built-in classes
+  - (fixed) OscSend.startMsg no longer silently fails when 
+            using a single string message specification
+  - (fixed) Math.atan2 now accepts the proper arguments
+  - (fixed) no longer spontaneously crashes when HidIn and 
+            other event based input mechanisms are firing rapidly
 
 ---
 1.2.0.7b
