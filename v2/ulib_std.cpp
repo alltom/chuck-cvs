@@ -699,7 +699,7 @@ XThread * KBHitManager::the_thread;
 #define BUFFER_SIZE 1024
 
 
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
 static void * kb_loop( void * )
 #else
 static unsigned int __stdcall kb_loop( void * )
@@ -1312,7 +1312,7 @@ LineEvent::LineEvent( Chuck_Event * SELF )
     // launch the cb
     if( !g_le_launched )
     {
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
         pthread_create( &g_tid_whatever, NULL, le_cb, NULL );
 #else
         g_tid_whatever = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)le_cb, NULL, 0, 0 );

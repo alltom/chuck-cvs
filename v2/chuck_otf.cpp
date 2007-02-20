@@ -134,7 +134,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
     Chuck_Msg * cmd = new Chuck_Msg;
     Chuck_VM_Code * code = NULL;
     FILE * fd = NULL;
-	t_CKUINT ret = 0;
+    t_CKUINT ret = 0;
     
     // fprintf( stderr, "UDP message recv...\n" );
     if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
@@ -167,13 +167,13 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
             {
                 fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
                     mini(msg->buffer) );
-				goto cleanup;
+                goto cleanup;
             }
         }
 
         // parse, type-check, and emit
         if( !compiler->go( msg->buffer, fd ) )
-			goto cleanup;
+            goto cleanup;
 
         // get the code
         code = compiler->output();
@@ -196,21 +196,21 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
     {
         fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
         SAFE_DELETE(cmd);
-		goto cleanup;
+        goto cleanup;
     }
     
     // immediate
     if( immediate )
         ret = vm->process_msg( cmd );
-	else
-	{
+    else
+    {
         vm->queue_msg( cmd, 1 );
-		ret = 1;
-	}
+        ret = 1;
+    }
 
 cleanup:
-	// close file handle
-	if( fd ) fclose( fd );
+    // close file handle
+    if( fd ) fclose( fd );
 
     return ret;
 }
@@ -461,14 +461,14 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );
     }
-	else if( !strcmp( argv[i], "--rid" ) )
-	{
-		if( !(dest = otf_send_connect( host, port )) ) return 0;
-		msg.type = MSG_RESET_ID;
-		msg.param = 0;
-		otf_hton( &msg );
-		ck_send( dest, (char *)&msg, sizeof(msg) );
-	}
+    else if( !strcmp( argv[i], "--rid" ) )
+    {
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
+        msg.type = MSG_RESET_ID;
+        msg.param = 0;
+        otf_hton( &msg );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
+    }
     else if( !strcmp( argv[i], "--status" ) || !strcmp( argv[i], "^" ) )
     {
         if( !(dest = otf_send_connect( host, port )) ) return 0;

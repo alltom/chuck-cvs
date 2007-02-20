@@ -59,6 +59,8 @@ t_CKBOOL g_do_watchdog = FALSE;
 // countermeasure
 #ifdef __MACOSX_CORE__
 t_CKUINT g_watchdog_countermeasure_priority = 10;
+#elif defined(__PLATFORM_WIN32__) && !defined(__WINDOWS_PTHREAD__)
+t_CKUINT g_watchdog_countermeasure_priority = THREAD_PRIORITY_LOWEST;
 #else
 t_CKUINT g_watchdog_countermeasure_priority = 0;
 #endif

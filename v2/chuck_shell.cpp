@@ -175,10 +175,10 @@ void * shell_cb( void * p )
     // assuming this is absolutely necessary, an assert may be better
     assert( p != NULL );
     
-	shell = ( Chuck_Shell * ) p;
+    shell = ( Chuck_Shell * ) p;
     
-	//atexit( wait_for_shell );
-	
+    //atexit( wait_for_shell );
+    
     // run the shell
     shell->run();
     
@@ -413,8 +413,8 @@ void Chuck_Shell::run()
             // result.clear();
             result = "";
             
-			//printf( "chuck_shell::run\n" );
-			
+            //printf( "chuck_shell::run\n" );
+            
             // execute the command
             execute( command, result );
 
@@ -457,31 +457,31 @@ t_CKBOOL Chuck_Shell::execute( string & in, string & out )
     
     if( code_entry_active )
     {
-		continue_code( in );
+        continue_code( in );
     
-		if( code_entry_active == FALSE )
-		{
-			//strip opening and closing braces
-			string::size_type k = code.find( "{" );
-			string head = string( code, 0, k );
-			code = string( code, k + 1, code.size() - k - 1 );
-			
-			k = code.rfind( "}" );
-			string tail = string( code, k + 1, code.size() - k - 1 );
-			code = string( code, 0, k );
-			
-			do_code( code, out );
-			
-			tokenize_string( tail, vec );
-			
-			if( vec.size() > 0 )
-			{
-				string temp = "code save " + vec[0];
-				execute( temp, out );
-			}
-		}
-		
-		return TRUE;
+        if( code_entry_active == FALSE )
+        {
+            //strip opening and closing braces
+            string::size_type k = code.find( "{" );
+            string head = string( code, 0, k );
+            code = string( code, k + 1, code.size() - k - 1 );
+            
+            k = code.rfind( "}" );
+            string tail = string( code, k + 1, code.size() - k - 1 );
+            code = string( code, 0, k );
+            
+            do_code( code, out );
+            
+            tokenize_string( tail, vec );
+            
+            if( vec.size() > 0 )
+            {
+                string temp = "code save " + vec[0];
+                execute( temp, out );
+            }
+        }
+        
+        return TRUE;
     }
     
     // divide the string into white space separated substrings
@@ -584,42 +584,42 @@ void Chuck_Shell::do_code( string & code, string & out, string command )
 {
     // open a temporary file
 #if defined(__LINUX_ALSA__) || defined(__LINUX_OSS__) || defined(__LINUX_JACK__)
-	char tmp_dir[] = "/tmp";
-	char * tmp_filepath = new char [32];
-	strncpy( tmp_filepath, "/tmp/chuck_file.XXXXXX", 32 );
-	int fd = mkstemp( tmp_filepath );
-	if( fd == -1 )
+    char tmp_dir[] = "/tmp";
+    char * tmp_filepath = new char [32];
+    strncpy( tmp_filepath, "/tmp/chuck_file.XXXXXX", 32 );
+    int fd = mkstemp( tmp_filepath );
+    if( fd == -1 )
     {
-		out += string( "shell: error: unable to create tmpfile at " ) + tmp_dir + "\n";
-		delete[] tmp_filepath;
-		prompt = variables["COMMAND_PROMPT"];
-		return;
+        out += string( "shell: error: unable to create tmpfile at " ) + tmp_dir + "\n";
+        delete[] tmp_filepath;
+        prompt = variables["COMMAND_PROMPT"];
+        return;
     }
-	
-	FILE * tmp_file = fdopen( fd, "w+" );
-	if( tmp_file == NULL )
+    
+    FILE * tmp_file = fdopen( fd, "w+" );
+    if( tmp_file == NULL )
     {
-		out += string( "shell: error: unable to reopen tmpfile at " ) + tmp_filepath + "\n";
-		delete[] tmp_filepath;
-		prompt = variables["COMMAND_PROMPT"];
-		return;
+        out += string( "shell: error: unable to reopen tmpfile at " ) + tmp_filepath + "\n";
+        delete[] tmp_filepath;
+        prompt = variables["COMMAND_PROMPT"];
+        return;
     }
 #else
     char * tmp_filepath = tmpnam( NULL );
-	if( tmp_filepath == NULL )
-	{
-		out += string( "shell: error: unable to generate tmpfile name\n" );
-		prompt = variables["COMMAND_PROMPT"];
-		return;
-	}
-	
+    if( tmp_filepath == NULL )
+    {
+        out += string( "shell: error: unable to generate tmpfile name\n" );
+        prompt = variables["COMMAND_PROMPT"];
+        return;
+    }
+    
     FILE * tmp_file = fopen( tmp_filepath, "w" );
-	if( tmp_file == NULL )
-	{
-		out += string( "shell: error: unable to open tmpfile '" ) + tmp_filepath + "'\n";
-		prompt = variables["COMMAND_PROMPT"];
-		return;
-	}
+    if( tmp_file == NULL )
+    {
+        out += string( "shell: error: unable to open tmpfile '" ) + tmp_filepath + "'\n";
+        prompt = variables["COMMAND_PROMPT"];
+        return;
+    }
 #endif
         
     // write the code to the temp file
@@ -1122,12 +1122,12 @@ t_CKINT Chuck_Shell::Command_Replace::execute( vector< string > & argv,
                                                string & out )
 {
     if( caller->current_vm == NULL)
-	{
+    {
         out += "replace: error: not attached to a VM\n";
-		return -1;
-	}
-	
-	caller->current_vm->replace_shred( argv, out );
+        return -1;
+    }
+    
+    caller->current_vm->replace_shred( argv, out );
     
     return 0;
 }
@@ -1237,12 +1237,12 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     if( argv.size() == 0 )
     {
         DIR * dir_handle = opendir( "." );
-		if( dir_handle == NULL )
-		{
-			out += "ls: error: unable to open directory .\n";
-			return -1;
-		}
-		
+        if( dir_handle == NULL )
+        {
+            out += "ls: error: unable to open directory .\n";
+            return -1;
+        }
+        
         dirent * dir_entity = readdir( dir_handle );
         
         while( dir_entity != NULL )
@@ -1261,12 +1261,12 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     for( i = 0; i < len; i++ )
     {
         DIR * dir_handle = opendir( argv[i].c_str() );
-		if( dir_handle == NULL )
-		{
-			out += "ls: error: unable to open directory " + argv[i] + "\n";
-			continue;
-		}
-		
+        if( dir_handle == NULL )
+        {
+            out += "ls: error: unable to open directory " + argv[i] + "\n";
+            continue;
+        }
+        
         dirent * dir_entity = readdir( dir_handle );
         
         if( print_parent_name )
@@ -1288,30 +1288,30 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     
     if( argv.size() == 0 )
     {
-		DWORD i, k = 64;
-		LPTSTR cwd = new char [k];
-		WIN32_FIND_DATA find_data;
+        DWORD i, k = 64;
+        LPTSTR cwd = new char [k];
+        WIN32_FIND_DATA find_data;
 
-		i = GetCurrentDirectory( k - 2, cwd );
-		
-		if( i >= k )
-		{
-			SAFE_DELETE_ARRAY( cwd );
-			cwd = new char [i + 2];
-			GetCurrentDirectory( i, cwd );
-		}
-    
-		i = strlen( cwd );
-		cwd[i] = '\\';
-		cwd[i + 1] = '*';
-		cwd[i + 2] = 0;
-
-		HANDLE find_handle = FindFirstFile( cwd, &find_data );
+        i = GetCurrentDirectory( k - 2, cwd );
         
-		out += string( find_data.cFileName ) + "\n";
+        if( i >= k )
+        {
+            SAFE_DELETE_ARRAY( cwd );
+            cwd = new char [i + 2];
+            GetCurrentDirectory( i, cwd );
+        }
+    
+        i = strlen( cwd );
+        cwd[i] = '\\';
+        cwd[i + 1] = '*';
+        cwd[i + 2] = 0;
+
+        HANDLE find_handle = FindFirstFile( cwd, &find_data );
+        
+        out += string( find_data.cFileName ) + "\n";
 
         while( FindNextFile( find_handle, &find_data ) )
-			out += string( find_data.cFileName ) + "\n";
+            out += string( find_data.cFileName ) + "\n";
         
         FindClose( find_handle );
         return 0;
@@ -1322,26 +1322,26 @@ t_CKINT Chuck_Shell::Command_Ls::execute( vector< string > & argv,
     
     for( i = 0; i < len; i++ )
     {
-		int j = argv[i].size() + 3;
-		WIN32_FIND_DATA find_data;
-		LPTSTR dir = new char [j];
-		strncpy( dir, argv[i].c_str(), j );
+        int j = argv[i].size() + 3;
+        WIN32_FIND_DATA find_data;
+        LPTSTR dir = new char [j];
+        strncpy( dir, argv[i].c_str(), j );
         dir[j - 3] = '\\';
-		dir[j - 2] = '*';
-		dir[j - 1] = 0;
+        dir[j - 2] = '*';
+        dir[j - 1] = 0;
 
         if( print_parent_name )
             out += argv[i] + ":\n";
         
-		HANDLE find_handle = FindFirstFile( dir, &find_data );
+        HANDLE find_handle = FindFirstFile( dir, &find_data );
         
-		out += string( find_data.cFileName ) + "\n";
+        out += string( find_data.cFileName ) + "\n";
 
         while( FindNextFile( find_handle, &find_data ) )
-			out += string( find_data.cFileName ) + "\n";
+            out += string( find_data.cFileName ) + "\n";
         
-		if( print_parent_name )
-			out += "\n";
+        if( print_parent_name )
+            out += "\n";
 
         FindClose( find_handle );
     }
@@ -1365,7 +1365,7 @@ t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
         if( chdir( getenv( "HOME" ) ) )
             out += "cd: error: command failed\n";
     }
-	
+    
     else
     {
         if( chdir( argv[0].c_str() ) )
@@ -1373,14 +1373,14 @@ t_CKINT Chuck_Shell::Command_Cd::execute( vector< string > & argv,
     }
     
 #else
-	if( argv.size() < 1 )
-		out += "usage: " + usage() + "\n";
+    if( argv.size() < 1 )
+        out += "usage: " + usage() + "\n";
 
-	else
-	{
-		if( !SetCurrentDirectory( argv[0].c_str() ) )
-			out += "cd: error: command failed\n";
-	}
+    else
+    {
+        if( !SetCurrentDirectory( argv[0].c_str() ) )
+            out += "cd: error: command failed\n";
+    }
 
 #endif //__PLATFORM_WIN32__
     return 0;
@@ -1399,24 +1399,24 @@ t_CKINT Chuck_Shell::Command_Pwd::execute( vector< string > & argv,
     free( cwd );
 #else
     DWORD i, k = 256;
-	LPTSTR cwd = new char [k];
-	i = GetCurrentDirectory( k, cwd );
-	
-	if( i >= k )
-	{
-		SAFE_DELETE_ARRAY( cwd );
-		cwd = new char [i];
-		GetCurrentDirectory( i, cwd );
-	}
-	
-	out += string( cwd ) + "\n";
+    LPTSTR cwd = new char [k];
+    i = GetCurrentDirectory( k, cwd );
+    
+    if( i >= k )
+    {
+        SAFE_DELETE_ARRAY( cwd );
+        cwd = new char [i];
+        GetCurrentDirectory( i, cwd );
+    }
+    
+    out += string( cwd ) + "\n";
 
-	SAFE_DELETE_ARRAY( cwd );
+    SAFE_DELETE_ARRAY( cwd );
 #endif
-	
-	if( argv.size() > 0 )
+    
+    if( argv.size() > 0 )
         out += "pwd: warning: ignoring excess arguments...\n";
-	
+    
     return 0;
 }
 
@@ -1598,21 +1598,21 @@ Chuck_Shell::Command_VM::~Command_VM()
 t_CKINT Chuck_Shell::Command_VM::execute( vector< string > & argv,
                                           string & out )
 {
-	if( argv.size() < 1)
-		out += "usage: " + usage() + "\n";
+    if( argv.size() < 1)
+        out += "usage: " + usage() + "\n";
 
     else if( commands.find( argv[0] ) == commands.end() )
     // command doesn't exist
         out += "error: vm " + argv[0] + ": command not found\n";
 
-	else
+    else
     // call the mapped command
     {
         Command * command = commands[argv[0]];
         argv.erase( argv.begin() );
         command->execute( argv, out );
     }
-	
+    
     return 0;
 }
 
@@ -1622,7 +1622,7 @@ t_CKINT Chuck_Shell::Command_VM::execute( vector< string > & argv,
 //-----------------------------------------------------------------------------
 string Chuck_Shell::Command_VM::usage()
 {
-	return "vm [command] [args] ...";
+    return "vm [command] [args] ...";
 }
 
 //-----------------------------------------------------------------------------
@@ -1918,9 +1918,9 @@ Chuck_Shell::Command_Code::~Command_Code()
 t_CKINT Chuck_Shell::Command_Code::execute( vector< string > & argv,
                                             string & out )
 {
-	if( argv.size() < 1)
-		out += "usage: " + usage() + "\n";
-	
+    if( argv.size() < 1)
+        out += "usage: " + usage() + "\n";
+    
     else if( commands.find( argv[0] ) == commands.end() )
         // command doesn't exist
         out += "error: code " + argv[0] + ": command not found\n";
@@ -1942,7 +1942,7 @@ t_CKINT Chuck_Shell::Command_Code::execute( vector< string > & argv,
 //-----------------------------------------------------------------------------
 string Chuck_Shell::Command_Code::usage()
 {
-	return "code [command] [args] ...";
+    return "code [command] [args] ...";
 }
 
 //-----------------------------------------------------------------------------
@@ -2217,4 +2217,3 @@ t_CKINT Chuck_Shell::Command_CodeRead::execute( vector < string > & argv,
 
     return 0;
 }   
-

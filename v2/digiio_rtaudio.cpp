@@ -173,7 +173,7 @@ void Digitalio::probe()
 
 
 
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
 //-----------------------------------------------------------------------------
 // name: set_priority()
 // desc: ...
@@ -214,7 +214,7 @@ static t_CKBOOL set_priority( CHUCK_THREAD tid, t_CKINT priority )
     EM_log( CK_LOG_FINE, "setting thread priority to: %ld...", priority );
 
     // set the priority the thread
-    if( !SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL ) )
+    if( !SetThreadPriority( tid, priority ) )
         return FALSE;
 
     return TRUE;
@@ -253,7 +253,7 @@ static t_CKFLOAT g_watchdog_time = 0;
 // name: watch_dog()
 // desc: ...
 //-----------------------------------------------------------------------------
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
 static void * watch_dog( void * )
 #else
 static unsigned int __stdcall watch_dog( void * )
@@ -602,8 +602,22 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
     // priority boost
     if( !m_go && Chuck_VM::our_priority != 0x7fffffff )
     {
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
         g_tid_synthesis = pthread_self();
+#else
+        // must duplicate for handle to be usable by other threads
+        g_tid_synthesis = NULL;
+        DuplicateHandle(
+            GetCurrentProcess(),
+            GetCurrentThread(),
+            GetCurrentProcess(),
+            &g_tid_synthesis,
+            0,
+            FALSE,
+            DUPLICATE_SAME_ACCESS
+        );
+
+        // TODO: close the duplicate handle?
 #endif
         Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
         memset( buffer, 0, len );

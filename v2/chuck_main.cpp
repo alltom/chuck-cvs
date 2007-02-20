@@ -28,7 +28,9 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Perry R. Cook (prc@cs.princeton.edu)
+// additional contributors:
 //         Ananya Misra (amisra@cs.princeton.edu)
+//         Spencer Salazar (salazar@cs.princeton.edu)
 // date: version 1.1.x.x - Autumn 2002
 //       version 1.2.x.x - Autumn 2004
 //-----------------------------------------------------------------------------
@@ -63,9 +65,9 @@
 #if defined(__MACOSX_CORE__)
   t_CKINT g_priority = 80;
   t_CKINT g_priority_low = 60;
-#elif defined(__PLATFORM_WIN32__)
-  t_CKINT g_priority = 10;
-  t_CKINT g_priority_low = 5;
+#elif defined(__PLATFORM_WIN32__) && !defined(__WINDOWS_PTHREAD__)
+  t_CKINT g_priority = THREAD_PRIORITY_HIGHEST;
+  t_CKINT g_priority_low = THREAD_PRIORITY_HIGHEST;
 #else
   t_CKINT g_priority = 0x7fffffff;
   t_CKINT g_priority_low = 0x7fffffff;
@@ -106,7 +108,7 @@ extern "C" void signal_int( int sig_num )
         }
 
         // things don't work so good on windows...
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
         // pthread_kill( g_tid_otf, 2 );
         if( g_tid_otf ) pthread_cancel( g_tid_otf );
         if( g_tid_whatever ) pthread_cancel( g_tid_whatever );
@@ -120,7 +122,7 @@ extern "C" void signal_int( int sig_num )
         // ck_close( g_sock );
     }
 
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
     // pthread_join( g_tid_otf, NULL );
 #endif
     
@@ -302,7 +304,9 @@ int main( int argc, char ** argv )
     string   filename = "";
     vector<string> args;
 
-#ifdef __MACOSX_CORE__
+#if defined(__MACOSX_CORE__)
+    t_CKBOOL do_watchdog = TRUE;
+#elif defined(__PLATFORM_WIN32__) && !defined(__WINDOWS_PTHREAD__)
     t_CKBOOL do_watchdog = TRUE;
 #else
     t_CKBOOL do_watchdog = FALSE;
@@ -485,21 +489,21 @@ int main( int argc, char ** argv )
         exit( 1 );
     }
 
-	// shell initialization without vm
-	if( enable_shell && no_vm )
-	{
+    // shell initialization without vm
+    if( enable_shell && no_vm )
+    {
         // instantiate
         g_shell = new Chuck_Shell;
         // initialize
         if( !init_shell( g_shell, new Chuck_Console, NULL ) )
             exit( 1 );
         // no vm is needed, just start running the shell now
-		g_shell->run();
+        g_shell->run();
         // clean up
-		SAFE_DELETE( g_shell );
+        SAFE_DELETE( g_shell );
         // done
-		exit( 0 );
-	}
+        exit( 0 );
+    }
 
     // make sure vm
     if( no_vm )
@@ -507,7 +511,7 @@ int main( int argc, char ** argv )
         fprintf( stderr, "[chuck]: '--empty' can only be used with shell...\n" );
         exit( 1 );
     }
-	
+    
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
@@ -547,9 +551,9 @@ int main( int argc, char ** argv )
     signal( SIGPIPE, signal_pipe );
 #endif
 
-	// shell initialization
-	if( enable_shell )
-	{
+    // shell initialization
+    if( enable_shell )
+    {
         // instantiate
         g_shell = new Chuck_Shell;
         // initialize
@@ -658,7 +662,7 @@ int main( int argc, char ** argv )
     }
     else
     {
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
         pthread_create( &g_tid_otf, NULL, otf_cb, NULL );
 #else
         g_tid_otf = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0 );
@@ -668,7 +672,7 @@ int main( int argc, char ** argv )
     // start shell on separate thread
     if( enable_shell )
     {
-#ifndef __PLATFORM_WIN32__
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
         pthread_create( &g_tid_shell, NULL, shell_cb, g_shell );
 #else
         g_tid_shell = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)shell_cb, g_shell, 0, 0 );
@@ -686,11 +690,11 @@ int main( int argc, char ** argv )
     // free the compiler
     SAFE_DELETE( compiler );
 
-	// wait for the shell, if it is running
-	// does the VM reset its priority to normal before exiting?
-	if( enable_shell )
-		while( g_shell != NULL )
-			usleep(10000);
+    // wait for the shell, if it is running
+    // does the VM reset its priority to normal before exiting?
+    if( enable_shell )
+        while( g_shell != NULL )
+            usleep(10000);
 
     return 0;
 }
