@@ -303,7 +303,7 @@ int main( int argc, char ** argv )
     vector<string> args;
 
 #ifdef __MACOSX_CORE__
-    t_CKBOOL do_watchdog = FALSE;
+    t_CKBOOL do_watchdog = TRUE;
 #else
     t_CKBOOL do_watchdog = FALSE;
 #endif
