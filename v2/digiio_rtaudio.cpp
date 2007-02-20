@@ -260,19 +260,23 @@ static unsigned int __stdcall watch_dog( void * )
 #endif
 {
     t_CKFLOAT time;
+
+    // boost priority?
+    t_CKUINT priority = Chuck_VM::our_priority;
+
     // log
     EM_log( CK_LOG_SEVERE, "starting real-time watch dog processs..." );
     // push log
     EM_pushlog();
     EM_log( CK_LOG_INFO, "watchdog timeout: %f::second", g_watchdog_timeout );
-    EM_log( CK_LOG_INFO, "watchdog thread priority: %d", Chuck_VM::our_priority );
+    EM_log( CK_LOG_INFO, "watchdog thread priority: %d", priority );
     EM_log( CK_LOG_INFO, "watchdog countermeasure priority: %d", g_watchdog_countermeasure_priority );
     // pop log
     EM_poplog();
 
     // boost watchdog by same priority
     if( Chuck_VM::our_priority != 0x7fffffff )
-        Chuck_VM::set_priority( Chuck_VM::our_priority, NULL );
+        Chuck_VM::set_priority( priority, NULL );
 
     // while going
     while( g_do_watchdog )
