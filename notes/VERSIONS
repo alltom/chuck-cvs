@@ -8,6 +8,8 @@
            e.g. // code
                 Machine.add( "foo:1:2:yo" );
   - fixed: (all) array is now subclass of Object
+  - fixed: (all) accessing null array no longer crashes
+  - fixed: (all) connecting null UGen references no longer crashes
   - fixed: (all) trivial (null == null) no longer evaluated as string
   - fixed: (all) && now terminates early if an operand evaluates to
            0; || terminates early if an operand evaluates to 1

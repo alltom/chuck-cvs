@@ -3488,9 +3488,26 @@ void Chuck_Instr_UGen_Link::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     Chuck_UGen **& sp = (Chuck_UGen **&)shred->reg->sp;
 
+    // pop
     pop_( sp, 2 );
+    // check for null
+    if( !*(sp+1) || !(*sp) ) goto null_pointer;
+    // go for it
     (*(sp + 1))->add( *sp );
+    // push the second
     push_( sp, *(sp + 1) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (UGen link) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 
