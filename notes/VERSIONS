@@ -11,6 +11,7 @@
   - fixed: (all) accessing null array no longer crashes
   - fixed: (all) connecting null UGen references no longer crashes
   - fixed: (all) trivial (null == null) no longer evaluated as string
+  - fixed: (all) strict (x,y) => z type checking
   - fixed: (all) && now terminates early if an operand evaluates to
            0; || terminates early if an operand evaluates to 1
   - fixed: (all) bug accessing static members of built-in classes

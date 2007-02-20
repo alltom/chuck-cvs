@@ -1221,11 +1221,11 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         return FALSE;
 
     // if lhs is multi-value, then check separately
-    if( (lhs->next && op != ae_op_chuck && !isa( right, &t_function)) || rhs->next )
+    if( (lhs->next && op != ae_op_chuck || !isa( right, &t_function)) || rhs->next )
     {
         // TODO: implement this
         EM_error2( lhs->linepos, 
-            "multi-value binary operations not implemented..." );
+            "this multi-value binary operation not implemented..." );
         return NULL;
     }
 
@@ -1470,7 +1470,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
                                      a_Exp_Binary binary )
 {
     t_CKTYPE left = lhs->type, right = rhs->type;
-    
+
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
     {
@@ -1508,7 +1508,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
     {
         return right;
     }
-
+    
     // chuck to function
     if( isa( right, &t_function ) )
     {
