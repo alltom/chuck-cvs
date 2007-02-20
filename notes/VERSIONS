@@ -21,6 +21,8 @@
   - (fixed) OscSend.startMsg no longer silently fails when 
             using a single string message specification
   - (fixed) Math.atan2 now accepts the proper arguments
+  - (fixed) STK BlitSquare now produces correct frequency
+            (applied fix from STK release)
   - (fixed) no longer spontaneously crashes when HidIn and 
             other event based input mechanisms are firing rapidly
 
