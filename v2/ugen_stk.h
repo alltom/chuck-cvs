@@ -6312,9 +6312,12 @@ class BlitSquare : public BLT
   unsigned int m_;
   MY_FLOAT rate_;
   MY_FLOAT phase_;
+  MY_FLOAT a_;
   MY_FLOAT p_;
   MY_FLOAT offset_;
+  MY_FLOAT m_boutput;
   MY_FLOAT m_output;
+  MY_FLOAT dcbState_;
 };
 
 #endif

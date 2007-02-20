@@ -4749,6 +4749,11 @@ void BlitSquare :: reset()
 {
   phase_ = 0.0;
   m_output = 0;
+  m_ = 0.0;
+  p_ = 0.0;
+  a_ = 0.0;
+  dcbState_ = 0.0;
+  m_boutput = 0.0;
 }
 
 void BlitSquare :: setFrequency( MY_FLOAT frequency )
@@ -4760,8 +4765,8 @@ void BlitSquare :: setFrequency( MY_FLOAT frequency )
 
   // By using an even value of the parameter M, we get a bipolar blit
   // waveform at half the blit frequency.  Thus, we need to scale the
-  // frequency value here by 2.0. (GPS, 2005).
-  p_ = 2.0 * Stk::sampleRate() / frequency;
+  // frequency value here by 0.5. (GPS, 2006).
+  p_ = 0.5 * Stk::sampleRate() / frequency;
   rate_ = ONE_PI / p_;
   this->updateHarmonics();
 }
@@ -4777,13 +4782,15 @@ void BlitSquare :: updateHarmonics( void )
   // Make sure we end up with an even value of the parameter M here.
   if ( nHarmonics_ <= 0 ) {
     unsigned int maxHarmonics = (unsigned int) floor( 0.5 * p_ );
-    m_ = 2 * maxHarmonics;
+    m_ = 2 * ( maxHarmonics );
   }
   else
-    m_ = 2 * nHarmonics_;
+    m_ = 2 * ( nHarmonics_ );
 
   // This offset value was derived empirically. (GPS, 2005)
-  offset_ = 1.0 - 0.5 * m_ / p_;
+  // offset_ = 1.0 - 0.5 * m_ / p_;
+
+  a_ = m_ / p_;
 
 #if defined(_STK_DEBUG_)
   errorString_ << "BlitSquare::updateHarmonics: nHarmonics_ = " << nHarmonics_ << ", m_ = " << m_ << '.';
@@ -4793,7 +4800,7 @@ void BlitSquare :: updateHarmonics( void )
 
 MY_FLOAT BlitSquare :: tick( void )
 {
-  MY_FLOAT temp = m_output;
+  MY_FLOAT temp = m_boutput;
 
   // A fully  optimized version of this would replace the two sin calls
   // with a pair of fast sin oscillators, for which stable fast 
@@ -4807,21 +4814,25 @@ MY_FLOAT BlitSquare :: tick( void )
   if ( fabs( denominator )  < std::numeric_limits<MY_FLOAT>::epsilon() ) {
     // Inexact comparison safely distinguishes betwen *close to zero*, and *close to PI*.
     if ( phase_ < 0.1f || phase_ > TWO_PI - 0.1f )
-      m_output = 1.0;
+      m_boutput = a_;
     else
-      m_output = -1.0;
+      m_boutput = -a_;
   }
   else {
-    m_output =  sin( m_ * phase_ );
-    m_output /= p_ * denominator;
+    m_boutput =  sin( m_ * phase_ );
+    m_boutput /= p_ * denominator;
   }
 
-  m_output += temp;
+  m_boutput += temp;
+
+  // Now apply DC blocker.
+  m_output = m_boutput - dcbState_ + 0.999 * m_output;
+  dcbState_ = m_boutput;
 
   phase_ += rate_;
   if ( phase_ >= TWO_PI ) phase_ -= TWO_PI;
 
-  return m_output - offset_;
+  return m_output;
 }
 
 
