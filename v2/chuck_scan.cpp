@@ -1093,7 +1093,6 @@ t_CKBOOL type_engine_scan1_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
     if( !t )
     {
         // resolve
-
         EM_error2( decl->linepos, "... in declaration ..." );
         return FALSE;
     }
