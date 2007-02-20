@@ -55,8 +55,8 @@ Chuck_Type t_time( te_time, "time", NULL, sizeof(t_CKTIME) );
 Chuck_Type t_dur( te_dur, "dur", NULL, sizeof(t_CKTIME) );
 Chuck_Type t_null( te_null, "@null", NULL, sizeof(void *) );
 Chuck_Type t_function( te_function, "@function", &t_object, sizeof(void *) );
-Chuck_Type t_array( te_array, "@array", NULL, sizeof(void *) );
 Chuck_Type t_object( te_object, "Object", NULL, sizeof(void *) );
+Chuck_Type t_array( te_array, "@array", &t_object, sizeof(void *) );
 Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
 Chuck_Type t_event( te_event, "Event", &t_object, sizeof(void *) );
 Chuck_Type t_ugen( te_ugen, "UGen", &t_object, sizeof(void *) );
@@ -1403,11 +1403,14 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_float, te_dur ) return &t_dur;
     break;
 
+    case ae_op_eq:
+        // null
+        // if( isa( left, &t_object ) && isa( right, &t_null ) ) return &t_int;
+        // if( isa( left, &t_null ) && isa( right, &t_object ) ) return &t_int;
     case ae_op_lt:
     case ae_op_gt:
     case ae_op_le:
     case ae_op_ge:
-    case ae_op_eq:
     case ae_op_neq:
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_int;
