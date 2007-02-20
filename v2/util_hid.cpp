@@ -1038,41 +1038,48 @@ t_CKBOOL OSX_Hid_Device::is_same_as( io_object_t ioHIDDeviceObject ) const
     {
         return FALSE;
     }
+
+    // gewang: moved these decl's above goto's
+    CFNumberRef locationID2 = 0;
+    CFNumberRef vendorID2 = 0;
+    CFNumberRef productID2 = 0;
+    CFStringRef manufacturer2 = 0;
+    CFStringRef product2 = 0;
     
     // if no "uniquely identifying" info is available, then assume its new
     if( !locationID && !vendorID && !productID && !manufacturer && !product )
         goto end;
     
-    CFNumberRef locationID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
-                                                                    CFSTR( kIOHIDLocationIDKey ) );
+    locationID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
+                                                        CFSTR( kIOHIDLocationIDKey ) );
     if( ( locationID && !locationID2 ) || ( !locationID && locationID2 ) )
         goto end; // not the same
     if( locationID && locationID2 && CFNumberCompare( locationID, locationID2, NULL ) )
         goto end; // not the same
     
-    CFNumberRef vendorID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
-                                                                  CFSTR( kIOHIDVendorIDKey ) );
+    vendorID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
+                                                      CFSTR( kIOHIDVendorIDKey ) );
     if( ( vendorID && !vendorID2 ) || ( !vendorID && vendorID2 ) )
         goto end; // not the same
     if( vendorID && vendorID2 && CFNumberCompare( vendorID, vendorID2, NULL ) )
         goto end; // not the same
     
-    CFNumberRef productID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
-                                                                   CFSTR( kIOHIDProductIDKey ) );
+    productID2 = ( CFNumberRef ) CFDictionaryGetValue( hidProperties2,
+                                                       CFSTR( kIOHIDProductIDKey ) );
     if( ( productID && !productID2 ) || ( !productID && productID2 ) )
         goto end; // not the same
     if( productID && productID2 && CFNumberCompare( productID, productID2, NULL ) )
         goto end; // not the same
     
-    CFStringRef manufacturer2 = ( CFStringRef ) CFDictionaryGetValue( hidProperties2,
-                                                                      CFSTR( kIOHIDManufacturerKey ) );
+    manufacturer2 = ( CFStringRef ) CFDictionaryGetValue( hidProperties2,
+                                                          CFSTR( kIOHIDManufacturerKey ) );
     if( ( manufacturer && !manufacturer2 ) || ( !manufacturer && manufacturer2 ) )
         goto end; // not the same
     if( manufacturer && manufacturer2 && CFStringCompare( manufacturer, manufacturer2, 0 ) )
         goto end; // not the same
     
-    CFStringRef product2 = ( CFStringRef ) CFDictionaryGetValue( hidProperties2,
-                                                                 CFSTR( kIOHIDProductKey ) );
+    product2 = ( CFStringRef ) CFDictionaryGetValue( hidProperties2,
+                                                     CFSTR( kIOHIDProductKey ) );
     if( ( product && !product2 ) || ( !product && product2 ) )
         goto end; // not the same
     if( product && product2 && CFStringCompare( product, product2, 0 ) )
@@ -1366,8 +1373,8 @@ void Hid_init2()
     
     g_hid_init = TRUE;
         
-	IOReturn result = kIOReturnSuccess;
-	io_iterator_t hidObjectIterator = 0;
+    IOReturn result = kIOReturnSuccess;
+    io_iterator_t hidObjectIterator = 0;
     CFTypeRef refCF;
     t_CKINT filter_usage_page = kHIDPage_GenericDesktop;
     
@@ -1383,7 +1390,7 @@ void Hid_init2()
     hid_operation_buffer = new CBufferSimple;
     hid_operation_buffer->initialize( 20, sizeof( OSX_Hid_op ) );
     
-	CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
+    CFMutableDictionaryRef hidMatchDictionary = IOServiceMatching( kIOHIDDeviceKey );
     if( !hidMatchDictionary )
     {
         EM_log( CK_LOG_SEVERE, "hid: error: unable to retrieving hidMatchDictionary, unable to initialize" );
@@ -1838,6 +1845,7 @@ void Hid_callback( void * target, IOReturn result,
                 break;
                 
             case CK_HID_MOUSE_MOTION:
+            { // gewang: added
                 msg.eid = 0;
                 if( element->usage == kHIDUsage_GD_X )
                 {
@@ -1881,9 +1889,9 @@ void Hid_callback( void * target, IOReturn result,
                 msg.fdata[0] = scaledCursorX;
                 msg.fdata[1] = scaledCursorY;
 #endif // __CK_HID_CURSOR_TRACK__
-                
+            } // gewang: added
                 break;
-                
+
             case CK_HID_MOUSE_WHEEL:
                 msg.eid = 0;
                 
@@ -3219,12 +3227,12 @@ void WiiRemote::control_send( const void * data, size_t size )
 {
     assert( size <= 22 );
     
-	unsigned char buf[23];
+    unsigned char buf[23];
     
-	memset( buf, 0, 23 );
-	buf[0] = 0x52;
+    memset( buf, 0, 23 );
+    buf[0] = 0x52;
     memcpy( buf+1, data, size );
-	
+    
     size++;
     
     //printf( "send (%i):", size );
@@ -3247,7 +3255,7 @@ void WiiRemote::write_memory( const void * data, size_t size, unsigned long addr
 {
     assert( size <= 16 );
     
-	unsigned char cmd[22];
+    unsigned char cmd[22];
     
     memset( cmd, 0, 22 );
     memcpy( cmd + 6, data, size );
@@ -3270,9 +3278,9 @@ void WiiRemote::enable_force_feedback( t_CKBOOL enable )
     force_feedback_enabled = enable;
     
     unsigned char cmd[] = { 0x13, 0x00 };
-	if( enable )
+    if( enable )
         cmd[1] |= 0x01;
-	if( ir_sensor_enabled )
+    if( ir_sensor_enabled )
         cmd[1] |= 0x04;    
     
     control_send( cmd, 2 );
@@ -3369,19 +3377,19 @@ void WiiRemote::enable_leds( t_CKBOOL l1, t_CKBOOL l2,
     led3 = l3;
     led4 = l4;
     
-	unsigned char cmd[] = { 0x11, 0x00 };
-	if( force_feedback_enabled )
+    unsigned char cmd[] = { 0x11, 0x00 };
+    if( force_feedback_enabled )
         cmd[1] |= 0x01;
-	if( l1 )
+    if( l1 )
         cmd[1] |= 0x10;
-	if( l2 )
+    if( l2 )
         cmd[1] |= 0x20;
-	if( l3 )
+    if( l3 )
         cmd[1] |= 0x40;
-	if( l4 )
+    if( l4 )
         cmd[1] |= 0x80;
-	
-	control_send( cmd, 2 );
+    
+    control_send( cmd, 2 );
 }
 
 void Bluetooth_inquiry_device_found( void * userRefCon,
@@ -3795,23 +3803,23 @@ static void (*g_wait_function)() = NULL;
 
 static void Hid_wait_usleep()
 {
-	usleep( 10 );
+    usleep( 10 );
 }
 
 static void Hid_wait_event()
 {
-	WaitForSingleObject( g_device_event, INFINITE );
+    WaitForSingleObject( g_device_event, INFINITE );
 }
 
 void Hid_init()
 {
     if( g_device_event != NULL )
-		return;
+        return;
 
-	g_device_event = CreateEvent( NULL, FALSE, FALSE, NULL );
-	if( g_device_event == NULL )
-		EM_log( CK_LOG_SEVERE, "hid: error: unable to create event (win32 error %i)", GetLastError() );
-	g_wait_function = Hid_wait_event;
+    g_device_event = CreateEvent( NULL, FALSE, FALSE, NULL );
+    if( g_device_event == NULL )
+        EM_log( CK_LOG_SEVERE, "hid: error: unable to create event (win32 error %i)", GetLastError() );
+    g_wait_function = Hid_wait_event;
 }
 
 void Hid_poll()
@@ -3824,12 +3832,12 @@ void Hid_poll()
 
 void Hid_quit()
 {
-	SetEvent( g_device_event );
-	/*if( g_device_event != NULL )
-	{
-		CloseHandle( g_device_event );
-		g_device_event = NULL;
-	}*/
+    SetEvent( g_device_event );
+    /*if( g_device_event != NULL )
+    {
+        CloseHandle( g_device_event );
+        g_device_event = NULL;
+    }*/
 }
 
 /*****************************************************************************
@@ -3841,25 +3849,25 @@ static LPDIRECTINPUT lpdi = NULL;
 
 struct win32_joystick
 {
-	win32_joystick()
-	{
-		lpdiJoystick = NULL;
-		refcount = 0;
-		needs_close = FALSE;
-		strncpy( name, "Joystick", MAX_PATH );
-		memset( &last_state, 0, sizeof( last_state ) );
-		memset( &caps, 0, sizeof( caps ) );
-		caps.dwSize = sizeof( DIDEVCAPS );
-	}
+    win32_joystick()
+    {
+        lpdiJoystick = NULL;
+        refcount = 0;
+        needs_close = FALSE;
+        strncpy( name, "Joystick", MAX_PATH );
+        memset( &last_state, 0, sizeof( last_state ) );
+        memset( &caps, 0, sizeof( caps ) );
+        caps.dwSize = sizeof( DIDEVCAPS );
+    }
 
-	LPDIRECTINPUTDEVICE2 lpdiJoystick;
-	DIJOYSTATE2 last_state;
-	DIDEVCAPS caps;
+    LPDIRECTINPUTDEVICE2 lpdiJoystick;
+    DIJOYSTATE2 last_state;
+    DIDEVCAPS caps;
 
-	char name[MAX_PATH];
+    char name[MAX_PATH];
 
-	t_CKUINT refcount;
-	t_CKBOOL needs_close;
+    t_CKUINT refcount;
+    t_CKBOOL needs_close;
 
 };
 
@@ -3870,85 +3878,85 @@ const static LONG axis_max = 32767;
 static vector< win32_joystick * > * joysticks;
 
 static BOOL CALLBACK DIEnumJoystickProc( LPCDIDEVICEINSTANCE lpddi,
-										 LPVOID pvRef )
+                                         LPVOID pvRef )
 {
-	GUID guid = lpddi->guidInstance;
-	win32_joystick * js = new win32_joystick;
+    GUID guid = lpddi->guidInstance;
+    win32_joystick * js = new win32_joystick;
 
-	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
+    EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
 
-	strncpy( js->name, lpddi->tszProductName, MAX_PATH );
+    strncpy( js->name, lpddi->tszProductName, MAX_PATH );
 
-	if( lpdi->CreateDevice( guid, ( LPDIRECTINPUTDEVICE * )&js->lpdiJoystick, NULL ) != DI_OK )
-	{
-		delete js;
-		return DIENUM_CONTINUE;
-	}
+    if( lpdi->CreateDevice( guid, ( LPDIRECTINPUTDEVICE * )&js->lpdiJoystick, NULL ) != DI_OK )
+    {
+        delete js;
+        return DIENUM_CONTINUE;
+    }
 
-	joysticks->push_back( js );
+    joysticks->push_back( js );
 
-	return DIENUM_CONTINUE;
+    return DIENUM_CONTINUE;
 }
 
 static BOOL CALLBACK DIEnumJoystickObjectsProc( LPCDIDEVICEOBJECTINSTANCE lpdidoi,
-											    LPVOID pvRef )
+                                                LPVOID pvRef )
 {
-	LPDIRECTINPUTDEVICE lpdiJoystick = ( LPDIRECTINPUTDEVICE ) pvRef;
+    LPDIRECTINPUTDEVICE lpdiJoystick = ( LPDIRECTINPUTDEVICE ) pvRef;
 
-	DIPROPRANGE diprg; 
+    DIPROPRANGE diprg; 
 
-	// set axis minimum and maximum range
-	diprg.diph.dwSize = sizeof(DIPROPRANGE); 
-	diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
-	diprg.diph.dwHow = DIPH_BYID; 
-	diprg.diph.dwObj = lpdidoi->dwType; 
-	diprg.lMin = axis_min; 
-	diprg.lMax = axis_max; 
+    // set axis minimum and maximum range
+    diprg.diph.dwSize = sizeof(DIPROPRANGE); 
+    diprg.diph.dwHeaderSize = sizeof(DIPROPHEADER); 
+    diprg.diph.dwHow = DIPH_BYID; 
+    diprg.diph.dwObj = lpdidoi->dwType; 
+    diprg.lMin = axis_min; 
+    diprg.lMax = axis_max; 
 
-	if( lpdiJoystick->SetProperty( DIPROP_RANGE, &diprg.diph ) != DI_OK )
-	{
-		
-	}
+    if( lpdiJoystick->SetProperty( DIPROP_RANGE, &diprg.diph ) != DI_OK )
+    {
+        
+    }
 
-	return DIENUM_CONTINUE;
+    return DIENUM_CONTINUE;
 }
 
 void Joystick_init()
 {
-	if( joysticks != NULL )
-		return;
+    if( joysticks != NULL )
+        return;
 
-	EM_log( CK_LOG_INFO, "initializing joystick" );
-	EM_pushlog();
+    EM_log( CK_LOG_INFO, "initializing joystick" );
+    EM_pushlog();
 
     HINSTANCE hInstance = GetModuleHandle( NULL );
 
-	if( lpdi == NULL )
-	{
-		if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
-							   &lpdi, NULL) != DI_OK )
-		{
-			lpdi = NULL;
-			EM_log( CK_LOG_SEVERE, "error: unable to initialize DirectInput, initialization failed" );
-			EM_poplog();
-			return;
-		}
-	}
+    if( lpdi == NULL )
+    {
+        if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
+                               &lpdi, NULL) != DI_OK )
+        {
+            lpdi = NULL;
+            EM_log( CK_LOG_SEVERE, "error: unable to initialize DirectInput, initialization failed" );
+            EM_poplog();
+            return;
+        }
+    }
 
-	joysticks = new vector< win32_joystick * >;
-	if( lpdi->EnumDevices( DIDEVTYPE_JOYSTICK, DIEnumJoystickProc, 
-						   NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
-	{
-		delete joysticks;
-		joysticks = NULL;
-		lpdi->Release();
-		lpdi = NULL;
-		EM_log( CK_LOG_SEVERE, "error: unable to enumerate devices, initialization failed" );
-		EM_poplog();
-		return;
-	}
+    joysticks = new vector< win32_joystick * >;
+    if( lpdi->EnumDevices( DIDEVTYPE_JOYSTICK, DIEnumJoystickProc, 
+                           NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
+    {
+        delete joysticks;
+        joysticks = NULL;
+        lpdi->Release();
+        lpdi = NULL;
+        EM_log( CK_LOG_SEVERE, "error: unable to enumerate devices, initialization failed" );
+        EM_poplog();
+        return;
+    }
 
-	EM_poplog();
+    EM_poplog();
 }
 
 t_CKINT Joystick_translate_POV( DWORD v )
@@ -3968,271 +3976,271 @@ t_CKINT Joystick_translate_POV( DWORD v )
 #define CK_POV_LEFT_LBORDER 20250
 #define CK_POV_LEFT_RBORDER 33750
 
-	t_CKINT r = 0;
+    t_CKINT r = 0;
 
-	if( LOWORD(v) == 0xffff )
-		return CK_POV_CENTER;
+    if( LOWORD(v) == 0xffff )
+        return CK_POV_CENTER;
 
-	if( v > CK_POV_UP_LBORDER || v < CK_POV_UP_RBORDER )
-		r |= CK_POV_UP;
-	if( v > CK_POV_RIGHT_LBORDER && v < CK_POV_RIGHT_RBORDER )
-		r |= CK_POV_RIGHT;
-	if( v > CK_POV_DOWN_LBORDER && v < CK_POV_DOWN_RBORDER )
-		r |= CK_POV_DOWN;
-	if( v > CK_POV_LEFT_LBORDER && v < CK_POV_LEFT_RBORDER )
-		r |= CK_POV_LEFT;
+    if( v > CK_POV_UP_LBORDER || v < CK_POV_UP_RBORDER )
+        r |= CK_POV_UP;
+    if( v > CK_POV_RIGHT_LBORDER && v < CK_POV_RIGHT_RBORDER )
+        r |= CK_POV_RIGHT;
+    if( v > CK_POV_DOWN_LBORDER && v < CK_POV_DOWN_RBORDER )
+        r |= CK_POV_DOWN;
+    if( v > CK_POV_LEFT_LBORDER && v < CK_POV_LEFT_RBORDER )
+        r |= CK_POV_LEFT;
 
-	return r;
+    return r;
 }
 
 void Joystick_poll()
 {
-	if( !joysticks )
-		return;
+    if( !joysticks )
+        return;
 
-	win32_joystick * joystick;
-	HidMsg msg;
-	vector< win32_joystick * >::size_type i, len = joysticks->size();
-	int j;
-	for( i = 0; i < len; i++ )
-	{
-		joystick = joysticks->at( i );
-		if( joystick->refcount )
-		{
-			// TODO: convert this to buffered input, or maybe notifications
-			DIJOYSTATE2 state;
-			
-			joystick->lpdiJoystick->Poll();
+    win32_joystick * joystick;
+    HidMsg msg;
+    vector< win32_joystick * >::size_type i, len = joysticks->size();
+    int j;
+    for( i = 0; i < len; i++ )
+    {
+        joystick = joysticks->at( i );
+        if( joystick->refcount )
+        {
+            // TODO: convert this to buffered input, or maybe notifications
+            DIJOYSTATE2 state;
+            
+            joystick->lpdiJoystick->Poll();
 
-			if( joystick->lpdiJoystick->GetDeviceState( sizeof( DIJOYSTATE2 ), &state ) 
-				!= DI_OK )
-			{
-				EM_log( CK_LOG_WARNING, "joystick: GetDeviceState failed for %s", joystick->name );
-				continue;
-			}
+            if( joystick->lpdiJoystick->GetDeviceState( sizeof( DIJOYSTATE2 ), &state ) 
+                != DI_OK )
+            {
+                EM_log( CK_LOG_WARNING, "joystick: GetDeviceState failed for %s", joystick->name );
+                continue;
+            }
 
-			if( state.lX != joystick->last_state.lX )
-			{
-				msg.clear();
-				msg.device_num = i;
-				msg.device_type = CK_HID_DEV_JOYSTICK;
-				msg.eid = 0;
-				msg.type = CK_HID_JOYSTICK_AXIS;
+            if( state.lX != joystick->last_state.lX )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_JOYSTICK;
+                msg.eid = 0;
+                msg.type = CK_HID_JOYSTICK_AXIS;
                 msg.fdata[0] = ((float)state.lX)/((float)axis_max);
-				HidInManager::push_message( msg );
-			}
+                HidInManager::push_message( msg );
+            }
 
-			if( state.lY != joystick->last_state.lY )
-			{
-				msg.clear();
-				msg.device_num = i;
-				msg.device_type = CK_HID_DEV_JOYSTICK;
-				msg.eid = 1;
-				msg.type = CK_HID_JOYSTICK_AXIS;
+            if( state.lY != joystick->last_state.lY )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_JOYSTICK;
+                msg.eid = 1;
+                msg.type = CK_HID_JOYSTICK_AXIS;
                 msg.fdata[0] = ((float)state.lY)/((float)axis_max);
-				HidInManager::push_message( msg );
-			}
+                HidInManager::push_message( msg );
+            }
 
-			if( state.lZ != joystick->last_state.lZ )
-			{
-				msg.clear();
-				msg.device_num = i;
-				msg.device_type = CK_HID_DEV_JOYSTICK;
-				msg.eid = 2;
-				msg.type = CK_HID_JOYSTICK_AXIS;
+            if( state.lZ != joystick->last_state.lZ )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_JOYSTICK;
+                msg.eid = 2;
+                msg.type = CK_HID_JOYSTICK_AXIS;
                 msg.fdata[0] = ((float)state.lZ)/((float)axis_max);
-				HidInManager::push_message( msg );
-			}
+                HidInManager::push_message( msg );
+            }
 
-			if( state.lRx != joystick->last_state.lRx )
-			{
-				msg.clear();
-				msg.device_num = i;
-				msg.device_type = CK_HID_DEV_JOYSTICK;
-				msg.eid = 3;
-				msg.type = CK_HID_JOYSTICK_AXIS;
+            if( state.lRx != joystick->last_state.lRx )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_JOYSTICK;
+                msg.eid = 3;
+                msg.type = CK_HID_JOYSTICK_AXIS;
                 msg.fdata[0] = ((float)state.lRx)/((float)axis_max);
-				HidInManager::push_message( msg );
-			}
+                HidInManager::push_message( msg );
+            }
 
-			if( state.lRy != joystick->last_state.lRy )
-			{
-				msg.clear();
-				msg.device_num = i;
-				msg.device_type = CK_HID_DEV_JOYSTICK;
-				msg.eid = 4;
-				msg.type = CK_HID_JOYSTICK_AXIS;
+            if( state.lRy != joystick->last_state.lRy )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_JOYSTICK;
+                msg.eid = 4;
+                msg.type = CK_HID_JOYSTICK_AXIS;
                 msg.fdata[0] = ((float)state.lRy)/((float)axis_max);
-				HidInManager::push_message( msg );
-			}
+                HidInManager::push_message( msg );
+            }
 
-			if( state.lRz != joystick->last_state.lRz )
-			{
-				msg.clear();
-				msg.device_num = i;
-				msg.device_type = CK_HID_DEV_JOYSTICK;
-				msg.eid = 5;
-				msg.type = CK_HID_JOYSTICK_AXIS;
+            if( state.lRz != joystick->last_state.lRz )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_JOYSTICK;
+                msg.eid = 5;
+                msg.type = CK_HID_JOYSTICK_AXIS;
                 msg.fdata[0] = ((float)state.lRz)/((float)axis_max);
-				HidInManager::push_message( msg );
-			}
+                HidInManager::push_message( msg );
+            }
 
-			for( j = 0; j < 2; j++ )
-			{
-				if( state.rglSlider[j] != joystick->last_state.rglSlider[j] )
-				{
-					msg.clear();
-					msg.device_num = i;
-					msg.device_type = CK_HID_DEV_JOYSTICK;
-					msg.eid = 5 + j;
-					msg.type = CK_HID_JOYSTICK_AXIS;
-		            msg.fdata[0] = ((float)state.rglSlider[j])/((float)axis_max);
-					HidInManager::push_message( msg );
-				}
-			}
+            for( j = 0; j < 2; j++ )
+            {
+                if( state.rglSlider[j] != joystick->last_state.rglSlider[j] )
+                {
+                    msg.clear();
+                    msg.device_num = i;
+                    msg.device_type = CK_HID_DEV_JOYSTICK;
+                    msg.eid = 5 + j;
+                    msg.type = CK_HID_JOYSTICK_AXIS;
+                    msg.fdata[0] = ((float)state.rglSlider[j])/((float)axis_max);
+                    HidInManager::push_message( msg );
+                }
+            }
 
-			for( j = 0; j < joystick->caps.dwPOVs && j < 4; j++ )
-			{
-				if( state.rgdwPOV[j] != joystick->last_state.rgdwPOV[j] )
-				{
-					msg.clear();
-					msg.device_num = i;
-					msg.device_type = CK_HID_DEV_JOYSTICK;
-					msg.eid = j;
-					msg.type = CK_HID_JOYSTICK_HAT;
-					msg.idata[0] = Joystick_translate_POV( state.rgdwPOV[j] );
-					msg.fdata[0] = (t_CKFLOAT)state.rgdwPOV[j];
-					HidInManager::push_message( msg );
-				}
-			}
+            for( j = 0; j < joystick->caps.dwPOVs && j < 4; j++ )
+            {
+                if( state.rgdwPOV[j] != joystick->last_state.rgdwPOV[j] )
+                {
+                    msg.clear();
+                    msg.device_num = i;
+                    msg.device_type = CK_HID_DEV_JOYSTICK;
+                    msg.eid = j;
+                    msg.type = CK_HID_JOYSTICK_HAT;
+                    msg.idata[0] = Joystick_translate_POV( state.rgdwPOV[j] );
+                    msg.fdata[0] = (t_CKFLOAT)state.rgdwPOV[j];
+                    HidInManager::push_message( msg );
+                }
+            }
 
-			for( j = 0; j < joystick->caps.dwButtons && j < 128; j++ )
-			{
-				if( ( state.rgbButtons[j] & 0x80 ) ^ 
-					( joystick->last_state.rgbButtons[j] & 0x80 ) )
-				{
-					msg.clear();
-					msg.device_num = i;
-					msg.device_type = CK_HID_DEV_JOYSTICK;
-					msg.eid = j;
-					msg.type = ( state.rgbButtons[j] & 0x80 ) ? CK_HID_BUTTON_DOWN : 
-																CK_HID_BUTTON_UP;
-					msg.idata[0] = ( state.rgbButtons[j] & 0x80 ) ? 1 : 0;
-					HidInManager::push_message( msg );
-				}
-			}
+            for( j = 0; j < joystick->caps.dwButtons && j < 128; j++ )
+            {
+                if( ( state.rgbButtons[j] & 0x80 ) ^ 
+                    ( joystick->last_state.rgbButtons[j] & 0x80 ) )
+                {
+                    msg.clear();
+                    msg.device_num = i;
+                    msg.device_type = CK_HID_DEV_JOYSTICK;
+                    msg.eid = j;
+                    msg.type = ( state.rgbButtons[j] & 0x80 ) ? CK_HID_BUTTON_DOWN : 
+                                                                CK_HID_BUTTON_UP;
+                    msg.idata[0] = ( state.rgbButtons[j] & 0x80 ) ? 1 : 0;
+                    HidInManager::push_message( msg );
+                }
+            }
 
-			joystick->last_state = state;
-		}
+            joystick->last_state = state;
+        }
 
-		else if( joystick->needs_close )
-		{
-			joystick->needs_close = FALSE;
-			joystick->lpdiJoystick->Unacquire();
-			joystick->lpdiJoystick->SetEventNotification( NULL );
-		}
-	}
+        else if( joystick->needs_close )
+        {
+            joystick->needs_close = FALSE;
+            joystick->lpdiJoystick->Unacquire();
+            joystick->lpdiJoystick->SetEventNotification( NULL );
+        }
+    }
 
 }
 
 void Joystick_quit()
 {
-	if( joysticks )
-	{
-		win32_joystick * joystick;
-		vector< win32_joystick * >::size_type i, len = joysticks->size();
-		for( i = 0; i < len; i++ )
-		{
-			joystick = joysticks->at( i );
+    if( joysticks )
+    {
+        win32_joystick * joystick;
+        vector< win32_joystick * >::size_type i, len = joysticks->size();
+        for( i = 0; i < len; i++ )
+        {
+            joystick = joysticks->at( i );
 
-			if( joystick->refcount > 0 || joystick->needs_close)
-			{
-				joystick->needs_close = FALSE;
-				joystick->refcount = 0;
-				joystick->lpdiJoystick->Unacquire();
-			    joystick->lpdiJoystick->SetEventNotification( NULL );
-			}
+            if( joystick->refcount > 0 || joystick->needs_close)
+            {
+                joystick->needs_close = FALSE;
+                joystick->refcount = 0;
+                joystick->lpdiJoystick->Unacquire();
+                joystick->lpdiJoystick->SetEventNotification( NULL );
+            }
 
-			joystick->lpdiJoystick->Release();
-			delete joystick;
-		}
+            joystick->lpdiJoystick->Release();
+            delete joystick;
+        }
 
-		delete joysticks;
-		joysticks = NULL;
-	}
+        delete joysticks;
+        joysticks = NULL;
+    }
 
-	if( lpdi )
-	{
-		lpdi->Release();
-		lpdi = NULL;
-	}
+    if( lpdi )
+    {
+        lpdi->Release();
+        lpdi = NULL;
+    }
 }
 
 int Joystick_count()
 {
     if( !joysticks )
-		return 0;
-	return joysticks->size();
+        return 0;
+    return joysticks->size();
 }
 
 int Joystick_open( int js )
 {
-	if( !joysticks || js < 0 || js >= joysticks->size() )
-		return -1;
+    if( !joysticks || js < 0 || js >= joysticks->size() )
+        return -1;
 
-	win32_joystick * joystick = joysticks->at( js );
+    win32_joystick * joystick = joysticks->at( js );
 
-	if( joystick->refcount == 0 )
-	{
-		if( joystick->lpdiJoystick->EnumObjects( DIEnumJoystickObjectsProc, 
-												 joystick->lpdiJoystick, 
-												 DIDFT_AXIS ) != DI_OK )
-		{
-			return -1;
-		}
+    if( joystick->refcount == 0 )
+    {
+        if( joystick->lpdiJoystick->EnumObjects( DIEnumJoystickObjectsProc, 
+                                                 joystick->lpdiJoystick, 
+                                                 DIDFT_AXIS ) != DI_OK )
+        {
+            return -1;
+        }
 
-		if( joystick->lpdiJoystick->GetCapabilities( &joystick->caps ) != DI_OK )
-		{
-			return -1;
-		}
+        if( joystick->lpdiJoystick->GetCapabilities( &joystick->caps ) != DI_OK )
+        {
+            return -1;
+        }
 
-		if( joystick->lpdiJoystick->SetDataFormat( &c_dfDIJoystick2 ) != DI_OK )
-		{
-			return -1;
-		}
+        if( joystick->lpdiJoystick->SetDataFormat( &c_dfDIJoystick2 ) != DI_OK )
+        {
+            return -1;
+        }
 
-		if( joystick->lpdiJoystick->SetEventNotification( g_device_event ) != DI_OK )
-		{
-			// fallback to sleep+poll mode
-			g_wait_function = Hid_wait_usleep;
+        if( joystick->lpdiJoystick->SetEventNotification( g_device_event ) != DI_OK )
+        {
+            // fallback to sleep+poll mode
+            g_wait_function = Hid_wait_usleep;
             SetEvent( g_device_event );
-		}
+        }
 
-		if( joystick->lpdiJoystick->Acquire() != DI_OK )
-		{
-			joystick->lpdiJoystick->SetEventNotification( NULL );
-			return -1;
-		}
-	}
-	
-	joystick->refcount++;
-	
+        if( joystick->lpdiJoystick->Acquire() != DI_OK )
+        {
+            joystick->lpdiJoystick->SetEventNotification( NULL );
+            return -1;
+        }
+    }
+    
+    joystick->refcount++;
+    
     return 0;
 }
 
 int Joystick_close( int js )
 {
-	if( !joysticks || js < 0 || js >= joysticks->size() )
-		return -1;
+    if( !joysticks || js < 0 || js >= joysticks->size() )
+        return -1;
 
-	win32_joystick * joystick = joysticks->at( js );
+    win32_joystick * joystick = joysticks->at( js );
 
-	joystick->refcount--;
+    joystick->refcount--;
 
-	if( joystick->refcount < 1 )
-		joystick->needs_close = TRUE;
+    if( joystick->refcount < 1 )
+        joystick->needs_close = TRUE;
 
-	return 0;
+    return 0;
 }
 
 const char * Joystick_name( int js )
@@ -4252,230 +4260,230 @@ const char * Joystick_name( int js )
 
 struct win32_keyboard
 {
-	win32_keyboard()
-	{
-		lpdiKeyboard = NULL;
-		refcount = 0;
-		needs_close = FALSE;
-		strncpy( name, "Keyboard", MAX_PATH );
-		memset( &last_state, 0, DINPUT_KEYBUFFER_SIZE );
-	}
+    win32_keyboard()
+    {
+        lpdiKeyboard = NULL;
+        refcount = 0;
+        needs_close = FALSE;
+        strncpy( name, "Keyboard", MAX_PATH );
+        memset( &last_state, 0, DINPUT_KEYBUFFER_SIZE );
+    }
 
-	LPDIRECTINPUTDEVICE2 lpdiKeyboard;
-	char last_state[DINPUT_KEYBUFFER_SIZE];
-	DIDEVCAPS caps;
+    LPDIRECTINPUTDEVICE2 lpdiKeyboard;
+    char last_state[DINPUT_KEYBUFFER_SIZE];
+    DIDEVCAPS caps;
 
-	char name[MAX_PATH];
+    char name[MAX_PATH];
 
-	t_CKUINT refcount;
-	t_CKBOOL needs_close;
+    t_CKUINT refcount;
+    t_CKBOOL needs_close;
 
 };
 
 static vector< win32_keyboard * > * keyboards;
 
 static BOOL CALLBACK DIEnumKeyboardProc( LPCDIDEVICEINSTANCE lpddi,
-										 LPVOID pvRef )
+                                         LPVOID pvRef )
 {
-	GUID guid = lpddi->guidInstance;
-	win32_keyboard * keyboard = new win32_keyboard;
+    GUID guid = lpddi->guidInstance;
+    win32_keyboard * keyboard = new win32_keyboard;
 
-	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
+    EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
 
-	strncpy( keyboard->name, lpddi->tszProductName, MAX_PATH );
+    strncpy( keyboard->name, lpddi->tszProductName, MAX_PATH );
 
-	if( lpdi->CreateDevice( guid,
-							( LPDIRECTINPUTDEVICE * ) &keyboard->lpdiKeyboard,
-							NULL ) != DI_OK )
-	{
-		delete keyboard;
-		EM_log( CK_LOG_WARNING, "error: unable to initialize device %s", 
-				lpddi->tszProductName );
-		return DIENUM_CONTINUE;
-	}
+    if( lpdi->CreateDevice( guid,
+                            ( LPDIRECTINPUTDEVICE * ) &keyboard->lpdiKeyboard,
+                            NULL ) != DI_OK )
+    {
+        delete keyboard;
+        EM_log( CK_LOG_WARNING, "error: unable to initialize device %s", 
+                lpddi->tszProductName );
+        return DIENUM_CONTINUE;
+    }
 
-	keyboards->push_back( keyboard );
+    keyboards->push_back( keyboard );
 
-	return DIENUM_CONTINUE;
+    return DIENUM_CONTINUE;
 }
 
 void Keyboard_init()
 {
-	if( keyboards != NULL )
-		return;
+    if( keyboards != NULL )
+        return;
 
-	EM_log( CK_LOG_INFO, "initializing keyboard" );
-	EM_pushlog();
+    EM_log( CK_LOG_INFO, "initializing keyboard" );
+    EM_pushlog();
 
     HINSTANCE hInstance = GetModuleHandle( NULL );
 
-	if( lpdi == NULL )
-	{
-		if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
-							   &lpdi, NULL) != DI_OK )
-		{
-			lpdi = NULL;
-			EM_log( CK_LOG_SEVERE, "error: unable to initialize DirectInput, initialization failed" );
-			EM_poplog();
-			return;
-		}
-	}
+    if( lpdi == NULL )
+    {
+        if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
+                               &lpdi, NULL) != DI_OK )
+        {
+            lpdi = NULL;
+            EM_log( CK_LOG_SEVERE, "error: unable to initialize DirectInput, initialization failed" );
+            EM_poplog();
+            return;
+        }
+    }
 
-	keyboards = new vector< win32_keyboard * >;
-	if( lpdi->EnumDevices( DIDEVTYPE_KEYBOARD, DIEnumKeyboardProc, 
-						   NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
-	{
-		delete keyboards;
-		keyboards = NULL;
-		lpdi->Release();
-		lpdi = NULL;
-		EM_log( CK_LOG_SEVERE, "error: unable to enumerate devices, initialization failed" );
-		EM_poplog();
-		return;
-	}
+    keyboards = new vector< win32_keyboard * >;
+    if( lpdi->EnumDevices( DIDEVTYPE_KEYBOARD, DIEnumKeyboardProc, 
+                           NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
+    {
+        delete keyboards;
+        keyboards = NULL;
+        lpdi->Release();
+        lpdi = NULL;
+        EM_log( CK_LOG_SEVERE, "error: unable to enumerate devices, initialization failed" );
+        EM_poplog();
+        return;
+    }
 
-	EM_poplog();
+    EM_poplog();
 }
 
 void Keyboard_poll()
 {
-	if( !keyboards )
-		return;
+    if( !keyboards )
+        return;
 
-	win32_keyboard * keyboard;
-	HidMsg msg;
-	vector< win32_keyboard * >::size_type i, len = keyboards->size();
-	for( i = 0; i < len; i++ )
-	{
-		keyboard = keyboards->at( i );
-		if( keyboard->refcount )
-		{
-			// TODO: convert this to buffered input, or maybe notifications
-			char state[DINPUT_KEYBUFFER_SIZE];
-			
-			keyboard->lpdiKeyboard->Poll();
+    win32_keyboard * keyboard;
+    HidMsg msg;
+    vector< win32_keyboard * >::size_type i, len = keyboards->size();
+    for( i = 0; i < len; i++ )
+    {
+        keyboard = keyboards->at( i );
+        if( keyboard->refcount )
+        {
+            // TODO: convert this to buffered input, or maybe notifications
+            char state[DINPUT_KEYBUFFER_SIZE];
+            
+            keyboard->lpdiKeyboard->Poll();
 
-			if( keyboard->lpdiKeyboard->GetDeviceState( DINPUT_KEYBUFFER_SIZE, state ) 
-				!= DI_OK )
-			{
-				EM_log( CK_LOG_WARNING, "keyboard: GetDeviceState failed for %s", 
-						keyboard->name );
-				continue;
-			}
+            if( keyboard->lpdiKeyboard->GetDeviceState( DINPUT_KEYBUFFER_SIZE, state ) 
+                != DI_OK )
+            {
+                EM_log( CK_LOG_WARNING, "keyboard: GetDeviceState failed for %s", 
+                        keyboard->name );
+                continue;
+            }
 
-			for( int j = 0; j < DINPUT_KEYBUFFER_SIZE; j++ )
-			{
-				if( ( state[j] & 0x80 ) ^ ( keyboard->last_state[j] & 0x80 ) )
-				{
-					msg.clear();
-					msg.device_num = i;
-					msg.device_type = CK_HID_DEV_KEYBOARD;
-					msg.type = ( state[j] & 0x80 ) ? CK_HID_BUTTON_DOWN :
-													 CK_HID_BUTTON_UP;
-					msg.eid = j;
-					msg.idata[0] = ( state[j] & 0x80 ) ? 1 : 0;
-					HidInManager::push_message( msg );
-				}
-			}
+            for( int j = 0; j < DINPUT_KEYBUFFER_SIZE; j++ )
+            {
+                if( ( state[j] & 0x80 ) ^ ( keyboard->last_state[j] & 0x80 ) )
+                {
+                    msg.clear();
+                    msg.device_num = i;
+                    msg.device_type = CK_HID_DEV_KEYBOARD;
+                    msg.type = ( state[j] & 0x80 ) ? CK_HID_BUTTON_DOWN :
+                                                     CK_HID_BUTTON_UP;
+                    msg.eid = j;
+                    msg.idata[0] = ( state[j] & 0x80 ) ? 1 : 0;
+                    HidInManager::push_message( msg );
+                }
+            }
 
-			memcpy( keyboard->last_state, state, DINPUT_KEYBUFFER_SIZE );
-		}
+            memcpy( keyboard->last_state, state, DINPUT_KEYBUFFER_SIZE );
+        }
 
-		else if( keyboard->needs_close )
-		{
-			keyboard->needs_close = FALSE;
-			keyboard->lpdiKeyboard->Unacquire();
+        else if( keyboard->needs_close )
+        {
+            keyboard->needs_close = FALSE;
+            keyboard->lpdiKeyboard->Unacquire();
             keyboard->lpdiKeyboard->SetEventNotification( NULL );
-		}
-	}
+        }
+    }
 }
 
 void Keyboard_quit()
 {
-	if( keyboards )
-	{
-		win32_keyboard * keyboard;
-		vector< win32_keyboard * >::size_type i, len = keyboards->size();
-		for( i = 0; i < len; i++ )
-		{
-			keyboard = keyboards->at( i );
+    if( keyboards )
+    {
+        win32_keyboard * keyboard;
+        vector< win32_keyboard * >::size_type i, len = keyboards->size();
+        for( i = 0; i < len; i++ )
+        {
+            keyboard = keyboards->at( i );
 
-			if( keyboard->refcount > 0 || keyboard->needs_close)
-			{
-				keyboard->needs_close = FALSE;
-				keyboard->refcount = 0;
-				keyboard->lpdiKeyboard->Unacquire();
+            if( keyboard->refcount > 0 || keyboard->needs_close)
+            {
+                keyboard->needs_close = FALSE;
+                keyboard->refcount = 0;
+                keyboard->lpdiKeyboard->Unacquire();
                 keyboard->lpdiKeyboard->SetEventNotification( NULL );
-			}
+            }
 
-			keyboard->lpdiKeyboard->Release();
-			delete keyboard;
-		}
+            keyboard->lpdiKeyboard->Release();
+            delete keyboard;
+        }
 
-		delete keyboards;
-		keyboards = NULL;
-	}
+        delete keyboards;
+        keyboards = NULL;
+    }
 
-	if( lpdi )
-	{
-		lpdi->Release();
-		lpdi = NULL;
-	}
+    if( lpdi )
+    {
+        lpdi->Release();
+        lpdi = NULL;
+    }
 }
 
 int Keyboard_count()
 {
     if( !keyboards )
-		return 0;
-	return keyboards->size();
+        return 0;
+    return keyboards->size();
 }
 
 int Keyboard_open( int k )
 {
-	if( !keyboards || k < 0 || k >= keyboards->size() )
-		return -1;
+    if( !keyboards || k < 0 || k >= keyboards->size() )
+        return -1;
 
-	win32_keyboard * keyboard = keyboards->at( k );
+    win32_keyboard * keyboard = keyboards->at( k );
 
-	if( keyboard->refcount == 0 )
-	{
-		if( keyboard->lpdiKeyboard->SetDataFormat( &c_dfDIKeyboard ) != DI_OK )
-		{
-			return -1;
-		}
+    if( keyboard->refcount == 0 )
+    {
+        if( keyboard->lpdiKeyboard->SetDataFormat( &c_dfDIKeyboard ) != DI_OK )
+        {
+            return -1;
+        }
 
-		if( keyboard->lpdiKeyboard->SetEventNotification( g_device_event ) != DI_OK )
-		{
-			// fallback to sleep+poll mode
-			g_wait_function = Hid_wait_usleep;
+        if( keyboard->lpdiKeyboard->SetEventNotification( g_device_event ) != DI_OK )
+        {
+            // fallback to sleep+poll mode
+            g_wait_function = Hid_wait_usleep;
             SetEvent( g_device_event );
-		}
+        }
 
-		if( keyboard->lpdiKeyboard->Acquire() != DI_OK )
-		{
+        if( keyboard->lpdiKeyboard->Acquire() != DI_OK )
+        {
             keyboard->lpdiKeyboard->SetEventNotification( NULL );
-			return -1;
-		}
-	}
-	
-	keyboard->refcount++;
-	
+            return -1;
+        }
+    }
+    
+    keyboard->refcount++;
+    
     return 0;
 }
 
 int Keyboard_close( int k )
 {
-	if( !keyboards || k < 0 || k >= keyboards->size() )
-		return -1;
+    if( !keyboards || k < 0 || k >= keyboards->size() )
+        return -1;
 
-	win32_keyboard * keyboard = keyboards->at( k );
+    win32_keyboard * keyboard = keyboards->at( k );
 
-	keyboard->refcount--;
+    keyboard->refcount--;
 
-	if( keyboard->refcount < 1 )
-		keyboard->needs_close = TRUE;
+    if( keyboard->refcount < 1 )
+        keyboard->needs_close = TRUE;
 
-	return 0;
+    return 0;
 }
 
 const char * Keyboard_name( int kb )
@@ -4493,120 +4501,120 @@ const char * Keyboard_name( int kb )
 
 struct win32_mouse
 {
-	win32_mouse()
-	{
-		refcount = 0;
-		needs_close = FALSE;
+    win32_mouse()
+    {
+        refcount = 0;
+        needs_close = FALSE;
 
-		lpdiMouse = NULL;
-		memset( &last_state, 0, sizeof( last_state ) );
-	}
+        lpdiMouse = NULL;
+        memset( &last_state, 0, sizeof( last_state ) );
+    }
 
-	LPDIRECTINPUTDEVICE2 lpdiMouse;
-	DIMOUSESTATE last_state;
+    LPDIRECTINPUTDEVICE2 lpdiMouse;
+    DIMOUSESTATE last_state;
 
-	char name[MAX_PATH];
+    char name[MAX_PATH];
 
-	t_CKUINT refcount;
-	t_CKBOOL needs_close;
+    t_CKUINT refcount;
+    t_CKBOOL needs_close;
 };
 
 static vector< win32_mouse * > * mice;
 
 static BOOL CALLBACK DIEnumMouseProc( LPCDIDEVICEINSTANCE lpddi,
-									  LPVOID pvRef )
+                                      LPVOID pvRef )
 {
-	GUID guid = lpddi->guidInstance;
-	win32_mouse * mouse = new win32_mouse;
+    GUID guid = lpddi->guidInstance;
+    win32_mouse * mouse = new win32_mouse;
 
-	EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
+    EM_log( CK_LOG_INFO, "found %s", lpddi->tszProductName );
 
-	strncpy( mouse->name, lpddi->tszProductName, MAX_PATH );
+    strncpy( mouse->name, lpddi->tszProductName, MAX_PATH );
 
-	if( lpdi->CreateDevice( guid, ( LPDIRECTINPUTDEVICE * ) &mouse->lpdiMouse,
-							NULL ) != DI_OK )
-	{
-		delete mouse;
-		return DIENUM_CONTINUE;
-	}
+    if( lpdi->CreateDevice( guid, ( LPDIRECTINPUTDEVICE * ) &mouse->lpdiMouse,
+                            NULL ) != DI_OK )
+    {
+        delete mouse;
+        return DIENUM_CONTINUE;
+    }
 
-	mice->push_back( mouse );
+    mice->push_back( mouse );
 
-	return DIENUM_CONTINUE;
+    return DIENUM_CONTINUE;
 }
 
 void Mouse_init()
 {
-	if( mice != NULL )
-		return;
+    if( mice != NULL )
+        return;
 
-	EM_log( CK_LOG_INFO, "initializing mouse" );
-	EM_pushlog();
+    EM_log( CK_LOG_INFO, "initializing mouse" );
+    EM_pushlog();
 
     HINSTANCE hInstance = GetModuleHandle( NULL );
 
-	if( lpdi == NULL )
-	{
-		if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
-							   &lpdi, NULL) != DI_OK )
-		{
-			lpdi = NULL;
-			EM_poplog();
-			return;
-		}
-	}
+    if( lpdi == NULL )
+    {
+        if( DirectInputCreate( hInstance, DIRECTINPUT_VERSION, 
+                               &lpdi, NULL) != DI_OK )
+        {
+            lpdi = NULL;
+            EM_poplog();
+            return;
+        }
+    }
 
-	mice = new vector< win32_mouse * >;
-	if( lpdi->EnumDevices( DIDEVTYPE_MOUSE, DIEnumMouseProc, 
-						   NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
-	{
-		delete mice;
-		mice = NULL;
-		lpdi->Release();
-		lpdi = NULL;
-		EM_poplog();
-		return;
-	}
+    mice = new vector< win32_mouse * >;
+    if( lpdi->EnumDevices( DIDEVTYPE_MOUSE, DIEnumMouseProc, 
+                           NULL, DIEDFL_ATTACHEDONLY ) != DI_OK )
+    {
+        delete mice;
+        mice = NULL;
+        lpdi->Release();
+        lpdi = NULL;
+        EM_poplog();
+        return;
+    }
 
-	EM_poplog();
+    EM_poplog();
 }
 
 void Mouse_poll()
 {
-	if( !mice )
-		return;
+    if( !mice )
+        return;
 
-	win32_mouse * mouse;
-	HidMsg msg;
-	vector< win32_mouse * >::size_type i, len = mice->size();
-	for( i = 0; i < len; i++ )
-	{
-		mouse = mice->at( i );
-		if( mouse->refcount )
-		{
-			// TODO: convert this to buffered input, or maybe notifications
-			DIMOUSESTATE state;
-			
-			mouse->lpdiMouse->Poll();
+    win32_mouse * mouse;
+    HidMsg msg;
+    vector< win32_mouse * >::size_type i, len = mice->size();
+    for( i = 0; i < len; i++ )
+    {
+        mouse = mice->at( i );
+        if( mouse->refcount )
+        {
+            // TODO: convert this to buffered input, or maybe notifications
+            DIMOUSESTATE state;
+            
+            mouse->lpdiMouse->Poll();
 
-			if( mouse->lpdiMouse->GetDeviceState( sizeof( DIMOUSESTATE ), &state ) 
-				!= DI_OK )
-			{
-				EM_log( CK_LOG_WARNING, "mouse: GetDeviceState failed for %s", mouse->name );
-				continue;
-			}
+            if( mouse->lpdiMouse->GetDeviceState( sizeof( DIMOUSESTATE ), &state ) 
+                != DI_OK )
+            {
+                EM_log( CK_LOG_WARNING, "mouse: GetDeviceState failed for %s", mouse->name );
+                continue;
+            }
 
-			if( state.lX != 0 || state.lY != 0 )
-			{
-				msg.clear();
-				msg.device_num = i;
-				msg.device_type = CK_HID_DEV_MOUSE;
-				msg.type = CK_HID_MOUSE_MOTION;
-				msg.eid = 0;
-				msg.idata[0] = state.lX;
-				msg.idata[1] = state.lY;
-				HidInManager::push_message( msg );
-			}
+            if( state.lX != 0 || state.lY != 0 )
+            {
+                msg.clear();
+                msg.device_num = i;
+                msg.device_type = CK_HID_DEV_MOUSE;
+                msg.type = CK_HID_MOUSE_MOTION;
+                msg.eid = 0;
+                msg.idata[0] = state.lX;
+                msg.idata[1] = state.lY;
+                HidInManager::push_message( msg );
+            }
 
             if( state.lZ != 0 )
             {
@@ -4620,120 +4628,120 @@ void Mouse_poll()
                 HidInManager::push_message( msg );
             }
 
-			for( int j = 0; j < 4; j++ )
-			{
-				if( ( state.rgbButtons[j] & 0x80 ) ^
-					( mouse->last_state.rgbButtons[j] & 0x80 ) )
-				{
-					msg.clear();
-					msg.device_num = i;
-					msg.device_type = CK_HID_DEV_MOUSE;
-					msg.type = ( state.rgbButtons[j] & 0x80 ) ? CK_HID_BUTTON_DOWN :
-																CK_HID_BUTTON_UP;
-					msg.eid = j;
-					msg.idata[0] = ( state.rgbButtons[j] & 0x80 ) ? 1 : 0;
-					HidInManager::push_message( msg );
-				}
-			}
+            for( int j = 0; j < 4; j++ )
+            {
+                if( ( state.rgbButtons[j] & 0x80 ) ^
+                    ( mouse->last_state.rgbButtons[j] & 0x80 ) )
+                {
+                    msg.clear();
+                    msg.device_num = i;
+                    msg.device_type = CK_HID_DEV_MOUSE;
+                    msg.type = ( state.rgbButtons[j] & 0x80 ) ? CK_HID_BUTTON_DOWN :
+                                                                CK_HID_BUTTON_UP;
+                    msg.eid = j;
+                    msg.idata[0] = ( state.rgbButtons[j] & 0x80 ) ? 1 : 0;
+                    HidInManager::push_message( msg );
+                }
+            }
 
-			mouse->last_state = state;
-		}
+            mouse->last_state = state;
+        }
 
-		else if( mouse->needs_close )
-		{
-			mouse->needs_close = FALSE;
-			mouse->lpdiMouse->Unacquire();
+        else if( mouse->needs_close )
+        {
+            mouse->needs_close = FALSE;
+            mouse->lpdiMouse->Unacquire();
             mouse->lpdiMouse->SetEventNotification( NULL );
-		}
-	}
+        }
+    }
 }
 
 void Mouse_quit()
 {
-	if( mice )
-	{
-		win32_mouse * mouse;
-		vector< win32_mouse * >::size_type i, len = mice->size();
-		for( i = 0; i < len; i++ )
-		{
-			mouse = mice->at( i );
+    if( mice )
+    {
+        win32_mouse * mouse;
+        vector< win32_mouse * >::size_type i, len = mice->size();
+        for( i = 0; i < len; i++ )
+        {
+            mouse = mice->at( i );
 
-			if( mouse->refcount > 0 || mouse->needs_close)
-			{
-				mouse->needs_close = FALSE;
-				mouse->refcount = 0;
-				mouse->lpdiMouse->Unacquire();
+            if( mouse->refcount > 0 || mouse->needs_close)
+            {
+                mouse->needs_close = FALSE;
+                mouse->refcount = 0;
+                mouse->lpdiMouse->Unacquire();
                 mouse->lpdiMouse->SetEventNotification( NULL );
-			}
+            }
 
-			mouse->lpdiMouse->Release();
-			delete mouse;
-		}
+            mouse->lpdiMouse->Release();
+            delete mouse;
+        }
 
-		delete mice;
-		mice = NULL;
-	}
+        delete mice;
+        mice = NULL;
+    }
 
-	if( lpdi )
-	{
-		lpdi->Release();
-		lpdi = NULL;
-	}
+    if( lpdi )
+    {
+        lpdi->Release();
+        lpdi = NULL;
+    }
 }
 
 int Mouse_count()
 {
     if( !mice )
-		return 0;
-	return mice->size();
+        return 0;
+    return mice->size();
 }
 
 int Mouse_open( int m )
 {
-	if( !mice || m < 0 || m >= mice->size() )
-		return -1;
+    if( !mice || m < 0 || m >= mice->size() )
+        return -1;
 
-	win32_mouse * mouse = mice->at( m );
+    win32_mouse * mouse = mice->at( m );
 
-	if( mouse->refcount == 0 )
-	{
-		if( mouse->lpdiMouse->SetDataFormat( &c_dfDIMouse ) != DI_OK )
-		{
-			return -1;
-		}
+    if( mouse->refcount == 0 )
+    {
+        if( mouse->lpdiMouse->SetDataFormat( &c_dfDIMouse ) != DI_OK )
+        {
+            return -1;
+        }
 
-		if( mouse->lpdiMouse->SetEventNotification( g_device_event ) != DI_OK )
-		{
-			// fallback to sleep+poll mode
-			g_wait_function = Hid_wait_usleep;
+        if( mouse->lpdiMouse->SetEventNotification( g_device_event ) != DI_OK )
+        {
+            // fallback to sleep+poll mode
+            g_wait_function = Hid_wait_usleep;
             SetEvent( g_device_event );
-		}
+        }
 
-		if( mouse->lpdiMouse->Acquire() != DI_OK )
-		{
+        if( mouse->lpdiMouse->Acquire() != DI_OK )
+        {
             mouse->lpdiMouse->SetEventNotification( g_device_event );
-			return -1;
-		}
-	}
-	
-	mouse->refcount++;
+            return -1;
+        }
+    }
+    
+    mouse->refcount++;
 
-	return 0;
+    return 0;
 }
 
 int Mouse_close( int m )
 {
-	if( !mice || m < 0 || m >= mice->size() )
-		return -1;
+    if( !mice || m < 0 || m >= mice->size() )
+        return -1;
 
-	win32_mouse * mouse = mice->at( m );
+    win32_mouse * mouse = mice->at( m );
 
-	mouse->refcount--;
+    mouse->refcount--;
 
-	if( mouse->refcount < 1 )
-		mouse->needs_close = TRUE; // let the polling thread take care of it
+    if( mouse->refcount < 1 )
+        mouse->needs_close = TRUE; // let the polling thread take care of it
 
-	return 0;
+    return 0;
 }
 
 const char * Mouse_name( int m )
@@ -5182,7 +5190,7 @@ void Hid_init()
     hid_channel_w = filedes[1];
     
     int fd_flags = fcntl( hid_channel_r, F_GETFL );
-	fcntl( hid_channel_r, F_SETFL, fd_flags | O_NONBLOCK );
+    fcntl( hid_channel_r, F_SETFL, fd_flags | O_NONBLOCK );
     
     /* right now, the hid_channel is just used as a dummy file descriptor
        passed to poll, such that poll will work/block even when there are

@@ -513,7 +513,7 @@ protected:
   }
   #endif
 
-#elif defined(__WINDOWS_DS__)
+#elif defined(__WINDOWS_DS__) || defined(__WINDOWS_ASIO__)
 
   #ifdef __cplusplus
   extern "C" {

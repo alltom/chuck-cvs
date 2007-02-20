@@ -63,6 +63,7 @@
   #elif defined(__LINUX_OSS__)
   #elif defined(__MACOSX_CORE__)
   #elif defined(__WINDOWS_DS__)
+  #elif defined(__WINDOWS_ASIO__)
   #else
     #error "must define one:\
     __LINUX_ALSA__ __LINUX_JACK__ __LINUX_OSS__ __MACOSX_CORE__ __WINDOWS_DS__"

@@ -36,7 +36,7 @@
 #include "rtaudio.h"
 #include "rtmidi.h"
 // #include <signal.h>
-#if defined(__WINDOWS_DS__) && !defined(__WINDOWS_PTHREAD__)
+#if (defined(__WINDOWS_DS__) || defined(__WINDOWS_ASIO__)) && !defined(__WINDOWS_PTHREAD__)
 #include <windows.h>
 #include <sys/timeb.h>
 #else
