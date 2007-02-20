@@ -2907,6 +2907,9 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // pop
     pop_( sp, 2 );
 
+    // check pointer
+    if( !(*sp) ) goto null_pointer;
+
     // 4 or 8
     if( m_size == 4 ) // ISSUE: 64-bit
     {
@@ -2919,13 +2922,13 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             // get the addr
             val = arr->addr( i );
             // exception
-            if( !val ) goto error;
+            if( !val ) goto array_out_of_bound;
             // push the addr
             push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &val ) )
-                goto error;
+                goto array_out_of_bound;
             // push the value
             push_( sp, val );
         }
@@ -2941,13 +2944,13 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             // get the addr
             val = arr->addr( i );
             // exception
-            if( !val ) goto error;
+            if( !val ) goto array_out_of_bound;
             // push the addr
             push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &fval ) )
-                goto error;
+                goto array_out_of_bound;
             // push the value
             push_( ((t_CKFLOAT *&)sp), fval );
         }
@@ -2957,12 +2960,22 @@ void Chuck_Instr_Array_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
     return;
 
-error:
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (array access) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+array_out_of_bound:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): ArrayOutofBounds in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
              shred->xid, shred->name.c_str(), shred->pc, i );
+    // go to done
+    goto done;
 
+done:
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
