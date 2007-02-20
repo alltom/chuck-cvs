@@ -590,7 +590,7 @@ int main( int argc, char ** argv )
             // error
             fprintf( stderr, "[chuck]: malformed filename with argument list...\n" );
             fprintf( stderr, "    -->  '%s'", argv[i] );
-            exit( 1 );
+            return 1;
         }
 
         // log
