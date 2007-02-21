@@ -102,6 +102,33 @@ CK_DLL_TICK( gain_tick );
 CK_DLL_CTRL( gain_ctrl_value );
 CK_DLL_CGET( gain_cget_value );
 
+// dyno (Matt Hoffman + Graham Coleman)
+// TODO: add soft knee option
+CK_DLL_CTOR( dyno_ctor );
+CK_DLL_DTOR( dyno_dtor );
+CK_DLL_TICK( dyno_tick );
+CK_DLL_CTRL( dyno_ctrl_limit );
+CK_DLL_CTRL( dyno_ctrl_compress );
+CK_DLL_CTRL( dyno_ctrl_expand );
+CK_DLL_CTRL( dyno_ctrl_gate );
+CK_DLL_CTRL( dyno_ctrl_duck );
+CK_DLL_CTRL( dyno_ctrl_thresh );
+CK_DLL_CGET( dyno_cget_thresh );
+CK_DLL_CTRL( dyno_ctrl_attackTime );
+CK_DLL_CGET( dyno_cget_attackTime );
+CK_DLL_CTRL( dyno_ctrl_releaseTime );
+CK_DLL_CGET( dyno_cget_releaseTime );
+CK_DLL_CTRL( dyno_ctrl_ratio );
+CK_DLL_CGET( dyno_cget_ratio );
+CK_DLL_CTRL( dyno_ctrl_slopeBelow );
+CK_DLL_CGET( dyno_cget_slopeBelow );
+CK_DLL_CTRL( dyno_ctrl_slopeAbove );
+CK_DLL_CGET( dyno_cget_slopeAbove );
+CK_DLL_CTRL( dyno_ctrl_externalSideInput );
+CK_DLL_CGET( dyno_cget_externalSideInput );
+CK_DLL_CTRL( dyno_ctrl_sideInput );
+CK_DLL_CGET( dyno_cget_sideInput );
+
 // halfrect
 CK_DLL_TICK( halfrect_tick );
 

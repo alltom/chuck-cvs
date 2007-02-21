@@ -49,6 +49,7 @@
 #include "chuck_type.h"
 #include "chuck_ugen.h"
 #include "chuck_vm.h"
+#include "chuck_globals.h"
 
 #include <fstream>
 using namespace std;
@@ -65,6 +66,7 @@ static t_CKUINT step_offset_data = 0;
 static t_CKUINT zerox_offset_data = 0;
 static t_CKUINT delayp_offset_data = 0;
 static t_CKUINT sndbuf_offset_data = 0;
+static t_CKUINT dyno_offset_data = 0;
 
 Chuck_Type * g_t_dac = NULL;
 Chuck_Type * g_t_adc = NULL;
@@ -653,6 +655,110 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_class_end( env ) )
         return FALSE;
 
+    //---------------------------------------------------------------------
+    // init as base class: Dyno
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "Dyno", "UGen", env->global(), 
+                                        dyno_ctor, dyno_tick, NULL ) )
+        return FALSE;
+
+    // add member variable
+    dyno_offset_data = type_engine_import_mvar( env, "int", "@dyno_data", FALSE );
+    if( dyno_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // add ctrl: limit
+    func = make_new_mfun( "void", "limit", dyno_ctrl_limit );
+    //func->add_arg( "string", "mode" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add ctrl: compress
+    func = make_new_mfun( "void", "compress", dyno_ctrl_compress );
+    //func->add_arg( "string", "mode" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add ctrl: gate
+    func = make_new_mfun( "void", "gate", dyno_ctrl_gate );
+    //func->add_arg( "string", "mode" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add ctrl: expand
+    func = make_new_mfun( "void", "expand", dyno_ctrl_expand );
+    //func->add_arg( "string", "mode" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add ctrl: duck
+    func = make_new_mfun( "void", "duck", dyno_ctrl_duck );
+    //func->add_arg( "string", "mode" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add ctrl: thresh
+    func = make_new_mfun( "float", "thresh", dyno_ctrl_thresh );
+    func->add_arg( "float", "thresh" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add cget: thresh
+    func = make_new_mfun( "float", "thresh", dyno_cget_thresh );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add ctrl: attackTime
+    func = make_new_mfun( "void", "attackTime", dyno_ctrl_attackTime );
+    func->add_arg( "dur", "aTime" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add ctrl: releaseTime
+    func = make_new_mfun( "void", "releaseTime", dyno_ctrl_releaseTime );
+    func->add_arg( "dur", "rTime" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    //add ctrl: ratio
+    func = make_new_mfun( "float", "ratio", dyno_ctrl_ratio );
+    func->add_arg( "float", "ratio" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add cget: ratio
+    func = make_new_mfun( "float", "ratio", dyno_cget_ratio );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add ctrl: slopeBelow
+    func = make_new_mfun( "float", "slopeBelow", dyno_ctrl_slopeBelow );
+    func->add_arg( "float", "slopeBelow" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add cget: slopeBelow
+    func = make_new_mfun( "float", "slopeBelow", dyno_cget_slopeBelow );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add ctrl: slopeAbove
+    func = make_new_mfun( "float", "slopeAbove", dyno_ctrl_slopeAbove );
+    func->add_arg( "float", "slopeAbove" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add cget: slopeAbove
+    func = make_new_mfun( "float", "slopeAbove", dyno_cget_slopeAbove );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add ctrl: sideInput
+    func = make_new_mfun( "float", "sideInput", dyno_ctrl_sideInput );
+    func->add_arg( "float", "sideInput" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add cget: sideInput
+    func = make_new_mfun( "float", "sideInput", dyno_cget_sideInput );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add ctrl: externalSideInput
+    func = make_new_mfun( "int", "externalSideInput", dyno_ctrl_externalSideInput );
+    func->add_arg( "int", "externalSideInput" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    //add cget: externalSideInput
+    func = make_new_mfun( "int", "externalSideInput", dyno_cget_externalSideInput );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
+
     return TRUE;
 
 error:
@@ -1225,33 +1331,33 @@ CK_DLL_TICK( zerox_tick )
 struct delayp_data 
 { 
 
-    SAMPLE *	buffer;
-    t_CKINT		bufsize;
+    SAMPLE *    buffer;
+    t_CKINT     bufsize;
     
-	t_CKTIME	now;
+    t_CKTIME    now;
 
-    double		readpos;   //readpos ( moves at constant speed, sample per sample
-    double		writepos; // relative to read position
+    double      readpos;   //readpos ( moves at constant speed, sample per sample
+    double      writepos; // relative to read position
     
-    t_CKTIME	offset; // distance between read and write
+    t_CKTIME    offset; // distance between read and write
     
-    t_CKDUR		offset_start; 
-    t_CKDUR		offset_target;
+    t_CKDUR     offset_start; 
+    t_CKDUR     offset_target;
 
-    t_CKTIME	move_end_time; //target time
-    t_CKDUR		move_duration; //time we started shift
+    t_CKTIME    move_end_time; //target time
+    t_CKDUR     move_duration; //time we started shift
     
-    SAMPLE		last_sample;
-    t_CKDUR		last_offset;
+    SAMPLE      last_sample;
+    t_CKDUR     last_offset;
     
 #ifdef _DEBUG
-	int			lasti;
+    int         lasti;
 #endif
 
-    double		acoeff[2];
-    double		bcoeff[2];
-    SAMPLE		outputs[3];
-    SAMPLE		inputs[3];
+    double      acoeff[2];
+    double      bcoeff[2];
+    SAMPLE      outputs[3];
+    SAMPLE      inputs[3];
     
     delayp_data() 
     { 
@@ -1262,25 +1368,25 @@ struct delayp_data
         for ( i = 0 ; i < bufsize ; i++ ) buffer[i] = 0;
         for ( i = 0 ; i < 3 ; i++ ) { acoeff[i] = 0; bcoeff[i] = 0; }
         
-		acoeff[0] = 1.0;
+        acoeff[0] = 1.0;
         acoeff[1] = -.99;
         bcoeff[0] = 1.0;
         bcoeff[1] = -1.0;
         
-		readpos  = 0.0;        
+        readpos  = 0.0;        
 
-		now				= 0.0;
+        now             = 0.0;
 
-        offset			= 0.0; 
-        last_offset		= 0.0;
-        offset_start	= 0.0;
-        offset_target	= 0.0;
+        offset          = 0.0; 
+        last_offset     = 0.0;
+        offset_start    = 0.0;
+        offset_target   = 0.0;
 
-        move_duration	= 1.0;
-        move_end_time	= 0.0;
+        move_duration   = 1.0;
+        move_end_time   = 0.0;
 
 #ifdef _DEBUG
-		lasti		= -1;
+        lasti       = -1;
 #endif
         last_sample = 0;
     }
@@ -1321,53 +1427,53 @@ CK_DLL_TICK( delayp_tick )
     }
     
     //find locations in buffer...
-    double write		= (d->readpos )			+ d->offset;
-    double last_write	= (d->readpos - 1.0)	+ d->last_offset ;
+    double write        = (d->readpos )         + d->offset;
+    double last_write   = (d->readpos - 1.0)    + d->last_offset ;
     
     //linear interpolation.  will introduce some lowpass/aliasing.
     double write_delta  = write - last_write;
     double sample_delta = in - d->last_sample;
 
-	double duck_constant = 0.69;
+    double duck_constant = 0.69;
 
-	
-	double gee = fabs(write_delta) - 1.0;
+    
+    double gee = fabs(write_delta) - 1.0;
 
-	if ( gee < 24.0 ) { 
-		double head_contact = ( gee > 0 ) ? exp ( - duck_constant * gee ) : 1.0;
-		t_CKINT i, smin, smax, sampi;
-	    SAMPLE sampf = 0;
-		if ( write_delta >= 0 ) { //forward.
-			smin = (t_CKINT) floor ( last_write );
-			smax = (t_CKINT) floor ( write );
-			for ( i = smin+1 ; i <= smax ; i++ ) { 
-				sampf = d->last_sample + sample_delta * ( double(i) - last_write ) / write_delta;
-				sampi = ( i + d->bufsize * 2 ) % d->bufsize;
+    if ( gee < 24.0 ) { 
+        double head_contact = ( gee > 0 ) ? exp ( - duck_constant * gee ) : 1.0;
+        t_CKINT i, smin, smax, sampi;
+        SAMPLE sampf = 0;
+        if ( write_delta >= 0 ) { //forward.
+            smin = (t_CKINT) floor ( last_write );
+            smax = (t_CKINT) floor ( write );
+            for ( i = smin+1 ; i <= smax ; i++ ) { 
+                sampf = d->last_sample + sample_delta * ( double(i) - last_write ) / write_delta;
+                sampi = ( i + d->bufsize * 2 ) % d->bufsize;
 #ifdef _DEBUG 
-				if ( d->lasti == sampi ) { 
-					fprintf(stderr, "over!\n");
-				}
-				d->lasti = sampi;
+                if ( d->lasti == sampi ) { 
+                    fprintf(stderr, "over!\n");
+                }
+                d->lasti = sampi;
 #endif
-				d->buffer[sampi] += sampf * head_contact ;
-			}
-		}
-		else { //moving in reverse
-			smin = (t_CKINT) floor ( write );
-			smax = (t_CKINT) floor ( last_write );
-			for ( i = smin+1 ; i <= smax ; i++ ) { 
-				sampf = d->last_sample + sample_delta * ( double(i) - last_write ) / write_delta;
-				sampi = ( i + d->bufsize * 2 ) % d->bufsize;
+                d->buffer[sampi] += sampf * head_contact ;
+            }
+        }
+        else { //moving in reverse
+            smin = (t_CKINT) floor ( write );
+            smax = (t_CKINT) floor ( last_write );
+            for ( i = smin+1 ; i <= smax ; i++ ) { 
+                sampf = d->last_sample + sample_delta * ( double(i) - last_write ) / write_delta;
+                sampi = ( i + d->bufsize * 2 ) % d->bufsize;
 #ifdef _DEBUG
-				if ( d->lasti == sampi ) { 
-					fprintf(stderr, "over!\n");
-				}
-				d->lasti = sampi;
+                if ( d->lasti == sampi ) { 
+                    fprintf(stderr, "over!\n");
+                }
+                d->lasti = sampi;
 #endif
-				d->buffer[sampi] += sampf * head_contact;   
-			}
-		}
-	}
+                d->buffer[sampi] += sampf * head_contact;   
+            }
+        }
+    }
     
     d->last_offset = d->offset;
     d->last_sample = in;
@@ -1379,11 +1485,11 @@ CK_DLL_TICK( delayp_tick )
     
     //output last sample
     
-	t_CKINT rpos = (t_CKINT) fmod( d->readpos, d->bufsize ) ; 
+    t_CKINT rpos = (t_CKINT) fmod( d->readpos, d->bufsize ) ; 
     
     //   *out = d->buffer[rpos];
 
-	/*    
+    /*    
     // did i try to write a dc blocking filter? 
     d->outputs[0] =  0.0;
     d->inputs [0] =  d->buffer[rpos];
@@ -1398,14 +1504,14 @@ CK_DLL_TICK( delayp_tick )
 
     //clear at readpos ( write doesn't !)
     *out = d->outputs[0];
-	*/
+    */
 
-	*out = d->buffer[rpos];
+    *out = d->buffer[rpos];
     
     d->buffer[rpos] = 0; //clear once it's been read
-	d->readpos = fmod ( d->readpos + 1.0 , double( d->bufsize ) );
+    d->readpos = fmod ( d->readpos + 1.0 , double( d->bufsize ) );
  
-	return TRUE;
+    return TRUE;
     
 }
 
@@ -1416,14 +1522,14 @@ CK_DLL_CTRL( delayp_ctrl_delay )
     // area
 
     if ( target != d->offset_target ) {
-	    if ( target > d->bufsize ) { 
+        if ( target > d->bufsize ) { 
             fprintf( stderr, "[chuck](via delayp): delay time %f over max!  set max first!\n", target);
             return;
         }
         d->offset_target = target;
         d->offset_start  = d->last_offset;
 
-		t_CKTIME snow = ((Chuck_UGen*)SELF)->shred->now;
+        t_CKTIME snow = ((Chuck_UGen*)SELF)->shred->now;
         d->move_end_time = snow + d->move_duration; 
     }
     RETURN->v_dur = d->last_offset; // TODO:
@@ -2479,4 +2585,310 @@ CK_DLL_CGET( sndbuf_cget_valueAt )
     t_CKINT i = GET_CK_INT(ARGS);
     if( d->fd ) sndbuf_load( d, i );
     RETURN->v_float = ( i > d->num_frames || i < 0 ) ? 0 : d->buffer[i];
+}
+
+
+class Dyno_Data
+{
+private:
+  const static t_CKDUR ms;
+
+public:
+  t_CKFLOAT slopeAbove;
+  t_CKFLOAT slopeBelow;
+  t_CKFLOAT thresh;
+  t_CKFLOAT rt;
+  t_CKFLOAT at;
+  t_CKFLOAT xd; //sidechain
+  int externalSideInput; // use input signal or a ctrl signal for env
+  t_CKFLOAT sideInput;   // the ctrl signal for the envelope
+
+  int count; //diagnostic
+
+  Dyno_Data() {
+    xd = 0.0;
+    count = 0;
+    sideInput = 0;
+    limit();
+  }
+  ~Dyno_Data() {}
+
+  void limit();
+  void compress();
+  void gate();
+  void expand();
+  void duck();
+
+  //set the time constants for rt, at, and tav
+  static t_CKFLOAT Dyno_Data::computeTimeConst(t_CKDUR t) {
+
+    //AT = 1 - e ^ (-2.2T/t<AT)
+    //as per chuck_type.cpp, T(sampling period) = 1.0
+    return 1.0 - exp( -2.2 / t );
+  }
+
+  static t_CKDUR Dyno_Data::timeConstToDur(t_CKFLOAT x) {
+    return -2.2 / log(1.0 - x);
+  }
+
+  //setters for timing constants
+  void setAttackTime(t_CKDUR t);
+  void setReleaseTime(t_CKDUR t);
+
+  //other setters
+  void setRatio(t_CKFLOAT newRatio);
+  t_CKFLOAT getRatio();
+};
+
+const t_CKDUR Dyno_Data::ms = g_vm->srate() * 1.0 / 1000.0;
+
+//setters for the timing constants
+void Dyno_Data::setAttackTime(t_CKDUR t) {
+  at = computeTimeConst(t);
+}
+
+void Dyno_Data::setReleaseTime(t_CKDUR t) {
+  rt = computeTimeConst(t);
+}
+
+void Dyno_Data::setRatio(t_CKFLOAT newRatio) {
+  this->slopeAbove = 1.0 / newRatio;
+  this->slopeBelow = 1.0;
+}
+
+t_CKFLOAT Dyno_Data::getRatio()
+{
+  return this->slopeBelow / this->slopeAbove;
+}
+
+//TODO: come up with better/good presets?
+
+//presets for the dynomics processor
+void Dyno_Data::limit() {
+  slopeAbove = 0.1;   // 10:1 compression above thresh
+  slopeBelow = 1.0;    // no compression below
+  thresh = 0.5;
+  at = computeTimeConst( 5.0 * ms );
+  rt = computeTimeConst( 300.0 * ms );
+  externalSideInput = 0;
+}
+
+void Dyno_Data::compress() {
+  slopeAbove = 0.5;   // 2:1 compression
+  slopeBelow = 1.0;
+  thresh = 0.5;
+  at = computeTimeConst( 5.0 * ms );
+  rt = computeTimeConst( 500.0 * ms );
+  externalSideInput = 0;
+}
+
+void Dyno_Data::gate() {
+  slopeAbove = 1.0;
+  slopeBelow = 100000000; // infinity (more or less)
+  thresh = 0.1;
+  at = computeTimeConst( 11.0 * ms );
+  rt = computeTimeConst( 100.0 * ms );
+  externalSideInput = 0;
+}
+
+void Dyno_Data::expand() {
+  slopeAbove = 2.0;    // 1:2 expansion
+  slopeBelow = 1.0;
+  thresh = 0.5;
+  at = computeTimeConst( 20.0 * ms );
+  rt = computeTimeConst( 400.0 * ms );
+  externalSideInput = 0;
+}
+
+void Dyno_Data::duck() {
+  slopeAbove = 0.5;    // when sideInput rises above thresh, gain starts going
+  slopeBelow = 1.0;    // down. it'll drop more as sideInput gets louder.
+  thresh = 0.1;
+  at = computeTimeConst( 10.0 * ms );
+  rt = computeTimeConst( 1000.0 * ms );
+  externalSideInput = 1;
+}
+
+
+//controls for the preset modes
+CK_DLL_CTRL( dyno_ctrl_limit ) {
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     d->limit();
+}
+
+CK_DLL_CTRL( dyno_ctrl_compress ) {
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     d->compress();
+}
+
+CK_DLL_CTRL( dyno_ctrl_gate ) {
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     d->gate();
+}
+
+CK_DLL_CTRL( dyno_ctrl_expand ) {
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     d->expand();
+}
+
+CK_DLL_CTRL( dyno_ctrl_duck ) {
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     d->duck();
+}
+
+//additional controls: thresh
+CK_DLL_CTRL( dyno_ctrl_thresh ) {
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->thresh = GET_CK_FLOAT(ARGS);
+    RETURN->v_float = (t_CKFLOAT)d->thresh;
+}
+
+CK_DLL_CGET( dyno_cget_thresh ) {
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    RETURN->v_float = (t_CKFLOAT)d->thresh;
+}
+
+//additional controls: attackTime
+CK_DLL_CTRL( dyno_ctrl_attackTime ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->setAttackTime( GET_CK_FLOAT(ARGS) );
+    RETURN->v_dur = d->timeConstToDur(d->at);
+}
+
+CK_DLL_CGET( dyno_cget_attackTime ) {
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    RETURN->v_dur = d->timeConstToDur(d->at);
+}
+
+//additional controls: releaseTime
+CK_DLL_CTRL( dyno_ctrl_releaseTime ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->setReleaseTime( GET_CK_FLOAT(ARGS) );
+    RETURN->v_dur = d->timeConstToDur(d->rt);
+}
+
+CK_DLL_CGET( dyno_cget_releaseTime ) {
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    RETURN->v_dur = d->timeConstToDur(d->rt);
+}
+
+//additional controls: ratio
+CK_DLL_CTRL( dyno_ctrl_ratio ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->setRatio( GET_CK_FLOAT(ARGS) );
+    RETURN->v_float = d->getRatio();
+}
+
+CK_DLL_CGET( dyno_cget_ratio ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    RETURN->v_float = d->getRatio();
+}
+
+//additional controls: slopeBelow
+CK_DLL_CTRL( dyno_ctrl_slopeBelow ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->slopeBelow = GET_CK_FLOAT(ARGS);
+    
+    RETURN->v_float = d->slopeBelow;
+}
+
+CK_DLL_CGET( dyno_cget_slopeBelow ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    RETURN->v_float = d->slopeBelow;
+}
+
+//additional controls: slopeAbove
+CK_DLL_CTRL( dyno_ctrl_slopeAbove ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->slopeAbove = GET_CK_FLOAT(ARGS);
+    
+    RETURN->v_float = d->slopeAbove;
+}
+
+CK_DLL_CGET( dyno_cget_slopeAbove ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    RETURN->v_float = d->slopeAbove;
+}
+
+//additional controls: sideInput
+CK_DLL_CTRL( dyno_ctrl_sideInput ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->sideInput = GET_CK_FLOAT(ARGS);
+    
+    RETURN->v_float = d->sideInput;
+}
+
+CK_DLL_CGET( dyno_cget_sideInput ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    RETURN->v_float = d->sideInput;
+}
+
+//additional controls: externalSideInput
+CK_DLL_CTRL( dyno_ctrl_externalSideInput ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    d->externalSideInput = GET_CK_INT(ARGS);
+    
+    RETURN->v_int = d->externalSideInput;
+}
+
+CK_DLL_CGET( dyno_cget_externalSideInput ) {
+
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    RETURN->v_int = d->externalSideInput;
+}
+
+//constructor
+CK_DLL_CTOR( dyno_ctor )
+{
+    OBJ_MEMBER_UINT( SELF, dyno_offset_data ) = (t_CKUINT)new Dyno_Data;
+}
+
+CK_DLL_DTOR( dyno_dtor )
+{
+    delete (Dyno_Data *)OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+}
+
+// recomputes envelope, determines how the current amp envelope compares with
+// thresh, applies the appropriate new slope depending on how far above/below
+// the threshold the current envelope is.
+CK_DLL_TICK( dyno_tick )
+{
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+
+    // only change sideInput if we're not using an external ctrl signal.
+    // otherwise we'll just use whatever the user sent us last as the ctrl signal
+    if(!d->externalSideInput)
+        d->sideInput = in >= 0 ? in : -in;
+
+    // 'a' is signal left after subtracting xd (to recompute sideChain envelope)
+    double a = d->sideInput - d->xd;
+    // a is only needed if positive to pull the envelope up, not to bring it down
+    if ( a < 0 ) a=0;
+    // the attack/release (peak) exponential filter to guess envelope
+    d->xd = d->xd * (1 - d->rt) + d->at * a;
+
+    // if you were to use the rms filter,
+    // it would probably look, a sumpthin' like this
+    // d->xd = TAV * in*in + (1+TAV) * d->xd
+
+    // decide which slope to use, depending on whether we're below/above thresh
+    double slope = d->xd > d->thresh ? d->slopeAbove : d->slopeBelow;
+    // the gain function - apply the slope chosen above
+    double f = slope == 1.0 ? 1.0 : pow( d->xd / d->thresh, slope - 1.0 );
+
+    // apply the gain found above to input sample
+    *out = f * in;
+
+    return TRUE;
 }
