@@ -436,7 +436,11 @@ int main( int argc, char ** argv )
             {
                 // boost log level
                 g_otf_log = CK_LOG_CORE;
+                // flag
                 int is_otf = FALSE;
+                // log level
+                EM_setlog( log_level );
+                // do it
                 if( otf_send_cmd( argc, argv, i, g_host, g_port, &is_otf ) )
                     exit( 0 );
                     
