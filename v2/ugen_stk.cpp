@@ -3664,6 +3664,7 @@ ADSR :: ADSR() : Envelope()
   decayRate = (MY_FLOAT) 0.001;
   sustainLevel = (MY_FLOAT) 0.5;
   releaseRate = (MY_FLOAT) 0.01;
+  m_decayTime = (MY_FLOAT) -1.0; // not used
   m_releaseTime = (MY_FLOAT) -1.0; // not used
   state = ATTACK;
 }
@@ -3684,11 +3685,16 @@ void ADSR :: keyOff()
   // chuck
   if( m_releaseTime > 0 )
   {
-      releaseRate = value / (m_releaseTime * Stk::sampleRate());
+      // in case release triggered before sustain
+      rate = value / (m_releaseTime * Stk::sampleRate());
+  }
+  else
+  {
+      // rate was set
+      rate = releaseRate;
   }
 
   target = (MY_FLOAT) 0.0;
-  rate = releaseRate;
   state = RELEASE;
 }
 
@@ -3708,15 +3714,22 @@ void ADSR :: setDecayRate(MY_FLOAT aRate)
     decayRate = -aRate;
   }
   else decayRate = aRate;
+
+  // chuck
+  m_decayTime = -1.0;
 }
 
 void ADSR :: setSustainLevel(MY_FLOAT aLevel)
 {
   if (aLevel < 0.0 ) {
     printf("[chuck](via ADSR): sustain level out of range ... correcting!\n");
-    sustainLevel = (MY_FLOAT)  0.0;
+    sustainLevel = (MY_FLOAT) 0.0;
   }
   else sustainLevel = aLevel;
+
+  // chuck: need to recompute decay and release rates
+  if( m_decayTime > 0.0 ) setDecayTime( m_decayTime );
+  if( m_releaseTime > 0.0 ) setReleaseTime( m_releaseTime );
 }
 
 void ADSR :: setReleaseRate(MY_FLOAT aRate)
@@ -3744,13 +3757,17 @@ void ADSR :: setDecayTime(MY_FLOAT aTime)
 {
   if (aTime < 0.0) {
     printf("[chuck](via ADSR): negative times not allowed ... correcting!\n");
-    decayRate = 1.0 / ( -aTime * Stk::sampleRate() );
+    // chuck: compute rate for 1.0 to sustain
+    decayRate = (1.0 - sustainLevel) / ( -aTime * Stk::sampleRate() );
   }
   else if( aTime == 0.0 ) {
     // printf("[chuck](via ADSR): zero decay time not allowed ... correcting!\n");
     decayRate = FLT_MAX; // a big number
   }
-  else decayRate = 1.0 / ( aTime * Stk::sampleRate() );
+  else decayRate = (1.0 - sustainLevel) / ( aTime * Stk::sampleRate() );
+
+  // chuck
+  m_decayTime = aTime;
 }
 
 void ADSR :: setReleaseTime(MY_FLOAT aTime)
@@ -3764,6 +3781,13 @@ void ADSR :: setReleaseTime(MY_FLOAT aTime)
   // chuck
   m_releaseTime = aTime;
 }
+
+// chuck
+MY_FLOAT ADSR :: getAttackTime() { return 1.0 / (attackRate*Stk::sampleRate()); }
+MY_FLOAT ADSR :: getDecayTime()
+{ return (1.0 - sustainLevel) / (decayRate*Stk::sampleRate()); }
+MY_FLOAT ADSR :: getReleaseTime()
+{ return sustainLevel / (releaseRate*Stk::sampleRate()); }
 
 void ADSR :: setAllTimes(MY_FLOAT aTime, MY_FLOAT dTime, MY_FLOAT sLevel, MY_FLOAT rTime)
 {
@@ -21075,8 +21099,7 @@ CK_DLL_CTRL( ADSR_ctrl_attackTime )
 CK_DLL_CGET( ADSR_cget_attackTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_dur = d->attackRate > 0 ? 1.0 / d->attackRate * Stk::sampleRate()
-        : FLT_MAX;
+    RETURN->v_dur = d->getAttackTime();
 }
 
 
@@ -21123,8 +21146,7 @@ CK_DLL_CTRL( ADSR_ctrl_decayTime )
 CK_DLL_CGET( ADSR_cget_decayTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_dur = d->decayRate > 0 ? 1.0 / d->decayRate * Stk::sampleRate() 
-        : FLT_MAX;
+    RETURN->v_dur = d->getDecayTime();
 }
 
 
@@ -21194,8 +21216,7 @@ CK_DLL_CTRL( ADSR_ctrl_releaseTime )
 CK_DLL_CGET( ADSR_cget_releaseTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_dur = d->releaseRate > 0 ? 1.0 / d->releaseRate * Stk::sampleRate()
-        : FLT_MAX;
+    RETURN->v_dur = d->getReleaseTime();
 }
 
 

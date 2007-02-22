@@ -414,12 +414,18 @@ class ADSR : public Envelope
   //! Return \e vectorSize envelope outputs in \e vector.
   MY_FLOAT *tick(MY_FLOAT *vector, unsigned int vectorSize);
 
+  // chuck
+  MY_FLOAT getAttackTime();
+  MY_FLOAT getDecayTime();
+  MY_FLOAT getReleaseTime();
+
 public:
   MY_FLOAT attackRate;
   MY_FLOAT decayRate;
   MY_FLOAT sustainLevel;
   MY_FLOAT releaseRate;
   // chuck
+  MY_FLOAT m_decayTime;
   MY_FLOAT m_releaseTime;
 };
 
