@@ -922,6 +922,10 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
         // close file handles and clean up
         all_detach();
         // TODO: free more memory?
+
+        // log
+        EM_log( CK_LOG_INFO, "(VM): exiting..." );
+        // come again
         exit( 1 );
     }
     else if( msg->type == MSG_STATUS )

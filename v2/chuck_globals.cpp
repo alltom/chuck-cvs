@@ -32,6 +32,7 @@
 //-----------------------------------------------------------------------------
 #include "chuck_globals.h"
 #include "chuck_bbq.h"
+#include "chuck_errmsg.h"
 #include "ugen_stk.h"
 #include "ulib_std.h"
 #include "hidio_sdl.h"
@@ -76,6 +77,10 @@ CHUCK_THREAD g_tid_whatever = 0;
 //-----------------------------------------------------------------------------
 extern "C" void all_detach()
 {
+    // log
+    EM_log( CK_LOG_INFO, "detaching all resources..." );
+    // push
+    EM_pushlog();
     // close stk file handles
     stk_detach( 0, NULL );
     // close midi file handles
@@ -84,6 +89,8 @@ extern "C" void all_detach()
     KBHitManager::shutdown();
     // shutdown HID
     HidInManager::cleanup();
+    // pop
+    EM_poplog();
 }
 
 

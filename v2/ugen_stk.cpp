@@ -24763,6 +24763,9 @@ CK_DLL_CTRL ( Mesh2D_ctrl_control_change ) {
 t_CKBOOL stk_detach( t_CKUINT type, void * data )
 {
     std::map<WvOut *, WvOut *>::iterator iter;
+
+    // log
+    EM_log( CK_LOG_INFO, "(via STK): detaching file handles..." );
     
     for( iter = g_wv.begin(); iter != g_wv.end(); iter++ )
     {

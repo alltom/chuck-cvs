@@ -524,11 +524,11 @@ void HidInManager::init_default_drivers()
 
 void HidInManager::cleanup()
 {
+    // log
+    EM_log( CK_LOG_INFO, "shutting down HID..." );
+    
     if( has_init )
-    {
-        // log
-        EM_log( CK_LOG_INFO, "shutting down HID..." );
-        
+    {    
         // loop
         for( vector<vector<PhyHidDevIn *> >::size_type i = 0; i < the_matrix.size(); i++ )
         {

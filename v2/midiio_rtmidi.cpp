@@ -595,6 +595,9 @@ t_CKBOOL midirw_detach( )
     std::map<MidiRW *, MidiRW *>::iterator iter;
     std::vector<MidiRW *> list;
 
+    // log
+    EM_log( CK_LOG_INFO, "detaching MIDI devices..." );
+
     for( iter = g_rw.begin(); iter != g_rw.end(); iter++ )
         list.push_back( (*iter).second );
     for( t_CKUINT i = 0; i < list.size(); i++ )
