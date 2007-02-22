@@ -111,7 +111,16 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
         otf_ntoh( &buf );
         // write
         fwrite( buf.buffer, sizeof(char), buf.length, fd );
-    }while( buf.param2 );
+    }while( buf.param2 > 0 );
+
+    // check for error
+    if( buf.param2 < 0 )
+    {
+        // this was a problem
+        EM_log( CK_LOG_INFO, "(via otf): received error flag, dropping..." );
+        // done
+        goto error;
+    }
     
     return fd;
 
@@ -288,14 +297,18 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
         {
             // error encountered
             fprintf( stderr, "[chuck]: error while reading '%s'...\n", filename.c_str() );
-            // done
-            goto done;
+            // mark done
+            left = 0;
+            // error flag
+            msg.param2 = -1;
         }
-
-        // amount left
-        left -= msg.param3 ? msg.param3 : left;
-        // what's left
-        msg.param2 = left;
+        else
+        {
+            // amount left
+            left -= msg.param3;
+            // what's left
+            msg.param2 = left;
+        }
 
         // log
         EM_log( CK_LOG_FINER, "sending buffer %03d length %03d...", msg.param3, msg.length );
@@ -304,7 +317,6 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
         ck_send( dest, (char *)&msg, sizeof(msg) );
     }
 
-done:
     // pop log
     EM_poplog();
 
