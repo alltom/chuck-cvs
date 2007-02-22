@@ -263,8 +263,8 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
     fseek( fd, 0, SEEK_SET );
 
     // log
-    // EM_log( CK_LOG_INFO, "sending TCP file %s, size=%d\n", filename.c_str(), msg.param2 );
-    // EM_pushlog();
+    EM_log( CK_LOG_INFO, "sending TCP file %s, size=%d\n", filename.c_str(), msg.param2 );
+    EM_pushlog();
 
     // send the first packet
     msg.param2 = (t_CKUINT)fs.st_size;
