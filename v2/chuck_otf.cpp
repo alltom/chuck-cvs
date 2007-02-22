@@ -277,25 +277,40 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
     t_CKUINT left = (t_CKUINT)fs.st_size;
     while( left )
     {
-        EM_log( CK_LOG_FINER, "file %03d bytes left ... ", left );
+        // log
+        EM_log( CK_LOG_FINER, "%03d bytes left ... ", left );
         // amount to send
         msg.length = left > NET_BUFFER_SIZE ? NET_BUFFER_SIZE : left;
         // read
         msg.param3 = fread( msg.buffer, sizeof(char), msg.length, fd );
+        // check for error
+        if( !msg.param3 )
+        {
+            // error encountered
+            fprintf( stderr, "[chuck]: error while reading '%s'...\n", filename.c_str() );
+            // done
+            goto done;
+        }
+
         // amount left
-        left -= msg.param3 ? msg.param3 : 0;
+        left -= msg.param3 ? msg.param3 : left;
+        // what's left
         msg.param2 = left;
-        EM_log( CK_LOG_FINER, "sending fread %03d length %03d...\n", msg.param3, msg.length );
+
+        // log
+        EM_log( CK_LOG_FINER, "sending buffer %03d length %03d...\n", msg.param3, msg.length );
         // send it
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );
     }
-    
+
+done:
     // pop log
-    // EM_poplog();
+    EM_poplog();
+
     // close
     fclose( fd );
-    //fprintf(stderr, "done.\n", msg.buffer );
+
     return TRUE;
 }
 
