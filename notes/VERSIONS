@@ -16,6 +16,12 @@
                   (author Matt Hoffman and Graham Coleman)
             --------
 
+  - (api)   API additions
+            -------- (also see API modifications below)
+            ADSR: dur attackTime()
+                  dur decayTime()
+                  dur releaseTime()
+            --------
   - (api)   API modifications (sorry!)
             --------
             ADSR: float attackTime( float ) -> dur attackTime( dur )
