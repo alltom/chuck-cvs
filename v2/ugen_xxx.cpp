@@ -2620,14 +2620,13 @@ public:
   void duck();
 
   //set the time constants for rt, at, and tav
-  static t_CKFLOAT Dyno_Data::computeTimeConst(t_CKDUR t) {
-
+  static t_CKFLOAT computeTimeConst(t_CKDUR t) {
     //AT = 1 - e ^ (-2.2T/t<AT)
     //as per chuck_type.cpp, T(sampling period) = 1.0
     return 1.0 - exp( -2.2 / t );
   }
 
-  static t_CKDUR Dyno_Data::timeConstToDur(t_CKFLOAT x) {
+  static t_CKDUR timeConstToDur(t_CKFLOAT x) {
     return -2.2 / log(1.0 - x);
   }
 

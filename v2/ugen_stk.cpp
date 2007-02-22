@@ -4749,9 +4749,6 @@ void BlitSquare :: reset()
 {
   phase_ = 0.0;
   m_output = 0;
-  m_ = 0.0;
-  p_ = 0.0;
-  a_ = 0.0;
   dcbState_ = 0.0;
   m_boutput = 0.0;
 }
