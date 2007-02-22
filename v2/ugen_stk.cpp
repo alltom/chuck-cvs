@@ -132,9 +132,12 @@ CK_DLL_CTRL( ADSR_ctrl_releaseTime );
 CK_DLL_CTRL( ADSR_ctrl_releaseRate );
 CK_DLL_CTRL( ADSR_ctrl_set );
 CK_DLL_CTRL( ADSR_ctrl_set2 );
+CK_DLL_CGET( ADSR_cget_attackTime );
 CK_DLL_CGET( ADSR_cget_attackRate );
+CK_DLL_CGET( ADSR_cget_decayTime );
 CK_DLL_CGET( ADSR_cget_decayRate );
 CK_DLL_CGET( ADSR_cget_sustainLevel );
+CK_DLL_CGET( ADSR_cget_releaseTime );
 CK_DLL_CGET( ADSR_cget_releaseRate );
 CK_DLL_CGET( ADSR_cget_state );
 
@@ -2633,8 +2636,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_ugen_begin( env, "ADSR", "Envelope", env->global(), 
                                         ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
 
-    func = make_new_mfun( "float", "attackTime", ADSR_ctrl_attackTime ); //! attack time
-    func->add_arg( "float", "value" );
+    func = make_new_mfun( "dur", "attackTime", ADSR_ctrl_attackTime ); //! attack time
+    func->add_arg( "float", "dur" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "dur", "attackTime", ADSR_cget_attackTime ); //! attack time
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "attackRate", ADSR_ctrl_attackRate ); //! attack rate
@@ -2644,8 +2650,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "attackRate", ADSR_cget_attackRate ); //! attack rate
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "decayTime", ADSR_ctrl_decayTime ); //! decay time 
-    func->add_arg( "float", "value" );
+    func = make_new_mfun( "dur", "decayTime", ADSR_ctrl_decayTime ); //! decay time 
+    func->add_arg( "dur", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "dur", "decayTime", ADSR_cget_decayTime ); //! decay time 
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "decayRate", ADSR_ctrl_decayRate ); //! decay rate
@@ -2662,8 +2671,11 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "sustainLevel", ADSR_cget_sustainLevel ); //! sustain level
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float", "releaseTime", ADSR_ctrl_releaseTime ); //! release time 
-    func->add_arg( "float", "value" );
+    func = make_new_mfun( "dur", "releaseTime", ADSR_ctrl_releaseTime ); //! release time 
+    func->add_arg( "dur", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "dur", "releaseTime", ADSR_cget_releaseTime ); //! release time 
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "releaseRate", ADSR_ctrl_releaseRate ); //! release rate
@@ -21050,9 +21062,21 @@ CK_DLL_PMSG( ADSR_pmsg )
 CK_DLL_CTRL( ADSR_ctrl_attackTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
-    d->setAttackTime( t );
-    RETURN->v_float = t;
+    t_CKDUR t = GET_NEXT_DUR(ARGS);
+    d->setAttackTime( t / Stk::sampleRate() );
+    RETURN->v_dur = t;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ADSR_cget_attackTime()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( ADSR_cget_attackTime )
+{
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    RETURN->v_dur = d->attackRate > 0 ? 1.0 / d->attackRate * Stk::sampleRate()
+        : FLT_MAX;
 }
 
 
@@ -21086,9 +21110,21 @@ CK_DLL_CGET( ADSR_cget_attackRate )
 CK_DLL_CTRL( ADSR_ctrl_decayTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
-    d->setDecayTime( t );
-    RETURN->v_float = t;
+    t_CKDUR t = GET_NEXT_DUR(ARGS);
+    d->setDecayTime( t / Stk::sampleRate() );
+    RETURN->v_dur = t;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ADSR_cget_decayTime()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( ADSR_cget_decayTime )
+{
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    RETURN->v_dur = d->decayRate > 0 ? 1.0 / d->decayRate * Stk::sampleRate() 
+        : FLT_MAX;
 }
 
 
@@ -21145,9 +21181,21 @@ CK_DLL_CGET( ADSR_cget_sustainLevel )
 CK_DLL_CTRL( ADSR_ctrl_releaseTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    t_CKFLOAT t = GET_NEXT_FLOAT(ARGS);
-    d->setReleaseTime( t );
-    RETURN->v_float = t;
+    t_CKDUR t = GET_NEXT_DUR(ARGS);
+    d->setReleaseTime( t / Stk::sampleRate() );
+    RETURN->v_dur = t;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: ADSR_cget_releaseTime()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( ADSR_cget_releaseTime )
+{
+    ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    RETURN->v_dur = d->releaseRate > 0 ? 1.0 / d->releaseRate * Stk::sampleRate()
+        : FLT_MAX;
 }
 
 

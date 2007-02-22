@@ -15,6 +15,14 @@
             Dyno: dynamics processor (compressor, expander, etc.)
                   (author Matt Hoffman and Graham Coleman)
             --------
+
+  - (api)   API modifications (sorry!)
+            --------
+            ADSR: float attackTime( float ) -> dur attackTime( dur )
+                  float decayTime( float ) -> dur decayTime( dur )
+                  float releaseTime( float ) -> dur releaseTime( dur )
+            --------
+
   - (fixed) array is now subclass of Object
   - (fixed) accessing null array no longer crashes (instead: exception)
   - (fixed) connecting null UGen references no longer crashes
