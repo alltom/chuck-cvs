@@ -258,21 +258,26 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
     }
 
     // stat it
+    memset( &fs, 0, sizeof(fs) );
     stat( filename.c_str(), &fs );
     fseek( fd, 0, SEEK_SET );
 
-    // fprintf(stderr, "sending TCP file %s\n", msg.buffer );
+    // log
+    // EM_log( CK_LOG_INFO, "sending TCP file %s, size=%d\n", filename.c_str(), msg.param2 );
+    // EM_pushlog();
+
     // send the first packet
     msg.param2 = (t_CKUINT)fs.st_size;
     msg.length = 0;
     otf_hton( &msg );
+    // go
     ck_send( dest, (char *)&msg, sizeof(msg) );
 
     // send the whole thing
     t_CKUINT left = (t_CKUINT)fs.st_size;
     while( left )
     {
-        // fprintf(stderr,"file %03d bytes left ... ", left);
+        EM_log( CK_LOG_FINER, "file %03d bytes left ... ", left );
         // amount to send
         msg.length = left > NET_BUFFER_SIZE ? NET_BUFFER_SIZE : left;
         // read
@@ -280,12 +285,14 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
         // amount left
         left -= msg.param3 ? msg.param3 : 0;
         msg.param2 = left;
-        // fprintf(stderr, "sending fread %03d length %03d...\n", msg.param3, msg.length );
+        EM_log( CK_LOG_FINER, "sending fread %03d length %03d...\n", msg.param3, msg.length );
         // send it
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );
     }
     
+    // pop log
+    // EM_poplog();
     // close
     fclose( fd );
     //fprintf(stderr, "done.\n", msg.buffer );
