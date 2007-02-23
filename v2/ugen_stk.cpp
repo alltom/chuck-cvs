@@ -3344,6 +3344,9 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func->add_arg( "string", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "string", "closeFile", WvOut_ctrl_closeFile ); //! close file properly
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "string", "autoPrefix", WvOut_ctrl_autoPrefix ); //! set/get auto prefix string
     func->add_arg( "string", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;

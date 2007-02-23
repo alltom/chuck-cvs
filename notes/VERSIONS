@@ -21,6 +21,7 @@
             ADSR: dur attackTime()
                   dur decayTime()
                   dur releaseTime()
+            WvOut: void closeFile()
             --------
   - (api)   API modifications (sorry!)
             --------
