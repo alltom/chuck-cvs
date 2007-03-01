@@ -1,8 +1,8 @@
 // patch
-adc => FFT fft => IFFT ifft => blackhole;
+adc => FFT fft => IFFT ifft => dac;
 
-fft => crazy_spectral_mod => IFFT ifft2 => dac;
-fft => crazy2 => IFFT ifft3 => dac;
+// fft => crazy_spectral_mod => IFFT ifft2 => dac;
+// fft => crazy2 => IFFT ifft3 => dac;
 
 // set window
 ( hamming, 512 ) => fft.window;
@@ -11,16 +11,16 @@ fft => crazy2 => IFFT ifft3 => dac;
 // name for enqueuing onto info-stream
 "joanne" => fft.signature;
 
-InfoBlob results[];
+InfoBlob results;
 
 // infinite time loop
 while( true )
 {
 	// take fft, result implicitly enqueued
-	fft.go() => stream;
+	fft.go();
 	
 	// immediately look for it
-	ifft.query( "joanne" ) @=> results;
+	fft.output() @=> results;
 	// examine
 	if( results.good() )
 	{

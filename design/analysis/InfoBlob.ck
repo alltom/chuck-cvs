@@ -29,4 +29,7 @@ class InfoBlob
 	
 	// deep copy with data
 	InfoBlock clone();
+	
+	// secret (C++ only), UAna that made this
+	int origin;
 }
