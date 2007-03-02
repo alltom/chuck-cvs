@@ -188,9 +188,9 @@ CK_DLL_CGET( sndbuf_cget_valueAt );
 //-----------------------------------------------------------------------------
 // file: ugen_genX
 // desc: thought it would be a good way to learn the fascinating innards of
-//       ChucK by porting some of the classic lookup table functions and adding
-//       a few new ones that might be of use.
-//       mostly ported from RTcmix (all by WarpTable)
+//		 ChucK by porting some of the classic lookup table functions and adding
+//		 a few new ones that might be of use.
+//		 mostly ported from RTcmix (all by WarpTable)
 //
 // author: Dan Trueman (dtrueman.princeton.edu)
 // date: Winter 2007
