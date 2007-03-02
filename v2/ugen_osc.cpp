@@ -1109,7 +1109,7 @@ CK_DLL_TICK( genX_tick )
     // check table index ranges
     while(lowIndex >= genX_tableSize) lowIndex -= genX_tableSize; 
     while(hiIndex >= genX_tableSize) hiIndex -= genX_tableSize; 
-    
+
     // could just call
     // outvalue = genX_lookup(in_index);?
     
@@ -1433,11 +1433,11 @@ CK_DLL_CTRL( curve_coeffs )
     if(weights<0) return;
     nargs = weights->size();
     if (nargs < 5 || (nargs % 3) != 2)  {   // check number of args
-        fprintf( stderr, "[chuck](via Curve): usage: \n size, time1, value1, curvature1, [ timeN-1, valueN-1, curvatureN-1, ] timeN, valueN)" );
+        fprintf( stderr, "[chuck](via CurveTable): usage: \n size, time1, value1, curvature1, [ timeN-1, valueN-1, curvatureN-1, ] timeN, valueN)" );
         return;
     }
     if ((nargs / 3) + 1 > MAX_CURVE_PTS) {
-        fprintf(stderr, ("[chuck](via Curve): too many arguments."));
+        fprintf(stderr, ("[chuck](via CurveTable): too many arguments."));
         return;
     }
     
@@ -1449,7 +1449,7 @@ CK_DLL_CTRL( curve_coeffs )
     }
     
     if (coeffs[0] != 0.0) {
-        fprintf(stderr, "[chuck](via Curve): first time must be zero.");
+        fprintf(stderr, "[chuck](via CurveTable): first time must be zero.");
         return;
     }
     
@@ -1476,7 +1476,7 @@ CK_DLL_CTRL( curve_coeffs )
     return;
     
 time_err:
-    fprintf(stderr, "[chuck](via Curve): times must be in ascending order.");
+    fprintf(stderr, "[chuck](via CurveTable): times must be in ascending order.");
 
     return;
 }
