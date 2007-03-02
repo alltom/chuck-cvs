@@ -894,7 +894,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
     
-    func = make_new_mfun( "float", "values", gen5_coeffs ); //load table
+    func = make_new_mfun( "float[]", "values", gen5_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -910,7 +910,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float", "values", gen7_coeffs ); //load table
+    func = make_new_mfun( "float[]", "values", gen7_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -925,7 +925,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float", "coeffs", gen9_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coeffs", gen9_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -941,7 +941,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float", "coeffs", gen10_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coeffs", gen10_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -956,7 +956,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float", "coeffs", gen17_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coeffs", gen17_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -970,7 +970,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float", "coeffs", curve_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coeffs", curve_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -1211,6 +1211,8 @@ CK_DLL_CTRL( gen5_coeffs )
         d->genX_table[j] /= xmax;
     }
 
+    // return
+    RETURN->v_object = in_args;
 }
 
 //-----------------------------------------------------------------------------
@@ -1260,6 +1262,8 @@ CK_DLL_CTRL( gen7_coeffs )
         d->genX_table[j] /= xmax;
     }
 
+    // return
+    RETURN->v_object = in_args;
 }
 
 
@@ -1290,15 +1294,15 @@ CK_DLL_CTRL( gen9_coeffs )
         coeffs[ii] = v;
     }
     
-    for (j = size - 1; j > 0; j -= 3) {
-      if (coeffs[j - 1] != 0) {
-         for (i = 0; i < genX_tableSize; i++) {
-            t_CKDOUBLE val = sin(TWO_PI * ((t_CKDOUBLE) i / ((t_CKDOUBLE) (genX_tableSize)
+    for(j = size - 1; j > 0; j -= 3) {
+        if(coeffs[j - 1] != 0) {
+            for(i = 0; i < genX_tableSize; i++) {
+                t_CKDOUBLE val = sin(TWO_PI * ((t_CKDOUBLE) i / ((t_CKDOUBLE) (genX_tableSize)
                                  / coeffs[j - 2]) + coeffs[j] / 360.));
-            d->genX_table[i] += val * coeffs[j - 1];
-         }
-      }
-   }
+                d->genX_table[i] += val * coeffs[j - 1];
+            }
+        }
+    }
     
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
@@ -1309,6 +1313,8 @@ CK_DLL_CTRL( gen9_coeffs )
         d->genX_table[j] /= xmax;
     }
 
+    // return 
+    RETURN->v_object = weights;
 }
 
 
@@ -1337,27 +1343,30 @@ CK_DLL_CTRL( gen10_coeffs )
         d->coeffs[ii] = v;
     }
     
-   j = genX_MAX_COEFFS;
-   while (j--) {
+    j = genX_MAX_COEFFS;
+    while (j--) {
       if (d->coeffs[j] != 0) {
          for (i = 0; i < genX_tableSize; i++) {
             t_CKDOUBLE val = (t_CKDOUBLE) (TWO_PI * (t_CKDOUBLE) i / (genX_tableSize / (j + 1)));
             d->genX_table[i] += sin(val) * d->coeffs[j];
          }
       }
-   }
-    
-   
+    }
+       
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
         //fprintf( stdout, "table current = %f\n", wmax);
     }
+
     //fprintf( stdout, "table max = %f\n", xmax);
     for(j = 0; j < genX_tableSize; j++) {
         d->genX_table[j] /= xmax;
     }
 
+    // return
+    RETURN->v_object = weights;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: gen17_coeffs()
@@ -1388,17 +1397,17 @@ CK_DLL_CTRL( gen17_coeffs )
     }
     
     for (i = 0; i < genX_tableSize; i++) {
-      x = (t_CKDOUBLE)(i / dg - 1.);
-      d->genX_table[i] = 0.0;
-      Tn1 = 1.0;
-      Tn = x;
-      for (j = 0; j < size; j++) {
-         d->genX_table[i] = coeffs[j] * Tn + d->genX_table[i];
-         Tn2 = Tn1;
-         Tn1 = Tn;
-         Tn = 2.0 * x * Tn1 - Tn2;
-      }
-   }
+        x = (t_CKDOUBLE)(i / dg - 1.);
+        d->genX_table[i] = 0.0;
+        Tn1 = 1.0;
+        Tn = x;
+        for (j = 0; j < size; j++) {
+            d->genX_table[i] = coeffs[j] * Tn + d->genX_table[i];
+            Tn2 = Tn1;
+            Tn1 = Tn;
+            Tn = 2.0 * x * Tn1 - Tn2;
+        }
+    }
    
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
@@ -1410,7 +1419,10 @@ CK_DLL_CTRL( gen17_coeffs )
         //fprintf( stdout, "table current = %f\n", d->genX_table[j]);
     }
 
+    // return
+    RETURN->v_object = weights;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: curve_coeffs()
@@ -1473,16 +1485,22 @@ CK_DLL_CTRL( curve_coeffs )
         ptr += seglen - 1;
     }
     
+    // return
+    RETURN->v_object = weights;
+
     return;
     
 time_err:
     fprintf(stderr, "[chuck](via CurveTable): times must be in ascending order.");
 
+    // return
+    RETURN->v_object = weights;
+
     return;
 }
 
-static void
-_transition(t_CKDOUBLE a, t_CKDOUBLE alpha, t_CKDOUBLE b, t_CKINT n, t_CKDOUBLE *output)
+
+static void _transition(t_CKDOUBLE a, t_CKDOUBLE alpha, t_CKDOUBLE b, t_CKINT n, t_CKDOUBLE *output)
 {
     t_CKINT  i;
     t_CKDOUBLE delta, interval = 0.0;
@@ -1507,6 +1525,7 @@ _transition(t_CKDOUBLE a, t_CKDOUBLE alpha, t_CKDOUBLE b, t_CKINT n, t_CKDOUBLE 
         for (i = 0; i < n; i++)
             *output++ = a + delta * i * interval;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: warp_coeffs()
@@ -1537,10 +1556,12 @@ CK_DLL_CTRL( warp_coeffs )
     }
 }
 
+
 t_CKDOUBLE _asymwarp(t_CKDOUBLE inval, t_CKDOUBLE k)
 {
     return (pow(k, inval) - 1.) / (k - 1.);
 }
+
 
 t_CKDOUBLE _symwarp(t_CKDOUBLE inval, t_CKDOUBLE k)
 {
@@ -1553,6 +1574,7 @@ t_CKDOUBLE _symwarp(t_CKDOUBLE inval, t_CKDOUBLE k)
     inval = 1. - inval; // for S curve
     sym_warped = pow(2.*inval - 1., 1./k);
     sym_warped = (sym_warped + 1.) * 0.5;
+
     return 1. - sym_warped;
 }
 
