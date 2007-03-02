@@ -827,7 +827,7 @@ CK_DLL_PMSG( osc_pmsg )
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     if( !strcmp( MSG, "print" ) )
     {
-        fprintf( stdout, "sinosc: (freq=%f)", d->freq );
+        fprintf( stdout, "SinOsc: (freq=%f)", d->freq );
         return TRUE;
     }
     
@@ -884,6 +884,10 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "which" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "float[]", "coeffs", genX_coeffs ); //load table
+    func->add_arg( "float", "v[]" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -895,7 +899,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
     
-    func = make_new_mfun( "float[]", "values", gen5_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coeffs", gen5_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -910,8 +914,8 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_ugen_begin( env, "Gen7", "GenX", env->global(), 
                                         NULL, genX_tick, NULL ) )
         return FALSE;
-        
-    func = make_new_mfun( "float[]", "values", gen7_coeffs ); //load table
+
+    func = make_new_mfun( "float[]", "coeffs", gen7_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -985,10 +989,16 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
+    func = make_new_mfun( "float[]", "coeffs", warp_coeffs ); //load table
+    func->add_arg( "float", "v[]" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    /*
     func = make_new_mfun( "float", "coeffs", warp_coeffs ); //load table
     func->add_arg( "float", "asym" );
     func->add_arg( "float", "sym" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    */
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1072,7 +1082,6 @@ CK_DLL_DTOR( genX_dtor )
 
 
 
-
 //-----------------------------------------------------------------------------
 // name: genX_tick()
 // desc: ...
@@ -1128,7 +1137,7 @@ CK_DLL_TICK( genX_tick )
 // name: genX_lookup()
 // desc: lookup call for all gens
 //-----------------------------------------------------------------------------
-CK_DLL_CGET( genX_lookup )
+CK_DLL_CTRL( genX_lookup )
 {
     // get the data
     genX_Data * d = (genX_Data *)OBJ_MEMBER_UINT(SELF, genX_offset_data );
@@ -1162,6 +1171,7 @@ CK_DLL_CGET( genX_lookup )
 
 }
 
+
 //-----------------------------------------------------------------------------
 // name: gen5_coeffs()
 // desc: setup table for gen5
@@ -1175,7 +1185,7 @@ CK_DLL_CTRL( gen5_coeffs )
     
     Chuck_Array8 * in_args = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
     
-    //fprintf(stdout, "calling gen10coeffs, %d\n", weights);
+    // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(in_args<0) return;
     size = in_args->size();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
@@ -1205,9 +1215,9 @@ CK_DLL_CTRL( gen5_coeffs )
    
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
-        //fprintf( stdout, "table current = %f\n", wmax);
+        // fprintf( stdout, "table current = %f\n", wmax);
     }
-    //fprintf( stdout, "table max = %f\n", xmax);
+    // fprintf( stdout, "table max = %f\n", xmax);
     for(j = 0; j < genX_tableSize; j++) {
         d->genX_table[j] /= xmax;
     }
@@ -1215,6 +1225,7 @@ CK_DLL_CTRL( gen5_coeffs )
     // return
     RETURN->v_object = in_args;
 }
+
 
 //-----------------------------------------------------------------------------
 // name: gen7_coeffs()
@@ -1229,7 +1240,7 @@ CK_DLL_CTRL( gen7_coeffs )
     
     Chuck_Array8 * in_args = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
     
-    //fprintf(stdout, "calling gen10coeffs, %d\n", weights);
+    // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(in_args<0) return;
     size = in_args->size();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
@@ -1237,7 +1248,7 @@ CK_DLL_CTRL( gen7_coeffs )
     t_CKFLOAT v;
     for(t_CKUINT ii = 0; ii<size; ii++) {
         in_args->get(ii, &v);
-        //fprintf( stdout, "weight %d = %f...\n", ii, v );
+        // fprintf( stdout, "weight %d = %f...\n", ii, v );
         coeffs[ii] = v;
     }
     
@@ -1256,9 +1267,9 @@ CK_DLL_CTRL( gen7_coeffs )
    
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
-        //fprintf( stdout, "table current = %f\n", wmax);
+        // fprintf( stdout, "table current = %f\n", wmax);
     }
-    //fprintf( stdout, "table max = %f\n", xmax);
+    // fprintf( stdout, "table max = %f\n", xmax);
     for(j = 0; j < genX_tableSize; j++) {
         d->genX_table[j] /= xmax;
     }
@@ -1282,7 +1293,7 @@ CK_DLL_CTRL( gen9_coeffs )
     
     Chuck_Array8 * weights = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
     
-    //fprintf(stdout, "calling gen10coeffs, %d\n", weights);
+    // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(weights<0) return;
     size = weights->size();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
@@ -1291,7 +1302,7 @@ CK_DLL_CTRL( gen9_coeffs )
     t_CKFLOAT v;
     for(t_CKUINT ii = 0; ii<size; ii++) {
         weights->get(ii, &v);
-        //fprintf( stdout, "weight %d = %f...\n", ii, v );
+        // fprintf( stdout, "weight %d = %f...\n", ii, v );
         coeffs[ii] = v;
     }
     
@@ -1307,9 +1318,9 @@ CK_DLL_CTRL( gen9_coeffs )
     
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
-        //fprintf( stdout, "table current = %f\n", wmax);
+        // fprintf( stdout, "table current = %f\n", wmax);
     }
-    //fprintf( stdout, "table max = %f\n", xmax);
+    // fprintf( stdout, "table max = %f\n", xmax);
     for(j = 0; j < genX_tableSize; j++) {
         d->genX_table[j] /= xmax;
     }
@@ -1332,7 +1343,7 @@ CK_DLL_CTRL( gen10_coeffs )
     
     Chuck_Array8 * weights = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
     
-    //fprintf(stdout, "calling gen10coeffs, %d\n", weights);
+    // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(weights<0) return;
     size = weights->size();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
@@ -1340,7 +1351,7 @@ CK_DLL_CTRL( gen10_coeffs )
     t_CKFLOAT v;
     for(t_CKUINT ii = 0; ii<size; ii++) {
         weights->get(ii, &v);
-        //fprintf( stdout, "weight %d = %f...\n", ii, v );
+        // fprintf( stdout, "weight %d = %f...\n", ii, v );
         d->coeffs[ii] = v;
     }
     
@@ -1356,10 +1367,10 @@ CK_DLL_CTRL( gen10_coeffs )
        
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
-        //fprintf( stdout, "table current = %f\n", wmax);
+        // fprintf( stdout, "table current = %f\n", wmax);
     }
 
-    //fprintf( stdout, "table max = %f\n", xmax);
+    // fprintf( stdout, "table max = %f\n", xmax);
     for(j = 0; j < genX_tableSize; j++) {
         d->genX_table[j] /= xmax;
     }
@@ -1383,7 +1394,7 @@ CK_DLL_CTRL( gen17_coeffs )
     
     Chuck_Array8 * weights = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
     
-    //fprintf(stdout, "calling gen17coeffs, %d\n", weights);
+    // fprintf(stdout, "calling gen17coeffs, %d\n", weights);
     if(weights<0) return;
     size = weights->size();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
@@ -1393,7 +1404,7 @@ CK_DLL_CTRL( gen17_coeffs )
     t_CKFLOAT v;
     for(t_CKUINT ii = 0; ii<size; ii++) {
         weights->get(ii, &v);
-        //fprintf( stdout, "weight %d = %f...\n", ii, v );
+        // fprintf( stdout, "weight %d = %f...\n", ii, v );
         coeffs[ii] = v;
     }
     
@@ -1412,12 +1423,12 @@ CK_DLL_CTRL( gen17_coeffs )
    
     for(j = 0; j < genX_tableSize; j++) {
         if ((wmax = fabs(d->genX_table[j])) > xmax) xmax = wmax;
-        //fprintf( stdout, "table current = %f\n", wmax);
+        // fprintf( stdout, "table current = %f\n", wmax);
     }
-    //fprintf( stdout, "table max = %f\n", xmax);
+    // fprintf( stdout, "table max = %f\n", xmax);
     for(j = 0; j < genX_tableSize; j++) {
         d->genX_table[j] /= xmax;
-        //fprintf( stdout, "table current = %f\n", d->genX_table[j]);
+        // fprintf( stdout, "table current = %f\n", d->genX_table[j]);
     }
 
     // return
@@ -1439,31 +1450,33 @@ CK_DLL_CTRL( curve_coeffs )
     t_CKDOUBLE factor, *ptr, xmax=0.0;
     t_CKDOUBLE time[MAX_CURVE_PTS], value[MAX_CURVE_PTS], alpha[MAX_CURVE_PTS];
     t_CKFLOAT coeffs[genX_MAX_COEFFS];
+    t_CKUINT ii = 0;
+    t_CKFLOAT v = 0.0;
     
     Chuck_Array8 * weights = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
     
-    //fprintf(stdout, "calling gen17coeffs, %d\n", weights);
-    if(weights<0) return;
+    // fprintf(stdout, "calling gen17coeffs, %d\n", weights);
+    if(weights<0) goto done;
+
     nargs = weights->size();
     if (nargs < 5 || (nargs % 3) != 2)  {   // check number of args
-        fprintf( stderr, "[chuck](via CurveTable): usage: \n size, time1, value1, curvature1, [ timeN-1, valueN-1, curvatureN-1, ] timeN, valueN)" );
-        return;
+        fprintf( stderr, "[chuck](via CurveTable): usage: \n size, time1, value1, curvature1, [ timeN-1, valueN-1, curvatureN-1, ] timeN, valueN)\n" );
+        goto done;
     }
     if ((nargs / 3) + 1 > MAX_CURVE_PTS) {
-        fprintf(stderr, ("[chuck](via CurveTable): too many arguments."));
-        return;
+        fprintf(stderr, ("[chuck](via CurveTable): too many arguments.\n"));
+        goto done;
     }
     
-    t_CKFLOAT v;
-    for(t_CKUINT ii = 0; ii<nargs; ii++) {
+    for(ii = 0; ii<nargs; ii++) {
         weights->get(ii, &v);
-        //fprintf( stdout, "weight %d = %f...\n", ii, v );
+        // fprintf( stdout, "weight %d = %f...\n", ii, v );
         coeffs[ii] = v;
     }
     
     if (coeffs[0] != 0.0) {
-        fprintf(stderr, "[chuck](via CurveTable): first time must be zero.");
-        return;
+        fprintf(stderr, "[chuck](via CurveTable): first time must be zero.\n");
+        goto done;
     }
     
     for (i = points = 0; i < nargs; points++) {
@@ -1485,14 +1498,15 @@ CK_DLL_CTRL( curve_coeffs )
         _transition(value[i], alpha[i], value[i + 1], seglen, ptr);
         ptr += seglen - 1;
     }
-    
+
+done:
     // return
     RETURN->v_object = weights;
 
     return;
     
 time_err:
-    fprintf(stderr, "[chuck](via CurveTable): times must be in ascending order.");
+    fprintf(stderr, "[chuck](via CurveTable): times must be in ascending order.\n");
 
     // return
     RETURN->v_object = weights;
@@ -1537,9 +1551,22 @@ CK_DLL_CTRL( warp_coeffs )
     // get data
     genX_Data * d = (genX_Data *)OBJ_MEMBER_UINT(SELF, genX_offset_data);
     t_CKINT i = 0;
-    
-    t_CKDOUBLE k_asym = 1.; k_asym = (t_CKDOUBLE) GET_NEXT_FLOAT(ARGS);
-    t_CKDOUBLE k_sym  = 1.; k_sym  = (t_CKDOUBLE) GET_NEXT_FLOAT(ARGS);
+
+    t_CKFLOAT k_asym = 1.; 
+    t_CKFLOAT k_sym  = 1.; 
+
+    // gewang:
+    Chuck_Array8 * weights = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
+    // check for size
+    if( weights->size() != 2 )
+    {
+        // error
+        fprintf( stderr, "[chuck](via WarpTable): expects array of exactly 2 elements.\n" );
+        goto done;
+    }
+
+    weights->get( 0, &k_asym ); // (t_CKDOUBLE) GET_NEXT_FLOAT(ARGS);
+    weights->get( 1, &k_sym ); // (t_CKDOUBLE) GET_NEXT_FLOAT(ARGS);
 
     for (i = 0; i < genX_tableSize; i++) {
         t_CKDOUBLE inval = (t_CKDOUBLE) i/(genX_tableSize - 1);
@@ -1553,8 +1580,13 @@ CK_DLL_CTRL( warp_coeffs )
             inval               = _asymwarp(inval, k_asym);
             d->genX_table[i]    = _symwarp(inval, k_sym);
         }
-        //fprintf(stdout, "table %d = %f\n", i, d->genX_table[i]);
+        // fprintf(stdout, "table %d = %f\n", i, d->genX_table[i]);
     }
+
+done:
+
+    // return
+    RETURN->v_object = weights;
 }
 
 
@@ -1598,4 +1630,20 @@ CK_DLL_PMSG( genX_pmsg )
     
     // didn't handle
     return FALSE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: genX_coeffs()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( genX_coeffs )
+{
+    // nope
+    fprintf( stderr, "[chuck](via GenX): .coeffs called on abstract base class!\n" );
+
+    // return
+    RETURN->v_object = GET_NEXT_OBJECT(ARGS);
+
+    return;
 }
