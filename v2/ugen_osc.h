@@ -74,6 +74,37 @@ CK_DLL_CTOR( sqrosc_ctor );
 CK_DLL_CTRL( sqrosc_ctrl_width );
 
 
+//-----------------------------------------------------------------------------
+// file: ugen_genX
+// desc: thought it would be a good way to learn the fascinating innards of
+//       ChucK by porting some of the classic lookup table functions and adding
+//       a few new ones that might be of use.
+//       mostly ported from RTcmix (all by WarpTable)
+//
+// author: Dan Trueman (dtrueman.princeton.edu)
+// date: Winter 2007
+//-----------------------------------------------------------------------------
+// called by xxx_query
+DLL_QUERY genX_query( Chuck_DL_Query * query );
+
+// genX - base
+CK_DLL_CTOR( genX_ctor );
+CK_DLL_DTOR( genX_dtor );
+CK_DLL_TICK( genX_tick );
+CK_DLL_PMSG( genX_pmsg );
+CK_DLL_CGET( genX_lookup );
+CK_DLL_CTRL( gen5_coeffs );
+CK_DLL_CTRL( gen7_coeffs );
+CK_DLL_CTRL( gen9_coeffs );
+CK_DLL_CTRL( gen10_coeffs );
+CK_DLL_CTRL( gen17_coeffs );
+CK_DLL_CTRL( curve_coeffs );
+CK_DLL_CTRL( warp_coeffs );
+
+t_CKDOUBLE _asymwarp( t_CKDOUBLE inval, t_CKDOUBLE k );
+t_CKDOUBLE _symwarp( t_CKDOUBLE inval, t_CKDOUBLE k );
+
+
 
 
 #endif
