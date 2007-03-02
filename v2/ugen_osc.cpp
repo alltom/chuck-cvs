@@ -887,6 +887,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // end the class import
     type_engine_import_class_end( env );
 
+
     //---------------------------------------------------------------------
     // gen5
     //---------------------------------------------------------------------
