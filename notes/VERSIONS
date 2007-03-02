@@ -10,10 +10,25 @@
   - (added) OS X: watchdog enabled
             win32: watchdog implemtend and enabled
             (combats chuck infinite empty loop implosion)
-  - (added) new UGen:
+  - (added) new UGens:
             --------
             Dyno: dynamics processor (compressor, expander, etc.)
                   (author Matt Hoffman and Graham Coleman)
+
+            GenX: classic + new lookup table functions base class
+                  (author Dan Trueman, ported from RTCMix)
+
+                  float .lookup( float ) : lookup table value
+                  float[] .coeffs( float[] ) : load the table
+
+            Gen5 (extends GenX)
+            Gen7 (extends GenX)
+            Gen9 (extends GenX)
+            Gen10 (extends GenX)
+            Gen17 (extends GenX)
+            CurveTable (extends GenX)
+            WarpTable (extends GenX)
+
             --------
 
   - (api)   API additions
