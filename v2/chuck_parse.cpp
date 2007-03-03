@@ -83,7 +83,7 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, const char * code )
         // copy name
         strcpy( g_filename, fname );
         // reset
-        if( EM_reset( g_filename, fd ) == FALSE ) goto cleanup;
+        if( EM_reset( g_filename, NULL ) == FALSE ) goto cleanup;
 
         // TODO: clean g_program
         g_program = NULL;
