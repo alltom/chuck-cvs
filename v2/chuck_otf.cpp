@@ -170,7 +170,6 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
         }
 
         // see if entire file is on the way
-        fprintf( stderr, "%d\n", msg->param2 );
         if( msg->param2 && msg->param2 != NET_ERROR )
         {
             fd = recv_file( *msg, (ck_socket)data );
