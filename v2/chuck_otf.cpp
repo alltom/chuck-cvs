@@ -144,7 +144,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
     Chuck_VM_Code * code = NULL;
     FILE * fd = NULL;
     t_CKUINT ret = 0;
-    
+
     // fprintf( stderr, "UDP message recv...\n" );
     if( msg->type == MSG_REPLACE || msg->type == MSG_ADD )
     {
@@ -157,9 +157,10 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
             // error
             fprintf( stderr, "[chuck]: malformed filename with argument list...\n" );
             fprintf( stderr, "    -->  '%s'", msg->buffer );
+            SAFE_DELETE(cmd);
             goto cleanup;
         }
-        
+
         // copy stuff
         if( args.size() > 0 )
         {
@@ -177,13 +178,17 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
             {
                 fprintf( stderr, "[chuck]: incoming source transfer '%s' failed...\n",
                     mini(msg->buffer) );
+                SAFE_DELETE(cmd);
                 goto cleanup;
             }
         }
 
         // parse, type-check, and emit
         if( !compiler->go( msg->buffer, fd ) )
+        {
+            SAFE_DELETE(cmd);
             goto cleanup;
+        }
 
         // get the code
         code = compiler->output();
@@ -208,7 +213,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
         SAFE_DELETE(cmd);
         goto cleanup;
     }
-    
+
     // immediate
     if( immediate )
         ret = vm->process_msg( cmd );
