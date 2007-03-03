@@ -79,7 +79,12 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, const char * code )
         // load string (yy_scan_string will copy the C string)
         YY_BUFFER_STATE ybs = yy_scan_string( code );
         if( !ybs ) goto cleanup;
-        
+
+        // copy name
+        strcpy( g_filename, fname );
+        // reset
+        if( EM_reset( g_filename, fd ) == FALSE ) goto cleanup;
+
         // TODO: clean g_program
         g_program = NULL;
         
@@ -89,7 +94,6 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, const char * code )
         // delete the lexer buffer
         yy_delete_buffer( ybs );
     }
-    
     else
     {
         strcpy( g_filename, fname );
@@ -103,7 +107,7 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, const char * code )
         
         // reset
         if( EM_reset( g_filename, fd ) == FALSE ) goto cleanup;
-        
+
         // lexer/parser
         // TODO: if( yyin ) fclose( yyin );
         // TODO: start condition?

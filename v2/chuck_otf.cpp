@@ -169,6 +169,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
         }
 
         // see if entire file is on the way
+        fprintf( stderr, "%d\n", msg->param2 );
         if( msg->param2 && msg->param2 != NET_ERROR )
         {
             fd = recv_file( *msg, (ck_socket)data );
@@ -238,6 +239,7 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
     struct stat fs;
     string filename;
     vector<string> args;
+    char buf[1024];
 
     // parse out command line arguments
     if( !extract_args( fname, filename, args ) )
@@ -252,7 +254,8 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
     strcpy( msg.buffer, fname );
 
     // test it
-    fd = open_cat_ck( (char *)filename.c_str() );
+    strcpy( buf, filename.c_str() );
+    fd = open_cat_ck( buf );
     if( !fd )
     {
         fprintf( stderr, "[chuck]: cannot open file '%s' for [%s]...\n", filename.c_str(), op );
@@ -268,7 +271,7 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
 
     // stat it
     memset( &fs, 0, sizeof(fs) );
-    stat( filename.c_str(), &fs );
+    stat( buf, &fs );
     fseek( fd, 0, SEEK_SET );
 
     // log
