@@ -114,7 +114,7 @@ FILE * recv_file( const Net_Msg & msg, ck_socket sock )
     }while( buf.param2 > 0 );
 
     // check for error
-    if( buf.param2 < 0 )
+    if( buf.param2 == NET_ERROR )
     {
         // this was a problem
         EM_log( CK_LOG_INFO, "(via otf): received error flag, dropping..." );
@@ -169,7 +169,7 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
         }
 
         // see if entire file is on the way
-        if( msg->param2 )
+        if( msg->param2 && msg->param2 != NET_ERROR )
         {
             fd = recv_file( *msg, (ck_socket)data );
             if( !fd )
@@ -300,7 +300,7 @@ int otf_send_file( const char * fname, Net_Msg & msg, const char * op,
             // mark done
             left = 0;
             // error flag
-            msg.param2 = -1;
+            msg.param2 = NET_ERROR;
         }
         else
         {

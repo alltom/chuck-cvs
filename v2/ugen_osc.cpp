@@ -1096,7 +1096,7 @@ CK_DLL_TICK( genX_tick )
     t_CKDOUBLE in_index = 0.0;
     t_CKDOUBLE scaled_index = 0.0;
     t_CKDOUBLE alpha = 0.0, omAlpha = 0.0;
-    t_CKUINT lowIndex = 0.0, hiIndex = 0.0;
+    t_CKUINT lowIndex = 0, hiIndex = 0;
     t_CKDOUBLE outvalue = 0.0;
 
     // if input
@@ -1205,8 +1205,8 @@ CK_DLL_CTRL( gen5_coeffs )
         if (amp2 <= 0.0) amp2 = 0.000001;
         j = i + 1;
         d->genX_table[i] = amp1;
-        c = (float) pow((amp2/amp1),(1./(coeffs[k]*genX_tableSize)));
-        i = (j - 1) + coeffs[k]*genX_tableSize;
+        c = (t_CKFLOAT) pow((amp2/amp1),(1./(coeffs[k]*genX_tableSize)));
+        i = (t_CKINT)((j - 1) + coeffs[k]*genX_tableSize);
         for(l = j; l < i; l++) {
             if(l < genX_tableSize)
                 d->genX_table[l] = d->genX_table[l-1] * c;
@@ -1257,7 +1257,7 @@ CK_DLL_CTRL( gen7_coeffs )
       amp1 = amp2;
       amp2 = coeffs[k + 1];
       j = i + 1;
-      i = j + coeffs[k]*genX_tableSize - 1;
+      i = (t_CKINT)(j + coeffs[k]*genX_tableSize - 1);
       for (l = j; l <= i; l++) {
          if (l <= genX_tableSize)
             d->genX_table[l - 1] = amp1 +

@@ -42,6 +42,8 @@
 #define NET_HEADER      0x8c8cc8c8
 // buffer size
 #define NET_BUFFER_SIZE 512
+// error value
+#define NET_ERROR       0xffffffff
 // forward
 struct Chuck_VM;
 struct Chuck_Compiler;
