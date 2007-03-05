@@ -45,6 +45,7 @@
                   float releaseTime( float ) -> dur releaseTime( dur )
             --------
 
+  - (fixed) adc.last() now returns correct value (was returning 0)
   - (fixed) array is now subclass of Object
   - (fixed) accessing null array no longer crashes (instead: exception)
   - (fixed) connecting null UGen references no longer crashes

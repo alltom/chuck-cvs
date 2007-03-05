@@ -1677,11 +1677,11 @@ void Chuck_VM_Shreduler::advance( )
         // loop over channels
         for( i = 0; i < m_num_adc_channels; i++ )
         {
-            m_adc->m_multi_chan[i]->m_current = frame[i] * m_adc->m_multi_chan[i]->m_gain;
+            m_adc->m_multi_chan[i]->m_current = frame[i] * m_adc->m_multi_chan[i]->m_gain * m_adc->m_gain;
             m_adc->m_multi_chan[i]->m_time = this->now_system;
             sum += m_adc->m_multi_chan[i]->m_current;
         }
-        m_adc->m_current = sum / m_num_adc_channels;
+        m_adc->m_last = m_adc->m_current = sum / m_num_adc_channels;
         m_adc->m_time = this->now_system;
     }
 
