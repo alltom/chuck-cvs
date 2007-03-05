@@ -48,6 +48,7 @@
   - (fixed) adc.last() now returns correct value (was returning 0)
   - (fixed) array is now subclass of Object
   - (fixed) accessing null array no longer crashes (instead: exception)
+  - (fixed) accessing null map no longer crashes (instead: exception)
   - (fixed) connecting null UGen references no longer crashes
   - (fixed) trivial (null == null) no longer evaluated as string
   - (fixed) strict (x,y) => z type checking

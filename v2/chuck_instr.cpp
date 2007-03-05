@@ -2999,6 +2999,9 @@ void Chuck_Instr_Array_Map_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     // pop
     pop_( sp, 2 );
 
+    // check pointer
+    if( !(*sp) ) goto null_pointer;
+
     // 4 or 8
     if( m_size == 4 ) // ISSUE: 64-bit
     {
@@ -3049,12 +3052,21 @@ void Chuck_Instr_Array_Map_Access::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
 
     return;
 
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (map access) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
 error:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): InternalArrayMap error in shred[id=%d:%s], PC=[%d], index=[%s]\n", 
              shred->xid, shred->name.c_str(), shred->pc, key->str.c_str() );
+    goto done;
 
+done:
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -3075,6 +3087,7 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
     t_CKUINT val = 0, j;
     t_CKFLOAT fval = 0;
     t_CKINT * ptr = NULL;
+    t_CKUINT index = 0;
 
     // pop all indices then array
     pop_( sp, m_depth + 1 );
@@ -3082,6 +3095,9 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
     // get array
     Chuck_Array4 * base = (Chuck_Array4 *)(*sp);
     ptr = (t_CKINT *)(sp+1);
+
+    // check for null
+    if( !base ) goto null_pointer;
 
     // make sure
     assert( m_depth > 1 );
@@ -3092,9 +3108,16 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
         i = *ptr++;
         // get the array
         if( !base->get( i, &val ) )
-            goto error;
+            goto array_out_of_bound;
         // set the array
         base = (Chuck_Array4 *)val;
+        // check for null
+        if( !base )
+        {
+            // error
+            index = j + 1;
+            goto null_pointer;
+        }
     }
 
     // 4 or 8
@@ -3109,13 +3132,13 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
             // get the addr
             val = arr->addr( i );
             // exception
-            if( !val ) goto error;
+            if( !val ) goto array_out_of_bound;
             // push the addr
             push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &val ) )
-                goto error;
+                goto array_out_of_bound;
             // push the value
             push_( sp, val );
         }
@@ -3131,13 +3154,13 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
             // get the addr
             val = arr->addr( i );
             // exception
-            if( !val ) goto error;
+            if( !val ) goto array_out_of_bound;
             // push the addr
             push_( sp, val );
         } else {
             // get the value
             if( !arr->get( i, &fval ) )
-                goto error;
+                goto array_out_of_bound;
             // push the value
             push_( ((t_CKFLOAT *&)sp), fval );
         }
@@ -3147,12 +3170,24 @@ void Chuck_Instr_Array_Access_Multi::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 
     return;
 
-error:
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (array access) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    fprintf( stderr, 
+        "[chuck](VM): (array dimension where exception occurred: %d)\n", index );
+    goto done;
+
+array_out_of_bound:
     // we have a problem
     fprintf( stderr, 
              "[chuck](VM): ArrayOutofBounds in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
              shred->xid, shred->name.c_str(), shred->pc, i );
+    // go to done
+    goto done;
 
+done:
     // do something!
     shred->is_running = FALSE;
     shred->is_done = TRUE;
