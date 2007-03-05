@@ -2637,7 +2637,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
                                         ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
 
     func = make_new_mfun( "dur", "attackTime", ADSR_ctrl_attackTime ); //! attack time
-    func->add_arg( "float", "dur" );
+    func->add_arg( "dur", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "dur", "attackTime", ADSR_cget_attackTime ); //! attack time
