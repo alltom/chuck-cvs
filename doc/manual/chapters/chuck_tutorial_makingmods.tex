@@ -3,7 +3,7 @@
 
 We have a basic patch running in ChucK but it still doesn't sound very good. In this chapter we will cover some simple ways to rectify that problem. ChucK allows one to quickly make modifications to patches that can drastically change the sound.
 
-First what we can do is change the type of our oscillator. There are many different oscillators available to use: SinOsc (sine wave), SawOsc (sawtooth), SqrOsc (square wave) and  PulseOsc (pulse wave). We can simply change the type of oscillator just like below. 
+First what we can do is change the type of our oscillator. There are many different oscillators available to use: SinOsc (sine wave), SawOsc (sawtooth), SqrOsc (square wave) and PulseOsc (pulse wave). We can simply change the type of oscillator just like below. 
 
 \begin{verbatim}
         SawOsc s => dac;
@@ -33,7 +33,7 @@ However, this is useful when we have multiple Ugens connect to one place. If we 
 
 \begin{verbatim}
         SinOsc s1 => Gain g => dac;
-        sinsocs s2 => g;
+        SinOsc s2 => g;
         .5 => g.gain;
 \end{verbatim}
 
@@ -43,7 +43,7 @@ More effects were promised, now you will see some in action. Again, one of the w
 
 \begin{verbatim}
         SinOsc s1 => PRCRev g => dac;
-        sinsocs s2 => g;
+        SinOsc s2 => g;
         .5 => g.gain;
 \end{verbatim}
 
@@ -54,7 +54,7 @@ The Gain Ugen has been replaced by a reverb and the output is scaled by using th
         500 => s1.freq => s2.freq;
 \end{verbatim}
 
-Another  technique for setting parameters is to read a parameter, then modify it and then ChucK it back to itself. Accessing parameters requires the addition of brackets () after the name of the parameter. Here is an example of doubling the frequency of an oscillator. 
+Another technique for setting parameters is to read a parameter, then modify it and then ChucK it back to itself. Accessing parameters requires the addition of brackets () after the name of the parameter. Here is an example of doubling the frequency of an oscillator. 
 
 \begin{verbatim}
         s1.freq() * 2 => s1.freq;

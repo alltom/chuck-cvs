@@ -84,7 +84,7 @@ Concurrency in ChucK:
 Now let's write another (slightly longer) program:
 \begin{verbatim}
         // impulse to filter to dac
-        Impulse i => biquad f => dac;
+        Impulse i => BiQuad f => dac;
         // set the filter's pole radius
         .99 => f.prad;
         // set equal gain zero's

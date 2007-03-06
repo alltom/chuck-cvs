@@ -37,16 +37,27 @@ To run most of the code or examples in this language specification, you only nee
 
 \section{comments}
 
-Comments are sections of code that are ignored by a compiler. These help other programmers (and yourself) interpret your code. Double slashes indicate to the compiler to skip the rest of the line. For now, there is  no block commenting.
+Comments are sections of code that are ignored by a compiler. These help other programmers (and yourself) interpret and document your code. Double slashes indicate to the compiler to skip the rest of the line. 
 \begin{verbatim}
     // this is a comment
     int foo; // another comment
 \end{verbatim}
- 
+Block comments are used to write comments that last more than one line, or less than an entire line. A slash followed by an asterisk starts a block comment. The block comment continues until the next asterisk followed by a slash. 
+\begin{verbatim}
+    /* this 
+       is a
+       block
+       comment */
+    int /* another block comment */ foo;
+\end{verbatim}
+Comments can also be used to temporarily disable sections of your program, without deleting it entirely. ChucK code that is commented-out will be ignored by the compiler, but can easily be brought back if you change your mind later. In the following example, the PRCRev UGen will be ignored, but we could easily re-insert it by deleting the block comment delimiters. 
+\begin{verbatim}
+    SinOsc s => /* PRCRev r => */ dac;
+\end{verbatim}
 
 \section{debug print}
 
-For the time being, stdout and chout have been temporarily disabled for the present release. In their place we have provided a debug print syntax:
+ChucK currently lacks a comprehensive system for writing to files or printing to the console. In its place we have provided a debug print syntax:
 \begin{verbatim}
     // prints out value of expression
     <<< expression >>>;
@@ -99,6 +110,7 @@ For more formatted data output, a comma-separated list of expressions will print
 \item while 
 \item until 
 \item for 
+\item repeat 
 \item break 
 \item continue 
 \item return 
@@ -163,6 +175,7 @@ For more formatted data output, a comma-separated list of expressions will print
 \item \%
 \item \chuckop
 \item =\textless
+\item !\chuckop
 \item \textbar \textbar
 \item \&\&
 \item ==
@@ -174,19 +187,13 @@ For more formatted data output, a comma-separated list of expressions will print
 \item ++
 \item --\,-- 
 \item \textgreater
+\item \textgreater =
 \item \textless
+\item \textless =
 \item @=\textgreater
 \item +=\textgreater
 \item -=\textgreater
 \item *=\textgreater
 \item /=\textgreater
 \item \%=\textgreater
-\end{chuckitemize}
-
-(reserved)
-\begin{chuckitemize}
-\item then
-\item before
-\item after
-\item at
 \end{chuckitemize}

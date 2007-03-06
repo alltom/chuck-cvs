@@ -15,15 +15,15 @@ all you's got to do is ChucK a shred that writes to file:
 \chuckterm{\prompt chuck foo.ck bar.ck rec.ck}
 
 no changes to existing files are necessary.
-an example rec.ck can be found in examples/, this
+an example rec.ck can be found in examples/basic/, this
 guy/gal writes to ``foo.wav''.  edit the file to change.
 if you don't want to worry about overwriting the same
 file everytime, you can:
 
-\chuckterm{\prompt chuck foo.ck bar.ck rec2.ck}
+\chuckterm{\prompt chuck foo.ck bar.ck rec-auto.ck}
 
-rec2.ck will generate a file name using the current
-time.  You can change the prefix of the filename by
+rec-auto.ck will generate a file name using the current
+time.  You can change the prefix of the filename by modifying
 \begin{verbatim}
         "data/session" => w.autoPrefix;
 \end{verbatim}
