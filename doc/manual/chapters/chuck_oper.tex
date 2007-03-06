@@ -16,7 +16,7 @@ Some examples:
 \begin{verbatim}
     // a unit generator patch - the signal flow is apparent
     // (in this case, => connects two unit generators)
-    SinOsc b => Gain g => biquad f => dac;
+    SinOsc b => Gain g => BiQuad f => dac;
 
     // add 4 to foo, chuck result to new 'int' variable 'bar'
     // (in this case, => assigns a value to a variable (int)
@@ -180,7 +180,7 @@ the latter (time/duration mod) is one of many ways to dynamically synchronize ti
 This is one of many ways to compute and reason about time in ChucK. The appropriate solution(s) in each case depends on the intended functionality. Have fun!
  
 
-\&\&~ \textbar\textbar~ ==~ !=\textgreater~ \textless=~ \textgreater~ \textgreater=~ (logic)
+\&\&~ \textbar\textbar~ ==~ !=~ \textless=~ \textgreater~ \textgreater=~ (logic)
 
 Logical operators - each of these need two operands.  The result is an integer value of 0 or 1.
 \begin{chuckitemize}
@@ -211,7 +211,7 @@ These are used on int values at the bit level, often for bit masking.
 \item \textasciicircum : bitwise XOR
 \end{chuckitemize}
 
-++~ \doubledash (inc / dec)
+++~ \doubledash~ (inc / dec)
 
 Values may be incremented or decremented by appending the ++ or \doubledash operators.
 \begin{verbatim}
