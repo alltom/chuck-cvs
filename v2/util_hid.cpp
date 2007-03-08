@@ -4282,6 +4282,371 @@ struct win32_keyboard
 
 static vector< win32_keyboard * > * keyboards;
 
+// table to translate DirectInput keybuffer offsets to ASCII and USB usages
+// first element is ASCII
+// second element is USB usage
+static unsigned short kb_translation_table[DINPUT_KEYBUFFER_SIZE];
+
+static void Keyboard_init_translation_table()
+{
+    memset( &kb_translation_table, 0, sizeof( kb_translation_table ) );
+
+    kb_translation_table[DIK_0] = '0';
+    kb_translation_table[DIK_0] |= 0x27 << 8;
+
+    kb_translation_table[DIK_1] = '1';
+    kb_translation_table[DIK_1] |= 0x1e << 8;
+    
+    kb_translation_table[DIK_2] = '2';
+    kb_translation_table[DIK_2] |= 0x1f << 8;
+    
+    kb_translation_table[DIK_3] = '3';
+    kb_translation_table[DIK_3] |= 0x20 << 8;
+    
+    kb_translation_table[DIK_4] = '4';
+    kb_translation_table[DIK_4] |= 0x21 << 8;
+    
+    kb_translation_table[DIK_5] = '5';
+    kb_translation_table[DIK_5] |= 0x22 << 8;
+    
+    kb_translation_table[DIK_6] = '6';
+    kb_translation_table[DIK_6] |= 0x23 << 8;
+    
+    kb_translation_table[DIK_7] = '7';
+    kb_translation_table[DIK_7] |= 0x24 << 8;
+    
+    kb_translation_table[DIK_8] = '8';
+    kb_translation_table[DIK_8] |= 0x25 << 8;
+    
+    kb_translation_table[DIK_9] = '9';
+    kb_translation_table[DIK_9] |= 0x26 << 8;
+    
+    kb_translation_table[DIK_A] = 'A';
+    kb_translation_table[DIK_A] |= 0x04 << 8;
+    
+    kb_translation_table[DIK_B] = 'B';
+    kb_translation_table[DIK_B] |= 0x05 << 8;
+    
+    kb_translation_table[DIK_C] = 'C';
+    kb_translation_table[DIK_C] |= 0x06 << 8;
+    
+    kb_translation_table[DIK_D] = 'D';
+    kb_translation_table[DIK_D] |= 0x07 << 8;
+    
+    kb_translation_table[DIK_E] = 'E';
+    kb_translation_table[DIK_E] |= 0x08 << 8;
+    
+    kb_translation_table[DIK_F] = 'F';
+    kb_translation_table[DIK_F] |= 0x09 << 8;
+    
+    kb_translation_table[DIK_G] = 'G';
+    kb_translation_table[DIK_G] |= 0x0a << 8;
+    
+    kb_translation_table[DIK_H] = 'H';
+    kb_translation_table[DIK_H] |= 0x0b << 8;
+    
+    kb_translation_table[DIK_I] = 'I';
+    kb_translation_table[DIK_I] |= 0x0c << 8;
+    
+    kb_translation_table[DIK_J] = 'J';
+    kb_translation_table[DIK_J] |= 0x0d << 8;
+    
+    kb_translation_table[DIK_K] = 'K';
+    kb_translation_table[DIK_K] |= 0x0e << 8;
+    
+    kb_translation_table[DIK_L] = 'L';
+    kb_translation_table[DIK_L] |= 0x0f << 8;
+    
+    kb_translation_table[DIK_M] = 'M';
+    kb_translation_table[DIK_M] |= 0x10 << 8;
+    
+    kb_translation_table[DIK_N] = 'N';
+    kb_translation_table[DIK_N] |= 0x11 << 8;
+    
+    kb_translation_table[DIK_O] = 'O';
+    kb_translation_table[DIK_O] |= 0x12 << 8;
+    
+    kb_translation_table[DIK_P] = 'P';
+    kb_translation_table[DIK_P] |= 0x13 << 8;
+    
+    kb_translation_table[DIK_Q] = 'Q';
+    kb_translation_table[DIK_Q] |= 0x14 << 8;
+    
+    kb_translation_table[DIK_R] = 'R';
+    kb_translation_table[DIK_R] |= 0x15 << 8;
+    
+    kb_translation_table[DIK_S] = 'S';
+    kb_translation_table[DIK_S] |= 0x16 << 8;
+    
+    kb_translation_table[DIK_T] = 'T';
+    kb_translation_table[DIK_T] |= 0x17 << 8;
+    
+    kb_translation_table[DIK_U] = 'U';
+    kb_translation_table[DIK_U] |= 0x18 << 8;
+    
+    kb_translation_table[DIK_V] = 'V';
+    kb_translation_table[DIK_V] |= 0x19 << 8;
+    
+    kb_translation_table[DIK_W] = 'W';
+    kb_translation_table[DIK_W] |= 0x1a << 8;
+    
+    kb_translation_table[DIK_X] = 'X';
+    kb_translation_table[DIK_X] |= 0x1b << 8;
+    
+    kb_translation_table[DIK_Y] = 'Y';
+    kb_translation_table[DIK_Y] |= 0x1c << 8;
+    
+    kb_translation_table[DIK_Z] = 'Z';
+    kb_translation_table[DIK_Z] |= 0x1d << 8;
+    
+    kb_translation_table[DIK_ADD] = '+';
+    kb_translation_table[DIK_ADD] |= 0x57 << 8;
+    
+    kb_translation_table[DIK_APOSTROPHE] = '\'';
+    kb_translation_table[DIK_APOSTROPHE] |= 0x34 << 8;
+    
+    kb_translation_table[DIK_APPS] = 0;
+    kb_translation_table[DIK_APPS] |= 0x65 << 8;
+    
+    kb_translation_table[DIK_BACK] = '\b';
+    kb_translation_table[DIK_BACK] |= 0x2a << 8;
+    
+    kb_translation_table[DIK_BACKSLASH] = '\\';
+    kb_translation_table[DIK_BACKSLASH] |= 0x31 << 8;
+    
+    kb_translation_table[DIK_CAPITAL] = 0;
+    kb_translation_table[DIK_CAPITAL] |= 0x39 << 8;
+    
+    kb_translation_table[DIK_COLON] = ':';
+    kb_translation_table[DIK_COLON] |= 0x00 << 8;
+    
+    kb_translation_table[DIK_COMMA] = ',';
+    kb_translation_table[DIK_COMMA] |= 0x36 << 8;
+    
+    kb_translation_table[DIK_DECIMAL] = '.';
+    kb_translation_table[DIK_DECIMAL] |= 0x63 << 8;
+    
+    kb_translation_table[DIK_DELETE] = 0x7f;
+    kb_translation_table[DIK_DELETE] |= 0x4c << 8;
+    
+    kb_translation_table[DIK_DIVIDE] = '/';
+    kb_translation_table[DIK_DIVIDE] |= 0x54 << 8;
+    
+    kb_translation_table[DIK_DOWN] = 0;
+    kb_translation_table[DIK_DOWN] |= 0x51 << 8;
+    
+    kb_translation_table[DIK_END] = 0;
+    kb_translation_table[DIK_END] |= 0x4d << 8;
+    
+    kb_translation_table[DIK_EQUALS] = '=';
+    kb_translation_table[DIK_EQUALS] |= 0x2e << 8;
+    
+    kb_translation_table[DIK_ESCAPE] = 0;
+    kb_translation_table[DIK_ESCAPE] |= 0x29 << 8;
+    
+    kb_translation_table[DIK_F1] = 0;
+    kb_translation_table[DIK_F1] |= 0x3a << 8;
+    
+    kb_translation_table[DIK_F2] = 0;
+    kb_translation_table[DIK_F2] |= 0x3b << 8;
+    
+    kb_translation_table[DIK_F3] = 0;
+    kb_translation_table[DIK_F3] |= 0x3c << 8;
+    
+    kb_translation_table[DIK_F4] = 0;
+    kb_translation_table[DIK_F4] |= 0x3d << 8;
+    
+    kb_translation_table[DIK_F5] = 0;
+    kb_translation_table[DIK_F5] |= 0x3e << 8;
+    
+    kb_translation_table[DIK_F6] = 0;
+    kb_translation_table[DIK_F6] |= 0x3f << 8;
+    
+    kb_translation_table[DIK_F7] = 0;
+    kb_translation_table[DIK_F7] |= 0x40 << 8;
+    
+    kb_translation_table[DIK_F8] = 0;
+    kb_translation_table[DIK_F8] |= 0x41 << 8;
+    
+    kb_translation_table[DIK_F9] = 0;
+    kb_translation_table[DIK_F9] |= 0x42 << 8;
+    
+    kb_translation_table[DIK_F10] = 0;
+    kb_translation_table[DIK_F10] |= 0x43 << 8;
+    
+    kb_translation_table[DIK_F11] = 0;
+    kb_translation_table[DIK_F11] |= 0x44 << 8;
+    
+    kb_translation_table[DIK_F12] = 0;
+    kb_translation_table[DIK_F12] |= 0x45 << 8;
+    
+    kb_translation_table[DIK_F13] = 0;
+    kb_translation_table[DIK_F13] |= 0x68 << 8;
+    
+    kb_translation_table[DIK_F14] = 0;
+    kb_translation_table[DIK_F14] |= 0x69 << 8;
+    
+    kb_translation_table[DIK_F15] = 0;
+    kb_translation_table[DIK_F15] |= 0x6a << 8;
+    
+    kb_translation_table[DIK_GRAVE] = '`';
+    kb_translation_table[DIK_GRAVE] |= 0x35 << 8;
+    
+    kb_translation_table[DIK_HOME] = 0;
+    kb_translation_table[DIK_HOME] |= 0x4a << 8;
+    
+    kb_translation_table[DIK_INSERT] = 0;
+    kb_translation_table[DIK_INSERT] |= 0x49 << 8;
+    
+    kb_translation_table[DIK_LBRACKET] = '[';
+    kb_translation_table[DIK_LBRACKET] |= 0x2f << 8;
+    
+    kb_translation_table[DIK_LCONTROL] = 0;
+    kb_translation_table[DIK_LCONTROL] |= 0xe0 << 8;
+    
+    kb_translation_table[DIK_LEFT] = 0;
+    kb_translation_table[DIK_LEFT] |= 0x50 << 8;
+    
+    kb_translation_table[DIK_LMENU] = 0;
+    kb_translation_table[DIK_LMENU] |= 0xe2 << 8;
+    
+    kb_translation_table[DIK_LSHIFT] = 0;
+    kb_translation_table[DIK_LSHIFT] |= 0xe1 << 8;
+    
+    kb_translation_table[DIK_LWIN] = 0;
+    kb_translation_table[DIK_LWIN] |= 0xe3 << 8;
+    
+    kb_translation_table[DIK_MINUS] = '-';
+    kb_translation_table[DIK_MINUS] |= 0x2d << 8;
+    
+    kb_translation_table[DIK_MULTIPLY] = '*';
+    kb_translation_table[DIK_MULTIPLY] |= 0x55 << 8;
+    
+//    kb_translation_table[DIK_MUTE] = 0;
+//    kb_translation_table[DIK_MUTE] |= 0x7f;
+    
+    kb_translation_table[DIK_NEXT] = 0;
+    kb_translation_table[DIK_NEXT] |= 0x4e << 8;
+    
+    kb_translation_table[DIK_NUMLOCK] = 0;
+    kb_translation_table[DIK_NUMLOCK] |= 0x53 << 8;
+    
+    kb_translation_table[DIK_NUMPAD0] = '0';
+    kb_translation_table[DIK_NUMPAD0] |= 0x62 << 8;
+    
+    kb_translation_table[DIK_NUMPAD1] = '1';
+    kb_translation_table[DIK_NUMPAD1] |= 0x59 << 8;
+    
+    kb_translation_table[DIK_NUMPAD2] = '2';
+    kb_translation_table[DIK_NUMPAD2] |= 0x5a << 8;
+    
+    kb_translation_table[DIK_NUMPAD3] = '3';
+    kb_translation_table[DIK_NUMPAD3] |= 0x5b << 8;
+    
+    kb_translation_table[DIK_NUMPAD4] = '4';
+    kb_translation_table[DIK_NUMPAD4] |= 0x5c << 8;
+    
+    kb_translation_table[DIK_NUMPAD5] = '5';
+    kb_translation_table[DIK_NUMPAD5] |= 0x5d << 8;
+    
+    kb_translation_table[DIK_NUMPAD6] = '6';
+    kb_translation_table[DIK_NUMPAD6] |= 0x5e << 8;
+    
+    kb_translation_table[DIK_NUMPAD7] = '7';
+    kb_translation_table[DIK_NUMPAD7] |= 0x5f << 8;
+    
+    kb_translation_table[DIK_NUMPAD8] = '8';
+    kb_translation_table[DIK_NUMPAD8] |= 0x60 << 8;
+    
+    kb_translation_table[DIK_NUMPAD9] = '9';
+    kb_translation_table[DIK_NUMPAD9] |= 0x61 << 8;
+    
+    kb_translation_table[DIK_NUMPADCOMMA] = ',';
+    kb_translation_table[DIK_NUMPADCOMMA] |= 0x85 << 8;
+    
+    kb_translation_table[DIK_NUMPADENTER] = '\n';
+    kb_translation_table[DIK_NUMPADENTER] |= 0x58 << 8;
+    
+    kb_translation_table[DIK_NUMPADEQUALS] = '=';
+    kb_translation_table[DIK_NUMPADEQUALS] |= 0x67 << 8;
+    
+    kb_translation_table[DIK_PAUSE] = 0;
+    kb_translation_table[DIK_PAUSE] |= 0x48 << 8;
+    
+    kb_translation_table[DIK_PERIOD] = '.';
+    kb_translation_table[DIK_PERIOD] |= 0x37 << 8;
+    
+    kb_translation_table[DIK_POWER] = 0;
+    kb_translation_table[DIK_POWER] |= 0x66 << 8;
+    
+    kb_translation_table[DIK_PRIOR] = 0;
+    kb_translation_table[DIK_PRIOR] |= 0x4b << 8;
+    
+    kb_translation_table[DIK_RBRACKET] = ']';
+    kb_translation_table[DIK_RBRACKET] |= 0x30 << 8;
+    
+    kb_translation_table[DIK_RCONTROL] = 0;
+    kb_translation_table[DIK_RCONTROL] |= 0xe4 << 8;
+    
+    kb_translation_table[DIK_RETURN] = '\n';
+    kb_translation_table[DIK_RETURN] |= 0x28 << 8;
+    
+    kb_translation_table[DIK_RIGHT] = 0;
+    kb_translation_table[DIK_RIGHT] |= 0x4f << 8;
+    
+    kb_translation_table[DIK_RMENU] = 0;
+    kb_translation_table[DIK_RMENU] |= 0xe6 << 8;
+    
+    kb_translation_table[DIK_RSHIFT] = 0;
+    kb_translation_table[DIK_RSHIFT] |= 0xe5 << 8;
+    
+    kb_translation_table[DIK_RWIN] = 0;
+    kb_translation_table[DIK_RWIN] |= 0xe7 << 8;
+    
+    kb_translation_table[DIK_SCROLL] = 0;
+    kb_translation_table[DIK_SCROLL] |= 0x47 << 8;
+    
+    kb_translation_table[DIK_SEMICOLON] = ';';
+    kb_translation_table[DIK_SEMICOLON] |= 0x33 << 8;
+    
+    kb_translation_table[DIK_SLASH] = '/';
+    kb_translation_table[DIK_SLASH] |= 0x38 << 8;
+    
+    kb_translation_table[DIK_SPACE] = ' ';
+    kb_translation_table[DIK_SPACE] |= 0x2c << 8;
+    
+    kb_translation_table[DIK_STOP] = 0;
+    kb_translation_table[DIK_STOP] |= 0x78 << 8;
+    
+    kb_translation_table[DIK_SUBTRACT] = '-';
+    kb_translation_table[DIK_SUBTRACT] |= 0x56 << 8;
+    
+    kb_translation_table[DIK_SYSRQ] = 0;
+    kb_translation_table[DIK_SYSRQ] |= 0x46 << 8;
+    
+    kb_translation_table[DIK_TAB] = '\t';
+    kb_translation_table[DIK_TAB] |= 0x2b << 8;
+    
+    kb_translation_table[DIK_UP] = 0;
+    kb_translation_table[DIK_UP] |= 0x52 << 8;
+    
+//    kb_translation_table[DIK_VOLUMEDOWN] = 0;
+//    kb_translation_table[DIK_VOLUMEDOWN] |= 0x81;
+    
+//    kb_translation_table[DIK_VOLUMEUP] = 0;
+//    kb_translation_table[DIK_VOLUMEUP] |= 0x80;
+}
+
+static void Keyboard_dikey_to_ascii_and_usb( unsigned char dikey, 
+                                             long & ascii,
+                                             long & usb )
+{
+    unsigned short tr = kb_translation_table[dikey];
+
+    ascii = tr & 0xff;
+    usb = ( tr >> 8 ) & 0xff;
+}
+
 static BOOL CALLBACK DIEnumKeyboardProc( LPCDIDEVICEINSTANCE lpddi,
                                          LPVOID pvRef )
 {
@@ -4342,6 +4707,8 @@ void Keyboard_init()
         return;
     }
 
+    Keyboard_init_translation_table();
+
     EM_poplog();
 }
 
@@ -4382,6 +4749,7 @@ void Keyboard_poll()
                                                      CK_HID_BUTTON_UP;
                     msg.eid = j;
                     msg.idata[0] = ( state[j] & 0x80 ) ? 1 : 0;
+                    Keyboard_dikey_to_ascii_and_usb( j, msg.idata[2], msg.idata[1] );
                     HidInManager::push_message( msg );
                 }
             }

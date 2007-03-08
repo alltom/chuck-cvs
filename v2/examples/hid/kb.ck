@@ -17,11 +17,11 @@ while( true )
         // check for action type
         if( msg.isButtonDown() )
         {
-            <<< "down:", msg.which >>>;
+            <<< "down:", msg.which, msg.key, msg.ascii >>>;
         }
         else
         {
-            // <<< "up:", msg.which >>>;
+            // <<< "up:", msg.which, msg.key, msg.ascii >>>;
         }
     }
 }
