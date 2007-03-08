@@ -5499,6 +5499,9 @@ public:
                 continue;
             }
             
+            if( event.type != EV_KEY )
+                continue;
+            
             if( event.value == 2 )
                 continue;
             
