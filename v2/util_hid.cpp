@@ -1257,7 +1257,9 @@ static void Hid_key_table_init()
     g_hid_key_table[kHIDUsage_Keyboard9] = '9';
     g_hid_key_table[kHIDUsage_Keyboard0] = '0';
     
-    // ASCII whitespace
+    // ASCII whitespace/control characters
+    g_hid_key_table[kHIDUsage_KeyboardEscape] = '\e';
+    g_hid_key_table[kHIDUsage_KeyboardDeleteOrBackspace] = '\b';
     g_hid_key_table[kHIDUsage_KeyboardReturnOrEnter] = '\n';
     g_hid_key_table[kHIDUsage_KeyboardTab] = '\t';
     g_hid_key_table[kHIDUsage_KeyboardSpacebar] = ' ';
@@ -2747,6 +2749,9 @@ public:
         motion_sensor_enabled = FALSE;
         ir_sensor_enabled = FALSE;
         led1 = led2 = led3 = led4 = FALSE;
+        speaker_enabled = FALSE;
+        timer = NULL;
+        audio_buffer = NULL;
         memset( &buttons, 0, sizeof( buttons ) );
         memset( &accels, 0, sizeof( accels ) );
         memset( &ir, 0xff, sizeof( ir ) );
@@ -2771,11 +2776,17 @@ public:
     virtual void enable_leds( t_CKBOOL l1, t_CKBOOL l2, 
                               t_CKBOOL l3, t_CKBOOL l4 );
     virtual void set_led( t_CKUINT led, t_CKBOOL state );
+    virtual void enable_speaker( t_CKBOOL enable );
+    
+    CFRunLoopTimerRef timer;
+    CBufferSimple * audio_buffer;
+    virtual void send_audio_data();
     
     t_CKBOOL force_feedback_enabled;
     t_CKBOOL motion_sensor_enabled;
     t_CKBOOL ir_sensor_enabled;
     t_CKBOOL led1, led2, led3, led4;
+    t_CKBOOL speaker_enabled;
     
     t_CKBYTE buttons[2];
     t_CKBYTE accels[3];
@@ -2890,6 +2901,12 @@ void Bluetooth_device_disconnected( void * userRefCon,
     ( ( Bluetooth_Device * ) userRefCon )->disconnect();
 }
 
+void WiiRemote_send_audio_data( CFRunLoopTimerRef timer, void *info )
+{
+    WiiRemote * wr = ( WiiRemote * ) info;
+    wr->send_audio_data();
+}
+
 t_CKINT WiiRemote::open()
 {
     // see if its already connected, reconnect if so
@@ -2948,8 +2965,13 @@ t_CKINT WiiRemote::control_init()
     enable_motion_sensor( TRUE );
     enable_ir_sensor( TRUE );
     enable_force_feedback( FALSE );
+    
+    usleep( 1000 );
     enable_leds( ( num % 4 ) == 0, ( ( num - 1 ) % 4 ) == 0, 
                  ( ( num - 2 ) % 4 ) == 0, ( ( num - 3 ) % 4 ) == 0 );
+    
+    usleep( 1000 );
+    enable_speaker( TRUE );
     
     HidMsg msg;
     
@@ -3318,8 +3340,8 @@ void WiiRemote::enable_ir_sensor( t_CKBOOL enable )
     
     if( ir_sensor_enabled )
     {
-        //unsigned char en0[] = { 0x01 };
-        //write_memory( en, 1, 0x04b00030 );
+        unsigned char en0[] = { 0x01 };
+        write_memory( en0, 1, 0x04b00030 );
         //usleep(10000);
 
         unsigned char en[] = { 0x08 };
@@ -3338,8 +3360,8 @@ void WiiRemote::enable_ir_sensor( t_CKBOOL enable )
         write_memory( mode, 1, 0x04b00033 );
        // usleep(10000);
 
-        //unsigned char what[] = { 0x08 };
-        //write_memory( what, 1, 0x04b00030 );
+        unsigned char what[] = { 0x08 };
+        write_memory( what, 1, 0x04b00030 );
         //usleep(10000);
 
     }
@@ -3390,6 +3412,88 @@ void WiiRemote::enable_leds( t_CKBOOL l1, t_CKBOOL l2,
         cmd[1] |= 0x80;
     
     control_send( cmd, 2 );
+}
+
+void WiiRemote::enable_speaker( t_CKBOOL enable )
+{
+    speaker_enabled = enable;
+    
+    if( speaker_enabled )
+    {
+        // enable speaker
+        unsigned char cmd[] = { 0x14, 0x04 };
+        if( force_feedback_enabled )
+            cmd[1] |= 0x01;
+        control_send( cmd, 2 );
+        
+        // mute
+        unsigned char mute[] = { 0x19, 0x04 };
+        if( force_feedback_enabled )
+            mute[1] |= 0x01;
+        control_send( mute, 2 );
+        
+        unsigned char mem1[] = { 0x01 };
+        write_memory( mem1, 1, 0x04a20009 );
+        
+        unsigned char mem2[] = { 0x08 };
+        write_memory( mem2, 1, 0x04a20001 );
+        
+        // config
+        unsigned char config[] = { 0x00, 0x00, 0x00, 0x0c, 0x40, 0x00, 0x00 };
+        // description
+        // byte 0: unknown
+        // 1: unknown
+        // 2: unknown
+        // 3: sample rate -{ 0x0B = 4200 Hz
+        //                   0x0C = 3920 Hz
+        //                   0x0D = 3640 Hz
+        //                   0x0E = 3360 Hz
+        //                   0x0F = 3080 Hz 
+        // 4: speaker volume
+        // 5: unknown
+        // 6: unknown
+        
+        write_memory( config, 7, 0x04a20001 );
+        
+        unsigned char mem3[] = { 0x01 };
+        write_memory( mem3, 1, 0x04a20008 );
+        
+        // unmute
+        unsigned char unmute[] = { 0x19, 0x00 };
+        if( force_feedback_enabled )
+            unmute[1] |= 0x01;
+        control_send( unmute, 2 );
+        
+        // initialize audio buffer, if necessary
+        if( audio_buffer == NULL )
+        {
+            audio_buffer = new CBufferSimple;
+            audio_buffer->initialize( 20 * 5, sizeof( SAMPLE ) );
+        }
+        
+        // set up audio timer callback, if necessary
+        if( timer == NULL )
+        {
+            CFRunLoopTimerContext timerContext = { 0, this, NULL, NULL, NULL };
+            timer = CFRunLoopTimerCreate( NULL, CFAbsoluteTimeGetCurrent(),
+                                          1.0 / 3920.0, 0, 0, 
+                                          WiiRemote_send_audio_data, 
+                                          &timerContext );
+            CFRunLoopAddTimer( rlHid, timer, kCFRunLoopChuckHidMode );
+        }
+    }
+}
+
+void WiiRemote::send_audio_data()
+{
+    unsigned char cmd[] = { 0x18, ( 20 << 3 ), 
+        0x30, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0xc0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0 };
+    
+    if( force_feedback_enabled )
+        cmd[1] |= 0x01;
+    
+    control_send( cmd, 22 );
 }
 
 void Bluetooth_inquiry_device_found( void * userRefCon,
@@ -3625,8 +3729,10 @@ static void WiiRemote_cfrl_callback( void * info )
                             
                             break;
                             
-                        /*case CK_HID_FORCE_FEEDBACK:
-                            if( msg.*/
+                        case CK_HID_FORCE_FEEDBACK:
+                            ( *wiiremotes )[wro.index]->enable_force_feedback( msg.idata[0] );
+                            
+                            break;
                     }
                 }
                 
