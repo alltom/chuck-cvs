@@ -792,9 +792,9 @@ void Chuck_Instr_Add_int_string::execute( Chuck_VM * vm, Chuck_VM_Shred * shred 
     // pop word from reg stack
     pop_( reg_sp, 2 );
     // left
-    lhs = (*(t_CKINT *)(reg_sp+1));
+    lhs = (*(t_CKINT *)(reg_sp));
     // right
-    rhs = (Chuck_String *)(*(reg_sp));
+    rhs = (Chuck_String *)(*(reg_sp+1));
 
     // make sure no null
     if( !rhs ) goto null_pointer;
