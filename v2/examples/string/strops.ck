@@ -35,4 +35,15 @@ assert( foo > "b", "13" );
 assert( foo >= foo, "14" );
 assert( foo >= bar, "15" );
 
+// concatention
+assert( "foo" + "bar" == "foobar", "16" );
+"foo" => string s;
+"bar" +=> s;
+assert( s == "foobar", "17" );
+assert( "bar" + 10 == "bar10", "18" );
+assert( "bar" + 10.0 == "bar10.0000", "19" );
+assert( 10 + "bar" == "10bar", "20" );
+assert( 10.0 + "bar" == "10.0000bar", "21" );
+assert( "foo" + "bar" + "cle" == "foobarcle", "22" );
+
 <<< "success" >>>;
