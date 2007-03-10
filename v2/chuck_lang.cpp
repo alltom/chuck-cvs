@@ -345,10 +345,12 @@ t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
 /*    // add at()
-    func = make_new_mfun( "int", "at", string_set_at );
-    func->add_arg( "int", "ch" );
+    func = make_new_mfun( "int", "ch", string_set_at );
+    func->add_arg( "int", "index" );
+    func->add_arg( "int", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "int", "at", string_get_at );
+    func = make_new_mfun( "int", "ch", string_get_at );
+    func->add_arg( "int", "index" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 */
     // end the class import
