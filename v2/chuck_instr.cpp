@@ -3089,9 +3089,12 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
                                t_CKUINT * objs, t_CKINT & index )
 {
     // not top level
-    Chuck_Array4 * base;
-    Chuck_Object * next;
-    t_CKINT i;
+    Chuck_Array4 * base = NULL;
+    Chuck_Object * next = NULL;
+    t_CKINT i = 0;
+
+    // capacity
+    if( *capacity < 0 ) goto negative_array_size;
 
     // see if top level
     if( capacity >= top )
@@ -3153,8 +3156,14 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
 out_of_memory:
     // we have a problem
     fprintf( stderr, 
-        "[chuck](VM): OutOfMemory: while allocating arrays\n" );
-    return NULL;
+        "[chuck](VM): OutOfMemory: while allocating arrays...\n" );
+    goto error;
+
+negative_array_size:
+    // we have a problem
+    fprintf( stderr,
+        "[chuck](VM): NegativeArraySize: while allocating arrays...\n" );
+    goto error;
 
 error:
     // base shouldn't have been ref counted
@@ -3251,14 +3260,19 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 overflow:
     // we have a problem
     fprintf( stderr,
-        "[chuck](VM): OverFlow: requested array size too big\n" );
+        "[chuck](VM): OverFlow: requested array size too big...\n" );
+    goto error;
 
 out_of_memory:
     // we have a problem
     fprintf( stderr, 
-        "[chuck](VM): OutOfMemory: while allocating arrays\n" );
+        "[chuck](VM): OutOfMemory: while allocating arrays...\n" );
+    goto error;
 
 error:
+    fprintf( stderr, 
+        "[chuck](VM):     (note: in shred[id=%d:%s])\n", shred->xid, shred->name.c_str() );
+
     // done
     shred->is_running = FALSE;
     shred->is_done = TRUE;
@@ -3344,7 +3358,7 @@ null_pointer:
 array_out_of_bound:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
+             "[chuck](VM): ArrayOutofBounds: in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
              shred->xid, shred->name.c_str(), shred->pc, i );
     // go to done
     goto done;
@@ -3436,7 +3450,7 @@ null_pointer:
 error:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): InternalArrayMap error in shred[id=%d:%s], PC=[%d], index=[%s]\n", 
+             "[chuck](VM): InternalArrayMap error: in shred[id=%d:%s], PC=[%d], index=[%s]\n", 
              shred->xid, shred->name.c_str(), shred->pc, key->str.c_str() );
     goto done;
 
@@ -3556,7 +3570,7 @@ null_pointer:
 array_out_of_bound:
     // we have a problem
     fprintf( stderr, 
-             "[chuck](VM): ArrayOutofBounds in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
+             "[chuck](VM): ArrayOutofBounds: in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
              shred->xid, shred->name.c_str(), shred->pc, i );
     // go to done
     goto done;
