@@ -561,6 +561,110 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_string
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_string : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_string_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_string_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_string_int
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_string_int : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_string_float
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_string_float : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_int_string
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_int_string : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_float_string
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_float_string : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_int_string_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_int_string_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_float_string_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_float_string_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Branch_Lt_int
 // desc: ...
 //-----------------------------------------------------------------------------

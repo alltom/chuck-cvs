@@ -1286,6 +1286,22 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     switch( op )
     {
     case ae_op_plus:
+    case ae_op_plus_chuck:
+        // take care of string
+        if( isa( left, &t_string ) )
+        {
+            // right is string or int/float
+            if( isa( right, &t_string ) || isa( right, &t_int )
+                || isa( right, &t_float ) )
+                break;
+        }
+        else if( isa( left, &t_string ) || isa( left, &t_int )
+                 || isa( left, &t_float ) )
+        {
+            // right is string
+            if( isa( right, &t_string ) )
+                break;
+        }
     case ae_op_minus:
     case ae_op_times:
     case ae_op_divide:
@@ -1294,7 +1310,6 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     //case ae_op_gt:
     //case ae_op_ge:
     case ae_op_percent:
-    case ae_op_plus_chuck:
     case ae_op_minus_chuck:
     case ae_op_times_chuck:
     case ae_op_divide_chuck:
@@ -1359,11 +1374,19 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         return type_engine_check_op_at_chuck( env, lhs, rhs );
 
     case ae_op_plus_chuck:
+        if( isa( left, &t_string ) && isa( right, &t_string ) ) return &t_string;
+        if( isa( left, &t_int ) && isa( right, &t_string ) ) return &t_string;
+        if( isa( left, &t_float ) && isa( right, &t_string ) ) return &t_string;
     case ae_op_plus:
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
         LR( te_dur, te_dur ) return &t_dur;
         COMMUTE( te_dur, te_time ) return &t_time;
+        if( isa( left, &t_string ) && isa( right, &t_string ) ) return &t_string;
+        if( isa( left, &t_string ) && isa( right, &t_int ) ) return &t_string;
+        if( isa( left, &t_string ) && isa( right, &t_float ) ) return &t_string;
+        if( isa( left, &t_int ) && isa( right, &t_string ) ) return &t_string;
+        if( isa( left, &t_float ) && isa( right, &t_string ) ) return &t_string;
     break;
 
     case ae_op_minus:

@@ -41,6 +41,8 @@
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
 
+#include "util_string.h"
+
 #include <typeinfo>
 using namespace std;
 
@@ -583,6 +585,378 @@ void Chuck_Instr_Mod_double_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shr
     **(t_CKFLOAT **)(sp+sz_FLOAT) = temp;
     // push result
     push_( (t_CKFLOAT *&)sp, temp );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: string + string
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_string::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_String * lhs = NULL;
+    Chuck_String * rhs = NULL;
+    Chuck_String * result = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 2 );
+    // left
+    lhs = (Chuck_String *)(*(reg_sp));
+    // right
+    rhs = (Chuck_String *)(*(reg_sp+1));
+
+    // make sure no null
+    if( !rhs || !lhs ) goto null_pointer;
+
+    // make new string
+    result = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
+
+    // concat
+    result->str = lhs->str + rhs->str;
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(result) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (string + string) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: add assign string
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_string_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_String * lhs = NULL;
+    Chuck_String ** rhs_ptr = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 2 );
+    // the previous reference
+    rhs_ptr = (Chuck_String **)(*(reg_sp+1));
+    // copy popped value into memory
+    lhs = (Chuck_String *)(*(reg_sp));
+
+    // make sure no null
+    if( !(*rhs_ptr) ) goto null_pointer;
+
+    // concat
+    (*rhs_ptr)->str += lhs->str;
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(*rhs_ptr) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (string + string) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: string + int
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_string_int::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_String * lhs = NULL;
+    t_CKINT rhs = 0;
+    Chuck_String * result = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 2 );
+    // left
+    lhs = (Chuck_String *)(*(reg_sp));
+    // right
+    rhs = (*(t_CKINT *)(reg_sp+1));
+
+    // make sure no null
+    if( !lhs ) goto null_pointer;
+
+    // make new string
+    result = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
+
+    // concat
+    result->str = lhs->str + ::itoa(rhs);
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(result) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (string + int) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: string + float
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_string_float::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    Chuck_String * lhs = NULL;
+    t_CKFLOAT rhs = 0;
+    Chuck_String * result = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 3 );
+    // left
+    lhs = (Chuck_String *)(*(reg_sp));
+    // right
+    rhs = (*(t_CKFLOAT *)(reg_sp+1));
+
+    // make sure no null
+    if( !lhs ) goto null_pointer;
+
+    // make new string
+    result = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
+
+    // concat
+    result->str = lhs->str + ::ftoa(rhs, 4);
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(result) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (string + float) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: int + string
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_int_string::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKINT lhs = 0;
+    Chuck_String * rhs = NULL;
+    Chuck_String * result = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 2 );
+    // left
+    lhs = (*(t_CKINT *)(reg_sp+1));
+    // right
+    rhs = (Chuck_String *)(*(reg_sp));
+
+    // make sure no null
+    if( !rhs ) goto null_pointer;
+
+    // make new string
+    result = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
+
+    // concat
+    result->str = ::itoa(lhs) + rhs->str;
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(result) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (int + string) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: float + string
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_float_string::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKFLOAT lhs = 0;
+    Chuck_String * rhs = NULL;
+    Chuck_String * result = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 3 );
+    // left (2 word)
+    lhs = (*(t_CKFLOAT *)(reg_sp));
+    // right
+    rhs = (Chuck_String *)(*(reg_sp+2));
+
+    // make sure no null
+    if( !rhs ) goto null_pointer;
+
+    // make new string
+    result = (Chuck_String *)instantiate_and_initialize_object( &t_string, shred );
+
+    // concat
+    result->str = ::ftoa(lhs, 4) + rhs->str;
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(result) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (int + string) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: add assign int string
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_int_string_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKINT lhs = 0;
+    Chuck_String ** rhs_ptr = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 2 );
+    // the previous reference
+    rhs_ptr = (Chuck_String **)(*(reg_sp+1));
+    // copy popped value into memory
+    lhs = (*(t_CKINT *)(reg_sp));
+
+    // make sure no null
+    if( !(*rhs_ptr) ) goto null_pointer;
+
+    // concat
+    (*rhs_ptr)->str += ::itoa(lhs);
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(*rhs_ptr) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: () in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: add assign float string
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Add_float_string_Assign::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& reg_sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKFLOAT lhs = 0;
+    Chuck_String ** rhs_ptr = NULL;
+
+    // pop word from reg stack
+    pop_( reg_sp, 3 );
+    // the previous reference
+    rhs_ptr = (Chuck_String **)(*(reg_sp+2));
+    // copy popped value into memory
+    lhs = (*(t_CKFLOAT *)(reg_sp));
+
+    // make sure no null
+    if( !(*rhs_ptr) ) goto null_pointer;
+
+    // concat
+    (*rhs_ptr)->str += ::ftoa(lhs, 4);
+
+    // push the reference value to reg stack
+    push_( reg_sp, (t_CKUINT)(*rhs_ptr) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (string + string) in shred[id=%d:%s]\n",
+        shred->xid, shred->name.c_str() );
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
 }
 
 

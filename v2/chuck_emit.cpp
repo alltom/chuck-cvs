@@ -1377,6 +1377,44 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         {
             emit->append( instr = new Chuck_Instr_Add_double );
         }
+        // string + string
+        else if( isa( t_left, &t_string ) && isa( t_right, &t_string ) )
+        {
+            // concatenate
+            emit->append( instr = new Chuck_Instr_Add_string );
+        }
+        // left: string
+        else if( isa( t_left, &t_string ) )
+        {
+            // + int
+            if( isa( t_right, &t_int ) )
+                emit->append( instr = new Chuck_Instr_Add_string_int );
+            else if( isa( t_right, &t_float ) )
+                emit->append( instr = new Chuck_Instr_Add_string_float );
+            else
+            {
+                EM_error2( lhs->linepos,
+                    "(emit): internal error: unhandled op '%s' %s '%s'",
+                    t_left->c_name(), op2str( op ), t_right->c_name() );
+                return FALSE;
+            }
+        }
+        // right: string
+        else if( isa( t_right, &t_string ) )
+        {
+            // + int
+            if( isa( t_left, &t_int ) )
+                emit->append( instr = new Chuck_Instr_Add_int_string );
+            else if( isa( t_left, &t_float ) )
+                emit->append( instr = new Chuck_Instr_Add_float_string );
+            else
+            {
+                EM_error2( lhs->linepos,
+                    "(emit): internal error: unhandled op '%s' %s '%s'",
+                    t_left->c_name(), op2str( op ), t_right->c_name() );
+                return FALSE;
+            }
+        }
         else // other types
         {
             switch( left )
@@ -1400,6 +1438,28 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             ( left == te_time && right == te_dur ) )
         {
             emit->append( instr = new Chuck_Instr_Add_double_Assign );
+        }
+        // string + string
+        else if( isa( t_left, &t_string ) && isa( t_right, &t_string ) )
+        {
+            // concatenate
+            emit->append( instr = new Chuck_Instr_Add_string_Assign );
+        }
+        // right: string
+        else if( isa( t_right, &t_string ) )
+        {
+            // + int
+            if( isa( t_left, &t_int ) )
+                emit->append( instr = new Chuck_Instr_Add_int_string_Assign );
+            else if( isa( t_left, &t_float ) )
+                emit->append( instr = new Chuck_Instr_Add_float_string_Assign );
+            else
+            {
+                EM_error2( lhs->linepos,
+                    "(emit): internal error: unhandled op '%s' %s '%s'",
+                    t_left->c_name(), op2str( op ), t_right->c_name() );
+                return FALSE;
+            }
         }
         else // other types
         {
