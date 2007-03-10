@@ -1871,11 +1871,13 @@ CK_DLL_MFUN( HidIn_name )
 {
     HidIn * min = (HidIn *)OBJ_MEMBER_INT(SELF, HidIn_offset_data);
     // TODO: memory leak, please fix, Thanks.
-    //Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    // Chuck_String * a = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
     // only if valid
     // if( min->good() )
     //     a->str = min->phin->getPortName( min->num() );
-    RETURN->v_string = new Chuck_String( min->name() );
+    // TODO: is null problem?
+    RETURN->v_string = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    RETURN->v_string->str = min->name();
 }
 
 CK_DLL_MFUN( HidIn_recv )
