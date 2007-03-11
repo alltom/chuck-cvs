@@ -160,17 +160,19 @@ public:
 //-----------------------------------------------------------------------------
 struct Chuck_Array : Chuck_Object
 {
-    //functionality that we can keep in common...
+    // functionality that we can keep in common...
 
 public:
     // Chuck_Array();
     // virtual ~Chuck_Array() { }
 
-    virtual t_CKINT size( ) const { return m_size; } //array size
-    virtual t_CKINT capacity( ) const { return m_capacity; } //array capacity
-    virtual t_CKINT data_type_size( ) = 0; //size of stored type ( from type_ref )
+    virtual t_CKINT size( ) const { return m_size; } // array size
+    virtual t_CKINT capacity( ) const { return m_capacity; } // array capacity
+    virtual t_CKINT set_capacity( t_CKINT capacity ) = 0; // set
+    virtual t_CKINT data_type_size( ) = 0; // size of stored type ( from type_ref )
     virtual t_CKINT find( const std::string & key ) = 0; // find
     virtual t_CKINT erase( const std::string & key ) = 0; // erase
+    virtual void clear( ) = 0; // clear
 
 public:
     t_CKUINT m_size;
@@ -200,8 +202,10 @@ public:
     t_CKINT push_back( t_CKUINT val );
     t_CKINT pop_back( );
     t_CKINT back( t_CKUINT * val ) const;
-    void clear( );
+    void    zero( t_CKUINT start, t_CKUINT end );
 
+    virtual void    clear( );
+    virtual t_CKINT set_capacity( t_CKINT capacity );
     virtual t_CKINT find( const std::string & key );
     virtual t_CKINT erase( const std::string & key );
     virtual t_CKINT data_type_size( ) { return CHUCK_ARRAY4_DATASIZE; } 
@@ -237,8 +241,10 @@ public:
     t_CKINT push_back( t_CKFLOAT val );
     t_CKINT pop_back( );
     t_CKINT back( t_CKFLOAT * val ) const;
-    void clear( );
+    void    zero( t_CKUINT start, t_CKUINT end );
 
+    virtual void    clear( );
+    virtual t_CKINT set_capacity( t_CKINT capacity );
     virtual t_CKINT find( const std::string & key );
     virtual t_CKINT erase( const std::string & key );
     virtual t_CKINT data_type_size( ) { return CHUCK_ARRAY8_DATASIZE; }

@@ -262,7 +262,7 @@ Chuck_Array4::Chuck_Array4( t_CKBOOL is_obj, t_CKINT capacity )
     // sanity check
     assert( capacity >= 0 );
     // set capacity
-    m_vector.resize( capacity );
+    m_vector.reserve( capacity );
     // reset size
     m_size = 0;
     // set capacity
@@ -309,7 +309,6 @@ t_CKUINT Chuck_Array4::addr( t_CKINT i )
 //-----------------------------------------------------------------------------
 t_CKUINT Chuck_Array4::addr( const string & key )
 {
-
     // get the addr
     return (t_CKUINT)(&m_map[key]);
 }
@@ -478,6 +477,15 @@ t_CKINT Chuck_Array4::pop_back( )
     if( m_size == 0 )
         return 0;
 
+    // if obj
+    if( m_is_obj )
+    {
+        Chuck_Object * v = (Chuck_Object *)m_vector[m_size-1];
+        if( v ) v->release();
+    }
+    
+    // zero
+    m_vector[m_size-1] = 0;
     // add to vector
     m_vector.pop_back();
     
@@ -518,8 +526,78 @@ void Chuck_Array4::clear( )
     // clear vector
     m_vector.clear();
 
+    // zero
+    zero( 0, m_capacity );
+
     // set size
     m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_capacity()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array4::set_capacity( t_CKINT capacity )
+{
+    // sanity check
+    assert( capacity >= 0 );
+
+    // if clearing capacity
+    if( capacity < m_capacity )
+    {
+        // zero out section
+        zero( capacity, m_capacity );
+    }
+
+    // resize vector
+    m_vector.reserve( capacity );
+    // set size
+    m_size = m_size < capacity ? m_size : capacity;
+    // set capacity
+    m_capacity = capacity;
+
+    return m_capacity;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: zero()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Array4::zero( t_CKUINT start, t_CKUINT end )
+{
+    // sanity check
+    assert( start < m_capacity && end <= m_capacity );
+
+    // if contains objects
+    if( m_is_obj )
+    {
+        Chuck_Object * v = NULL;
+        for( t_CKUINT i = start; i < end; i++ )
+        {
+            // get it
+            v = (Chuck_Object *)m_vector[i];
+            // release
+            if( v )
+            {
+                v->release();
+                m_vector[i] = NULL;
+            }
+        }
+    }
+    else
+    {
+        for( t_CKUINT i = start; i < end; i++ )
+        {
+            // zero
+            m_vector[i] = 0;
+        }
+    }
 }
 
 
@@ -534,7 +612,7 @@ Chuck_Array8::Chuck_Array8( t_CKINT capacity )
     // sanity check
     assert( capacity >= 0 );
     // set capacity
-    m_vector.resize( capacity );
+    m_vector.reserve( capacity );
     // reset size
     m_size = 0;
     // set capacity
@@ -727,6 +805,8 @@ t_CKINT Chuck_Array8::pop_back( )
     if( m_size == 0 )
         return 0;
 
+    // zero
+    m_vector[m_size-1] = 0.0;
     // add to vector
     m_vector.pop_back();
     
@@ -767,8 +847,56 @@ void Chuck_Array8::clear( )
     // clear vector
     m_vector.clear();
 
+    // zero
+    zero( 0, m_capacity );
+
     // set size
     m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_capacity()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array8::set_capacity( t_CKINT capacity )
+{
+    // sanity check
+    assert( capacity >= 0 );
+
+    // if less
+    if( capacity < m_capacity )
+        zero( capacity, m_capacity );
+
+    // resize vector
+    m_vector.reserve( capacity );
+    // set size
+    m_size = m_size < capacity ? m_size : capacity;
+    // set capacity
+    m_capacity = capacity;
+
+    return m_capacity;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: zero()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Array8::zero( t_CKUINT start, t_CKUINT end )
+{
+    // sanity check
+    assert( start < m_capacity && end <= m_capacity );
+
+    for( t_CKUINT i = start; i < end; i++ )
+    {
+        // zero
+        m_vector[i] = 0.0;
+    }
 }
 
 

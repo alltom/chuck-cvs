@@ -107,7 +107,8 @@ CK_DLL_MFUN( shred_getArg );
 //-----------------------------------------------------------------------------
 // array API
 //-----------------------------------------------------------------------------
-CK_DLL_MFUN( array_capacity );
+CK_DLL_MFUN( array_set_capacity );
+CK_DLL_MFUN( array_get_capacity );
 CK_DLL_MFUN( array_size );
 CK_DLL_MFUN( array_push_back );
 CK_DLL_MFUN( array_pop_back );
@@ -116,7 +117,6 @@ CK_DLL_MFUN( array_pop_font );
 CK_DLL_MFUN( array_find );
 CK_DLL_MFUN( array_erase );
 CK_DLL_MFUN( array_clear );
-CK_DLL_MFUN( array_recap );
 
 
 //-----------------------------------------------------------------------------
@@ -134,6 +134,11 @@ CK_DLL_MFUN( event_can_wait );
 // string API
 //-----------------------------------------------------------------------------
 CK_DLL_MFUN( string_length );
+CK_DLL_MFUN( string_upper );
+CK_DLL_MFUN( string_lower );
+CK_DLL_MFUN( string_ltrim );
+CK_DLL_MFUN( string_rtrim );
+CK_DLL_MFUN( string_trim );
 CK_DLL_MFUN( string_set_at );
 CK_DLL_MFUN( string_get_at );
 

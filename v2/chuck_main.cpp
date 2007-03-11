@@ -257,12 +257,12 @@ void version()
 void usage()
 {
     fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
-    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|about|\n" );
+    fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|server|about|\n" );
     fprintf( stderr, "               srate<N>|bufsize<N>|bufnum<N>|dac<N>|adc<N>|\n" );
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
     fprintf( stderr, "               channels<N>|out<N>|in<N>|shell|empty|level<N>|\n" );
     fprintf( stderr, "               blocking|callback|deprecate:{stop|warn|ignore}\n" );
-    fprintf( stderr, "   [commands] = add|remove|replace|status|time|kill\n" );
+    fprintf( stderr, "   [commands] = add|remove|replace|removeall|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n" );
     version();
 }
@@ -298,6 +298,7 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_shell = FALSE;
     t_CKBOOL no_vm = FALSE;
     t_CKBOOL load_hid = FALSE;
+    t_CKBOOL enable_server = FALSE;
     t_CKINT  log_level = CK_LOG_CORE;
     t_CKINT  deprecate_level = 1; // warn
 
@@ -337,7 +338,9 @@ int main( int argc, char ** argv )
             else if( !strcmp(argv[i], "--halt") || !strcmp(argv[i], "-t") )
                 vm_halt = TRUE;
             else if( !strcmp(argv[i], "--loop") || !strcmp(argv[i], "-l") )
-                vm_halt = FALSE;
+            {   vm_halt = FALSE; enable_server = TRUE; }
+            else if( !strcmp(argv[i], "--server") )
+                enable_server = TRUE;
             else if( !strcmp(argv[i], "--callback") )
                 block = FALSE;
             else if( !strcmp(argv[i], "--blocking") )
@@ -653,24 +656,33 @@ int main( int argc, char ** argv )
         }
     }
 
-    // log
-    EM_log( CK_LOG_SYSTEM, "starting listener on port: %d...", g_port );
-
-    // start tcp server
-    g_sock = ck_tcp_create( 1 );
-    if( !g_sock || !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
+    // server
+    if( enable_server )
     {
-        fprintf( stderr, "[chuck]: cannot bind to tcp port %i...\n", g_port );
-        ck_close( g_sock );
-        g_sock = NULL;
+        // log
+        EM_log( CK_LOG_SYSTEM, "starting listener on port: %d...", g_port );
+
+        // start tcp server
+        g_sock = ck_tcp_create( 1 );
+        if( !g_sock || !ck_bind( g_sock, g_port ) || !ck_listen( g_sock, 10 ) )
+        {
+            fprintf( stderr, "[chuck]: cannot bind to tcp port %i...\n", g_port );
+            ck_close( g_sock );
+            g_sock = NULL;
+        }
+        else
+        {
+    #if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
+            pthread_create( &g_tid_otf, NULL, otf_cb, NULL );
+    #else
+            g_tid_otf = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0 );
+    #endif
+        }
     }
     else
     {
-#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
-        pthread_create( &g_tid_otf, NULL, otf_cb, NULL );
-#else
-        g_tid_otf = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0 );
-#endif
+        // log
+        EM_log( CK_LOG_SYSTEM, "OTF server/listener: OFF" );
     }
 
     // start shell on separate thread
