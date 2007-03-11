@@ -10,6 +10,8 @@
   - (added) OS X: watchdog enabled
             win32: watchdog implemtend and enabled
             (combats chuck infinite empty loop implosion)
+  - (added) OTF server/listener now OFF by default...
+            to enable, specify --loop or --server
   - (added) new UGens:
             --------
             Dyno: dynamics processor (compressor, expander, etc.)
