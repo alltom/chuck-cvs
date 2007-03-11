@@ -37,7 +37,7 @@
 #include "chuck_errmsg.h"
 #include "midiio_rtmidi.h"
 #include "hidio_sdl.h"
-// #include "skiniio_skini.h"
+#include "util_string.h"
 
 
 // offset for member variable
@@ -344,6 +344,26 @@ t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "int", "length", string_length );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add upper()
+    func = make_new_mfun( "string", "upper", string_upper );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add lower()
+    func = make_new_mfun( "string", "lower", string_lower );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add ltrim()
+    func = make_new_mfun( "string", "ltrim", string_ltrim );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add rtrim()
+    func = make_new_mfun( "string", "rtrim", string_rtrim );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add trim()
+    func = make_new_mfun( "string", "trim", string_trim );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
 /*    // add at()
     func = make_new_mfun( "int", "ch", string_set_at );
     func->add_arg( "int", "index" );
@@ -385,12 +405,19 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
         return FALSE;
 
+    // add clear()
+    func = make_new_mfun( "void", "clear", array_clear );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add size()
     func = make_new_mfun( "int", "size", array_size );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    // add size()
-    func = make_new_mfun( "int", "cap", array_capacity );
+    // add cap()
+    func = make_new_mfun( "int", "cap", array_set_capacity );
+    func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "cap", array_get_capacity );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add find()
@@ -1552,6 +1579,46 @@ CK_DLL_MFUN( string_length )
     RETURN->v_int = s->str.length();
 }
 
+CK_DLL_MFUN( string_upper )
+{
+    Chuck_String * s = (Chuck_String *)SELF;
+    Chuck_String * str = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    str->str = toupper( s->str );
+    RETURN->v_string = str;
+}
+
+CK_DLL_MFUN( string_lower )
+{
+    Chuck_String * s = (Chuck_String *)SELF;
+    Chuck_String * str = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    str->str = tolower( s->str );
+    RETURN->v_string = str;
+}
+
+CK_DLL_MFUN( string_ltrim )
+{
+    Chuck_String * s = (Chuck_String *)SELF;
+    Chuck_String * str = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    str->str = ltrim( s->str );
+    RETURN->v_string = str;
+}
+
+CK_DLL_MFUN( string_rtrim )
+{
+    Chuck_String * s = (Chuck_String *)SELF;
+    Chuck_String * str = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    str->str = rtrim( s->str );
+    RETURN->v_string = str;
+}
+
+CK_DLL_MFUN( string_trim )
+{
+    Chuck_String * s = (Chuck_String *)SELF;
+    Chuck_String * str = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
+    str->str = trim( s->str );
+    RETURN->v_string = str;
+}
+
 /*
 CK_DLL_MFUN( string_set_at )
 {
@@ -1575,8 +1642,33 @@ CK_DLL_MFUN( array_size )
     RETURN->v_int = array->size();
 }
 
+// array.clear()
+CK_DLL_MFUN( array_clear )
+{
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    array->clear();
+}
+
 // array.cap()
-CK_DLL_MFUN( array_capacity )
+CK_DLL_MFUN( array_set_capacity )
+{
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    t_CKINT capacity = GET_NEXT_INT(ARGS);
+    if( capacity < 0 )
+    {
+        // TODO: make this exception
+        fprintf( stderr, "[chuck](via array): attempt to set negative array capacity!\n" );
+        RETURN->v_int = 0;
+    }
+    else
+    {
+        array->set_capacity( capacity );
+        RETURN->v_int = array->capacity();
+    }
+}
+
+// array.cap()
+CK_DLL_MFUN( array_get_capacity )
 {
     Chuck_Array * array = (Chuck_Array *)SELF;
     RETURN->v_int = array->capacity();
@@ -1605,7 +1697,7 @@ CK_DLL_MFUN( array_push_back )
     if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
         RETURN->v_int = ((Chuck_Array4 *)array)->push_back( GET_NEXT_UINT( ARGS ) );
     else 
-        RETURN->v_int = ((Chuck_Array8 *)array)->push_back( GET_NEXT_FLOAT( ARGS ) );
+        RETURN->v_float = ((Chuck_Array8 *)array)->push_back( GET_NEXT_FLOAT( ARGS ) );
 }
 
 // array.pop_back()
@@ -1615,7 +1707,7 @@ CK_DLL_MFUN( array_pop_back )
     if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
         RETURN->v_int = ((Chuck_Array4 *)array)->pop_back( );
     else 
-        RETURN->v_int = ((Chuck_Array8 *)array)->pop_back( );
+        RETURN->v_float = ((Chuck_Array8 *)array)->pop_back( );
 }
 
 

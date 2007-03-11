@@ -4,6 +4,8 @@
 
 // which mouse
 0 => int device;
+// get from command line
+if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
 
 // modulator to carrier
 SinOsc m => SinOsc c => Envelope e => dac;

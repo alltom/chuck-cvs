@@ -8,6 +8,8 @@
 
 // device to open (see: chuck --probe)
 0 => int device;
+// get from command line
+if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
 
 MidiIn min;
 MidiMsg msg;

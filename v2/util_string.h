@@ -48,6 +48,10 @@ std::string tolower( const std::string & val );
 std::string toupper( const std::string & val );
 // trim
 std::string trim( const std::string & val );
+// ltrim
+std::string ltrim( const std::string & val );
+// rtrim
+std::string rtrim( const std::string & val );
 
 // argument extraction
 t_CKBOOL extract_args( const std::string & token, 

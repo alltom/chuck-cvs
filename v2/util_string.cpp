@@ -145,6 +145,62 @@ string trim( const string & val )
 
 
 //-----------------------------------------------------------------------------
+// name: ltrim()
+// desc: ...
+//-----------------------------------------------------------------------------
+string ltrim( const string & val )
+{
+    // two ends
+    t_CKINT start = 0;
+    t_CKINT end = val.length() - 1;
+
+    // left trim
+    for( start = 0; start < end; start++ )
+    {
+        // non-white space
+        if( val[start] != ' ' && val[start] != '\t' )
+            break;
+    }
+
+    // if start > end, then all white space
+    if( start > end ) return "";
+
+    // return
+    return val.substr( start, end - start + 1 );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: rtrim()
+// desc: ...
+//-----------------------------------------------------------------------------
+string rtrim( const string & val )
+{
+    // two ends
+    t_CKINT start = 0;
+    t_CKINT end = val.length() - 1;
+
+    // right trim
+    for( ; end >= start; end-- )
+    {
+        // non-white space
+        if( val[end] != ' ' && val[end] != '\t' )
+            break;
+    }
+
+    // if end < start, then all white space
+    if( end < start ) return "";
+
+    // return
+    return val.substr( start, end - start + 1 );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: extract_args()
 // desc: extract argument from format filename:arg1:arg2:etc
 //-----------------------------------------------------------------------------

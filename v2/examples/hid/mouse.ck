@@ -3,8 +3,7 @@ HidIn hi;
 HidMsg msg;
 
 // open mouse 0, exit on fail
-if( !hi.openMouse( 0 ) ) me.exit();
-
+if( !hi.openMouse( Std.atoi(me.getArg(0)) ) ) me.exit();
 <<< "mouse '", hi.name(), "' ready" >>>;
 
 // infinite event loop

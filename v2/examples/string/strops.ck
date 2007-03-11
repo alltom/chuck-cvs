@@ -45,5 +45,10 @@ assert( "bar" + 10.0 == "bar10.0000", "19" );
 assert( 10 + "bar" == "10bar", "20" );
 assert( 10.0 + "bar" == "10.0000bar", "21" );
 assert( "foo" + "bar" + "cle" == "foobarcle", "22" );
+assert( "FoO".lower() == "foo", "23" );
+assert( "foo".upper() == "FOO", "24" );
+assert( " foo  ".trim() == "foo", "25" );
+assert( " foo ".ltrim() == "foo ", "26" );
+assert( " foo ".rtrim() == " foo", "27" );
 
 <<< "success" >>>;

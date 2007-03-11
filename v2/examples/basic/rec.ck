@@ -1,11 +1,17 @@
 // chuck this with other shreds to record to file
 // example> chuck foo.ck bar.ck rec (see also rec2.ck)
 
+// arguments: rec:<filename>
+
+// get name
+me.getArg(0) => string filename;
+if( filename.length() == 0 ) "foo.wav" => filename;
+
 // pull samples from the dac
 dac => Gain g => WvOut w => blackhole;
 // this is the output file name
-"foo.wav" => w.wavFilename;
-<<<"writing to file: ", w.filename()>>>;
+filename => w.wavFilename;
+<<<"writing to file:", "'" + w.filename() + "'">>>;
 // any gain you want for the output
 .5 => g.gain;
 
