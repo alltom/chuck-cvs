@@ -8,7 +8,7 @@
             e.g. // code
                  Machine.add( "foo:1:2:yo" );
   - (added) OS X: watchdog enabled
-            win32: watchdog implemtend and enabled
+            win32: watchdog implemented and enabled
             (combats chuck infinite empty loop implosion)
   - (added) OTF server/listener now OFF by default...
             to enable, specify --loop or --server
@@ -39,6 +39,12 @@
                   dur decayTime()
                   dur releaseTime()
             WvOut: void closeFile()
+            HidIn: void openTiltSensor()
+                   int read( int, int, HidMsg )
+            HidMsg: int key
+                    (cross-platform USB HID Keyboard Usage code)
+                    int ascii
+                    (ASCII value of key, where appropriate)
             --------
   - (api)   API modifications (sorry!)
             --------
