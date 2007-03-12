@@ -1267,8 +1267,8 @@ static void Hid_key_table_init()
     // ASCII symbols
     g_hid_key_table[kHIDUsage_KeyboardHyphen] = '-';
     g_hid_key_table[kHIDUsage_KeyboardEqualSign] = '=';
-    g_hid_key_table[kHIDUsage_KeyboardOpenBracket] = '{';
-    g_hid_key_table[kHIDUsage_KeyboardCloseBracket] = '}';
+    g_hid_key_table[kHIDUsage_KeyboardOpenBracket] = '[';
+    g_hid_key_table[kHIDUsage_KeyboardCloseBracket] = ']';
     g_hid_key_table[kHIDUsage_KeyboardBackslash] = '\\';
     g_hid_key_table[kHIDUsage_KeyboardNonUSPound] = '#';
     g_hid_key_table[kHIDUsage_KeyboardSemicolon] = ';';

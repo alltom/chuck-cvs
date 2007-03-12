@@ -17,11 +17,12 @@ while( true )
         // check for action type
         if( msg.isButtonDown() )
         {
-            <<< "down:", msg.which, msg.key, msg.ascii >>>;
+            <<< "down:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
         }
+        
         else
         {
-            // <<< "up:", msg.which, msg.key, msg.ascii >>>;
+            //<<< "up:", msg.which, "(code)", msg.key, "(usb key)", msg.ascii, "(ascii)" >>>;
         }
     }
 }
