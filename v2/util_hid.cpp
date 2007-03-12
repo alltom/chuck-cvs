@@ -4547,7 +4547,7 @@ static void Keyboard_init_translation_table()
     kb_translation_table[DIK_EQUALS] = '=';
     kb_translation_table[DIK_EQUALS] |= 0x2e << 8;
     
-    kb_translation_table[DIK_ESCAPE] = 0;
+    kb_translation_table[DIK_ESCAPE] = 0x1b;
     kb_translation_table[DIK_ESCAPE] |= 0x29 << 8;
     
     kb_translation_table[DIK_F1] = 0;
