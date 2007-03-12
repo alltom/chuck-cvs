@@ -11,7 +11,7 @@ if( !hi.openTiltSensor() )
 
 while( true )
 {
-    hi.read( 9, 0, msg );
+    hi.read( Hid.ACCELEROMETER, 0, msg );
     
     // x: positive to left of user, negative to right of user
     // y: positive towards user, negative away from user

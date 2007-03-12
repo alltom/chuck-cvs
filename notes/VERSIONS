@@ -32,7 +32,7 @@
             WarpTable (extends GenX)
 
             --------
-
+  - (added) 
   - (api)   API additions
             -------- (also see API modifications below)
             ADSR: dur attackTime()
@@ -41,7 +41,9 @@
             WvOut: void closeFile()
             HidIn: void openTiltSensor()
                    int read( int, int, HidMsg )
-            HidMsg: int key
+            HidMsg: int isWheelMotion()
+                    (support for mouse scroll wheels)
+                    int key
                     (cross-platform USB HID Keyboard Usage code)
                     int ascii
                     (ASCII value of key, where appropriate)
