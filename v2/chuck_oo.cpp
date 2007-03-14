@@ -261,14 +261,16 @@ Chuck_Array4::Chuck_Array4( t_CKBOOL is_obj, t_CKINT capacity )
 {
     // sanity check
     assert( capacity >= 0 );
-    // set capacity
-    m_vector.reserve( capacity );
     // reset size
     m_size = 0;
     // set capacity
     m_capacity = capacity;
     // is object
     m_is_obj = is_obj;
+    // set capacity
+    m_vector.reserve( capacity );
+    // clear
+    this->clear();
 }
 
 
@@ -611,12 +613,14 @@ Chuck_Array8::Chuck_Array8( t_CKINT capacity )
 {
     // sanity check
     assert( capacity >= 0 );
-    // set capacity
-    m_vector.reserve( capacity );
     // reset size
     m_size = 0;
     // set capacity
     m_capacity = capacity;
+    // set capacity
+    m_vector.reserve( capacity );
+    // clear
+    this->clear();
 }
 
 
