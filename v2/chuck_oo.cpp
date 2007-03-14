@@ -265,12 +265,13 @@ Chuck_Array4::Chuck_Array4( t_CKBOOL is_obj, t_CKINT capacity )
     m_size = 0;
     // set capacity
     m_capacity = capacity;
-    // is object
-    m_is_obj = is_obj;
     // set capacity
     m_vector.reserve( capacity );
-    // clear
+    // clear (as non-object, so no releases)
+    m_is_obj = FALSE;
     this->clear();
+    // is object (set after clear)
+    m_is_obj = is_obj;
 }
 
 
