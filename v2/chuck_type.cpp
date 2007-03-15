@@ -1940,8 +1940,28 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                         v = type_engine_find_value( env, S_name(exp->var), TRUE, exp->linepos );
                     }
 
+                    // check
+                    if( v )
+                    {
+                        // inside a class
+                        if( env->class_def )
+                        {
+                            // inside a function definition
+                            if( env->func )
+                            {
+                                // if func static, v not
+                                if( env->func->def->static_decl == ae_key_static &&
+                                    v->is_member && !v->is_static )
+                                {
+                                    EM_error2( exp->linepos,
+                                        "non-static member '%s' used from static function...", S_name(exp->var) );
+                                    return NULL;
+                                }
+                            }
+                        }
+                    }
                     // error
-                    if( !v )
+                    else
                     {
                         // checking for class scope incorrect (thanks Robin Davies)
                         if( !env->class_def /* || env->class_scope > 0 */ )
