@@ -1,4 +1,4 @@
-HidIn hi;
+Hid hi;
 HidMsg msg;
 
 if( !hi.openTiltSensor() )
