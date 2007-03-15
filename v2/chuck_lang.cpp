@@ -758,93 +758,9 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     type_engine_import_class_end( env );
 
 
-    // init base class
-    if( !type_engine_import_class_begin( env, "HidIn", "Event",
-                                         env->global(), HidIn_ctor ) )
-        return FALSE;
+    // register deprecate
+    type_engine_register_deprecate( env, "HidIn", "Hid" );
 
-    // add open()
-    func = make_new_mfun( "int", "open", HidIn_open );
-    func->add_arg( "int", "type" );
-    func->add_arg( "int", "num" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add openJoystick()
-    func = make_new_mfun( "int", "openJoystick", HidIn_open_joystick );
-    func->add_arg( "int", "num" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add openMouse()
-    func = make_new_mfun( "int", "openMouse", HidIn_open_mouse );
-    func->add_arg( "int", "num" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add openKeyboard()
-    func = make_new_mfun( "int", "openKeyboard", HidIn_open_keyboard );
-    func->add_arg( "int", "num" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add openTiltSensor()
-    func = make_new_mfun( "int", "openTiltSensor", HidIn_open_tiltsensor );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add good()
-    func = make_new_mfun( "int", "good", HidIn_good );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add num()
-    func = make_new_mfun( "int", "num", HidIn_num );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add name()
-    func = make_new_mfun( "string", "name", HidIn_name );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add printerr()
-    func = make_new_mfun( "void", "printerr", HidIn_printerr );
-    func->add_arg( "int", "print_or_not" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add recv()
-    func = make_new_mfun( "int", "recv", HidIn_recv );
-    func->add_arg( "HidMsg", "msg" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add read()
-    func = make_new_mfun( "int", "read", HidIn_read );
-    func->add_arg( "int", "type" );
-    func->add_arg( "int", "which" );
-    func->add_arg( "HidMsg", "msg" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add send()
-    func = make_new_mfun( "int", "send", HidIn_send );
-    func->add_arg( "HidMsg", "msg" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add can_wait()
-    func = make_new_mfun( "int", "can_wait", HidIn_can_wait );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add readTiltSensor()
-    func = make_new_sfun( "int[]", "readTiltSensor", HidIn_read_tilt_sensor );
-    if( !type_engine_import_sfun( env, func ) ) goto error;
-    
-    // add startCursorTrack()
-    func = make_new_sfun( "int", "startCursorTrack", HidIn_start_cursor_track );
-    if( !type_engine_import_sfun( env, func ) ) goto error;
-    
-    // add stopCursorTrack()
-    func = make_new_sfun( "int", "stopCursorTrack", HidIn_stop_cursor_track );
-    if( !type_engine_import_sfun( env, func ) ) goto error;
-    
-    // add member variable
-    HidIn_offset_data = type_engine_import_mvar( env, "int", "@HidIn_data", FALSE );
-    if( HidIn_offset_data == CK_INVALID_OFFSET ) goto error;
-        
-    // end the class import
-    type_engine_import_class_end( env );
-    
     // init base class Hid (copy of HidIn + constants)
     if( !type_engine_import_class_begin( env, "Hid", "Event",
                                          env->global(), HidIn_ctor ) )
