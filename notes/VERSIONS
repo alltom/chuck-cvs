@@ -39,8 +39,8 @@
                   dur decayTime()
                   dur releaseTime()
             WvOut: void closeFile()
-            HidIn: void openTiltSensor()
-                   int read( int, int, HidMsg )
+            Hid: void openTiltSensor()
+                 int read( int, int, HidMsg )
             HidMsg: int isWheelMotion()
                     (support for mouse scroll wheels)
                     int key
@@ -54,6 +54,9 @@
                   float decayTime( float ) -> dur decayTime( dur )
                   float releaseTime( float ) -> dur releaseTime( dur )
             --------
+  - (api) deprecated --> new classes
+    --------------------------
+       HidIn  -->  Hid
 
   - (fixed) adc.last() now returns correct value (was returning 0)
   - (fixed) array is now subclass of Object
