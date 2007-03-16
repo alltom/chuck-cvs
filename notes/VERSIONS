@@ -76,6 +76,8 @@
   - (fixed) no longer spontaneously crashes when HidIn and 
             other event based input mechanisms are firing rapidly
   - (fixed) using non-static variables from inside static functions
+  - (fixed) variables must be declared before being used
+
 
 ---
 1.2.0.7b
