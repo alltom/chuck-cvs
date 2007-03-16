@@ -97,10 +97,6 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
     // use code from memory buffer if its available
     if( code )
     {
-        // load string (yy_scan_string will copy the C string)
-        YY_BUFFER_STATE ybs = yy_scan_string( code );
-        if( !ybs ) goto cleanup;
-
         // copy name
         strcpy( g_filename, fname );
         // reset
@@ -108,6 +104,10 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
 
         // TODO: clean g_program
         g_program = NULL;
+
+        // load string (yy_scan_string will copy the C string)
+        YY_BUFFER_STATE ybs = yy_scan_string( code );
+        if( !ybs ) goto cleanup;
 
         // clean
         yyrestart( NULL );

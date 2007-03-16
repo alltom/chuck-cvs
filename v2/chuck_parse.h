@@ -60,7 +60,7 @@ extern "C" void yy_delete_buffer( YY_BUFFER_STATE );
 // open file with .ck append as appropriate
 FILE * open_cat_ck( c_str filename );
 // parse file
-t_CKBOOL chuck_parse( c_constr fname, FILE * fd = NULL, const char * code = NULL );
+t_CKBOOL chuck_parse( c_constr fname, FILE * fd = NULL, c_constr code = NULL );
 // reset the parser
 void reset_parse( );
 
