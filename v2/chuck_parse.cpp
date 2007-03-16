@@ -105,12 +105,12 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
         // TODO: clean g_program
         g_program = NULL;
 
+        // clean
+        yyrestart( NULL );
+
         // load string (yy_scan_string will copy the C string)
         YY_BUFFER_STATE ybs = yy_scan_string( code );
         if( !ybs ) goto cleanup;
-
-        // clean
-        yyrestart( NULL );
 
         // parse
         if( !( yyparse() == 0 ) ) goto cleanup;
