@@ -34,12 +34,12 @@ int count;
 set( base, a0, a1, a2 );
 
 // hid objects
-HidIn hi;
+Hid hi;
 HidMsg msg;
 
 // try
 if( !hi.openMouse( device ) ) me.exit();
-<<< "mouse '", hi.name(), "' ready..." >>>;
+<<< "mouse '" + hi.name() + "' ready...", "" >>>;
 
 // infinite time loop
 while( true )

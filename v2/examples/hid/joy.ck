@@ -1,11 +1,16 @@
 // make HidIn and HidMsg
-HidIn hi;
+Hid hi;
 HidMsg msg;
 
-// open joystick 0, exit on fail
-if( !hi.openJoystick( 0 ) ) me.exit();
+// which joystick
+0 => int device;
+// get from command line
+if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
 
-<<< "joystick '", hi.name(), "' ready" >>>;
+// open joystick 0, exit on fail
+if( !hi.openJoystick( device ) ) me.exit();
+
+<<< "joystick '" + hi.name() + "' ready", "" >>>;
 
 // infinite event loop
 while( true )

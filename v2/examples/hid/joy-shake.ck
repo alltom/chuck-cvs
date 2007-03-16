@@ -1,11 +1,16 @@
 // STK Shakers and joystick!
 
 // make HidIn and HidMsg
-HidIn hi;
+Hid hi;
 HidMsg msg;
 
+// which joystick
+0 => int device;
+// get from command line
+if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
+
 // open joystick 0, exit on fail
-if( !hi.openJoystick( 0 ) ) me.exit();
+if( !hi.openJoystick( device ) ) me.exit();
 
 // patch
 Shakers s => JCRev r => dac;

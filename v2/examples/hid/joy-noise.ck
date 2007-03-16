@@ -2,16 +2,18 @@
 // desc: using joystick to control noise (first 3 axes + buttons)
 // author: Ge Wang
 
-// which joystick to use
-0 => int device;
-
 // make our Hid objects
-HidIn hi;
+Hid hi;
 HidMsg msg;
+
+// which joystick
+0 => int device;
+// get from command line
+if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
 
 // open joystick
 if( !hi.openJoystick( device ) ) me.exit();
-<<< "joystick ready...", "" >>>;
+<<< "joystick '" + hi.name() + "' ready...", "" >>>;
 
 // patch
 Noise n => BiQuad f => Envelope e => Pan2 p => dac;

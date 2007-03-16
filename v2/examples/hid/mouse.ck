@@ -1,10 +1,15 @@
 // make HidIn and HidMsg
-HidIn hi;
+Hid hi;
 HidMsg msg;
 
+// which mouse
+0 => int device;
+// get from command line
+if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
+
 // open mouse 0, exit on fail
-if( !hi.openMouse( Std.atoi(me.getArg(0)) ) ) me.exit();
-<<< "mouse '", hi.name(), "' ready" >>>;
+if( !hi.openMouse( device ) ) me.exit();
+<<< "mouse '" + hi.name() + "' ready", "" >>>;
 
 // infinite event loop
 while( true )

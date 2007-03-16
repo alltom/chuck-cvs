@@ -1,10 +1,15 @@
 // HID
-HidIn hi;
+Hid hi;
 HidMsg msg;
 
+// which keyboard
+0 => int device;
+// get from command line
+if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
+
 // open keyboard (get device number from command line)
-if( !hi.openKeyboard( Std.atoi(me.getArg(0)) ) ) me.exit();
-<<< "keyboard '", hi.name(), "' ready" >>>;
+if( !hi.openKeyboard( device ) ) me.exit();
+<<< "keyboard '" + hi.name() + "' ready", "" >>>;
 
 // patch
 BeeThree organ => JCRev r => Echo e => Echo e2 => dac;
