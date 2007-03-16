@@ -604,6 +604,8 @@ struct Chuck_Value : public Chuck_VM_Object
     t_CKBOOL is_static;  // do something
     // is context-global?
     t_CKBOOL is_context_global;
+    // is decl checked
+    t_CKBOOL is_decl_checked;
     // 0 = public, 1 = protected, 2 = private
     t_CKUINT access;
     // owner
@@ -626,6 +628,7 @@ struct Chuck_Value : public Chuck_VM_Object
       owner_class = oc; SAFE_ADD_REF(oc); // add reference
       addr = a; is_member = FALSE;
       is_static = FALSE; is_context_global = FALSE;
+      is_decl_checked = TRUE; // only set to false in certain cases
       func_ref = NULL; func_num_overloads = 0; }
 
     // destructor

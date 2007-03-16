@@ -68,10 +68,31 @@ FILE * open_cat_ck( c_str fname )
 // name: chuck_parse()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL chuck_parse( c_constr fname, FILE * fd, const char * code )
+t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
 {
 	t_CKBOOL clo = FALSE;
     t_CKBOOL ret = FALSE;
+
+    // sanity check
+    if( fd && code )
+    {
+        fprintf( stderr, "[chuck](via parser): (internal) both fd and code specified!\n" );
+        return FALSE;
+    }
+
+    /*
+    // prepare code
+    if( code )
+    {
+        // !
+        assert( fd == NULL );
+        // generate temp file
+        fd = tmpfile();
+        // flag it to close
+        clo = TRUE;
+        // write
+        fwrite( code, sizeof(char), strlen(code), fd );
+    }*/
     
     // use code from memory buffer if its available
     if( code )
@@ -87,12 +108,16 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, const char * code )
 
         // TODO: clean g_program
         g_program = NULL;
-        
+
+        // clean
+        yyrestart( NULL );
+
         // parse
         if( !( yyparse() == 0 ) ) goto cleanup;
         
         // delete the lexer buffer
         yy_delete_buffer( ybs );
+
     }
     else
     {
@@ -109,11 +134,15 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, const char * code )
         if( EM_reset( g_filename, fd ) == FALSE ) goto cleanup;
 
         // lexer/parser
-        // TODO: if( yyin ) fclose( yyin );
-        // TODO: start condition?
-        if( !fd ) fd = fopen( g_filename, "r" );
+        // TODO: if( yyin ) { fclose( yyin ); yyin = NULL; }
+
+        // if no fd, open
+        if( !fd ) { fd = fopen( g_filename, "r" ); clo = TRUE; }
+        // if still none
         if( !fd ) EM_error2( 0, "no such file or directory" );
+        // set to beginning
         else fseek( fd, 0, SEEK_SET );
+
         // reset yyin to fd
         yyrestart( fd );
         

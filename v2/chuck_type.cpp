@@ -1980,6 +1980,15 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                     }
                 }
 
+                // make sure v is legit as this point
+                if( !v->is_decl_checked )
+                {
+                    EM_error2( exp->linepos,
+                        "variable/member '%s' is used before declaration...",
+                        S_name(exp->var) );
+                    return NULL;
+                }
+
                 // the type
                 t = v->type;
                 // remember
@@ -2461,6 +2470,9 @@ t_CKTYPE type_engine_check_exp_decl( Chuck_Env * env, a_Exp_Decl decl )
         {
             // do nothing?
         }
+
+        // mark the decl checked (see scan pass 2)
+        value->is_decl_checked = TRUE;
         
         // add the value, if we are not at class scope
         // (otherwise they should already have been added)
