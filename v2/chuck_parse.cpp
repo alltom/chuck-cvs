@@ -80,7 +80,6 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
         return FALSE;
     }
 
-    /*
     // prepare code
     if( code )
     {
@@ -92,8 +91,9 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
         clo = TRUE;
         // write
         fwrite( code, sizeof(char), strlen(code), fd );
-    }*/
-    
+    }
+
+    /*
     // use code from memory buffer if its available
     if( code )
     {
@@ -119,42 +119,42 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
         yy_delete_buffer( ybs );
 
     }
-    else
-    {
-        strcpy( g_filename, fname );
-        
-        // test it
-        if( !fd ) {
-            fd = open_cat_ck( g_filename );
-            if( !fd ) strcpy( g_filename, fname );
-            else clo = TRUE;
-        }
-        
-        // reset
-        if( EM_reset( g_filename, fd ) == FALSE ) goto cleanup;
+    */
 
-        // lexer/parser
-        // TODO: if( yyin ) { fclose( yyin ); yyin = NULL; }
-
-        // if no fd, open
-        if( !fd ) { fd = fopen( g_filename, "r" ); clo = TRUE; }
-        // if still none
-        if( !fd ) EM_error2( 0, "no such file or directory" );
-        // set to beginning
-        else fseek( fd, 0, SEEK_SET );
-
-        // reset yyin to fd
-        yyrestart( fd );
+    // remember filename
+    strcpy( g_filename, fname );
         
-        // check
-        if( yyin == NULL ) goto cleanup;
-        
-        // TODO: clean g_program
-        g_program = NULL;
-        
-        // parse
-        if( !(yyparse( ) == 0) ) goto cleanup;
+    // test it
+    if( !fd ) {
+        fd = open_cat_ck( g_filename );
+        if( !fd ) strcpy( g_filename, fname );
+        else clo = TRUE;
     }
+
+    // reset
+    if( EM_reset( g_filename, fd ) == FALSE ) goto cleanup;
+
+    // lexer/parser
+    // TODO: if( yyin ) { fclose( yyin ); yyin = NULL; }
+
+    // if no fd, open
+    if( !fd ) { fd = fopen( g_filename, "r" ); clo = TRUE; }
+    // if still none
+    if( !fd ) EM_error2( 0, "no such file or directory" );
+    // set to beginning
+    else fseek( fd, 0, SEEK_SET );
+
+    // reset yyin to fd
+    yyrestart( fd );
+        
+    // check
+    if( yyin == NULL ) goto cleanup;
+        
+    // TODO: clean g_program
+    g_program = NULL;
+        
+    // parse
+    if( !(yyparse( ) == 0) ) goto cleanup;
 
     // flag success
     ret = TRUE;
