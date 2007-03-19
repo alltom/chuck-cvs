@@ -2008,6 +2008,11 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
         
         // string
         case ae_primary_str:
+            // escape the thing
+            if( !escape_str( exp->str, exp->linepos ) )
+                return NULL;
+
+            // a string
             t = &t_string;
         break;
 
@@ -5095,4 +5100,131 @@ const char * howmuch2str( te_HowMuch how_much )
 {
     if( how_much < 0 || how_much > te_do_no_classes ) return "[INVALID]";
     else return g_howmuch[how_much];
+}
+
+
+
+
+// table of escape characters
+static char g_escape[256];
+static t_CKBOOL g_escape_ready = FALSE;
+
+//-----------------------------------------------------------------------------
+// name: escape_table()
+// desc: ...
+//-----------------------------------------------------------------------------
+void escape_table( )
+{
+    // escape
+    g_escape['\''] = '\'';
+    g_escape['"'] = '"';
+    g_escape['\\'] = '\\';
+    g_escape['a'] = (char)7; // audible bell
+    g_escape['b'] = (char)8; // back space
+    g_escape['f'] = (char)12; // form feed
+    g_escape['n'] = (char)10; // new line
+    g_escape['r'] = (char)13; // carriage return
+    g_escape['t'] = (char)9; // horizontal tab
+    g_escape['v'] = (char)11; // vertical tab
+
+    // done
+    g_escape_ready = TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: escape_str()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL escape_str( char * str_lit, int linepos )
+{
+    // create if not yet
+    if( !g_escape_ready )
+        escape_table( );
+
+    // write pointer
+    char * str = str_lit;
+    // unsigned because we index array of 256
+    unsigned char c, c2, c3;
+
+    // iterate
+    while( *str_lit )
+    {
+        // if \ encountered
+        if( *str_lit == '\\' )
+        {
+            // advance pointer
+            str_lit++;
+
+            // make sure next char
+            if( *str_lit == '\0' )
+            {
+                EM_error2( linepos, "invalid: string ends with escape charactor '\\'" );
+                return FALSE;
+            }
+
+            // next characters
+            c = *(str_lit);
+            c2 = *(str_lit+1);
+
+            // is octal?
+            if( c >= '0' && c <= '7' )
+            {
+                // look at next
+                if( c == '0' && ( c2 < '0' || c2 > '7' ) )
+                    *str++ = '\0';
+                else
+                {
+                    // get next
+                    c3 = *(str_lit+2);
+
+                    // all three should be within range
+                    if( c2 >= '0' && c2 <= '7' && c3 >= '0' && c3 <= '7' )
+                    {
+                        // ascii value
+                        *str++ = (c-'0') * 64 + (c2-'0') * 8 + (c3-'0');
+                        // advance pointer
+                        str_lit += 2;
+                    }
+                    else
+                    {
+                        EM_error2( linepos, "malformed octal escape sequence '\\%c%c%c'", c, c2, c3 );
+                        return FALSE;
+                    }
+                }
+            }
+            else if( c == 'x' ) // is hex?
+            {
+                EM_error2( linepos, "hex escape sequence not (yet) supported (use octal!)");
+                return FALSE;
+            }
+            else // is other?
+            {
+                // lookup
+                if( g_escape[(int)c] )
+                    *str++ = g_escape[c];
+                else // error
+                {
+                    EM_error2( linepos, "unrecognized escape sequence '\\%c'", c );
+                    return FALSE;
+                }
+            }
+        }
+        else
+        {
+            // char
+            *str++ = *str_lit;
+        }
+
+        // advance pointer
+        str_lit++;
+    }
+
+    // make sure
+    assert( str <= str_lit );
+
+    // terminate
+    *str = '\0';
+
+    return TRUE;
 }

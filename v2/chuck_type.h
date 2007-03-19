@@ -765,6 +765,7 @@ const char * type_path( a_Id_List path );
 a_Id_List str2list( const std::string & path );
 a_Id_List str2list( const std::string & path, t_CKBOOL & is_array );
 const char * howmuch2str( te_HowMuch how_much );
+t_CKBOOL escape_str( char * str_lit, int linepos );
 
 // default types
 extern Chuck_Type t_void;
