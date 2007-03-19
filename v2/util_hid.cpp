@@ -5845,8 +5845,8 @@ static void Keyboard_init_translation_table()
     kb_translation_table[KEY_F12] = 0;
     kb_translation_table[KEY_F12] |= 0x45 << 8;
     
-    kb_translation_table[KEY_KPJPCOMMA] = ',';
-    kb_translation_table[KEY_KPJPCOMMA] |= 0x85 << 8;
+//    kb_translation_table[KEY_KPJPCOMMA] = ',';
+//    kb_translation_table[KEY_KPJPCOMMA] |= 0x85 << 8;
     
     kb_translation_table[KEY_KPENTER] = '\n';
     kb_translation_table[KEY_KPENTER] |= 0x58 << 8;
