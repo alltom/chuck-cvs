@@ -138,9 +138,9 @@ t_CKBOOL chuck_parse( c_constr fname, FILE * fd, c_constr code )
     // TODO: if( yyin ) { fclose( yyin ); yyin = NULL; }
 
     // if no fd, open
-    if( !fd ) { fd = fopen( g_filename, "r" ); clo = TRUE; }
+    if( !fd ) { fd = fopen( g_filename, "r" ); if( fd ) clo = TRUE; }
     // if still none
-    if( !fd ) EM_error2( 0, "no such file or directory" );
+    if( !fd ) { EM_error2( 0, "no such file or directory" ); goto cleanup; }
     // set to beginning
     else fseek( fd, 0, SEEK_SET );
 
