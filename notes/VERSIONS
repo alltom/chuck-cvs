@@ -34,7 +34,17 @@
                   (author Dan Trueman, partly based on Dan's munger~)
 
             --------
-  - (added) 
+  - (added) (prototype) string catenation
+            (for now will leak memory! use wisely!!!)
+            e.g. // expression
+                 "a" + "b"
+                 "a" + 45
+                 "a" + 5.1
+                 "postfix" +=> str;
+  - (added) string escape sequences
+            \0 \n \t \a \" \b \f \r \v
+            \nnn (3 digit octal ascii)
+
   - (api)   API additions
             -------- (also see API modifications below)
             ADSR: dur attackTime()

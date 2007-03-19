@@ -9,6 +9,9 @@
 // audible bell (uh...)
 <<< "bell!\a", "\n" >>>;
 
+// "
+<<< "->\"<-", "\n" >>>;
+
 // end of string
 <<< "here\0can't see me", "\n" >>>;
 
