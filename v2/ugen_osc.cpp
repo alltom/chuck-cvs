@@ -884,7 +884,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "which" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "float[]", "coeffs", genX_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", genX_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -899,7 +899,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
     
-    func = make_new_mfun( "float[]", "coeffs", gen5_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", gen5_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -915,7 +915,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
 
-    func = make_new_mfun( "float[]", "coeffs", gen7_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", gen7_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -930,7 +930,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float[]", "coeffs", gen9_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", gen9_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -946,7 +946,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float[]", "coeffs", gen10_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", gen10_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -961,7 +961,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float[]", "coeffs", gen17_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", gen17_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -975,7 +975,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float[]", "coeffs", curve_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", curve_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -989,12 +989,12 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
                                         NULL, genX_tick, NULL ) )
         return FALSE;
         
-    func = make_new_mfun( "float[]", "coeffs", warp_coeffs ); //load table
+    func = make_new_mfun( "float[]", "coefs", warp_coeffs ); //load table
     func->add_arg( "float", "v[]" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     /*
-    func = make_new_mfun( "float", "coeffs", warp_coeffs ); //load table
+    func = make_new_mfun( "float", "coefs", warp_coeffs ); //load table
     func->add_arg( "float", "asym" );
     func->add_arg( "float", "sym" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
