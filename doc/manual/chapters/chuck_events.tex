@@ -89,10 +89,9 @@ ChucK contains built-in MIDI classes to allow for interaction with MIDI based so
 \begin{verbatim}
     MidiIn min;
     MidiMsg msg;
-    MidiOut mout;
 
     // open midi receiver, exit on fail
-    if ( min.open(0) ) me.exit(); 
+    if ( !min.open(0) ) me.exit(); 
 
     while( true )
     {
@@ -154,7 +153,7 @@ In addition to MIDI, ChucK has OSC communication classes as well:
 
 The OscRecv class listens for incoming OSC packets on the specified port. Each instance of OscRecv can create OscEvent objects using its event() method to listen for packets at any valid OSC address pattern.
 
-An OscEvent event can then be ChucKed to now to wait for messages to arrive, after which the nextMesg() and get\{Float\textbar String\textbar Int\}() methods can be used to fetch message data.
+An OscEvent event can then be ChucKed to now to wait for messages to arrive, after which the nextMsg() and get\{Float\textbar String\textbar Int\}() methods can be used to fetch message data.
  
 
 \section{creating custom events}
