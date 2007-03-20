@@ -1,6 +1,6 @@
 // sound file
 "../data/snare.wav" => string filename;
-if( me.numArgs() ) me.getArg(0) => filename;
+if( me.args() ) me.arg(0) => filename;
 
 // the patch 
 SndBuf buf => dac;
