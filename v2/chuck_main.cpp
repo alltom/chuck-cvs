@@ -298,7 +298,8 @@ int main( int argc, char ** argv )
     t_CKBOOL enable_shell = FALSE;
     t_CKBOOL no_vm = FALSE;
     t_CKBOOL load_hid = FALSE;
-    t_CKBOOL enable_server = FALSE;
+    t_CKBOOL enable_server = TRUE;
+    t_CKBOOL do_watchdog = TRUE;
     t_CKINT  log_level = CK_LOG_CORE;
     t_CKINT  deprecate_level = 1; // warn
 
@@ -306,11 +307,11 @@ int main( int argc, char ** argv )
     vector<string> args;
 
 #if defined(__MACOSX_CORE__)
-    t_CKBOOL do_watchdog = TRUE;
+    do_watchdog = TRUE;
 #elif defined(__PLATFORM_WIN32__) && !defined(__WINDOWS_PTHREAD__)
-    t_CKBOOL do_watchdog = TRUE;
+    do_watchdog = TRUE;
 #else
-    t_CKBOOL do_watchdog = FALSE;
+    do_watchdog = FALSE;
 #endif
 
     t_CKUINT files = 0;

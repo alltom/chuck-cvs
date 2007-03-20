@@ -832,52 +832,52 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // playback position
-    func = make_new_mfun( "dur", "playpos", LiSaMulti_ctrl_pindex );
+    func = make_new_mfun( "dur", "playPos", LiSaMulti_ctrl_pindex );
     func->add_arg( "int", "voice" );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "playpos", LiSaMulti_cget_pindex );
+    func = make_new_mfun( "dur", "playPos", LiSaMulti_cget_pindex );
     func->add_arg( "int", "voice" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "playpos", LiSaMulti_ctrl_pindex0 );
+    func = make_new_mfun( "dur", "playPos", LiSaMulti_ctrl_pindex0 );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "playpos", LiSaMulti_cget_pindex0 );
+    func = make_new_mfun( "dur", "playPos", LiSaMulti_cget_pindex0 );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // record position
-    func = make_new_mfun( "dur", "recordpos", LiSaMulti_ctrl_rindex );
+    func = make_new_mfun( "dur", "recordPos", LiSaMulti_ctrl_rindex );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "recordpos", LiSaMulti_cget_rindex );
+    func = make_new_mfun( "dur", "recordPos", LiSaMulti_cget_rindex );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // loopstart position
-    func = make_new_mfun( "dur", "loopstart", LiSaMulti_ctrl_lstart );
+    func = make_new_mfun( "dur", "loopStart", LiSaMulti_ctrl_lstart );
     func->add_arg( "int", "voice" );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopstart", LiSaMulti_cget_lstart );
+    func = make_new_mfun( "dur", "loopStart", LiSaMulti_cget_lstart );
     func->add_arg( "int", "voice" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopstart", LiSaMulti_ctrl_lstart0 );
+    func = make_new_mfun( "dur", "loopStart", LiSaMulti_ctrl_lstart0 );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopstart", LiSaMulti_cget_lstart0 );
+    func = make_new_mfun( "dur", "loopStart", LiSaMulti_cget_lstart0 );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // loopend position
-    func = make_new_mfun( "dur", "loopend", LiSaMulti_ctrl_lend );
+    func = make_new_mfun( "dur", "loopEnd", LiSaMulti_ctrl_lend );
     func->add_arg( "int", "voice" );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopend", LiSaMulti_cget_lend);
+    func = make_new_mfun( "dur", "loopEnd", LiSaMulti_cget_lend);
     func->add_arg( "int", "voice" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopend", LiSaMulti_ctrl_lend0 );
+    func = make_new_mfun( "dur", "loopEnd", LiSaMulti_ctrl_lend0 );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopend", LiSaMulti_cget_lend0);
+    func = make_new_mfun( "dur", "loopEnd", LiSaMulti_cget_lend0);
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // loop
@@ -909,10 +909,10 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // loopend_rec position
-    func = make_new_mfun( "dur", "loopendrec", LiSaMulti_ctrl_loop_end_rec );
+    func = make_new_mfun( "dur", "loopEndRec", LiSaMulti_ctrl_loop_end_rec );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopendrec", LiSaMulti_cget_loop_end_rec);
+    func = make_new_mfun( "dur", "loopEndRec", LiSaMulti_cget_loop_end_rec);
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // set record feedback coefficient
@@ -927,36 +927,36 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // get free voice
-    func = make_new_mfun( "int", "getvoice", LiSaMulti_cget_voice );
+    func = make_new_mfun( "int", "getVoice", LiSaMulti_cget_voice );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // set maxvoices
-    func = make_new_mfun( "int", "maxvoices", LiSaMulti_ctrl_maxvoices );
+    func = make_new_mfun( "int", "maxVoices", LiSaMulti_ctrl_maxvoices );
     func->add_arg( "int", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "int", "maxvoices", LiSaMulti_cget_maxvoices);
+    func = make_new_mfun( "int", "maxVoices", LiSaMulti_cget_maxvoices);
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // ramp stuff
-    func = make_new_mfun( "void", "rampup", LiSaMulti_ctrl_rampup );
+    func = make_new_mfun( "void", "rampUp", LiSaMulti_ctrl_rampup );
     func->add_arg( "int", "voice" );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    func = make_new_mfun( "void", "rampdown", LiSaMulti_ctrl_rampdown );
+    func = make_new_mfun( "void", "rampDown", LiSaMulti_ctrl_rampdown );
     func->add_arg( "int", "voice" );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    func = make_new_mfun( "dur", "recramp", LiSaMulti_ctrl_rec_ramplen );
+    func = make_new_mfun( "dur", "recRamp", LiSaMulti_ctrl_rec_ramplen );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    func = make_new_mfun( "void", "rampup", LiSaMulti_ctrl_rampup0 );
+    func = make_new_mfun( "void", "rampUp", LiSaMulti_ctrl_rampup0 );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    func = make_new_mfun( "void", "rampdown", LiSaMulti_ctrl_rampdown0 );
+    func = make_new_mfun( "void", "rampDown", LiSaMulti_ctrl_rampdown0 );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     

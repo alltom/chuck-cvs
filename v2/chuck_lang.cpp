@@ -284,17 +284,17 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add nargs()
-    func = make_new_mfun( "int", "numArgs", shred_numArgs );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // func = make_new_mfun( "int", "numArgs", shred_numArgs );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add nargs()
     func = make_new_mfun( "int", "args", shred_numArgs );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add arg()
-    func = make_new_mfun( "string", "getArg", shred_getArg );
-    func->add_arg( "int", "index" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // func = make_new_mfun( "string", "getArg", shred_getArg );
+    // func->add_arg( "int", "index" );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add arg()
     func = make_new_mfun( "string", "arg", shred_getArg );
