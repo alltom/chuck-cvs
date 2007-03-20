@@ -5,7 +5,7 @@ HidMsg msg;
 // which mouse
 0 => int device;
 // get from command line
-if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
+if( me.args() ) me.arg(0) => Std.atoi => device;
 
 // open mouse 0, exit on fail
 if( !hi.openMouse( device ) ) me.exit();

@@ -9,7 +9,7 @@ HidMsg msg;
 // which joystick
 0 => int device;
 // get from command line
-if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
+if( me.args() ) me.arg(0) => Std.atoi => device;
 
 // open joystick
 if( !hi.openJoystick( device ) ) me.exit();
