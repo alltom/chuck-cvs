@@ -138,11 +138,11 @@ In addition to MIDI, ChucK has OSC communication classes as well:
             oscdata => now; //wait for events to arrive.
 
             // grab the next message from the queue. 
-            while( oscdata.nextMesg() != 0 )
+            while( oscdata.nextMsg() != 0 )
             { 
                 // getFloat fetches the expected float
                 // as indicated in the type string ",f"
-                buf.play( oscdata.getFloat() );
+                buf.rate( oscdata.getFloat() );
                 0 => buf.pos;
             }
         }       
