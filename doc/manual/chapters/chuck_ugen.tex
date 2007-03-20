@@ -34,9 +34,12 @@ All ugen's have at least the following four parameters:
 \item {\bf .gain} - (float, READ/WRITE) - {\it set gain} 
 \item {\bf .op} - (int, READ/WRITE) - {\it set operation type }
   \begin{chuckitemize}
-    \item -1 passthrough 
-    \item 0 no processing 
-    \item 1 normal processing
+    \item 0: stop - always output 0 
+    \item 1: normal operation, add all inputs (default)
+    \item 2: normal operation, subtract all inputs starting from the earliest connected
+    \item 3: normal operation, multiply all inputs
+    \item 4: 4 : normal operation, divide inputs starting from the earlist connected
+    \item -1: passthru - all inputs to the ugen are summed and passed directly to output
   \end{chuckitemize}
 \item {\bf .last} - (float, READ/WRITE) - {\it the last sample computed by the unit generator}
 \item {\bf .channels} - (int, READ only) - {\it the number channels on the UGen}
@@ -67,8 +70,8 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 \begin{chuckitemize}
 \item {\bf .left} - (UGen) - {\it input to left channel}
 \item {\bf .right} - (UGen) - {\it input to right channel}
-\item {\bf .chan} - () - {\it input to channel N on the device (0 -\textgreater N-1)}
-\item {\bf .channels} - (int, READ only) - returns the number of channels open on device
+\item {\bf .chan( int n )} - (UGen) - {\it input to channel N on the device (0 -\textgreater N-1)}
+\item {\bf .channels} - (int, READ only) - {\it returns the number of channels open on device}
 \end{chuckitemize}
 }
 
@@ -83,8 +86,8 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 \begin{chuckitemize}
 \item {\bf .left} - (UGen) - {\it output to left channel}
 \item {\bf .right} - (UGen) - {\it output to right channel}
-\item {\bf .chan} - () - {\it output to channel N on the device (0 -\textgreater N-1)}
-\item {\bf .channels} - (int, READ only) - returns the number of channels open on device
+\item {\bf .chan( int n )} - (UGen) - {\it output to channel N on the device (0 -\textgreater N-1)}
+\item {\bf .channels} - (int, READ only) - {\it returns the number of channels open on device}
 \end{chuckitemize}
 
 }
@@ -110,15 +113,6 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 \control
 \begin{chuckitemize}
 \item {\bf .gain} - (float, READ/WRITE) - {\it set gain} ( all ugen's have this)
-\item {\bf .op} - (int, READ/WRITE) - {\it set operation type}
-  \begin{chuckitemize}
-    \item -1 passthrough 
-    \item 0 no processing 
-    \item 1 adds inputs (default)
-    \item 2 subtracts inputs 
-    \item 3 multiplies inputs 
-    \item  4 divides inputs
-  \end{chuckitemize}
 \end{chuckitemize}
 \example
 \verbatiminput{examples/gain_example.ck}
@@ -142,22 +136,6 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 \end{chuckitemize}
 \control
 \begin{chuckitemize}
-\item {\bf .value} - (float, READ/WRITE) - {\it set the current value} (currently broken)
-\item {\bf .next} - (float, READ/WRITE) - {\it set value of next sample}
-\end{chuckitemize}
-\example
-\chuckexample{\verbatiminput{examples/impulse_example.ck}}
-}
-
-\chuckugen{
-\ugen{ Blit}
-\begin{chuckitemize}
-\item band limited pulse generator - can set the value of the current sample
-\item default for each sample is 0 if not set
-\end{chuckitemize}
-\control
-\begin{chuckitemize}
-\item {\bf .value} - (float, READ/WRITE) - {\it set the current value} (currently broken)
 \item {\bf .next} - (float, READ/WRITE) - {\it set value of next sample}
 \end{chuckitemize}
 \example
@@ -452,7 +430,7 @@ extends FilterBasic
 \begin{chuckitemize}
 \item {\bf .read} - (string, WRITE only) - {\it loads file for reading}
 \item {\bf .chunks} - (int, READ/WRITE) - {\it size of chunk (\# of frames) to read on-demand; 0 implies entire file, default; must be set before reading to take effect.}
-\item {\bf .write} - (string, WRITE only) - {\it loads a file for writing (or not)}
+\item {\bf .write} - (string, WRITE only) - {\it loads a file for writing (currently unimplemented)}
 \item {\bf .pos} - (int, READ/WRITE) - {\it set position (0 \textless p \textless .samples)}
 \item {\bf .valueAt} - (int, READ only) - {\it returns the value at sample index}
 \item {\bf .loop} - (int, READ/WRITE) - {\it toggle looping }
@@ -484,7 +462,7 @@ extends FilterBasic
 \item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
-\item {\bf .sync}  (int, READ/WRITE)  {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
+\item {\bf .sync}  (int, READ/WRITE)  {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
 \item {\bf .width}  (float, READ/WRITE)  {\it set duration of the ramp in each cycle. (default 1.0)}
 \end{chuckitemize}
 }
@@ -500,8 +478,23 @@ extends FilterBasic
 \item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
-\item {\bf .sync}  (int, READ/WRITE) {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
 \end{chuckitemize}
+}
+
+\chuckugen{
+\ugen{ Blit}
+\begin{chuckitemize}
+\item band limited sine wave oscillator
+\end{chuckitemize}
+\control
+\begin{chuckitemize}
+\item {\bf .freq} (float, READ/WRITE) {\it oscillator frequency (Hz)}
+\item {\bf .phase} (float, READ/WRITE) {\it current phase}
+\item {\bf .harmonics} (int, READ/WRITE) {\it number of harmonics}
+\end{chuckitemize}
+\example
+\chuckexample{\verbatiminput{examples/impulse_example.ck}}
 }
 
 \chuckugen{ 
@@ -515,7 +508,7 @@ extends FilterBasic
 \item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
-\item {\bf .sync}  (int, READ/WRITE) {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
 \item {\bf .width}  (float, READ/WRITE)  {\it length of duty cycle (0 - 1)}
 \end{chuckitemize}
 }
@@ -530,7 +523,7 @@ extends FilterBasic
 \item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
-\item {\bf .sync}  (int, READ/WRITE)  {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
+\item {\bf .sync}  (int, READ/WRITE)  {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
 \item {\bf .width}  (float, READ/WRITE)  {\it length of duty cycle (0 - 1)}
 \end{chuckitemize}
 }
@@ -558,7 +551,7 @@ extends FilterBasic
 \item {\bf .freq}  (float, READ/WRITE)  {\it oscillator frequency (Hz)}
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
-\item {\bf .sync}  (int, READ/WRITE) {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
 \item {\bf .width}  (float, READ/WRITE)  {\it control midpoint of triangle (0 - 1)}
 \end{chuckitemize}
 }
@@ -574,7 +567,7 @@ extends FilterBasic
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 %\item {\bf .phase\underline{ }offset}  (float, READ/WRITE)  {\it phase offset}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
-\item {\bf .sync}  (int, READ/WRITE) {\it (0) input modulates frequency, (1) (reserved), (2) input modulates phase}
+\item {\bf .sync}  (int, READ/WRITE) {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
 \item {\bf .width}  (float, READ/WRITE)  {\it increasing ( w \textgreater 0.5 ) or decreasing ( w \textless 0.5 ) }
 \end{chuckitemize}
 }
@@ -583,7 +576,7 @@ extends FilterBasic
 \chuckugen{ 
 \ugen{ BlitSaw}
 \begin{chuckitemize}
-\item Band limited sawtooth wave oscillator
+\item band limited sawtooth wave oscillator
 \end{chuckitemize}
 \control
 \begin{chuckitemize}
@@ -1317,7 +1310,6 @@ extends \hypertarget{ugen_FM}{FM}
 \item {\bf .time} (float, READ/WRITE) {\it time to reach target (in second)}
 \item {\bf .duration} (dur, READ/WRITE) {\it time to reach target}
 \item {\bf .rate} (float, READ/WRITE) {\it rate of change}
-\item {\bf .duration} (dur, READ/WRITE) {\it duration of steady state}
 \item {\bf .value} (float, READ/WRITE) {\it set immediate value}
 \end{chuckitemize}
 }
@@ -1334,12 +1326,12 @@ extends \hypertarget{ugen_FM}{FM}
 \begin{chuckitemize}
 \item {\bf .keyOn} (int, WRITE only) {\it start the attack for non-zero values}
 \item {\bf .keyOff} (int, WRITE only) {\it start the release for non-zero values}
-\item {\bf .attackTime} (float, WRITE only) {\it attack time}
+\item {\bf .attackTime} (dur, WRITE only) {\it attack time}
 \item {\bf .attackRate} (float, READ/WRITE) {\it attack rate}
-\item {\bf .decayTime} (float, READ/WRITE) {\it decay}
+\item {\bf .decayTime} (dur, READ/WRITE) {\it decay}
 \item {\bf .decayRate} (float, READ/WRITE) {\it decay rate}
 \item {\bf .sustainLevel} (float, READ/WRITE) {\it sustain level}
-\item {\bf .releaseTime} (float, READ/WRITE) {\it release time}
+\item {\bf .releaseTime} (dur, READ/WRITE) {\it release time}
 \item {\bf .releaseRate} (float, READ/WRITE) {\it release rate}
 \item {\bf .state} (int, READ only) {\it attack=0, decay=1, sustain=2, release=3,done=4}
 \end{chuckitemize}
@@ -1489,7 +1481,7 @@ extends \hypertarget{ugen_FM}{FM}
 \item {\bf .wavFilename} (string, WRITE only) {\it open WAVE file for writing}
 \item {\bf .rawFilename} (string, WRITE only) {\it open raw file for writing}
 \item {\bf .aifFilename} (string, WRITE only) {\it open AIFF file for writing}
-\item {\bf .closeFile} (string, WRITE only) {\it close file properly}
+\item {\bf .closeFile} () {\it close file properly}
 \end{chuckitemize}
 }
 
