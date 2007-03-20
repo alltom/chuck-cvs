@@ -846,10 +846,10 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // record position
-    func = make_new_mfun( "dur", "recordPos", LiSaMulti_ctrl_rindex );
+    func = make_new_mfun( "dur", "recPos", LiSaMulti_ctrl_rindex );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "recordPos", LiSaMulti_cget_rindex );
+    func = make_new_mfun( "dur", "recPos", LiSaMulti_cget_rindex );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // loopstart position
@@ -909,10 +909,10 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // loopend_rec position
-    func = make_new_mfun( "dur", "loopEndRec", LiSaMulti_ctrl_loop_end_rec );
+    func = make_new_mfun( "dur", "loopEndRecDur", LiSaMulti_ctrl_loop_end_rec );
     func->add_arg( "dur", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "dur", "loopEndRec", LiSaMulti_cget_loop_end_rec);
+    func = make_new_mfun( "dur", "loopEndRecDur", LiSaMulti_cget_loop_end_rec);
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // set record feedback coefficient

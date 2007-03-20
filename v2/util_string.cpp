@@ -220,14 +220,61 @@ t_CKBOOL extract_args( const string & token,
     // copy and trim
     string s = trim( token );
 
+    // detect
+    t_CKBOOL scan = FALSE;
+    t_CKBOOL ret = TRUE;
+    char * buf = NULL;
+    char * mask = NULL;
+    for( i = 0; i < s.length(); i++ )
+        if( s[i] == '\\' )
+        {
+            scan = TRUE;
+            break;
+        }
+
+    // mad...
+    if( scan )
+    {
+        buf = new char[s.length()+1];
+        mask = new char[s.length()];
+        t_CKINT len = 0;
+
+        // loop through
+        for( i = 0; i < s.length(); i++ )
+        {
+            // zero
+            mask[len] = 0;
+
+            // escape
+            if( s[i] == '\\' && (i+1) < s.length() && s[i+1] == ':' )
+            {
+                i++;
+                mask[len] = 1;
+            }
+
+            // add
+            buf[len++] = s[i];
+        }
+
+        // end
+        buf[len] = '\0';
+
+        // copy
+        s = buf;
+    }
+
     // loop through
     for( i = 0; i < s.length(); i++ )
     {
         // look for :
-        if( s[i] == ':' )
+        if( s[i] == ':' && ( !mask || !mask[i] ) )
         {
             // sanity
-            if( i == 0 ) return FALSE;
+            if( i == 0 )
+            {
+                ret = FALSE;
+                goto done;
+            }
 
             // copy
             if( filename == "" )
@@ -250,5 +297,10 @@ t_CKBOOL extract_args( const string & token,
             args.push_back( s.substr( prev_pos, s.length() - prev_pos ) );
     }
 
-    return TRUE;
+done:
+    // reclaim
+    SAFE_DELETE_ARRAY( buf );
+    SAFE_DELETE_ARRAY( mask );
+
+    return ret;
 }
