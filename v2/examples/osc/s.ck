@@ -5,8 +5,8 @@
 6449 => int port;
 
 // check command line
-if( me.numArgs() ) me.getArg(0) => hostname;
-if( me.numArgs() > 1 ) me.getArg(1) => Std.atoi => port;
+if( me.args() ) me.arg(0) => hostname;
+if( me.args() > 1 ) me.arg(1) => Std.atoi => port;
 
 // send object
 OscSend xmit;

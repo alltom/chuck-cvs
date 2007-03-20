@@ -9,7 +9,7 @@
 // device to open
 0 => int device;
 // get from command line
-if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
+if( me.args() ) me.arg(0) => Std.atoi => device;
 
 MidiIn min;
 MidiMsg msg;

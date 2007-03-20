@@ -7,6 +7,7 @@
                  also works with Machine.add( ... )
             e.g. // code
                  Machine.add( "foo:1:2:yo" );
+            (see examples/basic/args.ck for accessing from code)
   - (added) OS X: watchdog enabled
             win32: watchdog implemented and enabled
             (combats chuck infinite empty loop implosion)
@@ -44,6 +45,17 @@
   - (added) string escape sequences
             \0 \n \t \a \" \b \f \r \v
             \nnn (3 digit octal ascii)
+  - (added) new Objects:
+            --------
+            StringTokenizer: uh string tokenizer (by whitespace)
+                (use to be hidden PRC object)
+                see examples/string/token.ck
+
+            ConsoleInput: interim console input (until file I/O)
+                (use to be hidden Skot object)
+                see examples/string/readline.ck
+
+            --------
 
   - (api)   API additions
             -------- (also see API modifications below)

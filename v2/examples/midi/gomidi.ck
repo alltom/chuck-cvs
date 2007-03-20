@@ -1,7 +1,7 @@
 // number of the device to open (see: chuck --probe)
 0 => int device;
 // get command line
-if( me.numArgs() ) me.getArg(0) => Std.atoi => device;
+if( me.args() ) me.arg(0) => Std.atoi => device;
 
 // the midi event
 MidiIn min;
