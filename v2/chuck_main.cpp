@@ -342,6 +342,8 @@ int main( int argc, char ** argv )
             {   vm_halt = FALSE; enable_server = TRUE; }
             else if( !strcmp(argv[i], "--server") )
                 enable_server = TRUE;
+            else if( !strcmp(argv[i], "--standalone") )
+                enable_server = FALSE;
             else if( !strcmp(argv[i], "--callback") )
                 block = FALSE;
             else if( !strcmp(argv[i], "--blocking") )

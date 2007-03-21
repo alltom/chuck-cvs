@@ -44,7 +44,7 @@
                  "a" + 5.1
                  "postfix" +=> str;
   - (added) string escape sequences
-            \0 \n \t \a \" \b \f \r \v
+            \0 \n \t \a \" \b \f \r \v \\
             \nnn (3 digit octal ascii)
   - (added) new Objects:
             --------
