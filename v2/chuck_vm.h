@@ -129,6 +129,11 @@ public:
     t_CKBOOL need_this;
     // native
     t_CKUINT native_func;
+    // is ctor?
+    t_CKUINT native_func_type;
+
+    // native func types
+    enum { NATIVE_UNKNOWN, NATIVE_CTOR, NATIVE_DTOR, NATIVE_MFUN, NATIVE_SFUN };
 };
 
 

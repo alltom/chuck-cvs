@@ -1170,6 +1170,7 @@ Chuck_VM_Code::Chuck_VM_Code()
     stack_depth = 0;
     need_this = FALSE;
     native_func = 0;
+    native_func_type = NATIVE_UNKNOWN;
 }
 
 

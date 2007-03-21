@@ -2602,7 +2602,7 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     // get the function to be called as code
     Chuck_VM_Code * func = (Chuck_VM_Code *)*reg_sp;
     // get the function to be called
-    f_mfun f = (f_mfun)func->native_func;
+    // MOVED TO BELOW: f_mfun f = (f_mfun)func->native_func;
     // get the local stack depth - caller local variables
     t_CKUINT local_depth = *(reg_sp+1);
     // convert to number of 4-byte words, extra partial word counts as additional word
@@ -2642,8 +2642,22 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     // detect overflow/underflow
     if( overflow_( shred->mem ) ) goto error_overflow;
 
-    // call the function
-    f( (Chuck_Object *)(*mem_sp), mem_sp + 1, &retval, shred );
+    // check the type
+    if( func->native_func_type == Chuck_VM_Code::NATIVE_CTOR )
+    {
+        // cast to right type
+        f_ctor f = (f_ctor)func->native_func;
+        // call
+        f( (Chuck_Object *)(*mem_sp), mem_sp + 1, shred );
+    }
+    else
+    {
+        // cast to right type
+        f_mfun f = (f_mfun)func->native_func;
+        // call the function
+        f( (Chuck_Object *)(*mem_sp), mem_sp + 1, &retval, shred );
+    }
+    // pop (TODO: check if this is right)
     mem_sp -= push;
     
     // push the return

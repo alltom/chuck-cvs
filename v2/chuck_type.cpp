@@ -4091,6 +4091,8 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
         type->info->pre_ctor = new Chuck_VM_Code;
         // add pre_ctor
         type->info->pre_ctor->native_func = (t_CKUINT)pre_ctor;
+        // mark type as ctor
+        type->info->pre_ctor->native_func_type = Chuck_VM_Code::NATIVE_CTOR;
         // specify that we need this
         type->info->pre_ctor->need_this = TRUE;
         // no arguments to preconstructor other than self
