@@ -11,8 +11,9 @@
   - (added) OS X: watchdog enabled
             win32: watchdog implemented and enabled
             (combats chuck infinite empty loop implosion)
-  - (added) OTF server/listener now OFF by default...
+  - (added) OTF server/listener now ON by default...
             to enable, specify --loop or --server
+            to disable, specify --standalone
   - (added) new UGens:
             --------
             Dyno: dynamics processor (compressor, expander, etc.)
@@ -45,6 +46,17 @@
   - (added) string escape sequences
             \0 \n \t \a \" \b \f \r \v
             \nnn (3 digit octal ascii)
+  - (added) new Objects:
+            --------
+            StringTokenizer: uh string tokenizer (by whitespace)
+                (use to be hidden PRC object)
+                see examples/string/token.ck
+
+            ConsoleInput: interim console input (until file I/O)
+                (use to be hidden Skot object)
+                see examples/string/readline.ck
+
+            --------
 
   - (api)   API additions
             -------- (also see API modifications below)
