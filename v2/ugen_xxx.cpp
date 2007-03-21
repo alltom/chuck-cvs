@@ -3160,7 +3160,7 @@ struct LiSaMulti_data
             loop_start[i] = 0;
             loop_end[i] = loop_end_rec = length;
             
-            rindex = pindex[i] = 0;
+            pindex[i] = rindex = 0;
             play[i] = record = bi[i] = false;
             looprec = loopplay[i] = true;
             coeff = 0.;
@@ -3554,7 +3554,7 @@ CK_DLL_CGET( LiSaMulti_cget_pindex0 )
 CK_DLL_CTRL( LiSaMulti_ctrl_rindex )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
-    d->rindex = (t_CKDOUBLE)GET_NEXT_DUR(ARGS);
+    d->rindex = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
     
     RETURN->v_dur = (t_CKDUR)d->rindex;
 }
@@ -3581,7 +3581,7 @@ CK_DLL_CTRL( LiSaMulti_ctrl_lstart )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
     t_CKINT which = GET_NEXT_INT(ARGS);
-    d->loop_start[which] = (t_CKDOUBLE)GET_NEXT_DUR(ARGS);
+    d->loop_start[which] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
     
     RETURN->v_dur = (t_CKDUR)d->loop_start[which];
 }
@@ -3590,7 +3590,7 @@ CK_DLL_CTRL( LiSaMulti_ctrl_lstart )
 CK_DLL_CTRL( LiSaMulti_ctrl_lstart0 )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
-    d->loop_start[0] = (t_CKDOUBLE)GET_NEXT_DUR(ARGS);
+    d->loop_start[0] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
     
     RETURN->v_dur = (t_CKDUR)d->loop_start[0];
 }
@@ -3627,14 +3627,14 @@ CK_DLL_CTRL( LiSaMulti_ctrl_lend )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
     t_CKINT which = GET_NEXT_INT(ARGS);
-    d->loop_end[which] = (t_CKDOUBLE)GET_NEXT_DUR(ARGS);
+    d->loop_end[which] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
 }
 
 
 CK_DLL_CTRL( LiSaMulti_ctrl_lend0 )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
-    d->loop_end[0] = (t_CKDOUBLE)GET_NEXT_DUR(ARGS);
+    d->loop_end[0] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
     
     RETURN->v_dur = (t_CKDUR)d->loop_end[0];
 }
@@ -3760,7 +3760,7 @@ CK_DLL_CGET( LiSaMulti_cget_bi0 )
 CK_DLL_CTRL( LiSaMulti_ctrl_loop_end_rec )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
-    d->loop_end_rec = (t_CKDOUBLE)GET_NEXT_DUR(ARGS);
+    d->loop_end_rec = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
     
     RETURN->v_dur = (t_CKDUR)d->loop_end_rec;
 }
