@@ -2643,7 +2643,7 @@ void Chuck_Instr_Func_Call_Member::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     if( overflow_( shred->mem ) ) goto error_overflow;
 
     // call the function
-    f( (Chuck_Object *)(*mem_sp), mem_sp + 1, &retval );
+    f( (Chuck_Object *)(*mem_sp), mem_sp + 1, &retval, shred );
     mem_sp -= push;
     
     // push the return
@@ -2729,7 +2729,7 @@ void Chuck_Instr_Func_Call_Static::execute( Chuck_VM * vm, Chuck_VM_Shred * shre
     if( overflow_( shred->mem ) ) goto error_overflow;
 
     // call the function
-    f( mem_sp, &retval );
+    f( mem_sp, &retval, shred );
     mem_sp -= push;
 
     // push the return

@@ -1186,12 +1186,12 @@ CK_DLL_DTOR( cnoise_dtor )
     delete (CNoise_Data *)OBJ_MEMBER_UINT( SELF, cnoise_offset_data );
 }
 
-CK_DLL_TICK( cnoise_tick)
+CK_DLL_TICK( cnoise_tick )
 {
   CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT( SELF, cnoise_offset_data );
   switch( d->mode ) { 
   case NOISE_WHITE: 
-    return noise_tick(SELF,in,out);
+    return noise_tick(SELF,in,out,SHRED);
     break;
   case NOISE_PINK:
     return d->pink_tick(out);
@@ -1212,7 +1212,7 @@ CK_DLL_TICK( cnoise_tick)
   return TRUE;
 }
 
-t_CKINT CNoise_Data::pink_tick( SAMPLE * out)
+t_CKINT CNoise_Data::pink_tick( SAMPLE * out )
 { 
   //based on Voss-McCartney
 
