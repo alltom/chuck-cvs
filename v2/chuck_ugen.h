@@ -66,6 +66,7 @@ public: // src
     t_CKVOID remove_all( );
     t_CKBOOL set_max_src( t_CKUINT num );
     t_CKUINT get_num_src( );
+    t_CKBOOL is_connected_from( Chuck_UGen * src );
     t_CKUINT disconnect( t_CKBOOL recursive );
     t_CKUINT system_tick( t_CKTIME now );
 

@@ -47,7 +47,8 @@ void fa_done( Chuck_UGen ** & base, t_CKUINT & capacity );
 void fa_resize( Chuck_UGen ** & base, t_CKUINT & capacity );
 void fa_push_back( Chuck_UGen ** & base, t_CKUINT & capacity, 
                    t_CKUINT size, Chuck_UGen * value );
-
+t_CKBOOL fa_lookup( Chuck_UGen ** base, t_CKUINT size,
+                    const Chuck_UGen * value );
 
 
 
@@ -119,6 +120,24 @@ void fa_push_back( Chuck_UGen ** & base, t_CKUINT & capacity,
     if( size == capacity ) fa_resize( base, capacity );
     // add
     base[size] = value;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: fa_lookup()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL fa_lookup( Chuck_UGen ** base, t_CKUINT size, const Chuck_UGen * value )
+{
+    // loop
+    for( t_CKUINT i = 0; i < size; i++ )
+        if( base[i] == value )
+            return TRUE;
+
+    // not found
+    return FALSE;
 }
 
 
@@ -277,6 +296,10 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
 
     if( outs == 1 && ins == 1 )
     {
+        // check if already connected
+        if( fa_lookup( m_src_list, m_num_src, src ) )
+            return FALSE;
+        // check for limit
         if( m_num_src >= m_max_src )
             return FALSE;
 
@@ -288,6 +311,10 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
     }
     else if( outs >= 2 && ins == 1 )
     {
+        // check if already connect
+        if( fa_lookup( m_src_list, m_num_src, src ) )
+            return FALSE;
+        // check for limit
         if( m_num_src >= m_max_src )
             return FALSE;
 
@@ -489,6 +516,32 @@ t_CKBOOL Chuck_UGen::disconnect( t_CKBOOL recursive )
 
 
 //-----------------------------------------------------------------------------
+// name: is_connected_from()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_UGen::is_connected_from( Chuck_UGen * src )
+{
+    if( m_src_list != NULL && fa_lookup( m_src_list, m_num_src, src ) )
+        return TRUE;
+
+    // multichannel
+    if( m_multi_chan != NULL )
+    {
+        for( t_CKUINT i = 0; i < m_multi_chan_size; i++ )
+        {
+            if( fa_lookup( m_multi_chan[i]->m_src_list,
+                           m_multi_chan[i]->m_num_src, src ) )
+                return TRUE;
+        }
+    }
+
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: tick()
 // dsec: ...
 //-----------------------------------------------------------------------------
@@ -556,7 +609,7 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
     if( m_op > 0 )  // UGEN_OP_TICK
     {
         // tick the ugen
-        if( tick ) m_valid = tick( this, m_sum, &m_current );
+        if( tick ) m_valid = tick( this, m_sum, &m_current, NULL );
         if( !m_valid ) m_current = 0.0f;
         m_current *= m_gain * m_pan;
         m_last = m_current;

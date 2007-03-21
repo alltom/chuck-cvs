@@ -47,7 +47,8 @@ static t_CKUINT object_offset_m_testID = CK_INVALID_OFFSET;
 static t_CKINT object_our_testID = 0;
 
 // dac tick
-UGEN_TICK __ugen_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out ) 
+// UGEN_TICK __ugen_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out, Chuck_VM_Shred * SHRED )
+CK_DLL_TICK(__ugen_tick)
 { *out = in; return TRUE; }
 
 
@@ -134,8 +135,8 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     //if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add getTestID()
-    func = make_new_mfun( "int", "testID", ugen_getTestID );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // func = make_new_mfun( "int", "testID", ugen_getTestID );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // gain
     func = make_new_mfun( "float", "gain", ugen_gain );
@@ -172,6 +173,11 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     // add chan
     func = make_new_mfun( "UGen", "chan", ugen_chan );
     func->add_arg( "int", "num" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add isConnectedTo
+    func = make_new_mfun( "int", "isConnectedTo", ugen_connected );
+    func->add_arg( "UGen", "right" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end
@@ -300,10 +306,6 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "string", "arg", shred_getArg );
     func->add_arg( "int", "index" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add args
-    // shred_offset_args = type_engine_import_mvar( env, "string[]", "args", TRUE );
-    // if( shred_offset_args == CK_INVALID_OFFSET ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -1292,7 +1294,7 @@ CK_DLL_MFUN( ugen_op )
     // for multiple channels
     Chuck_DL_Return ret;
     for( t_CKUINT i = 0; i < ugen->m_multi_chan_size; i++ )
-        ugen_op( ugen->m_multi_chan[i], ARGS, &ret );
+        ugen_op( ugen->m_multi_chan[i], ARGS, &ret, SHRED );
 }
 
 CK_DLL_MFUN( ugen_cget_op )
@@ -1326,7 +1328,7 @@ CK_DLL_MFUN( ugen_next )
     // for multiple channels
     Chuck_DL_Return ret;
     for( t_CKUINT i = 0; i < ugen->m_multi_chan_size; i++ )
-        ugen_next( ugen->m_multi_chan[i], ARGS, &ret );
+        ugen_next( ugen->m_multi_chan[i], ARGS, &ret, SHRED );
 }
 
 CK_DLL_MFUN( ugen_cget_next )
@@ -1351,7 +1353,7 @@ CK_DLL_MFUN( ugen_gain )
     // for multiple channels
     Chuck_DL_Return ret;
     for( t_CKUINT i = 0; i < ugen->m_multi_chan_size; i++ )
-        ugen_gain( ugen->m_multi_chan[i], ARGS, &ret );
+        ugen_gain( ugen->m_multi_chan[i], ARGS, &ret, SHRED );
 }
 
 CK_DLL_MFUN( ugen_cget_gain )
@@ -1392,6 +1394,25 @@ CK_DLL_CTRL( ugen_chan )
         RETURN->v_object = NULL;
 }
 
+CK_DLL_CTRL( ugen_connected )
+{
+    // get ugen
+    Chuck_UGen * ugen = (Chuck_UGen *)SELF;
+    Chuck_UGen * right = (Chuck_UGen *)GET_NEXT_OBJECT(ARGS);
+
+    // sanity
+    t_CKINT ret = FALSE;
+    if( !right )
+    {
+        ret = FALSE;
+    }
+    else
+    {
+        ret = right->is_connected_from( ugen );
+    }
+
+    RETURN->v_int = ret;
+}
 
 CK_DLL_CTOR( event_ctor )
 {

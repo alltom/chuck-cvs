@@ -89,6 +89,7 @@ CK_DLL_MFUN( ugen_cget_gain );
 CK_DLL_MFUN( ugen_numChannels );
 CK_DLL_MFUN( ugen_cget_numChannels );
 CK_DLL_MFUN( ugen_chan );
+CK_DLL_MFUN( ugen_connected );
 
 
 //-----------------------------------------------------------------------------
