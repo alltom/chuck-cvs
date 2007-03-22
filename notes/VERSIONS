@@ -16,11 +16,13 @@
             to disable, specify --standalone
   - (added) new UGens:
             --------
-            Dyno: dynamics processor (compressor, expander, etc.)
+            Dynamics: dynamics processor (compressor, expander, etc.)
                   (author Matt Hoffman and Graham Coleman)
+                  (see examples/special/)
 
             GenX: classic + new lookup table functions base class
                   (author Dan Trueman, ported from RTCMix)
+                  (see examples/special/)
 
                   float .lookup( float ) : lookup table value
                   float[] .coeffs( float[] ) : load the table
@@ -92,6 +94,7 @@
   - (fixed) connecting null UGen references no longer crashes
   - (fixed) trivial (null == null) no longer evaluated as string
   - (fixed) strict (x,y) => z type checking
+  - (fixed) UGens no longer able to make duplicate connections
   - (fixed) && now terminates early if an operand evaluates to 0
             || terminates early if an operand evaluates to 1
   - (fixed) bug accessing static members of built-in classes
