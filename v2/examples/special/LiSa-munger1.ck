@@ -1,88 +1,85 @@
 //-----------------------------------------------------------------------------
-// name: LiSa
+// name: LiSa-munger1.ck
 // desc: Live sampling utilities for ChucK
 //
 // author: Dan Trueman, 2007
 //
-// to run (in command line chuck):
-//     %> chuck LiSa_readme.ck
+// These three example files demonstrate a couple ways to approach granular 
+// sampling with ChucK and LiSa. All are modeled after the munger~ from 
+// PeRColate. One of the cool things about doing this in ChucK is that there
+// is a lot more ready flexibility in designing grain playback patterns;
+// rolling one's own idiosyncratic munger is a lot easier. 
 //
-// to run (in miniAudicle):
-//     ??
+// Example 1 (below) is simple, but will feature some clicking due to playing
+// back over the record-point discontinuity.
 //-----------------------------------------------------------------------------
 
-/*
+// patch
+SinOsc s => LiSa lisa => dac;
+// thru
+s => dac;
 
-These three example files demonstrate a couple ways to approach granular sampling
-with ChucK and LiSa. All are modeled after the munger~ from PeRColate. One of the
-cool things about doing this in ChucK is that there is a lot more ready flexibility
-in designing grain playback patterns; rolling one's own idiosyncratic munger is 
-a lot easier. 
+// freq params
+s.freq( 440 );
+s.gain( 0.2 );
 
-Example 1 (below) is simple, but will feature some clicking due to playing back
-over the record-point discontinuity.
-
-*/
-
-//-----------------------------------------------------------------------------
-SinOsc s => LiSa l => dac;
-s=>dac;
-//freq params
-s.freq(440.);
-s.gain(0.2);
+// modulator
 SinOsc freqmod => blackhole;
-freqmod.freq(0.1);
+freqmod.freq( 0.1 );
 
+// LiSa params
+lisa.duration( 1::second );
+// set it recording constantly; loop records by default
+lisa.record( 1 );
+lisa.gain( 0.1 );
 
-//LiSa params
-l.duration(1::second);
-//set it recording constantly; loop records by default
-l.record(1);
-l.gain(0.1);
-
+// compute
 now + 1000::ms => time later;
-while(now<later) {
-	
+while( now < later )
+{
+    // update	
 	freqmod.last() * 500. + 200. => s.freq;
 	10::ms => now;
 }
 
-l.record(0);
-s.gain(0.);
-l.recRamp(20::ms);
+// record
+lisa.record(0);
+s.gain(0);
+lisa.recRamp( 20::ms );
+lisa.maxVoices(30);
+// <<< lisa.maxvoices() >>>;
 
-l.maxVoices(30);
-//<<<l.maxvoices()>>>;
+// this arrangment will create some clicks because of discontinuities
+// from the loop recording. to fix, need to make a rotating buffer 
+// approach. see the next two example files....
+while( true )
+{
+    // random
+	Std.rand2f( 1.5, 2.0 ) => float newrate;
+	Std.rand2f( 250, 750 ) * 1::ms => dur newdur;
 
-//this arrangment will create some clicks because of discontinuities from
-//the loop recording. to fix, need to make a rotating buffer approach.
-//see the next two example files....
-while (true) {
+    // spork it
+	spork ~ getgrain( newdur, 20::ms, 20::ms, newrate );
 
-	Std.rand2f(1.5, 2.0) => float newrate;
-	Std.rand2f(250, 750) * 1::ms => dur newdur;
-
-	spork ~ getgrain(newdur, 20::ms, 20::ms, newrate);
-
+    // advance time
 	10::ms => now;
-
 }
 
-
-fun void getgrain(dur grainlen, dur rampup, dur rampdown, float rate)
+// sporkee
+fun void getgrain( dur grainlen, dur rampup, dur rampdown, float rate )
 {
-	l.getVoice() => int newvoice;
-	//<<<newvoice>>>;
+    lisa.getVoice() => int newvoice;
+    //<<<newvoice>>>;
 	
-	if(newvoice > -1) {
-		l.rate(newvoice, rate);
-		//l.playpos(newvoice, Std.rand2f(0., 1000.) * 1::ms);
-		l.playPos(newvoice, 20::ms);
-		//<<<l.playpos(newvoice)>>>;
-		l.rampUp(newvoice, rampup);
-		(grainlen - (rampup + rampdown)) => now;
-		l.rampDown(newvoice, rampdown);
-		rampdown => now;
+    if( newvoice > -1 )
+    {
+        lisa.rate(newvoice, rate);
+        // lisa.playpos(newvoice, Std.rand2f(0., 1000.) * 1::ms);
+        lisa.playPos(newvoice, 20::ms);
+        // <<< lisa.playpos(newvoice) >>>;
+        lisa.rampUp( newvoice, rampup );
+        (grainlen - (rampup + rampdown)) => now;
+        lisa.rampDown( newvoice, rampdown );
+        rampdown => now;
 	}
-
 }

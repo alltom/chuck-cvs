@@ -1,94 +1,82 @@
 //-----------------------------------------------------------------------------
-// name: LiSa
+// name: readme-LiSa2.ck
 // desc: Live sampling utilities for ChucK
 //
 // author: Dan Trueman, 2007
 //
-// to run (in command line chuck):
-//     %> chuck LiSa_readme.ck
+// LiSa allows for multiple voice playback from a live-sampled buffer. Useful
+// for granular sampling (a la [munger~] from PeRColate) and looping (a la 
+// LoopLoop, Jamman, Echoplex, etc....). The methods are overloaded, taking
+// a "voice" number as a first arg. if no voice number is specified, LiSa
+// assumes 0=>voice.
 //
-// to run (in miniAudicle):
-//     ??
+// Below is a simple example to show how to crossfade two voices. See also the 
+// LiSa-munger examples for other approaches.
+// 
+// Below the example find a (lengthy) command summary.
 //-----------------------------------------------------------------------------
 
-/*
-
-LiSa allows for multiple voice playback from a live-sampled buffer. Useful
-for granular sampling (a la [munger~] from PeRColate) and looping (a la LoopLoop,
-Jamman, Echoplex, etc....). The methods are overloaded, taking a "voice" number
-as a first arg. if no voice number is specified, LiSa assumes 0=>voice.
-
-Below is a simple example to show how to crossfade two voices. See also the 
-LiSa_munger directory for other approaches.
-
-Below the example find a (lengthy) command summary.
-
-*/
-
-//-----------------------------------------------------------------------------
-
-
-//signal chain; record a sine wave, play it back
+// signal chain; record a sine wave, play it back
 SinOsc s => Envelope e => LiSa loopme => dac;
-s => dac;
+s => dac; // direct monitor
 440. => s.freq;
 0.2 => s.gain;
 
-//alloc memory
+// alloc memory
 6::second => loopme.duration;
 
-//play s for a bit
+// play s for a bit
 500::ms => now;
 
-//sweep the freq for fun
+// sweep the freq for fun
 Envelope pitchmod => blackhole;
-pitchmod.duration(2000::ms);
-pitchmod.value(s.freq());
-pitchmod.target(880.);
+pitchmod.duration( 2000::ms );
+pitchmod.value( s.freq() );
+pitchmod.target( 880. );
 
-//set times for recording fade in/out and sample loop length
+// set times for recording fade in/out and sample loop length
 100::ms => dur recfadetime;
 1000::ms => dur mylooplen;
-e.duration(recfadetime);
+e.duration( recfadetime );
 
-//start recording input; record 1 seconds worth
-loopme.record(1);
-e.keyOn(); //can also do without the Envelope and use loopme.recramp(dur) to set a recording ramp
+// start recording input; record 1 seconds worth
+loopme.record( 1 );
+// can also do without the Envelope and use loopme.recramp( dur ) to set a recording ramp
+e.keyOn(); 
 
 now + (mylooplen - recfadetime) => time later;
-while(now < later) {
-	
+while( now < later )
+{
 	pitchmod.value() => s.freq;
 	10::ms => now;
-
 }
 e.keyOff();
 recfadetime => now;
-loopme.record(0);
+loopme.record( 0 );
 
-//disconnect input and hangout a bit
+// disconnect input and hangout a bit
 s =< dac;
 1000::ms => now;
 
-//now, manipulate the sample
-//	get a voicenumber; note that this voice won't actually be reserved until you play it
+// now, manipulate the sample
+// get a voicenumber; note that this voice won't actually be reserved until you play it
 loopme.getVoice() => int voice1;
 
-//we'll play voice 1 forward, and then crossfade it with voice 2 backwards
-loopme.play(voice1, 1);
+// we'll play voice 1 forward, and then crossfade it with voice 2 backwards
+loopme.play( voice1, 1 );
 (mylooplen - recfadetime) => now;
 
-//just as voice 1 is going to fade, bring in voice 2
+// just as voice 1 is going to fade, bring in voice 2
 loopme.getVoice() => int voice2;
-loopme.rate(voice2, -1.);
-loopme.playPos(voice2, mylooplen); 
-loopme.play(voice2, 1);
+loopme.rate( voice2, -1. );
+loopme.playPos( voice2, mylooplen ); 
+loopme.play( voice2, 1 );
 
-//wait until voice 1 had finished fading, then turn off
+// wait until voice 1 had finished fading, then turn off
 recfadetime => now;
-loopme.play(voice1, 0);
+loopme.play( voice1, 0 );
 
-//wait for voice 2 to finish
+// wait for voice 2 to finish
 1000::ms => now;
 
 //-----------------------------------------------------------------------------
@@ -122,8 +110,5 @@ loopme.play(voice1, 0);
 //	mylisa.feedback(); get...
 //	mylisa.clear(); clear recording buffer
 //
-//All of these commands should work without the "voice" arg; 0=>voice will be assumed
-
+// All of these commands should work without the "voice" arg; 0=>voice will be assumed
 //-----------------------------------------------------------------------------
-
-
