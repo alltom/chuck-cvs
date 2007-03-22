@@ -589,7 +589,7 @@ void Chuck_Array4::zero( t_CKUINT start, t_CKUINT end )
             if( v )
             {
                 v->release();
-                m_vector[i] = NULL;
+                m_vector[i] = 0;
             }
         }
     }

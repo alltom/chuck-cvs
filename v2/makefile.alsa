@@ -172,7 +172,7 @@ util_console.o: util_console.h util_console.cpp
 	$(CXX) $(FLAGS) util_console.cpp
 
 util_hid.o: util_hid.h util_hid.cpp
-	$(CC) $(FLAGS) util_hid.cpp
+	$(CXX) $(FLAGS) util_hid.cpp
 
 util_math.o: util_math.h util_math.c
 	$(CC) $(FLAGS) util_math.c
