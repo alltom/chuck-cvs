@@ -1,8 +1,8 @@
 //--------------------------------------|
 // Dyno demo 2: "Compressor? I didn't even touch 'er!"
-// Takes a silly little plucked string demo and runs it through a compressor to
-// enhance sustain. (Ostensibly.) Note that there are many other (better)
-// reasons to use compressors.
+// Takes a silly little plucked string demo and runs it through a 
+// compressor to enhance sustain. (Ostensibly.) Note that there 
+// are many other (better) reasons to use compressors.
 //
 // authors: Matt Hoffman (mdhoffma at cs.princeton.edu)
 //--------------------------------------|
@@ -30,18 +30,25 @@ d.compress();
 0.0 => m.sustain;
 0.0 => m.stretch;
 
-while(true){
-	// say whether this pluck is compressed or not
-	if(d.op() < 0)
-		<<< "uncompressed" >>>;
-	else
-		<<< "compressed" >>>;
-
+// go
+while(true)
+{
 	// play a random note
 	Std.mtof(Std.rand2(60, 90)) => m.freq;
-	0.5 => m.pluck;
-	2000::ms => now;
 
-	// make the next note compressed if this one wasn't, or vice versa
-	-d.op() => d.op;
+    // twice
+    repeat( 2 )
+    {
+        // say whether this pluck is compressed or not
+        if(d.op() < 0)
+            <<< "uncompressed" >>>;
+        else
+            <<< "compressed" >>>;
+        
+        0.5 => m.pluck;
+        2000::ms => now;
+        
+        // make the next note compressed if this one wasn't, or vice versa
+        -d.op() => d.op;
+    }
 }

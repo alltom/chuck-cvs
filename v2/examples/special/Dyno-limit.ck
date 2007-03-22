@@ -1,11 +1,11 @@
 //--------------------------------------|
 // Dyno demo 1: "Limiter? I hardly know 'er!"
-// Takes otf_07.ck, cranks the gain up obscenely high, then limits it so it
-// won't clip. 
+// Takes otf_07.ck, cranks the gain up obscenely high, then limits 
+// it so it won't clip. 
 //
 // authors: Matt Hoffman (mdhoffma at cs.princeton.edu)
-//	    Perry Cook (prc@cs.princeton.edu)
-//          Ge Wang (gewang@cs.princeton.edu)
+//          Ge Wang (gewang at cs.princeton.edu)
+//          Perry Cook (prc at cs.princeton.edu)
 //--------------------------------------|
 
 // this synchronizes to period
@@ -14,8 +14,8 @@ T - (now % T) => now;
 
 // construct the patch
 SndBuf buf => Gain g => Dyno dy => JCRev r => dac;
-"data/kick.wav" => buf.read;
-.05 => r.mix;
+"../data/kick.wav" => buf.read;
+.01 => r.mix;
 
 // make gain way too high, i.e. force clipping
 100 => g.gain;
@@ -25,7 +25,7 @@ dy.limit();
 5 => dy.gain;
 // uncomment this to turn off the limiter. note that just because clipping 
 // sounds cool here doesn't mean it will in your patch.
-//-1 => dy.op;
+// -1 => dy.op;
 
 // where we actually want to start
 25 => int where;
