@@ -37,9 +37,9 @@ lisa.gain( 0.1 );
 now + 1000::ms => time later;
 while( now < later )
 {
-    // update	
-	freqmod.last() * 500. + 200. => s.freq;
-	10::ms => now;
+    // update   
+    freqmod.last() * 500. + 200. => s.freq;
+    10::ms => now;
 }
 
 // record
@@ -55,14 +55,14 @@ lisa.maxVoices(30);
 while( true )
 {
     // random
-	Std.rand2f( 1.5, 2.0 ) => float newrate;
-	Std.rand2f( 250, 750 ) * 1::ms => dur newdur;
+    Std.rand2f( 1.5, 2.0 ) => float newrate;
+    Std.rand2f( 250, 750 ) * 1::ms => dur newdur;
 
     // spork it
-	spork ~ getgrain( newdur, 20::ms, 20::ms, newrate );
+    spork ~ getgrain( newdur, 20::ms, 20::ms, newrate );
 
     // advance time
-	10::ms => now;
+    10::ms => now;
 }
 
 // sporkee
@@ -70,7 +70,7 @@ fun void getgrain( dur grainlen, dur rampup, dur rampdown, float rate )
 {
     lisa.getVoice() => int newvoice;
     //<<<newvoice>>>;
-	
+    
     if( newvoice > -1 )
     {
         lisa.rate(newvoice, rate);
@@ -81,5 +81,5 @@ fun void getgrain( dur grainlen, dur rampup, dur rampdown, float rate )
         (grainlen - (rampup + rampdown)) => now;
         lisa.rampDown( newvoice, rampdown );
         rampdown => now;
-	}
+    }
 }

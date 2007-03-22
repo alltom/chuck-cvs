@@ -5,7 +5,7 @@ CurveTable c;
 
 // coeffs are all FLOATS, specifying proportional times, values, and curvature:
 // [time0, value0, curvature to next, time1, value1, curvature,..
-//		timeN-1, valueN-1, curvaturen-1, timeN, valueN]
+//      timeN-1, valueN-1, curvaturen-1, timeN, valueN]
 
 // times => ascending unitless values (NOT Chuck Time values)
 // values => whatever
@@ -35,11 +35,11 @@ Phasor p => c => dac;
 while (true)
 {
     // print
-	<<< e.value(), c.lookup(e.value()) >>>;
-	
-	// end
-	if(e.value() == 1.) break;
+    <<< e.value(), c.lookup(e.value()) >>>;
+    
+    // end
+    if(e.value() == 1.) break;
 
     // advance time
-	10::ms => now; 
+    10::ms => now; 
 }

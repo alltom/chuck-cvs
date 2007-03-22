@@ -45,11 +45,11 @@ e.keyOn();
 while (true)
 {
     // print
-	<<< e.value(), g17.lookup(e.value()) >>>;
+    <<< e.value(), g17.lookup(e.value()) >>>;
     
     // stop when envelope reaches 1
-	if( e.value() == 1. ) break;
+    if( e.value() == 1. ) break;
 
     // advance time
-	10::ms => now;
+    10::ms => now;
 }

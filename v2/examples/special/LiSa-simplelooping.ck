@@ -7,7 +7,7 @@
 // Another simple example of LiSa, demonstrating dopey looping....
 //-----------------------------------------------------------------------------
 
-//signal chain; record a sine wave, play it back
+// signal chain; record a sine wave, play it back
 SinOsc s => LiSa loopme => dac;
 440. => s.freq;
 0.2 => s.gain;

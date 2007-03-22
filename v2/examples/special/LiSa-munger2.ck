@@ -54,17 +54,17 @@ while(true)
     now + bufferlen => time later;
 
     // toss some grains
-	while( now < later )
+    while( now < later )
     {
         Std.rand2f(0.5, 2.5) => float newrate;
-		Std.rand2f(250, 600) * 1::ms => dur newdur;
+        Std.rand2f(250, 600) * 1::ms => dur newdur;
 
         // grain
-		spork ~ getgrain(playbuf, newdur, 20::ms, 20::ms, newrate);
+        spork ~ getgrain(playbuf, newdur, 20::ms, 20::ms, newrate);
         // freq
-		freqmod.last() * 400. + 800. => s.freq;
+        freqmod.last() * 400. + 800. => s.freq;
         // advance time
-		10::ms => now;
+        10::ms => now;
     }
 
     // rotate the record and playbufs
@@ -80,17 +80,17 @@ while(true)
 fun void getgrain( int which, dur grainlen, dur rampup, dur rampdown, float rate )
 {
     lisa[which].getVoice() => int newvoice;
-	//<<<newvoice>>>;
+    //<<<newvoice>>>;
 
     if(newvoice > -1)
     {
-		lisa[which].rate(newvoice, rate);
-		lisa[which].playPos(newvoice, Std.rand2f(0., 1.) * bufferlen);
-		lisa[which].rampUp(newvoice, rampup);
-		(grainlen - (rampup + rampdown)) => now;
-		lisa[which].rampDown(newvoice, rampdown);
-		rampdown => now;
-	}
+        lisa[which].rate(newvoice, rate);
+        lisa[which].playPos(newvoice, Std.rand2f(0., 1.) * bufferlen);
+        lisa[which].rampUp(newvoice, rampup);
+        (grainlen - (rampup + rampdown)) => now;
+        lisa[which].rampDown(newvoice, rampdown);
+        rampdown => now;
+    }
 }
 
 /*

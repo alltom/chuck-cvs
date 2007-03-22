@@ -24,11 +24,11 @@ e.keyOn();
 while (true)
 {
     // print
-	<<< e.value(), g7.lookup(e.value()) >>>;
+    <<< e.value(), g7.lookup(e.value()) >>>;
 
     // end
-	if(e.value() == 1.) break;
+    if(e.value() == 1.) break;
 
     // advance time
-	10::ms => now;
+    10::ms => now;
 }

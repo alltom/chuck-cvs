@@ -59,11 +59,11 @@ e.keyOn(); // ramp 0 to 1 in 10 seconds
 while( true )
 {
     // print
-	<<< e.value(), w.lookup(e.value()) >>>;
+    <<< e.value(), w.lookup(e.value()) >>>;
 
     // end
-	if( e.value() == 1. ) break;
+    if( e.value() == 1. ) break;
 
     // advance time
-	10::ms => now;
+    10::ms => now;
 }

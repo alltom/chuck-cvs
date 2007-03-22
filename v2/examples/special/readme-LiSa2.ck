@@ -47,8 +47,8 @@ e.keyOn();
 now + (mylooplen - recfadetime) => time later;
 while( now < later )
 {
-	pitchmod.value() => s.freq;
-	10::ms => now;
+    pitchmod.value() => s.freq;
+    10::ms => now;
 }
 e.keyOff();
 recfadetime => now;
@@ -83,32 +83,32 @@ loopme.play( voice1, 0 );
 
 //LiSa Command Summary:
 //
-//	mylisa.duration(dur); required -- sets max length of buffer
-//	mylisa.record(1/0); turn on/off recording into buffer
-//	mylisa.getVoice() => voice (int); returns first free voice number
-//	mylisa.maxVoices(int); sets maximum # of allowable voices
-//	mylisa.play(voice, 1/0); turn on/off play for particular voice
-//	mylisa.rampUp(voice, dur); turn on play for voice with ramp
-//	mylisa.rampDown(voice, dur); ramp down voice and then turn off play
-//	mylisa.rate(voice, float); sets play rate for "voice"
-//	mylisa.playPos(voice, dur); sets playback position for "voice" within buffer
-//	mylisa.playPos(voice); returns playback position for "voice"
-//	mylisa.recordPos(dur); sets record position
-//	mylisa.recordPos(); gets record position
-//	mylisa.recRamp(dur); sets ramping for the edges of the record buffer
-//	mylisa.loopStart(dur, voice); sets loopstart point for "voice"
-//	mylisa.loopStart(voice); get loopstart
-//	mylisa.loopEnd(voice, dur); sets loopend point for "voice"
-//	mylisa.loopEnd(voice); gets loopend
-//	mylisa.loop(voice, 1/0); turn on/off looping for "voice"
-// 	mylisa.loop(voice); get looping state
-//	mylisa.bi(voice, 1/0); turn on/off bidirectional looping for "voice"
-//	mylisa.bi(voice); get bi state
-//	mylisa.loopEndRec(dur); set looping end point for recording
-//	mylisa.loopEndRec(); get ...
-//	mylisa.feedback(float); set feedback amount [0,1] for recording
-//	mylisa.feedback(); get...
-//	mylisa.clear(); clear recording buffer
+//  mylisa.duration(dur); required -- sets max length of buffer
+//  mylisa.record(1/0); turn on/off recording into buffer
+//  mylisa.getVoice() => voice (int); returns first free voice number
+//  mylisa.maxVoices(int); sets maximum # of allowable voices
+//  mylisa.play(voice, 1/0); turn on/off play for particular voice
+//  mylisa.rampUp(voice, dur); turn on play for voice with ramp
+//  mylisa.rampDown(voice, dur); ramp down voice and then turn off play
+//  mylisa.rate(voice, float); sets play rate for "voice"
+//  mylisa.playPos(voice, dur); sets playback position for "voice" within buffer
+//  mylisa.playPos(voice); returns playback position for "voice"
+//  mylisa.recordPos(dur); sets record position
+//  mylisa.recordPos(); gets record position
+//  mylisa.recRamp(dur); sets ramping for the edges of the record buffer
+//  mylisa.loopStart(dur, voice); sets loopstart point for "voice"
+//  mylisa.loopStart(voice); get loopstart
+//  mylisa.loopEnd(voice, dur); sets loopend point for "voice"
+//  mylisa.loopEnd(voice); gets loopend
+//  mylisa.loop(voice, 1/0); turn on/off looping for "voice"
+//  mylisa.loop(voice); get looping state
+//  mylisa.bi(voice, 1/0); turn on/off bidirectional looping for "voice"
+//  mylisa.bi(voice); get bi state
+//  mylisa.loopEndRec(dur); set looping end point for recording
+//  mylisa.loopEndRec(); get ...
+//  mylisa.feedback(float); set feedback amount [0,1] for recording
+//  mylisa.feedback(); get...
+//  mylisa.clear(); clear recording buffer
 //
 // All of these commands should work without the "voice" arg; 0=>voice will be assumed
 //-----------------------------------------------------------------------------

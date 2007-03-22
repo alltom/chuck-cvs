@@ -38,17 +38,17 @@ LiSa lisa[3];
 // LiSa params, set
 for( 0 => int i; i < 3; i++ )
 {
-	lisa[i].duration(bufferlen);
-	lisa[i].loopEndRec(reclooplen);
-	lisa[i].maxVoices(30);
-	lisa[i].clear();
-	lisa[i].gain(0.2);
-	// if you want to retain earlier passes through the recording buff when loop recording:
-	// lisa[i].feedback(0.5); 
-	lisa[i].recRamp(20::ms); // ramp at extremes of record buffer while recording
-	lisa[i].record(0);
-	
-	s => lisa[i] => dac;
+    lisa[i].duration(bufferlen);
+    lisa[i].loopEndRec(reclooplen);
+    lisa[i].maxVoices(30);
+    lisa[i].clear();
+    lisa[i].gain(0.2);
+    // if you want to retain earlier passes through the recording buff when loop recording:
+    // lisa[i].feedback(0.5); 
+    lisa[i].recRamp(20::ms); // ramp at extremes of record buffer while recording
+    lisa[i].record(0);
+    
+    s => lisa[i] => dac;
 }
 
 // start recording in buffer 0
@@ -73,7 +73,7 @@ while(true)
 
         // wait a bit.... then do it again, until we reach reclooplen
         5::ms => now;
-	}
+    }
 
     // rotate the record and playbufs
     lisa[recbuf++].record( 0 );
@@ -87,43 +87,43 @@ while(true)
 // for sporking grains; can do lots of different stuff here -- just one example here
 fun void getgrain(int which, dur grainlen, dur rampup, dur rampdown, float rate)
 {
-	lisa[which].getVoice() => int newvoice;
-	//<<<newvoice>>>;
-	
-	if( newvoice > -1 )
-	{
-		lisa[which].rate(newvoice, rate);
-		lisa[which].playPos(newvoice, Std.rand2f(0., 1.) * reclooplen);
-		lisa[which].rampUp(newvoice, rampup);
-		(grainlen - (rampup + rampdown)) => now;
-		lisa[which].rampDown(newvoice, rampdown);
-		rampdown => now;
-	}
+    lisa[which].getVoice() => int newvoice;
+    //<<<newvoice>>>;
+    
+    if( newvoice > -1 )
+    {
+        lisa[which].rate(newvoice, rate);
+        lisa[which].playPos(newvoice, Std.rand2f(0., 1.) * reclooplen);
+        lisa[which].rampUp(newvoice, rampup);
+        (grainlen - (rampup + rampdown)) => now;
+        lisa[which].rampDown(newvoice, rampdown);
+        rampdown => now;
+    }
 }
 
 // the munger song lives! thanks to luke dubois....
 fun void playtune(dur notelen)
-{		
-	0 => int notectr;
-	[45, 45, 57, 57, 45, 57, 57, 47, 55, 47, 59, 60, 60, 57, 57, 57] @=> int notes[];
+{       
+    0 => int notectr;
+    [45, 45, 57, 57, 45, 57, 57, 47, 55, 47, 59, 60, 60, 57, 57, 57] @=> int notes[];
 
-	Std.mtof(notes[0]) => fsmooth.value => s.freq;
+    Std.mtof(notes[0]) => fsmooth.value => s.freq;
 
-	while( true )
-	{
-		//<<<notes[notectr]>>>;
-		Std.mtof(notes[notectr++] + 12) => fsmooth.target;
-		if(notectr == notes.size()) 0 => notectr;
-		notelen => now;
-	}
+    while( true )
+    {
+        //<<<notes[notectr]>>>;
+        Std.mtof(notes[notectr++] + 12) => fsmooth.target;
+        if(notectr == notes.size()) 0 => notectr;
+        notelen => now;
+    }
 }
 
 fun void smoothtune(dur smoothtime)
 {
-	fsmooth.duration(smoothtime);
-	while (true)
+    fsmooth.duration(smoothtime);
+    while (true)
     {
-		fsmooth.value() => s.freq;
-		1::ms => now;
-	}
+        fsmooth.value() => s.freq;
+        1::ms => now;
+    }
 }
