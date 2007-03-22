@@ -731,9 +731,9 @@ t_CKBOOL isfunc( Chuck_Type * type );
 
 // import
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
-                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor );
+                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor = NULL );
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
-                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor );
+                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor = NULL );
 Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor,
                                             f_tick tick, f_pmsg pmsg,
