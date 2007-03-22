@@ -1,0 +1,23 @@
+//gen10 sinusoidal lookup table
+//ported to ChucK from rtcmix by dan trueman
+//see luke's page: http://www.music.columbia.edu/cmix/makegens.html#05
+
+Phasor drive => Gen10 g10 => dac;
+//can also lookup table values directly:
+//		g10.lookup(index);
+//		with index:[0,1]
+
+//load up the coeffs; amplitudes for successive partials
+[1., 0.5, 0.3, 0.2] @=> float coefs[];
+g10.coefs(coefs);
+
+//set frequency for reading through table
+drive.freq(440.);
+
+while (true){
+	500::ms => now; 	
+	//nothing needed to do, so lets look
+	//up some random parts of the table!
+	<<<g10.lookup(Std.rand2f(0,1))>>>;
+
+}
