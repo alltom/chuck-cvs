@@ -708,13 +708,21 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     //add ctrl: attackTime
-    func = make_new_mfun( "void", "attackTime", dyno_ctrl_attackTime );
+    func = make_new_mfun( "dur", "attackTime", dyno_ctrl_attackTime );
     func->add_arg( "dur", "aTime" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
+    
+    //add cget: attackTime
+    func = make_new_mfun( "dur", "attackTime", dyno_ctrl_attackTime );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
     //add ctrl: releaseTime
-    func = make_new_mfun( "void", "releaseTime", dyno_ctrl_releaseTime );
+    func = make_new_mfun( "dur", "releaseTime", dyno_ctrl_releaseTime );
     func->add_arg( "dur", "rTime" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    //add ctrl: releaseTime
+    func = make_new_mfun( "dur", "releaseTime", dyno_ctrl_releaseTime );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     //add ctrl: ratio
@@ -2838,7 +2846,7 @@ public:
   t_CKFLOAT xd; //sidechain
   int externalSideInput; // use input signal or a ctrl signal for env
   t_CKFLOAT sideInput;   // the ctrl signal for the envelope
-
+  
   int count; //diagnostic
 
   Dyno_Data() {
