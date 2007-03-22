@@ -4058,7 +4058,8 @@ t_CKBOOL type_engine_compat_func( a_Func_Def lhs, a_Func_Def rhs, int pos, strin
 //       must be completed by type_engine_import_class_end()
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
-                                             Chuck_Namespace * where, f_ctor pre_ctor )
+                                             Chuck_Namespace * where,
+                                             f_ctor pre_ctor, f_dtor dtor )
 {
     Chuck_Value * value = NULL;
     Chuck_Type * type_type = NULL;
@@ -4097,6 +4098,23 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
         type->info->pre_ctor->need_this = TRUE;
         // no arguments to preconstructor other than self
         type->info->pre_ctor->stack_depth = sizeof(t_CKUINT);
+    }
+
+    // if destructor
+    if( dtor != 0 )
+    {
+        // flag it
+        type->has_destructor = TRUE;
+        // allocate vm code for dtor
+        type->info->dtor = new Chuck_VM_Code;
+        // add dtor
+        type->info->dtor->native_func = (t_CKUINT)dtor;
+        // mark type as dtor
+        type->info->dtor->native_func_type = Chuck_VM_Code::NATIVE_DTOR;
+        // specify that we need this
+        type->info->dtor->need_this = TRUE;
+        // no arguments to destructor other than self
+        type->info->dtor->stack_depth = sizeof(t_CKUINT);
     }
 
     // set the beginning of the data segment after parent
@@ -4157,7 +4175,7 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type,
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, 
                                              const char * parent_str,
                                              Chuck_Namespace * where, 
-                                             f_ctor pre_ctor )
+                                             f_ctor pre_ctor, f_dtor dtor )
 {
     // which namespace
     Chuck_Type * parent = NULL;
@@ -4184,7 +4202,7 @@ Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name,
     where->type.add( name, type );
 
     // do the rest
-    if( !type_engine_import_class_begin( env, type, where, pre_ctor ) )
+    if( !type_engine_import_class_begin( env, type, where, pre_ctor, dtor ) )
         goto error;
 
     // done
@@ -4212,14 +4230,15 @@ cleanup:
 //-----------------------------------------------------------------------------
 Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, 
                                             const char * parent, Chuck_Namespace * where,
-                                            f_ctor pre_ctor, f_tick tick, f_pmsg pmsg,
+                                            f_ctor pre_ctor, f_dtor dtor,
+                                            f_tick tick, f_pmsg pmsg,
                                             t_CKUINT num_ins, t_CKUINT num_outs )
 {
     Chuck_Type * type = NULL;
     Chuck_UGen_Info * info = NULL;
 
     // construct class
-    if( !(type = type_engine_import_class_begin( env, name, parent, where, pre_ctor ) ) )
+    if( !(type = type_engine_import_class_begin( env, name, parent, where, pre_ctor, dtor ) ) )
         return FALSE;
 
     // make sure parent is ugen

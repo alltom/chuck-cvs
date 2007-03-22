@@ -64,7 +64,7 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     EM_log( CK_LOG_SEVERE, "class 'object'" );
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), object_ctor ) )
+    if( !type_engine_import_class_begin( env, type, env->global(), object_ctor, object_dtor ) )
         return FALSE;
 
     // add setTestID()
@@ -126,7 +126,8 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     t_ugen.ugen_info->num_outs = 1;
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
+    // TODO: ctor/dtor, ugen's sometimes created internally?
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
 
     // add setTestID()
@@ -210,7 +211,8 @@ t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type )
     EM_log( CK_LOG_SEVERE, "class 'event'" );
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), event_ctor ) )
+    // TODO: ctor/dtor?
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
 
     // add signal()
@@ -267,7 +269,8 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     EM_log( CK_LOG_SEVERE, "class 'shred'" );
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
+    // TODO: ctor/dtor?
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
     
     // add dtor
@@ -336,11 +339,9 @@ t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
     EM_log( CK_LOG_SEVERE, "class 'string'" );
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
+    // TODO: ctor/dtor
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
-    
-    // add dtor
-    // not
 
     // add length()
     func = make_new_mfun( "int", "length", string_length );
@@ -404,7 +405,8 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     EM_log( CK_LOG_SEVERE, "class 'array'" );
 
     // init as base class
-    if( !type_engine_import_class_begin( env, type, env->global(), NULL ) )
+    // TODO: ctor/dtor?
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
 
     // add clear()
@@ -464,8 +466,9 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     Chuck_DL_Func * func = NULL;
 
     // init base class
+    // TODO: ctor/dtor?
     if( !type_engine_import_class_begin( env, "MidiMsg", "Object",
-                                         env->global(), NULL ) )
+                                         env->global(), NULL, NULL ) )
         return FALSE;
 
     // add member variable
@@ -490,7 +493,7 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
 
     // init base class
     if( !type_engine_import_class_begin( env, "MidiIn", "Event",
-                                         env->global(), MidiIn_ctor ) )
+                                         env->global(), MidiIn_ctor, MidiIn_dtor ) )
         return FALSE;
 
     // add open()
@@ -533,7 +536,7 @@ t_CKBOOL init_class_Midi( Chuck_Env * env )
     
     // init base class
     if( !type_engine_import_class_begin( env, "MidiOut", "Object",
-                                         env->global(), MidiOut_ctor ) )
+                                         env->global(), MidiOut_ctor, MidiOut_dtor ) )
         return FALSE;
 
     // add open()
@@ -621,7 +624,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
 
     // init base class
     if( !type_engine_import_class_begin( env, "HidMsg", "Object",
-                                         env->global(), NULL ) )
+                                         env->global(), NULL, NULL ) )
         return FALSE;
 
     // add member variable
@@ -765,7 +768,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
 
     // init base class Hid (copy of HidIn + constants)
     if( !type_engine_import_class_begin( env, "Hid", "Event",
-                                         env->global(), HidIn_ctor ) )
+                                         env->global(), HidIn_ctor, HidIn_dtor ) )
         return FALSE;
     
     // add open()
@@ -1007,7 +1010,7 @@ t_CKBOOL init_class_MidiRW( Chuck_Env * env )
 
     // init base class
     if( !type_engine_import_class_begin( env, "MidiRW", "Object",
-                                         env->global(), MidiRW_ctor ) )
+                                         env->global(), MidiRW_ctor, MidiRW_dtor ) )
         return FALSE;
 
     // add open()
@@ -1040,7 +1043,7 @@ t_CKBOOL init_class_MidiRW( Chuck_Env * env )
     
         // init base class
     if( !type_engine_import_class_begin( env, "MidiMsgOut", "Object",
-                                         env->global(), MidiMsgOut_ctor ) )
+                                         env->global(), MidiMsgOut_ctor, MidiMsgOut_dtor ) )
         return FALSE;
 
     // add open()
@@ -1067,7 +1070,7 @@ t_CKBOOL init_class_MidiRW( Chuck_Env * env )
 
         // init base class
     if( !type_engine_import_class_begin( env, "MidiMsgIn", "Object",
-                                         env->global(), MidiMsgIn_ctor ) )
+                                         env->global(), MidiMsgIn_ctor, MidiMsgIn_dtor ) )
         return FALSE;
 
     // add open()

@@ -96,7 +96,7 @@ CK_DLL_MFUN( ugen_connected );
 // shred API
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( shred_ctor );
-CK_DLL_DTOR( shred_dtor ); // 
+CK_DLL_DTOR( shred_dtor );
 CK_DLL_MFUN( shred_exit );
 CK_DLL_MFUN( shred_clone );
 CK_DLL_MFUN( shred_id );
@@ -108,6 +108,8 @@ CK_DLL_MFUN( shred_getArg );
 //-----------------------------------------------------------------------------
 // array API
 //-----------------------------------------------------------------------------
+CK_DLL_CTOR( array_ctor );
+CK_DLL_DTOR( array_dtor );
 CK_DLL_MFUN( array_set_capacity );
 CK_DLL_MFUN( array_get_capacity );
 CK_DLL_MFUN( array_size );
@@ -134,6 +136,8 @@ CK_DLL_MFUN( event_can_wait );
 //-----------------------------------------------------------------------------
 // string API
 //-----------------------------------------------------------------------------
+CK_DLL_CTOR( string_ctor );
+CK_DLL_DTOR( string_dtor );
 CK_DLL_MFUN( string_length );
 CK_DLL_MFUN( string_upper );
 CK_DLL_MFUN( string_lower );

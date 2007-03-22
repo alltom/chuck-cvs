@@ -66,6 +66,7 @@ using namespace std;
 
 // KBHit
 CK_DLL_CTOR( KBHit_ctor );
+CK_DLL_DTOR( KBHit_dtor );
 CK_DLL_MFUN( KBHit_on );
 CK_DLL_MFUN( KBHit_off );
 CK_DLL_MFUN( KBHit_state );
@@ -78,6 +79,7 @@ static t_CKUINT KBHit_offset_data = 0;
 
 // Skot functions
 CK_DLL_CTOR( Skot_ctor );
+CK_DLL_DTOR( Skot_dtor );
 CK_DLL_MFUN( Skot_prompt );
 CK_DLL_MFUN( Skot_prompt2 );
 CK_DLL_MFUN( Skot_more );
@@ -88,6 +90,7 @@ static t_CKUINT Skot_offset_data = 0;
 
 // StrTok functions
 CK_DLL_CTOR( StrTok_ctor );
+CK_DLL_DTOR( StrTok_dtor );
 CK_DLL_MFUN( StrTok_set );
 CK_DLL_MFUN( StrTok_reset );
 CK_DLL_MFUN( StrTok_more );
@@ -252,7 +255,8 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
     // KBHit
     // begin class (KBHit)
     if( !type_engine_import_class_begin( env, "KBHit", "Event",
-                                         env->global(), KBHit_ctor ) )
+                                         env->global(), KBHit_ctor,
+                                         KBHit_dtor ) )
         return FALSE;
 
     // add member variable
@@ -299,7 +303,8 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 
     // begin class (Skot)
     if( !type_engine_import_class_begin( env, "ConsoleInput", "Event",
-                                         env->global(), Skot_ctor ) )
+                                         env->global(), Skot_ctor,
+                                         Skot_dtor ) )
         return FALSE;
 
     // add member variable
@@ -336,7 +341,8 @@ DLL_QUERY libstd_query( Chuck_DL_Query * QUERY )
 
     // begin class (StrTok)
     if( !type_engine_import_class_begin( env, "StringTokenizer", "Object",
-                                         env->global(), StrTok_ctor ) )
+                                         env->global(), StrTok_ctor,
+                                         StrTok_dtor ) )
         return FALSE;
 
     // add member variable
@@ -915,6 +921,13 @@ CK_DLL_CTOR( KBHit_ctor )
 }
 
 
+// dtor
+CK_DLL_DTOR( KBHit_dtor )
+{
+    delete (KBHit *)OBJ_MEMBER_INT(SELF, KBHit_offset_data);
+    OBJ_MEMBER_INT(SELF, KBHit_offset_data) = 0;
+}
+
 // on
 CK_DLL_MFUN( KBHit_on )
 {
@@ -1126,6 +1139,12 @@ CK_DLL_CTOR( Skot_ctor )
     OBJ_MEMBER_INT(SELF, Skot_offset_data) = (t_CKINT)le;
 }
 
+CK_DLL_DTOR( Skot_dtor )
+{
+    delete (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
+    OBJ_MEMBER_INT(SELF, Skot_offset_data) = 0;
+}
+
 CK_DLL_MFUN( Skot_prompt )
 {
     LineEvent * le = (LineEvent *)OBJ_MEMBER_INT(SELF, Skot_offset_data);
@@ -1242,6 +1261,12 @@ CK_DLL_CTOR( StrTok_ctor )
 {
     StrTok * tokens = new StrTok;
     OBJ_MEMBER_INT(SELF, StrTok_offset_data) = (t_CKINT)tokens;
+}
+
+CK_DLL_DTOR( StrTok_dtor )
+{
+    delete (StrTok *)OBJ_MEMBER_INT(SELF, StrTok_offset_data);
+    OBJ_MEMBER_INT(SELF, StrTok_offset_data) = 0;
 }
 
 CK_DLL_MFUN( StrTok_set )

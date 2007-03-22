@@ -68,7 +68,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // init as base class: osc
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Osc", "UGen", env->global(), 
-                                        osc_ctor, osc_tick, osc_pmsg ) )
+                                        osc_ctor, osc_dtor, osc_tick, osc_pmsg ) )
         return FALSE;
 
     // add member variable
@@ -116,7 +116,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // phasor
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Phasor", "Osc", env->global(), 
-                                        NULL, osc_tick, NULL ) )
+                                        NULL, NULL, osc_tick, NULL ) )
         return FALSE;
 
     // end the class import
@@ -126,7 +126,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // sinosc
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "SinOsc", "Osc", env->global(), 
-                                        NULL, sinosc_tick, NULL ) )
+                                        NULL, NULL, sinosc_tick, NULL ) )
         return FALSE;
 
     // end the class import
@@ -137,7 +137,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // triosc - triangle oscillator
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "TriOsc", "Osc", env->global(), 
-                                        NULL, triosc_tick, NULL ) )
+                                        NULL, NULL, triosc_tick, NULL ) )
         return FALSE;
 
     func = make_new_mfun( "float", "width", osc_ctrl_width );
@@ -152,7 +152,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // sawosc - sawtooth oscillator  (  0 | 1  triangle wave  )
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "SawOsc", "TriOsc", env->global(), 
-                                        sawosc_ctor, NULL, NULL ) )
+                                        sawosc_ctor, NULL, NULL, NULL ) )
         return FALSE;
 
     func = make_new_mfun( "float", "width", sawosc_ctrl_width );
@@ -167,7 +167,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // pulseosc - pulse-width oscillator
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "PulseOsc", "Osc", env->global(), 
-                                        NULL, pulseosc_tick, NULL ) )
+                                        NULL, NULL, pulseosc_tick, NULL ) )
         return FALSE;
 
     func = make_new_mfun( "float", "width", osc_ctrl_width );
@@ -182,7 +182,7 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     // sqrosc - square_wave oscillator ( 0.5 pulse ) 
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "SqrOsc", "PulseOsc", env->global(), 
-                                        sqrosc_ctor, NULL, NULL ) )
+                                        sqrosc_ctor, NULL, NULL, NULL ) )
         return FALSE;
 
     func = make_new_mfun( "float", "width", sqrosc_ctrl_width );
@@ -873,7 +873,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // init as base class: genX
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "GenX", "UGen", env->global(), 
-                                        genX_ctor, genX_tick, genX_pmsg ) )
+                                        genX_ctor, genX_dtor, genX_tick, genX_pmsg ) )
         return FALSE;
 
     // add member variable
@@ -896,7 +896,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // gen5
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Gen5", "GenX", env->global(), 
-                                        NULL, genX_tick, NULL ) )
+                                        NULL, NULL, genX_tick, NULL ) )
         return FALSE;
     
     func = make_new_mfun( "float[]", "coefs", gen5_coeffs ); //load table
@@ -912,7 +912,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // gen7
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Gen7", "GenX", env->global(), 
-                                        NULL, genX_tick, NULL ) )
+                                        NULL, NULL, genX_tick, NULL ) )
         return FALSE;
 
     func = make_new_mfun( "float[]", "coefs", gen7_coeffs ); //load table
@@ -927,7 +927,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // gen9
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Gen9", "GenX", env->global(), 
-                                        NULL, genX_tick, NULL ) )
+                                        NULL, NULL, genX_tick, NULL ) )
         return FALSE;
         
     func = make_new_mfun( "float[]", "coefs", gen9_coeffs ); //load table
@@ -943,7 +943,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // gen10
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Gen10", "GenX", env->global(), 
-                                        NULL, genX_tick, NULL ) )
+                                        NULL, NULL, genX_tick, NULL ) )
         return FALSE;
         
     func = make_new_mfun( "float[]", "coefs", gen10_coeffs ); //load table
@@ -958,7 +958,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // gen17
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Gen17", "GenX", env->global(), 
-                                        NULL, genX_tick, NULL ) )
+                                        NULL, NULL, genX_tick, NULL ) )
         return FALSE;
         
     func = make_new_mfun( "float[]", "coefs", gen17_coeffs ); //load table
@@ -972,7 +972,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // Curve
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "CurveTable", "GenX", env->global(), 
-                                        NULL, genX_tick, NULL ) )
+                                        NULL, NULL, genX_tick, NULL ) )
         return FALSE;
         
     func = make_new_mfun( "float[]", "coefs", curve_coeffs ); //load table
@@ -986,7 +986,7 @@ DLL_QUERY genX_query( Chuck_DL_Query * QUERY )
     // Warp
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "WarpTable", "GenX", env->global(), 
-                                        NULL, genX_tick, NULL ) )
+                                        NULL, NULL, genX_tick, NULL ) )
         return FALSE;
         
     func = make_new_mfun( "float[]", "coefs", warp_coeffs ); //load table
@@ -1074,7 +1074,7 @@ CK_DLL_DTOR( genX_dtor )
     // get the data
     genX_Data * data = (genX_Data *)OBJ_MEMBER_UINT(SELF, genX_offset_data );
     // delete
-    delete data;
+    SAFE_DELETE(data);
     // set to NULL
     OBJ_MEMBER_UINT(SELF, genX_offset_data) = 0;
 }

@@ -1216,7 +1216,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "StkInstrument", "UGen", env->global(), 
-                        Instrmnt_ctor, Instrmnt_tick, Instrmnt_pmsg ) ) return FALSE;
+                        Instrmnt_ctor, NULL, Instrmnt_tick, Instrmnt_pmsg ) ) return FALSE;
     // member variable
     Instrmnt_offset_data = type_engine_import_mvar ( env, "int", "@Instrmnt_data", FALSE );
     if( Instrmnt_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1250,7 +1250,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "BandedWG", "StkInstrument", env->global(), 
-                        BandedWG_ctor, BandedWG_tick, BandedWG_pmsg ) ) return FALSE;
+                        BandedWG_ctor, BandedWG_dtor,
+                        BandedWG_tick, BandedWG_pmsg ) ) return FALSE;
     // member variable
     // BandedWG_offset_data = type_engine_import_mvar ( env, "int", "@BandedWG_data", FALSE );
     // if( BandedWG_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1325,7 +1326,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "BlowBotl", "StkInstrument", env->global(), 
-                        BlowBotl_ctor, BlowBotl_tick, BlowBotl_pmsg ) ) return FALSE;
+                        BlowBotl_ctor, BlowBotl_dtor,
+                        BlowBotl_tick, BlowBotl_pmsg ) ) return FALSE;
     // member variable
     // BlowBotl_offset_data = type_engine_import_mvar ( env, "int", "@BlowBotl_data", FALSE );
     // if( BlowBotl_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1383,7 +1385,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "BlowHole", "StkInstrument", env->global(), 
-                        BlowHole_ctor, BlowHole_tick, BlowHole_pmsg ) ) return FALSE;
+                        BlowHole_ctor, BlowHole_dtor,
+                        BlowHole_tick, BlowHole_pmsg ) ) return FALSE;
     // member variable
     // BlowHole_offset_data = type_engine_import_mvar ( env, "int", "@BlowHole_data", FALSE );
     // if( BlowHole_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1447,7 +1450,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Bowed", "StkInstrument", env->global(), 
-                        Bowed_ctor, Bowed_tick, Bowed_pmsg ) ) return FALSE;
+                        Bowed_ctor, Bowed_dtor,
+                        Bowed_tick, Bowed_pmsg ) ) return FALSE;
     // member variable
     // Bowed_offset_data = type_engine_import_mvar ( env, "int", "@Bowed_data", FALSE );
     // if( Bowed_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1504,7 +1508,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Brass", "StkInstrument", env->global(), 
-                        Brass_ctor, Brass_tick, Brass_pmsg ) ) return FALSE;
+                        Brass_ctor, Brass_dtor,
+                        Brass_tick, Brass_pmsg ) ) return FALSE;
     // member variable
     // Brass_offset_data = type_engine_import_mvar ( env, "int", "@Brass_data", FALSE );
     // if( Brass_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1572,7 +1577,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Clarinet", "StkInstrument", env->global(), 
-                        Clarinet_ctor, Clarinet_tick, Clarinet_pmsg ) ) return FALSE;
+                        Clarinet_ctor, Clarinet_dtor,
+                        Clarinet_tick, Clarinet_pmsg ) ) return FALSE;
     // member variable
     // Clarinet_offset_data = type_engine_import_mvar ( env, "int", "@Clarinet_data", FALSE );
     // if( Clarinet_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1640,7 +1646,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Flute", "StkInstrument", env->global(), 
-                        Flute_ctor, Flute_tick, Flute_pmsg ) ) return FALSE;
+                        Flute_ctor, Flute_dtor,
+                        Flute_tick, Flute_pmsg ) ) return FALSE;
     // member variable
     // Flute_offset_data = type_engine_import_mvar ( env, "int", "@Flute_data", FALSE );
     // if( Flute_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1723,7 +1730,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example mand-o-matic.ck
     if( !type_engine_import_ugen_begin( env, "Mandolin", "StkInstrument", env->global(), 
-                        Mandolin_ctor, Mandolin_tick, Mandolin_pmsg ) ) return FALSE;
+                        Mandolin_ctor, Mandolin_dtor,
+                        Mandolin_tick, Mandolin_pmsg ) ) return FALSE;
 
     // member variable
     // Mandolin_offset_data = type_engine_import_mvar ( env, "int", "@Mandolin_data", FALSE );
@@ -1782,7 +1790,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example modalbot.ck
     if( !type_engine_import_ugen_begin( env, "ModalBar", "StkInstrument", env->global(), 
-                        ModalBar_ctor, ModalBar_tick, ModalBar_pmsg ) ) return FALSE;
+                        ModalBar_ctor, ModalBar_dtor,
+                        ModalBar_tick, ModalBar_pmsg ) ) return FALSE;
     
     // member variable
     // ModalBar_offset_data = type_engine_import_mvar ( env, "int", "@ModalBar_data", FALSE );
@@ -1894,7 +1903,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example moogie.ck
     if( !type_engine_import_ugen_begin( env, "Moog", "StkInstrument", env->global(), 
-                        Moog_ctor, Moog_tick, Moog_pmsg ) ) return FALSE;
+                        Moog_ctor, Moog_dtor,
+                        Moog_tick, Moog_pmsg ) ) return FALSE;
     // member variable
     // Moog_offset_data = type_engine_import_mvar ( env, "int", "@Moog_data", FALSE );
     // if( Moog_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -1975,7 +1985,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Saxofony", "StkInstrument", env->global(), 
-                        Saxofony_ctor, Saxofony_tick, Saxofony_pmsg ) ) return FALSE;
+                        Saxofony_ctor, Saxofony_dtor,
+                        Saxofony_tick, Saxofony_pmsg ) ) return FALSE;
     // member variable
     // Saxofony_offset_data = type_engine_import_mvar ( env, "int", "@Saxofony_data", FALSE );
     // if( Saxofony_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2058,7 +2069,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example shake-o-matic.ck
     if( !type_engine_import_ugen_begin( env, "Shakers", "StkInstrument", env->global(), 
-                        Shakers_ctor, Shakers_tick, Shakers_pmsg ) ) return FALSE;
+                        Shakers_ctor, Shakers_dtor,
+                        Shakers_tick, Shakers_pmsg ) ) return FALSE;
     // member variable
     // Shakers_offset_data = type_engine_import_mvar ( env, "int", "@Shakers_data", FALSE );
     // if( Shakers_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2122,7 +2134,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Sitar", "StkInstrument", env->global(), 
-                        Sitar_ctor, Sitar_tick, Sitar_pmsg ) ) return FALSE;
+                        Sitar_ctor, Sitar_dtor,
+                        Sitar_tick, Sitar_pmsg ) ) return FALSE;
     // member variable
     // Sitar_offset_data = type_engine_import_mvar ( env, "int", "@Sitar_data", FALSE );
     // if( Sitar_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2145,7 +2158,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example stifkarp.ck
     if( !type_engine_import_ugen_begin( env, "StifKarp", "StkInstrument", env->global(), 
-                        StifKarp_ctor, StifKarp_tick, StifKarp_pmsg ) ) return FALSE;
+                        StifKarp_ctor, StifKarp_dtor,
+                        StifKarp_tick, StifKarp_pmsg ) ) return FALSE;
     // member variable
     // StifKarp_offset_data = type_engine_import_mvar ( env, "int", "@StifKarp_data", FALSE );
     // if( StifKarp_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2197,7 +2211,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example voic-o-form.ck
     if( !type_engine_import_ugen_begin( env, "VoicForm", "StkInstrument", env->global(), 
-                        VoicForm_ctor, VoicForm_tick, VoicForm_pmsg ) ) return FALSE;
+                        VoicForm_ctor, VoicForm_dtor,
+                        VoicForm_tick, VoicForm_pmsg ) ) return FALSE;
     // member variable
     // VoicForm_offset_data = type_engine_import_mvar ( env, "int", "@VoicForm_data", FALSE );
     // if( VoicForm_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2285,7 +2300,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "FM", "StkInstrument", env->global(), 
-                        FM_ctor, FM_tick, FM_pmsg ) ) return FALSE;
+                        FM_ctor, FM_dtor,
+                        FM_tick, FM_pmsg ) ) return FALSE;
 
     // member variable
     // all subclasses of FM must use this offset, as this is where the inherited 
@@ -2340,7 +2356,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "BeeThree", "FM", env->global(), 
-                        BeeThree_ctor, BeeThree_tick, BeeThree_pmsg ) ) return FALSE;
+                        BeeThree_ctor, BeeThree_dtor,
+                        BeeThree_tick, BeeThree_pmsg ) ) return FALSE;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2351,7 +2368,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "FMVoices", "FM", env->global(), 
-                        FMVoices_ctor, FMVoices_tick, FMVoices_pmsg ) ) return FALSE;
+                        FMVoices_ctor, FMVoices_dtor,
+                        FMVoices_tick, FMVoices_pmsg ) ) return FALSE;
 
     func = make_new_mfun( "float", "vowel", FMVoices_ctrl_vowel ); //!select vowel
     func->add_arg( "float", "value" );
@@ -2383,7 +2401,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "HevyMetl", "FM", env->global(), 
-                        HevyMetl_ctor, HevyMetl_tick, HevyMetl_pmsg ) ) return FALSE;
+                        HevyMetl_ctor, HevyMetl_dtor,
+                        HevyMetl_tick, HevyMetl_pmsg ) ) return FALSE;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2394,7 +2413,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "PercFlut", "FM", env->global(), 
-                        PercFlut_ctor, PercFlut_tick, PercFlut_pmsg ) ) return FALSE;
+                        PercFlut_ctor, PercFlut_dtor,
+                        PercFlut_tick, PercFlut_pmsg ) ) return FALSE;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2406,7 +2426,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \examples rhodey.ck
     if( !type_engine_import_ugen_begin( env, "Rhodey", "FM", env->global(), 
-                        Rhodey_ctor, Rhodey_tick, Rhodey_pmsg ) ) return FALSE;
+                        Rhodey_ctor, Rhodey_dtor,
+                        Rhodey_tick, Rhodey_pmsg ) ) return FALSE;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2417,7 +2438,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "TubeBell", "FM", env->global(), 
-                        TubeBell_ctor, TubeBell_tick, TubeBell_pmsg ) ) return FALSE;
+                        TubeBell_ctor, TubeBell_dtor,
+                        TubeBell_tick, TubeBell_pmsg ) ) return FALSE;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2429,7 +2451,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \examples wurley.ck
     if( !type_engine_import_ugen_begin( env, "Wurley", "FM", env->global(), 
-                        Wurley_ctor, Wurley_tick, Wurley_pmsg ) ) return FALSE; 
+                        Wurley_ctor, Wurley_dtor,
+                        Wurley_tick, Wurley_pmsg ) ) return FALSE; 
 
     // end the class import
     type_engine_import_class_end( env );
@@ -2444,7 +2467,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example net_relay.ck
     if( !type_engine_import_ugen_begin( env, "Delay", "UGen", env->global(), 
-                        Delay_ctor, Delay_tick, Delay_pmsg ) ) return FALSE;
+                        Delay_ctor, Delay_dtor,
+                        Delay_tick, Delay_pmsg ) ) return FALSE;
     //member variable
     Delay_offset_data = type_engine_import_mvar ( env, "int", "@Delay_data", FALSE );
     if( Delay_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2474,7 +2498,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "DelayA", "UGen", env->global(), 
-                        DelayA_ctor, DelayA_tick, DelayA_pmsg ) ) return FALSE;
+                        DelayA_ctor, DelayA_dtor,
+                        DelayA_tick, DelayA_pmsg ) ) return FALSE;
     //member variable
     DelayA_offset_data = type_engine_import_mvar ( env, "int", "@DelayA_data", FALSE );
     if( DelayA_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2503,7 +2528,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example i-robot.ck
     if( !type_engine_import_ugen_begin( env, "DelayL", "UGen", env->global(), 
-                        DelayL_ctor, DelayL_tick, DelayL_pmsg ) ) return FALSE;
+                        DelayL_ctor, DelayL_dtor,
+                        DelayL_tick, DelayL_pmsg ) ) return FALSE;
     //member variable
     DelayL_offset_data = type_engine_import_mvar ( env, "int", "@DelayL_data", FALSE );
     if( DelayL_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2531,7 +2557,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Echo", "UGen", env->global(), 
-                        Echo_ctor, Echo_tick, Echo_pmsg ) ) return FALSE;
+                        Echo_ctor, Echo_dtor,
+                        Echo_tick, Echo_pmsg ) ) return FALSE;
     //member variable
     Echo_offset_data = type_engine_import_mvar ( env, "int", "@Echo_data", FALSE );
     if( Echo_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2569,7 +2596,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example sixty.ck
     if( !type_engine_import_ugen_begin( env, "Envelope", "UGen", env->global(), 
-                        Envelope_ctor, Envelope_tick, Envelope_pmsg ) ) return FALSE;
+                        Envelope_ctor, Envelope_dtor,
+                        Envelope_tick, Envelope_pmsg ) ) return FALSE;
     //member variable
     Envelope_offset_data = type_engine_import_mvar ( env, "int", "@Envelope_data", FALSE );
     if( Envelope_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2634,7 +2662,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example adsr.ck
     if( !type_engine_import_ugen_begin( env, "ADSR", "Envelope", env->global(), 
-                                        ADSR_ctor, ADSR_tick, ADSR_pmsg ) ) return FALSE;
+                                        ADSR_ctor, ADSR_dtor,
+                                        ADSR_tick, ADSR_pmsg ) ) return FALSE;
 
     func = make_new_mfun( "dur", "attackTime", ADSR_ctrl_attackTime ); //! attack time
     func->add_arg( "dur", "value" );
@@ -2807,7 +2836,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "FilterStk", "UGen", env->global(), 
-                        FilterStk_ctor, FilterStk_tick, FilterStk_pmsg ) ) return FALSE;
+                        FilterStk_ctor, FilterStk_dtor,
+                        FilterStk_tick, FilterStk_pmsg ) ) return FALSE;
     // member variable
     FilterStk_offset_data = type_engine_import_mvar ( env, "int", "@FilterStk_data", FALSE );
     if( FilterStk_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2826,7 +2856,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "OnePole", "UGen", env->global(), 
-                        OnePole_ctor, OnePole_tick, OnePole_pmsg ) ) return FALSE; 
+                        OnePole_ctor, OnePole_dtor,
+                        OnePole_tick, OnePole_pmsg ) ) return FALSE; 
     // member variable
     OnePole_offset_data = type_engine_import_mvar ( env, "int", "@OnePole_data", FALSE );
     if( OnePole_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2863,7 +2894,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example powerup.ck
     if( !type_engine_import_ugen_begin( env, "TwoPole", "UGen", env->global(), 
-                        TwoPole_ctor, TwoPole_tick, TwoPole_pmsg ) ) return FALSE;
+                        TwoPole_ctor, TwoPole_dtor,
+                        TwoPole_tick, TwoPole_pmsg ) ) return FALSE;
     //member variable
     TwoPole_offset_data = type_engine_import_mvar ( env, "int", "@TwoPole_data", FALSE );
     if( TwoPole_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2919,7 +2951,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "OneZero", "UGen", env->global(), 
-                        OneZero_ctor, OneZero_tick, OneZero_pmsg ) ) return FALSE;
+                        OneZero_ctor, OneZero_dtor,
+                        OneZero_tick, OneZero_pmsg ) ) return FALSE;
     //member variable
     OneZero_offset_data = type_engine_import_mvar ( env, "int", "@OneZero_data", FALSE );
     if( OneZero_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -2954,7 +2987,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "TwoZero", "UGen", env->global(), 
-                        TwoZero_ctor, TwoZero_tick, TwoZero_pmsg ) ) return FALSE;
+                        TwoZero_ctor, TwoZero_dtor,
+                        TwoZero_tick, TwoZero_pmsg ) ) return FALSE;
     //member variable
     TwoZero_offset_data = type_engine_import_mvar ( env, "int", "@TwoZero_data", FALSE );
     if( TwoZero_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3003,7 +3037,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "PoleZero", "UGen", env->global(), 
-                        PoleZero_ctor, PoleZero_tick, PoleZero_pmsg ) ) return FALSE;
+                        PoleZero_ctor, PoleZero_dtor,
+                        PoleZero_tick, PoleZero_pmsg ) ) return FALSE;
     //member variable
     PoleZero_offset_data = type_engine_import_mvar ( env, "int", "@PoleZero_data", FALSE );
     if( PoleZero_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3056,7 +3091,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "JCRev", "UGen", env->global(), 
-                        JCRev_ctor, JCRev_tick, JCRev_pmsg ) ) return FALSE;
+                        JCRev_ctor, JCRev_dtor,
+                        JCRev_tick, JCRev_pmsg ) ) return FALSE;
     //member variable
     JCRev_offset_data = type_engine_import_mvar ( env, "int", "@JCRev_data", FALSE );
     if( JCRev_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3077,7 +3113,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "NRev", "UGen", env->global(), 
-                        NRev_ctor, NRev_tick, NRev_pmsg ) ) return FALSE;
+                        NRev_ctor, NRev_dtor,
+                        NRev_tick, NRev_pmsg ) ) return FALSE;
     //member variable
     NRev_offset_data = type_engine_import_mvar ( env, "int", "@NRev_data", FALSE );
     if( NRev_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3097,7 +3134,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "PRCRev", "UGen", env->global(), 
-                        PRCRev_ctor, PRCRev_tick, PRCRev_pmsg ) ) return FALSE;
+                        PRCRev_ctor, PRCRev_dtor,
+                        PRCRev_tick, PRCRev_pmsg ) ) return FALSE;
     //member variable
     PRCRev_offset_data = type_engine_import_mvar ( env, "int", "@PRCRev_data", FALSE );
     if( PRCRev_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3118,7 +3156,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Chorus", "UGen", env->global(), 
-                        Chorus_ctor, Chorus_tick, Chorus_pmsg ) ) return FALSE;
+                        Chorus_ctor, Chorus_dtor,
+                        Chorus_tick, Chorus_pmsg ) ) return FALSE;
     //member variable
     Chorus_offset_data = type_engine_import_mvar ( env, "int", "@Chorus_data", FALSE );
     if( Chorus_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3153,7 +3192,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Modulate", "UGen", env->global(), 
-                        Modulate_ctor, Modulate_tick, Modulate_pmsg ) ) return FALSE;
+                        Modulate_ctor, Modulate_dtor,
+                        Modulate_tick, Modulate_pmsg ) ) return FALSE;
     //member variable
     Modulate_offset_data = type_engine_import_mvar ( env, "int", "@Modulate_data", FALSE );
     if( Modulate_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3188,7 +3228,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "PitShift", "UGen", env->global(), 
-                        PitShift_ctor, PitShift_tick, PitShift_pmsg ) ) return FALSE;
+                        PitShift_ctor, PitShift_dtor,
+                        PitShift_tick, PitShift_pmsg ) ) return FALSE;
     //member variable
     PitShift_offset_data = type_engine_import_mvar ( env, "int", "@PitShift_data", FALSE );
     if( PitShift_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3223,7 +3264,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "SubNoise", "UGen", env->global(), 
-                        SubNoise_ctor, SubNoise_tick, SubNoise_pmsg ) ) return FALSE;
+                        SubNoise_ctor, SubNoise_dtor,
+                        SubNoise_tick, SubNoise_pmsg ) ) return FALSE;
     //member variable
     SubNoise_offset_data = type_engine_import_mvar ( env, "int", "@SubNoise_data", FALSE );
     if( SubNoise_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3245,7 +3287,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "WvIn", "UGen", env->global(), 
-                        WvIn_ctor, WvIn_tick, WvIn_pmsg ) ) return FALSE;
+                        WvIn_ctor, WvIn_dtor,
+                        WvIn_tick, WvIn_pmsg ) ) return FALSE;
     //member variable
     WvIn_offset_data = type_engine_import_mvar ( env, "int", "@WvIn_data", FALSE );
     if( WvIn_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3274,7 +3317,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
 
     //! see \example dope.ck
     if( !type_engine_import_ugen_begin( env, "WaveLoop", "WvIn", env->global(), 
-                        WaveLoop_ctor, WaveLoop_tick, WaveLoop_pmsg ) ) return FALSE;
+                        WaveLoop_ctor, WaveLoop_dtor,
+                        WaveLoop_tick, WaveLoop_pmsg ) ) return FALSE;
 
     func = make_new_mfun( "float", "freq", WaveLoop_ctrl_freq ); //! set frequency of playback ( loops / second )
     func->add_arg( "float", "value" );
@@ -3306,7 +3350,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
  
     if( !type_engine_import_ugen_begin( env, "WvOut", "UGen", env->global(), 
-                        WvOut_ctor, WvOut_tick, WvOut_pmsg ) ) return FALSE; 
+                        WvOut_ctor, WvOut_dtor,
+                        WvOut_tick, WvOut_pmsg ) ) return FALSE; 
     //member variable
     WvOut_offset_data = type_engine_import_mvar ( env, "int", "@WvOut_data", FALSE );
     if( WvOut_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -3363,7 +3408,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "BLT", "UGen", env->global(), 
-         BLT_ctor, BLT_tick, BLT_pmsg ) ) return FALSE;
+         BLT_ctor, BLT_dtor,
+         BLT_tick, BLT_pmsg ) ) return FALSE;
 
     // member variable
     // all subclasses of BLT must use this offset, as this is where the 
@@ -3403,7 +3449,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "Blit", "BLT", env->global(), 
-         Blit_ctor, Blit_tick, Blit_pmsg ) ) return FALSE; 
+         Blit_ctor, Blit_dtor, Blit_tick, Blit_pmsg ) ) return FALSE; 
 
     // end the class import
     type_engine_import_class_end( env );
@@ -3414,7 +3460,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "BlitSaw", "BLT", env->global(), 
-         BlitSaw_ctor, BlitSaw_tick, BlitSaw_pmsg ) ) return FALSE;
+         BlitSaw_ctor, BlitSaw_dtor, BlitSaw_tick, BlitSaw_pmsg ) ) return FALSE;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -3425,7 +3471,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "BlitSquare", "BLT", env->global(), 
-         BlitSquare_ctor, BlitSquare_tick, BlitSquare_pmsg ) ) return FALSE;
+         BlitSquare_ctor, BlitSquare_dtor,
+         BlitSquare_tick, BlitSquare_pmsg ) ) return FALSE;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -3436,7 +3483,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     //------------------------------------------------------------------------
 
     if( !type_engine_import_ugen_begin( env, "JetTabl", "UGen", env->global(), 
-         JetTabl_ctor, JetTabl_tick, JetTabl_pmsg ) ) return FALSE;
+         JetTabl_ctor, JetTabl_dtor, JetTabl_tick, JetTabl_pmsg ) ) return FALSE;
 
     // member variable
     JetTabl_offset_data = type_engine_import_mvar( env, "int", "@JetTabl_data", FALSE );
@@ -3448,7 +3495,8 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     
     // Mesh2D 
     if( !type_engine_import_ugen_begin( env, "Mesh2D", "UGen", env->global(), 
-                                         Mesh2D_ctor, Mesh2D_tick, Mesh2D_pmsg ) ) return FALSE;
+                                        Mesh2D_ctor, Mesh2D_dtor,
+                                        Mesh2D_tick, Mesh2D_pmsg ) ) return FALSE;
     //member variable
     Mesh2D_offset_data = type_engine_import_mvar ( env, "int", "@Mesh2D_data", FALSE );
     if( Mesh2D_offset_data == CK_INVALID_OFFSET ) goto error;
@@ -17488,6 +17536,7 @@ CK_DLL_CTOR( BandedWG_ctor )
 CK_DLL_DTOR( BandedWG_dtor )
 {
     delete (BandedWG *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -17743,6 +17792,7 @@ CK_DLL_CTOR( BiQuad_ctor )
 CK_DLL_DTOR( BiQuad_dtor )
 {
     delete (BiQuad_ *)OBJ_MEMBER_UINT(SELF, BiQuad_offset_data);
+    OBJ_MEMBER_UINT(SELF, BiQuad_offset_data) = 0;
 }
 
 
@@ -18033,6 +18083,7 @@ CK_DLL_CTOR( BlowBotl_ctor )
 CK_DLL_DTOR( BlowBotl_dtor )
 {
     delete (BlowBotl *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -18221,6 +18272,7 @@ CK_DLL_CTOR( BlowHole_ctor )
 CK_DLL_DTOR( BlowHole_dtor )
 {
     delete (BlowHole *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -18433,6 +18485,7 @@ CK_DLL_CTOR( Bowed_ctor )
 CK_DLL_DTOR( Bowed_dtor )
 {
     delete (Bowed *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -18645,6 +18698,7 @@ CK_DLL_CTOR( Chorus_ctor )
 CK_DLL_DTOR( Chorus_dtor )
 {
     delete (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data);
+    OBJ_MEMBER_UINT(SELF, Chorus_offset_data) = 0;
 }
 
 
@@ -18785,6 +18839,7 @@ CK_DLL_CTOR( Brass_ctor )
 CK_DLL_DTOR( Brass_dtor )
 {
     delete (Brass *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -19266,6 +19321,7 @@ CK_DLL_CTOR( Flute_ctor )
 CK_DLL_DTOR( Flute_dtor )
 {
     Flute * f = (Flute *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    SAFE_DELETE(f);
     OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
@@ -19550,6 +19606,7 @@ CK_DLL_CTOR( ModalBar_ctor )
 CK_DLL_DTOR( ModalBar_dtor )
 {
     delete (ModalBar_ *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -19946,6 +20003,7 @@ CK_DLL_CTOR( Sitar_ctor )
 CK_DLL_DTOR( Sitar_dtor )
 {
     Sitar * s = (Sitar *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    SAFE_DELETE(s);
     OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
@@ -20014,7 +20072,7 @@ CK_DLL_CTOR( Saxofony_ctor )
 CK_DLL_DTOR( Saxofony_dtor )
 {
     Saxofony * d = (Saxofony *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
-    delete d;
+    SAFE_DELETE(d);
     OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
@@ -20454,6 +20512,7 @@ CK_DLL_CTOR( Delay_ctor )
 CK_DLL_DTOR( Delay_dtor )
 {
     delete (Delay *)OBJ_MEMBER_UINT(SELF, Delay_offset_data);
+    OBJ_MEMBER_UINT(SELF, Delay_offset_data) = 0;
 }
 
 
@@ -20543,6 +20602,7 @@ CK_DLL_CTOR( DelayA_ctor )
 CK_DLL_DTOR( DelayA_dtor )
 {
     delete (DelayA *)OBJ_MEMBER_UINT(SELF, DelayA_offset_data);
+    OBJ_MEMBER_UINT(SELF, DelayA_offset_data) = 0;
 }
 
 
@@ -20632,6 +20692,7 @@ CK_DLL_CTOR( DelayL_ctor )
 CK_DLL_DTOR( DelayL_dtor )
 {
     delete (DelayL *)OBJ_MEMBER_UINT(SELF, DelayL_offset_data);
+    OBJ_MEMBER_UINT(SELF, DelayL_offset_data) = 0;
 }
 
 
@@ -20720,6 +20781,7 @@ CK_DLL_CTOR( Echo_ctor )
 CK_DLL_DTOR( Echo_dtor )
 {
     delete (Echo *)OBJ_MEMBER_UINT(SELF, Echo_offset_data);
+    OBJ_MEMBER_UINT(SELF, Echo_offset_data) = 0;
 }
 
 
@@ -20828,6 +20890,7 @@ CK_DLL_CTOR( Envelope_ctor )
 CK_DLL_DTOR( Envelope_dtor )
 {
     delete (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    OBJ_MEMBER_UINT(SELF, Envelope_offset_data) = 0;
 }
 
 
@@ -21057,6 +21120,7 @@ CK_DLL_CTOR( ADSR_ctor )
 CK_DLL_DTOR( ADSR_dtor )
 {
     delete (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
+    OBJ_MEMBER_UINT(SELF, Envelope_offset_data) = 0;
 }
 
 
@@ -21313,6 +21377,7 @@ CK_DLL_CTOR( FilterStk_ctor )
 CK_DLL_DTOR( FilterStk_dtor )
 {
     delete (FilterStk *)OBJ_MEMBER_UINT(SELF, FilterStk_offset_data);
+    OBJ_MEMBER_UINT(SELF, FilterStk_offset_data) = 0;
 }
 
 
@@ -21367,6 +21432,7 @@ CK_DLL_CTOR( OnePole_ctor  )
 CK_DLL_DTOR( OnePole_dtor  )
 { 
     delete (OnePole *)OBJ_MEMBER_UINT(SELF, OnePole_offset_data);
+    OBJ_MEMBER_UINT(SELF, OnePole_offset_data) = 0;
 }
 
 
@@ -21484,7 +21550,8 @@ CK_DLL_CTOR( TwoPole_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( TwoPole_dtor  )
 { 
-  delete (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data);
+    delete (TwoPole *)OBJ_MEMBER_UINT(SELF, TwoPole_offset_data);
+    OBJ_MEMBER_UINT(SELF, TwoPole_offset_data) = 0;
 }
 
 
@@ -21662,7 +21729,7 @@ CK_DLL_CGET( TwoPole_cget_norm )
 // name: OneZero_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTOR( OneZero_ctor  )
+CK_DLL_CTOR( OneZero_ctor )
 {
     // initialize member object
     OBJ_MEMBER_UINT(SELF, OneZero_offset_data) = (t_CKUINT) new OneZero();
@@ -21673,9 +21740,10 @@ CK_DLL_CTOR( OneZero_ctor  )
 // name: OneZero_dtor()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_DTOR( OneZero_dtor  )
+CK_DLL_DTOR( OneZero_dtor )
 { 
     delete (OneZero *)OBJ_MEMBER_UINT(SELF, OneZero_offset_data);
+    OBJ_MEMBER_UINT(SELF, OneZero_offset_data) = 0;
 }
 
 
@@ -21782,7 +21850,7 @@ CK_DLL_CGET( OneZero_cget_b1 )
 // name: TwoZero_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTOR( TwoZero_ctor  )
+CK_DLL_CTOR( TwoZero_ctor )
 {
     // initialize member object
     OBJ_MEMBER_UINT(SELF, TwoZero_offset_data) = (t_CKUINT)new TwoZero();
@@ -21793,9 +21861,10 @@ CK_DLL_CTOR( TwoZero_ctor  )
 // name: TwoZero_dtor()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_DTOR( TwoZero_dtor  )
+CK_DLL_DTOR( TwoZero_dtor )
 { 
     delete (TwoZero *)OBJ_MEMBER_UINT(SELF, TwoZero_offset_data);
+    OBJ_MEMBER_UINT(SELF, TwoZero_offset_data) = 0;
 }
 
 
@@ -21940,7 +22009,7 @@ CK_DLL_CGET( TwoZero_cget_radius )
 // name: PoleZero_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTOR( PoleZero_ctor  )
+CK_DLL_CTOR( PoleZero_ctor )
 {
     // initialize member object
     OBJ_MEMBER_UINT(SELF, PoleZero_offset_data) = (t_CKUINT) new PoleZero();
@@ -21951,9 +22020,10 @@ CK_DLL_CTOR( PoleZero_ctor  )
 // name: PoleZero_dtor()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_DTOR( PoleZero_dtor  )
-{ 
+CK_DLL_DTOR( PoleZero_dtor )
+{
     delete (PoleZero *)OBJ_MEMBER_UINT(SELF, PoleZero_offset_data);
+    OBJ_MEMBER_UINT(SELF, PoleZero_offset_data) = 0;
 }
 
 
@@ -22289,6 +22359,7 @@ CK_DLL_CTOR( BeeThree_ctor  )
 CK_DLL_DTOR( BeeThree_dtor  )
 { 
     delete (BeeThree *)OBJ_MEMBER_UINT(SELF, FM_offset_data);
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
 }
 
 
@@ -22334,6 +22405,7 @@ CK_DLL_CTOR( FMVoices_ctor  )
 CK_DLL_DTOR( FMVoices_dtor  )
 { 
     delete (FMVoices *)OBJ_MEMBER_UINT(SELF, FM_offset_data);
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
 }
 
 
@@ -22445,6 +22517,7 @@ CK_DLL_CTOR( HevyMetl_ctor  )
 CK_DLL_DTOR( HevyMetl_dtor  )
 { 
     delete (HevyMetl *)OBJ_MEMBER_UINT(SELF, FM_offset_data);
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
 }
 
 
@@ -22490,6 +22563,7 @@ CK_DLL_CTOR( PercFlut_ctor  )
 CK_DLL_DTOR( PercFlut_dtor  )
 { 
     delete (PercFlut *)OBJ_MEMBER_UINT(SELF, FM_offset_data);
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
 }
 
 
@@ -22535,6 +22609,7 @@ CK_DLL_CTOR( Rhodey_ctor  )
 CK_DLL_DTOR( Rhodey_dtor  )
 { 
     delete (Rhodey *)OBJ_MEMBER_UINT(SELF, FM_offset_data);
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
 }
 
 
@@ -22578,8 +22653,9 @@ CK_DLL_CTOR( TubeBell_ctor  )
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( TubeBell_dtor  )
-{ 
+{
     delete (TubeBell *)OBJ_MEMBER_UINT(SELF, FM_offset_data);
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
 }
 
 
@@ -22625,6 +22701,7 @@ CK_DLL_CTOR( Wurley_ctor  )
 CK_DLL_DTOR( Wurley_dtor  )
 { 
     delete (Wurley *)OBJ_MEMBER_UINT(SELF, FM_offset_data);
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = 0;
 }
 
 
@@ -22656,7 +22733,7 @@ CK_DLL_PMSG( Wurley_pmsg )
 // name: FormSwep_ctor()
 // desc: CTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_CTOR( FormSwep_ctor  )
+CK_DLL_CTOR( FormSwep_ctor )
 {
     // initialize member object
     OBJ_MEMBER_UINT(SELF, FormSwep_offset_data) = (t_CKUINT)new FormSwep();
@@ -22667,9 +22744,10 @@ CK_DLL_CTOR( FormSwep_ctor  )
 // name: FormSwep_dtor()
 // desc: DTOR function ...
 //-----------------------------------------------------------------------------
-CK_DLL_DTOR( FormSwep_dtor  )
+CK_DLL_DTOR( FormSwep_dtor )
 { 
     delete (FormSwep *)OBJ_MEMBER_UINT(SELF, FormSwep_offset_data);
+    OBJ_MEMBER_UINT(SELF, FormSwep_offset_data) = 0;
 }
 
 
@@ -22717,6 +22795,7 @@ CK_DLL_CTOR( JCRev_ctor )
 CK_DLL_DTOR( JCRev_dtor )
 {
     delete (JCRev *)OBJ_MEMBER_UINT(SELF, JCRev_offset_data);
+    OBJ_MEMBER_UINT(SELF, JCRev_offset_data) = 0;
 }
 
 
@@ -22783,7 +22862,8 @@ CK_DLL_CTOR( Mandolin_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Mandolin_dtor  )
 { 
-  delete (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    delete (Mandolin *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -22975,6 +23055,7 @@ CK_DLL_CTOR( Modulate_ctor )
 CK_DLL_DTOR( Modulate_dtor )
 {
     delete (Modulate *)OBJ_MEMBER_UINT(SELF, Modulate_offset_data);
+    OBJ_MEMBER_UINT(SELF, Modulate_offset_data) = 0;
 }
 
 
@@ -23090,7 +23171,8 @@ CK_DLL_CTOR( Moog_ctor  )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( Moog_dtor  )
 { 
-  delete (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    delete (Moog *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -23317,6 +23399,7 @@ CK_DLL_CTOR( NRev_ctor )
 CK_DLL_DTOR( NRev_dtor )
 {
     delete (NRev *)OBJ_MEMBER_UINT(SELF, NRev_offset_data);
+    OBJ_MEMBER_UINT(SELF, NRev_offset_data) = 0;
 }
 
 
@@ -23386,6 +23469,7 @@ CK_DLL_CTOR( PitShift_ctor )
 CK_DLL_DTOR( PitShift_dtor )
 {
     delete (PitShift *)OBJ_MEMBER_UINT(SELF, PitShift_offset_data);
+    OBJ_MEMBER_UINT(SELF, PitShift_offset_data) = 0;
 }
 
 
@@ -23479,6 +23563,7 @@ CK_DLL_CTOR( PRCRev_ctor )
 CK_DLL_DTOR( PRCRev_dtor )
 {
     delete (PRCRev *)OBJ_MEMBER_UINT(SELF, PRCRev_offset_data);
+    OBJ_MEMBER_UINT(SELF, PRCRev_offset_data) = 0;
 }
 
 
@@ -23545,6 +23630,7 @@ CK_DLL_CTOR( Shakers_ctor )
 CK_DLL_DTOR( Shakers_dtor )
 {
     delete (Shakers *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -23737,6 +23823,7 @@ CK_DLL_CTOR( SubNoise_ctor )
 CK_DLL_DTOR( SubNoise_dtor )
 {
     delete (SubNoise *)OBJ_MEMBER_UINT(SELF, SubNoise_offset_data);
+    OBJ_MEMBER_UINT(SELF, SubNoise_offset_data) = 0;
 }
 
 
@@ -23806,6 +23893,7 @@ CK_DLL_CTOR( VoicForm_ctor )
 CK_DLL_DTOR( VoicForm_dtor )
 { 
     delete (VoicForm *)OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data);
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = 0;
 }
 
 
@@ -24090,6 +24178,7 @@ CK_DLL_CTOR( WvIn_ctor )
 CK_DLL_DTOR( WvIn_dtor )
 {
     delete (WvIn *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data);
+    OBJ_MEMBER_UINT(SELF, WvIn_offset_data) = 0;
 }
 
 
@@ -24188,6 +24277,7 @@ CK_DLL_CTOR( WaveLoop_ctor )
 CK_DLL_DTOR( WaveLoop_dtor )
 {
     delete (WaveLoop *)OBJ_MEMBER_UINT(SELF, WvIn_offset_data);
+    OBJ_MEMBER_UINT(SELF, WvIn_offset_data) = 0;
 }
 
 
@@ -24312,6 +24402,7 @@ CK_DLL_DTOR( WvOut_dtor )
     iter = g_wv.find( w );
     g_wv.erase( iter );
     delete (WvOut *)OBJ_MEMBER_UINT(SELF, WvOut_offset_data);
+    OBJ_MEMBER_UINT(SELF, WvOut_offset_data) = 0;
 }
 
 
@@ -24631,6 +24722,7 @@ CK_DLL_CTOR( Blit_ctor )
 CK_DLL_DTOR( Blit_dtor )
 {
     delete (Blit *)OBJ_MEMBER_UINT(SELF, BLT_offset_data);
+    OBJ_MEMBER_UINT(SELF, BLT_offset_data) = 0;
 }
 
 CK_DLL_TICK( Blit_tick )
@@ -24658,6 +24750,7 @@ CK_DLL_CTOR( BlitSaw_ctor )
 CK_DLL_DTOR( BlitSaw_dtor )
 {
     delete (BlitSaw *)OBJ_MEMBER_UINT(SELF, BLT_offset_data);
+    OBJ_MEMBER_UINT(SELF, BLT_offset_data) = 0;
 }
 
 CK_DLL_TICK( BlitSaw_tick )
@@ -24685,6 +24778,7 @@ CK_DLL_CTOR( BlitSquare_ctor )
 CK_DLL_DTOR( BlitSquare_dtor )
 {
     delete (BlitSquare *)OBJ_MEMBER_UINT(SELF, BLT_offset_data);
+    OBJ_MEMBER_UINT(SELF, BLT_offset_data) = 0;
 }
 
 CK_DLL_TICK( BlitSquare_tick )
@@ -24714,7 +24808,7 @@ CK_DLL_CTOR( JetTabl_ctor )
 CK_DLL_DTOR( JetTabl_dtor )
 {
     JetTabl * j = (JetTabl *)OBJ_MEMBER_UINT(SELF, JetTabl_offset_data);
-    delete j;
+    SAFE_DELETE(j);
     OBJ_MEMBER_UINT(SELF, JetTabl_offset_data) = 0;
 }
 
@@ -24744,7 +24838,8 @@ CK_DLL_CTOR( Mesh2D_ctor ) {
 
 CK_DLL_DTOR( Mesh2D_dtor ) { 
     Mesh2D * m = (Mesh2D *)OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data);
-    delete m;
+    SAFE_DELETE(m);
+    OBJ_MEMBER_UINT(SELF, Mesh2D_offset_data) = 0;
 }
 
 

@@ -73,7 +73,8 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // init as base class: FilterBasic
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "FilterBasic", "UGen", env->global(), 
-                                        FilterBasic_ctor, FilterBasic_tick, FilterBasic_pmsg ) )
+                                        FilterBasic_ctor, FilterBasic_dtor,
+                                        FilterBasic_tick, FilterBasic_pmsg ) )
         return FALSE;
 
     // member variable
@@ -146,7 +147,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // init class: BPF
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "BPF", "FilterBasic", env->global(),
-                                        BPF_ctor, BPF_tick, BPF_pmsg ) )
+                                        BPF_ctor, NULL, BPF_tick, BPF_pmsg ) )
         return FALSE;
 
     // freq
@@ -177,7 +178,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // init class: BRF
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "BRF", "FilterBasic", env->global(),
-                                        BRF_ctor, BRF_tick, BRF_pmsg ) )
+                                        BRF_ctor, NULL, BRF_tick, BRF_pmsg ) )
         return FALSE;
 
     // freq
@@ -208,7 +209,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // init class: RLPF
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "LPF", "FilterBasic", env->global(),
-                                        RLPF_ctor, RLPF_tick, RLPF_pmsg ) )
+                                        RLPF_ctor, NULL, RLPF_tick, RLPF_pmsg ) )
         return FALSE;
 
     // freq
@@ -239,7 +240,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // init class: RHPF
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "HPF", "FilterBasic", env->global(),
-                                        RHPF_ctor, RHPF_tick, RHPF_pmsg ) )
+                                        RHPF_ctor, NULL, RHPF_tick, RHPF_pmsg ) )
         return FALSE;
 
     // freq
@@ -270,7 +271,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // init class: ResonZ
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "ResonZ", "FilterBasic", env->global(),
-                                        ResonZ_ctor, ResonZ_tick, ResonZ_pmsg ) )
+                                        ResonZ_ctor, NULL, ResonZ_tick, ResonZ_pmsg ) )
         return FALSE;
 
     // freq
@@ -301,7 +302,7 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
     // init as base class: BiQuad
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "BiQuad", "UGen", env->global(), 
-                                        biquad_ctor, biquad_tick, NULL ) )
+                                        biquad_ctor, biquad_dtor, biquad_tick, NULL ) )
         return FALSE;
 
     // member variable
@@ -1712,6 +1713,17 @@ CK_DLL_CTOR( biquad_ctor )
 {    
     biquad_data* d = new biquad_data;
     OBJ_MEMBER_UINT( SELF, biquad_offset_data ) = ( t_CKUINT ) d;
+}
+
+//-----------------------------------------------------------------------------
+// name: biquad_dtor()
+// desc: DTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_DTOR( biquad_dtor )
+{    
+    biquad_data * d = (biquad_data *)OBJ_MEMBER_UINT(SELF, biquad_offset_data );
+    SAFE_DELETE( d );
+    OBJ_MEMBER_UINT(SELF, biquad_offset_data) = 0;
 }
 
 //-----------------------------------------------------------------------------

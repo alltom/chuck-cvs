@@ -242,16 +242,22 @@ struct Chuck_Namespace : public Chuck_VM_Object
     std::string name;
     // top-level code
     Chuck_VM_Code * pre_ctor;
+    // destructor
+    Chuck_VM_Code * dtor;
     // type that contains this
     Chuck_Namespace * parent;
     // address offset
     t_CKUINT offset;
 
     // constructor
-    Chuck_Namespace() { pre_ctor = NULL; parent = NULL; offset = 0; 
+    Chuck_Namespace() { pre_ctor = NULL; dtor = NULL; parent = NULL; offset = 0; 
                         class_data = NULL; class_data_size = 0; }
     // destructor
-    virtual ~Chuck_Namespace() { /* TODO: SAFE_RELEASE( this->parent ); */ }
+    virtual ~Chuck_Namespace() {
+        /* TODO: SAFE_RELEASE( this->parent ); */
+        /* TODO: SAFE_DELETE( pre_ctor ); */
+        /* TODO: SAFE_DELETE( dtor ); */
+    }
 
     // look up type
     Chuck_Type * lookup_type( const std::string & name, t_CKINT climb = 1 );
@@ -500,6 +506,8 @@ struct Chuck_Type : public Chuck_VM_Object
     t_CKBOOL is_complete;
     // has pre constructor
     t_CKBOOL has_constructor;
+    // has destructor
+    t_CKBOOL has_destructor;
 
 public:
     // constructor
@@ -510,6 +518,7 @@ public:
         array_type = NULL; array_depth = 0; obj_size = 0;
         info = NULL; func = NULL; def = NULL; is_copy = FALSE; 
         ugen_info = NULL; is_complete = TRUE; has_constructor = FALSE;
+        has_destructor = FALSE;
     }
 
     // destructor
@@ -722,11 +731,11 @@ t_CKBOOL isfunc( Chuck_Type * type );
 
 // import
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, Chuck_Type * type, 
-                                             Chuck_Namespace * where, f_ctor pre_ctor );
+                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor );
 Chuck_Type * type_engine_import_class_begin( Chuck_Env * env, const char * name, const char * parent,
-                                             Chuck_Namespace * where, f_ctor pre_ctor );
+                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor );
 Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, const char * parent,
-                                            Chuck_Namespace * where, f_ctor pre_ctor,
+                                            Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor,
                                             f_tick tick, f_pmsg pmsg,
                                             t_CKUINT num_ins = 0xffffffff, t_CKUINT num_outs = 0xffffffff );
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun );

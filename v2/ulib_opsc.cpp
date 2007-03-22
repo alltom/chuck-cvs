@@ -51,7 +51,8 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
 
     // init base class
     if( !type_engine_import_class_begin( env, "OscSend", "Object",
-                                         env->global(), osc_send_ctor ) )
+                                         env->global(), osc_send_ctor,
+                                         osc_send_dtor ) )
         return FALSE;
 
     // add member variable  - OSCTransmitter object
@@ -102,7 +103,8 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
 
     // init base class
     if( !type_engine_import_class_begin( env, "OscEvent", "Event",
-                                         env->global(), osc_address_ctor ) )
+                                         env->global(), osc_address_ctor,
+                                         osc_address_dtor ) )
         return FALSE;
 
     // add member variable  - OSCAddress object
@@ -140,7 +142,8 @@ DLL_QUERY opensoundcontrol_query ( Chuck_DL_Query * query ) {
 
     // init base class
     if( !type_engine_import_class_begin( env, "OscRecv", "Object",
-                                         env->global(), osc_recv_ctor ) )
+                                         env->global(), osc_recv_ctor,
+                                         osc_recv_dtor ) )
         return FALSE;
 
     // add member variable  - OSCReceiver object
@@ -213,7 +216,8 @@ CK_DLL_CTOR( osc_send_ctor ) {
 //-----------------------------------------------
 CK_DLL_DTOR( osc_send_dtor ) { 
     OSC_Transmitter* xmit = (OSC_Transmitter *)OBJ_MEMBER_INT(SELF, osc_send_offset_data);
-    delete xmit;
+    SAFE_DELETE(xmit);
+    OBJ_MEMBER_UINT(SELF, osc_send_offset_data) = 0;
 }
 
 //----------------------------------------------
@@ -322,7 +326,12 @@ CK_DLL_CTOR( osc_address_ctor ) {
     addr->SELF = SELF;
 //    fprintf(stderr,"address:ptr %x\n", (uint)addr);
 //    fprintf(stderr,"self:ptr %x\n", (uint)SELF);
-    OBJ_MEMBER_INT( SELF, osc_address_offset_data ) = (t_CKINT)addr;
+    OBJ_MEMBER_INT(SELF, osc_address_offset_data) = (t_CKINT)addr;
+}
+
+CK_DLL_DTOR( osc_address_dtor ) {
+    delete (OSC_Address_Space *)OBJ_MEMBER_UINT(SELF, osc_address_offset_data);
+    OBJ_MEMBER_UINT(SELF, osc_address_offset_data) = 0;
 }
 
 CK_DLL_MFUN( osc_address_set ) { 
@@ -406,7 +415,8 @@ CK_DLL_CTOR( osc_recv_ctor ) {
 //-----------------------------------------------
 CK_DLL_DTOR( osc_recv_dtor ) { 
     OSC_Receiver * recv = (OSC_Receiver *)OBJ_MEMBER_INT(SELF, osc_recv_offset_data);
-    delete recv;
+    SAFE_DELETE(recv);
+    OBJ_MEMBER_INT(SELF, osc_recv_offset_data) = 0;
 }
 
 //----------------------------------------------

@@ -131,7 +131,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: UGen_Stereo
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "UGen_Stereo", "UGen_Multi", env->global(), 
-                                        stereo_ctor, NULL, NULL, 2, 2 ) )
+                                        stereo_ctor, NULL, NULL, NULL, 2, 2 ) )
         return FALSE;
 
     // add left
@@ -164,7 +164,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: dac
     //---------------------------------------------------------------------
     if( !(g_t_dac = type_engine_import_ugen_begin( env, "DAC", "UGen_Stereo", env->global(), 
-                                                   NULL, NULL, NULL, 2, 2 )) )
+                                                   NULL, NULL, NULL, NULL, 2, 2 )) )
         return FALSE;
 
     // end import
@@ -178,7 +178,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: adc
     //---------------------------------------------------------------------
     if( !(g_t_adc = type_engine_import_ugen_begin( env, "ADC", "UGen_Stereo", env->global(), 
-                                                   NULL, NULL, NULL, 0, 2 )) )
+                                                   NULL, NULL, NULL, NULL, 0, 2 )) )
         return FALSE;
 
     // end import
@@ -189,7 +189,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: pan2
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Pan2", "UGen_Stereo", env->global(), 
-                                        NULL, NULL, NULL, 2, 2 ) )
+                                        NULL, NULL, NULL, NULL, 2, 2 ) )
         return FALSE;
     
     // end import
@@ -200,7 +200,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: mix2
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Mix2", "UGen_Stereo", env->global(), 
-                                        NULL, NULL, NULL, 2, 2 ) )
+                                        NULL, NULL, NULL, NULL, 2, 2 ) )
         return FALSE;
     
     // end import
@@ -231,7 +231,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: gain
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Gain", "UGen", env->global(), 
-                                        NULL, NULL, NULL ) )
+                                        NULL, NULL, NULL, NULL ) )
         return FALSE;
     // end import
     if( !type_engine_import_class_end( env ) )
@@ -252,7 +252,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: noise
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Noise", "UGen", env->global(), 
-                                        NULL, noise_tick, NULL ) )
+                                        NULL, NULL, noise_tick, NULL ) )
         return FALSE;
 
     // end import
@@ -270,7 +270,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: cnoise
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "CNoise", "UGen", env->global(), 
-                                        cnoise_ctor, cnoise_tick, NULL ) )
+                                        cnoise_ctor, cnoise_dtor, cnoise_tick, NULL ) )
         return FALSE;
 
     // add member variable
@@ -319,7 +319,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: impulse
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Impulse", "UGen", env->global(), 
-                                        impulse_ctor, impulse_tick, NULL ) )
+                                        impulse_ctor, impulse_dtor, impulse_tick, NULL ) )
         return FALSE;
 
     // add ctrl: value
@@ -370,7 +370,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: step
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Step", "UGen", env->global(), 
-                                        step_ctor, step_tick, NULL ) )
+                                        step_ctor, step_dtor, step_tick, NULL ) )
         return FALSE;
 
     // add ctrl: value
@@ -407,7 +407,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: halfrect
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "HalfRect", "UGen", env->global(), 
-                                        NULL, halfrect_tick, NULL ) )
+                                        NULL, NULL, halfrect_tick, NULL ) )
         return FALSE;
 
     // end import
@@ -424,7 +424,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: fullrect
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "FullRect", "UGen", env->global(), 
-                                        NULL, fullrect_tick, NULL ) )
+                                        NULL, NULL, fullrect_tick, NULL ) )
         return FALSE;
 
     // end import
@@ -443,7 +443,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: zerox
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "ZeroX", "UGen", env->global(), 
-                                        zerox_ctor, zerox_tick, NULL ) )
+                                        zerox_ctor, zerox_dtor, zerox_tick, NULL ) )
         return FALSE;
 
     // add member variable
@@ -472,7 +472,8 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: delayp
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "DelayP", "UGen", env->global(), 
-                                        delayp_ctor, delayp_tick, delayp_pmsg ) )
+                                        delayp_ctor, delayp_dtor, 
+                                        delayp_tick, delayp_pmsg ) )
         return FALSE;
 
     // add member variable
@@ -536,7 +537,8 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: sndbuf
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "SndBuf", "UGen", env->global(), 
-                                        sndbuf_ctor, sndbuf_tick, NULL ) )
+                                        sndbuf_ctor, sndbuf_dtor,
+                                        sndbuf_tick, NULL ) )
         return FALSE;
 
     // add member variable
@@ -664,7 +666,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     // init as base class: Dyno
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "Dyno", "UGen", env->global(), 
-                                        dyno_ctor, dyno_tick, NULL ) )
+                                        dyno_ctor, dyno_dtor, dyno_tick, NULL ) )
         return FALSE;
 
     // add member variable
@@ -800,7 +802,8 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     // author: Dan Trueman (dan /at/ music.princeton.edu)
     //---------------------------------------------------------------------
     if( !type_engine_import_ugen_begin( env, "LiSa", "UGen", env->global(),
-                                        LiSaMulti_ctor, LiSaMulti_tick, LiSaMulti_pmsg ) )
+                                        LiSaMulti_ctor, LiSaMulti_dtor,
+                                        LiSaMulti_tick, LiSaMulti_pmsg ) )
         return FALSE;
         
     // set buffer size
@@ -1035,15 +1038,15 @@ CK_DLL_CTOR( stereo_ctor )
     if( ugen->m_multi_chan_size )
     {
         // set left
-        OBJ_MEMBER_UINT( SELF, stereo_offset_left ) = (t_CKUINT)(ugen->m_multi_chan[0]);
+        OBJ_MEMBER_UINT(SELF, stereo_offset_left) = (t_CKUINT)(ugen->m_multi_chan[0]);
         // set right
-        OBJ_MEMBER_UINT( SELF, stereo_offset_right ) = (t_CKUINT)(ugen->m_multi_chan[1]);
+        OBJ_MEMBER_UINT(SELF, stereo_offset_right) = (t_CKUINT)(ugen->m_multi_chan[1]);
     }
     else // mono
     {
         // set left and right to self
-        OBJ_MEMBER_UINT( SELF, stereo_offset_left ) = (t_CKUINT)ugen;
-        OBJ_MEMBER_UINT( SELF, stereo_offset_right ) = (t_CKUINT)ugen;
+        OBJ_MEMBER_UINT(SELF, stereo_offset_left) = (t_CKUINT)ugen;
+        OBJ_MEMBER_UINT(SELF, stereo_offset_right) = (t_CKUINT)ugen;
     }
 }
 
@@ -1065,7 +1068,7 @@ CK_DLL_CTRL( stereo_ctrl_pan )
     if( pan < -1.0 ) pan = -1.0;
     else if( pan > 1.0 ) pan = 1.0;
     // set it
-    OBJ_MEMBER_FLOAT( SELF, stereo_offset_pan ) = pan;
+    OBJ_MEMBER_FLOAT(SELF, stereo_offset_pan) = pan;
     // pan it
     left->m_pan = pan < 0.0 ? 1.0 : 1.0 - pan;
     right->m_pan = pan > 0.0 ? 1.0 : 1.0 + pan;
@@ -1082,7 +1085,7 @@ CK_DLL_CTRL( stereo_ctrl_pan )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( stereo_cget_pan )
 {
-    RETURN->v_float = OBJ_MEMBER_FLOAT( SELF, stereo_offset_pan );
+    RETURN->v_float = OBJ_MEMBER_FLOAT(SELF, stereo_offset_pan);
 }
 
 
@@ -1178,17 +1181,18 @@ public:
 
 CK_DLL_CTOR( cnoise_ctor )
 {
-    OBJ_MEMBER_UINT( SELF, cnoise_offset_data ) = (t_CKUINT)new CNoise_Data;
+    OBJ_MEMBER_UINT(SELF, cnoise_offset_data) = (t_CKUINT)new CNoise_Data;
 }
 
 CK_DLL_DTOR( cnoise_dtor )
 {
-    delete (CNoise_Data *)OBJ_MEMBER_UINT( SELF, cnoise_offset_data );
+    delete (CNoise_Data *)OBJ_MEMBER_UINT(SELF, cnoise_offset_data);
+    OBJ_MEMBER_UINT(SELF, cnoise_offset_data) = 0;
 }
 
 CK_DLL_TICK( cnoise_tick )
 {
-  CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT( SELF, cnoise_offset_data );
+  CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT(SELF, cnoise_offset_data);
   switch( d->mode ) { 
   case NOISE_WHITE: 
     return noise_tick(SELF,in,out,SHRED);
@@ -1322,14 +1326,14 @@ CNoise_Data::setMode( char * c ) {
 
 CK_DLL_CTRL( cnoise_ctrl_mode )
 {
-    CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT( SELF, cnoise_offset_data );
+    CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT(SELF, cnoise_offset_data);
     char * mode= *(char **)GET_CK_STRING(ARGS);
     d->setMode(mode);
 }
 
 CK_DLL_CTRL( cnoise_ctrl_fprob )
 {
-    CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT( SELF, cnoise_offset_data );
+    CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT(SELF, cnoise_offset_data);
     t_CKFLOAT p= GET_CK_FLOAT(ARGS);
     d->fprob = (t_CKINT) ( (double)RAND_MAX * p );
 }
@@ -1355,7 +1359,7 @@ struct Pulse_Data
 CK_DLL_CTOR( impulse_ctor )
 {
     // return data to be used later
-    OBJ_MEMBER_UINT( SELF, impulse_offset_data ) = (t_CKUINT)new Pulse_Data;
+    OBJ_MEMBER_UINT(SELF, impulse_offset_data) = (t_CKUINT)new Pulse_Data;
 }
 
 
@@ -1368,7 +1372,8 @@ CK_DLL_CTOR( impulse_ctor )
 CK_DLL_DTOR( impulse_dtor )
 {
     // delete
-    delete (Pulse_Data *)OBJ_MEMBER_UINT( SELF, impulse_offset_data );
+    delete (Pulse_Data *)OBJ_MEMBER_UINT(SELF, impulse_offset_data);
+    OBJ_MEMBER_UINT(SELF, impulse_offset_data) = 0;
 }
 
 
@@ -1380,7 +1385,7 @@ CK_DLL_DTOR( impulse_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( impulse_tick )
 {
-    Pulse_Data * d = (Pulse_Data *)OBJ_MEMBER_UINT( SELF, impulse_offset_data );
+    Pulse_Data * d = (Pulse_Data *)OBJ_MEMBER_UINT(SELF, impulse_offset_data);
     if( d->when )
     {
         *out = d->value;
@@ -1400,7 +1405,7 @@ CK_DLL_TICK( impulse_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( impulse_ctrl_next )
 {
-    Pulse_Data * d = (Pulse_Data *)OBJ_MEMBER_UINT( SELF, impulse_offset_data );
+    Pulse_Data * d = (Pulse_Data *)OBJ_MEMBER_UINT(SELF, impulse_offset_data);
     d->value = (SAMPLE)GET_CK_FLOAT(ARGS);
     d->when = 1;
     RETURN->v_float = (t_CKFLOAT)d->value;
@@ -1415,7 +1420,7 @@ CK_DLL_CTRL( impulse_ctrl_next )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( impulse_cget_next )
 {
-    Pulse_Data * d = (Pulse_Data *)OBJ_MEMBER_UINT( SELF, impulse_offset_data );
+    Pulse_Data * d = (Pulse_Data *)OBJ_MEMBER_UINT(SELF, impulse_offset_data);
     RETURN->v_float = (t_CKFLOAT)d->value;
 }
 
@@ -1429,7 +1434,7 @@ CK_DLL_CGET( impulse_cget_next )
 CK_DLL_CTOR( step_ctor )
 {
     // return data to be used later
-    OBJ_MEMBER_UINT( SELF, step_offset_data ) = (t_CKUINT)new SAMPLE( 1.0f );
+    OBJ_MEMBER_UINT(SELF, step_offset_data) = (t_CKUINT)new SAMPLE( 1.0f );
 }
 
 
@@ -1442,7 +1447,8 @@ CK_DLL_CTOR( step_ctor )
 CK_DLL_DTOR( step_dtor )
 {
     // delete
-    delete (SAMPLE *)OBJ_MEMBER_UINT( SELF, step_offset_data );
+    delete (SAMPLE *)OBJ_MEMBER_UINT(SELF, step_offset_data);
+    OBJ_MEMBER_UINT(SELF, step_offset_data) = 0;
 }
 
 
@@ -1452,7 +1458,7 @@ CK_DLL_DTOR( step_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( step_tick )
 {
-    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT( SELF, step_offset_data );
+    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT(SELF, step_offset_data);
     *out = *d;
     
     return TRUE;
@@ -1465,7 +1471,7 @@ CK_DLL_TICK( step_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( step_ctrl_next )
 {
-    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT( SELF, step_offset_data );
+    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT(SELF, step_offset_data);
     *d = (SAMPLE)GET_CK_FLOAT(ARGS);
     RETURN->v_float = (t_CKFLOAT)(*d);
 }
@@ -1477,7 +1483,7 @@ CK_DLL_CTRL( step_ctrl_next )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( step_cget_next )
 {
-    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT( SELF, step_offset_data );
+    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT(SELF, step_offset_data);
     RETURN->v_float = (t_CKFLOAT)(*d);
 }
 
@@ -1516,7 +1522,7 @@ CK_DLL_TICK( fullrect_tick )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( zerox_ctor )
 {
-    OBJ_MEMBER_UINT( SELF, zerox_offset_data ) = (t_CKUINT)new SAMPLE( 0.0f );
+    OBJ_MEMBER_UINT(SELF, zerox_offset_data) = (t_CKUINT)new SAMPLE( 0.0f );
 }
 
 
@@ -1526,7 +1532,8 @@ CK_DLL_CTOR( zerox_ctor )
 //-----------------------------------------------------------------------------
 CK_DLL_DTOR( zerox_dtor )
 {
-    delete (SAMPLE *)OBJ_MEMBER_UINT( SELF, zerox_offset_data );
+    delete (SAMPLE *)OBJ_MEMBER_UINT(SELF, zerox_offset_data);
+    OBJ_MEMBER_UINT(SELF, zerox_offset_data) = 0;
 }
 
 
@@ -1537,7 +1544,7 @@ CK_DLL_DTOR( zerox_dtor )
 //-----------------------------------------------------------------------------
 CK_DLL_TICK( zerox_tick )
 {
-    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT( SELF, zerox_offset_data );
+    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT(SELF, zerox_offset_data);
     *out = __SGN(in) != __SGN(*d);
     *out *= __SGN(in);
     *d = in;
@@ -1610,18 +1617,23 @@ struct delayp_data
 #endif
         last_sample = 0;
     }
+
+    ~delayp_data()
+    {
+        SAFE_DELETE_ARRAY( buffer );
+    }
 };
 
 CK_DLL_CTOR( delayp_ctor )
 {
-    OBJ_MEMBER_UINT( SELF, delayp_offset_data ) = (t_CKUINT)new delayp_data;    
+    OBJ_MEMBER_UINT(SELF, delayp_offset_data) = (t_CKUINT)new delayp_data;    
 }
 
 CK_DLL_DTOR( delayp_dtor )
 {
-    delayp_data * d = (delayp_data *)OBJ_MEMBER_UINT( SELF, delayp_offset_data );
-    if( d->buffer ) delete [] d->buffer;
-    delete d;
+    delayp_data * d = (delayp_data *)OBJ_MEMBER_UINT(SELF, delayp_offset_data);
+    SAFE_DELETE(d);
+    OBJ_MEMBER_UINT(SELF, delayp_offset_data) = 0;
 }
 
 CK_DLL_PMSG( delayp_pmsg )
@@ -1629,10 +1641,9 @@ CK_DLL_PMSG( delayp_pmsg )
     return TRUE;
 }
 
-
 CK_DLL_TICK( delayp_tick )
 {
-    delayp_data * d = (delayp_data *)OBJ_MEMBER_UINT( SELF, delayp_offset_data );
+    delayp_data * d = (delayp_data *)OBJ_MEMBER_UINT(SELF, delayp_offset_data);
     if ( !d->buffer ) return FALSE;
 
     // area
@@ -1737,7 +1748,7 @@ CK_DLL_TICK( delayp_tick )
 
 CK_DLL_CTRL( delayp_ctrl_delay )
 {
-    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
+    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT(SELF, delayp_offset_data);
     t_CKDUR target = GET_CK_DUR(ARGS); // rate     
     // area
 
@@ -1757,14 +1768,14 @@ CK_DLL_CTRL( delayp_ctrl_delay )
 
 CK_DLL_CGET( delayp_cget_delay )
 {
-    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
+    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT(SELF, delayp_offset_data);
     //SET_NEXT_DUR( out, d->writeoff_last );
     RETURN->v_dur = d->last_offset; // TODO:
 }
 
 CK_DLL_CTRL( delayp_ctrl_window )
 {
-    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
+    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT(SELF, delayp_offset_data);
     t_CKDUR window = GET_CK_DUR(ARGS); // rate     
     if ( window >= 0 ) {
         d->move_duration = window;
@@ -1775,14 +1786,14 @@ CK_DLL_CTRL( delayp_ctrl_window )
 
 CK_DLL_CGET( delayp_cget_window )
 {
-    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
+    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT(SELF, delayp_offset_data);
     RETURN->v_dur = d->move_duration; // TODO:
 }
 
 
 CK_DLL_CTRL( delayp_ctrl_max )
 {   
-    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
+    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT(SELF, delayp_offset_data);
     t_CKDUR nmax = GET_CK_DUR(ARGS); // rate 
     if ( d->bufsize != (t_CKINT)nmax && nmax > 1.0 ) { 
         d->bufsize = (t_CKINT)(nmax+.5); 
@@ -1794,7 +1805,7 @@ CK_DLL_CTRL( delayp_ctrl_max )
 
 CK_DLL_CGET( delayp_cget_max )
 {
-    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT( SELF, delayp_offset_data );
+    delayp_data * d = ( delayp_data * ) OBJ_MEMBER_UINT(SELF, delayp_offset_data);
     //SET_NEXT_DUR( out, (t_CKDUR) d->bufsize );
     RETURN->v_dur = d->bufsize;
 }
@@ -2081,6 +2092,12 @@ struct sndbuf_data
         loop = FALSE;
         fd = NULL;
     }
+
+    ~sndbuf_data()
+    {
+        SAFE_DELETE_ARRAY( buffer );
+        SAFE_DELETE_ARRAY( chunk_table );
+    }
 };
 
 
@@ -2091,15 +2108,14 @@ void   sndbuf_sinc_interpolate( sndbuf_data * d, SAMPLE * out );
 
 CK_DLL_CTOR( sndbuf_ctor )
 {
-    OBJ_MEMBER_UINT( SELF, sndbuf_offset_data ) = (t_CKUINT)new sndbuf_data;
+    OBJ_MEMBER_UINT(SELF, sndbuf_offset_data) = (t_CKUINT)new sndbuf_data;
 }
 
 CK_DLL_DTOR( sndbuf_dtor )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
-    if( d->buffer ) delete [] d->buffer;
-    if( d->chunk_table ) delete [] d->chunk_table;
-    delete d;
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
+    SAFE_DELETE(d);
+    OBJ_MEMBER_UINT(SELF, sndbuf_offset_data) = 0;
 }
 
 inline t_CKUINT sndbuf_read( sndbuf_data * d, t_CKUINT offset, t_CKUINT howmuch )
@@ -2212,14 +2228,14 @@ inline double sndbuf_getpos( sndbuf_data * d )
 
 CK_DLL_CTRL( sndbuf_ctrl_loop )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     d->loop = GET_CK_INT(ARGS);
     RETURN->v_int = d->loop; // TODO: Check (everything)
 } 
 
 CK_DLL_CGET( sndbuf_cget_loop )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     RETURN->v_int = d->loop;
 }
 
@@ -2321,7 +2337,7 @@ double sndbuf_sinc( sndbuf_data * d, double x )
 
 CK_DLL_TICK( sndbuf_tick )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     
 #ifdef CK_SNDBUF_MEMORY_BUFFER
     // spencer's memory buffer stuff
@@ -2405,7 +2421,7 @@ CK_DLL_TICK( sndbuf_tick )
 
 CK_DLL_CTRL( sndbuf_ctrl_read )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     
     if( d->buffer )
@@ -2639,7 +2655,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 CK_DLL_CTRL( sndbuf_ctrl_write )
 {
 #ifdef SPENCER_SNDBUF_WRITE
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     const char * filename = GET_CK_STRING(ARGS)->str.c_str();
     
     if( d->buffer )
@@ -2663,7 +2679,7 @@ CK_DLL_CTRL( sndbuf_ctrl_write )
 
 CK_DLL_CTRL( sndbuf_ctrl_rate )
 {
-    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKFLOAT rate = GET_CK_FLOAT(ARGS); // rate
     d->rate = rate * d->sampleratio;
     d->rate_factor = rate;
@@ -2672,14 +2688,14 @@ CK_DLL_CTRL( sndbuf_ctrl_rate )
 
 CK_DLL_CGET( sndbuf_cget_rate )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     RETURN->v_float = d->rate_factor;
 }
 
 
 CK_DLL_CTRL( sndbuf_ctrl_freq )
 { 
-    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKFLOAT freq = GET_CK_FLOAT(ARGS);  //hz
     
     d->rate = ( freq * (double) d->num_frames / (double) g_srate );
@@ -2689,13 +2705,13 @@ CK_DLL_CTRL( sndbuf_ctrl_freq )
 
 CK_DLL_CGET( sndbuf_cget_freq )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     RETURN->v_float = d->rate * (t_CKFLOAT) g_srate / ( (t_CKFLOAT) d->num_frames ); 
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_phase )
 { 
-    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKFLOAT phase = GET_CK_FLOAT(ARGS);
     sndbuf_setpos(d, phase * (double)d->num_frames);
     RETURN->v_float = (t_CKFLOAT) d->curf / (t_CKFLOAT)d->num_frames; // TODO: 
@@ -2703,14 +2719,14 @@ CK_DLL_CTRL( sndbuf_ctrl_phase )
 
 CK_DLL_CGET( sndbuf_cget_phase )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     //SET_NEXT_FLOAT( out, (t_CKFLOAT) d->curf / (t_CKFLOAT)d->num_frames );
     RETURN->v_float = (t_CKFLOAT) d->curf / (t_CKFLOAT)d->num_frames;
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_channel )
 { 
-    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     unsigned long chan = (unsigned long)GET_CK_INT(ARGS);
     if ( chan >= 0 && chan < d->num_channels ) { 
         d->chan = chan;
@@ -2720,14 +2736,14 @@ CK_DLL_CTRL( sndbuf_ctrl_channel )
 
 CK_DLL_CGET( sndbuf_cget_channel )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     //SET_NEXT_INT( out, d->chan );
     RETURN->v_int = (t_CKINT)d->chan;
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_pos )
 { 
-    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKINT pos = GET_CK_INT(ARGS);
 #ifdef CK_SNDBUF_MEMORY_BUFFER
     if( pos >= 0 && pos < d->mb_max_samples )
@@ -2739,13 +2755,13 @@ CK_DLL_CTRL( sndbuf_ctrl_pos )
 
 CK_DLL_CGET( sndbuf_cget_pos )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     RETURN->v_int = (t_CKINT)sndbuf_getpos(d); 
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_interp )
 { 
-    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = ( sndbuf_data * ) OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKINT interp = GET_CK_INT(ARGS);
     d->interp = interp;
     RETURN->v_int = d->interp;
@@ -2753,13 +2769,13 @@ CK_DLL_CTRL( sndbuf_ctrl_interp )
 
 CK_DLL_CGET( sndbuf_cget_interp )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     RETURN->v_int = d->interp;
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_chunks )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKINT frames = GET_NEXT_INT(ARGS);
     d->chunks = frames >= 0 ? frames : 0;
     RETURN->v_int = d->chunks;
@@ -2767,41 +2783,41 @@ CK_DLL_CTRL( sndbuf_ctrl_chunks )
 
 CK_DLL_CGET( sndbuf_cget_chunks )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     RETURN->v_int = d->chunks;
 }
 
 CK_DLL_CTRL( sndbuf_ctrl_phase_offset )
-{ 
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+{
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKFLOAT phase_offset = GET_CK_FLOAT(ARGS);
     sndbuf_setpos(d, d->curf + phase_offset * (t_CKFLOAT)d->num_frames );
 }
 
 CK_DLL_CGET( sndbuf_cget_samples )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     //SET_NEXT_INT( out, d->num_frames );
     RETURN->v_int = d->num_frames;
 }
 
 CK_DLL_CGET( sndbuf_cget_length )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     //SET_NEXT_DUR( out, (t_CKDUR)d->num_frames );
     RETURN->v_dur = (t_CKDUR)d->num_frames / d->sampleratio;
 }
 
 CK_DLL_CGET( sndbuf_cget_channels )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     //SET_NEXT_INT( out, d->num_channels );
     RETURN->v_int = d->num_channels;
 }
 
 CK_DLL_CGET( sndbuf_cget_valueAt )
 {
-    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT( SELF, sndbuf_offset_data );
+    sndbuf_data * d = (sndbuf_data *)OBJ_MEMBER_UINT(SELF, sndbuf_offset_data);
     t_CKINT i = GET_CK_INT(ARGS);
     if( d->fd ) sndbuf_load( d, i );
     RETURN->v_float = ( i > d->num_frames || i < 0 ) ? 0 : d->buffer[i];
@@ -2931,151 +2947,140 @@ void Dyno_Data::duck() {
 
 //controls for the preset modes
 CK_DLL_CTRL( dyno_ctrl_limit ) {
-     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
      d->limit();
 }
 
 CK_DLL_CTRL( dyno_ctrl_compress ) {
-     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
      d->compress();
 }
 
 CK_DLL_CTRL( dyno_ctrl_gate ) {
-     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
      d->gate();
 }
 
 CK_DLL_CTRL( dyno_ctrl_expand ) {
-     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
      d->expand();
 }
 
 CK_DLL_CTRL( dyno_ctrl_duck ) {
-     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+     Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
      d->duck();
 }
 
 //additional controls: thresh
 CK_DLL_CTRL( dyno_ctrl_thresh ) {
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->thresh = GET_CK_FLOAT(ARGS);
     RETURN->v_float = (t_CKFLOAT)d->thresh;
 }
 
 CK_DLL_CGET( dyno_cget_thresh ) {
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_float = (t_CKFLOAT)d->thresh;
 }
 
 //additional controls: attackTime
 CK_DLL_CTRL( dyno_ctrl_attackTime ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->setAttackTime( GET_CK_FLOAT(ARGS) );
     RETURN->v_dur = d->timeConstToDur(d->at);
 }
 
 CK_DLL_CGET( dyno_cget_attackTime ) {
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_dur = d->timeConstToDur(d->at);
 }
 
 //additional controls: releaseTime
 CK_DLL_CTRL( dyno_ctrl_releaseTime ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->setReleaseTime( GET_CK_FLOAT(ARGS) );
     RETURN->v_dur = d->timeConstToDur(d->rt);
 }
 
 CK_DLL_CGET( dyno_cget_releaseTime ) {
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_dur = d->timeConstToDur(d->rt);
 }
 
 //additional controls: ratio
 CK_DLL_CTRL( dyno_ctrl_ratio ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->setRatio( GET_CK_FLOAT(ARGS) );
     RETURN->v_float = d->getRatio();
 }
 
 CK_DLL_CGET( dyno_cget_ratio ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_float = d->getRatio();
 }
 
 //additional controls: slopeBelow
 CK_DLL_CTRL( dyno_ctrl_slopeBelow ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->slopeBelow = GET_CK_FLOAT(ARGS);
     
     RETURN->v_float = d->slopeBelow;
 }
 
 CK_DLL_CGET( dyno_cget_slopeBelow ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_float = d->slopeBelow;
 }
 
 //additional controls: slopeAbove
 CK_DLL_CTRL( dyno_ctrl_slopeAbove ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->slopeAbove = GET_CK_FLOAT(ARGS);
     
     RETURN->v_float = d->slopeAbove;
 }
 
 CK_DLL_CGET( dyno_cget_slopeAbove ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_float = d->slopeAbove;
 }
 
 //additional controls: sideInput
 CK_DLL_CTRL( dyno_ctrl_sideInput ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->sideInput = GET_CK_FLOAT(ARGS);
     
     RETURN->v_float = d->sideInput;
 }
 
 CK_DLL_CGET( dyno_cget_sideInput ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_float = d->sideInput;
 }
 
 //additional controls: externalSideInput
 CK_DLL_CTRL( dyno_ctrl_externalSideInput ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     d->externalSideInput = GET_CK_INT(ARGS);
     
     RETURN->v_int = d->externalSideInput;
 }
 
 CK_DLL_CGET( dyno_cget_externalSideInput ) {
-
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );   
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
     RETURN->v_int = d->externalSideInput;
 }
 
 //constructor
 CK_DLL_CTOR( dyno_ctor )
 {
-    OBJ_MEMBER_UINT( SELF, dyno_offset_data ) = (t_CKUINT)new Dyno_Data;
+    OBJ_MEMBER_UINT(SELF, dyno_offset_data) = (t_CKUINT)new Dyno_Data;
 }
 
 CK_DLL_DTOR( dyno_dtor )
 {
-    delete (Dyno_Data *)OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    delete (Dyno_Data *)OBJ_MEMBER_UINT(SELF, dyno_offset_data);
+    OBJ_MEMBER_UINT(SELF, dyno_offset_data) = 0;
 }
 
 // recomputes envelope, determines how the current amp envelope compares with
@@ -3083,7 +3088,7 @@ CK_DLL_DTOR( dyno_dtor )
 // the threshold the current envelope is.
 CK_DLL_TICK( dyno_tick )
 {
-    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT( SELF, dyno_offset_data );
+    Dyno_Data * d = ( Dyno_Data * )OBJ_MEMBER_UINT(SELF, dyno_offset_data);
 
     // only change sideInput if we're not using an external ctrl signal.
     // otherwise we'll just use whatever the user sent us last as the ctrl signal
