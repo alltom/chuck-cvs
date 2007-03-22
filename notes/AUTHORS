@@ -7,23 +7,26 @@ Lead Design:
   Ge Wang
   Perry Cook
 
-Lead Developers:
-  Ge Wang
+Developers:
+  Ge Wang (Lead)
   Perry Cook
   Ananya Misra (amisra@cs.princeton.edu)
   Philip Davidson (philipd@alumni.princeton.edu)
   Ari Lazier (alazier@cs.princeton.edu)
   Spencer Salazar (ssalazar@cs.princeton.edu)
-  Mark Daly (mdaly@cs.princeton.edu)
+  Rebecca Fiebrink (fiebrink@cs.princeton.edu)
+  Dan Trueman (dan@music.princeton.edu)
 
 Lead Test:
   Philip Davidson
   Ajay Kapur
+  Ge Wang
 
 Documentation:
   Adam Tindale
   Philip Davidson
   Ananya Misra
+  Spencer Salazar
   Ge Wang
 
 (See also the file THANKS and README)
