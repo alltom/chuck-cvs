@@ -575,7 +575,7 @@ t_CKINT Chuck_Array4::set_capacity( t_CKINT capacity )
 void Chuck_Array4::zero( t_CKUINT start, t_CKUINT end )
 {
     // sanity check
-    assert( start < m_capacity && end <= m_capacity );
+    assert( start <= m_capacity && end <= m_capacity );
 
     // if contains objects
     if( m_is_obj )
