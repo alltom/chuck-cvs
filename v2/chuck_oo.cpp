@@ -895,7 +895,7 @@ t_CKINT Chuck_Array8::set_capacity( t_CKINT capacity )
 void Chuck_Array8::zero( t_CKUINT start, t_CKUINT end )
 {
     // sanity check
-    assert( start < m_capacity && end <= m_capacity );
+    assert( start <= m_capacity && end <= m_capacity );
 
     for( t_CKUINT i = start; i < end; i++ )
     {
