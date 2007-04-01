@@ -48,7 +48,7 @@
 #include <map>
 using namespace std;
 
-static Chuck_Hid_Driver default_drivers[CK_HID_DEV_COUNT];
+static Chuck_Hid_Driver * default_drivers;
 
 struct PhyHidDevIn
 {
@@ -476,6 +476,8 @@ void HidInManager::init()
 
 void HidInManager::init_default_drivers()
 {
+    default_drivers = new Chuck_Hid_Driver[CK_HID_DEV_COUNT];
+    
     memset( default_drivers, 0, CK_HID_DEV_COUNT * sizeof( Chuck_Hid_Driver ) );
     
     default_drivers[CK_HID_DEV_JOYSTICK].init = Joystick_init;

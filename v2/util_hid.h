@@ -57,34 +57,34 @@ struct HidMsg
 };
 
 /* device types */
-static const t_CKUINT CK_HID_DEV_NONE = 0;
-static const t_CKUINT CK_HID_DEV_JOYSTICK = 1;
-static const t_CKUINT CK_HID_DEV_MOUSE = 2;
-static const t_CKUINT CK_HID_DEV_KEYBOARD = 3;
-static const t_CKUINT CK_HID_DEV_WIIREMOTE = 4;
-static const t_CKUINT CK_HID_DEV_TILTSENSOR = 5;
-static const t_CKUINT CK_HID_DEV_TABLET = 6;
-static const t_CKUINT CK_HID_DEV_COUNT = 7;
+extern const t_CKUINT CK_HID_DEV_NONE;
+extern const t_CKUINT CK_HID_DEV_JOYSTICK;
+extern const t_CKUINT CK_HID_DEV_MOUSE;
+extern const t_CKUINT CK_HID_DEV_KEYBOARD;
+extern const t_CKUINT CK_HID_DEV_WIIREMOTE;
+extern const t_CKUINT CK_HID_DEV_TILTSENSOR;
+extern const t_CKUINT CK_HID_DEV_TABLET;
+extern const t_CKUINT CK_HID_DEV_COUNT;
 
 /* message types */
-static const t_CKUINT CK_HID_JOYSTICK_AXIS = 0;
-static const t_CKUINT CK_HID_BUTTON_DOWN = 1;
-static const t_CKUINT CK_HID_BUTTON_UP = 2;
-static const t_CKUINT CK_HID_JOYSTICK_HAT = 3;
-static const t_CKUINT CK_HID_JOYSTICK_BALL = 4;
-static const t_CKUINT CK_HID_MOUSE_MOTION = 5;
-static const t_CKUINT CK_HID_MOUSE_WHEEL = 6;
-static const t_CKUINT CK_HID_DEVICE_CONNECTED = 7;
-static const t_CKUINT CK_HID_DEVICE_DISCONNECTED = 8;
-static const t_CKUINT CK_HID_ACCELEROMETER = 9;
-static const t_CKUINT CK_HID_WIIREMOTE_IR = 10;
-static const t_CKUINT CK_HID_LED = 11;
-static const t_CKUINT CK_HID_FORCE_FEEDBACK = 12;
-static const t_CKUINT CK_HID_SPEAKER = 13;
-static const t_CKUINT CK_HID_TABLET_PRESSURE = 14;
-static const t_CKUINT CK_HID_TABLET_MOTION = 15;
-static const t_CKUINT CK_HID_TABLET_ROTATION = 16;
-static const t_CKUINT CK_HID_MSG_COUNT = 17;
+extern const t_CKUINT CK_HID_JOYSTICK_AXIS;
+extern const t_CKUINT CK_HID_BUTTON_DOWN;
+extern const t_CKUINT CK_HID_BUTTON_UP;
+extern const t_CKUINT CK_HID_JOYSTICK_HAT;
+extern const t_CKUINT CK_HID_JOYSTICK_BALL;
+extern const t_CKUINT CK_HID_MOUSE_MOTION;
+extern const t_CKUINT CK_HID_MOUSE_WHEEL;
+extern const t_CKUINT CK_HID_DEVICE_CONNECTED;
+extern const t_CKUINT CK_HID_DEVICE_DISCONNECTED;
+extern const t_CKUINT CK_HID_ACCELEROMETER;
+extern const t_CKUINT CK_HID_WIIREMOTE_IR;
+extern const t_CKUINT CK_HID_LED;
+extern const t_CKUINT CK_HID_FORCE_FEEDBACK;
+extern const t_CKUINT CK_HID_SPEAKER;
+extern const t_CKUINT CK_HID_TABLET_PRESSURE;
+extern const t_CKUINT CK_HID_TABLET_MOTION;
+extern const t_CKUINT CK_HID_TABLET_ROTATION;
+extern const t_CKUINT CK_HID_MSG_COUNT;
 
 /* keys */
 
