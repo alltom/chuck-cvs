@@ -476,7 +476,9 @@ int main( int argc, char ** argv )
         EM_error2b( 0, "" );
         probeMidiOut();
         EM_error2b( 0, "" );
-    
+        
+        //HidInManager::probeHidIn();
+        
         // exit
         exit( 0 );
     }

@@ -96,6 +96,7 @@ struct _Chuck_Hid_Driver
     void ( *poll )();
     void ( *probe )();
     int ( *count )();
+    int ( *count_elements )( int, int );
     int ( *open )( int );
     int ( *open_async )( int );
     int ( *close )( int );
@@ -116,6 +117,7 @@ extern void Joystick_poll();
 extern void Joystick_quit();
 extern void Joystick_probe();
 extern int Joystick_count();
+extern int Joystick_count_elements( int js, int type );
 extern int Joystick_open( int js );
 extern int Joystick_open_async( int js );
 extern int Joystick_open( const char * name );
@@ -132,6 +134,7 @@ extern void Mouse_poll();
 extern void Mouse_quit();
 extern void Mouse_probe();
 extern int Mouse_count();
+extern int Mouse_count_elements( int js, int type );
 extern int Mouse_open( int m );
 extern int Mouse_open( const char * name );
 extern int Mouse_close( int m );
@@ -146,13 +149,13 @@ extern void Keyboard_poll();
 extern void Keyboard_quit();
 extern void Keyboard_probe();
 extern int Keyboard_count();
+extern int Keyboard_count_elements( int js, int type );
 extern int Keyboard_open( int kb );
 extern int Keyboard_open( const char * name );
 extern int Keyboard_close( int kb );
 extern int Keyboard_send( int kb, const HidMsg * msg );
 extern const char * Keyboard_name( int kb );
 
-//#define __CK_HID_WIIREMOTE__
 extern void WiiRemote_init();
 extern void WiiRemote_poll();
 extern void WiiRemote_quit();

@@ -48,7 +48,7 @@
 #include <map>
 using namespace std;
 
-static Chuck_Hid_Driver * default_drivers;
+Chuck_Hid_Driver * default_drivers = NULL;
 
 struct PhyHidDevIn
 {
@@ -439,11 +439,12 @@ t_CKBOOL HidIn::open( t_CKINT device_type, t_CKINT device_num )
 
 void HidInManager::init()
 {
-    // log
-    EM_log( CK_LOG_INFO, "initializing HID..." );
-	EM_pushlog();
     if( has_init == FALSE )
     {
+        // log
+        EM_log( CK_LOG_INFO, "initializing HID..." );
+        EM_pushlog();
+
         init_default_drivers();
         
         // allocate the matrix
@@ -468,10 +469,23 @@ void HidInManager::init()
                 default_drivers[j].init();
         }
         
+#ifdef __MACOSX_CORE__
+        // start thread
+        if( the_thread == NULL )
+        {
+            // allocate
+            the_thread = new XThread;
+            // flag
+            thread_going = TRUE;
+            // start
+            the_thread->start( cb_hid_input, NULL );
+        }
+#endif
+        
         has_init = TRUE;
+        
+        EM_poplog();
     }
-
-	EM_poplog();
 }
 
 void HidInManager::init_default_drivers()
@@ -774,28 +788,40 @@ unsigned __stdcall HidInManager::cb_hid_input( void * stuff )
 //-----------------------------------------------------------------------------
 void HidInManager::probeHidIn()
 {
-    if( !has_init )
-    {
-        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
-        {
-            if( default_drivers[i].init && default_drivers[i].probe )
-                default_drivers[i].init();
-        }
-    }
+    t_CKBOOL do_cleanup = !has_init;
+    
+    init();
     
     for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
     {
-        if( default_drivers[i].probe )
-            default_drivers[i].probe();
+        if( !default_drivers[i].count )
+            continue;
+        
+        int count = default_drivers[i].count();
+        if( count == 0 )
+            continue;
+        
+        EM_error2b( 0, "------( chuck -- %i %s device%s )------", 
+                    count, default_drivers[i].driver_name,
+                    count > 1 ? "s" : "" );
+        
+        for( int j = 0; j < count; j++ )
+        {
+            const char * name;
+            if( default_drivers[i].name )
+                name = default_drivers[i].name( j );
+            if( !name )
+                name = "(no name)";
+            
+            EM_error2b( 0, "    [%i] : \"%s\"", j, name );
+        }
+        
+        EM_error2b( 0, "" );
     }
     
-    if( !has_init )
+    if( do_cleanup )
     {
-        for( size_t i = 0; i < CK_HID_DEV_COUNT; i++ )
-        {
-            if( default_drivers[i].quit )
-                default_drivers[i].quit();
-        }
+        cleanup();
     }
 }
 

@@ -82,6 +82,8 @@ Make ->disconnect delete the element list *** worked around
 
 Make Keyboard, Mouse dis/reattachment work *** DONE
 
+Hid Probe
+
 *******************************************************************************/
 
 

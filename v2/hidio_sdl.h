@@ -162,4 +162,6 @@ protected:
     static std::vector<PhyHidDevOut *> the_phouts;
 };
 
+extern Chuck_Hid_Driver * default_drivers;
+
 #endif
