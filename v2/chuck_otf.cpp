@@ -482,7 +482,7 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
             goto error;
         EM_poplog();
     }
-    else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) )
+    else if( !strcmp( argv[i], "--removeall" ) || !strcmp( argv[i], "--remall" ) || !strcmp( argv[i], "--remove.all" ) )
     {
         if( !(dest = otf_send_connect( host, port )) ) return 0;
         EM_pushlog();
@@ -529,7 +529,7 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );
     }
-    else if( !strcmp( argv[i], "--abort" ) )
+    else if( !strcmp( argv[i], "--abort.shred" ) )
     {
         if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.type = MSG_ABORT;

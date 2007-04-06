@@ -262,7 +262,7 @@ void usage()
     fprintf( stderr, "               remote<hostname>|port<N>|verbose<N>|probe|\n" );
     fprintf( stderr, "               channels<N>|out<N>|in<N>|shell|empty|level<N>|\n" );
     fprintf( stderr, "               blocking|callback|deprecate:{stop|warn|ignore}\n" );
-    fprintf( stderr, "   [commands] = add|remove|replace|removeall|status|time|kill\n" );
+    fprintf( stderr, "   [commands] = add|remove|replace|remove.all|status|time|kill\n" );
     fprintf( stderr, "   [+-=^] = shortcuts for add, remove, replace, status\n" );
     version();
 }
