@@ -373,6 +373,7 @@ public: // running the machine
     t_CKBOOL pause( );
     t_CKBOOL stop( );
     t_CKBOOL start_audio( );
+    t_CKBOOL abort_current_shred( );
 
 public: // invoke functions
     t_CKBOOL invoke_static( Chuck_VM_Shred * shred );

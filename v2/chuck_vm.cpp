@@ -615,14 +615,15 @@ t_CKBOOL Chuck_VM::compute()
                 if( !m_num_shreds && m_halt ) return FALSE;
             }
 
+            // zero out
+            shred = NULL;
+
             // track shred deactivation
             CK_TRACK( if( shred ) Chuck_Stats::instance()->deactivate_shred( shred ) );
         }
 
         // set to false for now
         iterate = FALSE;
-        // zero out
-        shred = NULL;
 
         // broadcast queued events
         while( m_event_buffer->get( &event, 1 ) )
@@ -1130,6 +1131,32 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
     if( !m_num_shreds ) m_shred_id = 0;
     
     return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: abort_current_shred()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_VM::abort_current_shred( )
+{
+    // for threading
+    Chuck_VM_Shred * shred = m_shreduler->m_current_shred;
+    
+    // if there
+    if( shred )
+    {
+        // log
+        EM_log( CK_LOG_SEVERE, "aborting currently running shred (id: %d)", shred->xid );
+        // stop it
+        shred->is_running = FALSE;
+        shred->is_done = TRUE;
+        // TODO: figure out potential race condition here
+    }
+    
+    return shred != NULL;
 }
 
 
