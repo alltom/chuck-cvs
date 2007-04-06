@@ -315,6 +315,8 @@ public:
     Chuck_VM_Shred * shred_list;
     // shreds waiting on events
     std::map<Chuck_VM_Shred *, Chuck_VM_Shred *> blocked;
+    // current shred
+    Chuck_VM_Shred * m_current_shred; // TODO: ref count?
 
     // ugen
     Chuck_UGen * m_dac;

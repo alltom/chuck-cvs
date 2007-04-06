@@ -1885,6 +1885,7 @@ struct SortByID
 void Chuck_VM_Shreduler::status( Chuck_VM_Status * status )
 {
     Chuck_VM_Shred * shred = shred_list;
+    Chuck_VM_Shred * temp = NULL;
 
     t_CKUINT srate = Digitalio::sampling_rate();
     t_CKUINT s = (t_CKUINT)now_system;
@@ -1919,8 +1920,8 @@ void Chuck_VM_Shreduler::status( Chuck_VM_Status * status )
     }
     
     // get current shred
-    if( m_current_shred )
-        list.push_back( m_current_shred );
+    if( temp = m_current_shred )
+        list.push_back( temp );
 
     // sort the list
     SortByID byid;
