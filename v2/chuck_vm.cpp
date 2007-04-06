@@ -1918,7 +1918,7 @@ void Chuck_VM_Shreduler::status( Chuck_VM_Status * status )
         shred = (*iter).second;
         list.push_back( shred );
     }
-    
+
     // get current shred
     if( temp = m_current_shred )
         list.push_back( temp );
@@ -1926,7 +1926,7 @@ void Chuck_VM_Shreduler::status( Chuck_VM_Status * status )
     // sort the list
     SortByID byid;
     std::sort( list.begin(), list.end(), byid );
-    
+
     // print status
     status->clear();
     for( t_CKUINT i = 0; i < list.size(); i++ )
