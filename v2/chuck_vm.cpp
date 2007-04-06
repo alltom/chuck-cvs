@@ -587,7 +587,7 @@ true*/
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_VM::compute()
 {
-    Chuck_VM_Shred * shred = NULL;
+    Chuck_VM_Shred *& shred = m_shreduler->m_current_shred;
     Chuck_Msg * msg = NULL;
     Chuck_Event * event = NULL;
     t_CKBOOL iterate = TRUE;
@@ -621,6 +621,8 @@ t_CKBOOL Chuck_VM::compute()
 
         // set to false for now
         iterate = FALSE;
+        // zero out
+        shred = NULL;
 
         // broadcast queued events
         while( m_event_buffer->get( &event, 1 ) )
@@ -1450,6 +1452,7 @@ Chuck_VM_Shreduler::Chuck_VM_Shreduler()
     rt_audio = FALSE;
     bbq = NULL;
     shred_list = NULL;
+    m_current_shred = NULL;
     m_dac = NULL;
     m_adc = NULL;
     m_bunghole = NULL;
@@ -1906,7 +1909,7 @@ void Chuck_VM_Shreduler::status( Chuck_VM_Status * status )
         list.push_back( shred );
         shred = shred->next;
     }
-    
+
     // get blocked
     std::map<Chuck_VM_Shred *, Chuck_VM_Shred *>::iterator iter;    
     for( iter = blocked.begin(); iter != blocked.end(); iter++ )
@@ -1915,6 +1918,10 @@ void Chuck_VM_Shreduler::status( Chuck_VM_Status * status )
         list.push_back( shred );
     }
     
+    // get current shred
+    if( m_current_shred )
+        list.push_back( m_current_shred );
+
     // sort the list
     SortByID byid;
     std::sort( list.begin(), list.end(), byid );
