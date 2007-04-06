@@ -195,6 +195,7 @@ public:
     t_CKUINT next_pc;
     t_CKBOOL is_done;
     t_CKBOOL is_running;
+    t_CKBOOL is_abort;
     Chuck_Event * event;  // event shred is waiting on
     std::map<Chuck_UGen *, Chuck_UGen *> m_ugen_map;
 

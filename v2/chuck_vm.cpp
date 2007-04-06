@@ -1149,11 +1149,9 @@ t_CKBOOL Chuck_VM::abort_current_shred( )
     if( shred )
     {
         // log
-        EM_log( CK_LOG_SEVERE, "aborting currently running shred (id: %d)", shred->xid );
-        // stop it
-        shred->is_running = FALSE;
-        shred->is_done = TRUE;
-        // TODO: figure out potential race condition here
+        EM_log( CK_LOG_SEVERE, "trying to abort current shred (id: %d)", shred->xid );
+        // flag it
+        shred->is_abort = TRUE;
     }
     
     return shred != NULL;
@@ -1356,6 +1354,8 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     is_done = FALSE;
     // shred running
     is_running = FALSE;
+    // shred abort
+    is_abort = FALSE;
     // set the instr
     instr = c->instr;
     // zero out the id
@@ -1449,7 +1449,7 @@ t_CKBOOL Chuck_VM_Shred::run( Chuck_VM * vm )
     t_CKBOOL * vm_running = &vm->m_running;
 
     // go!
-    while( is_running && *vm_running )
+    while( is_running && *vm_running && !is_abort )
     {
         // execute the instruction
         instr[pc]->execute( vm, this );
@@ -1460,6 +1460,15 @@ t_CKBOOL Chuck_VM_Shred::run( Chuck_VM * vm )
 
         // track number of cycles
         CK_TRACK( this->stat->cycles++ );
+    }
+    
+    // check abort
+    if( is_abort )
+    {
+        // log
+        EM_log( CK_LOG_SEVERE, "aborting shred (id: %d)", this->xid );
+        // done
+        is_done = TRUE;
     }
 
     // is the shred finished
