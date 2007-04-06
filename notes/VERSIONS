@@ -1,4 +1,12 @@
 ---
+1.2.0.9
+  - (added) capability to externally abort "infinite loop" shreds
+            (this deals with hanging shreds due to potentially
+            infinite loops that don't advance time)
+  - (added) OTF command: chuck --abort.shred sends network OTF
+            to server to remove current shred if there is one
+
+---
 1.2.0.8
   - (added) command line argument support
             e.g. %> chuck foo.ck:1:hello bar:2.5:"with space"
