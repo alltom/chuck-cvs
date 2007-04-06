@@ -206,6 +206,15 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
         cmd->type = msg->type;
         cmd->param = msg->param;
     }
+    else if( msg->type == MSG_ABORT )
+    {
+        // halt and clear current shred
+        vm->abort_current_shred();
+        // short circuit
+        ret = 1;
+        SAFE_DELETE(cmd);
+        goto cleanup;
+    }
     else
     {
         fprintf( stderr, "[chuck]: unrecognized incoming command from network: '%i'\n", cmd->type );
@@ -218,7 +227,9 @@ t_CKUINT otf_process_msg( Chuck_VM * vm, Chuck_Compiler * compiler,
         ret = vm->process_msg( cmd );
     else
     {
+        // queue message
         vm->queue_msg( cmd, 1 );
+        // return code
         ret = 1;
     }
 
@@ -514,6 +525,14 @@ int otf_send_cmd( int argc, char ** argv, t_CKINT & i, const char * host, int po
     {
         if( !(dest = otf_send_connect( host, port )) ) return 0;
         msg.type = MSG_STATUS;
+        msg.param = 0;
+        otf_hton( &msg );
+        ck_send( dest, (char *)&msg, sizeof(msg) );
+    }
+    else if( !strcmp( argv[i], "--abort" ) )
+    {
+        if( !(dest = otf_send_connect( host, port )) ) return 0;
+        msg.type = MSG_ABORT;
         msg.param = 0;
         otf_hton( &msg );
         ck_send( dest, (char *)&msg, sizeof(msg) );

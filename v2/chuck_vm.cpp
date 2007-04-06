@@ -1153,7 +1153,12 @@ t_CKBOOL Chuck_VM::abort_current_shred( )
         // flag it
         shred->is_abort = TRUE;
     }
-    
+    else
+    {
+        // log
+        EM_log( CK_LOG_SEVERE, "cannot abort shred: nothing currently running!" );
+    }
+
     return shred != NULL;
 }
 
@@ -1466,7 +1471,7 @@ t_CKBOOL Chuck_VM_Shred::run( Chuck_VM * vm )
     if( is_abort )
     {
         // log
-        EM_log( CK_LOG_SEVERE, "aborting shred (id: %d)", this->xid );
+        EM_log( CK_LOG_SYSTEM, "aborting shred (id: %d)", this->xid );
         // done
         is_done = TRUE;
     }
