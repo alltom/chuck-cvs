@@ -933,7 +933,18 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
     }
     else if( msg->type == MSG_STATUS )
     {
-        m_shreduler->status();
+        // fill in structure
+        if( msg->user && msg->reply )
+        {
+            // cast
+            Chuck_VM_Status * status = (Chuck_VM_Status *)msg->user;
+            // get it
+            m_shreduler->status( status );
+        }
+        else
+        {
+            m_shreduler->status();
+        }
     }
     else if( msg->type == MSG_TIME )
     {
