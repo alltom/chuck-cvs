@@ -2083,6 +2083,68 @@ int Hid_count( xvector< OSX_Hid_Device * > * v )
     return count;
 }
 
+int Hid_count_elements( xvector< OSX_Hid_Device * >  * v, int i, int type )
+{
+    if( v == NULL || i < 0 )
+        return -1;
+    
+    int r = 0;
+    
+    v->lock();
+    
+    if( i >= v->size() )
+    {
+        v->unlock();
+        return -1;
+    }
+    
+    OSX_Hid_Device * device = v->at( i );
+    
+    device->lock();
+    
+    v->unlock();
+        
+    switch( type )
+    {
+        case CK_HID_JOYSTICK_AXIS:
+            if( device->type == CK_HID_DEV_JOYSTICK )
+                r = device->axes;
+            break;
+            
+        case CK_HID_BUTTON_DOWN:
+        case CK_HID_BUTTON_UP:
+            r = device->buttons;
+            break;
+            
+        case CK_HID_JOYSTICK_HAT:
+            r = device->hats;
+            break;
+            
+        case CK_HID_JOYSTICK_BALL:
+            r = 0;
+            break;
+            
+        case CK_HID_MOUSE_MOTION:
+            if( device->type == CK_HID_DEV_MOUSE )
+                r = device->axes;
+            break;
+            
+        case CK_HID_MOUSE_WHEEL:
+            if( device->type == CK_HID_DEV_MOUSE )
+                r = device->wheels;
+            break;
+            
+        case CK_HID_LED:
+            if( ( *device->outputs )[type] )
+                r = ( *device->outputs )[type]->size();
+            break;
+    }
+    
+    device->unlock();
+    
+    return r;
+}
+
 int Hid_open( xvector< OSX_Hid_Device * > * v, int i )
 {
     if( v == NULL || i < 0 )
@@ -2192,6 +2254,11 @@ int Joystick_count()
     return Hid_count( joysticks );
 }
 
+int Joystick_count_elements( int js, int type )
+{
+    return Hid_count_elements( joysticks, js, type );
+}
+
 int Joystick_open( int js )
 {
     return Hid_open( joysticks, js );
@@ -2226,6 +2293,11 @@ void Mouse_quit()
 int Mouse_count()
 {
     return Hid_count( mice );
+}
+
+int Mouse_count_elements( int m, int type )
+{
+    return Hid_count_elements( mice, m, type );
 }
 
 int Mouse_open( int m )
@@ -2374,6 +2446,11 @@ void Keyboard_quit()
 int Keyboard_count()
 {
     return Hid_count( keyboards );
+}
+
+int Keyboard_count_elements( int k, int type )
+{
+    return Hid_count_elements( keyboards, k, type );
 }
 
 int Keyboard_open( int k )

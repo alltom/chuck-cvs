@@ -497,6 +497,7 @@ void HidInManager::init_default_drivers()
     default_drivers[CK_HID_DEV_JOYSTICK].init = Joystick_init;
     default_drivers[CK_HID_DEV_JOYSTICK].quit = Joystick_quit;
     default_drivers[CK_HID_DEV_JOYSTICK].count = Joystick_count;
+    default_drivers[CK_HID_DEV_JOYSTICK].count_elements = Joystick_count_elements;
     default_drivers[CK_HID_DEV_JOYSTICK].open = Joystick_open;
     default_drivers[CK_HID_DEV_JOYSTICK].close = Joystick_close;
     default_drivers[CK_HID_DEV_JOYSTICK].name = Joystick_name;
@@ -505,6 +506,7 @@ void HidInManager::init_default_drivers()
     default_drivers[CK_HID_DEV_MOUSE].init = Mouse_init;
     default_drivers[CK_HID_DEV_MOUSE].quit = Mouse_quit;
     default_drivers[CK_HID_DEV_MOUSE].count = Mouse_count;
+    default_drivers[CK_HID_DEV_MOUSE].count_elements = Mouse_count_elements;
     default_drivers[CK_HID_DEV_MOUSE].open = Mouse_open;
     default_drivers[CK_HID_DEV_MOUSE].close = Mouse_close;
     default_drivers[CK_HID_DEV_MOUSE].name = Mouse_name;
@@ -513,6 +515,7 @@ void HidInManager::init_default_drivers()
     default_drivers[CK_HID_DEV_KEYBOARD].init = Keyboard_init;
     default_drivers[CK_HID_DEV_KEYBOARD].quit = Keyboard_quit;
     default_drivers[CK_HID_DEV_KEYBOARD].count = Keyboard_count;
+    default_drivers[CK_HID_DEV_KEYBOARD].count_elements = Keyboard_count_elements;
     default_drivers[CK_HID_DEV_KEYBOARD].open = Keyboard_open;
     default_drivers[CK_HID_DEV_KEYBOARD].close = Keyboard_close;
     default_drivers[CK_HID_DEV_KEYBOARD].send = Keyboard_send;
