@@ -6804,10 +6804,15 @@ const char * Keyboard_name( int k )
 #ifndef __PLATFORM_MACOSX__
 /*** empty functions for Mac-only stuff ***/
 
+int Joystick_count_elements( int js, int type ) { return -1; }
+
+int Mouse_count_elements( int js, int type ) { return -1; }
 int Mouse_start_cursor_track(){ return -1; }
 int Mouse_stop_cursor_track(){ return -1; }
 
+int Keyboard_count_elements( int js, int type ) { return -1; }
 int Keyboard_send( int k, const HidMsg * msg ){ return -1; }
+
 int WiiRemote_send( int k, const HidMsg * msg ){ return -1; }
 
 void WiiRemote_init(){}
