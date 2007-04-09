@@ -168,6 +168,7 @@ long htol( c_str str )
 %%
 
 "//"                    { char c; adjust(); comment_hack; continue; }
+"<--"                   { char c; adjust(); comment_hack; continue; }
 "/*"                    { char c, c1; adjust(); block_comment_hack; continue; }
 " "                     { adjust(); continue; }
 "\t"                    { adjust(); continue; }
