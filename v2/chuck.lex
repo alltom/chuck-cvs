@@ -163,6 +163,8 @@ long htol( c_str str )
        if (c == '\n') EM_newline(); \
     }
 
+// .*\-\->                 { adjust(); continue; }
+
 %}
 
 %%
