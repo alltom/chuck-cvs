@@ -615,11 +615,11 @@ t_CKBOOL Chuck_VM::compute()
                 if( !m_num_shreds && m_halt ) return FALSE;
             }
 
-            // zero out
-            shred = NULL;
-
             // track shred deactivation
             CK_TRACK( if( shred ) Chuck_Stats::instance()->deactivate_shred( shred ) );
+
+            // zero out
+            shred = NULL;
         }
 
         // set to false for now
