@@ -113,6 +113,9 @@ void CBufferAdvance::cleanup()
 //-----------------------------------------------------------------------------
 UINT__ CBufferAdvance::join( Chuck_Event * event )
 {
+    // TODO: necessary?
+    m_mutex.acquire();
+
     // index of new pointer that will be pushed back
     UINT__ read_offset_index;
     
@@ -132,6 +135,9 @@ UINT__ CBufferAdvance::join( Chuck_Event * event )
         m_read_offsets.push_back( ReadOffset( m_write_offset, event ) );
     }
 
+    // TODO: necessary?
+    m_mutex.release();
+
     // return index
     return read_offset_index;
 }
@@ -146,12 +152,18 @@ void CBufferAdvance::resign( UINT__ read_offset_index )
     // make sure read_offset_index passed in is valid
     if( read_offset_index < 0 || read_offset_index >= m_read_offsets.size() )
         return;
-    
+
+    // TODO: necessary?
+    m_mutex.acquire();
+
     // add this index to free queue
     m_free.push( read_offset_index );
 
     // "invalidate" the pointer at that index
     m_read_offsets[read_offset_index].read_offset = -1;
+
+    // TODO: necessary?
+    m_mutex.release();
 }
 
 
@@ -187,6 +199,9 @@ void CBufferAdvance::put( void * data, UINT__ num_elem )
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
 
+    // TODO: necessary?
+    m_mutex.acquire();
+
     // copy
     for( i = 0; i < num_elem; i++ )
     {
@@ -215,6 +230,9 @@ void CBufferAdvance::put( void * data, UINT__ num_elem )
                 m_read_offsets[j].event->queue_broadcast();
         }
     }
+
+    // TODO: necessary?
+    m_mutex.release();
 }
 
 
@@ -281,17 +299,29 @@ UINT__ CBufferAdvance::get( void * data, UINT__ num_elem, UINT__ read_offset_ind
     UINT__ i, j;
     BYTE__ * d = (BYTE__ *)data;
 
+    // TODO: necessary?
+    m_mutex.acquire();
+
     // make sure index is valid
     if( read_offset_index >= m_read_offsets.size() )
+    {
+        m_mutex.release();
         return 0;
+    }
     if( m_read_offsets[read_offset_index].read_offset < 0 )
+    {
+        m_mutex.release();
         return 0;
+    }
 
     SINT__ m_read_offset = m_read_offsets[read_offset_index].read_offset;
 
     // read catch up with write
     if( m_read_offset == m_write_offset )
+    {
+        m_mutex.release();
         return 0;
+    }
 
     // copy
     for( i = 0; i < num_elem; i++ )
@@ -318,6 +348,9 @@ UINT__ CBufferAdvance::get( void * data, UINT__ num_elem, UINT__ read_offset_ind
 
     // update read offset at given index
     m_read_offsets[read_offset_index].read_offset = m_read_offset;
+
+    // TODO: necessary?
+    m_mutex.release();
 
     // return number of elems
     return i;
