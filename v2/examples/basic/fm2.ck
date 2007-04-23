@@ -4,7 +4,7 @@
 SinOsc m => SinOsc c => dac;
 
 // carrier frequency
-220 => float cf => c.freq;
+220 => c.freq;
 // modulator frequency
 550 => m.freq;
 // index of modulation
