@@ -14,7 +14,4 @@ SinOsc m => SinOsc c => dac;
 2 => c.sync;
 
 // time-loop
-while( true )
-{
-    1::second => now;
-}
+while( true ) 1::second => now;

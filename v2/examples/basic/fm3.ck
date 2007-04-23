@@ -4,14 +4,11 @@
 SinOsc m => SinOsc c => dac;
 
 // carrier frequency
-220 => float cf => c.freq;
+220 => c.freq;
 // modulator frequency
 20 => m.freq;
 // index of modulation
 200 => m.gain;
 
 // time-loop
-while( true )
-{
-    1::second => now;
-}
+while( true ) 1::second => now;
