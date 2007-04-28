@@ -1,9 +1,9 @@
 // multi-input UAna
 
 // connecting two inputs
-Correlation corr;
-adc.left => corr => blackhole;
-adc.right => corr;
+Correlation corr => blackhole;
+adc.left => corr.left;
+adc.right => corr.right;
 
 // set size (for circular correlation)
 512 => corr.size;

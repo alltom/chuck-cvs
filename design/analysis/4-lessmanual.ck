@@ -39,7 +39,7 @@ fun void centroid_ctrl()
         // wait for c to do someting
         c.event() => now;
         // when it does, get result (we know as float)
-        f.getFloat() => synthesis_param;
+        c.getFloat() => synthesis_param;
         // trigger something here!        
     }
 }
