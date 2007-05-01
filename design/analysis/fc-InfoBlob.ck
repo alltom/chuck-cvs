@@ -1,6 +1,9 @@
 
 class InfoBlob
 {
+    // last time
+    time when;
+
 	// public!
 	int iVector[];
 	int iMatrix[][];
