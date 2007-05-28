@@ -1,4 +1,4 @@
-Noise n => FFT fft => UAnaOp oper => IFFT ifft => dac;
+Noise n => FFT fft =^ UAnaOp oper =^ IFFT ifft => dac;
 
 // do multiply
 3 => oper.op;

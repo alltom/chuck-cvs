@@ -1,4 +1,4 @@
-Noise n => FFT fft => IFFT ifft => dac;
+Noise n => FFT fft =^ IFFT ifft => dac;
 
 // set window and size
 Window.hamming(512) => fft.window;

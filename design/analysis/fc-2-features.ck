@@ -1,10 +1,11 @@
-adc => FFT fft;
 Clusterer custard => blackhole;
 UAna one => blackhole;
-fft => Centroid c => one;
-fft => Flux f => one;
-fft => MFCC m => custard;
-fft => Tilt t => custard;
+
+adc => FFT fft;
+fft =^ Centroid c =^ one;
+fft =^ Flux f =^ one;
+fft =^ MFCC m =^ custard;
+fft =^ Tilt t =^ custard;
 
 // set window and size
 Window.hamming( 512 ) => fft.window;
