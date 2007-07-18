@@ -42,7 +42,7 @@
 // name: hanning()
 // desc: make window
 //-----------------------------------------------------------------------------
-void hanning( float * window, unsigned long length )
+void hanning( FLOAT * window, unsigned long length )
 {
     unsigned long i;
     double pi, phase = 0, delta;
@@ -52,7 +52,7 @@ void hanning( float * window, unsigned long length )
 
     for( i = 0; i < length; i++ )
     {
-        window[i] = (float)(0.5 * (1.0 - cos(phase)));
+        window[i] = (FLOAT)(0.5 * (1.0 - cos(phase)));
         phase += delta;
     }
 }
@@ -64,7 +64,7 @@ void hanning( float * window, unsigned long length )
 // name: hamming()
 // desc: make window
 //-----------------------------------------------------------------------------
-void hamming( float * window, unsigned long length )
+void hamming( FLOAT * window, unsigned long length )
 {
     unsigned long i;
     double pi, phase = 0, delta;
@@ -74,10 +74,11 @@ void hamming( float * window, unsigned long length )
 
     for( i = 0; i < length; i++ )
     {
-        window[i] = (float)(0.54 - .46*cos(phase));
+        window[i] = (FLOAT)(0.54 - .46*cos(phase));
         phase += delta;
     }
 }
+
 
 
 
@@ -85,7 +86,7 @@ void hamming( float * window, unsigned long length )
 // name: blackman()
 // desc: make window
 //-----------------------------------------------------------------------------
-void blackman( float * window, unsigned long length )
+void blackman( FLOAT * window, unsigned long length )
 {
     unsigned long i;
     double pi, phase = 0, delta;
@@ -95,8 +96,27 @@ void blackman( float * window, unsigned long length )
 
     for( i = 0; i < length; i++ )
     {
-        window[i] = (float)(0.42 - .5*cos(phase) + .08*cos(2*phase));
+        window[i] = (FLOAT)(0.42 - .5*cos(phase) + .08*cos(2*phase));
         phase += delta;
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: bartlett()
+// desc: make window
+//-----------------------------------------------------------------------------
+void bartlett( FLOAT * window, unsigned long length )
+{
+    unsigned long i;
+    FLOAT half = (FLOAT)length / 2;
+
+    for( i = 0; i < length; i++ )
+    {
+        if( i < half ) window[i] = i / half;
+        else window[i] = (length - i) / half;
     }
 }
 
@@ -107,7 +127,7 @@ void blackman( float * window, unsigned long length )
 // name: apply_window()
 // desc: apply a window to data
 //-----------------------------------------------------------------------------
-void apply_window( float * data, float * window, unsigned long length )
+void apply_window( FLOAT * data, FLOAT * window, unsigned long length )
 {
     unsigned long i;
 
@@ -115,9 +135,9 @@ void apply_window( float * data, float * window, unsigned long length )
         data[i] *= window[i];
 }
 
-static float PI ;
-static float TWOPI ;
-void bit_reverse( float * x, long N );
+static FLOAT PI ;
+static FLOAT TWOPI ;
+void bit_reverse( FLOAT * x, long N );
 
 //-----------------------------------------------------------------------------
 // name: rfft()
@@ -136,17 +156,17 @@ void bit_reverse( float * x, long N );
 //   N MUST be a power of 2.
 //
 //-----------------------------------------------------------------------------
-void rfft( float * x, long N, unsigned int forward )
+void rfft( FLOAT * x, long N, unsigned int forward )
 {
     static int first = 1 ;
-    float c1, c2, h1r, h1i, h2r, h2i, wr, wi, wpr, wpi, temp, theta ;
-    float xr, xi ;
+    FLOAT c1, c2, h1r, h1i, h2r, h2i, wr, wi, wpr, wpi, temp, theta ;
+    FLOAT xr, xi ;
     long i, i1, i2, i3, i4, N2p1 ;
 
     if( first )
     {
-        PI = (float) (4.*atan( 1. )) ;
-        TWOPI = (float) (8.*atan( 1. )) ;
+        PI = (FLOAT) (4.*atan( 1. )) ;
+        TWOPI = (FLOAT) (8.*atan( 1. )) ;
         first = 0 ;
     }
 
@@ -171,8 +191,8 @@ void rfft( float * x, long N, unsigned int forward )
         x[1] = 0. ;
     }
     
-    wpr = (float) (-2.*pow( sin( 0.5*theta ), 2. )) ;
-    wpi = (float) sin( theta ) ;
+    wpr = (FLOAT) (-2.*pow( sin( 0.5*theta ), 2. )) ;
+    wpi = (FLOAT) sin( theta ) ;
     N2p1 = (N<<1) + 1 ;
     
     for( i = 0 ; i <= N>>1 ; i++ )
@@ -224,7 +244,7 @@ void rfft( float * x, long N, unsigned int forward )
 //   these routines from CARL software, spect.c
 //   check out the CARL CMusic distribution for more software
 //
-//   cfft replaces float array x containing NC complex values (2*NC float 
+//   cfft replaces FLOAT array x containing NC complex values (2*NC FLOAT 
 //   values alternating real, imagininary, etc.) by its Fourier transform 
 //   if forward is true, or by its inverse Fourier transform ifforward is 
 //   false, using a recursive Fast Fourier transform method due to 
@@ -233,9 +253,9 @@ void rfft( float * x, long N, unsigned int forward )
 //   NC MUST be a power of 2.
 //
 //-----------------------------------------------------------------------------
-void cfft( float * x, long NC, unsigned int forward )
+void cfft( FLOAT * x, long NC, unsigned int forward )
 {
-    float wr, wi, wpr, wpi, theta, scale ;
+    FLOAT wr, wi, wpr, wpi, theta, scale ;
     long mmax, ND, m, i, j, delta ;
     ND = NC<<1 ;
     bit_reverse( x, ND ) ;
@@ -244,14 +264,14 @@ void cfft( float * x, long NC, unsigned int forward )
     {
         delta = mmax<<1 ;
         theta = TWOPI/( forward? mmax : -mmax ) ;
-        wpr = (float) (-2.*pow( sin( 0.5*theta ), 2. )) ;
-        wpi = (float) sin( theta ) ;
+        wpr = (FLOAT) (-2.*pow( sin( 0.5*theta ), 2. )) ;
+        wpi = (FLOAT) sin( theta ) ;
         wr = 1. ;
         wi = 0. ;
 
         for( m = 0 ; m < mmax ; m += 2 )
         {
-            register float rtemp, itemp ;
+            register FLOAT rtemp, itemp ;
             for( i = m ; i < ND ; i += delta )
             {
                 j = i + mmax ;
@@ -269,9 +289,9 @@ void cfft( float * x, long NC, unsigned int forward )
     }
 
     // scale output
-    scale = (float)(forward ? 1./ND : 2.) ;
+    scale = (FLOAT)(forward ? 1./ND : 2.) ;
     {
-        register float *xi=x, *xe=x+ND ;
+        register FLOAT *xi=x, *xe=x+ND ;
         while( xi < xe )
             *xi++ *= scale ;
     }
@@ -282,12 +302,12 @@ void cfft( float * x, long NC, unsigned int forward )
 
 //-----------------------------------------------------------------------------
 // name: bit_reverse()
-// desc: bitreverse places float array x containing N/2 complex values
+// desc: bitreverse places FLOAT array x containing N/2 complex values
 //       into bit-reversed order
 //-----------------------------------------------------------------------------
-void bit_reverse( float * x, long N )
+void bit_reverse( FLOAT * x, long N )
 {
-    float rtemp, itemp ;
+    FLOAT rtemp, itemp ;
     long i, j, m ;
     for( i = j = 0 ; i < N ; i += 2, j += m )
     {

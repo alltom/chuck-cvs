@@ -43,6 +43,7 @@
 static double g_pi = ONE_PI;
 static double g_twopi = TWO_PI;
 static double g_e = ::exp( 1.0 );
+static complex g_i = { 0.0, 1.0 };
 
 
 // query
@@ -236,6 +237,32 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_sfun( QUERY, dbtorms_impl, "float", "dbtorms" ); //! decibel to rms
     QUERY->add_arg( QUERY, "float", "value" );
     
+    // add re
+    QUERY->add_sfun( QUERY, re_impl, "float", "re" ); //! real component of complex
+    QUERY->add_arg( QUERY, "complex", "value" );
+    
+    // add im
+    QUERY->add_sfun( QUERY, im_impl, "float", "im" ); //! imaginary component of complex
+    QUERY->add_arg( QUERY, "complex", "value" );
+    
+    // add mag
+    QUERY->add_sfun( QUERY, modulus_impl, "float", "mag" ); //! mag
+    QUERY->add_arg( QUERY, "polar", "value" );
+    
+    // add phase
+    QUERY->add_sfun( QUERY, phase_impl, "float", "phase" ); //! phase
+    QUERY->add_arg( QUERY, "polar", "value" );
+    
+    // add rtop
+    QUERY->add_sfun( QUERY, rtop_impl, "int", "rtop" ); // rect to polar
+    QUERY->add_arg( QUERY, "complex[]", "from" );
+    QUERY->add_arg( QUERY, "polar[]", "to" );
+    
+    // add ptor
+    QUERY->add_sfun( QUERY, ptor_impl, "int", "ptor" ); // polar to rect
+    QUERY->add_arg( QUERY, "polar[]", "from" );
+    QUERY->add_arg( QUERY, "complex[]", "to" );
+    
     // pi
     //! see \example math.ck
     QUERY->add_svar( QUERY, "float", "PI", TRUE, &g_pi );
@@ -245,6 +272,16 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
 
     // e
     QUERY->add_svar( QUERY, "float", "E", TRUE, &g_e );
+    // e
+    QUERY->add_svar( QUERY, "float", "e", TRUE, &g_e );
+
+    // i
+    QUERY->add_svar( QUERY, "complex", "I", TRUE, &g_i );
+    QUERY->add_svar( QUERY, "complex", "i", TRUE, &g_i );
+
+    // j
+    QUERY->add_svar( QUERY, "complex", "J", TRUE, &g_i );
+    QUERY->add_svar( QUERY, "complex", "j", TRUE, &g_i );
 
     // done
     QUERY->end_class( QUERY );
@@ -445,4 +482,108 @@ CK_DLL_SFUN( nextpow2_impl )
     t_CKINT xx = x;
     for( ; x &= x-1; xx = x );
     RETURN->v_int = xx * 2;
+}
+
+// re
+CK_DLL_SFUN( re_impl )
+{
+    t_CKCOMPLEX x = GET_NEXT_COMPLEX(ARGS);
+    RETURN->v_float = x.re;
+}
+
+// im
+CK_DLL_SFUN( im_impl )
+{
+    t_CKCOMPLEX x = GET_NEXT_COMPLEX(ARGS);
+    RETURN->v_float = x.im;
+}
+
+// modulus
+CK_DLL_SFUN( modulus_impl )
+{
+    t_CKPOLAR x = GET_NEXT_POLAR(ARGS);
+    RETURN->v_float = x.modulus;
+}
+
+// phase
+CK_DLL_SFUN( phase_impl )
+{
+    t_CKPOLAR x = GET_NEXT_POLAR(ARGS);
+    RETURN->v_float = x.phase;
+}
+
+
+// rtop
+CK_DLL_SFUN( rtop_impl )
+{
+    // get array
+    Chuck_Array16 * from = (Chuck_Array16 *)GET_NEXT_OBJECT(ARGS);
+    Chuck_Array16 * to = (Chuck_Array16 *)GET_NEXT_OBJECT(ARGS);
+
+    // make sure not null
+    if( !from || !to )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "Math.rtop( ... ) was given one or more NULL arrays..." );
+        return;
+    }
+    
+    // find how much to copy
+    t_CKUINT count = ck_min( from->capacity(), to->capacity() );
+    t_CKCOMPLEX c;
+    t_CKCOMPLEX p;
+    
+    // convert
+    for( t_CKUINT i = 0; i < count; i++ )
+    {
+        // go for it
+        from->get( i, &c );
+        p.re = ::hypot( c.re, c.im );
+        p.im = ::atan2( c.im, c.re );
+        to->set( i, p );
+    }
+    
+    // zero out the rest
+    if( count < to->capacity() ) to->zero( count, to->capacity() );
+    
+    // return number of elements done
+    RETURN->v_int = count;
+}
+
+
+// ptor
+CK_DLL_SFUN( ptor_impl )
+{
+    // get array
+    Chuck_Array16 * from = (Chuck_Array16 *)GET_NEXT_OBJECT(ARGS);
+    Chuck_Array16 * to = (Chuck_Array16 *)GET_NEXT_OBJECT(ARGS);
+
+    // make sure not null
+    if( !from || !to )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "Math.ptor( ... ) was given one or more NULL arrays..." );
+        return;
+    }
+    
+    // find how much to copy
+    t_CKUINT count = ck_min( from->capacity(), to->capacity() );
+    t_CKCOMPLEX c;
+    t_CKPOLAR p;
+    
+    // convert
+    for( t_CKUINT i = 0; i < count; i++ )
+    {
+        // go for it
+        from->get( i, (t_CKCOMPLEX *)&p );
+        c.re = p.modulus * ::cos( p.phase );
+        c.im = p.modulus * ::sin( p.phase );
+        to->set( i, c );
+    }
+    
+    // zero out the rest
+    if( count < to->capacity() ) to->zero( count, to->size() );
+    
+    // return number of elements done
+    RETURN->v_int = count;
 }

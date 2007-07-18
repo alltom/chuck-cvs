@@ -51,6 +51,13 @@
 #define t_CKBYTE                    unsigned char
 #define t_CKVOID                    void
 #define t_CKVOIDPTR                 void *
+#define t_CKCOMPLEX                 complex
+#define t_CKPOLAR                   polar
+
+// complex type
+typedef struct { t_CKFLOAT re ; t_CKFLOAT im ; } complex;
+// polar type
+typedef struct { t_CKFLOAT modulus ; t_CKFLOAT phase ; } polar;
 
 // size
 #define sz_TIME                     sizeof(double)
@@ -65,6 +72,8 @@
 #define sz_BYTE                     sizeof(unsigned char)
 #define sz_VOID                     0
 #define sz_VOIDPTR                  sizeof(void *)
+#define sz_COMPLEX                  sizeof(t_CKCOMPLEX)
+#define sz_POLAR                    sizeof(t_CKPOLAR)
 
 typedef char *                      c_str;
 typedef const char *                c_constr;
@@ -103,8 +112,8 @@ typedef const char *                c_constr;
 #endif
 
 // max + min
-#define ck_max(x,y)                 ( x >= y ? x : y )
-#define ck_min(x,y)                 ( x <= y ? x : y )
+#define ck_max(x,y)                 ( (x) >= (y) ? (x) : (y) )
+#define ck_min(x,y)                 ( (x) <= (y) ? (x) : (y) )
 
 // dedenormal
 #define CK_DDN_SINGLE(f)            f = ( f >= 0 ? \

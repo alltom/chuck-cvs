@@ -154,6 +154,7 @@ public:
 
 #define CHUCK_ARRAY4_DATASIZE 4
 #define CHUCK_ARRAY8_DATASIZE 8
+#define CHUCK_ARRAY16_DATASIZE 16
 //-----------------------------------------------------------------------------
 // name: struct Chuck_Array
 // desc: native ChucK arrays ( virtual base class )
@@ -255,6 +256,44 @@ public:
     // t_CKINT m_size;
     // t_CKINT m_capacity;
 };
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Array16
+// desc: native ChucK arrays (for 16-byte)
+//-----------------------------------------------------------------------------
+struct Chuck_Array16 : Chuck_Array
+{
+public:
+    Chuck_Array16( t_CKINT capacity = 8 );
+    virtual ~Chuck_Array16();
+
+public:
+    t_CKUINT addr( t_CKINT i );
+    t_CKUINT addr( const std::string & key );
+    t_CKINT get( t_CKINT i, t_CKCOMPLEX * val );
+    t_CKINT get( const std::string & key, t_CKCOMPLEX * val );
+    t_CKINT set( t_CKINT i, t_CKCOMPLEX val );
+    t_CKINT set( const std::string & key, t_CKCOMPLEX val );
+    t_CKINT push_back( t_CKCOMPLEX val );
+    t_CKINT pop_back( );
+    t_CKINT back( t_CKCOMPLEX * val ) const;
+    void    zero( t_CKUINT start, t_CKUINT end );
+
+    virtual void    clear( );
+    virtual t_CKINT set_capacity( t_CKINT capacity );
+    virtual t_CKINT find( const std::string & key );
+    virtual t_CKINT erase( const std::string & key );
+    virtual t_CKINT data_type_size( ) { return CHUCK_ARRAY16_DATASIZE; }
+
+public:
+    std::vector<t_CKCOMPLEX> m_vector;
+    std::map<std::string, t_CKCOMPLEX> m_map;
+    // t_CKINT m_size;
+    // t_CKINT m_capacity;
+};
+
 
 
 

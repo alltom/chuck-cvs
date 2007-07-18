@@ -198,6 +198,9 @@ void Chuck_UGen::init()
 
     shred = NULL;
     owner = NULL;
+    
+    // what a hack
+    m_is_uana = FALSE;
 }
 
 
@@ -626,5 +629,134 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
         m_current = 0.0f;
     
     m_last = m_current;
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_UAna()
+// desc: constructor
+//-----------------------------------------------------------------------------
+Chuck_UAna::Chuck_UAna() : Chuck_UGen()
+{
+    // mark as true
+    m_is_uana = TRUE;
+    // reset uana time
+    m_uana_time = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_UAna()
+// desc: destructor
+//-----------------------------------------------------------------------------
+Chuck_UAna::~Chuck_UAna()
+{
+    // do nothing for now
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: tock()
+// dsec: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_UAna::system_tock( t_CKTIME now )
+{
+    if( m_uana_time >= now )
+        return m_valid;
+
+    t_CKUINT i; Chuck_UGen * ugen; Chuck_UAna * uana; SAMPLE multi;
+
+    // inc time
+    m_uana_time = now;
+    if( m_num_src )
+    {
+        ugen = m_src_list[0];
+        // TODO: address this horrendous hack
+        if( ugen->m_is_uana )
+        {
+            // cast to uana
+            uana = (Chuck_UAna *)ugen;
+            // tock it
+            if( uana->m_uana_time < now ) uana->system_tock( now );
+        }
+        // sum
+        m_sum = ugen->m_current;
+
+        // tick the src list
+        for( i = 1; i < m_num_src; i++ )
+        {
+            ugen = m_src_list[i];
+            // TODO: address this horrendous hack
+            if( ugen->m_is_uana )
+            {
+                // cast to uana
+                uana = (Chuck_UAna *)ugen;
+                // tock it
+                if( uana->m_uana_time < now ) uana->system_tock( now );
+            }
+
+            if( ugen->m_valid )
+            {
+                // TODO: operate on blob data
+            }
+        }
+    }
+
+    // tock multiple channels
+    multi = 0.0f;
+    if( m_multi_chan_size )
+    {
+        for( i = 0; i < m_multi_chan_size; i++ )
+        {
+            ugen = m_multi_chan[i];
+            // TODO: address this horrendous hack
+            if( ugen->m_is_uana )
+            {
+                // cast to uana
+                uana = (Chuck_UAna *)ugen;
+                // tock it
+                if( uana->m_uana_time < now ) uana->system_tock( now );
+            }
+        }
+    }
+
+    // if owner
+    if( owner != NULL && owner->m_is_uana )
+    {
+        // cast to uana
+        uana = (Chuck_UAna *)owner;
+        // tock it
+        if( uana->m_uana_time < now ) uana->system_tock( now );
+    }
+
+    if( m_op > 0 )  // UGEN_OP_TOCK
+    {
+        // tock the uana
+        if( tock ) m_valid = tock( this, NULL, NULL, NULL );
+        if( !m_valid ) { /* clear out blob? */ }
+        // TODO: set current_blob to out_blob
+        // TODO: set last_blob to current
+        return m_valid;
+    }
+    else if( m_op < 0 ) // UGEN_OP_PASS
+    {
+        // pass through
+        // TODO: anything?
+        return TRUE;
+    }
+    else // UGEN_OP_STOP
+    {
+        // TODO: anything?
+    }
+    
+    // TODO: set m_last_blob to current?
+
     return TRUE;
 }

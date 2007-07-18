@@ -115,15 +115,12 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
 
     EM_log( CK_LOG_SEVERE, "class 'ugen'" );
 
-    //the type argument IS t_ugen here - there's no other use of this function
-    //why are we using t_ugen here instead of type ( or vice versa ) ? PLD
     // add ugen info
-
-    t_ugen.ugen_info = new Chuck_UGen_Info;
-    t_ugen.ugen_info->add_ref();
-    t_ugen.ugen_info->tick = __ugen_tick;
-    t_ugen.ugen_info->num_ins = 1;
-    t_ugen.ugen_info->num_outs = 1;
+    type->ugen_info = new Chuck_UGen_Info;
+    type->ugen_info->add_ref();
+    type->ugen_info->tick = __ugen_tick;
+    type->ugen_info->num_ins = 1;
+    type->ugen_info->num_outs = 1;
 
     // init as base class
     // TODO: ctor/dtor, ugen's sometimes created internally?
@@ -180,6 +177,52 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "int", "isConnectedTo", ugen_connected );
     func->add_arg( "UGen", "right" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end
+    type_engine_import_class_end( env );
+
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_uana()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type )
+{
+    Chuck_DL_Func * func = NULL;
+
+    EM_log( CK_LOG_SEVERE, "class 'uana'" );
+
+    // add uana info
+    type->ugen_info = new Chuck_UGen_Info;
+    type->ugen_info->add_ref();
+    type->ugen_info->tick = __ugen_tick;
+    type->ugen_info->num_ins = 1;
+    type->ugen_info->num_outs = 1;
+
+    // init as base class, type should already know the parent type
+    // TODO: ctor/dtor, ugen's sometimes created internally?
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
+        return FALSE;
+
+    // add upchuck
+    func = make_new_mfun( "void", "upchuck", uana_upchuck );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add blob
+    // func = make_new_mfun( "UAnaBlob", "blob", uana_blob );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end
     type_engine_import_class_end( env );
@@ -1417,6 +1460,46 @@ CK_DLL_CTRL( ugen_connected )
     RETURN->v_int = ret;
 }
 
+CK_DLL_MFUN( uana_upchuck )
+{
+    // get as uana
+    Chuck_UAna * uana = (Chuck_UAna *)SELF;
+    // get shred
+    Chuck_VM_Shred * derhs = SHRED;
+    // make sure it's not NULL
+    if( !derhs )
+    {
+        EM_error3( "UAna.upchuck() encountered NULL shred; operation aborting!" );
+        return;
+    }
+    
+    // get VM
+    Chuck_VM * vm = derhs->vm_ref;
+    // ensure
+    if( !vm )
+    {
+        EM_error3( "UAna.upchuck() encountered NULL VM ref; operation aborting!" );
+        return;
+    }
+
+    // for multiple channels
+    Chuck_DL_Return ret;
+    for( t_CKUINT i = 0; i < uana->m_multi_chan_size; i++ )
+        uana_upchuck( uana->m_multi_chan[i], ARGS, &ret, SHRED );
+
+    // tock it (TODO: order relative to multiple channels?)
+    uana->system_tock( vm->shreduler()->now_system );
+}
+
+CK_DLL_MFUN( uana_blob )
+{
+    // get as uana
+    Chuck_UAna * uana = (Chuck_UAna *)SELF;
+    
+    // TODO: return
+    RETURN->v_object = NULL;
+}
+
 CK_DLL_CTOR( event_ctor )
 {
 //  OBJ_MEMBER_INT(SELF, event_offset_data) = (t_CKUINT)new Data_Event;
@@ -1634,20 +1717,30 @@ CK_DLL_MFUN( array_erase )
 CK_DLL_MFUN( array_push_back )
 {
     Chuck_Array * array = (Chuck_Array *)SELF;
+    // TODO: make this safe!
     if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
         RETURN->v_int = ((Chuck_Array4 *)array)->push_back( GET_NEXT_UINT( ARGS ) );
-    else 
-        RETURN->v_float = ((Chuck_Array8 *)array)->push_back( GET_NEXT_FLOAT( ARGS ) );
+    else if( array->data_type_size() == CHUCK_ARRAY8_DATASIZE )
+        RETURN->v_int = ((Chuck_Array8 *)array)->push_back( GET_NEXT_FLOAT( ARGS ) );
+    else if( array->data_type_size() == CHUCK_ARRAY16_DATASIZE )
+        RETURN->v_int = ((Chuck_Array16 *)array)->push_back( GET_NEXT_COMPLEX( ARGS ) );
+    else
+        assert( FALSE );
 }
 
 // array.pop_back()
 CK_DLL_MFUN( array_pop_back )
 {
     Chuck_Array * array = (Chuck_Array *)SELF;
+    // TODO: make this safe!
     if( array->data_type_size() == CHUCK_ARRAY4_DATASIZE )
         RETURN->v_int = ((Chuck_Array4 *)array)->pop_back( );
-    else 
-        RETURN->v_float = ((Chuck_Array8 *)array)->pop_back( );
+    else if( array->data_type_size() == CHUCK_ARRAY8_DATASIZE )
+        RETURN->v_int = ((Chuck_Array8 *)array)->pop_back( );
+    else if( array->data_type_size() == CHUCK_ARRAY16_DATASIZE )
+        RETURN->v_int = ((Chuck_Array16 *)array)->push_back( GET_NEXT_COMPLEX( ARGS ) );
+    else
+        assert( FALSE );
 }
 
 

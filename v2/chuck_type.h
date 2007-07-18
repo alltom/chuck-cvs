@@ -49,10 +49,10 @@
 typedef enum {
     // general types
     te_int, te_uint, te_single, te_float, te_double, te_time, te_dur,
-    te_string, te_thread, te_shred, te_class, te_function, te_object,
-    te_user, te_array, te_null, te_ugen, te_event, te_void, te_stdout, 
-    te_stderr, te_adc, te_dac, te_bunghole, te_midiin, te_midiout, 
-    te_multi
+    te_complex, te_polar, te_string, te_thread, te_shred, te_class,
+    te_function, te_object, te_user, te_array, te_null, te_ugen, te_uana, 
+    te_event, te_void, te_stdout, te_stderr, te_adc, te_dac, te_bunghole, 
+    te_midiin, te_midiout, te_multi
 } te_Type;
 
 
@@ -461,10 +461,18 @@ struct Chuck_UGen_Info : public Chuck_VM_Object
     t_CKUINT num_ins;
     // number of outgoing channels
     t_CKUINT num_outs;
+    
+    // for uana, NULL for ugen
+    f_tock tock;
+    // number of incoming ana channels
+    t_CKUINT num_ins_ana;
+    // number of outgoing channels
+    t_CKUINT num_outs_ana;
 
     // constructor
     Chuck_UGen_Info()
-    { tick = NULL; pmsg = NULL; num_ins = 1; num_outs = 1; }
+    { tick = NULL; pmsg = NULL; num_ins = num_outs = 1; 
+      tock = NULL; num_ins_ana = num_outs_ana = 1; }
 };
 
 
@@ -738,6 +746,11 @@ Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name, 
                                             Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor,
                                             f_tick tick, f_pmsg pmsg,
                                             t_CKUINT num_ins = 0xffffffff, t_CKUINT num_outs = 0xffffffff );
+Chuck_Type * type_engine_import_uana_begin( Chuck_Env * env, const char * name, const char * parent,
+                                            Chuck_Namespace * where, f_ctor pre_ctor, f_dtor dtor,
+                                            f_tick tick, f_tock tock, f_pmsg pmsg,
+                                            t_CKUINT num_ins = 0xffffffff, t_CKUINT num_outs = 0xffffffff,
+                                            t_CKUINT num_ins_ana = 0xffffffff, t_CKUINT num_outs_ana = 0xffffffff );
 t_CKBOOL type_engine_import_mfun( Chuck_Env * env, Chuck_DL_Func * mfun );
 t_CKBOOL type_engine_import_sfun( Chuck_Env * env, Chuck_DL_Func * sfun );
 t_CKUINT type_engine_import_mvar( Chuck_Env * env, const char * type, 
@@ -782,6 +795,8 @@ extern Chuck_Type t_int;
 extern Chuck_Type t_float;
 extern Chuck_Type t_time;
 extern Chuck_Type t_dur;
+extern Chuck_Type t_complex;
+extern Chuck_Type t_polar;
 extern Chuck_Type t_object;
 extern Chuck_Type t_null;
 extern Chuck_Type t_string;
@@ -792,6 +807,7 @@ extern Chuck_Type t_function;
 extern Chuck_Type t_class;
 extern Chuck_Type t_event;
 extern Chuck_Type t_ugen;
+extern Chuck_Type t_uana;
 
 
 

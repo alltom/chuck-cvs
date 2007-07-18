@@ -28,8 +28,10 @@
 //
 // authors: Ge Wang (gewang@cs.princeton.edu)
 //          Perry R. Cook (prc@cs.princeton.edu)
+//          Rebecca Fiebrink (fiebrink@cs.princeton.edu)
 // date: spring 2004 - 1.1
 //       spring 2005 - 1.2
+//       spring 2007 - UAna
 //-----------------------------------------------------------------------------
 #ifndef __CHUCK_UGEN_H__
 #define __CHUCK_UGEN_H__
@@ -113,6 +115,33 @@ public: // data
     Chuck_VM_Shred * shred;
     // owner
     Chuck_UGen * owner;
+    
+    // what a hack!
+    t_CKBOOL m_is_uana;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_UAna
+// dsec: uana base
+//-----------------------------------------------------------------------------
+struct Chuck_UAna : public Chuck_UGen
+{
+public:
+    Chuck_UAna( );
+    virtual ~Chuck_UAna( );
+
+public:
+    t_CKBOOL system_tock( t_CKTIME now );
+
+public:
+    // tock function
+    f_tock tock;
+
+public: // data
+    t_CKTIME m_uana_time;
 };
 
 

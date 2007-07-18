@@ -207,6 +207,10 @@ SOURCE=.\rtmidi.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\uana_xform.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\ugen_filter.cpp
 # End Source File
 # Begin Source File
@@ -417,6 +421,10 @@ SOURCE=.\rterror.h
 # Begin Source File
 
 SOURCE=.\rtmidi.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\uana_xform.h
 # End Source File
 # Begin Source File
 

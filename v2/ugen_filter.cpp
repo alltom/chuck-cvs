@@ -1712,7 +1712,7 @@ struct biquad_data
 CK_DLL_CTOR( biquad_ctor )
 {    
     biquad_data* d = new biquad_data;
-    OBJ_MEMBER_UINT( SELF, biquad_offset_data ) = ( t_CKUINT ) d;
+    OBJ_MEMBER_UINT( SELF, biquad_offset_data ) = (t_CKUINT)d;
 }
 
 //-----------------------------------------------------------------------------

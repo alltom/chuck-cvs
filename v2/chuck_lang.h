@@ -46,6 +46,7 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY );
 // base class initialization
 t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type );
@@ -90,6 +91,22 @@ CK_DLL_MFUN( ugen_numChannels );
 CK_DLL_MFUN( ugen_cget_numChannels );
 CK_DLL_MFUN( ugen_chan );
 CK_DLL_MFUN( ugen_connected );
+
+
+//-----------------------------------------------------------------------------
+// uana API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( uana_ctor );
+CK_DLL_DTOR( uana_dtor );
+CK_DLL_MFUN( uana_upchuck );
+CK_DLL_MFUN( uana_blob );
+
+
+//-----------------------------------------------------------------------------
+// uanablob API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( uanablob_ctor );
+CK_DLL_DTOR( uanablob_dtor );
 
 
 //-----------------------------------------------------------------------------

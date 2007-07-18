@@ -62,6 +62,7 @@ t_CKBOOL type_engine_scan1_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
 t_CKBOOL type_engine_scan1_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKBOOL type_engine_scan1_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKBOOL type_engine_scan1_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKBOOL type_engine_scan1_op_upchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKBOOL type_engine_scan1_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKBOOL type_engine_scan1_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
 t_CKBOOL type_engine_scan1_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
@@ -98,6 +99,7 @@ t_CKBOOL type_engine_scan2_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
 t_CKBOOL type_engine_scan2_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKBOOL type_engine_scan2_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKBOOL type_engine_scan2_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKBOOL type_engine_scan2_op_upchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKBOOL type_engine_scan2_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKBOOL type_engine_scan2_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
 t_CKBOOL type_engine_scan2_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
@@ -907,6 +909,18 @@ t_CKBOOL type_engine_scan1_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_scan1_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan1_op_upchuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan1_op_upchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 {
     return TRUE;
 }
@@ -1936,6 +1950,18 @@ t_CKBOOL type_engine_scan2_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL type_engine_scan2_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+{
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_scan2_op_upchuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL type_engine_scan2_op_upchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
 {
     return TRUE;
 }

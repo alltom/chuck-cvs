@@ -179,6 +179,8 @@ long htol( c_str str )
 
 "++"                    { adjust(); return PLUSPLUS; }
 "--"                    { adjust(); return MINUSMINUS; }
+"#("                    { adjust(); return POUNDPAREN; }
+"%("                    { adjust(); return PERCENTPAREN; }
 
 ","                     { adjust(); return COMMA; }
 ":"                     { adjust(); return COLON; }
@@ -249,6 +251,7 @@ typeof                  { adjust(); return TYPEOF; }
 "=>"                    { adjust(); return CHUCK; }
 "=<"                    { adjust(); return UNCHUCK; }
 "!=>"                   { adjust(); return UNCHUCK; }
+"=^"                    { adjust(); return UPCHUCK; }
 "@=>"                   { adjust(); return AT_CHUCK; }
 "+=>"                   { adjust(); return PLUS_CHUCK; }
 "-=>"                   { adjust(); return MINUS_CHUCK; }

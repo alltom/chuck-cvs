@@ -23,60 +23,23 @@
 -----------------------------------------------------------------------------*/
 
 //-----------------------------------------------------------------------------
-// file: ulib_math.h
+// file: uana_xform.h
 // desc: ...
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
-//         Perry R. Cook (prc@cs.princeton.edu)
-// date: Spring 2004
+//         Rebecca Fiebrink (fiebrink@cs.princeton.edu)
+// date: Spring 2007
 //-----------------------------------------------------------------------------
-#ifndef __ULIB_MATH_H__
-#define __ULIB_MATH_H__
+#ifndef __UANA_XFORM_H__
+#define __UANA_XFORM_H__
 
 #include "chuck_dl.h"
 
+
 // query
-DLL_QUERY libmath_query( Chuck_DL_Query * QUERY );
+DLL_QUERY xform_query( Chuck_DL_Query * query );
 
-// impl
-CK_DLL_SFUN( sin_impl );
-CK_DLL_SFUN( cos_impl );
-CK_DLL_SFUN( tan_impl );
-CK_DLL_SFUN( cot_impl );
-CK_DLL_SFUN( asin_impl );
-CK_DLL_SFUN( acos_impl );
-CK_DLL_SFUN( atan_impl );
-CK_DLL_SFUN( atan2_impl );
-CK_DLL_SFUN( sinh_impl );
-CK_DLL_SFUN( cosh_impl );
-CK_DLL_SFUN( tanh_impl );
-CK_DLL_SFUN( hypot_impl );
 
-CK_DLL_SFUN( pow_impl );
-CK_DLL_SFUN( sqrt_impl );
-CK_DLL_SFUN( exp_impl );
-CK_DLL_SFUN( log_impl );
-CK_DLL_SFUN( log2_impl );
-CK_DLL_SFUN( log10_impl );
-CK_DLL_SFUN( floor_impl );
-CK_DLL_SFUN( ceil_impl );
-CK_DLL_SFUN( round_impl );
-CK_DLL_SFUN( trunc_impl );
-CK_DLL_SFUN( fmod_impl );
-CK_DLL_SFUN( remainder_impl );
-CK_DLL_SFUN( min_impl );
-CK_DLL_SFUN( max_impl );
-CK_DLL_SFUN( isinf_impl );
-CK_DLL_SFUN( isnan_impl );
-
-CK_DLL_SFUN( nextpow2_impl );
-
-CK_DLL_SFUN( re_impl );
-CK_DLL_SFUN( im_impl );
-CK_DLL_SFUN( modulus_impl );
-CK_DLL_SFUN( phase_impl );
-CK_DLL_SFUN( rtop_impl );
-CK_DLL_SFUN( ptor_impl );
 
 
 #endif

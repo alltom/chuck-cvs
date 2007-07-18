@@ -53,6 +53,8 @@ Chuck_Type t_int( te_int, "int", NULL, sizeof(t_CKINT) );
 Chuck_Type t_float( te_float, "float", NULL, sizeof(t_CKFLOAT) );
 Chuck_Type t_time( te_time, "time", NULL, sizeof(t_CKTIME) );
 Chuck_Type t_dur( te_dur, "dur", NULL, sizeof(t_CKTIME) );
+Chuck_Type t_complex( te_complex, "complex", NULL, sizeof(t_CKCOMPLEX) );
+Chuck_Type t_polar( te_polar, "polar", NULL, sizeof(t_CKPOLAR) );
 Chuck_Type t_null( te_null, "@null", NULL, sizeof(void *) );
 Chuck_Type t_function( te_function, "@function", &t_object, sizeof(void *) );
 Chuck_Type t_object( te_object, "Object", NULL, sizeof(void *) );
@@ -60,6 +62,7 @@ Chuck_Type t_array( te_array, "@array", &t_object, sizeof(void *) );
 Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
 Chuck_Type t_event( te_event, "Event", &t_object, sizeof(void *) );
 Chuck_Type t_ugen( te_ugen, "UGen", &t_object, sizeof(void *) );
+Chuck_Type t_uana( te_uana, "UAna", &t_ugen, sizeof(void *) );
 Chuck_Type t_shred( te_shred, "Shred", &t_object, sizeof(void *) );
 Chuck_Type t_thread( te_thread, "Thread", &t_object, sizeof(void *) );
 Chuck_Type t_class( te_class, "Class", &t_object, sizeof(void *) );
@@ -104,10 +107,13 @@ t_CKTYPE type_engine_check_exp_binary( Chuck_Env * env, a_Exp_Binary binary );
 t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs, a_Exp_Binary binary );
 t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
+t_CKTYPE type_engine_check_op_upchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_op_at_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs );
 t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary );
 t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp );
+t_CKTYPE type_engine_check_exp_complex_lit( Chuck_Env * env, a_Exp_Primary exp );
+t_CKTYPE type_engine_check_exp_polar_lit( Chuck_Env * env, a_Exp_Primary exp );
 t_CKTYPE type_engine_check_exp_cast( Chuck_Env * env, a_Exp_Cast cast );
 t_CKTYPE type_engine_check_exp_postfix( Chuck_Env * env, a_Exp_Postfix postfix );
 t_CKTYPE type_engine_check_exp_dur( Chuck_Env * env, a_Exp_Dur dur );
@@ -201,9 +207,12 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->global()->type.add( t_float.name, &t_float );        t_float.lock();
     env->global()->type.add( t_time.name, &t_time );          t_time.lock();
     env->global()->type.add( t_dur.name, &t_dur );            t_dur.lock();
+    env->global()->type.add( t_complex.name, &t_complex );    t_complex.lock();
+    env->global()->type.add( t_polar.name, &t_polar );        t_polar.lock();
     env->global()->type.add( t_object.name, &t_object );      t_object.lock();
     env->global()->type.add( t_string.name, &t_string );      t_string.lock();
     env->global()->type.add( t_ugen.name, &t_ugen );          t_ugen.lock();
+    env->global()->type.add( t_uana.name, &t_uana );          t_uana.lock();
     env->global()->type.add( t_shred.name, &t_shred );        t_shred.lock();
     env->global()->type.add( t_thread.name, &t_thread );      t_thread.lock();
     env->global()->type.add( t_function.name, &t_function );  t_function.lock();
@@ -229,6 +238,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     init_class_array( env, &t_array );
     init_class_string( env, &t_string );
     init_class_ugen( env, &t_ugen );
+    init_class_uana( env, &t_uana );
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
 
@@ -367,6 +377,7 @@ void type_engine_shutdown( Chuck_Env * env )
     SAFE_RELEASE( t_array.info );
     SAFE_RELEASE( t_string.info );
     SAFE_RELEASE( t_ugen.info );
+    SAFE_RELEASE( t_uana.info );
     SAFE_RELEASE( t_shred.info );
     SAFE_RELEASE( t_event.info );
     SAFE_RELEASE( t_class.info );
@@ -1246,6 +1257,17 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         case ae_op_ge:
         case ae_op_eq:
         case ae_op_neq:
+            // complex
+            LR( te_int, te_complex ) left = lhs->cast_to = &t_complex;
+            else LR( te_complex, te_int ) right = rhs->cast_to = &t_complex;
+            LR( te_float, te_complex ) left = lhs->cast_to = &t_complex;
+            else LR( te_complex, te_float ) right = rhs->cast_to = &t_complex;
+            
+            // polar
+            LR( te_int, te_polar ) left = lhs->cast_to = &t_polar;
+            else LR( te_complex, te_int ) right = rhs->cast_to = &t_polar;
+            LR( te_float, te_complex ) left = lhs->cast_to = &t_polar;
+            else LR( te_complex, te_float ) right = rhs->cast_to = &t_polar;
         case ae_op_percent:
             // mark for cast
             LR( te_int, te_float ) left = lhs->cast_to = &t_float;
@@ -1265,6 +1287,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         case ae_op_percent_chuck:
             // mark for cast
             LR( te_int, te_float ) left = lhs->cast_to = &t_float;
+            LR( te_float, te_complex ) left = lhs->cast_to = &t_complex;
+            LR( te_float, te_polar ) left = lhs->cast_to = &t_polar;
+            LR( te_int, te_complex ) left = lhs->cast_to = &t_complex;
+            LR( te_int, te_polar ) left = lhs->cast_to = &t_polar;
         break;
         
         default: break;
@@ -1370,6 +1396,9 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_unchuck:
         return type_engine_check_op_unchuck( env, lhs, rhs );
     
+    case ae_op_upchuck:
+        return type_engine_check_op_upchuck( env, lhs, rhs );
+
     case ae_op_at_chuck:
         return type_engine_check_op_at_chuck( env, lhs, rhs );
 
@@ -1381,6 +1410,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
         LR( te_dur, te_dur ) return &t_dur;
+        LR( te_complex, te_complex ) return &t_complex;
+        LR( te_polar, te_polar ) return &t_polar;
+        // COMMUTE( te_float, te_complex ) return &t_complex;
+        // COMMUTE( te_float, te_polar ) return &t_polar;
         COMMUTE( te_dur, te_time ) return &t_time;
         if( isa( left, &t_string ) && isa( right, &t_string ) ) return &t_string;
         if( isa( left, &t_string ) && isa( right, &t_int ) ) return &t_string;
@@ -1395,6 +1428,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
         LR( te_dur, te_dur ) return &t_dur;
+        LR( te_complex, te_complex ) return &t_complex;
+        LR( te_polar, te_polar ) return &t_polar;
+        // COMMUTE( te_float, te_complex ) return &t_complex;
+        // COMMUTE( te_float, te_polar ) return &t_polar;
     break;
 
     // take care of non-commutative
@@ -1403,12 +1440,20 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_float, te_float ) return &t_float;
         LR( te_dur, te_dur ) return &t_dur;
         LR( te_dur, te_time ) return &t_time;
+        LR( te_complex, te_complex ) return &t_complex;
+        LR( te_polar, te_polar ) return &t_polar;
+        // COMMUTE( te_float, te_complex ) return &t_complex;
+        // COMMUTE( te_float, te_polar ) return &t_polar;
     break;
 
     case ae_op_times_chuck:
     case ae_op_times:
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
+        LR( te_complex, te_complex ) return &t_complex;
+        LR( te_polar, te_polar ) return &t_polar;
+        // COMMUTE( te_float, te_complex ) return &t_complex;
+        // COMMUTE( te_float, te_polar ) return &t_polar;
         COMMUTE( te_float, te_dur ) return &t_dur;
     break;
 
@@ -1418,6 +1463,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_dur, te_float ) return &t_dur;
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
+        LR( te_complex, te_complex ) return &t_complex;
+        LR( te_polar, te_polar ) return &t_polar;
+        // COMMUTE( te_float, te_complex ) return &t_complex;
+        // COMMUTE( te_float, te_polar ) return &t_polar;
     break;
 
     // take care of non-commutative
@@ -1425,6 +1474,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_int, te_int ) return &t_int;
         LR( te_float, te_float ) return &t_float;
         LR( te_float, te_dur ) return &t_dur;
+        LR( te_complex, te_complex ) return &t_complex;
+        LR( te_polar, te_polar ) return &t_polar;
+        // COMMUTE( te_float, te_complex ) return &t_complex;
+        // COMMUTE( te_float, te_polar ) return &t_polar;
     break;
 
     case ae_op_eq:
@@ -1440,9 +1493,13 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         LR( te_float, te_float ) return &t_int;
         LR( te_dur, te_dur ) return &t_int;
         LR( te_time, te_time ) return &t_int;
+        LR( te_complex, te_complex ) return &t_int;
+        LR( te_polar, te_polar ) return &t_int;
+        // COMMUTE( te_float, te_complex ) return &t_int;
+        // COMMUTE( te_float, te_polar ) return &t_int;
         if( isa( left, &t_object ) && isa( right, &t_object ) ) return &t_int;
     break;
-    
+
     case ae_op_s_and_chuck:
     case ae_op_s_or_chuck:
     case ae_op_s_xor_chuck:
@@ -1456,7 +1513,7 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_s_or:
     case ae_op_shift_left:
     case ae_op_shift_right:
-        LR( te_int, te_int ) return &t_int;        
+        LR( te_int, te_int ) return &t_int;
     break;
 
     case ae_op_percent:
@@ -1550,6 +1607,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
 
     // implicit cast
     LR( te_int, te_float ) left = lhs->cast_to = &t_float;
+    // TODO: int/complex, int/polar
 
     // assignment or something else
     if( isa( left, right ) )
@@ -1601,6 +1659,7 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
     EM_error2( lhs->linepos,
         "cannot resolve operator '=>' on types '%s' and '%s'...",
         left->c_name(), right->c_name() );
+
     return NULL;
 }
 
@@ -1626,6 +1685,33 @@ t_CKTYPE type_engine_check_op_unchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
     EM_error2( lhs->linepos, 
         "...on types '%s' and '%s'",
         left->c_name(), right->c_name() );
+
+    return NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_op_upchuck()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_op_upchuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs )
+{
+    t_CKTYPE left = lhs->type, right = rhs->type;
+    
+    // uana =^ uana
+    if( isa( left, &t_uana ) && isa( right, &t_uana ) ) return right;
+    
+    // TODO: check overloading of =^
+    
+    // no match
+    EM_error2( lhs->linepos,
+        "no suitable resolution for binary operator '=^'..." );
+    EM_error2( lhs->linepos, 
+        "...on types '%s' and '%s'",
+        left->c_name(), right->c_name() );
+
     return NULL;
 }
 
@@ -1995,17 +2081,17 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
                 exp->value = v;
             }
         break;
-        
+
         // int
         case ae_primary_num:
             t = &t_int;
         break;
-        
+
         // float
         case ae_primary_float:
             t = &t_float;
         break;
-        
+
         // string
         case ae_primary_str:
             // escape the thing
@@ -2021,6 +2107,16 @@ t_CKTYPE type_engine_check_exp_primary( Chuck_Env * env, a_Exp_Primary exp )
             t = type_engine_check_exp_array_lit( env, exp );
         break;
         
+        // complex literal
+        case ae_primary_complex:
+            t = type_engine_check_exp_complex_lit( env, exp );
+        break;
+        
+        // polar literal
+        case ae_primary_polar:
+            t = type_engine_check_exp_polar_lit( env, exp );
+        break;
+
         // expression
         case ae_primary_exp:
             t = type_engine_check_exp( env, exp->exp );
@@ -2174,6 +2270,135 @@ t_CKTYPE type_engine_check_exp_array_lit( Chuck_Env * env, a_Exp_Primary exp )
 
 
 //-----------------------------------------------------------------------------
+// name: type_engine_check_exp_complex_lit()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_complex_lit( Chuck_Env * env, a_Exp_Primary exp )
+{
+    // make sure
+    assert( exp->s_type == ae_primary_complex );
+
+    // type
+    Chuck_Type * type_re = NULL, * type_im = NULL;
+    
+    // get the complex
+    a_Complex val = exp->complex;
+    
+    // check if we have enough
+    if( val->im == NULL )
+    {
+        EM_error2( exp->linepos,
+            "missing imaginary component in complex value...\n"
+            "    --> format: #(re,im)" );
+        return NULL;
+    }
+    // check if we have too much
+    if( val->im->next != NULL )
+    {
+        EM_error2( exp->linepos,
+            "extraneous arguments in complex value...\n"
+            "    --> format #(re,im)" );
+        return NULL;
+    }
+
+    // find types (only need real, since imag is linked after real)
+    if( !(type_re = type_engine_check_exp( env, val->re )) )
+        // || !(type_im = type_engine_check_exp( env, val->im )) ) 
+        return NULL;
+
+    // imaginary
+    type_im = val->im->type;
+
+    // check types
+    if( !isa( type_re, &t_float ) && !isa( type_re, &t_int ) )
+    {
+        EM_error2( exp->linepos,
+            "invalid type '%s' in real component of complex value...\n"
+            "    (must be of type 'int' or 'float')", type_re->c_name() );
+        return NULL;
+    }
+    if( !isa( type_im, &t_float ) && !isa( type_im, &t_int ) )
+    {
+        EM_error2( exp->linepos,
+            "invalid type '%s' in imaginary component of complex value...\n"
+            "    (must be of type 'int' or 'float')", type_im->c_name() );
+        return NULL;
+    }
+
+    // implcit cast
+    if( isa( type_re, &t_int ) ) val->re->cast_to = &t_float;
+    if( isa( type_im, &t_int ) ) val->im->cast_to = &t_float;
+
+    return &t_complex;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_check_exp_polar_lit()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKTYPE type_engine_check_exp_polar_lit( Chuck_Env * env, a_Exp_Primary exp )
+{
+    // make sure
+    assert( exp->s_type == ae_primary_polar );
+
+    // type
+    Chuck_Type * type_mod = NULL, * type_phase = NULL;
+    
+    // get the polar
+    a_Polar val = exp->polar;
+    
+    // check if we have enough
+    if( val->phase == NULL )
+    {
+        EM_error2( exp->linepos,
+            "missing phase component in polar value...\n"
+            "    --> format: %%(mag,phase)" );
+        return NULL;
+    }
+    // check if we have extra
+    if( val->phase->next != NULL )
+    {
+        EM_error2( exp->linepos,
+            "extraneous arguments in polar value...\n"
+            "    --> format: %%(mag,phase)" );
+        return NULL;
+    }
+
+    // find types
+    if( !(type_mod = type_engine_check_exp( env, val->mod )) ||
+        !(type_phase = type_engine_check_exp( env, val->phase )) )
+        return NULL;
+
+    // check types
+    if( !isa( type_mod, &t_float ) && !isa( type_mod, &t_int ) )
+    {
+        EM_error2( exp->linepos,
+            "invalid type '%s' in magnitude component of polar value...\n"
+            "    (must be of type 'int' or 'float')", type_mod->c_name() );
+        return NULL;
+    }
+    if( !isa( type_phase, &t_float ) && !isa( type_phase, &t_int ) )
+    {
+        EM_error2( exp->linepos,
+            "invalid type '%s' in phase component of polar value...\n"
+            "    (must be of type 'int' or 'float')", type_phase->c_name() );
+        return NULL;
+    }
+
+    // implcit cast
+    if( isa( type_mod, &t_int ) ) val->mod->cast_to = &t_float;
+    if( isa( type_phase, &t_int ) ) val->phase->cast_to = &t_float;
+
+    return &t_polar;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: type_engine_check_exp_cast()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2224,6 +2449,12 @@ t_CKBOOL type_engine_check_cast_valid( Chuck_Env * env, t_CKTYPE to, t_CKTYPE fr
     // int to float, float to int
     if( isa( to, &t_float ) && isa( from, &t_int ) ) return TRUE;
     if( isa( to, &t_int ) && isa( from, &t_float ) ) return TRUE;
+    if( isa( to, &t_complex ) && isa( from, &t_int ) ) return TRUE;
+    if( isa( to, &t_polar ) && isa( from, &t_int ) ) return TRUE;
+    if( isa( to, &t_complex ) && isa( from, &t_float ) ) return TRUE;
+    if( isa( to, &t_polar ) && isa( from, &t_float ) ) return TRUE;
+    if( isa( to, &t_complex ) && isa( from, &t_polar ) ) return TRUE;
+    if( isa( to, &t_polar ) && isa( from, &t_complex ) ) return TRUE;
 
     return FALSE;
 }
@@ -2737,6 +2968,60 @@ t_CKTYPE type_engine_check_exp_dot_member( Chuck_Env * env, a_Exp_Dot_Member mem
     // type check the base
     member->t_base = type_engine_check_exp( env, member->base );
     if( !member->t_base ) return NULL;
+    
+    // if complex or polar
+    if( member->t_base->xid == te_complex ) // TODO: constants!!!
+    {
+        // get as string
+        string str = S_name(member->xid);
+        // verify member is either re or im
+        if( str == "re" || str == "im" )
+        {
+            // check addressing consistency (ISSUE: emit_var set after!)
+            if( member->self->emit_var && member->base->s_meta == ae_meta_var )
+            {
+                // error
+                EM_error2( member->base->linepos,
+                    "cannot assign value to literal complex value..." );
+                return NULL;
+            }
+
+            return &t_float;
+        }
+        else
+        {
+            // not valid
+            EM_error2( member->linepos,
+                "type '%s' has no member named '%s'...", member->t_base->c_name(), str.c_str() );
+            return NULL;
+        }
+    }
+    else if( member->t_base->xid == te_polar )
+    {
+        // get as string
+        string str = S_name(member->xid);
+        // verify member is either re or im
+        if( str == "mag" || str == "phase" )
+        {
+            // check addressing consistency (ISSUE: emit_var set after!)
+            if( member->self->emit_var && member->base->s_meta == ae_meta_var )
+            {
+                // error
+                EM_error2( member->base->linepos,
+                    "cannot assign value to literal polar value..." );
+                return NULL;
+            }
+
+            return &t_float;
+        }
+        else
+        {
+            // not valid
+            EM_error2( member->linepos,
+                "type '%s' has no member named '%s'...", member->t_base->c_name(), str.c_str() );
+            return NULL;
+        }
+    }
 
     // is the base a class/namespace or a variable
     base_static = isa( member->t_base, &t_class );
@@ -3685,7 +3970,8 @@ t_CKBOOL type_engine_check_reserved( Chuck_Env * env, S_Symbol xid, int pos )
 t_CKBOOL type_engine_check_primitive( Chuck_Type * type )
 {
     return ( isa(type, &t_int) || isa(type, &t_float) || isa(type, &t_dur) ||
-             isa(type, &t_time) ) && ( type->array_depth == 0 );
+             isa(type, &t_time) ) || isa(type, &t_complex) || isa(type, &t_polar)
+             && ( type->array_depth == 0 );
 }
 t_CKBOOL isprim( Chuck_Type * type )
 {   return type_engine_check_primitive( type ); }
@@ -4265,6 +4551,51 @@ Chuck_Type * type_engine_import_ugen_begin( Chuck_Env * env, const char * name,
     if( num_outs != 0xffffffff ) info->num_outs = num_outs;
     // set in type
     type->ugen_info = info;
+
+    return type;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: type_engine_import_uana_begin()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Type * type_engine_import_uana_begin( Chuck_Env * env, const char * name, 
+                                            const char * parent, Chuck_Namespace * where,
+                                            f_ctor pre_ctor, f_dtor dtor,
+                                            f_tick tick, f_tock tock, f_pmsg pmsg,
+                                            t_CKUINT num_ins, t_CKUINT num_outs,
+                                            t_CKUINT num_ins_ana, t_CKUINT num_outs_ana )
+{
+    Chuck_Type * type = NULL;
+    Chuck_UGen_Info * info = NULL;
+
+    // construct class
+    if( !(type = type_engine_import_ugen_begin( env, name, parent, where, pre_ctor, dtor,
+                                                tick, pmsg, num_ins, num_outs ) ) )
+        return FALSE;
+
+    // make sure parent is ugen
+    assert( type->parent != NULL );
+    if( !isa( type->parent, &t_uana ) )
+    {
+        // error
+        EM_error2( 0,
+            "imported class '%s' does not have a uana as parent",
+            type->c_name() );
+        return FALSE;
+    }
+
+    // do the info
+    info = type->ugen_info;
+    // sanity
+    assert( info != NULL );
+    // set
+    if( tock ) info->tock = tock;
+    if( num_ins_ana != 0xffffffff ) info->num_ins_ana = num_ins_ana;
+    if( num_outs_ana != 0xffffffff ) info->num_outs_ana = num_outs_ana;
 
     return type;
 }

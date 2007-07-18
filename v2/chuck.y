@@ -77,10 +77,12 @@ a_Program g_program = NULL;
     a_Arg_List arg_list;
     a_Id_List id_list;
     a_Array_Sub array_sub;
+    a_Complex complex_exp;
+    a_Polar polar_exp;
 };
 
-// expect 35 shift/reduce conflicts
-%expect 35
+// expect 37 shift/reduce conflicts
+%expect 37
 
 %token <sval> ID STRING_LIT
 %token <ival> NUM
@@ -94,7 +96,7 @@ a_Program g_program = NULL;
   IF THEN ELSE WHILE FOR DO LOOP
   BREAK CONTINUE NULL_TOK FUNCTION RETURN
   QUESTION EXCLAMATION S_OR S_AND S_XOR
-  PLUSPLUS MINUSMINUS DOLLAR
+  PLUSPLUS MINUSMINUS DOLLAR POUNDPAREN PERCENTPAREN
   SIMULT PATTERN CODE TRANSPORT HOST
   TIME WHENEVER NEXT UNTIL EVERY BEFORE
   AFTER AT AT_SYM ATAT_SYM NEW SIZEOF TYPEOF
@@ -104,7 +106,7 @@ a_Program g_program = NULL;
   SHIFT_LEFT_CHUCK PERCENT_CHUCK
   SHIFT_RIGHT SHIFT_LEFT TILDA CHUCK
   COLONCOLON S_CHUCK AT_CHUCK LEFT_S_CHUCK
-  UNCHUCK CLASS INTERFACE EXTENDS IMPLEMENTS
+  UNCHUCK UPCHUCK CLASS INTERFACE EXTENDS IMPLEMENTS
   PUBLIC PROTECTED PRIVATE STATIC ABSTRACT CONST 
   SPORK L_HACK R_HACK
 
@@ -162,6 +164,8 @@ a_Program g_program = NULL;
 %type <id_list> id_dot
 %type <array_sub> array_exp
 %type <array_sub> array_empty
+%type <complex_exp> complex_exp
+%type <polar_exp> polar_exp
 
 %start program
 
@@ -384,6 +388,16 @@ var_decl
         | ID array_empty                    { $$ = new_var_decl( $1, $2, EM_lineNum ); }
         ;
 
+complex_exp
+        : POUNDPAREN expression RPAREN
+            { $$ = new_complex( $2, EM_lineNum ); }
+        ;
+
+polar_exp
+        : PERCENTPAREN expression RPAREN
+            { $$ = new_polar( $2, EM_lineNum ); }
+        ;
+
 chuck_operator
         : CHUCK                             { $$ = ae_op_chuck; }
         | AT_CHUCK                          { $$ = ae_op_at_chuck; }
@@ -395,6 +409,7 @@ chuck_operator
         | SHIFT_LEFT_CHUCK                  { $$ = ae_op_shift_left_chuck; }
         | PERCENT_CHUCK                     { $$ = ae_op_percent_chuck; }
         | UNCHUCK                           { $$ = ae_op_unchuck; }
+        | UPCHUCK                           { $$ = ae_op_upchuck; }
         | S_AND_CHUCK                       { $$ = ae_op_s_and_chuck; }
         | S_OR_CHUCK                        { $$ = ae_op_s_or_chuck; }
         | S_XOR_CHUCK                       { $$ = ae_op_s_xor_chuck; }
@@ -552,6 +567,8 @@ primary_expression
         | FLOAT                             { $$ = new_exp_from_float( $1, EM_lineNum ); }
         | STRING_LIT                        { $$ = new_exp_from_str( $1, EM_lineNum ); }
         | array_exp                         { $$ = new_exp_from_array_lit( $1, EM_lineNum ); }
+        | complex_exp                       { $$ = new_exp_from_complex( $1, EM_lineNum ); }
+        | polar_exp                         { $$ = new_exp_from_polar( $1, EM_lineNum ); }
         | L_HACK expression R_HACK          { $$ = new_exp_from_hack( $2, EM_lineNum ); }
         | LPAREN expression RPAREN          { $$ = $2; }
 		| LPAREN RPAREN                     { $$ = new_exp_from_nil( EM_lineNum ); }

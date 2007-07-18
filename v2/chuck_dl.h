@@ -53,6 +53,8 @@ struct Chuck_DL_Ctrl;
 union  Chuck_DL_Return;
 struct Chuck_DLL;
 struct Chuck_UGen;
+struct Chuck_UAna;
+struct Chuck_UAnaBlob;
 
 
 // param conversion - to extract values from ARGS to functions
@@ -63,6 +65,8 @@ struct Chuck_UGen;
 #define GET_CK_UINT(ptr)       (*(t_CKUINT *)ptr)
 #define GET_CK_TIME(ptr)       (*(t_CKTIME *)ptr)
 #define GET_CK_DUR(ptr)        (*(t_CKDUR *)ptr)
+#define GET_CK_COMPLEX(ptr)    (*(t_CKCOMPLEX *)ptr)
+#define GET_CK_POLAR(ptr)      (*(t_CKPOLAR *)ptr)
 #define GET_CK_OBJECT(ptr)     (*(Chuck_Object **)ptr)
 #define GET_CK_STRING(ptr)     (*(Chuck_String **)ptr)
 
@@ -74,6 +78,8 @@ struct Chuck_UGen;
 #define GET_NEXT_UINT(ptr)     (*((t_CKUINT *&)ptr)++)
 #define GET_NEXT_TIME(ptr)     (*((t_CKTIME *&)ptr)++)
 #define GET_NEXT_DUR(ptr)      (*((t_CKDUR *&)ptr)++)
+#define GET_NEXT_COMPLEX(ptr)  (*((t_CKCOMPLEX *&)ptr)++)
+#define GET_NEXT_POLAR(ptr)    (*((t_CKPOLAR *&)ptr)++)
 #define GET_NEXT_OBJECT(ptr)   (*((Chuck_Object **&)ptr)++)
 #define GET_NEXT_STRING(ptr)   (*((Chuck_String **&)ptr)++)
 
@@ -154,6 +160,9 @@ struct Chuck_UGen;
 // macro for defining ChucK DLL export ugen pmsg functions
 // example: CK_DLL_PMSG(foo)
 #define CK_DLL_PMSG(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * SELF, const char * MSG, void * ARGS, Chuck_VM_Shred * SHRED )
+// macro for defining ChucK DLL export uana tock functions
+// example: CK_DLL_TOCK(foo)
+#define CK_DLL_TOCK(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * SELF, const Chuck_UAnaBlob * in, Chuck_UAnaBlob * out, Chuck_VM_Shred * SHRED )
 
 
 // macros for DLL exports
@@ -168,6 +177,7 @@ struct Chuck_UGen;
 #define UGEN_PMSG   CK_DLL_EXPORT(t_CKBOOL)
 #define UGEN_CTRL   CK_DLL_EXPORT(t_CKVOID)
 #define UGEN_CGET   CK_DLL_EXPORT(t_CKVOID)
+#define UANA_TOCK   CK_DLL_EXPORT(t_CKBOOL)
 
 
 //-----------------------------------------------------------------------------
@@ -186,6 +196,8 @@ typedef t_CKBOOL (CK_DLL_CALL * f_tick)( Chuck_Object * SELF, SAMPLE in, SAMPLE 
 typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN, Chuck_VM_Shred * SHRED );
 typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN, Chuck_VM_Shred * SHRED );
 typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_Object * SELF, const char * MSG, void * ARGS, Chuck_VM_Shred * SHRED );
+// uana specific
+typedef t_CKBOOL (CK_DLL_CALL * f_tock)( Chuck_Object * SELF, const Chuck_UAnaBlob * in, Chuck_UAnaBlob * out, Chuck_VM_Shred * SHRED );
 }
 
 
@@ -326,11 +338,13 @@ struct Chuck_DL_Class
     f_pmsg ugen_pmsg;
     // ugen_ctrl/cget
     std::vector<Chuck_DL_Ctrl *> ugen_ctrl;
+    // uana_tock
+    f_tock uana_tock;
     // collection of recursive classes
     std::vector<Chuck_DL_Class *> classes;
     
     // constructor
-    Chuck_DL_Class() { dtor = NULL; ugen_tick = NULL; ugen_pmsg = NULL; }
+    Chuck_DL_Class() { dtor = NULL; ugen_tick = NULL; ugen_pmsg = NULL; uana_tock = NULL; ugen_pmsg = NULL; }
     // destructor
     ~Chuck_DL_Class();
 };
@@ -350,7 +364,7 @@ struct Chuck_DL_Value
     t_CKBOOL is_const;
     // addr static
     void * static_addr;
-    
+
     // constructor
     Chuck_DL_Value() { is_const = FALSE; static_addr = NULL; }
     Chuck_DL_Value( const char * t, const char * n, t_CKBOOL c = FALSE, void * a = NULL )
@@ -425,10 +439,12 @@ union Chuck_DL_Return
     t_CKFLOAT v_float;
     t_CKDUR v_dur;
     t_CKTIME v_time;
+    t_CKCOMPLEX v_complex;
+    t_CKPOLAR v_polar;
     Chuck_Object * v_object;
     Chuck_String * v_string;
     
-    Chuck_DL_Return() { v_float = 0.0; }
+    Chuck_DL_Return() { v_complex.re = 0.0; v_complex.im = 0.0; }
 };
 
 

@@ -128,4 +128,59 @@ protected:
 
 
 
+//-----------------------------------------------------------------------------
+// name: class AccumBuffer
+// desc: circular buffer for sample accumulation
+//-----------------------------------------------------------------------------
+class AccumBuffer
+{
+public:
+    AccumBuffer();
+    ~AccumBuffer();
+
+public:
+    t_CKINT resize( t_CKINT new_size );
+    void cleanup();
+
+public:
+    void put( SAMPLE next );
+    void get( SAMPLE * buffer, t_CKINT num_elem );
+
+protected:
+    SAMPLE * m_data;
+    t_CKUINT m_write_offset;
+    t_CKUINT m_max_elem;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: class DeccumBuffer
+// desc: circular buffer for sample deccumulation
+//-----------------------------------------------------------------------------
+class DeccumBuffer
+{
+public:
+    DeccumBuffer();
+    ~DeccumBuffer();
+
+public:
+    t_CKINT resize( t_CKINT new_size );
+    void cleanup();
+
+public:
+    void put( SAMPLE * next, t_CKINT num_elem );
+    void get( SAMPLE * out );
+    void get( SAMPLE * buffer, t_CKINT num_elem );
+
+protected:
+    SAMPLE * m_data;
+    t_CKUINT m_read_offset;
+    t_CKUINT m_max_elem;
+};
+
+
+
+
 #endif

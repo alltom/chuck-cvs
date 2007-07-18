@@ -907,6 +907,310 @@ void Chuck_Array8::zero( t_CKUINT start, t_CKUINT end )
 
 
 
+//-----------------------------------------------------------------------------
+// name: Chuck_Array16()
+// desc: constructor
+//-----------------------------------------------------------------------------
+Chuck_Array16::Chuck_Array16( t_CKINT capacity )
+{
+    // sanity check
+    assert( capacity >= 0 );
+    // reset size
+    m_size = 0;
+    // set capacity
+    m_capacity = capacity;
+    // set capacity
+    m_vector.reserve( capacity );
+    // clear
+    this->clear();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Chuck_Array16()
+// desc: destructor
+//-----------------------------------------------------------------------------
+Chuck_Array16::~Chuck_Array16()
+{
+    // do nothing
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: addr()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKUINT Chuck_Array16::addr( t_CKINT i )
+{
+    // bound check
+    if( i < 0 || i >= (t_CKINT)m_capacity )
+        return 0;
+
+    // get the addr
+    return (t_CKUINT)(&m_vector[i]);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: addr()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKUINT Chuck_Array16::addr( const string & key )
+{
+    // get the addr
+    return (t_CKUINT)(&m_map[key]);
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::get( t_CKINT i, t_CKCOMPLEX * val )
+{
+    // bound check
+    if( i < 0 || i >= (t_CKINT)m_capacity )
+        return 0;
+
+    // get the value
+    *val = m_vector[i];
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::get( const string & key, t_CKCOMPLEX * val )
+{
+    // set to zero
+    val->re = 0.0;
+    val->im = 0.0;
+
+    // iterator
+    map<string, t_CKCOMPLEX>::iterator iter = m_map.find( key );
+
+    // check
+    if( iter != m_map.end() )
+    {
+        // get the value
+        *val = (*iter).second;
+    }
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::set( t_CKINT i, t_CKCOMPLEX val )
+{
+    // bound check
+    if( i < 0 || i >= (t_CKINT)m_capacity )
+        return 0;
+
+    // set the value
+    m_vector[i] = val;
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::set( const string & key, t_CKCOMPLEX val )
+{
+    map<string, t_CKCOMPLEX>::iterator iter = m_map.find( key );
+
+    if( val.re == 0 && val.im == 0 ) m_map.erase( key );
+    else m_map[key] = val;
+
+    // return good
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::find( const string & key )
+{
+    return m_map.find( key ) != m_map.end();
+}
+
+
+
+//-----------------------------------------------------------------------------
+// name: set()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::erase( const string & key )
+{
+    return m_map.erase( key );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: push_back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::push_back( t_CKCOMPLEX val )
+{
+    // check
+    if( m_size + 1 < 0 )
+        return 0;
+
+    // add to vector
+    m_vector.push_back( val );
+    // get capacity
+    m_capacity = m_vector.capacity();
+    
+    // track size
+    m_size++;
+
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: pop_back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::pop_back( )
+{
+    // check
+    if( m_size == 0 )
+        return 0;
+
+    // zero
+    m_vector[m_size-1].re = 0.0;
+    m_vector[m_size-1].im = 0.0;
+    // add to vector
+    m_vector.pop_back();
+    
+    // track size
+    m_size--;
+
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: back()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::back( t_CKCOMPLEX * val ) const
+{
+    // check
+    if( m_size == 0 )
+        return 0;
+
+    // get
+    *val = m_vector.back();
+    
+    return 1;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: clear()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Array16::clear( )
+{
+    // clear vector
+    m_vector.clear();
+
+    // zero
+    zero( 0, m_capacity );
+
+    // set size
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: set_capacity()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_Array16::set_capacity( t_CKINT capacity )
+{
+    // sanity check
+    assert( capacity >= 0 );
+
+    // if less
+    if( capacity < m_capacity )
+        zero( capacity, m_capacity );
+
+    // resize vector
+    m_vector.reserve( capacity );
+    // set size
+    m_size = m_size < capacity ? m_size : capacity;
+    // set capacity
+    m_capacity = capacity;
+
+    return m_capacity;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: zero()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Array16::zero( t_CKUINT start, t_CKUINT end )
+{
+    // sanity check
+    assert( start <= m_capacity && end <= m_capacity );
+
+    for( t_CKUINT i = start; i < end; i++ )
+    {
+        // zero
+        m_vector[i].re = 0.0;
+        m_vector[i].im = 0.0;
+    }
+}
+
+
+
+
 // static
 t_CKUINT Chuck_Event::our_can_wait = 0;
 

@@ -557,6 +557,36 @@ a_Exp new_exp_from_hack( a_Exp exp, int pos )
     return a;
 }
 
+a_Exp new_exp_from_complex( a_Complex exp, int pos )
+{
+    a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
+    a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
+    a->primary.s_type = ae_primary_complex;
+    a->primary.complex = exp;
+    a->primary.linepos = pos;
+    a->linepos = pos;
+    a->primary.complex->self = a;
+    a->primary.self = a;
+
+    return a;
+}
+
+a_Exp new_exp_from_polar( a_Polar exp, int pos )
+{
+    a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
+    a->s_type = ae_exp_primary;
+    a->s_meta = ae_meta_value;
+    a->primary.s_type = ae_primary_polar;
+    a->primary.polar = exp;
+    a->primary.linepos = pos;
+    a->linepos = pos;
+    a->primary.polar->self = a;
+    a->primary.self = a;
+
+    return a;
+}
+
 a_Exp new_exp_from_nil( int pos )
 {
     a_Exp a = (a_Exp)checked_malloc( sizeof( struct a_Exp_ ) );
@@ -799,6 +829,26 @@ a_Array_Sub prepend_array_sub( a_Array_Sub a, a_Exp exp, int pos )
     
 error:
     clean_exp( exp );
+    return a;
+}
+
+a_Complex new_complex( a_Exp re, int pos )
+{
+    a_Complex a = (a_Complex)checked_malloc( sizeof( struct a_Complex_ ) );
+    a->re = re;
+    if( re ) a->im = re->next;
+    a->linepos = pos;
+    
+    return a;
+}
+
+a_Polar new_polar( a_Exp mod, int pos )
+{
+    a_Polar a = (a_Polar)checked_malloc( sizeof( struct a_Polar_ ) );
+    a->mod = mod;
+    if( mod ) a->phase = mod->next;
+    a->linepos = pos;
+    
     return a;
 }
 

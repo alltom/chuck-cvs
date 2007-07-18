@@ -41,7 +41,7 @@ OBJS=   chuck.tab.o chuck.yy.o chuck_absyn.o chuck_parse.o chuck_errmsg.o \
 	ugen_stk.o ugen_xxx.o ulib_machine.o ulib_math.o ulib_std.o \
 	ulib_opsc.o util_buffers.o util_console.o util_math.o util_network.o \
 	util_raw.o util_string.o util_thread.o util_xforms.o util_opsc.o \
-	util_hid.o $(SF_OBJ)
+	util_hid.o uana_xform.o $(SF_OBJ)
 
 chuck: $(OBJS)
 	$(CXX_LINK) -o chuck $(OBJS) $(LIBS)
@@ -204,6 +204,9 @@ util_xforms.o: util_xforms.h util_xforms.c
 
 util_sndfile.o: util_sndfile.h util_sndfile.c
 	$(CXX) $(FLAGS) util_sndfile.c
+
+uana_xform.o: uana_xform.h uana_xform.cpp
+	$(CXX) $(FLAGS) uana_xform.cpp
 
 clean: 
 	rm -f chuck *~ *.o chuck.output chuck.tab.h chuck.tab.c chuck.yy.c

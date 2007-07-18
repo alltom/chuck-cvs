@@ -431,6 +431,162 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_complex
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_complex : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Minus_complex
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Minus_complex : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Minus_complex_Reverse
+// desc: same as minus_complex, operands reversed, for -=>
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Minus_complex_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Times_complex
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Times_complex : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Divide_complex
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Divide_complex : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Divide_complex_Reverse
+// desc: same as divide_complex, operands reversed, for /=>
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Divide_complex_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_polar
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_polar : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Minus_polar
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Minus_polar : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Minus_polar_Reverse
+// desc: same as minus_polar, operands reversed, for -=>
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Minus_polar_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Times_polar
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Times_polar : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Divide_polar
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Divide_polar : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Divide_polar_Reverse
+// desc: same as divide_complex, operands reversed, for /=>
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Divide_polar_Reverse : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Add_int_Assign
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -552,6 +708,110 @@ public:
 // desc: ...
 //-----------------------------------------------------------------------------
 struct Chuck_Instr_Mod_double_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_complex_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_complex_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Minus_complex_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Minus_complex_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Times_complex_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Times_complex_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Divide_complex_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Divide_complex_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Add_polar_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Add_polar_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Minus_polar_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Minus_polar_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Times_polar_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Times_polar_Assign : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Divide_polar_Assign
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Divide_polar_Assign : public Chuck_Instr_Binary_Op
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1324,6 +1584,26 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Reg_Push_Imm4
+// desc: push t_CKCOMPLEX immediate to reg stack
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Reg_Push_Imm4 : public Chuck_Instr_Unary_Op2
+{
+public:
+    Chuck_Instr_Reg_Push_Imm4( t_CKFLOAT x, t_CKFLOAT y )
+    { this->set( x ); m_val2 = y; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+
+protected:
+    t_CKFLOAT m_val2;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Reg_Dup_Last
 // desc: duplicate last value on reg stack
 //-----------------------------------------------------------------------------
@@ -1447,6 +1727,31 @@ struct Chuck_Instr_Reg_Push_Mem2 : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Reg_Push_Mem2( t_CKUINT src, t_CKBOOL use_base = FALSE )
+    { this->set( src ); base = use_base; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "src=%ld, base=%ld", m_val, base );
+      return buffer; }
+
+protected:
+    // use global stack base
+    t_CKBOOL base;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Reg_Push_Mem4
+// desc: push a t_CKCOMPLEX variable from mem stack to reg stack
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Reg_Push_Mem4 : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Reg_Push_Mem4( t_CKUINT src, t_CKBOOL use_base = FALSE )
     { this->set( src ); base = use_base; }
 
 public:
@@ -1705,6 +2010,22 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Alloc_Word4
+// desc: alloc local - leaves addr on operand stack
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Alloc_Word4 : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Alloc_Word4( t_CKUINT offset )
+    { this->set( offset ); }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Alloc_Member_Word
 // desc: alloc member - leaves addr on operand stack
 //-----------------------------------------------------------------------------
@@ -1728,6 +2049,22 @@ struct Chuck_Instr_Alloc_Member_Word2 : public Chuck_Instr_Unary_Op
 {
 public:
     Chuck_Instr_Alloc_Member_Word2( t_CKUINT offset  )
+    { this->set( offset ); }
+
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Alloc_Member_Word4
+// desc: alloc member - leaves addr on operand stack
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Alloc_Member_Word4 : public Chuck_Instr_Unary_Op
+{
+public:
+    Chuck_Instr_Alloc_Member_Word4( t_CKUINT offset  )
     { this->set( offset ); }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -1854,6 +2191,19 @@ public:
 // desc: assign primitive (2 word)
 //-----------------------------------------------------------------------------
 struct Chuck_Instr_Assign_Primitive2 : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Assign_Primitive4
+// desc: assign primitive (4 word)
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Assign_Primitive4 : public Chuck_Instr
 {
 public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
@@ -2276,6 +2626,56 @@ protected:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Dot_Cmp_First
+// desc: access the complex value's first component
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Dot_Cmp_First : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Dot_Cmp_First( t_CKUINT is_mem, t_CKUINT emit_addr )
+    { m_is_mem = is_mem; m_emit_addr = emit_addr; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "is_mem=%ld, emit_addr=%ld", m_is_mem, m_emit_addr );
+      return buffer; }
+
+protected:
+    t_CKUINT m_is_mem;
+    t_CKUINT m_emit_addr;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Dot_Cmp_Second
+// desc: access the complex value's second component
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Dot_Cmp_Second : public Chuck_Instr
+{
+public:
+    Chuck_Instr_Dot_Cmp_Second( t_CKUINT is_mem, t_CKUINT emit_addr )
+    { m_is_mem = is_mem; m_emit_addr = emit_addr; }
+
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    virtual const char * params() const
+    { static char buffer[256];
+      sprintf( buffer, "is_mem=%ld, emit_addr=%ld", m_is_mem, m_emit_addr );
+      return buffer; }
+
+protected:
+    t_CKUINT m_is_mem;
+    t_CKUINT m_emit_addr;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_ADC
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2432,6 +2832,84 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Cast_int2complex
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Cast_int2complex : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Cast_int2polar
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Cast_int2polar : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Cast_double2complex
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Cast_double2complex : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Cast_double2polar
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Cast_double2polar : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Cast_complex2polar
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Cast_complex2polar : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Cast_polar2complex
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Cast_polar2complex : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Op_string
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -2512,6 +2990,7 @@ t_CKBOOL initialize_object( Chuck_Object * obj, Chuck_Type * type );
 // define SP offset
 #define push_( sp, val )         *(sp) = (val); (sp)++
 #define push_float( sp, val )    *((t_CKFLOAT *&)sp) = (val); ((t_CKFLOAT *&)sp)++
+#define push_complex( sp, val )    *((t_CKCOMPLEX *&)sp) = (val); ((t_CKCOMPLEX *&)sp)++
 #define pop_( sp, n )            sp -= (n)
 #define val_( sp )               *(sp)
 

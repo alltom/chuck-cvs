@@ -34,6 +34,7 @@
 //-----------------------------------------------------------------------------
 #include <stdlib.h>
 #include "util_buffers.h"
+#include "chuck_errmsg.h"
 
 
 
@@ -494,4 +495,363 @@ UINT__ CBufferSimple::get( void * data, UINT__ num_elem )
 
     // return number of elems
     return 1; // shouldn't it return i?
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: AccumBuffer()
+// desc: constructor
+//-----------------------------------------------------------------------------
+AccumBuffer::AccumBuffer()
+{
+    m_data = NULL;
+    m_write_offset = m_max_elem = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~AccumBuffer()
+// desc: destructor
+//-----------------------------------------------------------------------------
+AccumBuffer::~AccumBuffer()
+{
+    this->cleanup();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: resize()
+// desc: resize
+//-----------------------------------------------------------------------------
+t_CKINT AccumBuffer::resize( t_CKINT size )
+{
+    // if the same, then done
+    if( size == m_max_elem ) return size;
+
+    // allocate
+    SAMPLE * next = (SAMPLE *)malloc( size * sizeof(SAMPLE) );
+    // zero it
+    memset( next, 0, size * sizeof(SAMPLE) );
+    if( !next )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "AccumBuffer:resize(%ld) failed to allocated..." );
+        // clean up
+        this->cleanup();
+        // done
+        return FALSE;
+    }
+    
+    // if no current
+    if( !m_data )
+    {
+        // reset everything
+        m_data = next;
+        m_write_offset = 0;
+        m_max_elem = size;
+    }
+    else
+    {
+        // retrieve next
+        this->get( next, size );
+        // clean up
+        this->cleanup();
+        // copy
+        m_data = next;
+        // write pointer is at the end
+        m_write_offset = 0;
+        // update max elem
+        m_max_elem = size;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: cleanup()
+// desc: cleanup
+//-----------------------------------------------------------------------------
+void AccumBuffer::cleanup()
+{
+    if( !m_data )
+        return;
+
+    free( m_data );
+    m_data = NULL;
+    m_write_offset = m_max_elem = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: put()
+// desc: put
+//-----------------------------------------------------------------------------
+void AccumBuffer::put( SAMPLE data )
+{
+    // copy
+    m_data[m_write_offset] = data;
+    // move the write
+    m_write_offset++;
+    // wrap
+    if( m_write_offset >= m_max_elem )
+        m_write_offset = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get()
+// desc: get
+//-----------------------------------------------------------------------------
+void AccumBuffer::get( SAMPLE * buffer, t_CKINT num_elem )
+{
+    // left to copy
+    t_CKINT left = num_elem;
+    // amount
+    t_CKINT amount = m_max_elem - m_write_offset;
+    // to copy
+    t_CKINT tocopy = ck_min( left, amount );
+    // update left
+    left -= tocopy;
+    // copy after the write pointer
+    memcpy( buffer, m_data + m_write_offset, tocopy * sizeof(SAMPLE) );
+
+    // more?
+    if( left )
+    {
+        // amount
+        amount = m_write_offset;
+        // to copy
+        t_CKINT tocopy2 = ck_min( left, amount );
+        // update left
+        left -= tocopy2;
+        // copy before the write pointer
+        memcpy( buffer + tocopy, m_data, tocopy2 * sizeof(SAMPLE) );
+
+        // more?
+        if( left )
+        {
+            // make sure
+            assert( m_max_elem == (tocopy + tocopy2) );
+            assert( num_elem > m_max_elem );
+            // zero it out
+            memset( buffer + m_max_elem, 0, (num_elem - m_max_elem) * sizeof(SAMPLE) );
+        }
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: DeccumBuffer()
+// desc: constructor
+//-----------------------------------------------------------------------------
+DeccumBuffer::DeccumBuffer()
+{
+    m_data = NULL;
+    m_read_offset = m_max_elem = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~DeccumBuffer()
+// desc: destructor
+//-----------------------------------------------------------------------------
+DeccumBuffer::~DeccumBuffer()
+{
+    this->cleanup();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: resize()
+// desc: resize
+//-----------------------------------------------------------------------------
+t_CKINT DeccumBuffer::resize( t_CKINT size )
+{
+    // if the same, then done
+    if( size == m_max_elem ) return size;
+
+    // allocate
+    SAMPLE * next = (SAMPLE *)malloc( size * sizeof(SAMPLE) );
+    // zero it
+    memset( next, 0, size * sizeof(SAMPLE) );
+    if( !next )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "DeccumBuffer:resize(%ld) failed to allocated..." );
+        // clean up
+        this->cleanup();
+        // done
+        return FALSE;
+    }
+    
+    // if no current
+    if( !m_data )
+    {
+        // reset everything
+        m_data = next;
+        m_read_offset = 0;
+        m_max_elem = size;
+    }
+    else
+    {
+        // retrieve next
+        this->get( next, size );
+        // clean up
+        this->cleanup();
+        // copy
+        m_data = next;
+        // read pointer is at the end
+        m_read_offset = 0;
+        // update max elem
+        m_max_elem = size;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: cleanup()
+// desc: cleanup
+//-----------------------------------------------------------------------------
+void DeccumBuffer::cleanup()
+{
+    if( !m_data )
+        return;
+
+    free( m_data );
+    m_data = NULL;
+    m_read_offset = m_max_elem = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: put()
+// desc: put
+//-----------------------------------------------------------------------------
+void DeccumBuffer::get( SAMPLE * data )
+{
+    // copy
+    *data = m_data[m_read_offset];
+    // zero
+    m_data[m_read_offset] = 0;
+    // move the write
+    m_read_offset++;
+    // wrap
+    if( m_read_offset >= m_max_elem )
+        m_read_offset = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: get()
+// desc: get
+//-----------------------------------------------------------------------------
+void DeccumBuffer::get( SAMPLE * buffer, t_CKINT num_elem )
+{
+    // left to copy
+    t_CKINT left = num_elem;
+    // amount
+    t_CKINT amount = m_max_elem - m_read_offset;
+    // to copy
+    t_CKINT tocopy = ck_min( left, amount );
+    // update left
+    left -= tocopy;
+    // copy after the write pointer
+    memcpy( buffer, m_data + m_read_offset, tocopy * sizeof(SAMPLE) );
+
+    // more?
+    if( left )
+    {
+        // amount
+        amount = m_read_offset;
+        // to copy
+        t_CKINT tocopy2 = ck_min( left, amount );
+        // update left
+        left -= tocopy2;
+        // copy before the write pointer
+        memcpy( buffer + tocopy, m_data, tocopy2 * sizeof(SAMPLE) );
+
+        // more?
+        if( left )
+        {
+            // make sure
+            assert( m_max_elem == (tocopy + tocopy2) );
+            assert( num_elem > m_max_elem );
+            // zero it out
+            memset( buffer + m_max_elem, 0, (num_elem - m_max_elem) * sizeof(SAMPLE) );
+        }
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: put()
+// desc: put
+//-----------------------------------------------------------------------------
+void DeccumBuffer::put( SAMPLE * buffer, t_CKINT num_elem )
+{
+    // left to add
+    t_CKINT left = num_elem;
+    // amount
+    t_CKINT amount = m_max_elem - m_read_offset;
+    // to add
+    t_CKINT tocopy = ck_min( left, amount );
+    // update left
+    left -= tocopy;
+    // copy after the write pointer
+    t_CKINT i;
+    for( i = 0; i < tocopy; i++ )
+        m_data[m_read_offset+i] += buffer[i];
+
+    // more?
+    if( left )
+    {
+        // amount
+        amount = m_read_offset;
+        // to copy
+        t_CKINT tocopy2 = ck_min( left, amount );
+        // update left
+        left -= tocopy2;
+        // copy before the write pointer
+        for( i = 0; i < tocopy2; i++ )
+            m_data[i] += buffer[tocopy+i];
+
+        // more?
+        if( left )
+        {
+            // make sure
+            assert( m_max_elem == (tocopy + tocopy2) );
+            assert( num_elem > m_max_elem );
+            // log
+            EM_log( CK_LOG_WARNING, "(IFFT): discarding data during OLA synthesis..." );
+        }
+    }
 }

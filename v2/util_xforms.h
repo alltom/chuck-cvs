@@ -35,41 +35,41 @@
 #define __UTIL_XFORM_H__
 
 #include <math.h>
+#include "chuck_def.h"
+
+// our float type
+#define FLOAT       SAMPLE
+
+// complex absolute value
+#define cmp_abs(x) ( sqrt( (x).re * (x).re + (x).im * (x).im ) )
+#define __modulus(x) cmp_abs(x)
+#define __phase(x) ( atan2((double)(x).im, (double)(x).re) )
+
+#define FFT_FORWARD 1
+#define FFT_INVERSE 0
+#define make_window hanning
 
 // c linkage
 #if defined(_cplusplus) || defined(__cplusplus)
 extern "C" {
 #endif
 
-// complex type
-typedef struct { float re ; float im ; } complex;
-// polar type
-typedef struct { float modulus ; float phase ; } polar;
-
-// complex absolute value
-#define cmp_abs(x) ( sqrt( (x).re * (x).re + (x).im * (x).im ) )
-#define __modulus(x) cmp_abs(x)
-#define __phase(x) ( atan2((double)(x).re, (double)(x).im) )
-
-#define FFT_FORWARD 1
-#define FFT_INVERSE 0
-#define make_window hanning
-
 // make the window
-void hanning( float * window, unsigned long length );
-void hamming( float * window, unsigned long length );
-void blackman( float * window, unsigned long length );
+void hanning( FLOAT * window, unsigned long length );
+void hamming( FLOAT * window, unsigned long length );
+void blackman( FLOAT * window, unsigned long length );
+void bartlett( FLOAT * window, unsigned long length );
 // apply the window
-void apply_window( float * data, float * window, unsigned long length );
+void apply_window( FLOAT * data, FLOAT * window, unsigned long length );
 
 // real fft, N must be power of 2
-void rfft( float * x, long N, unsigned int forward );
+void rfft( FLOAT * x, long N, unsigned int forward );
 // complex fft, NC must be power of 2
-void cfft( float * x, long NC, unsigned int forward );
+void cfft( FLOAT * x, long NC, unsigned int forward );
 
 // c linkage
 #if ( defined( __cplusplus ) || defined( _cplusplus ) )
-  }
+}
 #endif
 
 #endif
