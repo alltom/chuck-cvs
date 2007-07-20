@@ -645,6 +645,8 @@ Chuck_UAna::Chuck_UAna() : Chuck_UGen()
     m_is_uana = TRUE;
     // reset uana time
     m_uana_time = 0;
+    // zero out proxy
+    m_blob_proxy = NULL;
 }
 
 

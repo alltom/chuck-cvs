@@ -42,7 +42,8 @@
 
 
 // forward reference
-struct  Chuck_VM_Shred;
+struct Chuck_VM_Shred;
+struct UAnaBlobProxy;
 
 
 // op mode
@@ -142,6 +143,7 @@ public:
 
 public: // data
     t_CKTIME m_uana_time;
+    UAnaBlobProxy * m_blob_proxy;
 };
 
 

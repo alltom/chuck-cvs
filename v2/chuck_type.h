@@ -808,6 +808,7 @@ extern Chuck_Type t_class;
 extern Chuck_Type t_event;
 extern Chuck_Type t_ugen;
 extern Chuck_Type t_uana;
+extern Chuck_Type t_uanablob;
 
 
 

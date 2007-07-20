@@ -40,6 +40,9 @@
 #include <queue>
 
 
+// forward reference
+struct Chuck_UAna;
+
 // query
 DLL_QUERY lang_query( Chuck_DL_Query * QUERY );
 
@@ -111,6 +114,29 @@ CK_DLL_DTOR( uanablob_dtor );
 CK_DLL_MFUN( uanablob_fvals );
 CK_DLL_MFUN( uanablob_cvals );
 CK_DLL_MFUN( uanablob_when );
+
+
+//-----------------------------------------------------------------------------
+// name: UAnaBlobProxy
+// desc: proxy for interfacing with UAnaBlob, which is a Chuck class
+//-----------------------------------------------------------------------------
+struct UAnaBlobProxy
+{
+public:
+    UAnaBlobProxy( Chuck_Object * blob );
+    virtual ~UAnaBlobProxy();
+
+public:
+    t_CKTIME & when();
+    Chuck_Array8 & fvals();
+    Chuck_Array16 & cvals();
+
+protected:
+    Chuck_Object * m_blob;
+};
+
+// get proxy
+UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana );
 
 
 //-----------------------------------------------------------------------------
