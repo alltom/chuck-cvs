@@ -220,6 +220,10 @@ t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "void", "upchuck", uana_upchuck );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // TODO: add nonchuck
+    // func = make_new_mfun( "void", "nonchuck", uana_nonchuck );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add blob
     // func = make_new_mfun( "UAnaBlob", "blob", uana_blob );
     // if( !type_engine_import_mfun( env, func ) ) goto error;
