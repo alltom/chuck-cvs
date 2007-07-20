@@ -34,6 +34,7 @@
 #include <limits.h>
 
 #include "chuck_type.h"
+#include "chuck_lang.h"
 #include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_ugen.h"
@@ -2705,6 +2706,7 @@ out_of_memory:
 Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Shred * shred )
 {
     Chuck_Object * object = NULL;
+    Chuck_UAna * uana = NULL;
 
     // sanity
     assert( type != NULL );
@@ -2721,10 +2723,18 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
     else
     {
         // make ugen
-        Chuck_UGen * ugen;
+        Chuck_UGen * ugen = NULL;
         // ugen vs. uana
-        if( type->ugen_info->tock != NULL ) object = ugen = new Chuck_UAna;
-        else object = ugen = new Chuck_UGen;
+        if( type->ugen_info->tock != NULL )
+        {
+            // uana
+            object = ugen = uana = new Chuck_UAna;
+        }
+        else 
+        {
+            object = ugen = new Chuck_UGen;
+        }
+
         if( shred )
         {
             ugen->shred = shred;
@@ -2737,6 +2747,13 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
 
     // initialize
     if( !initialize_object( object, type ) ) goto error;
+
+    // set up uana proxy for uana
+    if( uana != NULL )
+    {
+        // find and store proxy
+        uana->m_blob_proxy = getBlobProxy(uana);
+    }
 
     return object;
 

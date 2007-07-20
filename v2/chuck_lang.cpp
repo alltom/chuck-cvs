@@ -35,6 +35,7 @@
 #include "chuck_instr.h"
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
+#include "chuck_ugen.h"
 #include "midiio_rtmidi.h"
 #include "hidio_sdl.h"
 #include "util_string.h"
@@ -194,6 +195,8 @@ error:
 
 
 
+// virtual table offset
+static t_CKINT uana_offset_blob = 0;
 //-----------------------------------------------------------------------------
 // name: init_class_uana()
 // desc: ...
@@ -213,8 +216,12 @@ t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type )
 
     // init as base class, type should already know the parent type
     // TODO: ctor/dtor, ugen's sometimes created internally?
-    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
+    if( !type_engine_import_class_begin( env, type, env->global(), uana_ctor, uana_dtor ) )
         return FALSE;
+
+    // add variables
+    uana_offset_blob = type_engine_import_mvar( env, "int", "m_blob", FALSE );
+    if( uana_offset_blob == CK_INVALID_OFFSET ) goto error;
 
     // add upchuck
     func = make_new_mfun( "void", "upchuck", uana_upchuck );
@@ -1377,8 +1384,7 @@ CK_DLL_SFUN( object_testStatic )
 }
 
 
-
-
+// ctor
 CK_DLL_CTOR( ugen_ctor )
 {
 }
@@ -1523,6 +1529,24 @@ CK_DLL_CTRL( ugen_connected )
     RETURN->v_int = ret;
 }
 
+
+// ctor
+CK_DLL_CTOR( uana_ctor )
+{
+    // make an actual blob
+    Chuck_Object * blob = instantiate_and_initialize_object( &t_uanablob, SHRED );
+    // TODO: check out of memory
+    assert( blob != NULL );
+    // make a blob proxy
+    UAnaBlobProxy * proxy = new UAnaBlobProxy( blob );
+    // remember it
+    OBJ_MEMBER_INT(SELF, uana_offset_blob) = (t_CKINT)proxy;
+}
+
+CK_DLL_DTOR( uana_dtor )
+{
+}
+
 CK_DLL_MFUN( uana_upchuck )
 {
     // get as uana
@@ -1563,6 +1587,49 @@ CK_DLL_MFUN( uana_upchuck )
     RETURN->v_object = NULL;
 } */
 
+
+// blob proxy implementation
+UAnaBlobProxy::UAnaBlobProxy( Chuck_Object * blob )
+{
+    m_blob = blob;
+    assert( m_blob != NULL );
+    // add reference
+    m_blob->add_ref();
+}
+
+UAnaBlobProxy::~UAnaBlobProxy()
+{
+    // release
+    SAFE_RELEASE( m_blob );
+}
+
+t_CKTIME & UAnaBlobProxy::when()
+{
+    // TODO: DANGER: is this actually returning correct reference?!
+    return OBJ_MEMBER_TIME(m_blob, uanablob_offset_when);
+}
+
+Chuck_Array8 & UAnaBlobProxy::fvals()
+{
+    // TODO: DANGER: is this actually returning correct reference?!
+    Chuck_Array8 * arr8 = (Chuck_Array8 *)OBJ_MEMBER_INT(m_blob, uanablob_offset_fvals);
+    assert( arr8 != NULL );
+    return *arr8;
+}
+
+Chuck_Array16 & UAnaBlobProxy::cvals()
+{
+    // TODO: DANGER: is this actually returning correct reference?!
+    Chuck_Array16 * arr16 = (Chuck_Array16 *)OBJ_MEMBER_INT(m_blob, uanablob_offset_cvals);
+    assert( arr16 != NULL );
+    return *arr16;
+}
+
+// get proxy
+UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana )
+{
+    return (UAnaBlobProxy *)OBJ_MEMBER_INT(uana, uana_offset_blob);
+}
 
 // ctor
 CK_DLL_CTOR( uanablob_ctor )
