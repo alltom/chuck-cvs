@@ -52,7 +52,7 @@ typedef enum {
     te_complex, te_polar, te_string, te_thread, te_shred, te_class,
     te_function, te_object, te_user, te_array, te_null, te_ugen, te_uana, 
     te_event, te_void, te_stdout, te_stderr, te_adc, te_dac, te_bunghole, 
-    te_midiin, te_midiout, te_multi
+    te_uanablob, te_midiin, te_midiout, te_multi
 } te_Type;
 
 

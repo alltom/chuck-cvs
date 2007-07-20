@@ -63,6 +63,7 @@ Chuck_Type t_string( te_string, "string", &t_object, sizeof(void *) );
 Chuck_Type t_event( te_event, "Event", &t_object, sizeof(void *) );
 Chuck_Type t_ugen( te_ugen, "UGen", &t_object, sizeof(void *) );
 Chuck_Type t_uana( te_uana, "UAna", &t_ugen, sizeof(void *) );
+Chuck_Type t_uanablob( te_uanablob, "UAnaBlob", &t_object, sizeof(void *) );
 Chuck_Type t_shred( te_shred, "Shred", &t_object, sizeof(void *) );
 Chuck_Type t_thread( te_thread, "Thread", &t_object, sizeof(void *) );
 Chuck_Type t_class( te_class, "Class", &t_object, sizeof(void *) );
@@ -213,6 +214,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->global()->type.add( t_string.name, &t_string );      t_string.lock();
     env->global()->type.add( t_ugen.name, &t_ugen );          t_ugen.lock();
     env->global()->type.add( t_uana.name, &t_uana );          t_uana.lock();
+    env->global()->type.add( t_uanablob.name, &t_uanablob );  t_uanablob.lock();
     env->global()->type.add( t_shred.name, &t_shred );        t_shred.lock();
     env->global()->type.add( t_thread.name, &t_thread );      t_thread.lock();
     env->global()->type.add( t_function.name, &t_function );  t_function.lock();
@@ -239,6 +241,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     init_class_string( env, &t_string );
     init_class_ugen( env, &t_ugen );
     init_class_uana( env, &t_uana );
+    init_class_blob( env, &t_uanablob );
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
 

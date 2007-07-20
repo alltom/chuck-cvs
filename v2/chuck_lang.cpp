@@ -244,6 +244,65 @@ error:
 
 
 
+// virtual table offset
+static t_CKINT uanablob_offset_when = 0;
+static t_CKINT uanablob_offset_fvals = 0;
+static t_CKINT uanablob_offset_cvals = 0;
+//-----------------------------------------------------------------------------
+// name: init_class_blob()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_blob( Chuck_Env * env, Chuck_Type * type )
+{
+    Chuck_DL_Func * func = NULL;
+    Chuck_Value * value = NULL;
+    
+    // log
+    EM_log( CK_LOG_SEVERE, "class 'uanablob'" );
+    
+    // init class
+    // TODO: ctor/dtor
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
+        return FALSE;
+
+    // add variables
+    uanablob_offset_when = type_engine_import_mvar( env, "time", "m_when", FALSE );
+    if( uanablob_offset_when == CK_INVALID_OFFSET ) goto error;
+    uanablob_offset_fvals = type_engine_import_mvar( env, "float[]", "m_fvals", FALSE );
+    if( uanablob_offset_fvals == CK_INVALID_OFFSET ) goto error;
+    uanablob_offset_cvals = type_engine_import_mvar( env, "complex[]", "m_cvals", FALSE );
+    if( uanablob_offset_cvals == CK_INVALID_OFFSET ) goto error;
+
+    // add when
+    func = make_new_mfun( "time", "when", uanablob_when );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add fvals
+    func = make_new_mfun( "float[]", "fvals", uanablob_fvals );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add cvals
+    func = make_new_mfun( "complex[]", "cvals", uanablob_cvals );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end class import
+    type_engine_import_class_end( env );
+    
+    // done
+    return TRUE;
+
+error:
+
+    // end class import
+    type_engine_import_class_end( env );
+    
+    // error
+    return FALSE;
+}
+
+
+
+
 // static t_CKUINT event_offset_data = 0;
 //-----------------------------------------------------------------------------
 // name: init_class_event()
@@ -1495,15 +1554,70 @@ CK_DLL_MFUN( uana_upchuck )
     uana->system_tock( vm->shreduler()->now_system );
 }
 
-CK_DLL_MFUN( uana_blob )
+/* CK_DLL_MFUN( uana_blob )
 {
     // get as uana
     Chuck_UAna * uana = (Chuck_UAna *)SELF;
     
     // TODO: return
     RETURN->v_object = NULL;
+} */
+
+
+// ctor
+CK_DLL_CTOR( uanablob_ctor )
+{
+    // when
+    OBJ_MEMBER_TIME(SELF, uanablob_offset_when) = 0;
+    // fvals
+    Chuck_Array8 * arr8 = new Chuck_Array8( 8 );
+    // TODO: check out of memory
+    arr8->add_ref();
+    OBJ_MEMBER_INT(SELF, uanablob_offset_fvals) = (t_CKINT)arr8;
+    // cvals
+    Chuck_Array16 * arr16 = new Chuck_Array16( 8 );
+    // TODO: check out of memory
+    arr16->add_ref();
+    OBJ_MEMBER_INT(SELF, uanablob_offset_cvals) = (t_CKINT)arr16;
 }
 
+// dtor
+CK_DLL_DTOR( uanablob_dtor )
+{
+    // get array
+    Chuck_Array8 * arr8 = (Chuck_Array8 *)OBJ_MEMBER_INT(SELF, uanablob_offset_fvals);
+    // release it
+    arr8->release();
+    OBJ_MEMBER_INT(SELF, uanablob_offset_fvals) = 0;
+    
+    // get array
+    Chuck_Array16 * arr16 = (Chuck_Array16 *)OBJ_MEMBER_INT(SELF, uanablob_offset_cvals);
+    // release it
+    arr16->release();
+    OBJ_MEMBER_INT(SELF, uanablob_offset_cvals) = 0;
+    
+    OBJ_MEMBER_TIME(SELF, uanablob_offset_when) = 0;
+}
+
+CK_DLL_MFUN( uanablob_when )
+{
+    // set return
+    RETURN->v_time = OBJ_MEMBER_TIME(SELF, uanablob_offset_when);
+}
+
+CK_DLL_MFUN( uanablob_fvals )
+{
+    // set return
+    RETURN->v_object = (Chuck_Array8 *)OBJ_MEMBER_INT(SELF, uanablob_offset_fvals);
+}
+
+CK_DLL_MFUN( uanablob_cvals )
+{
+    // set return
+    RETURN->v_object = (Chuck_Array16 *)OBJ_MEMBER_INT(SELF, uanablob_offset_cvals);
+}
+
+// ctor
 CK_DLL_CTOR( event_ctor )
 {
 //  OBJ_MEMBER_INT(SELF, event_offset_data) = (t_CKUINT)new Data_Event;
@@ -2130,6 +2244,8 @@ CK_DLL_SFUN( HidIn_read_tilt_sensor )
     array->set( 1, 0 );
     array->set( 2, 0 );
     
+    // TODO: reference count?
+    array->add_ref();
     RETURN->v_object = array;
     
     if( hi_good == FALSE )

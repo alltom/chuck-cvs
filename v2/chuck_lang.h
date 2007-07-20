@@ -47,6 +47,7 @@ DLL_QUERY lang_query( Chuck_DL_Query * QUERY );
 t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_blob( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type );
@@ -107,6 +108,9 @@ CK_DLL_MFUN( uana_blob );
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( uanablob_ctor );
 CK_DLL_DTOR( uanablob_dtor );
+CK_DLL_MFUN( uanablob_fvals );
+CK_DLL_MFUN( uanablob_cvals );
+CK_DLL_MFUN( uanablob_when );
 
 
 //-----------------------------------------------------------------------------
