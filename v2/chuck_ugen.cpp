@@ -33,6 +33,7 @@
 //-----------------------------------------------------------------------------
 #include "chuck_ugen.h"
 #include "chuck_vm.h"
+#include "chuck_lang.h"
 #include "chuck_errmsg.h"
 using namespace std;
 
@@ -695,7 +696,7 @@ Chuck_UAna::Chuck_UAna() : Chuck_UGen()
     // reset uana time
     m_uana_time = 0;
     // zero out proxy
-    m_blob_proxy = NULL;
+    // m_blob_proxy = NULL;
 }
 
 
@@ -717,7 +718,7 @@ Chuck_UAna::~Chuck_UAna()
 // name: blobProxy()
 // desc: ...
 //-----------------------------------------------------------------------------
-Chuck_UAnaBlobProxy * Chuck_UAna::blobProxy() const { return m_blob_proxy; }
+Chuck_UAnaBlobProxy * Chuck_UAna::blobProxy() const { return getBlobProxy( this ); }
 
 
 
@@ -842,7 +843,7 @@ t_CKBOOL Chuck_UAna::system_tock( t_CKTIME now )
     if( m_op > 0 )  // UGEN_OP_TOCK
     {
         // tock the uana
-        if( tock ) m_valid = tock( this, NULL, NULL, NULL );
+        if( tock ) m_valid = tock( this, this, blobProxy(), NULL );
         if( !m_valid ) { /* clear out blob? */ }
         // TODO: set current_blob to out_blob
         // TODO: set last_blob to current

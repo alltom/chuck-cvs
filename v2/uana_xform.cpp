@@ -34,6 +34,7 @@
 #include "chuck_type.h"
 #include "chuck_vm.h"
 #include "chuck_instr.h"
+#include "chuck_lang.h"
 #include "util_buffers.h"
 #include "util_xforms.h"
 
@@ -211,6 +212,9 @@ DLL_QUERY xform_query( Chuck_DL_Query * QUERY )
     // initialize static data
     Windowing_array = new Chuck_Array8();
     initialize_object( Windowing_array, &t_array );
+    // TODO: yes? reference count
+    Windowing_array->add_ref();
+    // set size
     float_array_size = 16384;
     float_array = new FLOAT[float_array_size];
 
@@ -555,7 +559,16 @@ CK_DLL_TOCK( FFT_tock )
     FFT_object * fft = (FFT_object *)OBJ_MEMBER_UINT(SELF, FFT_offset_data);
     // take transform
     fft->transform();
-    
+
+    // get cvals of output BLOB
+    Chuck_Array16 & cvals = BLOB->cvals();
+    // ensure capacity == resulting size
+    if( cvals.capacity() != fft->m_size/2 )
+        cvals.set_capacity( fft->m_size/2 );
+    // copy the result in
+    for( t_CKINT i = 0; i < fft->m_size/2; i++ )
+        cvals.set( i, fft->m_spectrum[i] );
+
     return TRUE;
 }
 
@@ -1015,10 +1028,51 @@ CK_DLL_TOCK( IFFT_tock )
     // get object
     IFFT_object * ifft = (IFFT_object *)OBJ_MEMBER_UINT(SELF, IFFT_offset_data);
     // TODO: get buffer from stream, and set in ifft
-    // TODO: resize if necessary
-    // take transform
-    ifft->transform();
-    
+    if( UANA->numIncomingUAnae() > 0 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( 0 );
+        // sanity check
+        assert( BLOB_IN != NULL );
+        // get the array
+        Chuck_Array16 & cmp = BLOB_IN->cvals();
+        // resize if necessary
+        if( cmp.capacity()*2 > ifft->m_size )
+            ifft->resize( cmp.capacity()*2 );
+        // sanity check
+        assert( ifft->m_buffer != NULL );
+        // copy into transform buffer
+        t_CKCOMPLEX cval;
+        for( t_CKINT i = 0; i < ifft->m_size/2; i++ )
+        {
+            // copy complex value in
+            cmp.get( i, &cval );
+            ifft->m_buffer[i*2] = cval.re;
+            ifft->m_buffer[i*2+1] = cval.im;
+        }
+
+        // take transform
+        ifft->transform();
+    }
+    // otherwise zero out
+    else
+    {
+        // sanity check
+        assert( ifft->m_buffer != NULL );
+        memset( ifft->m_buffer, 0, sizeof(SAMPLE)*ifft->m_size );
+        memset( ifft->m_inverse, 0, sizeof(SAMPLE)*ifft->m_size );
+    }
+
+
+    // get fvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure capacity == resulting size
+    if( fvals.capacity() != ifft->m_size )
+        fvals.set_capacity( ifft->m_size );
+    // copy the result in
+    for( t_CKINT i = 0; i < ifft->m_size; i++ )
+        fvals.set( i, ifft->m_inverse[i] );
+
     return TRUE;
 }
 

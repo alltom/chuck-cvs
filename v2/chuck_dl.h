@@ -162,7 +162,7 @@ struct Chuck_UAnaBlobProxy;
 #define CK_DLL_PMSG(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * SELF, const char * MSG, void * ARGS, Chuck_VM_Shred * SHRED )
 // macro for defining ChucK DLL export uana tock functions
 // example: CK_DLL_TOCK(foo)
-#define CK_DLL_TOCK(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * SELF, const Chuck_UAnaBlobProxy * in, Chuck_UAnaBlobProxy * out, Chuck_VM_Shred * SHRED )
+#define CK_DLL_TOCK(name) CK_DLL_EXPORT(t_CKBOOL) name( Chuck_Object * SELF, Chuck_UAna * UANA, Chuck_UAnaBlobProxy * BLOB, Chuck_VM_Shred * SHRED )
 
 
 // macros for DLL exports
@@ -197,7 +197,7 @@ typedef t_CKVOID (CK_DLL_CALL * f_ctrl)( Chuck_Object * SELF, void * ARGS, Chuck
 typedef t_CKVOID (CK_DLL_CALL * f_cget)( Chuck_Object * SELF, void * ARGS, Chuck_DL_Return * RETURN, Chuck_VM_Shred * SHRED );
 typedef t_CKBOOL (CK_DLL_CALL * f_pmsg)( Chuck_Object * SELF, const char * MSG, void * ARGS, Chuck_VM_Shred * SHRED );
 // uana specific
-typedef t_CKBOOL (CK_DLL_CALL * f_tock)( Chuck_Object * SELF, const Chuck_UAnaBlobProxy * in, Chuck_UAnaBlobProxy * out, Chuck_VM_Shred * SHRED );
+typedef t_CKBOOL (CK_DLL_CALL * f_tock)( Chuck_Object * SELF, Chuck_UAna * UANA, Chuck_UAnaBlobProxy * BLOB, Chuck_VM_Shred * SHRED );
 }
 
 

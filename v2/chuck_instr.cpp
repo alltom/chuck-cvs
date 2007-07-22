@@ -2748,13 +2748,6 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
     // initialize
     if( !initialize_object( object, type ) ) goto error;
 
-    // set up uana proxy for uana
-    if( uana != NULL )
-    {
-        // find and store proxy
-        uana->m_blob_proxy = getBlobProxy(uana);
-    }
-
     return object;
 
 out_of_memory:

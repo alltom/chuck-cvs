@@ -240,8 +240,8 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     init_class_array( env, &t_array );
     init_class_string( env, &t_string );
     init_class_ugen( env, &t_ugen );
-    init_class_uana( env, &t_uana );
     init_class_blob( env, &t_uanablob );
+    init_class_uana( env, &t_uana );
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
 

@@ -155,7 +155,7 @@ public:
 
 public: // data
     t_CKTIME m_uana_time;
-    Chuck_UAnaBlobProxy * m_blob_proxy;
+    // Chuck_UAnaBlobProxy * m_blob_proxy;
 };
 
 

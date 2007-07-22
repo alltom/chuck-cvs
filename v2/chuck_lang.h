@@ -136,7 +136,7 @@ protected:
 };
 
 // get proxy
-Chuck_UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana );
+Chuck_UAnaBlobProxy * getBlobProxy( const Chuck_UAna * uana );
 
 
 //-----------------------------------------------------------------------------

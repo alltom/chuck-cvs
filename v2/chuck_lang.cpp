@@ -220,7 +220,7 @@ t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type )
         return FALSE;
 
     // add variables
-    uana_offset_blob = type_engine_import_mvar( env, "int", "m_blob", FALSE );
+    uana_offset_blob = type_engine_import_mvar( env, "UAnaBlob", "m_blob", FALSE );
     if( uana_offset_blob == CK_INVALID_OFFSET ) goto error;
 
     // add upchuck
@@ -269,7 +269,7 @@ t_CKBOOL init_class_blob( Chuck_Env * env, Chuck_Type * type )
     
     // init class
     // TODO: ctor/dtor
-    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
+    if( !type_engine_import_class_begin( env, type, env->global(), uanablob_ctor, uanablob_dtor ) )
         return FALSE;
 
     // add variables
@@ -1545,6 +1545,7 @@ CK_DLL_CTOR( uana_ctor )
 
 CK_DLL_DTOR( uana_dtor )
 {
+    // TODO: GC should release the blob!
 }
 
 CK_DLL_MFUN( uana_upchuck )
@@ -1626,7 +1627,7 @@ Chuck_Array16 & Chuck_UAnaBlobProxy::cvals()
 }
 
 // get proxy
-Chuck_UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana )
+Chuck_UAnaBlobProxy * getBlobProxy( const Chuck_UAna * uana )
 {
     return (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(uana, uana_offset_blob);
 }
@@ -1638,11 +1639,13 @@ CK_DLL_CTOR( uanablob_ctor )
     OBJ_MEMBER_TIME(SELF, uanablob_offset_when) = 0;
     // fvals
     Chuck_Array8 * arr8 = new Chuck_Array8( 8 );
+    initialize_object( arr8, &t_array );
     // TODO: check out of memory
     arr8->add_ref();
     OBJ_MEMBER_INT(SELF, uanablob_offset_fvals) = (t_CKINT)arr8;
     // cvals
     Chuck_Array16 * arr16 = new Chuck_Array16( 8 );
+    initialize_object( arr16, &t_array );
     // TODO: check out of memory
     arr16->add_ref();
     OBJ_MEMBER_INT(SELF, uanablob_offset_cvals) = (t_CKINT)arr16;
