@@ -117,14 +117,14 @@ CK_DLL_MFUN( uanablob_when );
 
 
 //-----------------------------------------------------------------------------
-// name: UAnaBlobProxy
+// name: Chuck_UAnaBlobProxy
 // desc: proxy for interfacing with UAnaBlob, which is a Chuck class
 //-----------------------------------------------------------------------------
-struct UAnaBlobProxy
+struct Chuck_UAnaBlobProxy
 {
 public:
-    UAnaBlobProxy( Chuck_Object * blob );
-    virtual ~UAnaBlobProxy();
+    Chuck_UAnaBlobProxy( Chuck_Object * blob );
+    virtual ~Chuck_UAnaBlobProxy();
 
 public:
     t_CKTIME & when();
@@ -136,7 +136,7 @@ protected:
 };
 
 // get proxy
-UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana );
+Chuck_UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana );
 
 
 //-----------------------------------------------------------------------------

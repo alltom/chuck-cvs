@@ -1538,7 +1538,7 @@ CK_DLL_CTOR( uana_ctor )
     // TODO: check out of memory
     assert( blob != NULL );
     // make a blob proxy
-    UAnaBlobProxy * proxy = new UAnaBlobProxy( blob );
+    Chuck_UAnaBlobProxy * proxy = new Chuck_UAnaBlobProxy( blob );
     // remember it
     OBJ_MEMBER_INT(SELF, uana_offset_blob) = (t_CKINT)proxy;
 }
@@ -1589,7 +1589,7 @@ CK_DLL_MFUN( uana_upchuck )
 
 
 // blob proxy implementation
-UAnaBlobProxy::UAnaBlobProxy( Chuck_Object * blob )
+Chuck_UAnaBlobProxy::Chuck_UAnaBlobProxy( Chuck_Object * blob )
 {
     m_blob = blob;
     assert( m_blob != NULL );
@@ -1597,19 +1597,19 @@ UAnaBlobProxy::UAnaBlobProxy( Chuck_Object * blob )
     m_blob->add_ref();
 }
 
-UAnaBlobProxy::~UAnaBlobProxy()
+Chuck_UAnaBlobProxy::~Chuck_UAnaBlobProxy()
 {
     // release
     SAFE_RELEASE( m_blob );
 }
 
-t_CKTIME & UAnaBlobProxy::when()
+t_CKTIME & Chuck_UAnaBlobProxy::when()
 {
     // TODO: DANGER: is this actually returning correct reference?!
     return OBJ_MEMBER_TIME(m_blob, uanablob_offset_when);
 }
 
-Chuck_Array8 & UAnaBlobProxy::fvals()
+Chuck_Array8 & Chuck_UAnaBlobProxy::fvals()
 {
     // TODO: DANGER: is this actually returning correct reference?!
     Chuck_Array8 * arr8 = (Chuck_Array8 *)OBJ_MEMBER_INT(m_blob, uanablob_offset_fvals);
@@ -1617,7 +1617,7 @@ Chuck_Array8 & UAnaBlobProxy::fvals()
     return *arr8;
 }
 
-Chuck_Array16 & UAnaBlobProxy::cvals()
+Chuck_Array16 & Chuck_UAnaBlobProxy::cvals()
 {
     // TODO: DANGER: is this actually returning correct reference?!
     Chuck_Array16 * arr16 = (Chuck_Array16 *)OBJ_MEMBER_INT(m_blob, uanablob_offset_cvals);
@@ -1626,9 +1626,9 @@ Chuck_Array16 & UAnaBlobProxy::cvals()
 }
 
 // get proxy
-UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana )
+Chuck_UAnaBlobProxy * getBlobProxy( Chuck_UAna * uana )
 {
-    return (UAnaBlobProxy *)OBJ_MEMBER_INT(uana, uana_offset_blob);
+    return (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(uana, uana_offset_blob);
 }
 
 // ctor

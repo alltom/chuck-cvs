@@ -4794,6 +4794,18 @@ void Chuck_Instr_Bunghole::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 
 
 //-----------------------------------------------------------------------------
+// name: Chuck_Instr_UGen_Link()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_Instr_UGen_Link::Chuck_Instr_UGen_Link( t_CKBOOL isUpChuck )
+{
+    m_isUpChuck = isUpChuck;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -4806,7 +4818,7 @@ void Chuck_Instr_UGen_Link::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     // check for null
     if( !*(sp+1) || !(*sp) ) goto null_pointer;
     // go for it
-    (*(sp + 1))->add( *sp );
+    (*(sp + 1))->add( *sp, m_isUpChuck );
     // push the second
     push_( sp, *(sp + 1) );
 

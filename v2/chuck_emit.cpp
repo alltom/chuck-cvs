@@ -2062,8 +2062,8 @@ t_CKBOOL emit_engine_emit_op_chuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs, 
     // ugen => ugen
     if( isa( left, &t_ugen ) && isa( right, &t_ugen ) )
     {
-        // link
-        emit->append( new Chuck_Instr_UGen_Link );
+        // link, flag as NOT unchuck
+        emit->append( new Chuck_Instr_UGen_Link( FALSE ) );
         // done
         return TRUE;
     }
@@ -2172,8 +2172,8 @@ t_CKBOOL emit_engine_emit_op_upchuck( Chuck_Emitter * emit, a_Exp lhs, a_Exp rhs
     // if ugen
     if( isa( left, &t_uana ) && isa( right, &t_uana ) )
     {
-        // connect
-        emit->append( new Chuck_Instr_UGen_Link );
+        // connect; flag it as unchuck
+        emit->append( new Chuck_Instr_UGen_Link( TRUE ) );
     }
     else
     {

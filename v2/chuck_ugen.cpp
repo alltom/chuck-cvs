@@ -182,8 +182,12 @@ void Chuck_UGen::init()
 
     fa_init( m_src_list, m_src_cap );
     fa_init( m_dest_list, m_dest_cap );
+    fa_init( m_src_uana_list, m_src_uana_cap );
+    fa_init( m_dest_uana_list, m_dest_uana_cap );
     m_num_src = 0;
     m_num_dest = 0;
+    m_num_uana_src = 0;
+    m_num_uana_dest = 0;
     m_max_src = 0xffffffff;
     m_time = 0;
     m_valid = TRUE;
@@ -223,6 +227,8 @@ void Chuck_UGen::done()
 
     fa_done( m_src_list, m_src_cap );
     fa_done( m_dest_list, m_dest_cap );
+    fa_done( m_src_uana_list, m_src_uana_cap );
+    fa_done( m_dest_uana_list, m_dest_uana_cap );
 
     // TODO: m_multi_chan, break ref count loop
 }
@@ -290,14 +296,14 @@ t_CKUINT Chuck_UGen::get_num_src()
 // name: add()
 // dsec: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
+t_CKBOOL Chuck_UGen::add( Chuck_UGen * src, t_CKBOOL isUpChuck )
 {
     // examine ins and outs
     t_CKUINT outs = src->m_num_outs;
     t_CKUINT ins = this->m_num_ins;
     t_CKUINT i;
 
-    if( outs == 1 && ins == 1 )
+    if( outs >= 1 && ins == 1 )
     {
         // check if already connected
         if( fa_lookup( m_src_list, m_num_src, src ) )
@@ -310,9 +316,18 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
         fa_push_back( m_src_list, m_src_cap, m_num_src, src );
         m_num_src++;
         src->add_ref();
-        src->add_by( this );
+        src->add_by( this, isUpChuck );
+        
+        // upchuck
+        if( isUpChuck )
+        {
+            // add to uana list
+            fa_push_back( m_src_uana_list, m_src_uana_cap, m_num_uana_src, src );
+            m_num_uana_src++;
+            // TODO: verify that we don't need to reference count
+        }
     }
-    else if( outs >= 2 && ins == 1 )
+    /* else if( outs >= 2 && ins == 1 )
     {
         // check if already connect
         if( fa_lookup( m_src_list, m_num_src, src ) )
@@ -326,18 +341,18 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
         m_num_src++;
         src->add_ref();
         src->add_by( this );
-    }
+    } */
     else if( outs == 1 && ins >= 2 )
     {
         // add to each channel
         for( i = 0; i < ins; i++ )
-            if( !this->m_multi_chan[i]->add( src ) ) return FALSE;
+            if( !this->m_multi_chan[i]->add( src, isUpChuck ) ) return FALSE;
     }
     else if( outs >= 2 && ins >= 2 )
     {
         // add to each channel
         for( i = 0; i < ins; i++ )
-            if( !this->m_multi_chan[i]->add( src->m_multi_chan[i%outs] ) ) return FALSE;
+            if( !this->m_multi_chan[i]->add( src->m_multi_chan[i%outs], isUpChuck ) ) return FALSE;
     }
     else
     {
@@ -355,12 +370,21 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src )
 // name: add_by()
 // dsec: ...
 //-----------------------------------------------------------------------------
-void Chuck_UGen::add_by( Chuck_UGen * dest )
+void Chuck_UGen::add_by( Chuck_UGen * dest, t_CKBOOL isUpChuck )
 {
     // append
     fa_push_back( m_dest_list, m_dest_cap, m_num_dest, dest );
     dest->add_ref();
     m_num_dest++;
+    
+    // uana
+    if( isUpChuck )
+    {
+        // add to uana list
+        fa_push_back( m_dest_uana_list, m_dest_uana_cap, m_num_uana_dest, dest );
+        m_num_uana_dest++;
+        // TODO: verify we don't need to ref count
+    }
 }
 
 
@@ -379,40 +403,51 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
     t_CKBOOL ret = FALSE;
 
     // take action
-    if( outs == 1 && ins == 1 )
+    if( outs >= 1 && ins == 1 )
     {
         if( m_num_src == 0 ) return FALSE;
 
+        // remove from uana list (first, due to ref count)
+        for( t_CKUINT j = 0; j < m_num_uana_src; j++ )
+            if( m_src_uana_list[j] == src )
+            {
+                for( t_CKUINT k = j+1; k < m_num_uana_src; k++ )
+                    m_src_uana_list[k-1] = m_src_uana_list[k];
+                
+                m_src_uana_list[--m_num_uana_src] = NULL;                
+            }
+
         // remove
-        for( unsigned int i = 0; i < m_num_src; i++ )
+        for( t_CKUINT i = 0; i < m_num_src; i++ )
             if( m_src_list[i] == src )
             {
                 ret = TRUE;
-                for( unsigned int j = i+1; j < m_num_src; j++ )
+                for( t_CKUINT j = i+1; j < m_num_src; j++ )
                     m_src_list[j-1] = m_src_list[j];
 
                 m_src_list[--m_num_src] = NULL;
                 src->remove_by( this );
                 src->release();
             }
+        
     }
-    else if( outs >= 2 && ins == 1 )
+    /* else if( outs >= 2 && ins == 1 )
     {
         if( m_num_src == 0 ) return FALSE;
 
         // remove
-        for( unsigned int i = 0; i < m_num_src; i++ )
+        for( t_CKUINT i = 0; i < m_num_src; i++ )
             if( m_src_list[i] == src )
             {
                 ret = TRUE;
-                for( unsigned int j = i+1; j < m_num_src; j++ )
+                for( t_CKUINT j = i+1; j < m_num_src; j++ )
                     m_src_list[j-1] = m_src_list[j];
 
                 m_src_list[--m_num_src] = NULL;
                 src->remove_by( this );
                 src->release();
             }
-    }
+    } */
     else if( outs == 1 && ins >= 2 )
     {
         for( i = 0; i < ins; i++ )
@@ -438,12 +473,24 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
 //-----------------------------------------------------------------------------
 void Chuck_UGen::remove_by( Chuck_UGen * dest )
 {
+    // remove from uana list (first due to reference count)
+    for( t_CKUINT j = 0; j < m_num_uana_dest; j++ )
+        if( m_dest_uana_list[j] == dest )
+        {
+            // get rid of it
+            for( t_CKUINT k = j+1; k < m_num_uana_dest; k++ )
+                m_dest_uana_list[k-1] = m_dest_uana_list[k];
+            
+            // null last element
+            m_dest_uana_list[--m_num_uana_dest] = NULL;
+        }
+
     // remove
-    for( unsigned int i = 0; i < m_num_dest; i++ )
+    for( t_CKUINT i = 0; i < m_num_dest; i++ )
         if( m_dest_list[i] == dest )
         {
             // get rid of it
-            for( unsigned int j = i+1; j < m_num_dest; j++ )
+            for( t_CKUINT j = i+1; j < m_num_dest; j++ )
                 m_dest_list[j-1] = m_dest_list[j];
 
             // release
@@ -470,8 +517,10 @@ void Chuck_UGen::remove_all( )
         // make sure at least one got disconnected
         if( !this->remove( m_src_list[0] ) )
         {
+            // TODO: figure out why this is necessary!
+
             // get rid of it, but don't release
-            for( unsigned int j = 1; j < m_num_src; j++ )
+            for( t_CKUINT j = 1; j < m_num_src; j++ )
                 m_src_list[j-1] = m_src_list[j];
 
             // null the last element
@@ -496,7 +545,7 @@ t_CKBOOL Chuck_UGen::disconnect( t_CKBOOL recursive )
         if( !m_dest_list[0]->remove( this ) )
         {
             // get rid of it, but don't release
-            for( unsigned int j = 1; j < m_num_dest; j++ )
+            for( t_CKUINT j = 1; j < m_num_dest; j++ )
                 m_dest_list[j-1] = m_dest_list[j];
 
             // null the last element
@@ -659,6 +708,58 @@ Chuck_UAna::Chuck_UAna() : Chuck_UGen()
 Chuck_UAna::~Chuck_UAna()
 {
     // do nothing for now
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: blobProxy()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_UAnaBlobProxy * Chuck_UAna::blobProxy() const { return m_blob_proxy; }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: numIncomingUAnae()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKINT Chuck_UAna::numIncomingUAnae() const { return m_num_uana_src; }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: getIncomingBlob()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_UAnaBlobProxy * Chuck_UAna::getIncomingBlob( t_CKUINT index ) const
+{
+    // sanity check
+    if( index >= m_num_uana_src )
+        return NULL;
+
+    // TODO: DANGER: this cast is very dangerous!
+    return ((Chuck_UAna *)m_src_uana_list[index])->blobProxy();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: getIncomingUAna()
+// desc: ...
+//-----------------------------------------------------------------------------
+Chuck_UAna * Chuck_UAna::getIncomingUAna( t_CKUINT index ) const
+{
+    // sanity check
+    if( index >= m_num_uana_src )
+        return NULL;
+
+    // TODO: DANGER: this cast is very dangerous!
+    return ((Chuck_UAna *)m_src_uana_list[index]);
 }
 
 

@@ -2721,7 +2721,13 @@ public:
 struct Chuck_Instr_UGen_Link : public Chuck_Instr
 {
 public:
+    Chuck_Instr_UGen_Link( t_CKBOOL isUpChuck = FALSE );
+
+public:
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+
+protected:
+    t_CKBOOL m_isUpChuck;
 };
 
 

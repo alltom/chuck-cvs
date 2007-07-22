@@ -43,7 +43,7 @@
 
 // forward reference
 struct Chuck_VM_Shred;
-struct UAnaBlobProxy;
+struct Chuck_UAnaBlobProxy;
 
 
 // op mode
@@ -64,7 +64,7 @@ public:
     virtual void done();
 
 public: // src
-    t_CKBOOL add( Chuck_UGen * src );
+    t_CKBOOL add( Chuck_UGen * src, t_CKBOOL isUpChuck );
     t_CKBOOL remove( Chuck_UGen * src );
     t_CKVOID remove_all( );
     t_CKBOOL set_max_src( t_CKUINT num );
@@ -74,7 +74,7 @@ public: // src
     t_CKUINT system_tick( t_CKTIME now );
 
 protected:
-    t_CKVOID add_by( Chuck_UGen * dest );
+    t_CKVOID add_by( Chuck_UGen * dest, t_CKBOOL isUpChuck );
     t_CKVOID remove_by( Chuck_UGen * dest );
 
 public:
@@ -100,6 +100,12 @@ public: // data
     Chuck_UGen ** m_dest_list;
     t_CKUINT m_dest_cap;
     t_CKUINT m_num_dest;
+    Chuck_UGen ** m_src_uana_list;
+    t_CKUINT m_src_uana_cap;
+    t_CKUINT m_num_uana_src;
+    Chuck_UGen ** m_dest_uana_list;
+    t_CKUINT m_dest_uana_cap;
+    t_CKUINT m_num_uana_dest;
     t_CKUINT m_max_src;
     t_CKTIME m_time;
     t_CKBOOL m_valid;
@@ -137,13 +143,19 @@ public:
 public:
     t_CKBOOL system_tock( t_CKTIME now );
 
+public: // blob retrieval
+    t_CKINT numIncomingUAnae() const;
+    Chuck_UAna * getIncomingUAna( t_CKUINT index ) const;
+    Chuck_UAnaBlobProxy * getIncomingBlob( t_CKUINT index ) const;
+    Chuck_UAnaBlobProxy * blobProxy() const;
+
 public:
     // tock function
     f_tock tock;
 
 public: // data
     t_CKTIME m_uana_time;
-    UAnaBlobProxy * m_blob_proxy;
+    Chuck_UAnaBlobProxy * m_blob_proxy;
 };
 
 
