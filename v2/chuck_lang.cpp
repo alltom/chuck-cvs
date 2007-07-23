@@ -1541,6 +1541,8 @@ CK_DLL_CTOR( uana_ctor )
     Chuck_UAnaBlobProxy * proxy = new Chuck_UAnaBlobProxy( blob );
     // remember it
     OBJ_MEMBER_INT(SELF, uana_offset_blob) = (t_CKINT)proxy;
+    // HACK: manually call blob's ctor
+    uanablob_ctor( blob, NULL, NULL );
 }
 
 CK_DLL_DTOR( uana_dtor )
