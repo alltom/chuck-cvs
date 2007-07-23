@@ -1,15 +1,15 @@
 // our patch
 SinOsc g => FFT fft => blackhole;
-
 // set srate
 second / samp => float srate;
+
 // set parameters
 8 => fft.size;
 
+// use this to hold contents
+complex s[fft.size()/2];
 // divide
 int div;
-// the blob
-UAnaBlob blob;
 
 // control loop
 while( true )
@@ -19,10 +19,11 @@ while( true )
     fft.size()/2 %=> div;
     
     // take fft
-    fft.upchuck() @=> blob;
+    fft.upchuck();
+    // get contents
+    fft.spectrum( s );
     // examine contents
-    <<< blob.cvals()[0]$polar, blob.cvals()[1]$polar,
-        blob.cvals()[2]$polar, blob.cvals()[3]$polar >>>;
+    <<< s[0]$polar, s[1]$polar, s[2]$polar, s[3]$polar >>>;
 
     // advance time
     100::ms => now;

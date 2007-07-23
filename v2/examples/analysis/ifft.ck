@@ -1,26 +1,16 @@
 // our patch
-SinOsc g => FFT fft => blackhole;
-// synthesize
-IFFT ifft => dac;
-// set srate
-440 => g.freq;
+SinOsc g => FFT fft =^ IFFT ifft => dac;
 
 // set parameters
 1024 => fft.size;
-
-// use this to hold contents
-complex s[fft.size()/2];
+440 => g.freq;
 
 // control loop
 while( true )
 {
-    // take fft
-    fft.upchuck();
-    // get contents
-    fft.spectrum( s );
-    // take ifft
-    ifft.transform( s );
+    // take fft then ifft
+    ifft.upchuck();
 
     // advance time
-    1024::samp => now;
+    fft.size()::samp => now;
 }

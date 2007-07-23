@@ -1,19 +1,15 @@
 // our patch
 SinOsc g => FFT fft => blackhole;
-// hear it
-g => dac;
-// set gain
-.15 => g.gain;
+
 // set srate
 second / samp => float srate;
-
 // set parameters
-1024 => fft.size;
+8 => fft.size;
 
-// use this to hold contents
-complex s[fft.size()/2];
 // divide
 int div;
+// array ref
+complex c[];
 
 // control loop
 while( true )
@@ -23,10 +19,10 @@ while( true )
     fft.size()/2 %=> div;
     
     // take fft
-    fft.upchuck();
-    // get contents
-    fft.spectrum( s );
+    fft.upchuck().cvals() @=> c;
+    // examine contents
+    <<< c[0]$polar, c[1]$polar, c[2]$polar, c[3]$polar >>>;
 
     // advance time
-    512::samp => now;
+    100::ms => now;
 }

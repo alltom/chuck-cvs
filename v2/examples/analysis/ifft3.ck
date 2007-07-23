@@ -1,14 +1,22 @@
 // our patch
 SinOsc g => FFT fft =^ IFFT ifft => dac;
 
+// set srate
+second / samp => float srate;
 // set parameters
 1024 => fft.size;
-440 => g.freq;
+
+// divide
+int div;
 
 // control loop
 while( true )
 {
-    // take fft then ifft
+    // set freq
+    srate / fft.size() * div++ => g.freq;
+    fft.size()/2 %=> div;
+    
+    // pull from ifft
     ifft.upchuck();
 
     // advance time
