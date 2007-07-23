@@ -131,6 +131,9 @@ public:
     Chuck_Array8 & fvals();
     Chuck_Array16 & cvals();
 
+public:
+    Chuck_Object * realblob() { return m_blob; }
+
 protected:
     Chuck_Object * m_blob;
 };

@@ -224,7 +224,7 @@ t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type )
     if( uana_offset_blob == CK_INVALID_OFFSET ) goto error;
 
     // add upchuck
-    func = make_new_mfun( "void", "upchuck", uana_upchuck );
+    func = make_new_mfun( "UAnaBlob", "upchuck", uana_upchuck );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // TODO: add nonchuck
@@ -1572,13 +1572,20 @@ CK_DLL_MFUN( uana_upchuck )
         return;
     }
 
-    // for multiple channels
-    Chuck_DL_Return ret;
-    for( t_CKUINT i = 0; i < uana->m_multi_chan_size; i++ )
-        uana_upchuck( uana->m_multi_chan[i], ARGS, &ret, SHRED );
+    // check if time
+    if( uana->m_uana_time < vm->shreduler()->now_system )
+    {
+        // for multiple channels
+        Chuck_DL_Return ret;
+        for( t_CKUINT i = 0; i < uana->m_multi_chan_size; i++ )
+            uana_upchuck( uana->m_multi_chan[i], ARGS, &ret, SHRED );
 
-    // tock it (TODO: order relative to multiple channels?)
-    uana->system_tock( vm->shreduler()->now_system );
+        // tock it (TODO: order relative to multiple channels?)
+        uana->system_tock( vm->shreduler()->now_system );
+    }
+
+    // return
+    RETURN->v_object = uana->blobProxy()->realblob();
 }
 
 /* CK_DLL_MFUN( uana_blob )
