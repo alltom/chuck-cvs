@@ -43,7 +43,7 @@
 static double g_pi = ONE_PI;
 static double g_twopi = TWO_PI;
 static double g_e = ::exp( 1.0 );
-static complex g_i = { 0.0, 1.0 };
+static t_CKCOMPLEX g_i = { 0.0, 1.0 };
 
 
 // query

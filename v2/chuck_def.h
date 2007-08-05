@@ -51,13 +51,13 @@
 #define t_CKBYTE                    unsigned char
 #define t_CKVOID                    void
 #define t_CKVOIDPTR                 void *
-#define t_CKCOMPLEX                 complex
-#define t_CKPOLAR                   polar
+// #define t_CKCOMPLEX                 complex
+// #define t_CKPOLAR                   polar
 
 // complex type
-typedef struct { t_CKFLOAT re ; t_CKFLOAT im ; } complex;
+typedef struct { t_CKFLOAT re ; t_CKFLOAT im ; } t_CKCOMPLEX;
 // polar type
-typedef struct { t_CKFLOAT modulus ; t_CKFLOAT phase ; } polar;
+typedef struct { t_CKFLOAT modulus ; t_CKFLOAT phase ; } t_CKPOLAR;
 
 // size
 #define sz_TIME                     sizeof(double)
