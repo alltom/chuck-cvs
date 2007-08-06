@@ -51,8 +51,6 @@
 #define t_CKBYTE                    unsigned char
 #define t_CKVOID                    void
 #define t_CKVOIDPTR                 void *
-// #define t_CKCOMPLEX                 complex
-// #define t_CKPOLAR                   polar
 
 // complex type
 typedef struct { t_CKFLOAT re ; t_CKFLOAT im ; } t_CKCOMPLEX;
