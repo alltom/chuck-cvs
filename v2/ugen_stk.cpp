@@ -13940,18 +13940,17 @@ void Stk :: sleep(unsigned long milliseconds)
 
 void Stk :: handleError( const char *message, StkError::TYPE type )
 {
-  if (type == StkError::WARNING)
-    fprintf(stderr, "%s\n", message);
-  else if (type == StkError::DEBUG_WARNING) {
+    if (type == StkError::WARNING) {
+        fprintf(stderr, "%s\n", message);
+    } else if (type == StkError::DEBUG_WARNING) {
 #if defined(_STK_DEBUG_)
-    fprintf(stderr, "%s\n", message);
+        fprintf(stderr, "%s\n", message);
 #endif
-  }
-  else {
-    // Print error message before throwing.
-    fprintf(stderr, "%s\n", message);
-    throw StkError(message, type);
-  }
+    } else {
+        // print error message before throwing.
+        fprintf(stderr, "%s\n", message);
+        throw StkError(message, type);
+    }
 }
 
 StkError :: StkError(const char *p, TYPE tipe)
@@ -16820,8 +16819,8 @@ bool WvOut :: setRawFile( const char *fileName )
   }
 
   byteswap = false;
-if( little_endian )
-  byteswap = true;
+  if( little_endian )
+    byteswap = true;
 
   // printf("\nCreating RAW file: %s\n", name);
   return true;
@@ -16863,18 +16862,18 @@ bool WvOut :: setWavFile( const char *fileName )
   hdr.bytes_per_sec = (SINT32) (hdr.sample_rate * hdr.bytes_per_samp);
 
   byteswap = false;
-if( !little_endian )
-{
-  byteswap = true;
-  swap32((unsigned char *)&hdr.file_size);
-  swap32((unsigned char *)&hdr.chunk_size);
-  swap16((unsigned char *)&hdr.format_tag);
-  swap16((unsigned char *)&hdr.num_chans);
-  swap32((unsigned char *)&hdr.sample_rate);
-  swap32((unsigned char *)&hdr.bytes_per_sec);
-  swap16((unsigned char *)&hdr.bytes_per_samp);
-  swap16((unsigned char *)&hdr.bits_per_samp);
-}
+  if( !little_endian )
+  {
+    byteswap = true;
+    swap32((unsigned char *)&hdr.file_size);
+    swap32((unsigned char *)&hdr.chunk_size);
+    swap16((unsigned char *)&hdr.format_tag);
+    swap16((unsigned char *)&hdr.num_chans);
+    swap32((unsigned char *)&hdr.sample_rate);
+    swap32((unsigned char *)&hdr.bytes_per_sec);
+    swap16((unsigned char *)&hdr.bytes_per_samp);
+    swap16((unsigned char *)&hdr.bits_per_samp);
+  }
 
   if ( fwrite(&hdr, 4, 11, fd) != 11 ) {
     sprintf(msg, "[chuck](via WvOut): Could not write WAV header for file %s", name);
