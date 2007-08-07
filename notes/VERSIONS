@@ -1,10 +1,40 @@
 ---
-1.2.0.9
+1.2.0.9 : codename spectral
+  - (added) Unit Analyzers (UAna: prounced U-Wanna, plural UAnae)
+              primary creators: Ge and Rebecca
+            provides support for spectral processing, 
+              information retrieval, generalized precise audio analysis
+
+  - (added) new datatypes:
+            ---------
+            complex: (real,imaginary)
+                 example: #(3,4) is complex literal (3,4)
+                 example: #(3,4) => complex value;
+                          access components via value.re and value.im
+                 used by UAnae
+
+            polar: (modulus, phase)
+                 example: %(.5, pi/4) is magnitude .5 and phase pi/4
+                 example: %(.5, pi/4) => polar bear;
+                          access components via bear.mag and bear.phase
+                 used by UAnae
+
+            example: can cast between complex and polar via standard $ casting
+
+  - (added) new UAna's:
+            ----------
+            FFT: Fast Fourier Transform
+                  (author Ge and Rebecca)
+            IFFT: Inverse FFT
+                  (author Ge and Rebecca)
+
   - (added) capability to externally abort "infinite loop" shreds
             (this deals with hanging shreds due to potentially
             infinite loops that don't advance time)
   - (added) OTF command: chuck --abort.shred sends network OTF
             to server to remove current shred if there is one
+  - (fixed) rounding when writing files via WvOut
+                 (thanks to Chris Chafe for discovering and reporting this)
 
 ---
 1.2.0.8
