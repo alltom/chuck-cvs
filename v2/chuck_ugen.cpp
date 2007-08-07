@@ -664,7 +664,11 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
         // tick the ugen
         if( tick ) m_valid = tick( this, m_sum, &m_current, NULL );
         if( !m_valid ) m_current = 0.0f;
+		// apply gain and pan
         m_current *= m_gain * m_pan;
+		// dedenormal
+		CK_DDN( m_current );
+		// save as last
         m_last = m_current;
         return m_valid;
     }
