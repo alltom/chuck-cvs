@@ -207,6 +207,10 @@ SOURCE=.\rtmidi.cpp
 # End Source File
 # Begin Source File
 
+SOURCE=.\uana_extract.cpp
+# End Source File
+# Begin Source File
+
 SOURCE=.\uana_xform.cpp
 # End Source File
 # Begin Source File
@@ -421,6 +425,10 @@ SOURCE=.\rterror.h
 # Begin Source File
 
 SOURCE=.\rtmidi.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\uana_extract.h
 # End Source File
 # Begin Source File
 

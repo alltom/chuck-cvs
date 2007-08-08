@@ -4,7 +4,7 @@
 // arguments: rec:<filename>
 
 // get name
-me.getArg(0) => string filename;
+me.arg(0) => string filename;
 if( filename.length() == 0 ) "foo.wav" => filename;
 
 // pull samples from the dac

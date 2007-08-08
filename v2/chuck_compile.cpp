@@ -40,6 +40,7 @@
 #include "ugen_filter.h"
 #include "ugen_stk.h"
 #include "uana_xform.h"
+#include "uana_extract.h"
 #include "ulib_machine.h"
 #include "ulib_math.h"
 #include "ulib_std.h"
@@ -536,6 +537,8 @@ t_CKBOOL load_internal_modules( Chuck_Compiler * compiler )
     load_module( env, stk_query, "stk", "global" );
     EM_log( CK_LOG_SEVERE, "module xform..." );
     load_module( env, xform_query, "xform", "global" );
+    EM_log( CK_LOG_SEVERE, "module extract..." );
+    load_module( env, extract_query, "extract", "global" );
 
     // load
     EM_log( CK_LOG_SEVERE, "class 'machine'..." );

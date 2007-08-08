@@ -1,4 +1,4 @@
-/*----------------------------------------------------------------------------
+    /*----------------------------------------------------------------------------
     ChucK Concurrent, On-the-fly Audio Programming Language
       Compiler and Virtual Machine
 
@@ -559,6 +559,8 @@ CK_DLL_TOCK( FFT_tock )
     FFT_object * fft = (FFT_object *)OBJ_MEMBER_UINT(SELF, FFT_offset_data);
     // take transform
     fft->transform();
+    // microsoft blows
+    t_CKINT i;
 
     // get cvals of output BLOB
     Chuck_Array16 & cvals = BLOB->cvals();
@@ -566,8 +568,17 @@ CK_DLL_TOCK( FFT_tock )
     if( cvals.capacity() != fft->m_size/2 )
         cvals.set_capacity( fft->m_size/2 );
     // copy the result in
-    for( t_CKINT i = 0; i < fft->m_size/2; i++ )
+    for( i = 0; i < fft->m_size/2; i++ )
         cvals.set( i, fft->m_spectrum[i] );
+
+    // get fvals of output BLOB; fill with magnitude spectrum
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure capacity == resulting size
+    if( fvals.capacity() != fft->m_size/2 )
+        fvals.set_capacity( fft->m_size/2 );
+    // copy the result in
+    for( i = 0; i < fft->m_size/2; i++ )
+        fvals.set( i, __modulus(fft->m_spectrum[i]) );
 
     return TRUE;
 }
@@ -1062,7 +1073,6 @@ CK_DLL_TOCK( IFFT_tock )
         memset( ifft->m_buffer, 0, sizeof(SAMPLE)*ifft->m_size );
         memset( ifft->m_inverse, 0, sizeof(SAMPLE)*ifft->m_size );
     }
-
 
     // get fvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
