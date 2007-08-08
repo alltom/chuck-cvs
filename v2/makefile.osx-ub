@@ -165,6 +165,9 @@ ugen_stk.o: ugen_stk.h ugen_stk.cpp
 uana_xform.o: uana_xform.h uana_xform.cpp
 	$(CXX) $(FLAGS) uana_xform.cpp
 
+uana_extract.o: uana_extract.h uana_extract.cpp
+	$(CXX) $(FLAGS) uana_extract.cpp
+
 ulib_machine.o: ulib_machine.h ulib_machine.cpp
 	$(CXX) $(FLAGS) ulib_machine.cpp
 
