@@ -64,6 +64,18 @@ CK_DLL_TOCK( RMS_tock );
 CK_DLL_PMSG( RMS_pmsg );
 CK_DLL_SFUN( RMS_compute );
 
+// RollOff
+CK_DLL_CTOR( RollOff_ctor );
+CK_DLL_DTOR( RollOff_dtor );
+CK_DLL_TICK( RollOff_tick );
+CK_DLL_TOCK( RollOff_tock );
+CK_DLL_PMSG( RollOff_pmsg );
+CK_DLL_SFUN( RollOff_compute );
+CK_DLL_MFUN( RollOff_ctrl_percent );
+CK_DLL_MFUN( RollOff_cget_percent );
+// offset
+static t_CKUINT RollOff_offset_percent = 0;
+
 
 //-----------------------------------------------------------------------------
 // name: extract_query()
@@ -134,6 +146,36 @@ DLL_QUERY extract_query( Chuck_DL_Query * QUERY )
     // compute
     func = make_new_sfun( "float", "compute", RMS_compute );
     func->add_arg( "float[]", "input" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    //---------------------------------------------------------------------
+    // init as base class: RollOff
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "RollOff", "UAna", env->global(), 
+                                        RollOff_ctor, RollOff_dtor,
+                                        RollOff_tick, RollOff_tock, RollOff_pmsg ) )
+        return FALSE;
+
+    // data offset
+    RollOff_offset_percent = type_engine_import_mvar( env, "float", "@RollOff_data", FALSE );
+    if( RollOff_offset_percent == CK_INVALID_OFFSET ) goto error;
+
+    // compute
+    func = make_new_mfun( "float", "percent", RollOff_ctrl_percent );
+    func->add_arg( "float", "percent" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // compute
+    func = make_new_mfun( "float", "percent", RollOff_cget_percent );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // compute
+    func = make_new_sfun( "float", "compute", RollOff_compute );
+    func->add_arg( "float[]", "input" );
+    func->add_arg( "float", "percent" );
     if( !type_engine_import_sfun( env, func ) ) goto error;
 
     // end the class import
@@ -575,5 +617,134 @@ CK_DLL_SFUN( RMS_compute )
     {
         // do it
         RETURN->v_float = compute_rms( *array, array->capacity() );
+    }
+}
+
+
+static t_CKFLOAT compute_rolloff( Chuck_Array8 & buffer, t_CKUINT size, t_CKFLOAT percent )
+{
+    t_CKFLOAT sum = 0.0, v, target;
+    t_CKINT i;
+
+    // sanity check
+    assert( percent >= 0 && percent <= 1 );
+
+    // iterate
+    for( i = 0; i < size; i++ )
+    {
+        buffer.get( i, &v );
+        sum += v;
+    }
+
+    // the target
+    target = sum * percent;
+    sum = 0.0;
+
+    // iterate
+    for( i = 0; i < size; i++ )
+    {
+        buffer.get( i, &v );
+        sum += v;
+        if( sum >= target ) break;
+    }
+
+    return i/(t_CKFLOAT)size;
+}
+
+
+CK_DLL_CTOR( RollOff_ctor )
+{
+    OBJ_MEMBER_FLOAT( SELF, RollOff_offset_percent ) = .85;
+}
+
+CK_DLL_DTOR( RollOff_dtor )
+{
+}
+
+CK_DLL_TICK( RollOff_tick )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_TOCK( RollOff_tock )
+{
+    t_CKFLOAT result = 0.0;
+
+    // get percent
+    t_CKFLOAT percent = OBJ_MEMBER_FLOAT( SELF, RollOff_offset_percent );
+
+    // TODO: get buffer from stream, and set in ifft
+    if( UANA->numIncomingUAnae() > 0 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( 0 );
+        // sanity check
+        assert( BLOB_IN != NULL );
+        // get the array
+        Chuck_Array8 & mag = BLOB_IN->fvals();
+        // compute rolloff
+        result = compute_rolloff( mag, mag.capacity(), percent );
+    }
+    // otherwise zero out
+    else
+    {
+        // no input!
+        result = 0.0;
+    }
+
+    // get fvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure capacity == resulting size
+    if( fvals.capacity() != 1 )
+        fvals.set_capacity( 1 );
+    // copy the result in
+    fvals.set( 0, result );
+
+    return TRUE;
+}
+
+CK_DLL_PMSG( RollOff_pmsg )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_CTRL( RollOff_ctrl_percent )
+{
+    // get percent
+    t_CKFLOAT percent = GET_NEXT_FLOAT(ARGS);
+    // check it
+    if( percent < 0.0 ) percent = 0.0;
+    else if( percent > 1.0 ) percent = 1.0;
+    // set it
+    OBJ_MEMBER_FLOAT(SELF, RollOff_offset_percent) = percent;
+    // return it
+    RETURN->v_float = percent;
+}
+
+CK_DLL_CGET( RollOff_cget_percent )
+{
+    // return it
+    RETURN->v_float = OBJ_MEMBER_FLOAT(SELF, RollOff_offset_percent);
+}
+
+CK_DLL_SFUN( RollOff_compute )
+{
+    // get array
+    Chuck_Array8 * array = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // get percent
+    t_CKFLOAT percent = GET_NEXT_FLOAT(ARGS);
+
+    // sanity check
+    if( !array )
+    {
+        // no RollOff
+        RETURN->v_float = 0.0;
+    }
+    else
+    {
+        // do it
+        RETURN->v_float = compute_rolloff( *array, array->capacity(), percent );
     }
 }
