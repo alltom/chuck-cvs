@@ -2827,6 +2827,20 @@ const char * Chuck_Instr_Instantiate_Object::params() const
 
 
 //-----------------------------------------------------------------------------
+// name: params()
+// desc: text description
+//-----------------------------------------------------------------------------
+const char * Chuck_Instr_Pre_Ctor_Array_Top::params() const
+{
+    static char buffer[256];
+    sprintf( buffer, "val=%ld, type=\"%s\"", m_val, type ? type->c_name() : "[empty]" );
+    return buffer;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: execute()
 // desc: object pre construct top
 //-----------------------------------------------------------------------------
