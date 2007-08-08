@@ -1,9 +1,9 @@
 ---
 1.2.0.9 : codename spectral
   - (added) Unit Analyzers (UAna: prounced U-Wanna, plural UAnae)
-              primary creators: Ge and Rebecca
+              (primary creators: Ge and Rebecca)
             provides support for spectral processing, 
-              information retrieval, generalized precise audio analysis
+              information retrieval, generalized + precise audio analysis
 
   - (added) new datatypes:
             ---------
@@ -18,15 +18,39 @@
                  example: %(.5, pi/4) => polar bear;
                           access components via bear.mag and bear.phase
                  used by UAnae
-
+            ----------
             example: can cast between complex and polar via standard $ casting
 
   - (added) new UAna's:
             ----------
+            (authors: Rebecca and Ge)
             FFT: Fast Fourier Transform
-                  (author Ge and Rebecca)
+                 input: from UGen (manually input float vector)
+                 output: complex spectrum (.cvals())
+                         magnitude spectrum (.fvals())
+                 (see examples/analysis/)
             IFFT: Inverse FFT
-                  (author Ge and Rebecca)
+                 input: UAna/Blob complex vector (spectrum)
+                 output: to UGen (as samples)
+                 (see examples/analysis/)
+            Centroid: Centroid feature extractor
+                 input: UAna/Blob float vector (mag spectrum)
+                 output: single centroid value per frame
+                 (see examples/analysis/features/)
+            Flux: Flux feature extractor
+                 input: UAna/Blob float vector (mag spectrum)
+                 output: single flux value between current and previous frame
+                 (see examples/analysis/features/)
+            RMS: RMS feature extractor
+                 input: UAna/Blob float vector (mag spectrum)
+                 output: single RMS value of frame
+                 (see examples/analysis/features/)
+            RollOff: RollOff feature extractor
+                 input: UAna/Blob float vector (mag spectrum)
+                        percentage threshold
+                 output: single RollOff value of frame
+                 (see examples/analysis/features/)
+            ----------
 
   - (added) capability to externally abort "infinite loop" shreds
             (this deals with hanging shreds due to potentially
