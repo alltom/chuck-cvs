@@ -2903,6 +2903,10 @@ void Chuck_Instr_Pre_Ctor_Array_Post::execute( Chuck_VM * vm, Chuck_VM_Shred * s
 
     // pop the array, index, and size
     pop_( reg_sp, 3 );
+
+    // clean up the array
+    t_CKUINT * arr = (t_CKUINT *)*reg_sp;
+    SAFE_DELETE_ARRAY( arr );
 }
 
 
@@ -3525,7 +3529,7 @@ Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t, t_CKINT length )
     m_length = length;
     // copy
     m_type_ref = t;
-    // remember
+    // TODO: do this? remember?
     // m_type_ref->add_ref();
     // type
     m_param_str = new char[64];
@@ -3826,6 +3830,10 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     t_CKINT index = 0;
     // number
     t_CKFLOAT num = 1.0;
+    // array
+    t_CKUINT * obj_array = NULL;
+    // size
+    t_CKUINT obj_array_size = 0;
 
     // if need instantiation
     if( m_is_obj && !m_is_ref )
@@ -3847,15 +3855,29 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
             curr++;
         }
 
-        // check to see if we need to allocate
-        if( num > shred->obj_array_size )
+        // allocate array to hold elements, this array
+        // is pushed on the reg stack, filled, and cleaned
+        // during the array_post stage
+        // ----
+        // TODO: this scheme results in potential leak
+        //       if intermediate memory allocations fail
+        //       and the array instantiation is aborted
+        if( num_obj > 0 )
         {
-            SAFE_DELETE( shred->obj_array );
-            shred->obj_array_size = 0;
-            shred->obj_array = new t_CKUINT[num_obj];
-            if( !shred->obj_array ) goto out_of_memory;
-            shred->obj_array_size = num_obj;
+            obj_array = new t_CKUINT[num_obj];
+            if( !obj_array ) goto out_of_memory;
+            obj_array_size = num_obj;
         }
+
+        // check to see if we need to allocate
+        // if( num_obj > shred->obj_array_size )
+        // {
+        //     SAFE_DELETE( shred->obj_array );
+        //     shred->obj_array_size = 0;
+        //     shred->obj_array = new t_CKUINT[num_obj];
+        //     if( !shred->obj_array ) goto out_of_memory;
+        //     shred->obj_array_size = num_obj;
+        // }
     }
 
     // recursively allocate
@@ -3864,7 +3886,7 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         (t_CKINT *)(reg_sp - 1),
         m_type_ref->size,
         m_is_obj,
-        shred->obj_array, index 
+        obj_array, index 
     );
 
     // pop the indices - this protects the contents of the stack
@@ -3884,7 +3906,7 @@ void Chuck_Instr_Array_Alloc::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
     if( m_is_obj && !m_is_ref )
     {
         // push objects to instantiate
-        push_( reg_sp, (t_CKUINT)shred->obj_array );
+        push_( reg_sp, (t_CKUINT)obj_array );
         // push index to use
         push_( reg_sp, 0 );
         // push size
