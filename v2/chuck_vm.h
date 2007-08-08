@@ -186,9 +186,9 @@ public: // machine components
     t_CKTIME now;
     t_CKTIME start;
 
-    // state
-    t_CKUINT * obj_array;
-    t_CKUINT obj_array_size;
+    // state (no longer needed, see array_alloc)
+    // t_CKUINT * obj_array;
+    // t_CKUINT obj_array_size;
 
 public:
     t_CKTIME wake_time;

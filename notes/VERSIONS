@@ -33,6 +33,9 @@
             infinite loops that don't advance time)
   - (added) OTF command: chuck --abort.shred sends network OTF
             to server to remove current shred if there is one
+  - (fixed) NullPointerException when instantiating array of objects
+            containing arrays of objects
+                 (thanks to chuck-users!!)
   - (fixed) rounding when writing files via WvOut
                  (thanks to Chris Chafe for discovering and reporting this)
 

@@ -1322,8 +1322,8 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     next = prev = NULL;
     instr = NULL;
     parent = NULL;
-    obj_array = NULL;
-    obj_array_size = 0;
+    // obj_array = NULL;
+    // obj_array_size = 0;
     base_ref = NULL;
     vm_ref = NULL;
     event = NULL;
@@ -1406,8 +1406,8 @@ t_CKBOOL Chuck_VM_Shred::shutdown()
     base_ref = NULL;
     
     // delete temp pointer space
-    SAFE_DELETE_ARRAY( obj_array );
-    obj_array_size = 0;
+    // SAFE_DELETE_ARRAY( obj_array );
+    // obj_array_size = 0;
 
     // TODO: is this right?
     code_orig->release();
