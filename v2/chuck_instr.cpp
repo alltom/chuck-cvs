@@ -3525,7 +3525,7 @@ Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t, t_CKINT length )
     m_length = length;
     // copy
     m_type_ref = t;
-    // remember
+    // TODO: do this? remember?
     // m_type_ref->add_ref();
     // type
     m_param_str = new char[64];
@@ -3534,12 +3534,12 @@ Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t, t_CKINT length )
     const char * str = m_type_ref->c_name();
     t_CKUINT len = strlen( str );
     // copy
-    if( len < 48 )
+    if( len < 45 )
         strcpy( m_param_str, str );
     else
     {
-        strncpy( m_param_str, str, 48 );
-        strcpy( m_param_str + 48, "..." );
+        strncpy( m_param_str, str, 45 );
+        strcpy( m_param_str + 45, "..." );
     }
 
     // append length

@@ -2125,7 +2125,7 @@ public:
     { this->type = t; }
 
     virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
-    // virtual const char * params() const;
+    virtual const char * params() const;
 
 public:
     Chuck_Type * type;
