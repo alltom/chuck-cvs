@@ -35,6 +35,7 @@
 #include "chuck_vm.h"
 #include "chuck_instr.h"
 #include "chuck_lang.h"
+#include "chuck_errmsg.h"
 
 #include <math.h>
 
@@ -53,6 +54,7 @@ CK_DLL_TOCK( Flux_tock );
 CK_DLL_PMSG( Flux_pmsg );
 CK_DLL_MFUN( Flux_ctrl_reset );
 CK_DLL_SFUN( Flux_compute );
+CK_DLL_SFUN( Flux_compute2 );
 // offset
 static t_CKUINT Flux_offset_data = 0;
 
@@ -101,7 +103,15 @@ DLL_QUERY extract_query( Chuck_DL_Query * QUERY )
 
     // compute
     func = make_new_sfun( "float", "compute", Flux_compute );
-    func->add_arg( "float[]", "input" );
+    func->add_arg( "float[]", "lhs" );
+    func->add_arg( "float[]", "rhs" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
+    // compute2
+    func = make_new_sfun( "float", "compute", Flux_compute2 );
+    func->add_arg( "float[]", "lhs" );
+    func->add_arg( "float[]", "rhs" );
+    func->add_arg( "float[]", "diff" );
     if( !type_engine_import_sfun( env, func ) ) goto error;
 
     // end the class import
@@ -191,6 +201,19 @@ CK_DLL_PMSG( Centroid_pmsg )
 
 CK_DLL_SFUN( Centroid_compute )
 {
+    // get array
+    Chuck_Array8 * array = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // sanity check
+    if( !array )
+    {
+        // no centroid
+        RETURN->v_float = 0.0;
+    }
+    else
+    {
+        // do it
+        RETURN->v_float = compute_centroid( *array, array->capacity() );
+    }
 }
 
 
@@ -247,11 +270,37 @@ static void compute_norm_rms( Chuck_Array8 & curr, Chuck_Array8 & norm )
 }
 
 // compute flux
+static t_CKFLOAT compute_flux( Chuck_Array8 & curr, Chuck_Array8 & prev, Chuck_Array8 * write )
+{
+    // sanity check
+    assert( curr.capacity() == prev.capacity() );
+
+    // ensure capacity
+    if( write != NULL && (write->capacity() != curr.capacity()) )
+        write->set_capacity( curr.capacity() );
+
+    // find difference
+    t_CKFLOAT v, w, result = 0.0;
+    for( t_CKUINT i = 0; i < curr.capacity(); i++ )
+    {
+        curr.get( i, &v );
+        prev.get( i, &w );
+        // accumulate into flux
+        result += (v - w)*(v - w);
+        // copy to write
+        if( write != NULL ) write->set( i, v );
+    }
+
+    // take sqrt of flux
+    return ::sqrt( result );
+}
+
+// compute flux
 static t_CKFLOAT compute_flux( Chuck_Array8 & curr, StateOfFlux & sof )
 {
     // flux
     t_CKFLOAT result = 0.0;
-    t_CKFLOAT v, w;
+    t_CKFLOAT v;
 
     // verify capacity
     if( curr.capacity() != sof.prev.capacity() )
@@ -266,19 +315,8 @@ static t_CKFLOAT compute_flux( Chuck_Array8 & curr, StateOfFlux & sof )
     {
         // compute normalize rms
         compute_norm_rms( curr, sof.norm );
-        // find different
-        t_CKUINT i;
-        for( i = 0; i < sof.norm.capacity(); i++ )
-        {
-            sof.norm.get( i, &v );
-            sof.prev.get( i, &w );
-            // accumulate into flux
-            result += (v - w)*(v - w);
-            // copy to prev
-            sof.prev.set( i, v );
-        }
-        // take sqrt of flux
-        result = ::sqrt( result );
+        // do it
+        result = compute_flux( sof.norm, sof.prev, &sof.prev );
     }
 
     // copy curr to prev
@@ -296,7 +334,6 @@ static t_CKFLOAT compute_flux( Chuck_Array8 & curr, StateOfFlux & sof )
     // return result
     return result;
 }
-
 
 CK_DLL_CTOR( Flux_ctor )
 {
@@ -375,4 +412,61 @@ CK_DLL_MFUN( Flux_ctrl_reset )
 
 CK_DLL_SFUN( Flux_compute )
 {
+    // get inputs
+    Chuck_Array8 * lhs = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    Chuck_Array8 * rhs = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+
+    // verify
+    if( !lhs || !rhs )
+    {
+        // 0
+        RETURN->v_float = 0.0;
+    }
+    else
+    {
+        // verify size
+        if( lhs->capacity() != rhs->capacity() )
+        {
+            // message
+            EM_error3( "(via Flux): compute() expects two arrays of equal size" );
+            // 0
+            RETURN->v_float = 0.0;
+        }
+        else
+        {
+            // flux
+            RETURN->v_float = compute_flux( *lhs, *rhs, NULL );
+        }
+    }
+}
+
+CK_DLL_SFUN( Flux_compute2 )
+{
+    // get inputs
+    Chuck_Array8 * lhs = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    Chuck_Array8 * rhs = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    Chuck_Array8 * diff = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+
+    // verify
+    if( !lhs || !rhs )
+    {
+        // 0
+        RETURN->v_float = 0.0;
+    }
+    else
+    {
+        // verify size
+        if( lhs->capacity() != rhs->capacity() )
+        {
+            // message
+            EM_error3( "(via Flux): compute() expects two arrays of equal size" );
+            // 0
+            RETURN->v_float = 0.0;
+        }
+        else
+        {
+            // flux
+            RETURN->v_float = compute_flux( *lhs, *rhs, diff );
+        }
+    }
 }
