@@ -3525,7 +3525,7 @@ Chuck_Instr_Array_Init::Chuck_Instr_Array_Init( Chuck_Type * t, t_CKINT length )
     m_length = length;
     // copy
     m_type_ref = t;
-    // TODO: do this? remember?
+    // remember
     // m_type_ref->add_ref();
     // type
     m_param_str = new char[64];
