@@ -58,6 +58,12 @@ CK_DLL_SFUN( Flux_compute2 );
 // offset
 static t_CKUINT Flux_offset_data = 0;
 
+// RMS
+CK_DLL_TICK( RMS_tick );
+CK_DLL_TOCK( RMS_tock );
+CK_DLL_PMSG( RMS_pmsg );
+CK_DLL_SFUN( RMS_compute );
+
 
 //-----------------------------------------------------------------------------
 // name: extract_query()
@@ -112,6 +118,22 @@ DLL_QUERY extract_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float[]", "lhs" );
     func->add_arg( "float[]", "rhs" );
     func->add_arg( "float[]", "diff" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    //---------------------------------------------------------------------
+    // init as base class: RMS
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "RMS", "UAna", env->global(), 
+                                        NULL, NULL,
+                                        RMS_tick, RMS_tock, RMS_pmsg ) )
+        return FALSE;
+
+    // compute
+    func = make_new_sfun( "float", "compute", RMS_compute );
+    func->add_arg( "float[]", "input" );
     if( !type_engine_import_sfun( env, func ) ) goto error;
 
     // end the class import
@@ -468,5 +490,90 @@ CK_DLL_SFUN( Flux_compute2 )
             // flux
             RETURN->v_float = compute_flux( *lhs, *rhs, diff );
         }
+    }
+}
+
+
+static t_CKFLOAT compute_rms( Chuck_Array8 & buffer, t_CKUINT size )
+{
+    t_CKFLOAT rms = 0.0;
+    t_CKFLOAT v;
+    t_CKUINT i;
+
+    // get sum of squares
+    for( i = 0; i < size; i++ )
+    {
+        buffer.get( i, &v );
+        rms += (v * v);
+    }
+
+    // go
+    rms /= size;
+    rms = ::sqrt(rms);
+
+    return rms;
+}
+
+
+CK_DLL_TICK( RMS_tick )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_TOCK( RMS_tock )
+{
+    t_CKFLOAT result = 0.0;
+
+    // TODO: get buffer from stream, and set in ifft
+    if( UANA->numIncomingUAnae() > 0 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( 0 );
+        // sanity check
+        assert( BLOB_IN != NULL );
+        // get the array
+        Chuck_Array8 & mag = BLOB_IN->fvals();
+        // compute centroid
+        result = compute_rms( mag, mag.capacity() );
+    }
+    // otherwise zero out
+    else
+    {
+        // no input!
+        result = 0.0;
+    }
+
+    // get fvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure capacity == resulting size
+    if( fvals.capacity() != 1 )
+        fvals.set_capacity( 1 );
+    // copy the result in
+    fvals.set( 0, result );
+
+    return TRUE;
+}
+
+CK_DLL_PMSG( RMS_pmsg )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_SFUN( RMS_compute )
+{
+    // get array
+    Chuck_Array8 * array = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // sanity check
+    if( !array )
+    {
+        // no RMS
+        RETURN->v_float = 0.0;
+    }
+    else
+    {
+        // do it
+        RETURN->v_float = compute_rms( *array, array->capacity() );
     }
 }
