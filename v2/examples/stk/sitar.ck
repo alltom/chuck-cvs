@@ -1,6 +1,6 @@
 // patch
 Sitar sit => PRCRev r => dac;
-.15 => r.mix;
+.05 => r.mix;
 
 // time loop
 while( true )

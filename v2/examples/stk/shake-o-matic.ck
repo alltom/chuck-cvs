@@ -9,7 +9,7 @@ Shakers shake => JCRev r => dac;
 // set the gain
 //.95 => r.gain;
 // set the reverb mix
-//.2 => r.mix;
+.025 => r.mix;
 
 // our main loop
 while( true )

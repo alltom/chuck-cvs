@@ -7,7 +7,7 @@ Wurley voc=> JCRev r => dac;
 220.0 => voc.freq;
 0.95 => voc.gain;
 .8 => r.gain;
-.2 => r.mix;
+.1 => r.mix;
 
 // scale
 [ 0, 3, 7, 8, 11 ] @=> int scale[];
