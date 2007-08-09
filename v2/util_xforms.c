@@ -322,3 +322,133 @@ void bit_reverse( FLOAT * x, long N )
             j -= m ;
     }
 }
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: the_dct()
+// desc: type ii dct on N reals
+//-----------------------------------------------------------------------------
+void the_dct( FLOAT * x, unsigned long N, FLOAT * out, unsigned long Nout )
+{
+    unsigned long k, n;
+
+    // sanity check
+    assert( Nout <= N );
+    // zero out
+    memset( out, 0, sizeof(FLOAT)*Nout );
+
+    // go for it
+    for( k = 0; k < Nout; k++ )
+    {
+        for( n = 0; n < N; n++ )
+        {
+            out[k] += x[n] * cos( ONE_PI / N * k * (n + .5) );
+        }
+    }
+}
+
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: the_dct_matrix()
+// desc: type ii dct matrx on N reals
+//-----------------------------------------------------------------------------
+void the_dct_matrix( FLOAT ** out, unsigned long N )
+{
+    unsigned long k, n;
+
+    // go for it
+    for( k = 0; k < N; k++ )
+    {
+        for( n = 0; n < N; n++ )
+        {
+            out[k][n] = cos( ONE_PI / N * k * (n + .5) );
+        }
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: the_dct_now()
+// desc: apply dct matrx on N reals
+//-----------------------------------------------------------------------------
+void the_dct_now( FLOAT * x, FLOAT ** matrix, unsigned long N,
+                  FLOAT * out, unsigned long Nout )
+{
+    unsigned long k, n;
+
+    // sanity check
+    assert( Nout <= N );
+    // zero out
+    memset( out, 0, sizeof(FLOAT)*Nout );
+
+    // go for it
+    for( k = 0; k < Nout; k++ )
+    {
+        for( n = 0; n < N; n++ )
+        {
+            out[k] = x[n] * matrix[k][n];
+        }
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: the_inverse_dct()
+// desc: type iii dct, or inverse dct
+//-----------------------------------------------------------------------------
+void the_inverse_dct( FLOAT * x, unsigned long N, FLOAT * out, unsigned long Nout )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: the_inverse_dct_matrix()
+// desc: generates the NxN DCT matrix
+//-----------------------------------------------------------------------------
+void the_inverse_dct_matrix( FLOAT ** out, unsigned long N )
+{
+    unsigned long k, n;
+
+    // go for it
+    for( k = 0; k < N; k++ )
+    {
+        for( n = 0; n < N; n++ )
+        {
+            out[k][n] = cos( ONE_PI / N * n * (k + .5) );
+        }
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: the_inverse_dct_now()
+// desc: apply inverse dct matrx on N reals
+//-----------------------------------------------------------------------------
+void the_inverse_dct_now( FLOAT * x, FLOAT ** matrix, unsigned long N,
+                  FLOAT * out, unsigned long Nout )
+{
+    unsigned long k, n;
+
+    // sanity check
+    assert( Nout <= N );
+    // zero out
+    memset( out, 0, sizeof(FLOAT)*Nout );
+
+    // go for it
+    for( k = 0; k < Nout; k++ )
+    {
+        for( n = 0; n < N; n++ )
+        {
+            out[k] = x[0] / 2 + x[n] * matrix[k][n];
+        }
+    }
+}

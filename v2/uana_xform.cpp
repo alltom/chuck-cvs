@@ -69,8 +69,42 @@ CK_DLL_CTRL( IFFT_ctrl_size );
 CK_DLL_CGET( IFFT_cget_size );
 CK_DLL_MFUN( IFFT_transform );
 CK_DLL_MFUN( IFFT_inverse );
-// static FFT offset
+// static IFFT offset
 static t_CKUINT IFFT_offset_data = 0;
+
+
+// DCT
+CK_DLL_CTOR( DCT_ctor );
+CK_DLL_DTOR( DCT_dtor );
+CK_DLL_TICK( DCT_tick );
+CK_DLL_PMSG( DCT_pmsg );
+CK_DLL_TOCK( DCT_tock );
+CK_DLL_CTRL( DCT_ctrl_window );
+CK_DLL_CGET( DCT_cget_window );
+CK_DLL_CGET( DCT_cget_windowSize );
+CK_DLL_CTRL( DCT_ctrl_size );
+CK_DLL_CGET( DCT_cget_size );
+CK_DLL_MFUN( DCT_transform );
+CK_DLL_MFUN( DCT_spectrum );
+// static DCT offset
+static t_CKUINT DCT_offset_data = 0;
+
+
+// IDCT
+CK_DLL_CTOR( IDCT_ctor );
+CK_DLL_DTOR( IDCT_dtor );
+CK_DLL_TICK( IDCT_tick );
+CK_DLL_PMSG( IDCT_pmsg );
+CK_DLL_TOCK( IDCT_tock );
+CK_DLL_CTRL( IDCT_ctrl_window );
+CK_DLL_CGET( IDCT_cget_window );
+CK_DLL_CGET( IDCT_cget_windowSize );
+CK_DLL_CTRL( IDCT_ctrl_size );
+CK_DLL_CGET( IDCT_cget_size );
+CK_DLL_MFUN( IDCT_transform );
+CK_DLL_MFUN( IDCT_inverse );
+// static IDCT offset
+static t_CKUINT IDCT_offset_data = 0;
 
 
 // Windowing
@@ -217,6 +251,90 @@ DLL_QUERY xform_query( Chuck_DL_Query * QUERY )
     // set size
     float_array_size = 16384;
     float_array = new FLOAT[float_array_size];
+
+
+    //---------------------------------------------------------------------
+    // init as base class: DCT
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "DCT", "UAna", env->global(), 
+                                        DCT_ctor, DCT_dtor,
+                                        DCT_tick, DCT_tock, DCT_pmsg ) )
+        return FALSE;
+
+    // member variable
+    DCT_offset_data = type_engine_import_mvar( env, "int", "@DCT_data", FALSE );
+    if( DCT_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // transform
+    func = make_new_mfun( "void", "transform", DCT_transform );
+    func->add_arg( "float[]", "from" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // window
+    func = make_new_mfun( "float[]", "window", DCT_ctrl_window );
+    func->add_arg( "float[]", "win" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // windowSize
+    func = make_new_mfun( "int", "windowSize", DCT_cget_windowSize );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // size
+    func = make_new_mfun( "int", "size", DCT_ctrl_size );
+    func->add_arg( "int", "size" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "size", DCT_cget_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // spectrum
+    func = make_new_mfun( "void", "spectrum", DCT_spectrum );
+    func->add_arg( "float[]", "buffer" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+
+    //---------------------------------------------------------------------
+    // init as base class: IDCT
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "IDCT", "UAna", env->global(), 
+                                        IDCT_ctor, IDCT_dtor,
+                                        IDCT_tick, IDCT_tock, IDCT_pmsg ) )
+        return FALSE;
+
+    // member variable
+    IDCT_offset_data = type_engine_import_mvar( env, "int", "@IDCT_data", FALSE );
+    if( IDCT_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // transform
+    func = make_new_mfun( "void", "transform", IDCT_transform );
+    func->add_arg( "complex[]", "from" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // window
+    func = make_new_mfun( "float[]", "window", IDCT_ctrl_window );
+    func->add_arg( "float[]", "win" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // windowSize
+    func = make_new_mfun( "int", "windowSize", IDCT_cget_windowSize );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // size
+    func = make_new_mfun( "int", "size", IDCT_ctrl_size );
+    func->add_arg( "int", "size" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "size", IDCT_cget_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // spectrum
+    func = make_new_mfun( "void", "samples", IDCT_inverse );
+    func->add_arg( "float[]", "buffer" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
 
     return TRUE;
 
@@ -493,6 +611,7 @@ void FFT_object::copyTo( Chuck_Array16 * cmp )
         // update
         left -= amount;
         sum += amount;
+        which = !which;
     }
 }
 
@@ -1385,4 +1504,1020 @@ CK_DLL_SFUN( Windowing_triangle )
         Windowing_array->set( i, (t_CKFLOAT)float_array[i] );
     // return
     RETURN->v_object = Windowing_array;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: delete_matrix()
+// desc: deallocates NxN matrix
+//-----------------------------------------------------------------------------
+static void delete_matrix( SAMPLE ** matrix, t_CKUINT N )
+{
+    t_CKUINT i;
+
+    // check
+    if( !matrix ) return;
+
+    // delete
+    for( i = 0; i < N; i++ )
+        SAFE_DELETE_ARRAY( matrix[i] );
+
+    // delete
+    SAFE_DELETE_ARRAY( matrix );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: DCT_object
+// desc: standalone object for DCT UAna
+//-----------------------------------------------------------------------------
+struct DCT_object
+{
+public:
+    DCT_object();
+    virtual ~DCT_object();
+    
+public:
+    t_CKBOOL resize( t_CKINT size );
+    t_CKBOOL window( Chuck_Array8 * window, t_CKINT win_size );
+    void transform( );
+    void transform( const t_CKFLOAT * in, t_CKCOMPLEX * out );
+    void copyTo( Chuck_Array8 * frame );
+
+public:
+    // size of DCT
+    t_CKINT m_size;
+    // window
+    SAMPLE * m_window;
+    // window size
+    t_CKINT m_window_size;
+    // sample accumulation buffer
+    AccumBuffer m_accum;
+    // DCT buffer
+    SAMPLE * m_buffer;
+    // DCT matrix
+    SAMPLE ** m_matrix;
+    // result
+    SAMPLE * m_spectrum;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: DCT_object()
+// desc: constructor
+//-----------------------------------------------------------------------------
+DCT_object::DCT_object()
+{
+    // initialize
+    m_size = 512;  // TODO: default
+    m_window = NULL;
+    m_window_size = m_size;
+    m_buffer = NULL;
+    m_matrix = NULL;
+    m_spectrum = NULL;
+    // initialize window
+    this->window( NULL, m_window_size );
+    // allocate buffer
+    this->resize( m_size );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~DCT_object()
+// desc: destructor
+//-----------------------------------------------------------------------------
+DCT_object::~DCT_object()
+{
+    // clean up
+    SAFE_DELETE_ARRAY( m_window );
+    SAFE_DELETE_ARRAY( m_buffer );
+    delete_matrix( m_matrix, m_size );
+    SAFE_DELETE_ARRAY( m_spectrum );
+    m_window_size = 0;
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: resize()
+// desc: set DCT size
+//-----------------------------------------------------------------------------
+t_CKBOOL DCT_object::resize( t_CKINT size )
+{
+    t_CKUINT i;
+
+    // sanity check
+    assert( size > 0 );
+
+    // reallocate
+    SAFE_DELETE_ARRAY( m_buffer );
+    delete_matrix( m_matrix, m_size );
+    SAFE_DELETE_ARRAY( m_spectrum );
+    m_size = 0;
+    m_buffer = new SAMPLE[size];
+    m_spectrum = new SAMPLE[size];
+    m_matrix = new SAMPLE *[size];
+    for( i = 0; i < size; i++ ) m_matrix[i] = new SAMPLE[size];
+
+    // check it
+    if( !m_buffer || !m_spectrum || !m_matrix )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: DCT failed to allocate %ld, %ld buffers...\n",
+            size, size/2 );
+        // clean
+        SAFE_DELETE_ARRAY( m_buffer );
+        delete_matrix( m_matrix, size );
+        SAFE_DELETE_ARRAY( m_spectrum );
+        // done
+        return FALSE;
+    }
+
+    // zero it
+    memset( m_buffer, 0, size * sizeof(SAMPLE) );
+    memset( m_spectrum, 0, size/2 * sizeof(t_CKCOMPLEX) );
+    // compute dct matrix
+    the_dct_matrix( m_matrix, size );
+    // set
+    m_size = size;
+    // if no window specified, then set accum size
+    if( !m_window )
+    {
+        m_window_size = m_size;
+        // resize
+        m_accum.resize( m_window_size );
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: window()
+// desc: set window
+//-----------------------------------------------------------------------------
+t_CKBOOL DCT_object::window( Chuck_Array8 * win, t_CKINT win_size )
+{
+    // sanity check
+    assert( win_size >= 0 );
+    
+    // in any case, clean up
+    SAFE_DELETE_ARRAY( m_window );
+    // reset
+    m_window_size = 0;
+
+    // could be NULL
+    if( win != NULL )
+    {
+        m_window = new SAMPLE[win_size];
+        // check it
+        if( !m_window )
+        {
+            // out of memory
+            fprintf( stderr, "[chuck]: DCT failed to allocate %ldxSAMPLE window...\n",
+                m_size );
+            // done
+            return FALSE;
+        }
+
+        // zero it
+        memset( m_window, 0, win_size * sizeof(SAMPLE) );
+
+        // set window    
+        m_window_size = win_size;
+        // copy
+        t_CKFLOAT sample;
+        for( t_CKINT i = 0; i < win_size; i++ )
+        {
+            // get
+            win->get( i, &sample );
+            // set
+            m_window[i] = (SAMPLE)sample;
+        }
+    }
+    else
+    {
+        // set
+        m_window_size = m_size;
+    }
+
+    // resize
+    m_accum.resize( m_window_size );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void DCT_object::transform( )
+{
+    // buffer could be null
+    if( m_buffer == NULL && m_spectrum == NULL )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: DCT failure due to NULL buffer...\n" );
+        // bye
+        return;
+    }
+    
+    // sanity
+    assert( m_window_size <= m_size );
+
+    // get the last buffer of samples
+    m_accum.get( m_buffer, m_window_size );
+    // apply window, if there is one
+    if( m_window )
+        apply_window( m_buffer, m_window, m_window_size );
+    // zero pad
+    memset( m_buffer + m_window_size, 0, (m_size - m_window_size)*sizeof(SAMPLE) );
+    // go for it
+    the_dct_now( m_buffer, m_matrix, m_size, m_spectrum, m_size );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: copyTo()
+// desc: ...
+//-----------------------------------------------------------------------------
+void DCT_object::copyTo( Chuck_Array8 * frame )
+{
+    // buffer could be null
+    if( m_buffer == NULL && m_spectrum == NULL )
+    {
+        // zero out
+        frame->zero( 0, frame->capacity() );
+        // bye
+        return;
+    }
+
+    // copy modulo 2*pi
+    t_CKINT left = frame->capacity();
+    t_CKINT amount, i, sum = 0, which = 0;
+
+    // go
+    while( left )
+    {
+        // get
+        amount = ck_min( m_size, left );
+
+        // go over spectrum
+        if( which == 0 )
+            for( i = 0; i < amount; i++ )
+                 frame->set( i+sum, m_spectrum[i] );
+        else
+            for( i = 0; i < amount; i++ )
+                 frame->set( i+sum, 0.0 );
+
+        // update
+        left -= amount;
+        sum += amount;
+        if( !which ) which = 1;
+    }
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( DCT_ctor )
+{
+    // allocate the dct object
+    DCT_object * dct = new DCT_object;
+    OBJ_MEMBER_UINT( SELF, DCT_offset_data ) = (t_CKUINT)dct;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_DTOR( DCT_dtor )
+{
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    SAFE_DELETE( dct );
+    OBJ_MEMBER_UINT(SELF, DCT_offset_data) = 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( DCT_tick )
+{
+    // accumulate samples
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    dct->m_accum.put( in );
+    // zero output
+    *out = 0;
+    
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( DCT_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TOCK( DCT_tock )
+{
+    // get object
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    // take transform
+    dct->transform();
+    // microsoft blows
+    t_CKINT i;
+
+    // get cvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure capacity == resulting size
+    if( fvals.capacity() != dct->m_size )
+        fvals.set_capacity( dct->m_size );
+    // copy the result in
+    for( i = 0; i < dct->m_size; i++ )
+        fvals.set( i, dct->m_spectrum[i] );
+
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( DCT_transform )
+{
+    // get object
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    // get array
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( DCT_ctrl_window )
+{
+    // get object
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    // get window (can be NULL)
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // set it
+    dct->window( arr, arr != NULL ? arr->capacity() : 0 );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( DCT_cget_window )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: windowSize()
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( DCT_cget_windowSize )
+{
+    // get object
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    // return
+    RETURN->v_int = dct->m_window_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: size()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( DCT_ctrl_size )
+{
+    // get object
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    // get arg
+    t_CKINT size = GET_NEXT_INT(ARGS);
+    // sanity check
+    if( size <= 0 ) goto invalid_size;
+    // set size
+    dct->resize( size );
+    // set RETURN
+    RETURN->v_int = dct->m_size;
+
+    return;
+
+invalid_size:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](IDCT): InvalidTransformSizeException (%d)\n", size );
+    goto done;
+
+done:
+    // set RETURN type
+    RETURN->v_int = 0;
+    // do something!
+    if( SHRED != NULL )
+    {
+        SHRED->is_running = FALSE;
+        SHRED->is_done = TRUE;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( DCT_cget_size )
+{
+    // get object
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    // set RETURN
+    RETURN->v_int = dct->m_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( DCT_spectrum )
+{
+    // get object
+    DCT_object * dct = (DCT_object *)OBJ_MEMBER_UINT(SELF, DCT_offset_data);
+    // get array
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // check for null
+    if( !arr )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "(via DCT): null array passed to spectrum(...)" );
+        return;
+    }
+    
+    // copy it
+    dct->copyTo( arr );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: IDCT_object
+// desc: standalone object for IDCT UAna
+//-----------------------------------------------------------------------------
+struct IDCT_object
+{
+public:
+    IDCT_object();
+    virtual ~IDCT_object();
+    
+public:
+    t_CKBOOL resize( t_CKINT size );
+    t_CKBOOL window( Chuck_Array8 * window, t_CKINT win_size );
+    void transform( );
+    void transform( Chuck_Array8 * frame );
+    void copyTo( Chuck_Array8 * samples );
+
+public:
+    // size of IDCT
+    t_CKINT m_size;
+    // window
+    SAMPLE * m_window;
+    // window size
+    t_CKINT m_window_size;
+    // sample deccumulation buffer
+    DeccumBuffer m_deccum;
+    // IDCT buffer
+    SAMPLE * m_buffer;
+    // IDCT matrix
+    SAMPLE ** m_matrix;
+    // result
+    SAMPLE * m_inverse;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: IDCT_object()
+// desc: constructor
+//-----------------------------------------------------------------------------
+IDCT_object::IDCT_object()
+{
+    // initialize
+    m_size = 512;  // TODO: default
+    m_window = NULL;
+    m_window_size = m_size;
+    m_buffer = NULL;
+    m_matrix = NULL;
+    m_inverse = NULL;
+    // initialize window
+    this->window( NULL, m_window_size );
+    // allocate buffer
+    this->resize( m_size );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~IDCT_object()
+// desc: destructor
+//-----------------------------------------------------------------------------
+IDCT_object::~IDCT_object()
+{
+    // clean up
+    SAFE_DELETE_ARRAY( m_window );
+    SAFE_DELETE_ARRAY( m_buffer );
+    delete_matrix( m_matrix, m_size );
+    SAFE_DELETE_ARRAY( m_inverse );
+    m_window_size = 0;
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: resize()
+// desc: set IDCT size
+//-----------------------------------------------------------------------------
+t_CKBOOL IDCT_object::resize( t_CKINT size )
+{
+    t_CKUINT i;
+
+    // sanity check
+    assert( size > 0 );
+
+    // reallocate
+    SAFE_DELETE_ARRAY( m_buffer );
+    delete_matrix( m_matrix, m_size );
+    SAFE_DELETE_ARRAY( m_inverse );
+    m_size = 0;
+    m_buffer = new SAMPLE[size];
+    m_matrix = new SAMPLE *[size];
+    for( i = 0; i < size; i++ ) m_matrix[i] = new SAMPLE[size];
+    m_inverse = new SAMPLE[size];
+    // check it TODO: check individual m_matrix[i]
+    if( !m_buffer || !m_inverse || !m_matrix )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: IDCT failed to allocate %ld, %ld, %ldx%ld buffers...\n",
+            size, size, size, size );
+        // clean
+        SAFE_DELETE_ARRAY( m_buffer );
+        delete_matrix( m_matrix, size );
+        SAFE_DELETE_ARRAY( m_inverse );
+        // done
+        return FALSE;
+    }
+
+    // zero it
+    memset( m_buffer, 0, size * sizeof(SAMPLE) );
+    memset( m_inverse, 0, size * sizeof(SAMPLE) );
+    // compute IDCT matrix
+    the_inverse_dct_matrix( m_matrix, size );
+    // set
+    m_size = size;
+    // set deccum size
+    m_deccum.resize( m_size );
+    // if no window specified, then set accum size
+    if( !m_window )
+        m_window_size = m_size;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: window()
+// desc: set window
+//-----------------------------------------------------------------------------
+t_CKBOOL IDCT_object::window( Chuck_Array8 * win, t_CKINT win_size )
+{
+    // sanity check
+    assert( win_size >= 0 );
+    
+    // in any case, clean up
+    SAFE_DELETE_ARRAY( m_window );
+    // reset
+    m_window_size = 0;
+
+    // could be NULL
+    if( win != NULL )
+    {
+        m_window = new SAMPLE[win_size];
+        // check it
+        if( !m_window )
+        {
+            // out of memory
+            fprintf( stderr, "[chuck]: IDCT failed to allocate %ldxSAMPLE window...\n",
+                m_size );
+            // done
+            return FALSE;
+        }
+
+        // zero it
+        memset( m_window, 0, win_size * sizeof(SAMPLE) );
+
+        // set window    
+        m_window_size = win_size;
+        // copy
+        t_CKFLOAT sample;
+        for( t_CKINT i = 0; i < win_size; i++ )
+        {
+            // get
+            win->get( i, &sample );
+            // set
+            m_window[i] = (SAMPLE)sample;
+        }
+    }
+    else
+    {
+        // set
+        m_window_size = m_size;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void IDCT_object::transform( )
+{
+    // buffer could be null
+    if( m_buffer == NULL && m_inverse == NULL )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: IDCT failure due to NULL buffer...\n" );
+        // bye
+        return;
+    }
+    
+    // sanity
+    assert( m_window_size <= m_size );
+    // go for it
+    the_inverse_dct_now( m_buffer, m_matrix, m_size, m_inverse, m_size );
+    // apply window, if there is one
+    if( m_window )
+        apply_window( m_inverse, m_window, m_window_size );
+    // zero
+    memset( m_inverse + m_window_size, 0, (m_size-m_window_size)*sizeof(SAMPLE) );
+    // put in deccum buffer
+    m_deccum.put( m_inverse, m_size );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void IDCT_object::transform( Chuck_Array8 * frame )
+{
+    // convert to right type
+    t_CKINT amount = ck_min( frame->capacity(), m_size );
+    // copy
+    t_CKFLOAT v;
+    for( t_CKINT i = 0; i < amount; i++ )
+    {
+        // real and imag
+        frame->get( i, &v );
+        m_buffer[i] = v;
+    }
+    // zero pad
+    for( t_CKINT j = amount; j < m_size; j++ )
+        m_buffer[j] = 0;
+    
+    // um
+    this->transform();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: copyTo()
+// desc: ...
+//-----------------------------------------------------------------------------
+void IDCT_object::copyTo( Chuck_Array8 * samples )
+{
+    // buffer could be null
+    if( m_buffer == NULL && m_inverse == NULL )
+    {
+        // zero out
+        samples->zero( 0, samples->capacity() );
+        // bye
+        return;
+    }
+
+    // the amount
+    t_CKINT amount = ck_min( m_size, samples->capacity() );
+
+    // go over
+    for( t_CKINT i = 0; i < amount; i++ )
+        samples->set( i, m_inverse[i] );
+
+    // any left
+    if( samples->capacity() > amount )
+        samples->zero( amount, samples->capacity() );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( IDCT_ctor )
+{
+    // allocate the idct object
+    IDCT_object * idct = new IDCT_object;
+    OBJ_MEMBER_UINT( SELF, IDCT_offset_data ) = (t_CKUINT)idct;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_DTOR( IDCT_dtor )
+{
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    SAFE_DELETE( idct );
+    OBJ_MEMBER_UINT(SELF, IDCT_offset_data) = 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( IDCT_tick )
+{
+    // accumulate samples
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    // get output
+    idct->m_deccum.get( out );
+    
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( IDCT_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TOCK( IDCT_tock )
+{
+    // get object
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    // TODO: get buffer from stream, and set in idct
+    if( UANA->numIncomingUAnae() > 0 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( 0 );
+        // sanity check
+        assert( BLOB_IN != NULL );
+        // get the array
+        Chuck_Array16 & cmp = BLOB_IN->cvals();
+        // resize if necessary
+        if( cmp.capacity()*2 > idct->m_size )
+            idct->resize( cmp.capacity()*2 );
+        // sanity check
+        assert( idct->m_buffer != NULL );
+        // copy into transform buffer
+        t_CKCOMPLEX cval;
+        for( t_CKINT i = 0; i < idct->m_size/2; i++ )
+        {
+            // copy complex value in
+            cmp.get( i, &cval );
+            idct->m_buffer[i*2] = cval.re;
+            idct->m_buffer[i*2+1] = cval.im;
+        }
+
+        // take transform
+        idct->transform();
+    }
+    // otherwise zero out
+    else
+    {
+        // sanity check
+        assert( idct->m_buffer != NULL );
+        memset( idct->m_buffer, 0, sizeof(SAMPLE)*idct->m_size );
+        memset( idct->m_inverse, 0, sizeof(SAMPLE)*idct->m_size );
+    }
+
+    // get fvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure capacity == resulting size
+    if( fvals.capacity() != idct->m_size )
+        fvals.set_capacity( idct->m_size );
+    // copy the result in
+    for( t_CKINT i = 0; i < idct->m_size; i++ )
+        fvals.set( i, idct->m_inverse[i] );
+
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( IDCT_transform )
+{
+    // get object
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    // get complex array
+    Chuck_Array8 * frame = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // sanity
+    if( frame == NULL ) goto null_pointer;
+    // resize if bigger
+    if( frame->capacity() > idct->m_size )
+        idct->resize( frame->capacity() );
+    // transform it
+    idct->transform( frame );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](IDCT): NullPointerException (argument is NULL)\n");
+    goto done;
+
+done:
+    // do something!
+    if( SHRED != NULL )
+    {
+        SHRED->is_running = FALSE;
+        SHRED->is_done = TRUE;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( IDCT_ctrl_window )
+{
+    // get object
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data );
+    // get win (can be NULL)
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // set it
+    idct->window( arr, arr != NULL ? arr->capacity() : 0 );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( IDCT_cget_window )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: windowSize()
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( IDCT_cget_windowSize )
+{
+    // get object
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    // return
+    RETURN->v_int = idct->m_window_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: size()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( IDCT_ctrl_size )
+{
+    // get object
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    // get arg
+    t_CKINT size = GET_NEXT_INT(ARGS);
+    // sanity
+    if( size <= 0 ) goto invalid_size;
+    // set size
+    idct->resize( size );
+    // set RETURN
+    RETURN->v_int = idct->m_size;
+
+    return;
+
+invalid_size:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](IDCT): InvalidTransformSizeException (%d)\n", size );
+    goto done;
+
+done:
+    // set RETURN type
+    RETURN->v_int = 0;
+    // do something!
+    if( SHRED != NULL )
+    {
+        SHRED->is_running = FALSE;
+        SHRED->is_done = TRUE;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( IDCT_cget_size )
+{
+    // get object
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    // set RETURN
+    RETURN->v_int = idct->m_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( IDCT_inverse )
+{
+    // get object
+    IDCT_object * idct = (IDCT_object *)OBJ_MEMBER_UINT(SELF, IDCT_offset_data);
+    // get array
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // check for null
+    if( !arr )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "(via IDCT): null array passed to samples(...)" );
+        return;
+    }
+    
+    // copy it
+    idct->copyTo( arr );
 }

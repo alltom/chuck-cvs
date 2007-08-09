@@ -67,6 +67,20 @@ void rfft( FLOAT * x, long N, unsigned int forward );
 // complex fft, NC must be power of 2
 void cfft( FLOAT * x, long NC, unsigned int forward );
 
+// type II dct, often referred to as "the dct"
+void the_dct( FLOAT * x, unsigned long N, FLOAT * out, unsigned long Nout );
+// generates NxN type II dct matrix
+void the_dct_matrix( FLOAT ** out, unsigned long N );
+// type III dct, often referred to as "the inverse_dct"
+void the_inverse_dct( FLOAT * x, unsigned long N, FLOAT * out, unsigned long Nout );
+// generates NxN type II dct matrix
+void the_inverse_dct_matrix( FLOAT ** out, unsigned long N );
+
+// apply dct from matrix
+void the_dct_now( FLOAT * x, FLOAT ** matrix, unsigned long N, FLOAT * out, unsigned long Nout );
+// apply inverse dct from matrix
+void the_inverse_dct_now( FLOAT * x, FLOAT ** matrix, unsigned long N, FLOAT * out, unsigned long Nout );
+
 // c linkage
 #if ( defined( __cplusplus ) || defined( _cplusplus ) )
 }
