@@ -3912,7 +3912,12 @@ MY_FLOAT ADSR :: tick()
     break;
 
   case RELEASE:
-    value -= releaseRate;
+    // WAS:
+    // value -= releaseRate;
+
+    // chuck
+    value -= rate;
+
     if (value <= 0.0)
     {
       value = (MY_FLOAT) 0.0;
