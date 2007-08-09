@@ -26,7 +26,7 @@ JCRev rl => dac.left;
 JCRev rr => dac.right;
 
 // reverb settings
-0.1 => rl.mix => rr.mix;
+0.025 => rl.mix => rr.mix;
 
 // variables
 0 => int i => int j;
