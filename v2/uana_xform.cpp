@@ -363,7 +363,7 @@ public:
     t_CKBOOL resize( t_CKINT size );
     t_CKBOOL window( Chuck_Array8 * window, t_CKINT win_size );
     void transform( );
-    void transform( const t_CKFLOAT * in, t_CKCOMPLEX * out );
+    void transform( Chuck_Array8 * frame );
     void copyTo( Chuck_Array16 * cmp );
 
 public:
@@ -576,6 +576,33 @@ void FFT_object::transform( )
 
 
 //-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void FFT_object::transform( Chuck_Array8 * frame )
+{
+    // convert to right type
+    t_CKINT amount = ck_min( frame->capacity(), m_size );
+    // copy
+    t_CKFLOAT v;
+    for( t_CKINT i = 0; i < amount; i++ )
+    {
+        // real and imag
+        frame->get( i, &v );
+        m_buffer[i] = v;
+    }
+    // zero pad
+    for( t_CKINT j = amount; j < m_size; j++ )
+        m_buffer[j] = 0;
+
+    // um
+    this->transform();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: copyTo()
 // desc: ...
 //-----------------------------------------------------------------------------
@@ -713,6 +740,8 @@ CK_DLL_MFUN( FFT_transform )
     FFT_object * fft = (FFT_object *)OBJ_MEMBER_UINT(SELF, FFT_offset_data);
     // get array
     Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // do it
+    fft->transform( arr );
 }
 
 
@@ -728,6 +757,8 @@ CK_DLL_CTRL( FFT_ctrl_window )
     Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
     // set it
     fft->window( arr, arr != NULL ? arr->capacity() : 0 );
+    // return it through
+    RETURN->v_object = arr;
 }
 
 
@@ -737,6 +768,8 @@ CK_DLL_CTRL( FFT_ctrl_window )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( FFT_cget_window )
 {
+    // TODO: implement this!
+    RETURN->v_object = NULL;
 }
 
 
@@ -1254,6 +1287,8 @@ CK_DLL_CTRL( IFFT_ctrl_window )
     Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
     // set it
     ifft->window( arr, arr != NULL ? arr->capacity() : 0 );
+    // return
+    RETURN->v_object = arr;
 }
 
 
@@ -1263,6 +1298,8 @@ CK_DLL_CTRL( IFFT_ctrl_window )
 //-----------------------------------------------------------------------------
 CK_DLL_CGET( IFFT_cget_window )
 {
+    // TODO: implement this
+    RETURN->v_object = NULL;
 }
 
 
