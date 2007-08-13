@@ -849,6 +849,8 @@ t_CKBOOL Chuck_UAna::system_tock( t_CKTIME now )
         // tock the uana
         if( tock ) m_valid = tock( this, this, blobProxy(), NULL );
         if( !m_valid ) { /* clear out blob? */ }
+		// timestamp the blob
+		blobProxy()->when() = now;
         // TODO: set current_blob to out_blob
         // TODO: set last_blob to current
         return m_valid;
