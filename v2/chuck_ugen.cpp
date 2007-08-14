@@ -412,6 +412,8 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
         for( t_CKUINT j = 0; j < m_num_uana_src; j++ )
             if( m_src_uana_list[j] == src )
             {
+                // since src list is a super set of this list,
+                // removing here -> removing at least one from src list
                 for( t_CKUINT k = j+1; k < m_num_uana_src; k++ )
                     m_src_uana_list[k-1] = m_src_uana_list[k];
                 
