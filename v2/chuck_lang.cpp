@@ -44,7 +44,7 @@
 // dac tick
 CK_DLL_TICK(__ugen_tick) { *out = in; return TRUE; }
 // object string offset
-static t_CKUINT object_str_offset = 0;
+static t_CKUINT Object_offset_string = 0;
 
 
 //-----------------------------------------------------------------------------
@@ -62,7 +62,11 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_class_begin( env, type, env->global(), object_ctor, object_dtor ) )
         return FALSE;
 
-    // add setTestID()
+    // add member to hold string
+    Object_offset_string = type_engine_import_mvar( env, "string", "@string", FALSE );
+    if( Object_offset_string == CK_INVALID_OFFSET ) goto error;
+
+    // add toString()
     func = make_new_mfun( "string", "toString", object_toString );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
@@ -1194,6 +1198,9 @@ CK_DLL_CTOR( object_ctor )
 {
     // log
     // EM_log( CK_LOG_FINEST, "Object constructor..." );
+
+    // initialize
+    OBJECT_MEMBER_UINT(SELF, Object_offset_string) = 0;
 }
 
 
@@ -1202,13 +1209,27 @@ CK_DLL_DTOR( object_dtor )
 {
     // log
     // EM_log( CK_LOG_FINEST, "Object destructor..." );
+
+    // get the string
+    Chuck_String * str = (Chuck_String *)OBJECT_MEMBER_UINT(SELF, Object_offset_string);
+    // release
+    SAFE_RELEASE( str );
 }
 
 
 // toString
 CK_DLL_MFUN( object_toString )
 {
-     RETURN->v_object = NULL;
+    // get the string
+    Chuck_String * str = (Chuck_String *)OBJECT_MEMBER_UINT(SELF, Object_offset_string);
+    // allocate
+    if( !str )
+    {
+        // new it
+        str = new Chuck_String();
+        // initialize it
+
+    }
 }
 
 

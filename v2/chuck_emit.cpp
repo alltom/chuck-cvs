@@ -2494,8 +2494,16 @@ t_CKBOOL emit_engine_emit_exp_primary( Chuck_Emitter * emit, a_Exp_Primary exp )
         
     case ae_primary_str:
         // TODO: fix this
-        str = new Chuck_String;
-        initialize_object( str, &t_string );
+        str = new Chuck_String();
+        if( !str || !initialize_object( str, &t_string ) )
+        {
+            // error
+            SAFE_RELEASE( str );
+            // error out
+            fprintf( stderr, 
+                "[chuck](emitter): OutOfMemory: while allocating string literal '%s'\n", exp->str );
+            return NULL;
+        }
         str->str = exp->str;
         temp = (t_CKUINT)str;
         emit->append( new Chuck_Instr_Reg_Push_Imm( temp ) );
@@ -3799,7 +3807,7 @@ t_CKBOOL emit_engine_emit_class_def( Chuck_Emitter * emit, a_Class_Def class_def
         {
             // we have a problem
             fprintf( stderr, 
-                "[chuck](VM): OutOfMemory: while allocating static data '%s'\n", type->c_name() );
+                "[chuck](emitter): OutOfMemory: while allocating static data '%s'\n", type->c_name() );
             // flag
             ret = FALSE;
         }
