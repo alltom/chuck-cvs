@@ -18076,7 +18076,10 @@ CK_DLL_CTRL( BiQuad_ctrl_eqzs )
 CK_DLL_CTOR( BlowBotl_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new BlowBotl();
+    BlowBotl * botl = new BlowBotl();
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)botl;
+    // default
+    botl->setFrequency( 220 );
 }
 
 
@@ -18265,7 +18268,10 @@ CK_DLL_CGET( BlowBotl_cget_volume )
 CK_DLL_CTOR( BlowHole_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new BlowHole( 30 );
+    BlowHole * hole = new BlowHole( 20 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)hole;
+    // default
+    hole->setFrequency( 220 );
 }
 
 
@@ -18832,7 +18838,7 @@ struct Brass_
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Brass_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new Brass( 30.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new Brass( 20.0 );
 }
 
 
@@ -19996,7 +20002,10 @@ struct Sitar_ {
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Sitar_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new Sitar( 30.0 );
+    Sitar * sitar = new Sitar( 20 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)sitar;
+    // default
+    sitar->setFrequency( 220 );
 }
 
 
@@ -20065,7 +20074,10 @@ CK_DLL_CTRL( Sitar_ctrl_clear )
 //-----------------------------------------------------------------------------
 CK_DLL_CTOR( Saxofony_ctor )
 {
-    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new Saxofony( 30.0 );
+    Saxofony * fony = new Saxofony( 20 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)fony;
+    // default
+    fony->setFrequency( 220 );
 }
 
 
@@ -20341,7 +20353,7 @@ CK_DLL_CGET( Saxofony_cget_pressure )
 CK_DLL_CTOR( StifKarp_ctor )
 {
     // initialize member object
-    StifKarp * karp = new StifKarp( 15.0 );
+    StifKarp * karp = new StifKarp( 20.0 );
     OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)karp;
 	// default
 	karp->setFrequency( 220.0 );
@@ -22559,7 +22571,10 @@ CK_DLL_PMSG( HevyMetl_pmsg )
 CK_DLL_CTOR( PercFlut_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new PercFlut();
+    PercFlut * flut = new PercFlut();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT)flut;
+    // default
+    flut->setFrequency( 220 );
 }
 
 
@@ -22651,7 +22666,10 @@ CK_DLL_PMSG( Rhodey_pmsg )
 CK_DLL_CTOR( TubeBell_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT) new TubeBell();
+    TubeBell * bell = new TubeBell();
+    OBJ_MEMBER_UINT(SELF, FM_offset_data) = (t_CKUINT)bell;
+    // default
+    bell->setFrequency( 220 );
 }
 
 

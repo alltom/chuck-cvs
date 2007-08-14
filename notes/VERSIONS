@@ -64,6 +64,7 @@
   - (fixed) Machine.remove() on 'me' now works correctly
   - (fixed) rounding when writing files via WvOut
                  (thanks to Chris Chafe for discovering and reporting this)
+  - (changed) default frequencies (220/440) added for various STK instruments
 
 ---
 1.2.0.8
