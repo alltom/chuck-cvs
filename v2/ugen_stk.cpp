@@ -22859,7 +22859,10 @@ CK_DLL_CGET( JCRev_cget_mix )
 CK_DLL_CTOR( Mandolin_ctor  )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT) new Mandolin( 50.0f );
+    Mandolin * m = new Mandolin( 20 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)m;
+    // default
+    m->setFrequency( 220 );
 }
 
 
