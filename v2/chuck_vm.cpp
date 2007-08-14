@@ -118,6 +118,7 @@ Chuck_VM::Chuck_VM()
     m_shreds = NULL;
     m_num_shreds = 0;
     m_shreduler = NULL;
+    m_num_dumped_shreds = 0;
     m_msg_buffer = NULL;
     m_reply_buffer = NULL;
     m_event_buffer = NULL;
@@ -257,6 +258,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
     EM_pushlog(); // push stack
     EM_log( CK_LOG_SYSTEM, "behavior: %s", halt ? "HALT" : "LOOP" );
 
+    // lockdown
+    Chuck_VM_Object::lock_all();
+
     // allocate bbq
     m_bbq = new BBQ;
     m_halt = halt;
@@ -306,6 +310,9 @@ t_CKBOOL Chuck_VM::initialize( t_CKBOOL enable_audio, t_CKBOOL halt, t_CKUINT sr
 
     // pop log
     EM_poplog();
+
+    // TODO: clean up all the dynamic objects here on failure
+    //       and in the shutdown function!
 
     return m_init = TRUE;
 }
@@ -428,6 +435,8 @@ t_CKBOOL Chuck_VM::shutdown()
     EM_log( CK_LOG_SYSTEM, "shutting down virtual machine..." );
     // push indent
     EM_pushlog();
+    // unlockdown
+    Chuck_VM_Object::unlock_all();
 
     // stop
     if( m_running )
@@ -445,14 +454,33 @@ t_CKBOOL Chuck_VM::shutdown()
         m_bbq->digi_out()->cleanup();
         m_bbq->digi_in()->cleanup();
         m_bbq->shutdown();
-        SAFE_DELETE( m_bbq );
         m_audio = FALSE;
     }
+    // log
+    EM_log( CK_LOG_SYSTEM, "freeing bbq subsystem..." );
+    // clean up
+    SAFE_DELETE( m_bbq );
 
     // log
     EM_log( CK_LOG_SYSTEM, "freeing shreduler..." );
     // free the shreduler
     SAFE_DELETE( m_shreduler );
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "freeing msg/reply/event buffers..." );
+    // free the msg buffer
+    SAFE_DELETE( m_msg_buffer );
+    // free the reply buffer
+    SAFE_DELETE( m_reply_buffer );
+    // free the event buffer
+    SAFE_DELETE( m_event_buffer );
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "freeing special ugens..." );
+    // go
+    SAFE_RELEASE( m_dac );
+    SAFE_RELEASE( m_adc );
+    SAFE_RELEASE( m_bunghole );
 
     // log
     EM_log( CK_LOG_SEVERE, "clearing shreds..." );
@@ -462,10 +490,18 @@ t_CKBOOL Chuck_VM::shutdown()
     {
         prev = curr;
         curr = curr->next;
-        // delete prev;
+        // release shred
+        prev->release();
     }
     m_shreds = NULL;
     m_num_shreds = 0;
+
+    // log
+    EM_pushlog();
+    EM_log( CK_LOG_SEVERE, "freeing dumped shreds..." );
+    // do it
+    this->release_dump();
+    EM_poplog();
 
     m_init = FALSE;
 
@@ -632,6 +668,10 @@ t_CKBOOL Chuck_VM::compute()
         // process messages
         while( m_msg_buffer->get( &msg, 1 ) )
         { process_msg( msg ); iterate = TRUE; }
+
+        // clear dumped shreds
+        if( m_num_dumped_shreds > 0 )
+            release_dump();
     }
     
     return TRUE;
@@ -876,7 +916,7 @@ t_CKUINT Chuck_VM::process_msg( Chuck_Msg * msg )
                 retval = 0;
                 goto done;
             }
-            if( !m_shreduler->remove( shred ) )  // was lookup
+            if( shred != m_shreduler->m_current_shred && !m_shreduler->remove( shred ) )  // was lookup
             {
                 EM_error3( "[chuck](VM): shreduler: cannot remove shred %i...",
                            msg->param );
@@ -1054,8 +1094,6 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Code * code, Chuck_VM_Shred * parent 
     shred->name = code->name;
     // set the parent
     shred->parent = parent;
-    // add ref
-    shred->add_ref();
     // set the base ref for global
     if( parent ) shred->base_ref = shred->parent->base_ref;
     else shred->base_ref = shred->mem;
@@ -1085,6 +1123,8 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
     shred->xid = next_id();
     // set the vm
     shred->vm_ref = this;
+    // add ref
+    shred->add_ref();
     // add it to the parent
     if( shred->parent )
         shred->parent->children[shred->xid] = shred;
@@ -1106,6 +1146,10 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
 t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec )
 {
     assert( cascade );
+
+    // abort on the double free
+    // TODO: can a shred be dumped, then resporked? from code?
+    if( shred->is_dumped ) return FALSE;
 
     // mark this done
     shred->is_done = TRUE;
@@ -1134,9 +1178,10 @@ t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec 
 
     // free!
     m_shreduler->remove( shred );
-    // TODO: remove shred from event, with synchronization
+    // TODO: remove shred from event, with synchronization (still necessary with dump?)
     // if( shred->event ) shred->event->remove( shred );
-    shred->release();
+    // OLD: shred->release();
+    this->dump( shred );
     shred = NULL;
     if( dec ) m_num_shreds--;
     if( !m_num_shreds ) m_shred_id = 0;
@@ -1171,6 +1216,50 @@ t_CKBOOL Chuck_VM::abort_current_shred( )
     }
 
     return shred != NULL;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: dump()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_VM::dump( Chuck_VM_Shred * shred )
+{
+    // log
+    EM_log( CK_LOG_FINER, "dumping shred (id==%d | ptr==%p)", shred->xid,
+            (t_CKUINT)shred );
+    // add
+    m_shred_dump.push_back( shred );
+    // stop
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+    shred->is_dumped = TRUE;
+    // inc
+    m_num_dumped_shreds++;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: release_dump()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_VM::release_dump( )
+{
+    // log
+    EM_log( CK_LOG_FINER, "releasing dumped shreds..." );
+
+    // iterate through dump
+    for( t_CKUINT i = 0; i < m_shred_dump.size(); i++ )
+        SAFE_RELEASE( m_shred_dump[i] );
+
+    // clear the dump
+    m_shred_dump.clear();
+    // reset
+    m_num_dumped_shreds = 0;
 }
 
 
@@ -1366,6 +1455,8 @@ t_CKBOOL Chuck_VM_Shred::initialize( Chuck_VM_Code * c,
     code_orig = code = c;
     // add reference
     code_orig->add_ref();
+    // shred in dump (all done)
+    is_dumped = FALSE;
     // shred done
     is_done = FALSE;
     // shred running
@@ -1892,7 +1983,12 @@ t_CKBOOL Chuck_VM_Shreduler::remove( Chuck_VM_Shred * out )
 Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT xid )
 {
     Chuck_VM_Shred * shred = shred_list;
-    
+
+    // current shred?
+    if( m_current_shred != NULL && m_current_shred->xid == xid )
+        return m_current_shred;
+
+    // look for in shreduled list
     while( shred )
     {
         if( shred->xid == xid )
@@ -1901,9 +1997,8 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::lookup( t_CKUINT xid )
         shred = shred->next;
     }
 
-    // blocked
+    // blocked?
     std::map<Chuck_VM_Shred *, Chuck_VM_Shred *>::iterator iter;
-    
     for( iter = blocked.begin(); iter != blocked.end(); iter++ )
     {
         shred = (*iter).second;

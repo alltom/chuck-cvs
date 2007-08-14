@@ -41,6 +41,10 @@
 using namespace std;
 
 
+// initialize
+t_CKBOOL Chuck_VM_Object::our_locks_in_effect = TRUE;
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -99,7 +103,7 @@ void Chuck_VM_Object::release()
     if( m_ref_count == 0 )
     {
         // this is not good
-        if( m_locked )
+        if( our_locks_in_effect && m_locked )
         {
             EM_error2( 0, "internal error: releasing locked VM object!" );
             // fail
@@ -123,6 +127,36 @@ void Chuck_VM_Object::release()
 void Chuck_VM_Object::lock()
 {
     m_locked = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: lock_all()
+// desc: disallow deletion of locked objects
+//-----------------------------------------------------------------------------
+void Chuck_VM_Object::lock_all()
+{
+    // log
+    EM_log( CK_LOG_SYSTEM, "locking down special objects..." );
+    // set flag
+    our_locks_in_effect = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: unlock_all()
+// desc: allow deletion of locked objects (USE WITH CAUTION!)
+//-----------------------------------------------------------------------------
+void Chuck_VM_Object::unlock_all()
+{
+    // log
+    EM_log( CK_LOG_SYSTEM, "unprotecting special objects..." );
+    // set flag
+    our_locks_in_effect = FALSE;
 }
 
 

@@ -196,6 +196,7 @@ public:
     t_CKBOOL is_done;
     t_CKBOOL is_running;
     t_CKBOOL is_abort;
+    t_CKBOOL is_dumped;
     Chuck_Event * event;  // event shred is waiting on
     std::map<Chuck_UGen *, Chuck_UGen *> m_ugen_map;
 
@@ -418,6 +419,8 @@ protected:
     Chuck_VM_Shred * spork( Chuck_VM_Shred * shred );
     t_CKBOOL free( Chuck_VM_Shred * shred, t_CKBOOL cascade, 
                    t_CKBOOL dec = TRUE );
+    void dump( Chuck_VM_Shred * shred );
+    void release_dump();
 
 protected:
     t_CKBOOL m_init;
@@ -430,6 +433,9 @@ protected:
     t_CKUINT m_num_shreds;
     t_CKUINT m_shred_id;
     Chuck_VM_Shreduler * m_shreduler;
+    // place to put dumped shreds
+    std::vector<Chuck_VM_Shred *> m_shred_dump;
+    t_CKUINT m_num_dumped_shreds;
 
     // audio
     BBQ * m_bbq;

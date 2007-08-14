@@ -113,12 +113,14 @@ extern "C" void signal_int( int sig_num )
         if( g_tid_otf ) pthread_cancel( g_tid_otf );
         if( g_tid_whatever ) pthread_cancel( g_tid_whatever );
         // if( g_tid_otf ) usleep( 50000 );
-        SAFE_DELETE( vm );
-        SAFE_DELETE( g_compiler );
 #else
         // close handle
         if( g_tid_otf ) CloseHandle( g_tid_otf );
 #endif
+        // will this work for windows?
+        SAFE_DELETE( vm );
+        SAFE_DELETE( g_compiler );
+
         // ck_close( g_sock );
     }
 

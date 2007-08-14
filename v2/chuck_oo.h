@@ -73,6 +73,12 @@ public:
     void lock();
 
 public:
+    // unlock_all: dis/allow deletion of locked objects
+    static void lock_all();
+    static void unlock_all();
+    static t_CKBOOL our_locks_in_effect;
+
+public:
     t_CKUINT m_ref_count; // reference count
     t_CKBOOL m_pooled; // if true, this allocates from a pool
     t_CKBOOL m_locked; // if true, this should never be deleted
