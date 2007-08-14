@@ -198,7 +198,7 @@ void EM_error2b( int line, const char * message, ... )
 
     strcat( g_lasterror, g_buffer );
     fprintf( stdout, "\n" );
-    fflush( stderr );
+    fflush( stdout );
 }
 
 
