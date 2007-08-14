@@ -1449,6 +1449,7 @@ CK_DLL_CTOR( ResonZ_ctor )
     memset( f, 0, sizeof(FilterBasic_data) );
     // default
     f->m_Q = 1.0;
+    f->set_resonz( 220, f->m_Q );
     OBJ_MEMBER_UINT(SELF, FilterBasic_offset_data) = (t_CKUINT)f;
 }
 
