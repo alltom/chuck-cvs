@@ -41,16 +41,10 @@
 #include "util_string.h"
 
 
-// offset for member variable
-static t_CKUINT object_offset_m_testID = CK_INVALID_OFFSET;
-
-// storage for static variable
-static t_CKINT object_our_testID = 0;
-
 // dac tick
-// UGEN_TICK __ugen_tick( Chuck_Object * SELF, SAMPLE in, SAMPLE * out, Chuck_VM_Shred * SHRED )
-CK_DLL_TICK(__ugen_tick)
-{ *out = in; return TRUE; }
+CK_DLL_TICK(__ugen_tick) { *out = in; return TRUE; }
+// object string offset
+static t_CKUINT object_str_offset = 0;
 
 
 //-----------------------------------------------------------------------------
@@ -69,26 +63,8 @@ t_CKBOOL init_class_object( Chuck_Env * env, Chuck_Type * type )
         return FALSE;
 
     // add setTestID()
-    func = make_new_mfun( "int", "testID", object_setTestID );
-    func->add_arg( "int", "id" );
+    func = make_new_mfun( "string", "toString", object_toString );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add getTestID()
-    func = make_new_mfun( "int", "testID", object_getTestID );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    
-    // add getTest()
-    func = make_new_sfun( "int", "testStatic", object_testStatic );
-    func->add_arg( "float", "i" );
-    if( !type_engine_import_sfun( env, func ) ) goto error;
-
-    // add member variable
-    object_offset_m_testID = type_engine_import_mvar( env, "int", "m_testID", FALSE );
-    if( object_offset_m_testID == CK_INVALID_OFFSET ) goto error;
-
-    // add static variable
-    if( !type_engine_import_svar( env, "int", "our_testID", FALSE, (t_CKUINT)&object_our_testID ) )
-        goto error;
 
     // end the class import
     type_engine_import_class_end( env );
@@ -127,15 +103,6 @@ t_CKBOOL init_class_ugen( Chuck_Env * env, Chuck_Type * type )
     // TODO: ctor/dtor, ugen's sometimes created internally?
     if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
-
-    // add setTestID()
-    //func = make_new_mfun( "int", "testID", ugen_setTestID );
-    //func->add_arg( "int", "id" );
-    //if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add getTestID()
-    // func = make_new_mfun( "int", "testID", ugen_getTestID );
-    // if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // gain
     func = make_new_mfun( "float", "gain", ugen_gain );
@@ -1222,165 +1189,26 @@ error:
 }
 
 
-
-/*// static
-static t_CKUINT SkiniIn_offset_data = 0;
-static t_CKUINT SkiniOut_offset_data = 0;
-static t_CKUINT SkiniMsg_offset_type = 0;
-static t_CKUINT SkiniMsg_offset_time = 0;
-static t_CKUINT SkiniMsg_offset_channel = 0;
-static t_CKUINT SkiniMsg_offset_data1 = 0;
-static t_CKUINT SkiniMsg_offset_data2 = 0;
-
-//-----------------------------------------------------------------------------
-// name: init_class_Skini()
-// desc: ...
-//-----------------------------------------------------------------------------
-t_CKBOOL init_class_Skini( Chuck_Env * env )
-{
-    Chuck_DL_Func * func = NULL;
-
-    // init base class
-    if( !type_engine_import_class_begin( env, "SkiniMsg", "Object",
-                                         env->global(), NULL ) )
-        return FALSE;
-
-    // add member variable
-    SkiniMsg_offset_type = type_engine_import_mvar( env, "int", "type", FALSE );
-    if( SkiniMsg_offset_type == CK_INVALID_OFFSET ) goto error;
-
-    // add member variable
-    SkiniMsg_offset_time = type_engine_import_mvar( env, "float", "time", FALSE );
-    if( SkiniMsg_offset_time == CK_INVALID_OFFSET ) goto error;
-
-    // add member variable
-    SkiniMsg_offset_channel = type_engine_import_mvar( env, "int", "channel", FALSE );
-    if( SkiniMsg_offset_channel == CK_INVALID_OFFSET ) goto error;
-
-    // add member variable
-    SkiniMsg_offset_data1 = type_engine_import_mvar( env, "float", "data1", FALSE );
-    if( SkiniMsg_offset_data1 == CK_INVALID_OFFSET ) goto error;
-
-    // add member variable
-    SkiniMsg_offset_data2 = type_engine_import_mvar( env, "float", "data2", FALSE );
-    if( SkiniMsg_offset_data2 == CK_INVALID_OFFSET ) goto error;
-
-
-    // end the class import
-    type_engine_import_class_end( env );
-
-    
-    // init base class
-    if( !type_engine_import_class_begin( env, "SkiniIn", "event",
-                                         env->global(), SkiniIn_ctor ) )
-        return FALSE;
-
-    // add open()
-    func = make_new_mfun( "int", "open", SkiniIn_open );
-    func->add_arg( "const char *", "filename" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add recv()
-    func = make_new_mfun( "int", "recv", SkiniIn_recv );
-    func->add_arg( "SkiniMsg", "msg" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add member variable
-    SkiniIn_offset_data = type_engine_import_mvar( env, "int", "@SkiniIn_data", FALSE );
-    if( SkiniIn_offset_data == CK_INVALID_OFFSET ) goto error;
-
-    // end the class import
-    type_engine_import_class_end( env );
-    
-    // init base class
-    if( !type_engine_import_class_begin( env, "SkiniOut", "Object",
-                                         env->global(), SkiniOut_ctor ) )
-        return FALSE;
-
-    // add open()
-    func = make_new_mfun( "int", "open", MidiOut_open );
-    func->add_arg( "const char *", "filename" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add send()
-    func = make_new_mfun( "int", "send", SkiniOut_send );
-    func->add_arg( "SkiniMsg", "msg" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-
-    // add member variable
-    SkiniOut_offset_data = type_engine_import_mvar( env, "int", "@SkiniOut_data", FALSE );
-    if( SkiniOut_offset_data == CK_INVALID_OFFSET ) goto error;
-
-    // end the class import
-    type_engine_import_class_end( env );
-    
-    return TRUE;
-
-error:
-
-    // end the class import
-    type_engine_import_class_end( env );
-    
-    return FALSE;
-}
-*/
-
-
 // Object ctor
 CK_DLL_CTOR( object_ctor )
 {
-//    fprintf( stderr, "object ctor\n" );
+    // log
+    // EM_log( CK_LOG_FINEST, "Object constructor..." );
 }
 
 
 // Object dtor
 CK_DLL_DTOR( object_dtor )
 {
-//    fprintf( stderr, "object dtor\n" );
+    // log
+    // EM_log( CK_LOG_FINEST, "Object destructor..." );
 }
 
 
-// setTestID
-CK_DLL_MFUN( object_setTestID )
+// toString
+CK_DLL_MFUN( object_toString )
 {
-    fprintf( stderr, "object set test id\n" );
-    t_CKINT v = GET_NEXT_INT(ARGS);
-    OBJ_MEMBER_INT(SELF, object_offset_m_testID) = v;
-    RETURN->v_int = v;
-}
-
-
-// getTestID
-CK_DLL_MFUN( object_getTestID )
-{
-    fprintf( stderr, "object get test id\n" );
-    RETURN->v_int = OBJ_MEMBER_INT(SELF, object_offset_m_testID);
-}
-
-
-// setTestID
-CK_DLL_MFUN( ugen_setTestID )
-{
-    fprintf( stderr, "ugen set test id\n" );
-    t_CKINT v = GET_NEXT_INT(ARGS);
-    OBJ_MEMBER_INT(SELF, object_offset_m_testID) = v;
-    RETURN->v_int = v;
-}
-
-
-// getTestID
-CK_DLL_MFUN( ugen_getTestID )
-{
-    fprintf( stderr, "ugen get test id\n" );
-    RETURN->v_int = OBJ_MEMBER_INT(SELF, object_offset_m_testID);
-}
-
-
-// getTest
-CK_DLL_SFUN( object_testStatic )
-{
-    t_CKFLOAT v = GET_NEXT_FLOAT(ARGS);
-    fprintf( stderr, "testStatic %f\n", v );
+     RETURN->v_object = NULL;
 }
 
 
@@ -2559,118 +2387,3 @@ CK_DLL_MFUN( MidiMsgIn_read )
     OBJ_MEMBER_TIME(fake_msg, MidiMsg_offset_when) = time;
 }
 
-
-/*//-----------------------------------------------------------------------------
-// SkiniIn API
-//-----------------------------------------------------------------------------
-CK_DLL_CTOR( SkiniIn_ctor )
-{
-    SkiniIn * skin = new SkiniIn;
-//  skin->SELF = SELF;
-    OBJ_MEMBER_INT(SELF, SkiniIn_offset_data) = (t_CKINT)skin;
-}
-
-CK_DLL_DTOR( SkiniIn_dtor )
-{
-    delete (SkiniIn *)OBJ_MEMBER_INT(SELF, SkiniIn_offset_data);
-}
-
-CK_DLL_MFUN( SkiniIn_open )
-{
-    SkiniIn * skin = (SkiniIn *)OBJ_MEMBER_INT(SELF, SkiniIn_offset_data);
-    const char * filename = GET_CK_STRING(ARGS)->str.c_str();
-    RETURN->v_int = skin->open( filename );
-}
-
-CK_DLL_MFUN( SkiniIn_recv )
-{
-    SkiniIn * skin = (SkiniIn *)OBJ_MEMBER_INT(SELF, SkiniIn_offset_data);
-    Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
-    SkiniMsg the_msg;
-    RETURN->v_int = skin->recv( &the_msg );
-    if( RETURN->v_int )
-    {
-        OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_type ) = the_msg.type;
-        OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_time ) = the_msg.time;
-        OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_channel ) = the_msg.channel;
-        OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data1 ) = the_msg.data1;
-        OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data2 ) = the_msg.data2;
-    }
-}
-
-
-//-----------------------------------------------------------------------------
-// SkiniOut API
-//-----------------------------------------------------------------------------
-CK_DLL_CTOR( SkiniOut_ctor )
-{
-    OBJ_MEMBER_INT(SELF, SkiniOut_offset_data) = (t_CKUINT)new SkiniOut;
-}
-
-CK_DLL_DTOR( SkiniOut_dtor )
-{
-    delete (SkiniOut *)OBJ_MEMBER_INT(SELF, SkiniOut_offset_data);
-}
-
-CK_DLL_MFUN( SkiniOut_open )
-{
-    SkiniOut * sout = (SkiniOut *)OBJ_MEMBER_INT(SELF, SkiniOut_offset_data);
-    const char * filename = GET_CK_STRING(ARGS)->str.c_str();
-    RETURN->v_int = sout->open( filename );
-}
-
-CK_DLL_MFUN( SkiniOut_send )
-{
-    SkiniOut * sout = (SkiniOut *)OBJ_MEMBER_INT(SELF, SkiniOut_offset_data);
-    Chuck_Object * fake_msg = GET_CK_OBJECT(ARGS);
-    SkiniMsg the_msg;
-    
-    the_msg.type = OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_type );
-    the_msg.time = OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_time );
-    the_msg.channel = OBJ_MEMBER_INT( fake_msg, SkiniMsg_offset_channel );
-    the_msg.data1 = OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data1 );
-    the_msg.data2 = OBJ_MEMBER_FLOAT( fake_msg, SkiniMsg_offset_data2 );
-
-    //the_msg.data[0] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, SkiniMsg_offset_data1);
-    //the_msg.data[1] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, SkiniMsg_offset_data2);
-    //the_msg.data[2] = (t_CKBYTE)OBJ_MEMBER_INT(fake_msg, SkiniMsg_offset_data3);
-    
-    RETURN->v_int = sout->send( &the_msg );
-}
-*/
-
-/*
-//-----------------------------------------------------------------------------
-// name: lang_query()
-// desc: query entry point
-//-----------------------------------------------------------------------------
-DLL_QUERY lang_query( Chuck_DL_Query * QUERY )
-{
-    QUERY->setname( QUERY, "Lang" );
-
-    // class
-    QUERY->begin_class( QUERY, "Object", "" );
-    
-    // add ctor
-    QUERY->add_ctor( QUERY, object_ctor );
-
-    // add dtor
-    QUERY->add_dtor( QUERY, object_dtor );
-
-    // add setTestID
-    QUERY->add_mfun( QUERY, object_setTestID, "void", "setTestID" );
-    QUERY->add_arg( QUERY, "int", "value" );
-
-    // add getTestID
-    QUERY->add_mfun( QUERY, object_getTestID, "int", "getTestID" );
-
-    // add toString
-    //! return string that represents the value of the object
-    // QUERY->add_mfun( QUERY, object_toString, "string", "toString" );
-    
-    // end class
-    QUERY->end_class( QUERY );
-
-    return TRUE;
-}
-*/

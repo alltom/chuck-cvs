@@ -71,11 +71,6 @@ CK_DLL_MFUN( object_equals );
 CK_DLL_MFUN( object_getType );
 CK_DLL_MFUN( object_hashCode );
 CK_DLL_MFUN( object_toString );
-CK_DLL_MFUN( object_setTestID );
-CK_DLL_MFUN( object_getTestID );
-CK_DLL_MFUN( ugen_setTestID );
-CK_DLL_MFUN( ugen_getTestID );
-CK_DLL_SFUN( object_testStatic );
 
 
 //-----------------------------------------------------------------------------
@@ -323,30 +318,6 @@ CK_DLL_MFUN( HidOut_num );
 CK_DLL_MFUN( HidOut_name );
 CK_DLL_MFUN( HidOut_printerr );
 CK_DLL_MFUN( HidOut_send );
-
-
-//-----------------------------------------------------------------------------
-// SkiniMMsg API
-//-----------------------------------------------------------------------------
-CK_DLL_CTOR( SkiniMsg_ctor );
-
-
-//-----------------------------------------------------------------------------
-// SkiniIn API
-//-----------------------------------------------------------------------------
-CK_DLL_CTOR( SkiniIn_ctor );
-CK_DLL_DTOR( SkiniIn_dtor );
-CK_DLL_MFUN( SkiniIn_open );
-CK_DLL_MFUN( SkiniIn_recv );
-
-
-//-----------------------------------------------------------------------------
-// SkiniOut API
-//-----------------------------------------------------------------------------
-CK_DLL_CTOR( SkiniOut_ctor );
-CK_DLL_DTOR( SkiniOut_dtor );
-CK_DLL_MFUN( SkiniOut_open );
-CK_DLL_MFUN( SkiniOut_send );
 
 
 
