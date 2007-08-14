@@ -20341,7 +20341,10 @@ CK_DLL_CGET( Saxofony_cget_pressure )
 CK_DLL_CTOR( StifKarp_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)new StifKarp( 30.0 );
+    StifKarp * karp = new StifKarp( 15.0 );
+    OBJ_MEMBER_UINT(SELF, Instrmnt_offset_data) = (t_CKUINT)karp;
+	// default
+	karp->setFrequency( 220.0 );
 }
 
 
