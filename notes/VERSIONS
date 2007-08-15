@@ -57,6 +57,7 @@
             infinite loops that don't advance time)
   - (added) OTF command: chuck --abort.shred sends network OTF
             to server to remove current shred if there is one
+  - (added) default .toString() method to all Object's
   - (fixed) NullPointerException when instantiating array of objects
             containing arrays of objects
                  (thanks to chuck-users!!)
