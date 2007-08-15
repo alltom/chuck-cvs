@@ -40,6 +40,10 @@
 #include "hidio_sdl.h"
 #include "util_string.h"
 
+#include <iostream>
+#include <iomanip>
+#include <strstream>
+using namespace std;
 
 // dac tick
 CK_DLL_TICK(__ugen_tick) { *out = in; return TRUE; }
@@ -449,6 +453,10 @@ t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type )
 
     // add trim()
     func = make_new_mfun( "string", "trim", string_trim );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add toString()
+    func = make_new_mfun( "string", "toString", string_toString );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
 /*    // add at()
@@ -1200,7 +1208,7 @@ CK_DLL_CTOR( object_ctor )
     // EM_log( CK_LOG_FINEST, "Object constructor..." );
 
     // initialize
-    OBJECT_MEMBER_UINT(SELF, Object_offset_string) = 0;
+    OBJ_MEMBER_UINT(SELF, Object_offset_string) = 0;
 }
 
 
@@ -1211,7 +1219,7 @@ CK_DLL_DTOR( object_dtor )
     // EM_log( CK_LOG_FINEST, "Object destructor..." );
 
     // get the string
-    Chuck_String * str = (Chuck_String *)OBJECT_MEMBER_UINT(SELF, Object_offset_string);
+    Chuck_String * str = (Chuck_String *)OBJ_MEMBER_UINT(SELF, Object_offset_string);
     // release
     SAFE_RELEASE( str );
 }
@@ -1221,15 +1229,38 @@ CK_DLL_DTOR( object_dtor )
 CK_DLL_MFUN( object_toString )
 {
     // get the string
-    Chuck_String * str = (Chuck_String *)OBJECT_MEMBER_UINT(SELF, Object_offset_string);
+    Chuck_String * str = (Chuck_String *)OBJ_MEMBER_UINT(SELF, Object_offset_string);
     // allocate
     if( !str )
     {
         // new it
-        str = new Chuck_String();
-        // initialize it
+        str = (Chuck_String *)instantiate_and_initialize_object( &t_string, SHRED );
+        // check it
+        if( !str )
+        {
+            // TODO: make this exception
+            fprintf( stderr, "[chuck]: Object.toString() out of memory!\n" );
+            RETURN->v_object = NULL;
+            return;
+        }
+        // set it
+        const t_CKINT LEN = 128;
+        char buffer[LEN];
+        buffer[0] = '\0';
+        ostrstream strout( buffer, LEN );
+        // get the type
+        Chuck_Type * type = SELF->type_ref;
+        // write
+        strout.setf( ios::hex, ios::basefield );
+        strout << ((type != NULL) ? type->c_name() : "[VOID]") << ":" << (t_CKUINT)SELF << '\0';
+        strout.flush();
 
+        // done
+        str->str = buffer;
     }
+
+    // set return
+    RETURN->v_object = str;
 }
 
 
@@ -1686,6 +1717,12 @@ CK_DLL_MFUN( string_trim )
     Chuck_String * str = (Chuck_String *)instantiate_and_initialize_object( &t_string, NULL );
     str->str = trim( s->str );
     RETURN->v_string = str;
+}
+
+CK_DLL_MFUN( string_toString )
+{
+    Chuck_String * s = (Chuck_String *)SELF;
+    RETURN->v_string = s;
 }
 
 /*
