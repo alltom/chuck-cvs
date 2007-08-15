@@ -814,9 +814,11 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
                                         LiSaMulti_tick, LiSaMulti_pmsg ) )
         return FALSE;
         
-    // set buffer size
+    // set/get buffer size
     func = make_new_mfun( "dur", "duration", LiSaMulti_size );
     func->add_arg( "dur", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	func = make_new_mfun( "dur", "duration", LiSaMulti_cget_size );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // start/stop recording
@@ -925,6 +927,14 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     if( !type_engine_import_mfun( env, func ) ) goto error;
     func = make_new_mfun( "dur", "loopEndRec", LiSaMulti_cget_loop_end_rec);
     if( !type_engine_import_mfun( env, func ) ) goto error;
+	
+	// set/get voiceGain
+    func = make_new_mfun( "float", "voiceGain", LiSaMulti_ctrl_voicegain );
+    func->add_arg( "int", "voice" );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "voiceGain", LiSaMulti_cget_voicegain);
+    func->add_arg( "int", "voice" );
     
     // set record feedback coefficient
     func = make_new_mfun( "float", "feedback", LiSaMulti_ctrl_coeff );
@@ -3143,6 +3153,7 @@ struct LiSaMulti_data
     t_CKINT rindex; // record and play indices
     t_CKBOOL record, looprec, loopplay[LiSa_MAXVOICES], reset, append, play[LiSa_MAXVOICES], bi[LiSa_MAXVOICES];
     t_CKFLOAT coeff; // feedback coeff
+	t_CKFLOAT voiceGain[LiSa_MAXVOICES]; //gain control for each voice
     t_CKDOUBLE p_inc[LiSa_MAXVOICES], pindex[LiSa_MAXVOICES]; // playback increment
     
     // ramp stuff
@@ -3171,13 +3182,15 @@ struct LiSaMulti_data
         
         for (t_CKINT i=0; i < LiSa_MAXVOICES; i++) {
             loop_start[i] = 0;
-            loop_end[i] = loop_end_rec = length;
+            loop_end[i] = length - 1;
+			loop_end_rec = length;
             
             pindex[i] = rindex = 0;
             play[i] = record = bi[i] = false;
             looprec = loopplay[i] = true;
             coeff = 0.;
             p_inc[i] = 1.;
+			voiceGain[i] = 1.;
             
             // ramp stuff
             rampup[i] = rampdown[i] = false;
@@ -3229,15 +3242,15 @@ struct LiSaMulti_data
         // constrain
         if(loopplay[which]) {
             if(bi[which]) { // change direction if bidirectional mode
-                if(pindex[which] >= loop_end[which] || pindex[which] < loop_start[which]) {
+                if(pindex[which] > loop_end[which] || pindex[which] < loop_start[which]) {
                     pindex[which]  -=  p_inc[which];
                     p_inc[which]    = -p_inc[which];
                 } 
             }
-            while(pindex[which] >= loop_end[which]) pindex[which] = loop_start[which] + (pindex[which] - loop_end[which]);
+            while(pindex[which] > loop_end[which]) pindex[which] = loop_start[which] + (pindex[which] - loop_end[which]);
             while(pindex[which] < loop_start[which]) pindex[which] = loop_end[which] - (loop_start[which] - pindex[which]);
 
-        } else if(pindex[which] >= loop_end[which] || pindex[which] < loop_start[which]) {
+        } else if(pindex[which] > mdata_len || pindex[which] < 0) {
             play[which] = 0;
             //fprintf(stderr, "turning voice %d off!\n", which);
             return (SAMPLE) 0.;
@@ -3248,7 +3261,16 @@ struct LiSaMulti_data
         t_CKDOUBLE whereFrac = pindex[which] - (t_CKDOUBLE)whereTrunc;
         t_CKINT whereNext = whereTrunc + 1;
         
-        if((whereNext) == loop_end[which]) whereNext = loop_start[which];
+        if (loopplay[which]) {
+			if((whereNext) == loop_end[which]) {
+				whereNext = loop_start[which];
+			}
+		} else {
+			if((whereTrunc) == mdata_len) {
+				whereTrunc = mdata_len - 1;
+				whereNext = 0;
+			}
+		}
         
         pindex[which] += p_inc[which];
         
@@ -3267,6 +3289,8 @@ struct LiSaMulti_data
                 play[which] = false;
             }
         }
+		
+		outsample *= voiceGain[which];
         
         return (SAMPLE)outsample;        
     }
@@ -3276,7 +3300,7 @@ struct LiSaMulti_data
     inline SAMPLE getSamp(t_CKDOUBLE where, t_CKINT which)
     {
         // constrain
-        if(where >= loop_end[which]) where  = loop_end[which] - 1.;
+        if(where > loop_end[which])   where = loop_end[which];
         if(where < loop_start[which]) where = loop_start[which];
         
         // interp
@@ -3288,7 +3312,9 @@ struct LiSaMulti_data
 
         t_CKDOUBLE outsample;
         outsample = (t_CKDOUBLE)mdata[whereTrunc] + (t_CKDOUBLE)(mdata[whereNext] - mdata[whereTrunc]) * whereFrac;
+		outsample *= voiceGain[which];
         
+		//add voiceGain ctl here; return (SAMPLE)vgain[which]*outsample;
         return (SAMPLE)outsample;        
     }
 
@@ -3444,6 +3470,13 @@ CK_DLL_CTRL( LiSaMulti_size )
     RETURN->v_dur = (t_CKDUR)buflen;
 }
 
+CK_DLL_CGET( LiSaMulti_cget_size )
+{
+    LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
+	
+	RETURN->v_dur = (t_CKDUR)d->mdata_len;
+}
+
 
 //-----------------------------------------------------------------------------
 // name: LiSaMulti_start_record()
@@ -3596,6 +3629,8 @@ CK_DLL_CTRL( LiSaMulti_ctrl_lstart )
     t_CKINT which = GET_NEXT_INT(ARGS);
     d->loop_start[which] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
     
+	if (d->loop_start[which] < 0) d->loop_start[which] = 0;
+	
     RETURN->v_dur = (t_CKDUR)d->loop_start[which];
 }
 
@@ -3605,6 +3640,8 @@ CK_DLL_CTRL( LiSaMulti_ctrl_lstart0 )
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
     d->loop_start[0] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
     
+	if (d->loop_start[0] < 0) d->loop_start[0] = 0;
+	
     RETURN->v_dur = (t_CKDUR)d->loop_start[0];
 }
 
@@ -3641,6 +3678,11 @@ CK_DLL_CTRL( LiSaMulti_ctrl_lend )
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
     t_CKINT which = GET_NEXT_INT(ARGS);
     d->loop_end[which] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
+	
+	//check to make sure loop_end is not too large
+	if (d->loop_end[which] >= d->mdata_len) d->loop_end[which] = d->mdata_len - 1;
+	
+	RETURN->v_dur = (t_CKDUR)d->loop_end[which];
 }
 
 
@@ -3648,6 +3690,9 @@ CK_DLL_CTRL( LiSaMulti_ctrl_lend0 )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
     d->loop_end[0] = /* gewang-> */(t_CKINT)GET_NEXT_DUR(ARGS);
+	
+	//check to make sure loop_end is not too large
+	if (d->loop_end[0] >= d->mdata_len) d->loop_end[0] = d->mdata_len - 1;
     
     RETURN->v_dur = (t_CKDUR)d->loop_end[0];
 }
@@ -3819,17 +3864,44 @@ CK_DLL_CGET( LiSaMulti_cget_loop_rec )
 
 
 //-----------------------------------------------------------------------------
+// name: LiSaMulti_ctrl_voicegain()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( LiSaMulti_ctrl_voicegain )
+{
+    LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
+	t_CKINT which = GET_NEXT_INT(ARGS);
+    d->voiceGain[which] = (t_CKDOUBLE)GET_NEXT_FLOAT(ARGS);
+    
+    RETURN->v_float = (t_CKFLOAT)d->coeff;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: LiSaMulti_cget_voicegain()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( LiSaMulti_cget_voicegain )
+{
+    LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
+	t_CKINT which = GET_NEXT_INT(ARGS);
+	
+    // return
+    RETURN->v_float = (t_CKFLOAT)d->voiceGain[which];
+}
+
+
+//-----------------------------------------------------------------------------
 // name: LiSaMulti_ctrl_coeff()
 // desc: CTRL function
 //-----------------------------------------------------------------------------
 CK_DLL_CTRL( LiSaMulti_ctrl_coeff )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
-    d->coeff = (t_CKDOUBLE)GET_NEXT_FLOAT(ARGS);
-    
-    RETURN->v_float = (t_CKFLOAT)d->coeff;
+	d->coeff = (t_CKDOUBLE)GET_NEXT_FLOAT(ARGS);
+	
+	RETURN->v_float = (t_CKFLOAT)d->coeff;
 }
-
 
 //-----------------------------------------------------------------------------
 // name: LiSaMulti_cget_coeff()
