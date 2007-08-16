@@ -3,7 +3,6 @@ IO.openFile( "foo.txt", "r" ) @=> File fin;
 
 // check if it's ok
 if( !fin.good() ) { /* do something */ }
-
 // checking eof
 while( !fin.eof() ) { /* do something */ }
 // alternately
@@ -19,6 +18,14 @@ fin.readString() @=> string token;
 fin.readInt() @=> int i;
 // read next float
 fin.readFloat() @=> float f;
+fin => "foo" => i => f; // error
+
+fin >> token >> i >> f;
+fout << "foo" << 3 << 2.0;
+
+// cin :) line :) 3;
+// cout :( "foo" :( 3 :( EOL;
+
 // read 32-bit binary (same as readInt())
 fin.read32i() @=> i;
 // read 24-bit binary into 3 LSB of int

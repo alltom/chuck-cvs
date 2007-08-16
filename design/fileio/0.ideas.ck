@@ -20,42 +20,6 @@ IO.openFile( string name, string mode ) @=> File fin;
 IO.openSocket( ... ) @=> Socket sock;
 IO.openPipe( ... ) @=> Pipe pipe;
 
-// check if it's ok
-if( !fin.good() )
-{ /* do something */ }
-
-// loop over for read, ascii
-string line;
-StringTokenizer strtok;
-// fields
-string name;
-float fval;
-int ival;
-while( fin.more() )
-{
-    // read, tokenize line
-    strtok.set( fin.readline() );
-    // read into typed variables
-    strtok => name => ival => fval;
-}
-
-// reset file position
-0 => fin.pos;
-
-// loop over for read, ascii
-string name;
-float fval;
-int ival;
-while( fin.more() )
-{
-    // read, tokenize line
-    strtok.set( fin.readline() );
-    // read into typed variables
-    strtok => name => ival => fval;
-}
-
-// writing to file
-
 
 class File extend IOBase
 {
