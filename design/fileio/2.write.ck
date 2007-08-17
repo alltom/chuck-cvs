@@ -16,8 +16,8 @@ while( /* has more data */ )
 {
     // write a string as line
     fout.writeline( "foo: " + 3 + dac );
-    // write the same line via =>
-    fout => "foo:" => 3 => dac => EOL;
+    // write the same line via ->
+    fout -> "foo:" -> 3 -> dac -> EOL;
 
     // write as binary
     fout.write8( [1,2,3] );

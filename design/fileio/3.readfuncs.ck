@@ -18,10 +18,10 @@ fin.readString() @=> string token;
 fin.readInt() @=> int i;
 // read next float
 fin.readFloat() @=> float f;
-fin => "foo" => i => f; // error
 
 fin >> token >> i >> f;
-fout << "foo" << 3 << 2.0;
+fin -> token -> i -> f;
+fin --> token --> i --> f;
 
 // cin :) line :) 3;
 // cout :( "foo" :( 3 :( EOL;
