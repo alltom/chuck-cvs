@@ -2962,6 +2962,84 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_IO_in_int
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_IO_in_int : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_IO_in_float
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_IO_in_float : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_IO_in_string
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_IO_in_string : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_IO_out_int
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_IO_out_int : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_IO_out_float
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_IO_out_float : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_IO_out_string
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_IO_out_string : public Chuck_Instr_Binary_Op
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Hack
 // desc: ...
 //-----------------------------------------------------------------------------

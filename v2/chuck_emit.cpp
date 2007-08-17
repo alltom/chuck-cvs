@@ -2027,6 +2027,40 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         }
         break;
 
+        //------------------------------- IO ----------------------------------
+    case ae_op_arrow_left:
+        switch( right )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_IO_out_int );
+            break;
+        case te_float:
+            emit->append( instr = new Chuck_Instr_IO_out_float );
+            break;
+        default:
+            if( isa( t_right, &t_string ) )
+                emit->append( instr = new Chuck_Instr_IO_out_string );
+            break;
+        }
+        break;
+
+    case ae_op_arrow_right:
+        switch( right )
+        {
+        case te_int:
+            emit->append( instr = new Chuck_Instr_IO_in_int );
+            break;
+        case te_float:
+            emit->append( instr = new Chuck_Instr_IO_in_float );
+            break;
+        default:
+            if( isa( t_right, &t_string ) )
+                emit->append( instr = new Chuck_Instr_IO_in_string );
+            break;
+        }
+        break;
+
+        //---------------------------- (error) --------------------------------
     default:
         EM_error2( lhs->linepos,
             "(emit): internal error: unhandled op '%s' %s '%s'",

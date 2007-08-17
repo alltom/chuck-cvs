@@ -1253,6 +1253,15 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         // check left
         if( isa( left, &t_io ) )
         {
+            // check for assignment
+            if( op == ae_op_arrow_right && lhs->s_meta != ae_meta_var )
+            {
+                // error
+                EM_error2( rhs->linepos,
+                    "cannot perform I/O assignment via '->' to non-mutable value" );
+                return NULL;
+            }
+
             // check right
             if( isa( right, &t_int ) || isa( right, &t_float ) ||
                 isa( right, &t_string ) )
