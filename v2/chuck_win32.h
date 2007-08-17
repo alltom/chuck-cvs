@@ -140,8 +140,10 @@
      ABSTRACT = 356,
      CONST = 357,
      SPORK = 358,
-     L_HACK = 359,
-     R_HACK = 360
+     ARROW_RIGHT = 359,
+     ARROW_LEFT = 360,
+     L_HACK = 361,
+     R_HACK = 362
    };
 #endif
 /* Tokens.  */
@@ -246,8 +248,10 @@
 #define ABSTRACT 356
 #define CONST 357
 #define SPORK 358
-#define L_HACK 359
-#define R_HACK 360
+#define ARROW_RIGHT 359
+#define ARROW_LEFT 360
+#define L_HACK 361
+#define R_HACK 362
 
 
 
@@ -280,7 +284,7 @@ typedef union YYSTYPE
     a_Polar polar_exp;
 }
 /* Line 1489 of yacc.c.  */
-#line 284 "chuck.tab.h"
+#line 288 "chuck.tab.h"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
