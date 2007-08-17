@@ -5,16 +5,14 @@ adc => FFT fft =^ RMS rms => blackhole;
 1024 => fft.size;
 // set hann window
 Windowing.hann(1024) => fft.window;
-// compute srate
-second / samp => float srate;
 
 // control loop
 while( true )
 {
     // upchuck: take fft then rms
     rms.upchuck() @=> UAnaBlob blob;
-    // print out centroid
-    <<< blob.fvals()[0] * srate / 2 >>>;
+    // print out RMS
+    <<< blob.fvals()[0] >>>;
 
     // advance time
     fft.size()::samp => now;
