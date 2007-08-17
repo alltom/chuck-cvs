@@ -65,6 +65,7 @@ Chuck_Type t_ugen( te_ugen, "UGen", &t_object, sizeof(void *) );
 Chuck_Type t_uana( te_uana, "UAna", &t_ugen, sizeof(void *) );
 Chuck_Type t_uanablob( te_uanablob, "UAnaBlob", &t_object, sizeof(void *) );
 Chuck_Type t_shred( te_shred, "Shred", &t_object, sizeof(void *) );
+Chuck_Type t_io( te_io, "IO", &t_object, sizeof(void *) );
 Chuck_Type t_thread( te_thread, "Thread", &t_object, sizeof(void *) );
 Chuck_Type t_class( te_class, "Class", &t_object, sizeof(void *) );
 
@@ -221,6 +222,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->global()->type.add( t_class.name, &t_class );        t_class.lock();
     env->global()->type.add( t_array.name, &t_array );        t_array.lock();
     env->global()->type.add( t_event.name, &t_event );        t_event.lock();
+    env->global()->type.add( t_io.name, &t_io );              t_io.lock();
 
     // dur value
     t_CKDUR samp = 1.0;
@@ -244,6 +246,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     init_class_uana( env, &t_uana );
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
+    init_class_io( env, &t_io );
 
     EM_log( CK_LOG_SEVERE, "class 'class'" );
     t_class.info = new Chuck_Namespace;
@@ -1242,6 +1245,19 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             "multi-value (%s) operation not supported/implemented...",
             op2str(op));
         return NULL;
+    }
+
+    // file I/O
+    if( op == ae_op_arrow_left || op == ae_op_arrow_right )
+    {
+        // check left
+        if( isa( left, &t_io ) )
+        {
+            // check right
+            if( isa( right, &t_int ) || isa( right, &t_float ) ||
+                isa( right, &t_string ) )
+                return left;
+        }
     }
 
     // implicit cast

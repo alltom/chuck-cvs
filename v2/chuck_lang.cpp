@@ -414,6 +414,43 @@ error:
 
 
 
+static t_CKUINT io_offset_args = 0;
+//-----------------------------------------------------------------------------
+// name: init_class_io()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+    Chuck_DL_Func * func = NULL;
+
+    // log
+    EM_log( CK_LOG_SEVERE, "class 'io'" );
+
+    // init as base class
+    // TODO: ctor/dtor?
+    if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
+        return FALSE;
+
+    // oops
+    goto error;
+    
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
+}
+
+
+
+
 //-----------------------------------------------------------------------------
 // name: init_class_string()
 // desc: ...
