@@ -1249,7 +1249,7 @@ CK_DLL_MFUN( object_toString )
         Chuck_Type * type = SELF->type_ref;
         // write
         strout.setf( ios::hex, ios::basefield );
-        strout << ((type != NULL) ? type->c_name() : "[VOID]") << ":" << (t_CKUINT)SELF << '\0';
+        strout << ((type != NULL) ? type->c_name() : "[VOID]") << ":" << (t_CKUINT)SELF;
         strout.flush();
 
         // done
