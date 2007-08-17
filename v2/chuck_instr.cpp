@@ -4712,6 +4712,29 @@ void Chuck_Instr_Cast_polar2complex::execute( Chuck_VM * vm, Chuck_VM_Shred * sh
 // name: execute()
 // desc: ...
 //-----------------------------------------------------------------------------
+void Chuck_Instr_Cast_object2string::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    // pop it
+    pop_( sp, 1 );
+    // object
+    Chuck_Object * obj = (Chuck_Object *)(*sp);
+    // return
+    Chuck_DL_Return RETURN;
+    // get toString from it
+    object_toString( obj, NULL, &RETURN, NULL );
+    Chuck_String * str = RETURN.v_string;
+    // set it
+    push_( sp, (t_CKUINT)str );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
 void Chuck_Instr_Op_string::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;

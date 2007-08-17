@@ -1,5 +1,6 @@
 // instantiate object
 Event e;
+Object o;
 
 // call
-<<< e.toString() >>>;
+<<< e.toString() + o.toString() >>>;

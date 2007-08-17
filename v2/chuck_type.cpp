@@ -1251,6 +1251,11 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         switch( op )
         {
         case ae_op_plus:
+            // Object.toString
+            if( isa( left, &t_string ) && isa( right, &t_object ) && !isa( right, &t_string) )
+                right = rhs->cast_to = &t_string;
+            else if( isa( left, &t_object ) && isa( right, &t_string ) && !isa( left, &t_string) )
+                left = lhs->cast_to = &t_string;
         case ae_op_minus:
         case ae_op_times:
         case ae_op_divide:
@@ -1284,6 +1289,9 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         switch( op )
         {
         case ae_op_plus_chuck:
+            // Object.toString
+            if( isa( left, &t_object ) && isa( right, &t_string ) && !isa( left, &t_string ) )
+                left = lhs->cast_to = &t_string;
         case ae_op_minus_chuck:
         case ae_op_times_chuck:
         case ae_op_divide_chuck:
@@ -1607,10 +1615,13 @@ t_CKTYPE type_engine_check_op_chuck( Chuck_Env * env, a_Exp lhs, a_Exp rhs,
     {
         return right;
     }
+    
+    // object.toString
 
     // implicit cast
     LR( te_int, te_float ) left = lhs->cast_to = &t_float;
-    // TODO: int/complex, int/polar
+    LR( te_int, te_complex ) left = lhs->cast_to = &t_complex;
+    LR( te_int, te_polar ) left = lhs->cast_to = &t_polar;
 
     // assignment or something else
     if( isa( left, right ) )

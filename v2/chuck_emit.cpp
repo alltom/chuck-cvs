@@ -2674,6 +2674,8 @@ t_CKBOOL emit_engine_emit_cast( Chuck_Emitter * emit,
         emit->append( new Chuck_Instr_Cast_complex2polar );
     else if( equals( to, &t_complex ) && equals( from, &t_polar ) )
         emit->append( new Chuck_Instr_Cast_polar2complex );
+    else if( equals( to, &t_string ) && isa( from, &t_object ) && !isa( from, &t_string ) )
+        emit->append( new Chuck_Instr_Cast_object2string );
     // up cast - do nothing
     else if( !isa( to, from ) && !isa( from, to ) )
     {

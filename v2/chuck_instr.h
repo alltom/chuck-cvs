@@ -2916,6 +2916,19 @@ public:
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Cast_object2string
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Cast_object2string : public Chuck_Instr
+{
+public:
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Op_string
 // desc: ...
 //-----------------------------------------------------------------------------

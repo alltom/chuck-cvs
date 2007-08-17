@@ -42,7 +42,7 @@
 
 #include <iostream>
 #include <iomanip>
-#include <strstream>
+#include <sstream>
 using namespace std;
 
 // dac tick
@@ -1244,10 +1244,7 @@ CK_DLL_MFUN( object_toString )
             return;
         }
         // set it
-        const t_CKINT LEN = 128;
-        char buffer[LEN];
-        buffer[0] = '\0';
-        ostrstream strout( buffer, LEN );
+        ostringstream strout( ostringstream::out );
         // get the type
         Chuck_Type * type = SELF->type_ref;
         // write
@@ -1256,7 +1253,7 @@ CK_DLL_MFUN( object_toString )
         strout.flush();
 
         // done
-        str->str = buffer;
+        str->str = strout.str();
     }
 
     // set return
