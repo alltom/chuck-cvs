@@ -265,6 +265,8 @@ typeof                  { adjust(); return TYPEOF; }
 "%=>"                   { adjust(); return PERCENT_CHUCK; }
 "@"                     { adjust(); return AT_SYM; }
 "@@"                    { adjust(); return ATAT_SYM; }
+"->"                    { adjust(); return ARROW_RIGHT; }
+"<-"                    { adjust(); return ARROW_LEFT; }
 
 0[xX][0-9a-fA-F]+{IS}?  { adjust(); yylval.ival=htol(yytext); return NUM; }
 0[cC][0-7]+{IS}?        { adjust(); yylval.ival=atoi(yytext); return NUM; }
