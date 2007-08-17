@@ -3,4 +3,4 @@ Event e;
 Object o;
 
 // call
-<<< e.toString() + o.toString() >>>;
+<<< e.toString() + " --- " + o.toString() >>>;

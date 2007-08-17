@@ -60,6 +60,9 @@
   - (added) default .toString() method to all Object's
   - (added) adding an Object to string will first cast object to string;
             then add the two
+  - (added) alternate line comment: <-- same as //
+            example:
+                 SinOsc s => dac;  <-- here is a comment
   - (fixed) NullPointerException when instantiating array of objects
             containing arrays of objects
                  (thanks to chuck-users!!)
