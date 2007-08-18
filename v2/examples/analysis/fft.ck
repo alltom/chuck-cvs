@@ -1,3 +1,6 @@
+// fft.ck: taking FFT via upchcuk, printing the spectrum
+// authors: Rebecca Fiebrink and Ge Wang
+
 // our patch
 SinOsc g => FFT fft => blackhole;
 

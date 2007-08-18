@@ -14,9 +14,9 @@ second / samp => float srate;
 while( true )
 {
     // upchuck: take fft then centroid
-    cent.upchuck() @=> UAnaBlob blob;
+    cent.upchuck();
     // print out centroid
-    <<< blob.fvals()[0] * srate / 2 >>>;
+    <<< cent.fval(0) * srate / 2 >>>;
 
     // advance time
     fft.size()::samp => now;

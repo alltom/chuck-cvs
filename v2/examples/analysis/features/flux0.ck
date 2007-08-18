@@ -13,10 +13,10 @@ Windowing.hann( 1024 ) => fft.window;
 // infinite time loop
 while( true )
 {
-    // propogate the analysis computations
+    // propogate the analysis computations (example: optional usage of blob)
     flux.upchuck() @=> UAnaBlob blob;
     // print it (should always be 0)
-    <<< blob.fvals()[0] >>>;
+    <<< blob.fval(0) >>>;
 
     // hop along
     512::samp => now;

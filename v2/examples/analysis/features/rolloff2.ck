@@ -14,14 +14,16 @@ second / samp => float srate;
 .85 => roff85.percent;
 
 // control loop
+UAnaBlob blobby;
+UAnaBlob blobert;
 while( true )
 {
     // upchuck: take fft then the rolloffs
-    roff50.upchuck();
-    roff85.upchuck();
+    roff50.upchuck() @=> blobby;
+    roff85.upchuck() @=> blobert;
     // print out
-    <<< "50% rolloff:", roff50.fval(0) * srate / 2,
-        "85% rolloff:", roff85.fval(0) * srate / 2 >>>;
+    <<< "50% rolloff:", blobby.fvals()[0] * srate / 2,
+        "85% rolloff:", blobert.fvals()[0] * srate / 2 >>>;
 
     // advance time
     fft.size()::samp => now;

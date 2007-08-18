@@ -1,3 +1,6 @@
+// fft2.ck: yet another way to FFT, by getting array out of blob
+// author: Rebecca Fiebrink and Ge Wang
+
 // our patch
 SinOsc g => FFT fft => blackhole;
 

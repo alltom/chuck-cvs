@@ -1,3 +1,6 @@
+// fft1.ck: using uana blobs!
+// authors: Rebecca Fiebrink and Ge Wang
+
 // our patch
 SinOsc g => FFT fft => blackhole;
 

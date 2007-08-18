@@ -1,3 +1,6 @@
+// fft3.ck: yet another way to get FFT spectrum - without blobs
+// authors: Rebecca Fiebrink and Ge Wang
+
 // our patch
 SinOsc g => FFT fft => blackhole;
 // set srate

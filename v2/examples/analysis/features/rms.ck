@@ -12,7 +12,7 @@ while( true )
     // upchuck: take fft then rms
     rms.upchuck() @=> UAnaBlob blob;
     // print out RMS
-    <<< blob.fvals()[0] >>>;
+    <<< blob.fval(0) >>>;
 
     // advance time
     fft.size()::samp => now;
