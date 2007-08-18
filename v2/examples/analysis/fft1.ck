@@ -5,8 +5,11 @@ SinOsc g => FFT fft => blackhole;
 second / samp => float srate;
 // set parameters
 8 => fft.size;
+
 // divide
 int div;
+// the blob
+UAnaBlob blob;
 
 // control loop
 while( true )
@@ -16,10 +19,10 @@ while( true )
     fft.size()/2 %=> div;
     
     // take fft
-    fft.upchuck();
+    fft.upchuck() @=> blob;
     // examine contents
-    <<< fft.cval(0)$polar, fft.cval(1)$polar,
-        fft.cval(2)$polar, fft.cval(2)$polar >>>;
+    <<< blob.cval(0)$polar, blob.cval(1)$polar,
+        blob.cval(2)$polar, blob.cval(2)$polar >>>;
 
     // advance time
     100::ms => now;
