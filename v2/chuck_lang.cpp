@@ -201,6 +201,24 @@ t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type )
     // add upchuck
     func = make_new_mfun( "UAnaBlob", "upchuck", uana_upchuck );
     if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add fvals
+    func = make_new_mfun( "float[]", "fvals", uana_fvals );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add cvals
+    func = make_new_mfun( "complex[]", "cvals", uana_cvals );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add fval
+    func = make_new_mfun( "float", "fval", uana_fval );
+    func->add_arg( "int", "index" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add cval
+    func = make_new_mfun( "complex", "cval", uana_cval );
+    func->add_arg( "int", "index" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // TODO: add nonchuck
     // func = make_new_mfun( "void", "nonchuck", uana_nonchuck );
@@ -265,6 +283,16 @@ t_CKBOOL init_class_blob( Chuck_Env * env, Chuck_Type * type )
 
     // add cvals
     func = make_new_mfun( "complex[]", "cvals", uanablob_cvals );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add fval
+    func = make_new_mfun( "float", "fval", uanablob_fval );
+    func->add_arg( "int", "index" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add cval
+    func = make_new_mfun( "complex", "cval", uanablob_cval );
+    func->add_arg( "int", "index" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // end class import
@@ -1511,6 +1539,55 @@ CK_DLL_MFUN( uana_upchuck )
     RETURN->v_object = NULL;
 } */
 
+CK_DLL_MFUN( uana_fvals )
+{
+    // get the fvals array
+    Chuck_UAnaBlobProxy * blob = (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(SELF, uana_offset_blob);
+    RETURN->v_object = &blob->fvals();
+}
+
+CK_DLL_MFUN( uana_cvals )
+{
+    // get the fvals array
+    Chuck_UAnaBlobProxy * blob = (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(SELF, uana_offset_blob);
+    RETURN->v_object = &blob->cvals();
+}
+
+CK_DLL_MFUN( uana_fval )
+{
+    // get index
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    // get the fvals array
+    Chuck_UAnaBlobProxy * blob = (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(SELF, uana_offset_blob);
+    Chuck_Array8 & fvals = blob->fvals();
+    // check caps
+    if( i < 0 || fvals.capacity() <= i ) RETURN->v_float = 0;
+    else
+    {
+        // get
+        t_CKFLOAT val;
+        fvals.get( i, &val );
+        RETURN->v_float = val;
+    }
+}
+
+CK_DLL_MFUN( uana_cval )
+{
+    // get index
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    // get the fvals array
+    Chuck_UAnaBlobProxy * blob = (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(SELF, uana_offset_blob);
+    Chuck_Array16 & cvals = blob->cvals();
+    // check caps
+    if( i < 0 || cvals.capacity() <= i ) RETURN->v_complex.re = RETURN->v_complex.im = 0;
+    else
+    {
+        // get
+        t_CKCOMPLEX val;
+        cvals.get( i, &val );
+        RETURN->v_complex = val;
+    }
+}
 
 // blob proxy implementation
 Chuck_UAnaBlobProxy::Chuck_UAnaBlobProxy( Chuck_Object * blob )
@@ -1602,6 +1679,40 @@ CK_DLL_MFUN( uanablob_fvals )
 {
     // set return
     RETURN->v_object = (Chuck_Array8 *)OBJ_MEMBER_INT(SELF, uanablob_offset_fvals);
+}
+
+CK_DLL_MFUN( uanablob_fval )
+{
+    // get index
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    // get the fvals array
+    Chuck_Array8 * fvals = (Chuck_Array8 *)OBJ_MEMBER_INT(SELF, uanablob_offset_fvals);
+    // check caps
+    if( i < 0 || fvals->capacity() <= i ) RETURN->v_float = 0;
+    else
+    {
+        // get
+        t_CKFLOAT val;
+        fvals->get( i, &val );
+        RETURN->v_float = val;
+    }
+}
+
+CK_DLL_MFUN( uanablob_cval )
+{
+    // get index
+    t_CKINT i = GET_NEXT_INT(ARGS);
+    // get the fvals array
+    Chuck_Array16 * cvals = (Chuck_Array16 *)OBJ_MEMBER_INT(SELF, uanablob_offset_cvals);
+    // check caps
+    if( i < 0 || cvals->capacity() <= i ) RETURN->v_complex.re = RETURN->v_complex.im = 0;
+    else
+    {
+        // get
+        t_CKCOMPLEX val;
+        cvals->get( i, &val );
+        RETURN->v_complex = val;
+    }
 }
 
 CK_DLL_MFUN( uanablob_cvals )

@@ -100,6 +100,10 @@ CK_DLL_CTOR( uana_ctor );
 CK_DLL_DTOR( uana_dtor );
 CK_DLL_MFUN( uana_upchuck );
 CK_DLL_MFUN( uana_blob );
+CK_DLL_MFUN( uana_fvals );
+CK_DLL_MFUN( uana_cvals );
+CK_DLL_MFUN( uana_fval );
+CK_DLL_MFUN( uana_cval );
 
 
 //-----------------------------------------------------------------------------
@@ -109,6 +113,8 @@ CK_DLL_CTOR( uanablob_ctor );
 CK_DLL_DTOR( uanablob_dtor );
 CK_DLL_MFUN( uanablob_fvals );
 CK_DLL_MFUN( uanablob_cvals );
+CK_DLL_MFUN( uanablob_fval );
+CK_DLL_MFUN( uanablob_cval );
 CK_DLL_MFUN( uanablob_when );
 
 
