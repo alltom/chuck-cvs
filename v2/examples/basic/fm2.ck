@@ -1,4 +1,4 @@
-// FM using sinosc
+// basic FM synthesis using sinosc
 
 // modulator to carrier
 SinOsc m => SinOsc c => dac;

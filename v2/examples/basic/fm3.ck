@@ -1,10 +1,11 @@
 // actual FM using sinosc (sync is 0)
+// (note: this is not quite the classic "FM synthesis"; also see fm2.ck)
 
 // modulator to carrier
 SinOsc m => SinOsc c => dac;
 
 // carrier frequency
-220 => float cf => c.freq;
+220 => c.freq;
 // modulator frequency
 20 => m.freq;
 // index of modulation
