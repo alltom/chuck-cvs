@@ -50,6 +50,7 @@ struct Chuck_Env;
 struct Chuck_VM_Code;
 struct Chuck_VM_Shred;
 struct Chuck_VM;
+struct Chuck_IO_File;
 
 
 
@@ -343,7 +344,7 @@ public:
 
 
 
-/*
+
 //-----------------------------------------------------------------------------
 // name: Chuck_IO
 // desc: base Chuck IO class
@@ -357,8 +358,8 @@ public:
     // query
     virtual t_CKBOOL more() = 0;
     virtual t_CKBOOL eof() = 0;
-    virtual t_CKBOOL good2read();
-    virtual t_CKBOOL good2write();
+    virtual t_CKBOOL good2read() = 0;
+    virtual t_CKBOOL good2write() = 0;
 
     // ascii
     virtual t_CKINT readInt() = 0;
@@ -375,7 +376,7 @@ public:
 
 // static utilities
 public:
-    static Chuck_FileIO * openFile( const std::string & path, const std::string & mode );
+    static Chuck_IO_File * openFile( const std::string & path, const std::string & mode );
 
     // more stuff
     static const std::string & currentDir();
@@ -389,8 +390,46 @@ public:
 // can't instantiate one of these
 private:
     Chuck_IO();
-}
-*/
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Chuck_IO_File
+// desc: Chuck File IO class
+//-----------------------------------------------------------------------------
+struct Chuck_IO_File : Chuck_IO
+{
+public:
+    Chuck_IO_File();
+    virtual ~Chuck_IO_File();
+
+public:
+    // open
+    t_CKBOOL open( const std::string & path, const std::string & mode );
+
+    // query
+    virtual t_CKBOOL more();
+    virtual t_CKBOOL eof();
+    virtual t_CKBOOL good2read();
+    virtual t_CKBOOL good2write();
+
+    // ascii
+    virtual t_CKINT readInt();
+    virtual t_CKFLOAT readFloat();
+    virtual const std::string & readString();
+    
+    // binary
+    virtual t_CKINT read32i();
+    virtual t_CKINT read24i();
+    virtual t_CKINT read16i();
+    virtual t_CKINT read8i();
+    virtual t_CKSINGLE read32f();
+    virtual t_CKDOUBLE read64f();
+};
+
+
 
 
 #endif
