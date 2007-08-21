@@ -343,5 +343,54 @@ public:
 
 
 
+/*
+//-----------------------------------------------------------------------------
+// name: Chuck_IO
+// desc: base Chuck IO class
+//-----------------------------------------------------------------------------
+struct Chuck_IO : Chuck_Object
+{
+public:
+    virtual ~Chuck_IO() { }
+
+public:
+    // query
+    virtual t_CKBOOL more() = 0;
+    virtual t_CKBOOL eof() = 0;
+    virtual t_CKBOOL good2read();
+    virtual t_CKBOOL good2write();
+
+    // ascii
+    virtual t_CKINT readInt() = 0;
+    virtual t_CKFLOAT readFloat() = 0;
+    virtual const std::string & readString() = 0;
+    
+    // binary
+    virtual t_CKINT read32i() = 0;
+    virtual t_CKINT read24i() = 0;
+    virtual t_CKINT read16i() = 0;
+    virtual t_CKINT read8i() = 0;
+    virtual t_CKSINGLE read32f() = 0;
+    virtual t_CKDOUBLE read64f() = 0;
+
+// static utilities
+public:
+    static Chuck_FileIO * openFile( const std::string & path, const std::string & mode );
+
+    // more stuff
+    static const std::string & currentDir();
+    static const std::string & changeDir( const std::string & to );
+    static t_CKBOOL isFile( const std::string & path );
+    static t_CKBOOL isDir( const std::string & path );
+    static t_CKBOOL getSize( const std::string & path );
+    static const std::string & baseName( const std::string & path );
+    static void getContent( std::vector<std::string> & content );
+
+// can't instantiate one of these
+private:
+    Chuck_IO();
+}
+*/
+
 
 #endif
