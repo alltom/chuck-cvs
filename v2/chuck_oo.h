@@ -352,7 +352,7 @@ public:
 struct Chuck_IO : Chuck_Object
 {
 public:
-    virtual ~Chuck_IO() { }
+    virtual ~Chuck_IO();
 
 public:
     // query
@@ -364,7 +364,7 @@ public:
     // ascii
     virtual t_CKINT readInt() = 0;
     virtual t_CKFLOAT readFloat() = 0;
-    virtual const std::string & readString() = 0;
+    virtual std::string readString() = 0;
     
     // binary
     virtual t_CKINT read32i() = 0;
@@ -379,16 +379,16 @@ public:
     static Chuck_IO_File * openFile( const std::string & path, const std::string & mode );
 
     // more stuff
-    static const std::string & currentDir();
-    static const std::string & changeDir( const std::string & to );
     static t_CKBOOL isFile( const std::string & path );
     static t_CKBOOL isDir( const std::string & path );
-    static t_CKBOOL getSize( const std::string & path );
-    static const std::string & baseName( const std::string & path );
+    static t_CKINT getSize( const std::string & path );
+    static std::string currentDir();
+    static std::string changeDir( const std::string & to );
     static void getContent( std::vector<std::string> & content );
+    static std::string baseName( const std::string & path );
 
 // can't instantiate one of these
-private:
+protected:
     Chuck_IO();
 };
 
@@ -418,7 +418,7 @@ public:
     // ascii
     virtual t_CKINT readInt();
     virtual t_CKFLOAT readFloat();
-    virtual const std::string & readString();
+    virtual std::string readString();
     
     // binary
     virtual t_CKINT read32i();
