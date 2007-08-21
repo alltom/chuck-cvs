@@ -43,6 +43,7 @@
 // global
 int EM_tokPos = 0;
 int EM_lineNum = 1;
+int EM_extLineNum = 1;
 t_CKBOOL anyErrors= FALSE;
 
 // local global
@@ -90,6 +91,7 @@ void EM_newline(void)
 {
     lineNum++;
     EM_lineNum++;
+    EM_extLineNum++;
     linePos = intList(EM_tokPos, linePos);
 }
 
@@ -153,6 +155,8 @@ void EM_error2( int line, const char * message, ... )
 {
     va_list ap;
 
+    EM_extLineNum = line;
+
     fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
     sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
     if(line)
@@ -179,6 +183,8 @@ void EM_error2( int line, const char * message, ... )
 void EM_error2b( int line, const char * message, ... )
 {
     va_list ap;
+    
+    EM_extLineNum = line;
 
     fprintf( stderr, "[%s]:", *fileName ? mini(fileName) : "chuck" );
     sprintf( g_lasterror, "[%s]:", *fileName ? mini(fileName) : "chuck" );
@@ -281,6 +287,7 @@ t_CKBOOL EM_reset( const char * fname, FILE * fd )
     fileName = fname ? fname : (c_str)"";
     lineNum = 1;
     EM_lineNum = 1;
+    EM_extLineNum = 1;
 
     // free the intList
     IntList curr = NULL;
@@ -307,6 +314,7 @@ void EM_change_file( const char * fname )
     // more set
     lineNum = 0;
     EM_lineNum = 0;
+    EM_extLineNum = 0;
 }
 
 

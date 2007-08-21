@@ -366,6 +366,14 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject )
     
     switch( type )
     {
+        case CK_HID_DEV_NONE:
+            strncpy( name, "Human Interface Device", 256 );
+            buttons = 0;
+            axes = 0;
+            wheels = 0;
+            hats = 0;
+            break;
+            
         case CK_HID_DEV_JOYSTICK:
             strncpy( name, "Joystick", 256 );
             buttons = 0;
@@ -469,7 +477,7 @@ t_CKINT OSX_Hid_Device::preconfigure( io_object_t ioHIDDeviceObject )
     
 #ifdef __LITTLE_ENDIAN__ 
     /* MacBooks and MacBook Pros have some sort of "phantom" trackpad, which 
-       shows up in the HID registry and claims to no wheels.  The device
+       shows up in the HID registry and claims to have no wheels.  The device
        name is usually Trackpad with the manufacturer being Apple.  This may
        disable legitimate Trackpads, but hopefully not... */
     if( type == CK_HID_DEV_MOUSE && strncmp( "Trackpad", name, 256 ) == 0 )
@@ -1431,11 +1439,11 @@ void Hid_init2()
         return;
     }
     
-    refCF = ( CFTypeRef ) CFNumberCreate( kCFAllocatorDefault, 
+    /*refCF = ( CFTypeRef ) CFNumberCreate( kCFAllocatorDefault, 
                                           kCFNumberLongType, 
                                           &filter_usage_page );
     CFDictionarySetValue( hidMatchDictionary, 
-                          CFSTR( kIOHIDPrimaryUsagePageKey ), refCF );
+                          CFSTR( kIOHIDPrimaryUsagePageKey ), refCF );*/
     
     newDeviceNotificationPort = IONotificationPortCreate( kIOMasterPortDefault );
     
@@ -1452,7 +1460,7 @@ void Hid_init2()
         return;
     }
 
-    CFRelease( refCF );
+    //CFRelease( refCF );
     
     Hid_new_devices( NULL, hidObjectIterator );
 }
@@ -1471,8 +1479,15 @@ static void Hid_new_devices( void * refcon, io_iterator_t iterator )
         mice_seen = mice->size(), 
         keyboards_seen = keyboards->size();
     
-    while( ioHIDDeviceObject = IOIteratorNext( iterator ) )
+    while( 1 )
     {        
+        if( ioHIDDeviceObject ) 
+            IOObjectRelease( ioHIDDeviceObject );
+        
+        ioHIDDeviceObject = IOIteratorNext( iterator );
+        if( ioHIDDeviceObject == 0 )
+            break;
+        
         // ascertain device information
         
         // first, determine the device usage page and usage
@@ -1498,6 +1513,53 @@ static void Hid_new_devices( void * refcon, io_iterator_t iterator )
         CFNumberGetValue( ( CFNumberRef )refCF, kCFNumberLongType, &usage );
         CFRelease( refCF );
         
+        if( usage_page != kHIDPage_GenericDesktop )
+        {
+            // some sort of HID device we dont recognize
+            // lets probe its input/output reports and try to categorize it
+            EM_log( CK_LOG_INFO, "hid: device not recognized, attempting to determine HID type" );
+            
+            // allocate the device record, set usage page and usage
+            OSX_Hid_Device * new_device = new OSX_Hid_Device;
+            new_device->type = CK_HID_DEV_NONE;
+            new_device->num = 0;
+            new_device->usage_page = usage_page;
+            new_device->usage = usage;
+            
+            if( !new_device->preconfigure( ioHIDDeviceObject ) && !new_device->configure() )
+            {
+                if( new_device->hats > 0 || new_device->axes > 2 )
+                    // make it a joystick
+                {
+                    usage_page = kHIDPage_GenericDesktop;
+                    usage = kHIDUsage_GD_Joystick;
+                }
+                
+                else if( new_device->axes == 2 )
+                    // make it a mouse
+                {
+                    usage_page = kHIDPage_GenericDesktop;
+                    usage = kHIDUsage_GD_Mouse;
+                }
+                
+                else if( new_device->buttons > 0 )
+                    // make it a keyboard
+                {
+                    usage_page = kHIDPage_GenericDesktop;
+                    usage = kHIDUsage_GD_Keyboard;
+                }
+                
+                new_device->cleanup();
+            }
+            
+            else
+            {
+                //EM_log( );
+            }
+
+            delete new_device;
+        }
+
         if ( usage_page == kHIDPage_GenericDesktop )
         {
             if( usage == kHIDUsage_GD_Joystick || 
@@ -1592,7 +1654,7 @@ static void Hid_new_devices( void * refcon, io_iterator_t iterator )
                 else
                 {
                     EM_log( CK_LOG_INFO, 
-                            "hid: error during preconfiguration of joystick %i",
+                            "hid: ignoring %i, invalid joystick",
                             joysticks_seen );
                     delete new_device;
                 }
@@ -1693,7 +1755,7 @@ static void Hid_new_devices( void * refcon, io_iterator_t iterator )
                 else
                 {
                     EM_log( CK_LOG_INFO, 
-                            "hid: error during preconfiguration of mouse %i",
+                            "hid: ignoring %i, invalid mouse",
                             mice_seen );
                     delete new_device;
                 }
@@ -1795,7 +1857,7 @@ static void Hid_new_devices( void * refcon, io_iterator_t iterator )
                 else
                 {
                     EM_log( CK_LOG_INFO, 
-                            "hid: error during preconfiguration of keyboard %i",
+                            "hid: ignoring %i, invalid keyboard",
                             keyboards_seen );
                     delete new_device;
                 }
@@ -3080,7 +3142,7 @@ t_CKINT WiiRemote::control_init()
                  ( ( num - 2 ) % 4 ) == 0, ( ( num - 3 ) % 4 ) == 0 );
     
     usleep( 1000 );
-    enable_speaker( TRUE );
+    enable_speaker( FALSE );
     
     HidMsg msg;
     
@@ -3672,12 +3734,16 @@ void Bluetooth_inquiry_device_found( void * userRefCon,
     }
 }
 
+int WiiRemote_query();
+
 void Bluetooth_inquiry_complete( void * userRefCon,
                                  IOBluetoothDeviceInquiryRef inquiryRef, 
                                  IOReturn error, 
                                  Boolean aborted )
 {
     g_bt_query_active = FALSE;
+    IOBluetoothDeviceInquiryDelete( inquiryRef );
+    WiiRemote_query();
 }
 
 int WiiRemote_query()

@@ -47,6 +47,10 @@ extern t_CKBOOL EM_anyErrors;
 extern int EM_tokPos;
 extern int EM_lineNum;
 
+// EM_extLineNum is synced with EM_lineNum in lexer/parser phase, then synced 
+// with scanner/typechecker (EM_lineNum is not synced with scanner/typechecker)
+extern int EM_extLineNum; 
+
 void EM_newline( );
 
 // levels
