@@ -1,4 +1,4 @@
-// our patch (try replacing the SinOsc with adc)
+// our patch
 SinOsc s => FFT fft =^ Centroid cent => blackhole;
 
 // set parameters
