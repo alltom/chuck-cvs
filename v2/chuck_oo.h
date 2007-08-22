@@ -38,6 +38,7 @@
 #include <vector>
 #include <map>
 #include <queue>
+#include <fstream>
 
 
 // forward reference
@@ -365,6 +366,11 @@ public:
     virtual t_CKINT readInt() = 0;
     virtual t_CKFLOAT readFloat() = 0;
     virtual std::string readString() = 0;
+    virtual std::string readLine() = 0;
+    virtual t_CKINT writeInt() = 0;
+    virtual t_CKFLOAT writeFloat() = 0;
+    virtual std::string writeString() = 0;
+    virtual std::string writeLine() = 0;
     
     // binary
     virtual t_CKINT read32i() = 0;
@@ -374,12 +380,17 @@ public:
     virtual t_CKSINGLE read32f() = 0;
     virtual t_CKDOUBLE read64f() = 0;
 
+    // done
+    virtual t_CKBOOL close() = 0;
+
 // constants
 public:
     static t_CKINT READ;
     static t_CKINT WRITE;
     static t_CKINT APPEND;
-    static t_CKINT PLUS;
+    static t_CKINT TRUNCATE;
+    static t_CKINT ASCII;
+    static t_CKINT BINARY;
 
 // static utilities
 public:
@@ -415,6 +426,7 @@ public:
 public:
     // open
     t_CKBOOL open( const std::string & path, t_CKINT flags );
+    t_CKBOOL close();
 
     // query
     virtual t_CKBOOL more();
@@ -426,6 +438,11 @@ public:
     virtual t_CKINT readInt();
     virtual t_CKFLOAT readFloat();
     virtual std::string readString();
+    virtual std::string readLine();
+    virtual t_CKBOOL writeInt( t_CKINT val );
+    virtual t_CKBOOL writeFloat( t_CKFLOAT val );
+    virtual t_CKBOOL writeString( const std::string & val );
+    virtual t_CKBOOL writeLine( const std::string & val );
     
     // binary
     virtual t_CKINT read32i();
@@ -440,7 +457,10 @@ protected:
     t_CKINT m_flags;
     // ready flags
     t_CKINT m_ready_flags;
-    // 
+    // in file
+    std::fstream m_io;
+    // path
+    std::string m_path;
 };
 
 

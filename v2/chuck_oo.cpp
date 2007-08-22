@@ -37,6 +37,8 @@
 #include "chuck_instr.h"
 #include "chuck_errmsg.h"
 
+#include <sstream>
+#include <iomanip>
 #include <typeinfo>
 using namespace std;
 
@@ -46,7 +48,9 @@ t_CKBOOL Chuck_VM_Object::our_locks_in_effect = TRUE;
 t_CKINT Chuck_IO::READ = 0x1;
 t_CKINT Chuck_IO::WRITE = 0x2;
 t_CKINT Chuck_IO::APPEND = 0x4;
-t_CKINT Chuck_IO::PLUS = 0x8;
+t_CKINT Chuck_IO::TRUNCATE = 0x8;
+t_CKINT Chuck_IO::ASCII = 0x10;
+t_CKINT Chuck_IO::BINARY = 0x20;
 
 
 
@@ -1517,6 +1521,9 @@ void Chuck_IO::getContent( vector<string> & content )
 //-----------------------------------------------------------------------------
 Chuck_IO_File::Chuck_IO_File()
 {
+    // zero things out
+    m_ready_flags = 0;
+    m_flags = 0;
 }
 
 
@@ -1528,6 +1535,8 @@ Chuck_IO_File::Chuck_IO_File()
 //-----------------------------------------------------------------------------
 Chuck_IO_File::~Chuck_IO_File()
 {
+    // check it
+    this->close();
 }
 
 
@@ -1539,7 +1548,150 @@ Chuck_IO_File::~Chuck_IO_File()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_IO_File::open( const string & path, t_CKINT flags )
 {
+    // close first
+    this->close();
+
+    // log
+    EM_log( CK_LOG_INFO, "(IO): opening file from disk..." );
+    EM_pushlog();
+    EM_log( CK_LOG_INFO, "(IO): path: %s", path.c_str() );
+    EM_log( CK_LOG_INFO, "(IO): READ: %s WRITE: %s APPEND: %s PLUS: %s",
+        flags & Chuck_IO::READ ? "Y" : "N", flags & Chuck_IO::WRITE ? "Y" : "N",
+        flags & Chuck_IO::APPEND ? "Y" : "N", flags & Chuck_IO::TRUNCATE ? "Y" : "N",
+        flags & Chuck_IO::BINARY ? "Y" : "N" );
+
+    // open modes
+    int nMode = 0;
+
+    // construct mode string
+    stringstream sout;
+    if( flags & Chuck_IO::READ )
+    {
+        // write it
+        sout << "r";
+        // set ready
+        m_ready_flags |= Chuck_IO::READ;
+        // set mode
+        nMode |= ios::in;
+    }
+    if( flags & Chuck_IO::WRITE )
+    {
+        // write it
+        sout << "w";
+        // set ready
+        m_ready_flags |= Chuck_IO::WRITE;
+        // set mode
+        nMode |= ios::out;
+    }
+    if( flags & Chuck_IO::APPEND )
+    {
+        // write it
+        sout << "a";
+        // set ready
+        m_ready_flags |= Chuck_IO::WRITE | Chuck_IO::APPEND;
+        // set mode
+        nMode |= ios::out | ios::ate;
+    }
+    if( flags & Chuck_IO::TRUNCATE )
+    {
+        // read + write
+        if( flags ^ Chuck_IO::WRITE || flags & Chuck_IO::APPEND )
+        {
+            // error
+            EM_error3( "(FileIO): malformed open flag (TRUNCATE)..." );
+            EM_error3( "    note: must be used with WRITE, and without APPEND" );
+            goto error;
+        };
+
+        // write it
+        sout << "w";
+        // set ready
+        m_ready_flags |= Chuck_IO::TRUNCATE;
+        // set mode
+        nMode |= ios::trunc;
+    }
+    if( flags & Chuck_IO::BINARY )
+    {
+        // add it
+        m_ready_flags |= Chuck_IO::BINARY;
+    }
+
+    // sanity check
+    if( sout.str().length() == 0 )
+    {
+        // error
+        EM_error3( "(FileIO): malformed open flag (no operation specified)..." );
+        goto error;
+    }
+
+    // log
+    EM_log( CK_LOG_INFO, "(IO): flag: '%s'", sout.str() );
+
+    // windows sucks for being creative in the wrong places
+#ifdef __PLATFORM_WIN32__
+    // if( flags ^ Chuck_IO::TRUNCATE && flags | Chuck_IO::READ ) nMode |= ios::nocreate;
+#endif
+    m_io.open( path.c_str(), nMode );
+
+    // check for error
+    if( !m_io.good() )
+    {
+        EM_error3( "(FileIO): cannot open file: '%s'", path.c_str() );
+        goto error;
+    }
+
+    // for write
+    if( good2write() )
+    {
+        // set precision
+        setprecision( 6 );
+    }
+
+    // set path
+    m_path = path;
+    // set flags
+    m_flags = flags;
+
+    // pop
+    EM_poplog();
+
+    return TRUE;
+
+error:
+
+    // pop
+    EM_poplog();
+
+    // reset
+    m_ready_flags = 0;
+    // reset
+    m_path = "";
+
     return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: close
+// desc: close file
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_IO_File::close()
+{
+    // check
+    if( !m_io.good() )
+        return FALSE;
+
+    // log
+    EM_log( CK_LOG_INFO, "(IO): closing file '%s'...", m_path.c_str() );
+    // close it
+    m_io.close();
+    m_flags = 0;
+    m_ready_flags = 0;
+    m_path = "";
+
+    return TRUE;
 }
 
 
@@ -1563,7 +1715,9 @@ t_CKBOOL Chuck_IO_File::more()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_IO_File::eof()
 {
-    return TRUE;
+    // sanity
+    if( !m_io.good() ) return TRUE;
+    return !m_io;
 }
 
 
@@ -1575,7 +1729,7 @@ t_CKBOOL Chuck_IO_File::eof()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_IO_File::good2read()
 {
-    return FALSE;
+    return ( m_io.good() && m_flags & Chuck_IO::READ );
 }
 
 
@@ -1587,8 +1741,11 @@ t_CKBOOL Chuck_IO_File::good2read()
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_IO_File::good2write()
 {
-    return FALSE;
+    return ( m_io.good() && m_flags & Chuck_IO::READ );
 }
+
+
+
 
 //-----------------------------------------------------------------------------
 // name: readInt()
@@ -1596,7 +1753,15 @@ t_CKBOOL Chuck_IO_File::good2write()
 //-----------------------------------------------------------------------------
 t_CKINT Chuck_IO_File::readInt()
 {
-    return 0;
+    // sanity
+    if( !good2read() ) return 0;
+
+    // read int
+    t_CKINT val = 0;
+    // TODO: check for EOF?
+    m_io >> val;
+
+    return val;
 }
 
 
@@ -1608,6 +1773,14 @@ t_CKINT Chuck_IO_File::readInt()
 //-----------------------------------------------------------------------------
 t_CKFLOAT Chuck_IO_File::readFloat()
 {
+    // sanity
+    if( !good2read() ) return 0;
+
+    // read float
+    t_CKFLOAT val = 0;
+    // TODO: check for EOF?
+    m_io >> val;
+
     return 0;
 }
 
@@ -1620,12 +1793,113 @@ t_CKFLOAT Chuck_IO_File::readFloat()
 //-----------------------------------------------------------------------------
 string Chuck_IO_File::readString()
 {
-    return "";
+    // sanity
+    if( !good2read() ) return 0;
+
+    // read string
+    string val;
+    // TODO: check for EOF?
+    m_io >> val;
+
+    return val;
 }
 
 
 
     
+//-----------------------------------------------------------------------------
+// name: readLine()
+// desc: read line
+//-----------------------------------------------------------------------------
+string Chuck_IO_File::readLine()
+{
+    // sanity
+    if( !good2read() ) return 0;
+
+    // read string
+    string val;
+    // TODO: check for EOF?
+    std::getline( m_io, val );
+
+    return val;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: writeInt()
+// desc: write (ascii) integer
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_IO_File::writeInt( t_CKINT val )
+{
+    // sanity
+    if( !good2write() ) return FALSE;
+
+    // write it
+    m_io << val;
+
+    return m_io.good();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: writeFloat()
+// desc: write (ascii) floating point value
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_IO_File::writeFloat( t_CKFLOAT val )
+{
+    // sanity
+    if( !good2write() ) return 0;
+
+    // write it
+    m_io << val;
+
+    return m_io.good();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: writeString()
+// desc: write string
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_IO_File::writeString( const string & val )
+{
+    // sanity
+    if( !good2read() ) return 0;
+
+    // write it
+    m_io << val;
+
+    return m_io.good();
+}
+
+
+
+    
+//-----------------------------------------------------------------------------
+// name: writeLine()
+// desc: write line
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_IO_File::writeLine( const string & val )
+{
+    // sanity
+    if( !good2read() ) return 0;
+
+    // write it
+    m_io << val << endl;
+    
+    return m_io.good();
+}
+
+
+
+
+
 //-----------------------------------------------------------------------------
 // name: read32i()
 // desc: read next 32 bits, return as int
