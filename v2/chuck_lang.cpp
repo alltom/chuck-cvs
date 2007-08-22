@@ -457,11 +457,45 @@ t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type )
 
     // init as base class
     // TODO: ctor/dtor?
+    // TODO: replace dummy with pure function
     if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
 
-    // oops
-    goto error;
+    // add readInt
+    func = make_new_mfun( "int", "readInt", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add readFloat
+    func = make_new_mfun( "float", "readFloat", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add readString
+    func = make_new_mfun( "string", "readString", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add readLine
+    func = make_new_mfun( "string", "readLine", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeInt
+    func = make_new_mfun( "void", "writeInt", io_dummy );
+    func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeFloat
+    func = make_new_mfun( "void", "writeFloat", io_dummy );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeString
+    func = make_new_mfun( "void", "writeString", io_dummy );
+    func->add_arg( "string", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeLine
+    func = make_new_mfun( "string", "writeLine", io_dummy );
+    func->add_arg( "string", "line" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
     type_engine_import_class_end( env );
@@ -1755,6 +1789,19 @@ CK_DLL_MFUN( event_wait )
 CK_DLL_MFUN( event_can_wait )
 {
     RETURN->v_int = TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// IO API
+//-----------------------------------------------------------------------------
+
+CK_DLL_MFUN( io_dummy )
+{
+    EM_error3( "(IO): internal error! inside an abstract function! help!" );
+    EM_error3( "    note: please hunt down someone (e.g., Ge) to fix this..." );
+    assert( FALSE );
+    RETURN->v_int = 0;
 }
 
 
