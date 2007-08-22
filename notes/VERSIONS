@@ -1,7 +1,7 @@
 ---
 1.2.0.9 : codename spectral
   - (added) Unit Analyzers (UAna: prounced U-Wanna, plural UAnae)
-              (primary creators: Ge and Rebecca)
+              (primary creators: Rebecca and Ge)
             provides support for spectral processing, 
               information retrieval, generalized + precise audio analysis
 
@@ -26,8 +26,8 @@
             (authors: Rebecca and Ge)
             FFT: Fast Fourier Transform
                  input: from UGen (manually input float vector)
-                 output: complex spectrum (.cvals())
-                         magnitude spectrum (.fvals())
+                 output: complex spectrum (.cval()/.cvals())
+                         magnitude spectrum (.cval()/.fvals())
                  (see examples/analysis/)
             IFFT: Inverse FFT
                  input: UAna/Blob complex vector (spectrum)
