@@ -22,7 +22,7 @@ while( true )
     fft.upchuck();
     // examine contents
     <<< fft.cval(0)$polar, fft.cval(1)$polar,
-        fft.cval(2)$polar, fft.cval(2)$polar >>>;
+        fft.cval(2)$polar, fft.cval(3)$polar >>>;
 
     // advance time
     100::ms => now;

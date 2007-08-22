@@ -25,7 +25,7 @@ while( true )
     fft.upchuck() @=> blob;
     // examine contents
     <<< blob.cval(0)$polar, blob.cval(1)$polar,
-        blob.cval(2)$polar, blob.cval(2)$polar >>>;
+        blob.cval(2)$polar, blob.cval(3)$polar >>>;
 
     // advance time
     100::ms => now;
