@@ -43,6 +43,10 @@ using namespace std;
 
 // initialize
 t_CKBOOL Chuck_VM_Object::our_locks_in_effect = TRUE;
+t_CKINT Chuck_IO::READ = 0x1;
+t_CKINT Chuck_IO::WRITE = 0x2;
+t_CKINT Chuck_IO::APPEND = 0x4;
+t_CKINT Chuck_IO::PLUS = 0x8;
 
 
 
@@ -1415,7 +1419,7 @@ Chuck_IO::~Chuck_IO()
 // name:
 // desc:
 //-----------------------------------------------------------------------------
-Chuck_IO_File * Chuck_IO::openFile( const string & path, const string & mode )
+Chuck_IO_File * Chuck_IO::openFile( const string & path, t_CKINT flags )
 {
     return NULL;
 }
@@ -1533,7 +1537,7 @@ Chuck_IO_File::~Chuck_IO_File()
 // name: open
 // desc: open file from disk
 //-----------------------------------------------------------------------------
-t_CKBOOL Chuck_IO_File::open( const string & path, const string & mode )
+t_CKBOOL Chuck_IO_File::open( const string & path, t_CKINT flags )
 {
     return FALSE;
 }

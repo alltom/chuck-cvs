@@ -374,9 +374,16 @@ public:
     virtual t_CKSINGLE read32f() = 0;
     virtual t_CKDOUBLE read64f() = 0;
 
+// constants
+public:
+    static t_CKINT READ;
+    static t_CKINT WRITE;
+    static t_CKINT APPEND;
+    static t_CKINT PLUS;
+
 // static utilities
 public:
-    static Chuck_IO_File * openFile( const std::string & path, const std::string & mode );
+    static Chuck_IO_File * openFile( const std::string & path, t_CKINT flags );
 
     // more stuff
     static t_CKBOOL isFile( const std::string & path );
@@ -407,7 +414,7 @@ public:
 
 public:
     // open
-    t_CKBOOL open( const std::string & path, const std::string & mode );
+    t_CKBOOL open( const std::string & path, t_CKINT flags );
 
     // query
     virtual t_CKBOOL more();
@@ -427,6 +434,13 @@ public:
     virtual t_CKINT read8i();
     virtual t_CKSINGLE read32f();
     virtual t_CKDOUBLE read64f();
+
+protected:
+    // open floags
+    t_CKINT m_flags;
+    // ready flags
+    t_CKINT m_ready_flags;
+    // 
 };
 
 
