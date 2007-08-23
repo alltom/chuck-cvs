@@ -189,6 +189,29 @@ CK_DLL_MFUN( event_can_wait );
 // io API
 //-----------------------------------------------------------------------------
 CK_DLL_MFUN( io_dummy );
+CK_DLL_SFUN( io_openfile );
+
+
+//-----------------------------------------------------------------------------
+// fileio API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( fileio_ctor );
+CK_DLL_DTOR( fileio_dtor );
+CK_DLL_MFUN( fileio_open );
+CK_DLL_MFUN( fileio_more );
+CK_DLL_MFUN( fileio_eof );
+CK_DLL_MFUN( fileio_good2read );
+CK_DLL_MFUN( fileio_good2write );
+CK_DLL_MFUN( fileio_good );
+CK_DLL_MFUN( fileio_close );
+CK_DLL_MFUN( fileio_readint );
+CK_DLL_MFUN( fileio_readfloat );
+CK_DLL_MFUN( fileio_readstring );
+CK_DLL_MFUN( fileio_readline );
+CK_DLL_MFUN( fileio_writeint );
+CK_DLL_MFUN( fileio_writefloat );
+CK_DLL_MFUN( fileio_writestring );
+CK_DLL_MFUN( fileio_writeline );
 
 
 //-----------------------------------------------------------------------------

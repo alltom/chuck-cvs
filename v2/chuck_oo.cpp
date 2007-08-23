@@ -45,12 +45,12 @@ using namespace std;
 
 // initialize
 t_CKBOOL Chuck_VM_Object::our_locks_in_effect = TRUE;
-t_CKINT Chuck_IO::READ = 0x1;
-t_CKINT Chuck_IO::WRITE = 0x2;
-t_CKINT Chuck_IO::APPEND = 0x4;
-t_CKINT Chuck_IO::TRUNCATE = 0x8;
-t_CKINT Chuck_IO::ASCII = 0x10;
-t_CKINT Chuck_IO::BINARY = 0x20;
+const t_CKINT Chuck_IO::READ = 0x1;
+const t_CKINT Chuck_IO::WRITE = 0x2;
+const t_CKINT Chuck_IO::APPEND = 0x4;
+const t_CKINT Chuck_IO::TRUNCATE = 0x8;
+const t_CKINT Chuck_IO::ASCII = 0x10;
+const t_CKINT Chuck_IO::BINARY = 0x20;
 
 
 

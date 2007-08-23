@@ -385,12 +385,12 @@ public:
 
 // constants
 public:
-    static t_CKINT READ;
-    static t_CKINT WRITE;
-    static t_CKINT APPEND;
-    static t_CKINT TRUNCATE;
-    static t_CKINT ASCII;
-    static t_CKINT BINARY;
+    static const t_CKINT READ;
+    static const t_CKINT WRITE;
+    static const t_CKINT APPEND;
+    static const t_CKINT TRUNCATE;
+    static const t_CKINT ASCII;
+    static const t_CKINT BINARY;
 
 // static utilities
 public:

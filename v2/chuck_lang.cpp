@@ -469,6 +469,10 @@ t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "int", "eof", io_dummy );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add good()
+    func = make_new_mfun( "int", "good", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
     // add good2read()
     func = make_new_mfun( "int", "good2read", io_dummy );
     if( !type_engine_import_mfun( env, func ) ) goto error;
