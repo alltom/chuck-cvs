@@ -1,5 +1,6 @@
 // open a file
 IO.openFile( "foo.txt", "r" ) @=> File fin;
+IO.openFile( "foo.txt", IO.READ | OI.WRITE | OI.APPEND ) @=> File fin;
 
 // check if it's ok
 if( !fin.good() )
