@@ -1,5 +1,5 @@
 // how long
-2::hour => dur T;
+.25::hour => dur T;
 // frequency
 880 => float f;
 
