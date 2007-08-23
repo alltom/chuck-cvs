@@ -1,5 +1,5 @@
 ---
-1.2.0.9 : codename spectral
+1.2.1.0 : codename spectral
   - (added) Unit Analyzers (UAna: prounced U-Wanna, plural UAnae)
               (primary creators: Rebecca and Ge)
             provides support for spectral processing, 
@@ -72,6 +72,9 @@
                  (thanks to Chris Chafe for discovering and reporting this)
   - (changed) default frequencies (220/440) added for various STK instruments
 
+
+(there is no version 1.2.0.9!)
+---
 
 ---
 1.2.0.8
