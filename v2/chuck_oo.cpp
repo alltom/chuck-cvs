@@ -1625,13 +1625,13 @@ t_CKBOOL Chuck_IO_File::open( const string & path, t_CKINT flags )
     }
 
     // log
-    EM_log( CK_LOG_INFO, "(IO): flag: '%s'", sout.str() );
+    EM_log( CK_LOG_INFO, "(IO): flag: '%s'", sout.str().c_str() );
 
     // windows sucks for being creative in the wrong places
 #ifdef __PLATFORM_WIN32__
     // if( flags ^ Chuck_IO::TRUNCATE && flags | Chuck_IO::READ ) nMode |= ios::nocreate;
 #endif
-    m_io.open( path.c_str(), nMode );
+    m_io.open( path.c_str(), (_Ios_Openmode)nMode );
 
     // check for error
     if( !m_io.good() )
