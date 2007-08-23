@@ -862,8 +862,8 @@ extends \hypertarget{ugen_STK}{StkInstrument}
 \item {\bf .vibratoFreq} - ( float , READ/WRITE ) - {\it vibrato frequency (Hz)}
 \item {\bf .vibratoGain} - ( float , READ/WRITE ) - {\it vibrato gain [0.0 - 1.0]}
 \item {\bf .pressure} - ( float , READ/WRITE ) - {\it pressure/volume [0.0 - 1.0]}
-\item {\bf .startBowing} (float, READ/WRITE) {\it begin bowing [0.0 - 1.0]}
-\item {\bf .stopBowing} (float, READ/WRITE) {\it stop bowing [0.0 - 1.0]}
+\item {\bf .startBlowing} (float, READ/WRITE) {\it begin bowing [0.0 - 1.0]}
+\item {\bf .stopBlowing} (float, READ/WRITE) {\it stop bowing [0.0 - 1.0]}
 \item {\bf .rate} (float, READ/WRITE) - {\it rate of attack (sec)}
 \end{chuckitemize}
 {\it (inherited from StkInstrument)}
@@ -1244,8 +1244,8 @@ extends \hypertarget{ugen_FM}{FM}
 \verbatiminput{examples/ugen/Delay.txt}
 \control
 \begin{chuckitemize}
-\item {\bf .delay} (float, READ/WRITE) {\it length of delay}
-\item {\bf .max} (float, READ/WRITE) {\it max delay (buffer size)}
+\item {\bf .delay} (dur, READ/WRITE) {\it length of delay}
+\item {\bf .max} (dur, READ/WRITE) {\it max delay (buffer size)}
 \end{chuckitemize}
 }
 
@@ -1257,8 +1257,8 @@ extends \hypertarget{ugen_FM}{FM}
 \verbatiminput{examples/ugen/DelayA.txt}
 \control
 \begin{chuckitemize}
-\item {\bf .delay} (float, READ/WRITE) {\it length of delay}
-\item {\bf .max} (float, READ/WRITE) {\it max delay (buffer size)}
+\item {\bf .delay} (dur, READ/WRITE) {\it length of delay}
+\item {\bf .max} (dur, READ/WRITE) {\it max delay (buffer size)}
 \end{chuckitemize}
 }
 
@@ -1272,8 +1272,8 @@ extends \hypertarget{ugen_FM}{FM}
 \verbatiminput{examples/ugen/DelayL.txt}
 \control
 \begin{chuckitemize}
-\item {\bf .delay} (float, READ/WRITE) {\it length of delay}
-\item {\bf .max} (float, READ/WRITE) {\it max delay (buffer size)}
+\item {\bf .delay} (dur, READ/WRITE) {\it length of delay}
+\item {\bf .max} (dur, READ/WRITE) {\it max delay (buffer size)}
 \end{chuckitemize}
 }
 
@@ -1286,8 +1286,8 @@ extends \hypertarget{ugen_FM}{FM}
 \verbatiminput{examples/ugen/Echo.txt}
 \control
 \begin{chuckitemize}
-\item {\bf .delay} (float, READ/WRITE) {\it length of echo}
-\item {\bf .max} (float, READ/WRITE) {\it max delay}
+\item {\bf .delay} (dur, READ/WRITE) {\it length of echo}
+\item {\bf .max} (dur, READ/WRITE) {\it max delay}
 \item {\bf .mix} (float, READ/WRITE) {\it mix level (wet/dry)}
 \end{chuckitemize}
 }
