@@ -1682,7 +1682,7 @@ t_CKBOOL DCT_object::resize( t_CKINT size )
 
     // zero it
     memset( m_buffer, 0, size * sizeof(SAMPLE) );
-    memset( m_spectrum, 0, size/2 * sizeof(t_CKCOMPLEX) );
+    memset( m_spectrum, 0, size * sizeof(SAMPLE) );
     // compute dct matrix
     the_dct_matrix( m_matrix, size );
     // set

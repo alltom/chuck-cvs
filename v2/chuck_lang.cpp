@@ -496,7 +496,9 @@ t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "string", "writeLine", io_dummy );
     func->add_arg( "string", "line" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    
+
+
+
     // end the class import
     type_engine_import_class_end( env );
     
