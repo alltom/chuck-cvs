@@ -460,6 +460,26 @@ t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type )
     // TODO: replace dummy with pure function
     if( !type_engine_import_class_begin( env, type, env->global(), NULL, NULL ) )
         return FALSE;
+    
+    // add more()
+    func = make_new_mfun( "int", "more", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add eof()
+    func = make_new_mfun( "int", "eof", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add good2read()
+    func = make_new_mfun( "int", "good2read", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add good2write()
+    func = make_new_mfun( "int", "good2write", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add close()
+    func = make_new_mfun( "void", "close", io_dummy );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add readInt
     func = make_new_mfun( "int", "readInt", io_dummy );
@@ -497,7 +517,20 @@ t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type )
     func->add_arg( "string", "line" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add READ
+    if( !type_engine_import_svar( env, "int", "READ", TRUE, (t_CKUINT)&Chuck_IO::READ ) ) goto error;
 
+    // add WRITE
+    if( !type_engine_import_svar( env, "int", "WRITE", TRUE, (t_CKUINT)&Chuck_IO::WRITE ) ) goto error;
+
+    // add APPEND
+    if( !type_engine_import_svar( env, "int", "APPEND", TRUE, (t_CKUINT)&Chuck_IO::APPEND ) ) goto error;
+
+    // add TRUNCATE
+    if( !type_engine_import_svar( env, "int", "TRUNCATE", TRUE, (t_CKUINT)&Chuck_IO::TRUNCATE) ) goto error;
+
+    // add BINARY
+    if( !type_engine_import_svar( env, "int", "BINARY", TRUE, (t_CKUINT)&Chuck_IO::BINARY ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
