@@ -66,6 +66,7 @@ Chuck_Type t_uana( te_uana, "UAna", &t_ugen, sizeof(void *) );
 Chuck_Type t_uanablob( te_uanablob, "UAnaBlob", &t_object, sizeof(void *) );
 Chuck_Type t_shred( te_shred, "Shred", &t_object, sizeof(void *) );
 Chuck_Type t_io( te_io, "IO", &t_object, sizeof(void *) );
+Chuck_Type t_fileio( te_fileio, "FileIO", &t_io, sizeof(void *) );
 Chuck_Type t_thread( te_thread, "Thread", &t_object, sizeof(void *) );
 Chuck_Type t_class( te_class, "Class", &t_object, sizeof(void *) );
 
@@ -223,6 +224,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     env->global()->type.add( t_array.name, &t_array );        t_array.lock();
     env->global()->type.add( t_event.name, &t_event );        t_event.lock();
     env->global()->type.add( t_io.name, &t_io );              t_io.lock();
+    env->global()->type.add( t_fileio.name, &t_fileio );      t_fileio.lock();
 
     // dur value
     t_CKDUR samp = 1.0;

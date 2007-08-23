@@ -538,6 +538,100 @@ t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type )
 
     // end the class import
     type_engine_import_class_end( env );
+
+    return TRUE;
+
+error:
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: init_class_fileio()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL init_class_fileio( Chuck_Env * env, Chuck_Type * type )
+{
+    // init as base class
+    Chuck_DL_Func * func = NULL;
+
+    // log
+    EM_log( CK_LOG_SEVERE, "class 'fileio'" );
+
+    // init as base class
+    // TODO: ctor/dtor?
+    // TODO: replace dummy with pure function
+    if( !type_engine_import_class_begin( env, type, env->global(), fileio_ctor, fileio_dtor ) )
+        return FALSE;
+    
+    // add more()
+    func = make_new_mfun( "int", "more", fileio_more );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add eof()
+    func = make_new_mfun( "int", "eof", fileio_eof );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add good()
+    func = make_new_mfun( "int", "good", fileio_good );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // add good2read()
+    func = make_new_mfun( "int", "good2read", fileio_good2read );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add good2write()
+    func = make_new_mfun( "int", "good2write", fileio_good2write );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add close()
+    func = make_new_mfun( "void", "close", fileio_close );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add readInt
+    func = make_new_mfun( "int", "readInt", fileio_readint );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add readFloat
+    func = make_new_mfun( "float", "readFloat", fileio_readfloat );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add readString
+    func = make_new_mfun( "string", "readString", fileio_readstring );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add readLine
+    func = make_new_mfun( "string", "readLine", fileio_readline );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeInt
+    func = make_new_mfun( "void", "writeInt", fileio_writeint );
+    func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeFloat
+    func = make_new_mfun( "void", "writeFloat", fileio_writefloat );
+    func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeString
+    func = make_new_mfun( "void", "writeString", fileio_writestring );
+    func->add_arg( "string", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add writeLine
+    func = make_new_mfun( "string", "writeLine", fileio_writeline );
+    func->add_arg( "string", "line" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
     
     return TRUE;
 
@@ -1834,7 +1928,6 @@ CK_DLL_MFUN( event_can_wait )
 //-----------------------------------------------------------------------------
 // IO API
 //-----------------------------------------------------------------------------
-
 CK_DLL_MFUN( io_dummy )
 {
     EM_error3( "(IO): internal error! inside an abstract function! help!" );
@@ -1842,6 +1935,61 @@ CK_DLL_MFUN( io_dummy )
     assert( FALSE );
     RETURN->v_int = 0;
 }
+
+
+//-----------------------------------------------------------------------------
+// FileIO API
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( fileio_ctor )
+{ } 
+
+CK_DLL_DTOR( fileio_dtor )
+{ }
+
+CK_DLL_MFUN( fileio_open )
+{ }
+
+CK_DLL_MFUN( fileio_more )
+{ }
+
+CK_DLL_MFUN( fileio_eof )
+{ }
+
+CK_DLL_MFUN( fileio_good2read )
+{ }
+
+CK_DLL_MFUN( fileio_good2write )
+{ }
+
+CK_DLL_MFUN( fileio_good )
+{ }
+
+CK_DLL_MFUN( fileio_close )
+{ }
+
+CK_DLL_MFUN( fileio_readint )
+{ }
+
+CK_DLL_MFUN( fileio_readfloat )
+{ }
+
+CK_DLL_MFUN( fileio_readstring )
+{ }
+
+CK_DLL_MFUN( fileio_readline )
+{ }
+
+CK_DLL_MFUN( fileio_writeint )
+{ }
+
+CK_DLL_MFUN( fileio_writefloat )
+{ }
+
+CK_DLL_MFUN( fileio_writestring )
+{ }
+
+CK_DLL_MFUN( fileio_writeline )
+{ }
 
 
 //-----------------------------------------------------------------------------

@@ -54,6 +54,7 @@ t_CKBOOL init_class_blob( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_event( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_io( Chuck_Env * env, Chuck_Type * type );
+t_CKBOOL init_class_fileio( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_string( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type );
 t_CKBOOL init_class_Midi( Chuck_Env * env );
