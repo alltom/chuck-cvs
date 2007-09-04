@@ -611,19 +611,31 @@ t_CKBOOL emit_engine_emit_for( Chuck_Emitter * emit, a_Stmt_For stmt )
             return FALSE;
 
         // HACK!
-        if( stmt->c3->type->size == 8 ) // ISSUE: 64-bit
-            emit->append( new Chuck_Instr_Reg_Pop_Word2 );
-        else if( stmt->c3->type->size == 4 ) // ISSUE: 64-bit
-            emit->append( new Chuck_Instr_Reg_Pop_Word );
-        else if( stmt->c3->type->size == 16 ) // ISSUE: 64-bit
-            emit->append( new Chuck_Instr_Reg_Pop_Word3( 4 ) );
-        else if( stmt->c3->type->size != 0 )
+        // count the number of words to pop
+        a_Exp e = stmt->c3;
+        t_CKUINT num_words = 0;
+        while( e )
         {
-            EM_error2( stmt->c3->linepos,
-                "(emit): internal error: non-void type size %i unhandled...",
-                stmt->c3->type->size );
-            return FALSE;
+            if( e->type->size == 8 ) // ISSUE: 64-bit
+                num_words += 2;
+            else if( e->type->size == 4 ) // ISSUE: 64-bit
+                num_words += 1;
+            else if( e->type->size == 16 ) // ISSUE: 64-bit
+                num_words += 4;
+            else if( e->type->size != 0 )
+            {
+                EM_error2( e->linepos,
+                    "(emit): internal error: non-void type size %i unhandled...",
+                    e->type->size );
+                return FALSE;
+            }
+
+            // advance
+            e = e->next;
         }
+        
+        // pop
+        if( num_words > 0 ) emit->append( new Chuck_Instr_Reg_Pop_Word3( num_words ) );
     }
 
     // go back to do check the condition
