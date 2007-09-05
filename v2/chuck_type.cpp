@@ -1871,8 +1871,11 @@ t_CKTYPE type_engine_check_exp_unary( Chuck_Env * env, a_Exp_Unary unary )
         break;
         
         case ae_op_spork:
-            // spork shred
-            if( unary->exp->s_type == ae_exp_func_call ) return &t_shred;
+            // spork shred (by function call)
+            if( unary->exp && unary->exp->s_type == ae_exp_func_call ) return &t_shred;
+            // spork shred (by code segment)
+            // else if( unary->code ) return &t_shred;
+            // got a problem
             else
             {
                  EM_error2( unary->linepos,

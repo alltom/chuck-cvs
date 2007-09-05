@@ -2415,11 +2415,15 @@ t_CKBOOL emit_engine_emit_exp_unary( Chuck_Emitter * emit, a_Exp_Unary unary )
 
     case ae_op_spork:
         // spork ~ func()
-        if( unary->exp->s_type == ae_exp_func_call )
+        if( unary->exp && unary->exp->s_type == ae_exp_func_call )
         {
             if( !emit_engine_emit_spork( emit, &unary->exp->func_call ) )
                 return FALSE;
         }
+        // spork ~ { ... }
+        // else if( unary->code )
+        // {
+        // }
         else
         {
             EM_error2( unary->linepos,
