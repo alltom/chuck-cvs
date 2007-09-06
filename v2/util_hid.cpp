@@ -1895,8 +1895,38 @@ void Hid_device_removed( void * refcon, io_service_t service,
     }
 }
 
+#ifdef __CK_HID_WIIREMOTE__
+
+#include "objc/objc.h"
+#include "objc/objc-runtime.h"
+#include "objc/objc-class.h"
+
+static id createAutoReleasePool()
+{
+    Class NSAutoreleasePoolClass = ( Class ) objc_getClass( "NSAutoreleasePool" );
+    
+    id autoReleasePool = class_createInstance( NSAutoreleasePoolClass, 0 );
+    
+    SEL initSelector = sel_registerName( "init" );
+    
+    autoReleasePool = objc_msgSend( autoReleasePool, initSelector );
+    
+    return autoReleasePool;
+}
+
+static void releaseAutoReleasePool()
+{
+    
+}
+
+#endif
+
 void Hid_poll()
-{    
+{
+#ifdef __CK_HID_WIIREMOTE__
+    id auto_release_pool = createAutoReleasePool();
+#endif
+    
     CFRunLoopRunInMode( kCFRunLoopChuckHidMode, 60 * 60 * 24, false );
 }
 
@@ -2913,19 +2943,33 @@ public:
 
 class WiiRemote : public Bluetooth_Device
 {
+protected:
+    enum Extension
+    {
+        ExtensionNone,
+        ExtensionNunchuk,
+        ExtensionClassicController
+    };
+
 public:
+
     WiiRemote()
     {
         force_feedback_enabled = FALSE;
         motion_sensor_enabled = FALSE;
         ir_sensor_enabled = FALSE;
+        ir_sensor_initialized = FALSE;
+        extension_enabled = FALSE;
         led1 = led2 = led3 = led4 = FALSE;
         speaker_enabled = FALSE;
+        connected_extension = ExtensionNone;
         timer = NULL;
         audio_buffer = NULL;
         memset( &buttons, 0, sizeof( buttons ) );
         memset( &accels, 0, sizeof( accels ) );
         memset( &ir, 0xff, sizeof( ir ) );
+        memset( &extension, 0, sizeof( extension ) );
+        extension[5] |= 0x03;
     }
     
     virtual t_CKINT open();
@@ -2938,12 +2982,20 @@ public:
     virtual void control_receive( void * data, size_t size );
     virtual void interrupt_receive( void * data, size_t size );
     
-    virtual void control_send( const void * data, size_t size );
-    virtual void write_memory( const void * data, size_t size, unsigned long address );
+    virtual void control_send( const void * data, unsigned int size );
+    virtual void write_memory( const void * data, unsigned int size, unsigned int address );
+    virtual void read_memory( unsigned int address, unsigned int size );
     
+    virtual void check_extension();
+    
+    virtual void enable_peripherals( t_CKBOOL force_feedback, 
+                                     t_CKBOOL motion_sensor,
+                                     t_CKBOOL ir_sensor,
+                                     t_CKBOOL extension );
     virtual void enable_force_feedback( t_CKBOOL enable );
     virtual void enable_motion_sensor( t_CKBOOL enable );
     virtual void enable_ir_sensor( t_CKBOOL enable );
+    virtual void enable_extension( t_CKBOOL enable );
     virtual void enable_leds( t_CKBOOL l1, t_CKBOOL l2, 
                               t_CKBOOL l3, t_CKBOOL l4 );
     virtual void set_led( t_CKUINT led, t_CKBOOL state );
@@ -2953,17 +3005,26 @@ public:
     CBufferSimple * audio_buffer;
     virtual void send_audio_data();
     
+protected:
+    
+    virtual void initialize_ir_sensor();
+    
     t_CKBOOL force_feedback_enabled;
     t_CKBOOL motion_sensor_enabled;
     t_CKBOOL ir_sensor_enabled;
+    t_CKBOOL ir_sensor_initialized;
+    t_CKBOOL extension_enabled;
     t_CKBOOL led1, led2, led3, led4;
     t_CKBOOL speaker_enabled;
     
     t_CKBYTE buttons[2];
     t_CKBYTE accels[3];
     t_CKBYTE ir[12];
-
-    enum
+    t_CKBYTE extension[6];
+    
+    Extension connected_extension;
+    
+    enum Button
     {
         ButtonHome = 0,
         Button1,
@@ -2975,8 +3036,10 @@ public:
         ButtonUp,
         ButtonRight,
         ButtonDown,
-        ButtonLeft
-    };
+        ButtonLeft,
+        ButtonC,
+        ButtonZ
+    };    
 };
 
 bool operator< ( BluetoothDeviceAddress a, BluetoothDeviceAddress b )
@@ -3133,9 +3196,14 @@ t_CKINT WiiRemote::connect()
 
 t_CKINT WiiRemote::control_init()
 {
-    enable_motion_sensor( TRUE );
-    enable_ir_sensor( TRUE );
-    enable_force_feedback( FALSE );
+    check_extension();
+    
+    //enable_motion_sensor( TRUE );
+    //enable_ir_sensor( TRUE );
+    //enable_force_feedback( FALSE );
+    //enable_extension( TRUE );
+    
+    enable_peripherals( FALSE, TRUE, TRUE, TRUE );
     
     usleep( 1000 );
     enable_leds( ( num % 4 ) == 0, ( ( num - 1 ) % 4 ) == 0, 
@@ -3207,6 +3275,11 @@ t_CKBOOL WiiRemote::is_connected()
     if( device == NULL )
         return FALSE;
     return TRUE;
+}
+
+static inline unsigned char wii_remote_extension_decrypt( unsigned char b )
+{
+    return ( ( b ^ 0x17 ) + 0x17 & 0xFF );
 }
 
 void WiiRemote::control_receive( void * data, size_t size )
@@ -3380,33 +3453,144 @@ void WiiRemote::control_receive( void * data, size_t size )
         {
             unsigned i;
             
-            for( i = 0; i < 4; i++ )
+            if( !( d[1] & 0x04 ) )
             {
-                if( ( d[7 + i * 3] ^ ir[i * 3] ||
-                      d[7 + i * 3 + 1] ^ ir[i * 3 + 1] ||
-                      d[7 + i * 3 + 2] ^ ir[i * 3 + 2] ) &&
-                    ( d[7 + i * 3] != 0xff ) && 
-                    ( d[7 + i * 3 + 1] != 0xff ) && 
-                    ( d[7 + i * 3 + 2] != 0xff ) )
+                for( i = 0; i < 4; i++ )
                 {
-                    msg.device_num = num;
-                    msg.device_type = CK_HID_DEV_WIIREMOTE;
-                    msg.type = CK_HID_WIIREMOTE_IR;
-                    msg.eid = i;
-                    // x
-                    msg.idata[0] = d[7 + 3 * i] + ( ( d[7 + 3 * i + 2] << 4 ) & 0x300 );
-                    // y
-                    msg.idata[1] = d[7 + 3 * i + 1] + ( ( d[7 + 3 * i + 2] << 2 ) & 0x300 );
-                    // size
-                    msg.idata[2] = d[7 + 3 * i + 2] & 0xffff;
-                    
-                    HidInManager::push_message( msg );
-                    
-                    msg.clear();
+                    // 12 byte extended IR data format
+                    // available when there are no extension bytes
+                    if( ( d[7 + i * 3] ^ ir[i * 3] ||
+                          d[7 + i * 3 + 1] ^ ir[i * 3 + 1] ||
+                          d[7 + i * 3 + 2] ^ ir[i * 3 + 2] ) &&
+                        ( d[7 + i * 3] != 0xff ) && 
+                        ( d[7 + i * 3 + 1] != 0xff ) && 
+                        ( d[7 + i * 3 + 2] != 0xff ) )
+                    {
+                        msg.device_num = num;
+                        msg.device_type = CK_HID_DEV_WIIREMOTE;
+                        msg.type = CK_HID_WIIREMOTE_IR;
+                        msg.eid = i;
+                        // x
+                        msg.idata[0] = d[7 + 3 * i] + ( ( d[7 + 3 * i + 2] << 4 ) & 0x300 );
+                        // y
+                        msg.idata[1] = d[7 + 3 * i + 1] + ( ( d[7 + 3 * i + 2] << 2 ) & 0x300 );
+                        // size
+                        msg.idata[2] = d[7 + 3 * i + 2] & 0xffff;
+                        
+                        HidInManager::push_message( msg );
+                        
+                        msg.clear();
+                    }
                 }
+            }
+                
+            else
+            {
+                // 9 byte basic IR data format
+                // available when there are no extension bytes
             }
             
             memcpy( ir, d + 7, sizeof( ir ) );
+        }
+        
+        /* extension */
+        if( d[1] & 0x04 )
+        {
+            for( int i = 0; i < 6; i++ )
+                d[17 + i] = wii_remote_extension_decrypt( d[17 + i] );
+            
+            switch( connected_extension )
+            {
+                case ExtensionNunchuk:
+                    if( d[17] ^ extension[0] || 
+                        d[18] ^ extension[1] )
+                        // joystick axis
+                    {
+                        msg.device_num = num;
+                        msg.device_type = CK_HID_DEV_WIIREMOTE;
+                        msg.type = CK_HID_JOYSTICK_AXIS;
+                        msg.eid = 0;
+                        
+                        // x axis
+                        msg.idata[0] = d[17];
+                        // y axis
+                        msg.idata[1] = d[18];
+                        
+                        HidInManager::push_message( msg );
+                        
+                        msg.clear();
+                    }
+                    
+                    if( d[19] ^ extension[2] || 
+                        d[20] ^ extension[3] || 
+                        d[21] ^ extension[4] )
+                    {
+                        msg.device_num = num;
+                        msg.device_type = CK_HID_DEV_WIIREMOTE;
+                        msg.type = CK_HID_ACCELEROMETER;
+                        msg.eid = 1;
+                        
+                        // x axis
+                        msg.idata[0] = d[19];
+                        // y axis
+                        msg.idata[1] = d[20];
+                        // z axis
+                        msg.idata[2] = d[21];
+                        
+                        HidInManager::push_message( msg );
+                        
+                        msg.clear();
+                    }
+                    
+                    if( ( d[22] & ( 1 << 0 ) ) ^ ( extension[5] & ( 1 << 0 ) ) )
+                    {                        
+                        msg.device_num = num;
+                        msg.device_type = CK_HID_DEV_WIIREMOTE;
+                        msg.type = ( d[22] & ( 1 << 0 ) ) ? CK_HID_BUTTON_UP : CK_HID_BUTTON_DOWN;
+                        msg.eid = ButtonZ;
+                        
+                        HidInManager::push_message( msg );
+                        
+                        msg.clear();
+                    }
+                    
+                    if( ( d[22] & ( 1 << 1 ) ) ^ ( extension[5] & ( 1 << 1 ) ) )
+                    {                        
+                        msg.device_num = num;
+                        msg.device_type = CK_HID_DEV_WIIREMOTE;
+                        msg.type = ( d[22] & ( 1 << 1 ) ) ? CK_HID_BUTTON_UP : CK_HID_BUTTON_DOWN;
+                        msg.eid = ButtonC;
+                        
+                        HidInManager::push_message( msg );
+                        
+                        msg.clear();
+                    }
+                    
+                    break;
+            }
+            
+            memcpy( extension, d + 17, 6 );
+        }
+    }
+    
+    else if( d[1] == 0x21 )
+    {
+        int i = 0;
+        i++;
+        // read memory packet
+        if( ( d[4] & 0xf0 ) == 0x10 && // size = 2
+            d[5] == 0x00 && // address = 0x04a400fe (but we only have the first 2 bytes of that here)
+            d[6] == 0xfe )
+        {
+            unsigned char ext0 = wii_remote_extension_decrypt( d[7] );
+            unsigned char ext1 = wii_remote_extension_decrypt( d[8] );
+            
+            if( ext0 == 0x00 && ext1 == 0x00 )
+                connected_extension = ExtensionNunchuk;
+            else if( ext0 == 0x01 && ext1 == 0x01 )
+                connected_extension = ExtensionClassicController;
+            else
+                connected_extension = ExtensionNone;
         }
     }
 }
@@ -3416,7 +3600,7 @@ void WiiRemote::interrupt_receive( void * data, size_t size )
     
 }
 
-void WiiRemote::control_send( const void * data, size_t size )
+void WiiRemote::control_send( const void * data, unsigned int size )
 {
     assert( size <= 22 );
     
@@ -3444,15 +3628,15 @@ void WiiRemote::control_send( const void * data, size_t size )
                 num, result );
 }
 
-void WiiRemote::write_memory( const void * data, size_t size, unsigned long address )
+void WiiRemote::write_memory( const void * data, unsigned int size,
+                              unsigned int address )
 {
     assert( size <= 16 );
     
     unsigned char cmd[22];
     
     memset( cmd, 0, 22 );
-    memcpy( cmd + 6, data, size );
-        
+    
     cmd[0] = 0x16;
     cmd[1] = ( address >> 24 ) & 0xff;
     cmd[2] = ( address >> 16 ) & 0xff;
@@ -3460,10 +3644,75 @@ void WiiRemote::write_memory( const void * data, size_t size, unsigned long addr
     cmd[4] = address & 0xff;
     cmd[5] = size;
     
+    memcpy( cmd + 6, data, size );
+
     if( force_feedback_enabled )
         cmd[1] |= 0x01;
     
     control_send( cmd, 22 );
+}
+
+void WiiRemote::read_memory( unsigned int address, unsigned int size )
+{
+    unsigned char cmd[7];
+    
+    cmd[0] = 0x17;
+    cmd[1] = ( address >> 24 ) & 0xff;
+    cmd[2] = ( address >> 16 ) & 0xff;
+    cmd[3] = ( address >> 8 ) & 0xff;
+    cmd[4] = address & 0xff;
+    cmd[5] = ( size >> 8 ) & 0xff;
+    cmd[6] = ( size >> 0 ) & 0xff;
+    
+    if( force_feedback_enabled )
+        cmd[1] |= 0x01;
+    
+    control_send( cmd, 7 );
+}
+
+void WiiRemote::check_extension()
+{
+    unsigned char key[] = { 0x00 };
+    
+    // write key
+    write_memory( key, 1, 0x04a40040 );
+    
+    // read extension id
+    read_memory( 0x04a400fe, 2 );
+}
+
+void WiiRemote::enable_peripherals( t_CKBOOL force_feedback,
+                                    t_CKBOOL motion_sensor,
+                                    t_CKBOOL ir_sensor,
+                                    t_CKBOOL extension )
+{
+    force_feedback_enabled = force_feedback;
+    motion_sensor_enabled = motion_sensor;
+    ir_sensor_enabled = ir_sensor;
+    extension_enabled = extension;
+    
+    unsigned char cmd[] = { 0x12, 0x00, 0x30 };
+    if( motion_sensor_enabled )
+        cmd[2] |= 0x01;
+    if( ir_sensor_enabled )
+        cmd[2] |= 0x02;
+    if( extension_enabled )
+        cmd[2] |= 0x04;
+    if( force_feedback_enabled )
+        cmd[1] |= 0x01;
+    
+    control_send( cmd, 3 );
+    
+    unsigned char cmd2[] = { 0x13, 0x00 };
+    if( force_feedback_enabled )
+        cmd2[1] |= 0x01;
+    if( ir_sensor_enabled )
+        cmd2[1] |= 0x04;    
+    
+    control_send( cmd2, 2 );
+    
+    if( ir_sensor_enabled && !ir_sensor_initialized )
+        initialize_ir_sensor();
 }
 
 void WiiRemote::enable_force_feedback( t_CKBOOL enable )
@@ -3480,7 +3729,7 @@ void WiiRemote::enable_force_feedback( t_CKBOOL enable )
 }
 
 void WiiRemote::enable_motion_sensor( t_CKBOOL enable )
-{
+{    
     motion_sensor_enabled = enable;
     
     unsigned char cmd[] = { 0x12, 0x00, 0x30 };
@@ -3488,6 +3737,8 @@ void WiiRemote::enable_motion_sensor( t_CKBOOL enable )
         cmd[2] |= 0x01;
     if( ir_sensor_enabled )
         cmd[2] |= 0x02;
+    if( extension_enabled )
+        cmd[2] |= 0x04;
     if( force_feedback_enabled )
         cmd[1] |= 0x01;
     
@@ -3509,33 +3760,44 @@ void WiiRemote::enable_ir_sensor( t_CKBOOL enable )
     
     control_send( cmd, 2 );
     
-    if( ir_sensor_enabled )
-    {
-        unsigned char en0[] = { 0x01 };
-        write_memory( en0, 1, 0x04b00030 );
-        //usleep(10000);
+    if( ir_sensor_enabled && !ir_sensor_initialized )
+        initialize_ir_sensor();
+}
 
-        unsigned char en[] = { 0x08 };
-        write_memory( en, 1, 0x04b00030 );
-        //usleep(10000);
+void WiiRemote::initialize_ir_sensor()
+{
+    ir_sensor_initialized = TRUE;
+    
+    unsigned char en0[] = { 0x01 };
+    write_memory( en0, 1, 0x04b00030 );
+    //usleep(10000);
+    
+    unsigned char en[] = { 0x08 };
+    write_memory( en, 1, 0x04b00030 );
+    //usleep(10000);
+    
+    unsigned char sensitivity_block1[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x00, 0xc0 };
+    write_memory( sensitivity_block1, 9, 0x04b00000 );
+    //usleep(10000);
+    
+    unsigned char sensitivity_block2[] = { 0x40, 0x00 };
+    write_memory( sensitivity_block2, 2, 0x04b0001a );
+    //usleep(10000);
+    
+    unsigned char mode[] = { 0x03 };
+    write_memory( mode, 1, 0x04b00033 );
+    // usleep(10000);
+    
+    unsigned char what[] = { 0x08 };
+    write_memory( what, 1, 0x04b00030 );
+    //usleep(10000);
+}
 
-        unsigned char sensitivity_block1[] = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x00, 0xc0 };
-        write_memory( sensitivity_block1, 9, 0x04b00000 );
-        //usleep(10000);
-
-        unsigned char sensitivity_block2[] = { 0x40, 0x00 };
-        write_memory( sensitivity_block2, 2, 0x04b0001a );
-        //usleep(10000);
-
-        unsigned char mode[] = { 0x03 };
-        write_memory( mode, 1, 0x04b00033 );
-       // usleep(10000);
-
-        unsigned char what[] = { 0x08 };
-        write_memory( what, 1, 0x04b00030 );
-        //usleep(10000);
-
-    }
+void WiiRemote::enable_extension( t_CKBOOL enable )
+{
+    extension_enabled = enable;
+    
+    enable_motion_sensor( motion_sensor_enabled );
 }
 
 void WiiRemote::set_led( t_CKUINT led, t_CKBOOL state )
@@ -3742,8 +4004,29 @@ void Bluetooth_inquiry_complete( void * userRefCon,
                                  Boolean aborted )
 {
     g_bt_query_active = FALSE;
+    
     IOBluetoothDeviceInquiryDelete( inquiryRef );
-    WiiRemote_query();
+ 
+    t_CKBOOL do_query = FALSE;
+    WiiRemote * wiiremote;
+    
+    for( int i = 0; i < wiiremotes->size(); i++ )
+    {
+        wiiremote = ( *wiiremotes )[i];
+        if( wiiremote->refcount > 0 && !wiiremote->is_connected() )
+        {
+            do_query = TRUE;
+            break;
+        }
+    }
+    
+    if( do_query )
+    {
+        EM_log( CK_LOG_INFO, "hid: continuing bluetooth query" );
+        WiiRemote_query();
+    }
+    else
+        EM_log( CK_LOG_INFO, "hid: ending bluetooth query" );
 }
 
 int WiiRemote_query()
