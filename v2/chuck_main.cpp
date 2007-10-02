@@ -709,9 +709,9 @@ int main( int argc, char ** argv )
     all_detach();
 
     // free vm
-    g_vm = NULL; SAFE_DELETE( vm );
+    vm = NULL; SAFE_DELETE( g_vm );
     // free the compiler
-    SAFE_DELETE( compiler );
+    compiler = NULL; SAFE_DELETE( g_compiler );
 
     // wait for the shell, if it is running
     // does the VM reset its priority to normal before exiting?
