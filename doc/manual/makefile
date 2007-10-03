@@ -4,7 +4,7 @@
 # make pdf will latex twice and open (OSX only)
 # make clean gets rid of a lot of nasty bits
 
-pdf: latex latex2 open
+pdf: latex latex2
 
 latex:
 	pdflatex ChucK_manual.tex
