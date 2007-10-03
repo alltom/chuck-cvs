@@ -96,8 +96,10 @@ extern "C" void signal_int( int sig_num )
     {
         // get vm
         Chuck_VM * vm = g_vm;
+        Chuck_Compiler * compiler = g_compiler;
         // flag the global one
         g_vm = NULL;
+        g_compiler = NULL;
         // if not NULL
         if( vm )
         {
@@ -119,7 +121,7 @@ extern "C" void signal_int( int sig_num )
 #endif
         // will this work for windows?
         SAFE_DELETE( vm );
-        SAFE_DELETE( g_compiler );
+        SAFE_DELETE( compiler );
 
         // ck_close( g_sock );
     }
