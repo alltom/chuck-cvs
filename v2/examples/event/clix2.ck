@@ -18,7 +18,7 @@ Impulse i => BiQuad f => Envelope e => JCRev r;
 // envelope rise/fall time
 1::ms => e.duration;
 // reverb mix
-.02 => r.mix;
+.01 => r.mix;
 
 // strengths
 [ 1.0, 0.2, 0.3, 0.2, 0.4, 0.1, 0.2, 0.1,
