@@ -22,7 +22,7 @@ e => dac;
 3000::ms => e2.max => e2.delay;
 1 => g.gain;
 .5 => e.gain;
-.25 => e.gain;
+.25 => e2.gain;
 .1 => r.mix;
 
 // connect the Dinky
