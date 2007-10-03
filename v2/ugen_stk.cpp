@@ -6906,12 +6906,14 @@ void Envelope :: keyOn(void)
 {
   target = (MY_FLOAT) m_target;
   if (value != target) state = 1;
+  setTime( m_time );
 }
 
 void Envelope :: keyOff(void)
 {
   target = (MY_FLOAT) 0.0;
   if (value != target) state = 1;
+  setTime( m_time );
 }
 
 void Envelope :: setRate(MY_FLOAT aRate)
@@ -6923,7 +6925,7 @@ void Envelope :: setRate(MY_FLOAT aRate)
   else
     rate = aRate;
     
-  m_time = m_target / (rate * Stk::sampleRate());
+  m_time = (m_target - value) / (rate * Stk::sampleRate());
   if( m_time < 0.0 ) m_time = -m_time;
 }
 
@@ -6931,15 +6933,19 @@ void Envelope :: setTime(MY_FLOAT aTime)
 {
   if (aTime < 0.0) {
     printf("[chuck](via Envelope): negative times not allowed ... correcting!\n");
-    rate = m_target / (-aTime * Stk::sampleRate());
+    aTime = -aTime;
   }
-  else if( aTime == 0.0 )
+  
+  if( aTime == 0.0 )
     rate = FLT_MAX;
   else
-    rate = m_target / (aTime * Stk::sampleRate());
-    
+    rate = (m_target - value) / (aTime * Stk::sampleRate());
+
+  // rate
+  if( rate < 0 ) rate = -rate;
+
+  // should >= 0
   m_time = aTime;
-  if( m_time < 0.0 ) m_time = -m_time;
 }
 
 void Envelope :: setTarget(MY_FLOAT aTarget)
