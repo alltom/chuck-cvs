@@ -2,6 +2,8 @@
 1.2.1.1
   - (fixed) ctrl-c no longer causes crash on shutdown
             (was due to memory deallocation bug)
+  - (fixed) incorrect code generation for multiple expressions in 3rd clause 
+            of for loops
 
 ---
 1.2.1.0 : codename spectral
