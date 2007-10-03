@@ -19,7 +19,7 @@ public class Dinky
     // set filter gain
     .2 => f.gain;
     // set the envelope
-    .1::second => e.duration;
+    .004::second => e.duration;
 
     public void radius( float rad )
     { rad => f.prad; }

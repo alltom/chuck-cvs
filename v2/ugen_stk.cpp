@@ -6925,7 +6925,7 @@ void Envelope :: setRate(MY_FLOAT aRate)
   else
     rate = aRate;
     
-  m_time = (m_target - value) / (rate * Stk::sampleRate());
+  m_time = (target - value) / (rate * Stk::sampleRate());
   if( m_time < 0.0 ) m_time = -m_time;
 }
 
@@ -6939,7 +6939,7 @@ void Envelope :: setTime(MY_FLOAT aTime)
   if( aTime == 0.0 )
     rate = FLT_MAX;
   else
-    rate = (m_target - value) / (aTime * Stk::sampleRate());
+    rate = (target - value) / (aTime * Stk::sampleRate());
 
   // rate
   if( rate < 0 ) rate = -rate;
