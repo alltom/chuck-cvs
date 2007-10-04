@@ -20972,7 +20972,7 @@ CK_DLL_CTRL( Envelope_ctrl_duration )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
     d->setTime( GET_NEXT_FLOAT(ARGS) / Stk::sampleRate() );
-    RETURN->v_float = 1.0 / d->rate;
+    RETURN->v_float = d->m_time * Stk::sampleRate();
 }
 
 
@@ -20983,7 +20983,7 @@ CK_DLL_CTRL( Envelope_ctrl_duration )
 CK_DLL_CGET( Envelope_cget_duration )
 {
     Envelope * d = (Envelope *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_float = 1.0 / d->rate;
+    RETURN->v_float = d->m_time * Stk::sampleRate();
 }
 
 
