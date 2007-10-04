@@ -6894,7 +6894,7 @@ Envelope :: Envelope(void) : Stk()
   value = (MY_FLOAT) 0.0;
   rate = (MY_FLOAT) 0.001;
   m_target = 1.0;
-  m_time = rate * Stk::sampleRate();
+  m_time = m_target / (rate * Stk::sampleRate());
   state = 0;
 }
 
