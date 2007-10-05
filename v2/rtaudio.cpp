@@ -2763,7 +2763,8 @@ void RtApiJack :: initialize(void)
 
   // Look for jack server and try to become a client.
   jack_client_t *client;
-  if ( (client = jack_client_new( "RtApiJack" )) == 0)
+  // chuck: modified client name
+  if ( (client = jack_client_new( "ChucK" )) == 0)
     return;
 
   RtApiDevice device;
@@ -2779,7 +2780,8 @@ void RtApiJack :: probeDeviceInfo(RtApiDevice *info)
 {
   // Look for jack server and try to become a client.
   jack_client_t *client;
-  if ( (client = jack_client_new( "RtApiJack" )) == 0) {
+  // chuck: modified client name
+  if ( (client = jack_client_new( "ChucK" )) == 0) {
     sprintf(message_, "RtApiJack: error connecting to Linux Jack server in probeDeviceInfo() (jack: %s)!",
             jackmsg.c_str());
     error(RtError::WARNING);
@@ -2925,7 +2927,8 @@ bool RtApiJack :: probeDeviceOpen(int device, StreamMode mode, int channels,
   char label[32];
   jack_client_t *client = 0;
   if ( mode == OUTPUT || (mode == INPUT && stream_.mode != OUTPUT) ) {
-    snprintf(label, 32, "RtApiJack");
+    // chuck: modified client names
+    snprintf(label, 32, "ChucK");
     if ( (client = jack_client_new( (const char *) label )) == 0) {
       sprintf(message_, "RtApiJack: cannot connect to Linux Jack server in probeDeviceOpen() (jack: %s)!",
               jackmsg.c_str());
