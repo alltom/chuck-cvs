@@ -1792,7 +1792,8 @@ void Chuck_VM_Shreduler::advance2( )
     m_dac->system_tick( this->now_system );
     l = m_dac->m_multi_chan[0]->m_current;
     r = m_dac->m_multi_chan[1]->m_current;
-    l *= .5f; r *= .5f;
+    // remove: 1.2.1.2
+    // l *= .5f; r *= .5f;
 
     // suck samples
     m_bunghole->system_tick( this->now_system );

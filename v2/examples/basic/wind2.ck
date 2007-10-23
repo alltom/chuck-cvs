@@ -30,7 +30,7 @@ spork ~ wind_gain();
 while( true )
 {
     // sweep the filter resonant frequency
-    100.0 + Std.fabs(Math.sin(t)) * 1000.0 => f.pfreq;
+    100.0 + Std.fabs(Math.sin(t)) * 15000.0 => f.pfreq;
     t + .01 => t;
     // advance time
     100::ms => now;
