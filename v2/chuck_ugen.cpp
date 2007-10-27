@@ -699,8 +699,8 @@ Chuck_UAna::Chuck_UAna() : Chuck_UGen()
 {
     // mark as true
     m_is_uana = TRUE;
-    // reset uana time
-    m_uana_time = 0;
+    // reset uana time (HACK: negative so upchuck() works at now=0)
+    m_uana_time = -1;
     // zero out proxy
     // m_blob_proxy = NULL;
 }

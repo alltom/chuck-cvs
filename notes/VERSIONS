@@ -5,6 +5,7 @@
             a factor of 2, or roughly 6 dB!!  BEWARE!!
   - (fixed) corrected order of shred/ugen dealloc in VM destructor,
             preventing a potential crash during shutdown
+  - (fixed) UAna can now upchuck() at now=0
 
 ---
 1.2.1.1
