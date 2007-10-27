@@ -3,6 +3,8 @@
   - (fixed) dac amplitude no longer halved!
             NOTE: this increases the gain from before by
             a factor of 2, or roughly 6 dB!!  BEWARE!!
+  - (fixed) corrected order of shred/ugen dealloc in VM destructor,
+            preventing a potential crash during shutdown
 
 ---
 1.2.1.1

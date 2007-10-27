@@ -479,13 +479,6 @@ t_CKBOOL Chuck_VM::shutdown()
     SAFE_DELETE( m_event_buffer );
 
     // log
-    EM_log( CK_LOG_SYSTEM, "freeing special ugens..." );
-    // go
-    SAFE_RELEASE( m_dac );
-    SAFE_RELEASE( m_adc );
-    SAFE_RELEASE( m_bunghole );
-
-    // log
     EM_log( CK_LOG_SEVERE, "clearing shreds..." );
     // terminate shreds
     Chuck_VM_Shred * curr = m_shreds, * prev = NULL;
@@ -505,6 +498,13 @@ t_CKBOOL Chuck_VM::shutdown()
     // do it
     this->release_dump();
     EM_poplog();
+
+    // log
+    EM_log( CK_LOG_SYSTEM, "freeing special ugens..." );
+    // go
+    SAFE_RELEASE( m_dac );
+    SAFE_RELEASE( m_adc );
+    SAFE_RELEASE( m_bunghole );
 
     m_init = FALSE;
 
