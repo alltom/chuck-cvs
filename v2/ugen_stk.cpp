@@ -176,9 +176,12 @@ CK_DLL_TICK( Chorus_tick );
 CK_DLL_PMSG( Chorus_pmsg );
 CK_DLL_CTRL( Chorus_ctrl_modDepth );
 CK_DLL_CTRL( Chorus_ctrl_modFreq );
+CK_DLL_CTRL( Chorus_ctrl_baseDelay );
+CK_DLL_CTRL( Chorus_ctrl_set );
 CK_DLL_CTRL( Chorus_ctrl_mix );
 CK_DLL_CGET( Chorus_cget_modDepth );
 CK_DLL_CGET( Chorus_cget_modFreq );
+CK_DLL_CGET( Chorus_cget_baseDelay );
 CK_DLL_CGET( Chorus_cget_mix );
 
 // Delay
@@ -3175,11 +3178,23 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "modDepth", Chorus_cget_modDepth ); //! modulation depth
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    func = make_new_mfun( "dur", "baseDelay", Chorus_ctrl_baseDelay ); //! base delay
+    func->add_arg( "dur", "value" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "dur", "baseDelay", Chorus_cget_baseDelay ); //! base delay
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     func = make_new_mfun( "float", "mix", Chorus_ctrl_mix ); //! effect mix
     func->add_arg( "float", "value" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     func = make_new_mfun( "float", "mix", Chorus_cget_mix ); //! effect mix
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    func = make_new_mfun( "void", "setMax", Chorus_ctrl_set );
+    func->add_arg( "dur", "baseDelay" );
+    func->add_arg( "float", "modDepth" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
 
@@ -5882,32 +5897,46 @@ void Brass :: controlChange(int number, MY_FLOAT value)
 
 Chorus :: Chorus(MY_FLOAT baseDelay)
 {
-  delayLine[0] = new DelayL((long) baseDelay, (long) (baseDelay * 1.414) + 2);
-  delayLine[1] = new DelayL((long) (baseDelay), (long) baseDelay + 2);
-  baseLength = baseDelay;
+  delayLine[0] = delayLine[1] = NULL;
+  mods[0] = new WaveLoop( "special:sinewave", TRUE );
+  set(baseDelay, 4);
+  setDelay( baseDelay );
+  setModDepth( .5 );
+  setModFrequency( .25 );
 
   // Concatenate the STK rawwave path to the rawwave file
-  mods[0] = new WaveLoop( "special:sinewave", TRUE );
-  mods[1] = new WaveLoop( "special:sinewave", TRUE );
-  mods[0]->setFrequency(0.2);
-  mods[1]->setFrequency(0.222222);
-  modDepth = 0.05;
+  // mods[0] = new WaveLoop( "special:sinewave", TRUE );
+  // mods[1] = new WaveLoop( "special:sinewave", TRUE );
+  // mods[0]->setFrequency(0.2);
+  // mods[1]->setFrequency(0.222222);
   effectMix = 0.5;
-  this->clear();
 }
 
 Chorus :: ~Chorus()
 {
-  delete delayLine[0];
-  delete delayLine[1];
-  delete mods[0];
-  delete mods[1];
+  SAFE_DELETE( delayLine[0] );
+  SAFE_DELETE( delayLine[1] );
+  SAFE_DELETE( mods[0] );
+  SAFE_DELETE( mods[1] );
+}
+
+// chuck
+void Chorus :: set(MY_FLOAT baseDelay, MY_FLOAT depth)
+{
+  SAFE_DELETE( delayLine[0] );
+  SAFE_DELETE( delayLine[1] );
+
+  delayLine[0] = new DelayL((long) baseDelay, (long) (baseDelay + baseDelay * depth) + 2);
+  // delayLine[0] = new DelayL((long) baseDelay, (long) (baseDelay + baseDelay * 1.414 * depth) + 2);
+  // delayLine[1] = new DelayL((long) baseDelay, (long) (baseDelay + baseDelay * depth) + 2);
+
+  this->clear();
 }
 
 void Chorus :: clear()
 {
   delayLine[0]->clear();
-  delayLine[1]->clear();
+  // delayLine[1]->clear();
   lastOutput[0] = 0.0;
   lastOutput[1] = 0.0;
 }
@@ -5930,15 +5959,21 @@ void Chorus :: setModDepth(MY_FLOAT depth)
   modDepth = depth;
 }
 
+void Chorus :: setDelay(MY_FLOAT baseDelay)
+{
+  baseLength = baseDelay;
+}
+
 void Chorus :: setModFrequency(MY_FLOAT frequency)
 {
   mods[0]->setFrequency(frequency);
-  mods[1]->setFrequency(frequency * 1.1111);
+  // mods[1]->setFrequency(frequency * 1.1111);
 }
 
 MY_FLOAT Chorus :: lastOut() const
 {
-  return (lastOutput[0] + lastOutput[1]) * (MY_FLOAT) 0.5;
+//  return (lastOutput[0] + lastOutput[1]) * (MY_FLOAT) 0.5;
+    return lastOutput[0];
 }
 
 MY_FLOAT Chorus :: lastOutLeft() const
@@ -5953,13 +5988,15 @@ MY_FLOAT Chorus :: lastOutRight() const
 
 MY_FLOAT Chorus :: tick(MY_FLOAT input)
 {
-  delayLine[0]->setDelay(baseLength * 0.707 * (1.0 + mods[0]->tick()));
-  delayLine[1]->setDelay(baseLength  * 0.5 *  (1.0 - mods[1]->tick()));
+  delayLine[0]->setDelay(baseLength * modDepth * .5 * (1.0 + mods[0]->tick()));
+  // delayLine[0]->setDelay(baseLength * 0.707 * modDepth * (1.0 + mods[0]->tick()));
+  // delayLine[1]->setDelay(baseLength  * 0.5 * modDepth * (1.0 + mods[1]->tick()));
   lastOutput[0] = input * (1.0 - effectMix);
   lastOutput[0] += effectMix * delayLine[0]->tick(input);
-  lastOutput[1] = input * (1.0 - effectMix);
-  lastOutput[1] += effectMix * delayLine[1]->tick(input);
-  return (lastOutput[0] + lastOutput[1]) * (MY_FLOAT) 0.5;
+  // lastOutput[1] = input * (1.0 - effectMix);
+  // lastOutput[1] += effectMix * delayLine[1]->tick(input);
+  // return (lastOutput[0] + lastOutput[1]) * (MY_FLOAT) 0.5;
+  return lastOutput[0];
 }
 
 MY_FLOAT *Chorus :: tick(MY_FLOAT *vec, unsigned int vectorSize)
@@ -15714,7 +15751,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
     }
     else
     {
-        bufferSize = 256;
+        bufferSize = 1024;
         channels = 1;
     }
 
@@ -15752,7 +15789,7 @@ void WvIn :: openFile( const char *fileName, bool raw, bool doNormalize, bool ge
         if( strstr(fileName, "special:sinewave") )
         {
             for (unsigned int j=0; j<bufferSize; j++)
-                data[j] = (SHRT_MAX) * sin(2*ONE_PI*j/256);
+                data[j] = (SHRT_MAX) * sin(2*ONE_PI*j/bufferSize);
         }
         else
         {
@@ -18703,7 +18740,7 @@ CK_DLL_CGET( Bowed_cget_rate )
 CK_DLL_CTOR( Chorus_ctor )
 {
     // initialize member object
-    OBJ_MEMBER_UINT(SELF, Chorus_offset_data) = (t_CKUINT) new Chorus( 44100 );
+    OBJ_MEMBER_UINT(SELF, Chorus_offset_data) = (t_CKUINT) new Chorus( 3000 );
 }
 
 
@@ -18780,14 +18817,37 @@ CK_DLL_CTRL( Chorus_ctrl_modFreq )
 
 
 //-----------------------------------------------------------------------------
+// name: Chorus_ctrl_baseDelay()
+// desc: CTRL function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Chorus_ctrl_baseDelay )
+{
+    Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data);
+    t_CKDUR f = GET_NEXT_DUR(ARGS);
+    p->setDelay( f );
+    RETURN->v_float = (t_CKFLOAT) p->baseLength;
+}
+
+
+//-----------------------------------------------------------------------------
 // name: Chorus_cget_mix()
 // desc: CGET function ...
 //-----------------------------------------------------------------------------
-
 CK_DLL_CGET( Chorus_cget_mix )
 {
     Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data);
     RETURN->v_float = (t_CKFLOAT) p->effectMix;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Chorus_cget_baseDelay()
+// desc: CGET function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Chorus_cget_baseDelay )
+{
+    Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data);
+    RETURN->v_dur = (t_CKFLOAT)p->baseLength;
 }
 
 
@@ -18810,6 +18870,19 @@ CK_DLL_CGET( Chorus_cget_modFreq )
 {
     Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data);
     RETURN->v_float = (t_CKFLOAT) p->mods[0]->m_freq;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: Chorus_ctrl_set()
+// desc: set ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Chorus_ctrl_set )
+{
+    Chorus * p = (Chorus *)OBJ_MEMBER_UINT(SELF, Chorus_offset_data);
+    t_CKDUR d = GET_NEXT_DUR(ARGS);
+    t_CKFLOAT dd = GET_NEXT_FLOAT(ARGS);
+    p->set( d, dd );
 }
 
 
