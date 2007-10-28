@@ -6,6 +6,9 @@
   - (fixed) corrected order of shred/ugen dealloc in VM destructor,
             preventing a potential crash during shutdown
   - (fixed) UAna can now upchuck() at now=0
+  - (fixed) STK Chorus UGen now has reasonable defaults
+            .max( dur, float ) for initializing to delay/depth limits
+            .baseDelay( dur ) sets current base delay
 
 ---
 1.2.1.1

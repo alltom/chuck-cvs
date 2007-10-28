@@ -2472,7 +2472,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
 
         // which
         if( strstr(filename, "special:sinewave") ) {
-            rawsize = 256; rawdata = NULL;
+            rawsize = 1024; rawdata = NULL;
         }
         else if( strstr(filename, "special:ahh") ) {
             rawsize = ahh_size; rawdata = ahh_data;

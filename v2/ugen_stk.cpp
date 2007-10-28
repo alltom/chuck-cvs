@@ -3192,7 +3192,7 @@ DLL_QUERY stk_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "float", "mix", Chorus_cget_mix ); //! effect mix
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
-    func = make_new_mfun( "void", "setMax", Chorus_ctrl_set );
+    func = make_new_mfun( "void", "max", Chorus_ctrl_set );
     func->add_arg( "dur", "baseDelay" );
     func->add_arg( "float", "modDepth" );
     if( !type_engine_import_mfun( env, func ) ) goto error;

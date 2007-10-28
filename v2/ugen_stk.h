@@ -2508,8 +2508,14 @@ class Chorus : public Stk
   //! Class destructor.
   ~Chorus();
 
+  //! Set baseDelay and modDepth
+  void set(MY_FLOAT baseDelay, MY_FLOAT depth);
+
   //! Reset and clear all internal state.
   void clear();
+
+  //! Set base delay
+  void setDelay(MY_FLOAT baseDelay); // chuck
 
   //! Set modulation depth.
   void setModDepth(MY_FLOAT depth);
