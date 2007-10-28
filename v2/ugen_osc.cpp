@@ -1187,7 +1187,7 @@ CK_DLL_CTRL( gen5_coeffs )
     
     // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(in_args<0) return;
-    size = in_args->size();
+    size = in_args->capacity();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
     
     t_CKFLOAT v;
@@ -1242,7 +1242,7 @@ CK_DLL_CTRL( gen7_coeffs )
     
     // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(in_args<0) return;
-    size = in_args->size();
+    size = in_args->capacity();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
     
     t_CKFLOAT v;
@@ -1295,7 +1295,7 @@ CK_DLL_CTRL( gen9_coeffs )
     
     // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(weights<0) return;
-    size = weights->size();
+    size = weights->capacity();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
     
     
@@ -1345,7 +1345,7 @@ CK_DLL_CTRL( gen10_coeffs )
     
     // fprintf(stdout, "calling gen10coeffs, %d\n", weights);
     if(weights<0) return;
-    size = weights->size();
+    size = weights->capacity();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
     
     t_CKFLOAT v;
@@ -1396,7 +1396,7 @@ CK_DLL_CTRL( gen17_coeffs )
     
     // fprintf(stdout, "calling gen17coeffs, %d\n", weights);
     if(weights<0) return;
-    size = weights->size();
+    size = weights->capacity();
     if(size >= genX_MAX_COEFFS) size = genX_MAX_COEFFS - 1;
     
     dg = (t_CKDOUBLE) (genX_tableSize / 2. - .5);
@@ -1458,7 +1458,7 @@ CK_DLL_CTRL( curve_coeffs )
     // fprintf(stdout, "calling gen17coeffs, %d\n", weights);
     if(weights<0) goto done;
 
-    nargs = weights->size();
+    nargs = weights->capacity();
     if (nargs < 5 || (nargs % 3) != 2)  {   // check number of args
         fprintf( stderr, "[chuck](via CurveTable): usage: \n size, time1, value1, curvature1, [ timeN-1, valueN-1, curvatureN-1, ] timeN, valueN)\n" );
         goto done;
@@ -1558,7 +1558,7 @@ CK_DLL_CTRL( warp_coeffs )
     // gewang:
     Chuck_Array8 * weights = (Chuck_Array8 *)GET_CK_OBJECT(ARGS);
     // check for size
-    if( weights->size() != 2 )
+    if( weights->capacity() != 2 )
     {
         // error
         fprintf( stderr, "[chuck](via WarpTable): expects array of exactly 2 elements.\n" );
