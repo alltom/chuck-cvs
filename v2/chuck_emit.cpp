@@ -1458,8 +1458,17 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         break;
     
     case ae_op_plus_chuck:
+        // time advance
+        if( left == te_dur && right == te_time && rhs->s_meta == ae_meta_var &&
+            rhs->s_type == ae_exp_primary && !strcmp( "now", S_name(rhs->primary.var) ) )
+        {
+            // add the two
+            emit->append( new Chuck_Instr_Add_double );
+            // advance time (TODO: verify having two instr is OK)
+            emit->append( instr = new Chuck_Instr_Time_Advance );
+        }
         // time + dur
-        if( ( left == te_dur && right == te_time ) ||
+        else if( ( left == te_dur && right == te_time ) ||
             ( left == te_time && right == te_dur ) )
         {
             emit->append( instr = new Chuck_Instr_Add_double_Assign );
