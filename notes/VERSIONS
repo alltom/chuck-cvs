@@ -9,6 +9,7 @@
   - (fixed) STK Chorus UGen now has reasonable defaults
             .max( dur, float ) for initializing to delay/depth limits
             .baseDelay( dur ) sets current base delay
+  - (fixed) dur +=> now no longer crashes
 
 ---
 1.2.1.1
