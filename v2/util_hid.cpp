@@ -6139,7 +6139,7 @@ static void Keyboard_init_translation_table()
     kb_translation_table[KEY_A] |= 0x04 << 8;
     
     kb_translation_table[KEY_S] = 'S';
-    kb_translation_table[KEY_S] |= 0x22 << 8;
+    kb_translation_table[KEY_S] |= 0x16 << 8;
     
     kb_translation_table[KEY_D] = 'D';
     kb_translation_table[KEY_D] |= 0x07 << 8;
