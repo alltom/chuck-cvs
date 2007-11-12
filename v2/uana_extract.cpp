@@ -237,7 +237,7 @@ CK_DLL_TOCK( Centroid_tock )
         // get the array
         Chuck_Array8 & mag = BLOB_IN->fvals();
         // compute centroid
-        result = compute_centroid( mag, mag.capacity() );
+        result = compute_centroid( mag, mag.size() );
     }
     // otherwise zero out
     else
@@ -248,9 +248,9 @@ CK_DLL_TOCK( Centroid_tock )
 
     // get fvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
-    // ensure capacity == resulting size
-    if( fvals.capacity() != 1 )
-        fvals.set_capacity( 1 );
+    // ensure size == resulting size
+    if( fvals.size() != 1 )
+        fvals.set_size( 1 );
     // copy the result in
     fvals.set( 0, result );
 
@@ -276,7 +276,7 @@ CK_DLL_SFUN( Centroid_compute )
     else
     {
         // do it
-        RETURN->v_float = compute_centroid( *array, array->capacity() );
+        RETURN->v_float = compute_centroid( *array, array->size() );
     }
 }
 
@@ -303,11 +303,11 @@ static void compute_norm_rms( Chuck_Array8 & curr, Chuck_Array8 & norm )
     t_CKFLOAT v;
 
     // check size
-    if( norm.capacity() != curr.capacity() )
-        norm.set_capacity( curr.capacity() );
+    if( norm.size() != curr.size() )
+        norm.set_size( curr.size() );
 
     // get energy
-    for( i = 0; i < curr.capacity(); i++ )
+    for( i = 0; i < curr.size(); i++ )
     {
         curr.get( i, &v );
         energy += v * v;
@@ -317,13 +317,13 @@ static void compute_norm_rms( Chuck_Array8 & curr, Chuck_Array8 & norm )
     if (energy == 0.0) 
     {
         // all zeros
-        norm.zero( 0, norm.capacity() );
+        norm.zero( 0, norm.size() );
         return;
     }
     else 
         energy = ::sqrt( energy );
     
-    for( i = 0; i < curr.capacity(); i++ )
+    for( i = 0; i < curr.size(); i++ )
     {
         curr.get( i, & v );
         if( v > 0.0) 
@@ -337,15 +337,15 @@ static void compute_norm_rms( Chuck_Array8 & curr, Chuck_Array8 & norm )
 static t_CKFLOAT compute_flux( Chuck_Array8 & curr, Chuck_Array8 & prev, Chuck_Array8 * write )
 {
     // sanity check
-    assert( curr.capacity() == prev.capacity() );
+    assert( curr.size() == prev.size() );
 
-    // ensure capacity
-    if( write != NULL && (write->capacity() != curr.capacity()) )
-        write->set_capacity( curr.capacity() );
+    // ensure size
+    if( write != NULL && (write->size() != curr.size()) )
+        write->set_size( curr.size() );
 
     // find difference
     t_CKFLOAT v, w, result = 0.0;
-    for( t_CKUINT i = 0; i < curr.capacity(); i++ )
+    for( t_CKUINT i = 0; i < curr.size(); i++ )
     {
         curr.get( i, &v );
         prev.get( i, &w );
@@ -366,12 +366,12 @@ static t_CKFLOAT compute_flux( Chuck_Array8 & curr, StateOfFlux & sof )
     t_CKFLOAT result = 0.0;
     t_CKFLOAT v;
 
-    // verify capacity
-    if( curr.capacity() != sof.prev.capacity() )
+    // verify size
+    if( curr.size() != sof.prev.size() )
     {
         sof.initialized = FALSE;
         // resize prev
-        sof.prev.set_capacity( curr.capacity() );
+        sof.prev.set_size( curr.size() );
     }
 
     // check initialized
@@ -384,7 +384,7 @@ static t_CKFLOAT compute_flux( Chuck_Array8 & curr, StateOfFlux & sof )
     }
 
     // copy curr to prev
-    for( t_CKUINT i = 0; i < curr.capacity(); i++ )
+    for( t_CKUINT i = 0; i < curr.size(); i++ )
     {
         // get the value
         sof.norm.get( i, &v );
@@ -451,9 +451,9 @@ CK_DLL_TOCK( Flux_tock )
 
     // get fvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
-    // ensure capacity == resulting size
-    if( fvals.capacity() != 1 )
-        fvals.set_capacity( 1 );
+    // ensure size == resulting size
+    if( fvals.size() != 1 )
+        fvals.set_size( 1 );
     // copy the result in
     fvals.set( 0, result );
 
@@ -489,7 +489,7 @@ CK_DLL_SFUN( Flux_compute )
     else
     {
         // verify size
-        if( lhs->capacity() != rhs->capacity() )
+        if( lhs->size() != rhs->size() )
         {
             // message
             EM_error3( "(via Flux): compute() expects two arrays of equal size" );
@@ -520,7 +520,7 @@ CK_DLL_SFUN( Flux_compute2 )
     else
     {
         // verify size
-        if( lhs->capacity() != rhs->capacity() )
+        if( lhs->size() != rhs->size() )
         {
             // message
             EM_error3( "(via Flux): compute() expects two arrays of equal size" );
@@ -577,7 +577,7 @@ CK_DLL_TOCK( RMS_tock )
         // get the array
         Chuck_Array8 & mag = BLOB_IN->fvals();
         // compute centroid
-        result = compute_rms( mag, mag.capacity() );
+        result = compute_rms( mag, mag.size() );
     }
     // otherwise zero out
     else
@@ -588,9 +588,9 @@ CK_DLL_TOCK( RMS_tock )
 
     // get fvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
-    // ensure capacity == resulting size
-    if( fvals.capacity() != 1 )
-        fvals.set_capacity( 1 );
+    // ensure size == resulting size
+    if( fvals.size() != 1 )
+        fvals.set_size( 1 );
     // copy the result in
     fvals.set( 0, result );
 
@@ -616,7 +616,7 @@ CK_DLL_SFUN( RMS_compute )
     else
     {
         // do it
-        RETURN->v_float = compute_rms( *array, array->capacity() );
+        RETURN->v_float = compute_rms( *array, array->size() );
     }
 }
 
@@ -684,7 +684,7 @@ CK_DLL_TOCK( RollOff_tock )
         // get the array
         Chuck_Array8 & mag = BLOB_IN->fvals();
         // compute rolloff
-        result = compute_rolloff( mag, mag.capacity(), percent );
+        result = compute_rolloff( mag, mag.size(), percent );
     }
     // otherwise zero out
     else
@@ -695,9 +695,9 @@ CK_DLL_TOCK( RollOff_tock )
 
     // get fvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
-    // ensure capacity == resulting size
-    if( fvals.capacity() != 1 )
-        fvals.set_capacity( 1 );
+    // ensure size == resulting size
+    if( fvals.size() != 1 )
+        fvals.set_size( 1 );
     // copy the result in
     fvals.set( 0, result );
 
@@ -745,6 +745,6 @@ CK_DLL_SFUN( RollOff_compute )
     else
     {
         // do it
-        RETURN->v_float = compute_rolloff( *array, array->capacity(), percent );
+        RETURN->v_float = compute_rolloff( *array, array->size(), percent );
     }
 }

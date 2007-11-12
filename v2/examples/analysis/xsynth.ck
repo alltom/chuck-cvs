@@ -9,7 +9,7 @@ IFFT ifft => dac;
 // what to cross
 BlitSquare blt[6];
 [ 66, 70, 73, 78, 84, 87] @=> int pitches[];
-for( int i; i < blt.cap(); i++ )
+for( int i; i < blt.size(); i++ )
 {
     blt[i] => Y;
     20 => blt[i].harmonics;
