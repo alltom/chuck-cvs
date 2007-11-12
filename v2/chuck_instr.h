@@ -2161,6 +2161,34 @@ struct Chuck_Instr_Pre_Ctor_Array_Post : public Chuck_Instr
 
 
 //-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Array_Prepend
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Array_Prepend : public Chuck_Instr_Unary_Op
+{
+    Chuck_Instr_Array_Prepend( t_CKUINT size ) { set( size ); }
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    // virtual const char * params() const;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: struct Chuck_Instr_Array_Append
+// desc: ...
+//-----------------------------------------------------------------------------
+struct Chuck_Instr_Array_Append : public Chuck_Instr_Unary_Op
+{
+    Chuck_Instr_Array_Append( t_CKUINT size ) { set( size ); }
+    virtual void execute( Chuck_VM * vm, Chuck_VM_Shred * shred );
+    // virtual const char * params() const;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: struct Chuck_Instr_Assign_String
 // desc: assign primitive (string)
 //-----------------------------------------------------------------------------

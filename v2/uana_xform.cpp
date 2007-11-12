@@ -582,7 +582,7 @@ void FFT_object::transform( )
 void FFT_object::transform( Chuck_Array8 * frame )
 {
     // convert to right type
-    t_CKINT amount = ck_min( frame->capacity(), m_size );
+    t_CKINT amount = ck_min( frame->size(), m_size );
     // copy
     t_CKFLOAT v;
     for( t_CKINT i = 0; i < amount; i++ )
@@ -612,13 +612,23 @@ void FFT_object::copyTo( Chuck_Array16 * cmp )
     if( m_buffer == NULL && m_spectrum == NULL )
     {
         // zero out
-        cmp->zero( 0, cmp->capacity() );
+        cmp->clear();
         // bye
         return;
     }
 
+    // get amount
+    t_CKINT amount = m_size/2;
+    // allocate
+    cmp->set_size( amount );
+
+    t_CKINT i;
+    for( i = 0; i < amount; i++ )
+         cmp->set( i, m_spectrum[i] );
+
+    /*
     // copy modulo 2*pi
-    t_CKINT left = cmp->capacity();
+    t_CKINT left = cmp->size();
     t_CKINT amount, i, j, sum = 0, which = 0;
 
     // go
@@ -640,6 +650,7 @@ void FFT_object::copyTo( Chuck_Array16 * cmp )
         sum += amount;
         which = !which;
     }
+    */
 }
 
 
@@ -711,17 +722,17 @@ CK_DLL_TOCK( FFT_tock )
     // get cvals of output BLOB
     Chuck_Array16 & cvals = BLOB->cvals();
     // ensure capacity == resulting size
-    if( cvals.capacity() != fft->m_size/2 )
-        cvals.set_capacity( fft->m_size/2 );
+    if( cvals.size() != fft->m_size/2 )
+        cvals.set_size( fft->m_size/2 );
     // copy the result in
     for( i = 0; i < fft->m_size/2; i++ )
         cvals.set( i, fft->m_spectrum[i] );
 
     // get fvals of output BLOB; fill with magnitude spectrum
     Chuck_Array8 & fvals = BLOB->fvals();
-    // ensure capacity == resulting size
-    if( fvals.capacity() != fft->m_size/2 )
-        fvals.set_capacity( fft->m_size/2 );
+    // ensure size == resulting size
+    if( fvals.size() != fft->m_size/2 )
+        fvals.set_size( fft->m_size/2 );
     // copy the result in
     for( i = 0; i < fft->m_size/2; i++ )
         fvals.set( i, __modulus(fft->m_spectrum[i]) );
@@ -756,7 +767,7 @@ CK_DLL_CTRL( FFT_ctrl_window )
     // get window (can be NULL)
     Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
     // set it
-    fft->window( arr, arr != NULL ? arr->capacity() : 0 );
+    fft->window( arr, arr != NULL ? arr->size() : 0 );
     // return it through
     RETURN->v_object = arr;
 }
@@ -1082,7 +1093,7 @@ void IFFT_object::transform( )
 void IFFT_object::transform( Chuck_Array16 * cmp )
 {
     // convert to right type
-    t_CKINT amount = ck_min( cmp->capacity(), m_size/2 );
+    t_CKINT amount = ck_min( cmp->size(), m_size/2 );
     // copy
     t_CKCOMPLEX v;
     for( t_CKINT i = 0; i < amount; i++ )
@@ -1113,21 +1124,24 @@ void IFFT_object::copyTo( Chuck_Array8 * samples )
     if( m_buffer == NULL && m_inverse == NULL )
     {
         // zero out
-        samples->zero( 0, samples->capacity() );
+        samples->clear();
+        // samples->zero( 0, samples->size() );
         // bye
         return;
     }
 
     // the amount
-    t_CKINT amount = ck_min( m_size, samples->capacity() );
+    t_CKINT amount = m_size; // ck_min( m_size, samples->size() );
+    // allocate
+    samples->set_size( amount );
 
     // go over
     for( t_CKINT i = 0; i < amount; i++ )
         samples->set( i, m_inverse[i] );
 
     // any left
-    if( samples->capacity() > amount )
-        samples->zero( amount, samples->capacity() );
+    // if( amount < samples->size() )
+    //     samples->set_size( amount );
 }
 
 
@@ -1200,8 +1214,8 @@ CK_DLL_TOCK( IFFT_tock )
         // get the array
         Chuck_Array16 & cmp = BLOB_IN->cvals();
         // resize if necessary
-        if( cmp.capacity()*2 > ifft->m_size )
-            ifft->resize( cmp.capacity()*2 );
+        if( cmp.size()*2 > ifft->m_size )
+            ifft->resize( cmp.size()*2 );
         // sanity check
         assert( ifft->m_buffer != NULL );
         // copy into transform buffer
@@ -1228,9 +1242,9 @@ CK_DLL_TOCK( IFFT_tock )
 
     // get fvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
-    // ensure capacity == resulting size
-    if( fvals.capacity() != ifft->m_size )
-        fvals.set_capacity( ifft->m_size );
+    // ensure size == resulting size
+    if( fvals.size() != ifft->m_size )
+        fvals.set_size( ifft->m_size );
     // copy the result in
     for( t_CKINT i = 0; i < ifft->m_size; i++ )
         fvals.set( i, ifft->m_inverse[i] );
@@ -1252,8 +1266,8 @@ CK_DLL_MFUN( IFFT_transform )
     // sanity
     if( cmp == NULL ) goto null_pointer;
     // resize if bigger
-    if( cmp->capacity()*2 > ifft->m_size )
-        ifft->resize( cmp->capacity()*2 );
+    if( cmp->size()*2 > ifft->m_size )
+        ifft->resize( cmp->size()*2 );
     // transform it
     ifft->transform( cmp );
 
@@ -1286,7 +1300,7 @@ CK_DLL_CTRL( IFFT_ctrl_window )
     // get win (can be NULL)
     Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
     // set it
-    ifft->window( arr, arr != NULL ? arr->capacity() : 0 );
+    ifft->window( arr, arr != NULL ? arr->size() : 0 );
     // return
     RETURN->v_object = arr;
 }
@@ -1406,10 +1420,10 @@ static t_CKBOOL prepare_window( void * ARGS, Chuck_VM_Shred * SHRED, t_CKINT & s
     }
 
     // resize the thing
-    if( size != Windowing_array->capacity() )
-        Windowing_array->set_capacity( size );
+    if( size != Windowing_array->size() )
+        Windowing_array->set_size( size );
     // sanity
-    if( size != Windowing_array->capacity() )
+    if( size != Windowing_array->size() )
         goto out_of_memory;
     // resize if necessary
     if( size > float_array_size )
@@ -1801,13 +1815,23 @@ void DCT_object::copyTo( Chuck_Array8 * frame )
     if( m_buffer == NULL && m_spectrum == NULL )
     {
         // zero out
-        frame->zero( 0, frame->capacity() );
+        frame->clear();
         // bye
         return;
     }
 
+    // amount
+    t_CKINT amount = m_size;
+    // allocate
+    frame->set_size( amount );
+
+    t_CKINT i;
+    for( i = 0; i < amount; i++ )
+        frame->set( i, m_spectrum[i] );
+
+    /*
     // copy modulo 2*pi
-    t_CKINT left = frame->capacity();
+    t_CKINT left = frame->size();
     t_CKINT amount, i, sum = 0, which = 0;
 
     // go
@@ -1829,6 +1853,7 @@ void DCT_object::copyTo( Chuck_Array8 * frame )
         sum += amount;
         if( !which ) which = 1;
     }
+    */
 }
 
 
@@ -1900,8 +1925,8 @@ CK_DLL_TOCK( DCT_tock )
     // get cvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
     // ensure capacity == resulting size
-    if( fvals.capacity() != dct->m_size )
-        fvals.set_capacity( dct->m_size );
+    if( fvals.size() != dct->m_size )
+        fvals.set_size( dct->m_size );
     // copy the result in
     for( i = 0; i < dct->m_size; i++ )
         fvals.set( i, dct->m_spectrum[i] );
@@ -1934,7 +1959,7 @@ CK_DLL_CTRL( DCT_ctrl_window )
     // get window (can be NULL)
     Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
     // set it
-    dct->window( arr, arr != NULL ? arr->capacity() : 0 );
+    dct->window( arr, arr != NULL ? arr->size() : 0 );
 }
 
 
@@ -2258,7 +2283,7 @@ void IDCT_object::transform( )
 void IDCT_object::transform( Chuck_Array8 * frame )
 {
     // convert to right type
-    t_CKINT amount = ck_min( frame->capacity(), m_size );
+    t_CKINT amount = ck_min( frame->size(), m_size );
     // copy
     t_CKFLOAT v;
     for( t_CKINT i = 0; i < amount; i++ )
@@ -2288,21 +2313,23 @@ void IDCT_object::copyTo( Chuck_Array8 * samples )
     if( m_buffer == NULL && m_inverse == NULL )
     {
         // zero out
-        samples->zero( 0, samples->capacity() );
+        samples->clear();
         // bye
         return;
     }
 
     // the amount
-    t_CKINT amount = ck_min( m_size, samples->capacity() );
+    t_CKINT amount = m_size; // ck_min( m_size, samples->size() );
+    // allocate
+    samples->set_size( amount );
 
     // go over
     for( t_CKINT i = 0; i < amount; i++ )
         samples->set( i, m_inverse[i] );
 
     // any left
-    if( samples->capacity() > amount )
-        samples->zero( amount, samples->capacity() );
+    // if( amount < samples->size() )
+    //     samples->set_size( amount );
 }
 
 
@@ -2375,8 +2402,8 @@ CK_DLL_TOCK( IDCT_tock )
         // get the array
         Chuck_Array16 & cmp = BLOB_IN->cvals();
         // resize if necessary
-        if( cmp.capacity()*2 > idct->m_size )
-            idct->resize( cmp.capacity()*2 );
+        if( cmp.size()*2 > idct->m_size )
+            idct->resize( cmp.size()*2 );
         // sanity check
         assert( idct->m_buffer != NULL );
         // copy into transform buffer
@@ -2403,9 +2430,9 @@ CK_DLL_TOCK( IDCT_tock )
 
     // get fvals of output BLOB
     Chuck_Array8 & fvals = BLOB->fvals();
-    // ensure capacity == resulting size
-    if( fvals.capacity() != idct->m_size )
-        fvals.set_capacity( idct->m_size );
+    // ensure size == resulting size
+    if( fvals.size() != idct->m_size )
+        fvals.set_size( idct->m_size );
     // copy the result in
     for( t_CKINT i = 0; i < idct->m_size; i++ )
         fvals.set( i, idct->m_inverse[i] );
@@ -2427,8 +2454,8 @@ CK_DLL_MFUN( IDCT_transform )
     // sanity
     if( frame == NULL ) goto null_pointer;
     // resize if bigger
-    if( frame->capacity() > idct->m_size )
-        idct->resize( frame->capacity() );
+    if( frame->size() > idct->m_size )
+        idct->resize( frame->size() );
     // transform it
     idct->transform( frame );
 
@@ -2461,7 +2488,7 @@ CK_DLL_CTRL( IDCT_ctrl_window )
     // get win (can be NULL)
     Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
     // set it
-    idct->window( arr, arr != NULL ? arr->capacity() : 0 );
+    idct->window( arr, arr != NULL ? arr->size() : 0 );
 }
 
 

@@ -1718,6 +1718,11 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
             emit->append( instr = new Chuck_Instr_Binary_Shift_Left );
             break;
 
+        case te_array:
+            // check size
+            emit->append( instr = new Chuck_Instr_Array_Append( t_left->array_type->size ) );
+            break;
+
         default: break;
         }
         break;
@@ -1740,6 +1745,10 @@ t_CKBOOL emit_engine_emit_op( Chuck_Emitter * emit, ae_Operator op, a_Exp lhs, a
         case te_int:
             emit->append( instr = new Chuck_Instr_Binary_Shift_Right );
             break;
+
+        // case te_array:
+            // emit->append( instr = new Chuck_Instr_Array_Prepend( t_left->array_type->size ) );
+            // break;
 
         default: break;
         }

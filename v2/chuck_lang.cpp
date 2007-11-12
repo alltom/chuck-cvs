@@ -737,15 +737,27 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "void", "clear", array_clear );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add popBack()
+    func = make_new_mfun( "void", "popBack", array_pop_back );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add size()
-    func = make_new_mfun( "int", "size", array_size );
+    func = make_new_mfun( "int", "size", array_get_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // add size()
+    func = make_new_mfun( "int", "size", array_set_size );
+    func->add_arg( "int", "newSize" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add cap()
-    func = make_new_mfun( "int", "cap", array_set_capacity );
-    func->add_arg( "int", "val" );
+    func = make_new_mfun( "int", "cap", array_get_capacity_hack );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "int", "cap", array_get_capacity );
+    //func = make_new_mfun( "int", "cap", array_set_capacity );
+    //func->add_arg( "int", "val" );
+    //if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add capacity()
+    func = make_new_mfun( "int", "capacity", array_get_capacity );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add find()
@@ -1728,7 +1740,7 @@ CK_DLL_MFUN( uana_fval )
     Chuck_UAnaBlobProxy * blob = (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(SELF, uana_offset_blob);
     Chuck_Array8 & fvals = blob->fvals();
     // check caps
-    if( i < 0 || fvals.capacity() <= i ) RETURN->v_float = 0;
+    if( i < 0 || fvals.size() <= i ) RETURN->v_float = 0;
     else
     {
         // get
@@ -1746,7 +1758,7 @@ CK_DLL_MFUN( uana_cval )
     Chuck_UAnaBlobProxy * blob = (Chuck_UAnaBlobProxy *)OBJ_MEMBER_INT(SELF, uana_offset_blob);
     Chuck_Array16 & cvals = blob->cvals();
     // check caps
-    if( i < 0 || cvals.capacity() <= i ) RETURN->v_complex.re = RETURN->v_complex.im = 0;
+    if( i < 0 || cvals.size() <= i ) RETURN->v_complex.re = RETURN->v_complex.im = 0;
     else
     {
         // get
@@ -1855,7 +1867,7 @@ CK_DLL_MFUN( uanablob_fval )
     // get the fvals array
     Chuck_Array8 * fvals = (Chuck_Array8 *)OBJ_MEMBER_INT(SELF, uanablob_offset_fvals);
     // check caps
-    if( i < 0 || fvals->capacity() <= i ) RETURN->v_float = 0;
+    if( i < 0 || fvals->size() <= i ) RETURN->v_float = 0;
     else
     {
         // get
@@ -1872,7 +1884,7 @@ CK_DLL_MFUN( uanablob_cval )
     // get the fvals array
     Chuck_Array16 * cvals = (Chuck_Array16 *)OBJ_MEMBER_INT(SELF, uanablob_offset_cvals);
     // check caps
-    if( i < 0 || cvals->capacity() <= i ) RETURN->v_complex.re = RETURN->v_complex.im = 0;
+    if( i < 0 || cvals->size() <= i ) RETURN->v_complex.re = RETURN->v_complex.im = 0;
     else
     {
         // get
@@ -2121,9 +2133,28 @@ CK_DLL_MFUN( string_get_at )
 
 
 // array.size()
-CK_DLL_MFUN( array_size )
+CK_DLL_MFUN( array_get_size )
 {
     Chuck_Array * array = (Chuck_Array *)SELF;
+    RETURN->v_int = array->size();
+}
+
+// array.size()
+CK_DLL_MFUN( array_set_size )
+{
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    t_CKINT size = GET_NEXT_INT(ARGS);
+    if( size < 0 )
+    {
+        // TODO: make this exception
+        fprintf( stderr, "[chuck](via array): attempt to set negative array size!\n" );
+        RETURN->v_int = 0;
+    }
+    else
+    {
+        array->set_size( size );
+        RETURN->v_int = array->size();
+    }
     RETURN->v_int = array->size();
 }
 
@@ -2153,6 +2184,13 @@ CK_DLL_MFUN( array_set_capacity )
 }
 
 // array.cap()
+CK_DLL_MFUN( array_get_capacity_hack )
+{
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    RETURN->v_int = array->size();
+}
+
+// array.capacity()
 CK_DLL_MFUN( array_get_capacity )
 {
     Chuck_Array * array = (Chuck_Array *)SELF;

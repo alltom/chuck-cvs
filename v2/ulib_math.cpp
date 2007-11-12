@@ -529,7 +529,7 @@ CK_DLL_SFUN( rtop_impl )
     }
     
     // find how much to copy
-    t_CKUINT count = ck_min( from->capacity(), to->capacity() );
+    t_CKUINT count = ck_min( from->size(), to->size() );
     t_CKCOMPLEX c;
     t_CKCOMPLEX p;
     
@@ -544,7 +544,8 @@ CK_DLL_SFUN( rtop_impl )
     }
     
     // zero out the rest
-    if( count < to->capacity() ) to->zero( count, to->capacity() );
+    // if( count < to->size() ) to->zero( count, to->size() );
+    if( count < to->size() ) to->set_size( count );
     
     // return number of elements done
     RETURN->v_int = count;
@@ -567,7 +568,7 @@ CK_DLL_SFUN( ptor_impl )
     }
     
     // find how much to copy
-    t_CKUINT count = ck_min( from->capacity(), to->capacity() );
+    t_CKUINT count = ck_min( from->size(), to->size() );
     t_CKCOMPLEX c;
     t_CKPOLAR p;
     
@@ -582,7 +583,8 @@ CK_DLL_SFUN( ptor_impl )
     }
     
     // zero out the rest
-    if( count < to->capacity() ) to->zero( count, to->size() );
+    // if( count < to->capacity() ) to->zero( count, to->size() );
+    if( count < to->size() ) to->set_size( count );
     
     // return number of elements done
     RETURN->v_int = count;

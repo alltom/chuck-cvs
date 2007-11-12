@@ -3592,11 +3592,11 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         if( !array ) goto out_of_memory;
         // initialize object
         initialize_object( array, &t_array );
+        // set size
+        array->set_size( m_length );
         // fill array
         for( t_CKINT i = 0; i < m_length; i++ )
             array->set( i, *(reg_sp + i) );
-        // set size
-        array->m_size = m_length;
         // push the pointer
         push_( reg_sp, (t_CKUINT)array );
     }
@@ -3612,11 +3612,11 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         t_CKFLOAT * sp = (t_CKFLOAT *)reg_sp;
         // intialize object
         initialize_object( array, &t_array );
+        // set size
+        array->set_size( m_length );
         // fill array
         for( t_CKINT i = 0; i < m_length; i++ )
             array->set( i, *(sp + i) );
-        // set size
-        array->m_size = m_length;
         // push the pointer
         push_( reg_sp, (t_CKUINT)array );
     }
@@ -3632,11 +3632,11 @@ void Chuck_Instr_Array_Init::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         t_CKCOMPLEX * sp = (t_CKCOMPLEX *)reg_sp;
         // intialize object
         initialize_object( array, &t_array );
+        // set size
+        array->set_size( m_length );
         // fill array
         for( t_CKINT i = 0; i < m_length; i++ )
             array->set( i, *(sp + i) );
-        // set size
-        array->m_size = m_length;
         // push the pointer
         push_( reg_sp, (t_CKUINT)array );
     }
@@ -3779,7 +3779,7 @@ Chuck_Object * do_alloc_array( t_CKINT * capacity, const t_CKINT * top,
     if( !base ) goto out_of_memory;
 
     // allocate the next level
-    for( i = 0; i < base->capacity(); i++ )
+    for( i = 0; i < *capacity; i++ )
     {
         // the next
         next = do_alloc_array( capacity+1, top, size, is_obj, objs, index );
@@ -4306,6 +4306,90 @@ array_out_of_bound:
              "[chuck](VM): ArrayOutofBounds: in shred[id=%d:%s], PC=[%d], index=[%d]\n", 
              shred->xid, shred->name.c_str(), shred->pc, i );
     // go to done
+    goto done;
+
+done:
+    // do something!
+    shred->is_running = FALSE;
+    shred->is_done = TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Array_Prepend::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: execute()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Chuck_Instr_Array_Append::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
+{
+    // reg stack pointer
+    t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
+    t_CKINT i = 0;
+    t_CKUINT val = 0;
+    t_CKFLOAT fval = 0;
+    t_CKCOMPLEX cval;
+    cval.re = 0;
+    cval.im = 0;
+
+    // pop
+    pop_( sp, 1+(m_val/4) );
+
+    // check pointer
+    if( !(*sp) ) goto null_pointer;
+
+    // 4 or 8 or 16
+    if( m_val == 4 ) // ISSUE: 64-bit
+    {
+        // get array
+        Chuck_Array4 * arr = (Chuck_Array4 *)(*sp);
+        // get value
+        val = (t_CKINT)(*(sp+1));
+        // append
+        arr->push_back( val );
+    }
+    else if( m_val == 8 ) // ISSUE: 64-bit
+    {
+        // get array
+        Chuck_Array8 * arr = (Chuck_Array8 *)(*sp);
+        // get value
+        fval = (*(t_CKFLOAT *)(sp+1));
+        // append
+        arr->push_back( fval );
+    }
+    else if( m_val == 16 ) // ISSUE: 64-bit
+    {
+        // get array
+        Chuck_Array16 * arr = (Chuck_Array16 *)(*sp);
+        // get value
+        cval = (*(t_CKCOMPLEX *)(sp+1));
+        // append
+        arr->push_back( cval );
+    }
+    else
+        assert( FALSE );
+
+    // push array back on stack
+    push_( sp, (*sp) );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](VM): NullPointerException: (array append) in shred[id=%d:%s], PC=[%d]\n",
+        shred->xid, shred->name.c_str(), shred->pc );
     goto done;
 
 done:

@@ -175,17 +175,14 @@ public:
     // Chuck_Array();
     // virtual ~Chuck_Array() { }
 
-    virtual t_CKINT size( ) const { return m_size; } // array size
-    virtual t_CKINT capacity( ) const { return m_capacity; } // array capacity
+    virtual t_CKINT size( ) = 0; // const { return m_size; } // array size
+    virtual t_CKINT capacity( ) = 0; // const { return m_capacity; } // array capacity
+    virtual t_CKINT set_size( t_CKINT size ) = 0; // array size
     virtual t_CKINT set_capacity( t_CKINT capacity ) = 0; // set
     virtual t_CKINT data_type_size( ) = 0; // size of stored type ( from type_ref )
     virtual t_CKINT find( const std::string & key ) = 0; // find
     virtual t_CKINT erase( const std::string & key ) = 0; // erase
     virtual void clear( ) = 0; // clear
-
-public:
-    t_CKUINT m_size;
-    t_CKUINT m_capacity;
 };
 
 
@@ -214,6 +211,9 @@ public:
     void    zero( t_CKUINT start, t_CKUINT end );
 
     virtual void    clear( );
+    virtual t_CKINT size( ) { return m_vector.size(); }
+    virtual t_CKINT capacity( ) { return m_vector.capacity(); }
+    virtual t_CKINT set_size( t_CKINT size );
     virtual t_CKINT set_capacity( t_CKINT capacity );
     virtual t_CKINT find( const std::string & key );
     virtual t_CKINT erase( const std::string & key );
@@ -253,6 +253,9 @@ public:
     void    zero( t_CKUINT start, t_CKUINT end );
 
     virtual void    clear( );
+    virtual t_CKINT size( ) { return m_vector.size(); }
+    virtual t_CKINT capacity( ) { return m_vector.capacity(); }
+    virtual t_CKINT set_size( t_CKINT size );
     virtual t_CKINT set_capacity( t_CKINT capacity );
     virtual t_CKINT find( const std::string & key );
     virtual t_CKINT erase( const std::string & key );
@@ -290,6 +293,9 @@ public:
     void    zero( t_CKUINT start, t_CKUINT end );
 
     virtual void    clear( );
+    virtual t_CKINT size( ) { return m_vector.size(); }
+    virtual t_CKINT capacity( ) { return m_vector.capacity(); }
+    virtual t_CKINT set_size( t_CKINT size );
     virtual t_CKINT set_capacity( t_CKINT capacity );
     virtual t_CKINT find( const std::string & key );
     virtual t_CKINT erase( const std::string & key );

@@ -1344,6 +1344,28 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
         {
             LR( te_dur, te_int ) right = rhs->cast_to = &t_float;
         }
+
+        // array
+        if( op == ae_op_shift_left && isa( left, &t_array ) )
+        {
+            // type of array
+            Chuck_Type * atype = left->array_type;
+            // check type
+            if( isa( atype, &t_float ) )
+            {
+                if( right->xid == te_int ) right = rhs->cast_to = &t_float;
+            }
+            else if( isa( atype, &t_complex ) )
+            {
+                if( right->xid == te_int || right->xid == te_float 
+                    || right->xid == te_polar ) right = rhs->cast_to = &t_complex;
+            }
+            else if( isa( atype, &t_polar ) )
+            {
+                if( right->xid == te_int || right->xid == te_float 
+                    || right->xid == te_complex ) right = rhs->cast_to = &t_complex;
+            }
+        }
     }
     
     // objects
@@ -1550,7 +1572,16 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
     case ae_op_s_and:
     case ae_op_s_or:
     case ae_op_shift_left:
+        // prepend || append
+        if( isa( left, &t_array ) )
+        {
+            // sanity check
+            assert( left->array_type != NULL );
+            // check type
+            if( isa( right, left->array_type ) ) return left;
+        }
     case ae_op_shift_right:
+        // shift
         LR( te_int, te_int ) return &t_int;
     break;
 
