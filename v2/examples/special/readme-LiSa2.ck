@@ -99,6 +99,8 @@ loopme.play(voice1, 0);
 //LiSa Command Summary:
 //
 //	mylisa.duration(dur); required -- sets max length of buffer
+//		note that this will reinitialize the object, erasing anything
+//		you have recorded, or any parameters you have set.
 //	mylisa.duration(); returns max length of buffer
 //	mylisa.record(1/0); turn on/off recording into buffer
 //	mylisa.getVoice() => voice (int); returns first free voice number
@@ -111,6 +113,8 @@ loopme.play(voice1, 0);
 //	mylisa.playPos(voice); returns playback position for "voice"
 //	mylisa.recordPos(dur); sets record position
 //	mylisa.recordPos(); gets record position
+//  mylisa.valueAt(sample, dur); put sample directly in record buffer, at dur
+//  mylisa.valueAt(dur); get sample directly from record buffer, at dur
 //	mylisa.recRamp(dur); sets ramping for the edges of the record buffer
 //	mylisa.loopStart(dur, voice); sets loopstart point for "voice"
 //	mylisa.loopStart(voice); get loopstart
@@ -122,8 +126,9 @@ loopme.play(voice1, 0);
 //	mylisa.bi(voice); get bi state
 //	mylisa.voiceGain(voice, float); sets gain "voice"
 //	mylisa.voiceGain(voice); gets gain for "voice"
-//	mylisa.loopEndRec(dur); set looping end point for recording
+//	mylisa.loopEndRec(dur); set looping end point for recording (should add loopStartRec)
 //	mylisa.loopEndRec(); get ...
+//  mylisa.loopRec(); get/set loop recording toggle (1 by default)
 //	mylisa.feedback(float); set feedback amount [0,1] for recording
 //	mylisa.feedback(); get...
 //	mylisa.clear(); clear recording buffer
