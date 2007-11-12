@@ -1,8 +1,11 @@
 ---
 1.2.1.2
   - (added) dynamic, resizable arrays
-            .size( int ) resizes array
-            << operator appends new elements into array
+                .size( int ) resizes array
+                << operator appends new elements into array
+            (see examples/array/
+                array_dyanmic.ck
+                array_resize.ck)
   - (fixed) dac amplitude no longer halved!
             NOTE: this increases the gain from before by
             a factor of 2, or roughly 6 dB!!  BEWARE!!
