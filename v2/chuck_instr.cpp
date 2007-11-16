@@ -2718,6 +2718,8 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
         // check type TODO: make this faster
         if( isa( type, &t_event ) ) object = new Chuck_Event;
         else if( isa( type, &t_string ) ) object = new Chuck_String;
+        // TODO: is this ok?
+        else if( isa( type, &t_shred ) ) object = new Chuck_VM_Shred;
         else object = new Chuck_Object;
     }
     else

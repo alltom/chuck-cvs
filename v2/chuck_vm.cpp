@@ -1419,6 +1419,7 @@ Chuck_VM_Shred::Chuck_VM_Shred()
     base_ref = NULL;
     vm_ref = NULL;
     event = NULL;
+    xid = 0;
 
     // set
     CK_TRACK( stat = NULL );

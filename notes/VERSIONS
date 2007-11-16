@@ -16,6 +16,7 @@
             .max( dur, float ) for initializing to delay/depth limits
             .baseDelay( dur ) sets current base delay
   - (fixed) dur +=> now no longer crashes
+  - (fixed) unsporked Shred instances now given id == 0
 
 ---
 1.2.1.1
