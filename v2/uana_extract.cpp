@@ -28,7 +28,7 @@
 //
 // author: Ge Wang (gewang@cs.princeton.edu)
 //         Rebecca Fiebrink (fiebrink@cs.princeton.edu)
-// date: Summer 2007
+// date: 20 November 2007
 //-----------------------------------------------------------------------------
 #include "uana_extract.h"
 #include "chuck_type.h"
@@ -76,6 +76,12 @@ CK_DLL_MFUN( RollOff_cget_percent );
 // offset
 static t_CKUINT RollOff_offset_percent = 0;
 
+// Feature Collector
+CK_DLL_TICK( FeatureCollector_tick);
+CK_DLL_TOCK( FeatureCollector_tock);
+CK_DLL_PMSG( FeatureCollector_pmsg);
+//CK_DLL_SFUN( FeatureCollector_compute);
+
 
 //-----------------------------------------------------------------------------
 // name: extract_query()
@@ -86,6 +92,17 @@ DLL_QUERY extract_query( Chuck_DL_Query * QUERY )
     Chuck_Env * env = Chuck_Env::instance();
 
     Chuck_DL_Func * func = NULL;
+
+    //---------------------------------------------------------------------
+    // init as base class: FeatureCollector
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "FeatureCollector", "UAna", env->global(), 
+                                        NULL, NULL,
+                                        FeatureCollector_tick, FeatureCollector_tock, FeatureCollector_pmsg ) )
+        return FALSE;
+
+    // end the class import
+    type_engine_import_class_end( env );
 
     //---------------------------------------------------------------------
     // init as base class: Centroid
@@ -191,6 +208,66 @@ error:
     return FALSE;
 }
 
+CK_DLL_TICK( FeatureCollector_tick )
+{
+    // do nothing
+    return TRUE;
+}
+
+// FeatureCollector_tock creates a flat vector from its upstream UAnae
+// TODO: Stick complex features in Blob, too? But what about fft? (don't want duplication)
+CK_DLL_TOCK( FeatureCollector_tock )
+{
+    //t_CKFLOAT * features; 
+    int num_feats = 0;
+    int num_incoming = UANA->numIncomingUAnae();
+    int i, j;
+    
+    
+    // Get all incoming features and agglomerate into one vector
+    if( num_incoming  > 0 )
+    {
+        //count the number of features in the array we're making
+        for (i = 0; i < num_incoming; i++) {
+            // get next blob
+            Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( i );
+            // sanity check
+            assert( BLOB_IN != NULL );
+            // count number of features from this UAna
+            Chuck_Array8 & these_fvals = BLOB_IN->fvals();
+            num_feats += these_fvals.size();
+        }
+
+        // get fvals of output BLOB
+        Chuck_Array8 & fvals = BLOB->fvals();
+        if( fvals.size() != num_feats )
+            fvals.set_size( num_feats );
+        
+        int next_index = 0;
+        for (i = 0; i < num_incoming; i++) {
+            // get next blob
+            Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( i );
+            Chuck_Array8 & these_fvals = BLOB_IN->fvals();
+            int num_these = these_fvals.size();
+            for (j = 0; j < num_these; j++) {
+                t_CKFLOAT v;
+                these_fvals.get(j, &v);
+                fvals.set( next_index, v);
+                next_index++;
+            }
+        } 
+    } else {
+        // no input to collect
+        BLOB->fvals().set_size(0);
+    }
+    return TRUE;
+}
+
+CK_DLL_PMSG( FeatureCollector_pmsg )
+{
+    // do nothing
+    return TRUE;
+}
 
 static t_CKFLOAT compute_centroid( Chuck_Array8 & buffer, t_CKUINT size )
 {
