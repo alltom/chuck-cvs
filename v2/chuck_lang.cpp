@@ -737,6 +737,10 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "void", "clear", array_clear );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add reset()
+    func = make_new_mfun( "void", "reset", array_reset );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add popBack()
     func = make_new_mfun( "void", "popBack", array_pop_back );
     if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -752,12 +756,12 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     // add cap()
     func = make_new_mfun( "int", "cap", array_get_capacity_hack );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    //func = make_new_mfun( "int", "cap", array_set_capacity );
-    //func->add_arg( "int", "val" );
-    //if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add capacity()
     func = make_new_mfun( "int", "capacity", array_get_capacity );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "capacity", array_set_capacity );
+    func->add_arg( "int", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add find()
@@ -2163,6 +2167,15 @@ CK_DLL_MFUN( array_clear )
 {
     Chuck_Array * array = (Chuck_Array *)SELF;
     array->clear();
+}
+
+// array.reset()
+CK_DLL_MFUN( array_reset )
+{
+    Chuck_Array * array = (Chuck_Array *)SELF;
+    array->clear();
+    // default capacity
+    array->set_capacity( 8 );
 }
 
 // array.cap()

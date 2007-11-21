@@ -577,10 +577,10 @@ t_CKINT Chuck_Array4::set_capacity( t_CKINT capacity )
     assert( capacity >= 0 );
 
     // if clearing capacity
-    if( capacity < m_vector.capacity() )
+    if( capacity < m_vector.size() )
     {
         // zero out section
-        zero( capacity, m_vector.capacity() );
+        set_size( capacity );
     }
 
     // resize vector
@@ -904,8 +904,8 @@ t_CKINT Chuck_Array8::set_capacity( t_CKINT capacity )
     assert( capacity >= 0 );
 
     // if less
-    if( capacity < m_vector.capacity() )
-        zero( capacity, m_vector.capacity() );
+    if( capacity < m_vector.size() )
+        set_size( capacity );
 
     // resize vector
     m_vector.reserve( capacity );
@@ -1211,8 +1211,8 @@ t_CKINT Chuck_Array16::set_capacity( t_CKINT capacity )
     assert( capacity >= 0 );
 
     // if less
-    if( capacity < m_vector.capacity() )
-        zero( capacity, m_vector.capacity() );
+    if( capacity < m_vector.size() )
+        set_size( capacity );
 
     // resize vector
     m_vector.reserve( capacity );

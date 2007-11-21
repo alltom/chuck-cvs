@@ -175,6 +175,7 @@ CK_DLL_MFUN( array_pop_front );
 CK_DLL_MFUN( array_find );
 CK_DLL_MFUN( array_erase );
 CK_DLL_MFUN( array_clear );
+CK_DLL_MFUN( array_reset );
 
 
 //-----------------------------------------------------------------------------

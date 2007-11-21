@@ -20,3 +20,16 @@ float argh[0];
 <<< "contents:", "">>>;
 for( int i; i < argh.size(); i++ )
     <<< "argh[", i, "]:", argh[i] >>>;
+
+// recap
+2 => argh.capacity;
+
+// print
+<<< "array size:", argh.size(), "array capacity:", argh.capacity() >>>;
+
+// reset
+argh.reset();
+
+// print
+<<< "array size:", argh.size(), "array capacity:", argh.capacity() >>>;
+
