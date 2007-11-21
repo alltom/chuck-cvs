@@ -219,16 +219,16 @@ CK_DLL_TICK( FeatureCollector_tick )
 CK_DLL_TOCK( FeatureCollector_tock )
 {
     //t_CKFLOAT * features; 
-    int num_feats = 0;
-    int num_incoming = UANA->numIncomingUAnae();
-    int i, j;
+    t_CKINT num_feats = 0;
+    t_CKINT num_incoming = UANA->numIncomingUAnae();
+    t_CKINT i, j;
     
     
     // Get all incoming features and agglomerate into one vector
-    if( num_incoming  > 0 )
+    if( num_incoming > 0 )
     {
         //count the number of features in the array we're making
-        for (i = 0; i < num_incoming; i++) {
+        for( i = 0; i < num_incoming; i++ ) {
             // get next blob
             Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( i );
             // sanity check
@@ -243,15 +243,15 @@ CK_DLL_TOCK( FeatureCollector_tock )
         if( fvals.size() != num_feats )
             fvals.set_size( num_feats );
         
-        int next_index = 0;
-        for (i = 0; i < num_incoming; i++) {
+        t_CKINT next_index = 0;
+        for( i = 0; i < num_incoming; i++ ) {
             // get next blob
             Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( i );
             Chuck_Array8 & these_fvals = BLOB_IN->fvals();
-            int num_these = these_fvals.size();
-            for (j = 0; j < num_these; j++) {
+            t_CKINT num_these = these_fvals.size();
+            for( j = 0; j < num_these; j++ ) {
                 t_CKFLOAT v;
-                these_fvals.get(j, &v);
+                these_fvals.get( j, &v );
                 fvals.set( next_index, v);
                 next_index++;
             }
@@ -260,6 +260,7 @@ CK_DLL_TOCK( FeatureCollector_tock )
         // no input to collect
         BLOB->fvals().set_size(0);
     }
+
     return TRUE;
 }
 
