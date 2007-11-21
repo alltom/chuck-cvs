@@ -3,6 +3,9 @@
   - (added) dynamic, resizable arrays
                 .size( int ) resizes array
                 << operator appends new elements into array
+                .capacity( int ) reserves minimum capacity
+                .clear() clears the size
+                .reset() clears the size, reserve default capacity
             (see examples/array/
                 array_dyanmic.ck
                 array_resize.ck)
