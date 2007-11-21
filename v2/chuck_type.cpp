@@ -1579,6 +1579,10 @@ t_CKTYPE type_engine_check_op( Chuck_Env * env, ae_Operator op, a_Exp lhs, a_Exp
             assert( left->array_type != NULL );
             // check type
             if( isa( right, left->array_type ) ) return left;
+            // both arrays
+            if( right->array_depth > 0 && left->array_depth > 0 )
+                if( right->array_type == left->array_type && 
+                    right->array_depth + 1 == left->array_depth ) return left;
         }
     case ae_op_shift_right:
         // shift
