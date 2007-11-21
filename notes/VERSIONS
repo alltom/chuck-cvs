@@ -6,6 +6,8 @@
             (see examples/array/
                 array_dyanmic.ck
                 array_resize.ck)
+  - (added) new UAna: FeatureCollector (rebecca)
+            turns UAna input into a single feature vector, upon .upchuck()
   - (fixed) dac amplitude no longer halved!
             NOTE: this increases the gain from before by
             a factor of 2, or roughly 6 dB!!  BEWARE!!
