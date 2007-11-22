@@ -21,7 +21,8 @@
             .max( dur, float ) for initializing to delay/depth limits
             .baseDelay( dur ) sets current base delay
   - (fixed) dur +=> now no longer crashes
-  - (fixed) unsporked Shred instances now given id == 0
+  - (fixed) unsporked Shred instances now given id == 0 (thanks Kassen)
+  - (fixed) typos in ugen_xxx.cpp and chuck-specific rtaudio.cpp (/moudi)
 
 ---
 1.2.1.1

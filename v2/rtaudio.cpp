@@ -4891,7 +4891,7 @@ void bufferSwitch(long index, ASIOBool processNow)
     EM_log( CK_LOG_SYSTEM, "RtApiAsio: callback handler error..." );
     EM_pushlog();
     EM_log( CK_LOG_INFO, "(%s)", exception.getMessageString() );
-    EM_poplog():
+    EM_poplog();
     return;
   }
 
@@ -4914,7 +4914,7 @@ void sampleRateChanged(ASIOSampleRate sRate)
     EM_log( CK_LOG_SYSTEM, "RtApiAsio: sampleRateChanged() error..." );
     EM_pushlog();
     EM_log( CK_LOG_INFO, "(%s)", exception.getMessageString() );
-    EM_poplog():
+    EM_poplog();
     return;
   }
 

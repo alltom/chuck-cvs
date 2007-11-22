@@ -2587,7 +2587,7 @@ CK_DLL_CTRL( sndbuf_ctrl_read )
         // open it
         SF_INFO info;
         info.format = 0;
-        char * format = strrchr( filename, '.');
+        const char * format = (const char *)strrchr( filename, '.');
         if( format && strcmp( format, ".raw" ) == 0 )
         { 
             fprintf( stderr, "[chuck](via SndBuf) %s :: type is '.raw'...\n    assuming 16 bit signed mono (PCM)\n", filename );
