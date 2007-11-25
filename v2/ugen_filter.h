@@ -162,6 +162,13 @@ CK_DLL_CGET( biquad_cget_a1 );
 CK_DLL_CTRL( biquad_ctrl_a2 );
 CK_DLL_CGET( biquad_cget_a2 );
 
+//Teabox
+CK_DLL_CTOR( teabox_ctor );
+CK_DLL_TICK( teabox_tick );
+CK_DLL_CGET( teabox_cget_analog );
+CK_DLL_CGET( teabox_cget_digital );
+CK_DLL_PMSG( teabox_pmsg );
+
 // onepole
 CK_DLL_CTOR( onepole_ctor );
 CK_DLL_DTOR( onepole_dtor );

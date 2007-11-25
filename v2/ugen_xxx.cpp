@@ -835,13 +835,18 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     func->add_arg( "int", "toggle" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
-    // set playback rate
+    // set/get playback rate
     func = make_new_mfun( "float", "rate", LiSaMulti_ctrl_rate );
     func->add_arg( "int", "voice" );
     func->add_arg( "float", "val" );
+	if( !type_engine_import_mfun( env, func ) ) goto error;
+	func = make_new_mfun( "float", "rate", LiSaMulti_cget_rate );
+    func->add_arg( "int", "voice" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     func = make_new_mfun( "float", "rate", LiSaMulti_ctrl_rate0 );
     func->add_arg( "float", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	func = make_new_mfun( "float", "rate", LiSaMulti_cget_rate0 );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // playback position
@@ -928,6 +933,22 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     func = make_new_mfun( "dur", "loopEndRec", LiSaMulti_cget_loop_end_rec);
     if( !type_engine_import_mfun( env, func ) ) goto error;
 	
+	// loop_rec toggle set; for turning on/off loop recording
+    func = make_new_mfun( "int", "loopRec", LiSaMulti_ctrl_loop_rec );
+    func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "loopRec", LiSaMulti_cget_loop_rec);
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	
+	// look at or put sample directly in record buffer, do not pass go
+    func = make_new_mfun( "float", "valueAt", LiSaMulti_ctrl_sample );
+    func->add_arg( "float", "val" );
+	func->add_arg( "dur", "index" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "float", "valueAt", LiSaMulti_cget_sample);
+	func->add_arg( "dur", "index" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	
 	// set/get voiceGain
     func = make_new_mfun( "float", "voiceGain", LiSaMulti_ctrl_voicegain );
     func->add_arg( "int", "voice" );
@@ -995,6 +1016,20 @@ DLL_QUERY lisa_query( Chuck_DL_Query * QUERY )
     func->add_arg( "int", "val" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
     func = make_new_mfun( "int", "track", LiSaMulti_cget_track);
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	
+	// sync = track
+    func = make_new_mfun( "int", "sync", LiSaMulti_ctrl_track );
+    func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "sync", LiSaMulti_cget_track);
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	
+	// sync = track
+    func = make_new_mfun( "int", "sync", LiSaMulti_ctrl_track );
+    func->add_arg( "int", "val" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "sync", LiSaMulti_cget_track);
     if( !type_engine_import_mfun( env, func ) ) goto error;
     
     // end the class import
@@ -3138,7 +3173,7 @@ CK_DLL_TICK( dyno_tick )
 
 
 
-#define LiSa_MAXVOICES 100
+#define LiSa_MAXVOICES 200
 #define LiSa_MAXBUFSIZE 4410000 
 //-----------------------------------------------------------------------------
 // name: LiSaMulti_data
@@ -3227,8 +3262,10 @@ struct LiSaMulti_data
             // ramp stuff here
             if(rindex < rec_ramplen) {
                 tempsample *= (rindex * rec_ramplen_inv);
+				//fprintf(stderr, "ramping up %f\n", rindex * rec_ramplen_inv);
             } else if(rindex > (loop_end_rec - rec_ramplen)) {
                 tempsample *= (loop_end_rec - rindex) * rec_ramplen_inv;
+				//fprintf(stderr, "ramping down %f\n", (loop_end_rec - rindex) * rec_ramplen_inv);
             }
             mdata[rindex] = tempsample;
             rindex++;
@@ -3247,8 +3284,11 @@ struct LiSaMulti_data
                     p_inc[which]    = -p_inc[which];
                 } 
             }
-            while(pindex[which] > loop_end[which]) pindex[which] = loop_start[which] + (pindex[which] - loop_end[which]);
-            while(pindex[which] < loop_start[which]) pindex[which] = loop_end[which] - (loop_start[which] - pindex[which]);
+			if( loop_start[which] == loop_end[which] ) pindex[which] = loop_start[which]; //catch this condition to avoid infinite while loops
+			else {
+				while(pindex[which] > loop_end[which]) pindex[which] = loop_start[which] + (pindex[which] - loop_end[which]);
+				while(pindex[which] < loop_start[which]) pindex[which] = loop_end[which] - (loop_start[which] - pindex[which]);
+			}
 
         } else if(pindex[which] > mdata_len || pindex[which] < 0) {
             play[which] = 0;
@@ -3286,7 +3326,7 @@ struct LiSaMulti_data
             outsample *= (rampdown_len[which] - rampctr[which]++) * rampdown_len_inv[which];
             if(rampctr[which] >= rampdown_len[which]) {
                 rampdown[which] = false;
-                play[which] = false;
+                play[which] = false; 
             }
         }
 		
@@ -3355,12 +3395,17 @@ struct LiSaMulti_data
         rec_ramplen = (t_CKDOUBLE)newlen;
         if(rec_ramplen > 0.) rec_ramplen_inv = 1./rec_ramplen;
         else rec_ramplen_inv = 1.;
+		//fprintf ( stderr, "rec_ramplen = %f, inv = %f \n", rec_ramplen, rec_ramplen_inv );
     }
 
     // tick_multi: mono
     // may want to make multichannel version, 
-    // but could also just run multiple LiSas to get multi channel
-    // this is probably not ideal for, say, a 16 channel setup, but maybe who cares
+	// want to be able to do the following:
+	//	LiSa l;
+	//	l.pan(voice, panval)
+	//for simple stereo panning of a particular voice, and...
+	//	l.channelGain(voice, channel, gain)
+	//to set the gain for a particular voice going to a particular channel; good for >2 voices (like 6 channels!)
     inline SAMPLE tick_multi( SAMPLE in)
     {
         if(!mdata) return (SAMPLE) 0.;
@@ -3373,9 +3418,14 @@ struct LiSaMulti_data
             for (t_CKINT i=0; i<maxvoices; i++) {
                 if(play[i]) tempsample += getNextSamp(i);
             }
-        } else if(track==1 && play[0]) {
-            if(in<0.) in = -in; //only use voice 0 when tracking.
-            tempsample = getSamp((t_CKDOUBLE)in * (t_CKDOUBLE)(loop_end[0] - loop_start[0]) + (t_CKDOUBLE)loop_start[0], 0);
+        } else if(track==1) {
+            if(in<0.) in = -in; 
+			for (t_CKINT i=0; i<maxvoices; i++) {
+				if(play[i]) tempsample += getSamp((t_CKDOUBLE)in * (loop_end[i] - loop_start[i]) + loop_start[i], i);
+			}
+        } else if(track==2 && play[0]) {
+            if(in<0.) in = -in; //only use voice 0 when tracking with durs.
+            tempsample = getSamp( (t_CKDOUBLE)in, 0 );
         }
 
         return tempsample;
@@ -3396,6 +3446,42 @@ struct LiSaMulti_data
         if(voicenumber == maxvoices) voicenumber = -1;
         return voicenumber;
     }
+	
+	//stick sample in record buffer
+	inline void pokeSample( SAMPLE insample, t_CKINT index ) {
+	
+		if ( index > mdata_len || index < 0 ) {
+			index = 0;
+			fprintf(stderr, "LiSa: trying to put sample out of buffer range; ignoring");
+		} else mdata[index] = insample;
+	
+	}
+	
+	//grab sample directly from record buffer, with linear interpolation
+	inline SAMPLE grabSample ( t_CKDOUBLE where ) {
+	
+		if ( where > mdata_len || where < 0 ) {
+			where = 0;
+			fprintf(stderr, "LiSa: trying to grab sample out of buffer range; ignoring");
+			return 0.;
+		} else {
+		        
+			// interp
+			t_CKINT whereTrunc = (t_CKINT) where;
+			t_CKDOUBLE whereFrac = where - (t_CKDOUBLE)whereTrunc;
+			t_CKINT whereNext = whereTrunc + 1;
+			
+			if((whereNext) == mdata_len) whereNext = 0;
+
+			t_CKDOUBLE outsample;
+			outsample = (t_CKDOUBLE)mdata[whereTrunc] + (t_CKDOUBLE)(mdata[whereNext] - mdata[whereTrunc]) * whereFrac;
+			
+			//add voiceGain ctl here; return (SAMPLE)vgain[which]*outsample;
+			return (SAMPLE)outsample;   
+		
+		  }  
+	}
+	
 };
 
 
@@ -3501,6 +3587,10 @@ CK_DLL_CTRL( LiSaMulti_start_play )
     t_CKINT which = GET_NEXT_INT(ARGS);
     d->play[which] = GET_NEXT_INT(ARGS);
     //fprintf(stderr, "voice %d playing = %d\n", which, d->play[which]);
+	
+	//turn off ramping toggles
+	d->rampdown[which] = false;
+	d->rampup[which] = false;
     
     RETURN->v_int = (t_CKINT)d->play[which];
 }
@@ -3516,6 +3606,10 @@ CK_DLL_CTRL( LiSaMulti_start_play0 )
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
     d->play[0] = GET_NEXT_INT(ARGS);
     //fprintf(stderr, "voice %d playing = %d\n", which, d->play[which]);
+
+	//turn off ramping toggles
+	d->rampdown[0] = false;
+	d->rampup[0] = false;
     
     RETURN->v_int = (t_CKINT)d->play[0];
     
@@ -3533,7 +3627,7 @@ CK_DLL_CTRL( LiSaMulti_ctrl_rate )
     d->p_inc[which] = (t_CKDOUBLE)GET_NEXT_FLOAT(ARGS);
     //fprintf(stderr, "setting voice %d rate to %f\n", which, d->p_inc[which]);
     
-    RETURN->v_int = (t_CKINT)d->p_inc[which];
+    RETURN->v_float = d->p_inc[which];
 }
 
 
@@ -3543,9 +3637,30 @@ CK_DLL_CTRL( LiSaMulti_ctrl_rate0 )
     d->p_inc[0] = (t_CKDOUBLE)GET_NEXT_FLOAT(ARGS);
     //fprintf(stderr, "setting voice %d rate to %f\n", which, d->p_inc[which]);
     
-    RETURN->v_int = (t_CKINT)d->p_inc[0];
+    RETURN->v_float = d->p_inc[0];
 }
 
+//-----------------------------------------------------------------------------
+// name: LiSaMulti_cget_rate()
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( LiSaMulti_cget_rate )
+{
+    LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
+    t_CKINT which = GET_NEXT_INT(ARGS);
+    //fprintf(stderr, "setting voice %d rate to %f\n", which, d->p_inc[which]);
+    
+    RETURN->v_float = d->p_inc[which];
+}
+
+
+CK_DLL_CTRL( LiSaMulti_cget_rate0 )
+{
+    LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
+    //fprintf(stderr, "setting voice %d rate to %f\n", which, d->p_inc[which]);
+    
+    RETURN->v_float = d->p_inc[0];
+}
 
 //-----------------------------------------------------------------------------
 // name: LiSaMulti_ctrl_pindex()
@@ -3862,6 +3977,33 @@ CK_DLL_CGET( LiSaMulti_cget_loop_rec )
     RETURN->v_int = (t_CKINT)d->looprec;
 }
 
+//-----------------------------------------------------------------------------
+// name: LiSaMulti_ctrl_sample(); put a sample directly into record buffer
+// desc: CTRL function
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( LiSaMulti_ctrl_sample )
+{
+    LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
+	SAMPLE sample_in = (SAMPLE)GET_NEXT_FLOAT(ARGS);
+    int index_in = (t_CKINT)GET_NEXT_DUR(ARGS);
+	
+	d->pokeSample( sample_in, index_in );
+    
+    RETURN->v_float = (t_CKFLOAT)sample_in; //pass input through
+}
+
+//-----------------------------------------------------------------------------
+// name: LiSaMulti_cget_sample(); grab a sample from the record buffer
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( LiSaMulti_cget_sample )
+{
+    LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
+	double index_in = (t_CKDOUBLE)GET_NEXT_DUR(ARGS);
+    // return
+    RETURN->v_float = (t_CKFLOAT)d->grabSample( index_in ); //change this to getSamp for interpolation
+}
+
 
 //-----------------------------------------------------------------------------
 // name: LiSaMulti_ctrl_voicegain()
@@ -4018,6 +4160,10 @@ CK_DLL_CTRL( LiSaMulti_ctrl_maxvoices )
 {
     LiSaMulti_data * d = (LiSaMulti_data *)OBJ_MEMBER_UINT(SELF, LiSaMulti_offset_data);
     d->maxvoices = GET_NEXT_INT(ARGS);
+	if( d->maxvoices > LiSa_MAXVOICES) {
+		d->maxvoices = LiSa_MAXVOICES;
+		fprintf(stderr, "LiSa: MAXVOICES limited to  %d.\n", LiSa_MAXVOICES);
+	}
     RETURN->v_int = d->maxvoices;
 }
 

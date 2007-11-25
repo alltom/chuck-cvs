@@ -40,6 +40,7 @@ static t_CKUINT g_srate = 0;
 static t_CKFLOAT g_radians_per_sample = 0;
 // filter member data offset
 static t_CKUINT FilterBasic_offset_data = 0;
+static t_CKUINT Teabox_offset_data = 0;
 static t_CKUINT biquad_offset_data = 0;
 
 
@@ -400,8 +401,27 @@ DLL_QUERY filter_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
+	
+	 //---------------------------------------------------------------------
+    // init class: Teabox
+    //---------------------------------------------------------------------
+    if( !type_engine_import_ugen_begin( env, "Teabox", "FilterBasic", env->global(),
+                                        teabox_ctor, NULL, teabox_tick, teabox_pmsg ) )
+        return FALSE;
 
+    // analog
+    func = make_new_mfun( "float", "analog", teabox_cget_analog );
+	func->add_arg( "int", "which" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+	
+	// digital
+    func = make_new_mfun( "float", "digital", teabox_cget_digital );
+	func->add_arg( "int", "which" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // end the class import
+    type_engine_import_class_end( env );
+	
     /*
     //----------------------------------
     // begin onepole ugen
@@ -846,8 +866,52 @@ struct FilterBasic_data
 
         return result;
     }
+
 };
 
+struct Teabox_data
+{
+	//Teabox sensor interface read
+	t_CKINT		teabox_counter;
+	t_CKFLOAT	teabox_data[9];		// one container for the data from each sensor
+	t_CKFLOAT	teabox_hw_version;	// version number (major.minor) of the connected Teabox
+	t_CKFLOAT	teabox_last_value;	
+	t_CKINT		teabox_bitmask;
+	//tick for teabox
+	inline SAMPLE teabox_tick( SAMPLE in )
+	{
+	
+		if(in < 0.0 || teabox_counter > 9){			// If the sample is the start flag...
+			if(teabox_last_value < 0.0)					// Actually - if all 16 toggles on the Teabox digital inputs
+				teabox_data[8] = teabox_last_value;			//	are high, it will look identical to the start flag - so
+													//  so we compensate for that here.
+			teabox_counter = 0;
+		}
+		else if(teabox_counter == 0){					// if the sample is hardware version number...
+			teabox_hw_version = in * 8.0;							
+			teabox_counter++;
+		}	
+		else{
+			teabox_data[teabox_counter - 1] = in * 8.0;	// Normalize the range
+			teabox_counter++;
+		}
+		
+		// POST-PROCESS TOGGLE INPUT BITMASK
+		if(teabox_data[8] < 0){
+			teabox_bitmask = teabox_data[8] * 32768;			// 4096 = 32768 / 8 (we already multiplied by 8)
+			teabox_bitmask ^= -32768;
+			teabox_bitmask = 32768 + (teabox_bitmask);			// 2^3
+		}
+		else
+			teabox_bitmask = teabox_data[8] * 4096;			// 4096 = 32768 / 8 (we already multiplied by 8)
+		
+		teabox_last_value = in;						// store the input value for the next time around
+
+		return in;
+		
+	}
+	
+};
 
 //-----------------------------------------------------------------------------
 // name: FilterBasic_ctor()
@@ -1667,6 +1731,81 @@ CK_DLL_PMSG( RHPF_pmsg )
 }
 
 
+
+//-----------------------------------------------------------------------------
+// name: teabox_ctor()
+// desc: CTOR function ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( teabox_ctor )
+{
+    Teabox_data * f =  new Teabox_data;
+    memset( f, 0, sizeof(Teabox_data) );
+	f->teabox_hw_version = 0.;		// version number (major.minor) of the connected Teabox
+	f->teabox_last_value = 0.;	
+    OBJ_MEMBER_UINT(SELF, Teabox_offset_data) = (t_CKUINT)f;
+}
+
+//-----------------------------------------------------------------------------
+// name: teabox_tick()
+// desc: TICK function ...
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( teabox_tick )
+{
+    Teabox_data * d = (Teabox_data *)OBJ_MEMBER_UINT(SELF, Teabox_offset_data);
+    *out = d->teabox_tick( in );
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: teabox_cget_analog()
+// desc: CGET function
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( teabox_cget_analog )
+{
+	t_CKINT which_in;
+    Teabox_data * d = (Teabox_data *)OBJ_MEMBER_UINT(SELF, Teabox_offset_data);
+	
+	which_in = GET_CK_INT(ARGS);
+	
+	//constrain
+	if(which_in < 0) which_in = 0;
+	if(which_in > 7) which_in = 7;
+	
+    // return
+    RETURN->v_float = d->teabox_data[which_in];
+}
+
+CK_DLL_CGET( teabox_cget_digital )
+{
+	t_CKINT which_in;
+	t_CKFLOAT out_val;
+	t_CKINT which_pow;
+	
+    Teabox_data * d = (Teabox_data *)OBJ_MEMBER_UINT(SELF, Teabox_offset_data);
+	
+	which_in = GET_CK_INT(ARGS);
+	
+	//constrain
+	if(which_in < 0) which_in = 0;
+	if(which_in > 15) which_in = 15;
+
+	//grab the needed bit from bitmask
+	which_pow = pow( 2, which_in );
+	out_val = ( d->teabox_bitmask & which_pow ) > 0;
+	
+    // return
+    RETURN->v_float = out_val;
+}
+
+//-----------------------------------------------------------------------------
+// name: teabox_pmsg()
+// desc: PMSG function ...
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( teabox_pmsg )
+{
+    return FALSE;
+}
 
 
 //-----------------------------------------------------------------------------
