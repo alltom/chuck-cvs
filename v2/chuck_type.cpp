@@ -384,12 +384,14 @@ void type_engine_shutdown( Chuck_Env * env )
     SAFE_RELEASE( t_object.info );
     SAFE_RELEASE( t_array.info );
     SAFE_RELEASE( t_string.info );
+    SAFE_RELEASE( t_blob.info );
     SAFE_RELEASE( t_ugen.info );
     SAFE_RELEASE( t_uana.info );
     SAFE_RELEASE( t_shred.info );
     SAFE_RELEASE( t_event.info );
     SAFE_RELEASE( t_class.info );
     SAFE_RELEASE( t_thread.info );
+    SAFE_RELEASE( t_io.info );
 }
 
 
