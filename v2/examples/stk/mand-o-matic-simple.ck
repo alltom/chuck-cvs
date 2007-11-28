@@ -30,7 +30,7 @@ while( true )
     { 500::ms => now; }
     else if( Std.rand2f(0,1) > .95 ) // short
     { 250::ms => now; }
-    else if( Std.rand2f(0,1) > .1 ) // shorter
+    else if( Std.rand2f(0,1) > .05 ) // shorter
     { .125::second => now; }
     else // trill
     {
