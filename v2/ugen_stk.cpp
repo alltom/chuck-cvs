@@ -8459,7 +8459,9 @@ Mandolin :: Mandolin(MY_FLOAT lowestFrequency)
   directBody = 1.0;
   mic = 0;
   dampTime = 0;
-  waveDone = soundfile[mic]->isFinished();
+  // chuck: don't play
+  waveDone = true;
+  //waveDone = soundfile[mic]->isFinished();
   //reverse: nothing
   m_bodySize = 1.0;
 }

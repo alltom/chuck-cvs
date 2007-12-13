@@ -334,6 +334,9 @@ UINT__ CBufferAdvance::get( void * data, UINT__ num_elem, UINT__ read_offset_ind
 
         // move read
         m_read_offset++;
+        // wrap
+        if( m_read_offset >= m_max_elem )
+            m_read_offset = 0;
         
         // catch up
         if( m_read_offset == m_write_offset )
@@ -341,10 +344,6 @@ UINT__ CBufferAdvance::get( void * data, UINT__ num_elem, UINT__ read_offset_ind
             i++;
             break;
         }
-
-        // wrap
-        if( m_read_offset >= m_max_elem )
-            m_read_offset = 0;
     }
 
     // update read offset at given index
