@@ -11,6 +11,8 @@
                 array_resize.ck)
   - (added) new UAna: FeatureCollector (rebecca)
             turns UAna input into a single feature vector, upon .upchuck()
+  - (added) int Shred.done()  // is the shred done?
+            int Shred.running()  // is the shred running
   - (fixed) dac amplitude no longer halved!
             NOTE: this increases the gain from before by
             a factor of 2, or roughly 6 dB!!  BEWARE!!

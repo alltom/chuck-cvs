@@ -1149,6 +1149,10 @@ Chuck_VM_Shred * Chuck_VM::spork( Chuck_VM_Shred * shred )
 t_CKBOOL Chuck_VM::free( Chuck_VM_Shred * shred, t_CKBOOL cascade, t_CKBOOL dec )
 {
     assert( cascade );
+    
+    // log
+    EM_log( CK_LOG_FINER, "freeing shred (id==%d | ptr==%p)", shred->xid,
+            (t_CKUINT)shred );
 
     // abort on the double free
     // TODO: can a shred be dumped, then resporked? from code?
@@ -1239,6 +1243,8 @@ void Chuck_VM::dump( Chuck_VM_Shred * shred )
     shred->is_running = FALSE;
     shred->is_done = TRUE;
     shred->is_dumped = TRUE;
+    // TODO: cool?
+    shred->xid = 0;
     // inc
     m_num_dumped_shreds++;
 }

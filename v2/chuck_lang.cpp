@@ -408,6 +408,14 @@ t_CKBOOL init_class_shred( Chuck_Env * env, Chuck_Type * type )
     func = make_new_mfun( "void", "yield", shred_yield );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add running()
+    func = make_new_mfun( "int", "running", shred_running );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // add done()
+    func = make_new_mfun( "int", "done", shred_done );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // add nargs()
     // func = make_new_mfun( "int", "numArgs", shred_numArgs );
     // if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -2021,7 +2029,18 @@ CK_DLL_MFUN( shred_exit )
     // end the shred
     derhs->is_done = TRUE;
     derhs->is_running = FALSE;
-// return; // thanks
+}
+
+CK_DLL_MFUN( shred_running )
+{
+    Chuck_VM_Shred * derhs = (Chuck_VM_Shred *)SELF;
+    RETURN->v_int = derhs->is_running;
+}
+
+CK_DLL_MFUN( shred_done )
+{
+    Chuck_VM_Shred * derhs = (Chuck_VM_Shred *)SELF;
+    RETURN->v_int = derhs->is_done;
 }
 
 CK_DLL_MFUN( shred_clone )
