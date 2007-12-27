@@ -73,6 +73,40 @@ CK_DLL_MFUN( IFFT_inverse );
 static t_CKUINT IFFT_offset_data = 0;
 
 
+// Flip
+CK_DLL_CTOR( Flip_ctor );
+CK_DLL_DTOR( Flip_dtor );
+CK_DLL_TICK( Flip_tick );
+CK_DLL_PMSG( Flip_pmsg );
+CK_DLL_TOCK( Flip_tock );
+CK_DLL_CTRL( Flip_ctrl_window );
+CK_DLL_CGET( Flip_cget_window );
+CK_DLL_CGET( Flip_cget_windowSize );
+CK_DLL_CTRL( Flip_ctrl_size );
+CK_DLL_CGET( Flip_cget_size );
+CK_DLL_MFUN( Flip_take );
+CK_DLL_MFUN( Flip_output );
+// static Flip offset
+static t_CKUINT Flip_offset_data = 0;
+
+
+// UnFlip
+CK_DLL_CTOR( UnFlip_ctor );
+CK_DLL_DTOR( UnFlip_dtor );
+CK_DLL_TICK( UnFlip_tick );
+CK_DLL_PMSG( UnFlip_pmsg );
+CK_DLL_TOCK( UnFlip_tock );
+CK_DLL_CTRL( UnFlip_ctrl_window );
+CK_DLL_CGET( UnFlip_cget_window );
+CK_DLL_CGET( UnFlip_cget_windowSize );
+CK_DLL_CTRL( UnFlip_ctrl_size );
+CK_DLL_CGET( UnFlip_cget_size );
+CK_DLL_MFUN( UnFlip_take );
+CK_DLL_MFUN( UnFlip_output );
+// static UnFlip offset
+static t_CKUINT UnFlip_offset_data = 0;
+
+
 // DCT
 CK_DLL_CTOR( DCT_ctor );
 CK_DLL_DTOR( DCT_dtor );
@@ -253,6 +287,89 @@ DLL_QUERY xform_query( Chuck_DL_Query * QUERY )
     float_array = new FLOAT[float_array_size];
 
 
+    //---------------------------------------------------------------------
+    // init as base class: Flip
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "Flip", "UAna", env->global(), 
+                                        Flip_ctor, Flip_dtor,
+                                        Flip_tick, Flip_tock, Flip_pmsg ) )
+        return FALSE;
+
+    // member variable
+    Flip_offset_data = type_engine_import_mvar( env, "int", "@Flip_data", FALSE );
+    if( Flip_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // transform
+    func = make_new_mfun( "void", "transform", Flip_take );
+    func->add_arg( "float[]", "from" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // window
+    func = make_new_mfun( "float[]", "window", Flip_ctrl_window );
+    func->add_arg( "float[]", "win" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // windowSize
+    func = make_new_mfun( "int", "windowSize", Flip_cget_windowSize );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // size
+    func = make_new_mfun( "int", "size", Flip_ctrl_size );
+    func->add_arg( "int", "size" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "size", Flip_cget_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // output
+    func = make_new_mfun( "void", "output", Flip_output );
+    func->add_arg( "float[]", "buffer" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    
+    //---------------------------------------------------------------------
+    // init as base class: UnFlip
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "UnFlip", "UAna", env->global(), 
+                                        UnFlip_ctor, UnFlip_dtor,
+                                        UnFlip_tick, UnFlip_tock, UnFlip_pmsg ) )
+        return FALSE;
+
+    // member variable
+    UnFlip_offset_data = type_engine_import_mvar( env, "int", "@UnFlip_data", FALSE );
+    if( UnFlip_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // go
+    func = make_new_mfun( "void", "transform", UnFlip_take );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // window
+    func = make_new_mfun( "float[]", "window", UnFlip_ctrl_window );
+    func->add_arg( "float[]", "win" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // windowSize
+    func = make_new_mfun( "int", "windowSize", UnFlip_cget_windowSize );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    
+    // size
+    func = make_new_mfun( "int", "size", UnFlip_ctrl_size );
+    func->add_arg( "int", "size" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+    func = make_new_mfun( "int", "size", UnFlip_cget_size );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // output
+    func = make_new_mfun( "void", "output", UnFlip_output );
+    func->add_arg( "float[]", "buffer" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
+    
     //---------------------------------------------------------------------
     // init as base class: DCT
     //---------------------------------------------------------------------
@@ -1577,6 +1694,980 @@ static void delete_matrix( SAMPLE ** matrix, t_CKUINT N )
 
     // delete
     SAFE_DELETE_ARRAY( matrix );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Flip_object
+// desc: standalone object for Flip UAna
+//-----------------------------------------------------------------------------
+struct Flip_object
+{
+public:
+    Flip_object();
+    virtual ~Flip_object();
+    
+public:
+    t_CKBOOL resize( t_CKINT size );
+    t_CKBOOL window( Chuck_Array8 * window, t_CKINT win_size );
+    void transform( );
+    void transform( Chuck_Array8 * frame );
+    void copyTo( Chuck_Array8 * val );
+
+public:
+    // buffer
+    SAMPLE * m_buffer;
+    // size of Flip
+    t_CKINT m_size;
+    // window
+    SAMPLE * m_window;
+    // window size
+    t_CKINT m_window_size;
+    // sample accumulation buffer
+    AccumBuffer m_accum;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: Flip_object()
+// desc: constructor
+//-----------------------------------------------------------------------------
+Flip_object::Flip_object()
+{
+    // initialize
+    m_buffer = NULL;
+    m_size = 512;  // TODO: default
+    m_window = NULL;
+    m_window_size = m_size;
+    // initialize window
+    this->window( NULL, m_window_size );
+    // allocate buffer
+    this->resize( m_size );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~Flip_object()
+// desc: destructor
+//-----------------------------------------------------------------------------
+Flip_object::~Flip_object()
+{
+    // clean up
+    SAFE_DELETE_ARRAY( m_window );
+    SAFE_DELETE_ARRAY( m_buffer );
+    m_window_size = 0;
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: resize()
+// desc: set Flip size
+//-----------------------------------------------------------------------------
+t_CKBOOL Flip_object::resize( t_CKINT size )
+{
+    // sanity check
+    assert( size > 0 );
+
+    // log
+    EM_log( CK_LOG_FINE, "Flip resize %d -> %d", m_size, size );
+
+    // reallocate
+    SAFE_DELETE_ARRAY( m_buffer );
+    m_size = 0;
+    m_buffer = new SAMPLE[size];
+    // check it
+    if( !m_buffer )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: Flip failed to allocate %ld buffer...\n",
+            size );
+        // clean
+        SAFE_DELETE_ARRAY( m_buffer );
+        // done
+        return FALSE;
+    }
+
+    // zero it
+    memset( m_buffer, 0, size * sizeof(SAMPLE) );
+    // set
+    m_size = size;
+    // if no window specified, then set accum size
+    if( !m_window )
+    {
+        m_window_size = m_size;
+        // resize
+        m_accum.resize( m_window_size );
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: window()
+// desc: set window
+//-----------------------------------------------------------------------------
+t_CKBOOL Flip_object::window( Chuck_Array8 * win, t_CKINT win_size )
+{
+    // sanity check
+    assert( win_size >= 0 );
+    
+    // in any case, clean up
+    SAFE_DELETE_ARRAY( m_window );
+    // reset
+    m_window_size = 0;
+
+    // could be NULL
+    if( win != NULL )
+    {
+        m_window = new SAMPLE[win_size];
+        // check it
+        if( !m_window )
+        {
+            // out of memory
+            fprintf( stderr, "[chuck]: Flip failed to allocate %ldxSAMPLE window...\n",
+                m_size );
+            // done
+            return FALSE;
+        }
+
+        // zero it
+        memset( m_window, 0, win_size * sizeof(SAMPLE) );
+
+        // set window    
+        m_window_size = win_size;
+        // copy
+        t_CKFLOAT sample;
+        for( t_CKINT i = 0; i < win_size; i++ )
+        {
+            // get
+            win->get( i, &sample );
+            // set
+            m_window[i] = (SAMPLE)sample;
+        }
+    }
+    else
+    {
+        // set
+        m_window_size = m_size;
+    }
+
+    // resize
+    m_accum.resize( m_window_size );
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Flip_object::transform( )
+{
+    // buffer could be null
+    if( m_buffer == NULL )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: Flip failure due to NULL buffer...\n" );
+        // bye
+        return;
+    }
+    
+    // sanity
+    assert( m_window_size <= m_size );
+
+    // get the last buffer of samples
+    m_accum.get( m_buffer, m_window_size );
+    // apply window, if there is one
+    if( m_window )
+        apply_window( m_buffer, m_window, m_window_size );
+    // zero pad
+    memset( m_buffer + m_window_size, 0, (m_size - m_window_size)*sizeof(SAMPLE) );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Flip_object::transform( Chuck_Array8 * frame )
+{
+    // convert to right type
+    t_CKINT amount = ck_min( frame->size(), m_size );
+    // copy
+    t_CKFLOAT v;
+    for( t_CKINT i = 0; i < amount; i++ )
+    {
+        // real and imag
+        frame->get( i, &v );
+        m_buffer[i] = v;
+    }
+    // zero pad
+    for( t_CKINT j = amount; j < m_size; j++ )
+        m_buffer[j] = 0;
+
+    // um
+    this->transform();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: copyTo()
+// desc: ...
+//-----------------------------------------------------------------------------
+void Flip_object::copyTo( Chuck_Array8 * val )
+{
+    // buffer could be null
+    if( m_buffer == NULL )
+    {
+        // zero out
+        val->clear();
+        // bye
+        return;
+    }
+
+    // get amount
+    t_CKINT amount = m_size;
+    // allocate
+    val->set_size( amount );
+
+    t_CKINT i;
+    for( i = 0; i < amount; i++ )
+         val->set( i, m_buffer[i] );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( Flip_ctor )
+{
+    // allocate the Flip object
+    Flip_object * flip = new Flip_object;
+    OBJ_MEMBER_UINT( SELF, Flip_offset_data ) = (t_CKUINT)flip;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_DTOR( Flip_dtor )
+{
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    SAFE_DELETE( flip );
+    OBJ_MEMBER_UINT(SELF, Flip_offset_data) = 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( Flip_tick )
+{
+    // accumulate samples
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    flip->m_accum.put( in );
+    // zero output
+    *out = 0;
+    
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( Flip_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TOCK( Flip_tock )
+{
+    // get object
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    // take transform
+    flip->transform();
+    // microsoft blows
+    t_CKINT i;
+
+    // get fvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure capacity == resulting size
+    if( fvals.size() != flip->m_size )
+        fvals.set_size( flip->m_size );
+    // copy the result in
+    for( i = 0; i < flip->m_size; i++ )
+        fvals.set( i, flip->m_buffer[i] );
+
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( Flip_take )
+{
+    // get object
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    // get array
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // do it
+    flip->transform( arr );
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Flip_ctrl_window )
+{
+    // get object
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    // get window (can be NULL)
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // set it
+    flip->window( arr, arr != NULL ? arr->size() : 0 );
+    // return it through
+    RETURN->v_object = arr;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Flip_cget_window )
+{
+    // TODO: implement this!
+    RETURN->v_object = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: windowSize()
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Flip_cget_windowSize )
+{
+    // get object
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    // return
+    RETURN->v_int = flip->m_window_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: size()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( Flip_ctrl_size )
+{
+    // get object
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    // get arg
+    t_CKINT size = GET_NEXT_INT(ARGS);
+    // sanity check
+    if( size <= 0 ) goto invalid_size;
+    // set size
+    flip->resize( size );
+    // set RETURN
+    RETURN->v_int = flip->m_size;
+
+    return;
+
+invalid_size:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](IFFT): InvalidTransformSizeException (%d)\n", size );
+    goto done;
+
+done:
+    // set RETURN type
+    RETURN->v_int = 0;
+    // do something!
+    if( SHRED != NULL )
+    {
+        SHRED->is_running = FALSE;
+        SHRED->is_done = TRUE;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( Flip_cget_size )
+{
+    // get object
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    // set RETURN
+    RETURN->v_int = flip->m_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( Flip_output )
+{
+    // get object
+    Flip_object * flip = (Flip_object *)OBJ_MEMBER_UINT(SELF, Flip_offset_data);
+    // get array
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // check for null
+    if( !arr )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "(via Flip): null array passed to spectrum(...)" );
+        return;
+    }
+    
+    // copy it
+    flip->copyTo( arr );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: UnFlip_object
+// desc: standalone object for UnFlip UAna
+//-----------------------------------------------------------------------------
+struct UnFlip_object
+{
+public:
+    UnFlip_object();
+    virtual ~UnFlip_object();
+    
+public:
+    t_CKBOOL resize( t_CKINT size );
+    t_CKBOOL window( Chuck_Array8 * window, t_CKINT win_size );
+    void transform( );
+    void transform( Chuck_Array8 * val );
+    void copyTo( Chuck_Array8 * samples );
+
+public:
+    // size of IFFT
+    t_CKINT m_size;
+    // window
+    SAMPLE * m_window;
+    // window size
+    t_CKINT m_window_size;
+    // sample deccumulation buffer
+    DeccumBuffer m_deccum;
+    // UnFlip buffer
+    SAMPLE * m_buffer;
+};
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: UnFlip_object()
+// desc: constructor
+//-----------------------------------------------------------------------------
+UnFlip_object::UnFlip_object()
+{
+    // initialize
+    m_size = 512;  // TODO: default
+    m_window = NULL;
+    m_window_size = m_size;
+    m_buffer = NULL;
+    // initialize window
+    this->window( NULL, m_window_size );
+    // allocate buffer
+    this->resize( m_size );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: ~UnFlip_object()
+// desc: destructor
+//-----------------------------------------------------------------------------
+UnFlip_object::~UnFlip_object()
+{
+    // clean up
+    SAFE_DELETE_ARRAY( m_window );
+    SAFE_DELETE_ARRAY( m_buffer );
+    m_window_size = 0;
+    m_size = 0;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: resize()
+// desc: set UnFlip size
+//-----------------------------------------------------------------------------
+t_CKBOOL UnFlip_object::resize( t_CKINT size )
+{
+    // sanity check
+    assert( size > 0 );
+
+    // log
+    EM_log( CK_LOG_FINE, "UnFlip resize %d -> %d", m_size, size );
+
+    // reallocate
+    SAFE_DELETE_ARRAY( m_buffer );
+    m_size = 0;
+    m_buffer = new SAMPLE[size];
+    // check it
+    if( !m_buffer )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: UnFlip failed to allocate %ld buffer...\n",
+            size );
+        // clean
+        SAFE_DELETE_ARRAY( m_buffer );
+        // done
+        return FALSE;
+    }
+
+    // zero it
+    memset( m_buffer, 0, size * sizeof(SAMPLE) );
+    // set
+    m_size = size;
+    // set deccum size
+    m_deccum.resize( m_size );
+    // if no window specified, then set accum size
+    if( !m_window )
+        m_window_size = m_size;
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: window()
+// desc: set window
+//-----------------------------------------------------------------------------
+t_CKBOOL UnFlip_object::window( Chuck_Array8 * win, t_CKINT win_size )
+{
+    // sanity check
+    assert( win_size >= 0 );
+    
+    // in any case, clean up
+    SAFE_DELETE_ARRAY( m_window );
+    // reset
+    m_window_size = 0;
+
+    // could be NULL
+    if( win != NULL )
+    {
+        m_window = new SAMPLE[win_size];
+        // check it
+        if( !m_window )
+        {
+            // out of memory
+            fprintf( stderr, "[chuck]: UnFlip failed to allocate %ldxSAMPLE window...\n",
+                m_size );
+            // done
+            return FALSE;
+        }
+
+        // zero it
+        memset( m_window, 0, win_size * sizeof(SAMPLE) );
+
+        // set window    
+        m_window_size = win_size;
+        // copy
+        t_CKFLOAT sample;
+        for( t_CKINT i = 0; i < win_size; i++ )
+        {
+            // get
+            win->get( i, &sample );
+            // set
+            m_window[i] = (SAMPLE)sample;
+        }
+    }
+    else
+    {
+        // set
+        m_window_size = m_size;
+    }
+
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void UnFlip_object::transform( )
+{
+    // buffer could be null
+    if( m_buffer == NULL )
+    {
+        // out of memory
+        fprintf( stderr, "[chuck]: UnFlip failure due to NULL buffer...\n" );
+        // bye
+        return;
+    }
+    
+    // sanity
+    assert( m_window_size <= m_size );
+    // apply window, if there is one
+    if( m_window )
+        apply_window( m_buffer, m_window, m_window_size );
+    // zero
+    memset( m_buffer + m_window_size, 0, (m_size-m_window_size)*sizeof(SAMPLE) );
+    // put in deccum buffer
+    m_deccum.put( m_buffer, m_size );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: transform()
+// desc: ...
+//-----------------------------------------------------------------------------
+void UnFlip_object::transform( Chuck_Array8 * val )
+{
+    // convert to right type
+    t_CKINT amount = ck_min( val->size(), m_size );
+    // copy
+    t_CKFLOAT v;
+    for( t_CKINT i = 0; i < amount; i++ )
+    {
+        // real and imag
+        val->get( i, &v );
+        m_buffer[i] = v;
+    }
+    // zero pad
+    for( t_CKINT j = amount; j < m_size; j++ )
+        m_buffer[j] = 0;
+    
+    // um
+    this->transform();
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: copyTo()
+// desc: ...
+//-----------------------------------------------------------------------------
+void UnFlip_object::copyTo( Chuck_Array8 * samples )
+{
+    // buffer could be null
+    if( m_buffer == NULL )
+    {
+        // zero out
+        samples->clear();
+        // samples->zero( 0, samples->size() );
+        // bye
+        return;
+    }
+
+    // the amount
+    t_CKINT amount = m_size; // ck_min( m_size, samples->size() );
+    // allocate
+    samples->set_size( amount );
+
+    // go over
+    for( t_CKINT i = 0; i < amount; i++ )
+        samples->set( i, m_buffer[i] );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTOR( UnFlip_ctor )
+{
+    // allocate the UnFlip object
+    UnFlip_object * unflip = new UnFlip_object;
+    OBJ_MEMBER_UINT( SELF, UnFlip_offset_data ) = (t_CKUINT)unflip;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_DTOR( UnFlip_dtor )
+{
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    SAFE_DELETE( unflip );
+    OBJ_MEMBER_UINT(SELF, UnFlip_offset_data) = 0;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TICK( UnFlip_tick )
+{
+    // accumulate samples
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    // get output
+    unflip->m_deccum.get( out );
+    
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_PMSG( UnFlip_pmsg )
+{
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_TOCK( UnFlip_tock )
+{
+    // get object
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    // TODO: get buffer from stream, and set in UnFlip
+    if( UANA->numIncomingUAnae() > 0 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( 0 );
+        // sanity check
+        assert( BLOB_IN != NULL );
+        // get the array
+        Chuck_Array8 & val = BLOB_IN->fvals();
+        // resize if necessary
+        if( val.size() > unflip->m_size )
+            unflip->resize( val.size() );
+        // sanity check
+        assert( unflip->m_buffer != NULL );
+        // copy into transform buffer
+        t_CKFLOAT v;
+        for( t_CKINT i = 0; i < unflip->m_size; i++ )
+        {
+            // copy value in
+            val.get( i, &v );
+            unflip->m_buffer[i] = v;
+        }
+
+        // take transform
+        unflip->transform();
+    }
+    // otherwise zero out
+    else
+    {
+        // sanity check
+        assert( unflip->m_buffer != NULL );
+        memset( unflip->m_buffer, 0, sizeof(SAMPLE)*unflip->m_size );
+    }
+
+    // get fvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure size == resulting size
+    if( fvals.size() != unflip->m_size )
+        fvals.set_size( unflip->m_size );
+    // copy the result in
+    for( t_CKINT i = 0; i < unflip->m_size; i++ )
+        fvals.set( i, unflip->m_buffer[i] );
+
+    return TRUE;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( UnFlip_take )
+{
+    // get object
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    // get complex array
+    Chuck_Array8 * val = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // sanity
+    if( val == NULL ) goto null_pointer;
+    // resize if bigger
+    if( val->size() > unflip->m_size )
+        unflip->resize( val->size() );
+    // transform it
+    unflip->transform( val );
+
+    return;
+
+null_pointer:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](UnFlip): NullPointerException (argument is NULL)\n");
+    goto done;
+
+done:
+    // do something!
+    if( SHRED != NULL )
+    {
+        SHRED->is_running = FALSE;
+        SHRED->is_done = TRUE;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( UnFlip_ctrl_window )
+{
+    // get object
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data );
+    // get win (can be NULL)
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // set it
+    unflip->window( arr, arr != NULL ? arr->size() : 0 );
+    // return
+    RETURN->v_object = arr;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( UnFlip_cget_window )
+{
+    // TODO: implement this
+    RETURN->v_object = NULL;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: windowSize()
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( UnFlip_cget_windowSize )
+{
+    // get object
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    // return
+    RETURN->v_int = unflip->m_window_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: size()
+// desc: ...
+//-----------------------------------------------------------------------------
+CK_DLL_CTRL( UnFlip_ctrl_size )
+{
+    // get object
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    // get arg
+    t_CKINT size = GET_NEXT_INT(ARGS);
+    // sanity
+    if( size <= 0 ) goto invalid_size;
+    // set size
+    unflip->resize( size );
+    // set RETURN
+    RETURN->v_int = unflip->m_size;
+
+    return;
+
+invalid_size:
+    // we have a problem
+    fprintf( stderr, 
+        "[chuck](UnFlip): InvalidTransformSizeException (%d)\n", size );
+    goto done;
+
+done:
+    // set RETURN type
+    RETURN->v_int = 0;
+    // do something!
+    if( SHRED != NULL )
+    {
+        SHRED->is_running = FALSE;
+        SHRED->is_done = TRUE;
+    }
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_CGET( UnFlip_cget_size )
+{
+    // get object
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    // set RETURN
+    RETURN->v_int = unflip->m_size;
+}
+
+
+//-----------------------------------------------------------------------------
+// name: 
+// desc: 
+//-----------------------------------------------------------------------------
+CK_DLL_MFUN( UnFlip_output )
+{
+    // get object
+    UnFlip_object * unflip = (UnFlip_object *)OBJ_MEMBER_UINT(SELF, UnFlip_offset_data);
+    // get array
+    Chuck_Array8 * arr = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // check for null
+    if( !arr )
+    {
+        // log
+        EM_log( CK_LOG_WARNING, "(via UnFlip): null array passed to samples(...)" );
+        return;
+    }
+    
+    // copy it
+    unflip->copyTo( arr );
 }
 
 
