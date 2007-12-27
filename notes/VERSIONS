@@ -11,6 +11,10 @@
                 array_resize.ck)
   - (added) new UAna: FeatureCollector (rebecca)
             turns UAna input into a single feature vector, upon .upchuck()
+            new UAna: Flip
+            turns audio samples into frames in the UAna domain
+            new UAna: pilF
+            turns UAna frames into audio samples, via overlap add
   - (added) int Shred.done()  // is the shred done?
             int Shred.running()  // is the shred running
   - (fixed) dac amplitude no longer halved!

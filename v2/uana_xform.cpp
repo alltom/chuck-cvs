@@ -330,9 +330,9 @@ DLL_QUERY xform_query( Chuck_DL_Query * QUERY )
 
     
     //---------------------------------------------------------------------
-    // init as base class: UnFlip
+    // init as base class: pilF
     //---------------------------------------------------------------------
-    if( !type_engine_import_uana_begin( env, "UnFlip", "UAna", env->global(), 
+    if( !type_engine_import_uana_begin( env, "pilF", "UAna", env->global(), 
                                         UnFlip_ctor, UnFlip_dtor,
                                         UnFlip_tick, UnFlip_tock, UnFlip_pmsg ) )
         return FALSE;
