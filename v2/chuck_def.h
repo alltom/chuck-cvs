@@ -90,6 +90,9 @@ typedef const char *                c_constr;
 #define CK_DDN                      CK_DDN_SINGLE
 #endif
 
+// sample complex
+typedef struct { SAMPLE re ; SAMPLE im ; } t_CKCOMPLEX_SAMPLE;
+
 // bool
 #ifndef TRUE
 #define TRUE                        1
