@@ -70,6 +70,7 @@ CK_DLL_SFUN( isinf_impl );
 CK_DLL_SFUN( isnan_impl );
 
 CK_DLL_SFUN( nextpow2_impl );
+CK_DLL_SFUN( ensurepow2_impl );
 
 CK_DLL_SFUN( re_impl );
 CK_DLL_SFUN( im_impl );

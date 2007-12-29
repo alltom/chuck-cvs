@@ -36,8 +36,10 @@
 #include "chuck_instr.h"
 #include "chuck_lang.h"
 #include "chuck_errmsg.h"
+#include "util_math.h"
+#include "util_xforms.h"
 
-#include <math.h>
+
 
 
 // Centroid
@@ -80,7 +82,49 @@ static t_CKUINT RollOff_offset_percent = 0;
 CK_DLL_TICK( FeatureCollector_tick);
 CK_DLL_TOCK( FeatureCollector_tock);
 CK_DLL_PMSG( FeatureCollector_pmsg);
-//CK_DLL_SFUN( FeatureCollector_compute);
+
+// AutoCorr
+CK_DLL_CTOR( AutoCorr_ctor );
+CK_DLL_DTOR( AutoCorr_dtor );
+CK_DLL_TICK( AutoCorr_tick );
+CK_DLL_TOCK( AutoCorr_tock );
+CK_DLL_PMSG( AutoCorr_pmsg );
+CK_DLL_SFUN( AutoCorr_compute );
+CK_DLL_MFUN( AutoCorr_ctrl_normalize );
+CK_DLL_MFUN( AutoCorr_cget_normalize );
+// offset
+static t_CKUINT AutoCorr_offset_data = 0;
+
+// XCorr
+CK_DLL_CTOR( XCorr_ctor );
+CK_DLL_DTOR( XCorr_dtor );
+CK_DLL_TICK( XCorr_tick );
+CK_DLL_TOCK( XCorr_tock );
+CK_DLL_PMSG( XCorr_pmsg );
+CK_DLL_SFUN( XCorr_compute );
+CK_DLL_MFUN( XCorr_ctrl_normalize );
+CK_DLL_MFUN( XCorr_cget_normalize );
+
+// LPC
+CK_DLL_CTOR( LPC_ctor );
+CK_DLL_DTOR( LPC_dtor );
+CK_DLL_TICK( LPC_tick );
+CK_DLL_TOCK( LPC_tock );
+CK_DLL_PMSG( LPC_pmsg );
+CK_DLL_SFUN( LPC_compute );
+CK_DLL_MFUN( LPC_ctrl_pitch );
+CK_DLL_MFUN( LPC_cget_pitch );
+CK_DLL_MFUN( LPC_ctrl_power );
+CK_DLL_MFUN( LPC_cget_power );
+CK_DLL_MFUN( LPC_ctrl_coefs );
+CK_DLL_MFUN( LPC_cget_coefs );
+
+
+// utility functions
+void xcorr_fft( SAMPLE * f, t_CKINT fs, SAMPLE * g, t_CKINT gs, SAMPLE * buffer, t_CKINT bs );
+void xcorr_normalize( SAMPLE * buffy, t_CKINT bs, SAMPLE * f, t_CKINT fs, SAMPLE * g, t_CKINT gs );
+
+
 
 
 //-----------------------------------------------------------------------------
@@ -193,6 +237,36 @@ DLL_QUERY extract_query( Chuck_DL_Query * QUERY )
     func = make_new_sfun( "float", "compute", RollOff_compute );
     func->add_arg( "float[]", "input" );
     func->add_arg( "float", "percent" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+
+    //---------------------------------------------------------------------
+    // init as base class: AutoCorr
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "AutoCorr", "UAna", env->global(), 
+                                        AutoCorr_ctor, AutoCorr_dtor,
+                                        AutoCorr_tick, AutoCorr_tock, AutoCorr_pmsg ) )
+        return FALSE;
+
+    // data offset
+    AutoCorr_offset_data = type_engine_import_mvar( env, "float", "@AutoCorr_data", FALSE );
+    if( AutoCorr_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // normalize
+    func = make_new_mfun( "int", "normalize", AutoCorr_ctrl_normalize );
+    func->add_arg( "int", "flag" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // normalize
+    func = make_new_mfun( "int", "normalize", AutoCorr_cget_normalize );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // compute
+    func = make_new_sfun( "float[]", "compute", AutoCorr_compute );
+    func->add_arg( "float[]", "input" );
+    func->add_arg( "float[]", "output" );
     if( !type_engine_import_sfun( env, func ) ) goto error;
 
     // end the class import
@@ -825,4 +899,277 @@ CK_DLL_SFUN( RollOff_compute )
         // do it
         RETURN->v_float = compute_rolloff( *array, array->size(), percent );
     }
+}
+
+
+
+
+// struct
+struct Corr_Object
+{
+    // whether to normalize
+    t_CKBOOL normalize;
+    // f
+    SAMPLE * fbuf;
+    t_CKINT fcap;
+    // g
+    SAMPLE * gbuf;
+    t_CKINT gcap;
+    // result
+    SAMPLE * buffy;
+    t_CKINT bufcap;
+
+    // constructor
+    Corr_Object()
+    {
+        // default: do normalize
+        normalize = FALSE;
+        // zero out pointers
+        fbuf = gbuf = buffy = NULL;
+        fcap = gcap = bufcap = 0;
+        // TODO: default
+        resize( 512, 512 );
+    }
+    
+    // destructor
+    ~Corr_Object()
+    {
+        // done
+        this->reset();
+    }
+
+    // reset
+    void reset()
+    {
+        SAFE_DELETE_ARRAY( fbuf );
+        SAFE_DELETE_ARRAY( gbuf );
+        SAFE_DELETE_ARRAY( buffy );
+        fcap = gcap = bufcap = 0;
+    }
+
+    // clear
+    void clear()
+    {
+        if( fbuf ) memset( fbuf, 0, fcap * sizeof(SAMPLE) );
+        if( gbuf ) memset( gbuf, 0, gcap * sizeof(SAMPLE) );
+        if( buffy ) memset( buffy, 0, bufcap * sizeof(SAMPLE) );
+    }
+
+    // resize inputs
+    t_CKBOOL resize( t_CKINT fs, t_CKINT gs )
+    {
+        // minimum size
+        t_CKINT mincap = fs + gs - 1;
+        // ensure power of two
+        mincap = ensurepow2( mincap );
+        // log
+        EM_log( CK_LOG_FINE, "Corr resizing to %d-element buffers...", mincap );
+
+        // verify
+        if( fcap < mincap )
+        {
+            SAFE_DELETE_ARRAY( fbuf );
+            fbuf = new SAMPLE[mincap];
+            fcap = mincap;
+        }
+        if( gcap < mincap )
+        {
+            SAFE_DELETE_ARRAY( gbuf );
+            gbuf = new SAMPLE[mincap];
+            gcap = mincap;
+        }
+        if( bufcap < mincap )
+        {
+            SAFE_DELETE_ARRAY( buffy );
+            buffy = new SAMPLE[mincap];
+            bufcap = mincap;
+        }
+
+        // hopefully
+        if( fbuf == NULL || gbuf == NULL || buffy == NULL )
+        {
+            // error
+            fprintf( stderr, "[chuck]: Corr failed to allocate %d-element buffer(s)...",
+                mincap );
+            // clean up
+            this->reset();
+            // done
+            return FALSE;
+        }
+
+        // clear it
+        this->clear();
+
+        return TRUE;
+    }
+};
+
+// compute correlation
+static void compute_corr( Corr_Object * corr, Chuck_Array8 & f, t_CKINT fs, 
+                          Chuck_Array8 & g, t_CKINT gs, Chuck_Array8 & buffy )
+{
+    t_CKINT i;
+    t_CKFLOAT v;
+    t_CKINT size;
+
+    // ensure size
+    corr->resize( fs, gs );
+
+    // copy into buffers
+    for( i = 0; i < fs; i++ )
+    {
+        f.get( i, &v );
+        corr->fbuf[i] = v;
+    }
+    for( i = 0; i < gs; i++ )
+    {
+        g.get( i, &v );
+        corr->gbuf[i] = v;
+    }
+
+    // compute
+    xcorr_fft( corr->fbuf, corr->fcap, corr->gbuf, corr->gcap,
+               corr->buffy, corr->bufcap );
+
+    // copy into result
+    size = fs + gs - 1;
+    buffy.set_size( size );
+    for( i = 0; i < size; i++ )
+    {
+        buffy.set( i, corr->buffy[i] );
+    }
+}
+
+// AutoCorr
+CK_DLL_CTOR( AutoCorr_ctor )
+{
+    Corr_Object * ac = new Corr_Object();
+    OBJ_MEMBER_UINT( SELF, AutoCorr_offset_data ) = (t_CKUINT)ac;
+}
+
+CK_DLL_DTOR( AutoCorr_dtor )
+{
+    Corr_Object * ac = (Corr_Object *)OBJ_MEMBER_UINT( SELF, AutoCorr_offset_data );
+    SAFE_DELETE(ac);
+    OBJ_MEMBER_UINT( SELF, AutoCorr_offset_data ) = 0;
+}
+
+CK_DLL_TICK( AutoCorr_tick )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_TOCK( AutoCorr_tock )
+{
+    // get object
+    Corr_Object * ac = (Corr_Object *)OBJ_MEMBER_UINT( SELF, AutoCorr_offset_data );
+
+    // TODO: get buffer from stream, and set
+    if( UANA->numIncomingUAnae() > 0 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( 0 );
+        // sanity check
+        assert( BLOB_IN != NULL );
+        // get the array
+        Chuck_Array8 & mag = BLOB_IN->fvals();
+        // get fvals of output BLOB
+        Chuck_Array8 & fvals = BLOB->fvals();
+        // compute autocorr
+        compute_corr( ac, mag, mag.size(), mag, mag.size(), fvals );
+    }
+    // otherwise zero out
+    else
+    {
+        // get fvals of output BLOB
+        Chuck_Array8 & fvals = BLOB->fvals();
+        // resize
+        fvals.set_size( 0 );
+    }
+
+    return TRUE;
+}
+
+CK_DLL_PMSG( AutoCorr_pmsg )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_CTRL( AutoCorr_ctrl_normalize )
+{
+    // get object
+    Corr_Object * ac = (Corr_Object *)OBJ_MEMBER_UINT( SELF, AutoCorr_offset_data );
+    // get percent
+    ac->normalize = GET_NEXT_INT(ARGS) != 0;
+    // return it
+    RETURN->v_int = ac->normalize;
+}
+
+CK_DLL_CGET( AutoCorr_cget_normalize )
+{
+    // get object
+    Corr_Object * ac = (Corr_Object *)OBJ_MEMBER_UINT( SELF, AutoCorr_offset_data );
+    // return it
+    RETURN->v_int = ac->normalize;
+}
+
+CK_DLL_SFUN( AutoCorr_compute )
+{
+}
+
+
+//-----------------------------------------------------------------------------
+// name: xcorr_fft()
+// desc: FFT-based cross correlation
+//-----------------------------------------------------------------------------
+void xcorr_fft( SAMPLE * f, t_CKINT fsize, SAMPLE * g, t_CKINT gsize, SAMPLE * buffy, t_CKINT size )
+{
+    // sanity check
+    assert( fsize == gsize == size );
+
+    // take fft
+    rfft( f, size/2, FFT_FORWARD );
+    rfft( g, size/2, FFT_FORWARD );
+
+    // complex
+    t_CKCOMPLEX_SAMPLE * F = (t_CKCOMPLEX_SAMPLE *)f;
+    t_CKCOMPLEX_SAMPLE * G = (t_CKCOMPLEX_SAMPLE *)g;
+    t_CKCOMPLEX_SAMPLE * Y = (t_CKCOMPLEX_SAMPLE *)buffy;
+
+    // loop
+    for( t_CKINT i = 0; i < size/2; i++ )
+    {
+        // conjugate F
+        F[i].im = -F[i].im;
+        // complex multiply
+        Y[i].re = F[i].re*G[i].re - F[i].im*G[i].im;
+        Y[i].im = F[i].im*G[i].re + F[i].re*G[i].im;
+    }
+
+    // inverse fft
+    rfft( buffy, size/2, FFT_INVERSE );
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: xcorr_normalize()
+// desc: ...
+//-----------------------------------------------------------------------------
+void xcorr_normalize( SAMPLE * buffy, t_CKINT size, SAMPLE * f, t_CKINT fs, SAMPLE * g, t_CKINT gs )
+{
+    float sum = 0.000001f;
+
+    // f^2(t)
+    for( long i = 0; i < fs; i++ )
+        sum += f[i]*f[i];
+    // g^2(t)
+    for( long j = 0; j < gs; j++ )
+        sum += g[j]*g[j];
+    // normalize: taking coherence into account
+    for( long k = 0; k < size; k++ )
+        buffy[k] /= sum;
 }

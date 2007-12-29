@@ -196,6 +196,10 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_sfun( QUERY, nextpow2_impl, "int", "nextpow2" );
     QUERY->add_arg( QUERY, "int", "n" );
 
+    // ensurepow2
+    QUERY->add_sfun( QUERY, ensurepow2_impl, "int", "ensurepow2" );
+    QUERY->add_arg( QUERY, "int", "n" );
+
     // rand
     QUERY->add_sfun( QUERY, rand_impl, "int", "rand" ); //! return int between 0 and RAND_MAX
     
@@ -480,6 +484,15 @@ CK_DLL_SFUN( nextpow2_impl )
 {
     t_CKINT x = GET_CK_INT(ARGS);
     t_CKINT xx = x;
+    for( ; x &= x-1; xx = x );
+    RETURN->v_int = xx * 2;
+}
+
+// ensurepow2 - thanks to Niklas Werner, via music-dsp
+CK_DLL_SFUN( ensurepow2_impl )
+{
+    t_CKINT x = GET_CK_INT(ARGS);
+    t_CKINT xx = --x;
     for( ; x &= x-1; xx = x );
     RETURN->v_int = xx * 2;
 }

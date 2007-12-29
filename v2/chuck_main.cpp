@@ -48,6 +48,7 @@
 #include "chuck_console.h"
 #include "chuck_globals.h"
 
+#include "util_math.h"
 #include "util_string.h"
 #include "util_thread.h"
 #include "util_network.h"
@@ -137,25 +138,10 @@ extern "C" void signal_int( int sig_num )
 
 
 //-----------------------------------------------------------------------------
-// name: next_power_2()
-// desc: ...
-// thanks: to Niklas Werner / music-dsp
-//-----------------------------------------------------------------------------
-t_CKUINT next_power_2( t_CKUINT n )
-{
-    t_CKUINT nn = n;
-    for( ; n &= n-1; nn = n );
-    return nn * 2;
-}
-
-
-
-
-//-----------------------------------------------------------------------------
 // name: uh()
 // desc: ...
 //-----------------------------------------------------------------------------
-void uh( )
+static void uh( )
 {
     // TODO: play white noise and/or sound effects
     srand( time( NULL ) );
@@ -174,7 +160,7 @@ void uh( )
 // name: init_shell()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL init_shell( Chuck_Shell * shell, Chuck_Shell_UI * ui, Chuck_VM * vm )
+static t_CKBOOL init_shell( Chuck_Shell * shell, Chuck_Shell_UI * ui, Chuck_VM * vm )
 {
     // initialize shell UI
     if( !ui->init() )
@@ -200,7 +186,7 @@ t_CKBOOL init_shell( Chuck_Shell * shell, Chuck_Shell_UI * ui, Chuck_VM * vm )
 // name: get_count()
 // desc: ...
 //-----------------------------------------------------------------------------
-t_CKBOOL get_count( const char * arg, t_CKUINT * out )
+static t_CKBOOL get_count( const char * arg, t_CKUINT * out )
 {
     // no comment
     if( !strncmp( arg, "--", 2 ) ) arg += 2;
@@ -225,7 +211,7 @@ t_CKBOOL get_count( const char * arg, t_CKUINT * out )
 // name: version()
 // desc: ...
 //-----------------------------------------------------------------------------
-void version()
+static void version()
 {
     fprintf( stderr, "\n" );
     fprintf( stderr, "chuck version: %s\n", CK_VERSION );
@@ -258,7 +244,7 @@ void version()
 // name: usage()
 // desc: ...
 //-----------------------------------------------------------------------------
-void usage()
+static void usage()
 {
     fprintf( stderr, "usage: chuck --[options|commands] [+-=^] file1 file2 file3 ...\n" );
     fprintf( stderr, "   [options] = halt|loop|audio|silent|dump|nodump|server|about|\n" );
@@ -488,7 +474,7 @@ int main( int argc, char ** argv )
     }
     
     // check buffer size
-    buffer_size = next_power_2( buffer_size-1 );
+    buffer_size = ensurepow2( buffer_size );
     // check mode and blocking
     if( !enable_audio && !block ) block = TRUE;
     // audio, boost

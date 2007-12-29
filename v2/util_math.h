@@ -60,6 +60,10 @@ double rmstodb( double f );
 double dbtopow( double f );
 // dbtorms
 double dbtorms( double f );
+// nextpow2
+unsigned long nextpow2( unsigned long i );
+// ensurepow2
+unsigned long ensurepow2( unsigned long i );
 
 #if defined (__cplusplus) || defined(_cplusplus)  
 }
