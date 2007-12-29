@@ -11,12 +11,15 @@
                 array_resize.ck)
   - (added) new UAna: FeatureCollector (rebecca)
             turns UAna input into a single feature vector, upon .upchuck()
-            new UAna: Flip
+            new UAna: Flip (ge)
             turns audio samples into frames in the UAna domain
-            new UAna: pilF
+            new UAna: pilF (ge)
             turns UAna frames into audio samples, via overlap add
+            new UAna: AutoCorr (ge)
+            computes the autocorrelation of UAna input
   - (added) int Shred.done()  // is the shred done?
             int Shred.running()  // is the shred running
+  - (added) int Math.ensurepow2( int )
   - (fixed) dac amplitude no longer halved!
             NOTE: this increases the gain from before by
             a factor of 2, or roughly 6 dB!!  BEWARE!!
