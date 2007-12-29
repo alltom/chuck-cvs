@@ -898,12 +898,12 @@ struct Teabox_data
 		
 		// POST-PROCESS TOGGLE INPUT BITMASK
 		if(teabox_data[8] < 0){
-			teabox_bitmask = teabox_data[8] * 32768;			// 4096 = 32768 / 8 (we already multiplied by 8)
+			teabox_bitmask = (t_CKINT)(teabox_data[8] * 32768);			// 4096 = 32768 / 8 (we already multiplied by 8)
 			teabox_bitmask ^= -32768;
 			teabox_bitmask = 32768 + (teabox_bitmask);			// 2^3
 		}
 		else
-			teabox_bitmask = teabox_data[8] * 4096;			// 4096 = 32768 / 8 (we already multiplied by 8)
+			teabox_bitmask = (t_CKINT)(teabox_data[8] * 4096);			// 4096 = 32768 / 8 (we already multiplied by 8)
 		
 		teabox_last_value = in;						// store the input value for the next time around
 
@@ -1790,8 +1790,9 @@ CK_DLL_CGET( teabox_cget_digital )
 	if(which_in < 0) which_in = 0;
 	if(which_in > 15) which_in = 15;
 
-	//grab the needed bit from bitmask
-	which_pow = pow( 2, which_in );
+	// grab the needed bit from bitmask
+    // which_pow = (t_CKINT)(::pow( 2, which_in ));
+    which_pow = 1 >> which_in;
 	out_val = ( d->teabox_bitmask & which_pow ) > 0;
 	
     // return
