@@ -873,7 +873,7 @@ void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
                                 break;
                                 
                             default:
-                                EM_log( CK_LOG_INFO, "unknown page: %i usage: %i\n", usage_page, usage );
+                                EM_log( CK_LOG_INFO, "unknown page: %i usage: %i", usage_page, usage );
                         }
                         
                         break;
@@ -921,7 +921,7 @@ void OSX_Hid_Device::enumerate_elements( CFArrayRef cfElements )
                         break;
                         
                     default:
-                        EM_log( CK_LOG_FINER, "unknown page: %i usage: %i\n", usage_page, usage );
+                        EM_log( CK_LOG_FINER, "unknown page: %i usage: %i", usage_page, usage );
                 }
                 
                 break;
@@ -2659,10 +2659,13 @@ static int TiltSensor_test( int kernFunc, char * servMatch, int dataType )
     io_iterator_t iterator;
     io_object_t aDevice;
     io_connect_t dataPort;
-    
+
     IOItemCount structureInputSize;
     IOByteCount structureOutputSize;
-        
+    
+    // log
+    EM_log( CK_LOG_FINE, "testing for SMS sensor..." );
+
     CFMutableDictionaryRef matchingDictionary = IOServiceMatching( servMatch );
     
     result = IOServiceGetMatchingServices( kIOMasterPortDefault, matchingDictionary, &iterator );
@@ -2727,6 +2730,9 @@ static int TiltSensor_do_read()
     IOItemCount structureInputSize;
     IOByteCount structureOutputSize;
 
+    // log
+    EM_log( CK_LOG_FINE, "reading SMS sensor..." );
+
     switch( TiltSensor_data.dataType )
     {
         case kSMSPowerbookDataType:
@@ -2762,6 +2768,9 @@ static int TiltSensor_detect()
     
     SInt32 osx_version;
     int powerbookKernFunc = 0;
+
+    // log
+    EM_log( CK_LOG_FINE, "detecting SMS sensor..." );
     
     Gestalt( gestaltSystemVersion, &osx_version );
     
@@ -2813,6 +2822,9 @@ void TiltSensor_init()
 
 void TiltSensor_quit()
 {
+    // log
+    EM_log( CK_LOG_FINE, "quiting SMS bridge..." );
+
     if( TiltSensor_data.dataPort == 0 )
         IOServiceClose( TiltSensor_data.dataPort );
 }
@@ -2824,6 +2836,9 @@ void TiltSensor_probe()
 
 int TiltSensor_count()
 {
+    // log
+    EM_log( CK_LOG_FINE, "counting SMS sensors..." );
+
     if( TiltSensor_data.detected == 0 )
         TiltSensor_detect();
 
@@ -2838,6 +2853,10 @@ int TiltSensor_count()
 
 int TiltSensor_open( int ts )
 {
+    // log
+    EM_log( CK_LOG_FINE, "opening SMS sensor..." );
+    EM_pushlog();
+
     if( TiltSensor_data.detected == 0 )
         TiltSensor_detect();
     
@@ -2845,6 +2864,9 @@ int TiltSensor_open( int ts )
         return -1;
     
     TiltSensor_data.refcount++;
+    
+    // log
+    EM_poplog();
     
     return 0;
 }
