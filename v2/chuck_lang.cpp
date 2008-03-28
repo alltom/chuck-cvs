@@ -1106,7 +1106,7 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     // add isWheelMotion()
     func = make_new_mfun( "int", "isWheelMotion", HidMsg_is_wheel_motion );
     if( !type_engine_import_mfun( env, func ) ) goto error;
-    
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -1186,6 +1186,15 @@ t_CKBOOL init_class_HID( Chuck_Env * env )
     func = make_new_sfun( "int[]", "readTiltSensor", HidIn_read_tilt_sensor );
     if( !type_engine_import_sfun( env, func ) ) goto error;
     
+    // add globalTiltPollRate()
+    func = make_new_sfun( "dur", "globalTiltPollRate", HidIn_ctrl_tiltPollRate );
+    func->add_arg( "dur", "d" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+    
+    // add globalTiltPollRate()
+    func = make_new_sfun( "dur", "globalTiltPollRate", HidIn_cget_tiltPollRate );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
     // add startCursorTrack()
     func = make_new_sfun( "int", "startCursorTrack", HidIn_start_cursor_track );
     if( !type_engine_import_sfun( env, func ) ) goto error;
@@ -2685,6 +2694,46 @@ CK_DLL_SFUN( HidIn_read_tilt_sensor )
     array->set( 0, msg.idata[0] );
     array->set( 1, msg.idata[1] );
     array->set( 2, msg.idata[2] );
+}
+
+CK_DLL_SFUN( HidIn_ctrl_tiltPollRate )
+{
+    // get srate
+    if( !SHRED || !SHRED->vm_ref )
+    {
+        // problem
+        fprintf( stderr, "[chuck](via HID): can't set tiltPollRate on NULL shred/VM...\n" );
+        RETURN->v_dur = 0;
+        return;
+    }
+    t_CKFLOAT srate = SHRED->vm_ref->srate();
+    
+    // get arg
+    t_CKDUR v = GET_NEXT_DUR( ARGS );
+    
+    // get in microseconds
+    t_CKINT usec = (t_CKINT)( v / srate * 1000000 );
+    
+    // make sure it's nonnegative
+    if( usec < 0 ) usec = 0;
+    
+    // go
+    RETURN->v_dur = TiltSensor_setPollRate( usec ) * srate / 1000000;
+}
+
+CK_DLL_SFUN( HidIn_cget_tiltPollRate )
+{
+    // get srate
+    if( !SHRED || !SHRED->vm_ref )
+    {
+        // problem
+        fprintf( stderr, "[chuck](via HID): can't get tiltPollRate on NULL shred/VM...\n" );
+        RETURN->v_dur = 0;
+        return;
+    }
+    t_CKFLOAT srate = SHRED->vm_ref->srate();
+    
+    RETURN->v_dur = TiltSensor_getPollRate() * srate / 1000000;
 }
 
 CK_DLL_SFUN( HidIn_start_cursor_track )

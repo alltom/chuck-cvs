@@ -346,6 +346,8 @@ CK_DLL_MFUN( HidIn_read );
 CK_DLL_MFUN( HidIn_send );
 CK_DLL_MFUN( HidIn_can_wait );
 CK_DLL_SFUN( HidIn_read_tilt_sensor );
+CK_DLL_SFUN( HidIn_ctrl_tiltPollRate );
+CK_DLL_SFUN( HidIn_cget_tiltPollRate );
 CK_DLL_SFUN( HidIn_start_cursor_track );
 CK_DLL_SFUN( HidIn_stop_cursor_track );
 

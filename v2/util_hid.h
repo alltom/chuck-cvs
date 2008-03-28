@@ -176,5 +176,11 @@ extern int TiltSensor_close( int ts );
 extern int TiltSensor_read( int ts, int type, int num, HidMsg * msg );
 extern const char * TiltSensor_name( int ts );
 
+// ge: SMS multi-thread poll rate
+t_CKINT TiltSensor_setPollRate( t_CKINT usec );
+t_CKINT TiltSensor_getPollRate( );
+
+
+
 
 #endif

@@ -2678,10 +2678,27 @@ public:
     static t_CKINT z;
 };
 
+// designate new poll rate
+t_CKINT TiltSensor_setPollRate( t_CKINT usec )
+{
+    // sanity
+    assert( usec >= 0 );
+    
+    SMSManager::wait_time = usec;
+    
+    return SMSManager::wait_time;
+}
+
+// query current poll rate
+t_CKINT TiltSensor_getPollRate( )
+{
+    return SMSManager::wait_time;
+}
+
 // initialize
 t_CKINT SMSManager::the_onoff = 0;
 t_CKBOOL SMSManager::the_init = FALSE;
-t_CKINT SMSManager::wait_time = 5000;
+t_CKINT SMSManager::wait_time = 3000;
 XThread * SMSManager::the_thread = NULL;
 t_CKINT SMSManager::x = 0;
 t_CKINT SMSManager::y = 0;
@@ -2720,10 +2737,14 @@ static unsigned int __stdcall sms_loop( void * )
                 SMSManager::y = TiltSensor_data.data.macbookpro.y;
                 SMSManager::z = TiltSensor_data.data.macbookpro.z;
             }
+            // wait
+            usleep( SMSManager::wait_time );
         }
-
-        // wait
-        usleep( SMSManager::wait_time );
+        else
+        {
+            // wait
+            usleep( 1000 );
+        }
     }
     
     // TODO: hack!
