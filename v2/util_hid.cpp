@@ -2653,6 +2653,128 @@ static struct t_TiltSensor_data
     
 } TiltSensor_data;
 
+// ge: SMS multi-threading
+static int TiltSensor_do_read();
+
+//-----------------------------------------------------------------------------
+// name: class SMSManager
+// desc: ...
+//-----------------------------------------------------------------------------
+class SMSManager
+{
+public:
+    static t_CKBOOL init();
+    static void shutdown();
+    static void on();
+    static void off();
+
+public:
+    static t_CKINT the_onoff;
+    static t_CKBOOL the_init;
+    static t_CKINT wait_time;
+    static XThread * the_thread;
+    static t_CKINT x;
+    static t_CKINT y;
+    static t_CKINT z;
+};
+
+// initialize
+t_CKINT SMSManager::the_onoff = 0;
+t_CKBOOL SMSManager::the_init = FALSE;
+t_CKINT SMSManager::wait_time = 5000;
+XThread * SMSManager::the_thread = NULL;
+t_CKINT SMSManager::x = 0;
+t_CKINT SMSManager::y = 0;
+t_CKINT SMSManager::z = 0;
+
+
+#if !defined(__PLATFORM_WIN32__) || defined(__WINDOWS_PTHREAD__)
+static void * sms_loop( void * )
+#else
+static unsigned int __stdcall sms_loop( void * )
+#endif
+{
+    t_CKINT c;
+    EM_log( CK_LOG_INFO, "starting SMS multi-threaded loop..." );
+
+    // go
+    while( SMSManager::the_init )
+    {
+        // if on
+        if( SMSManager::the_onoff )
+        {
+            // poll SMS
+            TiltSensor_do_read();
+            
+            // save data
+            if( TiltSensor_data.dataType == kSMSPowerbookDataType )
+            {
+                SMSManager::x = TiltSensor_data.data.powerbook.x;
+                SMSManager::y = TiltSensor_data.data.powerbook.y;
+                SMSManager::z = TiltSensor_data.data.powerbook.z;
+            }
+
+            else if( TiltSensor_data.dataType == kSMSMacBookProDataType )
+            {
+                SMSManager::x = TiltSensor_data.data.macbookpro.x;
+                SMSManager::y = TiltSensor_data.data.macbookpro.y;
+                SMSManager::z = TiltSensor_data.data.macbookpro.z;
+            }
+        }
+
+        // wait
+        usleep( SMSManager::wait_time );
+    }
+    
+    // TODO: hack!
+    SAFE_DELETE( SMSManager::the_thread );
+
+    return 0;
+}
+
+
+// init
+t_CKBOOL SMSManager::init()
+{
+    // sanity
+    if( the_thread != NULL )
+        return FALSE;
+
+    EM_log( CK_LOG_INFO, "initializing SMSManager..." );
+
+    the_onoff = 0;
+    the_init = TRUE;
+    the_thread = new XThread;
+    the_thread->start( sms_loop, NULL );
+
+    return TRUE;
+}
+
+
+// shutdown
+void SMSManager::shutdown()
+{
+    EM_log( CK_LOG_INFO, "shutting down SMSManager..." );
+
+    the_onoff = 0;
+    the_init = FALSE;
+}
+
+
+// on()
+void SMSManager::on()
+{
+    the_onoff++;
+}
+
+
+// off()
+void SMSManager::off()
+{
+    the_onoff--;
+}
+
+
 static int TiltSensor_test( int kernFunc, char * servMatch, int dataType )
 {
     kern_return_t result;
@@ -2865,6 +2987,10 @@ int TiltSensor_open( int ts )
     
     TiltSensor_data.refcount++;
     
+    // ge: init manager
+    SMSManager::init();
+    SMSManager::on();
+    
     // log
     EM_poplog();
     
@@ -2875,6 +3001,11 @@ int TiltSensor_close( int ts )
 {
     TiltSensor_data.refcount--;
     
+    // ge: notify
+    SMSManager::off();
+    if( TiltSensor_data.refcount <= 0 )
+        SMSManager::shutdown();
+
     return 0;
 }
 
@@ -2891,22 +3022,14 @@ int TiltSensor_read( int ts, int type, int num, HidMsg * msg )
     if( TiltSensor_data.detected == -1 )
         return -1;
     
-    if( !TiltSensor_do_read() )
-        return -1;
+    // ge: no longer need in the multi-threaded case...
+    // if( !TiltSensor_do_read() )
+    //     return -1;
     
-    if( TiltSensor_data.dataType == kSMSPowerbookDataType )
-    {
-        msg->idata[0] = TiltSensor_data.data.powerbook.x;
-        msg->idata[1] = TiltSensor_data.data.powerbook.y;
-        msg->idata[2] = TiltSensor_data.data.powerbook.z;
-    }
-    
-    else if( TiltSensor_data.dataType == kSMSMacBookProDataType )
-    {
-        msg->idata[0] = TiltSensor_data.data.macbookpro.x;
-        msg->idata[1] = TiltSensor_data.data.macbookpro.y;
-        msg->idata[2] = TiltSensor_data.data.macbookpro.z;
-    }
+    // ge: use sms multi-threaded
+    msg->idata[0] = SMSManager::x;
+    msg->idata[1] = SMSManager::y;
+    msg->idata[2] = SMSManager::z;
     
     return 0;
 }
