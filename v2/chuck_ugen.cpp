@@ -307,8 +307,8 @@ t_CKBOOL Chuck_UGen::add( Chuck_UGen * src, t_CKBOOL isUpChuck )
     if( outs >= 1 && ins == 1 )
     {
         // check if already connected
-        if( fa_lookup( m_src_list, m_num_src, src ) )
-            return FALSE;
+        // if( fa_lookup( m_src_list, m_num_src, src ) )
+        //     return FALSE;
         // check for limit
         if( m_num_src >= m_max_src )
             return FALSE;

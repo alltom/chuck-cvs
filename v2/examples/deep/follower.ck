@@ -20,12 +20,15 @@ adc => g;
 3 => g.op;
 
 // set pole position
-0.9999 => p.pole;
+0.99 => p.pole;
 
 // loop on
-while( true ) {
-    // <<< p.last() >>>;
-    if( p.last() > 0.1 )
+while( true )
+{
+    if( p.last() > 0.01 )
+    {
         <<< "BANG!!" >>>;
-    0.1::second => now;
+        80::ms => now;
+    }
+    20::ms => now;
 }
