@@ -19,7 +19,8 @@ while( true )
     {
         Std.rand2( 0, 22 ) => shake.which;
         Std.mtof( Std.rand2f( 0.0, 128.0 ) ) => shake.freq;
-        <<< "instrument #:", shake.which() >>>;
+        Std.rand2f( 0, 128 ) => shake.objects;
+        <<< "instrument #:", shake.which(), shake.freq(), shake.objects() >>>;
     }
 
     // shake it!
