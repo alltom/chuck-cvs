@@ -22,6 +22,11 @@
   - (added) int Math.ensurepow2( int )
   - (fixed) it's now (again) possible to multiply connect
             two UGen's
+  - (fixed) OS X only: sudden-motion-sensor HID no longer 
+            introduces audio dropouts below peak CPU usage
+            due to added centralized polling;
+            added static Hid.globalPollRate( dur ) to control
+            the central SMS polling's rate
   - (fixed) dac amplitude no longer halved!
             NOTE: this increases the gain from before by
             a factor of 2, or roughly 6 dB!!  BEWARE!!
