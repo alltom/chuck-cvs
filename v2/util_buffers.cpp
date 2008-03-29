@@ -36,6 +36,9 @@
 #include "util_buffers.h"
 #include "chuck_errmsg.h"
 
+#ifndef CALLBACK
+#define CALLBACK
+#endif
 
 
 

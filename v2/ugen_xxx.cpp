@@ -3174,7 +3174,7 @@ CK_DLL_TICK( dyno_tick )
 
 
 #define LiSa_MAXVOICES 200
-#define LiSa_MAXBUFSIZE 4410000 
+#define LiSa_MAXBUFSIZE 44100000 
 //-----------------------------------------------------------------------------
 // name: LiSaMulti_data
 // desc: ...
@@ -3202,7 +3202,7 @@ struct LiSaMulti_data
     // allocate memory, length in samples
     inline int buffer_alloc(t_CKINT length)
     {
-        mdata = (SAMPLE *)malloc(length * sizeof(SAMPLE));
+        mdata = (SAMPLE *)malloc((length + 1) * sizeof(SAMPLE)); //extra sample for safety....
         if(!mdata)  {
             fprintf(stderr, "LiSaBasic: unable to allocate memory!\n");
             return false;
@@ -3279,18 +3279,18 @@ struct LiSaMulti_data
         // constrain
         if(loopplay[which]) {
             if(bi[which]) { // change direction if bidirectional mode
-                if(pindex[which] > loop_end[which] || pindex[which] < loop_start[which]) {
+                if(pindex[which] >= loop_end[which] || pindex[which] < loop_start[which]) { //should be >= ?
                     pindex[which]  -=  p_inc[which];
                     p_inc[which]    = -p_inc[which];
                 } 
             }
 			if( loop_start[which] == loop_end[which] ) pindex[which] = loop_start[which]; //catch this condition to avoid infinite while loops
 			else {
-				while(pindex[which] > loop_end[which]) pindex[which] = loop_start[which] + (pindex[which] - loop_end[which]);
+				while(pindex[which] >= loop_end[which]) pindex[which] = loop_start[which] + (pindex[which] - loop_end[which]); //again, >=?
 				while(pindex[which] < loop_start[which]) pindex[which] = loop_end[which] - (loop_start[which] - pindex[which]);
 			}
 
-        } else if(pindex[which] > mdata_len || pindex[which] < 0) {
+        } else if(pindex[which] >= mdata_len || pindex[which] < 0) { //should be >=, no?
             play[which] = 0;
             //fprintf(stderr, "turning voice %d off!\n", which);
             return (SAMPLE) 0.;

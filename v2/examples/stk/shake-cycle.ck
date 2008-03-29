@@ -2,7 +2,8 @@
 // author: Adam Tindale
 
 // the patch
-Shakers s => Chorus c1 => JCRev rev => Chorus c2 => Chorus c3 =>dac;
+//Shakers s => Chorus c1 => JCRev rev => Chorus c2 => Chorus c3 =>dac;
+Shakers s  =>dac;
 
 0 => s.which;
 1 => s.gain;
