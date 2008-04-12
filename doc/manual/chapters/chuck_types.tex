@@ -100,3 +100,55 @@ Reference types are types which inherit from the object class. Some default refe
 \item  string : string (of characters)
 \end{chuckitemize}
  New classes can be created. All classes are reference types. We will leave the full discussion to the objects and classes section.
+
+\section{complex types}
+
+Two special primitive types are available to to represent complex data, such as
+the output of an FFT: complex and polar. A complex number of the form a + bi can
+be declared as
+\begin{verbatim}
+ #(2,3) => complex cmp; //cmp is now 2 + 3i
+\end{verbatim}
+
+where the \#(...) syntax explicitly denotes a complex number in rectangular
+form. Similarly, explicit complex numbers can be manipulated directly:
+
+\begin{verbatim}
+ #(5, -1.5) => complex cmp; // cmp is 5 - 1.5i
+ #(2,3) + #(5,6) + cmp => complex sum; // sum is now 12 + 7.5i
+\end{verbatim}
+
+The (floating point) real and imaginary parts of a complex number can be
+accessed with the .re and .im components of a complex number:
+
+\begin{verbatim}
+ #(2.0,3.5) => complex cmp;
+ cmp.re => float x; // x is 2.0
+ cmp.im => float y; //y is 3.5
+\end{verbatim}
+
+The polar type offers an equivalent, alternative representation of complex
+numbers in terms of a magnitude and phase value. A polar representation of a
+complex number can be declared as
+
+\begin{verbatim}
+ %(2, .5*pi) => polar pol; // pol is 2-V.5p
+\end{verbatim}
+
+The magnitude and phase values can be accessed via .mag and .phase:
+
+\begin{verbatim}
+ %(2, .5*pi) => polar pol;
+ pol.mag => float m; // m is 2
+ pol.phase => float p; //p is .5p
+\end{verbatim}
+
+polar and complex representations can be cast to each other and multiplied/
+added/assigned/etc.:
+
+\begin{verbatim}
+ %(2, .5*pi) => polar pol;
+ #(3, 4) => complex cmp;
+ pol $ complex + #(10, 3) + cmp => complex cmp2;
+ cmp $ polar + %(10, .25*pi) - pol => polar pol2;
+\end{verbatim}
