@@ -17,8 +17,6 @@ xmit.setHost( hostname, port );
 // infinite time loop
 while( true )
 {
-    int i; float f;
-
     // start the message...
     // the type string 'i f' expects a int, float
     xmit.startMsg( "/foo/notes", "i f" );

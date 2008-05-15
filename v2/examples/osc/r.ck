@@ -13,7 +13,7 @@ OscRecv recv;
 recv.listen();
 
 // create an address in the receiver, store in new variable
-recv.event( "/foo/notes, i f" ) @=> OscEvent oe;
+recv.event( "/foo/notes, i f" ) @=> OscEvent @ oe;
 
 // infinite event loop
 while( true )
