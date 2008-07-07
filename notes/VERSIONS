@@ -20,6 +20,8 @@
   - (added) int Shred.done()  // is the shred done?
             int Shred.running()  // is the shred running?
   - (added) int Math.ensurepow2( int )
+  - (added) TriOsc.width(), PulseOsc.width(), SawOsc.width(), SqrOsc.width()
+  - (removed) SqrOsc.width( float ), width is always .5
   - (fixed) it's now (again) possible to multiply connect
             two UGen's
   - (fixed) OS X only: sudden-motion-sensor HID no longer 

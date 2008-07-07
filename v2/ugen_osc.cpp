@@ -144,6 +144,9 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "width" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun( "float", "width", osc_cget_width );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -157,6 +160,9 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
 
     func = make_new_mfun( "float", "width", sawosc_ctrl_width );
     func->add_arg( "float", "width" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
+    func = make_new_mfun( "float", "width", osc_cget_width );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     // end the class import
@@ -174,6 +180,9 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
     func->add_arg( "float", "width" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
+    func = make_new_mfun( "float", "width", osc_cget_width );
+    if( !type_engine_import_mfun( env, func ) ) goto error;    
+
     // end the class import
     type_engine_import_class_end( env );
 
@@ -186,7 +195,6 @@ DLL_QUERY osc_query( Chuck_DL_Query * QUERY )
         return FALSE;
 
     func = make_new_mfun( "float", "width", sqrosc_ctrl_width );
-    func->add_arg( "float", "width" );
     if( !type_engine_import_mfun( env, func ) ) goto error;    
 
     // end the class import
@@ -762,7 +770,7 @@ CK_DLL_CTRL( sawosc_ctrl_width )
     Osc_Data * d = (Osc_Data *)OBJ_MEMBER_UINT(SELF, osc_offset_data );
     // set freq
     d->width = GET_CK_FLOAT(ARGS);
-    //bound ( this could be set arbitrarily high or low ) 
+    // bound ( this could be set arbitrarily high or low ) 
     d->width = ( d->width < 0.5 ) ? 0.0 : 1.0;  //rising or falling
     // return
     RETURN->v_float = (t_CKFLOAT)d->width;
