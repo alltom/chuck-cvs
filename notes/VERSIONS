@@ -18,7 +18,7 @@
             new UAna: AutoCorr (ge)
             computes the autocorrelation of UAna input
   - (added) int Shred.done()  // is the shred done?
-            int Shred.running()  // is the shred running
+            int Shred.running()  // is the shred running?
   - (added) int Math.ensurepow2( int )
   - (fixed) it's now (again) possible to multiply connect
             two UGen's
@@ -32,11 +32,12 @@
             a factor of 2, or roughly 6 dB!!  BEWARE!!
   - (fixed) corrected order of shred/ugen dealloc in VM destructor,
             preventing a potential crash during shutdown
-  - (fixed) UAna can now upchuck() at now=0
+  - (fixed) UAna can now upchuck() at now==0
   - (fixed) STK Chorus UGen now has reasonable defaults
             .max( dur, float ) for initializing to delay/depth limits
             .baseDelay( dur ) sets current base delay
   - (fixed) dur +=> now no longer crashes
+  - (fixed) STK Mandolin no longer plays without explicit noteOn
   - (fixed) unsporked Shred instances now given id == 0 (thanks Kassen)
   - (fixed) typos in ugen_xxx.cpp and chuck-specific rtaudio.cpp (/moudi)
 

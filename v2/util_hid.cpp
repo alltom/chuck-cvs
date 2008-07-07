@@ -4572,6 +4572,33 @@ void Hid_quit()
     }*/
 }
 
+
+
+
+/*****************************************************************************
+ge: Windows tiltsensor non-support
+*****************************************************************************/
+// designate new poll rate
+t_CKINT TiltSensor_setPollRate( t_CKINT usec )
+{
+    // sanity
+    assert( usec >= 0 );
+    // not supported
+    fprintf( stderr, "TiltSensor - setPollRate is not (yet) supported on this platform...\n" );
+    return -1;
+}
+
+// query current poll rate
+t_CKINT TiltSensor_getPollRate( )
+{
+    // not supported
+    fprintf( stderr, "TiltSensor - getPollRate is not (yet) supported on this platform...\n" );
+    return -1;
+}
+
+
+
+
 /*****************************************************************************
 Windows joystick support
 *****************************************************************************/
@@ -5944,6 +5971,8 @@ int Keyboard_close( int js )
     return -1;
 }
 
+
+
 #elif defined( __LINUX_ALSA__ ) || defined( __LINUX_OSS__ ) || defined( __LINUX_JACK__ )
 /*****************************************************************************
 Linux general HID support
@@ -6805,6 +6834,25 @@ int TiltSensor_read( t_CKINT * x, t_CKINT * y, t_CKINT * z )
     return 0;
 }
 
+// designate new poll rate
+t_CKINT TiltSensor_setPollRate( t_CKINT usec )
+{
+    // sanity
+    assert( usec >= 0 );
+    // not supported
+    fprintf( stderr, "TiltSensor - setPollRate is not (yet) supported on this platform...\n" );
+    return -1;
+}
+
+// query current poll rate
+t_CKINT TiltSensor_getPollRate( )
+{
+    // not supported
+    fprintf( stderr, "TiltSensor - getPollRate is not (yet) supported on this platform...\n" );
+    return -1;
+}
+
+
 /*****************************************************************************
 Linux joystick support
 *****************************************************************************/
@@ -7354,6 +7402,3 @@ const char * TiltSensor_name( int ts ){ return NULL; }
 
 
 #endif
-
-
-
