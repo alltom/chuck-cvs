@@ -312,8 +312,7 @@ CK_DLL_TICK( osc_tick )
             // phase increment
             d->num = d->freq / d->srate;
             // bound it
-            if( d->num >= 1.0 ) d->num -= floor( d->num );
-            else if( d->num < 0.0 ) d->num -= floor( d->num );
+            if( d->num >= 1.0 || d->num < 0.0 ) d->num -= floor( d->num );
         }
         // synch phase to input
         else if( d->sync == 1 )
@@ -323,8 +322,7 @@ CK_DLL_TICK( osc_tick )
             // no update
             inc_phase = FALSE;
             // bound it (thanks Pyry)
-            if( d->phase > 1.0 ) d->phase -= floor( d->phase );
-            else if( d->phase < 0 ) d->phase -= floor( d->phase );
+            if( d->phase > 1.0 || d->phase < 0.0 ) d->phase -= floor( d->phase );
         }
         // fm synthesis
         else if( d->sync == 2 )
@@ -334,8 +332,7 @@ CK_DLL_TICK( osc_tick )
             // phase increment
             d->num = freq / d->srate;
             // bound it
-            if( d->num >= 1.0 ) d->num -= floor( d->num );
-            else if( d->num < 0.0 ) d->num -= floor( d->num );
+            if( d->num >= 1.0 || d->num < 0.0 ) d->num -= floor( d->num );
         }
         // sync to now
         // else if( d->sync == 3 )
@@ -355,6 +352,7 @@ CK_DLL_TICK( osc_tick )
         d->phase += d->num;
         // keep the phase between 0 and 1
         if( d->phase > 1.0 ) d->phase -= 1.0;
+        else if( d->phase < 0.0 ) d->phase += 1.0;
     }
 
     return TRUE;
