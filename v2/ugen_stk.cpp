@@ -21266,7 +21266,7 @@ CK_DLL_CTRL( ADSR_ctrl_attackTime )
 CK_DLL_CGET( ADSR_cget_attackTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_dur = d->getAttackTime();
+    RETURN->v_dur = d->getAttackTime() * Stk::sampleRate();
 }
 
 
@@ -21313,7 +21313,7 @@ CK_DLL_CTRL( ADSR_ctrl_decayTime )
 CK_DLL_CGET( ADSR_cget_decayTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_dur = d->getDecayTime();
+    RETURN->v_dur = d->getDecayTime() * Stk::sampleRate();
 }
 
 
@@ -21383,7 +21383,7 @@ CK_DLL_CTRL( ADSR_ctrl_releaseTime )
 CK_DLL_CGET( ADSR_cget_releaseTime )
 {
     ADSR * d = (ADSR *)OBJ_MEMBER_UINT(SELF, Envelope_offset_data);
-    RETURN->v_dur = d->getReleaseTime();
+    RETURN->v_dur = d->getReleaseTime() * Stk::sampleRate();
 }
 
 

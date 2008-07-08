@@ -543,6 +543,7 @@ public:
         // free only if not locked: to prevent garbage collection after exit
         if( !this->m_locked )
         {
+            // TODO: uncomment this, fix it to behave correctly
             // release references
             // SAFE_RELEASE(parent);
             // SAFE_RELEASE(array_type);

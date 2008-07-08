@@ -2679,7 +2679,7 @@ t_CKBOOL type_engine_scan2_func_def( Chuck_Env * env, a_Func_Def f )
     if( !overload )
     {
         env->curr->value.add( orig_name, value );
-        env->curr->func.add( func->name, func );
+        env->curr->func.add( orig_name, func );
     }
 
     // if overload
