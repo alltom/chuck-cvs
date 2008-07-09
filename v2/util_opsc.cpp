@@ -2021,7 +2021,7 @@ OSC_Receiver::distribute_message( OSCMesg * msg ) {
 
 // public for of inherited chuck_event mfunc.  
 
-char *osc_typename_strings[] = { 
+const char * osc_typename_strings[] = { 
 	"untyped",
 	"no arguments",
 	"integer",
