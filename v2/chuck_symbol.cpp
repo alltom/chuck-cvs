@@ -116,7 +116,8 @@ void * S_look2( S_table t, c_constr str )
     return TAB_look(t,insert_symbol(str));
 }
 
-static struct S_Symbol_ marksym = { "<mark>", 0 };
+// BUG: this could result in a bad free if the S_Symbol ever gets cleaned up
+static struct S_Symbol_ marksym = { (char *)"<mark>", 0 };
 
 void S_beginScope( S_table t )
 {
