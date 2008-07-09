@@ -4033,7 +4033,7 @@ t_CKBOOL emit_engine_emit_symbol( Chuck_Emitter * emit, S_Symbol symbol,
         assert( isa( emit->env->class_def, v->owner_class ) /* || is_global( v->owner_class ) */ );
 
         // emit as this.v
-        a_Exp base = new_exp_from_id( "this", linepos );
+        a_Exp base = new_exp_from_id( (char *)"this", linepos );
         a_Exp dot = new_exp_from_member_dot( base, (char *)v->name.c_str(), linepos );
         base->type = v->owner_class;
         dot->type = v->type;
