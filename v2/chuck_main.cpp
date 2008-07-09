@@ -264,7 +264,7 @@ static void usage()
 // name: main()
 // desc: entry point
 //-----------------------------------------------------------------------------
-int main( int argc, char * const * argv )
+int main( int argc, const char ** argv )
 {
     Chuck_Compiler * compiler = NULL;
     Chuck_VM * vm = NULL;

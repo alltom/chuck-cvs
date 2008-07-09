@@ -709,19 +709,21 @@ t_CKBOOL Chuck_Shell_Network_VM::add_shred( const vector< string > & files,
     t_CKINT i = 0;
     t_CKBOOL return_val;
     vector<string>::size_type j, str_len, vec_len = files.size() + 1;
-    char ** argv = new char * [ vec_len ];
+    const char ** argv = new const char * [ vec_len ];
     
     /* prepare an argument vector to submit to otf_send_cmd */
     /* first, specify an add command */
-    argv[0] = new char [2];
-    strncpy( argv[0], "+", 2 );
+    char * argv0 = new char [2];
+    strncpy( argv0, "+", 2 );
+    argv[0] = argv0;
     
     /* copy file paths into argv */
     for( j = 1; j < vec_len; j++ )
     {
         str_len = files[j - 1].size() + 1;
-        argv[j] = new char [str_len];
-        strncpy( argv[j], files[j - 1].c_str(), str_len );
+        char * argvj = new char [str_len];
+        strncpy( argvj, files[j - 1].c_str(), str_len );
+        argv[j] = argvj;
     }
     
     /* send the command */
@@ -735,7 +737,11 @@ t_CKBOOL Chuck_Shell_Network_VM::add_shred( const vector< string > & files,
 
     /* clean up heap data */
     for( j = 0; j < vec_len; j++ )
-        delete[] argv[j];
+    {
+        // TODO: verify this is alright
+        char * arg = (char *)argv[j];
+        delete[] arg;
+    }
     delete[] argv;
     
     return return_val;
@@ -751,19 +757,21 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_shred( const vector< string > & ids,
     t_CKINT i = 0;
     t_CKBOOL return_val;
     vector<string>::size_type j, str_len, vec_len = ids.size() + 1;
-    char ** argv = new char * [ vec_len ];
+    const char ** argv = new const char * [ vec_len ];
     
     /* prepare an argument vector to submit to otf_send_cmd */
     /* first, specify an add command */
-    argv[0] = new char [2];
-    strncpy( argv[0], "-", 2 );
+    char * argv0 = new char [2];
+    strncpy( argv0, "-", 2 );
+    argv[0] = argv0;
     
     /* copy ids into argv */
     for( j = 1; j < vec_len; j++ )
     {
         str_len = ids[j - 1].size() + 1;
-        argv[j] = new char [str_len];
-        strncpy( argv[j], ids[j - 1].c_str(), str_len );
+        char * argvj = new char [str_len];
+        strncpy( argvj, ids[j - 1].c_str(), str_len );
+        argv[j] = argvj;
     }
     
     /* send the command */
@@ -777,7 +785,11 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_shred( const vector< string > & ids,
 
     /* clean up heap data */
     for( j = 0; j < vec_len; j++ )
-        delete[] argv[j];
+    {
+        // TODO: verify this is ok
+        char * arg = (char *)argv[j];
+        delete[] arg;
+    }
     delete[] argv;
     
     return return_val;
@@ -791,9 +803,8 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_all( string & out )
 {
     t_CKBOOL return_val = TRUE;
     t_CKINT j = 0;
-    char ** argv = new char *;
-    argv[0] = "--removeall";
-    if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+    const char * argv = "--removeall";
+    if( !otf_send_cmd( 1, &argv, j, hostname.c_str(), port ) )
     {
         out += "removeall: error: command failed\n";
         return_val = FALSE;
@@ -810,9 +821,8 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_last( string & out )
 {
     t_CKBOOL return_val = TRUE;
     t_CKINT j = 0;
-    char ** argv = new char *;
-    argv[0] = "--";
-    if( !otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+    const char * argv = "--";
+    if( !otf_send_cmd( 1, &argv, j, hostname.c_str(), port ) )
     {
         out += "removelast: error: command failed\n";
         return_val = FALSE;
@@ -826,7 +836,7 @@ t_CKBOOL Chuck_Shell_Network_VM::remove_last( string & out )
 // desc: ...
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
-                                        string & out )
+                                                string & out )
 {
     if( vec.size() < 2 )
     {
@@ -837,7 +847,7 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     t_CKINT i = 0;
     t_CKBOOL return_val;
     vector<string>::size_type j, str_len, vec_len = vec.size() + 1;
-    char ** argv = new char * [ vec_len ];
+    const char ** argv = new const char * [ vec_len ];
     
     /* prepare an argument vector to submit to otf_send_cmd */
     /* first, specify an add command */
@@ -847,8 +857,9 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
     for( j = 1; j < vec_len; j++ )
     {
         str_len = vec[j - 1].size() + 1;
-        argv[j] = new char [str_len];
-        strncpy( argv[j], vec[j - 1].c_str(), str_len );
+        char * argvj = new char [str_len];
+        strncpy( argvj, vec[j - 1].c_str(), str_len );
+        argv[j] = argvj;
     }
     
     /* send the command */
@@ -867,9 +878,13 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
         return FALSE;
     }
     
-/* clean up heap data */
+    /* clean up heap data */
     for( j = 1; j < vec_len; j++ )
-        delete[] argv[j];
+    {
+        // TODO: verify this is ok
+        char * arg = (char *)argv[j];
+        delete[] arg;
+    }
     delete[] argv;
     
     return return_val;
@@ -881,21 +896,17 @@ t_CKBOOL Chuck_Shell_Network_VM::replace_shred( const vector< string > &vec,
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Shell_Network_VM::status( string & out )
 {
-    char ** argv = new char *;
+    const char * argv = "--status";
     t_CKBOOL return_val = FALSE;
     t_CKINT j = 0;
     
-    argv[0] = "--status";
-    if( otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+    if( otf_send_cmd( 1, &argv, j, hostname.c_str(), port ) )
         return_val = TRUE;
-    
     else
     {
         return_val = FALSE;
         out += "status: error: command failed\n";
     }
-    
-    delete argv;
     
     return return_val;
 }
@@ -906,13 +917,11 @@ t_CKBOOL Chuck_Shell_Network_VM::status( string & out )
 //-----------------------------------------------------------------------------
 t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
 {
-    char ** argv = new char *;
+    const char * argv = "--kill";
     t_CKINT j = 0;
     t_CKBOOL return_val;
     
-    argv[0] = "--kill";
-    
-    if( otf_send_cmd( 1, argv, j, hostname.c_str(), port ) )
+    if( otf_send_cmd( 1, &argv, j, hostname.c_str(), port ) )
         return_val = TRUE;
     
     else
@@ -920,8 +929,6 @@ t_CKBOOL Chuck_Shell_Network_VM::kill( string & out )
         return_val = FALSE;
         out += "kill: error: command failed";
     }
-    
-    delete argv;
     
     return return_val;
 }

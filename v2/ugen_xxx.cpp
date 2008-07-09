@@ -1222,7 +1222,7 @@ public:
   t_CKINT fprob;
   t_CKUINT mode;
   void tick( t_CKTIME now, SAMPLE * out );
-  void setMode(char * c);
+  void setMode( const char * c );
 
   t_CKINT pink_tick( SAMPLE * out);
   t_CKINT brown_tick( SAMPLE * out);
@@ -1337,7 +1337,7 @@ CNoise_Data::fbm_tick( SAMPLE * out ) {
 }
 
 void
-CNoise_Data::setMode( char * c ) { 
+CNoise_Data::setMode( const char * c ) { 
   if ( strcmp ( c, "white" ) == 0 ) { 
     // fprintf(stderr, "white noise\n");
     mode = NOISE_WHITE;    
@@ -1380,7 +1380,7 @@ CNoise_Data::setMode( char * c ) {
 CK_DLL_CTRL( cnoise_ctrl_mode )
 {
     CNoise_Data * d = ( CNoise_Data * )OBJ_MEMBER_UINT(SELF, cnoise_offset_data);
-    char * mode= *(char **)GET_CK_STRING(ARGS);
+    const char * mode= (const char *)*(char **)GET_CK_STRING(ARGS);
     d->setMode(mode);
 }
 

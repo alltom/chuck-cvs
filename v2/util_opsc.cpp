@@ -498,7 +498,7 @@ University of California, Berkeley.
 
 //#include "OSC-client.h"
 
-char *OSC_errorMessage;
+const char * OSC_errorMessage;
 
 
 //static int strlen(char *s);

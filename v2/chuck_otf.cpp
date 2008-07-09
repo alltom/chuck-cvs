@@ -385,7 +385,7 @@ ck_socket otf_send_connect( const char * host, int port )
 // name: otf_send_cmd()
 // desc: ...
 //-----------------------------------------------------------------------------
-int otf_send_cmd( int argc, char * const * argv, t_CKINT & i, const char * host, int port,
+int otf_send_cmd( int argc, const char ** argv, t_CKINT & i, const char * host, int port,
                   int * is_otf )
 {
     Net_Msg msg;
