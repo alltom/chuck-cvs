@@ -40,6 +40,7 @@
 #include "chuck_lang.h"
 #include "ugen_xxx.h"
 
+#include <algorithm>
 using namespace std;
 
 #if defined(__PLATFORM_WIN32__)

@@ -40,6 +40,7 @@
 #include "chuck_errmsg.h"
 #include "chuck_vm.h"
 
+#include <algorithm>
 using namespace std;
 
 
