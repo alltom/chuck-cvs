@@ -35,6 +35,7 @@ U.S.A.
 #include "util_hid.h"
 #include "hidio_sdl.h"
 
+#include <limits.h>
 #include <vector>
 #include <map>
 
