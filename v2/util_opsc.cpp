@@ -502,8 +502,8 @@ const char * OSC_errorMessage;
 
 
 //static int strlen(char *s);
-static int OSC_padString(char *dest, char *str);
-static int OSC_padStringWithAnExtraStupidComma(char *dest, char *str);
+static int OSC_padString(char *dest, const char *str);
+static int OSC_padStringWithAnExtraStupidComma(char *dest, const char *str);
 static int OSC_WritePadding(char *dest, int i);
 static int CheckTypeTag(OSCbuf *buf, char expectedType);
 
@@ -891,7 +891,7 @@ int OSC_effectiveStringLength(char *string)
 }
 
 
-static int OSC_padString(char *dest, char *str)
+static int OSC_padString(char *dest, const char *str)
 {
     int i;
     
@@ -903,7 +903,7 @@ static int OSC_padString(char *dest, char *str)
 }
 
 
-static int OSC_padStringWithAnExtraStupidComma(char *dest, char *str)
+static int OSC_padStringWithAnExtraStupidComma(char *dest, const char *str)
 {
     int i;
     
