@@ -2039,12 +2039,12 @@ OSC_Address_Space::OSC_Address_Space() {
 }
 
 
-OSC_Address_Space::OSC_Address_Space( char * spec ) { 
+OSC_Address_Space::OSC_Address_Space( const char * spec ) { 
     init();
     setSpec( spec );
 }
 
-OSC_Address_Space::OSC_Address_Space( char * addr, char * types) { 
+OSC_Address_Space::OSC_Address_Space( const char * addr, const char * types) { 
     init();
     setSpec( addr, types );
 }
@@ -2072,7 +2072,7 @@ OSC_Address_Space::setReceiver(OSC_Receiver * recv) {
 }
 
 void
-OSC_Address_Space::setSpec( char *addr, char * types ) { 
+OSC_Address_Space::setSpec( const char *addr, const char * types ) { 
     strncpy ( _spec, addr, 512 );
     strncat ( _spec, "," , 512);
     strncat ( _spec, types, 512 );
@@ -2082,7 +2082,7 @@ OSC_Address_Space::setSpec( char *addr, char * types ) {
 }
 
 void   
-OSC_Address_Space::setSpec( char *c ) { 
+OSC_Address_Space::setSpec( const char *c ) { 
     strncpy ( _spec, c, 512); 
     scanSpec();
     _needparse = true; 

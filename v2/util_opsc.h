@@ -372,7 +372,7 @@ int OSC_writeFloatArgs(OSCbuf *buf, int numFloats, float *args);
 int OSC_writeIntArg(OSCbuf *buf, int4byte arg);
 int OSC_writeStringArg(OSCbuf *buf, char *arg);
 
-extern const char *OSC_errorMessage;
+extern const char * OSC_errorMessage;
 
 /* How many bytes will be needed in the OSC format to hold the given
    string?  The length of the string, plus the null char, plus any padding
@@ -587,14 +587,14 @@ public:
     Chuck_Object * SELF; 
     Chuck_String p_str;
     OSC_Address_Space();
-    OSC_Address_Space( char * spec );
-    OSC_Address_Space( char * addr, char * type );
+    OSC_Address_Space( const char * spec );
+    OSC_Address_Space( const char * addr, const char * type );
     virtual ~OSC_Address_Space();
 
     // initialization
     void   init();
-    void   setSpec(char *c );
-    void   setSpec(char *addr, char * type );
+    void   setSpec( const char * c );
+    void   setSpec( const char * addr, const char * type );
     void   setReceiver( OSC_Receiver * recv );
 
     // distribution
