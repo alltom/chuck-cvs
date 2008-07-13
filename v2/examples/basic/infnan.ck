@@ -12,3 +12,5 @@ repeat( 20 ) n *=> n;
 // more
 <<< 1.0 / 0.0 => Math.isinf >>>;
 <<< 0.0 / 0.0 => Math.isnan >>>;
+<<< Math.INFINITY, -Math.INFINITY >>>;
+<<< Math.INFINITY => Math.isinf >>>;

@@ -19,7 +19,8 @@
             computes the autocorrelation of UAna input
   - (added) int Shred.done()  // is the shred done?
             int Shred.running()  // is the shred running?
-  - (added) int Math.ensurepow2( int )
+  - (added) int Math.ensurePow2( int )
+  - (added) Math.INFINITY, Math.FLOAT_MAX, Math.FLOAT_MIN_MAG, Math.INT_MAX
   - (added) TriOsc.width(), PulseOsc.width(), SawOsc.width(), SqrOsc.width()
   - (removed) SqrOsc.width( float ), width is always .5
   - (fixed) it's now (again) possible to multiply connect

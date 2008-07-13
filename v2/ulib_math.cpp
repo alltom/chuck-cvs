@@ -46,6 +46,8 @@ static double g_pi = ONE_PI;
 static double g_twopi = TWO_PI;
 static double g_e = ::exp( 1.0 );
 static t_CKFLOAT g_floatMax = DBL_MAX;
+static t_CKFLOAT g_floatMin = DBL_MIN;
+static t_CKFLOAT g_inf = 0.0;
 static t_CKINT g_intMax = LONG_MAX;
 static t_CKCOMPLEX g_i = { 0.0, 1.0 };
 
@@ -293,9 +295,17 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     assert( sizeof(t_CKFLOAT) == sizeof(double) );
     QUERY->add_svar( QUERY, "float", "FLOAT_MAX", TRUE, &g_floatMax );
 
+    // float min
+    QUERY->add_svar( QUERY, "float", "FLOAT_MIN_MAG", TRUE, &g_floatMin );
+
     // int max
     assert( sizeof(t_CKINT) == sizeof(long) );
     QUERY->add_svar( QUERY, "int", "INT_MAX", TRUE, &g_intMax );
+
+    // infinity
+    double zero = 0.0;
+    g_inf = 1.0 / zero;
+    QUERY->add_svar( QUERY, "float", "INFINITY", TRUE, &g_inf );
 
     // i
     QUERY->add_svar( QUERY, "complex", "I", TRUE, &g_i );
