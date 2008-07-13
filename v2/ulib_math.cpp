@@ -209,7 +209,7 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_arg( QUERY, "int", "n" );
 
     // ensurepow2
-    QUERY->add_sfun( QUERY, ensurepow2_impl, "int", "ensurepow2" );
+    QUERY->add_sfun( QUERY, ensurepow2_impl, "int", "ensurePow2" );
     QUERY->add_arg( QUERY, "int", "n" );
 
     // rand
