@@ -36,10 +36,7 @@
 #include "ulib_std.h"
 
 #include <limits.h>
-
-#ifdef __PLATFORM_WIN32__
 #include <float.h>
-#endif
 
 
 static double g_pi = ONE_PI;
