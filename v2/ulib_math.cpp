@@ -35,6 +35,8 @@
 #include "util_math.h"
 #include "ulib_std.h"
 
+#include <limits.h>
+
 #ifdef __PLATFORM_WIN32__
 #include <float.h>
 #endif
@@ -43,6 +45,8 @@
 static double g_pi = ONE_PI;
 static double g_twopi = TWO_PI;
 static double g_e = ::exp( 1.0 );
+static t_CKFLOAT g_floatMax = DBL_MAX;
+static t_CKINT g_intMax = LONG_MAX;
 static t_CKCOMPLEX g_i = { 0.0, 1.0 };
 
 
@@ -192,6 +196,12 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_sfun( QUERY, isnan_impl, "int", "isnan" );
     QUERY->add_arg( QUERY, "float", "x" );
 
+    // floatMax
+    // QUERY->add_sfun( QUERY, floatMax_impl, "float", "floatMax" );
+
+    // intMax
+    // QUERY->add_sfun( QUERY, intMax_impl, "int", "intMax" );
+
     // nextpow2
     QUERY->add_sfun( QUERY, nextpow2_impl, "int", "nextpow2" );
     QUERY->add_arg( QUERY, "int", "n" );
@@ -278,6 +288,14 @@ DLL_QUERY libmath_query( Chuck_DL_Query * QUERY )
     QUERY->add_svar( QUERY, "float", "E", TRUE, &g_e );
     // e
     QUERY->add_svar( QUERY, "float", "e", TRUE, &g_e );
+
+    // float max
+    assert( sizeof(t_CKFLOAT) == sizeof(double) );
+    QUERY->add_svar( QUERY, "float", "FLOAT_MAX", TRUE, &g_floatMax );
+
+    // int max
+    assert( sizeof(t_CKINT) == sizeof(long) );
+    QUERY->add_svar( QUERY, "int", "INT_MAX", TRUE, &g_intMax );
 
     // i
     QUERY->add_svar( QUERY, "complex", "I", TRUE, &g_i );
@@ -477,6 +495,36 @@ CK_DLL_SFUN( isnan_impl )
 #else
     RETURN->v_int = isnan( x );
 #endif
+}
+
+// floatMax
+CK_DLL_SFUN( floatMax_impl )
+{
+    // check size
+    if( sizeof(t_CKFLOAT) == 8 )
+        RETURN->v_float = DBL_MAX;
+    else if( sizeof(t_CKFLOAT) == 4 )
+        RETURN->v_float = FLT_MAX;
+    else
+    {
+        // error
+        fprintf( stderr, "[chuck]: internal error determining size of 'float' in floatMax()\n" );
+        RETURN->v_float = 0; // TODO: return NaN?
+    }
+}
+
+// intMax
+CK_DLL_SFUN( intMax_impl )
+{
+    // check size
+    if( sizeof(t_CKINT) == 4 )
+        RETURN->v_int = LONG_MAX;
+    else
+    {
+        // error
+        fprintf( stderr, "[chuck]: internal error determining size of 'int' in intMax()\n" );
+        RETURN->v_int = 0;
+    }
 }
 
 // nextpow2 - thanks to Niklas Werner, via music-dsp
