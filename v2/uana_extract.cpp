@@ -302,7 +302,8 @@ CK_DLL_TOCK( FeatureCollector_tock )
     if( num_incoming > 0 )
     {
         //count the number of features in the array we're making
-        for( i = 0; i < num_incoming; i++ ) {
+        for( i = 0; i < num_incoming; i++ )
+        {
             // get next blob
             Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( i );
             // sanity check
@@ -316,14 +317,16 @@ CK_DLL_TOCK( FeatureCollector_tock )
         Chuck_Array8 & fvals = BLOB->fvals();
         if( fvals.size() != num_feats )
             fvals.set_size( num_feats );
-        
+
         t_CKINT next_index = 0;
-        for( i = 0; i < num_incoming; i++ ) {
+        for( i = 0; i < num_incoming; i++ )
+        {
             // get next blob
             Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( i );
             Chuck_Array8 & these_fvals = BLOB_IN->fvals();
             t_CKINT num_these = these_fvals.size();
-            for( j = 0; j < num_these; j++ ) {
+            for( j = 0; j < num_these; j++ )
+            {
                 t_CKFLOAT v;
                 these_fvals.get( j, &v );
                 fvals.set( next_index, v);
