@@ -104,6 +104,8 @@ CK_DLL_PMSG( XCorr_pmsg );
 CK_DLL_SFUN( XCorr_compute );
 CK_DLL_MFUN( XCorr_ctrl_normalize );
 CK_DLL_MFUN( XCorr_cget_normalize );
+// offset
+static t_CKUINT XCorr_offset_data = 0;
 
 // LPC
 CK_DLL_CTOR( LPC_ctor );
@@ -266,12 +268,45 @@ DLL_QUERY extract_query( Chuck_DL_Query * QUERY )
     // compute
     func = make_new_sfun( "float[]", "compute", AutoCorr_compute );
     func->add_arg( "float[]", "input" );
+    func->add_arg( "int", "normalize" );
     func->add_arg( "float[]", "output" );
     if( !type_engine_import_sfun( env, func ) ) goto error;
 
     // end the class import
     type_engine_import_class_end( env );
 
+    //---------------------------------------------------------------------
+    // init as base class: XCorr
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "XCorr", "UAna", env->global(), 
+                                        XCorr_ctor, XCorr_dtor,
+                                        XCorr_tick, XCorr_tock, XCorr_pmsg ) )
+        return FALSE;
+
+    // data offset
+    XCorr_offset_data = type_engine_import_mvar( env, "float", "@XCorr_data", FALSE );
+    if( XCorr_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // normalize
+    func = make_new_mfun( "int", "normalize", XCorr_ctrl_normalize );
+    func->add_arg( "int", "flag" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // normalize
+    func = make_new_mfun( "int", "normalize", XCorr_cget_normalize );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
+    // compute
+    func = make_new_sfun( "float[]", "compute", XCorr_compute );
+    func->add_arg( "float[]", "f" );
+    func->add_arg( "float[]", "g" );
+    func->add_arg( "int", "normalize" );
+    func->add_arg( "float[]", "y" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
+    // end the class import
+    type_engine_import_class_end( env );
+    
     return TRUE;
 
 error:
@@ -922,6 +957,9 @@ struct Corr_Object
     SAMPLE * buffy;
     t_CKINT bufcap;
 
+    // static corr instance
+    static Corr_Object * ourCorr;
+
     // constructor
     Corr_Object()
     {
@@ -1005,7 +1043,24 @@ struct Corr_Object
 
         return TRUE;
     }
+
+    // get our singleton
+    static Corr_Object * getOurObject()
+    {
+        // instantiate, if needed
+        if( ourCorr == NULL )
+        {
+            ourCorr = new Corr_Object();
+            assert( ourCorr != NULL );
+        }
+
+        // return new instance
+        return ourCorr;
+    }
 };
+
+// static initialization
+Corr_Object * Corr_Object::ourCorr = NULL;
 
 // compute correlation
 static void compute_corr( Corr_Object * corr, Chuck_Array8 & f, t_CKINT fs, 
@@ -1033,6 +1088,14 @@ static void compute_corr( Corr_Object * corr, Chuck_Array8 & f, t_CKINT fs,
     // compute
     xcorr_fft( corr->fbuf, corr->fcap, corr->gbuf, corr->gcap,
                corr->buffy, corr->bufcap );
+
+    // check flags
+    if( corr->normalize )
+    {
+        // normalize
+        xcorr_normalize( corr->buffy, corr->bufcap,
+            corr->fbuf, corr->fcap, corr->gbuf, corr->gcap );
+    }
 
     // copy into result
     size = fs + gs - 1;
@@ -1120,6 +1183,114 @@ CK_DLL_CGET( AutoCorr_cget_normalize )
 
 CK_DLL_SFUN( AutoCorr_compute )
 {
+    // get input
+    Chuck_Array8 * input = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // get normalize flag
+    t_CKINT normalize = GET_NEXT_INT(ARGS) != 0;
+    // get input
+    Chuck_Array8 * output = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+
+    // set normalize
+    Corr_Object::getOurObject()->normalize = normalize;
+    // compute autocrr
+    compute_corr( Corr_Object::getOurObject(), *input, input->size(),
+        *input, input->size(), *output );
+}
+
+
+// XCorr
+CK_DLL_CTOR( XCorr_ctor )
+{
+    Corr_Object * xc = new Corr_Object();
+    OBJ_MEMBER_UINT( SELF, XCorr_offset_data ) = (t_CKUINT)xc;
+}
+
+CK_DLL_DTOR( XCorr_dtor )
+{
+    Corr_Object * xc = (Corr_Object *)OBJ_MEMBER_UINT( SELF, XCorr_offset_data );
+    SAFE_DELETE(xc);
+    OBJ_MEMBER_UINT( SELF, XCorr_offset_data ) = 0;
+}
+
+CK_DLL_TICK( XCorr_tick )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_TOCK( XCorr_tock )
+{
+    // get object
+    Corr_Object * xc = (Corr_Object *)OBJ_MEMBER_UINT( SELF, XCorr_offset_data );
+
+    // TODO: get buffer from stream, and set
+    if( UANA->numIncomingUAnae() > 1 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_F = UANA->getIncomingBlob( 0 );
+        // get second
+        Chuck_UAnaBlobProxy * BLOB_G = UANA->getIncomingBlob( 1 );
+        // sanity check
+        assert( BLOB_F != NULL && BLOB_G != NULL );
+        // get the array
+        Chuck_Array8 & mag_f = BLOB_F->fvals();
+        Chuck_Array8 & mag_g = BLOB_G->fvals();
+        // get fvals of output BLOB
+        Chuck_Array8 & fvals = BLOB->fvals();
+        // compute xcorr
+        compute_corr( xc, mag_f, mag_f.size(), mag_g, mag_g.size(), fvals );
+    }
+    // otherwise zero out
+    else
+    {
+        // get fvals of output BLOB
+        Chuck_Array8 & fvals = BLOB->fvals();
+        // resize
+        fvals.set_size( 0 );
+    }
+
+    return TRUE;
+}
+
+CK_DLL_PMSG( XCorr_pmsg )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_CTRL( XCorr_ctrl_normalize )
+{
+    // get object
+    Corr_Object * ac = (Corr_Object *)OBJ_MEMBER_UINT( SELF, XCorr_offset_data );
+    // get percent
+    ac->normalize = GET_NEXT_INT(ARGS) != 0;
+    // return it
+    RETURN->v_int = ac->normalize;
+}
+
+CK_DLL_CGET( XCorr_cget_normalize )
+{
+    // get object
+    Corr_Object * ac = (Corr_Object *)OBJ_MEMBER_UINT( SELF, XCorr_offset_data );
+    // return it
+    RETURN->v_int = ac->normalize;
+}
+
+CK_DLL_SFUN( XCorr_compute )
+{
+    // get input
+    Chuck_Array8 * f = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    Chuck_Array8 * g = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // get normalize flag
+    t_CKINT normalize = GET_NEXT_INT(ARGS) != 0;
+    // get output
+    Chuck_Array8 * output = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+
+    // set normalize
+    Corr_Object::getOurObject()->normalize = normalize;
+    // compute autocrr
+    compute_corr( Corr_Object::getOurObject(), *f, f->size(),
+        *g, g->size(), *output );
 }
 
 
