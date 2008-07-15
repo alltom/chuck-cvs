@@ -1,11 +1,10 @@
 ---
 1.2.1.2
   - (added) dynamic, resizable arrays
-                .size( int ) resizes array
+                .size( int ) resizes array; .size() returns current size()
                 << operator appends new elements into array
-                .capacity( int ) reserves minimum capacity
-                .clear() clears the size
-                .reset() clears the size, reserve default capacity
+                .popBack() pops the last element of the array, reducing size by 1
+                .clear() zero's out elements of the array
             (see examples/array/
                 array_dyanmic.ck
                 array_resize.ck)
