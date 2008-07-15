@@ -107,6 +107,16 @@ CK_DLL_MFUN( XCorr_cget_normalize );
 // offset
 static t_CKUINT XCorr_offset_data = 0;
 
+// ZeroX
+CK_DLL_CTOR( ZeroX_ctor );
+CK_DLL_DTOR( ZeroX_dtor );
+CK_DLL_TICK( ZeroX_tick );
+CK_DLL_TOCK( ZeroX_tock );
+CK_DLL_PMSG( ZeroX_pmsg );
+CK_DLL_SFUN( ZeroX_compute );
+// offset
+static t_CKUINT ZeroX_offset_data = 0;
+
 // LPC
 CK_DLL_CTOR( LPC_ctor );
 CK_DLL_DTOR( LPC_dtor );
@@ -120,6 +130,8 @@ CK_DLL_MFUN( LPC_ctrl_power );
 CK_DLL_MFUN( LPC_cget_power );
 CK_DLL_MFUN( LPC_ctrl_coefs );
 CK_DLL_MFUN( LPC_cget_coefs );
+// offset
+static t_CKUINT LPC_offset_data = 0;
 
 
 // utility functions
@@ -306,7 +318,29 @@ DLL_QUERY extract_query( Chuck_DL_Query * QUERY )
 
     // end the class import
     type_engine_import_class_end( env );
-    
+
+    //---------------------------------------------------------------------
+    // init as base class: zerox
+    //---------------------------------------------------------------------
+    if( !type_engine_import_uana_begin( env, "ZeroX", "UAna", env->global(), 
+                                        ZeroX_ctor, ZeroX_dtor,
+                                        ZeroX_tick, ZeroX_tock, NULL ) )
+        return FALSE;
+
+    // data offset
+    ZeroX_offset_data = type_engine_import_mvar( env, "int", "@ZeroX_data", FALSE );
+    if( ZeroX_offset_data == CK_INVALID_OFFSET ) goto error;
+
+    // compute
+    func = make_new_sfun( "float", "compute", ZeroX_compute );
+    func->add_arg( "float[]", "input" );
+    if( !type_engine_import_sfun( env, func ) ) goto error;
+
+    // end import
+    if( !type_engine_import_class_end( env ) )
+        return FALSE;
+
+
     return TRUE;
 
 error:
@@ -1294,6 +1328,8 @@ CK_DLL_SFUN( XCorr_compute )
 }
 
 
+
+
 //-----------------------------------------------------------------------------
 // name: xcorr_fft()
 // desc: FFT-based cross correlation
@@ -1346,4 +1382,104 @@ void xcorr_normalize( SAMPLE * buffy, t_CKINT size, SAMPLE * f, t_CKINT fs, SAMP
     // normalize: taking coherence into account
     for( long k = 0; k < size; k++ )
         buffy[k] /= sum;
+}
+
+
+
+
+// ZeroX
+#define __SGN(x)  (x >= 0.0f ? 1.0f : -1.0f )
+static t_CKINT compute_zerox( Chuck_Array8 & buffer, t_CKUINT size )
+{
+    t_CKUINT i, xings = 0;
+    t_CKFLOAT v = 0, p = 0;
+    buffer.get( 0, &p );
+
+    // Compute centroid using moments
+    for( i = 0; i < size; i++ )
+    {
+        buffer.get( i, &v );
+        xings += __SGN(v) != __SGN(p);
+        p = v;
+    }
+
+    return xings;
+}
+
+CK_DLL_CTOR( ZeroX_ctor )
+{
+    OBJ_MEMBER_UINT(SELF, ZeroX_offset_data) = (t_CKUINT)new SAMPLE( 0.0f );
+}
+
+CK_DLL_DTOR( ZeroX_dtor )
+{
+    delete (SAMPLE *)OBJ_MEMBER_UINT(SELF, ZeroX_offset_data);
+    OBJ_MEMBER_UINT(SELF, ZeroX_offset_data) = 0;
+}
+
+CK_DLL_TICK( ZeroX_tick )
+{
+    SAMPLE * d = (SAMPLE *)OBJ_MEMBER_UINT(SELF, ZeroX_offset_data);
+    *out = __SGN(in) != __SGN(*d);
+    *out *= __SGN(in);
+    *d = in;
+    
+    return TRUE;
+}
+
+CK_DLL_TOCK( ZeroX_tock )
+{
+    t_CKFLOAT result = 0.0;
+
+    // TODO: get buffer from stream, and set in ifft
+    if( UANA->numIncomingUAnae() > 0 )
+    {
+        // get first
+        Chuck_UAnaBlobProxy * BLOB_IN = UANA->getIncomingBlob( 0 );
+        // sanity check
+        assert( BLOB_IN != NULL );
+        // get the array
+        Chuck_Array8 & mag = BLOB_IN->fvals();
+        // compute ZeroX
+        result = (t_CKFLOAT)( compute_zerox( mag, mag.size() ) + .5 );
+    }
+    // otherwise zero out
+    else
+    {
+        // no input!
+        result = 0.0;
+    }
+
+    // get fvals of output BLOB
+    Chuck_Array8 & fvals = BLOB->fvals();
+    // ensure size == resulting size
+    if( fvals.size() != 1 )
+        fvals.set_size( 1 );
+    // copy the result in
+    fvals.set( 0, result );
+
+    return TRUE;
+}
+
+CK_DLL_PMSG( ZeroX_pmsg )
+{
+    // do nothing
+    return TRUE;
+}
+
+CK_DLL_SFUN( ZeroX_compute )
+{
+    // get array
+    Chuck_Array8 * array = (Chuck_Array8 *)GET_NEXT_OBJECT(ARGS);
+    // sanity check
+    if( !array )
+    {
+        // no centroid
+        RETURN->v_float = 0.0;
+    }
+    else
+    {
+        // do it
+        RETURN->v_float = (t_CKFLOAT)( compute_centroid( *array, array->size() ) + .5 );
+    }
 }

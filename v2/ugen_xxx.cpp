@@ -68,10 +68,10 @@ static t_CKUINT stereo_offset_pan = 0;
 static t_CKUINT cnoise_offset_data = 0;
 static t_CKUINT impulse_offset_data = 0;
 static t_CKUINT step_offset_data = 0;
-static t_CKUINT zerox_offset_data = 0;
 static t_CKUINT delayp_offset_data = 0;
 static t_CKUINT sndbuf_offset_data = 0;
 static t_CKUINT dyno_offset_data = 0;
+// static t_CKUINT zerox_offset_data = 0;
 
 Chuck_Type * g_t_dac = NULL;
 Chuck_Type * g_t_adc = NULL;
@@ -442,7 +442,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
     //---------------------------------------------------------------------
     // init as base class: zerox
     //---------------------------------------------------------------------
-    if( !type_engine_import_ugen_begin( env, "ZeroX", "UGen", env->global(), 
+    /* if( !type_engine_import_ugen_begin( env, "ZeroX", "UGen", env->global(), 
                                         zerox_ctor, zerox_dtor, zerox_tick, NULL ) )
         return FALSE;
 
@@ -452,7 +452,7 @@ DLL_QUERY xxx_query( Chuck_DL_Query * QUERY )
 
     // end import
     if( !type_engine_import_class_end( env ) )
-        return FALSE;
+        return FALSE; */
 
 
     //! \section delay lines
@@ -1569,6 +1569,7 @@ CK_DLL_TICK( fullrect_tick )
 
 
 
+/*
 //-----------------------------------------------------------------------------
 // name: zerox_ctor()
 // desc: ...
@@ -1604,6 +1605,7 @@ CK_DLL_TICK( zerox_tick )
     
     return TRUE;
 }
+*/
 
 
 

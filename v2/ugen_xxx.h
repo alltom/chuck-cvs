@@ -136,9 +136,9 @@ CK_DLL_TICK( halfrect_tick );
 CK_DLL_TICK( fullrect_tick );
 
 // zerox
-CK_DLL_CTOR( zerox_ctor );
-CK_DLL_DTOR( zerox_dtor );
-CK_DLL_TICK( zerox_tick );
+// CK_DLL_CTOR( zerox_ctor );
+// CK_DLL_DTOR( zerox_dtor );
+// CK_DLL_TICK( zerox_tick );
 
 // delayp
 CK_DLL_CTOR( delayp_ctor );
