@@ -8,14 +8,17 @@
             (see examples/array/
                 array_dyanmic.ck
                 array_resize.ck)
-  - (added) new UAna: FeatureCollector (rebecca)
+  - (added) new UAna: FeatureCollector
             turns UAna input into a single feature vector, upon .upchuck()
-            new UAna: Flip (ge)
+            new UAna: Flip
             turns audio samples into frames in the UAna domain
-            new UAna: pilF (ge)
+            new UAna: pilF
             turns UAna frames into audio samples, via overlap add
-            new UAna: AutoCorr (ge)
+            new UAna: AutoCorr
             computes the autocorrelation of UAna input
+            new UAna: XCorr
+            computes the cross correlation of the first two UAna input
+  - (added) UGen.isConnectedTo( Ugen )  // is connected to another ugen?
   - (added) int Shred.done()  // is the shred done?
             int Shred.running()  // is the shred running?
   - (added) int Math.ensurePow2( int )
