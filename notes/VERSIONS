@@ -29,6 +29,8 @@
             due to added centralized polling;
             added static Hid.globalPollRate( dur ) to control
             the central SMS polling's rate
+  - (fixed) Windows only: implementation of array via STL vector::reserve()
+            has been replaced with a more compatible approach (see chuck_oo.cpp)
   - (fixed) dac amplitude no longer halved!
             NOTE: this increases the gain from before by
             a factor of 2, or roughly 6 dB!!  BEWARE!!
