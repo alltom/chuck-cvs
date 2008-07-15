@@ -69,6 +69,10 @@ t_CKUINT g_watchdog_countermeasure_priority = 0;
 t_CKFLOAT g_watchdog_timeout = 0.5;
 // thread id for whatever
 CHUCK_THREAD g_tid_whatever = 0;
+// flag for Std.system( string )
+t_CKBOOL g_enable_system_cmd = FALSE;
+
+
 
 
 //-----------------------------------------------------------------------------

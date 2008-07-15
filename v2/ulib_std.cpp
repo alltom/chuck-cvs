@@ -41,6 +41,7 @@
 #include "util_thread.h"
 #include "chuck_type.h"
 #include "chuck_instr.h"
+#include "chuck_globals.h"
 
 #if defined(__PLATFORM_WIN32__)
 
@@ -589,7 +590,24 @@ CK_DLL_SFUN( sgn_impl )
 CK_DLL_SFUN( system_impl )
 {
     const char * cmd = GET_CK_STRING(ARGS)->str.c_str();
-    RETURN->v_int = system( cmd );
+
+    // check globals for permission
+    if( !g_enable_system_cmd )
+    {
+        fprintf( stderr, "[chuck]:error: VM not authorized to call Std.system( string )...\n" );
+        fprintf( stderr, "[chuck]:  (command string was: \"%s\")\n", cmd );
+        fprintf( stderr, "[chuck]:  (note: enable via --caution-to-the-wind flag or other means)\n" );
+        RETURN->v_int = 0;
+    }
+    else
+    {
+        // log
+        EM_log( CK_LOG_SEVERE, "invoking system( CMD )..." );
+        EM_pushlog();
+        EM_log( CK_LOG_SEVERE, "CMD: \"%s\"", cmd );
+        EM_poplog();
+        RETURN->v_int = system( cmd );
+    }
 }
 
 // aoti

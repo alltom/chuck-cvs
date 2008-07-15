@@ -21,6 +21,9 @@
   - (added) int Math.ensurePow2( int )
   - (added) Math.INFINITY, Math.FLOAT_MAX, Math.FLOAT_MIN_MAG, Math.INT_MAX
   - (added) TriOsc.width(), PulseOsc.width(), SawOsc.width(), SqrOsc.width()
+  - (added) Std.system(string) is now disabled by default, to enable: specify
+            the --caution-to-the-wind command line flag, for example:
+                %> chuck --caution-to-the-wind --loop
   - (removed) SqrOsc.width( float ), width is always .5
   - (fixed) it's now (again) possible to multiply connect
             two UGen's

@@ -417,6 +417,8 @@ int main( int argc, const char ** argv )
                 probe = TRUE;
             else if( !strcmp( argv[i], "--poop" ) )
                 uh();
+            else if( !strcmp( argv[i], "--caution-to-the-wind" ) )
+                g_enable_system_cmd = TRUE;
             else if( !strcmp(argv[i], "--help") || !strcmp(argv[i], "-h")
                  || !strcmp(argv[i], "--about") )
             {

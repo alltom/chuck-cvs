@@ -69,6 +69,8 @@ extern t_CKUINT g_watchdog_countermeasure_priority;
 extern t_CKFLOAT g_watchdog_timeout;
 // thread id for whatever
 extern CHUCK_THREAD g_tid_whatever;
+// flag for providing Std.system( string )
+extern t_CKBOOL g_enable_system_cmd;
 
 
 // global detach
