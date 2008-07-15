@@ -220,6 +220,11 @@ t_CKBOOL init_class_uana( Chuck_Env * env, Chuck_Type * type )
     func->add_arg( "int", "index" );
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
+    // add isUpConnectedTo
+    func = make_new_mfun( "int", "isUpConnectedTo", uana_connected );
+    func->add_arg( "UAna", "right" );
+    if( !type_engine_import_mfun( env, func ) ) goto error;
+
     // TODO: add nonchuck
     // func = make_new_mfun( "void", "nonchuck", uana_nonchuck );
     // if( !type_engine_import_mfun( env, func ) ) goto error;
@@ -1788,6 +1793,27 @@ CK_DLL_MFUN( uana_cval )
         RETURN->v_complex = val;
     }
 }
+
+CK_DLL_MFUN( uana_connected )
+{
+    // get ugen
+    Chuck_UAna * uana = (Chuck_UAna *)SELF;
+    Chuck_UAna * right = (Chuck_UAna *)GET_NEXT_OBJECT(ARGS);
+
+    // sanity
+    t_CKINT ret = FALSE;
+    if( !right )
+    {
+        ret = FALSE;
+    }
+    else
+    {
+        ret = right->is_up_connected_from( uana );
+    }
+
+    RETURN->v_int = ret;
+}
+
 
 // blob proxy implementation
 Chuck_UAnaBlobProxy::Chuck_UAnaBlobProxy( Chuck_Object * blob )

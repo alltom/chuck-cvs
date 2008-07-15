@@ -19,6 +19,7 @@
             new UAna: XCorr
             computes the cross correlation of the first two UAna input
   - (added) UGen.isConnectedTo( Ugen )  // is connected to another ugen?
+  - (added) UAna.isUpConnectedTo( UAna )  // is connected to another uana via =^?
   - (added) int Shred.done()  // is the shred done?
             int Shred.running()  // is the shred running?
   - (added) int Math.ensurePow2( int )

@@ -773,6 +773,23 @@ Chuck_UAna * Chuck_UAna::getIncomingUAna( t_CKUINT index ) const
 
 
 //-----------------------------------------------------------------------------
+// name: is_up_connected_from()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_UAna::is_up_connected_from( Chuck_UAna * src )
+{
+    if( m_src_uana_list != NULL && fa_lookup( m_src_uana_list, m_num_uana_src, src ) )
+        return TRUE;
+
+    // TODO: multichannel?
+
+    return FALSE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
 // name: tock()
 // dsec: ...
 //-----------------------------------------------------------------------------

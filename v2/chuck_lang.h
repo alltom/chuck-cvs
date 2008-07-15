@@ -105,6 +105,7 @@ CK_DLL_MFUN( uana_fvals );
 CK_DLL_MFUN( uana_cvals );
 CK_DLL_MFUN( uana_fval );
 CK_DLL_MFUN( uana_cval );
+CK_DLL_MFUN( uana_connected );
 
 
 //-----------------------------------------------------------------------------

@@ -142,6 +142,7 @@ public:
 
 public:
     t_CKBOOL system_tock( t_CKTIME now );
+    t_CKBOOL is_up_connected_from( Chuck_UAna * src );
 
 public: // blob retrieval
     t_CKINT numIncomingUAnae() const;
