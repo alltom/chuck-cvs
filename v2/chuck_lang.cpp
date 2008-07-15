@@ -766,11 +766,11 @@ t_CKBOOL init_class_array( Chuck_Env * env, Chuck_Type * type )
     if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add capacity()
-    func = make_new_mfun( "int", "capacity", array_get_capacity );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
-    func = make_new_mfun( "int", "capacity", array_set_capacity );
-    func->add_arg( "int", "val" );
-    if( !type_engine_import_mfun( env, func ) ) goto error;
+    // func = make_new_mfun( "int", "capacity", array_get_capacity );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
+    // func = make_new_mfun( "int", "capacity", array_set_capacity );
+    // func->add_arg( "int", "val" );
+    // if( !type_engine_import_mfun( env, func ) ) goto error;
 
     // add find()
     func = make_new_mfun( "int", "find", array_find );
@@ -2279,7 +2279,7 @@ CK_DLL_MFUN( array_pop_back )
     else if( array->data_type_size() == CHUCK_ARRAY8_DATASIZE )
         RETURN->v_int = ((Chuck_Array8 *)array)->pop_back( );
     else if( array->data_type_size() == CHUCK_ARRAY16_DATASIZE )
-        RETURN->v_int = ((Chuck_Array16 *)array)->push_back( GET_NEXT_COMPLEX( ARGS ) );
+        RETURN->v_int = ((Chuck_Array16 *)array)->pop_back( );
     else
         assert( FALSE );
 }

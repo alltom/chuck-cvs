@@ -2,13 +2,13 @@
 float argh[0];
 
 // print
-<<< "array size:", argh.size(), "array capacity:", argh.capacity() >>>;
+<<< "array size:", argh.size() >>>;
 
 // resize
 4 => argh.size;
 
 // print
-<<< "array size:", argh.size(), "array capacity:", argh.capacity() >>>;
+<<< "array size:", argh.size() >>>;
 
 // set elements
 3.0 => argh[0];
@@ -22,14 +22,14 @@ for( int i; i < argh.size(); i++ )
     <<< "argh[", i, "]:", argh[i] >>>;
 
 // recap
-2 => argh.capacity;
+2 => argh.size;
 
 // print
-<<< "array size:", argh.size(), "array capacity:", argh.capacity() >>>;
+<<< "array size:", argh.size() >>>;
 
-// reset
-argh.reset();
+// clear the contents
+argh.clear();
 
 // print
-<<< "array size:", argh.size(), "array capacity:", argh.capacity() >>>;
+<<< "array size:", argh.size() >>>;
 

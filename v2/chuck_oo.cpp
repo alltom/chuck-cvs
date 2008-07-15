@@ -303,8 +303,6 @@ Chuck_Array4::Chuck_Array4( t_CKBOOL is_obj, t_CKINT capacity )
 {
     // sanity check
     assert( capacity >= 0 );
-    // set capacity
-    m_vector.reserve( capacity );
     // set size
     m_vector.resize( capacity );
     // clear (as non-object, so no releases)
@@ -561,7 +559,7 @@ void Chuck_Array4::clear( )
     zero( 0, m_vector.size() );
 
     // clear vector
-    m_vector.clear();
+    // m_vector.clear();
 }
 
 
@@ -576,15 +574,8 @@ t_CKINT Chuck_Array4::set_capacity( t_CKINT capacity )
     // sanity check
     assert( capacity >= 0 );
 
-    // if clearing capacity
-    if( capacity < m_vector.size() )
-    {
-        // zero out section
-        set_size( capacity );
-    }
-
-    // resize vector
-    m_vector.reserve( capacity );
+    // ensure size
+    set_size( capacity );
 
     return m_vector.capacity();
 }
@@ -608,8 +599,17 @@ t_CKINT Chuck_Array4::set_size( t_CKINT size )
         zero( size, m_vector.size() );
     }
 
+    // what the size was
+    t_CKINT size2 = m_vector.size();
     // resize vector
     m_vector.resize( size );
+
+    // if clearing size
+    if( m_vector.size() > size2 )
+    {
+        // zero out section
+        zero( size2, m_vector.size() );
+    }
 
     return m_vector.size();
 }
@@ -663,8 +663,6 @@ Chuck_Array8::Chuck_Array8( t_CKINT capacity )
 {
     // sanity check
     assert( capacity >= 0 );
-    // set capacity
-    m_vector.reserve( capacity );
     // set size
     m_vector.resize( capacity );
     // clear
@@ -888,7 +886,7 @@ void Chuck_Array8::clear( )
     zero( 0, m_vector.size() );
 
     // clear vector
-    m_vector.clear();
+    // m_vector.clear();
 }
 
 
@@ -903,12 +901,8 @@ t_CKINT Chuck_Array8::set_capacity( t_CKINT capacity )
     // sanity check
     assert( capacity >= 0 );
 
-    // if less
-    if( capacity < m_vector.size() )
-        set_size( capacity );
-
-    // resize vector
-    m_vector.reserve( capacity );
+    // ensure size
+    set_size( capacity );
 
     return m_vector.capacity();
 }
@@ -932,8 +926,17 @@ t_CKINT Chuck_Array8::set_size( t_CKINT size )
         zero( size, m_vector.size() );
     }
 
+    // what the size was
+    t_CKINT size2 = m_vector.size();
     // resize vector
     m_vector.resize( size );
+
+    // if clearing size
+    if( m_vector.size() > size2 )
+    {
+        // zero out section
+        zero( size2, m_vector.size() );
+    }
 
     return m_vector.size();
 }
@@ -968,8 +971,6 @@ Chuck_Array16::Chuck_Array16( t_CKINT capacity )
 {
     // sanity check
     assert( capacity >= 0 );
-    // set capacity
-    m_vector.reserve( capacity );
     // set size
     m_vector.resize( capacity );
     // clear
@@ -1195,7 +1196,7 @@ void Chuck_Array16::clear( )
     zero( 0, m_vector.size() );
 
     // clear vector
-    m_vector.clear();
+    // m_vector.clear();
 }
 
 
@@ -1210,12 +1211,8 @@ t_CKINT Chuck_Array16::set_capacity( t_CKINT capacity )
     // sanity check
     assert( capacity >= 0 );
 
-    // if less
-    if( capacity < m_vector.size() )
-        set_size( capacity );
-
-    // resize vector
-    m_vector.reserve( capacity );
+    // ensure size
+    set_size( capacity );
 
     return m_vector.capacity();
 }
@@ -1239,8 +1236,17 @@ t_CKINT Chuck_Array16::set_size( t_CKINT size )
         zero( size, m_vector.size() );
     }
 
+    // remember
+    t_CKINT size2 = m_vector.size();
     // resize vector
     m_vector.resize( size );
+
+    // if clearing size
+    if( m_vector.size() > size2 )
+    {
+        // zero out section
+        zero( size2, m_vector.size() );
+    }
 
     return m_vector.size();
 }
