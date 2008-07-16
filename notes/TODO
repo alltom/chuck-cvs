@@ -10,7 +10,7 @@ Add OpenGL API (almost there) - GlucK
 Add automatic type resolution
 Add more unit generators
   - import more filters
-  - FFT/DCT/DWT
+  - DCT/DWT
   - analysis
   - Marsyas
   - File support
