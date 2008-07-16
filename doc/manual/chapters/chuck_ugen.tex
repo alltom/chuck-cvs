@@ -131,7 +131,7 @@ Multichannel UGens are adc, dac, Pan2, Mix2
 \chuckugen{
 \ugen{ Impulse}
 \begin{chuckitemize}
-\item pulse generator - can set the value of the current sample
+\item pulse generator - can set the value of the next sample
 \item default for each sample is 0 if not set
 \end{chuckitemize}
 \control
@@ -509,7 +509,7 @@ extends FilterBasic
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
 \item {\bf .sync}  (int, READ/WRITE) {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
-\item {\bf .width}  (float, READ/WRITE)  {\it length of duty cycle (0 - 1)}
+\item {\bf .width}  (float, WRITE)  {\it length of duty cycle (0 - 1)}
 \end{chuckitemize}
 }
 
@@ -524,7 +524,7 @@ extends FilterBasic
 \item {\bf .sfreq}  (float, READ/WRITE)  {\it oscillator frequency (Hz), phase-matched}
 \item {\bf .phase}  (float, READ/WRITE)  {\it current phase}
 \item {\bf .sync}  (int, READ/WRITE)  {\it (0) sync frequency to input, (1) sync phase to input, (2) fm synth}
-\item {\bf .width}  (float, READ/WRITE)  {\it length of duty cycle (0 - 1)}
+\item {\bf .width}  (float, WRITE)  {\it fixed duty cycle of 0.5}
 \end{chuckitemize}
 }
 

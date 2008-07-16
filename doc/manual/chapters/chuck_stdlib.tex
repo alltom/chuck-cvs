@@ -121,6 +121,19 @@ converts decibles (dB) to linear amplitude
 {\bf Machine} is ChucK runtime interface to the virtual machine. this interface can be used to manage shreds. They are similar to the On-the-fly Programming Commands, except these are invoked from within a ChucK program, and are subject to the timing mech
 anism.
 
+\example 
+
+\begin{verbatim}
+    //add a file foo.ck to the VM
+    machine.add("foo.ck");
+    //check the virtual machine like chuck ^
+    machine.status();
+    //wait a week and cause ChucK to crash
+    1::week => now;
+    machine.crash();
+\end{verbatim}
+
+
 \chuckmultifunction{ int add ( string path );}{
 compile and spork a new shred from file at 'path' into the VM now\\
 returns the shred ID\\
