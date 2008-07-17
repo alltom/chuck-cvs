@@ -59,7 +59,7 @@ while( true )
 
         else if( msg.isButtonDown() )
         {
-            msg.which => base;
+            msg.which * msg.which => base;
             count++;
             if( count == 1 ) e.keyOn();
             set( base, a0, a1, a2 );
