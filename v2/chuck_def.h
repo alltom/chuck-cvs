@@ -157,6 +157,7 @@ typedef struct { SAMPLE re ; SAMPLE im ; } t_CKCOMPLEX_SAMPLE;
 #define __DISABLE_SNDBUF__
 #define __ALTER_HID__
 #define __ALTER_ENTRY_POINT__
+#define __STK_USE_SINGLE_PRECISION__
 #endif
 
 
