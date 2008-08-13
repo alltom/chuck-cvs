@@ -36,9 +36,12 @@
 #include "chuck_vm.h"
 #include "chuck_errmsg.h"
 #include "chuck_ugen.h"
-#include "midiio_rtmidi.h"
 #include "hidio_sdl.h"
 #include "util_string.h"
+
+#ifndef __DISABLE_MIDI__
+#include "midiio_rtmidi.h"
+#endif
 
 #include <iostream>
 #include <iomanip>
@@ -801,6 +804,7 @@ error:
 
 
 
+#ifndef __DISABLE_MIDI__
 
 // static
 static t_CKUINT MidiIn_offset_data = 0;
@@ -935,6 +939,8 @@ error:
     
     return FALSE;
 }
+
+#endif // __DISABLE_MIDI__
 
 
 
@@ -1358,6 +1364,8 @@ error:
 
 
 
+#ifndef __DISABLE_MIDI__
+
 // static
 static t_CKUINT MidiRW_offset_data = 0;
 static t_CKUINT MidiMsgOut_offset_data = 0;
@@ -1469,6 +1477,12 @@ error:
     
     return FALSE;
 }
+
+
+
+#endif // __DISABLE_MIDI__
+
+
 
 
 // Object ctor
@@ -2311,6 +2325,8 @@ CK_DLL_MFUN( array_pop_back )
 }
 
 
+#ifndef __DISABLE_MIDI__
+
 //-----------------------------------------------------------------------------
 // MidiIn API
 //-----------------------------------------------------------------------------
@@ -2448,6 +2464,7 @@ CK_DLL_MFUN( MidiOut_send )
     RETURN->v_int = mout->send( &the_msg );
 }
 
+#endif // __DISABLE_MIDI__
 
 
 //-----------------------------------------------------------------------------
@@ -2835,6 +2852,7 @@ CK_DLL_MFUN( HidOut_send )
 }
 
 
+#ifndef __DISABLE_MIDI__
 
 //-----------------------------------------------------------------------------
 // MidiRW API
@@ -2969,3 +2987,4 @@ CK_DLL_MFUN( MidiMsgIn_read )
     OBJ_MEMBER_TIME(fake_msg, MidiMsg_offset_when) = time;
 }
 
+#endif // __DISABLE_MIDI__

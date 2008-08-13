@@ -264,7 +264,11 @@ static void usage()
 // name: main()
 // desc: entry point
 //-----------------------------------------------------------------------------
-int main( int argc, const char ** argv )
+#ifndef __ALTER_ENTRY_POINT__
+  int main( int argc, const char ** argv )
+#else
+  extern "C" int chuck_main( int argc, const char ** argv )
+#endif
 {
     Chuck_Compiler * compiler = NULL;
     Chuck_VM * vm = NULL;
@@ -463,13 +467,15 @@ int main( int argc, const char ** argv )
     {
         Digitalio::probe();
 
+#ifndef __DISABLE_MIDI__
         EM_error2b( 0, "" );
         probeMidiIn();
         EM_error2b( 0, "" );
         probeMidiOut();
         EM_error2b( 0, "" );
-        
-        //HidInManager::probeHidIn();
+#endif  // __DISABLE_MIDI__
+
+        // HidInManager::probeHidIn();
         
         // exit
         exit( 0 );
@@ -545,8 +551,10 @@ int main( int argc, const char ** argv )
         exit( 1 );
     }
 
+#ifndef __ALTER_HID__
     // pre-load hid
     if( load_hid ) HidInManager::init();
+#endif // __ALTER_HID__
 
     // catch SIGINT
     signal( SIGINT, signal_int );

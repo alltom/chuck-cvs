@@ -87,12 +87,16 @@ extern "C" void all_detach()
     EM_pushlog();
     // close stk file handles
     stk_detach( 0, NULL );
+#ifndef __DISABLE_MIDI__
     // close midi file handles
     midirw_detach();
+#endif // __DISABLE_MIDI__
     // shutdown kb loop
     KBHitManager::shutdown();
+#ifndef __ALTER_HID__
     // shutdown HID
     HidInManager::cleanup();
+#endif // __ALTER_HID__
     // pop
     EM_poplog();
 }

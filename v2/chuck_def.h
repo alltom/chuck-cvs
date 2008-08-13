@@ -152,5 +152,14 @@ typedef struct { SAMPLE re ; SAMPLE im ; } t_CKCOMPLEX_SAMPLE;
 #pragma warning (disable : 4068)  // unknown pragma
 #endif
 
+#ifdef __CHIP_MODE__
+#define __DISABLE_MIDI__
+#define __DISABLE_SNDBUF__
+#define __ALTER_HID__
+#define __ALTER_ENTRY_POINT__
+#endif
+
+
+
 
 #endif
