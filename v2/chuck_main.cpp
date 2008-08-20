@@ -300,7 +300,9 @@ static void usage()
     string   filename = "";
     vector<string> args;
 
-#if defined(__MACOSX_CORE__)
+#if defined(__DISABLE_WATCHDOG__)
+    do_watchdog = FALSE;
+#elif defined(__MACOSX_CORE__)
     do_watchdog = TRUE;
 #elif defined(__PLATFORM_WIN32__) && !defined(__WINDOWS_PTHREAD__)
     do_watchdog = TRUE;

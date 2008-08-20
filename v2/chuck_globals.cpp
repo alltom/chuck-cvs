@@ -91,8 +91,10 @@ extern "C" void all_detach()
     // close midi file handles
     midirw_detach();
 #endif // __DISABLE_MIDI__
+#ifndef __DISABLE_KBHIT__
     // shutdown kb loop
     KBHitManager::shutdown();
+#endif // __DISABLE_KBHIT__
 #ifndef __ALTER_HID__
     // shutdown HID
     HidInManager::cleanup();
