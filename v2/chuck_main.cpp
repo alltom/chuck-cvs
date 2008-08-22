@@ -666,6 +666,7 @@ static void usage()
     // server
     if( enable_server )
     {
+#ifndef __DISABLE_OTF_SERVER__
         // log
         EM_log( CK_LOG_SYSTEM, "starting listener on port: %d...", g_port );
 
@@ -685,6 +686,7 @@ static void usage()
             g_tid_otf = CreateThread( NULL, 0, (LPTHREAD_START_ROUTINE)otf_cb, NULL, 0, 0 );
     #endif
         }
+#endif // __DISABLE_OTF_SERVER__
     }
     else
     {

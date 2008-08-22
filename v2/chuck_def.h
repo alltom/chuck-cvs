@@ -160,6 +160,7 @@ typedef struct { SAMPLE re ; SAMPLE im ; } t_CKCOMPLEX_SAMPLE;
 #define __DISABLE_KBHIT__
 #define __DISABLE_PROMPTER__
 #define __DISABLE_RTAUDIO__
+#define __DISABLE_OTF_SERVER__
 #define __ALTER_HID__
 #define __ALTER_ENTRY_POINT__
 #define __STK_USE_SINGLE_PRECISION__
