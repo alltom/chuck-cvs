@@ -41,6 +41,7 @@
 #include "chuck_bbq.h"
 #include "chuck_dl.h"
 #include "chuck_errmsg.h"
+#include "chuck_globals.h"
 
 #include "util_string.h"
 
@@ -2707,6 +2708,8 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
 {
     Chuck_Object * object = NULL;
     Chuck_UAna * uana = NULL;
+    // TODO: this is a hack!
+    Chuck_VM * vm_ref = shred ? shred->vm_ref : g_vm;
 
     // sanity
     assert( type != NULL );
@@ -2731,10 +2734,12 @@ Chuck_Object * instantiate_and_initialize_object( Chuck_Type * type, Chuck_VM_Sh
         {
             // uana
             object = ugen = uana = new Chuck_UAna;
+            ugen->alloc_v( vm_ref->shreduler()->m_max_block_size );
         }
         else 
         {
             object = ugen = new Chuck_UGen;
+            ugen->alloc_v( vm_ref->shreduler()->m_max_block_size );
         }
 
         if( shred )
@@ -4338,7 +4343,7 @@ void Chuck_Instr_Array_Append::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
 {
     // reg stack pointer
     t_CKUINT *& sp = (t_CKUINT *&)shred->reg->sp;
-    t_CKINT i = 0;
+    // t_CKINT i = 0;
     t_CKUINT val = 0;
     t_CKFLOAT fval = 0;
     t_CKCOMPLEX cval;
@@ -4596,7 +4601,7 @@ void Chuck_Instr_Dot_Cmp_First::execute( Chuck_VM * vm, Chuck_VM_Shred * shred )
         pop_( sp, 1 );
         // push the addr on
         if( m_emit_addr ) {
-            t_CKFLOAT a = (*(t_CKCOMPLEX **)sp)->re;
+            // t_CKFLOAT a = (*(t_CKCOMPLEX **)sp)->re;
             push_( sp, (t_CKUINT)(&((*(t_CKCOMPLEX **)sp)->re)) );
         } else {
             push_float( sp, (*(t_CKCOMPLEX **)sp)->re );

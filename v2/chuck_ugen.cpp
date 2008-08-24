@@ -200,6 +200,10 @@ void Chuck_UGen::init()
     m_pan = 1.0f;
     m_next = 0.0f;
     m_use_next = FALSE;
+    
+    m_sum_v = NULL;
+    m_current_v = NULL;
+    m_last_v = NULL;
 
     shred = NULL;
     owner = NULL;
@@ -230,8 +234,40 @@ void Chuck_UGen::done()
     fa_done( m_dest_list, m_dest_cap );
     fa_done( m_src_uana_list, m_src_uana_cap );
     fa_done( m_dest_uana_list, m_dest_uana_cap );
+    
+    // reclaim
+    SAFE_DELETE_ARRAY( m_sum_v );
+    SAFE_DELETE_ARRAY( m_current_v );
+    SAFE_DELETE_ARRAY( m_last_v );
 
     // TODO: m_multi_chan, break ref count loop
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: alloc_v()
+// desc: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_UGen::alloc_v( t_CKUINT size )
+{
+    // reclaim
+    SAFE_DELETE_ARRAY( m_sum_v );
+    SAFE_DELETE_ARRAY( m_current_v );
+    SAFE_DELETE_ARRAY( m_last_v );
+
+    // go
+    if( size > 0 )
+    {
+        m_sum_v = new SAMPLE[size];
+        m_current_v = new SAMPLE[size];
+        m_last_v = new SAMPLE[size];
+
+        return ( m_sum_v != NULL && m_current_v != NULL && m_last_v != NULL );
+    }
+    
+    return TRUE;
 }
 
 
@@ -685,6 +721,130 @@ t_CKBOOL Chuck_UGen::system_tick( t_CKTIME now )
         m_current = 0.0f;
     
     m_last = m_current;
+    return TRUE;
+}
+
+
+
+
+//-----------------------------------------------------------------------------
+// name: tick_v()
+// dsec: ...
+//-----------------------------------------------------------------------------
+t_CKBOOL Chuck_UGen::system_tick_v( t_CKTIME now, t_CKUINT numFrames )
+{
+    if( m_time >= now )
+        return m_valid;
+    
+    t_CKUINT i, j; Chuck_UGen * ugen; SAMPLE factor;
+    
+    // inc time
+    m_time = now;
+    // initial sum
+    // m_sum = 0.0f;
+    memset( m_sum_v, 0, numFrames * sizeof(SAMPLE) );
+    if( m_num_src )
+    {
+        ugen = m_src_list[0];
+        if( ugen->m_time < now ) ugen->system_tick_v( now, numFrames );
+        //m_sum = ugen->m_current;
+        memcpy( m_sum_v, ugen->m_current_v, numFrames * sizeof(SAMPLE) );
+        
+        // tick the src list
+        for( i = 1; i < m_num_src; i++ )
+        {
+            ugen = m_src_list[i];
+            if( ugen->m_time < now ) ugen->system_tick_v( now, numFrames );
+            if( ugen->m_valid )
+            {
+                if( m_op <= 1 )
+                    for( j = 0; j < numFrames; j++ )
+                        m_sum_v[j] += ugen->m_current_v[j];
+                    // m_sum += ugen->m_current;
+                else // special ops
+                {
+                    switch( m_op )
+                    {
+                        case 2: for( j = 0; j < numFrames; j++ )
+                            m_sum_v[j] -= ugen->m_current_v[j]; break;
+                        case 3: for( j = 0; j < numFrames; j++ )
+                            m_sum_v[j] *= ugen->m_current_v[j]; break;
+                        case 4: for( j = 0; j < numFrames; j++ )
+                            m_sum_v[j] /= ugen->m_current_v[j]; break;
+                        default: for( j = 0; j < numFrames; j++ )
+                            m_sum_v[j] += ugen->m_current_v[j]; break;
+                    }
+                }
+            }
+        }
+    }
+    
+    // tick multiple channels
+    // multi = 0.0f;
+    if( m_multi_chan_size )
+    {
+        // initialize
+        // memset( multi, 0, numFrames * sizeof(SAMPLE) );
+        factor = 1.0f / m_multi_chan_size;
+        // iterate
+        for( i = 0; i < m_multi_chan_size; i++ )
+        {
+            ugen = m_multi_chan[i];
+            if( ugen->m_time < now ) ugen->system_tick_v( now, numFrames );
+            // multiple channels are added
+            // multi += ugen->m_current;
+            for( j = 0; j < numFrames; j++ )
+                m_sum_v[j] += ugen->m_current_v[j] * factor;
+        }
+        
+        // scale multi
+        // multi /= m_multi_chan_size;
+        // m_sum += multi;
+    }
+    
+    // if owner
+    if( owner != NULL && owner->m_time < now )
+        owner->system_tick_v( now, numFrames );
+    
+    if( m_op > 0 )  // UGEN_OP_TICK
+    {
+        // tick the ugen
+        if( tick ) 
+            for( j = 0; j < numFrames; j++ )
+                m_valid = tick( this, m_sum_v[j], &(m_current_v[j]), NULL );
+        if( !m_valid )
+            for( j = 0; j < numFrames; j++ )
+                m_current_v[j] = 0.0f;
+        else
+            for( j = 0; j < numFrames; j++ )
+            {
+                // apply gain and pan
+                m_current_v[j] *= m_gain * m_pan;
+                // dedenormal
+                CK_DDN( m_current_v[j] );
+                // save as last
+                m_last_v[j] = m_current_v[j];
+            }
+        return m_valid;
+    }
+    else if( m_op < 0 ) // UGEN_OP_PASS
+    {
+        for( j = 0; j < numFrames; j++ )
+        {
+            // pass through
+            m_current_v[j] = m_sum_v[j];
+            m_last_v[j] = m_current_v[j];
+        }
+        return TRUE;
+    }
+    else // UGEN_OP_STOP
+    {
+        memset( m_current_v, 0, numFrames * sizeof(SAMPLE) );
+        memset( m_last_v, 0, numFrames * sizeof(SAMPLE) );
+        // m_current = 0.0f;
+    }
+    
+    // m_last = m_current;
     return TRUE;
 }
 

@@ -294,6 +294,7 @@ static void usage()
     t_CKBOOL load_hid = FALSE;
     t_CKBOOL enable_server = TRUE;
     t_CKBOOL do_watchdog = TRUE;
+    t_CKINT  adaptive_size = 0;
     t_CKINT  log_level = CK_LOG_CORE;
     t_CKINT  deprecate_level = 1; // warn
 
@@ -404,6 +405,8 @@ static void usage()
                 log_level = argv[i][9] ? atoi( argv[i]+9 ) : CK_LOG_INFO;
             else if( !strncmp(argv[i], "-v", 2) )
                 log_level = argv[i][2] ? atoi( argv[i]+2 ) : CK_LOG_INFO;
+            else if( !strncmp(argv[i], "--adaptive", 10) )
+                adaptive_size = argv[i][10] ? atoi( argv[i]+10 ) : -1;
             else if( !strncmp(argv[i], "--deprecate", 11) )
             {
                 // get the rest
@@ -494,6 +497,8 @@ static void usage()
     Chuck_VM::our_priority = g_priority;
     // set watchdog
     g_do_watchdog = do_watchdog;
+    // set adaptive size
+    if( adaptive_size < 0 ) adaptive_size = buffer_size;
 
     if ( !files && vm_halt && !enable_shell )
     {
@@ -527,7 +532,8 @@ static void usage()
     // allocate the vm - needs the type system
     vm = g_vm = new Chuck_VM;
     if( !vm->initialize( enable_audio, vm_halt, srate, buffer_size,
-                         num_buffers, dac, adc, dac_chans, adc_chans, block ) )
+                         num_buffers, dac, adc, dac_chans, adc_chans,
+                         block, adaptive_size ) )
     {
         fprintf( stderr, "[chuck]: %s\n", vm->last_error() );
         exit( 1 );
