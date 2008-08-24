@@ -1841,9 +1841,16 @@ void Chuck_VM_Shreduler::advance_v( t_CKINT & numLeft )
                 m_adc->m_multi_chan[j]->m_current_v[i] = frame[j] * gain[j] * m_adc->m_gain;
                 sum += m_adc->m_multi_chan[j]->m_current_v[i];
             }
-            m_adc->m_last_v[i] = m_adc->m_current_v[i] = sum / m_num_adc_channels;
+            m_adc->m_current_v[i] = sum / m_num_adc_channels;
         }
         
+        for( j = 0; j < m_num_adc_channels; j++ )
+        {
+            // update last
+            m_adc->m_multi_chan[j]->m_last = m_adc->m_multi_chan[j]->m_current_v[numFrames-1];
+        }
+        // update last
+        m_adc->m_last = m_adc->m_current_v[numFrames-1];
         // update time
         m_adc->m_time = this->now_system;
     }
@@ -1935,6 +1942,7 @@ void Chuck_VM_Shreduler::advance( )
         for( i = 0; i < m_num_adc_channels; i++ )
         {
             m_adc->m_multi_chan[i]->m_current = frame[i] * m_adc->m_multi_chan[i]->m_gain * m_adc->m_gain;
+            m_adc->m_multi_chan[i]->m_last = m_adc->m_multi_chan[i]->m_current;
             m_adc->m_multi_chan[i]->m_time = this->now_system;
             sum += m_adc->m_multi_chan[i]->m_current;
         }
@@ -1945,7 +1953,7 @@ void Chuck_VM_Shreduler::advance( )
     // dac
     m_dac->system_tick( this->now_system );
     for( i = 0; i < m_num_dac_channels; i++ )
-        frame[i] = m_dac->m_multi_chan[i]->m_current * .5f;
+        frame[i] = m_dac->m_multi_chan[i]->m_current; // * .5f;
 
     // suck samples
     m_bunghole->system_tick( this->now_system );

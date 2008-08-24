@@ -123,7 +123,6 @@ public: // data
     // block processing
     SAMPLE * m_sum_v;
     SAMPLE * m_current_v;
-    SAMPLE * m_last_v;
 
     // the shred on which the ugen is created
     Chuck_VM_Shred * shred;

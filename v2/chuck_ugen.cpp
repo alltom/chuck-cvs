@@ -203,7 +203,6 @@ void Chuck_UGen::init()
     
     m_sum_v = NULL;
     m_current_v = NULL;
-    m_last_v = NULL;
 
     shred = NULL;
     owner = NULL;
@@ -238,7 +237,6 @@ void Chuck_UGen::done()
     // reclaim
     SAFE_DELETE_ARRAY( m_sum_v );
     SAFE_DELETE_ARRAY( m_current_v );
-    SAFE_DELETE_ARRAY( m_last_v );
 
     // TODO: m_multi_chan, break ref count loop
 }
@@ -255,16 +253,14 @@ t_CKBOOL Chuck_UGen::alloc_v( t_CKUINT size )
     // reclaim
     SAFE_DELETE_ARRAY( m_sum_v );
     SAFE_DELETE_ARRAY( m_current_v );
-    SAFE_DELETE_ARRAY( m_last_v );
 
     // go
     if( size > 0 )
     {
         m_sum_v = new SAMPLE[size];
         m_current_v = new SAMPLE[size];
-        m_last_v = new SAMPLE[size];
 
-        return ( m_sum_v != NULL && m_current_v != NULL && m_last_v != NULL );
+        return ( m_sum_v != NULL && m_current_v != NULL );
     }
     
     return TRUE;
@@ -740,14 +736,11 @@ t_CKBOOL Chuck_UGen::system_tick_v( t_CKTIME now, t_CKUINT numFrames )
     
     // inc time
     m_time = now;
-    // initial sum
-    // m_sum = 0.0f;
-    memset( m_sum_v, 0, numFrames * sizeof(SAMPLE) );
+
     if( m_num_src )
     {
         ugen = m_src_list[0];
         if( ugen->m_time < now ) ugen->system_tick_v( now, numFrames );
-        //m_sum = ugen->m_current;
         memcpy( m_sum_v, ugen->m_current_v, numFrames * sizeof(SAMPLE) );
         
         // tick the src list
@@ -760,7 +753,6 @@ t_CKBOOL Chuck_UGen::system_tick_v( t_CKTIME now, t_CKUINT numFrames )
                 if( m_op <= 1 )
                     for( j = 0; j < numFrames; j++ )
                         m_sum_v[j] += ugen->m_current_v[j];
-                    // m_sum += ugen->m_current;
                 else // special ops
                 {
                     switch( m_op )
@@ -778,28 +770,24 @@ t_CKBOOL Chuck_UGen::system_tick_v( t_CKTIME now, t_CKUINT numFrames )
             }
         }
     }
-    
+    else
+    {
+        memset( m_sum_v, 0, numFrames * sizeof(SAMPLE) );
+    }
+
     // tick multiple channels
-    // multi = 0.0f;
     if( m_multi_chan_size )
     {
         // initialize
-        // memset( multi, 0, numFrames * sizeof(SAMPLE) );
         factor = 1.0f / m_multi_chan_size;
         // iterate
         for( i = 0; i < m_multi_chan_size; i++ )
         {
             ugen = m_multi_chan[i];
             if( ugen->m_time < now ) ugen->system_tick_v( now, numFrames );
-            // multiple channels are added
-            // multi += ugen->m_current;
             for( j = 0; j < numFrames; j++ )
                 m_sum_v[j] += ugen->m_current_v[j] * factor;
         }
-        
-        // scale multi
-        // multi /= m_multi_chan_size;
-        // m_sum += multi;
     }
     
     // if owner
@@ -822,9 +810,9 @@ t_CKBOOL Chuck_UGen::system_tick_v( t_CKTIME now, t_CKUINT numFrames )
                 m_current_v[j] *= m_gain * m_pan;
                 // dedenormal
                 CK_DDN( m_current_v[j] );
-                // save as last
-                m_last_v[j] = m_current_v[j];
             }
+        // save as last
+        m_last = m_current_v[numFrames-1];
         return m_valid;
     }
     else if( m_op < 0 ) // UGEN_OP_PASS
@@ -833,18 +821,17 @@ t_CKBOOL Chuck_UGen::system_tick_v( t_CKTIME now, t_CKUINT numFrames )
         {
             // pass through
             m_current_v[j] = m_sum_v[j];
-            m_last_v[j] = m_current_v[j];
         }
+        m_last = m_current_v[numFrames-1];
         return TRUE;
     }
     else // UGEN_OP_STOP
     {
         memset( m_current_v, 0, numFrames * sizeof(SAMPLE) );
-        memset( m_last_v, 0, numFrames * sizeof(SAMPLE) );
         // m_current = 0.0f;
     }
     
-    // m_last = m_current;
+    m_last = m_current_v[numFrames-1];
     return TRUE;
 }
 
