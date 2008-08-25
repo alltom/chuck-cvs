@@ -1752,7 +1752,6 @@ t_CKBOOL Chuck_VM_Shreduler::shredule( Chuck_VM_Shred * shred,
     }
 
     shred->wake_time = wake_time;
-    m_samps_until_next = wake_time - this->now_system;
 
     // list empty
     if( !shred_list )
@@ -1788,6 +1787,11 @@ t_CKBOOL Chuck_VM_Shreduler::shredule( Chuck_VM_Shred * shred,
             prev->next = shred;
         }
     }
+
+    t_CKTIME diff = shred_list->wake_time - this->now_system;
+    if( diff < 0 ) diff = 0;
+    // if( diff < m_samps_until_next )
+    m_samps_until_next = diff;
     
     return TRUE;
 }
@@ -1807,9 +1811,10 @@ void Chuck_VM_Shreduler::advance_v( t_CKINT & numLeft )
     
     // compute number of frames to compute; update
     numFrames = ck_min( m_max_block_size, numLeft );
-    if( this->m_samps_until_next >= 1 )
+    if( this->m_samps_until_next >= 0 )
     {
         numFrames = (t_CKINT)(ck_min( numFrames, this->m_samps_until_next ));
+        if( numFrames == 0 ) numFrames = 1;
         this->m_samps_until_next -= numFrames;
     }
     numLeft -= numFrames;
@@ -1994,6 +1999,7 @@ Chuck_VM_Shred * Chuck_VM_Shreduler::get( )
         {
             shred_list->prev = NULL;
             m_samps_until_next = shred_list->wake_time - this->now_system;
+            if( m_samps_until_next < 0 ) m_samps_until_next = 0;
         }
 
         return shred;
