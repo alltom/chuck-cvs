@@ -696,6 +696,7 @@ int Digitalio::cb2( char * buffer, int buffer_size, void * user_data )
 
 
 
+#ifdef __SMALL_MODE__
 //-----------------------------------------------------------------------------
 // name: small_cb()
 // desc: ...
@@ -704,6 +705,7 @@ void small_cb( Float32 * buffer, UInt32 numFrames, void * userData )
 {
     Digitalio::cb2( (char *)buffer, numFrames, userData );
 }
+#endif __SMALL_MODE__
 
 
 
