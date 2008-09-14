@@ -249,6 +249,7 @@ Chuck_Env * type_engine_init( Chuck_VM * vm )
     init_class_shred( env, &t_shred );
     init_class_event( env, &t_event );
     init_class_io( env, &t_io );
+    init_class_fileio( env, &t_fileio );
 
     EM_log( CK_LOG_SEVERE, "class 'class'" );
     t_class.info = new Chuck_Namespace;
@@ -392,6 +393,7 @@ void type_engine_shutdown( Chuck_Env * env )
     SAFE_RELEASE( t_class.info );
     SAFE_RELEASE( t_thread.info );
     SAFE_RELEASE( t_io.info );
+    SAFE_RELEASE( t_fileio.info );
 }
 
 
