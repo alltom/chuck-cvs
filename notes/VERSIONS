@@ -1,4 +1,13 @@
 ---
+1.3.1.3
+  - (added) initial support for file I/O (finally)
+            (thanks to Andrew Schran, Martin Robinson)
+  - (added) new class: IO, FileIO
+            (see examples/io/)
+  - (fixed) incorrect UGen disconnect (thanks Kassen for reporting)
+
+
+---
 1.2.1.2
   - (added) dynamic, resizable arrays
                 .size( int ) resizes array; .size() returns current size()

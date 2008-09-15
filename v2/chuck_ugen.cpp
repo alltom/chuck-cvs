@@ -449,7 +449,8 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
                 for( t_CKUINT k = j+1; k < m_num_uana_src; k++ )
                     m_src_uana_list[k-1] = m_src_uana_list[k];
                 
-                m_src_uana_list[--m_num_uana_src] = NULL;                
+                m_src_uana_list[--m_num_uana_src] = NULL;
+                --j;
             }
 
         // remove
@@ -463,6 +464,7 @@ t_CKBOOL Chuck_UGen::remove( Chuck_UGen * src )
                 m_src_list[--m_num_src] = NULL;
                 src->remove_by( this );
                 src->release();
+                --i;
             }
         
     }
@@ -518,6 +520,7 @@ void Chuck_UGen::remove_by( Chuck_UGen * dest )
             
             // null last element
             m_dest_uana_list[--m_num_uana_dest] = NULL;
+            j--;
         }
 
     // remove
@@ -532,6 +535,7 @@ void Chuck_UGen::remove_by( Chuck_UGen * dest )
             dest->release();
             // null the last element
             m_dest_list[--m_num_dest] = NULL;
+            i--;
         }
 }
 
